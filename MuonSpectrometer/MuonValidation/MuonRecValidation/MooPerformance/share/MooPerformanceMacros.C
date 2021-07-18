@@ -16,6 +16,7 @@
 #include "TText.h"
 #include "TF1.h"
 #include "TCanvas.h"
+#include <cstring>  //for strcmp
 //#include "TObject.h"
 
 void allpTPage( const char* histo, const char* reco="", const char* legendPos="" ) {
@@ -50,7 +51,7 @@ void allpTPage( const char* histo, const char* reco="", const char* legendPos=""
 
       c1->cd(iFile+1);
 
-      if ( reco == "all" || reco == "All" ) {
+      if ( strcmp(reco,"all")==0 || strcmp(reco,"All")==0 ) {
 
         char nameMo[256];
         char nameId[256];
@@ -63,13 +64,25 @@ void allpTPage( const char* histo, const char* reco="", const char* legendPos=""
         sprintf(nameCb,"%sCb",histo);
 
         TH1F* histMo = (TH1F*)gDirectory->Get(nameMo);
-        if ( !histMo ) printf("allpTPage can't find histogram %s/n",nameMo);
+        if ( !histMo ){
+          printf("allpTPage can't find histogram %s/n",nameMo);
+          return;
+        }
         TH1F* histId = (TH1F*)gDirectory->Get(nameId);
-        if ( !histId ) printf("allpTPage can't find histogram %s/n",nameId);
+        if ( !histId ) {
+          printf("allpTPage can't find histogram %s/n",nameId);
+          return;
+        }
         TH1F* histMu = (TH1F*)gDirectory->Get(nameMu);
-        if ( !histMu ) printf("allpTPage can't find histogram %s/n",nameMu);
+        if ( !histMu ) {
+          printf("allpTPage can't find histogram %s/n",nameMu);
+          return;
+        }
         TH1F* histCb = (TH1F*)gDirectory->Get(nameCb);
-        if ( !histCb ) printf("allpTPage can't find histogram %s/n",nameCb);
+        if ( !histCb ) {
+          printf("allpTPage can't find histogram %s/n",nameCb);
+          return;
+        }
 
         histMo->SetTitle(hTitle);
         histId->SetTitle(hTitle);
@@ -95,7 +108,7 @@ void allpTPage( const char* histo, const char* reco="", const char* legendPos=""
         histCb->Draw("same");
         histMo->Draw("same");
 
-        if ( legendPos == "bl" || legendPos == "BL" ) {
+        if ( strcmp(legendPos,"bl")==0 || strcmp(legendPos,"BL")==0 ) {
 	  TLegend* leg = new TLegend(0.16,0.22,0.37,0.47);
 	  leg->AddEntry(histMo,"Moore","p");
 	  leg->AddEntry(histId,"Inner Det","p");
@@ -103,7 +116,7 @@ void allpTPage( const char* histo, const char* reco="", const char* legendPos=""
 	  leg->AddEntry(histCb,"MuId Combined","p");
 	  leg->SetFillStyle(0);
 	  leg->Draw();
-        } else if ( legendPos == "tl" || legendPos == "TL" ) {
+        } else if ( strcmp(legendPos,"tl")==0 || strcmp(legendPos,"TL")==0 ) {
 	  TLegend* leg = new TLegend(0.16,0.58,0.37,0.83);
 	  leg->AddEntry(histMo,"Moore","p");
 	  leg->AddEntry(histId,"Inner Det","p");
@@ -113,7 +126,8 @@ void allpTPage( const char* histo, const char* reco="", const char* legendPos=""
 	  leg->Draw();
         } 
 
-      } else if ( reco=="" || reco=="Mo" || reco=="Id" || reco=="Mu" || reco=="Cb" ) {
+      } else if ( strcmp(reco,"")==0 || strcmp(reco,"Mo")==0 || 
+        strcmp(reco,"Id")==0 || strcmp(reco,"Mu")==0 || strcmp(reco,"Cb")==0 ) {
 
         char hName[256];
         sprintf(hName,"%s%s",histo,reco);
@@ -364,16 +378,16 @@ void setScheme(TH1* theHist, const char* scheme) {
   Int_t hColor;
   Int_t hMarker;
 
-  if ( scheme == "Mo" ) {
+  if ( strcmp(scheme,"Mo")==0 ) {
     hColor = 4;
     hMarker = 4;
-  } else if ( scheme == "Id" ) {
+  } else if ( strcmp(scheme,"Id")==0 ) {
     hColor = 6;
     hMarker = 23;
-  } else if ( scheme == "Mu" ) {
+  } else if ( strcmp(scheme,"Mu")==0 ) {
     hColor = 2;
     hMarker = 21;
-  } else if ( scheme == "Cb" ) {
+  } else if ( strcmp(scheme,"Cb")==0 ) {
     hColor = 1;
     hMarker = 22;
   } else {
@@ -589,13 +603,25 @@ void makeSummaryPages() {
       sprintf(nameCb,"%sCb","effVsEta");
 
       TH1F* histMo = (TH1F*)gDirectory->Get(nameMo);
-      if ( !histMo ) printf("makeSummaryPages can't find histogram %s/n",nameMo);
+      if ( !histMo ) {
+        printf("makeSummaryPages can't find histogram %s/n",nameMo);
+        return;  
+      }
       TH1F* histId = (TH1F*)gDirectory->Get(nameId);
-      if ( !histId ) printf("makeSummaryPages can't find histogram %s/n",nameId);
+      if ( !histId ) {
+        printf("makeSummaryPages can't find histogram %s/n",nameId);
+        return;
+      }
       TH1F* histMu = (TH1F*)gDirectory->Get(nameMu);
-      if ( !histMu ) printf("makeSummaryPages can't find histogram %s/n",nameMu);
+      if ( !histMu ) {
+        printf("makeSummaryPages can't find histogram %s/n",nameMu);
+        return;
+      }
       TH1F* histCb = (TH1F*)gDirectory->Get(nameCb);
-      if ( !histCb ) printf("makeSummaryPages can't find histogram %s/n",nameCb);
+      if ( !histCb ) {
+        printf("makeSummaryPages can't find histogram %s/n",nameCb);
+        return;
+      }
 
       setStyle22(histMo);
       setStyle22(histId);
@@ -642,13 +668,25 @@ void makeSummaryPages() {
       sprintf(nameCb,"%sCb","pTResWidthVsEta");
 
       TH1F* histMo2 = (TH1F*)gDirectory->Get(nameMo);
-      if ( !histMo2 ) printf("makeSummaryPages can't find histogram %s\n",nameMo);
+      if ( !histMo2 ) {
+        printf("makeSummaryPages can't find histogram %s\n",nameMo);
+        return;
+        }
       TH1F* histId2 = (TH1F*)gDirectory->Get(nameId);
-      if ( !histId2 ) printf("makeSummaryPages can't find histogram %s\n",nameId);
+      if ( !histId2 ) {
+        printf("makeSummaryPages can't find histogram %s\n",nameId);
+        return;
+      }
       TH1F* histMu2 = (TH1F*)gDirectory->Get(nameMu);
-      if ( !histMu2 ) printf("makeSummaryPages can't find histogram %s\n",nameMu);
+      if ( !histMu2 ) {
+        printf("makeSummaryPages can't find histogram %s\n",nameMu);
+        return;
+      }
       TH1F* histCb2 = (TH1F*)gDirectory->Get(nameCb);
-      if ( !histCb2 ) printf("makeSummaryPages can't find histogram %s\n",nameCb);
+      if ( !histCb2 ) {
+        printf("makeSummaryPages can't find histogram %s\n",nameCb);
+        return;
+      }
 
       setStyle22(histMo2);
       setStyle22(histId2);
