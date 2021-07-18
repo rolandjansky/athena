@@ -272,6 +272,7 @@ namespace top {
     if (m_config->isMC() && m_config->useLargeRJets()) {
       m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
       // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      top::check(m_jetTruthLabelingTool->setProperty("RecoJetContainer", m_config->sgKeyLargeRJets()), "Failed to set RecoJetContainer for m_jetTruthLabelingTool");
       top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
       top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
       top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
