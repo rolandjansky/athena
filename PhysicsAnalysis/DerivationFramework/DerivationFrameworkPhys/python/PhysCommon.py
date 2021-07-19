@@ -134,13 +134,13 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PhysCommon",dotruth=add_largeR_tru
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=DerivationFrameworkJob,labelname="R10TruthLabel_R21Consolidated")
 
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob)
 
 # fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob, algname='PHYSJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob)
 
 # Event cleaning flags
 addEventCleanFlags(sequence=DerivationFrameworkJob)

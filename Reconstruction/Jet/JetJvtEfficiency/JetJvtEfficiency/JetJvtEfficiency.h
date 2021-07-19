@@ -6,8 +6,10 @@
 #define JETJVTEFFICIENCYSCALEFACTORS_H_
 
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
+#include "JetInterface/IJetDecorator.h"
 #include "PATInterfaces/SystematicsTool.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -27,8 +29,11 @@ enum SystApplied {
   MVFJVT_EFFICIENCY_UP
 };
 
-class JetJvtEfficiency: public asg::AsgTool, public CP::SystematicsTool, virtual public CP::IJetJvtEfficiency {
-    ASG_TOOL_CLASS( JetJvtEfficiency, CP::IJetJvtEfficiency)
+class JetJvtEfficiency: public asg::AsgTool,
+                        public CP::SystematicsTool,
+                        virtual public CP::IJetJvtEfficiency,
+                        virtual public IJetDecorator {
+    ASG_TOOL_CLASS2( JetJvtEfficiency, CP::IJetJvtEfficiency, IJetDecorator)
 
 public:
     JetJvtEfficiency( const std::string& name);
@@ -44,6 +49,9 @@ public:
     virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf) override;
     virtual bool passesJvtCut(const xAOD::Jet& jet) const override;
     virtual bool isInRange(const xAOD::Jet& jet) const override;
+
+    // Decorate jets with flag for passJVT decision
+    virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
     bool isAffectedBySystematic(const CP::SystematicVariation& var) const override {return CP::SystematicsTool::isAffectedBySystematic(var);}
     CP::SystematicSet affectingSystematics() const override {return CP::SystematicsTool::affectingSystematics();}
@@ -84,6 +92,9 @@ private:
     std::string m_ORdec;
     bool m_doOR;
     bool m_useMuBinsSF;
+
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_passJvtKey{this, "PassJVTKey", "passJvt",
+      "SG key for passJvt decoration (including jet container name)"};
 };
 
 } /* namespace CP */
