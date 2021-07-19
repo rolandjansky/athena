@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DQFilledBunchFilterTool.h"
@@ -11,24 +11,18 @@ DQFilledBunchFilterTool::DQFilledBunchFilterTool(const std::string& type,const s
 : AthAlgTool( type, name, parent )
 , m_alwaysReturnTrue(false)
 , m_invert(false)
-, m_bunchtool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
 {
   declareInterface<IDQFilterTool>(this);
- declareProperty("alwaysReturnTrue", m_alwaysReturnTrue);
- declareProperty("invert", m_invert);
- declareProperty("bunchCrossingTool", m_bunchtool);
+  declareProperty("alwaysReturnTrue", m_alwaysReturnTrue);
+  declareProperty("invert", m_invert);
 }
-        
+
 DQFilledBunchFilterTool::~DQFilledBunchFilterTool () {}
 
-StatusCode DQFilledBunchFilterTool::initialize()
-{
+StatusCode DQFilledBunchFilterTool::initialize() {
   ATH_MSG_VERBOSE("ATLAS Ready initialize");
-  // don't register callback if we always return true anyway
   if (!m_alwaysReturnTrue) {
-    CHECK( m_bunchtool.retrieve() );
-  } else {
-    m_bunchtool.disable();
+    ATH_CHECK(m_bcDataKey.initialize());
   }
   return StatusCode::SUCCESS;
 }
@@ -37,8 +31,10 @@ bool DQFilledBunchFilterTool::accept() const {
   if (m_alwaysReturnTrue) {
     return true;
   } else {
-    EventID::number_type bcid = Gaudi::Hive::currentContext().eventID().bunch_crossing_id();  
-    bool value = m_bunchtool->isFilled(bcid) ^ m_invert;
+    const EventContext ctx = Gaudi::Hive::currentContext();
+    EventID::number_type bcid = ctx.eventID().bunch_crossing_id();
+    SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcDataKey, ctx);
+    bool value = bcData->isFilled(bcid) ^ m_invert;
     ATH_MSG_VERBOSE("Filled bunch DQ tool accept called, value " << value);
     return value;
   }
