@@ -13,18 +13,26 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "HitManagement/TimedHitPtr.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiDigitization/SiChargedDiodeCollection.h"
-#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
-#include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsData/PixelDistortionData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include <vector>
+#include <utility> //for std::pair
+
+
+class PixelID;
+namespace InDetDD{
+ class SiDetectorElement;
+}
+
+namespace CLHEP{
+  class HepRandomEngine;
+}
+class SiHit;
 
 //=============================
 // C U S T O M   S T R U C T
