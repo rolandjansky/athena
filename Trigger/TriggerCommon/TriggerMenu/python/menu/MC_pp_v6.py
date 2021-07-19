@@ -3985,7 +3985,6 @@ ps_perform_list = [
 
     'tau125_perf_tracktwo',
     'tau35_perf_tracktwo',
-    'tau35_medium1_tracktwo_L1TAU20',
     
     'mu14_iloose_tau25_perf_ptonly_L1MU10_TAU12IM',
     'tau160_idperf_tracktwo',
