@@ -25,6 +25,10 @@ def AthenaMonitoringCfg(flags):
             for container in jets_to_schedule:
                 result.merge(JetRecCfg(flags, getattr(JetRecConfig.StandardSmallRJets, container)))
             info('Scheduling b-tagging of rebuilt jets')
+            from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+            result.merge(AtlasGeometryCfg(flags))
+            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+            result.merge(BeamSpotCondAlgCfg(flags))
             from BTagging.BTagRun3Config import BTagRecoSplitCfg
             for container in jets_to_schedule:
                 if container in ('AntiKt4EMTopo', 'AntiKt4EMPFlow'):
