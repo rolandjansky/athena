@@ -23,5 +23,16 @@ dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PowhegControl/refere
 
 bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName output_hists.root $dcubeXml $dcubeRef
 
-echo  "art-result: $? DCube"
+if [ $? -eq 0 ]; then
 
+   cp -f output_hists.root /eos/atlas/atlascerngroupdisk/data-art/grid-input/PowhegControl/reference_file/test_00_output_hists.root
+   
+   echo `date` >> reference_update.log  
+   echo "reference file updated to the latest successful run" >> reference_update.log
+   echo "art-result: $? Dcube"   
+
+else
+
+   echo "art-result: $? Dcube"
+
+fi
