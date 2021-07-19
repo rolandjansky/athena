@@ -58,5 +58,28 @@ tool1.TauSelectionTool.NTracks = (1, 3)
 tool1.TauSelectionTool.AbsCharge = 1
 tool1.TauSelectionTool.AbsEtaRegion = (0.0, 1.37, 1.52, 2.5)
 
+#check if we are running over DAOD_PHYSVAL or AOD
+from PyUtils.MetaReader import read_metadata
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+try:
+    input_file = svcMgr.EventSelector.InputCollections[0]
+except AttributeError:
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    input_file = athenaCommonFlags.FilesInput()[0]
+metadata = read_metadata(input_file)
+metadata = metadata[input_file]  # promote all keys one level up
+
+isDAOD_PHYSVAL=False
+for class_name, name in metadata['metadata_items'].items():
+    if name == 'EventStreamInfo':
+        if "DAOD_PHYSVAL" in class_name :
+            print ("Running on DAOD_PHYSVAL - will not add TTVA decorations.")
+            isDAOD_PHYSVAL=True
+
+tool1.InputIsDAOD = isDAOD_PHYSVAL
+
+from RecExConfig.AutoConfiguration import IsInInputFile
+tool1.DoMETRefPlots=IsInInputFile('xAOD::MissingETContainer',"MET_Reference_AntiKt4EMTopo")
+
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]

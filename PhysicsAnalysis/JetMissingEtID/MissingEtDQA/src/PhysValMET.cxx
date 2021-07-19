@@ -63,6 +63,8 @@ namespace MissingEtDQA {
     declareProperty( "InputTaus",      m_tauColl   = "TauJets"           );
     declareProperty( "InputMuons",     m_muonColl  = "Muons"             );
     declareProperty( "DoTruth", m_doTruth = false );
+    declareProperty( "InputIsDAOD",    m_inputIsDAOD = false              );
+    declareProperty( "DoMETRefPlots",  m_doMETRefPlots = false           );
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
   }
@@ -548,6 +550,10 @@ namespace MissingEtDQA {
   {
     ATH_MSG_INFO ("Filling hists " << name() << "...");
 
+    //If we're running over new AODs without MET containers, don't do anything!
+    if(!m_inputIsDAOD && !m_doMETRefPlots)
+      return StatusCode::SUCCESS;
+
     //Beamspot weight
     const xAOD::EventInfo* eventInfo(0);
     ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
@@ -562,14 +568,6 @@ namespace MissingEtDQA {
 	ATH_MSG_ERROR ( "Failed to retrieve MET_Truth. Exiting." );
 	return StatusCode::FAILURE;
       }
-    }
-
-    //Retrieve MET Track
-    const xAOD::MissingETContainer* met_Track = 0;
-    ATH_CHECK( evtStore()->retrieve(met_Track,"MET_Track") );
-    if (!met_Track) {
-      ATH_MSG_ERROR ( "Failed to retrieve MET_Track. Exiting." );
-      return StatusCode::FAILURE;
     }
 
     //Physics Objects
@@ -709,7 +707,6 @@ namespace MissingEtDQA {
     }
 
     for (const auto& type : m_types){
-      std::string name_met = "MET_Reference_" + type;
       ToolHandle<IJetUpdateJvt>* jvtTool(nullptr);
       double JvtCut = 0.59;
       if (type == "AntiKt4EMPFlow"){
@@ -724,13 +721,6 @@ namespace MissingEtDQA {
         ATH_MSG_ERROR("Unrecognized jet container: " << type << "Jets");
         return StatusCode::FAILURE;
       }
-      // Retrieve Reference MET
-      const xAOD::MissingETContainer* met_Ref = 0;
-      ATH_CHECK( evtStore()->retrieve(met_Ref, name_met) );
-      if (!met_Ref) {
-    	ATH_MSG_ERROR ("Couldn't retrieve " << name_met);
-    	return StatusCode::FAILURE;                   
-      } 
 
       // Retrieve Jets
       std::string name_jet = type + "Jets";
@@ -785,73 +775,87 @@ namespace MissingEtDQA {
     	sum_jet += (*jetc_itr)->pt();
       }
 
-      // Fill MET_Ref
-      ATH_MSG_INFO( "  MET_Ref_" << type << ":" );
-      for(const auto& it : *met_Ref) {
-    	std::string name = it->name();
-    	if(name == "RefEle"){
-	  (m_MET_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(0)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(0)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(0)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(0)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "RefGamma"){
-	  (m_MET_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(1)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(1)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(1)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(1)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "RefTau"){
-	  (m_MET_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(2)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(2)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(2)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(2)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "Muons"){
-	  (m_MET_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(3)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(3)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(3)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(3)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "RefJet"){
-	  (m_MET_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(4)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(4)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(4)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(4)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "SoftClus"){
-	  (m_MET_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(5)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(5)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(5)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(5)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "PVSoftTrk"){
-	  (m_MET_Ref[type]).at(6)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(6)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(6)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(6)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(6)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "FinalTrk"){
-	  (m_MET_Ref[type]).at(7)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(7)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(7)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(7)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(7)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
-    	if(name == "FinalClus"){
-	  (m_MET_Ref[type]).at(8)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
-	  (m_MET_Ref_x[type]).at(8)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
-	  (m_MET_Ref_y[type]).at(8)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
-	  (m_MET_Ref_phi[type]).at(8)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
-	  (m_MET_Ref_sum[type]).at(8)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
-    	}
+      // Fill MET_Ref 
+      std::string name_met = "MET_Reference_" + type;
+      const xAOD::MissingETContainer* met_Ref = 0;
+      // We're not building METReference anymore in derivations
+
+      if(m_doMETRefPlots){
+
+	// Retrieve Reference MET
+	ATH_CHECK( evtStore()->retrieve(met_Ref, name_met) );
+	if (!met_Ref) {
+	  ATH_MSG_ERROR ("Couldn't retrieve " << name_met);
+	  return StatusCode::FAILURE;
+	}
+
+	ATH_MSG_INFO( "  MET_Ref_" << type << ":" );
+	for(const auto& it : *met_Ref) {
+	  std::string name = it->name();
+	  if(name == "RefEle"){
+	    (m_MET_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(0)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(0)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(0)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(0)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "RefGamma"){
+	    (m_MET_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(1)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(1)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(1)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(1)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "RefTau"){
+	    (m_MET_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(2)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(2)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(2)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(2)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "Muons"){
+	    (m_MET_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(3)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(3)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(3)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(3)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "RefJet"){
+	    (m_MET_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(4)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(4)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(4)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(4)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "SoftClus"){
+	    (m_MET_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(5)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(5)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(5)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(5)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "PVSoftTrk"){
+	    (m_MET_Ref[type]).at(6)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(6)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(6)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(6)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(6)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "FinalTrk"){
+	    (m_MET_Ref[type]).at(7)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(7)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(7)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(7)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(7)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	  if(name == "FinalClus"){
+	    (m_MET_Ref[type]).at(8)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
+	    (m_MET_Ref_x[type]).at(8)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
+	    (m_MET_Ref_y[type]).at(8)->Fill((*met_Ref)[name.c_str()]->mpy()/1000., weight);
+	    (m_MET_Ref_phi[type]).at(8)->Fill((*met_Ref)[name.c_str()]->phi(), weight);
+	    (m_MET_Ref_sum[type]).at(8)->Fill((*met_Ref)[name.c_str()]->sumet()/1000., weight);
+	  }
+	}
       }
 
       //Prepare Rebuilding MET
@@ -925,7 +929,7 @@ namespace MissingEtDQA {
     	ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       }
 
-      // Fill MET_Ref
+      // Fill MET_Reb
       for(const auto& it : *met_Reb) {
     	std::string name = it->name();
     	if(name == "RefEle"){
@@ -1049,42 +1053,45 @@ namespace MissingEtDQA {
     	}
       }
 
-      (m_MET_dPhi_Ref[type]).at(2)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Ref[type]).at(5)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Reb[type]).at(2)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Reb[type]).at(5)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ), weight );
+      if(m_doMETRefPlots){
+
+	(m_MET_dPhi_Ref[type]).at(2)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Ref[type]).at(5)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Reb[type]).at(2)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Reb[type]).at(5)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ), weight );
     
     
-      //Fill Correlation Plots
-      //Reference
-      for(const auto& it : *met_Ref) {
-    	std::string name = it->name();
-    	if(name == "RefEle"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-	  (m_MET_CorrFinalClus_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
-    	if(name == "RefGamma"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-	  (m_MET_CorrFinalClus_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
-    	if(name == "RefTau"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-	  (m_MET_CorrFinalClus_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
-    	if(name == "Muons"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-	  (m_MET_CorrFinalClus_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
-    	if(name == "RefJet"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-	  (m_MET_CorrFinalClus_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
-    	if(name == "PVSoftTrk"){
-	  (m_MET_CorrFinalTrk_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
-    	}
-    	if(name == "SoftClus"){
-	  (m_MET_CorrFinalClus_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
-    	}
+	//Fill Correlation Plots
+	//Reference
+	for(const auto& it : *met_Ref) {
+	  std::string name = it->name();
+	  if(name == "RefEle"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	    (m_MET_CorrFinalClus_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	  if(name == "RefGamma"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	    (m_MET_CorrFinalClus_Ref[type]).at(1)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	  if(name == "RefTau"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	    (m_MET_CorrFinalClus_Ref[type]).at(2)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	  if(name == "Muons"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	    (m_MET_CorrFinalClus_Ref[type]).at(3)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	  if(name == "RefJet"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	    (m_MET_CorrFinalClus_Ref[type]).at(4)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	  if(name == "PVSoftTrk"){
+	    (m_MET_CorrFinalTrk_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
+	  }
+	  if(name == "SoftClus"){
+	    (m_MET_CorrFinalClus_Ref[type]).at(5)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
+	  }
+	}
       }
 
       //Rebuilt
@@ -1122,74 +1129,80 @@ namespace MissingEtDQA {
       if(m_doTruth)
     	{
     	  ATH_MSG_INFO( "  Resolution:" );
-	  (m_MET_Resolution_Ref[type]).at(0)->Fill(((*met_Ref)["FinalClus"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
-	  (m_MET_Resolution_Ref[type]).at(1)->Fill(((*met_Ref)["FinalClus"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
-	  (m_MET_Resolution_Ref[type]).at(2)->Fill(((*met_Ref)["FinalTrk"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
-	  (m_MET_Resolution_Ref[type]).at(3)->Fill(((*met_Ref)["FinalTrk"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
+	  if(m_doMETRefPlots){
+	    (m_MET_Resolution_Ref[type]).at(0)->Fill(((*met_Ref)["FinalClus"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
+	    (m_MET_Resolution_Ref[type]).at(1)->Fill(((*met_Ref)["FinalClus"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
+	    (m_MET_Resolution_Ref[type]).at(2)->Fill(((*met_Ref)["FinalTrk"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
+	    (m_MET_Resolution_Ref[type]).at(3)->Fill(((*met_Ref)["FinalTrk"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
+	  }
 	  (m_MET_Resolution_Reb[type]).at(0)->Fill(((*met_Reb)["FinalClus"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
 	  (m_MET_Resolution_Reb[type]).at(1)->Fill(((*met_Reb)["FinalClus"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
 	  (m_MET_Resolution_Reb[type]).at(2)->Fill(((*met_Reb)["FinalTrk"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., weight);
 	  (m_MET_Resolution_Reb[type]).at(3)->Fill(((*met_Reb)["FinalTrk"]->mpy()-(*met_Truth)["NonInt"]->mpy())/1000., weight);
     	}
 
-      //Fill MET Significance
-      ATH_MSG_INFO( "  MET_significance:" );
-      if( (*met_Ref)["FinalClus"]->sumet() != 0) (m_MET_Significance_Ref[type]).at(0)->Fill((*met_Ref)["FinalClus"]->met()/sqrt((*met_Ref)["FinalClus"]->sumet()*1000.), weight);
-      if( (*met_Ref)["FinalTrk"]->sumet() != 0) (m_MET_Significance_Ref[type]).at(1)->Fill((*met_Ref)["FinalTrk"]->met()/sqrt((*met_Ref)["FinalTrk"]->sumet()*1000.), weight);
+      //Fill MET significance
       if( (*met_Reb)["FinalClus"]->sumet() != 0) (m_MET_Significance_Reb[type]).at(0)->Fill((*met_Reb)["FinalClus"]->met()/sqrt((*met_Reb)["FinalClus"]->sumet()*1000.), weight);
       if( (*met_Reb)["FinalTrk"]->sumet() != 0) (m_MET_Significance_Reb[type]).at(1)->Fill((*met_Reb)["FinalTrk"]->met()/sqrt((*met_Reb)["FinalTrk"]->sumet()*1000.), weight);
 
-      //Fill Diff histograms
       TLorentzVector target_tlv;
-      for(const auto& it : *met_Ref) {
-    	if(it->name() == "RefEle"){
-    	  if(is_electron or (it->sumet() > 0)){
-    	    target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
-	    (m_MET_Diff_Ref[type]).at(0)->Fill((target_tlv.Pt() - el_tlv.Pt())/1000., weight);
-	    (m_MET_Diff_Ref_x[type]).at(0)->Fill((target_tlv.Px() - el_tlv.Px())/1000., weight);
-	    (m_MET_Diff_Ref_y[type]).at(0)->Fill((target_tlv.Py() - el_tlv.Py())/1000., weight);
-	    (m_MET_Diff_Ref_phi[type]).at(0)->Fill(el_tlv.DeltaPhi(target_tlv), weight);
-	    (m_MET_Diff_Ref_sum[type]).at(0)->Fill((it->sumet() - sum_el)/1000., weight);
-    	  }
-    	}
-    	if(it->name() == "RefGamma"){
-    	  if(is_photon or (it->sumet() > 0)){
-    	    target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
-	    (m_MET_Diff_Ref[type]).at(1)->Fill((target_tlv.Pt() - photon_tlv.Pt())/1000., weight);
-	    (m_MET_Diff_Ref_x[type]).at(1)->Fill((target_tlv.Px() - photon_tlv.Px())/1000., weight);
-	    (m_MET_Diff_Ref_y[type]).at(1)->Fill((target_tlv.Py() - photon_tlv.Py())/1000., weight);
-	    (m_MET_Diff_Ref_phi[type]).at(1)->Fill(photon_tlv.DeltaPhi(target_tlv), weight);
-	    (m_MET_Diff_Ref_sum[type]).at(1)->Fill((it->sumet() - sum_photon)/1000., weight);
-    	  }
-    	}
-    	if(it->name() == "RefTau"){
-    	  if(is_tau or (it->sumet() > 0)){
-    	    target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
-	    (m_MET_Diff_Ref[type]).at(2)->Fill((target_tlv.Pt() - tau_tlv.Pt())/1000., weight);
-	    (m_MET_Diff_Ref_x[type]).at(2)->Fill((target_tlv.Px() - tau_tlv.Px())/1000., weight);
-	    (m_MET_Diff_Ref_y[type]).at(2)->Fill((target_tlv.Py() - tau_tlv.Py())/1000., weight);
-	    (m_MET_Diff_Ref_phi[type]).at(2)->Fill(tau_tlv.DeltaPhi(target_tlv), weight);
-	    (m_MET_Diff_Ref_sum[type]).at(2)->Fill((it->sumet() - sum_tau)/1000., weight);
-    	  }
-    	}
-    	if(it->name() == "Muons"){
-    	  if(is_muon or (it->sumet() > 0)){
-    	    target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
-	    (m_MET_Diff_Ref[type]).at(3)->Fill((target_tlv.Pt() - mu_tlv.Pt())/1000., weight);
-	    (m_MET_Diff_Ref_x[type]).at(3)->Fill((target_tlv.Px() - mu_tlv.Px())/1000., weight);
-	    (m_MET_Diff_Ref_y[type]).at(3)->Fill((target_tlv.Py() - mu_tlv.Py())/1000., weight);
-	    (m_MET_Diff_Ref_phi[type]).at(3)->Fill(mu_tlv.DeltaPhi(target_tlv), weight);
-	    (m_MET_Diff_Ref_sum[type]).at(3)->Fill((it->sumet() - sum_mu)/1000., weight);
-    	  }
-    	}
-    	if(it->name() == "RefJet"){
-    	  if(is_jet or (it->sumet() > 0)){
-    	    target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
-	    (m_MET_Diff_Ref[type]).at(4)->Fill((target_tlv.Pt() - jet_tlv.Pt())/1000., weight);
-	    (m_MET_Diff_Ref_x[type]).at(4)->Fill((target_tlv.Px() - jet_tlv.Px())/1000., weight);
-	    (m_MET_Diff_Ref_y[type]).at(4)->Fill((target_tlv.Py() - jet_tlv.Py())/1000., weight);
-	    (m_MET_Diff_Ref_phi[type]).at(4)->Fill(jet_tlv.DeltaPhi(target_tlv), weight);
-	    (m_MET_Diff_Ref_sum[type]).at(4)->Fill((it->sumet() - sum_jet)/1000., weight);
+      if(m_doMETRefPlots){
+	//Fill MET Significance
+	ATH_MSG_INFO( "  MET_significance:" );
+	if( (*met_Ref)["FinalClus"]->sumet() != 0) (m_MET_Significance_Ref[type]).at(0)->Fill((*met_Ref)["FinalClus"]->met()/sqrt((*met_Ref)["FinalClus"]->sumet()*1000.), weight);
+	if( (*met_Ref)["FinalTrk"]->sumet() != 0) (m_MET_Significance_Ref[type]).at(1)->Fill((*met_Ref)["FinalTrk"]->met()/sqrt((*met_Ref)["FinalTrk"]->sumet()*1000.), weight);
+
+	//Fill Diff histograms
+	for(const auto& it : *met_Ref) {
+	  if(it->name() == "RefEle"){
+	    if(is_electron or (it->sumet() > 0)){
+	      target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
+	      (m_MET_Diff_Ref[type]).at(0)->Fill((target_tlv.Pt() - el_tlv.Pt())/1000., weight);
+	      (m_MET_Diff_Ref_x[type]).at(0)->Fill((target_tlv.Px() - el_tlv.Px())/1000., weight);
+	      (m_MET_Diff_Ref_y[type]).at(0)->Fill((target_tlv.Py() - el_tlv.Py())/1000., weight);
+	      (m_MET_Diff_Ref_phi[type]).at(0)->Fill(el_tlv.DeltaPhi(target_tlv), weight);
+	      (m_MET_Diff_Ref_sum[type]).at(0)->Fill((it->sumet() - sum_el)/1000., weight);
+	    }
+	  }
+	  if(it->name() == "RefGamma"){
+	    if(is_photon or (it->sumet() > 0)){
+	      target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
+	      (m_MET_Diff_Ref[type]).at(1)->Fill((target_tlv.Pt() - photon_tlv.Pt())/1000., weight);
+	      (m_MET_Diff_Ref_x[type]).at(1)->Fill((target_tlv.Px() - photon_tlv.Px())/1000., weight);
+	      (m_MET_Diff_Ref_y[type]).at(1)->Fill((target_tlv.Py() - photon_tlv.Py())/1000., weight);
+	      (m_MET_Diff_Ref_phi[type]).at(1)->Fill(photon_tlv.DeltaPhi(target_tlv), weight);
+	      (m_MET_Diff_Ref_sum[type]).at(1)->Fill((it->sumet() - sum_photon)/1000., weight);
+	    }
+	  }
+	  if(it->name() == "RefTau"){
+	    if(is_tau or (it->sumet() > 0)){
+	      target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
+	      (m_MET_Diff_Ref[type]).at(2)->Fill((target_tlv.Pt() - tau_tlv.Pt())/1000., weight);
+	      (m_MET_Diff_Ref_x[type]).at(2)->Fill((target_tlv.Px() - tau_tlv.Px())/1000., weight);
+	      (m_MET_Diff_Ref_y[type]).at(2)->Fill((target_tlv.Py() - tau_tlv.Py())/1000., weight);
+	      (m_MET_Diff_Ref_phi[type]).at(2)->Fill(tau_tlv.DeltaPhi(target_tlv), weight);
+	      (m_MET_Diff_Ref_sum[type]).at(2)->Fill((it->sumet() - sum_tau)/1000., weight);
+	    }
+	  }
+	  if(it->name() == "Muons"){
+	    if(is_muon or (it->sumet() > 0)){
+	      target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
+	      (m_MET_Diff_Ref[type]).at(3)->Fill((target_tlv.Pt() - mu_tlv.Pt())/1000., weight);
+	      (m_MET_Diff_Ref_x[type]).at(3)->Fill((target_tlv.Px() - mu_tlv.Px())/1000., weight);
+	      (m_MET_Diff_Ref_y[type]).at(3)->Fill((target_tlv.Py() - mu_tlv.Py())/1000., weight);
+	      (m_MET_Diff_Ref_phi[type]).at(3)->Fill(mu_tlv.DeltaPhi(target_tlv), weight);
+	      (m_MET_Diff_Ref_sum[type]).at(3)->Fill((it->sumet() - sum_mu)/1000., weight);
+	    }
+	  }
+	  if(it->name() == "RefJet"){
+	    if(is_jet or (it->sumet() > 0)){
+	      target_tlv.SetPxPyPzE(-it->mpx(), -it->mpy(), 0, it->met());
+	      (m_MET_Diff_Ref[type]).at(4)->Fill((target_tlv.Pt() - jet_tlv.Pt())/1000., weight);
+	      (m_MET_Diff_Ref_x[type]).at(4)->Fill((target_tlv.Px() - jet_tlv.Px())/1000., weight);
+	      (m_MET_Diff_Ref_y[type]).at(4)->Fill((target_tlv.Py() - jet_tlv.Py())/1000., weight);
+	      (m_MET_Diff_Ref_phi[type]).at(4)->Fill(jet_tlv.DeltaPhi(target_tlv), weight);
+	      (m_MET_Diff_Ref_sum[type]).at(4)->Fill((it->sumet() - sum_jet)/1000., weight);
+	    }
     	  }
     	}
       }
@@ -1292,33 +1305,46 @@ namespace MissingEtDQA {
 
     }
 
-    // Fill MET Track
-    ATH_MSG_INFO( "  MET_Track:" );
+    //Currently we don't store MET_Track in the derivations
+    //if MET_Ref not present, then we also dont have MET_Track
+    if(m_doMETRefPlots){
 
-    m_MET_Track->Fill((*met_Track)["Track"]->met()/1000., weight);
-    m_MET_Track_x->Fill((*met_Track)["Track"]->mpx()/1000., weight);
-    m_MET_Track_y->Fill((*met_Track)["Track"]->mpy()/1000., weight);
-    m_MET_Track_phi->Fill((*met_Track)["Track"]->phi(), weight);
-    m_MET_Track_sum->Fill((*met_Track)["Track"]->sumet()/1000., weight);
-    
-    const xAOD::VertexContainer *vxCont = 0;
-    ATH_CHECK( evtStore()->retrieve(vxCont, "PrimaryVertices") );
-    for(const auto& vx : *vxCont) {
-      int N = vx->index();
-      const std::string name = "PVTrack_vx"+std::to_string(N);
-      if(vx->vertexType()!=xAOD::VxType::NoVtx) {
-	if(vx->vertexType()==xAOD::VxType::PriVtx) {
-	  m_MET_PVTrack_Nominal->Fill((*met_Track)[name]->met()/1000., weight);
-	  m_MET_PVTrack_Nominal_x->Fill((*met_Track)[name]->mpx()/1000., weight);
-	  m_MET_PVTrack_Nominal_y->Fill((*met_Track)[name]->mpy()/1000., weight);
-	  m_MET_PVTrack_Nominal_phi->Fill((*met_Track)[name]->phi(), weight);
-	  m_MET_PVTrack_Nominal_sum->Fill((*met_Track)[name]->sumet()/1000., weight);
-	} else { 
-	  m_MET_PVTrack_Pileup->Fill((*met_Track)[name]->met()/1000., weight);
-	  m_MET_PVTrack_Pileup_x->Fill((*met_Track)[name]->mpx()/1000., weight);
-	  m_MET_PVTrack_Pileup_y->Fill((*met_Track)[name]->mpy()/1000., weight);
-	  m_MET_PVTrack_Pileup_phi->Fill((*met_Track)[name]->phi(), weight);
-	  m_MET_PVTrack_Pileup_sum->Fill((*met_Track)[name]->sumet()/1000., weight);
+      //Retrieve MET Track
+      const xAOD::MissingETContainer* met_Track = 0;
+      ATH_CHECK( evtStore()->retrieve(met_Track,"MET_Track") );
+      if (!met_Track) {
+	ATH_MSG_ERROR ( "Failed to retrieve MET_Track. Exiting." );
+	return StatusCode::FAILURE;
+      }
+
+      // Fill MET Track
+      ATH_MSG_INFO( "  MET_Track:" );
+      
+      m_MET_Track->Fill((*met_Track)["Track"]->met()/1000., weight);
+      m_MET_Track_x->Fill((*met_Track)["Track"]->mpx()/1000., weight);
+      m_MET_Track_y->Fill((*met_Track)["Track"]->mpy()/1000., weight);
+      m_MET_Track_phi->Fill((*met_Track)["Track"]->phi(), weight);
+      m_MET_Track_sum->Fill((*met_Track)["Track"]->sumet()/1000., weight);
+      
+      const xAOD::VertexContainer *vxCont = 0;
+      ATH_CHECK( evtStore()->retrieve(vxCont, "PrimaryVertices") );
+      for(const auto& vx : *vxCont) {
+	int N = vx->index();
+	const std::string name = "PVTrack_vx"+std::to_string(N);
+	if(vx->vertexType()!=xAOD::VxType::NoVtx) {
+	  if(vx->vertexType()==xAOD::VxType::PriVtx) {
+	    m_MET_PVTrack_Nominal->Fill((*met_Track)[name]->met()/1000., weight);
+	    m_MET_PVTrack_Nominal_x->Fill((*met_Track)[name]->mpx()/1000., weight);
+	    m_MET_PVTrack_Nominal_y->Fill((*met_Track)[name]->mpy()/1000., weight);
+	    m_MET_PVTrack_Nominal_phi->Fill((*met_Track)[name]->phi(), weight);
+	    m_MET_PVTrack_Nominal_sum->Fill((*met_Track)[name]->sumet()/1000., weight);
+	  } else { 
+	    m_MET_PVTrack_Pileup->Fill((*met_Track)[name]->met()/1000., weight);
+	    m_MET_PVTrack_Pileup_x->Fill((*met_Track)[name]->mpx()/1000., weight);
+	    m_MET_PVTrack_Pileup_y->Fill((*met_Track)[name]->mpy()/1000., weight);
+	    m_MET_PVTrack_Pileup_phi->Fill((*met_Track)[name]->phi(), weight);
+	    m_MET_PVTrack_Pileup_sum->Fill((*met_Track)[name]->sumet()/1000., weight);
+	  }
 	}
       }
     }
