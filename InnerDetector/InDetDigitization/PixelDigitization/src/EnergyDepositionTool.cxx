@@ -4,14 +4,15 @@
 
 #include "EnergyDepositionTool.h"
 
-#include "TGraph.h"
 #include "TString.h"
-#include "TMath.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
+#include "SiDigitization/SiChargedDiodeCollection.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 #include "AtlasHepMC/GenEvent.h"
@@ -19,15 +20,16 @@
 #include "AtlasHepMC/GenParticle.h"
 
 #include "PathResolver/PathResolver.h"
-#include <fstream>
-#include <cmath>
 
+
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandExpZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "TLorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-
-using namespace std;
+#include <cmath>
+#include <fstream>
+#include <algorithm> //for std::clamp
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -247,8 +249,8 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
       iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
     } else {
       double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-      double m = 0.511;                             // unit of MeV
-      iBetaGamma = TMath::Sqrt(k * (2 * m + k)) / m;
+      constexpr double m = 0.511;                             // unit of MeV
+      iBetaGamma = std::sqrt(k * (2 * m + k)) / m;
     }
 
     int iParticleType = ParticleType;
@@ -343,7 +345,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
 
   // load relevant data
   BichselData iData = m_BichselData[ParticleType - 1];
-  double BetaGammaLog10 = TMath::Log10(BetaGamma);
+  double BetaGammaLog10 = std::log10(BetaGamma);
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
 
   // upper bound
@@ -365,7 +367,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
 
   // direct those hits with potential too many steps into nominal simulation
   int LoopLimit = m_LoopLimit;                         // limit assuming 1 collision per sampling
-  if (fabs(1.0 * TotalLength / lambda) > LoopLimit) {       // m_nCols is cancelled out in the formula
+  if (std::abs(1.0 * TotalLength / lambda) > LoopLimit) {       // m_nCols is cancelled out in the formula
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
@@ -396,7 +398,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
     while (TossEnergyLoss <= 0.) { // we have to do this because sometimes TossEnergyLoss will be negative due to too
                                    // small TossIntX
       double TossIntX = CLHEP::RandFlat::shoot(rndmEngine, 0., IntXUpperBound);
-      TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
+      TossEnergyLoss = GetColE(indices_BetaGammaLog10, std::log10(TossIntX), iData);
     }
 
     // check if it is delta-ray -- delta-ray is already taken care of by G4 and treated as an independent hit.
@@ -592,9 +594,8 @@ double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10,
      iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first] +
      (IntXLog10 - y21) *
      iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / (y22 - y21);
-  double Est = Est_x2;
-
-  return TMath::Power(10., Est);
+  double Est = std::clamp(Est_x2,-300.,300.);
+  return std::pow(10., Est);
 }
 
 //===========================================
@@ -626,8 +627,8 @@ double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGamma
   // final estimation
   double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /
                (BetaGammaLog10_2 - BetaGammaLog10_1);
-
-  return TMath::Power(10., Est);
+  Est = std::clamp(Est,-300.,300.);
+  return std::pow(10., Est);
 }
 
 //==========================================
