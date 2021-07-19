@@ -129,8 +129,10 @@ public:
   TProfile* h_d0vsphi;
   TProfile* h_d0vsphi_rec;
 
-  TH2F*     h2d_d0vsphi;
-  TH2F*     h2d_d0vsphi_rec;
+  //No currently in use 
+  //but retained in case 
+  //TH2F*     h2d_d0vsphi;
+  //TH2F*     h2d_d0vsphi_rec;
 
 
   TH1F* h_chain;
@@ -143,8 +145,10 @@ public:
   TH1F* h_trkd0;
   TH1F* h_trkz0;
 
-  TH1F* h_trketaroi;
-  TH1F* h_trketazroi;
+  //No currently in use 
+  //but retained in case 
+  //TH1F* h_trketaroi;
+  //TH1F* h_trketazroi;
 
   TH1F* h_trkdd0;
   TH1F* h_trkdz0;
@@ -193,10 +197,12 @@ public:
 
 
   // Efficiency plateau cuts
-  double m_pTCut;
-  double m_etaCut;
-  double m_d0Cut;
-  double m_z0Cut;
+  //No currently in use 
+  //but retained in case 
+  //double m_pTCut;
+  //double m_etaCut;
+  //double m_d0Cut;
+  //double m_z0Cut;
 
   int      m_nVtx;
 
