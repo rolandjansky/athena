@@ -7735,6 +7735,8 @@ HLT_tau160_perf_track_L1TAU100:
   eventCount: 0
 HLT_tau160_perf_tracktwoMVABDT_L1TAU100:
   eventCount: 0
+HLT_tau160_perf_tracktwoMVATest_L1TAU100:
+  eventCount: 0
 HLT_tau160_perf_tracktwoMVA_L1TAU100:
   eventCount: 0
 HLT_tau160_perf_tracktwo_L1TAU100:
