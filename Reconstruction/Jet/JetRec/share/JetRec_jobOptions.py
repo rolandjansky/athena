@@ -113,4 +113,11 @@ if jetFlags.debug > 1:
 from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence()
 
+#--------------------------------------------------------------
+# save event shapes set with the JetAlgorithm
+#--------------------------------------------------------------
+for esTool in jtm.allEDTools:
+    jetFlags.jetAODList += [ "xAOD::EventShape#%s" % esTool.OutputContainer,
+                             "xAOD::EventShapeAuxInfo#%sAux." % esTool.OutputContainer ]
+
 jetlog.info( myname + "End." )
