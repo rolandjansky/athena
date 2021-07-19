@@ -32,7 +32,7 @@ class HGTDSensorSD : public G4VSensitiveDetector
 public:
 
     // Constructor
-    HGTDSensorSD(const std::string& name);
+    HGTDSensorSD(const std::string& name, const std::string& hitCollectionName);
 
     // Destructor
     virtual ~HGTDSensorSD() {}
