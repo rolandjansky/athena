@@ -228,6 +228,8 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                       "BTagging_AntiKt4EMPFlowJFVtx", 
+                                       "BTagging_AntiKt4EMPFlowSecVtx",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -251,6 +253,7 @@ StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxAux.-vxTrackAtVertex"]
 
 PHYSVALSlimmingHelper.StaticContent = StaticContent
 
@@ -299,6 +302,8 @@ if DerivationFrameworkIsMonteCarlo:
                                             'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
                                             'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
+                                            'BTagging_AntiKt4EMPFlowJFVtx':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxAux':'xAOD::BTagVertexAuxContainer',                                           
+                                            'BTagging_AntiKt4EMPFlowSecVtx':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxAux':'xAOD::VertexAuxContainer'
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
