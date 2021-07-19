@@ -179,7 +179,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._nClustersMin    = 8
       self._RoadWidth       = 5
       self._UseTrigSeedML   = 4
-      self._dodEdxTrk         = False
+      self._dodEdxTrk         = True
       self._doHitDV           = True
       self._doDisappearingTrk = True
 

@@ -3927,3 +3927,19 @@ HLT_xe80_tcpufit_unconvtrk20_distrk_tight_L1XE50:
   stepFeatures:
     0: 1
     1: 1
+HLT_xe80_tcpufit_unconvtrk25_dedx_medium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
+HLT_xe80_tcpufit_unconvtrk50_dedx_medium_L1XE50:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
