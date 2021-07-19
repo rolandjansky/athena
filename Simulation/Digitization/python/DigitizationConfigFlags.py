@@ -113,6 +113,8 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PU.BunchStructureConfig", "")
     # Pile-up profile configuration
     flags.addFlag("Digitization.PU.ProfileConfig", "")
+    # Custom pile-up profile configuration - fully custom or for mu range
+    flags.addFlag("Digitization.PU.CustomProfile", "")
     # Force sequential event numbers
     flags.addFlag("Digitization.PU.ForceSequentialEventNumbers",
                   lambda prevFlags: prevFlags.Common.ProductionStep == ProductionStep.PileUpPresampling)
