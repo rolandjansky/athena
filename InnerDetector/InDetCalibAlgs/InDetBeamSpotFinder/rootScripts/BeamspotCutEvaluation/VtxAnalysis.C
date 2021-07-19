@@ -22,7 +22,7 @@
 
 using namespace std;
 
-void load(const std::string input);
+void load(const std::string & input);
 void test(const std::vector<std::string> & _files);
 
 
@@ -186,7 +186,7 @@ void fillDeltaPlots(std::map<std::string, TH1*> & hists,  const std::string & su
 }
 
 
-void load(const std::string input) {
+void load(const std::string & input) {
   std::vector<std::string> s;
   s.push_back(input);
   test(s);
