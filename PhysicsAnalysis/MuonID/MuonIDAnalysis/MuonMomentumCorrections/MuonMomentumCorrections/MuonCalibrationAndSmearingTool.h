@@ -37,7 +37,7 @@ namespace MCAST {
 
   namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6, Data18=7}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15, Recs2019_05_30=16, Recs2019_10_12=17, Recs2020_03_03=18}; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15, Recs2019_05_30=16, Recs2019_10_12=17, Recs2020_03_03=18, Recs2021_07_01=19}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
@@ -146,7 +146,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
     StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
-    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const;
+    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVarID, const double scaleMS_scale, const double scaleMS_egLoss, InfoHelper& muonInfo ) const;
     StatusCode FillValues();
     void Clean();
     double ScaleApply( const double pt, double S, const double S_EnLoss, InfoHelper& muonInfo ) const;
@@ -176,7 +176,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     struct ParameterSet {
       double SmearTypeID;
       double SmearTypeMS;
-      double Scale;
+      double ScaleID;
+      double ScaleMS_scale;
+      double ScaleMS_egLoss;
       double SagittaRho;
       double SagittaBias;
     };
@@ -185,7 +187,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     int   m_externalSeed;
 
     std::string m_year, m_algo, m_type, m_release;
-    std::string m_FilesPath;
+    std::string m_FilesPath, m_sysScheme;
     bool m_extra_highpt_smearing;
     bool m_2stations_highpt_smearing;
     bool m_extra_decorations;
