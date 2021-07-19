@@ -6,6 +6,7 @@
 #include "GeneratorFilters/HeavyFlavorHadronFilter.h"
 #include "GeneratorFilters/LeptonFilter.h" 
 #include "GeneratorFilters/MissingEtFilter.h"
+#include "GeneratorFilters/MultiCjetFilter.h"
 #include "GeneratorFilters/MultiElecMuTauFilter.h"
 #include "GeneratorFilters/QCDTruthJetFilter.h"
 #include "GeneratorFilters/TauFilter.h"
@@ -14,11 +15,6 @@
 // slimmers for 22.6
 #include "GeneratorFilters/PileupTruthParticleSlimmer.h"
 #include "GeneratorFilters/TauTruthParticleSlimmer.h"
-
-
-
-
-
 
 
 
@@ -108,6 +104,7 @@ DECLARE_COMPONENT( DecayTimeFilter )
 DECLARE_COMPONENT( HeavyFlavorHadronFilter )
 DECLARE_COMPONENT( LeptonFilter )
 DECLARE_COMPONENT( MissingEtFilter )
+DECLARE_COMPONENT( MultiCjetFilter )
 DECLARE_COMPONENT( MultiElecMuTauFilter )
 DECLARE_COMPONENT( QCDTruthJetFilter )
 DECLARE_COMPONENT( TauFilter )
