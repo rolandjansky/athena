@@ -15,11 +15,19 @@
 
 #include "TrigInDetAnalysisExample/ChainString.h"
 
-
-Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false), m_eventid(0) 
-{  }
-
+Analysis_Tier0::Analysis_Tier0(const std::string& name,
+                               double /*pTCut*/,
+                               double /*etaCut*/,
+                               double /*d0Cut*/,
+                               double /*z0Cut*/)
+  : TrackAnalysis(name)
+  //, m_pTCut(pTCut)
+  //, m_etaCut(etaCut)
+  //, m_d0Cut(d0Cut)
+  //, m_z0Cut(z0Cut)
+  , m_debug(false)
+  , m_eventid(0)
+{}
 
 void Analysis_Tier0::initialise() {
 
