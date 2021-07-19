@@ -46,8 +46,6 @@ addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPat
 addService("MuonRecExample.MuonRecTools.AtlasTrackingGeometrySvc","AtlasTrackingGeometrySvc")
 addService("MuonRecExample.MuonRecTools.TrackingVolumesSvc","TrackingVolumesSvc")
 
-addTool( "MuonRecExample.MuonRecTools.MuonNavigator", "MuonNavigator" )
-
 addTool( "Trk::MaterialEffectsUpdator", "MuonMaterialEffectsUpdator" )
 
 addTool("MuonRecExample.MuonRecTools.MuonRK_Propagator","MuonRK_Propagator")

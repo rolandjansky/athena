@@ -195,41 +195,25 @@ def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
     return Trk__TrackingVolumesSvc("TrackingVolumesSvc")
 
-# default muon navigator
-def MuonNavigator(name = "MuonNavigator",**kwargs):
-    from InDetRecExample                import TrackingCommon
-    return TrackingCommon.getInDetNavigator(name, **kwargs)
-
-# end of factory function MuonNavigator
 
 # set the propagator
-from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator
-class MuonRK_Propagator(Trk__RungeKuttaPropagator,ConfiguredBase):
-    __slots__ = ()
+def MuonRK_Propagator(name="MuonRK_Propagator",**kwargs):
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator
+    kwargs.setdefault("AccuracyParameter", 0.0002 )
+    return Trk__RungeKuttaPropagator(name,**kwargs)
 
-    def __init__(self,name="MuonRK_Propagator",**kwargs):
-        self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("AccuracyParameter", 0.0002 )
-        super(MuonRK_Propagator,self).__init__(name,**kwargs)
-# end of class MuonRK_Propagator
-
-from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
-class MuonSTEP_Propagator(Trk__STEP_Propagator,ConfiguredBase):
-    __slots__ = ()
-
-    def __init__(self,name="MuonSTEP_Propagator",**kwargs):
-        kwargs.setdefault("Tolerance", 0.00001 )
-        kwargs.setdefault("MaterialEffects", True  )
-        kwargs.setdefault("IncludeBgradients", True  )
-        self.applyUserDefaults(kwargs,name)
-        super(MuonSTEP_Propagator,self).__init__(name,**kwargs)
-# end of class MuonSTEP_Propagator
+def MuonSTEP_Propagator(name="MuonSTEP_Propagator",**kwargs):
+    from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
+    kwargs.setdefault("Tolerance", 0.00001 )
+    kwargs.setdefault("MaterialEffects", True  )
+    kwargs.setdefault("IncludeBgradients", True  )
+    return Trk__STEP_Propagator(name, **kwargs)
 
 
 def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     kwargs.setdefault("Propagators", ["MuonPropagator"])
     kwargs.setdefault("MaterialEffectsUpdators", ["MuonMaterialEffectsUpdator"])
-    kwargs.setdefault("Navigator", "MuonNavigator")
+    kwargs.setdefault("Navigator", TrackingCommon.getInDetNavigator())
     kwargs.setdefault("ResolveMuonStation", True)
     kwargs.setdefault("Tolerance", 0.0011)  # must be > 1um to avoid missing MTG intersections
 
@@ -251,7 +235,7 @@ def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
 def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
     getService("MuonIdHelperSvc")
-    getPublicTool("AtlasExtrapolator")
+    getPublicTool("MCTBExtrapolator")
 
     from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
     return Muon__MuonEDMHelperSvc(name,**kwargs)
@@ -290,23 +274,19 @@ class MuonTrackSummaryTool(Trk__TrackSummaryTool,ConfiguredBase):
 # end of class MuonTrackSummaryTool
 
 
-from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-class MuonParticleCreatorTool(Trk__TrackParticleCreatorTool,ConfiguredBase):
-    __slots__ = ()
-
-    def __init__(self,name="MuonParticleCreatorTool",**kwargs):
-        self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
-        kwargs.setdefault("KeepAllPerigee", True )
-        kwargs.setdefault("UseMuonSummaryTool", True)
-        kwargs.setdefault("PerigeeExpression", "Origin" )
-        super(MuonParticleCreatorTool,self).__init__(name,**kwargs)
+def MuonParticleCreatorTool(name="MuonParticleCreatorTool",**kwargs):
+    from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+    kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
+    kwargs.setdefault("KeepAllPerigee", True )
+    kwargs.setdefault("UseMuonSummaryTool", True)
+    kwargs.setdefault("PerigeeExpression", "Origin" )
+    return Trk__TrackParticleCreatorTool(name, **kwargs)
 # end of class MuonParticleCreatorTool
 
 def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     from AthenaCommon.AppMgr import ServiceMgr
-    kwargs.setdefault("ExtrapolationTool"    , "MuonExtrapolator")
+    kwargs.setdefault("ExtrapolationTool"    , "MCTBExtrapolator")
     kwargs.setdefault("RotCreatorTool"       , "MuonRotCreator")
     kwargs.setdefault("MeasurementUpdateTool", "MuonMeasUpdator")
     kwargs.setdefault("StraightLine"         , False)
@@ -317,7 +297,7 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     # take propagator and navigator from the extrapolator
     Extrapolator = getPublicTool(kwargs["ExtrapolationTool"])
     kwargs.setdefault("PropagatorTool",Extrapolator.Propagators[0].getName())
-    kwargs.setdefault("NavigatorTool",Extrapolator.Navigator.getName())
+    kwargs.setdefault("NavigatorTool",TrackingCommon.getInDetNavigator())
     
     cond_alg = None
     if TrackingCommon.use_tracking_geometry_cond_alg :
@@ -337,7 +317,7 @@ class MuonSegmentMomentumFromField(MuonSegMomField,ConfiguredBase):
 
 MuonSegmentMomentumFromField.setDefaultProperties(
     PropagatorTool = "MuonPropagator",
-    NavigatorTool  = "MuonNavigator"
+    NavigatorTool  = TrackingCommon.getInDetNavigator()
     )
 
 
