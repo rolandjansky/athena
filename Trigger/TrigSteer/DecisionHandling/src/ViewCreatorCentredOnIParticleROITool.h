@@ -50,6 +50,9 @@ public:
   Gaudi::Property< double > m_roiZedWidth{this,"RoIZedWidth",-999,
     "Extent of the ROI in zed from its centre"};
 
+  Gaudi::Property< double > m_roiZedSinThetaFlag{this,"RoIZedSinThetaFlag", false,
+    "use a delta zed/sin\theta width rather than just a zed width"};
+
 };
 
 #endif //> !DESICIONHANDLING_VIEWCREATORCENTREDONIPARTICLEROITOOL_H
