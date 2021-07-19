@@ -72,7 +72,7 @@ private:
   /** Write key to measure dR between calo clusters and the muon -EXPERIMENTAL **/
   SG::WriteDecorHandleKey<xAOD::MuonContainer>m_muon_ClusterInfo_deltaR_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_deltaR","Muons.ClusterInfo_deltaR","WriteHandleKey for the delta R between the muon and it's associated calocluster"};
 
-
+  SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_ClustCollectionLinkKey{this,"ElementLinkName", "MuonClusterCollection.constituentClusterLinks"};
 
   /** Gaudi Property to configure linkage of Neutral Flow Elements to Muon clusters (EXPERIMENTAL - default = False/OFF) **/
   Gaudi::Property<bool> m_LinkNeutralFEClusters{this,"m_LinkNeutralFEClusters",false,"Toggle usage of linkage of Neutral FlowElements - false by default (EXPERIMENTAL)"};

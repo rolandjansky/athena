@@ -4,6 +4,7 @@
 
 #include "eflowRec/PFMuonFlowElementAssoc.h"
 
+#include "StoreGate/ReadDecorHandle.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
@@ -17,11 +18,6 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t;
 using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>;
-namespace {
-    static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::CaloClusterContainer>>> acc_constClusterLinks(
-        "constituentClusterLinks");
-
-}
 //
 //      Algorithm created by M.T. Anthony
 //
@@ -40,7 +36,7 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
     // Initialise the decoration keys
     ATH_CHECK(m_muonChargedFEWriteHandleKey.initialize());
     ATH_CHECK(m_muonNeutralFEWriteHandleKey.initialize());
-
+    ATH_CHECK(m_ClustCollectionLinkKey.initialize());
     ATH_CHECK(m_ChargedFEmuonWriteHandleKey.initialize());
     ATH_CHECK(m_NeutralFEmuonWriteHandleKey.initialize());
     ATH_CHECK(m_NeutralFE_efrac_match_muonWriteHandleKey.initialize());
@@ -93,7 +89,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext& ctx) const {
     SG::ReadHandle<xAOD::MuonContainer> muonReadHandle(m_muonReadHandleKey, ctx);  // readhandle for muon
     SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_chargedFEReadHandleKey, ctx);
     SG::ReadHandle<xAOD::FlowElementContainer> NeutralFEReadHandle(m_neutralFEReadHandleKey, ctx);
-
+    SG::ReadDecorHandle<xAOD::CaloClusterContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>>> acc_constClusterLinks(m_ClustCollectionLinkKey,ctx);
     // now init some Flow element link containers
     std::vector<std::vector<FlowElementLink_t>> muonChargedFEVec(muonReadHandle->size());
     std::vector<std::vector<FlowElementLink_t>> muonNeutralFEVec(muonReadHandle->size());
