@@ -54,7 +54,7 @@ if [ $rc -eq 0 ]
 then
     Overlay_tf.py \
     --CA \
-    --detectors Tile \
+    --detectors Tile MBTS \
     --inputHITSFile ${HITS_File} \
     --inputRDO_BKGFile ${RDO_BKG_File} \
     --outputRDOFile mcOverlayRDO.pool.root \

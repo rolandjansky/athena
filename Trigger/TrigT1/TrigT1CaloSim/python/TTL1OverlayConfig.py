@@ -58,11 +58,16 @@ def TileTTL1OverlayCfg(flags, name="TileTTL1Overlay", **kwargs):
                       flags.Overlay.SigPrefix + "TileTTL1Cnt")
     kwargs.setdefault("OutputTileTTL1Key", "TileTTL1Cnt")
 
-    kwargs.setdefault("BkgTileMBTSTTL1Key",
-                      flags.Overlay.BkgPrefix + "TileTTL1MBTS")
-    kwargs.setdefault("SignalTileMBTSTTL1Key",
-                      flags.Overlay.SigPrefix + "TileTTL1MBTS")
-    kwargs.setdefault("OutputTileMBTSTTL1Key", "TileTTL1MBTS")
+    if flags.Detector.EnableMBTS:
+        kwargs.setdefault("BkgTileMBTSTTL1Key",
+                        flags.Overlay.BkgPrefix + "TileTTL1MBTS")
+        kwargs.setdefault("SignalTileMBTSTTL1Key",
+                        flags.Overlay.SigPrefix + "TileTTL1MBTS")
+        kwargs.setdefault("OutputTileMBTSTTL1Key", "TileTTL1MBTS")
+    else:
+        kwargs.setdefault("BkgTileMBTSTTL1Key", "")
+        kwargs.setdefault("SignalTileMBTSTTL1Key", "")
+        kwargs.setdefault("OutputTileMBTSTTL1Key", "")
 
     TileTTL1Overlay = CompFactory.LVL1.TileTTL1Overlay
     acc.addEventAlgo(TileTTL1Overlay(name, **kwargs))

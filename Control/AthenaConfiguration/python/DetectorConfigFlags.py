@@ -38,7 +38,7 @@ allDetectors = [
     'Bpipe', 'Cavern',
     'BCM', 'DBM', 'Pixel', 'SCT', 'TRT',
     'BCMPrime', 'ITkPixel', 'ITkStrip', 'HGTD',
-    'LAr', 'Tile',
+    'LAr', 'Tile', 'MBTS',
     'CSC', 'MDT', 'RPC', 'TGC', 'sTGC', 'MM',
     'Lucid', 'ZDC', 'ALFA', 'AFP', 'FwdRegion',
 ]
@@ -134,7 +134,7 @@ def createDetectorConfigFlags():
     # Calorimeters
     dcf.addFlag('Detector.EnableLAr',    lambda prevFlags : 'LAr' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))  # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.EnableTile',   lambda prevFlags : 'Tile' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : (prevFlags.Detector.EnableLAr and 'MBTS' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion)))
+    dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : 'MBTS' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
     dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
     dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
