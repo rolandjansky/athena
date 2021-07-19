@@ -643,8 +643,8 @@ class MenuSequenceCA(MenuSequence):
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions'
-    def __init__(self, name, ChainSteps, L1Thresholds, nSteps = [], alignmentGroups = []):
+    __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions', 'topoMap'
+    def __init__(self, name, ChainSteps, L1Thresholds, nSteps = [], alignmentGroups = [], topoMap=None):
         """
         Construct the Chain from the steps
         Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
@@ -655,6 +655,15 @@ class Chain(object):
         self.alignmentGroups = alignmentGroups
         self.vseeds=L1Thresholds
 
+        # The chain holds a map of topo ComboHypoTool configurators
+        # This is needed to allow placement of the ComboHypoTool in the right position
+        # for multi-leg chains (defaults to last step)
+        # Format is {"[step name]" : ([topo config function], [topo descriptor string]), ...}
+        # Here, the topo descriptor string would usually be the chain name expression that
+        # configures the topo
+        self.topoMap = {}
+        if topoMap:
+            self.topoMap.update(topoMap)
 
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
@@ -762,6 +771,16 @@ class Chain(object):
             
             step.createComboHypoTools(self.name) 
 
+    # Receives a pair with the topo config function and an identifier string,
+    # optionally also a target step name
+    # The string is needed to rename the step after addition of the ComboHypoTool
+    def addTopo(self,topoPair,step="last"):
+        stepname = "last step" if step=="last" else step.name
+        if step in self.topoMap:
+            log.error("Multiple topo ComboHypos requested in the same step (%s)", stepname)
+        else:
+            log.debug("Adding topo configurator %s for %s to %s", topoPair[0].__qualname__, topoPair[1], "step " + stepname)
+            self.topoMap[step] = topoPair
 
     def __repr__(self):
         return "-*- Chain %s -*- \n + Seeds: %s \n + Steps: \n %s \n"%(\

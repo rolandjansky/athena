@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import importlib
+import string
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -17,6 +18,7 @@ from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
 from ..CommonSequences import EventBuildingSequences
+from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -142,12 +144,20 @@ class GenerateMenuMT(object, metaclass=Singleton):
         extendedSignatureToGenerate = self.signaturesToGenerate
         # always import the Streaming sig because noalg chains are moved to StreamingSlice
         extendedSignatureToGenerate += ['Streaming']
-        # always import the Combined sig to handle topo ComboHypos
-        extendedSignatureToGenerate += ['Combined'] 
+
+        # Combined chains themselves are created by merging
+        # If we activate combined chains, we need all of the (legal) sub-signatures
+        if "Combined" in extendedSignatureToGenerate:
+            log.info("Combined chains requested -- activate other necessary signatures")
+            extendedSignatureToGenerate.remove("Combined")
+            extendedSignatureToGenerate = list(set(extendedSignatureToGenerate + ["Egamma","Muon","Tau","Jet","Bjet","MET","UnconventionalTracking"]))
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
             
+            if sig not in self.availableSignatures:
+                self.availableSignatures.append(sig)
+
             try:
                 if sig == 'Egamma':
                     sigFolder = sig
@@ -386,7 +396,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 sigFolder = currentSig
 
-            if currentSig in self.availableSignatures and currentSig != 'Combined':
+            if currentSig in self.availableSignatures:
                 try:
                     log.debug("[__generateChainConfigs] Trying to get chain config for %s in folder %s", currentSig, sigFolder)
                     chainPartConfig = self.chainDefModule[currentSig].generateChainConfigs(chainPartDict)
@@ -433,18 +443,29 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 theChainConfig = listOfChainConfigs[0]
             
-            if len(mainChainDict['extraComboHypos']) > 0:
+            # Unless we invent a way to add multiple ComboHypos, e.g.
+            # a tool that aggregates a list
+            if len(mainChainDict['extraComboHypos'])>1:
+                raise RuntimeError("More than one entry in extraComboHypos (%s), cannot assign to steps",mainChainDict['extraComboHypos'])
+            elif len(mainChainDict['extraComboHypos'])==1:
+                # Add the topo info to the chain config, default last step.
+                # Assumes the topo is expressed as [min]thetopo[Leg1][Leg2][max], where
+                # min,max are all numbers, Leg1, Leg2 are capital letters in topoLegIndices.
+                # Probably should add a regex check for the formatting, or similar
+                thetopo = mainChainDict['extraComboHypos'][0].strip(string.digits).rstrip(topoLegIndices)
+                theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
+
+            # Now we know where the topos should go, we can insert them in the right steps
+            if len(theChainConfig.topoMap) > 0:
                 try:
                     log.debug("Trying to add extra ComboHypoTool for %s",mainChainDict['extraComboHypos'])
-                    theChainConfig = self.chainDefModule['Combined'].addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)
+                    addTopoInfo(theChainConfig,mainChainDict,listOfChainConfigs,lengthOfChainConfigs)
                 except RuntimeError:
                     log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
                     log.error('[__generateChainConfigs] I am in the extraComboHypos section, for %s ', mainChainDict['extraComboHypos'])
                     log.exception('[__generateChainConfigs] Full chain dictionary is\n %s ', mainChainDict)
                     raise Exception('[__generateChainConfigs] Stopping menu generation. Please investigate the exception shown above.')
                         
-
-        
         # Configure event building strategy
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:

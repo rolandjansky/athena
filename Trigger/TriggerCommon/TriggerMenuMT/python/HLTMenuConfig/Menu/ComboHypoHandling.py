@@ -8,47 +8,9 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 
-def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs):
-    
-    theTopoInfo = chainDict['extraComboHypos']
-    
-    bonus_debug = False
-    
-    if bonus_debug:
-        log.debug("[addTopoInfo] theChainConfig %s", theChainConfig)
-        log.debug("[addTopoInfo] listOfChainDefs %s", listOfChainDefs)
-        log.debug("[addTopoInfo] theTopoInfo being added is %s",theTopoInfo)
+topoLegIndices = "ABCDEF"
 
-    if len(theChainConfig.steps[-1].comboToolConfs) > 0:
-        log.warning("[addTopoInfo] last step already has ComboHypo tools %s",theChainConfig.steps[-1].comboToolConfs)
-        log.warning("[addTopoInfo] these will be added to, make sure this is the behaviour you want.")
-
-    comboTools = []
-    for topoInfo in theTopoInfo:
-        if 'dR' in topoInfo or 'invm' in topoInfo:  # We definitely do need this because not all combo hypos 
-                                                    # are TrigComboHypoToolFromDict
-            log.debug("[addTopoInfo] topoInfo being added is %s", topoInfo)
-            comboTools += [TrigComboHypoToolFromDict]
-        elif 'afpdijet' in theTopoInfo:
-
-            from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasChainConfiguration import TrigAFPDijetComboHypoToolCfg
-            comboTools += [TrigAFPDijetComboHypoToolCfg]
-            
-        else:
-             log.error("[addTopoInfo] does not yet know what to do with topo %s",theTopoInfo)
-             raise Exception("[addTopoInfo] cannot proceed, exiting.")
-
-    for comboTool in comboTools:
-        theChainConfig.steps[-1].addComboHypoTools(comboTool)
-    theChainConfig.steps[-1].name = theChainConfig.steps[-1].name+'_combo_'+'_'.join(theTopoInfo) 
-    
-    theChainConfig.steps[-1].makeCombo()
-    log.debug("[addTopoInfo] new combo hypo name: %s",theChainConfig.steps[-1].combo.name)
-    
-    if bonus_debug:
-        log.debug("[addTopoInfo] new theChainConfig %s", theChainConfig)
-
-    return theChainConfig
+from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasChainConfiguration import TrigAFPDijetComboHypoToolCfg
 
 def TrigComboHypoToolFromDict(chainDict):
     from TrigHypoCommonTools.TrigHypoCommonToolsConf import TrigComboHypoTool
@@ -145,13 +107,12 @@ def TrigComboHypoToolFromDict(chainDict):
         log.error("[TrigComboHypoToolFromDict] N_legs = %d, legs_name = %s", len(l_names), l_names)
         raise Exception("[TrigComboHypoToolFromDict] Number of legs is different from 2")
 
-    legIndexes="ABCDEF"
     legA = -1
     legB = -1
-    for i in range(len(legIndexes)):
-        if legIndexes[i] == l_names[0]:
+    for i in range(len(topoLegIndices)):
+        if topoLegIndices[i] == l_names[0]:
             legA = i
-        elif legIndexes[i] == l_names[1]:
+        elif topoLegIndices[i] == l_names[1]:
             legB = i
     if legA<0 or legB<0:
         log.error("[TrigComboHypoToolFromDict] Didn't find leg indexes in %s", l_names)
@@ -206,3 +167,47 @@ def TrigComboHypoToolFromDict(chainDict):
         log.debug("[TrigComboHypoToolFromDict] max  = %10.3f", cut_max)
 
     return tool
+
+comboConfigurator = {
+    'dR':TrigComboHypoToolFromDict,
+    'invm':TrigComboHypoToolFromDict,
+    'afpdijet':TrigAFPDijetComboHypoToolCfg,
+}
+
+def addTopoInfo(theChainConfig, mainChainDict, listOfChainDefs, lengthOfChainConfigs):
+
+    def findStepIndexInChain(chain, step):
+        for istep,chainstep in enumerate(chain.steps):
+            if chainstep.name==step:
+                return istep
+        return None
+
+    for step,(topoCfg,topoExpr) in theChainConfig.topoMap.items():
+        thestep = -1 if step=="last" else findStepIndexInChain(theChainConfig,step)
+        if thestep is None:
+            log.error("Failed to find step %s in Chain! ChainDict follows:", step)
+            log.error(mainChainDict)
+            raise RuntimeError("Step not found when adding topo to chain")
+
+        bonus_debug = False
+
+        if bonus_debug:
+            log.debug("[addTopoInfo] theChainConfig %s", theChainConfig)
+            log.debug("[addTopoInfo] listOfChainDefs %s", listOfChainDefs)
+            log.debug("[addTopoInfo] theTopoInfo being added is %s",topoExpr)
+
+        # No need to add if it has been added previously
+        # Handle better and avoid doing this repeatedly on the same steps?
+        if topoCfg not in theChainConfig.steps[thestep].comboToolConfs:
+            if len(theChainConfig.steps[thestep].comboToolConfs) > 0:
+                log.warning("[addTopoInfo] step %s already has ComboHypo tools %s",theChainConfig.steps[thestep],theChainConfig.steps[thestep].comboToolConfs)
+                log.warning("[addTopoInfo] these will be added to, make sure this is the behaviour you want.")
+
+            theChainConfig.steps[thestep].addComboHypoTools(topoCfg)
+            theChainConfig.steps[thestep].name = theChainConfig.steps[thestep].name+'_combo_'+topoExpr 
+    
+            theChainConfig.steps[thestep].makeCombo()
+            log.debug("[addTopoInfo] new combo hypo name: %s",theChainConfig.steps[thestep].combo.name)
+
+            if bonus_debug:
+                log.debug("[addTopoInfo] new theChainConfig %s", theChainConfig)
