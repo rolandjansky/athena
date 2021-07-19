@@ -52,11 +52,18 @@ StatusCode ViewCreatorCentredOnIParticleROITool::attachROILinks(TrigCompositeUti
          double zed0  = 0.0; //initialization
 
          if ( muon && muon->primaryTrackParticle() ) {
-             zed0 = muon->primaryTrackParticle()->z0();
-
-             const double zed0p   = zed0 + m_roiZedWidth; // in mm
-             const double zed0m   = zed0 - m_roiZedWidth; // in mm
-
+	     zed0 = muon->primaryTrackParticle()->z0();
+	   
+             double zed0p   = zed0 + m_roiZedWidth; // in mm
+             double zed0m   = zed0 - m_roiZedWidth; // in mm
+	     
+	     if ( m_roiZedSinThetaFlag ) { 
+	       /// 1/sin(theta) = cosh( eta ) 
+	       double cosheta = std::cosh( (*p4EL)->eta() );
+	       zed0p   = zed0 + m_roiZedWidth*cosheta; // in mm
+	       zed0m   = zed0 - m_roiZedWidth*cosheta; // in mm
+	     }
+	     
              ATH_MSG_DEBUG( "New ROI for xAOD::Particle ET="<< (*p4EL)->p4().Et()
 			    << " eta="<< (*p4EL)->eta() << " +- " << m_roiEtaWidth
 			    << " phi="<< (*p4EL)->phi() << " +- " << m_roiPhiWidth
