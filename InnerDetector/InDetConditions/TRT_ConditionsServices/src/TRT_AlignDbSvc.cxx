@@ -218,7 +218,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 StatusCode TRT_AlignDbSvc::finalize()
 {
   msg(MSG::INFO) << "TRT_AlignDbSvc finalize method called" << endmsg;
-  for(std::vector<Amg::Transform3D*>::iterator it = m_amgTransformCache.begin(); it != m_amgTransformCache.end(); it++){
+  for(std::vector<Amg::Transform3D*>::iterator it = m_amgTransformCache.begin(); it != m_amgTransformCache.end(); ++it){
       delete *it;
   }
   return StatusCode::SUCCESS;

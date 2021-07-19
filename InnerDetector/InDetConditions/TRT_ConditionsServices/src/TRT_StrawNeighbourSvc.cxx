@@ -631,136 +631,6 @@ void TRT_StrawNeighbourSvc::getPad(Identifier offlineID, int& pad ){
 }
 
 
-///////////////////////////////////////////
-void TRT_StrawNeighbourSvc::convert_numbering_bar(int& strawnumber, int& straw, int& layer, bool first) {
-  /* 
-     Barrel only.
-     Converts from hardware (testbeam/testbench) numbering, i.e. running numbering to ATLAS numbering i.e. straw, layer.
-     Give input '-1' for the value(s) to be determined.
-  */
-
-  strawnumber=strawnumber%1642;
-  const int numberOfm1layers=19;
-  const int numberOfm2layers=24;
-  const int numberOfm3layers=30;
-  int layer_m1_array[numberOfm1layers]= {15,16,16,16,16,17,17,17,17,17,18,18,18,18,18,19,19,19,18};
-  int layer_m2_array[numberOfm2layers]= {19,20,20,20,20,20,21,21,21,21,21,22,22,22,22,22,23,23,23,23,23,24,24,23};
-  int layer_m3_array[numberOfm3layers]= {23,24,24,24,24,25,25,25,25,25,26,26,26,26,26,27,27,27,27,27,28,28,28,28,28,29,29,29,29,28};
-  std::vector<unsigned int> layer_m1;
-  std::vector<unsigned int> layer_m1_acc;
-  std::vector<unsigned int> layer_m2;
-  std::vector<unsigned int> layer_m2_acc;
-  std::vector<unsigned int> layer_m3;
-  std::vector<unsigned int> layer_m3_acc;
-    
-  if (first) {
-
-    int i =0;
-    unsigned int acc=0;
-
-    for (i=0; i<numberOfm1layers ;i++){
-      layer_m1.push_back(layer_m1_array[i]);
-      acc +=layer_m1_array[i];
-      layer_m1_acc.push_back(acc);
-    }
-
-    acc=0;    
-    for (i=0; i<numberOfm2layers;i++){
-      layer_m2.push_back(layer_m2_array[i]);
-      acc +=layer_m2_array[i];
-      layer_m2_acc.push_back(acc);
-    }
-    
-    acc=0;
-    for (i=0; i<numberOfm3layers;i++){
-      layer_m3.push_back(layer_m3_array[i]);
-      acc +=layer_m3_array[i];
-      layer_m3_acc.push_back(acc);
-    }  
-  
-  } //first
-
-  unsigned int i;
-
-  if (((straw==-1)||(layer==-1))&&(strawnumber>-1)) {
-
-
-    if (getModuleType(strawnumber)==1) {
-      for (i=0; i<= layer_m1_acc.size();i++){
-	if (((unsigned int)strawnumber)<layer_m1_acc[i]) {
-	  layer=i;
-	  if (i>0) straw=strawnumber- layer_m1_acc[i-1];
-	  else if (i==0) straw=strawnumber;
-	  return;
-	}
-      }
-    }
-    else if (getModuleType(strawnumber)==2) {
-      for (i=0; i<= layer_m2_acc.size();i++){
-	if (((unsigned int)strawnumber)<layer_m2_acc[i]) {
-	  layer=i;  
-	  if (i>0) straw=strawnumber-layer_m2_acc[i-1];
-	  else if (i==0) straw=strawnumber;
-	  return;
-	}
-      }
-    }
-    else if (getModuleType(strawnumber)==3) {
-      for (i=0; i<= layer_m3_acc.size();i++){
-	if (((unsigned int)strawnumber)<layer_m3_acc[i]) {
-	  layer=i;  
-	  if (i>0) straw=strawnumber-layer_m3_acc[i-1];
-	  else if (i==0) straw=strawnumber;
-	  return;
-	}
-      }
-    }
-  } // run mode i.e. which way to convert
-
-  else if (((straw>-1)&&(layer>-1))&&(strawnumber==-1)) {
-    strawnumber=0;
-    if (getModuleType(strawnumber)==1) {  
-      strawnumber += layer_m1_acc[layer];
-      strawnumber += straw;
-      return;
-    }
-    else if (getModuleType(strawnumber)==2) {  
-      strawnumber += layer_m2_acc[layer];
-      strawnumber += straw;
-      return;
-    }
-    else if (getModuleType(strawnumber)==3) {  
-      strawnumber += layer_m3_acc[layer];
-      strawnumber += straw;
-      return;
-    }
-    else {
-      msg(MSG::ERROR) <<" Error ! write the author" << endmsg;
-      return;
-    }
-  }
-
-  else {
-    msg(MSG::WARNING) <<" Confused by input. straw = "<<straw<<" strawnumber = "<<strawnumber<<" layer = "<<layer<< endmsg;
-    return;
-  }
-
-  
-} // function end
-
-//////////////////////////////////////////
-
-void TRT_StrawNeighbourSvc::convert_numbering_ec(int electronics_row,int electronics_layer,int  electronics_chip,int  electronics_wheel,int  electronics_phi, int& straw, int& strawlayer, int& bec,  int& sector, int& wheel, Identifier inputID) {
-
-   /* JAAA this code is BROKEN. It does not work. It does not seem to be called anywhere in ATLAS. Do nothing now */
-   msg(MSG::WARNING) << " You called a function, convert_numbering_ec() that is deprivated and not used anymore. Sorry! It never worked anyway. So it was only going to return something bad, anyway"<<endmsg;
-   msg(MSG::WARNING) << " electronics_row = " << electronics_row << " and electronics_layer = " << electronics_layer << " and electronics_chip = " << electronics_chip << " and electronics_wheel = " << electronics_wheel << " and electronics_phi = " << electronics_phi << " and straw = " << straw << " and strawlayer = " << strawlayer << " and bec = " << bec << " and sector = " << sector << " and wheel = " << wheel << " and identifier = " << inputID << std::endl;
-   
-
-  return; 
-}
-
-
 
 
 
@@ -793,12 +663,8 @@ void TRT_StrawNeighbourSvc::getStrawsFromPad(Identifier offlineID, std::vector<I
     
   }else{
     int moduleType = m_trtid->layer_or_wheel(offlineID);
-    
     int pad = 0;
     getPad(offlineID, pad);
-    
-   
-
     for ( unsigned int j=0; j<(m_pad_to_straw[moduleType][pad-1]).size();j++){ 
       getAtlasIdentifier((m_pad_to_straw[moduleType][pad-1][j]),outputID,offlineID);
       neighbourIDs.push_back(outputID);
