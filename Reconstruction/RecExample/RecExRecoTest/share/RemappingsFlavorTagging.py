@@ -14,3 +14,5 @@ AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.BTag
 AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.JFVtx','AntiKt4EMTopoJets.JFVtx_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.SecVtx','AntiKt4EMTopoJets.SecVtx_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.btaggingLink','AntiKt4EMTopoJets.btaggingLink_renamed')
+AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.TracksForBTagging','AntiKt4EMTopoJets.TracksForBTagging_renamed')
+AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.MuonsForBTagging','AntiKt4EMTopoJets.MuonsForBTagging_renamed')
