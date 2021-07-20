@@ -9,7 +9,7 @@
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 
 // EDM includes
-#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingFwd.h"
 
 #include <memory>
 #include <string>

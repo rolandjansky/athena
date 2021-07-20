@@ -13,8 +13,8 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODJet/Jet.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODJet/JetFwd.h"
 
 struct BTagSignedIP {
   double ip2d_signed_d0;
