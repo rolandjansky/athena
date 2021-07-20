@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-def setupProfile(ScaleTaskLength=1):
+def setupProfile(flags, scaleTaskLength=1):
 
   def _evts(x):
-    return int(ScaleTaskLength * x)
+    return int(scaleTaskLength * x)
 
   return [
     {'run':310000, 'lb':1, 'starttstamp':1550000000, 'dt':0.000, 'evts':_evts(1), 'mu':0.500, 'force_new':False},

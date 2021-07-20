@@ -3,7 +3,11 @@
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('Digitization/ForceUseOfPileUpTools.py')
 protectedInclude('SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py')
-protectedInclude('RunDependentSimData/configLumi_run284500_mc20a.py')
+
+if 'userRunLumiOverride' in dir():
+    protectedInclude('RunDependentSimData/configLumi_muRange.py')
+else:
+    protectedInclude('RunDependentSimData/configLumi_run284500_mc20a.py')
 
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.numberOfLowPtMinBias = 56.390
