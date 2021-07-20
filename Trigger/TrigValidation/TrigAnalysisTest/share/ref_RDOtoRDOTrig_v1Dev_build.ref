@@ -1931,19 +1931,19 @@ HLT_e26_dnntight_L1EM22VHI:
     3: 4
     4: 3
 HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI:
-  eventCount: 3
+  eventCount: 4
   stepCounts:
     0: 5
     1: 4
     2: 4
     3: 4
-    4: 3
+    4: 4
   stepFeatures:
     0: 5
     1: 6
     2: 4
     3: 4
-    4: 3
+    4: 4
 HLT_e26_idperf_gsf_tight_L1EM22VHI:
   eventCount: 5
   stepCounts:

@@ -120,11 +120,8 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool,
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra       = [[]],
                                     ElIsoTypes            = [[isoPar.ptcone20]],
-                                    ElCorTypes            = [[]],
+                                    ElCorTypes            = [[isoPar.coreTrackPtr]],
                                     ElCorTypesExtra       = [[]],
                                      )
     return TrigElectronIsolationBuilder()
@@ -138,12 +135,9 @@ def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool_LRT,
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra	  = [[]],
                                     ElIsoTypes            = [[isoPar.ptcone20]],
-                                    ElCorTypes            = [[]],
-                                    ElCorTypesExtra	  = [[]],
+                                    ElCorTypes            = [[isoPar.coreTrackPtr]],
+                                    ElCorTypesExtra	      = [[]],
                                      )
     return TrigElectronIsolationBuilder()
 
@@ -194,7 +188,7 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     CaloTopoIsolationTool = TrigCaloIsolationTool,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = None, 
-                                    PhIsoTypes            = [[isoPar.topoetcone20]],
+                                    PhIsoTypes            = [[isoPar.topoetcone20, isoPar.topoetcone40]],
                                     PhCorTypes            = [[isoPar.core57cells]],
                                     PhCorTypesExtra       = [[]],
                                     )
