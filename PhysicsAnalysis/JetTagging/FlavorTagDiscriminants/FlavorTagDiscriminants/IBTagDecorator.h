@@ -7,7 +7,7 @@
 #define I_BTAG_DECORATOR_H
 
 #include "AsgTools/IAsgTool.h"
-#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingFwd.h"
 
 class IBTagDecorator : virtual public asg::IAsgTool {
 ASG_TOOL_INTERFACE(IBTagDecorator)
