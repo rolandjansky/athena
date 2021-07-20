@@ -148,14 +148,6 @@ def setupMenu():
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
 
-        # Test chains for ATR-23500
-        ChainProp(name='HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhloose_nopix_ivarloose_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhvloose_nopix_ivarloose_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e28_lhloose_nopix_lrtmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e28_lhmedium_nopix_lrttight_L1EM22VHI', groups=SingleElectronGroup),
-
         # electron forward triggers (keep this only for dev now)
         #ChainProp(name='HLT_e30_etcut_fwd_L1EM22VHI', groups=SingleElectronGroup),
 
