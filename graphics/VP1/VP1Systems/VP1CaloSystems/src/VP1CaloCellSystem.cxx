@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloSystems/VP1CaloCellSystem.h"
@@ -62,6 +62,8 @@ class VP1CaloCellSystem::Clockwork
 public:
 	Clockwork();
 	~Clockwork();
+        Clockwork(const Clockwork&) = delete;
+        Clockwork& operator=(const Clockwork&) = delete;
 
 	// -------------- Methods ------------------
 	// Called at the beginning of every event

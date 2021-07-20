@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define VP1IMPVARNAME m_d
@@ -562,15 +562,15 @@ VP1CaloCellController::VP1CaloCellController(IVP1System* sys):
 VP1CaloCellController::~VP1CaloCellController()
 {
 	// Clean up in Imp maps
-	delete (m_d->sel2GuiSimple)[VP1CC_SelTypeEMB0];
-	delete (m_d->sel2GuiSimple)[VP1CC_SelTypeEMEC0];
-	delete (m_d->sel2GuiSimple)[VP1CC_SelTypeHEC0];
-	delete (m_d->sel2GuiSimple)[VP1CC_SelTypeFCAL1];
+	delete m_d->sel2GuiSimple[VP1CC_SelTypeEMB0];
+	delete m_d->sel2GuiSimple[VP1CC_SelTypeEMEC0];
+	delete m_d->sel2GuiSimple[VP1CC_SelTypeHEC0];
+	delete m_d->sel2GuiSimple[VP1CC_SelTypeFCAL1];
 	//TK: Fixme: why not just iterate and delete all here?
 	m_d->sel2GuiSimple.clear();
 
-	for(VP1CCSelectionType2GuiMap::iterator it=m_d->sel2GuiExpert.begin(); it!=m_d->sel2GuiExpert.end(); it++)
-		delete it->second;
+        for (auto& p : m_d->sel2GuiExpert)
+		delete p.second;
 	m_d->sel2GuiExpert.clear();
 	delete m_d;
 }
@@ -1086,9 +1086,9 @@ VP1CCIntervalMap VP1CaloCellController::selectionIntervals() const
 	VP1CCIntervalMap returnMap;
 
 	// Construct a new map of intervals based on values of GUI widgets
-	for(VP1CCSelectionType2GuiMap::iterator it=useMap->begin(); it!=useMap->end(); it++) {
+        for (const auto& p : *useMap) {
 		// Pointer to the current structure
-		VP1CCUi2Manager* ui = it->second;
+		VP1CCUi2Manager* ui = p.second;
 
 		VP1Interval posInterval, negInterval;
 		bool positiveON = true;
@@ -1127,7 +1127,7 @@ VP1CCIntervalMap VP1CaloCellController::selectionIntervals() const
 		if(negativeON)
 			negInterval = posInterval;
 
-		returnMap[it->first] = VP1CCIntervalPair(posInterval,negInterval);
+		returnMap[p.first] = VP1CCIntervalPair(posInterval,negInterval);
 	}
 
 	return returnMap;
@@ -1309,8 +1309,8 @@ void VP1CaloCellController::enableUpperThreshold()
 	else
 		useMap = &(m_d->sel2GuiExpert);
 
-	for(VP1CCSelectionType2GuiMap::iterator it=useMap->begin(); it!=useMap->end(); it++) {
-		VP1CCUi2Manager* ui = it->second;
+        for (const auto& p : *useMap) {
+		VP1CCUi2Manager* ui = p.second;
 		ui->upperThresholdSB->setEnabled(!ui->upperThreshOffCB->isChecked());
 	}
 }
