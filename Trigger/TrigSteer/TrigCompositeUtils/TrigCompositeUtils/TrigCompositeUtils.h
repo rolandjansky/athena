@@ -467,6 +467,7 @@ namespace TrigCompositeUtils {
    * @param[out] key The storegate key (hash) of the located link's collection
    * @param[out] clid The class ID of the link's collection
    * @param[out] index The link's index inside its collection.
+   * @param[out] source The link's originating Decision object.
    * @param[in] suppressMultipleLinksWarning findLink will print a warning if more than one ElementLink is found, this can be silenced here.
    * @return True if a link was located
    */
@@ -475,6 +476,7 @@ namespace TrigCompositeUtils {
     uint32_t& key,
     uint32_t& clid,
     uint16_t& index,
+    const Decision*& source,
     const bool suppressMultipleLinksWarning = false);
 
   /**
@@ -483,9 +485,10 @@ namespace TrigCompositeUtils {
    * Populates provided vectors with all located links of the corresponding linkName. 
    * @param[in] start the Decision Object from where recursive search should begin
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
-   * @param[inout] key The return vector of the storegate key (hash) of the located link's collection
-   * @param[inout] clid The return vector of the class ID of the link's collection
-   * @param[inout] index The return vector of the link's index inside its collection.
+   * @param[inout] keyVec The return vector of the storegate key (hash) of the located link's collection
+   * @param[inout] clidVec The return vector of the class ID of the link's collection
+   * @param[inout] indexVec The return vector of the link's index inside its collection.
+   * @param[inout] sourceVec The return vector of the link's originating Decision object.
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
                           way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
@@ -493,9 +496,10 @@ namespace TrigCompositeUtils {
    */
   bool typelessFindLinks(const Decision* start, 
     const std::string& linkName,
-    std::vector<uint32_t>& key,
-    std::vector<uint32_t>& clid,
-    std::vector<uint16_t>& index,
+    std::vector<uint32_t>& keyVec,
+    std::vector<uint32_t>& clidVec,
+    std::vector<uint16_t>& indexVec,
+    std::vector<const Decision*>& sourceVec,
     const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
     std::set<const xAOD::TrigComposite*>* fullyExploredFrom = nullptr);
 

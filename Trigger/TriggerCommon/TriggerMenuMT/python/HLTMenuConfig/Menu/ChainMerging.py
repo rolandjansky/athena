@@ -23,6 +23,11 @@ def mergeChainDefs(listOfChainDefs, chainDict):
     offset = chainDict["mergingOffset"]
     log.debug("[mergeChainDefs] %s: Combine by using %s merging", chainDict['chainName'], strategy)
 
+    leg_numbering = []
+
+    if 'Bjet' in chainDict['signatures'] and 'Jet' in chainDict['signatures']:#and chainDict['Signature'] == 'Bjet':
+        leg_numbering = [it for it,s in enumerate(chainDict['signatures'])]# if s != 'Jet']
+
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
     elif strategy=="serial":
@@ -45,7 +50,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
             if ag not in merging_dict:
                 continue
             if len(merging_dict[ag]) > 1:
-                tmp_merged += [mergeParallel(list( listOfChainDefs[i] for i in merging_dict[ag] ),offset)]
+                tmp_merged += [mergeParallel(list( listOfChainDefs[i] for i in merging_dict[ag] ),offset, leg_numbering)]
             else:
                 tmp_merged += [listOfChainDefs[merging_dict[ag][0]]]
 
@@ -62,7 +67,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
 
 
 
-def mergeParallel(chainDefList, offset):
+def mergeParallel(chainDefList, offset, leg_numbering = []):
 
     if offset != -1:
         log.error("[mergeParallel] Offset for parallel merging not implemented.")
@@ -105,7 +110,7 @@ def mergeParallel(chainDefList, offset):
     for step_index, steps in enumerate(orderedSteps):
         mySteps = list(steps)
         log.debug("[mergeParallel] Merging step counter %d", step_index+1)
-        combStep = makeCombinedStep(mySteps, step_index+1, chainDefList, orderedSteps, combChainSteps)
+        combStep = makeCombinedStep(mySteps, step_index+1, chainDefList, orderedSteps, combChainSteps, leg_numbering)
         combChainSteps.append(combStep)
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds, 
@@ -228,8 +233,9 @@ def serial_zip(allSteps, chainName, chainDefList):
                     else:
                         emptyChainDicts = allSteps[chain_index2][0].stepDicts
 
+                    log.debug("[serial_zip] nLegs: %s, mult_per_leg: %s, len(emptyChainDicts): %s, len(L1decisions): %s", nLegs,mult_per_leg, len(emptyChainDicts), len(chainDefList[chain_index2].L1decisions))
                     sigNames = []
-                    for ileg,emptyChainDict in enumerate(emptyChainDicts):
+                    for ileg,(emptyChainDict,_) in enumerate(zip(emptyChainDicts,chainDefList[chain_index2].L1decisions)):
                         if isFullScanRoI(chainDefList[chain_index2].L1decisions[ileg]):
                             sigNames +=[emptyChainDict['chainParts'][0]['signature']+'FS']
                         else:
@@ -261,7 +267,7 @@ def serial_zip(allSteps, chainName, chainDefList):
                         log.debug("[serial_zip] L1decisions %s ", chainDefList[chain_index2].L1decisions)
 
                     emptySequences = []
-                    for ileg in range(nLegs):
+                    for ileg in range(len(chainDefList[chain_index2].L1decisions)):
                         if isFullScanRoI(chainDefList[chain_index2].L1decisions[ileg]) and noPrecedingStepsPreMerge(newsteps,chain_index2, ileg):
                             log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = False ")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = False)]
@@ -271,14 +277,6 @@ def serial_zip(allSteps, chainName, chainDefList):
                         else:
                             log.debug("[serial_zip] adding non-FS empty sequence")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg])]
-
-                    #this WILL NOT work for jets!
-                    step_mult = []
-                    emptyChainDicts = []
-                    if chain_index2 < chain_index:
-                        emptyChainDicts = allSteps[chain_index2][-1].stepDicts
-                    else:
-                        emptyChainDicts = allSteps[chain_index2][0].stepDicts
 
                     if doBonusDebug:
                         log.debug("[serial_zip] emptyChainDicts %s",emptyChainDicts)
@@ -364,7 +362,7 @@ def checkStepContent(parallel_steps):
                 return True    
     return False   
 
-def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], currentChainSteps = []):
+def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], currentChainSteps = [], leg_numbering = []):
     stepName = 'merged' #we will renumber all steps after chains are aligned #Step' + str(stepNumber)
     stepSeq = []
     stepMult = []
@@ -413,6 +411,8 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
                     oldLegName = new_stepDict['chainName']
                     if re.search('^leg[0-9]{3}_',oldLegName):
                         oldLegName = oldLegName[7:]
+                    if len(leg_numbering) > 0:
+                        leg_counter = leg_numbering[chain_index]
                     new_stepDict['chainName'] = legName(oldLegName,leg_counter)
                     log.debug("[makeCombinedStep] stepDict naming old: %s, new: %s", oldLegName, new_stepDict['chainName'])
                     stepDicts.append(new_stepDict)
@@ -489,11 +489,13 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             comboHypoTools.extend(step.comboToolConfs)
             # update the chain dict list for the combined step with the chain dict from this step
             log.debug('[makeCombinedStep] adding step dictionaries %s',step.stepDicts)
-            
+            log.debug('[makeCombinedStep] my leg_numbering is: %s, for chain_index %s',leg_numbering, chain_index) 
             for new_stepDict in deepcopy(step.stepDicts):
                 oldLegName = new_stepDict['chainName']
                 if re.search('^leg[0-9]{3}_',oldLegName):
                     oldLegName = oldLegName[7:]
+                if len(leg_numbering) > 0:
+                    leg_counter = leg_numbering[chain_index]
                 new_stepDict['chainName'] = legName(oldLegName,leg_counter)
                 log.debug("[makeCombinedStep] stepDict naming old: %s, new: %s", oldLegName, new_stepDict['chainName'])
                 stepDicts.append(new_stepDict)

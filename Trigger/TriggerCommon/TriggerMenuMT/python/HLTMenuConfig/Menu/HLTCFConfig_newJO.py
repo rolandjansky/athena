@@ -36,7 +36,7 @@ def resetDF(acc):
         if isComboHypoAlg(alg):
             log.verbose("Resetting IO for %s Combo Hypo", alg.name )
             alg.MultiplicitiesMap = {}
-            alg.LegMap = {}
+            alg.LegToInputCollectionMap = {}
             alg.HypoInputDecisions = []
             alg.HypoOutputDecisions = []
 
@@ -424,10 +424,10 @@ def generateDecisionTree(flags, chains):
 
             comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
             if comboHypoAlg:
-                comboHypoAlg.MultiplicitiesMap[chain.name] = step.multiplicity
-                comboHypoAlg.LegMap[chain.name] = step.legIds
                 elementaryHyposOutputs = stepHypoOutput( stepCounter, chain )
+                rawInputsToCombo = []
                 for hypoName, hypoOutput in elementaryHyposOutputs:
+                    rawInputsToCombo.append(hypoOutput)
                     comboHypoAlg.HypoInputDecisions = addAndAssureUniqness( comboHypoAlg.HypoInputDecisions, hypoOutput,
                         "{} comboHypo input".format( comboHypoAlg.name ) )
                     comboOut = CFNaming.comboHypoOutputName( comboHypoAlg.name, hypoName )
@@ -436,6 +436,23 @@ def generateDecisionTree(flags, chains):
                     # if the chain requires special combo tools
                     for comboToolConf in step.comboToolConfs:
                         comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+                ###
+                # Here we map each leg-index to the input DecisionContainer (after the input ReadHandleKeyArray is de-duplicated)
+                # Please note that this has not been extensively tested in newJO as we do not have any jet triggers, or asymmetric leg triggers such as
+                # HLT_e5_etcut_e3_etcut_L12EM3. These are the ones which are most likely to need some more work here. 
+                # See mapRawInputsToInputsIndex in MenuComponents for more context around this outside of the newJO setup.
+                legToInputCollectionMapping = []
+                for rawInput in rawInputsToCombo:
+                    try:
+                        legToInputCollectionMapping.append( comboHypoAlg.HypoInputDecisions.index(rawInput) )
+                    except Exception:
+                        raise Exception("[generateDecisionTree] Cannot find {} in {}. See HLTCFConfig_newJO for more details.".format(rawInput, tuple(comboHypoAlg.HypoInputDecisions)))
+                assert len(chainLegDict['chainMultiplicities']) == len(legToInputCollectionMapping), "[generateDecisionTree] Can not get the input index for each leg. See HLTCFConfig_newJO for more details."            
+                #
+                ###
+                comboHypoAlg.MultiplicitiesMap[chain.name] = chainLegDict['chainMultiplicities']
+                comboHypoAlg.LegToInputCollectionMap[chain.name] = legToInputCollectionMapping
+
 
     # connect dumpers
     if flags.Trigger.doRuntimeNaviVal:
@@ -475,7 +492,7 @@ def generateDecisionTree(flags, chains):
             if combo:
                 log.info("%s  ComboHypoAlg: %s input: %s output: %s", stepCounter, combo.name,
                          ". ".join(combo.HypoInputDecisions), ", ".join(combo.HypoOutputDecisions))
-                log.info("%s  multiplicities: %s, leg numbering: %s", stepCounter, combo.MultiplicitiesMap, combo.LegMap)
+                log.info("%s  multiplicities: %s, leg index to input index: %s", stepCounter, combo.MultiplicitiesMap, combo.LegToInputCollectionMap)
                 assert len(combo.HypoInputDecisions) == len(combo.HypoInputDecisions), "Missconfiguraiton of {} ComboHypo input/output counts differ".format(combo.name)
         log.info("-"*50)
     log.info("")

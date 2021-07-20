@@ -48,23 +48,9 @@ StatusCode ComboHypo::initialize() {
   if (msgLvl(MSG::INFO)){ 
     ATH_MSG_INFO( "with this multiplicity map: ");
     for ( const auto& m : m_multiplicitiesReqMap ) {
-      std::stringstream msgSS;
-      msgSS << "[";
-      for (const int mult : m.second){
-        msgSS << mult << ", ";
-      }
-      msgSS.seekp(-2,msgSS.cur); // remove comma
-      msgSS << "]";
-
-      std::stringstream msgSSleg;
-      msgSSleg << "[";
-      for (const int nleg : m_legMap[m.first]){
-        msgSSleg << nleg << ", ";
-      }
-      msgSSleg.seekp(-2,msgSSleg.cur); // remove comma
-      msgSSleg << "]";
-
-      ATH_MSG_INFO("-- " << m.first << " multiplicities: " << msgSS.str() <<" , legs: " << msgSSleg.str());
+      ATH_MSG_INFO("-- " << m.first 
+        << " multiplicities: " << m.second 
+        <<", input-collection-indicies: " << m_legToInputCollectionMap[m.first]);
     }
   }
 
@@ -72,22 +58,28 @@ StatusCode ComboHypo::initialize() {
 
   bool errorOccured = false;
   if (m_checkMultiplicityMap) {
-    for ( const auto& m : m_multiplicitiesReqMap ) {
-      if ( m.second.size() > maxMult )  {
+    for ( const auto& [key, value] : m_multiplicitiesReqMap ) {
+      // Check the size of the multiplicities-required-per-leg vector is the same as the input-collection-index-per-leg vector
+      Combo::LegMap::const_iterator it_input = m_legToInputCollectionMap.find(key);
+      if (it_input == m_legToInputCollectionMap.end()) {
+        ATH_MSG_ERROR(key << " was not registered in the LegToInputCollectionMap");
+        errorOccured = true;
+      } else if (value.size() != it_input->second.size()) {
+        ATH_MSG_ERROR("Inconsistent configuration vector sizes for " << key << " Multiplicities Required size:" << value.size() 
+          << ", Input Collections Index size:" << it_input->second.size());
+        errorOccured = true;
+      }
+      // TimM Jult 21: What is this check doing?
+      if ( value.size() > maxMult )  {
         errorOccured =  true;
-        ATH_MSG_ERROR( "Chain " << m.first
-          << " configured with input multiplicity " << m.second.size() << " like this: " << m.second
+        ATH_MSG_ERROR( "Chain " << key
+          << " configured with input multiplicity " << value.size() << " like this: " << value
           << " which is lower than for this chain " << maxMultEl->first << " " << maxMult);
       }
     }
   }
 
   return ( errorOccured ? StatusCode::FAILURE : StatusCode::SUCCESS );
-}
-
-
-StatusCode ComboHypo::finalize() {
-  return StatusCode::SUCCESS;
 }
 
 
@@ -185,7 +177,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
     std::vector< std::set<uint32_t> > legFeatureHashes; //!< Keeps track per leg of the hash of the objects passing the leg
     legFeatureHashes.resize( multiplicityPerLeg.size() );
-    size_t fsCount = 0; //!< We allow the FullScan ROI to pass any multiplicity. So we may have to magic up some unique hashes. Counting integers work fine.
+    size_t passthroughCounter = 0; //!< We allow Jets or a FullScan ROI to pass any multiplicity. So we may have to magic up some unique hashes. Counting integers work fine.
 
     Combo::LegDecisionsMap thisChainCombMap;
 
@@ -207,8 +199,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       // If there is only one leg, then we just use the chain's name.
       if (multiplicityPerLeg.size() > 1) {
         ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() > 1, so we use legXXX_HLT_YYY, instead of HLT_YYY");
-        const int32_t leg_number = m_legMap.find(m.first)->second.at(legIndex);
-        legId = TrigCompositeUtils::createLegName(chainId, leg_number);
+        legId = TrigCompositeUtils::createLegName(chainId, legIndex);
       }
 
       const DecisionID requiredDecisionIDLeg = legId.numeric();
@@ -234,23 +225,24 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       //
       // The behaviour may also be kept even after we have started to process a leg through HypoAlgs. This is done by the HypoAlg
       // setting the "feature" to be the same as the initialRoI. The initialRoI must still be a FullScan ROI for this to work.
+      //
+      // Finally, the same behaviour may also be triggered by the HypoAlg adding an an int32_t decoration called "noCombo" with value 1
+      // to the Decision Object.
 
       for (const ElementLink<DecisionContainer> dEL : it->second){
-        uint32_t featureKey = 0, roiKey = 0;
-        uint16_t featureIndex = 0, roiIndex = 0;
-        bool roiFullscan = false;
-        // NOTE: roiKey, roiIndex are only currently used in the discrimination for L1 Decision objects (which don't have a 'feature' link)
-        // NOTE: We should make it configurable to choose either the feature or the ROI here, as done in the InputMaker base class when merging.
-        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiFullscan, priorFeaturesMap) );
-        if (roiFullscan and (    (featureKey == roiKey and featureIndex == roiIndex) // The user explicitly set the feature === the initialRoI (and it is FS)
-                              or (featureKey == 0 and roiKey != 0) // The leg has not yet started to process, the initialRoI is FS
-                            )
-           )
-        {
-          // This fsCount integer is being to generate unique "hash" values to allow the FS ROI to meet the multiplicity requirements of this leg
+        uint32_t featureKey = 0, roiKey = 0; // The container hash of the DecisionObject's most-recent feature, and its initial ROI
+        uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
+        bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
+        bool objectRequestsNoMultiplicityCheck = false; // Will be set to true if the object has been flagged as independently satisfying all requirements on a leg
+        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiIsFullscan, objectRequestsNoMultiplicityCheck, priorFeaturesMap) );
+        const bool theFeatureIsTheROI = (featureKey == roiKey and featureIndex == roiIndex); // The user explicitly set the feature === the RoI
+        const bool thereIsNoFeatureYet = (featureKey == 0 and roiKey != 0); // The leg has not yet started to process
+        if (objectRequestsNoMultiplicityCheck or (roiIsFullscan and (theFeatureIsTheROI or thereIsNoFeatureYet))) {
+          // This passthroughCounter integer is being to generate unique "hash" values to allow Jets or FS ROI to meet the multiplicity requirements of this leg
           for (size_t i = 0; i < requiredMultiplicity; ++i) {
-            legFeatureHashes.at( legIndex ).insert( ++fsCount );
-            ATH_MSG_DEBUG("  -- Add feature hash '" << fsCount << "' to leg " << legIndex << ". (Note: passing hash generated from FullScan ROI)");
+            legFeatureHashes.at( legIndex ).insert( ++passthroughCounter );
+            ATH_MSG_DEBUG("  -- Add feature hash '" << passthroughCounter << "' to leg " << legIndex 
+              << ". (Note: unique passing hash generated from " << (objectRequestsNoMultiplicityCheck ? "an object requesting NO multiplicity checks" : "an FullScan ROI") << ")");
           }
         } else {
           const uint32_t uniquenessHash = (featureKey != 0 ? (featureKey + featureIndex) : (roiKey + roiIndex)); 
@@ -385,15 +377,21 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
 
 StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>& dEL,
-  uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan,
+  uint32_t& featureKey, uint16_t& featureIndex,
+  uint32_t& roiKey, uint16_t& roiIndex,
+  bool& roiIsFullscan,
+  bool& objectRequestsNoMultiplicityCheck,
   std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap
   ) const 
 {
   // Return collections for the findLinks call. 
   // While we will be focusing on the most recent feature, for tag-and-probe we need to keep a record of the features from the prior steps too.
 
-  uint32_t clid; // We don't care about the class ID. This part gets ignored.
-  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, clid, featureIndex);
+  uint32_t clid; // Unused 
+  const Decision* featureSource = nullptr;
+  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, clid, featureIndex, featureSource);
+
+  objectRequestsNoMultiplicityCheck = (featureSource and featureSource->hasDetail<int32_t>("noCombo") and featureSource->getDetail<int32_t>("noCombo") == 1);
 
   if (foundFeature and priorFeaturesMap.count(featureKey + featureIndex) == 0) {
     const std::string* key_str = evtStore()->keyToString(featureKey);
@@ -402,8 +400,9 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
     std::vector<uint32_t> keys;
     std::vector<uint32_t> clids; // We don't care about the class ID. This part gets ignored.
     std::vector<uint16_t> indicies;
+    std::vector<const Decision*> sources; // Unused
     std::set<const xAOD::TrigComposite*> fullyExploredFrom; // This is a cache which typelessFindLinks will use to avoid re-visiting already explored regions of the graph
-    typelessFindLinks((*dEL), featureString(), keys, clids, indicies, TrigDefs::allFeaturesOfType, &fullyExploredFrom);
+    typelessFindLinks((*dEL), featureString(), keys, clids, indicies, sources, TrigDefs::allFeaturesOfType, &fullyExploredFrom);
     // Here's where we keep the record of the features in previous steps. Step ordering is unimportant, we can use a set.
     if (keys.size() > 1) {
       for (size_t i = 1; i < keys.size(); ++i) { // Skip the 1st entry, this will be equal to featureKey and featureIndex from typelessFindLink above.
@@ -423,7 +422,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   if (roiSeedLI.isValid()) {
     roiKey = roiSeedLI.link.key();
     roiIndex = roiSeedLI.link.index();
-    roiFullscan = (*(roiSeedLI.link))->isFullscan();
+    roiIsFullscan = (*(roiSeedLI.link))->isFullscan();
     if (!foundFeature) {
       const std::string* roi_str = evtStore()->keyToString(roiKey);
       ATH_MSG_DEBUG("Note: Located fallback-ROI, if used this will have feature hash =" << roiKey + roiIndex << ", for " << (roi_str ? *roi_str : "UNKNOWN") << " index=" << roiIndex);
@@ -445,22 +444,36 @@ StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const Ev
       ATH_MSG_ERROR( "No input ReadHandle from " << inputHandle.key() );
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG( "Found ReadHandle from " << inputHandle.key() <<" with "<< inputHandle->size() << " elements:"  );
+    ATH_MSG_DEBUG( "-- Found ReadHandle from " << inputHandle.key() <<" with "<< inputHandle->size() << " elements:"  );
     for ( const Decision* decision : *inputHandle ) {
-      ATH_MSG_DEBUG( "Input Decision #"<< decision->index() <<" with "<< decisionIDs( decision ).size() << " active IDs; these are found in the multiplicity map:" );
+      ATH_MSG_DEBUG( "-- -- Input Decision #"<< decision->index() <<" with "<< decisionIDs( decision ).size() << " active IDs. Populating the multiplicity map:" );
       for ( const DecisionID id: decisionIDs( decision ) ) {
-        for ( const auto& m : m_multiplicitiesReqMap ) {
-          // Search for this ID in the list of active chains processed by this ComboHypo
-          // Note: We do a find() check rather than require equality as m_multiplicitiesReqMap is configured by chain name
-          // whereas id is here the per-leg name. The chain name is a sub-string of the leg name.
-          if (HLT::Identifier(id).name().find( m.first ) == std::string::npos){
-            continue;
-          }
-          ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-
-          dmap[id].push_back( TrigCompositeUtils::decisionToElementLink(decision, context) );
-
+        HLT::Identifier chainID = HLT::Identifier(id);
+        int32_t chainLeg = 0; // Assume initially that the chain is not multi-leg, and update these two values if it is.
+        if (isLegId(id)) {
+          chainID = getIDFromLeg(id);
+          chainLeg = getIndexFromLeg(id);
         }
+
+        // We need to check if we are configured to accept DecisionObjects passing 'chainID' ...
+        Combo::LegMap::const_iterator it = m_legToInputCollectionMap.find(chainID.name());
+        if (it == m_legToInputCollectionMap.end()) {
+          ATH_MSG_VERBOSE("-- -- -- Ignoring the DecsionID " << id << " on leg " << chainLeg << " as it does not correspond to any of the " << m_legToInputCollectionMap.size() << " chains this Alg is processing.");
+          continue;
+        }
+
+        // ... and if so we need to further check that we are accepting passing IDs for chainLeg on the current inputContainerIndex
+        const std::vector<int>& legToInputCollectionIndex = it->second;
+        const size_t requiredInputContainerIndex = static_cast<size_t>(legToInputCollectionIndex.at(chainLeg));
+        if (requiredInputContainerIndex != inputContainerIndex) {
+          ATH_MSG_VERBOSE("-- -- -- Ignoring the DecisionID " << id << " on leg " << chainLeg << " as we are only permitted to accept passing objects on leg #" << chainLeg << " of " << chainID.name()
+            << " which come from input collection index " << requiredInputContainerIndex << " (which is " << m_inputs.at(requiredInputContainerIndex).key() << ")"
+            << ". Not the current index " << inputContainerIndex << " (which is " << m_inputs.at(inputContainerIndex).key() << ")");    
+          continue;
+        }
+
+        ATH_MSG_DEBUG( " ++++ " << HLT::Identifier( id ) );
+        dmap[id].push_back( TrigCompositeUtils::decisionToElementLink(decision, context) );
       }
     }
   }
@@ -471,7 +484,7 @@ StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const Ev
     for (const auto& entry: dmap){
       ATH_MSG_DEBUG("leg ["<<legCount<<"]: ");
       const ElementLinkVector<DecisionContainer>& decisions = entry.second;
-      ATH_MSG_DEBUG(" +++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
+      ATH_MSG_DEBUG(" ++++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
       for (const ElementLink<DecisionContainer> d : decisions){
         ATH_MSG_DEBUG("     Decision: (ContainerKey:"<<d.dataID()<<", DecisionElementIndex:"<<d.index()<<")");
       }
