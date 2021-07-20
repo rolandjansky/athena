@@ -78,9 +78,6 @@ def tauFTFTauSeq():
     fastTrkHypo.trackcollection           = sequenceOut
     fastTrkHypo.RoIForIDReadHandleKey     = ""
 
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    TrigTrackPreSelHypoTool.AcceptAll = True
-
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
     return  MenuSequence( Sequence    = sequence,
@@ -98,9 +95,6 @@ def tauFTFTauIsoSeq():
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlg
     fastTrkHypo                 = TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIso")
     fastTrkHypo.trackcollection = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
@@ -120,9 +114,6 @@ def tauFTFTauIsoBDTSeq():
     fastTrkHypo                 = TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIsoBDT")
     fastTrkHypo.trackcollection = sequenceOut
     fastTrkHypo.RoIForIDReadHandleKey = "UpdatedTrackBDTRoI"
-
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
 
@@ -234,9 +225,6 @@ def tauPreSelSeq():
     preSelHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgPreSel")
     preSelHypo.taujetcontainer = sequenceOut
 
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    TrigTrackPreSelHypoTool.AcceptAll = True
-
     from TrigTauHypo.TrigTauHypoTool import TrigPresTauMVHypoToolFromDict
 
     return  MenuSequence( Sequence    = sequence,
@@ -254,9 +242,6 @@ def tauPreSelTTSeq():
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
     preSelHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgPreSelTT")
     preSelHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoConf import TrigTrackPreSelHypoTool
-    TrigTrackPreSelHypoTool.AcceptAll = True
 
     from TrigTauHypo.TrigTauHypoTool import TrigPresTauMVHypoToolFromDict
 

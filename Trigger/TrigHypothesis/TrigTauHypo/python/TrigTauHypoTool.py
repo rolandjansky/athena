@@ -288,6 +288,8 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
     monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
     currentHypo.MonTool = monTool
 
+    currentHypo.AcceptAll = True
+
     if criteria == 'cosmic':
       currentHypo.LowerPtCut      = int(threshold)*1000.
       currentHypo.TracksInCoreCut = 9999
