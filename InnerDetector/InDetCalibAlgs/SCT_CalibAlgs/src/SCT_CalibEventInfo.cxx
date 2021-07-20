@@ -79,7 +79,7 @@ int SCT_CalibEventInfo::duration() const {
 }
 
 void
-SCT_CalibEventInfo::setSource(const std::string source) {
+SCT_CalibEventInfo::setSource(const std::string & source) {
    m_source = source;
 }
 

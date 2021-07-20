@@ -1427,7 +1427,7 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
    std::vector< std::pair<std::string, int> >::iterator stemItr{EC_stems.begin()};
 
    //--- Endcaps
-   for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); stemItr++) {
+   for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); ++stemItr) {
       for (int iDisk{0}; iDisk<n_disks; ++iDisk) {
          for (int iSide{0}; iSide<2; ++iSide) {
             for (int iEta{0}; iEta<n_etaBinsEC; ++iEta) {
@@ -1617,7 +1617,7 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
    }
 
    //--- Endcaps
-   for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); stemItr++) {
+   for (stemItr=EC_stems.begin(); stemItr!=EC_stems.end(); ++stemItr) {
       for (int iDisk{0}; iDisk<n_disks; ++iDisk) {
          for (int iSide{0}; iSide<2; ++iSide) {
             for (int iEta{0}; iEta<n_etaBinsEC; ++iEta) {
@@ -3111,7 +3111,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
    bool isRunsInCool{false};
    bool isNoisyMinStat{false}, isNoisyModuleList{false}, isNoisyModuleDiff{false}, isNoisyStripDiff{false};
    if (m_noisyUploadTest) {
-      isRunsInCool = m_noisyModuleAverageInDB != -1. and m_noisyStripLastRunInDB != -999;
+      isRunsInCool = ((m_noisyModuleAverageInDB != -1.) and (m_noisyStripLastRunInDB != -999));
       if (isRunsInCool) {
          isNoisyMinStat    = m_numberOfEvents > m_noisyMinStat;
          isNoisyModuleList = numModulesAll < m_noisyModuleList;
