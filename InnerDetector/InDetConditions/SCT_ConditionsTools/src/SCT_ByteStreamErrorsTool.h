@@ -115,11 +115,12 @@ private:
 
   
     //Record the set number of the idcErrContainer, if the set numbers are the same, skip the fillData process to save time.
-    unsigned int m_set_number;
+    unsigned int m_set_number = 0;
     
     void reset(EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
       eventId = evtId;
       IDCCache = cache;
+      m_set_number = 0;
       tempMaskedChips.clear();
       abcdErrorChips.clear();
     }
