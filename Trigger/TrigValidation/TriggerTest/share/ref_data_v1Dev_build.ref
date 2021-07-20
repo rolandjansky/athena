@@ -654,12 +654,6 @@ HLT_e26_idperf_loose_lrtloose_L1EM22VHI:
   eventCount: 0
 HLT_e26_idperf_tight_L1EM22VHI:
   eventCount: 0
-HLT_e26_lhloose_nopix_ivarloose_lrttight_L1EM22VHI:
-  eventCount: 0
-HLT_e26_lhloose_nopix_lrtloose_L1EM22VHI:
-  eventCount: 0
-HLT_e26_lhloose_nopix_lrtmedium_L1EM22VHI:
-  eventCount: 0
 HLT_e26_lhloose_nopix_lrttight_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:
@@ -730,15 +724,9 @@ HLT_e26_lhtight_ivarloose_tau80_mediumRNN_tracktwoMVABDT_03dRAB_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_ivarloose_tau80_mediumRNN_tracktwoMVA_03dRAB_L1EM22VHI:
   eventCount: 0
-HLT_e26_lhvloose_nopix_ivarloose_lrtmedium_L1EM22VHI:
-  eventCount: 0
 HLT_e28_idperf_loose_L1EM24VHI:
   eventCount: 0
-HLT_e28_lhloose_nopix_lrtmedium_L1EM22VHI:
-  eventCount: 0
 HLT_e28_lhmedium_mu8noL1_L1EM24VHI:
-  eventCount: 0
-HLT_e28_lhmedium_nopix_lrttight_L1EM22VHI:
   eventCount: 0
 HLT_e300_etcut_L1EM22VHI:
   eventCount: 0
