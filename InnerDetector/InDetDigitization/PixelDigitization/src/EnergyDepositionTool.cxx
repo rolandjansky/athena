@@ -207,7 +207,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
-  if (m_doBichsel && !(Module.isDBM())) {
+  if (m_doBichsel and !(Module.isDBM()) and genPart) {
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : trfPDG(genPart->pdg_id());
 
 
@@ -586,14 +586,18 @@ double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10,
   if (indices_IntXLog10_x2.second < 0) {
     return -1;
   }
-
-  double y21 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first];
-  double y22 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second];
+  
+  double y21 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.first);
+  double y22 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.second);
+  const auto diff = y22 - y21;
+  if (diff<1e-300){
+    return -1;
+  }  
   double Est_x2 =
     ((y22 - IntXLog10) *
      iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first] +
      (IntXLog10 - y21) *
-     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / (y22 - y21);
+     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / diff;
   double Est = std::clamp(Est_x2,-300.,300.);
   return std::pow(10., Est);
 }
@@ -617,18 +621,23 @@ double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGamma
   if (indices_BetaGammaLog10.second < 0) {
     return -1;
   }
-  double BetaGammaLog10_1 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.first];
-  double BetaGammaLog10_2 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.second];
+  double BetaGammaLog10_1 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.first);
+  double BetaGammaLog10_2 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.second);
 
   // obtain estimation
-  double Est_1 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10[indices_BetaGammaLog10.first];
-  double Est_2 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10[indices_BetaGammaLog10.second];
+  double Est_1 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.first);
+  double Est_2 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.second);
 
   // final estimation
-  double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /
-               (BetaGammaLog10_2 - BetaGammaLog10_1);
+  const auto diff=BetaGammaLog10_2 - BetaGammaLog10_1;
+  if (diff<1e-300){
+    return -1;
+  } 
+  double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /diff;
   Est = std::clamp(Est,-300.,300.);
   return std::pow(10., Est);
+  
+  
 }
 
 //==========================================
