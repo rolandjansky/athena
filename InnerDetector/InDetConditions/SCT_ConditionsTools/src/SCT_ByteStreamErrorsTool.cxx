@@ -432,7 +432,7 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
   if (it == whereExected.end()) {
     ATH_MSG_ERROR("After fillData in abcdErrorChips, cache does not have an infomation about the " << moduleId);
     ATH_MSG_ERROR("Likely cause is a request for for different region");
-    std::make_pair(StatusCode::FAILURE, 0);
+    return std::make_pair(StatusCode::FAILURE, 0);
   }
   return std::make_pair(StatusCode::SUCCESS, it->second);
 }
