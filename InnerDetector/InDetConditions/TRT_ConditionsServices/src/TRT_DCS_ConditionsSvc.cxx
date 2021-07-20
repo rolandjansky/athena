@@ -218,8 +218,8 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const Identifier ident,
 //////////
 /// getValue by folder name and channel name
 /////
-StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
-					    const std::string chanName,
+StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string & foldername,
+					    const std::string & chanName,
 					    InDet::TRT_DCS_ValueType& theValue ) {
   StatusCode sc(StatusCode::SUCCESS);
 
@@ -239,7 +239,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
       return StatusCode::FAILURE;
     }
   }
-
+   if ( !DCScondFolder ) return StatusCode::FAILURE;
   // Get the channel number for this channel name.
   int chanNum = -1;
   CondAttrListCollection::name_const_iterator chanNameMapItr;
@@ -275,7 +275,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
 //////////
 /// getValue by folder name and COOL channel number
 /////
-StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
+StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string & foldername,
 					    const int chanNum,
 					    InDet::TRT_DCS_ValueType& theValue ) {
 
@@ -295,7 +295,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
       return sc;
     }
   }
-
+ if ( !DCScondFolder ) return StatusCode::FAILURE;
   // Get the requested channel/value pair
   CondAttrListCollection::const_iterator chanAttrListPair;
   chanAttrListPair = DCScondFolder->chanAttrListPair( chanNum );
@@ -370,7 +370,7 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
 //////////
 /// get pointer
 //////////
-const CondAttrListCollection* TRT_DCS_ConditionsSvc::getCollection( const std::string foldername) {
+const CondAttrListCollection* TRT_DCS_ConditionsSvc::getCollection( const std::string & foldername) {
   const EventContext& event_context=Gaudi::Hive::currentContext();
   EventContext::ContextID_t slot=event_context.slot();
   EventContext::ContextEvt_t event_id=event_context.evt();
