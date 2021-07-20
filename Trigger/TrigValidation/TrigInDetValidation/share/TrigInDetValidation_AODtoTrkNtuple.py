@@ -210,12 +210,15 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
-
+    
 
     ]
 
