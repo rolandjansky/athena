@@ -64,10 +64,10 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 	private:
 
 		//slope and X,Y,Z-pos for SID plates [4][6]
-		Float_t m_fsSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fxSID[SIDSTATIONID][SIDCNT];
-		Float_t m_fySID[SIDSTATIONID][SIDCNT];
-		Float_t m_fzSID[SIDSTATIONID][SIDCNT];
+		Float_t m_fsSID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fxSID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fySID[SIDSTATIONID][SIDCNT]{};
+		Float_t m_fzSID[SIDSTATIONID][SIDCNT]{};
 	
 	public:
 		StatusCode initialize();
@@ -82,7 +82,7 @@ class AFP_SIDLocReco : public AthReentrantAlgorithm
 		std::list<SIDHIT> AFPCollectionReading(SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, SG::ReadHandle<xAOD::EventInfo> eventInfo) const;
 
 		// perform the track reconstrution
-		StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const;
+		StatusCode ExecuteRecoMethod(const std::string& strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const;
 };
 
 #endif	//AFP_TDLOCRECO_h

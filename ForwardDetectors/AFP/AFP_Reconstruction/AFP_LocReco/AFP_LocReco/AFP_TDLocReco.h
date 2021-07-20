@@ -109,7 +109,7 @@ class AFP_TDLocReco : public AthAlgorithm
 		StatusCode AFPCollectionReading(std::list<TDHIT> &ListTDHits);	
 
 		StatusCode RecordTDCollection();
-		StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<TDHIT> &ListMDHits);
+		StatusCode ExecuteRecoMethod(const std::string& strAlgo, const std::list<TDHIT> &ListMDHits);
 };
 
 #endif	//AFP_TDLOCRECO_h
