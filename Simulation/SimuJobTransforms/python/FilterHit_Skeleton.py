@@ -17,34 +17,50 @@ def getStreamHITS_ItemList(ConfigFlags):
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
     #BCM
-    ItemList += ["SiHitCollection#BCMHits"]
+    if ConfigFlags.Detector.EnableBCM:
+        ItemList += ["SiHitCollection#BCMHits"]
     #Pixels
-    ItemList += ["SiHitCollection#PixelHits"]
+    if ConfigFlags.Detector.EnablePixel:
+        ItemList += ["SiHitCollection#PixelHits"]
     #SCT
-    ItemList += ["SiHitCollection#SCT_Hits"]
+    if ConfigFlags.Detector.EnableSCT:
+        ItemList += ["SiHitCollection#SCT_Hits"]
     #TRT
-    ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
+    if ConfigFlags.Detector.EnableTRT:
+        ItemList += ["TRTUncompressedHitCollection#TRTUncompressedHits"]
+    #ITk Pixels
+    if ConfigFlags.Detector.EnableITkPixel:
+        ItemList += ["SiHitCollection#ITkPixelHits"]
+    #ITk Strip
+    if ConfigFlags.Detector.EnableITkStrip:
+        ItemList += ["SiHitCollection#ITkStripHits"]
     #LAr
-    ItemList += ["LArHitContainer#LArHitEMB"]
-    ItemList += ["LArHitContainer#LArHitEMEC"]
-    ItemList += ["LArHitContainer#LArHitHEC"]
-    ItemList += ["LArHitContainer#LArHitFCAL"]
+    if ConfigFlags.Detector.EnableLAr:
+        ItemList += ["LArHitContainer#LArHitEMB"]
+        ItemList += ["LArHitContainer#LArHitEMEC"]
+        ItemList += ["LArHitContainer#LArHitHEC"]
+        ItemList += ["LArHitContainer#LArHitFCAL"]
     #Tile
-    ItemList += ["TileHitVector#TileHitVec"]
-
-    if ConfigFlags.Detector.EnableHGTD:
-        ItemList += ["SiHitCollection#LArHitHGTD"]
+    if ConfigFlags.Detector.EnableTile:
+        ItemList += ["TileHitVector#TileHitVec"]
+    # MBTS
     if ConfigFlags.Detector.EnableMBTS:
         ItemList += ["TileHitVector#MBTSHits"]
+    # HGTD
+    if ConfigFlags.Detector.EnableHGTD:
+        ItemList += ["SiHitCollection#HGTD_Hits"]
     #CSC
     if ConfigFlags.Detector.EnableCSC:
         ItemList+=["CSCSimHitCollection#CSC_Hits"]
     #MDT
-    ItemList+=["MDTSimHitCollection#MDT_Hits"]
+    if ConfigFlags.Detector.EnableMDT:
+        ItemList+=["MDTSimHitCollection#MDT_Hits"]
     #RPC
-    ItemList+=["RPCSimHitCollection#RPC_Hits"]
+    if ConfigFlags.Detector.EnableRPC:
+        ItemList+=["RPCSimHitCollection#RPC_Hits"]
     #TGC
-    ItemList+=["TGCSimHitCollection#TGC_Hits"]
+    if ConfigFlags.Detector.EnableTGC:
+        ItemList+=["TGCSimHitCollection#TGC_Hits"]
     #STGC
     if ConfigFlags.Detector.EnablesTGC:
         ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
