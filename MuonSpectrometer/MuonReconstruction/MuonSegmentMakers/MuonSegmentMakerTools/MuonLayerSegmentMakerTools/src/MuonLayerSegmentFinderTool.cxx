@@ -214,8 +214,8 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
         findMdtSegments(intersection, mdts, clusters, segments);
 
         // clean-up memory
-        for (auto hit : mdts) delete hit;
-        for (auto hit : clusters) delete hit;
+        for (const auto *hit : mdts) delete hit;
+        for (const auto *hit : clusters) delete hit;
         ATH_MSG_DEBUG("  Done maximum: new segments " << segments.size() - nprevSegments);
     }
     ATH_MSG_DEBUG("  Done with layer: new segments " << segments.size() - nprevSegments);
@@ -304,23 +304,23 @@ MuonLayerSegmentFinderTool::findClusterSegments(const MuonSystemExtension::Inter
     const std::vector<const MuonClusterOnTrack*>& clustersMM   = layerROTs.getClusters(MuonStationIndex::MM);
 
     std::vector<const MuonClusterOnTrack*> clusters;
-    if (clustersSTGC.size() > 0) {
+    if (!clustersSTGC.empty()) {
         ATH_MSG_DEBUG(" STGC clusters " << clustersSTGC.size());
-        for (auto cl : clustersSTGC) {
+        for (const auto *cl : clustersSTGC) {
             clusters.push_back(cl);
         }
     }
-    if (clustersMM.size() > 0) {
+    if (!clustersMM.empty()) {
         ATH_MSG_DEBUG(" MM clusters " << clustersMM.size());
-        for (auto cl : clustersMM) {
+        for (const auto *cl : clustersMM) {
             clusters.push_back(cl);
         }
     }
 
     std::vector<MuonSegment*> foundSegments;
     m_clusterSegMakerNSW->find(clusters, foundSegments);
-    if (foundSegments.size() > 0) {
-        for (auto seg : foundSegments) {
+    if (!foundSegments.empty()) {
+        for (auto *seg : foundSegments) {
             ATH_MSG_DEBUG(" NSW segment " << m_printer->print(*seg));
             segments.push_back(std::shared_ptr<const MuonSegment>(seg));
             ATH_MSG_DEBUG(" total segments " << segments.size());
