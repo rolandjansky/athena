@@ -5,16 +5,15 @@
 #ifndef CHAMBERDERIVS_H
 #define CHAMBERDERIVS_H
 
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
+
 
 #include "TMatrix.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
 #include "TMatrixTUtils.h"
-
+#include <map>
+#include <string>
+#include <vector>
 namespace CLHEP {
     class HepSymMatrix;
 }
@@ -24,6 +23,8 @@ public:
     enum SolveType { CLHEP, ROOT };
 
     ChamberDerivs();
+    ChamberDerivs(const ChamberDerivs &) = delete;
+    ChamberDerivs & operator=(const ChamberDerivs &) = delete;
     ChamberDerivs(int npar, int nchambers);
     virtual ~ChamberDerivs();
 
@@ -106,17 +107,16 @@ public:
     void constrainLowestEigenvector(const std::map<int, string>& chamberIdMap);
 
 private:
-    int m_npar;
-    int m_nchambers;
-    int m_nindices;
+    int m_npar{};
+    int m_nchambers{};
+    int m_nindices{};
 
-    // std::list< std::pair<int,int>, double* >
-    int* m_chamberIds;
-    int* m_matrixIndices;
-    int* m_hitmap;
+    int* m_chamberIds{};
+    int* m_matrixIndices{};
+    int* m_hitmap{};
 
-    double* m_secDeriv;
-    double* m_firstDeriv;
+    double* m_secDeriv{};
+    double* m_firstDeriv{};
 };
 
 inline double ChamberDerivs::secondDeriv(int i_index, int j_index) const { return m_secDeriv[i_index * m_nindices + j_index]; }
