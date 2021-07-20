@@ -90,13 +90,13 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
 
   for (const xAOD::TauJet* tau : *taus) {
 
-    if(!acc_passThinning(*tau)) continue;
+    if (!acc_passThinning(*tau)) continue;
 
     // keep tau
     taus.keep(tau->index());
     
     // keep tau tracks
-    for(const xAOD::TauTrack* track : tau->allTracks()) {
+    for (const xAOD::TauTrack* track : tau->allTracks()) {
       tauTracks.keep(track->index());
     }
 

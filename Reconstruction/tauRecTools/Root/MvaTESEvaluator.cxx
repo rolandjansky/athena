@@ -60,6 +60,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
       availableVars.insert( std::make_pair("log(TauJetsAuxDyn.ptCombined)", &vars.logPtCombined) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.LeadClusterFrac", &vars.lead_cluster_frac) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.centFrac", &vars.centFrac) );
+      availableVars.insert( std::make_pair("TauJetsAuxDyn.UpsilonCluster", &vars.upsilon_cluster) );
+      availableVars.insert( std::make_pair("TauJetsAuxDyn.ptJetSeed/TauJetsAuxDyn.ptCombined", &vars.ptSeed_D_ptCombined) );
     }
     else {
       availableVars.insert( std::make_pair("TauJetsAuxDyn.ptCombined", &vars.ptCombined) );
@@ -127,6 +129,10 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
 
     if(m_bdtHelper0p && xTau.nTracks()==0) {
       vars.logPtCombined = std::log(ptCombined);
+      vars.ptSeed_D_ptCombined = xTau.ptJetSeed() / ptCombined;
+
+      static const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
+      vars.upsilon_cluster = acc_UpsilonCluster(xTau);
 
       static const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
       vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);

@@ -52,6 +52,7 @@ class MvaTESEvaluator
     // for 0p
     float centFrac{0.0};
     float logPtCombined{0.0};
+    float ptSeed_D_ptCombined{0.0};
 
     // for online calibration
     float ptDetectorAxis{0.0};
