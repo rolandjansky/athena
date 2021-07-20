@@ -91,8 +91,9 @@ def precisionElectronRecoSequence_GSF(RoIs):
 
     #online monitoring for topoEgammaBuilder_GSF
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
-    PrecisionElectronRecoMonAlgo_GSF = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoEgammaBuilder_GSF")
+    PrecisionElectronRecoMonAlgo_GSF = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring_GSF")
     PrecisionElectronRecoMonAlgo_GSF.ElectronKey = TrigTopoEgammaAlgo_GSF.ElectronOutputName
+    PrecisionElectronRecoMonAlgo_GSF.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo_GSF.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo_GSF.ElectronOutputName]
     thesequence_GSF += PrecisionElectronRecoMonAlgo_GSF
 
     #online monitoring for TrigElectronSuperClusterBuilder_GSF
