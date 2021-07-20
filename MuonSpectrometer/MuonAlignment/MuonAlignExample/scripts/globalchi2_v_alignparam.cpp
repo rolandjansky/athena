@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
     // double* xarray;
     bool saveplot(1);
 
-    for (; it != itend; it++, numTracksit++, chamberNamesit++, xit++, goodParIt++) {
+    for (; it != itend; ++it, ++numTracksit, ++chamberNamesit, ++xit, ++goodParIt) {
         saveplot = 1;
         if (chname != "" && nPlotChambers == CHAMBERSPERPAGE) {
             nPlotChambers = 0;

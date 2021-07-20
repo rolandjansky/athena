@@ -415,7 +415,7 @@ int main(int argc, char** argv) {
     map<string, double*> graphMinMap;
     map<string, double*> graphMaxMap;
 
-    for (; yArrIt != yArrEnd; yArrIt++, yErrIt++, minIt++, maxIt++) {
+    for (; yArrIt != yArrEnd; ++yArrIt, ++yErrIt, ++minIt, ++maxIt) {
         int chamberId = yArrIt->first;
         mid->setMuonIdentifier(chamberId);
         string chamberName;
@@ -544,7 +544,7 @@ int main(int argc, char** argv) {
         map<long long int, int*>::const_iterator nTracksIt = nTracksMap.begin();
         map<long long int, int*>::const_iterator nDoFIt = nDoFMap.begin();
 
-        for (; yArrIt != yArrEnd; yArrIt++, nTracksIt++, chi2It++, nDoFIt++) {
+        for (; yArrIt != yArrEnd; ++yArrIt, ++nTracksIt, ++chi2It, ++nDoFIt) {
             int chamberId = yArrIt->first;
             mid->setMuonIdentifier(chamberId);
             string chamberName;

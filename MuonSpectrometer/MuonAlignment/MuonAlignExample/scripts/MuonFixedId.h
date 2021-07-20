@@ -631,7 +631,7 @@ namespace MuonCalib {
 
     inline int MuonFixedId::phiMax() { return kStationPhiMin + kStationPhiMask; }
 
-    inline int MuonFixedId::stationStringToFixedStationNumber(const std::string station) const {
+    inline int MuonFixedId::stationStringToFixedStationNumber(const std::string & station) const {
         if (station == "BIL") return 1;
         if (station == "BIS") return 2;
         if (station == "BML") return 3;
