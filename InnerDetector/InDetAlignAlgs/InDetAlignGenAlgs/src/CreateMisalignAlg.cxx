@@ -39,6 +39,26 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include <cmath>
+#include <tuple> //for tuple decomposition and std::ignore
+#include <sstream>
+
+
+
+namespace{
+  std::string commonAlignmentOutput(const HepGeom::Transform3D & initialAlignment){
+  std::ostringstream os;
+  os << "\nAlignment x = ("  << initialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron\n";
+  os << "Alignment y = ("  << initialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron\n";
+  os << "Alignment z = ("  << initialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron\n";
+  os << "Alignment x phi   = ("  << initialAlignment.getRotation().phiX() / CLHEP::deg << ") degree\n";
+  os << "Alignment x Theta = ("  << initialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree\n";
+  os << "Alignment y phi   = ("  << initialAlignment.getRotation().phiY() / CLHEP::deg << ") degree\n";
+  os << "Alignment y Theta = ("  << initialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree\n";
+  os << "Alignment z phi   = ("  << initialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree\n";
+  os << "Alignment z Theta = ("  << initialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree\n";
+  return os.str();
+  }
+}
 
 namespace InDetAlignment
 {
@@ -146,7 +166,7 @@ namespace InDetAlignment
 			nt = ntupleSvc()->book("/NTUPLES/CREATEMISALIGN/InitialAlignment", CLID_ColumnWiseTuple, "InitialAlignment");
 			if ( nt ) {
 				ATH_MSG_INFO( "InitialAlignment ntuple booked." );
-				ATH_CHECK( nt->addItem("x"         ,m_AlignResults_x) );
+				ATH_CHECK(  nt->addItem("x"         ,m_AlignResults_x) );
 				ATH_CHECK(  nt->addItem("y"         ,m_AlignResults_y) );
 				ATH_CHECK(  nt->addItem("z"         ,m_AlignResults_z) );
 				ATH_CHECK(  nt->addItem("alpha"     ,m_AlignResults_alpha) );
@@ -276,15 +296,7 @@ namespace InDetAlignment
 				if (msgLvl(MSG::INFO)) {
           HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(SCT_ModuleID,3));
 					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,0,'/') << endmsg;
-					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << commonAlignmentOutput(InitialAlignment);
 					msg() << endmsg;
 				}
 			} // end inner side case
@@ -333,15 +345,7 @@ namespace InDetAlignment
 					if (msgLvl(MSG::INFO)) {
             HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(Pixel_ModuleID,3));
 						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,0,'/') << endmsg;
-						msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
-						msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
-						msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
-						msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
-						msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
-						msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
-						msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
-						msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
-						msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+						msg() << commonAlignmentOutput(InitialAlignment);
 						msg() << endmsg;
 					}
 				}
@@ -371,15 +375,11 @@ namespace InDetAlignment
 		for (const InDetDD::TRT_BaseElement *element: *elements) {
 			const Identifier TRTID_orig = element->identify();
 			const Identifier TRTID      = reduceTRTID(TRTID_orig);
-			
-			if (trtModulesWithCOG.find(TRTID) == trtModulesWithCOG.end()) {
-				trtModulesWithCOG[TRTID] = std::vector<double>(4,0.); //create fresh vector for module center
+			bool insertSuccess{};
+			std::tie(std::ignore, insertSuccess) = trtModulesWithCOG.insert({TRTID,std::vector<double>(4,0.)}); //create fresh vector for module center
+			if (not insertSuccess){
+			  ATH_MSG_VERBOSE("No insert was performed, identifier was already in the trtModulesWithCOG map");
 			}
-			
-			//          HepGeom::Point3D<double> module_center = (*iter)->center();
-			//          HepGeom::Point3D<double> module_center_reduced = m_TRT_Manager->getElement(TRTID)->center();
-			//                   msg(MSG::DEBUG) << "center of module: " << module_center.rho()/CLHEP::cm << ";" << module_center.phi() << ";" << module_center.z()/CLHEP::cm << endmsg;
-			//                   msg(MSG::DEBUG) << "center of reduced module: " << module_center_reduced.rho()/CLHEP::cm << ";" << module_center_reduced.phi() << ";" << module_center_reduced.z()/CLHEP::cm << endmsg;
 			
 			unsigned int nStraws = element->nStraws();
 			for (unsigned int l = 0; l<nStraws; l++) {
@@ -399,7 +399,7 @@ namespace InDetAlignment
 		
 		//go through cog list and create one COG per TRT module (at DB granularity)
 		std::map< Identifier, std::vector<double> >::const_iterator iter2;
-		for (iter2 = trtModulesWithCOG.begin(); iter2!=trtModulesWithCOG.end(); iter2++) {
+		for (iter2 = trtModulesWithCOG.begin(); iter2!=trtModulesWithCOG.end(); ++iter2) {
 			const Identifier TRTID = iter2->first;
 			double nStraws = iter2->second.at(3);
 			nTRT++;
@@ -414,25 +414,12 @@ namespace InDetAlignment
 				if (msgLvl(MSG::INFO)) {
   				InitialAlignment = Amg::EigenTransformToCLHEP(*p) ;
 					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(TRTID,0,'/') << endmsg;
-					msg() << "Alignment x = ("  << InitialAlignment.getTranslation().x() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment y = ("  << InitialAlignment.getTranslation().y() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment z = ("  << InitialAlignment.getTranslation().z() / CLHEP::micrometer << ") micron" << endmsg;
-					msg() << "Alignment x phi   = ("  << InitialAlignment.getRotation().phiX() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment x Theta = ("  << InitialAlignment.getRotation().thetaX() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment y phi   = ("  << InitialAlignment.getRotation().phiY() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment y Theta = ("  << InitialAlignment.getRotation().thetaY() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment z phi   = ("  << InitialAlignment.getRotation().phiZ() / CLHEP::deg << ") degree" << endmsg;
-					msg() << "Alignment z Theta = ("  << InitialAlignment.getRotation().thetaZ() / CLHEP::deg << ") degree" << endmsg;
+					msg() << commonAlignmentOutput(InitialAlignment);
 					msg() << endmsg;
 				}
 			} else {
 				
 					ATH_MSG_INFO("No initial alignment for TRT module " << m_idHelper->show_to_string(TRTID,0,'/') );
-					//                 msg()<<"Let's set the initial alignment for this module ..."<<endmsg;
-				
-				//Align the individual modules
-				// //             m_trtaligndbservice->setLvl1Align(TRTID,InitialAlignment) ;
-				//             m_trtaligndbservice->setAlignTransform(TRTID,InitialAlignment,2) ;
 			}
 			
 			
@@ -631,27 +618,6 @@ namespace InDetAlignment
 			else if (m_MisalignmentMode == 2) {
 				// randomly misalign modules at L3
 				
-				/*
-				 double RandMisX=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisY=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisZ=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisalpha=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisbeta=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisgamma=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
-				 double RandMisX = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_x));
-				 double RandMisY = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_y));
-				 double RandMisZ = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_z));
-				 double RandMisalpha = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_alpha));
-				 double RandMisbeta = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_beta));
-				 double RandMisgamma = new Rndm::Numbers(randsvc, Rndm::Gauss(0.,m_Misalign_gamma));
-				 
-				 double RandMisX(0.);
-				 double RandMisY(0.);
-				 double RandMisZ(0.);
-				 double RandMisalpha(0.);
-				 double RandMisbeta(0.);
-				 double RandMisgamma(0.);
-				 */
 				Rndm::Numbers RandMisX(randsvc, Rndm::Gauss(0.,ScaleFactor*m_Misalign_x));
 				Rndm::Numbers RandMisY(randsvc, Rndm::Gauss(0.,ScaleFactor*m_Misalign_y));
 				Rndm::Numbers RandMisZ(randsvc, Rndm::Gauss(0.,ScaleFactor*m_Misalign_z));
@@ -747,11 +713,7 @@ namespace InDetAlignment
 					//azimuthal misalignments
 					double deltaPhi;
 					if (m_MisalignmentMode==21) {
-						//R deltaPhi = Curl
-						// const double a = maxAngle / maxRadius;
-						// const double c = maxAngleInner * minRadius;
-						// deltaPhi = r/maxRadius * maxAngle; //linearly in r
-						// deltaPhi = a*r + c/r; //linearly + reciprocal term in r
+						
 					        deltaPhi = r/maxRadius * maxAngle + minRadius/r * maxAngleInner; //linearly + reciprocal term in r
 					} else if (m_MisalignmentMode==22) {
 						//Phi deltaPhi = clamshell
@@ -784,10 +746,7 @@ namespace InDetAlignment
 						//R deltaZ = Telescope
 						deltaZ = r/maxRadius * maxDeltaZ; //scale linearly in r
 					} else if (m_MisalignmentMode==32) {
-						//Phi deltaZ = Skew
-						//deltaZ = fabs (sin ( phi )) * maxDeltaZ;
-						//deltaZ =       sin ( phi )  * maxDeltaZ;
-						//deltaZ = 0.5 * cos ( 2*phi ) * maxDeltaZ;
+						
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//clamshell mode cannot handle TRT endcap, sorry
 							deltaZ = 0.;
