@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from TrigEDMConfig import DataScoutingInfo
@@ -37,15 +37,16 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
         Hypo        = PEBInfoWriterAlg('PEBInfoWriterAlg_' + eventBuildType),
         HypoToolGen = pebInfoWriterToolGenerator)
 
-    step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
     if len(chain.steps)==0:
         # noalg PEB chain
+        step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
         step = ChainStep(name=step_name,
                          Sequences=[seq],
                          chainDicts=[chainDict])
     else:
         # standard PEB chain
         prevStep = chain.steps[-1]
+        step_name = 'Step{:d}_merged{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), eventBuildType)
         step = ChainStep(name=step_name,
                          Sequences=[seq for leg in prevStep.legIds],
                          multiplicity=prevStep.multiplicity,

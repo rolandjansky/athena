@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -19,7 +19,14 @@ TrigJetHypoAlg::TrigJetHypoAlg( const std::string& name,
 
 StatusCode TrigJetHypoAlg::initialize() {
 
-  CHECK( m_hypoTools.retrieve() );
+  // Jet special case: only one jet HypoTool is provided per chain, even if the chain has multiple jet legs.
+  // Suppose HLT_e5_2e10_j10_j20_mu40. Only the leg002 jet HypoTool will be provided, and this will
+  // compute the result for both the leg002 and leg003 here.
+  for (auto& tool : m_hypoTools) {
+    if (not tool.empty()) {
+      ATH_CHECK(tool.retrieve());
+    }
+  }
   CHECK( m_jetsKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -94,7 +101,7 @@ TrigJetHypoAlg::decide(const xAOD::JetContainer* jets,
     // with those in the preceding step.
     Decision* newDecision = nullptr;
     newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
-    // Needs a dummy feature link -- we will specify the input RoI
+    // Needs a dummy feature link -- we will specify the input RoI which triggers special behaviour in the ComboHypo, equivilant to the "noCombo" below
     if(!newDecision->hasObjectLink(TrigCompositeUtils::featureString())) {
       newDecision->setObjectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::featureString(), 
 							      TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDecision, TrigCompositeUtils::initialRoIString()).link);
@@ -118,7 +125,11 @@ TrigJetHypoAlg::decide(const xAOD::JetContainer* jets,
 
       const xAOD::JetContainer* jetCont = static_cast<const xAOD::JetContainer*>(jet->container());
       ElementLink<xAOD::JetContainer> jetLink =
-	ElementLink<xAOD::JetContainer>(*jetCont, jet->index());
+        ElementLink<xAOD::JetContainer>(*jetCont, jet->index());
+
+      // Create a decoration. This is used to comminicate to the following ComboHypo that the
+      // DecisionObject should be excluded from downstream multiplicity checks.
+      newDecision->setDetail<int32_t>("noCombo", 1);
 
       newDecision->setObjectLink<xAOD::JetContainer>(TrigCompositeUtils::featureString(), jetLink);
       jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
@@ -160,6 +171,9 @@ TrigJetHypoAlg::decide(const xAOD::JetContainer* jets,
   previousDecisionIDs.insert(leglessPreviousDecisionIDs.begin(), leglessPreviousDecisionIDs.end());
   
   for (const auto& tool: m_hypoTools) {
+    if (tool.empty()) {
+      continue;
+    }
     ATH_MSG_DEBUG("Now computing decision for " << tool->name());
     CHECK(tool->decide(jets, previousDecisionIDs, jetHypoInputs));
   }

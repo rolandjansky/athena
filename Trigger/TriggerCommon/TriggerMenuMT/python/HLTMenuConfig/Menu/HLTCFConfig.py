@@ -405,9 +405,6 @@ def createDataFlow(chains, allDicts):
     finalDecisions = [ [] for n in range(NSTEPS) ]
     CFseqList = [ [] for n in range(NSTEPS) ]
 
-    # chain name -> signatures look-up table
-    chainSignaturesMap = dict([(d['chainName'], d['signatures']) for d in allDicts])
-
     # loop over chains
     for chain in chains:
         log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
@@ -426,27 +423,9 @@ def createDataFlow(chains, allDicts):
             if len(filterInput) == 0 :
                 log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
-
-            #  adapt multiplicity  between two steps:
-            hasHiddenLeg = False
-            chainSignatures = chainSignaturesMap[chain.name]
-            if chainSignatures.count('Jet') > 1 and len(set(chainSignatures)) > 1:
-                hasHiddenLeg = True
-
-            if  len(filterInput) < len(chainStep.multiplicity):
-                oldlen=len(filterInput)
-                if  len(filterInput)  == 1:
-                    filterInput = filterInput * len(chainStep.multiplicity)                   
-                    log.info("Adapted Multiplicity at step %d of chain %s: %d -> %d",nstep, chain.name, oldlen, len(filterInput))
-                elif hasHiddenLeg:
-                    pass
-                else:
-                    log.error("Found  %d inputs to step %s having multiplicity %d", len(filterInput), chainStep.name, len(chainStep.multiplicity))
-                    raise Exception("[createDataFlow] Cannot proceed, exiting.")
             
             log.debug("Set Filter input: %s while setting the chain: %s", filterInput, chain.name)
 
-            
             # make one filter per step:
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
@@ -480,18 +459,12 @@ def createDataFlow(chains, allDicts):
 
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
-            if len(chainLegs) != len(filterInput) and not hasHiddenLeg:
+            if len(chainLegs) != len(filterInput): 
                 log.error("[createDataFlow] lengths of chainlegs = %s differ from inputs=%s", str(chainLegs), str(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
             for finput, leg in zip(filterInput, chainLegs):
                 sequenceFilter.addChain(leg, finput)
                 log.debug("Adding chain %s to input %s of %s", leg, finput,sequenceFilter.Alg.name())
-
-            # add hiden legs appended in MenuComponents to filter 
-            if hasHiddenLeg:
-                for leg in chainLegs[len(filterInput):]:
-                    sequenceFilter.addChain(leg, filterInput[chainSignatures.index('Jet')])
-                    log.debug("Adding hidden chain %s to input %s of %s", leg, filterInput[chainSignatures.index('Jet')], sequenceFilter.Alg.name())
 
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
             log.debug("Now Filter has chains/input: %s", sequenceFilter.getChainsPerInput())

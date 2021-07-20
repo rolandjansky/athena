@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
@@ -330,18 +330,8 @@ def generateChainsManually():
                  makeChainStep("Step1_2muAs_empty", multiplicity=[]),
                  makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
             ]
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-        from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
-        # test change of  multiplicity 
-        chainName = 'HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3'
-        cd = dictFromChainName(chainName )
-        cdicts = splitChainDictInLegs(cd)
-        CombChains += [  makeChain(name = chainName, L1Thresholds = ["EM3", "EM3"], ChainSteps=[
-                makeChainStep("Step1_em1merged", [el11], multiplicity = [1], chainDicts = [cdicts[0]] ),
-                makeChainStep("Step2_em1merged", [el21, el22], multiplicity = [1,1], chainDicts = cdicts)
-                ]) 
-            ]
-
+            # Note: There used to be a test here of change of multiplicity signature, e.g. from multiplicity = [1]
+            # in Step1 to multiplicity = [1,1] in Step2. This is no longer supported.
 
         HLTChains += CombChains
 

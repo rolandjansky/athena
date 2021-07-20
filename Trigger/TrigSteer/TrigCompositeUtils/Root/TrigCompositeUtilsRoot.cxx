@@ -458,7 +458,7 @@ namespace TrigCompositeUtils {
 
 
   bool typelessFindLinks(const Decision* start, const std::string& linkName,
-    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
+    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec, std::vector<const Decision*>& sourceVec,
     const unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom)
   {
     using namespace msgFindLink;
@@ -504,6 +504,7 @@ namespace TrigCompositeUtils {
         keyVec.push_back( tmpKey );
         clidVec.push_back( tmpClid );
         indexVec.push_back( tmpIndex );
+        sourceVec.push_back( start );
       }
     }
     // Early exit
@@ -521,7 +522,7 @@ namespace TrigCompositeUtils {
         }
       }
 #endif
-      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, fullyExploredFrom);
+      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, sourceVec, behaviour, fullyExploredFrom);
     }
     // Fully explored this node
     if (fullyExploredFrom != nullptr) {
@@ -532,7 +533,7 @@ namespace TrigCompositeUtils {
 
 
   bool typelessFindLink(const Decision* start, const std::string& linkName, 
-    uint32_t& key, uint32_t& clid, uint16_t& index,
+    uint32_t& key, uint32_t& clid, uint16_t& index, const Decision*& source,
     const bool suppressMultipleLinksWarning)
   {
     using namespace msgFindLink;
@@ -545,9 +546,10 @@ namespace TrigCompositeUtils {
     std::vector<uint32_t> keyVec;
     std::vector<uint32_t> clidVec;
     std::vector<uint16_t> indexVec;
-    std::set<const xAOD::TrigComposite*> fullyExploredFrom;
+    std::vector<const Decision*> sourceVec;
+    std::set<const Decision*> fullyExploredFrom;
 
-    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
+    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, sourceVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
     if (!result) {
       return false; // Nothing found
     }
@@ -559,6 +561,7 @@ namespace TrigCompositeUtils {
     key = keyVec.at(0);
     clid = clidVec.at(0);
     index = indexVec.at(0);
+    source = sourceVec.at(0);
     return true; 
   }
 
