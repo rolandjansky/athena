@@ -1,5 +1,5 @@
 #/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_HELPERFUNCTIONS_H
@@ -48,6 +48,11 @@ namespace tauRecTools
   TLorentzVector getTauAxis(const xAOD::TauJet& tau, bool doVertexCorrection = true);
 
   TLorentzVector GetConstituentP4(const xAOD::JetConstituent& constituent);
+
+  /**
+   * @brief Determines whether pi0s and shots should be built for a tau candidate.
+   */
+  bool doPi0andShots(const xAOD::TauJet& tau);
 
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);

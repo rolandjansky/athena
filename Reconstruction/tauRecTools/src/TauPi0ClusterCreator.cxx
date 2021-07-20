@@ -18,7 +18,8 @@ TauPi0ClusterCreator::TauPi0ClusterCreator(const std::string& name) :
 
 
 
-StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer,
+StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau,
+							  xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicPFOContainer,
 							  const xAOD::CaloClusterContainer& pi0ClusterContainer) const {
   // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
@@ -26,8 +27,8 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
   tau.setProtoNeutralPFOLinks(empty);
   tau.setHadronicPFOLinks(empty);
 
-  // only run shower subtraction on 1-5 prong taus 
-  if (tau.nTracks() == 0 || tau.nTracks() > 5) {
+  // only need pi0s and shots for 0-5 prong taus 
+  if (!tauRecTools::doPi0andShots(tau)) {
     return StatusCode::SUCCESS;
   }
 
@@ -51,8 +52,8 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
 
   // Loop over custom pi0 clusters, and create neutral PFOs
   for (const xAOD::CaloCluster* cluster: pi0ClusterContainer) {
-    // custom clusters could be correctd directly using the tau vertex
-    TLorentzVector clusterP4; 
+    // correct pi0 clusters w.r.t. the tau vertex
+    TLorentzVector clusterP4;
     if (vertex) {
       xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, vertex->position());
       clusterP4 = vertexedCluster.p4();
@@ -68,6 +69,9 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
     // Create the neutral PFOs
     xAOD::PFO* neutralPFO = new xAOD::PFO();
     neutralPFOContainer.push_back(neutralPFO);
+
+    // -- Set the PFO four momentum corrected w.r.t. the tau vertex
+    neutralPFO->setP4(clusterP4.Pt(), clusterP4.Eta(), clusterP4.Phi(), 0.);
     
     // Add the link to the tau candidate 
     ElementLink<xAOD::PFOContainer> PFOElementLink;
@@ -91,8 +95,8 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
     const xAOD::CaloCluster& cluster = vertexedCluster.clust();
     const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
     CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
-	for (; cellLink != cellLinks->end(); ++cellLink) {
-	  const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+    for (; cellLink != cellLinks->end(); ++cellLink) {
+      const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
        
       int sampling = cell->caloDDE()->getSampling();
       if (sampling < 8) continue;
@@ -123,8 +127,8 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
 
 
 std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClusterMap(const std::vector<const xAOD::PFO*>& shotPFOs,
-										 const xAOD::CaloClusterContainer& pi0ClusterContainer,
-										 const xAOD::TauJet &tau) const {
+										       const xAOD::CaloClusterContainer& pi0ClusterContainer,
+										       const xAOD::TauJet &tau) const {
   std::map<unsigned, const xAOD::CaloCluster*> shotToClusterMap;
   for (unsigned index = 0; index < shotPFOs.size(); ++index) {
     const xAOD::PFO* shotPFO = shotPFOs.at(index);
@@ -162,7 +166,7 @@ std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClus
         
       const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
       CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
-	  for (; cellLink != cellLinks->end(); ++cellLink) {
+      for (; cellLink != cellLinks->end(); ++cellLink) {
         const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
         
         // Check if seed cell is in cluster.
@@ -187,7 +191,7 @@ std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClus
         // assign shot to this cluster if it has larger weight for the cell
         // otherwise the shots keeps assigned to the previous cluster
         if (weightInCluster > weightInPreviousCluster) {
-            shotToClusterMap[index] = cluster;
+	  shotToClusterMap[index] = cluster;
         }
         // FIXME: why break here ? Should loop all the cluster, and find the largest weight
         break;
@@ -201,8 +205,8 @@ std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClus
 
 
 std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(const std::vector<const xAOD::PFO*>& shotPFOs,
-								                                     const std::map<unsigned, const xAOD::CaloCluster*>& shotToClusterMap, 
-								                                     const xAOD::CaloCluster& pi0Cluster) const {
+								     const std::map<unsigned, const xAOD::CaloCluster*>& shotToClusterMap, 
+								     const xAOD::CaloCluster& pi0Cluster) const {
   std::vector<unsigned> shotsMatchedToCluster;
   
   // Loop over the shots, and select those matched to the cluster
@@ -373,10 +377,7 @@ StatusCode TauPi0ClusterCreator::configureNeutralPFO(const xAOD::CaloCluster& cl
                                                      const std::vector<const xAOD::PFO*>& shotPFOs, 
                                                      const std::map<unsigned, const xAOD::CaloCluster*>& shotToClusterMap,
                                                      xAOD::PFO& neutralPFO) const {
-  // Set the property of the PFO
-  // -- Four momentum: not corrected yet
-  neutralPFO.setP4(cluster.pt(), cluster.eta(), cluster.phi(), cluster.m());
-  
+  // Set the properties of the PFO
   // -- Default value
   neutralPFO.setBDTPi0Score(-9999.);
   neutralPFO.setCharge(0);

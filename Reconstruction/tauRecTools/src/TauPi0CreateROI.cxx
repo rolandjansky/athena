@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
 
 #include "TauPi0CreateROI.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "CaloUtils/CaloCellList.h"
 
@@ -28,10 +29,11 @@ StatusCode TauPi0CreateROI::initialize() {
 
 
 StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellContainer& pi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
-  // only run on 1-5 prong taus 
-  if (tau.nTracks() == 0 || tau.nTracks() >5 ) {
+
+  // only run on 0-5 prong taus
+  if (!tauRecTools::doPi0andShots(tau)) {
     return StatusCode::SUCCESS;
-  }
+  }  
 
   SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
   if (!caloCellInHandle.isValid()) {

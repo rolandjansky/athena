@@ -27,8 +27,8 @@ StatusCode TauPi0ScoreCalculator::initialize() {
 
 
 StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const {
-  // Only run on 1-5 prong taus 
-  if (pTau.nTracks() == 0 || pTau.nTracks() > 5 ) {
+  // Only run on 0-5 prong taus 
+  if (!tauRecTools::doPi0andShots(pTau)) {
     return StatusCode::SUCCESS;
   }
 
