@@ -44,7 +44,7 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
       virtual int timeStamp() const;
       virtual int duration() const;
 
-      virtual void setSource(const std::string source);
+      virtual void setSource(const std::string & source);
 
       virtual void setLumiBlock(const int begin, const int end);
       virtual void setLumiBlock(const int lb);
