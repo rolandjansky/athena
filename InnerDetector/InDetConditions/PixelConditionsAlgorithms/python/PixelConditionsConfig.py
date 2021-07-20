@@ -358,7 +358,7 @@ def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kw
     """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")

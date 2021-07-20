@@ -157,7 +157,6 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     acc = PixelCablingSvcCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     if flags.GeoModel.Run=="RUN3":
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
