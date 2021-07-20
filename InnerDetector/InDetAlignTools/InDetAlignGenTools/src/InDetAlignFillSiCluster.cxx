@@ -248,7 +248,7 @@ void InDetAlignFillSiCluster::FillSCTSiNtuple() {
 
   // loop over SCT clusters collections
   for(SCT_ClusterContainer::const_iterator it=m_Sct_clcontainer->begin();
-      it!=m_Sct_clcontainer->end(); it++) {
+      it!=m_Sct_clcontainer->end(); ++it) {
 
     const InDet::SCT_ClusterCollection *colNext=&(**it);
     if (!colNext) continue;
@@ -315,7 +315,7 @@ void InDetAlignFillSiCluster::FillPixelSiNtuple() {
 
   // loop over Pixel clusters collections
   for(PixelClusterContainer::const_iterator it=m_Pixel_clcontainer->begin(); 
-      it!=m_Pixel_clcontainer->end(); it++) {
+      it!=m_Pixel_clcontainer->end(); ++it) {
 
     const InDet::PixelClusterCollection *colNext=&(**it);
     if (!colNext) continue;
