@@ -58,9 +58,14 @@ def AthenaMonitoringCfg(flags):
         result.merge(TRTMonitoringRun3Cfg(flags))
     
     if flags.DQ.Steering.doInDetMon:
-        info('Set up InDet Global monitoring')
-        from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
-        result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doGlobalMon:
+            info('Set up InDet Global monitoring')
+            from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
+            result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doAlignMon:  
+            info('Set up Alignment monitoring')
+            from InDetAlignmentMonitoringRun3.InDetAlignmentMonitoringRun3Config import InDetAlignmentMonitoringRun3Config
+            result.merge(InDetAlignmentMonitoringRun3Config(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')

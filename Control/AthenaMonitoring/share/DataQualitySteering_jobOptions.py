@@ -367,7 +367,7 @@ if DQMonFlags.doMonitoring():
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()
-      Steering.doInDetMon=DQMonFlags.doInDetGlobalMon()
+      Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
       Steering.doLArMon=DQMonFlags.doLArMon()
       Steering.doTileMon=DQMonFlags.doTileMon()
       Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
