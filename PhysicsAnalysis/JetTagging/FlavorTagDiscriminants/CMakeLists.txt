@@ -46,6 +46,7 @@ if (NOT XAOD_STANDALONE)
     src/BTagDecoratorAlg.cxx
     src/BTagToJetLinkerAlg.cxx
     src/BTagTrackLinkCopyAlg.cxx
+    src/BTaggingBuilderAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )
