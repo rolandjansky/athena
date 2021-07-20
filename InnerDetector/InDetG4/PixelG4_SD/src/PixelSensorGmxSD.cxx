@@ -90,15 +90,10 @@ G4bool PixelSensorGmxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist
   lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
   lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
 
+  // For the XML-based Pixel geometry, the identifier is equivalent
+  // to the copy number of our volume.
   int id = myTouch->GetVolume()->GetCopyNo();
-  // ignore hits from invalid detectors for now
-  // TODO: remove when ready
-  if (id == -1) {
-    return true;
-  }
 
-  // For the XML-based Pixel geometry, the identifier is equivalent 
-  // to the copy number of our volume. 
   TrackHelper trHelp(aStep->GetTrack());
   m_HitColl->Emplace(lP1,
                      lP2,
