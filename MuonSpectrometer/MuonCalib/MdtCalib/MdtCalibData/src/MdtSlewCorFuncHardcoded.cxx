@@ -19,32 +19,18 @@
 
 namespace MuonCalib {
 
-const std::vector<double> MdtSlewCorFuncHardcoded::s_LUT = MdtSlewCorFuncHardcoded::initialize_LUT();
-
-const std::vector<double> MdtSlewCorFuncHardcoded::initialize_LUT() {
+double MdtSlewCorFuncHardcoded::correction(double /*t*/, double adc) const {
   // Timeslew correction is negligible (<0.05 ns) for ADC>400 so do not bother computing it.  
   // In addition there are very few hits with ADC>400
   // Constant 109 is from an optimization of the timeslew correction
   // calibrated_p(i) is the integrated charge as a function of ADC
-  std::vector<double> LUT;
-  LUT.reserve(400);
-
-for( int i=0; i<400; i++ ) {
-    LUT.push_back(109./calibrated_p(i));
-  }
-  return LUT;
-} 
-
-double MdtSlewCorFuncHardcoded::correction(double /*t*/, double adc) const {
-  if( adc>400. || adc<0. ) return 0.;
-  return s_LUT[static_cast<int>(adc)];
-}
-
-// Convert ADC to integrated charge for AMT chip, see ATL-MUON-2002-003
-double MdtSlewCorFuncHardcoded::calibrated_p(const double &adc) {
+  if( adc>  400. || adc<0. ) return 0.;
+ constexpr double A = 109. * std::exp(-1.11925e+00 );
   constexpr double adc_chan_conversion = 25./32.;
-  double w = adc*adc_chan_conversion;    //ADC to ns
-  return std::exp(1.11925e+00 + 2.08708e-02*w);
+  constexpr double Lambda =  -2.08708e-02*adc_chan_conversion;  //ADC to ns
+  const int adc_int = adc;
+  // Convert ADC to integrated charge for AMT chip, see ATL-MUON-2002-003
+  return A * std::exp( adc_int * Lambda);
 }
 
 }  //namespace MuonCalib
