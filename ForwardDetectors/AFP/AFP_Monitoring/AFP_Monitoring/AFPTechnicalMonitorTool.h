@@ -60,9 +60,9 @@ protected:
   std::vector<AFPTechnicalStationMonitor*> m_stationsMonitors;
   
   // histograms
-  LWHist1D* m_bcIDAfp;		///< distribution of bcID sent by AFP
-  LWHist1D* m_bcIDATLAS;		///< distribution of bcID sent by ATLAS
-  LWHist1D* m_bcIDDiffAfpAtlas;		///< distribution of difference between ATLAS and AFP bcID  
+  LWHist1D* m_bcIDAfp = nullptr;		///< distribution of bcID sent by AFP
+  LWHist1D* m_bcIDATLAS = nullptr;		///< distribution of bcID sent by ATLAS
+  LWHist1D* m_bcIDDiffAfpAtlas = nullptr;		///< distribution of difference between ATLAS and AFP bcID  
 };
 
 #endif
