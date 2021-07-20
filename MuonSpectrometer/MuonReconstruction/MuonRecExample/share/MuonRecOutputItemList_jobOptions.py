@@ -107,7 +107,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
          MuonESDList+=["MuonSimDataCollection#MDT_SDO"]
          MuonESDList+=["MuonSimDataCollection#RPC_SDO"]
          MuonESDList+=["MuonSimDataCollection#TGC_SDO"]
-         if MuonGeometryFlags.hasSTGC(): MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
+         if MuonGeometryFlags.hasSTGC(): MuonESDList+=["MuonSimDataCollection#sTGC_SDO"]
          if MuonGeometryFlags.hasMM(): MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 
    # commenting if-statement since mandatory for e.g. RPC calibration
