@@ -27,7 +27,7 @@ def InDetJetFitterTrackSelectorToolCfg(flags, name, suffix="", useBTagFlagsDefau
     if useBTagFlagsDefaults:
         jetFitterExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags,'JFExtrapolator'+suffix))
         inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags,'InDetJFUtils'+suffix))
-        inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg('InDetImprovedJFTrackSelTool'+suffix))
+        inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg(flags, 'InDetImprovedJFTrackSelTool'+suffix))
         defaults = { 'revertFromPositiveToNegativeTags' : False,
                      'cutCompPrimaryVertexForPosLifetimeTracks' : 0.1,
                      'cutCompPrimaryVertexForNegLifetimeTracks' : 0.05,

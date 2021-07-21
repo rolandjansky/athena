@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+# from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
 # import the InDetDetailedTrackSelectorTool configurable
 InDet__InDetDetailedTrackSelectorTool=CompFactory.InDet.InDetDetailedTrackSelectorTool
 
 
-def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True, **options):
+def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetImprovedJetFitterTrackSelectorTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -33,7 +33,6 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
         defaults = { 'pTMin'                        : 500.0,
                      'IPd0Max'                      : 7.0,
@@ -54,6 +53,14 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+
+    acc = AtlasExtrapolatorCfg(flags)
+    options.setdefault("Extrapolator", acc.getPrimary() )
+
+    # This presumably should be added, but causes config merge conflicts
+    # FIXME! 
+    # options.setdefault("TrackSummaryTool", acc.popToolsAndMerge(AtlasTrackSummaryToolCfg(flags)) )
+
     acc.setPrivateTools(InDet__InDetDetailedTrackSelectorTool(**options))
 
     return acc
