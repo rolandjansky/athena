@@ -165,6 +165,14 @@ def getFastInDetPileUpTools():
         PileUpToolsList += [ "TRTFastDigitizationTool" ]
     return PileUpToolsList
 
+def getFastHGTDPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    from Digitization.DigitizationFlags import digitizationFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.HGTD_on() and 'doHGTD_FastDigi' in digitizationFlags.experimentalDigi():
+        PileUpToolsList += [ "HGTD_SmearedDigitizationTool" ]
+    return PileUpToolsList
+
 def getSplitInDetPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
@@ -278,8 +286,6 @@ def getStandardCaloPileUpTools():
     PileUpToolsList = []
     if DetFlags.digitize.LAr_on():
         PileUpToolsList += [ "LArPileUpTool" ]
-    if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
-        PileUpToolsList += [ "HGTDPileUpTool" ]
     if DetFlags.digitize.Tile_on():
         PileUpToolsList += [ "TileHitVecToCntTool" ]
     return PileUpToolsList
@@ -341,6 +347,8 @@ def getStandardInTimeOnlyTruthPileUpToolsList():
     PileUpToolsList += getStandardForwardPileUpTools()
     ## Inner Detector Digitization
     PileUpToolsList += getStandardInDetPileUpTools()
+    ## HGTD Digitization
+    PileUpToolsList += getFastHGTDPileUpTools()
     ## Calo Digitization
     PileUpToolsList += getStandardCaloPileUpTools()
     ## Muon System Digitization
@@ -373,6 +381,8 @@ def getFastPileUpToolsList():
     PileUpToolsList += getStandardForwardPileUpTools()
     ## Inner Detector Digitization
     PileUpToolsList += getFastInDetPileUpTools()
+    # ## HGTD Digitization
+    PileUpToolsList += getFastHGTDPileUpTools()
     ## Calo Digitization
     PileUpToolsList += getStandardCaloPileUpTools()
     ## Muon System Digitization

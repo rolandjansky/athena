@@ -128,6 +128,11 @@ def getStreamRDO_ItemList(log):
                 StreamRDO_ItemList += ["InDet::TRT_DriftCircleContainer#*"]
             if standardTRT_DigiOutputExpected():
                 StreamRDO_ItemList+=["TRT_RDO_Container#*"]
+    # HGTD Output
+
+    if DetFlags.digitize.HGTD_on():
+        if 'doHGTD_FastDigi' in digitizationFlags.experimentalDigi():
+            StreamRDO_ItemList+=["HGTD::HGTD_ClusterContainer#*"]
     # Calorimeter Output
     if DetFlags.digitize.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():
