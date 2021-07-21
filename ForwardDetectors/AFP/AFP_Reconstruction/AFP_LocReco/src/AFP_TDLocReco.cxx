@@ -38,9 +38,9 @@ AthAlgorithm(name, pSvcLocator)
 	m_strKeyTDLocRecoEvCollection		= "AFP_TDLocRecoEvCollection";
 
 
-	m_pTDLocRecoEvCollection = NULL;
-	m_pTDLocRecoEvent = NULL;
-	m_storeGate = NULL;
+	m_pTDLocRecoEvCollection = nullptr;
+	m_pTDLocRecoEvent = nullptr;
+	m_storeGate = nullptr;
 
 	m_eventNum = 0;
 	m_iEvent   = 0;
@@ -158,7 +158,7 @@ StatusCode AFP_TDLocReco::execute()
 	else
 	{
                 std::string strAlgoTD;
-		for(unsigned int i=0; i<m_vecListAlgoTD.size(); i++)
+		for(unsigned int i=0; i<m_vecListAlgoTD.size(); ++i)
 		{
 			strAlgoTD = m_vecListAlgoTD[i];
 
@@ -177,7 +177,7 @@ StatusCode AFP_TDLocReco::execute()
 	
 	
 	
-	m_iEvent++;
+	++m_iEvent;
 	ATH_MSG_DEBUG("end AFP_TDLocReco::execute()");
 	return StatusCode::SUCCESS;
 }
@@ -214,7 +214,7 @@ StatusCode AFP_TDLocReco::AFPCollectionReading(std::list<TDHIT> &ListTDHits)
 	ListTDHits.clear();
 
 
-	const AFP_TDDigiCollection* mcTDGen = 0;
+	const AFP_TDDigiCollection* mcTDGen = nullptr;
 
 
 	sc = m_storeGate->retrieve(mcTDGen,m_strTDCollectionName);
@@ -280,7 +280,7 @@ void AFP_TDLocReco::SaveGeometry()
 	ATH_MSG_DEBUG("end AFP_TDLocReco::SaveGeometry()");
 }
 
-StatusCode AFP_TDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std::list<TDHIT> &ListTDHits)
+StatusCode AFP_TDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const std::list<TDHIT> &ListTDHits)
 {
 	ATH_MSG_DEBUG("begin AFP_TDLocReco::ExecuteRecoMethod()");
 
@@ -306,7 +306,7 @@ StatusCode AFP_TDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std
 			sc = pTDZVertex->Finalize(&listTDResults);
 
                         std::list<TDRESULT>::const_iterator iter;
-			for(iter=listTDResults.begin(); iter!=listTDResults.end(); iter++)
+			for(iter=listTDResults.begin(); iter!=listTDResults.end(); ++iter)
 			{
 				TDResults.nStationID  = (*iter).nStationID;
 				TDResults.nDetectorID = (*iter).nDetectorID;
