@@ -35,9 +35,9 @@ def FastCaloSimServicesMainCfg(ConfigFlags):
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
     acc.merge(BeamEffectsAlgCfg(ConfigFlags))
 
-    # Add Kernel_G4FastCaloMT from ISF_MainConfig
-    from ISF_Config.ISF_MainConfigNew import Kernel_G4FastCaloMT
-    acc.merge(Kernel_G4FastCaloMT(ConfigFlags))
+    # Add Kernel_ATLFAST3MT from ISF_MainConfig
+    from ISF_Config.ISF_MainConfigNew import Kernel_ATLFAST3MT_QSCfg
+    acc.merge(Kernel_ATLFAST3MT_QSCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList

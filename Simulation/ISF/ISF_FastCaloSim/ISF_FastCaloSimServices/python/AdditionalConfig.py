@@ -665,7 +665,6 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
     kwargs.setdefault("PunchThroughParticles"   , [    2212,     211,      22,      11,      13 ]    )
     kwargs.setdefault("DoAntiParticles"         , [   False,    True,   False,    True,    True ]    )
-    #kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
     kwargs.setdefault("CorrelatedParticle"      , []    )
     kwargs.setdefault("FullCorrelationEnergy"   , [ 100000., 100000., 100000., 100000.,      0. ]    )
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )

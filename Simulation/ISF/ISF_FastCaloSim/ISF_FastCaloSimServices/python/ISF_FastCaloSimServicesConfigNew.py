@@ -24,7 +24,7 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
     acc.merge(dSFMT(seed))
     kwargs.setdefault("RandomNumberService", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
-    kwargs.setdefault("FilenameLookupTable", 'FastCaloSim/MC16/TFCSparam_mpt_v01.root')
+    kwargs.setdefault("FilenameLookupTable", "FastCaloSim/MC16/TFCSparam_mpt_v01.root")
     kwargs.setdefault("PunchThroughInitiators", [211])
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
     kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )

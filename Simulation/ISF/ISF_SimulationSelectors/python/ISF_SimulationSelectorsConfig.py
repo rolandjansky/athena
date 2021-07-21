@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -10,7 +10,7 @@ from ISF_SimulationSelectors import SimulationFlavor
 
 def usesSimKernelMT():
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'FullG4MT_LongLived', 'ATLFASTIIF_ACTS'])
+    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'ATLFAST3MT', 'ATLFAST3MT_QS', 'FullG4MT_LongLived', 'ATLFASTIIF_ACTS'])
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
     return CfgMgr.ISF__DefaultSimSelector(name, **kwargs )
@@ -127,7 +127,7 @@ def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapola
 def getDefaultActsSelector(name="ISF_DefaultActsSelector", **kwargs):
     if not usesSimKernelMT():
         raise RuntimeError("SimulationSelector '%s' does not support running with SimKernel." % name)
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras) 
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getDefaultSimSelector(name, **kwargs)
 
 def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulationSelector", **kwargs):
@@ -137,9 +137,11 @@ def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulation
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Parametric)
     return getDefaultSimSelector(name, **kwargs )
 
-### PileUpSimSelector Configurations
+### KinematicPileUpSimSelector Configurations
 
 def getPileupSimSelector(name="ISF_PileupSimSelector", **kwargs):
+    if not usesSimKernelMT():
+        raise RuntimeError("SimulationSelector '%s' does not support running with SimKernel." % name)
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs )
 
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs):
@@ -168,229 +170,194 @@ def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwa
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSimPileup)
     return getPileupSimSelector(name, **kwargs )
 
-### KinematicSimSelector Configurations
-
-def getElectronGeant4Selector(name="ISF_ElectronGeant4Selector", **kwargs):
-    kwargs.setdefault('ParticlePDG'     , 11)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getNeutralGeant4Selector(name="ISF_NeutralGeant4Selector", **kwargs):
-    kwargs.setdefault('Charge'      , 0)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'   , 'ISF_Geant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getProtonAFIIGeant4Selector(name="ISF_ProtonAFIIGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxMom'          , 750)
-    kwargs.setdefault('ParticlePDG'     , 2212)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getProtonAFII_QS_Geant4Selector(name="ISF_ProtonAFII_QS_Geant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return getProtonAFIIGeant4Selector(name, **kwargs)
-
-def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxMom'          , 200)
-    kwargs.setdefault('ParticlePDG'     , 211)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getPionG4FastCaloGeant4Selector(name="ISF_PionG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 200)
-    kwargs.setdefault('ParticlePDG'     , 211)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getPionG4FastCalo_QS_Geant4Selector(name="ISF_PionG4FastCalo_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 200)
-    kwargs.setdefault('ParticlePDG'     , 211)
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getProtonG4FastCaloGeant4Selector(name="ISF_ProtonG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 2212)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getProtonG4FastCalo_QS_Geant4Selector(name="ISF_ProtonG4FastCalo_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 2212)
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getNeutronG4FastCaloGeant4Selector(name="ISF_NeutronG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 2112)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getNeutronG4FastCalo_QS_Geant4Selector(name="ISF_NeutronG4FastCalo_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 2112)
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getChargedKaonG4FastCaloGeant4Selector(name="ISF_ChargedKaonG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 321)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getChargedKaonG4FastCalo_QS_Geant4Selector(name="ISF_ChargedKaonG4FastCalo_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 321)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getKLongG4FastCaloGeant4Selector(name="ISF_KLongG4FastCaloGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 130)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getKLongG4FastCalo_QS_Geant4Selector(name="ISF_KLongG4FastCalo_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'         , 400)
-    kwargs.setdefault('ParticlePDG'     , 130)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getPionAFII_QS_Geant4Selector(name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return getPionAFIIGeant4Selector(name, **kwargs)
-
-def getChargedKaonAFIIGeant4Selector(name="ISF_ChargedKaonAFIIGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxMom'          , 750)
-    kwargs.setdefault('ParticlePDG'     , 321)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getChargedKaonAFII_QS_Geant4Selector(name="ISF_ChargedKaonAFII_QS_Geant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return getChargedKaonAFIIGeant4Selector(name, **kwargs)
-
-def getKLongAFIIGeant4Selector(name="ISF_KLongAFIIGeant4Selector", **kwargs):
-    kwargs.setdefault('MaxMom'          , 750)
-    kwargs.setdefault('ParticlePDG'     , 130)
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getKLongAFII_QS_Geant4Selector(name="ISF_KLongAFII_QS_Geant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return getKLongAFIIGeant4Selector(name, **kwargs)
-
-def getMuonSelector(name="ISF_MuonSelector", **kwargs):
-    kwargs.setdefault('ParticlePDG'     , 13)
-    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
-
-def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return getMuonSelector(name, **kwargs)
-
-def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
-    return getMuonGeant4Selector(name, **kwargs)
-
-def getMuonAFII_QS_Geant4Selector(name="ISF_MuonAFII_QS_Geant4Selector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
-    return getMuonGeant4Selector(name, **kwargs)
-
-def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
-    kwargs.setdefault('Simulator'       , 'ISF_FatrasSimSvc')
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
-    return getMuonSelector(name, **kwargs)
-
 def getMuonFatrasPileupSelector(name="ISF_MuonFatrasPileupSelector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_FatrasPileupSimSvc')
-    kwargs.setdefault("PileupBCID"      , [1])
     kwargs.setdefault('ParticlePDG'     , 13)
+    kwargs.setdefault("PileupBCID"      , [1])
+    kwargs.setdefault('Simulator'       , 'ISF_FatrasPileupSimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
     return getPileupSimSelector(name, **kwargs)
 
-def getWithinEta5FastCaloSimSelector(name="ISF_WithinEta5FastCaloSimSelector", **kwargs):
+def getEtaGreater5PileupParticleKillerSimSelector(name="ISF_EtaGreater5PileupParticleKillerSimSelector", **kwargs):
+    kwargs.setdefault('MinPosEta'       , -5.0 )
+    kwargs.setdefault('MaxPosEta'       ,  5.0 )
+    kwargs.setdefault('InvertCuts'      , True )
+    kwargs.setdefault('Simulator'       , 'ISF_ParticleKillerSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
+    return getPileupSimSelector(name, **kwargs)
+
+### KinematicSimSelector Configurations
+
+# BASE METHODS
+def getKinematicGeant4Selector(name="DONOTUSEDIRECTLY", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
+    kwargs.setdefault('Simulator'       , 'ISF_Geant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getKinematicAFIIGeant4Selector(name="DONOTUSEDIRECTLY", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
+    kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getKinematicAFII_QS_Geant4Selector(name="DONOTUSEDIRECTLY", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
+    kwargs.setdefault('Simulator'       , 'ISF_AFII_QS_Geant4SimSvc')
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getKinematicFatrasSelector(name="DONOTUSEDIRECTLY", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
+    kwargs.setdefault('Simulator'       , 'ISF_FatrasSimSvc')
+    kwargs.setdefault('SimulationFlavor', SimulationFlavor.Fatras)
+    return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+
+def getKinematicFastCaloSimSelector(name="DONOTUSEDIRECTLY", **kwargs):
     if usesSimKernelMT():
         kwargs.setdefault('Simulator', '')
     kwargs.setdefault('Simulator'       , 'ISF_FastCaloSimSvc')
-    kwargs.setdefault('MinPosEta'       , -5.0 )
-    kwargs.setdefault('MaxPosEta'       ,  5.0 )
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
-def getEtaGreater5ParticleKillerSimSelector(name="ISF_EtaGreater5ParticleKillerSimSelector", **kwargs):
+def getKinematicParticleKillerSimSelector(name="DONOTUSEDIRECTLY", **kwargs):
     if usesSimKernelMT():
         kwargs.setdefault('Simulator', '')
     kwargs.setdefault('Simulator'       , 'ISF_ParticleKillerSvc')
-    kwargs.setdefault('MinPosEta'       , -5.0 )
-    kwargs.setdefault('MaxPosEta'       ,  5.0 )
-    kwargs.setdefault('InvertCuts'      , True )
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
-def getEtaGreater5PileupParticleKillerSimSelector(name="ISF_EtaGreater5PileupParticleKillerSimSelector", **kwargs):
-    if usesSimKernelMT():
-        kwargs.setdefault('Simulator', '')
-    kwargs.setdefault('Simulator'       , 'ISF_ParticleKillerSvc')
+# Electrons
+def getElectronGeant4Selector(name="ISF_ElectronGeant4Selector", **kwargs):
+    kwargs.setdefault('ParticlePDG'     , 11)
+    return getKinematicGeant4Selector(name, **kwargs)
+
+# Neutrals
+def getNeutralGeant4Selector(name="ISF_NeutralGeant4Selector", **kwargs):
+    kwargs.setdefault('Charge'      , 0)
+    return getKinematicGeant4Selector(name, **kwargs)
+
+# Protons
+def getProtonAFIIGeant4Selector(name="ISF_ProtonAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 2212)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getProtonAFII_QS_Geant4Selector(name="ISF_ProtonAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 2212)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+def getProtonATLFAST3Geant4Selector(name="ISF_ProtonATLFAST3Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2212)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getProtonATLFAST3_QS_Geant4Selector(name="ISF_ProtonATLFAST3_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2212)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+# Pions
+def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getPionATLFAST3Geant4Selector(name="ISF_PionATLFAST3Geant4Selector", **kwargs):
+    return getPionAFIIGeant4Selector(name, **kwargs)
+
+def getPionAFII_QS_Geant4Selector(name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+def getPionATLFAST3_QS_Geant4Selector(name="ISF_PionATLFAST3_QS_Geant4Selector", **kwargs):
+    return getPionAFII_QS_Geant4Selector(name, **kwargs)
+
+# Neutrons
+def getNeutronATLFAST3Geant4Selector(name="ISF_NeutronATLFAST3Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2112)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getNeutronATLFAST3_QS_Geant4Selector(name="ISF_NeutronATLFAST3_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 2112)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+# Charged Kaons
+def getChargedKaonAFIIGeant4Selector(name="ISF_ChargedKaonAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 321)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getChargedKaonATLFAST3Geant4Selector(name="ISF_ChargedKaonATLFAST3Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 321)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getChargedKaonAFII_QS_Geant4Selector(name="ISF_ChargedKaonAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 321)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+def getChargedKaonATLFAST3_QS_Geant4Selector(name="ISF_ChargedKaonATLFAST3_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 321)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+# KLongs
+def getKLongAFIIGeant4Selector(name="ISF_KLongAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 130)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getKLongATLFAST3Geant4Selector(name="ISF_KLongATLFAST3Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 130)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getKLongAFII_QS_Geant4Selector(name="ISF_KLongAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxMom'          , 750)
+    kwargs.setdefault('ParticlePDG'     , 130)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+def getKLongATLFAST3_QS_Geant4Selector(name="ISF_KLongATLFAST3_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'         , 400)
+    kwargs.setdefault('ParticlePDG'     , 130)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+# Muons
+def getMuonGeant4Selector(name="ISF_MuonGeant4Selector", **kwargs):
+    kwargs.setdefault('ParticlePDG'     , 13)
+    return getKinematicGeant4Selector(name, **kwargs)
+
+def getMuonAFIIGeant4Selector(name="ISF_MuonAFIIGeant4Selector", **kwargs):
+    kwargs.setdefault('ParticlePDG'     , 13)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
+def getMuonAFII_QS_Geant4Selector(name="ISF_MuonAFII_QS_Geant4Selector", **kwargs):
+    kwargs.setdefault('ParticlePDG'     , 13)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
+
+def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
+    kwargs.setdefault('ParticlePDG'     , 13)
+    return getKinematicFatrasSelector(name, **kwargs)
+
+# General Eta-based selectors
+def getWithinEta5FastCaloSimSelector(name="ISF_WithinEta5FastCaloSimSelector", **kwargs):
+    kwargs.setdefault('MinPosEta'       , -5.0 )
+    kwargs.setdefault('MaxPosEta'       ,  5.0 )
+    return getKinematicFastCaloSimSelector(name, **kwargs)
+
+def getEtaGreater5ParticleKillerSimSelector(name="ISF_EtaGreater5ParticleKillerSimSelector", **kwargs):
     kwargs.setdefault('MinPosEta'       , -5.0 )
     kwargs.setdefault('MaxPosEta'       ,  5.0 )
     kwargs.setdefault('InvertCuts'      , True )
-    kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
-    return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
+    return getKinematicParticleKillerSimSelector(name, **kwargs)
 
 ### ConeSimSelector Configurations
 

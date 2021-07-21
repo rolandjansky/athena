@@ -20,19 +20,26 @@ from ISF_SimulationSelectors.ISF_SimulationSelectorsConfigNew import (
     EtaGreater5ParticleKillerSimSelectorCfg,
     FullGeant4SelectorCfg,
     MuonAFIIGeant4SelectorCfg,
+    MuonAFII_QS_Geant4SelectorCfg,
     PassBackGeant4SelectorCfg,
     DefaultFastCaloSimV2SelectorCfg,
-    PionG4FastCaloGeant4Selector,
-    ProtonG4FastCaloGeant4Selector,
-    NeutronG4FastCaloGeant4Selector,
-    ChargedKaonG4FastCaloGeant4Selector,
-    KLongG4FastCaloGeant4Selector,
+    PionATLFAST3Geant4SelectorCfg,
+    PionATLFAST3_QS_Geant4SelectorCfg,
+    ProtonATLFAST3Geant4SelectorCfg,
+    ProtonATLFAST3_QS_Geant4SelectorCfg,
+    NeutronATLFAST3Geant4SelectorCfg,
+    NeutronATLFAST3_QS_Geant4SelectorCfg,
+    ChargedKaonATLFAST3Geant4SelectorCfg,
+    ChargedKaonATLFAST3_QS_Geant4SelectorCfg,
+    KLongATLFAST3Geant4SelectorCfg,
+    KLongATLFAST3_QS_Geant4SelectorCfg,
     DefaultFatrasSelectorCfg,
     MuonFatrasSelectorCfg,
     DefaultFastCaloSimSelectorCfg
 )
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import (
     AFIIGeant4ToolCfg,
+    AFII_QS_Geant4ToolCfg,
     FullGeant4ToolCfg,
     LongLivedGeant4ToolCfg,
     PassBackGeant4ToolCfg,
@@ -139,6 +146,7 @@ def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **
 
 def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     defaultG4SelectorRegions = set(["BeamPipeSimulationSelectors", "IDSimulationSelectors", "CaloSimulationSelectors", "MSSimulationSelectors"])
     if defaultG4SelectorRegions - kwargs.keys(): # i.e. if any of these have not been defined yet
@@ -171,6 +179,7 @@ def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
 
 def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
     acc.addPublicTool(tool)
@@ -215,6 +224,7 @@ def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
 
 def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     kwargs.setdefault("SimulationTools", [
         acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
@@ -227,8 +237,9 @@ def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
     return acc
 
 
-def Kernel_G4FastCaloMT(flags, name="ISF_Kernel_G4FastCaloMT", **kwargs):
+def Kernel_ATLFAST3MTCfg(flags, name="ISF_Kernel_ATLFAST3MT", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     # BeamPipe, ID, MS Simulation Selectors
     tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
@@ -241,19 +252,19 @@ def Kernel_G4FastCaloMT(flags, name="ISF_Kernel_G4FastCaloMT", **kwargs):
     # CaloSimulationSelectors
     acc.addPublicTool(acc.popToolsAndMerge(MuonAFIIGeant4SelectorCfg(flags)))
     acc.addPublicTool(acc.popToolsAndMerge(EtaGreater5ParticleKillerSimSelectorCfg(flags)))
-    acc.addPublicTool(acc.popToolsAndMerge(PionG4FastCaloGeant4Selector(flags)))
-    acc.addPublicTool(acc.popToolsAndMerge(ProtonG4FastCaloGeant4Selector(flags)))
-    acc.addPublicTool(acc.popToolsAndMerge(NeutronG4FastCaloGeant4Selector(flags)))
-    acc.addPublicTool(acc.popToolsAndMerge(ChargedKaonG4FastCaloGeant4Selector(flags)))
-    acc.addPublicTool(acc.popToolsAndMerge(KLongG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(PionATLFAST3Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ProtonATLFAST3Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(NeutronATLFAST3Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ChargedKaonATLFAST3Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(KLongATLFAST3Geant4SelectorCfg(flags)))
     acc.addPublicTool(acc.popToolsAndMerge(DefaultFastCaloSimV2SelectorCfg(flags)))
     kwargs.setdefault("CaloSimulationSelectors"    , [ acc.getPublicTool("ISF_MuonAFIIGeant4Selector"),
                                                        acc.getPublicTool("ISF_EtaGreater5ParticleKillerSimSelector"),
-                                                       acc.getPublicTool("ISF_PionG4FastCaloGeant4Selector"),
-                                                       acc.getPublicTool("ISF_ProtonG4FastCaloGeant4Selector"),
-                                                       acc.getPublicTool("ISF_NeutronG4FastCaloGeant4Selector"),
-                                                       acc.getPublicTool("ISF_ChargedKaonG4FastCaloGeant4Selector"),
-                                                       acc.getPublicTool("ISF_KLongG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_PionATLFAST3Geant4Selector"),
+                                                       acc.getPublicTool("ISF_ProtonATLFAST3Geant4Selector"),
+                                                       acc.getPublicTool("ISF_NeutronATLFAST3Geant4Selector"),
+                                                       acc.getPublicTool("ISF_ChargedKaonATLFAST3Geant4Selector"),
+                                                       acc.getPublicTool("ISF_KLongATLFAST3Geant4Selector"),
                                                        acc.getPublicTool("ISF_DefaultFastCaloSimV2Selector") ])
     # CavernSimulationSelectors
     acc.addPublicTool(acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags)))
@@ -267,6 +278,53 @@ def Kernel_G4FastCaloMT(flags, name="ISF_Kernel_G4FastCaloMT", **kwargs):
     tool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
     acc.addPublicTool(tool)
     kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(tool.name)) # public ToolHandle
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
+    return acc
+
+
+def Kernel_ATLFAST3MT_QSCfg(flags, name="ISF_Kernel_ATLFAST3MT_QS", **kwargs):
+    acc = ComponentAccumulator()
+    acc.merge(LongLivedInputConverterCfg(flags))
+    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
+    kwargs.setdefault("ParticleOrderingTool"       ,   acc.popToolsAndMerge(ParticleOrderingToolCfg(flags)))
+
+    tool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
+    acc.addPublicTool(tool)
+    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(tool.name)) # public ToolHandle
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
+
+    # BeamPipe, ID, MS Simulation Selectors
+    tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
+    acc.addPublicTool(tool)
+    pubTool = acc.getPublicTool(tool.name)
+    kwargs.setdefault("BeamPipeSimulationSelectors", [pubTool])
+    kwargs.setdefault("IDSimulationSelectors"      , [pubTool])
+    kwargs.setdefault("MSSimulationSelectors"      , [pubTool])
+
+    # CaloSimulationSelectors
+    acc.addPublicTool(acc.popToolsAndMerge(MuonAFII_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(EtaGreater5ParticleKillerSimSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(PionATLFAST3_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ProtonATLFAST3_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(NeutronATLFAST3_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ChargedKaonATLFAST3_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(KLongATLFAST3_QS_Geant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultFastCaloSimV2SelectorCfg(flags)))
+    kwargs.setdefault("CaloSimulationSelectors"    , [ acc.getPublicTool("ISF_MuonAFII_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_EtaGreater5ParticleKillerSimSelector"),
+                                                       acc.getPublicTool("ISF_PionATLFAST3_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_ProtonATLFAST3_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_NeutronATLFAST3_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_ChargedKaonATLFAST3_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_KLongATLFAST3_QS_Geant4Selector"),
+                                                       acc.getPublicTool("ISF_DefaultFastCaloSimV2Selector") ])
+    # CavernSimulationSelectors
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags)))
+    kwargs.setdefault("CavernSimulationSelectors"  , [ acc.getPublicTool("ISF_DefaultParticleKillerSelector") ])
+
+    kwargs.setdefault("SimulationTools"            , [ acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+                                                       acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags)),
+                                                       acc.popToolsAndMerge(AFII_QS_Geant4ToolCfg(flags)) ])
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
 
@@ -303,7 +361,7 @@ def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwar
 
 def Kernel_ATLFASTIIF_G4MSCfg(flags, name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs):
     acc = ComponentAccumulator()
-
+    acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Force the SimKernel to be before the CollectionMerger by adding it here
     acc.addPublicTool(acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags)))
     acc.addPublicTool(acc.popToolsAndMerge(DefaultFatrasSelectorCfg(flags)))
     acc.addPublicTool(acc.popToolsAndMerge(MuonFatrasSelectorCfg(flags)))
@@ -321,7 +379,7 @@ def Kernel_ATLFASTIIF_G4MSCfg(flags, name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs
     # not migrated simFlags.SimulationFlavour = "ATLFASTIIF_MS"
     # simFlags.SimulationFlavour = "ATLFASTIIF_G4MS"
 
-    acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs))
+    acc.merge(Kernel_GenericSimulatorCfg(flags, name, **kwargs)) # Merge properly configured SimKernel here and let deduplication sort it out.
     return acc
 
 def ISF_KernelCfg(flags):
@@ -332,8 +390,10 @@ def ISF_KernelCfg(flags):
         acc.merge(Kernel_FullG4MT_LongLivedCfg(flags))
     elif flags.Sim.ISF.Simulator in ('PassBackG4MT'):
         acc.merge(Kernel_PassBackG4MTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('G4FastCaloMT'):
-        acc.merge(Kernel_G4FastCaloMT(flags))
+    elif flags.Sim.ISF.Simulator in ('ATLFAST3MT'):
+        acc.merge(Kernel_ATLFAST3MTCfg(flags))
+    elif flags.Sim.ISF.Simulator in ('ATLFAST3MT_QS'):
+        acc.merge(Kernel_ATLFAST3MT_QSCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFASTIIMT'):
         acc.merge(Kernel_ATLFASTIIMTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFASTIIFMT'):
