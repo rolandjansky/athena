@@ -84,7 +84,7 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
     if (rot)
       {
 	rots.push_back(rot);
-	crots.push_back(0);
+	crots.push_back(nullptr);
       }
 
     else 
@@ -263,10 +263,10 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
 	 for(unsigned int j = 0; j < nphi ; j++ )  {
 	   if (crots_phi[j] == crots_phi[i] && j!=i)
 	     {
-	       crots_phi[j]=0;
+	       crots_phi[j]=nullptr;
 	     }
 	 }
-	 crots_phi[i]=0;
+	 crots_phi[i]=nullptr;
        }
    }
 
@@ -314,7 +314,7 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
  
   const Trk::LocalDirection locSegmentDir(segment->localDirection());
   Amg::Vector2D locSegmentPos(lSegmentPos.x(),lSegmentPos.y());
-  const Amg::MatrixX locSegmenterr(segment->localCovariance());
+  const Amg::MatrixX& locSegmenterr(segment->localCovariance());
   Trk::FitQuality* fitQuality = segment->fitQuality()->clone();
   Muon::MuonSegment* newSegment = new Muon::MuonSegment(locSegmentPos,locSegmentDir,locSegmenterr,psf,meas_keep,fitQuality); 
   
