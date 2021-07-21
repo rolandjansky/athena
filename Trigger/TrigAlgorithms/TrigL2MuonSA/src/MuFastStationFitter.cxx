@@ -853,7 +853,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
           for (int cand=0; cand<6; cand++) {
 
-            if (pbFitResult.SlopeCand[cand]!=0.) {
+            if (std::abs(pbFitResult.SlopeCand[cand]) > ZERO_LIMIT) {
               Line_A.push_back(1/pbFitResult.SlopeCand[cand]);
               Line_B.push_back(-pbFitResult.InterceptCand[cand]/pbFitResult.SlopeCand[cand]-Yor/pbFitResult.SlopeCand[cand]+Xor);
               Line_Chi2.push_back(pbFitResult.Chi2Cand[cand]);
