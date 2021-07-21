@@ -140,7 +140,7 @@ class TrigMultiTrkComboHypoConfig(object):
               VertexPointEstimator = VertexPointEstimator,
               CheckMultiplicityMap = False,
               MonTool = TrigMultiTrkComboHypoMonitoring('TrigMultiTrkComboHypoMonitoring_'+baseName))
-
+            return tool
 
         tool = CompFactory.TrigMultiTrkComboHypo(
             name = baseName+'ComboHypo',
