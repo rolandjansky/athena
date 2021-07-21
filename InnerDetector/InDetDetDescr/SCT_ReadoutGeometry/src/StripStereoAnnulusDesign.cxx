@@ -13,28 +13,30 @@
 using namespace std;
 
 namespace InDetDD {
-StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis stripDirection,
-                               const SiDetectorDesign::Axis thicknessDirection,
-                               const double thickness,
-                               const int readoutSide,
-                               const InDetDD::CarrierType carrier,
-                               const int nRows,
-                               const vector<int> nStrips,
-                               const vector<double> pitch,
-                               const vector<double> stripStartRadius,
-                               const vector<double> stripEndRadius,
-                               const double stereoAngle,
-                               const double centreR) :
+StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
+                               const SiDetectorDesign::Axis &thicknessDirection,
+                               const double &thickness,
+                               const int &readoutSide,
+                               const InDetDD::CarrierType &carrier,
+                               const int &nRows,
+                               const std::vector<int> &nStrips,
+                               const std::vector<double> &pitch,
+                               const std::vector<double> &stripStartRadius,
+                               const std::vector<double> &stripEndRadius,
+                               const double &stereoAngle,
+                               const double &centreR,
+                               const double &waferCentreR) :
     SCT_ModuleSideDesign(thickness, false, false, true, 1, 0, 0, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection),
-    m_nRows(nRows),
-    m_nStrips(nStrips),
-    m_pitch(pitch),
-    m_stripStartRadius(stripStartRadius),
-    m_stripEndRadius(stripEndRadius),
-    m_stereo(stereoAngle),
-    m_R(centreR),
-    m_lengthBF(2. * centreR * sin(stereoAngle / 2.)) // Eq. 5 p. 7
+  m_nRows(nRows),
+  m_nStrips(nStrips),
+  m_pitch(pitch),
+  m_stripStartRadius(stripStartRadius),
+  m_stripEndRadius(stripEndRadius),
+  m_stereo(stereoAngle),
+  m_R(centreR),
+  m_waferCentreR(waferCentreR),//if not specified in constructor, wafer centre assumed to simply be element centre 
+  m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5))// Eq. 5 p. 7
 {
     if (nRows < 0) {
         throw std::runtime_error(
@@ -68,8 +70,25 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setDiodes(totalStrips);
 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
-    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_waferCentreR, m_nStrips[0] * m_pitch[0], m_stereo);
 
+}
+
+StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
+                               const SiDetectorDesign::Axis &thicknessDirection,
+                               const double &thickness,
+                               const int &readoutSide,
+                               const InDetDD::CarrierType &carrier,
+                               const int &nRows,
+                               const std::vector<int> &nStrips,
+                               const std::vector<double> &pitch,
+                               const std::vector<double> &stripStartRadius,
+                               const std::vector<double> &stripEndRadius,
+                               const double &stereoAngle,
+                               const double &centreR):
+    StripStereoAnnulusDesign(stripDirection,thicknessDirection,thickness,readoutSide,carrier,nRows,nStrips,
+                             pitch,stripStartRadius,stripEndRadius,stereoAngle,centreR,centreR){
+//assuming here that centreR==waferCentreR
 }
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
@@ -77,7 +96,7 @@ StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
 }
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
-    return HepGeom::Point3D<double>(m_R, 0., 0.);
+  return HepGeom::Point3D<double>(m_R, 0., 0.);
 }
 
 double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCoord) const {
