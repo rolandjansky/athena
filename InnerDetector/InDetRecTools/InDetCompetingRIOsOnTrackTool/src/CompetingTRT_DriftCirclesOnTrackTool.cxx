@@ -868,6 +868,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
   const InDet::TRT_DriftCircleOnTrack* dc1 = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>
     ( ROTvector->at(0));
   if (!dc1) {
+    delete DCvector;
     throw std::logic_error("Not a TRT_DriftCircleOnTrack");
   }
   DCvector->push_back(dc1);
@@ -875,6 +876,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     const InDet::TRT_DriftCircleOnTrack* dc2
       = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>( ROTvector->at(1));
     if (!dc2) {
+      delete DCvector;
       throw std::logic_error("Not a TRT_DriftCircleOnTrack");
     }
       DCvector->push_back(dc2);
