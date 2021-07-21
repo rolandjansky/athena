@@ -4,7 +4,6 @@
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -99,6 +98,9 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container");
     return StatusCode::FAILURE;
   }
+  //retrieve CaloDetDescr 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
 
   // loop over input cluster container and create fwd electrons
   xAOD::CaloClusterContainer::const_iterator clus_begin =
@@ -107,6 +109,7 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   static const SG::AuxElement::Accessor<
     std::vector<ElementLink<xAOD::CaloClusterContainer>>>
     caloClusterLinks("constituentClusterLinks");
+  
   size_t origClusterIndex = 0;
   for (; clus_begin!=clus_end; ++clus_begin,++origClusterIndex) {
  
@@ -142,7 +145,7 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_CHECK(m_fourMomBuilder->execute(ctx, el));
 
     // do object quality
-    ATH_CHECK(ExecObjectQualityTool(ctx, el));
+    ATH_CHECK(ExecObjectQualityTool(ctx, calodetdescrmgr, el));
 
     // Apply the Forward Electron selectors
     size_t size = m_forwardElectronIsEMSelectors.size();
@@ -168,20 +171,18 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-// ===========================================================
-StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, xAOD::Egamma *eg) const
+StatusCode
+egammaForwardBuilder::ExecObjectQualityTool(
+  const EventContext& ctx,
+  const CaloDetDescrManager* calodetdescrmgr,
+  xAOD::Egamma* eg) const
 {
   //
   // execution of the object quality tools
   //
   // protection in case tool is not available
-  // return success as algorithm may be able to run without it
-  // in degraded mode
+  // return success as algorithm can run without it
   if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
-
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
-
   // execute the tool
   return m_objectQualityTool->execute(ctx, *calodetdescrmgr,*eg);
 }
