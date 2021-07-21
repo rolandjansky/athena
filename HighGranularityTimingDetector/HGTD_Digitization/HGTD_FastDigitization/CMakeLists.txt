@@ -20,4 +20,5 @@ atlas_add_component( HGTD_FastDigitization
                      HGTD_PrepRawData AthenaKernel )
 
 atlas_install_headers( HGTD_FastDigitization )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py)
+atlas_install_joboptions( share/*.py )
