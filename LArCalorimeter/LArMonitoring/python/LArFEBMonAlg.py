@@ -132,15 +132,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
     Group.defineHistogram('dspThrADC;dspThresholdsADC', 
-                                  title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
-                                  type='TH1I',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5)
+                          title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
+                          type='TH1I',
+                          path=summary_hist_path,
+                          xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
+                          merge='identical')
     Group.defineHistogram('dspThrQT;dspThresholds_qfactortime', 
-                                  title='DSP thresholds to readout (qfactor+time):Number of cells:Cell threshold in ADC counts',
-                                  type='TH1I',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5)
+                          title='DSP thresholds to readout (qfactor+time):Number of cells:Cell threshold in ADC counts',
+                          type='TH1I',
+                          path=summary_hist_path,
+                          xbins=lArDQGlobals.DSPThr_Bins+1, xmin=-0.5, xmax=lArDQGlobals.DSPThr_Bins+0.5,
+                          merge='identical')
     Group.defineHistogram('EvtType;Eventtype', 
                                   title='Event type (1st readout FEB)',
                                   type='TH1I',
@@ -378,7 +380,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
-                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
+                              ybins=ft_n, ymin=ft_low, ymax=ft_up,
+                              merge='identical')
 
        darray.defineHistogram('LB,LArEvSizePart;eventSizeVsLB',
                               title='LAr event size per LB (w/o ROS headers):Luminosity Block',
