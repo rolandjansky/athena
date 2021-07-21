@@ -16,6 +16,7 @@
 
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
 #include <cmath>
+	
 
 namespace MuonCalib {
 
@@ -25,12 +26,11 @@ double MdtSlewCorFuncHardcoded::correction(double /*t*/, double adc) const {
   // Constant 109 is from an optimization of the timeslew correction
   // calibrated_p(i) is the integrated charge as a function of ADC
   if( adc>  400. || adc<0. ) return 0.;
- constexpr double A = 109. * std::exp(-1.11925e+00 );
+  static const double A = 109. * std::exp(-1.11925e+00 );
   constexpr double adc_chan_conversion = 25./32.;
   constexpr double Lambda =  -2.08708e-02*adc_chan_conversion;  //ADC to ns
-  const int adc_int = adc;
   // Convert ADC to integrated charge for AMT chip, see ATL-MUON-2002-003
-  return A * std::exp( adc_int * Lambda);
+  return A * std::exp( adc * Lambda);
 }
 
 }  //namespace MuonCalib
