@@ -4,7 +4,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
-use_tracking_geometry_cond_alg = False
+use_tracking_geometry_cond_alg = True
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
