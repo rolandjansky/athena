@@ -379,7 +379,7 @@ vector<double> endR;
       
       //DetectorManager takes ownership of this - in master we use unique_ptr like for motherDesign. Stick to old pattern here to avoid
       //cascading interface changes being required...
-      InDetDD::StripStereoAnnulusDesign * design = new InDetDD::StripStereoAnnulusDesign(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR);
+      InDetDD::StripStereoAnnulusDesign * design = new InDetDD::StripStereoAnnulusDesign(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR,centreR);
       
       //
       //    Add to map for addSensor routine
