@@ -300,8 +300,8 @@ def createTriggerFlags():
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
-    # Switch on AMVF vertice and priority TTVA for jet slice
-    flags.addFlag("Trigger.Jet.doMC20_EOverP", False)
+    # Switch on MC20 EOverP maps for the jet slice
+    flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
