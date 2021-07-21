@@ -62,7 +62,7 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault("PhysicsListSvc", acc.getService("PhysicsListSvc"))
 
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "G4FastCaloMT"]:
+    if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
         tool = acc.popToolsAndMerge(G4RunManagerHelperCfg(flags))
