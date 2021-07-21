@@ -20,7 +20,7 @@ class AFPSiLayerSummaryProfileBase
 {
 public:
   /// Creates a TPofile object #m_profile and sets bin labels according to monitors in #m_parentTool.
-  AFPSiLayerSummaryProfileBase (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title);
+  AFPSiLayerSummaryProfileBase (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string& name, const std::string& title);
   
   /// Does nothing. The ownership of the #m_profile object is taken by monitoring service.
   virtual ~AFPSiLayerSummaryProfileBase() {}
