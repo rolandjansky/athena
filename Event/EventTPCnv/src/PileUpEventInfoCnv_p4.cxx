@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/PileUpEventInfo.h"
@@ -20,7 +20,7 @@ void PileUpEventInfoCnv_p4::transToPers(const PileUpEventInfo* trans, PileUpEven
       p_sub_iter->m_index = sub_iter->index();
       p_sub_iter->m_type  = static_cast<short>(sub_iter->type());
       evInfoConv.transToPers(sub_iter->pSubEvt, &p_sub_iter->m_subEventInfo, log);
-      p_sub_iter++;  sub_iter++;
+      ++p_sub_iter;  ++sub_iter;
    }
 }
 
@@ -37,6 +37,6 @@ void PileUpEventInfoCnv_p4::persToTrans(const PileUpEventInfo_p4* pers, PileUpEv
                         std::unique_ptr<EventInfo>
                           (evInfoConv.createTransient(&p_sub_iter->m_subEventInfo, log)),
                         nullptr);
-      p_sub_iter++;
+      ++p_sub_iter;
    }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/EventInfo.h"
@@ -27,7 +27,7 @@ void EventInfoCnv_p3::persToTrans(const EventInfo_p3* pers, EventInfo* trans, Ms
     *trans = EventInfo();
     std::vector<unsigned int>::const_iterator i= pers->m_AllTheData.begin();
 	
-    int vers = (*i); i++;
+    int vers = (*i); ++i;
     // std::cout<<"EventInfo vers  EventID: "<<(vers&0x003f)<<"\t EventType: "<< ((vers>>6)&0x003f)<<"\tTriggerInfo: "<<((vers>>12)&0x003f) <<"\t Local vars: "<<(vers>>18)<<std::endl;
 
     bool bugcompat = (vers&(1<<24)) == 0;
@@ -56,7 +56,7 @@ void EventInfoCnv_p3::persToTrans(const EventInfo_p3* pers, EventInfo* trans, Ms
         trans->m_event_flags.reserve(n);
     }
     while(i!=pers->m_AllTheData.end()){ // there is still some data: m_event_flags
-        trans->m_event_flags.push_back((*i)); i++;
+        trans->m_event_flags.push_back((*i)); ++i;
     }
     // std::cout<<"persToTrans of EventInfo \t"<<trans->m_event_flags.size()<<std::endl;
 
