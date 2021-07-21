@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArTPCnv/LArNoisyROSummaryCnv_p3.h"
 
-void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p3* pers, MsgStream & log) 
+void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p3* pers, MsgStream & log) const
 {
   log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p3::transToPers " << endmsg;
 
@@ -34,7 +34,7 @@ void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoi
   
 }
 
-void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArNoisyROSummary* trans, MsgStream & log ) 
+void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArNoisyROSummary* trans, MsgStream & log ) const
 {
   log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p3::persToTrans " << endmsg;
   trans->clear();

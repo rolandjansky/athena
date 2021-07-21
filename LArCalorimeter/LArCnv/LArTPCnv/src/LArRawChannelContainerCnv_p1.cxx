@@ -10,13 +10,13 @@
 //#include "LArTPCnv/LArRawChannelCollectionCnv_p1.h"
 #include "LArTPCnv/LArRawChannelContainerCnv_p1.h"
 
-void LArRawChannelContainerCnv_p1::transToPers(const LArRawChannelContainer*, LArRawChannelContainer_p1*, MsgStream &log) 
+void LArRawChannelContainerCnv_p1::transToPers(const LArRawChannelContainer*, LArRawChannelContainer_p1*, MsgStream &log) const
 {
   //LArRawChannelContainer_Cnvp1_base_t::transToPers(trans,pers,log);
   log << MSG::ERROR  << " ***  Writing LArRawChannelContainer_p1 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
 }
 
-void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* pers, LArRawChannelContainer* trans, MsgStream &log) 
+void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* pers, LArRawChannelContainer* trans, MsgStream &log) const
 {
   //LArRawChannelContainer_Cnvp1_base_t::persToTrans(pers,trans,log);
   std::size_t index=0;

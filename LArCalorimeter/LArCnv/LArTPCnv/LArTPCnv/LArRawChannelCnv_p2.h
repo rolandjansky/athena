@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,12 +14,15 @@
 // author G.Unal
 
 class MsgStream;
-class LArRawChannelCnv_p2  : public T_AthenaPoolTPCnvBase<LArRawChannel, LArRawChannel_p2>
+class LArRawChannelCnv_p2  : public T_AthenaPoolTPCnvConstBase<LArRawChannel, LArRawChannel_p2>
 {
  public:
   LArRawChannelCnv_p2() { };
-  virtual void   persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &log) ;
-  virtual void   transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &log) ;
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+  virtual void   persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &log) const override;
+  virtual void   transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &log) const override;
 
 };
 

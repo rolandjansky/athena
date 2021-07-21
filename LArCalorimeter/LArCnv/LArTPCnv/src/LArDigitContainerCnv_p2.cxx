@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTPCnv/LArDigitContainerCnv_p2.h"
@@ -33,7 +33,7 @@ LArDigitContainerCnv_p2::LArDigitContainerCnv_p2(const LArOnlineID_Base* idHelpe
 
 void
 LArDigitContainerCnv_p2::persToTrans(const LArDigitContainer_p2* pers, 
-				     LArDigitContainer* trans, MsgStream &/*log*/)
+				     LArDigitContainer* trans, MsgStream &/*log*/) const
 {
   if (pers->m_nSamples==0 || pers->m_samples.size()==0) {
     //No data
@@ -61,7 +61,7 @@ LArDigitContainerCnv_p2::persToTrans(const LArDigitContainer_p2* pers,
 
 void
 LArDigitContainerCnv_p2::transToPers(const LArDigitContainer* trans, 
-				     LArDigitContainer_p2* pers, MsgStream &log) {
+				     LArDigitContainer_p2* pers, MsgStream &log) const {
 
   const unsigned int nChannels=trans->size();
   if (nChannels==0) {
