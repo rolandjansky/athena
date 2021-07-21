@@ -504,10 +504,10 @@ namespace Trk {
                             << "MM_SDO");
             return Amg::Vector3D(0, 0, 0);
         }
-        const MuonSimDataCollection* stgcSimDataMap = retrieveTruthCollection("STGC_SDO");
+        const MuonSimDataCollection* stgcSimDataMap = retrieveTruthCollection("sTGC_SDO");
         if (!stgcSimDataMap) {
             ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: "
-                            << "STGC_SDO");
+                            << "sTGC_SDO");
             return Amg::Vector3D(0, 0, 0);
         }
 
