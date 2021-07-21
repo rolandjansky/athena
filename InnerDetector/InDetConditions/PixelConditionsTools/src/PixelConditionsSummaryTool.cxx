@@ -113,6 +113,7 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   const auto *idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
+    return 0;
   }
   uint64_t word = (uint64_t)idcCachePtr->retrieve(index);
   return word<m_missingErrorInfo ? word : 0;

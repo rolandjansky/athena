@@ -152,7 +152,7 @@ Identifier PixelCablingCondData::find_entry_DCSoffline(const std::string& DCSnam
 
 std::string PixelCablingCondData::find_entry_offlineDCS(const Identifier offlineId) const {
   std::unordered_map<std::string, Identifier>::const_iterator iter = m_idMapDCSoff.begin();
-  for (; iter != m_idMapDCSoff.end(); iter++) {
+  for (; iter != m_idMapDCSoff.end(); ++iter) {
     if (iter->second == offlineId)
       return iter->first;
   }
