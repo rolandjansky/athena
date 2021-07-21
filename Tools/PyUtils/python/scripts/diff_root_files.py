@@ -291,17 +291,11 @@ def main(args):
             else:
                 return '.'.join([s for s in entry[2] if not s.isdigit()])
         
-        def elindex_fromdump(entry):
+        def elindices_fromdump(entry):
             if entry is None:
                 return None
             else:
-                digits = [int(s) for s in entry[2] if s.isdigit()]
-                result = 0
-                if digits:
-                    length = len(digits)
-                    for idx,ival in enumerate(digits):
-                        result += ival*pow(10,length-idx-1)
-                return result
+                return [int(s) for s in entry[2] if s.isdigit()]
 
         @memoize
         def skip_leaf(name_from_dump, skip_leaves):
@@ -406,13 +400,13 @@ def main(args):
                     branch_new = d_new[2][0]
                     leaf_old = leafname_fromdump(d_old)
                     leaf_new = leafname_fromdump(d_new)
-                    index_old = elindex_fromdump(d_old)
-                    index_new = elindex_fromdump(d_new)
+                    indices_old = elindices_fromdump(d_old)
+                    indices_new = elindices_fromdump(d_new)
                     # Branches/Leaves are alphabetically ordered
                     # If we're out-of-sync, we try to figure out
                     # if we should advance the old or the new branch
                     # For same branches, we look at the full leaf name
-                    # If that fails we look at the pseudo-indices
+                    # If that fails we look at the indices
                     if branch_old > branch_new:
                         read_old = False
                     elif branch_old < branch_new:
@@ -422,10 +416,10 @@ def main(args):
                             read_old = False
                         elif leaf_old < leaf_new:
                             read_new = False
-                        else:
-                            if index_old > index_new:
+                        elif indices_old and indices_new and len(indices_old) == len(indices_new):
+                            if indices_old > indices_new:
                                 read_old = False
-                            elif index_old < index_new:
+                            elif indices_old < indices_new:
                                 read_new = False
                     # Let's see if we can reconcile
                     # If not, just bail out to avoid false positivies
@@ -441,8 +435,8 @@ def main(args):
                         summary[leaf_new] += 1
                     else:
                         msg.error('::sync attempt failed, bailing out...')
-                        msg.error(f"::sync-old Leaf vs Index : {leaf_old} vs {index_old}")
-                        msg.error(f"::sync-new Leaf vs Index : {leaf_new} vs {index_new}")
+                        msg.error(f"::sync-old Leaf vs Index : {leaf_old} vs {indices_old}")
+                        msg.error(f"::sync-new Leaf vs Index : {leaf_new} vs {indices_new}")
                         fold.allgood = False
                         fnew.allgood = False
                         summary[leaf_old] += 1
