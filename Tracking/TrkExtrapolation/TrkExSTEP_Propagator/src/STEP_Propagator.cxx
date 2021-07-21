@@ -133,7 +133,7 @@ propagateNeutral(const Trk::TrackParameters& parm,
   const Amg::Vector3D& position(parm.position());
   Amg::Vector3D direction(parm.momentum().normalized());
 
-  for (; sIter != targetSurfaces.end(); sIter++) {
+  for (; sIter != targetSurfaces.end(); ++sIter) {
     Trk::DistanceSolution distSol =
       (*sIter).first->straightLineDistanceEstimate(position, direction);
     if (distSol.numberOfSolutions() > 0) {
@@ -166,7 +166,7 @@ propagateNeutral(const Trk::TrackParameters& parm,
   }
 
   // loop over surfaces, find valid intersections
-  for (oIter = currentDist.begin(); oIter != currentDist.end(); oIter++) {
+  for (oIter = currentDist.begin(); oIter != currentDist.end(); ++oIter) {
     Amg::Vector3D xsct = position + propDir * direction * ((*oIter).second);
     if (targetSurfaces[(*oIter).first].first->isOnSurface(
           xsct, (*oIter).second, 0.001, 0.001)) {
@@ -1353,7 +1353,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
         }
         valid_solutions.push_back( *iSol );
       }
-      iSol++;
+      ++iSol;
     }
     solutions = valid_solutions;
     if (solution) break;
@@ -1492,7 +1492,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache&      cache,
     //If h and distance are in opposite directions, target is passed. Flip propagation direction
     if (h * distanceToTarget < 0.) {
       h = -h;				//Flip direction
-      targetPassed++;
+      ++targetPassed;
     }
     //don't step beyond surface
     if (std::abs( h) > std::abs( distanceToTarget)) h = distanceToTarget;
@@ -1592,10 +1592,10 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   unsigned int numSf=0;
   unsigned int iCurr=0;         // index for m_currentDist
   int startSf = -99;
-  for (; sIter!=sfs.end(); sIter++) {
+  for (; sIter!=sfs.end(); ++sIter) {
     Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,direction0);
     double distEst = -propDir*maxPath;
-    double dist1Est = -propDir*maxPath;
+    double dist1Est = distEst;
     if (distSol.numberOfSolutions()>0 ) {
       distEst = distSol.first();
       dist1Est = distSol.first();
@@ -1618,14 +1618,14 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         distanceToTarget = distEst;
         nextSf = iCurr;
       }
-      numSf++;
+      ++numSf;
     } else {
       // save the nearest distance to surface
       cache.m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >
         (-1,std::pair<double,double>(distSol.currentDistance(),distSol.currentDistance(true)));
     }
     if(std::abs(dist1Est)<tol) startSf = (int) iCurr;
-    iCurr++;
+    ++iCurr;
   }
 
   if (distanceToTarget == maxPath || numSf == 0 ) return false;
@@ -1679,7 +1679,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           m_simMatUpdator->recordBremPhoton(cache.m_timeIn+cache.m_timeOfFlight+cache.m_timeStep,
                                             m_momentumCutOff, cache.m_bremMom, position, direction, cache.m_particle);
           // the recoil can be skipped here
-          for (int i=0; i<3; i++) P[3+i] = direction[i];
+          for (int i=0; i<3; ++i) P[3+i] = direction[i];
           // end recoil ( momentum not adjusted here ! continuous energy loss maintained for the moment)
         }
       }
@@ -1738,7 +1738,10 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     if (absPath > maxPath) return false;
 
     // path limit implemented
-    if (cache.m_propagateWithPathLimit>0 && cache.m_pathLimit<= path) { cache.m_propagateWithPathLimit++; return true; }
+    if (cache.m_propagateWithPathLimit>0 && cache.m_pathLimit<= path) { 
+      ++cache.m_propagateWithPathLimit; 
+      return true; 
+    }
 
     bool restart = false;
     // in case of problems, make shorter steps
@@ -1882,9 +1885,9 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
       if ( mom < cache.m_bremSampleThreshold ) sampleBrem(cache,cache.m_bremSampleThreshold);
     }
 
-    for ( ; vsIter!= vsEnd; vsIter++) {
+    for ( ; vsIter!= vsEnd; ++vsIter) {
       if ( restart ) {
-        numRestart++;
+        ++numRestart;
         if (numRestart>restartLimit) return false;
 
         vsIter = vsBeg; ic=0; sIter=sBeg; distanceToTarget = propDir*maxPath;
@@ -1969,7 +1972,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         // from all surfaces with 'negative' distance, consider only the one currently designed as 'closest'
         // mw	if ((*vsIter).first!=-1 && ( distanceEst>-tol || ic==nextSf ) ) {
         if ((*vsIter).first!=-1 && ( distanceEst > 0. || ic==nextSf ) ) {
-          numSf++;
+          ++numSf;
           if ( distanceEst < std::abs(distanceToTarget) ) {
             distanceToTarget = propDir*distanceEst;
             nextSfCand = ic;
@@ -1991,7 +1994,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           (*vsIter).second.first = distSol.currentDistance()+std::abs(path);
         }
         if ((*vsIter).first!=-1 && distanceEst > 0.) {
-          numSf++;
+          ++numSf;
           if ( distanceEst < std::abs(distanceToTarget) ) {
             distanceToTarget = propDir*distanceEst;
             nextSfCand = ic;
@@ -2005,7 +2008,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         (*vsIter).first = -1; vsIter = vsBeg; restart = true;
         continue;
       }
-      sIter++; ic++;
+      ++sIter; 
+      ++ic;
     }
     // if next closest not found, propagation failed
     if (nextSf<0 && nextSfCand<0) return false;
@@ -2079,13 +2083,13 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   std::vector< std::pair<int,std::pair<double,double> > >::iterator vsIter  = vsBeg;
 
   int index = 0;
-  for ( ; vsIter!= vsEnd; vsIter++) {
+  for ( ; vsIter!= vsEnd; ++vsIter) {
     if ( (*vsIter).first != -1 && propDir*(*vsIter).second.first>=propDir*distanceToTarget-tol  &&
          propDir*(*vsIter).second.first < 0.01 && index!= nextSf) {
       solutions.push_back(index);
     }
     if (index==nextSf) solutions.push_back(index);
-    index++;
+    ++index;
   }
 
   return true;
@@ -2411,7 +2415,7 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
     }
 
     //Store BG4 for use as BG1 in the next step
-    for (int i=0; i<12; i++) {
+    for (int i=0; i<12; ++i) {
       BG1[i] = BG4[i];
     }
     return true;
@@ -2461,7 +2465,7 @@ Trk::STEP_Propagator::getMagneticField(Cache& cache,
     BG[1] = H[1] * magScale;
     BG[2] = H[2] * magScale;
 
-    for (int i = 3; i < 12; i++) { // Set gradients to zero
+    for (int i = 3; i < 12; ++i) { // Set gradients to zero
       BG[i] = 0.;
     }
   }
@@ -2604,7 +2608,7 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
 
     auto cvlTP = parms->uniqueClone();
     auto mefot = std::make_unique<Trk::MaterialEffectsOnTrack>(
-      cache.m_combinedThickness, std::move(sa), eloss, cvlTP->associatedSurface());
+      cache.m_combinedThickness, sa, eloss, cvlTP->associatedSurface());
 
     cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,std::move(cvlTP),nullptr,std::move(mefot)));
   }
@@ -2679,7 +2683,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( Cache& cache,
   }
 
   // calculate multiple scattering by summing the contributions from the layers
-  for (int layer=1; layer <= msLayers; layer++) {
+  for (int layer=1; layer <= msLayers; ++layer) {
 
     //calculate momentum in the middle of the layer by assuming a linear momentum loss
     momentum = cache.m_matupd_lastmom + totalMomentumLoss*(layer - 0.5)/msLayers;
