@@ -28,7 +28,7 @@ namespace FlavorTagDiscriminants {
     using JC = xAOD::JetContainer;
 
     SG::ReadHandleKey<JC> m_jetKey {
-      this, "jetCollectionName", "", "name of the jets to b-tag"};
+      this, "jetName", "", "name of the jets to b-tag"};
     SG::WriteHandleKey<BC> m_btaggingKey {
       this, "btaggingName", "", "Name for the b-tagging container"};
     SG::WriteDecorHandleKey<BC> m_jetLinkKey {
