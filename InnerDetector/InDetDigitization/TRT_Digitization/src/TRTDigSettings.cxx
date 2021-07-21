@@ -317,8 +317,8 @@ void TRTDigSettings::printFlagsForOverrideableParameters(const std::string& fron
 }
 
 //_________________________________________________________________________________________________________
-void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std::string description,
-                                       std::string unitname,double unitval,double lowrange,double highrange) {
+void TRTDigSettings::defineNewVariable(const std::string & name, double * datamember,const std::string &description,
+                                       const std::string & unitname,double unitval,double lowrange,double highrange) {
 
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
@@ -342,7 +342,7 @@ void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std
 }
 
 //_________________________________________________________________________________________________________
-void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datamember,std::string description,
+void TRTDigSettings::defineNewUIntVariable(const std::string &name,unsigned int * datamember, const std::string &description,
                                            unsigned int lowrange, unsigned int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
@@ -367,7 +367,7 @@ void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datam
 }
 
 //_________________________________________________________________________________________________________
-void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std::string description,
+void TRTDigSettings::defineNewIntVariable(const std::string & name,int * datamember,const std::string & description,
                                           int lowrange, int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
@@ -392,7 +392,7 @@ void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std:
 }
 
 //_________________________________________________________________________________________________________
-void TRTDigSettings::defineNewBoolVariable(std::string name,bool * datamember,std::string description) {
+void TRTDigSettings::defineNewBoolVariable(const std::string & name,bool * datamember,const std::string & description) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
     msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
@@ -432,7 +432,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // After TRT_Digitization-00-10-74 (end of Run1) we will no longer support m_digversion<11
   if (m_digversion<11) {
     if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
-    throw;
+    throw std::runtime_error("fillDefaults: digversion is not supported");
   }
 
   bool gasok = false;
