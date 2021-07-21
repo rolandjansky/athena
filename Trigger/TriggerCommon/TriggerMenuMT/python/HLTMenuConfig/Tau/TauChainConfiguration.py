@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelTTSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -22,9 +22,6 @@ def getTauCaloCfg(flags):
 def getTauCaloMVACfg(flags):
     return tauCaloMVAMenuSeq("Tau")
 
-def getFTFTauCfg(flags):
-    return tauFTFTauSeq()
-
 def getFTFCoreCfg(flags):
     return tauFTFTauCoreSeq()
 
@@ -33,9 +30,6 @@ def getFTFIsoCfg(flags):
 
 def getFTFIsoBDTCfg(flags):
     return tauFTFTauIsoBDTSeq()
-
-def getTrackPrecCfg(flags):
-    return tauTrackPrecSeq()
 
 def getTrackTwoPrecCfg(flags):
     return tauTrackTwoPrecSeq()
@@ -49,14 +43,8 @@ def getTrackTwoMVATestCfg(flags):
 def getTrackTwoLLPCfg(flags):
     return tauTrackTwoLLPSeq()
 
-def getPreSelCfg(flags):
-    return tauPreSelSeq()
-
 def getPreSelTTCfg(flags):
     return tauPreSelTTSeq()
-
-def getPrecTrackCfg(flags):
-    return tauPrecTrackSeq()
 
 def getPrecTrackIsoCfg(flags):
     return tauPrecTrackIsoSeq()
@@ -82,7 +70,6 @@ class TauChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "ptonly"        :['getCaloSeq'   , 'getFTFEmpty', 'getTrkEmpty' , 'getTauEmpty'  , 'getPTEmpty'      , 'getIDEmpty'      ], 
-            "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
             "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoMVATest" :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVATest' ],
@@ -110,11 +97,6 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getCaloMVASeq(self):
         stepName = 'MVA_tau'
         return self.getStep(1,stepName, [getTauCaloMVACfg])
-
-    # --------------------                                                                                                 
-    def getFTFTau(self):
-        stepName = 'FTFTau_tau'
-        return self.getStep(2,stepName, [getFTFTauCfg])
         
     # --------------------
     def getFTFCore(self):
@@ -142,11 +124,6 @@ class TauChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(3,stepName)
 
     # --------------------                                                                                                                                   
-    def getPreSel(self):
-        stepName = 'PreSel_tau'
-        return self.getStep(4,stepName, [getPreSelCfg])
-
-    # --------------------                                                                                                                                   
     def getPreSelTT(self):
         stepName = 'PreSelTT_tau'
         return self.getStep(4,stepName, [getPreSelTTCfg])
@@ -157,11 +134,6 @@ class TauChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(4,stepName)
 
     # --------------------                                                                                                                                   
-    def getPrecTrack(self):
-        stepName = 'PrecTrk_tau'
-        return self.getStep(5,stepName,[getPrecTrackCfg])
-
-    # --------------------                                                                                                                                   
     def getPrecTrackIso(self):
         stepName = 'PrecTrkIso_tau'
         return self.getStep(5,stepName,[getPrecTrackIsoCfg])
@@ -170,11 +142,6 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getPTEmpty(self):
         stepName = 'PTEmpty_tau'
         return self.getEmptyStep(5,stepName)
-
-    # --------------------                                                                                                       
-    def getTrackPrec(self):
-        stepName = 'TrkPrec_tau'
-        return self.getStep(6,stepName, [getTrackPrecCfg])
 
     # --------------------                                                                                                     
     def getTrackTwoPrec(self):
