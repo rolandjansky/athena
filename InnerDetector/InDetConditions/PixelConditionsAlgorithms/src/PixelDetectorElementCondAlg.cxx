@@ -90,7 +90,7 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
                                             oldEl->getCommonItems(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
-    newEl++;
+    ++newEl;
   }
 
   // Set neighbours and other side
@@ -110,7 +110,7 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
     if (layer) {
       newEl->surface().associateLayer(*layer);
     }
-    oldIt++;
+    ++oldIt;
   }
 
   // Apply alignment using readCdo passed to SiDetectorElement
