@@ -254,7 +254,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++) {
+  for( ; iColl != endColl; ++iColl) {
     SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
@@ -752,7 +752,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
             //Store HepMcParticleLink connected to the cluster removed from the collection
             std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_pixPrdTruth->equal_range(currentCluster->identify());
-            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+            for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; ++this_hit)
               {
                 hit_vector.push_back(this_hit->second);
               }
