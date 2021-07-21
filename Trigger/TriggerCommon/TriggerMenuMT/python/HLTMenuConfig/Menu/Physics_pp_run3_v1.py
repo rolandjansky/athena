@@ -62,6 +62,8 @@ TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
 LowMuGroup = ['Primary:LowMu']
 EOFBPhysL1MuGroup = ['EOF:BPhysL1Muon']
 EOFTLALegGroup = ['EOF:TLALegacy']
+# For unconventional tracking chains (ATR-23797)
+UnconvTrkGroup = ['RATE:UnconvTrk', 'BW:UnconvTrk'] 
 
 def setupMenu():
 
@@ -585,10 +587,10 @@ def setupMenu():
     TriggerFlags.UnconventionalTrackingSlice.signatures = [
         #Isolated High pt Track Trigger
         #Primary
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
         #Backup for Primary Triggers
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
         #Support
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=SingleMETGroup+SupportLegGroup),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=SingleMETGroup+SupportLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+SupportLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=UnconvTrkGroup+SupportLegGroup),
  ]
