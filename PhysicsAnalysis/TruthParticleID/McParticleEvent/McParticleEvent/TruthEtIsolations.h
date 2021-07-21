@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthEtIsolations.h 
@@ -210,7 +210,7 @@ class TruthEtIsolations
   /// The default Et isolation energy which is being returned when
   /// I don't know what to return.
   /// That's ugly but for backward compatibility's sake... Next EDM :P
-  static EtIsol_t m_dfltEtIsols;
+  static const EtIsol_t m_dfltEtIsols;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
