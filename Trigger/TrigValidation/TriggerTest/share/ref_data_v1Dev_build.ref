@@ -1264,7 +1264,7 @@ HLT_g40_loose_L1EM20VH:
   eventCount: 0
 HLT_g40_loose_LArPEBHLT_L1EM20VHI:
   eventCount: 0
-HLT_g40_loose_mu40_msonly_L1EM20VH_MU20:
+HLT_g40_loose_mu40_msonly_L1MU20:
   eventCount: 0
 HLT_g45_loose_6j45_L14J15p0ETA25:
   eventCount: 0
