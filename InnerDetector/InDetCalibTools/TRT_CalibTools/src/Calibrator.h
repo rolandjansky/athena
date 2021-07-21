@@ -19,6 +19,7 @@ PURPOSE: Class for calibrating a TRT sub-level
 #include <map>
 #include <set>
 #include <string>
+#include <array>
 
 class TH1F;
 class TH2F;
@@ -91,7 +92,7 @@ class databundle{
   /**drift radius from r(t) relation*/ float r;
   /**t0 value used in reconstruction*/ float t0;
   /**reference t0 (offset from board mean)*/ float rt0;
-  /**rt-parameters used in the reconstruction*/ float rtpar[4];
+  /**rt-parameters used in the reconstruction*/ std::array<float, 4> rtpar{};
   /**straw x position*/ float x;
   /**straw y position*/ float y;
   /**straw z position*/ float z;
@@ -127,8 +128,8 @@ class caldata{
   /**the reference t0 (offset from board mean)*/ float reft0;
   /**the t0 offset from the level below*/ float t0off;
   /**the t0 fron the R-t fit*/ float rtt0;
-  /**the rt-parameters used in the track reconstruction*/ float oldrtpar[4];
-  /**the new rt-parameters*/ float rtpar[4];
+  /**the rt-parameters used in the track reconstruction*/ std::array<float, 4> oldrtpar{};
+  /**the new rt-parameters*/ std::array<float, 4> rtpar{};
   /**the number of straws in the sub-module*/ float nhits;
   /**sub-module x position (average of all straws in the module)*/ float x;
   /**sub-module y position (average of all straws in the module)*/ float y;
