@@ -289,9 +289,9 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
             double inprod1=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            itSet--;
+            --itSet;
             double inprod2=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            itSet++;
+            ++itSet;
             if (inprod1>0 && inprod2<0) {
               trajectory.insert(trajectory.begin()+index,pertsos);
               peradded=true;
@@ -418,7 +418,7 @@ int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* drif
 
   if(!truthCollectionTRT.isValid()) return 0;
   std::pair<iter,iter> range = truthCollectionTRT->equal_range(driftcircle->identify());
-  for(iter i = range.first; i != range.second; i++){
+  for(iter i = range.first; i != range.second; ++i){
     numBarcodes++;
   }
   return numBarcodes;
