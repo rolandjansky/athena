@@ -41,7 +41,6 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name)
   , m_name(name)
   , m_variableBitMask(0x0)
   , m_ipBinning("")
-  , m_pdfFile(nullptr)
   , m_cutPosition_kinematic(-9)
   , m_cutPosition_NSilicon(-9)
   , m_cutPosition_NPixel(-9)
@@ -275,16 +274,16 @@ Root::TElectronLikelihoodTool::initialize()
   TString tmpString(m_pdfFileName);
   gSystem->ExpandPathName(tmpString);
   std::string fname(tmpString.Data());
-  m_pdfFile = TFile::Open(fname.c_str(), "READ");
+  auto pdfFile = std::unique_ptr<TFile>(TFile::Open(fname.c_str(), "READ"));
   // Check that we could load the ROOT file
-  if (!m_pdfFile) {
+  if (!pdfFile) {
     ATH_MSG_ERROR(" No ROOT file found here: " << m_pdfFileName);
     return StatusCode::FAILURE;
   }
 
   // Load the histograms
   for (unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++) {
-    const std::string& vstr = fVariables[varIndex];
+    const std::string& vstr = s_fVariables[varIndex];
     // Skip the loading of PDFs for variables we don't care about for this
     // operating point. If the string is empty (which is true in the default
     // 2012 case), load all of them.
@@ -292,13 +291,11 @@ Root::TElectronLikelihoodTool::initialize()
         !m_variableNames.empty()) {
       continue;
     }
-    loadVarHistograms(vstr, varIndex);
+    loadVarHistograms(vstr, pdfFile.get(), varIndex);
   }
 
   // TFile close does not free the memory
-  m_pdfFile->Close();
-  // We need the destructor to be called
-  delete m_pdfFile;
+  pdfFile->Close();
   //----------End File/Histo operation------------------------------------
 
   ATH_MSG_DEBUG("Initialization complete for a LH tool with these specs:"
@@ -350,6 +347,7 @@ Root::TElectronLikelihoodTool::initialize()
 
 int
 Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
+                                                 TFile* pdfFile,
                                                  unsigned int varIndex)
 {
   for (unsigned int s_or_b = 0; s_or_b < 2; s_or_b++) {
@@ -369,13 +367,15 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
           getBinName(binname, et_tmp, eta_tmp, ip, m_ipBinning);
 
           if (((std::string(binname).find("2.37") != std::string::npos)) &&
-              (vstr.find("el_f3") != std::string::npos))
+              (vstr.find("el_f3") != std::string::npos)) {
             continue;
+          }
 
           if (((std::string(binname).find("2.01") != std::string::npos) ||
                (std::string(binname).find("2.37") != std::string::npos)) &&
-              (vstr.find("TRT") != std::string::npos))
+              (vstr.find("TRT") != std::string::npos)) {
             continue;
+          }
 
           char pdfdir[500];
           snprintf(pdfdir, 500, "%s/%s", vstr.c_str(), sig_bkg.c_str());
@@ -395,12 +395,12 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
                    sig_bkg.c_str(),
                    binname);
 
-          if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())) {
+          if (!pdfFile->GetListOfKeys()->Contains(vstr.c_str())) {
             ATH_MSG_INFO("Warning: skipping variable "
                          << vstr << " because the folder does not exist.");
             return 1;
           }
-          if (!((TDirectory*)m_pdfFile->Get(vstr.c_str()))
+          if (!((TDirectory*)pdfFile->Get(vstr.c_str()))
                  ->GetListOfKeys()
                  ->Contains(sig_bkg.c_str())) {
             ATH_MSG_INFO("Warning: skipping variable "
@@ -417,7 +417,7 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
           // If the 0th et bin (4-7 GeV) histogram does not exist in the root
           // file, then just use the 7-10 GeV bin histogram. This should
           // preserve backward compatibility
-          if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))
+          if (et == 0 && !((TDirectory*)pdfFile->Get(pdfdir))
                             ->GetListOfKeys()
                             ->Contains(pdf)) {
             getBinName(binname, et_tmp + 1, eta_tmp, ip, m_ipBinning);
@@ -435,11 +435,10 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
                      sig_bkg.c_str(),
                      binname);
           }
-          if (((TDirectory*)m_pdfFile->Get(pdfdir))
+          if (((TDirectory*)pdfFile->Get(pdfdir))
                 ->GetListOfKeys()
                 ->Contains(pdf)) {
-            TH1F* hist =
-              (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
+            TH1F* hist = (TH1F*)(((TDirectory*)pdfFile->Get(pdfdir))->Get(pdf));
             fPDFbins[s_or_b][ip][et][eta][varIndex] =
               new EGSelectors::SafeTH1(hist);
             delete hist;
@@ -812,7 +811,7 @@ Root::TElectronLikelihoodTool::evaluateLikelihood(
 
   for (unsigned int var = 0; var < s_fnVariables; var++) {
 
-    const std::string& varstr = fVariables[var];
+    const std::string& varstr = s_fVariables[var];
 
     // Skip variables that are masked off (not used) in the likelihood
     if (!(m_variableBitMask & (0x1 << var))) {
@@ -1028,16 +1027,13 @@ Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,
   return disc;
 }
 
-const double Root::TElectronLikelihoodTool::fIpBounds[IP_BINS + 1] = { 0.,
-                                                                       500. };
-
 //---------------------------------------------------------------------------------------
 // Gets the IP bin
 unsigned int
-Root::TElectronLikelihoodTool::getIpBin(double ip) const
+Root::TElectronLikelihoodTool::getIpBin(double ip) 
 {
   for (unsigned int ipBin = 0; ipBin < IP_BINS; ++ipBin) {
-    if (ip < fIpBounds[ipBin + 1])
+    if (ip < s_fIpBounds[ipBin + 1])
       return ipBin;
   }
   return 0;
@@ -1046,7 +1042,7 @@ Root::TElectronLikelihoodTool::getIpBin(double ip) const
 //---------------------------------------------------------------------------------------
 // Gets the Eta bin [0-9] given the eta
 unsigned int
-Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const
+Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) 
 {
   const unsigned int nEtaBins = s_fnEtaBins;
   const double etaBins[nEtaBins] = { 0.1,  0.6,  0.8,  1.15, 1.37,
@@ -1062,7 +1058,7 @@ Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const
 //---------------------------------------------------------------------------------------
 // Gets the histogram Et bin given the et (MeV) -- corrresponds to fnEtBinsHist
 unsigned int
-Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) const
+Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) 
 {
   const double GeV = 1000;
 
@@ -1125,7 +1121,7 @@ Root::TElectronLikelihoodTool::getBinName(char* buffer,
                                           int etbin,
                                           int etabin,
                                           int ipbin,
-                                          const std::string& iptype) const
+                                          const std::string& iptype) 
 {
   double eta_bounds[9] = { 0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37 };
   int et_bounds[s_fnEtBinsHist] = { 4, 7, 10, 15, 20, 30, 40 };
@@ -1134,7 +1130,7 @@ Root::TElectronLikelihoodTool::getBinName(char* buffer,
              200,
              "%s%det%02deta%0.2f",
              iptype.c_str(),
-             int(fIpBounds[ipbin]),
+             int(s_fIpBounds[ipbin]),
              et_bounds[etbin],
              eta_bounds[etabin]);
   } else {
@@ -1149,8 +1145,8 @@ Root::TElectronLikelihoodTool::getLikelihoodBitmask(
   unsigned int mask = 0x0;
   ATH_MSG_DEBUG("Variables to be used: ");
   for (unsigned int var = 0; var < s_fnVariables; var++) {
-    if (vars.find(fVariables[var]) != std::string::npos) {
-      ATH_MSG_DEBUG(fVariables[var]);
+    if (vars.find(s_fVariables[var]) != std::string::npos) {
+      ATH_MSG_DEBUG(s_fVariables[var]);
       mask = mask | 0x1 << var;
     }
   }
@@ -1312,7 +1308,7 @@ Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,
 //----------------------------------------------------------------------------------------
 
 // These are the variables availalble in the likelihood.
-const std::string Root::TElectronLikelihoodTool::fVariables[s_fnVariables] = {
+const std::string Root::TElectronLikelihoodTool::s_fVariables[s_fnVariables] = {
   "el_d0significance",
   "el_eratio",
   "el_deltaeta1",

@@ -473,7 +473,7 @@ Root::TForwardElectronLikelihoodTool::TransformLikelihoodOutput(double ps,
 
 // Gets the IP bin
 unsigned int
-Root::TForwardElectronLikelihoodTool::getIpBin(double ip) const
+Root::TForwardElectronLikelihoodTool::getIpBin(double ip) 
 {
   for (unsigned int ipBin = 0; ipBin < IP_FBINS; ++ipBin) {
     if (ip < fIpBounds[ipBin + 1])
@@ -484,7 +484,7 @@ Root::TForwardElectronLikelihoodTool::getIpBin(double ip) const
 
 // Gets the Eta bin  given the eta . Binning uses uper bound
 unsigned int
-Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const
+Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double eta) 
 {
   const unsigned int nEtaBins = s_fnEtaBins;
   const double etaBins[nEtaBins] = { 2.6, 2.7,  2.8,  2.9, 3.0,
@@ -497,7 +497,7 @@ Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const
 }
 // Gets the histogram Et bin given the et (MeV). Binning uses upper bound
 unsigned int
-Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) const
+Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) 
 {
   const double GeV = 1000;
   const unsigned int nEtBins = s_fnDiscEtBins;
@@ -520,7 +520,7 @@ Root::TForwardElectronLikelihoodTool::getBinName(
   int etbin,
   int etabin,
   int ipbin,
-  const std::string& iptype) const
+  const std::string& iptype) 
 {
   double eta_bounds[s_fnEtaBins] = { 2.5, 2.6, 2.7,  2.8,  2.9,
                                      3.0, 3.1, 3.16, 3.35, 3.6 };
