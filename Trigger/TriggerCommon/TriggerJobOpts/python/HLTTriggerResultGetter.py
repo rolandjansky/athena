@@ -92,6 +92,8 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         extr = TrigBSExtraction()
 
         # Add fictional output to ensure data dependency in AthenaMT
+        # Keeping the run 2 workflow, we run this after we have put the full serialised navigation into xAOD
+        extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
         extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
         
         if hasHLT:
