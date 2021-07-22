@@ -9,6 +9,7 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/config.h"
+#include "fastjet/contrib/VariableRPlugin.hh"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
@@ -56,6 +57,8 @@ StatusCode JetClusterer::initialize() {
   PseudoJetVector empty;
   fastjet::ClusterSequence cs(empty, jetdef);
   cs.inclusive_jets(m_ptmin);
+  m_isVariableR = m_minrad >= 0.0 && m_massscale >= 0.0;
+
 
   // Input DataHandles
   if( !m_finalPseudoJets.empty() ) {
@@ -97,6 +100,32 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // -----------------------
   // Build the cluster sequence
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
+  using fastjet::contrib::VariableRPlugin;
+  std::unique_ptr<VariableRPlugin> VRJetPlugin(nullptr);
+  if ( isVariableR() ) {
+    /* clustering algorithm 
+     * They correspond to p parameter of Sequential recombination algs
+     * AKTLIKE = -1, CALIKE = 0, KTLIKE = 1
+     */
+    VariableRPlugin::ClusterType VRClusterType = VariableRPlugin::AKTLIKE; 
+    switch (m_fjalg) {
+      case fastjet::kt_algorithm:
+        VRClusterType = VariableRPlugin::KTLIKE;
+        break;
+      case fastjet::antikt_algorithm:
+        VRClusterType = VariableRPlugin::AKTLIKE;
+        break;
+      case fastjet::cambridge_algorithm:
+        VRClusterType = VariableRPlugin::CALIKE;
+        break;
+      default:
+        ATH_MSG_ERROR("Unsupported clustering algorithm for Variable-R jet finding.");
+        return nullreturn;
+    }
+    VRJetPlugin = std::make_unique<VariableRPlugin>(m_massscale, m_minrad, m_jetrad, VRClusterType, false);
+    jetdef = fastjet::JetDefinition(VRJetPlugin.get());
+  }
+
   std::unique_ptr<fastjet::ClusterSequence> clSequence(nullptr);
   bool useArea = m_ghostarea > 0 ;
   if ( useArea ) {

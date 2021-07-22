@@ -138,6 +138,10 @@ _stdInputList = [
     # are included, in particular leptons and neutrinos from hadron decays.
     JetInputExternal("JetInputTruthParticlesNoWZ",  xAODType.TruthParticle,
                 algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="NoWZ"),
+
+    JetInputExternal("PV0JetSelectedTracks", xAODType.TrackParticle,
+            prereqs=["input:JetSelectedTracks", "input:JetTrackUsedInFitDeco"],
+                     algoBuilder = inputcfg.buildPV0TrackSel ),
 ]
 
 
@@ -207,8 +211,10 @@ _stdSeqList = [
     JetInputConstit("Track", xAODType.TrackParticle,'JetSelectedTracks'),
     
     # Track particles from the primary vertex
-    JetInputConstitSeq("PV0Track", xAODType.TrackParticle,["PV0"],'JetSelectedTracks', 'PV0JetSelectedTracks',
-                  prereqs= ["input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc"], ),
+    #JetInputConstitSeq("PV0Track", xAODType.TrackParticle,inputname='JetSelectedTracks',outputname= 'PV0JetSelectedTracks',
+    #              prereqs= ["input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc"], ),
+
+    JetInputConstit("PV0Track", xAODType.TrackParticle, 'PV0JetSelectedTracks'),
 
     # *****************************
     # Muon segments. Only used as ghosts
