@@ -181,7 +181,7 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets','DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt6HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets', 'DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1', 'AntiKt6TruthJets', 'AntiKt8TruthJets', 'AntiKt10TruthJets']
 
 ###############Augmentation#############
 HIGlobalAugmentationTool = addHIGlobalAugmentationTool('HION5',3,500)
