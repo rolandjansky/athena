@@ -40,7 +40,7 @@
 //
 // Constructor, destructor
 
-TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName, const std::string xmlfilename) :
+TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName, const std::string & xmlfilename) :
   G4VDiscreteProcess(processName,fElectromagnetic),m_XMLhandler(NULL),m_xmlfilename(xmlfilename),
   m_MinEnergyTR(0.0),m_MaxEnergyTR(0.0),m_NumBins(0),m_WplasmaGas(0.0),
   m_WplasmaFoil(0.0),m_GammaMin(0.0),m_EkinMin(0.0),m_Ey(NULL),m_Sr(NULL),
