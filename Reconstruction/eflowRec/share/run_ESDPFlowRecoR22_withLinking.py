@@ -21,11 +21,12 @@ jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(True)
 
-#Disable reco of trigger, egamma, muons
+#Disable reco of trigger
 from RecExConfig.RecFlags import rec
 rec.doTrigger.set_Value_and_Lock(False)
-rec.doEgamma.set_Value_and_Lock(False)
-rec.doMuon.set_Value_and_Lock(False)
+# enable egamma and muon reco
+rec.doEgamma.set_Value_and_Lock(True)
+rec.doMuon.set_Value_and_Lock(True)
 
 #Disable linking of FE to taus - we run tau reco via UserAlgs and so will have to also run the linking there directly
 from eflowRec.eflowRecFlags import jobproperties
@@ -47,7 +48,7 @@ rec.doCaloRinger.set_Value_and_Lock(False)
 
 #Disable VertexCnvAlg
 from InDetRecExample.InDetJobProperties import jobproperties
-jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
+jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(True)
 #Disable AllExecutedEvents
 rec.doFileMetaData.set_Value_and_Lock(False)
 
