@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Herwig7_i )
@@ -18,14 +18,14 @@ atlas_disable_as_needed()
 set( _extraDefs )
 list( APPEND _extraDefs -DHWVER_IS_72=1 )
 
-atlas_add_library ( powhegHerwig 
+atlas_add_library ( powhegHerwig
    src/PowhegLesHouchesFileReader.cxx
    Herwig7_i/PowhegLesHouchesFileReader.h
    Herwig7_i/PowhegLesHouchesFileReader.fh
    NO_PUBLIC_HEADERS
    SHARED
-   INCLUDE_DIRS ${THEPEG_INCLUDE_DIRS}
-   LINK_LIBRARIES ${THEPEG_LIBRARIES})
+   INCLUDE_DIRS ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} )
 
 # Component(s) in the package:
 if (HEPMC3_USE)
@@ -36,7 +36,7 @@ atlas_add_component( Herwig7_i
    DEFINITIONS -DHWVERSION=\"${HERWIG3_LCGVERSION}\"
    -DHWVER_IS_72=\"${HW3_VER_IS_72}\"
    -DHAVE_HEPMC3
-   LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES} 
+   LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES}
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${VBFNLO_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
 
@@ -47,7 +47,7 @@ atlas_add_component( Herwig7_i
    ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${OPENLOOPS_INCLUDE_DIRS}
    DEFINITIONS -DHWVERSION=\"${HERWIG3_LCGVERSION}\"
    -DHWVER_IS_72=\"${HW3_VER_IS_72}\"
-   LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES} 
+   LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES}
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${OPENLOOPS_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver AtlasHepMCLib powhegHerwig )
 endif()
@@ -61,5 +61,3 @@ atlas_install_runtime( share/file/*.pdt share/file/*.dat )
 set( Herwig7Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of Herwig7Environment.cmake" )
 find_package( Herwig7Environment )
-
-
