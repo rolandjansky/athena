@@ -45,7 +45,7 @@ void TRT_LoLumRawDataContainerCnv_p3::transToPers(const TRT_RDO_Container* trans
   persCont->m_rawdata.resize(trt_number_of_channels);
 
   // Loop over all existing transient collections, add missing collections and missing channels
-  for (; it_transColl != it_transCollEnd; it_transColl++) {
+  for (; it_transColl != it_transCollEnd; ++it_transColl) {
 
     const TRT_RDO_Collection& collection = (**it_transColl);
     tcoll_id = collection.identify().get_identifier32().get_compact();
@@ -92,7 +92,7 @@ void TRT_LoLumRawDataContainerCnv_p3::transToPers(const TRT_RDO_Container* trans
       while ( trt_channel_id != tchan_id) {
         persCont->m_rawdata[trt_channel_index] = dummy_digit;
         trt_channel_id += trt_channel_id_increment;
-        trt_channel_index++;
+        ++trt_channel_index;
       }
 
       // Here we have a matching transient channel; write it.
