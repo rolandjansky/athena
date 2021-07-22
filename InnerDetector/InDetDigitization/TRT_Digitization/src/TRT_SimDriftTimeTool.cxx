@@ -19,6 +19,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include <stdexcept>
 
 TRT_SimDriftTimeTool::TRT_SimDriftTimeTool( const std::string& type,
                                             const std::string& name,
@@ -135,7 +136,7 @@ double TRT_SimDriftTimeTool::getAverageDriftTime( const double& dist,
     {
       ATH_MSG_FATAL("getAverageDriftTime: Somehow distIndex (" << distIndex << " ) is out of bounds ("
                     << m_nTabulatedDistances << "). The job will die now.");
-      throw;
+      throw std::runtime_error("getAverageDriftTime distIndex out of bounds");
     }
 
   const double C(m_table_of_dist2meanDT_at_noField[strawGasType][distIndex]);

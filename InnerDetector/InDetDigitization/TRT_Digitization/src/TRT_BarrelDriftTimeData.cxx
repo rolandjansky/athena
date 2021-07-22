@@ -16,6 +16,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 #include <cassert>
+#include <stdexcept>
 
 //______________________________________________________________________________
 TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int strawGasType) {
@@ -36,7 +37,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
   if (digversion<11) {
     std::cout << "FATAL TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData digversion < 11 ("
               << digversion << ") is no longer supported. The job will die now :(" << std::endl;
-    throw;
+    throw std::runtime_error("TRT_BarrelDriftTimeData: unsupported digversion");
   }
 
   if (m_strawGas==0) {
@@ -328,7 +329,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
   } else {
     std::cout << "FATAL TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData strawGas ("
               << m_strawGas << ") must be 0(Xe), 1(Kr) or 2(Ar). The job will die now :(" << std::endl;
-    throw;
+     throw std::runtime_error("TRT_BarrelDriftTimeData: unsupported gas type");
   }
 
   assert(m_tabdists_nofield.size()==m_tabdrifttime_nofield.size());
