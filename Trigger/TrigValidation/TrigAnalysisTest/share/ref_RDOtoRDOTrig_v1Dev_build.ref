@@ -5093,10 +5093,11 @@ HLT_j60_j0_FBDJSHARED_L1J20:
   stepFeatures:
     0: 147
 HLT_j60_j45_2j20_JetDS_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
+  eventCount: 9
   stepCounts:
     0: 9
     1: 9
+    2: 9
   stepFeatures:
     0: 149
     1: 149
