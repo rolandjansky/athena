@@ -234,6 +234,8 @@ def TrackRecoCfg(flags):
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
+        from InDetConfig.TRTPreProcessing import TRTRawDataProviderCfg
+        result.merge(TRTRawDataProviderCfg(flags))
 
     # up to here
     # needed for brem/seeding, TODO decided if needed here
@@ -246,17 +248,20 @@ def TrackRecoCfg(flags):
     from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
     result.merge(CaloClusterROI_SelectorCfg(flags))
 
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-    from InDetConfig.TrackingCommonConfig import TRT_DetElementsRoadCondAlgCfg, RIO_OnTrackErrorScalingCondAlgCfg
-    result.merge(TRTActiveCondAlgCfg(flags))
-    result.merge(TRT_DetElementsRoadCondAlgCfg())
-    result.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags))
 
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
-    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
+
+
+    # TRT extension
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    result.merge(TRTPreProcessingCfg(flags))
+    from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
+    result.merge(NewTrackingTRTExtensionCfg(flags, SiTrackCollection = "ResolvedTracks", ExtendedTrackCollection = "ExtendedTracks", ExtendedTracksMap = "ExtendedTracksMap", doPhase=False))
+    # TODO add followup algs
+    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
 
     if flags.InDet.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
