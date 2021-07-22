@@ -293,6 +293,22 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
                 acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
     return acc
 
+def TRTRawDataProviderCfg(flags):
+    acc = ComponentAccumulator()
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
+
+    providerTool = CompFactory.TRTRawDataProviderTool("InDetTRTRawDataProviderTool",
+                                                      LVL1IDKey = "TRT_LVL1ID", 
+                                                      BCIDKey = "TRT_BCID")
+
+    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
+    providerAlg = CompFactory.TRTRawDataProvider("InDetTRTRawDataProvider",
+                                                 ProviderTool = providerTool,
+                                                 RegSelTool = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
+    acc.addEventAlgo(providerAlg)
+    return acc
+
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable

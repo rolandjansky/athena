@@ -383,17 +383,17 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
     return acc
 #///////////////////////////////////////////////////////////////////////////////////////////////
-def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap =None, **kwargs):
+def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", TrackExtensionTool=None, **kwargs):
     acc = ComponentAccumulator()
     # set output extension map name
     OutputExtendedTracks = ExtendedTracksMap
-
-    InDetTRTExtensionToolPhase = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolPhaseCfg(flags))
-    acc.addPublicTool(InDetTRTExtensionToolPhase)
+    if TrackExtensionTool is None:
+        TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolPhaseCfg(flags))
+        acc.addPublicTool(TrackExtensionTool)
 
     kwargs.setdefault("InputTracksLocation", SiTrackCollection)
     kwargs.setdefault("ExtendedTracksLocation", OutputExtendedTracks )
-    kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionToolPhase)
+    kwargs.setdefault("TrackExtensionTool", TrackExtensionTool)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackExtensionAlg(name = name, **kwargs))
     return acc
@@ -445,7 +445,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         acc.addPublicTool(InDetExtensionFitter)
     else:
         fitter_args = {}
-        if flags.InDet.holeSearchInGX2Fit:
+        if True: #flags.InDet.holeSearchInGX2Fit:
             fitter_args.setdefault("DoHoleSearch", True)
             from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
@@ -511,7 +511,7 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
     #
     # ---------- TRT_TrackExtension
     #
-    if flags.InDet.doTRTExtension and flags.InDet.doTRTExtensionNew:
+    if flags.InDet.doTRTExtensionNew:
         #
         # Track extension to TRT algorithm
         #
@@ -526,10 +526,6 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
                                                 SiTrackCollection=SiTrackCollection,
                                                 ExtendedTracksMap = ExtendedTracksMap,
                                                 TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
-    #
-    # ------------ Track Extension Processor
-    #
-    if flags.InDet.doExtensionProcessor and flags.InDet.doTRTExtensionNew:
         acc.merge(InDetExtensionProcessorCfg(flags,
                                              SiTrackCollection = SiTrackCollection,
                                              ExtendedTrackCollection = ExtendedTrackCollection,

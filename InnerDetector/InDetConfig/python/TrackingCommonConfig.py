@@ -1145,6 +1145,9 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     if flags.InDet.Tracking.RoISeededBackTracking:
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.minSecondaryPt)
 
+    acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
+    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
+    acc.merge(TRTActiveCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(the_name, **kwargs))
     return acc
 
@@ -1206,6 +1209,12 @@ def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_DAF(the_name,**kwargs))
     return acc
 
+def TRT_DetElementsRoadCondAlgCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
+    acc.addCondAlgo(CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs))
+    return acc
+
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
     if (flags.InDet.trtExtensionType == 'xk') or (not flags.InDet.doNewTracking) :
@@ -1216,11 +1225,6 @@ def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     elif flags.InDet.trtExtensionType == 'DAF' :
         return InDetTRT_TrackExtensionTool_DAFCfg(flags, name = 'InDetTRT_ExtensionTool',**kwargs)
 
-def TRT_DetElementsRoadCondAlgCfg(**kwargs):
-    acc = ComponentAccumulator()
-    the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
-    acc.addCondAlgo(CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs))
-    return acc
 #############################################################################################
 # BackTracking
 #############################################################################################
@@ -1333,7 +1337,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name='InDetSiComTrackFinder', **kwar
     kwargs.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
     kwargs.setdefault("RIOonTrackTool", InDetRotCreatorDigital)
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel) #DetFlags.haveRIO.pixel_on()
-    kwargs.setdefault("useSCT", False)
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
     kwargs.setdefault("PixelClusterContainer", 'PixelClusters') #InDetKeys.PixelClusters()
     kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
 
