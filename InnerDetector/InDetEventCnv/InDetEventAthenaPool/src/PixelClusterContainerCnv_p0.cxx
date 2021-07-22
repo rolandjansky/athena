@@ -73,7 +73,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(Pixel
          (*itColl)->m_detEl = de;
       }
 
-      StatusCode sc= trans->addCollection(dcColl, collHash);
+      StatusCode sc= trans? trans->addCollection(dcColl, collHash): StatusCode::FAILURE;
       if (sc.isSuccess()){
 	 MSG_VERBOSE(log,"PixelClusterContainer successfully added to Container !");
       } else {
