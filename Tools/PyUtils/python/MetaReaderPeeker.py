@@ -33,7 +33,7 @@ def _setup():
             msg.warning("No input files specified yet! Cannot do anything.")
             return
 
-        metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True)
+        metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True, ignoreNonExistingFiles=True)
 
         # use first non-empty file
         first_filename = None
