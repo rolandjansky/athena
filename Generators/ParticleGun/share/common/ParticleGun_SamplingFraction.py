@@ -51,7 +51,7 @@ class MyParticleSampler(PG.ParticleSampler):
        return rtn
 
 ##MC15 style with Generate_tf.py
-#args=runArgs.jobConfig[0].split('.py')[0]
+#args=jofile.split('.py')[0]
 
 ##MC16 style with Gen_tf.py 
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
