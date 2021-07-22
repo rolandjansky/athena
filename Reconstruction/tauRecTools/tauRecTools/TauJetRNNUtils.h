@@ -111,6 +111,7 @@ bool ptJetSeed_log             (const xAOD::TauJet &tau, double &out);
 bool absleadTrackEta           (const xAOD::TauJet &tau, double &out);
 bool leadTrackDeltaEta         (const xAOD::TauJet &tau, double &out);
 bool leadTrackDeltaPhi         (const xAOD::TauJet &tau, double &out);
+bool leadTrackProbNNorHT       (const xAOD::TauJet &tau, double &out);
 bool EMFracFixed               (const xAOD::TauJet &tau, double &out);
 bool etHotShotWinOverPtLeadTrk (const xAOD::TauJet &tau, double &out);
 bool hadLeakFracFixed          (const xAOD::TauJet &tau, double &out);
@@ -184,6 +185,9 @@ bool eProbabilityHT(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
 bool eProbabilityNN(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
+bool eProbabilityNNorHT(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
 } // namespace Track
