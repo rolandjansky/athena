@@ -243,7 +243,20 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 ###
         pathGroup = addOnTrackToPath(path, ontrack)
 
-        varName = 'pixclusmontool_lb,ncls_per_event'
+        varName = addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
+        title = fullDressTitle('Number of pixel clusters in an event', ontrack, ';# pixel clusters', ';# events')
+        varName += ';'+ addOnTrackTxt('ClustersPerEvent', ontrack)
+        xmax1D = 10000 if ontrack else 40000
+        clusterGroup[ontrack].defineHistogram(varName,
+                                              type='TH1I', path=pathGroup, title=title,
+                                              xbins=1000, xmin=0, xmax=xmax1D)
+
+        histoGroupName = addOnTrackTxt('ClustersPerEvent', ontrack)
+        title          = addOnTrackTxt('Number of pixel clusters in an event', ontrack, True)
+        binsizes1D = 10 if ontrack else 40
+        define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';# pixel clusters', ';# events', xbins=[200], xmins=[0], binsizes=[binsizes1D])
+
+        varName = 'pixclusmontool_lb,' + addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
         title = fullDressTitle('Average number of pixel clusters per event per LB', ontrack, ';lumi block', ';# clusters/event')
         varName += ';'+ addOnTrackTxt('ClustersPerLumi', ontrack)
         clusterGroup[ontrack].defineHistogram(varName,
