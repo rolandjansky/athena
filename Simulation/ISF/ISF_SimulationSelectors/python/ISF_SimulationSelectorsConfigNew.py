@@ -1,11 +1,10 @@
 """
 ISF_SimulationSelectors for ComponentAccumulator configuration
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaCommon.SystemOfUnits import GeV
 from ISF_SimulationSelectors import SimulationFlavor
 from ISF_Services.ISF_ServicesCoreConfigNew import ParticleKillerSvcCfg
 from ISF_Geant4Services.ISF_Geant4ServicesConfigNew import (
