@@ -59,7 +59,7 @@ namespace ATHRNG{
     /// the current EventContext and an optional offset. Does nothing
     /// if the context is invalid. - Legacy Version attempting to
     /// reproduce seeds from thread-unsafe random number services
-    void setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset=0);
+    void setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset=0, bool useLegacy=false);
 
     /// Set the random seed using a string (e.g. algorithm name) and
     /// the current slot, event, and run numbers and an optional

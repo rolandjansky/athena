@@ -345,7 +345,7 @@ StatusCode LArTTL1Maker::execute()
 
   // Prepare RNG Service
   ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset );
+  rngWrapper->setSeedLegacy( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset, m_useLegacyRandomSeeds );
   CLHEP::HepRandomEngine* rndmEngine = *rngWrapper;
 
   //
