@@ -3,7 +3,9 @@
 """Define method to construct configured Tile cabling service"""
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
+@AccumulatorCache
 def TileCablingSvcCfg(flags):
     """Return component accumulator with configured Tile cabling service
 
