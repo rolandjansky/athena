@@ -141,12 +141,14 @@ def CaloSensitiveDetectorListCfg(ConfigFlags):
     tools = []
 
     if ConfigFlags.Detector.EnableLAr:
-        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg, LArMiniFCALSensitiveDetectorToolCfg
+        from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg, LArEMECSensitiveDetectorCfg, LArFCALSensitiveDetectorCfg, LArHECSensitiveDetectorCfg
         tools += [ result.popToolsAndMerge(LArEMBSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArEMECSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArFCALSensitiveDetectorCfg(ConfigFlags)) ]
         tools += [ result.popToolsAndMerge(LArHECSensitiveDetectorCfg(ConfigFlags)) ]
-        tools += [ result.popToolsAndMerge(LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)) ]
+        if False:  # disabled for now
+            from LArG4SD.LArG4SDToolConfig import LArMiniFCALSensitiveDetectorToolCfg
+            tools += [ result.popToolsAndMerge(LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)) ]
 
         if ConfigFlags.Detector.EnableMBTS:
             from MinBiasScintillator.MinBiasScintillatorToolConfig import MinBiasScintillatorSDCfg
