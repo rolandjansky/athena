@@ -282,6 +282,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
 
+  Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""}; //
+
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
       "Also create information about reconstructed digits for HS hits"};
 

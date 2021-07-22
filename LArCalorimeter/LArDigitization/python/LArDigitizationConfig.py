@@ -88,6 +88,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
             #Shape taken from real-data DB has a different SG key
             kwargs.setdefault('ShapeKey',"LArShape")
     from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value() + digitizationFlags.rndmSeedOffset2.get_Value())
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
