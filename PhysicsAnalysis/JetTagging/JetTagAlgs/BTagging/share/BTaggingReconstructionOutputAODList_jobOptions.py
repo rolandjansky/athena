@@ -28,6 +28,12 @@ if len(BTaggingAODList) == 0:
 #    BTaggingAODList += ["xAOD::BTagVertexAuxContainer#*"]
 #    BTaggingAODList += ["xAOD::VertexContainer#BTagging*"]
 #    BTaggingAODList += ["xAOD::VertexAuxContainer#BTagging*"]
+
+if BTaggingFlags.DoJetHitAssociation:
+    BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
+                        'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
+    BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
+                        'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
     
 printfunc ("#BTAG# ESD output container list: " + str(BTaggingESDList))
 printfunc ("#BTAG# AOD output container list: " + str(BTaggingAODList))
