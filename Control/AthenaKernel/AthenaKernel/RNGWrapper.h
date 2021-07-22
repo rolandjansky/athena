@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef ATHENAKERNEL_RNGWRAPPER_H
 #define ATHENAKERNEL_RNGWRAPPER_H
@@ -48,12 +48,24 @@ namespace ATHRNG{
     ~RNGWrapper();
 
     /// Set the random seed using a string (e.g. algorithm name) and the
-    /// current EventContext. Does nothing if the contex is invalid.
+    /// current EventContext. Does nothing if the context is invalid.
     void setSeed(const std::string& algName, const EventContext& ctx);
 
     /// Set the random seed using a string (e.g. algorithm name) and the
     /// current slot, event, and run numbers.
     void setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run);
+
+    /// Set the random seed using a string (e.g. algorithm name) and
+    /// the current EventContext and an optional offset. Does nothing
+    /// if the context is invalid. - Legacy Version attempting to
+    /// reproduce seeds from thread-unsafe random number services
+    void setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset=0);
+
+    /// Set the random seed using a string (e.g. algorithm name) and
+    /// the current slot, event, and run numbers and an optional
+    /// offset. - Legacy Version attempting to reproduce seeds from
+    /// thread-unsafe random number services
+    void setSeedLegacy(const std::string& algName, size_t slot, uint64_t ev, uint64_t run, uint32_t offset=0);
 
     /// Set the seed value directly for a specified slot
     void setSeed(size_t slot, size_t seed);

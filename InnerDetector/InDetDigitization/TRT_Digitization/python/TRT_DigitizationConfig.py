@@ -67,7 +67,7 @@ def BasicTRTDigitizationTool(name, **kwargs):
     ##        # add TRTRange to known pileuo intervals
     ##        ServiceMgr.PileUpMergeSvc.Intervals += [TRTRange]
 
-    kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value())
+    kwargs.setdefault("RandomSeedOffset", digitizationFlags.rndmSeedOffset1.get_Value()+digitizationFlags.rndmSeedOffset2.get_Value())
     return CfgMgr.TRTDigitizationTool(name,**kwargs)
 
 def TRTDigitizationTool(name="TRTDigitizationTool",**kwargs):

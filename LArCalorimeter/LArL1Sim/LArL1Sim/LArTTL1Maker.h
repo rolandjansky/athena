@@ -23,6 +23,7 @@
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -38,6 +39,10 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 class LArHitEMap;
+namespace CLHEP
+{
+  class HepRandomEngine;
+}
 
 /**
    @brief The aim of this algorithm is the simulation of the LAr analogue trigger tower sums. 
@@ -93,7 +98,7 @@ class LArTTL1Maker : public AthAlgorithm,
 				   std::vector<float> visEnergy, const int refTime) const;
 
   std::vector<float> computeNoise(const Identifier towerId, const int Ieta,
-				  std::vector<float>& inputV) ;
+				  std::vector<float>& inputV, CLHEP::HepRandomEngine* rndmEngine);
 
   /** method called at the begining of execute() to fill the hit map */
   //StatusCode fillEMap(int& totHit) ;
@@ -103,6 +108,11 @@ class LArTTL1Maker : public AthAlgorithm,
 
   int decodeInverse(int region, int eta);
 
+  // RNGWrapper hacks
+  void setSeed(const std::string& algName, const EventContext& ctx);
+  void setSeed(const std::string& algName, uint64_t ev, uint64_t run);
+  void setSeed(size_t seed);
+
 //
 // >>>>>>>> private data parts
 //
@@ -110,6 +120,7 @@ class LArTTL1Maker : public AthAlgorithm,
   IChronoStatSvc*              m_chronSvc;
   ServiceHandle<IAthRNGSvc> m_RandomSvc{this, "RndmSvc", "AthRNGSvc", ""};
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArTTL1Maker", ""};
+  Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""};
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;

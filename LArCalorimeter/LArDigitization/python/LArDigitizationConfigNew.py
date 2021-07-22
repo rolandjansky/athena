@@ -100,6 +100,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # defaults
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", -751)
         kwargs.setdefault("LastXing", 101)
@@ -222,6 +223,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     kwargs.setdefault("PileUp", flags.Digitization.PileUp)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
