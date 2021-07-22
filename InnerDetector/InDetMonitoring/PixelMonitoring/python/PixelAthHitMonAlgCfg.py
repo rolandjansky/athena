@@ -37,13 +37,19 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     hitGroup = helper.addGroup(alg, 'Hit')
 
     varName = 'hitdataread_err;ReadingHitDataErr'
-    title = 'Number of Hit data reading errors;error type;# events'
+    title   = 'Number of Hit data reading errors;error type;# events'
     hitGroup.defineHistogram(varName,
                              type='TH1I', path=pathGroup, title=title,
                              xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
-    varName = 'pixhitsmontool_lb,nhits_per_event'
-    title = fullDressTitle('Average number of pixel hits per event per LB', ontrack, ';lumi block', ';# hits/event')
+    varName = 'pixhitsmontool_lb;EventsPerLumi'
+    title   = 'nEvents per LB;lumi block;# events'
+    hitGroup.defineHistogram(varName,
+                             type='TH1I', path=pathGroup, title=title,
+                             xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
+
+    varName  = 'pixhitsmontool_lb,nhits_per_event'
+    title    = fullDressTitle('Average number of pixel hits per event per LB', ontrack, ';lumi block', ';# hits/event')
     varName += ';'+ addOnTrackTxt('HitsPerLumi', ontrack)
     hitGroup.defineHistogram(varName,
                              type='TProfile', path=pathGroup, title=title,

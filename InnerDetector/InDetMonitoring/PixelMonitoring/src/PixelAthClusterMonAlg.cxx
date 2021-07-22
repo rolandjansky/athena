@@ -521,10 +521,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   }
   // begin cluster rates
   //
-  auto nCls   = Monitored::Scalar<int>( "ncls_per_event", nclusters );
+  auto nCls           = Monitored::Scalar<int>( "ClustersPerEvent_val", nclusters );
   fill( clusterGroup, lbval, nCls);
-  nCls = nclusters_ontrack;
-  fill( clusterGroup_OnTrack, lbval, nCls);
+  auto nClsOnTrk      = Monitored::Scalar<int>( "ClustersPerEventOnTrack_val", nclusters_ontrack );
+  fill( clusterGroup_OnTrack, lbval, nClsOnTrk);
+  for (unsigned int ii=0; ii<PixLayers::COUNT; ii++) {
+    auto vals         = Monitored::Scalar<float>( "ClustersPerEvent_val", nclusters_mod[ii] );
+    auto vals_ontrack = Monitored::Scalar<float>( "ClustersPerEventOnTrack_val", nclusters_ontrack_mod[ii] );
+    fill( pixLayersLabel[ii], vals, vals_ontrack);
+  }
 
   if (nclusters>0) {
     auto clsFracOnTrack = Monitored::Scalar<float>( "cls_frac_ontrack", (float)nclusters_ontrack / nclusters );
