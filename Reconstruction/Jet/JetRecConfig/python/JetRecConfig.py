@@ -377,6 +377,8 @@ def getJetRecAlg( jetdef, monTool = None):
         GhostArea = 0.01, 
         JetInputType = int(jetdef.inputdef.jetinputtype),
         RandomOption = 1,
+        VariableRMinRadius = jetdef.VRMinRadius,
+        VariableRMassScale = jetdef.VRMassScale,
     )
 
     mods = getJetModifierTools(jetdef)

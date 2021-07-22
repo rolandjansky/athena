@@ -46,6 +46,25 @@ def buildLabelledTruth(parentjetdef, truthmod):
                                 tools = [ tool ]
     )
 
+def buildPV0TrackSel(parentjetdef, spec):
+    from JetRecConfig.StandardJetContext import jetContextDic
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    from JetRecConfig.JetRecConfig import isAthenaRelease
+    trkOptions = jetContextDic[parentjetdef.context]
+    tvaTool = getTTVAToolForReco("trackjetTVAtool", 
+                                 returnCompFactory = True,
+                                 addDecoAlg = isAthenaRelease(),
+                                 WorkingPoint = "Nonprompt_All_MaxWeight",
+                                 TrackContName = trkOptions['JetTracks'],
+                                 VertexContName = trkOptions['Vertices'],
+                                 )
+    alg = CompFactory.PV0TrackSelectionAlg("pv0tracksel_trackjet", 
+                                           InputTrackContainer = trkOptions['JetTracks'],
+                                           VertexContainer = trkOptions['Vertices'],
+                                           OutputTrackContainer = "PV0"+trkOptions['JetTracks'],
+                                           TVATool = tvaTool,
+                                           )
+    return alg
 
 
 ########################################################################
