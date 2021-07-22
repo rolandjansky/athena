@@ -27,7 +27,6 @@ struct ShareEventHeader {
    std::size_t evtCursor;
    unsigned int evtCoreStatusFlag;
    char token[maxTokenLength];
-   char streamPort[maxTokenLength];
 };
 
 //___________________________________________________________________________
@@ -127,9 +126,9 @@ StatusCode AthenaSharedMemoryTool::makeServer(int num, const std::string& stream
 	   boost::interprocess::read_write);
    shm_status.truncate(num * sizeof(ShareEventHeader));
    m_status = new boost::interprocess::mapped_region(shm_status, boost::interprocess::read_write, 0, num * sizeof(ShareEventHeader));
-   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "", "" };
-   std::memcpy(evtH.streamPort, streamPortSuffix.c_str(), maxTokenLength - 1);
-   evtH.streamPort[maxTokenLength - 1] = 0;
+   ShareEventHeader evtH = { ShareEventHeader::UNLOCKED, -1, -1, 0, 0, 0, 0, "" };
+   std::memcpy(evtH.token, streamPortSuffix.c_str(), maxTokenLength - 1);
+   evtH.token[maxTokenLength - 1] = 0;
    for (int i = 0; i < num; i++) {
       std::memcpy(static_cast<char*>(m_status->get_address()) + i * sizeof(ShareEventHeader), &evtH, sizeof(ShareEventHeader));
    }
@@ -184,14 +183,14 @@ StatusCode AthenaSharedMemoryTool::makeClient(int num, std::string& streamPortSu
       }
    }
    if (m_num <= 0 && num > 0) {
+      ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
+      streamPortSuffix.assign(evtH->token);
       while (lockObject("start").isRecoverable()) {
          usleep(100);
       }
-      ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       while (evtH->evtProcessStatus != ShareEventHeader::UNLOCKED) {
          usleep(100);
       }
-      streamPortSuffix.assign(evtH->streamPort);
       m_num = num;
    }
    return(StatusCode::SUCCESS);
@@ -401,14 +400,15 @@ StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& nu
          } else if ((i == num || num < 0) && evtStatus == ShareEventHeader::LOCKED) {
             *tokenString = evtH->token;
             num = i;
+            ATH_MSG_DEBUG("Setting LOCK clearObject, for client = " << num << ": " << evtH->token);
+            break;
          }
       }
 
    } else if (num >= 0) {
       void* status = static_cast<char*>(m_status->get_address()) + num * sizeof(ShareEventHeader);
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(status);
-      ShareEventHeader::ProcessStatus evtStatus = evtH->evtProcessStatus; // read only once
-      if (evtStatus == ShareEventHeader::LOCKED) {
+      if (evtH->evtProcessStatus == ShareEventHeader::LOCKED) {
          *tokenString = evtH->token;
          ATH_MSG_DEBUG("Setting LOCK clearObject, client = " << num << ": " << evtH->token);
       } else {
@@ -419,8 +419,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& nu
       for (int i = 1; i <= m_num; i++) { // FIXME: PvG, do round robin
          void* status = static_cast<char*>(m_status->get_address()) + i * sizeof(ShareEventHeader);
          ShareEventHeader* evtH = static_cast<ShareEventHeader*>(status);
-         ShareEventHeader::ProcessStatus evtStatus = evtH->evtProcessStatus; // read only once
-         if (evtStatus == ShareEventHeader::LOCKED) {
+         if (evtH->evtProcessStatus == ShareEventHeader::LOCKED) {
             *tokenString = evtH->token;
             num = i;
             ATH_MSG_DEBUG("Setting LOCK clearObject, for client = " << num << ": " << evtH->token);
