@@ -9,8 +9,10 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-def _fastCalo(flags, chainDict):
+@AccumulatorCache
+def _fastCaloSeq(flags):
     selAcc=SelectionCA('FastCaloElectron')
     selAcc.mergeReco(l2CaloRecoCfg(flags))
 
@@ -26,11 +28,17 @@ def _fastCalo(flags, chainDict):
 
     fastCaloSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
+    return (selAcc , fastCaloSequence)
+
+def _fastCalo(flags, chainDict):
+
+    selAcc , fastCaloSequence = _fastCaloSeq(flags)
 
      # this cannot work for asymmetric combined chains....FP
     return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-def _ftf(flags, chainDict):
+@AccumulatorCache
+def _ftfSeq(flags):
     selAcc=SelectionCA('ElectronFTF')
     # # # fast ID (need to be customised because require secialised configuration of the views maker - i.e. parent has to be linked)
     name = "IMFastElectron"
@@ -60,9 +68,14 @@ def _ftf(flags, chainDict):
     from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
     fastInDetSequence = MenuSequenceCA(selAcc,
                                         HypoToolGen=TrigEgammaFastElectronHypoToolFromDict)
+    return (selAcc , fastInDetSequence)
+
+def _ftf(flags, chainDict):
+    selAcc , fastInDetSequence = _ftfSeq(flags)
     return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-def _precisonCalo(flags, chainDict):
+@AccumulatorCache
+def _precisonCaloSeq(flags):
     recoAcc = InViewRecoCA('ElectronRoITopoClusterReco', RequireParentView = True)
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                               DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
@@ -87,10 +100,14 @@ def _precisonCalo(flags, chainDict):
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
     menuSequence = MenuSequenceCA(selAcc,
                                   HypoToolGen=TrigEgammaPrecisionCaloHypoToolFromDict)
+    return (selAcc , menuSequence)
+
+def _precisonCalo(flags, chainDict):
+    selAcc , menuSequence = _precisonCaloSeq(flags)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-
-def _precisionTracking(flags, chainDict):
+@AccumulatorCache
+def _precisionTrackingSeq(flags):
     selAcc=SelectionCA('ElectronPrecision')
 
     name = "IMPrecisionTrackingElectron"
@@ -115,6 +132,10 @@ def _precisionTracking(flags, chainDict):
     selAcc.addHypoAlgo(hypoAlg)
     menuSequence = MenuSequenceCA(selAcc,
                                   HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+    return (selAcc , menuSequence)
+
+def _precisionTracking(flags, chainDict):
+    selAcc , menuSequence = _precisionTrackingSeq(flags)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 def generateChains(flags, chainDict):
