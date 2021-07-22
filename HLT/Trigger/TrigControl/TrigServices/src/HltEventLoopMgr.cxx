@@ -33,6 +33,9 @@
 // Boost includes
 #include <boost/filesystem.hpp>
 
+// ROOT includes
+#include "TROOT.h"
+
 // System includes
 #include <sstream>
 #include <string>
@@ -320,6 +323,18 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     // close any open files (e.g. THistSvc)
     ATH_CHECK(m_ioCompMgr->io_finalize());
+
+    // Verify that there are no other open ROOT files (e.g. from dual-use tools).
+    // Temporary hack for "expert-monitoring.root" as the THistSvc does not
+    // implement io_finalize correctly and the ROOT file stays open.
+    if ( gROOT->GetListOfFiles()->GetSize() > 1 ) {
+      std::unordered_map<std::string, size_t> dups;
+      for (const auto f : *gROOT->GetListOfFiles()) dups[f->GetName()]++;
+      dups.erase("expert-monitoring.root");
+      msg() << MSG::ERROR << "The following ROOT files (with #instances) have not been closed yet: ";
+      for (const auto& [n,c] : dups) msg() << n << "(x" << c << ") ";
+      msg() << endmsg;
+    }
 
     // close open DB connections
     ATH_CHECK(TrigRDBManager::closeDBConnections(msg()));
