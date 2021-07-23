@@ -787,8 +787,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
         scale = std::sqrt(0.9 * a * d) / std::abs(b);
         det = a * d - scale * b * scale * b;
     }
+    if (det ==0.) {
+        ATH_MSG_DEBUG("Found singular determinant");
+        return info;
+    }
     double dydyz = scale * info.exCovYZY;
-    double correction = dydyz / (info.exErrorYZ * info.exErrorYZ);
+    double correction = dydyz / std::max(info.exErrorYZ * info.exErrorYZ, DBL_EPSILON);
 
     //
     //  residual after taking into account the correlation with the angle YZ
@@ -814,7 +818,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo(const Trk::Tra
     // chi2 with full covariance matrix in Y and YZ plane
 
     double chi2Y = d * info.resY * info.resY - 2 * b * scale * info.resY * info.dangleYZ + a * info.dangleYZ * info.dangleYZ;
-    info.chi2Y = chi2Y / det / 2.;
+    info.chi2Y = 0.5*( chi2Y / det);
     if (info.chi2Y < 0) ATH_MSG_DEBUG(" NEGATIVE chi2Y " << chi2Y << " dydyz " << dydyz << " determinant " << det);
 
     bool hasPhi = hitCounts.nexpectedTrigHitLayers > 1;
