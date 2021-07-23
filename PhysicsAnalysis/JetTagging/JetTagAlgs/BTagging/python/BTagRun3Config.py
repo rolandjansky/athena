@@ -121,18 +121,22 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
 
     postTagDL2JetToTrainingMap={
         'AntiKt4EMPFlow': [
-        #'BTagging/201903/smt/antikt4empflow/network.json',
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/201903/dl1/antikt4empflow/network.json',
-        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+           'BTagging/201903/rnnip/antikt4empflow/network.json',
+           'BTagging/201903/dl1r/antikt4empflow/network.json',
+           'BTagging/201903/dl1/antikt4empflow/network.json',
+           'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+           'BTagging/20210517/dips/antikt4empflow/network.json',
+           'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
+           'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
-        #'BTagging/201903/smt/antikt4empflow/network.json',
-        'BTagging/201903/rnnip/antikt4empflow/network.json',
-        'BTagging/201903/dl1r/antikt4empflow/network.json',
-        'BTagging/201903/dl1/antikt4empflow/network.json',
-        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+           'BTagging/201903/rnnip/antikt4empflow/network.json',
+           'BTagging/201903/dl1r/antikt4empflow/network.json',
+           'BTagging/201903/dl1/antikt4empflow/network.json',
+           'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
+           'BTagging/20210517/dips/antikt4empflow/network.json',
+           'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
+           'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
         ]
     }
 
