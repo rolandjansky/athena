@@ -22,7 +22,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):
+    def assembleChainImpl(self):                            
         log.debug("Assembling chain for %s", self.chainName)
 
         def bjetSequenceCfg(flags):

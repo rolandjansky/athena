@@ -82,7 +82,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChainImpl(self):                            
         chainSteps = []
 
         stepDictionary = self.getStepDictionary()
