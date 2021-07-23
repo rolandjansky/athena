@@ -122,6 +122,8 @@ def _run(input):
 
 
     flags.lock()
+    log.info("Configuring according to flag values listed below")
+    flags.dump()
 
     acc = MainServicesCfg(flags)
     if args.tryConfiguringAll: # this option (and related functionality) should be removed once all major fragments can actually be configured
@@ -130,7 +132,6 @@ def _run(input):
     acc.merge(RecoSteering(flags), sequenceName="AthAlgSeq")
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
-    flags.dump()
     acc.printConfig(withDetails=True)
 
     if args.configOnly:
@@ -141,7 +142,7 @@ def _run(input):
     # running        
     statusCode = acc.run()
     endStamp = datetime.datetime.now()
-    log.info("total time spent in %d seconds (running %s seconds) ", (endStamp-startStamp).seconds, (endStamp-confStamp).seconds )
+    log.info("total time spent %d seconds (running %s seconds) ", (endStamp-startStamp).seconds, (endStamp-confStamp).seconds )
     return statusCode
 
 
