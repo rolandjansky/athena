@@ -6,6 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, Em
 from AthenaCommon.Logging import logging
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from TrigCompositeUtils.TrigCompositeUtils import legName
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from collections import OrderedDict
 from copy import deepcopy
@@ -178,7 +179,8 @@ def getCurrentAG(chainStep):
 
     filled_seq_ag = []
     for iseq,seq in enumerate(chainStep.sequences):
-        if type(seq).__name__ == 'EmptyMenuSequence':
+        # In the case of dummy configs, they are all empty
+        if type(seq).__name__ == 'EmptyMenuSequence' and not ConfigFlags.Trigger.Test.doDummyChainConfig:
             continue
         else:
             # get the alignment group of the leg that is running a non-empty sequence
@@ -191,6 +193,7 @@ def getCurrentAG(chainStep):
 
     if len(filled_seq_ag) == 0:
         log.error("[getCurrentAG] No non-empty sequences were found in %s", chainStep.sequences)
+        log.error("[getCurrentAG] The chainstep is %s", chainStep)
         raise Exception("[getCurrentAG] Cannot find the current alignment group for this chain")
     elif len(set(filled_seq_ag)) > 1:
         log.error("[getCurrentAG] Found more than one alignment group for this step %s", filled_seq_ag)

@@ -95,7 +95,7 @@ class EnhancedBiasChainConfiguration(ChainConfigurationBase):
         ChainConfigurationBase.__init__(self, chainDict)
 
 
-    def assembleChain(self):
+    def assembleChainImpl(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 

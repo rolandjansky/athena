@@ -18,6 +18,7 @@ from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
 from ..CommonSequences import EventBuildingSequences
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging
@@ -255,6 +256,11 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Will now generate the chain configuration for each chain")
         self.generateChains()
 
+        if ConfigFlags.Trigger.Test.doDummyChainConfig:
+            log.info("[GenerateMenuMT] Dummy chain configuration active, will not proceed with menu generation")
+            import sys
+            sys.exit(0)
+
         log.info("Will now calculate the alignment parameters")
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
@@ -435,7 +441,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         if len(listOfChainConfigs) == 0:
             log.error('[__generateChainConfigs] No Chain Configuration found for %s', mainChainDict['chainName'])
             raise Exception("[__generateChainConfigs] chain generation failed, exiting.")
-
         else:
             if len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
@@ -447,7 +452,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             # a tool that aggregates a list
             if len(mainChainDict['extraComboHypos'])>1:
                 raise RuntimeError("More than one entry in extraComboHypos (%s), cannot assign to steps",mainChainDict['extraComboHypos'])
-            elif len(mainChainDict['extraComboHypos'])==1:
+            elif len(mainChainDict['extraComboHypos'])==1 and not ConfigFlags.Trigger.Test.doDummyChainConfig:
                 # Add the topo info to the chain config, default last step.
                 # Assumes the topo is expressed as [min]thetopo[Leg1][Leg2][max], where
                 # min,max are all numbers, Leg1, Leg2 are capital letters in topoLegIndices.

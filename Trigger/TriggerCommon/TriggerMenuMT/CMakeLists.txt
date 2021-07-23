@@ -117,7 +117,8 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py
 # Shell scripts without flake8 checking:
 atlas_install_scripts( scripts/generateL1MenuMT.sh
                        scripts/trigL1MenuMigrationCheck.sh
-                       scripts/test_HLTmenu.sh )
+                       scripts/test_HLTmenu.sh
+		       scripts/test_slice_independence.sh )
 
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
@@ -193,3 +194,13 @@ atlas_test_lvl1_trigger_menu( MC_pp_run3_v1 )
 atlas_test_lvl1_trigger_menu( Cosmic_run3_v1 )
 atlas_test_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
 atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
+
+function( atlas_test_slice_independence slice )
+   atlas_add_test( slice_independence_${slice}
+                  SCRIPT scripts/test_slice_independence.sh slice
+                  POST_EXEC_SCRIPT nopost.sh )
+endfunction()
+
+foreach( slice Egamma Muon Tau MET Jet Bjet Bphysics MinBias UnconventionalTracking Calib Beamspot Cosmic Monitor Streaming EnhancedBias)
+   atlas_test_slice_independence( ${slice} )
+endforeach()
