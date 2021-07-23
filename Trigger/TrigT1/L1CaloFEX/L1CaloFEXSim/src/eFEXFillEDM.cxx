@@ -66,16 +66,21 @@ namespace LVL1 {
 
   void eFEXFillEDM::fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
   {
-    uint8_t eFEXNumber = eFexNum;
     uint32_t tobWord0 = tobWord;
     uint32_t tobWord1 = 0;
 
+    // Translate eFEX index into Shelf+eFEX:
+    // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
+    int inShelf = eFexNum % 12;
+    uint8_t shelf = int(eFexNum/12);
+    uint8_t eFEX  = 3*int(inShelf/3) + 2 - (eFexNum%3);
+    
     xAOD::eFexTauRoI* myTauEDM = new xAOD::eFexTauRoI();
 
     container->push_back(myTauEDM);
 
-    myTauEDM->initialize(eFEXNumber, tobWord0, tobWord1);
-    ATH_MSG_DEBUG(" setting eFEX Number: " << +myTauEDM->eFexNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() );
+    myTauEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
+    ATH_MSG_DEBUG(" setting tau eFEX Number: " << +myTauEDM->eFexNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() );
 
   }
 
