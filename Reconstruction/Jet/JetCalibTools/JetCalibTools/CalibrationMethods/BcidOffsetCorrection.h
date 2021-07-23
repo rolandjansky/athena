@@ -18,6 +18,8 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
+#include <memory>
+
 class BcidOffsetCorrection 
 : virtual public ::IJetCalibrationTool,
   virtual public ::JetCalibrationToolBase
@@ -67,30 +69,30 @@ class BcidOffsetCorrection
   bool m_doFCal1InnerBcid;
   bool m_doFCal2InnerBcid;
 
-  TH2F* m_bcid_nCells_EMECIW2;
-  TH2F* m_bcid_nCells_HEC0;
-  TH2F* m_bcid_nCells_HEC1;
-  TH2F* m_bcid_nCells_FCal0;
+  std::unique_ptr<const TH2> m_bcid_nCells_EMECIW2;
+  std::unique_ptr<const TH2> m_bcid_nCells_HEC0;
+  std::unique_ptr<const TH2> m_bcid_nCells_HEC1;
+  std::unique_ptr<const TH2> m_bcid_nCells_FCal0;
 
-  TH2F* m_bcid_slope_EMECIW2_pos;
-  TH2F* m_bcid_slope_HEC0_pos;
-  TH2F* m_bcid_slope_HEC1_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_EMECIW2_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC0_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC1_pos;
 
-  TH2F* m_bcid_slope_EMECIW2_neg;
-  TH2F* m_bcid_slope_HEC0_neg;
-  TH2F* m_bcid_slope_HEC1_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_EMECIW2_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC0_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC1_neg;
 
-  TH2F* m_bcid_slope_FCal0;
+  std::unique_ptr<const TH2> m_bcid_slope_FCal0;
 
-  TH2F* m_bcid_slope_EMECIW2_8b4e_pos;
-  TH2F* m_bcid_slope_HEC0_8b4e_pos;
-  TH2F* m_bcid_slope_HEC1_8b4e_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_EMECIW2_8b4e_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC0_8b4e_pos;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC1_8b4e_pos;
 
-  TH2F* m_bcid_slope_EMECIW2_8b4e_neg;
-  TH2F* m_bcid_slope_HEC0_8b4e_neg;
-  TH2F* m_bcid_slope_HEC1_8b4e_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_EMECIW2_8b4e_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC0_8b4e_neg;
+  std::unique_ptr<const TH2> m_bcid_slope_HEC1_8b4e_neg;
 
-  TH2F* m_bcid_slope_FCal0_8b4e;
+  std::unique_ptr<const TH2> m_bcid_slope_FCal0_8b4e;
 
   JetEventInfo m_eventInfo;
 

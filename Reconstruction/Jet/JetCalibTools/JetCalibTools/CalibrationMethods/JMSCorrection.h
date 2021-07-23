@@ -12,12 +12,12 @@
 
 #include <TEnv.h>
 #include <TAxis.h>
-#include <TH2F.h>
-#include <TH2D.h>
-#include <TH3F.h>
-#include <TH3D.h>
+#include <TH2.h>
+#include <TH3.h>
 
 #include "JetCalibTools/JetCalibrationToolBase.h"
+
+#include <memory>
 
 class JMSCorrection 
   : virtual public ::JetCalibrationToolBase
@@ -27,15 +27,13 @@ class JMSCorrection
 
  public:
   //Some convenient typedefs
-  typedef std::vector<TH2F*> VecTH2F;
-  typedef std::vector<TH2D*> VecTH2D;
+  typedef std::vector<std::unique_ptr<const TH2>> VecTH2;
   typedef std::vector<double> VecD;
   typedef unsigned int uint;
 
   JMSCorrection();
   JMSCorrection(const std::string& name);
   JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev);
-  virtual ~JMSCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
 
@@ -93,20 +91,20 @@ class JMSCorrection
 
 
   //Private members set during initialization (if 2D histos)
-  VecTH2F m_respFactorsMass;
+  VecTH2 m_respFactorsMass;
   VecD m_massEtaBins;
-  VecTH2F m_respFactorsTrackAssistedMass;
+  VecTH2 m_respFactorsTrackAssistedMass;
   VecD m_massCombinationEtaBins;
-  VecTH2D m_caloResolutionMassCombination; // Calo Mass Resolution
-  VecTH2D m_taResolutionMassCombination;   // Track-Assisted Mass Resolution
-  VecTH2D m_correlationMapMassCombination;   // Correlation Map for mass combination (rho)
+  VecTH2 m_caloResolutionMassCombination; // Calo Mass Resolution
+  VecTH2 m_taResolutionMassCombination;   // Track-Assisted Mass Resolution
+  VecTH2 m_correlationMapMassCombination;   // Correlation Map for mass combination (rho)
   
   //Private members set during initialization (if 3D histos)
-  TH3F* m_respFactorMass3D;
-  TH3F* m_respFactorTrackAssistedMass3D;
-  TH3D* m_caloResolutionMassCombination3D;
-  TH3D* m_taResolutionMassCombination3D;
-  TH3D* m_correlationMapMassCombination3D;
+  std::unique_ptr<const TH3> m_respFactorMass3D;
+  std::unique_ptr<const TH3> m_respFactorTrackAssistedMass3D;
+  std::unique_ptr<const TH3> m_caloResolutionMassCombination3D;
+  std::unique_ptr<const TH3> m_taResolutionMassCombination3D;
+  std::unique_ptr<const TH3> m_correlationMapMassCombination3D;
 };
 
 #endif

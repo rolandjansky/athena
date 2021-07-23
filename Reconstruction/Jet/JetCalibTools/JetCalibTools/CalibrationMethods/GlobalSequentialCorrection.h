@@ -12,10 +12,12 @@
 
 #include <TEnv.h>
 #include <TAxis.h>
-#include <TH2F.h>
+#include <TH2.h>
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
+
+#include <memory>
 
 class GlobalSequentialCorrection 
   : virtual public ::JetCalibrationToolBase
@@ -25,7 +27,7 @@ class GlobalSequentialCorrection
 
  public:
   //Some convenient typedefs
-  typedef std::vector<TH2F*> VecTH2F;
+  typedef std::vector<std::unique_ptr<const TH2>> VecTH2;
   typedef std::vector<double> VecD;
   typedef std::vector<TString> StrV;
   typedef unsigned int uint;
@@ -33,7 +35,6 @@ class GlobalSequentialCorrection
   GlobalSequentialCorrection();
   GlobalSequentialCorrection(const std::string& name);
   GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev); //Apply the full GS calibration by default
-  virtual ~GlobalSequentialCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
 
@@ -78,7 +79,7 @@ class GlobalSequentialCorrection
  private:
 
   double readPtJetPropertyHisto(double pT, double jetProperty,
-				TH2F *respFactors) const;
+                                const TH2& respFactors) const;
 
  private:
   enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32, ApplyN90Constituents = 64, ApplyTileGap3 = 128, ApplycaloWIDTH = 256 };
@@ -89,8 +90,7 @@ class GlobalSequentialCorrection
   bool m_dev;
 
   //Private members set during initialization
-  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction, m_respFactorsN90Constituents, m_respFactorscaloWIDTH;
-  std::vector<std::unique_ptr<TH2F>> m_respFactorsTileGap3;
+  VecTH2 m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction, m_respFactorsN90Constituents, m_respFactorscaloWIDTH, m_respFactorsTileGap3;
   double m_binSize;
   uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin, m_caloWIDTHMaxEtaBin, m_N90ConstituentsMaxEtaBin, m_TileGap3MaxEtaBin;
   VecD m_punchThroughEtaBins;
