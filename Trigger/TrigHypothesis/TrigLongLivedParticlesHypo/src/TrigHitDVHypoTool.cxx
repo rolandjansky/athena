@@ -276,19 +276,19 @@ StatusCode TrigHitDVHypoTool::calculateBDT(const xAOD::TrigCompositeContainer* s
       
       for ( auto spData : *spsContainer ) {
 	 // match within dR
-	 float sp_eta = spData->getDetail<float>("sp_eta");
-	 float sp_phi = spData->getDetail<float>("sp_phi");
+	 float sp_eta = spData->getDetail<float>("hitDVSP_eta");
+	 float sp_phi = spData->getDetail<float>("hitDVSP_phi");
 	 float dr = deltaR(sp_eta,sp_phi,seed_eta,seed_phi);
 	 if( dr > DR_TO_REF_CUT ) continue;
 
 	 // 
-	 int sp_isPix = spData->getDetail<int>("sp_isPix");
-	 int sp_isSct = spData->getDetail<int>("sp_isSct");
+	 int sp_isPix = spData->getDetail<int>("hitDVSP_isPix");
+	 int sp_isSct = spData->getDetail<int>("hitDVSP_isSct");
 	 bool isPix = (sp_isPix == 1);
 	 bool isSct = (sp_isSct == 1);
 	 
-	 int sp_layer = spData->getDetail<int>("sp_layer");
-	 int sp_trkid = spData->getDetail<int>("sp_usedTrkId");
+	 int sp_layer = spData->getDetail<int>("hitDVSP_layer");
+	 int sp_trkid = spData->getDetail<int>("hitDVSP_usedTrkId");
 	 bool isUsedByTrk = (sp_trkid != -1);
 
 	 int ilayer = getSPLayer(sp_layer,sp_eta);
@@ -340,11 +340,11 @@ StatusCode TrigHitDVHypoTool::calculateBDT(const xAOD::TrigCompositeContainer* s
 
       unsigned int n_qtrk_injet = 0;
       for ( auto trk : *trksContainer ) {
-	 float trk_pt  = trk->getDetail<float>("dvtrk_pt");
+	 float trk_pt  = trk->getDetail<float>("hitDVTrk_pt");
 	 trk_pt /= 1000;
 	 if( trk_pt < TRK_PT_CUT ) continue;
-	 float trk_eta = trk->getDetail<float>("dvtrk_eta");
-	 float trk_phi = trk->getDetail<float>("dvtrk_phi");
+	 float trk_eta = trk->getDetail<float>("hitDVTrk_eta");
+	 float trk_phi = trk->getDetail<float>("hitDVTrk_phi");
 	 float dr = deltaR(trk_eta,trk_phi,seed_eta,seed_phi);
 	 if( dr > DR_TO_REF_CUT )  continue;
 	 n_qtrk_injet++;
@@ -379,19 +379,19 @@ StatusCode TrigHitDVHypoTool::calculateBDT(const xAOD::TrigCompositeContainer* s
       dv->makePrivateStore();
       dvContainer->push_back(dv);
       
-      dv->setDetail<float>("hitdv_seed_eta",     seed_eta);
-      dv->setDetail<float>("hitdv_seed_phi",     seed_phi);
-      dv->setDetail<int>  ("hitdv_seed_type",    seed_type);
-      dv->setDetail<int>  ("hitdv_n_track_qual", n_qtrk_injet);
-      dv->setDetail<float>("hitdv_ly0_sp_frac",  v_ly_sp_frac[0]);
-      dv->setDetail<float>("hitdv_ly1_sp_frac",  v_ly_sp_frac[1]);
-      dv->setDetail<float>("hitdv_ly2_sp_frac",  v_ly_sp_frac[2]);
-      dv->setDetail<float>("hitdv_ly3_sp_frac",  v_ly_sp_frac[3]);
-      dv->setDetail<float>("hitdv_ly4_sp_frac",  v_ly_sp_frac[4]);
-      dv->setDetail<float>("hitdv_ly5_sp_frac",  v_ly_sp_frac[5]);
-      dv->setDetail<float>("hitdv_ly6_sp_frac",  v_ly_sp_frac[6]);
-      dv->setDetail<float>("hitdv_ly7_sp_frac",  v_ly_sp_frac[7]);
-      dv->setDetail<float>("hitdv_bdt_score",    bdt_score);
+      dv->setDetail<float>("hitDV_seed_eta",     seed_eta);
+      dv->setDetail<float>("hitDV_seed_phi",     seed_phi);
+      dv->setDetail<int>  ("hitDV_seed_type",    seed_type);
+      dv->setDetail<int>  ("hitDV_n_track_qual", n_qtrk_injet);
+      dv->setDetail<float>("hitDV_ly0_sp_frac",  v_ly_sp_frac[0]);
+      dv->setDetail<float>("hitDV_ly1_sp_frac",  v_ly_sp_frac[1]);
+      dv->setDetail<float>("hitDV_ly2_sp_frac",  v_ly_sp_frac[2]);
+      dv->setDetail<float>("hitDV_ly3_sp_frac",  v_ly_sp_frac[3]);
+      dv->setDetail<float>("hitDV_ly4_sp_frac",  v_ly_sp_frac[4]);
+      dv->setDetail<float>("hitDV_ly5_sp_frac",  v_ly_sp_frac[5]);
+      dv->setDetail<float>("hitDV_ly6_sp_frac",  v_ly_sp_frac[6]);
+      dv->setDetail<float>("hitDV_ly7_sp_frac",  v_ly_sp_frac[7]);
+      dv->setDetail<float>("hitDV_bdt_score",    bdt_score);
 
       ATH_MSG_DEBUG("Created a new entry EDM");
    }
@@ -466,14 +466,14 @@ StatusCode TrigHitDVHypoTool::findSPSeeds( const xAOD::TrigCompositeContainer* s
    TH2F*    ly7_h2_nsp_notrk = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for ( auto spData : *spsContainer ) {
-      int sp_layer = spData->getDetail<int>  ("sp_layer");
-      float sp_eta = spData->getDetail<float>("sp_eta");
+      int sp_layer = spData->getDetail<int>  ("hitDVSP_layer");
+      float sp_eta = spData->getDetail<float>("hitDVSP_eta");
       int ilayer = getSPLayer(sp_layer,sp_eta);
       if( ilayer<6 ) continue;
 
-      int sp_trkid = spData->getDetail<int>("sp_usedTrkId");
+      int sp_trkid = spData->getDetail<int>("hitDVSP_usedTrkId");
       bool isUsedByTrk = (sp_trkid != -1);
-      float sp_phi = spData->getDetail<float>("sp_phi");
+      float sp_phi = spData->getDetail<float>("hitDVSP_phi");
 
       bool fill_out_of_pi = false;
       float sp_phi2 = 0;

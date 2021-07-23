@@ -1634,14 +1634,14 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
       hitDVTrk->makePrivateStore();
       hitDVTrkContainer->push_back(hitDVTrk);
-      hitDVTrk->setDetail<int>  ("dvtrk_id",  v_dvtrk_id[iTrk]);
-      hitDVTrk->setDetail<float>("dvtrk_pt",  v_dvtrk_pt[iTrk]);
-      hitDVTrk->setDetail<float>("dvtrk_eta", v_dvtrk_eta[iTrk]);
-      hitDVTrk->setDetail<float>("dvtrk_phi", v_dvtrk_phi[iTrk]);
-      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
-      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]); 
-      hitDVTrk->setDetail<int>  ("dvtrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
-      hitDVTrk->setDetail<float>("dvtrk_a0beam",     v_dvtrk_a0beam[iTrk]); 
+      hitDVTrk->setDetail<int>  ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
+      hitDVTrk->setDetail<float>("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
+      hitDVTrk->setDetail<float>("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
+      hitDVTrk->setDetail<float>("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
+      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
+      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]); 
+      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
+      hitDVTrk->setDetail<float>("hitDVTrk_a0beam",     v_dvtrk_a0beam[iTrk]); 
    }
 
    // space points
@@ -1662,13 +1662,13 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       xAOD::TrigComposite *hitDVSP = new xAOD::TrigComposite();
       hitDVSP->makePrivateStore();
       hitDVSPContainer->push_back(hitDVSP);
-      hitDVSP->setDetail<float>("sp_eta",       v_sp_eta[iSp]);
-      hitDVSP->setDetail<float>("sp_r",         v_sp_r[iSp]);
-      hitDVSP->setDetail<float>("sp_phi",       v_sp_phi[iSp]);
-      hitDVSP->setDetail<int>  ("sp_layer",     v_sp_layer[iSp]);
-      hitDVSP->setDetail<int>  ("sp_isPix",     v_sp_isPix[iSp]);
-      hitDVSP->setDetail<int>  ("sp_isSct",     v_sp_isSct[iSp]);
-      hitDVSP->setDetail<int>  ("sp_usedTrkId", v_sp_usedTrkId[iSp]);
+      hitDVSP->setDetail<float>("hitDVSP_eta",       v_sp_eta[iSp]);
+      hitDVSP->setDetail<float>("hitDVSP_r",         v_sp_r[iSp]);
+      hitDVSP->setDetail<float>("hitDVSP_phi",       v_sp_phi[iSp]);
+      hitDVSP->setDetail<int>  ("hitDVSP_layer",     v_sp_layer[iSp]);
+      hitDVSP->setDetail<int>  ("hitDVSP_isPix",     v_sp_isPix[iSp]);
+      hitDVSP->setDetail<int>  ("hitDVSP_isSct",     v_sp_isSct[iSp]);
+      hitDVSP->setDetail<int>  ("hitDVSP_usedTrkId", v_sp_usedTrkId[iSp]);
    }
 
    // record
@@ -2085,31 +2085,31 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       xAOD::TrigComposite *dEdxTrk = new xAOD::TrigComposite();
       dEdxTrk->makePrivateStore();
       dEdxTrkContainer->push_back(dEdxTrk);
-      dEdxTrk->setDetail<int>  ("trk_id",   i_track);
-      dEdxTrk->setDetail<float>("trk_pt",   pt);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_id",   i_track);
+      dEdxTrk->setDetail<float>("dEdxTrk_pt",   pt);
       float eta = -log(tan(0.5*theta));
-      dEdxTrk->setDetail<float>("trk_eta",  eta);
-      dEdxTrk->setDetail<float>("trk_phi",  phi0);
-      dEdxTrk->setDetail<float>("trk_dedx", dedx);
-      dEdxTrk->setDetail<int>  ("trk_dedx_n_usedhits",  n_usedhits);
-      dEdxTrk->setDetail<float>("trk_a0beam",           a0beam);
-      dEdxTrk->setDetail<float>("trk_n_hits_innermost", n_hits_innermost);
-      dEdxTrk->setDetail<float>("trk_n_hits_inner",     n_hits_inner);
-      dEdxTrk->setDetail<float>("trk_n_hits_pix",       n_hits_pix);
-      dEdxTrk->setDetail<float>("trk_n_hits_sct",       n_hits_sct);
+      dEdxTrk->setDetail<float>("dEdxTrk_eta",  eta);
+      dEdxTrk->setDetail<float>("dEdxTrk_phi",  phi0);
+      dEdxTrk->setDetail<float>("dEdxTrk_dedx", dedx);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_dedx_n_usedhits",  n_usedhits);
+      dEdxTrk->setDetail<float>("dEdxTrk_a0beam",           a0beam);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_n_hits_innermost", n_hits_innermost);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_n_hits_inner",     n_hits_inner);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_n_hits_pix",       n_hits_pix);
+      dEdxTrk->setDetail<int>  ("dEdxTrk_n_hits_sct",       n_hits_sct);
 
       for(unsigned int i=0; i<v_pixhit_dedx.size(); i++) {
 	 xAOD::TrigComposite *dEdxHit = new xAOD::TrigComposite();
 	 dEdxHit->makePrivateStore();
 	 dEdxHitContainer->push_back(dEdxHit);
-	 dEdxHit->setDetail<int>  ("hit_trkid",   i_track);
-	 dEdxHit->setDetail<float>("hit_dedx",    v_pixhit_dedx[i]);
-	 dEdxHit->setDetail<float>("hit_tot",     v_pixhit_tot[i]);
-	 dEdxHit->setDetail<float>("hit_trkchi2", v_pixhit_trkchi2[i]);
-	 dEdxHit->setDetail<float>("hit_trkndof", v_pixhit_trkndof[i]);
-	 dEdxHit->setDetail<int>  ("hit_iblovfl", v_pixhit_iblovfl[i]);
-	 dEdxHit->setDetail<int>  ("hit_loc",     v_pixhit_loc[i]);
-	 dEdxHit->setDetail<int>  ("hit_layer",   v_pixhit_layer[i]);
+	 dEdxHit->setDetail<int>  ("dEdxHit_trkid",   i_track);
+	 dEdxHit->setDetail<float>("dEdxHit_dedx",    v_pixhit_dedx[i]);
+	 dEdxHit->setDetail<float>("dEdxHit_tot",     v_pixhit_tot[i]);
+	 dEdxHit->setDetail<float>("dEdxHit_trkchi2", v_pixhit_trkchi2[i]);
+	 dEdxHit->setDetail<float>("dEdxHit_trkndof", v_pixhit_trkndof[i]);
+	 dEdxHit->setDetail<int>  ("dEdxHit_iblovfl", v_pixhit_iblovfl[i]);
+	 dEdxHit->setDetail<int>  ("dEdxHit_loc",     v_pixhit_loc[i]);
+	 dEdxHit->setDetail<int>  ("dEdxHit_layer",   v_pixhit_layer[i]);
       }
    }
 
@@ -2915,7 +2915,7 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
 {
    // category
    int category = (trk != nullptr) ? (int)getDisTrkCategory(trk) : -1;
-   comp->setDetail<int>(prefix+"_category",category);
+   if( prefix.find("refit") == std::string::npos ) comp->setDetail<int>(prefix+"_category",category);
 
    // track
    float theta=0; float eta=0; float pt=0; float d0=0; float z0=0; float phi=0; float chi2=0; float ndof=0;
