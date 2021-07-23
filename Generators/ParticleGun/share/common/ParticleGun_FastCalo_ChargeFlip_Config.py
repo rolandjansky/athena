@@ -46,24 +46,24 @@ class MyParticleSampler(PG.ParticleSampler):
         
         return [ PG.SampledParticle( pid , mom , pos ) ]
 
-myE = float(runArgs.jobConfig[0].split('_E')[1].split('_')[0])
-myZV = float(runArgs.jobConfig[0].split('_')[-1].split('.py')[0].replace("m","-"))
+myE = float(jofile.split('_E')[1].split('_')[0])
+myZV = float(jofile.split('_')[-1].split('.py')[0].replace("m","-"))
 
-myPDGID = runArgs.jobConfig[0].split('_pid')[1].split('_')[0].replace('n','-')
+myPDGID = jofile.split('_pid')[1].split('_')[0].replace('n','-')
 myPDGID = int(float(myPDGID.replace('p','')))
 
 eta_li = []
 
-if "disj" in runArgs.jobConfig[0]:
-    myLowEta1  = 0.01*float(runArgs.jobConfig[0].split('eta_')[1].split('_')[0].replace('m','-'))
-    myLowEta2  = 0.01*float(runArgs.jobConfig[0].split('eta_')[1].split('_')[1].replace('m','-'))
-    myHighEta1 = 0.01*float(runArgs.jobConfig[0].split('eta_')[1].split('_')[2].replace('m','-'))
-    myHighEta2 = 0.01*float(runArgs.jobConfig[0].split('eta_')[1].split('_')[3].replace('m','-'))
+if "disj" in jofile:
+    myLowEta1  = 0.01*float(jofile.split('eta_')[1].split('_')[0].replace('m','-'))
+    myLowEta2  = 0.01*float(jofile.split('eta_')[1].split('_')[1].replace('m','-'))
+    myHighEta1 = 0.01*float(jofile.split('eta_')[1].split('_')[2].replace('m','-'))
+    myHighEta2 = 0.01*float(jofile.split('eta_')[1].split('_')[3].replace('m','-'))
     eta_li.extend([myLowEta1,myLowEta2,myHighEta1,myHighEta2])
 
 else:
-    myLowEta  = 0.01*float(runArgs.jobConfig[0].split('eta')[1].split('_')[0].replace('m','-'))
-    myHighEta = 0.01*float(runArgs.jobConfig[0].split('eta')[1].split('_')[1].replace('m','-'))
+    myLowEta  = 0.01*float(jofile.split('eta')[1].split('_')[0].replace('m','-'))
+    myHighEta = 0.01*float(jofile.split('eta')[1].split('_')[1].replace('m','-'))
     eta_li.extend([myLowEta,myHighEta])
 
 
