@@ -110,16 +110,40 @@ BTagVars = '.'.join(BTagOutput)
 BTagJetOutput = ['btaggingLink', 'Jvt', 'JVFCorr', 'SumPtTrkPt500']
 BTagJetVars  ='.'.join(BTagJetOutput)
 
-hitDVToKeep = ['hitdv_seed_eta','hitdv_seed_phi','hitdv_seed_type','hitdv_n_track_qual','hitdv_ly0_sp_frac','hitdv_ly1_sp_frac','hitdv_ly2_sp_frac','hitdv_ly3_sp_frac','hitdv_ly4_sp_frac','hitdv_ly5_sp_frac','hitdv_ly6_sp_frac','hitdv_ly7_sp_frac','hitdv_bdt_score']
+hitDVTrkToKeepBase = ['id','pt','eta','phi','n_hits_innermost','n_hits_pix','n_hits_sct','a0beam']
+hitDVTrkToKeep = []
+for var in hitDVTrkToKeepBase:
+    hitDVTrkToKeep.append('hitDVTrk_'+var)
+hitDVTrkVars = '.'.join(hitDVTrkToKeep)
+
+hitDVSPToKeepBase = ['eta','r','phi','layer','isPix','isSct','usedTrkId']
+hitDVSPToKeep = []
+for var in hitDVSPToKeepBase:
+    hitDVSPToKeep.append('hitDVSP_'+var)
+hitDVSPVars = '.'.join(hitDVSPToKeep)
+
+hitDVToKeepBase = ['seed_eta','seed_phi','seed_type','n_track_qual','ly0_sp_frac','ly1_sp_frac','ly2_sp_frac','ly3_sp_frac','ly4_sp_frac','ly5_sp_frac','ly6_sp_frac','ly7_sp_frac','bdt_score']
+hitDVToKeep = []
+for var in hitDVToKeepBase:
+    hitDVToKeep.append('hitDV_'+var)
 hitDVVars = '.'.join(hitDVToKeep)
 
-dEdxTrkToKeep = ['trk_id','trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
+dEdxTrkToKeepBase = ['id','pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
+dEdxTrkToKeep = []
+for var in dEdxTrkToKeepBase:
+    dEdxTrkToKeep.append('dEdxTrk_'+var)
 dEdxTrkVars = '.'.join(dEdxTrkToKeep)
 
-dEdxHitToKeep = ['hit_trkid','hit_dedx','hit_tot','hit_trkchi2','hit_trkndof','hit_iblovfl','hit_loc','hit_layer']
+dEdxHitToKeepBase = ['trkid','dedx','tot','trkchi2','trkndof','iblovfl','loc','layer']
+dEdxHitToKeep = []
+for var in dEdxHitToKeepBase:
+    dEdxHitToKeep.append('dEdxHit_'+var)
 dEdxHitVars = '.'.join(dEdxHitToKeep)
 
-HPtdEdxTrkToKeep = ['trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
+HPtdEdxTrkToKeepBase = ['pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
+HPtdEdxTrkToKeep = []
+for var in HPtdEdxTrkToKeepBase:
+    HPtdEdxTrkToKeep.append('HPtdEdxTrk_'+var)
 HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
 
 DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
@@ -753,22 +777,26 @@ TriggerHLTListRun3 = [
 
     # UTT
     # hit-based displaced vertex
+    ('xAOD::TrigCompositeContainer#HLT_HitDVTrk',                          'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.'+hitDVTrkVars,      'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_HitDVSP',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.'+hitDVSPVars,        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HitDV',                             'BS ESD AODFULL AODSLIM', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.',                      'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.'+hitDVVars,            'BS ESD AODFULL AODSLIM', 'ID'),
 
     # dE/dx
-    #('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                          'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,       'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeContainer#HLT_dEdxHit',                          'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,       'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                       'BS ESD AODFULL AODSLIM', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,        'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_dEdxHit',                           'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,        'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                        'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars,  'BS ESD AODFULL AODSLIM', 'ID'),
 
     # disappearing track
     ('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.',                    'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.'+DisTrkCandVars,     'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.',                  'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.'+DisTrkBDTSelVars, 'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),

@@ -52,11 +52,16 @@ def HitDVHypoSequence():
 
         # Setup the hypothesis algorithm
         theHitDVHypo = TrigHitDVHypoAlg("HitDV")
+
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+        theHitDVHypo.HitDV = recordable("HLT_HitDV")
+
         if ConfigFlags.Input.isMC:
                 theHitDVHypo.isMC = True
         else:
                 theHitDVHypo.isMC = False
 
+        #
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.ComponentFactory import CompFactory
         DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_HitDV_HypoOnlyStep" ))

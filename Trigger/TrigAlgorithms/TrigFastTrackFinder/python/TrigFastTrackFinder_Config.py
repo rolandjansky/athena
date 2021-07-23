@@ -312,21 +312,22 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
 
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+
         self.dodEdxTrk = config.dodEdxTrk
         if config.dodEdxTrk:
-            self.dEdxTrk = "HLT_dEdxTrk"
-            self.dEdxHit = "HLT_dEdxHit"
+            self.dEdxTrk = recordable("HLT_dEdxTrk")
+            self.dEdxHit = recordable("HLT_dEdxHit")
 
         self.doHitDV = config.doHitDV
         if config.doHitDV:
             self.doHitDV_Seeding = True
             self.RecJetRoI = "HLT_RecJETRoIs"
-            self.HitDVTrk  = "HLT_HitDVTrk"
-            self.HitDVSP   = "HLT_HitDVSP"
+            self.HitDVTrk  = recordable("HLT_HitDVTrk")
+            self.HitDVSP   = recordable("HLT_HitDVSP")
 
         self.doDisappearingTrk = config.doDisappearingTrk
         if config.doDisappearingTrk:
-            from TrigEDMConfig.TriggerEDMRun3 import recordable
             self.DisTrkCand = recordable("HLT_DisTrkCand")
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
             self.DisTrackFitter = InDetTrigTrackFitter
