@@ -80,7 +80,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
     tileMBTSMonAlg.TriggerChain = ''
 
     numberOfMBTS = 32
-    energyCuts = [0.1 for mbts in range(0, numberOfMBTS)]
+    energyCuts = [60. / 222 for mbts in range(0, numberOfMBTS)]
     kwargs.setdefault("EnergyCuts", energyCuts)
 
     for k, v in kwargs.items():
