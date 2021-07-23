@@ -63,12 +63,12 @@ public:
 
 protected:
 
- bool m_hasBeamCondSvc;
+ bool m_hasBeamCondSvc = false;
 
 private:
 
   bool fillVertexInformation(std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const EventContext& ctx ) const;
-  const Trk::Track*   getTrkTrack(const Trk::VxTrackAtVertex*)const;
+  static const Trk::Track*   getTrkTrack(const Trk::VxTrackAtVertex*);
   const xAOD::Vertex* findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *) const;
 
   const AtlasDetectorID*                m_idHelper;
@@ -76,16 +76,15 @@ private:
   const SCT_ID*                         m_sctID; 
   const TRT_ID*                         m_trtID; 
   
-  float m_barrelEta;
   bool  m_extendedPlots;
   float m_d0Range;
   float m_d0BsRange;
-  float m_pTRange;
+  float m_pTRange = 0.0F;
   float m_z0Range;
   float m_etaRange;
   int   m_NTracksRange;
   bool  m_doIP;
-  bool  m_doHitQuality;
+  bool  m_doHitQuality = false;
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_VxPrimContainerName{this,"vxPrimContainerName","PrimaryVertices","Primary Vertices for Alignment Monitoring"};
   SG::ReadHandleKey<TrackCollection> m_tracksKey  {this, "TrackName", "ExtendedTracks", "track data key"};

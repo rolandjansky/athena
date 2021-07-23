@@ -60,7 +60,7 @@ class IDAlignMonResidualsAlg :  public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
   /** Convert from an int to a string */
-  std::string intToString(int input);
+  static std::string intToString(int input);
 
  private:
   StatusCode setupTools(); //PJ setup managers and helpers, etc.
@@ -97,7 +97,7 @@ class IDAlignMonResidualsAlg :  public AthMonitorAlgorithm {
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   bool  m_extendedPlots;
-  bool m_doHitQuality;
+  bool m_doHitQuality = false;
   int m_checkrate {};
   bool m_doPulls {};
   const std::string m_layers[4]{"b0", "b1", "b2", "b3"}; //
