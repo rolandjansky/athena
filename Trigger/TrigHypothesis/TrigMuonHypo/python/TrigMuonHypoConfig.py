@@ -547,7 +547,10 @@ class TrigmuCombHypoConfig(object):
 def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFMSonlyHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    doOverlap=False
+    if 'msonly' in chainDict['chainParts'][0]['msonlyInfo'] and 'noL1' not in chainDict['chainParts'][0]['extra']:
+        doOverlap=True
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, doOverlap )
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
@@ -574,7 +577,7 @@ def TrigMuonEFMSonlyHypoToolFromName(chainDict):
             for i in range(1,int(mult)+1):
                 thresholds.append(thr)
     config = TrigMuonEFMSonlyHypoConfig()
-    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, False)
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
@@ -582,7 +585,7 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFMSonlyHypoConfig')
 
-    def ConfigurationHypoTool( self, toolName, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds, overlap ):
 
         log = logging.getLogger(self.__class__.__name__)
         tool = CompFactory.TrigMuonEFHypoTool( toolName )
@@ -592,6 +595,7 @@ class TrigMuonEFMSonlyHypoConfig(object):
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
         tool.RequireSAMuons=True
+        tool.RemoveOverlaps=overlap
         if '3layersEC' in toolName:
             tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
@@ -634,9 +638,13 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
     else:
        narrowscan = False
 
+    if 'noL1' not in chainDict['chainParts'][0]['extra']:
+        overlap=True
+    else:
+        overlap=False
 
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality, narrowscan)
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality, narrowscan, overlap)
     d0cut=0.
     if 'd0loose' in chainDict['chainParts'][0]['lrtInfo']:
         d0cut=trigMuonLrtd0Cut['d0loose']
@@ -684,7 +692,7 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
 
     config = TrigMuonEFCombinerHypoConfig()
 
-    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality, narrowscan)
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality, narrowscan, False)
     addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
@@ -692,7 +700,7 @@ class TrigMuonEFCombinerHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFCombinerHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality, narrowscan):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality, narrowscan, overlap):
 
         tool = CompFactory.TrigMuonEFHypoTool( thresholdHLT )  
         nt = len(thresholds)
@@ -703,6 +711,7 @@ class TrigMuonEFCombinerHypoConfig(object):
         tool.MuonQualityCut = muonquality
         tool.RequireSAMuons=False
         tool.NarrowScan=narrowscan
+        tool.RemoveOverlaps=overlap
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
