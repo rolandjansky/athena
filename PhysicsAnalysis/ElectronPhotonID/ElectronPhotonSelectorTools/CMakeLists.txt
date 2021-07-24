@@ -35,26 +35,20 @@ atlas_add_dictionary( ElectronPhotonSelectorToolsPythonDict
   ElectronPhotonSelectorTools/selectionPython.xml
   LINK_LIBRARIES ElectronPhotonSelectorToolsLib )
 
+atlas_add_test( ut_EgammaPIDDefs_pytest
+SCRIPT test/ut_EgammaPIDDefs_pytest.py )
+
 atlas_add_executable( EGIdentification_mem_check
    util/EGIdentification_mem_check.cxx
    LINK_LIBRARIES AsgMessagingLib AsgTools EgammaAnalysisInterfacesLib )
 
 if( XAOD_STANDALONE )
-
    atlas_add_executable( EGIdentification_testEGIdentificationPoints
       util/testEGIdentificationPoints.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools
       EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib
       PATCoreAcceptLib xAODCore xAODEgamma )
-
-   # Tool migrated need to check the test
-   # atlas_add_executable( EGIdentification_testEGChargeIDSelector
-   #    util/testEGChargeIDSelector.cxx
-   #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   #    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
-   #    ElectronPhotonSelectorToolsLib )
-
 endif()
 
 # Install files from the package:
