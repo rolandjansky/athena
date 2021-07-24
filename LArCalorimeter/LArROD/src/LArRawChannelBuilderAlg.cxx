@@ -66,7 +66,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
   //Write output via write handle
 
-  auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>(SG::VIEW_ELEMENTS);
+  auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>();
   auto  outputContainerLRPtr = std::make_unique<LArRawChannelContainer>();
 
   DataPool<CaloCell> dataPool;
