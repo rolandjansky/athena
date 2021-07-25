@@ -85,6 +85,16 @@ def LArCellMonConfig(inputFlags):
     algo = LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
     algo.useTrigger = inputFlags.DQ.useTrigger
 
+    #copied from LArCellMonTool
+    algo.rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5"
+    algo.caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+, L1_2EM[0-9]+, L1_2FJ[0-9]+, L1_2J[0-9]+,L1_3J[0-9]+.*,L1_4J[0-9]+.*,L1_5J[0-9]+,L1_6J[0-9]+,L1_FJ[0-9]+.*"
+    algo.minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1"
+    algo.metTriggerNames     = "EF_xe[0-9]+.*"
+    algo.miscTriggerNames    = ""
+
+
+
+
     from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
     algo.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
 
@@ -124,6 +134,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
 # FIXME: to be added:    if isCosmics or rec.triggerStream()!='CosmicCalo':
     LArCellMonAlg.useBeamBackgroundRemoval = False
+    LArCellMonAlg.useLArCollisionFilterTool = False #FIXME: set to true for cosmicCalo
 # FIXME: to be added:    else:
 # FIXME: to be added:       LArCellMonAlg.useBeamBackgroundRemoval = True
 
@@ -304,21 +315,21 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     energy_hist_path='Energy/'
     if not isCosmics:
         for part in LArCellMonAlg.LayerNames:
-            cellMonGroup.defineHistogram('cellEnergy_'+part+';CellEnergy_'+part,
+            cellMonGroup.defineHistogram('cellEnergy_nocuts_'+part+';CellEnergy_'+part,
                                          title='Cell Energy in ' +part+' with CSC veto;Cell Energy [MeV];Cell Events',
                                          type='TH1F', path=energy_hist_path,
                                          xbins=lArCellBinningScheme.logEnergyBins)
             pass
     elif isCosmics:   
         for part in LArCellMonAlg.LayerNames:
-            cellMonGroup.defineHistogram('cellEnergy_'+part+';CellEnergy_'+part,
+            cellMonGroup.defineHistogram('cellEnergy_nocuts_'+part+';CellEnergy_'+part,
                                          title='Cell Energy in ' +part+' with CSC veto;Cell Energy [MeV];Cell Events',
                                          type='TH1F', path=energy_hist_path,
                                          xbins=lArCellBinningScheme.cosmicEneBinning[part][0], xmin=lArCellBinningScheme.cosmicEneBinning[part][1], xmax=lArCellBinningScheme.cosmicEneBinning[part][2])
             pass     
     else:   
         for part in LArCellMonAlg.LayerNames:
-            cellMonGroup.defineHistogram('cellEnergy_'+part+';CellEnergy_'+part,
+            cellMonGroup.defineHistogram('cellEnergy_nocuts_'+part+';CellEnergy_'+part,
                                          title='Cell Energy in ' +part+' with CSC veto;Cell Energy [MeV];Cell Events',
                                          type='TH1F', path=energy_hist_path,
                                          xbins=lArCellBinningScheme.defaultEnergyBins[0],xmin=lArCellBinningScheme.defaultEnergyBins[1],xmax=lArCellBinningScheme.defaultEnergyBins[2])
@@ -336,9 +347,9 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                            type='TH2F', path=energyvstime_hist_path,
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
-         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(int(eCutForTiming[idx//2])),
+         cellMonGroup.defineHistogram('cellTime_'+part+';CellEnergyVsTime_'+part+'_'+str(int(eCutForTiming[idx//2])),
                            title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
-                           weight='cellEnergy_'+part+'_cut',
+                           weight='cellEnergy_'+part,
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,
                            xbins=lArCellBinningScheme.timescale)
@@ -416,14 +427,14 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                                                           ybins = lArCellBinningScheme.phiRange[part],
                                                           pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiPercentageOccupancyNames])
 
-        allMonArray.defineHistogram('celleta;CellOccupancyVsEta', #needs weightedAverage/weightedEff
+        allMonArray.defineHistogram('celleta;RAW_CellOccupancyVsEta', #needs weightedAverage/weightedEff
                                                  title='No. of events in (#eta) for '+part+';cell #eta;',
                                                  type='TH1F', path="1d_Occupancy/",
                                                  cutmask='passThrCut',
                                                  xbins = lArCellBinningScheme.etaRange[part],
                                                  pattern=[(part, _) for _ in LArCellMonAlg.DoEtaOccupancyNames])
 
-        allMonArray.defineHistogram('cellphi;CellOccupancyVsPhi',
+        allMonArray.defineHistogram('cellphi;RAW_CellOccupancyVsPhi',
                                              title='No. of events in (#phi) for '+part+';cell #phi;',
                                              type='TH1F', path="1d_Occupancy/",
                                              cutmask='passThrCut',
@@ -457,7 +468,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                                               ybins = lArCellBinningScheme.phiRange[part],
                                               pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiAvgTimeNames])
 
-        allMonArray.defineHistogram('celleta,cellphi;fractionOverQthVsEtaPhi',
+        allMonArray.defineHistogram('celleta,cellphi;RAW_fractionOverQthVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Quality Factor exceeds Threshold;cell #eta;cell #phi",
                                                       weight='isPoorQuality',
                                                       type='TH2F', path="2d_PoorQualityFraction/", # needs postprocessing 
@@ -466,7 +477,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                                                       ybins = lArCellBinningScheme.phiRange[part],
                                                       pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiFractionOverQthNames])
 
-        allMonArray.defineHistogram('celleta,cellphi;fractionPastTthVsEtaPhi',
+        allMonArray.defineHistogram('celleta,cellphi;RAW_fractionPastTthVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Time is further than Threshold;cell #eta;cell #phi",
                                                       weight='isLateTime',
                                                       type='TH2F', path="2d_FractionOutOfTime/", # needs postprocessing 
@@ -496,21 +507,23 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Constants import WARNING
+#    from AthenaCommon.Constants import WARNING
     from AthenaCommon.Logging import log
     log.setLevel(DEBUG)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.ESD
+#    from AthenaConfiguration.TestDefaults import defaultTestFiles
+#    ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio//data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0123._SFO-3._0004.data']
     # to test tier0 workflow:
     #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
     #ConfigFlags.Calo.Cell.doPileupOffsetBCIDCorr=True
     ConfigFlags.Output.HISTFileName = 'LArCellMonOutput.root'
     ConfigFlags.DQ.enableLumiAccess = True
-    ConfigFlags.DQ.useTrigger = False
+    ConfigFlags.DQ.useTrigger = True
     ConfigFlags.DQ.Environment = 'tier0'
+#TMP    ConfigFlags.Beam.Type = 'collisions'
     ConfigFlags.lock()
 
 
@@ -519,16 +532,17 @@ if __name__=='__main__':
     cfg = MainServicesCfg(ConfigFlags)
 
     # in case of tier0 workflow:
-    #from CaloRec.CaloRecoConfig import CaloRecoCfg
-    #cfg.merge(CaloRecoCfg(ConfigFlags))
+    from CaloRec.CaloRecoConfig import CaloRecoCfg
+    cfg.merge(CaloRecoCfg(ConfigFlags))
 
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.merge(PoolReadCfg(ConfigFlags))
+    #for reading an ESD
+#    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+#    cfg.merge(PoolReadCfg(ConfigFlags))
 
     cfg.merge(LArCellMonConfig(ConfigFlags)) 
 
-    f=open("LArCellMon.pkl","w")
+    f=open("LArCellMon.pkl","wb")
     cfg.store(f)
     f.close()
 
-    cfg.run(10,OutputLevel=WARNING) #use cfg.run() to run on all events
+#    cfg.run(10,OutputLevel=WARNING) #use cfg.run() to run on all events
