@@ -82,7 +82,7 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     return result
 
-def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
+def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow'], **kwargs):
 
     result=ComponentAccumulator()
 
@@ -95,7 +95,8 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
 
     SecVertexers = [ "JetFitter" , "SV1" ]
-    result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
+    for jc in JetCollection:
+        result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jc, TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
 
     # the following is needed to reliably determine whether we're really being steered from an old-style job option
     # assume we're running CPython
