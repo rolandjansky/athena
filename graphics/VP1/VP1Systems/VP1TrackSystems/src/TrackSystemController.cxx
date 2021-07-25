@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -146,7 +146,7 @@ public:
   Ui::TrackSysSettingsCutsForm ui_cuts{};
   Ui::TrackSysSettingsAscObjsForm ui_ascobjs{};
   Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers{};
-  Ui::ObjectBrowser ui_objBrowser{};
+  Ui::TrackObjectBrowser ui_objBrowser{};
   
   static bool extrapolatorsCreated;
   static void ensureExtrapolatorsCreated(IVP1System *);
