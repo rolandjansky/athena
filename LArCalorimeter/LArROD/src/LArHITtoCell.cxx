@@ -128,7 +128,7 @@ StatusCode LArHITtoCell::execute(const EventContext& context) const
     }
    } // enf of for in hits
 
-   auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>(SG::VIEW_ELEMENTS);
+   auto  outputContainerCellPtr = std::make_unique<CaloCellContainer>();
    DataPool<CaloCell> dataPool;
    if (dataPool.allocated()==0)
         dataPool.reserve (max);
