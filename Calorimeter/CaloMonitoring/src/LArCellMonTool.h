@@ -121,7 +121,7 @@ private:
 
 
   //Histogram path in root file:
-  const std::string m_lArPath{"/CaloMonitoring/LArCellMon_NoTrigSel/"};
+  const std::string m_lArPath{"/CaloMonitoring/LArCellMon_NoTrigSel_OldTool/"};
 
   // Thresholds for time and Time vs Energy plots:
   // Energy thresholds hardcoded following official timing analysis. See for example:

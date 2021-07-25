@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonAlg.cxx
@@ -91,7 +91,7 @@ StatusCode LArCellMonAlg::initialize() {
   ATH_CHECK( m_noiseCDOKey.initialize() );
 
   //JobO consistency check:
-  if (m_useTrigger && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
+  if (m_useTrigger && std::all_of(std::begin(m_triggerNames),std::end(m_triggerNames),[](const std::string& trigName){return trigName.empty();})) {
       ATH_MSG_WARNING("UseTrigger set to true but no trigger names given! Forcing useTrigger to false");
       m_useTrigger=false;
   }
@@ -104,15 +104,6 @@ StatusCode LArCellMonAlg::initialize() {
         return StatusCode::FAILURE;
   }
 
-  //retrieve trigger decision tool and chain groups
-  if( m_useTrigger && !getTrigDecisionTool().empty() ) {
-    const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
-    ATH_MSG_INFO("TrigDecisionTool retrieved");
-    for (size_t i=0;i<NOTA;++i) {
-      const std::string& trigName=m_triggerNames[i];
-      if (!trigName.empty()) m_chainGroups[i]=trigTool->getChainGroup(trigName.c_str());
-    }//end loop over TriggerType enum
-  }//end if m_useTrigger
 
   // Sets the threshold value arrays
   ATH_CHECK(initThresh());
@@ -307,22 +298,31 @@ void LArCellMonAlg::checkTriggerAndBeamBackground(bool passBeamBackgroundRemoval
   fill(m_MonGroupName,mon_trig);
   //m_h_n_trigEvent->Fill(0.5);
 
-  if (m_useTrigger) {
+  if (m_useTrigger && !getTrigDecisionTool().empty()) {
     std::bitset<MAXTRIGTYPE> triggersPassed(0x1<<NOTA); //Last bit: NOTA, always passes
     constexpr std::bitset<MAXTRIGTYPE> NOTAmask=~(0x1<<NOTA);
-    for (unsigned i=0;i<m_chainGroups.size();++i) {
-      if (m_chainGroups[i] && m_chainGroups[i]->isPassed()) triggersPassed.set(i);
-    }
-  
+
+    //get the trigger
+    const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
+      
     for (unsigned i=0;i<NOTA;++i) {
-      mon_trig=0.5+i;
-      fill(m_MonGroupName,mon_trig);
-      //if (triggersPassed.test(i)) m_h_n_trigEvent->Fill(0.5+i);  
-    }
+      bool anytrig=false;
+      const std::string& chainName=m_triggerNames[i];
+      if(!chainName.empty()) {
+	const Trig::ChainGroup* cg = getTrigDecisionTool()->getChainGroup(chainName);
+	for(const std::string& trigName : cg->getListOfTriggers()) anytrig = (anytrig || trigTool->isPassed(trigName));
+	if(anytrig) {
+	  triggersPassed.set(i);
+	  mon_trig=0.5+i;
+	  fill(m_MonGroupName,mon_trig);
+	}
+      }
+    }//end of loop over trigger types
 
     for (threshold_t& thr : thresholds) { //Loop over thresholds
       thr.m_threshTriggerDecision=(thr.m_triggersToInclude & triggersPassed).any() && (thr.m_triggersToExclude & triggersPassed & NOTAmask).none();
     }// end loop over thresholds
+
   } //end if trigger used
   else {
     mon_trig=6.5;
@@ -566,9 +566,11 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
 
     //some additional monitored objects
     auto en = Monitored::Scalar<float>("cellEnergy_"+m_layerNames[iLyr],cellen);
+    auto en0 = Monitored::Scalar<float>("cellEnergy_nocuts_"+m_layerNames[iLyr],cellen); //define two to avoid double filling
     auto tim = Monitored::Scalar<float>("cellTime_"+m_layerNames[iLyr],celltime);
     if(passBeamBackgroundRemoval) {
       // 1D Energy distribution:
+	fill(m_MonGroupName,en0);
       //if (m_h_energy[iLyr]) m_h_energy[iLyr]->Fill(cellen); 
 
       // Time vs Energy:
