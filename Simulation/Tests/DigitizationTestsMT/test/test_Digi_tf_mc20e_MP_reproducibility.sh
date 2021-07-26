@@ -21,7 +21,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 
 Digi_tf.py \
 --inputHITSFile ${InputHitsFile} \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-04 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-07 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -42,7 +42,7 @@ echo "art-result: $rc Digi_tf.py SP"
 Digi_tf.py \
 --multiprocess --athenaMPEventsBeforeFork 0 \
 --inputHITSFile ${InputHitsFile} \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-04 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-07 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -65,7 +65,7 @@ echo "art-result: $rc2 Digi_tf.py MP fork after 0"
 Digi_tf.py \
 --multiprocess --athenaMPEventsBeforeFork 1 \
 --inputHITSFile ${InputHitsFile} \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-04 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-07 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \

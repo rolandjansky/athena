@@ -17,7 +17,7 @@ vtune -mrte-mode=native -start-paused -run-pass-thru=--no-altstack -collect hots
 Digi_tf.py \
 --PileUpPresampling True \
 --inputHITSFile ${InputHitsFile} \
---conditionsTag default:OFLCOND-MC16-SDR-25 \
+--conditionsTag default:OFLCOND-MC16-SDR-25-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \

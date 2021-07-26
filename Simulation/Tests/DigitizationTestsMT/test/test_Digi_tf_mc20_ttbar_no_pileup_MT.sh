@@ -1,28 +1,28 @@
 #!/bin/sh
 #
-# art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, without pile-up using AthenaMT
+# art-description: Run digitization of an MC20 ttbar sample with 2018 geometry and conditions, without pile-up using AthenaMT
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
 # the name below is needed because of the environment variable (marks storing in tar file).
-# art-output: mc15_2015_ttbar.RDO.pool.root
+# art-output: mc20_nopileup_ttbar.RDO.pool.root
 # art-output: log.*
 
 export ATHENA_CORE_NUMBER=8
 
 Digi_tf.py \
 --multithreaded \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 \
---conditionsTag default:OFLCOND-RUN12-SDR-25 \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-07 \
 --digiSeedOffset1 170 \
 --digiSeedOffset2 170 \
---geometryVersion ATLAS-R2-2015-03-01-00 \
---DataRunNumber 222525 \
---outputRDOFile mc15_2015_ttbar.RDO.pool.root \
---preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py' \
+--geometryVersion default:ATLAS-R2-2016-01-00-01 \
+--DataRunNumber 310000 \
+--outputRDOFile mc20_nopileup_ttbar.RDO.pool.root \
+--preInclude 'HITtoRDO:Campaigns/MC20NoPileUp.py,Digitization/ForceUseOfAlgorithms.py' \
 --postInclude 'PyJobTransforms/UseFrontier.py' \
 --skipEvents 0  \
---maxEvents 10
+--maxEvents 100
 
 rc=$?
 status=$rc
