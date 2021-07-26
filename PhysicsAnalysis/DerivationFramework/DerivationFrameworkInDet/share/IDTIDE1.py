@@ -413,7 +413,7 @@ else :
                         + '.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers' \
                         + '.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers' \
                         + '.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx' \
-                        + '.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.vx.vy.vz.z')
+                        + '.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.truthMatchProbability.truthParticleLink.vx.vy.vz.z0')
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociations*")
 
@@ -432,7 +432,7 @@ elif idDxAOD_doPix :
            + '.NN_matrixOfCharge.NN_matrixOfToT.NN_phiBS.NN_phiPixelIndexWeightedPosition.NN_sizeX.NN_sizeY.NN_thetaBS.NN_vectorOfPitchesY.Temperature.ToT.bec.broken.charge.detectorElementID' \
            + '.eta_module.eta_pixel_index.gangedPixel.globalX.globalY.globalZ.hasBSError.identifier.isFake.isSplit.layer.localX.localXError.localXYCorrelation.localY.localYError.nRDO.phi_module' \
            + '.phi_pixel_index.rdoIdentifierList.rdo_Aterm.rdo_Cterm.rdo_Eterm.rdo_charge.rdo_eta_pixel_index.rdo_phi_pixel_index.rdo_tot.sihit_barcode.sizePhi.sizeZ.splitProbability1' \
-           + '.splitProbability2']
+           + '.splitProbability2.truth_barcode']
 keys+= ['SCT_Clusters']     if idDxAOD_doSct else []
 keys+= ['TRT_DriftCircles'] if idDxAOD_doTrt else []
 print('DEBUG keys %s' % (keys))
@@ -467,7 +467,7 @@ if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
   IDTIDE1Stream.AddItem("xAOD::TruthVertexContainer#*")
-  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*-vxTrackAtVertex")
+  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*.-vxTrackAtVertex")
   IDTIDE1Stream.AddItem("xAOD::TruthEventContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
   IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")

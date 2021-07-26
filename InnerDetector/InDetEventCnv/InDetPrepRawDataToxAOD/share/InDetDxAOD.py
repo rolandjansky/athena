@@ -747,7 +747,7 @@ else :
             + '.numberOfSCTDoubleHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTOutliers.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits'
             + '.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits'
             + '.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit'
-            + '.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.vx.vy.vz.z0')
+            + '.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.truthMatchProbability.truthParticleLink.vx.vy.vz.z0')
 
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
