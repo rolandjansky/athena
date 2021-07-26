@@ -1,5 +1,5 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
+athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e4993_s3227_r12847/ESD.26288534._000001.pool.root.1", "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e4993_s3227_r12847/ESD.26288534._000002.pool.root.1"]
 athenaCommonFlags.PoolAODOutput = "LCTopo_AOD.pool.root"
 
 from RecExConfig.RecFlags import rec
