@@ -348,6 +348,7 @@ namespace LVL1MUCTPIPHASE1 {
 
 	    for(auto rr : m_overlapHelper->relevant_regions(m_side,sectorName,roiID,isec))
 	    {
+              if( std::count(rr.begin(),rr.end(),'B') == 2 && isys == 0 && sectorData->ovl(icand) == 0 )continue;
 	      buckets[rr].push_back(std::make_pair(sectorData, icand));
 	    }
 	  }
@@ -356,10 +357,22 @@ namespace LVL1MUCTPIPHASE1 {
     }
 
     for(auto candidate_vector : buckets){ // loop over candidates in OL region pair
-      //for each candidate above the first, mark them as overlapping
-      for (unsigned i=1;i<candidate_vector.second.size();i++)
+
+      // sorting (to be tuned)
+      unsigned i_notRemove = 0;
+      int ptMax = 0;
+      for (unsigned i=0;i<candidate_vector.second.size();i++){
+	int pt = candidate_vector.second[i].first->pt(candidate_vector.second[i].second);
+	if(pt > ptMax){
+	  ptMax = pt;
+	  i_notRemove = i;
+	}
+      }
+
+      //for each candidate except the highest pt, mark them for removal
+      for (unsigned i=0;i<candidate_vector.second.size();i++)
       {
-	candidate_vector.second[i].first->veto(candidate_vector.second[i].second, 1);
+	candidate_vector.second[i].first->veto(candidate_vector.second[i].second, (i==i_notRemove)?0:1 );
       }
     }
   }
