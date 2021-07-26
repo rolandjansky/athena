@@ -98,9 +98,20 @@ public:
     return m_n;
   }
 
-  virtual size_t trim (const std::vector<key_type>& keys) override
+  virtual size_t trim (const std::vector<key_type>& keys1, const std::vector<key_type>& keys2 ) override
   {
-    m_keys.push_back (keys);
+    
+    switch ( keyType() ) {
+    case KeyType::RUNLBN:
+      m_keys.push_back (keys1);
+      break;
+    case KeyType::TIMESTAMP:
+      m_keys.push_back (keys2);
+      break;
+    default:
+      m_keys.push_back (keys1);
+      break;
+    }
     return 1;
   }
   
@@ -203,7 +214,7 @@ void test1 (Athena::IConditionsCleanerSvc& svc)
   // 1 1 4 3 201
   assert (cc1.nkeys() == 0);
   assert (cc2.nkeys() == 1);
-  //for (key_type k : cc2.keysTimestamp()) std::cout << k << " ";
+  //for (key_type k : cc2.keys()) std::cout << k << " ";
   //std::cout << "\n";
   assert (cc2.keys() == (std::vector<key_type> { 0, 2001, 2003, 2004, 2201 }));
 
