@@ -170,6 +170,10 @@ include("InDetRecExample/InDetRecCabling.py")
 
 # Set up Pixel conditions
 if doPixel:
+    if not hasattr(svcMgr, "PixelReadoutManager"):
+        from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+        svcMgr += InDetDD__PixelReadoutManager("PixelReadoutManager")
+
     # Taken from InDetRecExample/share/InDetRecConditionsAccess.py
     #################
     # Module status #

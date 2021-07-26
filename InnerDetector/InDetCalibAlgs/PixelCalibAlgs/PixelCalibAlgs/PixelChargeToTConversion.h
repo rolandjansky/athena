@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCALIBALGS_PIXELCHARGETOTCONVERSION_H
@@ -10,9 +10,9 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -39,8 +39,8 @@ class ATLAS_NOT_THREAD_SAFE PixelChargeToTConversion : public AthAlgorithm{
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixelsClustersKey
   {this, "PixelClusterContainer",  "PixelClusters", ""};
 
-  ServiceHandle<IPixelCablingSvc> m_pixelCabling
-  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
   SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
   {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};

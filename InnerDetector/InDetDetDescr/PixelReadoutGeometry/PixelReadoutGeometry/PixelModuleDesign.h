@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 // Data member classes
 #include "ReadoutGeometryBase/PixelDiodeMap.h"
 #include "ReadoutGeometryBase/PixelReadoutScheme.h"
+#include "PixelReadoutDefinitions/PixelReadoutDefinitions.h"
 
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"
@@ -207,9 +208,8 @@ namespace InDetDD {
       virtual const Trk::SurfaceBounds & bounds() const; 
     
       virtual bool is3D() const;
-     
-      enum ReadoutTechnology{FEI3,FEI4,RD53};
-      ReadoutTechnology getReadoutTechnology() const;
+
+      PixelReadoutTechnology getReadoutTechnology() const;
 
       virtual DetectorType type() const final;
 
@@ -365,18 +365,18 @@ namespace InDetDD {
       return m_is3D; 
     } 
 
-    inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+    inline PixelReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
       if (m_detectorType == InDetDD::DetectorType::PixelBarrel
           || m_detectorType == InDetDD::DetectorType::PixelEndcap
           || m_detectorType == InDetDD::DetectorType::PixelInclined)
       {
-        return RD53;
+        return PixelReadoutTechnology::RD53;
       }
 
       const int maxRow = m_readoutScheme.rowsPerCircuit();
       const int maxCol = m_readoutScheme.columnsPerCircuit();
-      if (maxRow*maxCol>26000) { return FEI4; }
-      else                     { return FEI3; }
+      if (maxRow*maxCol>26000) { return PixelReadoutTechnology::FEI4; }
+      else                     { return PixelReadoutTechnology::FEI3; }
     }
 
     inline std::string PixelModuleDesign::debugStringRepr() const

@@ -90,7 +90,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize( m_writeRDOinformation));
 
   ATH_CHECK(m_condDCSStateKey.initialize());
@@ -713,8 +713,8 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
     // charge calibration parameters
     Identifier moduleID = m_PixelHelper->wafer_id(rId);
     IdentifierHash moduleHash = m_PixelHelper->wafer_hash(moduleID); // wafer hash
-    int circ = m_pixelCabling->getFE(&rId,moduleID);
-    int type = m_pixelCabling->getPixelType(rId);
+    int circ = m_pixelReadout->getFE(rId, moduleID);
+    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(rId);
 
     CTerm.push_back(calibData->getQ2TotC((int)moduleHash, circ, type));
     ATerm.push_back(calibData->getQ2TotA((int)moduleHash, circ, type));

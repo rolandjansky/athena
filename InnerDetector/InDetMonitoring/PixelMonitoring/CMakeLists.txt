@@ -8,7 +8,7 @@ atlas_add_component( PixelMonitoring
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthenaMonitoringKernelLib AthenaMonitoringLib AtlasDetDescr EventPrimitives
    InDetConditionsSummaryService InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRawData
-   InDetReadoutGeometry InDetTrackSelectionToolLib PixelCablingLib PixelConditionsData
+   InDetReadoutGeometry InDetTrackSelectionToolLib PixelConditionsData PixelReadoutGeometryLib
    TrkMeasurementBase TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkTrackSummary )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

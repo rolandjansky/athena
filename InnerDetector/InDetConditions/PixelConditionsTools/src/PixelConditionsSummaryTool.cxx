@@ -33,7 +33,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
  
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
@@ -106,8 +106,8 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   const InDetDD::SiDetectorElement *element = elements->getDetectorElement(moduleHash);
   const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
 
-  if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) { return 0; }
-  if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return 0; }
+  if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) { return 0; }
+  if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI3) { return 0; }
 
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   const auto *idcCachePtr = getCacheEntry(ctx)->IDCCache;
@@ -151,7 +151,7 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 
   int maxHash = m_pixelID->wafer_hash_max();
   Identifier moduleID = m_pixelID->wafer_id(pixid);
-  int chFE = m_pixelCabling->getFE(&pixid,moduleID);
+  int chFE = m_pixelReadout->getFE(pixid, moduleID);
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
   uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);

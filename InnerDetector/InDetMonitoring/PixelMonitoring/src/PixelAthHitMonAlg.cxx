@@ -6,7 +6,6 @@
 
 PixelAthHitMonAlg::PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelCablingSvc("PixelCablingSvc", name),
   m_pixelid(nullptr)
 {
   //jo flags
@@ -26,7 +25,7 @@ StatusCode PixelAthHitMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  ATH_CHECK( m_pixelCablingSvc.retrieve() );
+  ATH_CHECK( m_pixelReadout.retrieve() );
   ATH_CHECK( m_pixelRDOName.initialize() );
 
   return AthMonitorAlgorithm::initialize();
@@ -160,7 +159,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID) );
       if (pixlayer == 99) continue;
       HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
-      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelCablingSvc->getFE(&rdoID, rdoID), 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
       nhits++;
       nhits_layer[pixlayer]++;
       hitLvl1a.push_back( (*p_rdo)->getLVL1A() );

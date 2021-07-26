@@ -6,7 +6,6 @@
 
 PixelAthErrorMonAlg::PixelAthErrorMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelCablingSvc("PixelCablingSvc", name),
   m_pixelid(nullptr)
 {
   // jo flags
@@ -25,7 +24,7 @@ StatusCode PixelAthErrorMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  ATH_CHECK( m_pixelCablingSvc.retrieve() );
+  ATH_CHECK( m_pixelReadout.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -186,7 +185,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       } else {
 	std::bitset<kNumErrorStatesFEI3> stateFEI4 = getErrorStateFE(fe_errorword, is_fei4);  
 	num_errors[pixlayer]+=stateFEI4.count();
-	Identifier pixelIDperFEI4 = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
+	Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
 	for (unsigned int state = 0; state < stateFEI4.size(); ++state) {
 	  if (stateFEI4[state]) {
 	    num_errors_per_state[state][pixlayer]++;
@@ -212,7 +211,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 	}
 	int serviceCodeOffset = serviceCode*280*nFE;
 	for (int iFE=0; iFE<nFE; iFE++) {
-	  Identifier pixelIDperFEI4 = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
+	  Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
 	  // index = offset + (serviceCode)*(#IBL*nFE) + (moduleHash-156)*nFE + FE
           int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
           uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx);
@@ -242,7 +241,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       if (pixlayer != PixLayers::kIBL && iFE>0) continue;
       Identifier pixID = waferID;
       if (pixlayer == PixLayers::kIBL) {
-	pixID = m_pixelCablingSvc->getPixelIdfromHash(modHash, iFE, 1, 1);
+	pixID = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
       }
       if (pixID.is_valid()) {
 	for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {

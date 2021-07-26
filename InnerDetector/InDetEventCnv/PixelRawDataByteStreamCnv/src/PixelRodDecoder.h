@@ -14,9 +14,9 @@
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class IPixelCablingSvc;
 class PixelID;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
@@ -131,9 +131,10 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     mutable std::atomic_uint m_numLinkMaskedByPPC{0};
     mutable std::atomic_uint m_numLimitError{0};
 
-    ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
-
     const PixelID*              m_pixel_id=nullptr;
+
+    ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+    {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
@@ -157,6 +158,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     
     //!< if the check duplicated RDO flag is true, check that this RDO is unique (returns true if unique)
     inline bool thisRdoIsUnique(const Identifier & pixelRdo, std::unordered_set<Identifier> & pixelRdosSeenSoFar) const;
+
+    //!< get local FEI4
+    unsigned int getLocalFEI4(const uint32_t fe, const uint64_t onlineId) const;
 };
 
 bool 
