@@ -112,8 +112,10 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       // create new decisions
       auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
       
-      // pussh_back to toolInput
-      toolInput.emplace_back( newd, muon, previousDecision );
+      // push_back to toolInput
+      bool isOverlap=false;
+      if(m_checkOvlp) isOverlap=checkOvlp(muon, toolInput);
+      toolInput.emplace_back( newd, muon, isOverlap, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
@@ -146,6 +148,16 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
   ATH_MSG_DEBUG("StatusCode TrigMuonEFHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
+
+bool TrigMuonEFHypoAlg::checkOvlp(const xAOD::Muon *mu, std::vector<TrigMuonEFHypoTool::MuonEFInfo> toolInput) const{
+
+  bool overlap=false;
+  for(uint i=0; i<toolInput.size(); i++){
+    if(toolInput.at(i).muon->p4() == mu->p4()) overlap=true;
+  }
+  return overlap;
+}
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

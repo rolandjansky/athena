@@ -561,6 +561,7 @@ def muEFSAFSSequence():
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
+    trigMuonEFSAFSHypo.DoOverlapRemoval=False
     
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
     
@@ -607,6 +608,7 @@ def muEFCBFSSequence():
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
     trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBFSHypo.DoOverlapRemoval=False
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromName
 
