@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -57,33 +57,33 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
   
   m_eventsCounter = 0;
   
-  m_LArOnlineIDHelper	= NULL;
-  m_LArEM_IDHelper	= NULL;
-  m_LArFCAL_IDHelper	= NULL;
-  m_LArHEC_IDHelper	= NULL;
-  m_caloIdMgr		= NULL;
+  m_LArOnlineIDHelper	= nullptr;
+  m_LArEM_IDHelper	= nullptr;
+  m_LArFCAL_IDHelper	= nullptr;
+  m_LArHEC_IDHelper	= nullptr;
+  m_caloIdMgr		= nullptr;
 
-  m_hMuonMapEMDig	= NULL;
-  m_hMuonMapHECDig	= NULL;
-  m_hMuonMapFCALDig	= NULL;
+  m_hMuonMapEMDig	= nullptr;
+  m_hMuonMapHECDig	= nullptr;
+  m_hMuonMapFCALDig	= nullptr;
 
   for( unsigned i = 0; i < 4; ++i )
   {
-    m_hMuonTimeEMDig[i]		= NULL;
-    m_hMuonEnergyEMDig[i]	= NULL;
-    m_hMuonEvsTimeEMDig[i]	= NULL;
-    m_hMuonShapeEMDig[i]	= NULL;
+    m_hMuonTimeEMDig[i]		= nullptr;
+    m_hMuonEnergyEMDig[i]	= nullptr;
+    m_hMuonEvsTimeEMDig[i]	= nullptr;
+    m_hMuonShapeEMDig[i]	= nullptr;
   }
   for( unsigned i = 0; i < 2; ++i )
   {
-    m_hMuonTimeHECDig[i]	= NULL;
-    m_hMuonTimeFCALDig[i]	= NULL;
-    m_hMuonEnergyHECDig[i]	= NULL;
-    m_hMuonEnergyFCALDig[i]	= NULL;
-    m_hMuonEvsTimeHECDig[i]	= NULL;
-    m_hMuonEvsTimeFCALDig[i]	= NULL;
-    m_hMuonShapeHECDig[i]	= NULL;
-    m_hMuonShapeFCALDig[i]	= NULL;
+    m_hMuonTimeHECDig[i]	= nullptr;
+    m_hMuonTimeFCALDig[i]	= nullptr;
+    m_hMuonEnergyHECDig[i]	= nullptr;
+    m_hMuonEnergyFCALDig[i]	= nullptr;
+    m_hMuonEvsTimeHECDig[i]	= nullptr;
+    m_hMuonEvsTimeFCALDig[i]	= nullptr;
+    m_hMuonShapeHECDig[i]	= nullptr;
+    m_hMuonShapeFCALDig[i]	= nullptr;
   }
 }
 
@@ -318,7 +318,7 @@ LArCosmicsMonTool::fillHistograms() {
     if(m_LArOnlineIDHelper->isFCALchannel(id)){
       
       int sampling = m_LArFCAL_IDHelper->module(offlineID);
-      const std::vector < short > samples = pLArDigit->samples();
+      const std::vector < short >& samples = pLArDigit->samples();
       
       // Look for Muons Candidates in sampling 2
       if(sampling != 2) continue;
@@ -349,7 +349,7 @@ LArCosmicsMonTool::fillHistograms() {
     if(m_LArOnlineIDHelper->isEMECchannel(id) || m_LArOnlineIDHelper->isEMBchannel(id) ){
       
       int sampling = m_LArEM_IDHelper->sampling(offlineID);
-      const std::vector < short > samples = pLArDigit->samples();
+      const std::vector < short >& samples = pLArDigit->samples();
       
       // Look for Muons Candidates in second sampling
       if(sampling != 2) continue;
@@ -416,7 +416,7 @@ StatusCode LArCosmicsMonTool::returnEtaPhiCoord(const CaloDetDescrManager* ddman
   // Get Calo detector description element to retrieve true eta/phi
   const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
   
-  if(caloDetElement == 0 ){
+  if(caloDetElement == nullptr ){
     return StatusCode::FAILURE;
   }else{
     eta = caloDetElement->eta_raw();

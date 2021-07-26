@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -38,12 +38,12 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
 					       const std::string& name,
 					       const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_LArOnlineIDHelper(0),
-    m_LArEM_IDHelper(0),
-    m_LArFCAL_IDHelper(0),
-    m_LArHEC_IDHelper(0),
-    m_caloIdMgr(0),
-    m_rootStore(0),
+    m_LArOnlineIDHelper(nullptr),
+    m_LArEM_IDHelper(nullptr),
+    m_LArFCAL_IDHelper(nullptr),
+    m_LArHEC_IDHelper(nullptr),
+    m_caloIdMgr(nullptr),
+    m_rootStore(nullptr),
     m_larCablingService("LArCablingLegacyService"),
     m_eventsCounter(0)
 {
@@ -54,14 +54,14 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
   
   for( unsigned i = 0; i < 2; ++i )
   {
-    m_hLArHVCorrectionEMB[i]		= NULL;
-    m_hLArHVCorrectionEMEC[i]		= NULL;
-    m_hLArHVCorrectionHEC[i]		= NULL;
-    m_hLArHVCorrectionFCAL[i]		= NULL;  
-    m_hNDeviatingChannelsEMB[i]		= NULL;
-    m_hNDeviatingChannelsEMEC[i]	= NULL;
-    m_hNDeviatingChannelsHEC[i]		= NULL;
-    m_hNDeviatingChannelsFCAL[i]	= NULL;
+    m_hLArHVCorrectionEMB[i]		= nullptr;
+    m_hLArHVCorrectionEMEC[i]		= nullptr;
+    m_hLArHVCorrectionHEC[i]		= nullptr;
+    m_hLArHVCorrectionFCAL[i]		= nullptr;  
+    m_hNDeviatingChannelsEMB[i]		= nullptr;
+    m_hNDeviatingChannelsEMEC[i]	= nullptr;
+    m_hNDeviatingChannelsHEC[i]		= nullptr;
+    m_hNDeviatingChannelsFCAL[i]	= nullptr;
   }
   
 }
@@ -278,7 +278,7 @@ LArHVCorrectionMonTool::fillHistograms()
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
       const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
-      if(caloDetElement == 0 ){
+      if(caloDetElement == nullptr ){
 	ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	continue; 
       }else{

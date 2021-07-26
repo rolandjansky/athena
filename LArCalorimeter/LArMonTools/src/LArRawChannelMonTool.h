@@ -272,7 +272,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
   bool registerHistogram( LWHist* histo, const std::string& dir,
 			  const std::string& merge = "");
 
-  LArMonTools::IHistoProxyBase * createLWHistProxy(LWHist*h);
+  static LArMonTools::IHistoProxyBase * createLWHistProxy(LWHist*h);
 };
 
 

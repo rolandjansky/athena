@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -194,7 +194,7 @@ private:
   
   std::vector<ERRCOUNTER> m_errcounters;
 
-  unsigned m_count_gain[3];
+  unsigned m_count_gain[3]{};
 
   TH2F* m_hSummaryErrors_Energy;
   TH2F* m_hSummaryErrors_Time;
@@ -265,15 +265,15 @@ private:
   int m_range_E_2;
   int m_range_E_3;
 
-  int m_range_T_0;
-  int m_range_T_1;
-  int m_range_T_2;
-  int m_range_T_3;
+  int m_range_T_0 = 0;
+  int m_range_T_1 = 0;
+  int m_range_T_2 = 0;
+  int m_range_T_3 = 0;
 
-  int m_range_Q_0;
-  int m_range_Q_1;
-  int m_range_Q_2;
-  int m_range_Q_3;
+  int m_range_Q_0 = 0;
+  int m_range_Q_1 = 0;
+  int m_range_Q_2 = 0;
+  int m_range_Q_3 = 0;
 
   int m_precision_E_0;
   int m_precision_E_1;

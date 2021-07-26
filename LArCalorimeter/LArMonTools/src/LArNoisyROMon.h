@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,7 +57,7 @@ private:
     unsigned int time_ns;
     UChar_t algo;
   };
-  NoiseTime m_NoiseTime;
+  NoiseTime m_NoiseTime{};
   TTree* m_NoiseTimeTree;
   
   struct CandidateMNB
@@ -71,7 +71,7 @@ private:
     std::vector<int>* v_candidate_MNBTight_PsVetoFEB;
     std::vector<int>* v_candidate_MNBLooseFEB;
   };
-  CandidateMNB m_CandidateMNB;
+  CandidateMNB m_CandidateMNB{};
   TTree* m_CandidateMNBTree;
   
   struct partitionHistos
@@ -128,11 +128,11 @@ private:
 
   
   void bookPartitionHistos(partitionHistos&, const std::string& name, MonGroup& group, MonGroup& groupfrac, MonGroup& groupfracbin);
-  void copyHisto(LWHist2D* from,LWHist2D* to);
-  void copyHisto(LWHist1D* from,LWHist1D* to);
+  static void copyHisto(LWHist2D* from,LWHist2D* to);
+  static void copyHisto(LWHist1D* from,LWHist1D* to);
   
   // divide num by denom and store in to, assuming num is a subset of denom
-  void divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
+  static void divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
   
   // fill histogram of triggers
   void fillTriggerHisto(partitionHistos& partition, uint8_t triggerbits, uint8_t L1triggerbits);

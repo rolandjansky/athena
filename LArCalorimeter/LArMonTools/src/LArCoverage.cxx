@@ -53,14 +53,14 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCoverageHECC(),
     m_hCoverageFCALA(),
     m_hCoverageFCALC(),
-    m_hCoverageHWEMBA(NULL),
-    m_hCoverageHWEMBC(NULL),
-    m_hCoverageHWEMECA(NULL),
-    m_hCoverageHWEMECC(NULL),
-    m_hCoverageHWHECA(NULL),
-    m_hCoverageHWHECC(NULL),
-    m_hCoverageHWFCALA(NULL),
-    m_hCoverageHWFCALC(NULL),
+    m_hCoverageHWEMBA(nullptr),
+    m_hCoverageHWEMBC(nullptr),
+    m_hCoverageHWEMECA(nullptr),
+    m_hCoverageHWEMECC(nullptr),
+    m_hCoverageHWHECA(nullptr),
+    m_hCoverageHWHECC(nullptr),
+    m_hCoverageHWFCALA(nullptr),
+    m_hCoverageHWFCALC(nullptr),
     m_hCaloNoiseEM(),
     m_hCaloNoiseHEC(),
     m_hCaloNoiseFCAL()
@@ -69,16 +69,16 @@ LArCoverage::LArCoverage(const std::string& type,
 
   m_eventsCounter = 0;
 
-  m_LArOnlineIDHelper	= NULL;
-  m_LArEM_IDHelper	= NULL;
-  m_LArFCAL_IDHelper	= NULL;
-  m_LArHEC_IDHelper	= NULL;
-  m_caloIdMgr		= NULL;
-  m_hBadChannelsBarrelA = NULL;
-  m_hBadChannelsBarrelC = NULL;
-  m_hBadChannelsEndcapA = NULL;
-  m_hBadChannelsEndcapC = NULL;
-  m_rootStore		= NULL;
+  m_LArOnlineIDHelper	= nullptr;
+  m_LArEM_IDHelper	= nullptr;
+  m_LArFCAL_IDHelper	= nullptr;
+  m_LArHEC_IDHelper	= nullptr;
+  m_caloIdMgr		= nullptr;
+  m_hBadChannelsBarrelA = nullptr;
+  m_hBadChannelsBarrelC = nullptr;
+  m_hBadChannelsEndcapA = nullptr;
+  m_hBadChannelsEndcapC = nullptr;
+  m_rootStore		= nullptr;
  }
 
 /*---------------------------------------------------------*/
@@ -148,17 +148,17 @@ LArCoverage::bookHistograms()
     int nbinsphiEMBarrel[] = {64,256,256,256}; 
     int nbinsetaEMBarrel[] = {61,450,57,27};
 
-    float** etaEMBarrelA=0; 
+    float** etaEMBarrelA=nullptr; 
     etaEMBarrelA = new float*[size];
     for(int it=0;it<4;it++) 
       etaEMBarrelA[it]= new float[nbinsetaEMBarrel[it]+1];
 
-    float** etaEMBarrelC=0; 
+    float** etaEMBarrelC=nullptr; 
     etaEMBarrelC = new float*[size];
     for(int it=0;it<4;it++) 
       etaEMBarrelC[it]= new float[nbinsetaEMBarrel[it]+1];
 
-    float** phiEMBarrel=0; 
+    float** phiEMBarrel=nullptr; 
     phiEMBarrel = new float*[size];
     for(int it=0;it<4;it++) 
       phiEMBarrel[it]= new float[nbinsphiEMBarrel[it]+1];
@@ -224,17 +224,17 @@ LArCoverage::bookHistograms()
     int nbinsphiEMEndcap[] = {64,64,256,256}; 
     int nbinsetaEMEndcap[] = {12,223,51,20};
 
-    float** etaEMEndcapA=0; 
+    float** etaEMEndcapA=nullptr; 
     etaEMEndcapA = new float*[size];
     for(int it=0;it<4;it++) 
       etaEMEndcapA[it]= new float[nbinsetaEMEndcap[it]+1];
 
-    float** etaEMEndcapC=0; 
+    float** etaEMEndcapC=nullptr; 
     etaEMEndcapC = new float*[size];
     for(int it=0;it<4;it++) 
       etaEMEndcapC[it]= new float[nbinsetaEMEndcap[it]+1];
 
-    float** phiEMEndcap=0; 
+    float** phiEMEndcap=nullptr; 
     phiEMEndcap = new float*[size];
     for(int it=0;it<4;it++) 
       phiEMEndcap[it]= new float[nbinsphiEMEndcap[it]+1];
@@ -310,17 +310,17 @@ LArCoverage::bookHistograms()
     int nbinsphiHEC[] = {64,64,64,64};
     int nbinsetaHEC[] = {14,13,12,12};
 
-    float** etaHECA=0; 
+    float** etaHECA=nullptr; 
     etaHECA = new float*[size];
     for(int it=0;it<4;it++)
       etaHECA[it]= new float[nbinsetaHEC[it]+1];
     
-    float** etaHECC=0; 
+    float** etaHECC=nullptr; 
     etaHECC = new float*[size];
     for(int it=0;it<4;it++)
       etaHECC[it]= new float[nbinsetaHEC[it]+1];
     
-    float** phiHEC=0;
+    float** phiHEC=nullptr;
     phiHEC = new float*[size];
     for(int it=0;it<4;it++)
       phiHEC[it]= new float[nbinsphiHEC[it]+1];
@@ -586,7 +586,7 @@ LArCoverage::fillHistograms()
     // Get Physical Coordinates
     float etaChan = 0; float phiChan = 0.;
     const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
-    if(caloDetElement == 0 ){
+    if(caloDetElement == nullptr ){
       ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
       continue; 
     }else{
@@ -871,7 +871,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
 	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	  if(caloDetElement == 0 ){
+	  if(caloDetElement == nullptr ){
 	    ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	    continue; 
 	  }else{
@@ -903,7 +903,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
 	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	  if(caloDetElement == 0 ){
+	  if(caloDetElement == nullptr ){
 	    ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	    continue; 
 	  }else{
@@ -940,7 +940,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	    if(caloDetElement == 0 ){
+	    if(caloDetElement == nullptr ){
 	      ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	      continue; 
 	    }else{
@@ -972,7 +972,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	    if(caloDetElement == 0 ){
+	    if(caloDetElement == nullptr ){
 	      ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	      continue; 
 	    }else{
@@ -1038,7 +1038,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	    if(caloDetElement == 0 ){
+	    if(caloDetElement == nullptr ){
 	      ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	      continue; 
 	    }else{
@@ -1070,7 +1070,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
-	    if(caloDetElement == 0 ){
+	    if(caloDetElement == nullptr ){
 	      ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	      continue; 
 	    }else{

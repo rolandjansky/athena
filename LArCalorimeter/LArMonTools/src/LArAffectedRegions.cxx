@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -39,7 +39,7 @@ LArAffectedRegions::LArAffectedRegions(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_rootStore(0)
+    m_rootStore(nullptr)
  {
   declareProperty("IsOnline",m_isonline=false);
   declareProperty("EtaGranularity",m_delta_eta=0.01);
@@ -47,35 +47,35 @@ LArAffectedRegions::LArAffectedRegions(const std::string& type,
 
   m_eventsCounter = 0;
 
-  m_hLArAffectedRegionsEMBPS[0]		= NULL;
-  m_hLArAffectedRegionsEMBPS[1]		= NULL;
+  m_hLArAffectedRegionsEMBPS[0]		= nullptr;
+  m_hLArAffectedRegionsEMBPS[1]		= nullptr;
 
-  m_hLArAffectedRegionsEMB[0]		= NULL;
-  m_hLArAffectedRegionsEMB[1]		= NULL;
+  m_hLArAffectedRegionsEMB[0]		= nullptr;
+  m_hLArAffectedRegionsEMB[1]		= nullptr;
 
-  m_hLArAffectedRegionsEMECPS[0]	= NULL;
-  m_hLArAffectedRegionsEMECPS[1]	= NULL;
+  m_hLArAffectedRegionsEMECPS[0]	= nullptr;
+  m_hLArAffectedRegionsEMECPS[1]	= nullptr;
 
-  m_hLArAffectedRegionsEMEC[0]		= NULL;
-  m_hLArAffectedRegionsEMEC[1]		= NULL;
+  m_hLArAffectedRegionsEMEC[0]		= nullptr;
+  m_hLArAffectedRegionsEMEC[1]		= nullptr;
 
-  m_hLArAffectedRegionsHECA[0]		= NULL;
-  m_hLArAffectedRegionsHECA[1]		= NULL;
-  m_hLArAffectedRegionsHECA[2]		= NULL;
-  m_hLArAffectedRegionsHECA[3]		= NULL;
+  m_hLArAffectedRegionsHECA[0]		= nullptr;
+  m_hLArAffectedRegionsHECA[1]		= nullptr;
+  m_hLArAffectedRegionsHECA[2]		= nullptr;
+  m_hLArAffectedRegionsHECA[3]		= nullptr;
 
-  m_hLArAffectedRegionsHECC[0]		= NULL;
-  m_hLArAffectedRegionsHECC[1]		= NULL;
-  m_hLArAffectedRegionsHECC[2]		= NULL;
-  m_hLArAffectedRegionsHECC[3]		= NULL;
+  m_hLArAffectedRegionsHECC[0]		= nullptr;
+  m_hLArAffectedRegionsHECC[1]		= nullptr;
+  m_hLArAffectedRegionsHECC[2]		= nullptr;
+  m_hLArAffectedRegionsHECC[3]		= nullptr;
 
-  m_hLArAffectedRegionsFCALA[0]		= NULL;
-  m_hLArAffectedRegionsFCALA[1]		= NULL;
-  m_hLArAffectedRegionsFCALA[2]		= NULL;
+  m_hLArAffectedRegionsFCALA[0]		= nullptr;
+  m_hLArAffectedRegionsFCALA[1]		= nullptr;
+  m_hLArAffectedRegionsFCALA[2]		= nullptr;
 
-  m_hLArAffectedRegionsFCALC[0]		= NULL;
-  m_hLArAffectedRegionsFCALC[1]		= NULL;
-  m_hLArAffectedRegionsFCALC[2]		= NULL;
+  m_hLArAffectedRegionsFCALC[0]		= nullptr;
+  m_hLArAffectedRegionsFCALC[1]		= nullptr;
+  m_hLArAffectedRegionsFCALC[2]		= nullptr;
 
  }
 
