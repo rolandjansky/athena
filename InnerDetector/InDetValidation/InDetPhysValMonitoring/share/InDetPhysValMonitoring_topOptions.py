@@ -15,6 +15,7 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--doMuonMatchedTracks", help='run plots for tracks matched to true muons', action='store_true', default=False)
     IDPVMparser.add_argument("--doElectronMatchedTracks", help='run plots for tracks matched to true electrons', action='store_true', default=False)
     IDPVMparser.add_argument("--doTruthToRecoNtuple", help='output track-to-truth ntuple', action='store_true', default=False)
+    IDPVMparser.add_argument("--hardScatterStrategy", help='Strategy to select the hard scatter. 0 = SumPt² 1 = SumPt', choices=["0","1"], default="0")
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
     return IDPVMparser.parse_args()
@@ -36,6 +37,7 @@ InDetPhysValFlags.doValidateMuonMatchedTracks.set_Value_and_Lock(MyArgs.doMuonMa
 InDetPhysValFlags.doValidateElectronMatchedTracks.set_Value_and_Lock(MyArgs.doElectronMatchedTracks)
 InDetPhysValFlags.doPerAuthorPlots.set_Value_and_Lock(MyArgs.doPerAuthor)
 InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(MyArgs.doHitLevelPlots)
+InDetPhysValFlags.hardScatterStrategy.set_Value_and_Lock(int(MyArgs.hardScatterStrategy))
 
 # Print the configuration
 print(" ==== Final Phys Val flags to run === ")

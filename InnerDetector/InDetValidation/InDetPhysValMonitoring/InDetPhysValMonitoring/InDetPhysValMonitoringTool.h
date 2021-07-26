@@ -24,6 +24,8 @@
 
 #include "InDetTruthVertexValidation/IInDetVertexTruthMatchTool.h"
 
+#include "InDetRecToolInterfaces/IInDetHardScatterSelectionTool.h"
+
 //#gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 //EDM includes
@@ -179,6 +181,7 @@ private:
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool{this, "VertexTruthMatchTool", "InDetVertexTruthMatchTool/VtxTruthMatchTool", "Vertex truth matching tool to use"};
     ToolHandle<IAthSelectionTool> m_truthSelectionTool{this, "TruthSelectionTool","AthTruthSelectionTool", "Truth selection tool (for efficiencies and resolutions)"};
     ToolHandle<InDet::IInDetTrackTruthOriginTool> m_trackTruthOriginTool{this, "trackTruthOriginTool", "InDet::InDetTrackTruthOriginTool","truth track origin tool"};
+    ToolHandle<InDet::IInDetHardScatterSelectionTool> m_hardScatterSelectionTool{this, "hardScatterSelectionTool", "InDet::InDetHardScatterSelectionTool","tool to select the hard scatter reco vertex"};
 
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex

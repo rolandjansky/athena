@@ -147,6 +147,13 @@ class setTruthStrategy(InDetPhysValFlagsJobProperty):
     StoredValue = 'HardScatter'
 
 
+class hardScatterStrategy(InDetPhysValFlagsJobProperty):
+    """The hard-scatter vertex selection strategy to use when running hard-scatter efficiency / performance plots in IDPVM. 0 corresponds to sumPt^2, 1 corresponds to sumPt"""
+    statusOn = True
+    allowedTypes = ['int']
+    StoredValue = 0 # default to sum(pt²)
+
+
 # -----------------------------------------------------------------------------
 # 2nd step
 # Definition of the InDet flag container
@@ -218,7 +225,8 @@ _list_InDetPhysValJobProperties = [
     doValidateLargeD0Tracks,
     doTruthOriginPlots,
     doPerAuthorPlots,
-    doHitLevelPlots
+    doHitLevelPlots,
+    hardScatterStrategy
 ]
 
 for j in _list_InDetPhysValJobProperties:

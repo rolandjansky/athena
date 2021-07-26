@@ -99,11 +99,6 @@ namespace { // utility functions used here
   }
 
   bool
-  acceptVertex(const xAOD::Vertex* vtx) {
-    return(vtx->vertexType() != xAOD::VxType::NoVtx);
-  }
-
-  bool
   acceptTruthVertex(const xAOD::TruthVertex* vtx) {
     const float x(vtx->x()), y(vtx->y()), z(vtx->z());
     const float vrtR2 = (x * x + y * y); // radial distance squared
@@ -137,6 +132,7 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
   ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
   ATH_CHECK(m_trackTruthOriginTool.retrieve( EnableTool {m_doTruthOriginPlots} ));
+  ATH_CHECK(m_hardScatterSelectionTool.retrieve());
 
   ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
@@ -322,10 +318,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
   if (vertices.isValid() and not vertices->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
-    const auto& stdVertexContainer = vertices->stdcont();
-    //Find the first non-dummy vertex; note *usually* there is only one (or maybe zero)
-    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptVertex);
-    primaryvertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
+    //Find the HS vertex following the user-configured strategy
+    primaryvertex = m_hardScatterSelectionTool->getHardScatter(vertices.get()); 
+    if (!primaryvertex){
+      /// In case of no HS, print a debug message - no warning since this is expected
+      /// in single particle MC. The downstream code is able to handle the absence of a HS vertex. 
+      ATH_MSG_DEBUG("Failed to find a hard scatter vertex in this event.");
+    }
     //Filling plots for all reconstructed vertices and the hard-scatter
     ATH_MSG_DEBUG("Filling vertices info monitoring plots");
 
@@ -339,7 +338,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
        ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
        ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
     }
-    m_monPlots->fill(*vertices, truthHSVertices, truthPUVertices, beamSpotWeight);
+    m_monPlots->fill(*vertices, primaryvertex, truthHSVertices, truthPUVertices, beamSpotWeight);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
     //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
