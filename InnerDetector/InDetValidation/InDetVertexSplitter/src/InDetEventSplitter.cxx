@@ -121,8 +121,8 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  const Rec::TrackParticleContainer* tpbTES=0;
-  const TrackCollection* trkTES=0;
+  const Rec::TrackParticleContainer* tpbTES{};
+  const TrackCollection* trkTES{};
 
   if (m_savetpb){
     sc=evtStore()->retrieve( tpbTES, m_tpbContainerName);
@@ -146,54 +146,54 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
 
 //  We need to create every container for each event, even if we don't write to them
 
-  std::vector<std::string>::iterator key_iter = m_trackKeys.begin();
-  for (; key_iter != m_trackKeys.end(); key_iter++){
-    TrackCollection* tempTracks = 0;
-    trackmap[(*key_iter)] = tempTracks;
-    if (evtStore()->contains<TrackCollection>((*key_iter)) &&
-	(evtStore()->retrieve(trackmap[(*key_iter)],(*key_iter))).isSuccess()){
+  for (const auto & key : m_trackKeys){
+    TrackCollection* tempTracks{};
+    trackmap[key] = tempTracks;
+    if (evtStore()->contains<TrackCollection>(key) &&
+	(evtStore()->retrieve(trackmap[key],key)).isSuccess()){
     } else {
-      trackmap[(*key_iter)] = new TrackCollection;
+      trackmap[key] = new TrackCollection;
     }
   }  
 
-  for (key_iter = m_trackKeys.begin(); key_iter != m_trackKeys.end(); key_iter++){
-    Trk::TrackParticleBaseCollection* tempTpbs = 0;
-    tpbmap[(*key_iter)] = tempTpbs;
-    if (evtStore()->contains<Trk::TrackParticleBaseCollection>((*key_iter)) &&
-	(evtStore()->retrieve(tpbmap[(*key_iter)],(*key_iter))).isSuccess()){
+   for (const auto & key : m_trackKeys){
+    Trk::TrackParticleBaseCollection* tempTpbs{};
+    tpbmap[key] = tempTpbs;
+    if (evtStore()->contains<Trk::TrackParticleBaseCollection>(key) &&
+	(evtStore()->retrieve(tpbmap[key],key)).isSuccess()){
     } else {
-      tpbmap[(*key_iter)] = new Trk::TrackParticleBaseCollection;
+      tpbmap[key] = new Trk::TrackParticleBaseCollection;
     }
   }  
 
   //We need to add an approprate fraction of unfit tracks to the half and full vertex collections
   //lets pull in the full list of tracks  
 
-  if (m_savetpb){
-    Rec::TrackParticleContainer::const_iterator tpbItr = tpbTES->begin();
-    Rec::TrackParticleContainer::const_iterator tpbItrE = tpbTES->end();
+  if (m_savetpb and tpbTES){
     //we loop over that list
-    for (; tpbItr != tpbItrE; tpbItr++){
+    std::string oeNameString;
+    std::stringstream sss;
+    oeNameString.reserve(20);
+    for (const auto * tpb: *tpbTES){
       //it looks like our track collection is actually sorted by the vertex that they're in
       //which means that just alternating odd vs even is equivalent to splitting the vertex first, then splitting the remining
       //instead, we will just put in rand() call
       m_isOdd = std::rand() % 2;
-      std::string oeNameString;
+      oeNameString.clear();
       if (m_isOdd)  oeNameString = "odd";
       if (!m_isOdd) oeNameString = "even";
-      std::stringstream sss;
+      sss.str("");
       sss << oeNameString << "_" << m_addToVx << "_Tracks";
       std::string oecontainerName = sss.str();   		  	
       std::string allNameString = "all";
       sss.str("");
       sss << allNameString << "_" << m_addToVx << "_Tracks";
       std::string allcontainerName = sss.str();  
-      Trk::TrackParticleBase *trkCopy1 = new Trk::TrackParticleBase((*(*tpbItr)));
-      Trk::TrackParticleBase *trkCopy2 = new Trk::TrackParticleBase((*(*tpbItr)));
-      ATH_MSG_DEBUG("found a trackparticlebase, with momentum "<<(*tpbItr)->definingParameters().momentum()<<" giving it the key: "<< oecontainerName);	
+      Trk::TrackParticleBase *trkCopy1 = new Trk::TrackParticleBase(*tpb);
+      Trk::TrackParticleBase *trkCopy2 = new Trk::TrackParticleBase(*tpb);
+      ATH_MSG_DEBUG("found a trackparticlebase, with momentum "<<tpb->definingParameters().momentum()<<" giving it the key: "<< oecontainerName);	
       tpbmap[oecontainerName]->push_back(trkCopy1);
-      ATH_MSG_DEBUG("found a trackparticlebase, with momentum "<<(*tpbItr)->definingParameters().momentum()<<" giving it the key: "<< allcontainerName);	
+      ATH_MSG_DEBUG("found a trackparticlebase, with momentum "<<tpb->definingParameters().momentum()<<" giving it the key: "<< allcontainerName);	
       tpbmap[allcontainerName]->push_back(trkCopy2);	
       
       m_addToVx++;
@@ -201,25 +201,24 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
     }
   }
   
-  
   if (!m_savetpb){
     std::cout<<"NotYet Implemented"<<std::endl;
   }
 
   if (m_savetpb){
-        for (key_iter = m_trackKeys.begin(); key_iter != m_trackKeys.end() ; key_iter++){
-      if(evtStore()->record(tpbmap[(*key_iter)],(*key_iter),false).isFailure() ){
-	ATH_MSG_ERROR("Could not save the "<< (*key_iter));
-      }}}
-  else{
-    for (key_iter = m_trackKeys.begin(); key_iter != m_trackKeys.end() ; key_iter++){
-      if(evtStore()->record(trackmap[(*key_iter)],(*key_iter),false).isFailure() ){
-	ATH_MSG_ERROR("Could not save the "<< (*key_iter));
-      }}}
-
-    
+        for (const auto & key : m_trackKeys){
+      if(evtStore()->record(tpbmap[key],key,false).isFailure() ){
+	      ATH_MSG_ERROR("Could not save the "<< key);
+      }
+    }
+  } else {
+    for (const auto & key : m_trackKeys){
+      if(evtStore()->record(trackmap[key],key,false).isFailure() ){
+	      ATH_MSG_ERROR("Could not save the "<< key);
+      }
+    }
+  } 
   ATH_MSG_DEBUG("split_vertices() succeeded");
-  
   m_eventN++;
   return StatusCode::SUCCESS;
 }
