@@ -2,10 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FlavorTagDiscriminants/BTagToJetLinkerAlg.h"
+#include "FlavorTagDiscriminants/JetToBTagLinkerAlg.h"
 
-BTagToJetLinkerAlg::BTagToJetLinkerAlg(
+JetToBTagLinkerAlg::JetToBTagLinkerAlg(
   const std::string& name,
   ISvcLocator* svcloc):
-  detail::BTagToJet_t(name, svcloc)
+  detail::JetToBTag_t(name, svcloc)
 {}
