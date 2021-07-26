@@ -21,7 +21,7 @@ Sim_tf.py \
 --simulator 'ATLFAST3_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+--preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
