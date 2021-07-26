@@ -215,7 +215,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
                                                        HoleSearch    = holeSearchTool,
                                                        AssoTool      = associationTool,
                                                        TestBLayerTool = acc.popToolsAndMerge(TestBlayerToolCfg(flags)),
-                                                       PixelToTPIDTool= None, #InDetTrigPixelToTPIDTool,
+                                                       PixelToTPIDTool= None,
                                                        DoSharedHits  = True,
                                                        TRTStrawSummarySvc = acc.popToolsAndMerge( TRT_StrawStatusSummaryToolCfg(flags) ),
                                                        usePixel      = flags.Detector.EnablePixel,
@@ -229,7 +229,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
 def TrackSummaryToolCfg(flags, name="InDetTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
-    summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelperSharedHits") )
+    summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
                                           InDetSummaryHelperTool = summaryHelperTool,
@@ -668,9 +668,10 @@ def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey)
                                                           ComputeAdditionalInfo = True,
                                                           ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'])
   acc.addPublicTool(creatorTool)
+  from TrigEDMConfig.TriggerEDMRun3 import recordable
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                           TrackName           = inputTracksKey,
-                                                          TrackParticlesName  = outputTrackParticleKey,
+                                                          TrackParticlesName  = recordable(outputTrackParticleKey),
                                                           ParticleCreatorTool = creatorTool)
   trackParticleCnv.OutputLevel=2
   acc.addEventAlgo(trackParticleCnv, primary=True)
@@ -767,20 +768,95 @@ def TRTRIOMakerCfg(flags):
   acc = ComponentAccumulator()
   acc.merge( TRTDataProviderCfg(flags) )
   from .InDetTrigCollectionKeys import TrigTRTKeys
-  from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, possibly replace
-  alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker{flags.InDet.Tracking.name}",
+  from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
+  alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker_{flags.InDet.Tracking.name}",
                                           TRTRIOLocation=TrigTRTKeys.DriftCircles, 
-                                          TRTRDOLocation = TrigTRTKeys.RDOs, 
-                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags)))
+                                          TRTRDOLocation = TrigTRTKeys.RDOs,
+                                          isRoI_Seeded = True,
+                                          RoIs = flags.InDet.Tracking.roi,
+                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo=True, usePhase=False, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
   acc.addEventAlgo( alg )
   return acc
 
+def _tracksPostAmbi(flags):
+  return flags.InDet.Tracking.trkTracks_IDTrig+"_Amb"
+
+def _ambiScore(flags):
+  return f"ScoreMap{flags.InDet.Tracking.input_name}"
+
+
+def TRTExtensionToolCfg(flags):
+  acc = ComponentAccumulator()
+
+  detElementCond = CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(f"{prefix}TRT_DetElementsRoadCondAlg_xk")
+  acc.addCondAlgo(detElementCond)
+
+  patternPropagator = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg(flags))
+  roadMaker = CompFactory.InDet.TRT_DetElementsRoadMaker_xk( name   = f'{prefix}TRTRoadMaker{flags.InDet.Tracking.name}',
+                                                             MagneticFieldMode     = 'MapSolenoid',
+                                                             PropagatorTool        =  patternPropagator )
+  acc.addPublicTool( roadMaker )
+  from .InDetTrigCollectionKeys import TrigTRTKeys
+  extensionTool = CompFactory.InDet.TRT_TrackExtensionTool_xk ( name = f"{prefix}TrackExtensionTool_{flags.InDet.Tracking.name}",
+                                                                TRT_ClustersContainer = TrigTRTKeys.DriftCircles,
+                                                                PropagatorTool = patternPropagator,
+                                                                UpdatorTool    = acc.getPrimaryAndMerge( KalmanxkUpdatorCfg( flags ) ),
+                                                                RoadTool       = roadMaker,
+                                                                DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
+                                                                MinNumberDriftCircles = flags.InDet.Tracking.minTRTonTrk,
+                                                                ScaleHitUncertainty   = 2.,
+                                                                RoadWidth             = 20.,
+                                                                UseParameterization   = flags.InDet.Tracking.useParameterizedTRTCuts )
+
+  acc.addPublicTool( extensionTool, primary=True )
+  return acc
+
+def TRTExtensionAlgCfg(flags):
+  acc = ComponentAccumulator()
+
+  alg = CompFactory.InDet.TRT_TrackExtensionAlg( name = f"{prefix}TrackExtensionAlg_{flags.InDet.Tracking.name}",
+                                                 InputTracksLocation    = _tracksPostAmbi(flags),
+                                                 TrackExtensionTool     = acc.getPrimaryAndMerge(TRTExtensionToolCfg(flags)),
+                                                 ExtendedTracksLocation = 'ExtendedTrackMap' )
+  acc.addEventAlgo(alg)                                                    
+  return acc
+
+
+def TRTExtensionProcessorCfg(flags):
+  acc = ComponentAccumulator()
+  extensionProcessor = CompFactory.InDet.InDetExtensionProcessor (name         = f"{prefix}ExtensionProcessor_{flags.InDet.Tracking.name}",
+                                                            TrackName          = _tracksPostAmbi(flags),
+                                                            #Cosmics           = InDetFlags.doCosmics(),
+                                                            ExtensionMap       = 'ExtendedTrackMap',
+                                                            NewTrackName       = flags.InDet.Tracking.trkTracks_IDTrig,
+                                                            TrackFitter        = acc.getPrimaryAndMerge(FitterToolCfg(flags)),
+                                                            TrackSummaryTool   = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                            ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
+                                                            suppressHoleSearch = False,
+                                                            RefitPrds = not (flags.InDet.Tracking.refitROT or flags.InDet.Tracking.trtExtensionType == 'DAF') )
+                                                            # Check these option after DAF is implemented
+                                                            # tryBremFit         = InDetFlags.doBremRecovery(),
+                                                            # caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
+                                                            # pTminBrem          = NewTrackingCuts.minPTBrem() ) )
+
+  #TODO trigger uses only one type of extension, optional tools can be removed in future
+
+  acc.addEventAlgo( extensionProcessor )
+  return acc
+
+
 def TRTExtrensionBuilderCfg(flags):
   acc = ComponentAccumulator()
-  acc.merge(TRTRIOMakerCfg(flags))
-#  acc.merge(TRTExtensionAlgCfg(flags))
-#  acc.merge(TRTExtensionProcessorCfg(flags))
-  
+  acc.merge( TRTDataProviderCfg(flags) )
+  acc.merge( TRTRIOMakerCfg(flags) )
+
+  acc.merge( TRTExtensionAlgCfg(flags) )
+  acc.merge( TRTExtensionProcessorCfg(flags) )
+#  'TRTRawDataProvider/InDetTrigMTTRTRawDataProvider_electronLRT', 
+#  'InDet::TRT_RIO_Maker/InDetTrigMTTRTDriftCircleMaker_electronLRT', 
+#  'InDet::TRT_TrackExtensionAlg/InDetTrigMTTrackExtensionAlg_electronLRT', 
+#  'InDet::InDetExtensionProcessor/InDetTrigMTExtensionProcessor_electronLRT', 
+
 
   return acc
 
@@ -901,7 +977,7 @@ def ambiguityProcessorToolCfg(flags):
                                                       Fitter = acc.getPrimaryAndMerge(FitterToolCfg(flags)),
                                                       ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
                                                       AssociationTool = acc.getPrimaryAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)),
-                                                      TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolCfg(flags, name=f"{prefix}TrackSummaryToolSharedHitsWithTRT__{flags.InDet.Tracking.name}",
+                                                      TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool",
                                                                                                                   useTRT=False, makePublic=False)),
                                                       SelectionTool    = acc.getPrimaryAndMerge(TrackSelectionToolCfg(flags)
                                                       )
@@ -912,28 +988,25 @@ def ambiguityProcessorToolCfg(flags):
 def ambiguitySolverAlgCfg(flags):
   acc = ComponentAccumulator()
 
-  ambigMap = f"ScoreMap{flags.InDet.Tracking.input_name}"
   scoreAlg = CompFactory.Trk.TrkAmbiguityScore(name = f"{prefix}TrkAmbiguityScore_{flags.InDet.Tracking.input_name}",
                                                TrackInput = [ flags.InDet.Tracking.trkTracks_FTF ],
-                                               TrackOutput = ambigMap,
+                                               TrackOutput = _ambiScore(flags),
                                                AmbiguityScoreProcessor = None 
   )
   acc.addEventAlgo(scoreAlg)
 
   processorTool = acc.popToolsAndMerge(ambiguityProcessorToolCfg(flags))
   solverAlg = CompFactory.Trk.TrkAmbiguitySolver(name  = f"{prefix}TrkAmbiguitySolver_{flags.InDet.Tracking.input_name}",
-                                                 TrackInput         = ambigMap,
-                                                 TrackOutput        = flags.InDet.Tracking.trkTracks_IDTrig+"_Amb",
+                                                 TrackInput         = _ambiScore(flags),
+                                                 TrackOutput        = _tracksPostAmbi(flags),
                                                  AmbiguityProcessor = processorTool
   )
   acc.addEventAlgo(solverAlg)
-  #TODO continue adding TRT
-  # acc.merge(TRTExtrensionBuilderCfg(flags))
 
   return acc
 
 def trackEFIDConverterCfg(flags):
-  return _trackConverterCfg(flags, "_Precision"+flags.InDet.Tracking.name, flags.InDet.Tracking.trkTracks_IDTrig+"_Amb", flags.InDet.Tracking.trkTracks_IDTrig)
+  return _trackConverterCfg(flags, "_Precision"+flags.InDet.Tracking.name, flags.InDet.Tracking.trkTracks_IDTrig, flags.InDet.Tracking.tracks_IDTrig)
 
 
 def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
@@ -963,7 +1036,13 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
     acc.addEventAlgo(verifier)
 
   acc.merge(ambiguitySolverAlgCfg(flags))
+  acc.merge(TRTExtrensionBuilderCfg(flags))
   acc.merge(trackEFIDConverterCfg(flags))
+
+#   Members = ['Trk::TrkAmbiguityScore/InDetTrigMTTrkAmbiguityScore_electronLRT', 
+#  'Trk::TrkAmbiguitySolver/InDetTrigMTTrkAmbiguitySolver_electronLRT', 
+#  'xAODMaker::TrackParticleCnvAlg/InDetTrigMTxAODParticleCreatorAlgelectronLRT_IDTrig']
+
   return acc
 
 if __name__ == "__main__":
