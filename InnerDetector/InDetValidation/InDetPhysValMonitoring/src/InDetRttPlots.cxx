@@ -279,7 +279,7 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 //Fill Vertexing Plots
 //
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::Vertex* recoHardScatter, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
   // fill vertex container general properties
   // m_verticesVsMuPlots->fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
@@ -291,16 +291,18 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
     }
     if (m_vertexPlots) m_vertexPlots->fill(*vtx, weight);
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
-    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-      if (m_hardScatterVertexPlots) m_hardScatterVertexPlots->fill(*vtx, weight);
-      if (m_hardScatterVertexTruthMatchingPlots){ 
-        if(truthHSVertices.size()>0 ) m_hardScatterVertexTruthMatchingPlots->fill(*vtx,truthHSVertices[0],weight);
-        else m_hardScatterVertexTruthMatchingPlots->fill(*vtx,nullptr,weight); 
-      }
-      ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
-    }
   }
-  if(m_vertexTruthMatchingPlots) m_vertexTruthMatchingPlots->fill(vertexContainer, truthHSVertices, truthPUVertices, weight);
+
+  if (recoHardScatter) {
+    if (m_hardScatterVertexPlots) m_hardScatterVertexPlots->fill(*recoHardScatter, weight);
+    if (m_hardScatterVertexTruthMatchingPlots){ 
+      if(truthHSVertices.size()>0 ) m_hardScatterVertexTruthMatchingPlots->fill(*recoHardScatter,truthHSVertices[0],weight);
+      else m_hardScatterVertexTruthMatchingPlots->fill(*recoHardScatter,nullptr,weight); 
+    }
+    ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
+  }
+
+  if(m_vertexTruthMatchingPlots) m_vertexTruthMatchingPlots->fill(recoHardScatter, vertexContainer, truthHSVertices, truthPUVertices, weight);
 }
 
 

@@ -48,11 +48,17 @@ def getInDetPhysValMonitoringTool(**kwargs):
     from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC, InDetPhysValFlags
     if isMC():
         from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+        from InDetPhysValMonitoring.InDetPhysValDecoration import getHardScatterSelectionTool
         kwargs = setDefaults(
             kwargs, TruthParticleContainerName="TruthParticles")
         if 'TruthSelectionTool' not in kwargs:
             kwargs = setDefaults(
                 kwargs, TruthSelectionTool=getInDetRttTruthSelectionTool())
+
+        if 'hardScatterSelectionTool' not in kwargs:
+            kwargs = setDefaults(
+                kwargs, hardScatterSelectionTool=getHardScatterSelectionTool(RedoHardScatter=True, SelectionMode=InDetPhysValFlags.hardScatterStrategy()))
+
         if InDetPhysValFlags.doValidateTracksInJets():
             jets_name = 'AntiKt4LCTopoJets'
             kwargs = setDefaults(kwargs,
