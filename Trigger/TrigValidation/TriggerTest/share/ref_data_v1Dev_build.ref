@@ -66,6 +66,13 @@ HLT_2j100_L1CEP-CJ50:
   eventCount: 0
 HLT_2j100_L1CEP-CJ60:
   eventCount: 0
+HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED:
+  eventCount: 0
+  stepCounts:
+    0: 15
+  stepFeatures:
+    0: 55
+    1: 15
 HLT_2j250_ftf_0eta240_j120_ftf_0eta240_L1J100:
   eventCount: 0
 HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_L1J100:
@@ -1348,12 +1355,6 @@ HLT_j0_HT500XX30et_L1J20:
   eventCount: 0
 HLT_j0_HT500_L1J20:
   eventCount: 0
-HLT_j0_mb_afphypo_L1RD0_FILLED:
-  eventCount: 0
-  stepCounts:
-    0: 19
-  stepFeatures:
-    0: 183
 HLT_j0_perf_L1J12_EMPTY:
   eventCount: 0
 HLT_j0_perf_L1RD0_FILLED:
