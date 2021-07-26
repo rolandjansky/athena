@@ -105,8 +105,8 @@ double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCo
 //
     double x = etaCoord;
     double y = phiCoord;
-    double xSF = cos(-m_stereo) * (x - m_R) - sin(-m_stereo) * y + m_R;
-    double ySF = sin(-m_stereo) * (x - m_R) + cos(-m_stereo) * y;
+    double xSF = cos(-m_stereo) * (x - m_waferCentreR) - sin(-m_stereo) * y + m_waferCentreR;
+    double ySF = sin(-m_stereo) * (x - m_waferCentreR) + cos(-m_stereo) * y;
     double phiPrime = atan2(ySF, xSF);
 
     // The minus sign below is because this routine is called by tracking software, which swaps x and y, then measures angles from y 
@@ -182,8 +182,8 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
 //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
 //
-    double xSF = cos(-m_stereo) * (x - m_R) - sin(-m_stereo) * y + m_R;
-    double ySF = sin(-m_stereo) * (x - m_R) + cos(-m_stereo) * y;
+    double xSF = cos(-m_stereo) * (x - m_waferCentreR) - sin(-m_stereo) * y + m_waferCentreR;
+    double ySF = sin(-m_stereo) * (x - m_waferCentreR) + cos(-m_stereo) * y;
     double phiPrime = atan2(ySF, xSF); 
     int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
     if (strip < 0 || strip >= m_nStrips[row]) { // Outside
@@ -212,8 +212,8 @@ SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double
 
     double xPrime = rPrime * cos(phiPrime);
     double yPrime = rPrime * sin(phiPrime);
-    double x = cos(m_stereo) * (xPrime - m_R) - sin(m_stereo) * yPrime + m_R;
-    double y = sin(m_stereo) * (xPrime - m_R) + cos(m_stereo) * yPrime;
+    double x = cos(m_stereo) * (xPrime - m_waferCentreR) - sin(m_stereo) * yPrime + m_waferCentreR;
+    double y = sin(m_stereo) * (xPrime - m_waferCentreR) + cos(m_stereo) * yPrime;
 
     return SiLocalPosition(x, y, 0.0);
 }
@@ -303,16 +303,16 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
 
 //    Get phiPrime of pos
 //
-    double posxP = cos(-m_stereo) * (pos.xEta() - m_R) - sin(-m_stereo) * pos.xPhi() + m_R;
-    double posyP = sin(-m_stereo) * (pos.xEta() - m_R) + cos(-m_stereo) * pos.xPhi();
+    double posxP = cos(-m_stereo) * (pos.xEta() - m_waferCentreR) - sin(-m_stereo) * pos.xPhi() + m_waferCentreR;
+    double posyP = sin(-m_stereo) * (pos.xEta() - m_waferCentreR) + cos(-m_stereo) * pos.xPhi();
     double posphiP = atan2(posyP, posxP);
 //
 //    Get phiPrime of strip
 //
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
-    double posStripxP = cos(-m_stereo) * (posStrip.xEta() - m_R) - sin(-m_stereo) * posStrip.xPhi() + m_R;
-    double posStripyP = sin(-m_stereo) * (posStrip.xEta() - m_R) + cos(-m_stereo) * posStrip.xPhi();
+    double posStripxP = cos(-m_stereo) * (posStrip.xEta() - m_waferCentreR) - sin(-m_stereo) * posStrip.xPhi() + m_waferCentreR;
+    double posStripyP = sin(-m_stereo) * (posStrip.xEta() - m_waferCentreR) + cos(-m_stereo) * posStrip.xPhi();
     double posStripphiP = atan2(posStripyP, posStripxP);
     int strip, row;
     getStripRow(cellId, &strip, &row);
@@ -399,8 +399,8 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
     etaDist = min(rOuter - r, r - rInner);
  
 // For phi, we use the Strip frame. Transform to Strip-frame:
-  double etaStrip = cos(-m_stereo) * (xEta - m_R) - sin(-m_stereo) * xPhi + m_R;
-  double phiStrip = sin(-m_stereo) * (xEta - m_R) + cos(-m_stereo) * xPhi;
+  double etaStrip = cos(-m_stereo) * (xEta - m_waferCentreR) - sin(-m_stereo) * xPhi + m_waferCentreR;
+  double phiStrip = sin(-m_stereo) * (xEta - m_waferCentreR) + cos(-m_stereo) * xPhi;
 // Put these into polar coordinates
   double rStrip = sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
   double phiAngleStrip = atan2(phiStrip, etaStrip);
