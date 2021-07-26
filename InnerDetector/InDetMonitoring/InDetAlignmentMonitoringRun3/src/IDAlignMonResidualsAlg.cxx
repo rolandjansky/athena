@@ -11,9 +11,9 @@
 //main header
 #include "IDAlignMonResidualsAlg.h"
 
-#include <sstream>
-#include <math.h>
 #include "TMath.h"
+#include <cmath>
+#include <sstream>
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
@@ -147,7 +147,7 @@ StatusCode IDAlignMonResidualsAlg::fillHistograms( const EventContext& ctx ) con
   for (const Trk::Track* trksItr: *tracks) {
 
     // Found track?!
-    if ( !trksItr || trksItr->perigeeParameters() == 0 )
+    if ( !trksItr || trksItr->perigeeParameters() == nullptr )
       {
 	ATH_MSG_DEBUG( "InDetAlignmentMonitoringRun3: NULL track pointer in collection" );
 	continue;
@@ -217,15 +217,15 @@ StatusCode IDAlignMonResidualsAlg::fillHistograms( const EventContext& ctx ) con
 
       ATH_MSG_DEBUG(" --> Going to retrive the track parameters of this TSOS: " << nTSOS);
       const Trk::TrackParameters* trackParameter = tsos->trackParameters();
-      if(trackParameter==NULL) {
+      if(trackParameter==nullptr) {
 	//if no TrackParameters for TSOS we cannot define residuals
 	ATH_MSG_DEBUG(" Skipping TSOS " << nTSOS << " because it does not have TrackParameters");
 	continue;
       }
 
-      const AmgSymMatrix(5)* TrackParCovariance = trackParameter ? trackParameter->covariance() : NULL;
+      const AmgSymMatrix(5)* TrackParCovariance = trackParameter ? trackParameter->covariance() : nullptr;
 
-      if(TrackParCovariance==NULL) {
+      if(TrackParCovariance==nullptr) {
 	//if no MeasuredTrackParameters the hit will not have associated convariance error matrix and will not
 	//be able to define a pull or unbiased residual (errors needed for propagation)
 	ATH_MSG_DEBUG("Skipping TSOS " << nTSOS << " because does not have MeasuredTrackParameters");
@@ -260,7 +260,7 @@ StatusCode IDAlignMonResidualsAlg::fillHistograms( const EventContext& ctx ) con
 	  ATH_MSG_DEBUG("applying hit quality cuts to Silicon hit...");
 
 	  hit = m_hitQualityTool->getGoodHit(tsos);
-	  if(hit==NULL) {
+	  if(hit==nullptr) {
 	    ATH_MSG_DEBUG("hit failed quality cuts and is rejected.");
 	    continue;
 	  }
@@ -473,7 +473,7 @@ StatusCode  IDAlignMonResidualsAlg::getSiResiduals(const Trk::Track* track, cons
 
       ATH_MSG_DEBUG(" got hit and track parameters ");
 
-      const Trk::ResidualPull* residualPull = NULL;
+      const Trk::ResidualPull* residualPull = nullptr;
       if(unBias) residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals.get(), Trk::ResidualPull::Unbiased);
       else residualPull = m_residualPullCalculator->residualPull(mesh, trackParameterForResiduals.get(), Trk::ResidualPull::Biased);
 
@@ -550,7 +550,7 @@ std::unique_ptr <Trk::TrackParameters> IDAlignMonResidualsAlg::getUnbiasedTrackP
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
 
-  if (hitOnTrack != 0) surfaceID = hitOnTrack->identify();
+  if (hitOnTrack != nullptr) surfaceID = hitOnTrack->identify();
 
 
   // if SCT Hit and TrueUnbiased then remove other side hit first
@@ -558,7 +558,7 @@ std::unique_ptr <Trk::TrackParameters> IDAlignMonResidualsAlg::getUnbiasedTrackP
     ATH_MSG_VERBOSE("Entering True Unbiased loop.");
 
     // check if other module side was also hit and try to remove other hit as well
-    const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
+    const Trk::TrackStateOnSurface* OtherModuleSideHit(nullptr);
     const Identifier waferID = m_sctID->wafer_id(surfaceID);
     const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
     IdentifierHash otherSideHash;
@@ -568,9 +568,9 @@ std::unique_ptr <Trk::TrackParameters> IDAlignMonResidualsAlg::getUnbiasedTrackP
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 
       const Trk::RIO_OnTrack* TempHitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
-      if (TempHitOnTrack != 0) {
+      if (TempHitOnTrack != nullptr) {
 	if (m_sctID->wafer_id(TempHitOnTrack->identify()) == OtherModuleSideID) {
-	  ATH_MSG_VERBOSE("True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') );
+	  ATH_MSG_VERBOSE("True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,nullptr,'/') );
 	  OtherModuleSideHit = TempTsos;
 	}
       }
@@ -654,7 +654,7 @@ std::unique_ptr <Trk::TrackParameters> IDAlignMonResidualsAlg::getUnbiasedTrackP
                        tsos->measurementOnTrack()->localCovariance());
   
   if (UnbiasedTrackParams) {
-    if(surfaceID.is_valid() ) ATH_MSG_VERBOSE("Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,0,'/') );
+    if(surfaceID.is_valid() ) ATH_MSG_VERBOSE("Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID,nullptr,'/') );
     ATH_MSG_VERBOSE("Unbiased Trackparameters: " << *UnbiasedTrackParams);
 
     TrackParams = std::move(UnbiasedTrackParams);
@@ -764,14 +764,14 @@ bool IDAlignMonResidualsAlg::trackRequiresRefit(const Trk::Track* track) const
     if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) continue;
 
     const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
-    if (mesh==NULL) continue;
+    if (mesh==nullptr) continue;
     const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
-    if (hit==NULL) continue;
+    if (hit==nullptr) continue;
 
     ++nHits;
 
     const Trk::TrackParameters* trackParameter = tsos->trackParameters();
-    if(trackParameter==NULL) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
+    if(trackParameter==nullptr) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
 
   }
 

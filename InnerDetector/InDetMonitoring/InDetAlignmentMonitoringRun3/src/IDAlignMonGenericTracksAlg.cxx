@@ -41,11 +41,10 @@
 
 IDAlignMonGenericTracksAlg::IDAlignMonGenericTracksAlg( const std::string & name, ISvcLocator* pSvcLocator ) :
    AthMonitorAlgorithm(name, pSvcLocator),
-   m_idHelper(0),
-   m_pixelID(0),
-   m_sctID(0),
-   m_trtID(0),
-   m_barrelEta(0.8),
+   m_idHelper(nullptr),
+   m_pixelID(nullptr),
+   m_sctID(nullptr),
+   m_trtID(nullptr),
    m_d0Range(2.0),
    m_d0BsRange(0.5),
    m_z0Range(250.0),
@@ -166,7 +165,7 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
     return StatusCode::RECOVERABLE;
   }
 
-  auto vertexContainer = handle_vxContainer.cptr();
+  const auto *vertexContainer = handle_vxContainer.cptr();
   for(const auto & vtx : *vertexContainer) {
     if ( !vtx ) continue;
     if ( !vtx->vxTrackAtVertexAvailable() ) continue;
@@ -244,7 +243,7 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
       return StatusCode::FAILURE;
     }
     
-    auto vertexContainer = handle_vxContainer.cptr();
+    const auto *vertexContainer = handle_vxContainer.cptr();
     
     xAOD::VertexContainer::const_iterator vxI = vertexContainer->begin();
     xAOD::VertexContainer::const_iterator vxE = vertexContainer->end();
@@ -259,7 +258,7 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
   for (const Trk::Track* trksItr: *trks) {
 
     // Found track?!
-    if ( !trksItr || trksItr->perigeeParameters() == 0 )
+    if ( !trksItr || trksItr->perigeeParameters() == nullptr )
       {
 	ATH_MSG_DEBUG( "InDetAlignmentMonitoringRun3: NULL track pointer in collection" );
 	continue;
@@ -303,7 +302,7 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
       if (pvtx) myIPandSigma = m_trackToVertexIPEstimator->estimate(trksItr->perigeeParameters(), pvtx, true);
     } 
     
-    if (covariance == NULL) {
+    if (covariance == nullptr) {
       ATH_MSG_WARNING("No measured perigee parameters assigned to the track"); 
     }
     else{  
@@ -359,7 +358,7 @@ StatusCode IDAlignMonGenericTracksAlg::fillHistograms( const EventContext& ctx )
       Identifier surfaceID;
       const Trk::MeasurementBase* mesb=tsos->measurementOnTrack();
       // hits, outliers
-      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+      if (mesb != nullptr && mesb->associatedSurface().associatedDetectorElement()!=nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 
       // holes, perigee 
       else continue; 
@@ -475,22 +474,22 @@ const xAOD::Vertex* IDAlignMonGenericTracksAlg::findAssociatedVertexTP(const std
 
   if (tpVx == trackVertexMapTP.end() ){
     ATH_MSG_VERBOSE("Did not find the vertex. Returning 0");
-    return 0;
+    return nullptr;
   } 
   return (*tpVx).second;
 
 }
 
 
-const Trk::Track* IDAlignMonGenericTracksAlg::getTrkTrack(const Trk::VxTrackAtVertex *trkAtVx)const
+const Trk::Track* IDAlignMonGenericTracksAlg::getTrkTrack(const Trk::VxTrackAtVertex *trkAtVx)
 {
 
   //find the link to the TrackParticleBase
   const Trk::ITrackLink* trkLink = trkAtVx->trackOrParticleLink();
-  const Trk::TrackParticleBase* trkPB(0);
-  if(0!= trkLink){
+  const Trk::TrackParticleBase* trkPB(nullptr);
+  if(nullptr!= trkLink){
     const Trk::LinkToTrackParticleBase* linktrkPB = dynamic_cast<const Trk::LinkToTrackParticleBase *>(trkLink);
-    if(0!= linktrkPB){
+    if(nullptr!= linktrkPB){
       if(linktrkPB->isValid()) trkPB = linktrkPB->cachedElement();
     }//end of dynamic_cast check
   }//end of ITrackLink existance check
@@ -503,7 +502,7 @@ const Trk::Track* IDAlignMonGenericTracksAlg::getTrkTrack(const Trk::VxTrackAtVe
       return trktrk;
     } 
   } 
-  return 0;
+  return nullptr;
 }
 
 
@@ -525,14 +524,14 @@ bool IDAlignMonGenericTracksAlg::fillVertexInformation(std::map<const xAOD::Trac
     return false;
   }
 
-  auto vertexContainer = handle_vxContainer.cptr();
+  const auto *vertexContainer = handle_vxContainer.cptr();
     
   for(const auto & vtx : *vertexContainer) {
       auto tpLinks = vtx->trackParticleLinks();
       ATH_MSG_DEBUG("tpLinks size " << tpLinks.size());
 
       if (tpLinks.size() > 4 ) {
-	for(auto link: tpLinks) {
+	for(const auto& link: tpLinks) {
 	  const xAOD::TrackParticle *TP = *link;
           if(TP) {
             trackVertexMapTP.insert( std::make_pair( TP, vtx )  );
