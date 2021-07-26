@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
@@ -199,8 +199,8 @@ def main(args):
         # Sort the dictionary by event numbers
         dict_out = OrderedDict(sorted(dict_in.items(), key=operator.itemgetter(1), reverse = reverse_order))
 
-        # Write out the ordered index list
-        return [idx for idx in dict_out]
+        # Write out the ordered index and event number pairs
+        return [(idx, ival) for idx, ival in dict_out.items()]
 
     def diff_tree(fold, fnew, args):
         infos = {
@@ -273,10 +273,19 @@ def main(args):
 
         if args.order_trees:
             slice_max = int(itr_entries) if int(itr_entries) > 0 else None
-            itr_entries_old = ordered_indices(fold.tree)[0:slice_max]
-            itr_entries_new = ordered_indices(fnew.tree)[0:slice_max]
-            msg.debug('List of old indices {}'.format(itr_entries_old))
-            msg.debug('List of new indices {}'.format(itr_entries_new))
+            idx_old = ordered_indices(fold.tree)[0:slice_max]
+            idx_new = ordered_indices(fnew.tree)[0:slice_max]
+            itr_entries_old, event_numbers_old = list(map(list,zip(*idx_old)))
+            itr_entries_new, event_numbers_new = list(map(list,zip(*idx_new)))
+            msg.debug(f"List of old indices {itr_entries_old}")
+            msg.debug(f"List of new indices {itr_entries_new}")
+            msg.debug(f"List of old events {event_numbers_old}")
+            msg.debug(f"List of new events {event_numbers_new}")
+            if event_numbers_old != event_numbers_new:
+                msg.error('Events differ, quitting!')
+                msg.error(f"List of old events {event_numbers_old}")
+                msg.error(f"List of new events {event_numbers_new}")
+                return 1
         else:
             itr_entries_old = itr_entries
             itr_entries_new = itr_entries
@@ -373,10 +382,18 @@ def main(args):
             
             n_bad += 1
 
+            # Identifiers are event numbers if we're ordering the trees, otherwise tree indices
+            if args.order_trees:
+                id_old = dict(idx_old)[ientry]
+                id_new = dict(idx_new)[jentry]
+            else:
+                id_old = ientry
+                id_new = jentry
+
             if not args.order_trees:
                 in_synch = d_old and d_new and d_old[:-1] == d_new[:-1]
             else:
-                in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
+                in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2] and id_old == id_new
             if not in_synch:
                 if _is_detailed():
                     if d_old:
@@ -396,8 +413,8 @@ def main(args):
                     fnew.allgood = False
                     summary[leafname_fromdump(d_old)] += 1
                 else:
-                    branch_old = d_old[2][0]
-                    branch_new = d_new[2][0]
+                    branch_old = f"{id_old}.{d_old[2][0]}"
+                    branch_new = f"{id_new}.{d_new[2][0]}"
                     leaf_old = leafname_fromdump(d_old)
                     leaf_new = leafname_fromdump(d_new)
                     indices_old = elindices_fromdump(d_old)
