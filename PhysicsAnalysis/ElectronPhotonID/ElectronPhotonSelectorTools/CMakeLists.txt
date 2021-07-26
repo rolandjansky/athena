@@ -38,6 +38,9 @@ atlas_add_dictionary( ElectronPhotonSelectorToolsPythonDict
 atlas_add_test( ut_EgammaPIDDefs_pytest
 SCRIPT test/ut_EgammaPIDDefs_pytest.py )
 
+atlas_add_test( ut_LikelihoodEnums_pytest
+SCRIPT test/ut_LikelihoodEnums_pytest.py )
+
 atlas_add_executable( EGIdentification_mem_check
    util/EGIdentification_mem_check.cxx
    LINK_LIBRARIES AsgMessagingLib AsgTools EgammaAnalysisInterfacesLib )

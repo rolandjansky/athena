@@ -9,14 +9,8 @@
 ## Description: Find mapping of mask and function for ID quality
 ##=============================================================================
 
-import cppyy
-try :
-    #cppyy.load_library('libElectronPhotonSelectorToolsDict')
-    cppyy.include("ElectronPhotonSelectorTools/LikelihoodEnums.h")
-except Exception:
-    pass
 
-from ROOT import LikeEnum
+from ElectronPhotonSelectorTools.LikelihoodEnums import LikeEnum
 
 class electronLHmenu:
     customMenu = 0
