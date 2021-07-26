@@ -129,24 +129,57 @@ class HLTMonitoringAccess(TriggerConfigAccess):
         self.load()
 
 
-    def monitoredSignatures(self):
+    def monitoringDict(self):
         """
         return stored monitoring dictionary
         """
         return self["signatures"]
 
-    def monitoredT0Chains(self, signature=""):
-        """
-        return list of all monitored t0 chains for given signature
-        """
-        t0chains = []
 
-        for monSignature in self["signatures"]:
-            if (signature and signature == monSignature) or not signature:
-                signatureDict = self["signatures"][monSignature]
-                t0chains += [chain for chain in signatureDict if "t0" in signatureDict[chain]]
+    def monitoredChains(self, signatures="", monLevels="", wildcard=""):
+        """
+        return list of all monitored shifter chains for given signature and for a given monitoring level
 
-        return t0chains
+        signatures - monitored signatures
+        monLevels - levels of monitoring (shifter, t0 (expert), val (validation))
+        wildcard - regexp pattern to match the chains' names
+
+        if monitoring level is not defined return all the chains for given signature
+        if signature is not defined return all the chains for given monitoring level
+        if both monitoring level and signature are not defined, raturn all chains
+
+        return can be filtered by wildcard
+        """
+        chains = []
+
+        if isinstance(signatures, str):
+            signatures = [signatures]
+
+        if isinstance(monLevels, str):
+            monLevels = [monLevels]
+
+        for signature in signatures:
+            for monSignature in self["signatures"]:
+                if (signature and signature == monSignature) or signature == "":
+                    signatureDict = self["signatures"][monSignature]
+                    for monLevel in monLevels:
+                        if monLevel:
+                            chains += [chain for chain in signatureDict if monLevel in signatureDict[chain]]
+                        else:
+                            chains += [chain for chain in signatureDict]
+
+        try:
+            import re
+            r = re.compile(wildcard)
+            chains = filter(r.search, chains)
+        except re.error:
+            from AthenaCommon.Logging import logging
+            log = logging.getLogger( "HLTMonitoringAccess" )
+            log.warning("Wildcard regex: {0} is not correct!".filter())
+
+        # Create set first to ensure uniquness of elements
+        return list(set(chains))
+
 
     def printSummary(self):
         print("HLT monitoring groups %s" % self.name())
