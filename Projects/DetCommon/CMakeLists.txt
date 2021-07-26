@@ -28,6 +28,9 @@ set( LCG_COMPONENTS "externals"
 
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
+# Set up tdaq-common explicitly.
+find_package( tdaq-common REQUIRED )
+
 # Set up the build/runtime environment:
 set( DetCommonReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
    "Path to DetCommonReleaseEnvironmentConfig.cmake" )

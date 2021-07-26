@@ -61,6 +61,8 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+find_package( tdaq-common REQUIRED )
+find_package( tdaq REQUIRED )
 
 # Turn on HIP as a compiler, if it's available.
 find_package( AtlasHIP )
