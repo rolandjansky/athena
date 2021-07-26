@@ -42,7 +42,7 @@
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h" 
+#include "InDetIdentifier/PixelID.h"
 #include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -55,15 +55,15 @@
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
-TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t, 
+TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
 					   const std::string& n,
 					   const IInterface*  p ): AthAlgTool(t,n,p),
 								   m_trackMaker("TrigDkfTrackMakerTool")
 {
   declareInterface< ITrigInDetTrackFitter >( this );
-  
+
   declareProperty( "doMultScattering", m_doMultScatt = true);
-  declareProperty( "doBremmCorrection", m_doBremm=false);  
+  declareProperty( "doBremmCorrection", m_doBremm=false);
   declareProperty( "Chi2Cut", m_DChi2 = 1000.0);
   declareProperty( "correctClusterPos", m_correctClusterPos = false);
   declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
@@ -81,8 +81,8 @@ StatusCode TrigInDetTrackFitter::initialize()
   }
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
-  ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID")); 
-  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));  
+  ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
 
   return StatusCode::SUCCESS;
 
@@ -130,25 +130,25 @@ void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) const {
   pTS->setTrackCovariance(Gf);
 }
 
-Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS, 
+Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
                                                       Trk::TrkPlanarSurface* pSB,
                                                       Trk::TrkPlanarSurface* pSE,
                                                       MagField::AtlasFieldCache& fieldCache) const
 {
-  const double C=0.02999975/1000.0;//using GeV internally 
+  const double C=0.02999975/1000.0;//using GeV internally
   const double minStep=30.0;
-	    
+
   double J[5][5],Rf[5],AG[5][5],Gf[5][5],A[5][5];
   int i,j,m;
 
   bool samePlane=false;
 
   if(pSB!=nullptr)
-    {   
+    {
       double diff=0.0;
       for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
       if(diff<1e-5) {
-        samePlane=true;	
+        samePlane=true;
         m_fitErrorsUnresolved++;
       }
     }
@@ -169,12 +169,12 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     memset(&J0[0][0],0,sizeof(J0));
 
     if(pSB!=nullptr)
-      {    
+      {
 	double L[3][3];
 	lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
 	pSB->transformPointToGlobal(lP,gP);
 	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->getInvRotMatrix(i,j);
-	
+
 	J0[0][0]=L[0][0];J0[0][1]=L[0][1];
 	J0[1][0]=L[1][0];J0[1][1]=L[1][1];
 	J0[2][0]=L[2][0];J0[2][1]=L[2][1];
@@ -198,11 +198,11 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       }
     for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
-  
+
     getMagneticField(gP,gB, fieldCache);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
-    
+
     c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
     b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
     a=0.5*CQ*(gB[0]*(D[1]*gV[2]-D[2]*gV[1])+
@@ -210,19 +210,19 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	      gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
 
     descr=b*b-4.0*a*c;
-    
-    if(descr<0.0) 
+
+    if(descr<0.0)
       {
 	//      printf("D<0 - extrapolation failed\n");
 	return nullptr;
       }
-    
+
     bool useExpansion=true;
     double ratio = 4*a*c/(b*b);
-    
-    if(fabs(ratio)>0.1) 
+
+    if(fabs(ratio)>0.1)
       useExpansion = false;
-    
+
     if(useExpansion) {
       sl=-c/b;
       sl=sl*(1-a*sl/b);
@@ -240,22 +240,22 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     if((nStepMax<0)||(nStepMax>1000))
       {
 	return nullptr;
-      } 
+      }
     Av=sl*CQ;
     Ac=0.5*sl*Av;
     DVx=gV[1]*gB[2]-gV[2]*gB[1];
     DVy=gV[2]*gB[0]-gV[0]*gB[2];
     DVz=gV[0]*gB[1]-gV[1]*gB[0];
-    
+
     P[0]=gP[0]+gV[0]*sl+Ac*DVx;
     P[1]=gP[1]+gV[1]*sl+Ac*DVy;
     P[2]=gP[2]+gV[2]*sl+Ac*DVz;
     V[0]=gV[0]+Av*DVx;
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
-    
+
     getMagneticField(P,gB,fieldCache);
-  
+
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
       {
@@ -270,19 +270,19 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	a=0.5*CQ*(gB[0]*(D[1]*gV[2]-D[2]*gV[1])+
 		  gB[1]*(D[2]*gV[0]-D[0]*gV[2])+
 		  gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
-	
+
 	ratio = 4*a*c/(b*b);
-	if(fabs(ratio)>0.1) 
+	if(fabs(ratio)>0.1)
 	  useExpansion = false;
 	else useExpansion = true;
-	
+
 	if(useExpansion) {
 	  sl=-c/b;
 	  sl=sl*(1-a*sl/b);
 	}
 	else {
 	  descr=b*b-4.0*a*c;
-	  if(descr<0.0) 
+	  if(descr<0.0)
 	    {
 	      // printf("D<0 - extrapolation failed\n");
 	      return nullptr;
@@ -297,14 +297,14 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	DVx=gV[1]*gB[2]-gV[2]*gB[1];
 	DVy=gV[2]*gB[0]-gV[0]*gB[2];
 	DVz=gV[0]*gB[1]-gV[1]*gB[0];
-	
+
 	P[0]=gP[0]+gV[0]*ds+Ac*DVx;
 	P[1]=gP[1]+gV[1]*ds+Ac*DVy;
 	P[2]=gP[2]+gV[2]*ds+Ac*DVz;
 	V[0]=gV[0]+Av*DVx;
 	V[1]=gV[1]+Av*DVy;
 	V[2]=gV[2]+Av*DVz;
-	for(i=0;i<3;i++) 
+	for(i=0;i<3;i++)
 	  {
 	    gV[i]=V[i];gP[i]=P[i];
 	  }
@@ -315,14 +315,14 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     Rf[0]=lP[0];Rf[1]=lP[1];
     Rf[2]=atan2(V[1],V[0]);
 
-    if(fabs(V[2])>1.0) 
+    if(fabs(V[2])>1.0)
       {
 	return nullptr;
       }
 
     Rf[3]=acos(V[2]);
     Rf[4]=pTS->getTrackState(4);
-    
+
     gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;
 
     for(i=0;i<4;i++) D[i]=pSE->getPar(i);
@@ -332,25 +332,25 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       {
 	gB[i]=0.5*(gBi[i]+gBf[i]);
       }
-  
+
     c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
     b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
     a=CQ*(gB[0]*(D[1]*gV[2]-D[2]*gV[1])+
 	  gB[1]*(D[2]*gV[0]-D[0]*gV[2])+
 	  gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
-    
+
     ratio = 4*a*c/(b*b);
-    if(fabs(ratio)>0.1) 
+    if(fabs(ratio)>0.1)
       useExpansion = false;
     else useExpansion = true;
-    
+
     if(useExpansion) {
       s=-c/b;
       s=s*(1-a*s/b);
     }
     else {
       descr=b*b-4.0*a*c;
-      if(descr<0.0) 
+      if(descr<0.0)
 	{
 	  // printf("D<0 - extrapolation failed\n");
 	  return nullptr;
@@ -366,7 +366,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     DVx=gV[1]*gB[2]-gV[2]*gB[1];
     DVy=gV[2]*gB[0]-gV[0]*gB[2];
     DVz=gV[0]*gB[1]-gV[1]*gB[0];
-    
+
     P[0]=gP[0]+gV[0]*s+Ac*DVx;
     P[1]=gP[1]+gV[1]*s+Ac*DVy;
     P[2]=gP[2]+gV[2]*s+Ac*DVz;
@@ -375,23 +375,23 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     if (std::abs(V[2]) > 1.0) {
       return nullptr;
     }
-    
+
     pSE->transformPointToLocal(P,lP);
-  
+
     memset(&Jm[0][0],0,sizeof(Jm));
-    
+
     for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->getRotMatrix(i,j);
-    
+
     double coeff[3], dadVx,dadVy,dadVz,dadQ,dsdx,dsdy,dsdz,dsdVx,dsdVy,dsdVz,dsdQ;
     coeff[0]=-c*c/(b*b*b);
     coeff[1]=c*(1.0+3.0*c*a/(b*b))/(b*b);
     coeff[2]=-(1.0+2.0*c*a/(b*b))/b;
-    
+
     dadVx=0.5*CQ*(-D[1]*gB[2]+D[2]*gB[1]);
     dadVy=0.5*CQ*( D[0]*gB[2]-D[2]*gB[0]);
     dadVz=0.5*CQ*(-D[0]*gB[1]+D[1]*gB[0]);
     dadQ=0.5*C*(D[0]*DVx+D[1]*DVy+D[2]*DVz);
-    
+
     dsdx=coeff[2]*D[0];
     dsdy=coeff[2]*D[1];
     dsdz=coeff[2]*D[2];
@@ -399,11 +399,11 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     dsdVy=coeff[0]*dadVy+coeff[1]*D[1];
     dsdVz=coeff[0]*dadVz+coeff[1]*D[2];
     dsdQ=coeff[0]*dadQ;
-    
+
     Jm[0][0]=1.0+V[0]*dsdx;
     Jm[0][1]=    V[0]*dsdy;
     Jm[0][2]=    V[0]*dsdz;
-    
+
     Jm[0][3]=  s+V[0]*dsdVx;
     Jm[0][4]=    V[0]*dsdVy+Ac*gB[2];
     Jm[0][5]=    V[0]*dsdVz-Ac*gB[1];
@@ -417,7 +417,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     Jm[1][4]=  s+V[1]*dsdVy;
     Jm[1][5]=    V[1]*dsdVz+Ac*gB[0];
     Jm[1][6]=    V[1]*dsdQ+Cc*DVy;
-  
+
     Jm[2][0]=    V[2]*dsdx;
     Jm[2][1]=    V[2]*dsdy;
     Jm[2][2]=1.0+V[2]*dsdz;
@@ -429,13 +429,13 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     Jm[3][0]=dsdx*CQ*DVx;
     Jm[3][1]=dsdy*CQ*DVx;
     Jm[3][2]=dsdz*CQ*DVx;
-  
+
     Jm[3][3]=1.0+dsdVx*CQ*DVx;
     Jm[3][4]=CQ*(dsdVy*DVx+s*gB[2]);
     Jm[3][5]=CQ*(dsdVz*DVx-s*gB[1]);
-  
+
     Jm[3][6]=(CQ*dsdQ+C*s)*DVx;
-  
+
     Jm[4][0]=dsdx*CQ*DVy;
     Jm[4][1]=dsdy*CQ*DVy;
     Jm[4][2]=dsdz*CQ*DVy;
@@ -443,9 +443,9 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     Jm[4][3]=CQ*(dsdVx*DVy-s*gB[2]);
     Jm[4][4]=1.0+dsdVy*CQ*DVy;
     Jm[4][5]=CQ*(dsdVz*DVy+s*gB[0]);
-  
+
     Jm[4][6]=(CQ*dsdQ+C*s)*DVy;
-  
+
     Jm[5][0]=dsdx*CQ*DVz;
     Jm[5][1]=dsdy*CQ*DVz;
     Jm[5][2]=dsdz*CQ*DVz;
@@ -453,9 +453,9 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     Jm[5][4]=CQ*(dsdVy*DVz-s*gB[0]);
     Jm[5][5]=1.0+dsdVz*CQ*DVz;
     Jm[5][6]=(CQ*dsdQ+C*s)*DVz;
-  
+
     Jm[6][6]=1.0;
-  
+
     memset(&J1[0][0],0,sizeof(J1));
 
     J1[0][0]=M[0][0];J1[0][1]=M[0][1];J1[0][2]=M[0][2];
@@ -473,7 +473,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	Buf[3][i]=J1[3][5]*Jm[5][i];
 	Buf[4][i]=Jm[6][i];
       }
-    
+
     if(pSB!=nullptr)
       {
 	for(i=0;i<5;i++)
@@ -486,7 +486,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	  }
       }
     else
-      {      
+      {
 	for(i=0;i<5;i++)
 	  {
 	    J[i][0]=Buf[i][0]*J0[0][0]+Buf[i][1]*J0[1][0];
@@ -499,7 +499,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
   }
   else {
     Rf[0]=pTS->getTrackState(0);
-    Rf[1]=pTS->getTrackState(1);	
+    Rf[1]=pTS->getTrackState(1);
     Rf[2]=pTS->getTrackState(2);
     Rf[3]=pTS->getTrackState(3);
     Rf[4]=pTS->getTrackState(4);
@@ -536,7 +536,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 
   pTE->setTrackState(Rf);//restore
 
-  if(m_doBremm) 
+  if(m_doBremm)
     pTE->applyEnergyLoss(1);
 
   AmgSymMatrix(5) Gi;
@@ -545,7 +545,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       Gi.fillSymmetric(i, j, pTE->getTrackCovariance(i,j));
     }
   Gi = Gi.inverse();
- 
+
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
       A[i][j]=0.0;
@@ -596,10 +596,10 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
 
 	// 1. Create initial track state:
 	double Rk[5];
-	Rk[0] = trackPars->parameters()[Trk::d0]; 
-	Rk[1] = trackPars->parameters()[Trk::z0]; 
-	Rk[2] = trackPars->parameters()[Trk::phi0]; 
-	if(Rk[2]>M_PI) Rk[2]-=2*M_PI; 
+	Rk[0] = trackPars->parameters()[Trk::d0];
+	Rk[1] = trackPars->parameters()[Trk::z0];
+	Rk[2] = trackPars->parameters()[Trk::phi0];
+	if(Rk[2]>M_PI) Rk[2]-=2*M_PI;
 	if(Rk[2]<-M_PI) Rk[2]+=2*M_PI;
 	double trk_theta = trackPars->parameters()[Trk::theta];
 	Rk[3] = trk_theta;
@@ -633,7 +633,7 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
 			   {0,         0, 0,    0.01, 0},
 			   {0,         0, 0,    0,   0.1}};
 	pTS->setTrackCovariance(Gk);
-	if(m_doMultScatt)  
+	if(m_doMultScatt)
 		pTS->setScatteringMode(1);
 	if(m_doBremm)
 		pTS->setScatteringMode(2);
@@ -693,7 +693,7 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
 		//correct GeV->MeV
 
 		correctScale(pTS);
-		
+
     double qOverP = pTS->getTrackState(4);
 		double pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 		double phi0 = pTS->getTrackState(2);
@@ -772,7 +772,7 @@ std::pair<Trk::Track*,Trk::Track*> TrigInDetTrackFitter::fitTrack(const Trk::Tra
       ATH_MSG_VERBOSE("Total chi2 ="<<chi2tot<<" NDOF="<<ndoftot);
       if(msgLvl(MSG::VERBOSE)) {
         double eta = -log(tan(0.5*theta));
-      ATH_MSG_VERBOSE("Fitted parameters: d0="<<d0<<" phi0="<<phi0<<" z0="<<z0	
+      ATH_MSG_VERBOSE("Fitted parameters: d0="<<d0<<" phi0="<<phi0<<" z0="<<z0
           <<" eta0="<<eta<<" pt="<<pt);
       }
       Trk::FitQuality* pFQ=new Trk::FitQuality(chi2tot,ndoftot);
@@ -809,8 +809,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
 {
   Trk::TrackStateOnSurface* pTSS=nullptr;
   char type=pN->getNodeType();
-  const Trk::TrackParameters* pTP=nullptr;
-
+  std::unique_ptr<const Trk::TrackParameters> pTP{};
   if(type==0) return pTSS;
 
 
@@ -829,7 +828,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
     const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
     if(pPS==nullptr) return pTSS;
 
-    pTP=new Trk::AtaPlane(pTS->getTrackState(0),
+      pTP=std::make_unique<const Trk::AtaPlane>(pTS->getTrackState(0),
         pTS->getTrackState(1),
         pTS->getTrackState(2),
         pTS->getTrackState(3),
@@ -838,7 +837,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
   }
   else if(type==3)
   {
-    const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify()); 
+    const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify());
     const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
     if(pLS==nullptr) return pTSS;
 
@@ -847,7 +846,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
     }
 
 
-    pTP=new Trk::AtaStraightLine(pTS->getTrackState(0),
+    pTP=std::make_unique<const Trk::AtaStraightLine>(pTS->getTrackState(0),
         pTS->getTrackState(1),
         pTS->getTrackState(2),
         pTS->getTrackState(3),
@@ -856,31 +855,28 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
         std::move(pM));
   }
   if(pTP==nullptr) return nullptr;
-  const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);
+  std::unique_ptr<const Trk::RIO_OnTrack> pRIO{m_ROTcreator->correct(*pPRD,*pTP)};
   if(pRIO==nullptr) {
-    if(pTP!=nullptr) delete pTP;
     return nullptr;
   }
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Measurement);
   typePattern.set(Trk::TrackStateOnSurface::Scatterer);
-  Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
+  auto pFQ=std::make_unique<const Trk::FitQualityOnSurface>(pN->getChi2(),pN->getNdof());
   if( addTPtoTSoS ) {
-     const Trk::RIO_OnTrack* pRIOwTP = pRIO->clone();
      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternwTP;
      typePatternwTP.set(Trk::TrackStateOnSurface::Measurement);
      typePatternwTP.set(Trk::TrackStateOnSurface::Scatterer);
-     Trk::FitQualityOnSurface* pFQwTP=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
-     pTSS = new Trk::TrackStateOnSurface(pRIOwTP, pTP, pFQwTP, nullptr, typePatternwTP);
+     auto pFQwTP=std::make_unique<const Trk::FitQualityOnSurface>(pN->getChi2(),pN->getNdof());
+     pTSS = new Trk::TrackStateOnSurface(pRIO->uniqueClone(), std::move(pTP), std::move(pFQwTP), nullptr, typePatternwTP);
   }
   else {
-     delete pTP;
-     pTSS = new Trk::TrackStateOnSurface(pRIO, nullptr, pFQ, nullptr, typePattern);
+     pTSS = new Trk::TrackStateOnSurface(std::move(pRIO), nullptr, std::move(pFQ), nullptr, typePattern);
   }
   return pTSS;
 }
 
-StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT, 
+StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT,
     std::vector<TrigL2HitResidual>& vResid, const EventContext& ctx) const {
 
 	const Trk::TrackParameters* trackPars = pT.perigeeParameters();
@@ -930,10 +926,10 @@ StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT,
     // 2. Create initial track state:
 
     double Rk[5];
-    Rk[0] = trackPars->parameters()[Trk::d0]; 
-    Rk[1] = trackPars->parameters()[Trk::z0]; 
-    Rk[2] = trackPars->parameters()[Trk::phi0]; 
-    if(Rk[2]>M_PI) Rk[2]-=2*M_PI; 
+    Rk[0] = trackPars->parameters()[Trk::d0];
+    Rk[1] = trackPars->parameters()[Trk::z0];
+    Rk[2] = trackPars->parameters()[Trk::phi0];
+    if(Rk[2]>M_PI) Rk[2]-=2*M_PI;
     if(Rk[2]<-M_PI) Rk[2]+=2*M_PI;
     trk_theta = trackPars->parameters()[Trk::theta];
     Rk[3] = trk_theta;
@@ -949,7 +945,7 @@ StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT,
                        {0,         0, 0,    0.01, 0},
                        {0,         0, 0,    0,   0.1}};
     pTS->setTrackCovariance(Gk);
-    if(m_doMultScatt)  
+    if(m_doMultScatt)
       pTS->setScatteringMode(1);
     if(m_doBremm)
       pTS->setScatteringMode(2);
@@ -1057,7 +1053,7 @@ StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT,
     if(!OK) break;
   }
   pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
-  for(;pnIt!=pnEnd;++pnIt) 
+  for(;pnIt!=pnEnd;++pnIt)
   {
     delete((*pnIt)->getSurface());
     delete (*pnIt);
