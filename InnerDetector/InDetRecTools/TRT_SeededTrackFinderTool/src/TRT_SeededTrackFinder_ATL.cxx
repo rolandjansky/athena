@@ -587,6 +587,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
       0.,m_errorScale[1]*m_errorScale[1]*(*vCM)(1,1),0.,0.,0.,
       0.,0.,m_errorScale[2]*m_errorScale[2]*(*vCM)(2,2),0.,0.,
       0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*vCM)(3,3),0.,
+      //cppcheck-suppress constStatement
       0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*vCM)(4,4);
 
 
@@ -697,6 +698,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
         0.,m_errorScale[1]*m_errorScale[1]*(*pvCM)(1,1),0.,0.,0.,
         0.,0.,m_errorScale[2]*m_errorScale[2]*(*pvCM)(2,2),0.,0.,
         0.,0.,0.,m_errorScale[3]*m_errorScale[3]*(*pvCM)(3,3),0.,
+        //cppcheck-suppress constStatement
         0.,0.,0.,0.,m_errorScale[4]*m_errorScale[4]*(*pvCM)(4,4);
 
       mesTP = upTP->associatedSurface().createUniqueTrackParameters(piv[0],piv[1],piv[2],piv[3],piv[4],pnvCM).release();
@@ -1055,11 +1057,15 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
   for(; s!=se; ++s) {
      if((*s)->clusterList().first ) {
        prd[n] = (*s)->clusterList().first;
-       t  [n] = event_data.clusterTrack().find(prd[n]); if(t[n]==te) return true; ++n;
+       t  [n] = event_data.clusterTrack().find(prd[n]); 
+       if(t[n]==te) return true; 
+       ++n;
      }
      if((*s)->clusterList().second) {
        prd[n] = (*s)->clusterList().second;
-       t  [n] = event_data.clusterTrack().find(prd[n]); if(t[n]==te) return true; ++n;
+       t  [n] = event_data.clusterTrack().find(prd[n]); 
+       if(t[n]==te) return true; 
+       ++n;
      }
      if(n==40) break;
   }
@@ -1067,10 +1073,11 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
 
   //Array of pointers to the different tracks that the first used cluster belongs to
   int m = 0;
-  for(; t[0]!=te; ++t[0]) {
+  auto & pTracks=t[0];
+  for(; pTracks!=te; ++pTracks) {
     if (m==30) return false;
-    if( (*t[0]).first != prd[0] ) break;
-    trk[0][m++] = (*t[0]).second;
+    if( (*pTracks).first != prd[0] ) break;
+    trk[0][m++] = (*pTracks).second;
     if(m==200) break;
   }
 
@@ -1078,14 +1085,14 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::
   int in=0, ou=1;
 
   for(int i=1; i!=n; ++i) {
-
     int l = 0; //Number of tracks that share the same clusters
-    for(; t[i]!=te; ++t[i]) {
+    auto & pTheseTracks=t[i];
+    for(; pTheseTracks!=te; ++pTheseTracks) {
 
-      if( (*t[i]).first != prd[i] ) break;
+      if( (*pTheseTracks).first != prd[i] ) break;
 
       for(int j=0; j!=m; ++j) {
-  	if((*t[i]).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
+  	if((*pTheseTracks).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
       }
     }
     if(l==0) return true; //At least one of the seed clusters belongs to a track different from that of the first used clusters
