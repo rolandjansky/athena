@@ -96,9 +96,7 @@ public:
    */
   DelayedConditionsCleanerTask (DelayedConditionsCleanerSvc& cleaner,
                                 std::vector<DelayedConditionsCleanerSvc::CondContInfo*>&& cis,
-                                DelayedConditionsCleanerSvc::KeyType keyType,
-                                std::vector<DelayedConditionsCleanerSvc::key_type>&& keys);
-
+				DelayedConditionsCleanerSvc::twoKeys_t&& keys);
 
   /**
    * @brief Run asynchonous cleaning.
@@ -114,7 +112,7 @@ private:
   std::vector<DelayedConditionsCleanerSvc::CondContInfo*> m_cis;
 
   /// Set of IOV keys for recent events.
-  std::vector<DelayedConditionsCleanerSvc::key_type> m_keys;
+  DelayedConditionsCleanerSvc::twoKeys_t m_keys;
 };
 
 
@@ -127,7 +125,7 @@ private:
 DelayedConditionsCleanerTask::DelayedConditionsCleanerTask
   (DelayedConditionsCleanerSvc& cleaner,
    std::vector<DelayedConditionsCleanerSvc::CondContInfo*>&& cis,
-   std::vector<DelayedConditionsCleanerSvc::key_type>&& keys)
+   DelayedConditionsCleanerSvc::twoKeys_t&& keys)
   : m_cleaner (cleaner),
     m_cis (cis),
     m_keys (keys)
@@ -211,8 +209,7 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
 
   // Collect conditions containers in need of cleaning.
   // Separate lists for those using timestamps and those using run+LBN.
-  std::vector<CondContInfo*> ci_runlbn;
-  std::vector<CondContInfo*> ci_timestamp;
+  std::vector<CondContInfo*> ci_vec;
   {
     lock_t lock (m_workMutex);
     // Is it time to clean the container at the top of the work queue?
@@ -232,10 +229,8 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
           break;
         case KeyType::RUNLBN:
         case KeyType::MIXED:
-          ci_runlbn.push_back (ci);
-          break;
         case KeyType::TIMESTAMP:
-          ci_timestamp.push_back (ci);
+          ci_vec.push_back (ci);
           break;
         default:
           std::abort();
@@ -247,15 +242,10 @@ DelayedConditionsCleanerSvc::event (const EventContext& ctx, bool allowAsync)
   }
 
   // Clean the containers.
-  if (!ci_runlbn.empty()) {
-    scheduleClean (std::move (ci_runlbn), m_runlbn, m_slotLBN,
+  if (!ci_vec.empty()) {
+    scheduleClean (std::move (ci_vec), getKeys(m_runlbn,m_timestamp),
                    allowAsync);
   }
-  if (!ci_timestamp.empty()) {
-    scheduleClean (std::move (ci_timestamp), m_timestamp, m_slotTimestamp,
-                   allowAsync);
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -353,6 +343,38 @@ StatusCode DelayedConditionsCleanerSvc::reset()
 }
 
 
+DelayedConditionsCleanerSvc::twoKeys_t 
+DelayedConditionsCleanerSvc::getKeys(const Ring& runLBRing, const Ring& TSRing) const {
+  
+  // Get a copy of the contents of the ring buffer holding runLumi and time-stamp keys
+  std::vector<key_type> runLBKeys=runLBRing.getKeysDedup();
+  std::vector<key_type> TSKeys=TSRing.getKeysDedup();
+
+  // Add in the keys for the currently-executing slots.
+  // These are very likely to already be in the ring, but that's
+  // not absolutely guaranteed.
+  // FIXME: This probably does another memory allocation, due to
+  // growing the buffer.  Would be nice to avoid that.
+  runLBKeys.insert (runLBKeys.end(), m_slotLBN.begin(), m_slotLBN.end());
+  TSKeys.insert(TSKeys.end(), m_slotTimestamp.begin(), m_slotTimestamp.end());
+
+  twoKeys_t result{runLBKeys, TSKeys};
+
+  /// Sort the key array and remove duplicates.
+  /// We expect that the key array is probably `almost' sorted.
+  /// std::sort, at least in the gcc implementation, is designed
+  /// to perform well in such cases.
+  for ( auto& keys : result ) {
+    std::sort (keys.begin(), keys.end());
+    auto end = std::unique (keys.begin(), keys.end());
+    keys.resize (end - keys.begin());
+  }
+
+
+  return result;
+}
+
+
 /**
  * @brief Do cleaning for a set of containers.
  * @param cis Set of containers to clean.
@@ -364,24 +386,13 @@ StatusCode DelayedConditionsCleanerSvc::reset()
  */
 void
 DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
-                                            Ring& ring,
-                                            const std::vector<key_type>& slotKeys,
+					    twoKeys_t&& twoKeys,
                                             bool allowAsync)
 {
   // Remove any duplicates from the list of containers.
   std::sort (cis.begin(), cis.end());
   auto pos = std::unique (cis.begin(), cis.end());
   cis.resize (pos - cis.begin());
-
-  // Get a copy of the contents of the ring buffer.
-  std::vector<key_type> keys = ring.getKeysDedup();
-
-  // Add in the keys for the currently-executing slots.
-  // These are very likely to already be in the ring, but that's
-  // not absolutely guaranteed.
-  // FIXME: This probably does another memory allocation, due to
-  // growing the buffer.  Would be nice to avoid that.
-  keys.insert (keys.end(), slotKeys.begin(), slotKeys.end());
 
   if (allowAsync && m_props->m_async) {
 #if USE_ASYNC_TASK
@@ -393,14 +404,14 @@ DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
     // TBB will delete the task object after it completes.
     tbb::task* t = new (tbb::task::allocate_root())
       DelayedConditionsCleanerTask (*this, std::move (cis),
-                                    keyType, std::move (keys));
+                                    std::move (twoKeys));
     tbb::task::enqueue (*t);
 #endif
   }
   else
   {
     // Call cleaning directly.
-    cleanContainers (std::move (cis), std::move (keys));
+    cleanContainers (std::move (cis), std::move (twoKeys));
   }
 }
 
@@ -412,17 +423,10 @@ DelayedConditionsCleanerSvc::scheduleClean (std::vector<CondContInfo*>&& cis,
  */
 void
 DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
-                                              std::vector<key_type>&& keys)
+					      twoKeys_t&& twoKeys) const
 {
-  /// Sort the key array and remove duplicates.
-  /// We expect that the key array is probably `almost' sorted.
-  /// std::sort, at least in the gcc implementation, is designed
-  /// to perform well in such cases.
-  std::sort (keys.begin(), keys.end());
-  auto end = std::unique (keys.begin(), keys.end());
-  keys.resize (end - keys.begin());
   for (CondContInfo* ci : cis) {
-    cleanContainer (ci, keys);
+    cleanContainer (ci, twoKeys);
   }
 }
 
@@ -435,9 +439,9 @@ DelayedConditionsCleanerSvc::cleanContainers (std::vector<CondContInfo*>&& cis,
  */
 void
 DelayedConditionsCleanerSvc::cleanContainer (CondContInfo* ci,
-                                             const std::vector<key_type>& keys)
+                                             const  twoKeys_t& twoKeys) const
 {
-  size_t n = ci->m_cc.trim (keys);
+  size_t n = ci->m_cc.trim (twoKeys[0],twoKeys[1]);
 
   ++ci->m_nClean;
   ci->m_nRemoved += n;
