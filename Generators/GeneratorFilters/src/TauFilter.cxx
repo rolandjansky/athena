@@ -160,6 +160,12 @@ StatusCode TauFilter::filterEvent() {
                       tau->momentum().phi() << "\t" <<
                       tau->pdg_id() << "\t");
 
+	// Sherpa has some status code 20 particles without decays
+	if (!tau->end_vertex()) {
+          ATH_MSG_DEBUG("tau has no end vertex - skipping");
+          continue;
+        }
+
         HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
         HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
         int tauType = 0; 

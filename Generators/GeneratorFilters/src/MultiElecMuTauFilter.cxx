@@ -51,6 +51,12 @@ StatusCode MultiElecMuTauFilter::filterEvent() {
       if (abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3) {
         tau = *pitr;
 
+	// Sherpa has some status code 20 particles without decays
+	if (!tau->end_vertex()) {
+          ATH_MSG_DEBUG("tau has no end vertex - skipping");
+          continue;
+        }
+
         // Loop over children and:
         // 1. Find if it is hadronic (i.e. no decay lepton).
         // 2. Veto tau -> tau (FSR)
