@@ -18,7 +18,7 @@ class TestDigitizationMC16a(unittest.TestCase):
             'Digi_tf.py',
             '--athenaopts', '"--config-only={}"'.format(config_picklefilename),
             '--inputHITSFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1',
-            '--conditionsTag', 'default:OFLCOND-MC16-SDR-16',
+            '--conditionsTag', 'default:OFLCOND-MC16-SDR-25-02',
             '--geometryVersion', 'default:ATLAS-R2-2016-01-00-01',
             '--inputHighPtMinbiasHitsFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/HITS.10501933._000005.pool.root.1',
             '--inputLowPtMinbiasHitsFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/HITS.10501925._000003.pool.root.1',
