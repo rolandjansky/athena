@@ -518,7 +518,7 @@ def dictFromChainName(chainInfo):
         topoStartFrom   = chainInfo.topoStartFrom
         monGroups       = chainInfo.monGroups
 
-        
+
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
 
@@ -527,6 +527,52 @@ def dictFromChainName(chainInfo):
     log.debug("Analysing chain with name: %s", chainName)
     chainDict = analyseChainName(chainName,  l1Thresholds, L1item)
     log.debug('ChainProperties: %s', chainDict)
+
+    for chainPart in chainDict['chainParts']:
+        thisSignature = chainPart['signature']
+        thisAlignGroup = chainPart['alignmentGroup']
+        thisExtra = chainPart['extra']
+        thisL1 = chainPart['L1threshold']
+        thisChainPartName = chainPart['chainPartName']
+        #incorrectL1=False
+
+        if thisSignature in ['Muon','Bphysics']:
+            if 'MuonnoL1' in thisAlignGroup or 'lateMu' in thisExtra:
+                if 'FSNOSEED' not in thisL1:
+                    log.error("Muon noL1 and lateMu chain should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                    #incorrectL1=True
+            else:
+                if 'MU' not in thisL1:
+                    log.error("Standard muon and Bphysics chain should be seeded from L1_MU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                    #incorrectL1=True
+
+        if thisSignature in ['Electron','Photon']:
+            if 'EM' not in thisL1:
+                log.error("Standard egamma chains should be seeded from L1_EM. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisSignature in 'Tau':
+            if 'TAU' not in thisL1:
+                log.error("Standard tau chains should be seeded from L1_TAU. Check %s seeded from %s (defined L1: %s), signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisSignature in ['Jet','Bjet','MET','UnconventionalTracking']:
+            if 'FSNOSEED' not in thisL1:
+                log.error("Jet, b-jet, MET chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+        if thisChainPartName in ['noalg']:
+            if 'FSNOSEED' not in thisL1:
+                log.error("noalg chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
+                #incorrectL1=True
+
+#        if incorrectL1 is True:
+#            raise Exception("You are using incorrect L1 seed, please check for ERROR messages...")
+
+
+        log.debug('Parts: signature %s, align %s, extra %s, L1 %s', thisSignature, thisAlignGroup, thisExtra, thisL1)
+
+
 
     # setting the L1 item
     chainDict['L1item']          = L1item
