@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -48,7 +48,7 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
 			     const std::string& name,
 			     const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-    m_LArOnlineIDHelper(NULL),
+    m_LArOnlineIDHelper(nullptr),
     m_counter(0),
     m_eventsCounter(0),
     m_histos(N_PARTITIONS),
@@ -124,26 +124,26 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   m_count_gain[1]=0;
   m_count_gain[2]=0;
 
-  m_fai   = NULL;
-  m_fdump = NULL;
+  m_fai   = nullptr;
+  m_fdump = nullptr;
 
-  m_hSummaryErrors_Energy = NULL;
-  m_hSummaryErrors_Time = NULL;
-  m_hSummaryErrors_Quality = NULL;
+  m_hSummaryErrors_Energy = nullptr;
+  m_hSummaryErrors_Time = nullptr;
+  m_hSummaryErrors_Quality = nullptr;
 
-  m_hE_all = NULL;
-  m_hT_all = NULL;
-  m_hQ_all = NULL;
+  m_hE_all = nullptr;
+  m_hT_all = nullptr;
+  m_hQ_all = nullptr;
 
-  m_hE_ranges_all = NULL;
+  m_hE_ranges_all = nullptr;
 
-  m_hEErrors_LB_part = NULL;
-  m_hTErrors_LB_part = NULL;
-  m_hQErrors_LB_part = NULL;
+  m_hEErrors_LB_part = nullptr;
+  m_hTErrors_LB_part = nullptr;
+  m_hQErrors_LB_part = nullptr;
 
-  m_hEErrors_LB_stream = NULL;
-  m_hTErrors_LB_stream = NULL;
-  m_hQErrors_LB_stream = NULL;
+  m_hEErrors_LB_stream = nullptr;
+  m_hTErrors_LB_stream = nullptr;
+  m_hQErrors_LB_stream = nullptr;
 
   m_last_lb = -1;
   m_curr_lb = -1;
@@ -588,7 +588,7 @@ bool LArRODMonTool::FebStatus_Check() {
   LArFebHeaderContainer::const_iterator itFEB = febCont->begin(); 
   LArFebHeaderContainer::const_iterator itFEB_e = febCont->end(); 
   for ( ; itFEB!=itFEB_e;++itFEB) {
-    if (((m_doCheckSum && (*itFEB)->ChecksumVerification()==false)) || 
+    if (((m_doCheckSum && !(*itFEB)->ChecksumVerification())) || 
 	(m_doRodStatus && (*itFEB)->RodStatus()!=0)) 
       m_ignoreFEBs.insert((*itFEB)->FEBId());
   }
@@ -719,7 +719,7 @@ StatusCode LArRODMonTool::fillHistograms() {
   m_errsPerFEB.clear();
   m_errsPerFEB.resize(m_LArOnlineIDHelper->febHashMax(),0);
 
-  const bool ignoreFebs=(m_ignoreFEBs.size()>0);
+  const bool ignoreFebs=(!m_ignoreFEBs.empty());
   std::set<HWIdentifier>::const_iterator ignoreFebsEnd=m_ignoreFEBs.end();
   
   //Build an assoiciation of channels in the two LArRawChannelContainers.
@@ -765,7 +765,7 @@ StatusCode LArRODMonTool::fillHistograms() {
       }
     }
 
-    const LArDigit* dig=NULL;
+    const LArDigit* dig=nullptr;
 //  For Eon/Eoff dump
 //    if (m_dumpDigits) {
       unsigned index=rcDigIt-rawColl_fromDigits->begin();
@@ -1131,7 +1131,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
   
   if (keepE) {//Energy histograms:
     //Partition histogram
-    if (fabs(hg.m_hDE->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline==true ) { // Set the histo axis
+    if (fabs(hg.m_hDE->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline ) { // Set the histo axis
       hg.m_hDE->SetCanExtend(TH1::kAllAxes);
       hg.m_hDE->RebinAxis(DiffE,hg.m_hDE->GetXaxis());
     }
@@ -1139,7 +1139,7 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
     hg.m_hDE_ranges->Fill(DiffE,energyrange);
 
     //'ALL' histogram
-    if (fabs(m_hE_all->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline==true ) {
+    if (fabs(m_hE_all->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline ) {
       m_hE_all->SetCanExtend(TH1::kAllAxes);
       m_hE_all->RebinAxis(DiffE,m_hE_all->GetXaxis());
     }
@@ -1147,11 +1147,11 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
     m_hE_ranges_all->Fill(DiffE,energyrange);
     
     //online vs offline histograms
-    if (fabs(hg.m_hEon_VS_Eoff->GetXaxis()->GetXmax()) < fabs(maxE1) && m_IsOnline==true) {
+    if (fabs(hg.m_hEon_VS_Eoff->GetXaxis()->GetXmax()) < fabs(maxE1) && m_IsOnline) {
       hg.m_hEon_VS_Eoff->SetCanExtend(TH1::kAllAxes);
       hg.m_hEon_VS_Eoff->RebinAxis(maxE1,hg.m_hEon_VS_Eoff->GetXaxis());
     }
-    if (fabs(hg.m_hEon_VS_Eoff->GetYaxis()->GetXmax()) < fabs(maxE2) && m_IsOnline==true ) {
+    if (fabs(hg.m_hEon_VS_Eoff->GetYaxis()->GetXmax()) < fabs(maxE2) && m_IsOnline ) {
       hg.m_hEon_VS_Eoff->SetCanExtend(TH1::kAllAxes);
       hg.m_hEon_VS_Eoff->RebinAxis(maxE2,hg.m_hEon_VS_Eoff->GetYaxis());
     }
@@ -1235,25 +1235,25 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
 
   if (keepT) { //Time histograms
     //partition histogram
-    if (fabs(hg.m_hDT->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline==true ) { // Set the histo axis
+    if (fabs(hg.m_hDT->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline ) { // Set the histo axis
       hg.m_hDT->SetCanExtend(TH1::kAllAxes);
       hg.m_hDT->RebinAxis(DiffT,hg.m_hDT->GetXaxis());
     }
     hg.m_hDT->Fill(DiffT);
 
     //'ALL' histogram:
-    if (fabs(m_hT_all->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline==true) {
+    if (fabs(m_hT_all->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline) {
       m_hT_all->SetCanExtend(TH1::kAllAxes);
       m_hT_all->RebinAxis(DiffT,m_hT_all->GetXaxis());
     }
     m_hT_all->Fill(DiffT);
 
     //online vs offline histogram
-    if (fabs(hg.m_hTon_VS_Toff->GetXaxis()->GetXmax()) < fabs(maxT1) && m_IsOnline==true) {
+    if (fabs(hg.m_hTon_VS_Toff->GetXaxis()->GetXmax()) < fabs(maxT1) && m_IsOnline) {
       hg.m_hTon_VS_Toff->SetCanExtend(TH1::kAllAxes);
       hg.m_hTon_VS_Toff->RebinAxis(maxT1,hg.m_hTon_VS_Toff->GetXaxis());
     }
-    if (fabs(hg.m_hTon_VS_Toff->GetYaxis()->GetXmax()) < fabs(maxT2) && m_IsOnline==true) {
+    if (fabs(hg.m_hTon_VS_Toff->GetYaxis()->GetXmax()) < fabs(maxT2) && m_IsOnline) {
       hg.m_hTon_VS_Toff->SetCanExtend(TH1::kAllAxes);
       hg.m_hTon_VS_Toff->RebinAxis(maxT2,hg.m_hTon_VS_Toff->GetYaxis());
     }
@@ -1271,25 +1271,25 @@ StatusCode LArRODMonTool::compareChannels(const CaloDetDescrManager* /*ddman*/,
   
   if (keepQ) { //Quality histograms
     //Partition histogram
-    if (fabs(hg.m_hDQ->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline==true) { // Set the histo axis
+    if (fabs(hg.m_hDQ->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline) { // Set the histo axis
       hg.m_hDQ->SetCanExtend(TH1::kAllAxes);
       hg.m_hDQ->RebinAxis(DiffQ,hg.m_hDQ->GetXaxis());
     }
     hg.m_hDQ->Fill(DiffQ);
 
     //'ALL' histograms
-    if (fabs(m_hQ_all->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline==true) {
+    if (fabs(m_hQ_all->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline) {
       m_hQ_all->SetCanExtend(TH1::kAllAxes);
       m_hQ_all->RebinAxis(DiffQ,m_hQ_all->GetXaxis());
     }
     m_hQ_all->Fill(DiffQ);
 
     //online vs offline histograms
-    if (fabs(hg.m_hQon_VS_Qoff->GetXaxis()->GetXmax()) < fabs(maxQ1) && m_IsOnline==true) {
+    if (fabs(hg.m_hQon_VS_Qoff->GetXaxis()->GetXmax()) < fabs(maxQ1) && m_IsOnline) {
       hg.m_hQon_VS_Qoff->SetCanExtend(TH1::kAllAxes);
       hg.m_hQon_VS_Qoff->RebinAxis(maxQ1,hg.m_hQon_VS_Qoff->GetXaxis());
     }
-    if (fabs(hg.m_hQon_VS_Qoff->GetYaxis()->GetXmax()) < fabs(maxQ2) && m_IsOnline==true) {
+    if (fabs(hg.m_hQon_VS_Qoff->GetYaxis()->GetXmax()) < fabs(maxQ2) && m_IsOnline) {
       hg.m_hQon_VS_Qoff->SetCanExtend(TH1::kAllAxes);
       hg.m_hQon_VS_Qoff->RebinAxis(maxQ2,hg.m_hQon_VS_Qoff->GetYaxis());
     }

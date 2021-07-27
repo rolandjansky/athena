@@ -99,9 +99,9 @@ private:
   int DBflag(HWIdentifier onID);
 
   // To set histos Style
-  void SetHWCoverageStyle(TH2I_LW* h);
-  void SetPartCoverageStyle(TH2I_LW* h);
-  void SetBadChannelZaxisLabels(TH2I_LW* h);
+  static void SetHWCoverageStyle(TH2I_LW* h);
+  static void SetPartCoverageStyle(TH2I_LW* h);
+  static void SetBadChannelZaxisLabels(TH2I_LW* h);
 
   // To keep track of known disabled FEBs
   void FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr);
