@@ -24,6 +24,9 @@ set( LCG_VERSION_NUMBER 100
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
+# Set up tdaq-common explicitly.
+find_package( tdaq-common REQUIRED )
+
 # External(s) needed at build/runtime:
 find_package( Xrootd )
 find_package( GSL )
