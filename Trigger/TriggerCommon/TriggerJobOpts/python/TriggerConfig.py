@@ -657,9 +657,10 @@ def triggerRunCfg( flags, menu=None ):
         mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( flags, [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTFinalizeSeq" )
 
-        from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
-        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
-        acc.addEventAlgo( onlineSlimAlg, sequenceName="HLTFinalizeSeq" )
+        if flags.Trigger.doOnlineNavigationCompactificaiton:
+            from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
+            onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+            acc.addEventAlgo( onlineSlimAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc
 

@@ -70,7 +70,8 @@ class ComboHypo : public ::AthReentrantAlgorithm {
 
   /**
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
-   * @param[in] d The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
+   * @param[in] chainLegId The HLT::Identifer of the chain (leg) we're extracting features for.
+   * @param[in] EL The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
    *   Expected to be able to locate a "initialRoI" in its history if RequireUniqueROI=True.
    * @param[out] featureKey Type-less SG Key hash of the collection hosting the Decision node's feature .
    * @param[out] featureIndex Index inside the featureKey collection. 
@@ -82,10 +83,13 @@ class ComboHypo : public ::AthReentrantAlgorithm {
    *                         Triggers special behaviour allowing the DecisionObject to satisfy arbitrary multiplicities in an arbitrary number of legs.
    * @param[inout] priorFeaturesMap Data structure collating for a given feature (key) what the prior features were integrated over all previous steps (value set). 
    **/
-  StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
-    uint32_t& featureKey, uint16_t& featureIndex,
-    uint32_t& roiKey, uint16_t& roiIndex, 
-    bool& roiIsFullscan,
+  StatusCode extractFeatureAndRoI(const HLT::Identifier& chainLegId,
+    const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
+    uint32_t& featureKey, 
+    uint16_t& featureIndex, 
+    uint32_t& roiKey, 
+    uint16_t& roiIndex, 
+    bool& roiFullscan, 
     bool& objectRequestsNoMultiplicityCheck,
     std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap) const; 
 

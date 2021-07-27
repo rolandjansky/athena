@@ -371,7 +371,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Removes ElementLinks from the supplied vector if they do not come from the specified collection (sub-string match).
    * @param[in] containerSGKey The StoreGate key of the collection to match against. Performs sub-string matching. Passing "" performs no filtering.
-   * @param[in,out] vector Mutible vector of ElementLinks on which to filter.
+   * @param[in,out] vector Mutable vector of ElementLinks on which to filter.
    **/
   template<class CONTAINER>
   void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
@@ -480,6 +480,18 @@ namespace TrigCompositeUtils {
     const bool suppressMultipleLinksWarning = false);
 
   /**
+   * @brief Version of typelessFindLink which operates on a sub-graph (described by the NavGraph), rather than the whole navigation graph.
+   * If the supplied NavGraph has more than one entry point, then all will be explored.
+   */
+  bool typelessFindLink(const NavGraph& subGraph, 
+    const std::string& linkName,
+    uint32_t& key,
+    uint32_t& clid,
+    uint16_t& index,
+    const Decision*& source,
+    const bool suppressMultipleLinksWarning = false);
+
+  /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
    * Returns the link data in a typeless way, as raw key, index and CLID values. These may be reconstituted into a typed ElementLink.
    * Populates provided vectors with all located links of the corresponding linkName. 
@@ -501,7 +513,30 @@ namespace TrigCompositeUtils {
     std::vector<uint16_t>& indexVec,
     std::vector<const Decision*>& sourceVec,
     const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
-    std::set<const xAOD::TrigComposite*>* fullyExploredFrom = nullptr);
+    std::set<const Decision*>* fullyExploredFrom = nullptr);
+
+  /**
+   * @brief Version of typelessFindLinks which operates on a sub-graph (entered via the supplied NavGraphNode), rather than the whole navigation graph.
+   */
+  bool typelessFindLinks(const NavGraphNode* start, 
+    const std::string& linkName,
+    std::vector<uint32_t>& key,
+    std::vector<uint32_t>& clid,
+    std::vector<uint16_t>& index,
+    std::vector<const Decision*>& sourceVec,
+    const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
+    std::set<const Decision*>* fullyExploredFrom = nullptr);
+
+  /**
+   * @brief Common functionality shared by both typelessFindLinks interfaces
+   * Returns true if at least one link was collected.
+   */
+  bool typelessFindLinksCommonLinkCollection(const Decision* start,
+    const std::string& linkName,
+    std::vector<uint32_t>& keyVec, 
+    std::vector<uint32_t>& clidVec,
+    std::vector<uint16_t>& indexVec, 
+    std::vector<const Decision*>& sourceVec);
 
   /**
    * @brief Produce the combinations for a set of features
