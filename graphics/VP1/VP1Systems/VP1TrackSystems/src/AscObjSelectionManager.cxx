@@ -52,6 +52,8 @@ public:
     sel_assocobjs->addChild(sel_assocobjs_click);
     root->addChild(sel_assocobjs);
   }
+  Imp(const Imp &) = delete;
+  Imp & operator=(const Imp &) = delete;
   ~Imp()
   {
     system->unregisterSelectionNode(sel_assocobjs_click);
