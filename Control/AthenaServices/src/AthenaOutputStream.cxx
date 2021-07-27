@@ -1052,9 +1052,17 @@ void AthenaOutputStream::handleVariableSelection (const SG::IConstAuxStore& auxs
   // Form the veto mask for this object.
   xAOD::AuxSelection sel;
   sel.selectAux (attributes);
-  vset = sel.getSelectedAuxIDs (auxstore.getAuxIDs());
 
-  vset.flip();
+  // Get all the AuxIDs that we know of and the selected ones
+  SG::auxid_set_t all = auxstore.getAuxIDs();
+  SG::auxid_set_t selected = sel.getSelectedAuxIDs( all );
+
+  // Loop over all and build a list of vetoed AuxIDs from non selected ones
+  for( const auto& auxid : all ) {
+    if ( !selected.test( auxid ) ) {
+      vset.insert( auxid );
+    }
+  }
 }
 
 
