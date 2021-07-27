@@ -43,7 +43,7 @@ namespace LVL1 {
     
     /** Constructors */
     jTower();
-    jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
+    jTower(float eta, float phi, int eta_modifier_input, int id_modifier, int posneg, float centre_eta = -1.0, float centre_phi = -1.0, int fcal_layer = -1);
     
     /** Destructor */
     virtual ~jTower() = default;
@@ -136,8 +136,8 @@ namespace LVL1 {
     float m_phi;
     int m_tower_id;
     int m_posneg = 0;
-    float m_centre_eta;
-    float m_centre_phi;
+    float m_centre_eta =0;
+    float m_centre_phi =0;
     std::vector<Identifier> m_EM_scID;
     std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    

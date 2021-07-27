@@ -78,6 +78,8 @@ namespace xAOD {
       static const float s_towerEtaWidth;
       static const float s_towerPhiWidth;
       static const float s_minEta;
+      static const std::vector<int> s_EtaPosition_C_Side;
+      static const std::vector<int> s_EtaPosition_A_Side; 
 
 
       // Data locations within word 

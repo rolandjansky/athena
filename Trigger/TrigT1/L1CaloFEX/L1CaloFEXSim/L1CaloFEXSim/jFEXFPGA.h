@@ -23,11 +23,14 @@
 #include "L1CaloFEXToolInterfaces/IjFEXtauAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXForwardJetsAlgo.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 namespace LVL1 {
   
@@ -99,24 +102,23 @@ namespace LVL1 {
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     std::map<int,jTower> m_jTowersColl;
 
+    std::map<int, jFEXForwardJetsInfo> m_FCALJets; 
+
     CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
 
-    SG::ReadHandleKey<jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "MyOutputs", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
+    SG::WriteHandleKey<LVL1::jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "jFEXOutputCollection", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
 
     ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
     ToolHandle<IjFEXLargeRJetAlgo> m_jFEXLargeRJetAlgoTool {this, "jFEXLargeRJetAlgoTool", "LVL1::jFEXLargeRJetAlgo", "Tool that runs the jFEX Large R Jet algorithm"};
     ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool             {this, "jFEXtauAlgoTool"      , "LVL1::jFEXtauAlgo"      , "Tool that runs the jFEX tau algorithm"};
     ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
     ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
-    //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
+    ToolHandle<IjFEXForwardJetsAlgo> m_jFEXForwardJetsAlgoTool {this, "jFEXForwardJetsAlgoTool"      , "LVL1::jFEXForwardJetsAlgo"      , "Tool that runs the jFEX FCAL Jets algorithm"};
     
   };
   
 } // end of namespace
-
-//CLASS_DEF( LVL1::jFEXFPGA , 136060357 , 1 )
-
 
 #endif

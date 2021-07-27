@@ -65,11 +65,10 @@ xaodStream.AddItem( ["xAOD::jFexSumETRoIAuxContainer"] )
 xaodStream.AddItem( ["xAOD::jFexMETRoIContainer"] )
 xaodStream.AddItem( ["xAOD::jFexMETRoIAuxContainer"] )
 
-
 #######################################################
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
 athAlgSeq += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
-athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
+#athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

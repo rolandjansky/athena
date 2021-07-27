@@ -47,7 +47,10 @@ private:
   std::vector<int> m_smallRJetTOB_phi;
   std::vector<int> m_smallRJetTOB_ET;
   std::vector<int> m_smallRJetTOB_sat;
-  
+  std::vector<int> m_smallRJetTOB_word;
+  std::vector<int> m_smallRJetTOB_jfexID;
+  std::vector<int> m_smallRJetTOB_fpgaID;
+
   std::vector<int> m_largeRJet_eta;
   std::vector<int> m_largeRJet_phi;  
   std::vector<int> m_largeRJet_ET;
@@ -57,6 +60,9 @@ private:
   std::vector<int> m_largeRJetTOB_eta;
   std::vector<int> m_largeRJetTOB_phi;
   std::vector<int> m_largeRJetTOB_sat;
+  std::vector<int> m_largeRJetTOB_word;
+  std::vector<int> m_largeRJetTOB_jfexID;
+  std::vector<int> m_largeRJetTOB_fpgaID;
 
   std::vector<int> m_tau_isLocalMax;
   std::vector<int> m_tau_TT_ID;

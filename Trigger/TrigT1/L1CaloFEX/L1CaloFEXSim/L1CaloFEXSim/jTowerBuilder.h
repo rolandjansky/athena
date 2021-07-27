@@ -32,7 +32,6 @@ class jTowerBuilder: public AthAlgTool, virtual public IjTowerBuilder {
   virtual void reset() override ;
 
  private:
-
   virtual void BuildEMBjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
   virtual void BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const override ;
