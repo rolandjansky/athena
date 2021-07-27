@@ -18,7 +18,28 @@ namespace xAOD {
   const float jFexSRJetRoI_v1::s_towerEtaWidth = 0.1;
   const float jFexSRJetRoI_v1::s_towerPhiWidth = 0.1; 
   const float jFexSRJetRoI_v1::s_minEta = -4.9;   
-   
+
+
+  // globalEta/Phi calculation in the FCAL varies depending on position in eta space due to TT granularity change.
+  //| Region          |      eta region     | TT (eta x phi)
+  //---------------------------------------------------------
+  // Region 1  EMB    |      |eta| <  25    | (1 x 1)
+  // Region 2  EMIE   | 25 < |eta|< 31      | (2 x 2)
+  // Region 3  TRANS  | 31 < |eta| < 32     | (1 x 2)
+  // Region 4  FCAL   |      |eta| > 32     | (2 x 4)                 
+ 
+  //eta position in array for jfex module 0
+  const std::vector<int> jFexSRJetRoI_v1::s_EtaPosition_C_Side = {28, 36,   //Region 1 
+                                                                  25, 27,   //Region 2
+                                                                      24,   //Region 3
+                                                                  13, 23};  //Region 4
+  //eta position in array for jfex module 5
+  const std::vector<int> jFexSRJetRoI_v1::s_EtaPosition_A_Side = { 8, 16,   //Region 1 
+                                                                  17, 19,   //Region 2
+                                                                      20,   //Region 3
+                                                                  21, 31};  //Region 4
+
+
   jFexSRJetRoI_v1::jFexSRJetRoI_v1()
       : SG::AuxElement() {
    }
@@ -118,12 +139,37 @@ namespace xAOD {
   int jFexSRJetRoI_v1::unpackGlobalEta() const{
       
     int globalEta = 0;
+    
     if(jFexNumber()==0){
-        globalEta = -25+tobLocalEta(); //-25 is the minimum eta for the most granular part of module 0 - needs to be modified for the EMEC/HEC and FCAL
+      //Region 2 
+      if((s_EtaPosition_C_Side[2] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_C_Side[3])){
+	globalEta = 25 + (2*(tobLocalEta() -16));
+      }
+      //Region 3
+      if(s_EtaPosition_C_Side[5] == tobLocalEta()){
+	globalEta = 32;
+      }
+      //Region 4
+      if((s_EtaPosition_C_Side[6] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_C_Side[7])){
+	globalEta = 32 + (tobLocalEta()-20);
+      }
     }
-    else if(jFexNumber()==5){
-        globalEta = 16+tobLocalEta(); //16 is the minimum eta for the most granular part of module 5 - needs to be modified for the EMEC/HEC and FCAL
+
+    if(jFexNumber()==5){
+      //Region 2
+      if((s_EtaPosition_A_Side[2] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_A_Side[3])){
+        globalEta = -25 - (2*(tobLocalEta() -16));
+      }
+      //Region 3
+      if(s_EtaPosition_A_Side[5] == tobLocalEta()){
+        globalEta = -32;
+      }
+      //Region 4
+      if((s_EtaPosition_A_Side[6] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_A_Side[7])){
+        globalEta = -32 - (tobLocalEta()-20);
+      }
     }
+    //Region 1
     else{
         globalEta = tobLocalEta()+(8*(jFexNumber() - 3)) ;  // for module 1 to 4 
     }
@@ -131,8 +177,25 @@ namespace xAOD {
   }
 
   uint jFexSRJetRoI_v1::unpackGlobalPhi() const{
-     uint globalPhi = tobLocalPhi() + (fpgaNumber() * 16); 
-     return globalPhi; 
+    uint globalPhi = 0;
+    //16 is the phi height of an FPGA
+    if(jFexNumber()==0 || jFexNumber()==5){
+      //Region 2
+      if((s_EtaPosition_A_Side[2] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_A_Side[3])){
+        globalPhi = 16*fpgaNumber() + (2*(tobLocalPhi()-4));
+      }
+      //Region 3
+      if(s_EtaPosition_A_Side[5] == tobLocalEta()){
+        globalPhi = 16*fpgaNumber() + (2*(tobLocalPhi()-4));
+      }
+      //Region 4
+      if((s_EtaPosition_A_Side[6] <= tobLocalEta()) && (tobLocalEta() <=s_EtaPosition_A_Side[7])){
+        globalPhi = (16*fpgaNumber()) + (4*(tobLocalPhi() -2));
+      }
+    }
+    //Region 1
+    else{  globalPhi = tobLocalPhi() + (fpgaNumber() * 16);}
+    return globalPhi; 
   
   }
 } // namespace xAOD

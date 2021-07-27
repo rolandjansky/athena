@@ -20,6 +20,7 @@
 #include "L1CaloFEXSim/jFEXsumETAlgo.h"
 #include "L1CaloFEXSim/jFEXmetAlgo.h"
 #include "L1CaloFEXSim/jFEXLargeRJetAlgo.h"
+#include "L1CaloFEXSim/jFEXForwardJetsAlgo.h"
 #include "L1CaloFEXSim/jFEXNtupleWriter.h"
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 #include "L1CaloFEXSim/eFEXSuperCellTowerIdProvider.h"
@@ -55,4 +56,5 @@ DECLARE_COMPONENT(jFEXtauAlgo)
 DECLARE_COMPONENT(jFEXsumETAlgo)
 DECLARE_COMPONENT(jFEXmetAlgo)
 DECLARE_COMPONENT(jFEXLargeRJetAlgo)
+DECLARE_COMPONENT(jFEXForwardJetsAlgo)
 DECLARE_COMPONENT(jFEXNtupleWriter)

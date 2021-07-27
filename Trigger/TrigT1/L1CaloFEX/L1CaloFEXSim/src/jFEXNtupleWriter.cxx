@@ -67,6 +67,10 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("smallRJetTOB_phi", &m_smallRJetTOB_phi);
   m_myTree->Branch ("smallRJetTOB_ET", &m_smallRJetTOB_ET);
   m_myTree->Branch ("smallRJetTOB_sat", &m_smallRJetTOB_sat);
+  m_myTree->Branch ("smallRJetTOB_word", &m_smallRJetTOB_word);
+  m_myTree->Branch ("smallRJetTOB_jfexID", &m_smallRJetTOB_jfexID);
+  m_myTree->Branch ("smallRJetTOB_fpgaID", &m_smallRJetTOB_fpgaID);
+
 
   m_myTree->Branch ("largeRJet_eta", &m_largeRJet_eta);
   m_myTree->Branch ("largeRJet_phi", &m_largeRJet_phi); 
@@ -77,6 +81,10 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("largeRJetTOB_eta", &m_largeRJetTOB_eta);
   m_myTree->Branch ("largeRJetTOB_phi", &m_largeRJetTOB_phi);
   m_myTree->Branch ("largeRJetTOB_sat", &m_largeRJetTOB_sat);
+
+  m_myTree->Branch ("largeRJetTOB_word",   &m_largeRJetTOB_word);
+  m_myTree->Branch ("largeRJetTOB_jfexID", &m_largeRJetTOB_jfexID);
+  m_myTree->Branch ("largeRJetTOB_fpgaID", &m_largeRJetTOB_fpgaID);
 
   m_myTree->Branch ("tau_TT_ID" ,  &m_tau_TT_ID);
   m_myTree->Branch ("tau_isLocalMax" ,  &m_tau_isLocalMax);
@@ -132,6 +140,10 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
   m_smallRJetTOB_phi.clear();
   m_smallRJetTOB_ET.clear();
   m_smallRJetTOB_sat.clear();
+  m_smallRJetTOB_word.clear();
+  m_smallRJetTOB_jfexID.clear();  
+  m_smallRJetTOB_fpgaID.clear();
+
   for (int i = 0; i < m_jFEXOutputCollection->SRsize(); i++)
   {
     m_smallRJet_isCentralTowerSeed.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_isCentralTowerSeed"]);
@@ -143,6 +155,9 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
     m_smallRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_phi"]);
     m_smallRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_ET"]);
     m_smallRJetTOB_sat.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_sat"]);
+    m_smallRJetTOB_word.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_word"]);
+    m_smallRJetTOB_jfexID.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_jfexID"]);
+    m_smallRJetTOB_fpgaID.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_fpgaID"]);
   }
   return StatusCode::SUCCESS;
 }
@@ -153,6 +168,12 @@ StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
   m_largeRJet_eta.clear();
   m_largeRJet_phi.clear();
   m_largeRJetTOB_ET.clear();
+  m_largeRJetTOB_eta.clear();
+  m_largeRJetTOB_phi.clear();
+  m_largeRJetTOB_sat.clear();
+  m_largeRJetTOB_word.clear();
+  m_largeRJetTOB_fpgaID.clear();
+  m_largeRJetTOB_jfexID.clear();
 
   for (int i = 0; i < m_jFEXOutputCollection->LRsize(); i++)
   {
@@ -161,6 +182,12 @@ StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
     m_largeRJet_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_eta"]);
     m_largeRJet_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_phi"]);
     m_largeRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_ET"]);
+    m_largeRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_eta"]);
+    m_largeRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_phi"]);
+    m_largeRJetTOB_sat.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_sat"]);
+    m_largeRJetTOB_word.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_word"]);
+    m_largeRJetTOB_fpgaID.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_fpgaID"]);
+    m_largeRJetTOB_jfexID.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_jfexID"]);
 
   }
   return StatusCode::SUCCESS;

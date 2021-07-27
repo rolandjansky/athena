@@ -39,7 +39,7 @@ namespace LVL1 {
     virtual ~jFEXSmallRJetAlgo();
 
     virtual StatusCode safetyTest() override;
-    virtual void setup(int inputTable[7][7], bool barrel_region) override;
+    virtual void setup(int inputTable[7][7]) override;
     virtual int realValue(int ID, int eta) override;
     virtual unsigned int getRealPhi() override;
     virtual int getRealEta() override;   
@@ -48,6 +48,7 @@ namespace LVL1 {
     virtual bool isSeedLocalMaxima() override; 
     virtual unsigned int getSmallClusterET() override;
     virtual unsigned int getSmallETRing() override;
+    virtual bool checkDisplacedLM() override;
     virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() override;
   //  virtual jFEXSmallRJetTOB* getSmallRJetTOBs() override;
 //LVL1::jFEXSmallRJetAlgoTOB * LVL1::jFEXSmallRJetAlgo::getSmallRJetTOB()
@@ -59,7 +60,7 @@ protected:
         int m_jFEXalgoTowerID[7][7];
         int m_jFEXalgoSearchWindowSeedET[5][5];
 	bool m_seedSet;
-        bool m_barrel_region;
+        bool m_LMDisplaced;
   };
 
 

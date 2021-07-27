@@ -101,8 +101,8 @@ void jTowerBuilder::BuildTRANSjTowers(std::unique_ptr<jTowerContainer> & jTowerC
 
 void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
 {
-static constexpr float TT_Size = M_PI/32;
-    // Region 1
+  static constexpr float TT_Size = M_PI/32;
+  // Region 1
   int EME_MODIFIER = 15;
   int tmpVal = EME_MODIFIER;
 
@@ -162,7 +162,7 @@ static constexpr float TT_Size = M_PI/32;
   // EMIE = Electromagnetic Inner ECAL - i.e. the forward ECAL region at high eta
   void jTowerBuilder::BuildEMIEjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
   {
-static constexpr float TT_Size = M_PI/32;
+    static constexpr float TT_Size = M_PI/32;
     int EMIE_MODIFIER = 25;
     int tmpVal = EMIE_MODIFIER;
     int cellCountEta = 0;
@@ -195,7 +195,7 @@ static constexpr float TT_Size = M_PI/32;
 
   void jTowerBuilder::BuildFCALjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
   {
-static constexpr float TT_Size = M_PI/32;
+    static constexpr float TT_Size = M_PI/32;
     int FCAL_MODIFIER = 29; // there's 0.1 overlap with EMIE here in eta, but in counting we pretend it's the next one along.
     int tmpVal = FCAL_MODIFIER;
 
@@ -272,7 +272,6 @@ static constexpr float TT_Size = M_PI/32;
 
   void jTowerBuilder::BuildHECjTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
 {
-
   // Region 0
   int HEC_MODIFIER = 29;
   int tmpVal = HEC_MODIFIER;
@@ -315,7 +314,7 @@ static constexpr float TT_Size = M_PI/32;
 
 void jTowerBuilder::BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
 {
-  BuildSingleTower(jTowerContainerRaw, 0.0, 0.0, 0, -1.0, 0, 0.0, 0.0, 0);
+//  BuildSingleTower(jTowerContainerRaw, 0.0, 0.0, 0, -1.0, 0, 0.0, 0.0, 0);
   BuildEMBjTowers(jTowerContainerRaw);
   BuildTRANSjTowers(jTowerContainerRaw);
   BuildEMEjTowers(jTowerContainerRaw);

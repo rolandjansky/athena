@@ -54,11 +54,9 @@ StatusCode LVL1::jFEXSmallRJetAlgo::safetyTest(){
   return StatusCode::SUCCESS;
 }
 
-void LVL1::jFEXSmallRJetAlgo::setup(int inputTable[7][7], bool barrel_region) {
+void LVL1::jFEXSmallRJetAlgo::setup(int inputTable[7][7]) {
 
   std::copy(&inputTable[0][0], &inputTable[0][0] + 49, &m_jFEXalgoTowerID[0][0]);
-  m_barrel_region = barrel_region;
-
 }
 
 
@@ -99,6 +97,7 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 {
 
   m_seedSet = false;
+  m_LMDisplaced = false;
   SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey);
 
   for(int mphi = 1; mphi < 6; mphi++){
@@ -110,15 +109,19 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
           const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[meta + ieta][mphi + iphi]);
           //for that TT, build the seed
           //here we sum TT ET to calculate seed	    	
-	        et_tmp = tmpTower->getTotalET();  //in the fcal it already only considers the EM layer as the hcal layer 1 and 2 are considered seperate jTower Objects
+          et_tmp = tmpTower->getTotalET();
           seedTotalET += et_tmp;
        	  }
     	}
    	m_jFEXalgoSearchWindowSeedET[meta -1][mphi -1] = seedTotalET;
       	}
 
-     }    
-
+     }
+  
+  int centralTT_ET = getTTowerET();    
+  if(centralTT_ET==m_jFEXalgoSearchWindowSeedET[3][3]){
+    m_LMDisplaced = true;
+  }
     m_seedSet = true;
 }
 
@@ -127,11 +130,10 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
 {
     if(m_seedSet == false) {
-        //ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
+        ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
     }
     if(m_seedSet == true) {
 
-        //ATH_MSG_DEBUG("Local Maxima checking begins.");
         //here put the 24 conditions to determine if the [2][2] TT seed is a local maxima.
 
         int central_seed = m_jFEXalgoSearchWindowSeedET[2][2];
@@ -160,6 +162,11 @@ bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
     return true;
 
 }
+bool LVL1::jFEXSmallRJetAlgo::checkDisplacedLM()
+{
+   return m_LMDisplaced;
+}
+
 
 //in this clustering func, the central TT in jet is the parameters
 unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET(){
@@ -203,9 +210,7 @@ std::unique_ptr<jFEXSmallRJetTOB> LVL1::jFEXSmallRJetAlgo::getSmallRJetTOBs(){
   std::unique_ptr<jFEXSmallRJetTOB> tob = std::make_unique<jFEXSmallRJetTOB>();
 
   unsigned int et = getSmallClusterET();
- // unsigned int phi = getRealPhi(phi);
- // unsigned int eta = getRealEta(eta);
-  
+
   tob->setET(et); 
   tob->setPhi(getRealPhi());
   tob->setEta(getRealEta());

@@ -14,6 +14,7 @@
 #define JFEX_OUTPUT_COLLECTION_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <map>
 #include <iostream>
 #include <vector>
@@ -26,24 +27,24 @@ namespace LVL1 {
     jFEXOutputCollection() {};
     ~jFEXOutputCollection();
     void clear();
-    void addValue_smallRJet(std::string, float);
+    void addValue_smallRJet(std::string, int);
     void fill_smallRJet();
-    void addValue_largeRJet(std::string, float);
+    void addValue_largeRJet(std::string, int);
     void fill_largeRJet();
     void addValue_tau(std::string, int);
     void fill_tau();
     int SRsize();
     int LRsize();
     int tausize();
-    std::map<std::string, float>* get_smallRJet(int);
-    std::map<std::string, float>* get_largeRJet(int);
+    std::map<std::string, int>* get_smallRJet(int);
+    std::map<std::string, int>* get_largeRJet(int);
     std::map<std::string, int>* get_tau(int);
 
   private:
-    std::map<std::string, float> m_values_tem_smallRJet;
-    std::vector<std::map<std::string, float>*> m_allvalues_smallRJet;
-    std::map<std::string, float> m_values_tem_largeRJet;
-    std::vector<std::map<std::string, float>*> m_allvalues_largeRJet;
+    std::map<std::string, int> m_values_tem_smallRJet;
+    std::vector<std::map<std::string, int>*> m_allvalues_smallRJet;
+    std::map<std::string, int> m_values_tem_largeRJet;
+    std::vector<std::map<std::string, int>*> m_allvalues_largeRJet;
     std::map<std::string, int> m_values_tem_tau;
     std::vector<std::map<std::string, int>*> m_allvalues_tau;
   };

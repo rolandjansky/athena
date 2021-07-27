@@ -86,10 +86,10 @@ StatusCode jSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<jTowe
       int towerid = FindTowerIDForSuperCell(i_eta, i_phi) + towerID_Modifier;
       LVL1::jTower * targetTower; 
       if((targetTower = my_jTowerContainerRaw->findTower(towerid))) {
-        if (targetTower->getET_float(4, 0) > 0) {
+        if (targetTower->getET_float(1, 0) > 0) {
           ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Hadronic layer energy filled more than once - it will be ignored. (Needs investigation).  Please report this!");
         }
-        targetTower->setET(10, int(eachTower->cpET()) * 500., 4); // cf 0.5 * 1000.0
+        targetTower->setET(1, int(eachTower->cpET()) * 500., 4); // cf 0.5 * 1000.0
       } else {
         ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Tower ID is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
       }
@@ -843,16 +843,19 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
     case CaloSampling::FCAL0: { 
       if(pos_neg < 0){ towerID_Modifier = 700000; }
       else if(pos_neg > 0){ towerID_Modifier = 800000; }
+      iCell = 0;
       break; 
     }
     case CaloSampling::FCAL1: {
       if(pos_neg < 0){ towerID_Modifier = 900000; }
       else if(pos_neg > 0){ towerID_Modifier = 1000000; }
+      iCell = 1;
       break;
     }
     case CaloSampling::FCAL2: { 
       if(pos_neg < 0){ towerID_Modifier = 1100000; }
       else if(pos_neg > 0){ towerID_Modifier = 1200000;  }
+      iCell = 1;
       break;
     }
     default: {
@@ -860,7 +863,7 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
     }
     }
 
-    iCell = 0;
+    //iCell = 0;
     layer = 0;
     towereta = eta_index;
     towerphi = phi_index;

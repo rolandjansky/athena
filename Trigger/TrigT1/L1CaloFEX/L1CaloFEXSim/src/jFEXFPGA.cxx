@@ -23,6 +23,8 @@
 #include "L1CaloFEXSim/jFEXsumETTOB.h"  
 #include "L1CaloFEXSim/jFEXmetAlgo.h" 
 #include "L1CaloFEXSim/jFEXmetTOB.h"  
+#include "L1CaloFEXSim/jFEXForwardJetsAlgo.h"
+#include "L1CaloFEXSim/jFEXForwardJetsInfo.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -47,7 +49,6 @@ jFEXFPGA::jFEXFPGA(const std::string& type,const std::string& name,const IInterf
   declareInterface<IjFEXFPGA>(this);
 }
 
-
 /** Destructor */
 jFEXFPGA::~jFEXFPGA()
 {
@@ -59,10 +60,9 @@ StatusCode jFEXFPGA::initialize()
 {
 
   ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
-  //ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
+  ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode jFEXFPGA::init(int id, int jfexid)
 {
@@ -92,8 +92,7 @@ StatusCode jFEXFPGA::execute() {
     ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
-  
-    
+   
     //std::cout<< "******************************************** "<<m_jfexid<<std::endl;
     if(m_id==0 || m_id==2){
         if(m_jfexid > 0 && m_jfexid < 5){
@@ -154,8 +153,9 @@ StatusCode jFEXFPGA::execute() {
     }
   
 
-  //-----------jFEXSmallRJetAlgo-----------------
+  //-----------jFEXSmallRJet & Large R Jet Algo-----------------
   ATH_MSG_DEBUG("==== jFEXSmallRJetAlgo ========");
+
   jFEXOutputCollection* jFEXOutputs;
   StatusCode sc_tobs = evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection");
 
@@ -163,29 +163,16 @@ StatusCode jFEXFPGA::execute() {
     ATH_MSG_DEBUG("\n==== jFEXSmallRJetAlgo ======== Failed to find jFEXOutputCollection in jFEXFPGA");
   }
 
-  int Jets_eta_limit = -99;
-  bool barrel_region = false;
- 
-  if(m_jfexid > 0 && m_jfexid < 5){
-    Jets_eta_limit = FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width -8;
-    barrel_region = true;
-    //return StatusCode::SUCCESS;
-  }
-
-  if(m_jfexid == 0 || m_jfexid == 5){
-    Jets_eta_limit = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width -8;
-    return StatusCode::SUCCESS;
-  }
+ //Central region algorithms
+ if(m_jfexid > 0 && m_jfexid < 5){ 
+  for(int mphi = 8; mphi < FEXAlgoSpaceDefs::jFEX_algoSpace_height -8; mphi++) {   
+    for(int meta = 8; meta < FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width -8; meta++) {
   
-  for(int mphi = 8; mphi < 24; mphi++) {   
-    for(int meta = 8; meta < Jets_eta_limit; meta++) {
-
     //create search window including towerIDs required for seeding.
     int SRJet_SearchWindow[7][7] = {{0}};
     for(int i = -3 ; i <4; i++){
       for(int j = -3; j <4; j++){
-        if(barrel_region){SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Thin[mphi + i][meta +j];}
-        else{SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Wide[mphi + i][meta +j];}
+        SRJet_SearchWindow[3 + i][3 + j] = m_jTowersIDs_Thin[mphi + i][meta +j];
       }
     }
       int largeRCluster_IDs[15][15]= {{0}};
@@ -194,6 +181,7 @@ StatusCode jFEXFPGA::execute() {
           largeRCluster_IDs[7 +i][7 +j] = m_jTowersIDs_Thin[mphi + i][meta +j];
         }
       }
+
       //remove corners from large ET ring
       for(int i =4; i <8; i++) {
         if( i != 7) {
@@ -222,64 +210,175 @@ StatusCode jFEXFPGA::execute() {
         }
       }
 
-      m_jFEXSmallRJetAlgoTool->setup(SRJet_SearchWindow, barrel_region);
+      m_jFEXSmallRJetAlgoTool->setup(SRJet_SearchWindow);
       m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);
       m_jFEXSmallRJetAlgoTool->buildSeeds();
-      bool SRJet_LM = m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima();
+      bool SRJet_LM = m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima(); 
+
       jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed", SRJet_LM);
-      if(!SRJet_LM){continue;}
-      int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
-      
+     
+      int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();      
       //These are plots of the central TT for each 5x5 search window.
       jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET());
-      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi()/10.);
-      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta()/10.);
+      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi());
+      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta());
       jFEXOutputs->addValue_smallRJet("smallRJet_clusterET", smallClusterET);
+  
+    
+      if(!SRJet_LM){continue;}
       std::unique_ptr<jFEXSmallRJetTOB> tmp_SRJet_tob = m_jFEXSmallRJetAlgoTool->getSmallRJetTOBs();
-        
+
+      bool check = m_jFEXSmallRJetAlgoTool->checkDisplacedLM();
+      //to check if Local Maxima is displaced.        
+      int meta_LM = meta;
+      int mphi_LM = mphi;
+      if(check  && SRJet_LM){
+          meta_LM = meta -1;
+          mphi_LM = mphi -1;
+      
+      } 
+
       bool SR_TOB_saturated = false;
-          
+      if (smallClusterET/200. > 0x7ff) SR_TOB_saturated = true;
+
       // for plotting variables in TOBS- internal check:
-
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", tmp_SRJet_tob->setEta(meta));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", tmp_SRJet_tob->setPhi(mphi));
-      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET", tmp_SRJet_tob->setET(smallClusterET));    
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", tmp_SRJet_tob->setEta(meta_LM)-8);
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", tmp_SRJet_tob->setPhi(mphi_LM)-8);
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET", tmp_SRJet_tob->setET(smallClusterET/200));    
       jFEXOutputs->addValue_smallRJet("smallRJetTOB_sat", tmp_SRJet_tob->setSat(SR_TOB_saturated));  
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_jfexID", m_jfexid);
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_fpgaID", m_id);
 
- 
-      uint32_t SRJet_tobword = formSmallRJetTOB(mphi, meta);
-
-      if ( SRJet_tobword != 0 ) m_SRJet_tobwords.push_back(SRJet_tobword);
-          
+      uint32_t SRJet_tobword = formSmallRJetTOB(mphi_LM, meta_LM);
+      m_SRJet_tobwords.push_back(SRJet_tobword);
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_word",SRJet_tobword); 
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_jfexID", m_jfexid);
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_fpgaID", m_id);	
+     
       jFEXOutputs->fill_smallRJet();  
 
       ATH_MSG_DEBUG("==== jFEXLargeRJetAlgo ========"); 
       //LargeRJetAlgo is here as SmallRJetlocalMaxima is a requirement
       unsigned int largeClusterET = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
-      ATH_MSG_DEBUG("jFEXFPGA: large RJet algo, check large cluster ET: "<< largeClusterET); 
-      jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
-
       std::unique_ptr<jFEXLargeRJetTOB> tmp_LRJet_tob = m_jFEXLargeRJetAlgoTool->getLargeRJetTOBs();
       unsigned int LR_TOB_saturated = 0;
-      if (largeClusterET/200. > 13) LR_TOB_saturated = 1;
+      if (largeClusterET/200. >  0x1fff) LR_TOB_saturated = 1;
  
       jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
       jFEXOutputs->addValue_largeRJet("largeRJet_phi", m_jFEXSmallRJetAlgoTool->getRealPhi());
       jFEXOutputs->addValue_largeRJet("largeRJet_eta", m_jFEXSmallRJetAlgoTool->getRealEta());
 
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET",tmp_LRJet_tob->setET(largeClusterET)); 
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta",tmp_LRJet_tob->setEta(meta));
-      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi",tmp_LRJet_tob->setPhi(mphi));
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET",tmp_LRJet_tob->setET(largeClusterET/200)); 
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta",tmp_SRJet_tob->setEta(meta));
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi",tmp_SRJet_tob->setPhi(mphi));
       jFEXOutputs->addValue_largeRJet("largeRJetTOB_sat",tmp_LRJet_tob->setSat(LR_TOB_saturated));
-
-      jFEXOutputs->fill_largeRJet();
-
+      jFEXOutputs->fill_largeRJet(); 
       uint32_t LRJet_tobword = formLargeRJetTOB(mphi, meta);
       if ( LRJet_tobword != 0 ) m_LRJet_tobwords.push_back(LRJet_tobword);
-
+      m_SRJet_tobwords.push_back(SRJet_tobword);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_word", LRJet_tobword);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_jfexID", m_jfexid);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_fpgaID", m_id);
       }
   }
+} //end of if statement for checking if in central jfex modules
 
+jFEXOutputs->fill_smallRJet();
+jFEXOutputs->fill_largeRJet();
+
+//**********Forward Jets***********************
+
+//FCAL region algorithm 
+if(m_jfexid ==0 || m_jfexid ==5){
+//This is currently masked due to on going debugging in this FCAL Jets Algorithm
+  return StatusCode::SUCCESS;
+
+  m_jFEXForwardJetsAlgoTool->setup(m_jTowersIDs_Wide);
+  m_FCALJets =  m_jFEXForwardJetsAlgoTool->calculateJetETs();
+
+  for(std::map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it){
+   
+    jFEXForwardJetsInfo FCALJets = it->second;
+    int iphi = FCALJets.getCentreLocalTTPhi();
+    int ieta = FCALJets.getCentreLocalTTEta();
+     
+    uint32_t SRFCAL_Jet_tobword = formSmallRJetTOB(iphi, ieta);
+    if ( SRFCAL_Jet_tobword != 0 ) m_SRJet_tobwords.push_back(SRFCAL_Jet_tobword);
+
+    uint32_t LRFCAL_Jet_tobword = formLargeRJetTOB(iphi, ieta);
+    if ( LRFCAL_Jet_tobword != 0 ) m_LRJet_tobwords.push_back(LRFCAL_Jet_tobword);
+  
+    float centre_eta = std::round(FCALJets.getCentreTTEta()*10);
+    float centre_phi = std::round(FCALJets.getCentreTTPhi()*10);
+    int output_centre_eta = static_cast<int> (centre_eta);
+    int output_centre_phi = static_cast<int> (centre_phi);
+    int SRJetET = FCALJets.getSeedET() + FCALJets.getFirstEnergyRingET();
+    int LRJetET = SRJetET + FCALJets.getSecondEnergyRingET();
+
+    int SRFCAL_TOB_saturated = 0;
+    if (SRJetET/200. > 0x7ff) SRFCAL_TOB_saturated = 1;
+
+    unsigned int LRFCAL_TOB_saturated = 0;
+    if (LRJetET/200. >  0x1fff) LRFCAL_TOB_saturated = 1;
+   
+    //Output Collection for Small R Jet 
+    jFEXOutputs->addValue_smallRJet("smallRJet_phi", output_centre_phi);
+    jFEXOutputs->addValue_smallRJet("smallRJet_eta", output_centre_eta);
+    jFEXOutputs->addValue_smallRJet("smallRJet_clusterET", SRJetET);
+    jFEXOutputs->addValue_smallRJet("smallRJet_sat", SRFCAL_TOB_saturated);
+    jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed",true);
+
+    if(m_jfexid == 0){
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", 37-ieta);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", 37-ieta);
+    }
+
+    if(m_jfexid == 5){     
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_eta", ieta-8);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta", ieta-8);
+    }
+ 
+    if(iphi >=FEXAlgoSpaceDefs::jFEX_algoSpace_EMB_start_phi && iphi< FEXAlgoSpaceDefs::jFEX_algoSpace_EMB_end_phi){
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", iphi-8);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", iphi-8);
+    }
+
+    if(iphi >=FEXAlgoSpaceDefs::jFEX_algoSpace_EMIE_start_phi && iphi< FEXAlgoSpaceDefs::jFEX_algoSpace_EMIE_end_phi){
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", iphi-4);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", iphi-4);
+    }
+
+    if(iphi >=FEXAlgoSpaceDefs::jFEX_algoSpace_FCAL_start_phi && iphi< FEXAlgoSpaceDefs::jFEX_algoSpace_FCAL_end_phi){
+      jFEXOutputs->addValue_smallRJet("smallRJetTOB_phi", iphi-2);
+      jFEXOutputs->addValue_largeRJet("largeRJetTOB_phi", iphi-2);
+    }
+
+    jFEXOutputs->addValue_smallRJet("smallRJetTOB_ET", SRJetET/200);
+    jFEXOutputs->addValue_smallRJet("smallRJetTOB_sat", SRFCAL_TOB_saturated);
+ 
+    jFEXOutputs->addValue_smallRJet("smallRJetTOB_word", SRFCAL_Jet_tobword);
+    jFEXOutputs->addValue_smallRJet("smallRJetTOB_jfexID", m_jfexid);
+    jFEXOutputs->addValue_smallRJet("smallRJetTOB_fpgaID", m_id);
+
+    jFEXOutputs->fill_smallRJet();
+
+    //Output Collection for Large R Jet
+    jFEXOutputs->addValue_largeRJet("largeRJet_ET", LRJetET);
+    jFEXOutputs->addValue_largeRJet("largeRJet_phi", output_centre_phi);
+    jFEXOutputs->addValue_largeRJet("largeRJet_eta", output_centre_eta);
+    jFEXOutputs->addValue_largeRJet("largeRJet_sat", LRFCAL_TOB_saturated);
+
+    jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET", LRJetET/200);
+    jFEXOutputs->addValue_largeRJet("largeRJetTOB_sat",LRFCAL_TOB_saturated);
+
+    jFEXOutputs->addValue_largeRJet("largeRJetTOB_word", LRFCAL_Jet_tobword);
+    jFEXOutputs->addValue_largeRJet("largeRJetTOB_jfexID", m_jfexid);
+    jFEXOutputs->addValue_largeRJet("largeRJetTOB_fpgaID", m_id);
+
+    jFEXOutputs->fill_largeRJet();
+
+  }
+}
 
 //******************************** TAU **********************************************
 
@@ -315,8 +414,7 @@ StatusCode jFEXFPGA::execute() {
   ATH_MSG_DEBUG("============================ jFEXtauAlgo ============================");
   for(int mphi = 8; mphi < 24; mphi++) {   
     for(int meta = 8; meta < max_meta; meta++) {
-        
-
+    
       int TT_seed_ID[3][3]={{0}};
       int TT_searchWindow_ID[5][5]={{0}};
       int TT_First_ETring[36]={0};
@@ -338,16 +436,13 @@ StatusCode jFEXFPGA::execute() {
               } 
           }
       }
-
       
       ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
       ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
       m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
       m_jFEXtauAlgoTool->buildSeeds();
       bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();
-      //m_jFEXtauAlgoTool->isSeedLocalMaxima();
       m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
-
 
       jFEXOutputs->addValue_tau("tau_ET", m_jFEXtauAlgoTool->getTTowerET());
       jFEXOutputs->addValue_tau("tau_clusterET", m_jFEXtauAlgoTool->getClusterEt());
@@ -377,6 +472,8 @@ StatusCode jFEXFPGA::execute() {
       jFEXOutputs->fill_tau();
     }
   }
+
+
   return StatusCode::SUCCESS;
 } //end of the execute function
 
@@ -407,10 +504,7 @@ void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][FEXAlgoSpaceDefs
   
   //this prints out the jTower IDs that each FPGA is responsible for
   ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
-  
-  //comment below due to mapping bug 12.01.21 
-  
-  
+   
   for (int thisRow=rows-1; thisRow>=0; thisRow--){
     for (int thisCol=0; thisCol<cols; thisCol++){
       if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
@@ -446,25 +540,37 @@ std::vector <uint32_t> jFEXFPGA::getLargeRJetTOBs()
   
 }
 
-
-
-uint32_t jFEXFPGA::formSmallRJetTOB(int & iphi, int &ieta )  
+uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta)  
 {
   uint32_t tobWord = 0;
   const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+  int eta = 0;
+  int phi = 0;
+  unsigned int et = 0;
+  unsigned int jFEXSmallRJetTOBEt = 0;
+  int Res = 0; // 11 bits reserved
+  int Sat = 0; //  1 bit for saturation. Set to 1 when jet energy is saturated
 
-  unsigned int et = m_jFEXSmallRJetAlgoTool->getSmallClusterET();   
-  unsigned int jFEXSmallRJetTOBEt = et/jFEXETResolution;
+  if(m_jfexid > 0 && m_jfexid < 5){
+  et = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
+  jFEXSmallRJetTOBEt = et/jFEXETResolution;
+  eta = ieta -8;
+  phi = iphi -8;
+  }
 
-  int eta = ieta -8;
-  int phi = iphi -8;
-  int Res = 0; //11 bits reserved
-  int Sat = 0; //1 bit for saturation. Set to 1 if saturated.
-  
+  if(m_jfexid ==0 || m_jfexid ==5){
+    for(std::map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it){
+      jFEXForwardJetsInfo FCALJetInfo = it->second;
+      eta = ieta -8;
+      phi = iphi -8;
+      et = FCALJetInfo.getSeedET() + FCALJetInfo.getFirstEnergyRingET();
+      jFEXSmallRJetTOBEt = et/jFEXETResolution;
+    }  
+  }
 
   if (jFEXSmallRJetTOBEt > 0x7ff){ 
-    jFEXSmallRJetTOBEt = 0x7ff;//0x7ff is 11 bits 
-    Sat = 1;
+      jFEXSmallRJetTOBEt = 0x7ff; 
+      Sat = 1;
   }
 
   //create basic tobword with 32 bits  
@@ -477,18 +583,34 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int & iphi, int &ieta )
   else return tobWord;
 }
 
-uint32_t jFEXFPGA::formLargeRJetTOB(int & iphi, int &ieta )
+uint32_t jFEXFPGA::formLargeRJetTOB(int & iphi, int &ieta)
 {
   uint32_t tobWord = 0;
   const unsigned int jFEXETResolution = 200; //LSB is 200MeV
+  int eta = 0;
+  int phi = 0;
+  unsigned int et = 0;
+  unsigned int jFEXLargeRJetTOBEt = 0;
+  int Res = 0; // 9 bits reserved
+  int Sat = 0; //  1 bit for saturation. Set to 1 when jet energy is saturated
 
-  unsigned int et = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
-  unsigned int jFEXLargeRJetTOBEt = et/jFEXETResolution;
+  if(m_jfexid > 0 && m_jfexid < 5){
+    et = m_jFEXLargeRJetAlgoTool->getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jFEXLargeRJetAlgoTool->getRingET());
+    jFEXLargeRJetTOBEt = et/jFEXETResolution;
+    eta = ieta -8;
+    phi = iphi -8;
+  }
 
-  int eta = ieta -8;
-  int phi = iphi -8;
-  int Res = 0; //9 bits reserved
-  int Sat = 1; //1 bit for saturation flag, not coded yet
+  if(m_jfexid ==0 || m_jfexid ==5){
+    for(std::map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it){
+      jFEXForwardJetsInfo FCALJetInfo = it->second;
+      eta = ieta -8;
+      phi = iphi -8;
+      et = FCALJetInfo.getSeedET() + FCALJetInfo.getFirstEnergyRingET() + FCALJetInfo.getSecondEnergyRingET();
+      jFEXLargeRJetTOBEt = et/jFEXETResolution;
+    }
+  }
+
   if (jFEXLargeRJetTOBEt > 0x1fff){
     jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
     Sat = 1;
