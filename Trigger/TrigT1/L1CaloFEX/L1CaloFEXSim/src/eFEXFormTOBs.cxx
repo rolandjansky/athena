@@ -39,7 +39,7 @@ uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned
   if (et > 0xfff) et = 0xfff;
 
   // Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
-  tobWord = tobWord + (fpga << 30) + (eta << 27) + (phi << 24);
+  tobWord = tobWord + (fpga << 30) + (eta << 27) + (phi << 24) + et;
 
   ATH_MSG_DEBUG("Tau tobword: " << std::bitset<32>(tobWord) );
 
