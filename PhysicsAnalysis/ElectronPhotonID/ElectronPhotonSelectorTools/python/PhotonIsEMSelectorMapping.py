@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # =============================================================================
 ## Name:        PhotonIsEMSelectorMapping.py
@@ -29,13 +29,8 @@ from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 
 
 class photonPIDmenu:
-    # menu2011 = 0
-    # menu2012 = 1
-    # origMenu2012 = 2 # this is the original menu not meant for anyone to use
-    # menuDC14 = 3
-    # menuTrigDC14 = 4
-    menuCurrentCuts = 5
-    menuPtInclJan2018 = 6
+    menuCurrentCuts = 0
+    menuPtInclJan2018 = 1
 
 
 # format - key: (mask, function)
