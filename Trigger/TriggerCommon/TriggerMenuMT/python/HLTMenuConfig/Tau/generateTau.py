@@ -3,10 +3,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, Me
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+
 def generateChains( flags, chainDict ):
     flags = flags.cloneAndReplace('Tau', 'Trigger.Offline.Tau') # use from now on trigger variant of flags
-
-    def __calo():
+    
+    @AccumulatorCache
+    def __caloSeq(flags):
         recoAcc = InViewRecoCA('CaloTauReco')
         from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
         recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
@@ -34,9 +37,14 @@ def generateChains( flags, chainDict ):
         selAcc.addHypoAlgo(hypoAlg)
         from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigL2TauHypoToolFromDict)
+        return (selAcc , menuCA)
+
+    def __calo():
+        (selAcc , menuCA) = __caloSeq(flags)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-    def __ftfTau():
+    @AccumulatorCache
+    def __ftfTauSeq(flags):
         selAcc=SelectionCA('tauFTF')
         name = 'FTFTau'
         newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_Tau', 
@@ -65,9 +73,14 @@ def generateChains( flags, chainDict ):
         selAcc.addHypoAlgo(hypoAlg)
         from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
+        return (selAcc , menuCA)
+
+    def __ftfTau():
+        (selAcc , menuCA) = __ftfTauSeq(flags)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-    def __ftfCore():                                                                                                                                                                 
+    @AccumulatorCache
+    def __ftfCoreSeq(flags):                                                                                                                                                                 
         selAcc=SelectionCA('tauCoreFTF')                                                                                                                                      
         name = 'FTFCore'
         newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauCore',
@@ -107,9 +120,14 @@ def generateChains( flags, chainDict ):
         selAcc.addHypoAlgo(hypoAlg)                                                                                                                                            
         from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict                                                                                                          
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)                                                                                                     
+        return (selAcc , menuCA)
+    
+    def __ftfCore():                                                                                                                                                                 
+        (selAcc , menuCA) = __ftfCoreSeq(flags)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))   
 
-    def __ftfIso():
+    @AccumulatorCache
+    def __ftfIsoSeq(flags):
         selAcc=SelectionCA('tauIsoFTF')
         name = 'FTFIso'
         newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIso',
@@ -143,9 +161,14 @@ def generateChains( flags, chainDict ):
 
         from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
+        return (selAcc , menuCA)
+    
+    def __ftfIso():
+        (selAcc , menuCA) = __ftfIsoSeq(flags)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-    def __ftfIsoBDT():
+    @AccumulatorCache
+    def __ftfIsoBDTSeq(flags):
         selAcc=SelectionCA('tauIsoBDTFTF')
         name = 'FTFIsoBDT'
         newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIsoBDT',
@@ -180,6 +203,10 @@ def generateChains( flags, chainDict ):
 
         from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigTauTrackHypoToolFromDict)
+        return (selAcc , menuCA)
+    
+    def __ftfIsoBDT():
+        (selAcc , menuCA) = __ftfIsoBDTSeq(flags)
         return ChainStep(name=selAcc.name, Sequences=[menuCA], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 
