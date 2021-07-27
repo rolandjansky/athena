@@ -24,8 +24,7 @@
 // This algorithm includes
 #include "EnergyCMX.h"
 
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfData/L1Threshold.h"
 
 using namespace TrigConf;
 
@@ -46,24 +45,24 @@ EnergyCMX::EnergyCMX (const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode EnergyCMX::initialize()
 {
-  ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_EtTool.retrieve() );
   ATH_CHECK( m_energyCMXDataLocation.initialize() );
   ATH_CHECK( m_energyCTPLocation.initialize() );
   ATH_CHECK( m_energyTopoLocation.initialize() );
   ATH_CHECK( m_cmxEtsumsLocation.initialize() );
   ATH_CHECK( m_cmxRoILocation.initialize() );
+  ATH_CHECK( m_L1MenuKey.initialize() );
   return StatusCode::SUCCESS ;
 }
 
 
 //-------------------------------------------------
-// Optional debug of menu at start of run
+// Set cabling: seems to be required
 //-------------------------------------------------
 
 StatusCode EnergyCMX::start()
 {
-  setupTriggerMenuFromCTP();
+  L1DataDef::setNewJEP3Cabling();
 
   return StatusCode::SUCCESS ;
 }
@@ -97,36 +96,37 @@ StatusCode EnergyCMX::execute(const EventContext& ctx) const
   bool maskTESet = false;
   const float moduleEta[8] = {-4.,-2.,-1.2,-0.4,0.4,1.2,2.,4.};
   
-  L1DataDef def;
-  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold*>::const_iterator it;
-  
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( ( (*it)->type() == def.xeType() || (*it)->type() == def.teType()) && (*it)->thresholdNumber() > 7 ) {
-      std::vector<TriggerThresholdValue*> ttvs = (*it)->thresholdValueVector();
-      std::vector<TriggerThresholdValue*>::const_iterator itv;
-      // Make sure only set masks from the first valid threshold in the range (for each type)       
+  auto l1Menu = SG::makeHandle( m_L1MenuKey, ctx );
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
+  for ( const auto& thresh : allThresholds ) {
+    if ( ( thresh->type() == L1DataDef::xeType() || thresh->type() == L1DataDef::teType()) && thresh->mapping() > 7 ) {
+      std::shared_ptr<TrigConf::L1Threshold_Calo> thresh_Calo = std::static_pointer_cast<TrigConf::L1Threshold_Calo>(thresh);
+      auto tvcs = thresh_Calo->thrValuesCounts();
+      // Make sure only set masks from the first valid threshold in the range (for each type)
       if (maskXE > 0) maskXESet = true;
       if (maskTE > 0) maskTESet = true;
-      for (itv = ttvs.begin(); itv != ttvs.end(); ++itv) {
+      if (tvcs.size() == 0) {
+        tvcs.addRangeValue(thresh_Calo->thrValueCounts(),-49, 49, 1, true);
+      }
+      for (const auto& tVC : tvcs) {
         // Bits are set false by default, so ignore thresholds that are just doing that
-        if ((*itv)->thresholdValueCount() >= 0x7fff) continue;
+        if (tVC.value() >= 0x7fff) continue;
         // Set bits true if module centre between etaMin and etaMax
-        if ( (*it)->type() == def.xeType()  && !maskXESet ) {
+        if ( thresh->type() == L1DataDef::xeType()  && !maskXESet ) {
           for (unsigned int bin = 0; bin < 8; ++bin) {
-            if (moduleEta[bin] > (*itv)->etamin()*0.1 && moduleEta[bin] < (*itv)->etamax()*0.1)
-                maskXE |= (1<<bin);
+            if (moduleEta[bin] > tVC.etaMin()*0.1 && moduleEta[bin] < tVC.etaMax()*0.1)
+              maskXE |= (1<<bin);
           }
         }
-        else if ( (*it)->type() == def.teType()  && !maskTESet ) {
+        else if ( thresh->type() == L1DataDef::teType()  && !maskTESet ) {
           for (unsigned int bin = 0; bin < 8; ++bin) {
-            if (moduleEta[bin] > (*itv)->etamin()*0.1 && moduleEta[bin] < (*itv)->etamax()*0.1)
-                maskTE |= (1<<bin);
+            if (moduleEta[bin] > tVC.etaMin()*0.1 && moduleEta[bin] < tVC.etaMax()*0.1)
+              maskTE |= (1<<bin);
           }
         }
       }  // loop over TTV
     } // Is this XE or TE threshold?
-  }  // Loop over thresholds
+  }
   
   // form crate sums (restricted eta range). Explicitly set restricted eta flag regardless of eta range
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
@@ -243,32 +243,6 @@ StatusCode EnergyCMX::execute(const EventContext& ctx) const
 } // end of LVL1 namespace bracket
 
 
-/** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
-void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
-  ATH_MSG_DEBUG("Loading Trigger Menu");
-  
-  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold*>::const_iterator it;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-
-    /// Debug printout of menu
-    if ( (*it)->type() == m_def.xeType() || (*it)->type() == m_def.teType() || (*it)->type() == m_def.xsType() ) {
-     TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0); // ET trigger thresholds can only have one global value
-     ATH_MSG_DEBUG("TriggerThreshold " << (*it)->name() << " has:" << endmsg
-         << "--------------------------" << endmsg
-         << " Number   = " << (*it)->thresholdNumber() << endmsg
-         << " Type     = " << (*it)->type() << endmsg
-         << " Value    = " << (*tv).thresholdValueCount() );
-	         
-    } //  is type == energySum trigger
-  } // end of loop over thresholds
-  
-  /// Should check whether this is still necessary
-  m_def.setNewJEP3Cabling();
-
-  return;
-}
-
 /** form CMXRoI & save in SG */
 StatusCode LVL1::EnergyCMX::saveRoIs(const SystemEnergy& resultsFull,
                                      const SystemEnergy& resultsTrunc,
@@ -311,8 +285,8 @@ unsigned int LVL1::EnergyCMX::ctpWord(unsigned int metSigPassed,
                                       unsigned int etMissPassed,
                                       unsigned int etSumPassed) const {
 
-  return ( (metSigPassed<<(m_def.max_TE_Threshold_Number()+m_def.max_XE_Threshold_Number())) +
-	   (etMissPassed<<m_def.max_TE_Threshold_Number()) + etSumPassed );
+  return ( (metSigPassed<<(L1DataDef::max_TE_Threshold_Number()+L1DataDef::max_XE_Threshold_Number())) +
+	   (etMissPassed<<L1DataDef::max_TE_Threshold_Number()) + etSumPassed );
 }
 
 /** form CTP objects and store them in SG. */
