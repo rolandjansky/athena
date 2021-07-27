@@ -803,8 +803,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3SummaryAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
 ]
 
-# HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
-HLTNavEDMTargets = ''
+
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
@@ -851,6 +850,16 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
     """
     Extend TriggerHLTListRun3 with HLT Navigation objects
     """
+
+    # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
+    HLTNavEDMTargets = ''
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if not ConfigFlags.Trigger.doOnlineNavigationCompactificaiton:
+        # If we are not compacting the online EDM, then we must write out all of the individual collections
+        # ESD is added for MC support
+        HLTNavEDMTargets = 'BS ESD'
+
     for decisionCollection in allDecisions:
         dynamic = '.-' # Exclude dynamic
         if decisionCollection in hypoDecisions:

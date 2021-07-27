@@ -209,8 +209,9 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
-    onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
-    hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
+    if ConfigFlags.Trigger.doOnlineNavigationCompactificaiton:
+        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+        hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
 
     hltEndSeq += hltFinalizeSeq
 

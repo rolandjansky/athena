@@ -1021,13 +1021,8 @@ class ChainStep(object):
         self.combo=None 
         if self.isEmpty or self.comboHypoCfg is None:
             return
-        probesuffix = ""
-        for stepDict in self.stepDicts:
-            for chainParts in stepDict["chainParts"]:
-                if chainParts["extra"]=="probe":
-                    probesuffix = "_probe"
-            pass # For the benefit of single-leg probe chains
-        self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name)+probesuffix, comboHypoCfg=self.comboHypoCfg)
+        self.combo = RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), comboHypoCfg=self.comboHypoCfg)
+
 
     def createComboHypoTools(self, chainName):      
         chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)

@@ -122,7 +122,6 @@ def setupMenu():
         ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_XE30', l1SeedThresholds=['MU20','FSNOSEED'], groups=PrimaryLegGroup+MultiMuonGroup),
         ChainProp(name='HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6', l1SeedThresholds=['MU20','MU6'],   groups=PrimaryL1MuGroup+MultiMuonGroup),
 
-
         #ATR-20505
         ChainProp(name='HLT_2mu50_msonly_L1MU20', groups=PrimaryL1MuGroup+SingleMuonGroup),   
 
@@ -135,8 +134,18 @@ def setupMenu():
         ChainProp(name='HLT_mu20_L1MU6',     l1SeedThresholds=['MU6'],   groups=SingleMuonGroup+LowMuGroup),
 
         # Late stream for LLP
-        ChainProp(name='HLT_3mu6_msonly_L1MU6_EMPTY', l1SeedThresholds=['MU6'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
-        ChainProp(name='HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO', l1SeedThresholds=['MU4'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
+        ChainProp(name='HLT_3mu6_msonly_L1MU6_EMPTY', l1SeedThresholds=['MU6'], stream=['Late'], groups=PrimaryLegGroup+MultiMuonGroup),
+        ChainProp(name='HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO', l1SeedThresholds=['MU4'], stream=['Late'], groups=PrimaryLegGroup+MultiMuonGroup),
+
+        # Test T&P dimuon
+        ChainProp(name='HLT_mu24_mu6_L1MU20', l1SeedThresholds=['MU20','MU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_mu6_probe_L1MU20', l1SeedThresholds=['MU20','PROBEMU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_L1MU20', l1SeedThresholds=['MU20','MU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarmedium_L1MU20', l1SeedThresholds=['MU20','MU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20', l1SeedThresholds=['MU20','MU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_probe_L1MU20', l1SeedThresholds=['MU20','PROBEMU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU20', l1SeedThresholds=['MU20','PROBEMU4'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU20', l1SeedThresholds=['MU20','PROBEMU4'], groups=MultiMuonGroup),
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [

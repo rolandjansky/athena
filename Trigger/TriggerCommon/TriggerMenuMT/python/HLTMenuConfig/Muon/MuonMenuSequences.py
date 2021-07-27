@@ -84,7 +84,7 @@ def muFastAlgSequence(ConfigFlags):
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastSequence ])
     return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
 
-def muFastSequence():
+def muFastSequence(is_probe_leg=False):
     
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -98,10 +98,11 @@ def muFastSequence():
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
                          Hypo        = trigMufastHypo,
-                         HypoToolGen = TrigMufastHypoToolFromDict  )
+                         HypoToolGen = TrigMufastHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
 
 
-def muFastOvlpRmSequence():
+def muFastOvlpRmSequence(is_probe_leg=False):
     
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -115,10 +116,11 @@ def muFastOvlpRmSequence():
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
                          Hypo        = trigMufastHypo,
-                         HypoToolGen = TrigMufastHypoToolwORFromDict )
+                         HypoToolGen = TrigMufastHypoToolwORFromDict,
+                         IsProbe     = is_probe_leg )
 
 
-def mul2mtSAOvlpRmSequence():
+def mul2mtSAOvlpRmSequence(is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -132,7 +134,8 @@ def mul2mtSAOvlpRmSequence():
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
                          Hypo        = trigMufastHypo,
-                         HypoToolGen = Trigl2mtSAHypoToolwORFromDict )
+                         HypoToolGen = Trigl2mtSAHypoToolwORFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 #-----------------------------------------------------#
@@ -227,7 +230,7 @@ def muCombAlgSequence(ConfigFlags):
 
 
 
-def muCombSequence():
+def muCombSequence(is_probe_leg=False):
    
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -242,7 +245,8 @@ def muCombSequence():
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolFromDict )
+                         HypoToolGen = TrigmuCombHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
   
 
 def muCombLRTAlgSequence(ConfigFlags):
@@ -285,7 +289,7 @@ def muCombLRTAlgSequence(ConfigFlags):
 
 
 
-def muCombLRTSequence():
+def muCombLRTSequence(is_probe_leg=False):
    
     (l2muCombLRTSequence, l2muCombLRTViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombLRTAlgSequence, ConfigFlags)
 
@@ -300,10 +304,11 @@ def muCombLRTSequence():
     return MenuSequence( Sequence    = l2muCombLRTSequence,
                          Maker       = l2muCombLRTViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolFromDict )
+                         HypoToolGen = TrigmuCombHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
   
 
-def muCombOvlpRmSequence():
+def muCombOvlpRmSequence(is_probe_leg=False):
    
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -317,11 +322,12 @@ def muCombOvlpRmSequence():
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolwORFromDict )
+                         HypoToolGen = TrigmuCombHypoToolwORFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
-def mul2IOOvlpRmSequence():
+def mul2IOOvlpRmSequence(is_probe_leg=False):
 
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -336,10 +342,11 @@ def mul2IOOvlpRmSequence():
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = Trigl2IOHypoToolwORFromDict )
+                         HypoToolGen = Trigl2IOHypoToolwORFromDict,
+                         IsProbe     = is_probe_leg )
 
 
-def mul2mtCBOvlpRmSequence():
+def mul2mtCBOvlpRmSequence(is_probe_leg=False):
    
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -353,7 +360,8 @@ def mul2mtCBOvlpRmSequence():
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = Trigl2mtCBHypoToolwORFromDict )
+                         HypoToolGen = Trigl2mtCBHypoToolwORFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
@@ -391,7 +399,7 @@ def muEFSAAlgSequence(ConfigFlags):
 
     return (muonEFSAonlySequence, efsaViewsMaker, sequenceOut)
 
-def muEFSASequence():
+def muEFSASequence(is_probe_leg=False):
     
     (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
 
@@ -405,7 +413,8 @@ def muEFSASequence():
     return MenuSequence( Sequence    = muonEFSAonlySequence,
                          Maker       = efsaViewsMaker,
                          Hypo        = trigMuonEFSAHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
@@ -462,7 +471,7 @@ def muEFCBAlgSequence(ConfigFlags):
 
     return (muonSequence, efcbViewsMaker, sequenceOut)
 
-def muEFCBSequence():
+def muEFCBSequence(is_probe_leg=False):
 
     (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
 
@@ -477,7 +486,8 @@ def muEFCBSequence():
     return MenuSequence( Sequence    = muonEFCBSequence,
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 
@@ -506,7 +516,7 @@ def muEFCBLRTAlgSequence(ConfigFlags):
 
     return (muonSequence, efcbViewsMaker, sequenceOut)
 
-def muEFCBLRTSequence():
+def muEFCBLRTSequence(is_probe_leg=False):
 
     (muonEFCBLRTSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBLRTAlgSequence, ConfigFlags)
 
@@ -521,7 +531,8 @@ def muEFCBLRTSequence():
     return MenuSequence( Sequence    = muonEFCBLRTSequence,
                          Maker       = efcbViewsMaker,
                          Hypo        = trigMuonEFCBLRTHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
 
 ######################
@@ -553,7 +564,7 @@ def muEFSAFSAlgSequence(ConfigFlags):
 
     return (muonEFSAFSSequence, efsafsInputMaker, sequenceOut)
 
-def muEFSAFSSequence():
+def muEFSAFSSequence(is_probe_leg=False):
 
     (muonEFSAFSSequence, efsafsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAFSAlgSequence, ConfigFlags)
 
@@ -568,7 +579,8 @@ def muEFSAFSSequence():
     return MenuSequence( Sequence    = muonEFSAFSSequence,
                          Maker       = efsafsInputMaker,
                          Hypo        = trigMuonEFSAFSHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName )
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromName,
+                         IsProbe     = is_probe_leg )
 
 ######################
 ### EF CB full scan ###
@@ -600,7 +612,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
 
     return (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut)
 
-def muEFCBFSSequence():
+def muEFCBFSSequence(is_probe_leg=False):
 
     (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBFSAlgSequence, ConfigFlags)
 
@@ -615,7 +627,8 @@ def muEFCBFSSequence():
     return MenuSequence( Sequence    = muonEFCBFSSequence,
                          Maker       = efcbfsInputMaker,
                          Hypo        = trigMuonEFCBFSHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName )
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromName,
+                         IsProbe     = is_probe_leg )
 
 def efLateMuRoIAlgSequence(ConfigFlags):
 
@@ -749,7 +762,7 @@ def muEFIsoAlgSequence(ConfigFlags, doMSiso=False):
 
     return (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut)
 
-def muEFIsoSequence():
+def muEFIsoSequence(is_probe_leg=False):
  
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags)
 
@@ -763,9 +776,10 @@ def muEFIsoSequence():
     return MenuSequence( Sequence    = efmuIsoSequence,
                          Maker       = efmuIsoViewsMaker,
                          Hypo        = trigmuefIsoHypo,
-                         HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
 
-def muEFMSIsoSequence():
+def muEFMSIsoSequence(is_probe_leg=False):
  
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags, doMSiso=True)
 
@@ -779,7 +793,8 @@ def muEFMSIsoSequence():
     return MenuSequence( Sequence    = efmuIsoSequence,
                          Maker       = efmuIsoViewsMaker,
                          Hypo        = trigmuefIsoHypo,
-                         HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict )
+                         HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
   
   
 ######################

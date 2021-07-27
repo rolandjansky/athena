@@ -456,10 +456,15 @@ namespace TrigCompositeUtils {
     fullyExploredFrom.insert(node);
   }
 
-
-  bool typelessFindLinks(const Decision* start, const std::string& linkName,
-    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec, std::vector<const Decision*>& sourceVec,
-    const unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom)
+  // Note: This version of the function recurses through a full navigation graph (initial input: Decision Object)
+  bool typelessFindLinks(const Decision* start, 
+    const std::string& linkName,
+    std::vector<uint32_t>& keyVec, 
+    std::vector<uint32_t>& clidVec, 
+    std::vector<uint16_t>& indexVec, 
+    std::vector<const Decision*>& sourceVec,
+    const unsigned int behaviour, 
+    std::set<const Decision*>* fullyExploredFrom)
   {
     using namespace msgFindLink;
 
@@ -469,7 +474,90 @@ namespace TrigCompositeUtils {
         << keyVec.size() << ", " << clidVec.size()  << ", " << indexVec.size());
       return false;
     }
+
     // Locate named links. Both collections of links and individual links are supported.
+    bool found = typelessFindLinksCommonLinkCollection(start, linkName, keyVec, clidVec, indexVec, sourceVec);
+   
+    // Early exit
+    if (found && behaviour == TrigDefs::lastFeatureOfType) {
+      return true;
+    }
+    // If not Early Exit, then recurse
+    for (const ElementLink<DecisionContainer> seed : getLinkToPrevious(start)) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
+        // We only need to recursively explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        if (fullyExploredFrom->count(*seed) == 1) {
+          continue; 
+        }
+      }
+#endif
+      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, sourceVec, behaviour, fullyExploredFrom);
+    }
+    // Fully explored this node
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start);
+    }
+    return found;
+  }
+
+  // Note: This version of the function recurses through a sub-graph of the full navigation graph (initial input: NavGraphNode)
+  bool typelessFindLinks(const NavGraphNode* start, 
+    const std::string& linkName,
+    std::vector<uint32_t>& keyVec, 
+    std::vector<uint32_t>& clidVec, 
+    std::vector<uint16_t>& indexVec, 
+    std::vector<const Decision*>& sourceVec,
+    const unsigned int behaviour, 
+    std::set<const Decision*>* fullyExploredFrom)
+  {
+    using namespace msgFindLink;
+
+    // As the append vectors are user-supplied, perform some input validation. 
+    if (keyVec.size() != clidVec.size() or clidVec.size() != indexVec.size()) {
+      ANA_MSG_WARNING("In typelessFindLinks, keyVec, clidVec, indexVec must all be the same size. Instead have:"
+        << keyVec.size() << ", " << clidVec.size()  << ", " << indexVec.size());
+      return false;
+    }
+
+    const Decision* start_decisionObject = start->node(); 
+    // Locate named links. Both collections of links and individual links are supported.
+    bool found = typelessFindLinksCommonLinkCollection(start_decisionObject, linkName, keyVec, clidVec, indexVec, sourceVec);
+
+    // Early exit
+    if (found && behaviour == TrigDefs::lastFeatureOfType) {
+      return true;
+    }
+    // If not Early Exit, then recurse
+    for (const NavGraphNode* seed : start->seeds()) {
+#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
+      if (fullyExploredFrom != nullptr) {
+        // We only need to recursively explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        const Decision* seed_decisionObject = seed->node(); 
+        if (fullyExploredFrom->count(seed_decisionObject) == 1) {
+          continue; 
+        }
+      }
+#endif
+      found |= typelessFindLinks(seed, linkName, keyVec, clidVec, indexVec, sourceVec, behaviour, fullyExploredFrom);
+    }
+    // Fully explored this node
+    if (fullyExploredFrom != nullptr) {
+      fullyExploredFrom->insert(start_decisionObject);
+    }
+    return found;
+  }
+
+
+  bool typelessFindLinksCommonLinkCollection(const Decision* start,
+    const std::string& linkName,
+    std::vector<uint32_t>& keyVec, 
+    std::vector<uint32_t>& clidVec,
+    std::vector<uint16_t>& indexVec, 
+    std::vector<const Decision*>& sourceVec) 
+  {
     bool found = false;
     std::vector<uint32_t> tmpKeyVec;
     std::vector<uint32_t> tmpClidVec;
@@ -507,33 +595,17 @@ namespace TrigCompositeUtils {
         sourceVec.push_back( start );
       }
     }
-    // Early exit
-    if (found && behaviour == TrigDefs::lastFeatureOfType) {
-      return true;
-    }
-    // If not Early Exit, then recurse
-    for (const auto seed : getLinkToPrevious(start)) {
-#if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
-      if (fullyExploredFrom != nullptr) {
-        // We only need to recursively explore back from each node in the graph once.
-        // We can keep a record of nodes which we have already explored, these we can safely skip over.
-        if (fullyExploredFrom->count(start) == 1) {
-          continue; 
-        }
-      }
-#endif
-      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, sourceVec, behaviour, fullyExploredFrom);
-    }
-    // Fully explored this node
-    if (fullyExploredFrom != nullptr) {
-      fullyExploredFrom->insert(start);
-    }
     return found;
   }
 
 
-  bool typelessFindLink(const Decision* start, const std::string& linkName, 
-    uint32_t& key, uint32_t& clid, uint16_t& index, const Decision*& source,
+
+  bool typelessFindLink(const Decision* start,
+    const std::string& linkName, 
+    uint32_t& key, 
+    uint32_t& clid, 
+    uint16_t& index,
+    const Decision*& source,
     const bool suppressMultipleLinksWarning)
   {
     using namespace msgFindLink;
@@ -547,7 +619,7 @@ namespace TrigCompositeUtils {
     std::vector<uint32_t> clidVec;
     std::vector<uint16_t> indexVec;
     std::vector<const Decision*> sourceVec;
-    std::set<const Decision*> fullyExploredFrom;
+    std::set<const xAOD::TrigComposite*> fullyExploredFrom;
 
     const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, sourceVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
     if (!result) {
@@ -564,6 +636,46 @@ namespace TrigCompositeUtils {
     source = sourceVec.at(0);
     return true; 
   }
+
+
+  bool typelessFindLink(const NavGraph& subGraph,
+    const std::string& linkName, 
+    uint32_t& key,
+    uint32_t& clid,
+    uint16_t& index,
+    const Decision*& source,
+    const bool suppressMultipleLinksWarning)
+  {
+    using namespace msgFindLink;
+    // Note: This function should be the same as its predecessor, just using a NavGraph to start rather than a Decision*
+    // As a result, it can search from more than one Decision* (the NavGraph may have more than one final node)
+    // but it will still warn if this results in more than one link being located.
+    std::vector<uint32_t> keyVec;
+    std::vector<uint32_t> clidVec;
+    std::vector<uint16_t> indexVec;
+    std::vector<const Decision*> sourceVec;
+    std::set<const Decision*> fullyExploredFrom;
+
+    bool result = false;
+    for (const NavGraphNode* finalNode : subGraph.finalNodes()) {
+      result |= typelessFindLinks(finalNode, linkName, keyVec, clidVec, indexVec, sourceVec, TrigDefs::lastFeatureOfType, &fullyExploredFrom);
+    }
+
+    if (!result) {
+      return false; // Nothing found
+    }
+
+    if (keyVec.size() > 1 && !suppressMultipleLinksWarning) {
+      ANA_MSG_WARNING (keyVec.size() << " typeless links found for " << linkName
+                       << " returning the first link, consider using findLinks.");
+    }
+    key = keyVec.at(0);
+    clid = clidVec.at(0);
+    index = indexVec.at(0);
+    source = sourceVec.at(0);
+    return true; 
+  }
+
 
   Combinations buildCombinations(
     const std::string& chainName,

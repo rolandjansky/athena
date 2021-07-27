@@ -234,7 +234,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
         bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
         bool objectRequestsNoMultiplicityCheck = false; // Will be set to true if the object has been flagged as independently satisfying all requirements on a leg
-        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex, roiIsFullscan, objectRequestsNoMultiplicityCheck, priorFeaturesMap) );
+        ATH_CHECK( extractFeatureAndRoI(it->first, dEL, featureKey, featureIndex, roiKey, roiIndex, roiIsFullscan, objectRequestsNoMultiplicityCheck, priorFeaturesMap) );
         const bool theFeatureIsTheROI = (featureKey == roiKey and featureIndex == roiIndex); // The user explicitly set the feature === the RoI
         const bool thereIsNoFeatureYet = (featureKey == 0 and roiKey != 0); // The leg has not yet started to process
         if (objectRequestsNoMultiplicityCheck or (roiIsFullscan and (theFeatureIsTheROI or thereIsNoFeatureYet))) {
@@ -376,9 +376,12 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 }
 
 
-StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>& dEL,
-  uint32_t& featureKey, uint16_t& featureIndex,
-  uint32_t& roiKey, uint16_t& roiIndex,
+StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
+  const ElementLink<DecisionContainer>& dEL,
+  uint32_t& featureKey,
+  uint16_t& featureIndex,
+  uint32_t& roiKey,
+  uint16_t& roiIndex,
   bool& roiIsFullscan,
   bool& objectRequestsNoMultiplicityCheck,
   std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap
@@ -387,22 +390,41 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   // Return collections for the findLinks call. 
   // While we will be focusing on the most recent feature, for tag-and-probe we need to keep a record of the features from the prior steps too.
 
-  uint32_t clid; // Unused 
+  // Construct a sub-graph following just this leg back through the nav
+  DecisionIDContainer chainLegIdSet = {chainLegId.numeric()};
+  TrigCompositeUtils::NavGraph subGraph;
+  recursiveGetDecisions((*dEL), subGraph, chainLegIdSet, /*enforceDecisionOnStartNode =*/ true);
+
+  if (subGraph.finalNodes().size() != 1) {
+    ATH_MSG_ERROR("We are only expecting to search from a single navigation node in extractFeatureAndRoI");
+    return StatusCode::FAILURE;
+  }
+  const NavGraphNode* start = *(subGraph.finalNodes().begin());
+
+  std::vector<uint32_t> keys;
+  std::vector<uint32_t> clids; // We don't care about the class ID. This part gets ignored.
+  std::vector<uint16_t> indicies;
+  std::vector<const Decision*> sources;
+
+  std::set<const xAOD::TrigComposite*> fullyExploredFrom; // This is a cache which typelessFindLinks will use to avoid re-visiting already explored regions of the graph
+  // Note: This call to typelessFindLinks is exploring from a NavGraphNode* rather than a Decision*,
+  // this indicates that the search is restricted to a sub-graph (specifically, only following one chain-leg)
+  const bool foundFeature = typelessFindLinks(start, featureString(), keys, clids, indicies, sources, TrigDefs::allFeaturesOfType, &fullyExploredFrom);
+
   const Decision* featureSource = nullptr;
-  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, clid, featureIndex, featureSource);
+  // The "most recent" feature (from the step just run) is the one we find first. Hence it's at index 0
+  if (foundFeature) {
+    featureKey = keys.at(0);
+    featureIndex = indicies.at(0);
+    featureSource = sources.at(0);
+  }
 
   objectRequestsNoMultiplicityCheck = (featureSource and featureSource->hasDetail<int32_t>("noCombo") and featureSource->getDetail<int32_t>("noCombo") == 1);
 
   if (foundFeature and priorFeaturesMap.count(featureKey + featureIndex) == 0) {
     const std::string* key_str = evtStore()->keyToString(featureKey);
     ATH_MSG_DEBUG("Note: Will use feature hash " << featureKey + featureIndex << ", for " << (key_str ? *key_str : "UNKNOWN") << " index=" << featureIndex);
-    // Perform a deep search. This doesn't just find the most recent feature, it finds features from past steps too.
-    std::vector<uint32_t> keys;
-    std::vector<uint32_t> clids; // We don't care about the class ID. This part gets ignored.
-    std::vector<uint16_t> indicies;
-    std::vector<const Decision*> sources; // Unused
-    std::set<const xAOD::TrigComposite*> fullyExploredFrom; // This is a cache which typelessFindLinks will use to avoid re-visiting already explored regions of the graph
-    typelessFindLinks((*dEL), featureString(), keys, clids, indicies, sources, TrigDefs::allFeaturesOfType, &fullyExploredFrom);
+    // Use the deep-search data to look further back than .at(0)
     // Here's where we keep the record of the features in previous steps. Step ordering is unimportant, we can use a set.
     if (keys.size() > 1) {
       for (size_t i = 1; i < keys.size(); ++i) { // Skip the 1st entry, this will be equal to featureKey and featureIndex from typelessFindLink above.
@@ -417,19 +439,21 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
     }
   }
 
-  // Try and get seeding ROI data too. Don't need to be type-less here
-  LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
-  if (roiSeedLI.isValid()) {
-    roiKey = roiSeedLI.link.key();
-    roiIndex = roiSeedLI.link.index();
-    roiIsFullscan = (*(roiSeedLI.link))->isFullscan();
+  // Try and get seeding ROI data too.
+  uint32_t roiClid; // Unused
+  const Decision* roiSource; // Unused
+  const bool foundROI = typelessFindLink(subGraph, initialRoIString(), roiKey, roiClid, roiIndex, roiSource);
+  if (foundROI) {
+    ElementLink<TrigRoiDescriptorCollection> roiEL(roiKey, roiIndex);
+    ATH_CHECK( roiEL.isValid() );
+    roiIsFullscan = (*(roiEL))->isFullscan();
     if (!foundFeature) {
       const std::string* roi_str = evtStore()->keyToString(roiKey);
       ATH_MSG_DEBUG("Note: Located fallback-ROI, if used this will have feature hash =" << roiKey + roiIndex << ", for " << (roi_str ? *roi_str : "UNKNOWN") << " index=" << roiIndex);
     }
   }
 
-  if (!foundFeature && !roiSeedLI.isValid()) {
+  if (!foundFeature && !foundROI) {
     ATH_MSG_WARNING("Did not find the feature or initialRoI for " << dEL.dataID() << " index " << dEL.index());
   }
 
