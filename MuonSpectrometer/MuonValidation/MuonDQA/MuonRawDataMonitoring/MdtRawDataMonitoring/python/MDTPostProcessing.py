@@ -3,7 +3,8 @@
 #
 
 from ROOT import TH1F
-from .MdtMonUtils import putBoxMdtGlobal, getTubeLength, MDT2DHWName, MDTTubeEff
+from .MdtMonUtils import putBoxMdtGlobal, getTubeLength, MDT2DHWName, MDTTubeEff, MDTFitTDC
+from math import sqrt
 import numpy as np
 
 def make_hits_per_evt(inputs):
@@ -193,7 +194,92 @@ def make_eff_histo_perML(inputs, ec):
    heff_extra.Divide(heff_extra_N)
 
    return [heff_outer, heff_middle, heff_inner, heff_extra]
+   
+def drift_time_monitoring(inputs, ec):
 
+   ecap = ["BA", "BC", "EA", "EC"]
+   ecap_str= ecap[ec]
+
+   size = len(inputs)
+
+   sumt0_name = "MDT_t0_"+ecap_str
+   sumt0 = TH1F(sumt0_name,sumt0_name,1,0,1)
+   sumt0.SetFillColor(42)
+   sumt0.SetMarkerStyle(20)
+   sumt0.SetMarkerColor(42)
+   sumt0.SetAxisRange(0,300,"y")
+   sumt0.Reset()
+
+   sumtmax_name = "MDT_tmax_"+ecap_str
+   sumtmax = TH1F(sumtmax_name,sumtmax_name,1,0,1)
+   sumtmax.SetFillColor(42)
+   sumtmax.SetMarkerStyle(20)
+   sumtmax.SetMarkerColor(42)
+   sumtmax.SetAxisRange(0,1500,"y")
+   sumtmax.Reset()
+
+   sumtdrift_name = "MDT_tdrift_"+ecap_str
+   sumtdrift = TH1F(sumtdrift_name,sumtdrift_name,1,0,1)
+   sumtdrift.SetFillColor(42)
+   sumtdrift.SetMarkerStyle(20)
+   sumtdrift.SetMarkerColor(42)
+   sumtdrift.SetAxisRange(0,1200,"y")
+   sumtdrift.Reset()
+
+   h=TH1F()
+   
+   for i in range(size):
+      currentbin=i+1
+      h = inputs[i][1][0].Clone()
+      t0, t0err, tmax, tmaxerr = MDTFitTDC(h)
+
+      layer=""
+      if(currentbin<17):
+         layer = "In"
+      elif (currentbin<33):
+         layer = "Mid"
+      elif (currentbin<49):
+         layer = "Out"
+      else:
+         layer = "Ext"
+
+      stPhi = currentbin%16
+      if(layer=="Ext" and (ecap_str=="BA" or ecap_str=="BC")):
+         stPhi = 2*currentbin%16
+                    
+      if(stPhi==0):
+         stPhi=16
+
+      phi = str(stPhi)
+      sector = ecap_str+"_"+layer+"_"+phi
+      if(h.GetEntries()<100):
+         sector+="_OFF"
+      elif(t0err>t0):
+         sector+="_ERR"
+      
+      sumt0.Fill(sector,t0)
+      sumt0.SetBinError(currentbin,t0err)
+      sumtmax.Fill(sector,tmax)
+      sumtmax.SetBinError(currentbin,tmaxerr)
+      if(tmax-t0 < 0 or tmax-t0 > 2000) :
+         sumtdrift.Fill(sector,0)
+         sumtdrift.SetBinError(currentbin,2000)
+      else:
+         sumtdrift.Fill(sector,tmax-t0)
+         sumtdrift.SetBinError(currentbin,sqrt(tmaxerr*tmaxerr + t0err*t0err))
+                                  
+
+   sumt0.LabelsDeflate("x")
+   sumtmax.LabelsDeflate("x")
+   sumtdrift.LabelsDeflate("x")
+   if(sumt0.GetNbinsX()>1) :
+      sumt0.LabelsOption("v","x")
+   if(sumtmax.GetNbinsX()>1) :
+      sumtmax.LabelsOption("v","x")
+   if(sumtdrift.GetNbinsX()>1) :
+      sumtdrift.LabelsOption("v","x")
+
+   return [sumt0, sumtmax, sumtdrift]
 
 def MdtGlobalBox(inputs):
    EvtOccBCap = inputs[0][1][0]
