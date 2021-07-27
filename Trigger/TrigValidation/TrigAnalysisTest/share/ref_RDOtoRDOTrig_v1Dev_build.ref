@@ -6419,7 +6419,7 @@ HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6:
     0: 5
     1: 4
     2: 1
-    3: 4
+    3: 2
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_J40:
   eventCount: 1
   stepCounts:

@@ -57,9 +57,9 @@ def setupMenu():
     ]
 
     chains["jet"] = [
-        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
-        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-        ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
+        ChainProp(name='HLT_j45_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_2j35_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup)
     ]
 
     chains["bjet"] = [
@@ -72,15 +72,15 @@ def setupMenu():
         ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM', groups=SingleTauGroup),
     ]
     chains["met"] = [
-        ChainProp(name='HLT_xe30_tcpufit_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_trkmht_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfopufit_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_cell_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_tcpufit_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_trkmht_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfopufit_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_cell_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
     ]
 
     chains["minbias"] = [
