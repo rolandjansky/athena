@@ -50,20 +50,30 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
  
   StatusCode sc = StatusCode::SUCCESS;
 
-  const xAOD::MuonContainer      * muon_cont      = 0;
+  const xAOD::MuonContainer      * muon_cont  = 0;
   const xAOD::MissingETContainer * off_met_cont = 0;
     
+  bool found_met = false;
+
   sc = evtStore()->retrieve(muon_cont, "Muons");
   if(!sc.isSuccess())
   {
     ATH_MSG_WARNING("Failed to retrieve Muons container. Exiting.");
     return sc;
   }
-  sc = evtStore()->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
-  if (!sc.isSuccess() || !off_met_cont) 
-  {
-    ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo");
-    return sc;
+
+  if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo"))
+  { 
+    found_met = true;
+  }   
+
+  if(found_met){
+    sc = evtStore()->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
+    if (!sc.isSuccess() || !off_met_cont) 
+    {
+      ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo");
+      return sc;
+    }
   }
 
   TLorentzVector Tau_TLV (0.,0.,0.,0.);
@@ -175,24 +185,26 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
   float off_met   = -9e9;
   //float off_sumet = -9e9;
   //float off_phi   = -9e9;
-  
-  if (off_met_cont && off_met_cont->size())
+ 
+  if(found_met){ 
+    if (off_met_cont && off_met_cont->size())
     {
       off_met_ptr = (*off_met_cont)["FinalClus"];
-      if(off_met_ptr){ 
-       off_ex = (off_met_ptr->mpx());
-       off_ey = (off_met_ptr->mpy());
+      if(off_met_ptr)
+      { 
+        off_ex = (off_met_ptr->mpx());
+        off_ey = (off_met_ptr->mpy());
       }
     }
+  
+    if(off_ex!=0. || off_ey!=0.) off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
+    if(off_met==-9e9 || off_met==0.) return StatusCode::SUCCESS; 
+    
+    MET_TLV.SetPxPyPzE(off_ex,off_ey,0.,off_met);
+    ATH_MSG_DEBUG("off_met:" << off_met );
+  }   
  
-  if(off_ex!=0. || off_ey!=0.) off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
-  if(off_met==-9e9 || off_met==0.) return StatusCode::SUCCESS; 
-      //off_sumet = ((*off_met_cont)["FinalClus"]->sumet());
-      //off_phi = atan2(off_ey, off_ex);
-     
-  MET_TLV.SetPxPyPzE(off_ex,off_ey,0.,off_met);
-  ATH_MSG_DEBUG("off_met:" << off_met );
-     
+ 
   float  ltau_charge  = -99.0;
   double ltau_vismass = -99.0;
   //double cos_dphi     = -99.0;
@@ -207,14 +219,17 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
       ltau_charge  = Tau_charge + Muon_charge;
       ltau_vismass = (Tau_TLV + Muon_TLV).M();
       //cos_dphi     = cos(Muon_TLV.DeltaPhi(MET_TLV)) + cos(Tau_TLV.DeltaPhi(MET_TLV)) ;
-      mt           = sqrt(2 * Muon_TLV.Pt() * off_met * (1 - cos(Muon_TLV.DeltaPhi(MET_TLV)) ) );
+      if(found_met)
+      {  
+        mt = sqrt(2 * Muon_TLV.Pt() * off_met * (1 - cos(Muon_TLV.DeltaPhi(MET_TLV)) ));
+      }
       //ltau_deta    = deltaEta(Tau_TLV.Eta(), Muon_TLV.Eta());
       //ltau_dR      = Tau_TLV.DeltaR(Muon_TLV);
   }
 
   //Event Selection
   if(ltau_charge == 0.     &&  
-     mt < 60000.           && 
+     (!( found_met && mt > 60000.)) && 
      //cos_dphi > -0.5       && 
      //fabs(ltau_deta) < 1.5 && 
      //ltau_dR > 2.9         &&
