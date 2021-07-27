@@ -33,12 +33,6 @@
 #include "TrigT1CaloEvent/JetCMXData_ClassDEF.h"
 #include "TrigT1CaloEvent/JetInput.h"
 
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
-
 
 
 namespace LVL1{
@@ -54,10 +48,8 @@ JEMJetSim::JEMJetSim
     : AthAlgorithm( name, pSvcLocator ), 
       m_allTOBs(0),
       m_JetCMXData(0),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_JetTool("LVL1::L1JEMJetTools/L1JEMJetTools")
 {
-    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
 
@@ -70,8 +62,6 @@ StatusCode JEMJetSim::initialize()
   ATH_CHECK( m_JetElementInputKey.initialize() );
   ATH_CHECK( m_JEMTobRoIOutputKey.initialize() );
   ATH_CHECK( m_JetCMXDataOutputKey.initialize() );
-
-  ATH_CHECK(  m_configSvc.retrieve() );
   ATH_CHECK( m_JetTool.retrieve() );
   return StatusCode::SUCCESS ;
 }
@@ -202,49 +192,5 @@ void LVL1::JEMJetSim::storeModuleRoIs() {
 
 
 } // end of LVL1 namespace bracket
-
-
-/** print trigger configuration, for debugging purposes */
-void LVL1::JEMJetSim::printTriggerMenu(){
-  /** This is all going to need updating for the new menu structure.
-      Comment out in the meanwhile 
-  
-  L1DataDef def;
-
-  unsigned int numThresh=0;  
-  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold*>::const_iterator it;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.jetType() ||
-         (*it)->type() == def.fjetType()  ||
-         (*it)->type() == def.jfType()  ||
-         (*it)->type() == def.jbType()) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
-          << "  threshold number " << (*it)->thresholdNumber() << endmsg
-          << "  number of values = " << (*it)->numberofValues() );
-      for (std::vector<TrigConf::TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
-           tv != (*it)->thresholdValueVector().end(); ++tv) {
-        TrigConf::JetThresholdValue* jtv;
-        jtv = dynamic_cast<JetThresholdValue*> (*tv);
-        if (!jtv) {
-          ATH_MSG_ERROR("Threshold type name is Jet, but is not a JetThreshold object!" );
-          continue;
-        }
-        ATH_MSG_DEBUG("JetThresholdValue: " << endmsg
-            << "  Type = " << (*it)->type() << endmsg
-            << "  Threshold value = " << jtv->thresholdValueCount() << endmsg
-            << "  Cluster size = " << jtv->window() << endmsg
-            << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() );
-        
-      } // end of loop over threshold values
-      numThresh++;
-    } //  is type == jet or forward jet
-  } // end of loop over thresholds
-
-  return;
-  
-  */
-    
-}
 
 

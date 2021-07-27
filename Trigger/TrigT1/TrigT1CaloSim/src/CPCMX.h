@@ -72,7 +72,7 @@
    StatusCode initialize() ;
    StatusCode execute() ;
 
- private: // Private methods
+ private:
    /** Store CTP SLink data objects in the TES. */
 //   void storeCTPData();
    /** Store L1Topo inputs in the TES */
@@ -80,10 +80,7 @@
    /** Store DAQ objects in the TES */
 //   void storeReadoutObjects();
 
-  /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu();
-  
- private: // Private attributes
+ private:
 
    /** Where to store the CMXCPHits (for CMX readout simulation) */
    SG::WriteHandleKey<DataVector<CMXCPHits>> m_CMXCPHitsLocation { this, "CMXCPHitsLocation", TrigT1CaloDefs::CMXCPHitsLocation};
