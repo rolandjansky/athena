@@ -42,7 +42,7 @@ void Br::copy(Br* br) {
 	track_refitted_pz    = br->track_refitted_pz;
 	track_color          = br->track_color;
 	track_refitted_color = br->track_refitted_color;
-	
+
 	//neutral tracks
 	neutral_refitted_px = br->neutral_refitted_px;
 	neutral_refitted_py = br->neutral_refitted_py;
@@ -80,7 +80,7 @@ void Br::clearBranches() {
 	track_refitted_pz->clear();
 	track_color->clear();
 	track_refitted_color->clear();
-	
+
 	//neutral tracks
 	neutral_refitted_px->clear();
 	neutral_refitted_py->clear();
@@ -106,7 +106,7 @@ VertexNode::~VertexNode() {
 	}
 
 	clearBranches();
-	
+
 	delete track_pt;
 	delete track_eta;
 	delete track_phi;
@@ -125,7 +125,7 @@ VertexNode::~VertexNode() {
 	delete neutral_length;
 	delete neutral_decay;
 	delete neutral_color;
-	
+
 }
 
 //******************************************************
@@ -233,7 +233,7 @@ VP1BPhysConvertor::VP1BPhysConvertor(VertexNode* decayTopology, std::string outF
 
 	m_outFile = TFile::Open(outFile.c_str(),"RECREATE");
 	m_tree = new TTree("vp1bphys","vp1bphys");
-	
+
 	initBranches();
 	clear();
 
@@ -285,7 +285,7 @@ void VP1BPhysConvertor::initBranches() {
 void VP1BPhysConvertor::clear() {
 
 	vtx_daughters->clear();
-	
+
 	clear(m_decayTopology);
 }
 //******************************************************
@@ -316,10 +316,10 @@ void VP1BPhysConvertor::fill(VertexNode* node) {
 		offset+=count(node->getDaughters().at(i))+1;
 		vtx_daughters->push_back(m_entry+offset);
 	}
-	
+
 	m_tree->Fill();
 	++m_entry;
-	
+
 	for(unsigned int i=0; i<node->getDaughters().size(); ++i) {
 		fill(node->getDaughters().at(i));
 	}

@@ -57,7 +57,7 @@
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "GeoPrimitives/AmgStringHelpers.h"
-#include "GeoPrimitives/GeoPrimitives.h" 
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include <cassert>
 
@@ -251,7 +251,7 @@ TrackSysCommonData * TrackHandleBase::common() const
 
 //____________________________________________________________________
 void TrackHandleBase::updateShapes_TSOSWithMeasurements()
-{  
+{
   if (!m_d->tsos_ascobjs)
     return;
   std::vector<AscObj_TSOS*>::iterator
@@ -481,20 +481,20 @@ void TrackHandleBase::setVisible(bool vis)
 void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints, float maxR )
 {
   VP1Msg::messageVerbose(QString("TrackHandleBase::update3DObject with maxR set to ")+QString::number(maxR) );
-  if (maxR>0.0) {    
+  if (maxR>0.0) {
     m_d->tempMaxPropRadius=maxR;
   }
   if ( invalidatePropagatedPoints) {
     if (m_d->points_propagated != m_d->points_raw) {
       delete m_d->points_propagated;m_d->points_propagated = nullptr;
     }
-    delete m_d->points_raw;m_d->points_raw = nullptr;   
+    delete m_d->points_raw;m_d->points_raw = nullptr;
     if (m_d->points_propagated_id_projections) { delete m_d->points_propagated_id_projections; m_d->points_propagated_id_projections = nullptr; }
     if (m_d->points_propagated_muon_projections) { delete m_d->points_propagated_muon_projections; m_d->points_propagated_muon_projections = nullptr; }
   }
   if (m_visible) {
     m_d->rebuild3DObjects();
-  } else {    
+  } else {
     //Simply clear the present 3D objects. They will only be recreated if/when the track becomes visible again.
     clearLine();
   }
@@ -548,38 +548,38 @@ void TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty(const std::vect
 
 
   float maxR2=theclass->common()->controller()->propMaxRadius()>0.0?theclass->common()->controller()->propMaxRadius():std::numeric_limits<float>::max();
-  if (tempMaxPropRadius>0.0){    
+  if (tempMaxPropRadius>0.0){
     maxR2 = tempMaxPropRadius * tempMaxPropRadius;
     theclass->collHandle()->systemBase()->messageVerbose("maxR2 is set to "+VP1Msg::str(maxR2));
   }
   float vertexPlanePhi = (theclass->common()->controller()->vertexProjectionAngle())*M_PI/180;// angle of plane to use for vertex projection
   vertexPlanePhi-=M_PI; // ATLAS range is -PI to PI
-  
+
   // theclass->collHandle()->systemBase()->messageVerbose("TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty - adding "
   //     +VP1Msg::str(points.size())+" points up to R2 of "+VP1Msg::str(maxR2));
   theclass->collHandle()->systemBase()->messageVerbose("Vertex projection is set to "+VP1Msg::str(vertexPlanePhi));
-      
+
   // unsigned int count=0;
-  
+
   //For vertex projection
   Amg::Vector3D tempPoint;
-  
+
   double trkPhi =  theclass->momentum().phi(); // some tracks curve between sections otherwise.
-  double newPhi= vertexPlanePhi+M_PI; 
+  double newPhi= vertexPlanePhi+M_PI;
   if (cos(vertexPlanePhi-trkPhi)>0) newPhi=vertexPlanePhi;
   // theclass->collHandle()->systemBase()->messageVerbose("Vertex projection is set to "+VP1Msg::str(vertexPlanePhi)+" trkPhi= "+VP1Msg::str(trkPhi)+" newPhi="+VP1Msg::str(newPhi));
-  
+
   for (pointsIt = points.begin();pointsIt!=pointsItEnd && pointsIt->mag2()<maxR2; ++pointsIt) {
     // theclass->collHandle()->systemBase()->messageVerbose(VP1Msg::str(count++)+": point has perp2="+VP1Msg::str(pointsIt->perp2()));
     if (!isSane(*pointsIt)) {
       theclass->collHandle()->systemBase()->message("WARNING: Ignoring point on track:"+VP1Msg::str( *pointsIt ) );
       continue;
     }
-    
+
     if (theclass->collHandle()->parts() & TrackCommonFlags::VertexProjections){
       tempPoint = *pointsIt;
       Amg::setPhi(tempPoint, newPhi);
-      
+
     // std::cout<<trkPhi<<"\t"<<phi<<"\t"<<r0<<"\t"<<r1<<"\t"<<r2<<"\t"<<r3<<"\t"<<rotatePhi<<"\t"<<tempPoint.getPhi()<<std::endl;
 
       vertices->vertex.set1Value(iver++,tempPoint.x(),tempPoint.y(),tempPoint.z());
@@ -631,7 +631,7 @@ void TrackHandleBase::registerTrack()
 
 //____________________________________________________________________
 void TrackHandleBase::Imp::rebuild3DObjects()
-{  
+{
   //Ensure we are always detached while updating.
   if (theclass->m_visible)
     detach3DObjects();
@@ -692,7 +692,7 @@ void TrackHandleBase::Imp::rebuild3DObjects()
   //////////////////////////////////////////////////////////////
 
 
-// Add debugging surfaces. 
+// Add debugging surfaces.
   if (theclass->common()->trackPropagationHelper()->showExtrapolationSurfaces()){
     std::vector<Trk::PlaneSurface>& surfaces = theclass->common()->trackPropagationHelper()->getExtrapolationSurfaces();
     std::vector<Trk::PlaneSurface>::const_iterator surfIt=surfaces.begin(), surfEnd=surfaces.end();
@@ -702,9 +702,9 @@ void TrackHandleBase::Imp::rebuild3DObjects()
       SoNode* theSurfSep = surfCnv.translateSurface(*surfIt);
       if (theSurfSep) {
         SoNode * nodeToAdd = theSurfSep;
-        extrapSurfaces_sep->addChild(nodeToAdd); 
+        extrapSurfaces_sep->addChild(nodeToAdd);
       }
-    }  
+    }
   }
 
 // Add labels
@@ -785,10 +785,10 @@ void TrackHandleBase::Imp::rebuild3DObjects()
 
     SoTranslation *labelTranslate = new SoTranslation;
     float offScale=10.0;
-    int xOffset = theclass->common()->controller()->labelXOffset() ; 
-    int yOffset = theclass->common()->controller()->labelYOffset() ; 
+    int xOffset = theclass->common()->controller()->labelXOffset() ;
+    int yOffset = theclass->common()->controller()->labelYOffset() ;
     int zOffset = theclass->common()->controller()->labelZOffset() ;
-    labelTranslate->translation.setValue(labelPos.x()+(xOffset*offScale),labelPos.y()+(yOffset*offScale),labelPos.z()+(zOffset*offScale)); 
+    labelTranslate->translation.setValue(labelPos.x()+(xOffset*offScale),labelPos.y()+(yOffset*offScale),labelPos.z()+(zOffset*offScale));
 
     SoMaterial *sMat = new SoMaterial();
     SoMFColor sColor;
@@ -899,9 +899,9 @@ void TrackHandleBase::Imp::attach3DObjects()
     }
   }
   if (label_sep && theclass->common()->textSep() && theclass->common()->controller()->doTrackLabels())
-    theclass->common()->textSep()->addChild(label_sep); 
+    theclass->common()->textSep()->addChild(label_sep);
 
-  if (extrapSurfaces_sep) theclass->m_collhandle->sephelper()->addNodeUnderMaterial(extrapSurfaces_sep,theclass->m_currentmaterial); 
+  if (extrapSurfaces_sep) theclass->m_collhandle->sephelper()->addNodeUnderMaterial(extrapSurfaces_sep,theclass->m_currentmaterial);
 }
 
 //____________________________________________________________________
@@ -916,11 +916,11 @@ void TrackHandleBase::Imp::detach3DObjects()
       extraRepAttached=false;
     }
   }
-  if (label_sep && theclass->common()->textSep()) 
+  if (label_sep && theclass->common()->textSep())
     theclass->common()->textSep()->removeChild(label_sep);
 
-  if (extrapSurfaces_sep) 
-    theclass->m_collhandle->sephelper()->removeNodeUnderMaterial(extrapSurfaces_sep,theclass->m_currentmaterial); 
+  if (extrapSurfaces_sep)
+    theclass->m_collhandle->sephelper()->removeNodeUnderMaterial(extrapSurfaces_sep,theclass->m_currentmaterial);
 }
 
 //____________________________________________________________________
@@ -994,7 +994,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
         trackParam->position();//test
         points_raw->push_back( trackParam->position() );
         if (!firstmomentum) {
-        	//vect3d = 
+        	//vect3d =
         	firstmomentum = new Amg::Vector3D(trackParam->momentum());
         }
       }
@@ -1016,7 +1016,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
     } else if (points_raw->empty()) {
       theclass->collHandle()->systemBase()->message("TrackHandleBase ERROR: No points on track.");
     }
-    
+
     //std:: cout << "firstmomentum: " << firstmomentum << std::endl;
     delete firstmomentum;
     firstmomentum = nullptr;
@@ -1188,7 +1188,7 @@ void TrackHandleBase::Imp::ensureInitPointsProjections_Muon( bool raw )
 
     // now loop over the stored points
     std::vector<Amg::Vector3D >::const_iterator  pointsIt=points->begin(), pointsItEnd=points->end()-1;
-    for (;pointsIt!=pointsItEnd; pointsIt++) {
+    for (;pointsIt!=pointsItEnd; ++pointsIt) {
 
       // Do projections
       bool ok = projhelper->projectAndConstrainLineSegmentToMDTChamberEndWalls( *it, *pointsIt, *(pointsIt+1),
@@ -1280,10 +1280,10 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
     case TrackCollHandleBase::COLOUR_MOMENTUM:
     return theclass->common()->controller()->getMaterialForMomentum(theclass->momentum().mag());
     case TrackCollHandleBase::COLOUR_DISTANCE:
-    { 
+    {
     // AscObjSelectionManager* selManager=  theclass->common()->ascObjSelectionManager();
-    //      TrackHandleBase* handle = 0; 
-    //      if ( selManager ) {  
+    //      TrackHandleBase* handle = 0;
+    //      if ( selManager ) {
     //        QList<AssociatedObjectHandleBase*> selection = selManager->currentSelection();
     //        if (!selection.empty()) handle = selection[0]->trackHandle(); // Take first at the moment, but should loop and colour by all. FIXME!
     //        else theclass->collHandle()->systemBase()->message("Empty selection!");
@@ -1313,10 +1313,10 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
 
     // get colour of collection.
       const SbColor& col=theclass->collHandle()->material()->diffuseColor[0];
-      float r,g,b; 
+      float r,g,b;
       col.getValue(r,g,b);
 
-      double r3,g3,b3;    
+      double r3,g3,b3;
       if (colScale>0.01) {
 
       //Use QColor to get HSL
@@ -1339,7 +1339,7 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
       } else {
       // too close - take default values
         r3=r;b3=b;g3=g;
-      }    
+      }
 
       VP1MaterialButton::setMaterialParameters(mat,r3*brightness,g3*brightness,b3*brightness,
         theclass->collHandle()->collMaterialBrightness(),
@@ -1350,9 +1350,9 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
     case TrackCollHandleBase::COLOUR_VERTEX:
     {
       SoMaterial* mat = theclass->common()->system()->materialFromVertex(theclass);
-      if (mat) 
+      if (mat)
         return mat;
-      else 
+      else
         return theclass->collHandle()->material();
     }
     case TrackCollHandleBase::COLOUR_PERCOLLECTION:
@@ -1532,7 +1532,7 @@ QStringList TrackHandleBase::baseInfo() const
     l << "|Pt|/|P| [GeV]: "+VP1Msg::str(mom.perp())+" / " + VP1Msg::str(mom.mag());
     l << VP1Msg::str("(")+QChar(0x03B7)+","+QChar(0x03D5)+VP1Msg::str(")=(")
         +VP1Msg::str(mom.eta())+VP1Msg::str(",")+VP1Msg::str(VP1LinAlgUtils::phiFromXY(mom.x(), mom.y() ))+VP1Msg::str(")");
-    
+
     l << "Eta: "+VP1Msg::str(mom.eta());
     l << "Phi: "+VP1Msg::str(VP1LinAlgUtils::phiFromXY(mom.x(), mom.y() ));
   }
@@ -1595,11 +1595,11 @@ std::optional<Amg::Vector3D> TrackHandleBase::endPoint() const
   return {};
 }
 
-bool TrackHandleBase::isIDTrack() const 
+bool TrackHandleBase::isIDTrack() const
 {
   std::optional<Amg::Vector3D> start = startPoint();
   if (!start) return false;
-  return start->perp()<1100 &&fabs( start->z())>3500;  
+  return start->perp()<1100 &&fabs( start->z())>3500;
 }
 
 //____________________________________________________________________
@@ -1962,7 +1962,7 @@ void TrackHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) 
   QString direction = QString::fromUtf8("(\u03B7,\u03D5)=[") + QString::number(momentum().eta(),'f',2) + ","+QString::number(momentum().phi(),'f',2)+"], ";
   QString l = direction + shortInfo();
   m_d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
-  m_d->m_objBrowseTree->setText(1, l );    
+  m_d->m_objBrowseTree->setText(1, l );
 
   if (!visible()) {
     m_d->m_objBrowseTree->setFlags(nullptr); // not selectable, not enabled
@@ -1974,17 +1974,17 @@ QTreeWidgetItem* TrackHandleBase::browserTreeItem() const {return m_d->m_objBrow
 
 //____________________________________________________________________
 void TrackHandleBase::visibleStateChanged()
-{  
+{
   if ( !browserTreeItem()) {
     VP1Msg::messageVerbose("visibleStateChanged: No m_objBrowseTree!");
     return;
   }
-    
+
   if (!visible()) {
     browserTreeItem()->setFlags(nullptr); // not selectable, not enabled
   } else {
     browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
-  }  
+  }
   QFont itemFont = browserTreeItem()->font(0);
   itemFont.setStrikeOut(!visible());
   browserTreeItem()->setFont(0, itemFont);
