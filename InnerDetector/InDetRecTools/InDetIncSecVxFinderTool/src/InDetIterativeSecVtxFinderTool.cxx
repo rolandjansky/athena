@@ -2114,23 +2114,14 @@ float InDetIterativeSecVtxFinderTool::removeTracksInBadSeed( xAOD::Vertex * myxA
 
     ATH_MSG_DEBUG( " found and will delete from perigeesToFit !" );
 
-    for (std::vector<const Trk::TrackParameters*>::iterator perigeesToFitIter=perigeesToFitBegin;
-         perigeesToFitIter!=perigeesToFitEnd;++perigeesToFitIter)
-    {
-      if (*perigeesToFitIter==measPerigee)
-      {
-//#ifndef MONITORTUNES
-        perigeesToFit.erase(perigeesToFitIter);
+    auto found=std::find(perigeesToFitBegin,perigeesToFitEnd,measPerigee);
+    if(found!=perigeesToFitEnd){
+        perigees_deleted.push_back(*found);
+        perigeesToFit.erase(found);
         perigeesToFitBegin=perigeesToFit.begin();
         perigeesToFitEnd=perigeesToFit.end();
-//#endif
         pt_hf += pt ;
-        perigees_deleted.push_back( *perigeesToFitIter ) ;
- 
-        removed ++ ;
-
-        break ;
-      }
+        removed++;
     }
   }
 
