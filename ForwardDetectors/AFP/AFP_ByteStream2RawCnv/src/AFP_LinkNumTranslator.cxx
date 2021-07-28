@@ -17,7 +17,8 @@ StatusCode AFP_LinkNumTranslator::initialize()
 {
   if(m_useDB)
   {
-    ATH_MSG_WARNING("Using DB is not implemented yet");
+    ATH_MSG_ERROR("Using DB is not implemented yet");
+    return StatusCode::FAILURE;
 /*
     ATH_CHECK( m_readDBKey_AF.initialize() );
     ATH_MSG_INFO( "Using DB with key " << m_readDBKey_AF.fullKey() );
@@ -49,8 +50,8 @@ unsigned int AFP_LinkNumTranslator::translate(unsigned int origlink) const
 
   if(m_useDB)
   {
-    ATH_MSG_WARNING("Using DB is not implemented yet, will return 0");
-    return 0;
+    ATH_MSG_ERROR("Using DB is not implemented yet, will return kUnknown = "<<kUnknown);
+    return kUnknown;
     
     // TODO: distinguish between A and C?
     // TODO: change based on reality
@@ -122,6 +123,7 @@ unsigned int AFP_LinkNumTranslator::translate(unsigned int origlink) const
 
     int run_nr = ctx.eventID().run_number();
     int Run = (run_nr > 370000 ? 3 : 2);
+    if(m_forceRunConfig) Run=m_forceRunConfig;
 
     if(Run==2)
     {
@@ -145,7 +147,7 @@ unsigned int AFP_LinkNumTranslator::translate(unsigned int origlink) const
         case 11: kReturn=kFS5; break;
         default:
           ATH_MSG_ERROR("requested translation of unknown link number " << origlink << " for run " << run_nr);
-          kReturn=0;
+          kReturn=kUnknown;
       }
       ATH_MSG_DEBUG("asked for link "<<origlink<<", from run "<<run_nr<<", Run "<<Run<<", will return "<<kReturn);
 
@@ -154,7 +156,7 @@ unsigned int AFP_LinkNumTranslator::translate(unsigned int origlink) const
     else
     {
       ATH_MSG_ERROR("requested link " << origlink << " for unknown Run " << Run );
-      return 0;
+      return kUnknown;
     }
   }
 

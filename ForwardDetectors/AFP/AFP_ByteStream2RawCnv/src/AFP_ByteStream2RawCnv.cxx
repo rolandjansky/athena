@@ -140,8 +140,8 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	collectionHead = collectionSi;
       }
       else {
-        ATH_MSG_WARNING("Unidentified value of link="<<the_link<<" for header record.");
-        return StatusCode::SUCCESS;
+        ATH_MSG_ERROR("Unidentified value of link="<<the_link<<" for header record.");
+        return StatusCode::FAILURE;
       }
 
       if (!collectionHead) {
@@ -206,8 +206,8 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	}
       }
       else {
-	ATH_MSG_WARNING("Not recognised value of link="<<the_link<<" for data record.");
-	return StatusCode::SUCCESS;
+	ATH_MSG_ERROR("Not recognised value of link="<<the_link<<" for data record.");
+	return StatusCode::FAILURE;
       }
 
     } 
