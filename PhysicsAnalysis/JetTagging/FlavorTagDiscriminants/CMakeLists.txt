@@ -48,6 +48,7 @@ if (NOT XAOD_STANDALONE)
     src/JetToBTagLinkerAlg.cxx
     src/BTagTrackLinkCopyAlg.cxx
     src/BTaggingBuilderAlg.cxx
+    src/PoorMansIpAugmenterAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )

@@ -14,6 +14,7 @@ namespace FlavorTagDiscriminants {
                                         float muonMinDR,
                                         float muonMinpT,
                                         FlipTagConfig flipConfig ):
+    m_btag_track_aug("btagIp_"),
     m_jetLink("jetLink"),
     m_dec_muon_isDefaults("softMuon_isDefaults"),
     m_dec_muon_pt("softMuon_pt"),
@@ -34,7 +35,6 @@ namespace FlavorTagDiscriminants {
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
-    m_btag_track_aug = BTagTrackIpAccessor();
     m_muonAssociationName = muonAssociationName;
     m_muonMinDR = muonMinDR;
     m_muonMinpT = muonMinpT;

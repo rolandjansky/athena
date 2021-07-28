@@ -12,6 +12,7 @@
 #include "FlavorTagDiscriminants/JetToBTagLinkerAlg.h"
 #include "FlavorTagDiscriminants/BTagTrackLinkCopyAlg.h"
 #include "FlavorTagDiscriminants/BTaggingBuilderAlg.h"
+#include "FlavorTagDiscriminants/PoorMansIpAugmenterAlg.h"
 
 using namespace FlavorTagDiscriminants;
 
@@ -25,3 +26,4 @@ DECLARE_COMPONENT(BTagToJetLinkerAlg)
 DECLARE_COMPONENT(JetToBTagLinkerAlg)
 DECLARE_COMPONENT(BTagTrackLinkCopyAlg)
 DECLARE_COMPONENT(BTaggingBuilderAlg)
+DECLARE_COMPONENT(PoorMansIpAugmenterAlg)

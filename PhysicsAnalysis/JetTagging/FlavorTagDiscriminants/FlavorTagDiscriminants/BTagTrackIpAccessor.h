@@ -28,7 +28,8 @@ struct BTagSignedIP {
 
 class BTagTrackIpAccessor {
 public:
-  BTagTrackIpAccessor(const std::string& prefix = "btagIp_" );
+  // used to have "btagIp_" as a default argument
+  BTagTrackIpAccessor(const std::string& prefix);
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,
