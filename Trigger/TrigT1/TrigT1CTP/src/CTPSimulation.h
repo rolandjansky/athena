@@ -126,6 +126,7 @@ namespace LVL1CTP {
       unsigned int calculateMETMultiplicity ( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
       unsigned int calculateMuonMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
       unsigned int calculateTopoMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
+      unsigned int calculateTopoOptMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
 
       // member variables
       mutable std::once_flag m_onceflag;

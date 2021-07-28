@@ -330,7 +330,7 @@ LVL1CTP::CTPSimulation::setHistLabels() const {
    // Topo
    if ( l1menu ) {
       std::vector<std::string> connNames = l1menu->connectorNames();
-      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El"}) {
+      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El", "Topo1Opt0", "Topo1Opt1", "Topo1Opt2", "Topo1Opt3"}) {
          if( find(connNames.begin(), connNames.end(), connName) == connNames.end() ) {
             continue;
          }
@@ -469,7 +469,10 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1El","L1Topo Decision (Topo 1 electrical)", 64, 0, 64) ));
    ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo2El","L1Topo Decision (Topo 2 electrical)", 64, 0, 64) ));
    ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo3El","L1Topo Decision (Topo 3 electrical)", 64, 0, 64) ));
-   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt0","L1Topo Decision (Topo 1 optical 0)", 90, 0, 90) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt0","L1Topo Decision (Topo 1 optical 0)", 128, 0, 128) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt1","L1Topo Decision (Topo 1 optical 1)", 128, 0, 128) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt2","L1Topo Decision (Topo 1 optical 2)", 128, 0, 128) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt3","L1Topo Decision (Topo 1 optical 3)", 128, 0, 128) ));
 
    // item decision
    ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tbpById", "Items decision (tbp)", 512, 0, 512) ));
@@ -662,6 +665,17 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
             if( (topoInput->cableWord2(0) & mask) != 0 ) h1->Fill(i); // cable 1, clock 0
             if( (topoInput->cableWord2(1) & mask) != 0 ) h1->Fill(32 + i); // cable 1, clock 1
          }
+         auto h2 = *get1DHist("/input/topo/Topo1Opt0");
+         auto h3 = *get1DHist("/input/topo/Topo1Opt1");
+         auto h4 = *get1DHist("/input/topo/Topo1Opt2");
+         auto h5 = *get1DHist("/input/topo/Topo1Opt3");
+         for(unsigned int i=0; i<128; i += 3) {
+           std::bitset<128> mask = 0x11; mask <<= i;
+           if( (topoInput->optcableWord("Topo1Opt0") & mask) != 0 ) h2->Fill(i); //
+           if( (topoInput->optcableWord("Topo1Opt1") & mask) != 0 ) h3->Fill(i); //
+           if( (topoInput->optcableWord("Topo1Opt2") & mask) != 0 ) h4->Fill(i); //
+           if( (topoInput->optcableWord("Topo1Opt3") & mask) != 0 ) h5->Fill(i); //
+         }
       } else {
          ATH_MSG_DEBUG("No collection " << m_iKeyTopo);
       }
@@ -692,7 +706,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
 
    if( l1menu ) {
       std::vector<std::string> connNames = l1menu->connectorNames();
-      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El"}) {
+      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El", "Topo1Opt0", "Topo1Opt1", "Topo1Opt2", "Topo1Opt3"}) {
          if( find(connNames.begin(), connNames.end(), connName) == connNames.end() ) {
             continue;
          }
@@ -726,6 +740,14 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
                cable = ( (uint64_t)topoInput->cableWord1( 1 ) << 32) + topoInput->cableWord1( 0 );
             } else if (connName == "Topo3El") {
                cable = ( (uint64_t)topoInput->cableWord2( 1 ) << 32) + topoInput->cableWord2( 0 );
+            } else if(connName == "Topo1Opt0") {
+              ATH_MSG_DEBUG("BIT word Topo1Opt0: " << topoInput->optcableWord( connName ));
+            } else if(connName == "Topo1Opt1") {
+              ATH_MSG_DEBUG("BIT word Topo1Opt1: " << topoInput->optcableWord( connName ));
+            } else if(connName == "Topo1Opt2") {
+              ATH_MSG_DEBUG("BIT word Topo1Opt2: " << topoInput->optcableWord( connName ));
+            } else if(connName == "Topo1Opt3") {
+              ATH_MSG_DEBUG("BIT word Topo1Opt3: " << topoInput->optcableWord( connName ));
             }
          }
          auto & conn = l1menu->connector(connName);
@@ -757,6 +779,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
          unsigned int multiplicity = calculateMultiplicity( *thr, l1menu, context );
          // and record in threshold--> multiplicity map (to be used for item decision)
          thrMultiMap[thr->name()] = multiplicity;
+         ATH_MSG_DEBUG( thr->name()  << " MULT calculated mult for topo " << multiplicity);
       }
    } else {
       for ( const TrigConf::TriggerThreshold * thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
@@ -764,6 +787,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
          unsigned int multiplicity = calculateMultiplicity( thr, context );
          // and record in threshold--> multiplicity map (to be used for item decision)
          thrMultiMap[thr->name()] = multiplicity;
+         ATH_MSG_DEBUG( thr->name()  << " MULT calculated mult for topo " << multiplicity);
       }
    }
 
@@ -808,7 +832,6 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
    thrMultiMap["RNDM1"] = 1;
    thrMultiMap["RNDM2"] = 1;
    thrMultiMap["RNDM3"] = 1;
-
 
    return StatusCode::SUCCESS;
 }
@@ -1251,6 +1274,39 @@ LVL1CTP::CTPSimulation::calculateMuonMultiplicity( const TrigConf::TriggerThresh
 
 
 unsigned int
+LVL1CTP::CTPSimulation::calculateTopoOptMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const {
+  if(m_iKeyTopo.empty()) {
+    return 0;
+  }
+  unsigned int multiplicity = 0;
+  auto topoInput = SG::makeHandle( m_iKeyTopo, context );
+  std::string connector = "";
+  if (topoInput.isValid()) {
+    connector = l1menu->connectorNameFromThreshold(confThr.name());
+    auto & triggerline = l1menu->connector(connector).triggerLine(confThr.name());
+    std::bitset<128> bits = topoInput->optcableWord(connector);
+    multiplicity = CTPUtil::getOptMult( bits, triggerline.startbit(), triggerline.endbit() );
+  }
+  std::string subfolder = "";
+  if (confThr.type().find("XE") != std::string::npos) {
+    subfolder = "xe";
+  } else if (confThr.type().find("TAU") != std::string::npos) {
+    subfolder = "tau";
+  } else if (confThr.type().find("EM") != std::string::npos) {
+    subfolder = "em";
+  } else if (confThr.type().find("jJ") != std::string::npos) {
+    subfolder = "jet";
+  } else if (confThr.type().find("gJ") != std::string::npos) {
+    subfolder = "jet";
+  }
+  get2DHist( "/multi/" + subfolder + "/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
+  ATH_MSG_DEBUG("TOPO OPT input MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity << " received via connector: " << connector);
+  //ATH_MSG_INFO("TOPO OPT input MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity << " received via connector: " << connector);
+  return multiplicity;
+}
+
+
+unsigned int
 LVL1CTP::CTPSimulation::calculateTopoMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const {
    if (m_iKeyTopo.empty())
    {
@@ -1337,6 +1393,7 @@ unsigned int
 LVL1CTP::CTPSimulation::calculateMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const {
    unsigned int multiplicity = 0;
    try {
+     //ATH_MSG_INFO("confThr.type() " << confThr.type() << " ");
       if ( confThr.type() == "EM" ) {
          multiplicity = calculateEMMultiplicity( confThr, l1menu, context );
       } else if ( confThr.type() == "TAU" ) {
@@ -1349,6 +1406,9 @@ LVL1CTP::CTPSimulation::calculateMultiplicity( const TrigConf::L1Threshold & con
          multiplicity = calculateMuonMultiplicity( confThr, l1menu, context );
       } else if ( confThr.type() == "TOPO" ) {
          multiplicity = calculateTopoMultiplicity( confThr, l1menu, context );
+      } else if ( confThr.type()[0] == 'e' || confThr.type()[0] == 'j' || confThr.type()[0] == 'g' ){
+      	 multiplicity = calculateTopoOptMultiplicity( confThr, l1menu, context );
+	 //ATH_MSG_INFO("confThr.type() " << confThr.type() << " " << "mult:" << multiplicity);  
       }
    }
    catch(std::exception & ex) {

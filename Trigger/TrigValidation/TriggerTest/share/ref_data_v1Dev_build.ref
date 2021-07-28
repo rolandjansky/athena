@@ -792,7 +792,17 @@ HLT_e5_dnntight_L1EM3:
     2: 3
     3: 3
 HLT_e5_etcut_L1eEM3:
-  eventCount: 0
+  eventCount: 10
+  stepCounts:
+    0: 17
+    1: 14
+    2: 10
+    3: 10
+  stepFeatures:
+    0: 112
+    1: 71
+    2: 47
+    3: 41
 HLT_e5_idperf_gsf_tight_L1EM3:
   eventCount: 4
   stepCounts:
@@ -2907,7 +2917,7 @@ HLT_noalg_L1CEP-CJ50:
 HLT_noalg_L1CEP-CJ60:
   eventCount: 0
 HLT_noalg_L1Calo:
-  eventCount: 15
+  eventCount: 20
 HLT_noalg_L1Calo_EMPTY:
   eventCount: 0
 HLT_noalg_L1EM10VH:
@@ -3045,7 +3055,7 @@ HLT_noalg_L1RD0_EMPTY:
 HLT_noalg_L1RD0_FILLED:
   eventCount: 20
 HLT_noalg_L1Standby:
-  eventCount: 15
+  eventCount: 20
 HLT_noalg_L1TAU12IM:
   eventCount: 3
 HLT_noalg_L1TAU20IM:
