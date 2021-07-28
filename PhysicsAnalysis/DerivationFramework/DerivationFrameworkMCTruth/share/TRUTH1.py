@@ -31,19 +31,6 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[evtStream] )
 
-##### Adding missing truth jet ###
-
-truth1Seq = CfgMgr.AthSequencer('TRUTH1Sequence')
-DerivationFrameworkJob += truth1Seq
-
-from JetRec.JetRecStandard import jtm
-from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=truth1Seq, outputGroup="TRUTH1")
-addStandardJets("AntiKt", 0.2, "Truth", 5000, mods="truth_ungroomed", algseq=truth1Seq, outputGroup="TRUTH1")
-
-####################################
-
-
 #==============================================================================
 # Set up slimming content list here
 #==============================================================================
@@ -90,14 +77,6 @@ TRUTH1SlimmingHelper.AppendContentToStream(TRUTH1Stream)
 TRUTH1Stream.AddItem("xAOD::EventInfo#McEventInfo")
 TRUTH1Stream.AddItem("xAOD::EventInfo#EventInfo")
 TRUTH1Stream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
-
-##### Adding truth jet to ouput stream ###
-TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt2TruthJets")
-TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2TruthJetsAux.")
-TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
-TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
-#################################
-
 # Add the entirety of the truth event
 TRUTH1Stream.AddItem( "xAOD::TruthEventContainer#TruthEvents" )
 TRUTH1Stream.AddItem( "xAOD::TruthEventAuxContainer#TruthEventsAux." )
