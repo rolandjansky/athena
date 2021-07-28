@@ -1,0 +1,30 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+    inline AnnulusBoundsPC* AnnulusBoundsPC::clone() const {
+        return new AnnulusBoundsPC(m_minR, m_maxR, m_phiMin, m_phiMax, m_moduleOrigin, m_phiAvg);
+    }
+
+    inline bool AnnulusBoundsPC::operator==(const SurfaceBounds& sb) const {
+        if (sb.type() != SurfaceBounds::Annulus) return false;
+
+        const AnnulusBoundsPC* ab = dynamic_cast<const AnnulusBoundsPC*>(&sb);
+        if (ab == nullptr) return false; // is AnnulusBounds, but not PC
+
+        if (m_boundValues.size() != ab->m_boundValues.size()) return false;
+
+        for (size_t i=0;i<m_boundValues.size();i++) {
+            if (m_boundValues[i] != ab->m_boundValues[i]) return false;
+        }
+
+        return true;
+    }
+
+    inline SurfaceBounds::BoundsType AnnulusBoundsPC::type() const {
+        return Trk::SurfaceBounds::Annulus;
+    }
+
+}
+

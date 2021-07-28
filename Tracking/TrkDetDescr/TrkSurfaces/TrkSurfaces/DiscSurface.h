@@ -30,6 +30,8 @@ namespace Trk {
 
 class DiscBounds;
 class DiscTrapezoidalBounds;
+class AnnulusBounds;
+class AnnulusBoundsPC;
 class TrkDetElementBase;
 class LocalParameters;
 
@@ -95,6 +97,24 @@ public:
   /**Constructor for Discs from HepGeom::Transform3D and DiscTrapezoidalBounds
      - ownership of bounds is passed */
   DiscSurface(const Amg::Transform3D& htrans, DiscTrapezoidalBounds* dtbounds);
+
+  /**Constructor for Discs from HepGeom::Transform3D and AnnulusBoundsPC 
+	   - ownership of bounds is passed */
+  DiscSurface(const Amg::Transform3D& htrans, AnnulusBoundsPC* annpcbounds);
+  
+  /// @brief Constructor for Discs from Transform3D and AnnulusBoundsPC
+  /// This will use the converting factory in @c AnnulusBoundsPC to
+  /// build an equivalent PC version. 
+  /// The overall transform of this object will be @c htrans and an additional
+  /// rotation to overlay the two bounds implementations exactly.
+  /// @param htrans Base transform. This should be the transform of the @c PlaneSurface
+  ///               on which @c annbounds is located
+  /// @param annbounds Cartesian annulus bounds to convert
+  /// @param detElem Additional explicit detector element
+  /// @note During testing, no conversion of the underlying detector element was implemented.
+  ///       This polar coordinate surface will therefore link back to the cartesian detector
+  ///       element.
+  DiscSurface(const Amg::Transform3D& htrans, std::unique_ptr<AnnulusBounds> annbounds, const TrkDetElementBase* detElem = nullptr);
 
   /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
    - bounds is not set */

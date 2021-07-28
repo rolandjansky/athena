@@ -96,9 +96,7 @@ StatusCode StripDigitizationTool::initialize() {
 }
 
 namespace {
-  class SiDigitizationSurfaceChargeInserter
-    : public ISiSurfaceChargesInserter
-  {
+  class SiDigitizationSurfaceChargeInserter : public ISiSurfaceChargesInserter {
   public:
     SiDigitizationSurfaceChargeInserter(const InDetDD::SiDetectorElement* sielement,
                                         SiChargedDiodeCollection* chargedDiodes)
@@ -113,8 +111,7 @@ namespace {
   };
 
 
-  void SiDigitizationSurfaceChargeInserter::operator ()
-    (const SiSurfaceCharge& scharge) const {
+  void SiDigitizationSurfaceChargeInserter::operator () (const SiSurfaceCharge& scharge) const {
     // get the diode in which this charge is
     SiCellId diode{m_sielement->cellIdOfPosition(scharge.position())};
 
@@ -124,58 +121,39 @@ namespace {
     }
   }
 
-  class MultiElementChargeInserter
-    : public ISiSurfaceChargesInserter
-{
-public:
-  MultiElementChargeInserter (SiChargedDiodeCollectionMap & chargedDiodesVec, const InDetDD::SCT_ModuleSideDesign * mum)
+  class MultiElementChargeInserter : public ISiSurfaceChargesInserter {
+  public:
+    MultiElementChargeInserter (SiChargedDiodeCollectionMap & chargedDiodesVec, 
+                                const InDetDD::SCT_ModuleSideDesign * mum)
+      : m_chargedDiodesVecForInsert(chargedDiodesVec),
+        m_mum(mum) {}
 
-        : m_chargedDiodesVecForInsert(chargedDiodesVec),
-        m_mum(mum) {
-    }
+      void operator () (const SiSurfaceCharge &scharge) const;
+  private:
+    SiChargedDiodeCollectionMap & m_chargedDiodesVecForInsert;
+    const InDetDD::SCT_ModuleSideDesign * m_mum;
+  };
 
-    void operator () (const SiSurfaceCharge &scharge) const;
-private:
-  SiChargedDiodeCollectionMap & m_chargedDiodesVecForInsert;
-  const InDetDD::SCT_ModuleSideDesign * m_mum;
-};
-
-
-
-void MultiElementChargeInserter::operator ()
-    (const SiSurfaceCharge &scharge) const {
-
-  // get the diode in which this charge is
-  SiCellId motherDiode = m_mum->cellIdOfPosition(scharge.position());
-  
-  int row = -1;
-  int strip = -1;
-  
-  if(motherDiode.isValid()){
-  m_mum->getStripRow(motherDiode,&strip,&row);
-
-  //now use this row
-
-  if(m_chargedDiodesVecForInsert.at(row)){
+  void MultiElementChargeInserter::operator () (const SiSurfaceCharge &scharge) const {
+    // get the diode in which this charge is
+    SiCellId motherDiode = m_mum->cellIdOfPosition(scharge.position());
     
-    SiCellId diode = m_chargedDiodesVecForInsert.at(row)->element()->cellIdOfPosition(scharge.position());
-    
-    
-    if (diode.isValid()) {
-      // add this charge to the collection (or merge in existing charged
-      // diode)
-      m_chargedDiodesVecForInsert.at(row)->add(diode, scharge.charge());
+    if (motherDiode.isValid()) {
+      auto [strip, row] =  m_mum->getStripRow(motherDiode);
+      //now use this row
+
+      if (m_chargedDiodesVecForInsert.at(row)) {
+        SiCellId diode = m_chargedDiodesVecForInsert.at(row)->element()->cellIdOfPosition(scharge.position());
+
+        if (diode.isValid()) {
+          // add this charge to the collection (or merge in existing charged diode)
+          m_chargedDiodesVecForInsert.at(row)->add(diode, scharge.charge());
+        }
+      }
     }
   }
-  }
-  
-}
-
 
 } // anonymous namespace
-
-
-
 
 
 // ----------------------------------------------------------------------

@@ -23,7 +23,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
                                const std::vector<double> &stripStartRadius,
                                const std::vector<double> &stripEndRadius,
                                const double &stereoAngle,
-                               const double &centreR) :
+                               const double &centreR,
+                               const bool &usePC) :
     SCT_ModuleSideDesign(thickness, false, false, true, 1, 0, 0, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection),
   m_nRows(nRows),
@@ -36,8 +37,9 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_lengthBF(2. * centreR * std::sin(stereoAngle*0.5)),// Eq. 5 p. 7
   m_sinStereo(std::sin(m_stereo)),
   m_cosStereo(std::cos(m_stereo)),
-  m_sinNegStereo(std::sin(-m_stereo)),
-  m_cosNegStereo(std::cos(-m_stereo))
+  m_sinNegStereo(-m_sinStereo),
+  m_cosNegStereo(m_cosStereo),
+  m_usePC(usePC)
 {
     if (nRows < 0) {
         throw std::runtime_error(
@@ -70,9 +72,20 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setCells(totalStrips);
     m_scheme.setDiodes(totalStrips);
 
-// AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
-    m_bounds = Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+    double phi = m_nStrips[0] * m_pitch[0];
 
+    if (m_usePC) {
+        // Maths for calculating PC bounds is based off Trk::AnnulusBoundsPC::fromCartesian() and detailed at https://hep.ph.liv.ac.uk/~jsmith/dropbox/AnnulusBoundsPC_Constructor_Maths.pdf. This will later form some kind of INT Note or report or similar internal documentation,
+        Amg::Vector2D origin(m_R * (1.0 - std::cos(m_stereo)) , m_R*std::sin(-m_stereo));
+        // std::unique_ptr<Trk::SurfaceBounds> polarBounds = std::make_unique<Trk::AnnulusBoundsPC>(Trk::AnnulusBoundsPC(m_stripStartRadius[0], m_stripEndRadius.back(),phi*-0.5,phi*0.5,origin,0));
+        // m_bounds = std::move(polarBounds);
+        m_bounds = std::make_unique<Trk::AnnulusBoundsPC>(Trk::AnnulusBoundsPC(m_stripStartRadius[0], m_stripEndRadius.back(),phi*-0.5,phi*0.5,origin,0));
+    } else {
+        // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
+        // std::unique_ptr<Trk::SurfaceBounds> cartBounds = std::make_unique<Trk::AnnulusBounds>(Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, phi, m_stereo));  
+        // m_bounds = std::move(cartBounds);
+        m_bounds = std::make_unique<Trk::AnnulusBounds>(Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, phi, m_stereo));
+    }
 }
 
 Amg::Vector3D StripStereoAnnulusDesign::sensorCenter() const {
@@ -95,13 +108,19 @@ double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCo
     return -std::sin(phiPrime + m_stereo);
 }
 
-
-
-void StripStereoAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {
+/**
+ * @brief Get the strip and row number of the cell.
+ * 
+ * Can be used as `auto [strip, row] = getStripRow(cellId);` 
+ * 
+ * @param cellId The SiCellId
+ * @return std::pai<int,int> A pair of ints representing the strip ID and row ID
+ */
+std::pair<int,int> StripStereoAnnulusDesign::getStripRow(SiCellId cellId) const {
     int strip1D = cellId.phiIndex();
-    *rowNum = row(strip1D);
-    *strip2D = strip1D - m_firstStrip[*rowNum];
-    return;
+    int rowNum = row(strip1D);
+    int strip2D = strip1D - m_firstStrip[rowNum];
+    return {strip2D,rowNum};
 }
 
 int  StripStereoAnnulusDesign::strip1Dim(int strip, int row) const {
@@ -118,8 +137,7 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
         return;
     }
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     int stripM = strip - 1;
     int stripP = strip + 1;
 
@@ -133,9 +151,14 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
     return;
 }
 
+/**
+ * @brief Get a reference to the module bounds object. 
+ * 
+ * @return const Trk::SurfaceBounds& The module bounds.
+ */
 const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
-
-    return m_bounds;
+    return *(m_bounds.get()); // Equivalent but more explicit than *m_bounds - 
+                              // gets the normal pointer from the unique then dereferences it.
 }
 
 SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
@@ -176,11 +199,14 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     return SiCellId(strip1D, 0);
 }
   
-  SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
-    double r = (m_stripEndRadius[row] + m_stripStartRadius[row])*0.5;
-    return stripPosAtR(strip, row, r);
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
+    if (m_usePC) {
+        return localPositionOfCellPC(cellId);
+    } else {
+        auto [strip, row] = getStripRow(cellId);
+        double r = (m_stripEndRadius[row] + m_stripStartRadius[row])*0.5;
+        return stripPosAtR(strip, row, r);
+    }
 }
 
 SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {
@@ -205,25 +231,23 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
 //    Return the average centre-position of the first and last strips.
 //
 
-    SiLocalPosition startPos = localPositionOfCell(cellId);
+    SiLocalPosition startPos = localPositionOfCell(cellId); // Should automatically detect PC Usage
 
     if (clusterSize <= 1) {
         return startPos;
     }
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     int stripEnd = strip + clusterSize - 1;
     SiCellId endId = strip1Dim(stripEnd, row);
-    SiLocalPosition endPos = localPositionOfCell(endId);
+    SiLocalPosition endPos = localPositionOfCell(endId); // Should automatically detect PC Usage
 
     return (startPos + endPos)*0.5;
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &cellId) const {
   
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     // this is the radius in the module / radial system
     double r = (m_stripEndRadius[row] + m_stripStartRadius[row])*0.5;
 
@@ -232,7 +256,7 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
 
     double b = -2. * m_lengthBF * std::sin(m_stereo*0.5 + phiPrime);
     double c = m_lengthBF * m_lengthBF - r * r;
-    // this is the radius in the strip system
+    // this is the radius in the strip systems
     double rPrime = (-b + std::sqrt(b * b - 4. * c))*0.5;
 
     // flip this, since coordinate system is defined the other way round
@@ -242,6 +266,19 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
     return SiLocalPosition(rPrime, phi); 
 }
 
+/**
+ * @brief This is for debugging only. Call to explicitly get PC clusters.
+ * 
+ * The method StripStereoAnnulusDesign::localPositionOfCluster() should detect the use of polar co-ordinates
+ * automatically and return the cluster in the appropriate co-ordinate system. This is handled in the call to the 
+ * localPositionOfCell() function. Therefore, the only use of this method is to explicitly get a polar cluster when the 
+ * module was created with a cartesian co-ordinate system. After the integration of polar co-ordinates is complete, this
+ * method will be removed.
+ * 
+ * @param cellId 
+ * @param clusterSize 
+ * @return SiLocalPosition 
+ */
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId const &cellId, int clusterSize) const {
     SiLocalPosition startPos = localPositionOfCellPC(cellId);
 
@@ -249,8 +286,7 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId cons
         return startPos;
     }
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     int stripEnd = strip + clusterSize - 1;
     SiCellId endId = strip1Dim(stripEnd, row);
     SiLocalPosition endPos = localPositionOfCellPC(endId);
@@ -263,8 +299,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStri
 
     SiCellId cellId = cellIdOfPosition(pos);
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
 
     SiLocalPosition innerEnd = stripPosAtR(strip, row, m_stripStartRadius[row]);
 
@@ -298,8 +333,7 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   double posStripxP = m_cosNegStereo * (posStrip.xEta() - m_R) - m_sinNegStereo * posStrip.xPhi() + m_R;
   double posStripyP = m_sinNegStereo * (posStrip.xEta() - m_R) + m_cosNegStereo * posStrip.xPhi();
   double posStripphiP = std::atan2(posStripyP, posStripxP);
-  int strip, row;
-  getStripRow(cellId, &strip, &row);
+  auto [strip, row] = getStripRow(cellId);
   return std::abs(posphiP - posStripphiP) / m_pitch[row];
 }
 
