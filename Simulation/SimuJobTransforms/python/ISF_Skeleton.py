@@ -9,7 +9,10 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # TODO: how to autoconfigure those
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr"
+    # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
+    if (ConfigFlags.Sim.ISF.Simulator not in ('FullG4MT', 'FullG4MT_LongLived')) or ConfigFlags.Sim.LArParameterization!=0:
+        ConfigFlags.Sim.CalibrationRun = "Off"
+
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
     ConfigFlags.Sim.ReleaseGeoModel = False
