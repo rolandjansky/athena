@@ -25,6 +25,9 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_CHECK( m_inViewRoIs.initialize() );
   ATH_CHECK( m_roiTool.retrieve() );
   ATH_CHECK( m_cachedViewsKey.initialize(SG::AllowEmpty) );
+  if (not m_cachedViewsKey.empty()) {
+    renounce(m_cachedViewsKey); // Reading in and using cached inputs is optional, not guarenteed to be produced in every event.
+  }
 
   // Muon slice code
   ATH_CHECK( m_inViewMuons.initialize(m_placeMuonInView) );
