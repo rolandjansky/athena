@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAPROGRAM_H
@@ -10,112 +10,112 @@
 
 class CMAprogram {
 private:
-    bool m_isnewcab;
+    /* Data members are arranged to reduce the amount of padding ("holes") */
 
-    bool m_status;
+    bool m_isnewcab{false};
+    bool m_status{false};
 
-    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels]{};
+    uint8_t m_main_count{0};
+    uint8_t m_main_status{0};
 
-    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2]{};
+    uint32_t m_main_control{0x60};
 
-    uint32_t m_overlap1;
-    uint32_t m_overlap2;
+    uint32_t m_overlap1{0xff};
+    uint32_t m_overlap2{0xff000000};
 
-    uint32_t m_trig_local_direc_i;
-    uint32_t m_trig_local_direc_j;
-    uint32_t m_trig_k_readout;
+    uint32_t m_trig_local_direc_i{0x1};
+    uint32_t m_trig_local_direc_j{0x1};
+    uint32_t m_trig_k_readout{0};
 
-    uint32_t m_main_control;
-    uint8_t m_main_count;
-    uint8_t m_main_status;
+    uint16_t m_pipe_i0_ipb_regdepth{0x0101};
+    uint16_t m_pipe_i1_ipb_regdepth{0x0101};
 
-    uint32_t m_pipe_i0_mask0_in;
-    uint32_t m_pipe_i0_edge;
-    uint16_t m_pipe_i0_ipb_regdepth;
-    uint32_t m_pipe_i0_shape;
-    uint32_t m_pipe_i0_mask0_readout;
-    uint32_t m_pipe_i0_mask0_trig;
+    uint32_t m_pipe_i0_mask0_in{0};
+    uint32_t m_pipe_i0_edge{0x07070707};
+    uint32_t m_pipe_i0_shape{0x07070707};
+    uint32_t m_pipe_i0_mask0_readout{0};
+    uint32_t m_pipe_i0_mask0_trig{0};
 
-    uint32_t m_pipe_i1_mask0_in;
-    uint32_t m_pipe_i1_edge;
-    uint16_t m_pipe_i1_ipb_regdepth;
-    uint32_t m_pipe_i1_shape;
-    uint32_t m_pipe_i1_mask0_readout;
-    uint32_t m_pipe_i1_mask0_trig;
+    uint32_t m_pipe_i1_mask0_in{0};
+    uint32_t m_pipe_i1_edge{0x07070707};
+    uint32_t m_pipe_i1_shape{0x07070707};
+    uint32_t m_pipe_i1_mask0_readout{0};
+    uint32_t m_pipe_i1_mask0_trig{0};
 
-    uint64_t m_pipe_j0_mask0_in;
-    uint64_t m_pipe_j0_edge;
-    uint32_t m_pipe_j0_ipb_regdepth;
-    uint64_t m_pipe_j0_shape;
-    uint64_t m_pipe_j0_mask0_readout;
-    uint64_t m_pipe_j0_mask0_trig;
+    uint32_t m_pipe_j0_ipb_regdepth{0x01010101};
+    uint32_t m_pipe_j1_ipb_regdepth{0x01010101};
 
-    uint64_t m_pipe_j1_mask0_in;
-    uint64_t m_pipe_j1_edge;
-    uint32_t m_pipe_j1_ipb_regdepth;
-    uint64_t m_pipe_j1_shape;
-    uint64_t m_pipe_j1_mask0_readout;
-    uint64_t m_pipe_j1_mask0_trig;
+    uint64_t m_pipe_j0_mask0_in{0};
+    uint64_t m_pipe_j0_edge{0x0707070707070707};
+    uint64_t m_pipe_j0_shape{0x0707070707070707};
+    uint64_t m_pipe_j0_mask0_readout{0};
+    uint64_t m_pipe_j0_mask0_trig{0};
 
-    uint8_t m_trig_thr0_maj_reg;
-    uint32_t m_trig_thr0_mask_1_i_ge1_reg;
-    uint32_t m_trig_thr0_mask_1_i_eq2_reg;
-    uint64_t m_trig_thr0_mask_1_j_ge1_reg;
-    uint64_t m_trig_thr0_mask_1_j_eq2_reg;
+    uint64_t m_pipe_j1_mask0_in{0};
+    uint64_t m_pipe_j1_edge{0};
+    uint64_t m_pipe_j1_shape{0x0707070707070707};
+    uint64_t m_pipe_j1_mask0_readout{0};
+    uint64_t m_pipe_j1_mask0_trig{0};
 
-    uint8_t m_trig_thr1_maj_reg;
-    uint32_t m_trig_thr1_mask_1_i_ge1_reg;
-    uint32_t m_trig_thr1_mask_1_i_eq2_reg;
-    uint64_t m_trig_thr1_mask_1_j_ge1_reg;
-    uint64_t m_trig_thr1_mask_1_j_eq2_reg;
+    uint32_t m_trig_thr0_mask_1_i_ge1_reg{0};
+    uint32_t m_trig_thr0_mask_1_i_eq2_reg{0};
+    uint64_t m_trig_thr0_mask_1_j_ge1_reg{0};
+    uint64_t m_trig_thr0_mask_1_j_eq2_reg{0};
 
-    uint8_t m_trig_thr2_maj_reg;
-    uint32_t m_trig_thr2_mask_1_i_ge1_reg;
-    uint32_t m_trig_thr2_mask_1_i_eq2_reg;
-    uint64_t m_trig_thr2_mask_1_j_ge1_reg;
-    uint64_t m_trig_thr2_mask_1_j_eq2_reg;
+    uint32_t m_trig_thr1_mask_1_i_ge1_reg{0};
+    uint32_t m_trig_thr1_mask_1_i_eq2_reg{0};
+    uint64_t m_trig_thr1_mask_1_j_ge1_reg{0};
+    uint64_t m_trig_thr1_mask_1_j_eq2_reg{0};
 
-    uint8_t m_trig_declu_i0_clsize;
-    uint8_t m_trig_declu_i1_clsize;
-    uint8_t m_trig_declu_j0_clsize;
-    uint8_t m_trig_declu_j1_clsize;
+    uint32_t m_trig_thr2_mask_1_i_ge1_reg{0};
+    uint32_t m_trig_thr2_mask_1_i_eq2_reg{0};
+    uint64_t m_trig_thr2_mask_1_j_ge1_reg{0};
+    uint64_t m_trig_thr2_mask_1_j_eq2_reg{0};
 
-    uint8_t m_trig_prp_i_eta_reg;
-    uint8_t m_trig_prp_j_eta_reg;
+    uint64_t m_trig_edge_reg{0x070707070707};
+    uint32_t m_trig_shape_k_reg{0x07070707};
+    uint32_t m_trig_ovl_sx_reg{0xff000000};
+    uint32_t m_trig_ovl_dx_reg{0x000000ff};
 
-    uint32_t m_trig_shape_k_reg;
-    uint32_t m_trig_ovl_sx_reg;
-    uint32_t m_trig_ovl_dx_reg;
-    uint64_t m_trig_edge_reg;
+    uint16_t m_readout_buffer_empty{0};
+    uint16_t m_readout_buffer_almost_empty{0};
+    uint16_t m_readout_buffer_half_full{0};
+    uint16_t m_readout_buffer_almost_full{0};
+    uint16_t m_readout_buffer_full{0};
 
-    uint16_t m_readout_buffer_empty;
-    uint16_t m_readout_buffer_almost_empty;
-    uint16_t m_readout_buffer_half_full;
-    uint16_t m_readout_buffer_almost_full;
-    uint16_t m_readout_buffer_full;
-    uint8_t m_readout_buffer_latreg;
-    uint8_t m_readout_buffer_hireg;
-    uint8_t m_readout_buffer_lowreg;
-    uint8_t m_readout_serializer_dslink;
+    uint8_t m_trig_declu_i0_clsize{0x2};
+    uint8_t m_trig_declu_i1_clsize{0x2};
+    uint8_t m_trig_declu_j0_clsize{0x2};
+    uint8_t m_trig_declu_j1_clsize{0x2};
 
-    uint16_t m_l1c_pre;
-    uint16_t m_bcc_pre;
+    uint8_t m_trig_prp_i_eta_reg{0x1};
+    uint8_t m_trig_prp_j_eta_reg{0x1};
+
+    uint8_t m_trig_thr0_maj_reg{0x2};
+    uint8_t m_trig_thr1_maj_reg{0x2};
+    uint8_t m_trig_thr2_maj_reg{0x2};
+
+    uint8_t m_readout_buffer_latreg{0x67};
+    uint8_t m_readout_buffer_hireg{0x67};
+    uint8_t m_readout_buffer_lowreg{0x60};
+    uint8_t m_readout_serializer_dslink{0x1};
+
+    uint16_t m_l1c_pre{0x1ff};
+    uint16_t m_bcc_pre{0};
+
+    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels];
+    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2];
 
     bool read(DBline&);
     bool read_v02(DBline&);
-    void copy_threshold(const bool*);
-    void copy_program(const uint32_t*);
 
 public:
     CMAprogram();
-    CMAprogram(std::ifstream&);
-    CMAprogram(std::ifstream&, bool);
-    CMAprogram(std::istringstream&);
-    CMAprogram(std::istringstream&, bool);
-    CMAprogram(const CMAprogram&);
-    ~CMAprogram();
+    CMAprogram(std::ifstream& file, bool NewCab = false);
+    CMAprogram(std::istringstream& filestr, bool NewCab = false);
 
-    CMAprogram& operator=(const CMAprogram&);
+    CMAprogram(const CMAprogram&) = default;
+    CMAprogram& operator=(const CMAprogram&) = default;
 
     const bool* registers(void) const { return reinterpret_cast<const bool*>(m_threshold_registers); }
     const uint32_t* bytes(void) const { return reinterpret_cast<const uint32_t*>(m_program_bytes); }
