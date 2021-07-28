@@ -37,7 +37,7 @@ muonsRequirements = '(Muons.pt >= 2.0*GeV) && (abs(Muons.eta) < 2.6)'
 electronsRequirements = '(Electrons.pt > 2.0*GeV) && (abs(Electrons.eta) < 2.6)'
 photonsRequirements = '(Photons.pt >= 2.0*GeV)'
 
-muonOnlySelection = 'count('+muonsRequirements+') >=2'
+muonOnlySelection = 'count('+muonsRequirements+') >= 1'
 electronOnlySelection = 'count('+electronsRequirements+') >= 1'
 photonOnlySelection = 'count('+photonsRequirements+') >=2'
 electronPhotonSelection = '(count('+electronsRequirements+') + count('+photonsRequirements+')) >= 2'
