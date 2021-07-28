@@ -282,7 +282,7 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset );
+  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset, m_useLegacyRandomSeeds );
 
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {

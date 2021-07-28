@@ -44,12 +44,21 @@ void ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
    setSeed(slot, hsh);
 }
 
-void ATHRNG::RNGWrapper::setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset)
+void ATHRNG::RNGWrapper::setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset, bool useLegacy)
 {
-  setSeedLegacy( algName, ctx.slot(),
-                 ctx.eventID().event_number(),
-                 ctx.eventID().run_number(),
-                 offset);
+  if (useLegacy) {
+    // Use legacy seeding
+    setSeedLegacy( algName, ctx.slot(),
+                   ctx.eventID().event_number(),
+                   ctx.eventID().run_number(),
+                   offset);
+  }
+  else {
+    // Use new seeding
+    setSeed( algName, ctx.slot(),
+             ctx.eventID().event_number(),
+             ctx.eventID().run_number() );
+  }
 }
 
 void ATHRNG::RNGWrapper::setSeedLegacy(const std::string& algName, size_t slot, uint64_t ev, uint64_t run, uint32_t offset)
