@@ -153,7 +153,7 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MinTrailingEdgeArgon                 = MinTrailingEdge,
                                                                MaxDriftTimeArgon                    = MaxDriftTime,
                                                                ValidityGateSuppressionArgon         = InDetFlags.InDet25nsec(),
-                                                               LowGateArgon                         = LowGate,
+                                                               LowGateArgon                         = LowGate, # see discussion in MR !45402 why these are not Argon specific settings
                                                                HighGateArgon                        = HighGate,
                                                                useDriftTimeHTCorrection        = True,
                                                                useDriftTimeToTCorrection       = True)
