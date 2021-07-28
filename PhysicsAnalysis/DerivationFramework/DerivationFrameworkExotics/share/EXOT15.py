@@ -299,12 +299,21 @@ if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias':
 # JETS
 #=======================================
 
-#restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+#restore AOD-reduced jet collections           
 OutputJets["EXOT15"] = []
 reducedJetList = [
-    "AntiKt4TruthJets"]
+    "AntiKt2PV0TrackJets", #flavour-tagged automatically
+    "AntiKt4PV0TrackJets",
+    "AntiKt4TruthJets",
+    "AntiKt10TruthJets",
+    "AntiKt10LCTopoJets" ] 
 replaceAODReducedJets(reducedJetList,exot15Seq,"EXOT15")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(exot15Seq,"EXOT15")
+applyJetCalibration_xAODColl("AntiKt4EMTopo", exot15Seq)
+applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot15Seq)
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -319,6 +328,14 @@ elif rec.triggerStream() == 'ZeroBias':
 else:
     exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15ORSkimmingTool])
 
+#====================================================================
+# PromptLeptonVeto decorations
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as PLVConfig
+import LeptonTaggers.LeptonTaggersConfig as PLIVConfig
+PLVConfig.ConfigureAntiKt4PV0TrackJets(exot15Seq, "EXOT15")
+exot15Seq += PLVConfig.GetDecoratePromptLeptonAlgs()
+exot15Seq += PLIVConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #=========================================
 # Adding MC Truth Meta data
@@ -333,12 +350,26 @@ if SkipTriggerRequirement:
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkExotics.EXOT15ContentList import *
 EXOT15SlimmingHelper = SlimmingHelper("EXOT15SlimmingHelper")
+EXOT15SlimmingHelper.AppendToDictionary = {
+    'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 
+    'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
+    'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer',
+    'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+}
+if DerivationFrameworkHasTruth:
+    for truthc in ["TruthBoson", "TruthTop"]:
+        EXOT15SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
+        EXOT15SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+
 EXOT15SlimmingHelper.SmartCollections = EXOT15SmartContent
 EXOT15SlimmingHelper.AllVariables = EXOT15AllVariablesContent
-EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y','Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ']
+EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y','Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ', "AntiKt10LCTopoJets.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_LooseBadLLP.DFCommonJets_jetClean_SuperLooseBadLLP.DFCommonJets_jetClean_VeryLooseBadLLP.DFCommonJets_passJvt"]
+EXOT15SlimmingHelper.ExtraVariables += PLVConfig.GetExtraPromptVariablesForDxAOD()
+EXOT15SlimmingHelper.ExtraVariables += PLIVConfig.GetExtraImprovedPromptVariablesForDxAOD()
 EXOT15SlimmingHelper.IncludeJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeBJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeTauTriggerContent = True
 EXOT15SlimmingHelper.IncludeMuonTriggerContent = True
+EXOT15SlimmingHelper.IncludeEGammaTriggerContent = True
 addOriginCorrectedClusters(EXOT15SlimmingHelper,writeLC=False,writeEM=True)
 EXOT15SlimmingHelper.AppendContentToStream(EXOT15Stream)
