@@ -458,6 +458,11 @@ StatusCode LArOFCAlg::stop()
   }  
 
 
+  //Undo corrections, if they are applied by this algo:
+  if (m_waveCnt_nc) {
+    ATH_CHECK(m_waveCnt_nc->undoCorrections());
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -692,12 +697,12 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
     //Input cali-wave might come from the same job. In this case we see a non-const container in SG probably w/o corrections applied.
     //Try non-const retrieve:
     const LArCaliWaveContainer* waveCnt = nullptr;
-    LArCaliWaveContainer* waveCnt_nc=detStore()->tryRetrieve<LArCaliWaveContainer>(m_keylist[k]);
-    if (waveCnt_nc) {
-      waveCnt=waveCnt_nc; //Retain const pointer
-      if (!waveCnt_nc->correctionsApplied()) {
+    m_waveCnt_nc=detStore()->tryRetrieve<LArCaliWaveContainer>(m_keylist[k]);
+    if (m_waveCnt_nc) {
+      waveCnt=m_waveCnt_nc; //Retain const pointer
+      if (!m_waveCnt_nc->correctionsApplied()) {
 	ATH_MSG_INFO( "LArCaliWaveContainer: Corrections not yet applied, applying them now..." );
-	if (waveCnt_nc->applyCorrections().isFailure()) {
+	if (m_waveCnt_nc->applyCorrections().isFailure()) {
 	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
 	  return StatusCode::FAILURE;
 	}
