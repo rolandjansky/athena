@@ -14,10 +14,8 @@ const InterfaceID &AFP_RawDataProviderTool::interfaceID() {
 AFP_RawDataProviderTool::AFP_RawDataProviderTool(const std::string &type,
                                                  const std::string &name,
                                                  const IInterface *parent)
-    : AthAlgTool(type, name, parent),
-      m_decoder("AFP_ByteStream2RawCnv")
+    : AthAlgTool(type, name, parent)
 {
-  declareProperty("AFP_ByteStream2RawCnv", m_decoder);
   declareInterface<AFP_RawDataProviderTool>(this);
 }
 
@@ -65,8 +63,8 @@ AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::
     if (robIdSet.insert(robId).second) {
       StatusCode sc = m_decoder->fillCollection(rob, rawContainer);
       if (sc.isFailure()) {
-        ATH_MSG_WARNING("Failed filling collection");
-        return StatusCode::SUCCESS;
+        ATH_MSG_ERROR("Failed filling collection");
+        return StatusCode::FAILURE;
       }
     }
 

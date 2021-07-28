@@ -378,6 +378,16 @@ class forceConditions(_modifier):
                 svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
 
 
+class forceAFPLinkNum(_modifier):
+    """
+    force AFP link number translator to use Run2 setup
+    """
+    def postSetup(self):
+        from AthenaCommon.AlgSequence import AthSequencer
+        from AthenaCommon.CFElements import findAlgorithm
+        AFPRecoSeq = AthSequencer("AFPRecoSeq")
+        AFP_RawDataProv = findAlgorithm(AFPRecoSeq, "AFP_RawDataProvider")
+        AFP_RawDataProv.ProviderTool.AFP_ByteStream2RawCnv.AFP_WordReadOut.AFP_LinkNumTranslator.ForceRunConfig = 2
 
 ###############################################################
 # Algorithm modifiers
