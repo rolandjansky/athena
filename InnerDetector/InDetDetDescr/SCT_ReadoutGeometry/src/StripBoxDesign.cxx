@@ -38,11 +38,19 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
     m_bounds = Trk::RectangleBounds(width / 2.0, fullLength / 2.0);
 }
 
-void StripBoxDesign::getStripRow(SiCellId cellId, int *strip, int *row) const {
+/**
+ * @brief Get the strip and row number of the cell.
+ * 
+ * Can be used as `auto [strip, row] = getStripRow(cellId);` 
+ * 
+ * @param cellId  The SiCellId
+ * @return std::pair<int,int>  A pair of ints representing the strip ID and row ID
+ */
+std::pair<int,int> StripBoxDesign::getStripRow(SiCellId cellId) const {
     int strip1D = cellId.phiIndex();
-    *row = strip1D / m_nStrips;
-    *strip = strip1D % m_nStrips;
-    return;
+    int row = strip1D / m_nStrips;
+    int strip = strip1D % m_nStrips;
+    return {strip,row};
 }
 
 int StripBoxDesign::strip1Dim(int strip, int row) const {
@@ -59,8 +67,7 @@ void StripBoxDesign::neighboursOfCell(const SiCellId &cellId,
         return;
     }
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     int stripM = strip - 1;
     int stripP = strip + 1;
 
@@ -104,8 +111,7 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 
 SiLocalPosition StripBoxDesign::localPositionOfCell(SiCellId const &cellId) const {
 
-    int row, strip;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     double eta = ((double) row - (double) m_nRows / 2. + 0.5) * m_length;
 
     double phi = ((double) strip - (double) m_nStrips / 2. + 0.5) * m_pitch;
@@ -135,8 +141,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(
 
     SiCellId cellId = cellIdOfPosition(pos);
 
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
 
     double etaStart = (row - m_nRows / 2.) * m_length;
     double etaEnd = etaStart + m_length;
@@ -193,8 +198,7 @@ SiCellId StripBoxDesign::cellIdInRange(const SiCellId &cellId) const {
     if (!cellId.isValid()) {
         return SiCellId(); // Invalid
     }
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    auto [strip, row] = getStripRow(cellId);
     if (strip < 0 || row < 0 || row >= m_nRows || strip >= m_nStrips) {
         return SiCellId(); // Invalid
     }

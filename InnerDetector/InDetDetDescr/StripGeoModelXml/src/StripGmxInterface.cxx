@@ -266,6 +266,7 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   std::vector<double> phiPitch;
   std::vector<double> startR;
   std::vector<double> endR;
+  bool usePC{false}; // initialise to false
 
   std::string carrierString;
   getParameter(typeName, parameters, "carrierType", carrierString);
@@ -344,6 +345,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
     exit(999);
   }
 
+  if (checkParameter(typeName, parameters, "usePC", usePC)) ATH_MSG_INFO("Using polar co-ordinates for strip stereo annulus modules");
+
   //
   //  Make Sensor Design and add it to the DetectorManager
   //
@@ -366,7 +369,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
                                                                             startR,
                                                                             endR,
                                                                             stereoAngle,
-                                                                            centreR);
+                                                                            centreR,
+                                                                            usePC);
 
     for (int i = 0; i < splitLevel; i++) {
       singleRowStrips.clear();
@@ -392,7 +396,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
                                                                         singleRowMinR,
                                                                         singleRowMaxR,
                                                                         stereoAngle,
-                                                                        thisCentreR);
+                                                                        thisCentreR,
+                                                                        usePC);
 
       // Add to map for addSensor routine
       std::string splitName = typeName + "_" + std::to_string(i);
@@ -420,7 +425,8 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
                                                                       startR,
                                                                       endR,
                                                                       stereoAngle,
-                                                                      centreR);
+                                                                      centreR,
+                                                                      usePC);
 
     m_geometryMap[typeName] = design.get();
     m_detectorManager->addDesign(std::move(design));

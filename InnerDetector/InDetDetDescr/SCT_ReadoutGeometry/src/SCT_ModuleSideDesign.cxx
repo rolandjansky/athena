@@ -113,9 +113,17 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
 
   }
 
-void SCT_ModuleSideDesign::getStripRow(SiCellId /*id*/, int * /*strip */, int *row) const {
-   //For SCT sensors, return 0 as there should only be one row; derived versions for ITk strip implement specializations
-   *row = 0;
+/**
+ * @brief Get the strip and row number of the cell.
+ * 
+ * Can be used as `auto [strip, row] = getStripRow(cellId);` 
+ * For SCT sensors, return 0 as there should only be one row; derived versions for ITk strip implement specializations
+ * 
+ * @param cellId The SiCellId
+ * @return std::pair<int,int> A pair of ints representing the strip ID and row ID. In this case, [0,0].
+ */
+std::pair<int,int> SCT_ModuleSideDesign::getStripRow(SiCellId /*id*/) const {
+   return {0,0};
  }
 
   SiIntersect SCT_ModuleSideDesign::inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol, bool forceStringent) const {

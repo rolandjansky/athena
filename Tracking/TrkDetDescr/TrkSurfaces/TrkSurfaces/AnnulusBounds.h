@@ -65,9 +65,9 @@ public:
   AnnulusBounds(const AnnulusBounds& annbo) = default;
   /**Assignment operator*/
   AnnulusBounds& operator=(const AnnulusBounds& sbo) = default;
- /** Move constructor */
+  /** Move constructor */
   AnnulusBounds(AnnulusBounds&& annbo) = default;
- /** Move assignment */
+  /** Move assignment */
   AnnulusBounds& operator=(AnnulusBounds&& sbo) = default;
 
   /**Destructor*/
@@ -96,6 +96,19 @@ public:
 
   /**This method returns the tilt angle*/
   double phiS() const;
+
+  /**
+   * @brief Returns the four corners of the bounds
+   * 
+   * Returns the module corners starting from the upper right (max R, pos locX) and proceding clock-wise, 
+   * i.e. (max R; pos locX), (min R; pos locX), (min R; neg loc X), (max R; neg locX).
+   * 
+   * This method is only intended for debug purposes. If used for production code, this should be changed to a
+   * return-by-reference. This will necessitate the vector being stored in the class.
+   * 
+   * @return array of pairs of doubles giving the (R, x) of each corner clockwise from upper-right
+   * */
+  std::array<std::pair<double, double>, 4> corners() const;
 
   /**This method returns the maximal extension on the local plane*/
   virtual double r() const override;
@@ -155,6 +168,18 @@ public:
   /** Output Method for std::ostream */
   virtual std::ostream& dump(std::ostream& sl) const override;
 
+  /**
+   * @brief Returns the gradient and y-intercept of the left and right module edges.
+   * 
+   * This method is only intended for debug purposes. If used for production code, this should be changed to a
+   * return-by-reference. This will necessitate the vector being stored in the class.
+   * 
+   * @return Vector with the gradients (m) and intercepts (c) of the left (_L) and right (_R) edges. [m_L, m_R, c_L, c_R] 
+   */
+  std::array<TDD_real_t,4> getEdgeLines();
+
+  const std::vector<TDD_real_t>& getBoundsValues();
+
 private:
   //      bool m_forceCovEllipse;
 
@@ -179,7 +204,16 @@ private:
                        std::vector<TDD_real_t> sL,
                        std::vector<TDD_real_t> sR) ;
 
-  /** Circle and line intersection **/
+  /** 
+   * @brief Circle and line intersection. \n 
+   * 
+   * Circle is of radius R and centred at the origin. Line takes the form y = kx + d
+   * 
+   * @param R Radius of the circle
+   * @param k Gradient of the line
+   * @param d Intercept of the line
+   * @return Co-ordinates of the intercept with highest y
+   **/
   static std::vector<double> circleLineIntersection(double R, double k, double d) ;
 
   std::vector<TDD_real_t> m_boundValues;
