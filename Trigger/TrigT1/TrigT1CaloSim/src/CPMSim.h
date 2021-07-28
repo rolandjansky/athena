@@ -34,9 +34,6 @@
  
  #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-// Include for the configuration service:
- #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-
  // LVL1 Calo Trigger
  #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 
@@ -99,8 +96,6 @@
   std::unique_ptr<LVL1CTP::SlinkWord> getWord(unsigned int tword) const;
 #endif
 
-  /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu() const;
   
  private: // Private attributes
 
@@ -112,19 +107,8 @@
    { this, "CPMTobRoILocation", TrigT1CaloDefs::CPMTobRoILocation, "" };
    SG::WriteHandleKey<DataVector<CPMCMXData> > m_CPMCMXDataLocation
    { this, "CPMCMXDataLocation", TrigT1CaloDefs::CPMCMXDataLocation, "" };
-#if 0
-   // RoIROD is also writing an object of the same name!
-   // In the previous version, we were recording using overwrite().
-   // RoIROD was scheduled second, so it's the one that wins.
-   // There doesn't appear to be anything in between that reads this.
-   // So just remove this output from this algorithm.
-   SG::WriteHandleKeyArray<DataVector<LVL1CTP::SlinkWord> > m_emTauSlinkKeys
-   { this, "EmTauSlinkKeys", {}, "" };
-   std::string   m_emTauSlinkLocation ;
-#endif
    
    /** The essentials - data access, configuration, tools */
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    ToolHandle<LVL1::IL1CPMTools> m_CPMTool;
 };
 
