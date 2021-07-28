@@ -271,10 +271,34 @@ def main(args):
         import collections
         summary = collections.defaultdict(int)
 
+        def get_event_range(entry):
+            smin, smax = 0, None
+            # Parse user input
+            if isinstance(entry, str):
+                # We support three main cases in this format: 5:10 (5th to 10th),
+                # 5: (5th to the end), and :5 (from the start to 5th)
+                if ':' in entry:
+                    vals = entry.split(':')
+                    smin = int(vals[0]) if len(vals) > 0 and vals[0].isdigit() else 0
+                    smax = int(vals[1]) if len(vals) > 1 and vals[1].isdigit() else None
+                # This is the case where the user inputs the total number of events
+                elif entry.isdigit():
+                    smin = 0
+                    smax = int(entry) if int(entry) > 0 else None
+            # Handle the case where the input is a number (i.e. default)
+            elif isinstance(entry, int):
+                smin = 0
+                smax = entry if entry > 0 else None
+            # If we come across an unhandled case, bail out
+            else:
+                msg.warning(f"Unknown entries argument {entry}, will compare all events...")
+            msg.debug(f"Event slice is parsed as [{smin},{smax}]")
+            return smin, smax
+
         if args.order_trees:
-            slice_max = int(itr_entries) if int(itr_entries) > 0 else None
-            idx_old = ordered_indices(fold.tree)[0:slice_max]
-            idx_new = ordered_indices(fnew.tree)[0:slice_max]
+            smin, smax = get_event_range(itr_entries)
+            idx_old = ordered_indices(fold.tree)[smin:smax]
+            idx_new = ordered_indices(fnew.tree)[smin:smax]
             itr_entries_old, event_numbers_old = list(map(list,zip(*idx_old)))
             itr_entries_new, event_numbers_new = list(map(list,zip(*idx_new)))
             msg.debug(f"List of old indices {itr_entries_old}")
