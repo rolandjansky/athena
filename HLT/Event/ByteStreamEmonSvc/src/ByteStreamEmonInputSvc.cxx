@@ -14,6 +14,9 @@
 #include "eformat/DetectorMask.h"
 #include "oh/OHRootProvider.h"
 #include "rc/RunParamsNamed.h"
+#include "TProfile.h"
+#include "TEfficiency.h"
+#include "TProfile2D.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -67,6 +70,111 @@ namespace {
     {
         // online wants 
         ::exit(0);
+    }
+}
+
+namespace {
+    void copyAttributes(TH1* prof, const TEfficiency* eff) {
+        // we take the profile as a TH1 since TProfile2D is not descended from TProfile
+        // code adapted from TEfficiency::FillHistogram
+        const auto* tot{eff->GetTotalHistogram()};
+ 
+        // set the axis labels
+        TString xlabel{tot->GetXaxis()->GetTitle()};
+        TString ylabel{tot->GetYaxis()->GetTitle()};
+        TString zlabel{tot->GetZaxis()->GetTitle()};
+        if (xlabel) prof->GetXaxis()->SetTitle(xlabel);
+        if (ylabel) prof->GetYaxis()->SetTitle(ylabel);
+        if (zlabel) prof->GetZaxis()->SetTitle(zlabel);
+ 
+        Int_t nbinsx = prof->GetNbinsX();
+        Int_t nbinsy = prof->GetNbinsY();
+ 
+        // copy axis labels if existing. Assume are there in the total histogram
+        if (tot->GetXaxis()->GetLabels() != nullptr) {
+            for (int ibinx = 1; ibinx <= nbinsx; ++ibinx)
+                prof->GetXaxis()->SetBinLabel(ibinx, tot->GetXaxis()->GetBinLabel(ibinx));
+        }
+        if (tot->GetYaxis()->GetLabels() != nullptr) {
+            for (int ibiny = 1; ibiny <= nbinsy; ++ibiny)
+                prof->GetYaxis()->SetBinLabel(ibiny, tot->GetYaxis()->GetBinLabel(ibiny));
+        }
+ 
+        //copying style information
+        eff->TAttLine::Copy(*prof);
+        eff->TAttFill::Copy(*prof);
+        eff->TAttMarker::Copy(*prof);
+        prof->SetStats(0);
+    }
+
+    std::unique_ptr<const TProfile> create1DProfile(const TEfficiency* eff) {
+        const auto* tot{eff->GetTotalHistogram()};
+        const auto* pass{eff->GetPassedHistogram()};
+        std::unique_ptr<TProfile> prof;
+        const auto* xaxis{tot->GetXaxis()};
+        if (xaxis->IsVariableBinSize()) {
+            prof = std::make_unique<TProfile>("eff_histo",eff->GetTitle(),
+                                xaxis->GetNbins(), xaxis->GetXbins()->GetArray());
+        } else {
+            prof = std::make_unique<TProfile>("eff_histo",eff->GetTitle(),
+                                xaxis->GetNbins(), xaxis->GetXmin(), xaxis->GetXmax());
+        }
+        prof->SetDirectory(0);
+
+        for (Int_t ibin = 0; ibin < tot->GetNbinsX()+2; ++ibin) {
+            auto center{tot->GetBinCenter(ibin)};
+            prof->Fill(center, 1, pass->GetBinContent(ibin));
+            prof->Fill(center, 0, tot->GetBinContent(ibin)-pass->GetBinContent(ibin));
+            prof->SetBinEntries(ibin, tot->GetBinContent(ibin));
+        }
+        copyAttributes(prof.get(), eff);
+
+        return prof;
+    }
+
+    std::unique_ptr<const TProfile2D> create2DProfile(const TEfficiency* eff) {
+        const auto* tot{eff->GetTotalHistogram()};
+        const auto* pass{eff->GetPassedHistogram()};
+        std::unique_ptr<TProfile2D> prof;
+        Int_t nbinsx{tot->GetNbinsX()};
+        Int_t nbinsy{tot->GetNbinsY()};
+        const auto* xaxis{tot->GetXaxis()};
+        const auto* yaxis{tot->GetYaxis()};
+
+        if (xaxis->IsVariableBinSize() && yaxis->IsVariableBinSize() ) {
+            prof = std::make_unique<TProfile2D>("eff_histo", 
+                        eff->GetTitle(), nbinsx, xaxis->GetXbins()->GetArray(),
+                        nbinsy, yaxis->GetXbins()->GetArray());
+        } else if (xaxis->IsVariableBinSize() && ! yaxis->IsVariableBinSize() ) {
+            prof = std::make_unique<TProfile2D>("eff_histo",
+                        eff->GetTitle(), nbinsx, xaxis->GetXbins()->GetArray(),
+                        nbinsy, yaxis->GetXmin(), yaxis->GetXmax());
+        } else if (!xaxis->IsVariableBinSize() &&  yaxis->IsVariableBinSize() ) {
+            prof = std::make_unique<TProfile2D>("eff_histo",
+                        eff->GetTitle(), nbinsx, xaxis->GetXmin(), xaxis->GetXmax(),
+                        nbinsy, yaxis->GetXbins()->GetArray());
+        } else {
+            prof = std::make_unique<TProfile2D>("eff_histo",
+                        eff->GetTitle(), nbinsx, xaxis->GetXmin(), xaxis->GetXmax(),
+                        nbinsy, yaxis->GetXmin(), yaxis->GetXmax());
+        }
+        prof->SetDirectory(0);
+ 
+        for (Int_t ibinx = 0; ibinx < tot->GetNbinsX()+2; ++ibinx) {
+            auto centerx{tot->GetXaxis()->GetBinCenter(ibinx)};
+            for (Int_t ibiny = 0; ibiny < tot->GetNbinsY()+2; ++ibiny) {
+                auto centery{tot->GetYaxis()->GetBinCenter(ibiny)};
+                prof->Fill(centerx, centery, 1, pass->GetBinContent(ibinx, ibiny));
+                prof->Fill(centerx, centery, 0, 
+                        tot->GetBinContent(ibinx, ibiny)-pass->GetBinContent(ibinx, ibiny));
+                prof->SetBinEntries(prof->GetBin(ibinx, ibiny), 
+                                    tot->GetBinContent(ibinx, ibiny));
+
+            }
+        }
+        copyAttributes(prof.get(), eff);
+
+        return prof;
     }
 }
 
@@ -460,6 +568,31 @@ void ByteStreamEmonInputSvc::check_publish()
                 m_provider->publish(*h, name);
             };
         }
+        for(const std::string& name : m_histSvc->getEfficiencies()) {
+
+            if(!m_include.empty() && !regex_match(name, m_include_rex)) {
+                continue;
+            }
+
+            if(!m_exclude.empty() && regex_match(name, m_exclude_rex)) {
+                continue;
+            }
+
+            TEfficiency *h = nullptr;
+            if(m_histSvc->getEfficiency(name, h)) {
+                if (m_convertEfficiency) {
+                    std::unique_ptr<const TH1> p;
+                    if (h->GetDimension() == 1) {
+                        p = create1DProfile(h);
+                    } else if (h->GetDimension() == 2) {
+                        p = create2DProfile(h);
+                    }
+                    // might throw...
+                    m_provider->publish(*p, name);
+                    //m_provider->publish(*h, name);
+                } // tdaq doesn't currently support publishing efficiencies, will change in the future
+            };
+        }
     } catch (daq::oh::Exception& ex) {
         ATH_MSG_ERROR(ex.what());
     } 
@@ -519,6 +652,18 @@ StatusCode ByteStreamEmonInputSvc::start()
             TH1 *h = nullptr;
             if(m_histSvc->getHist(name, h)) {
                 h->Reset();
+            };
+        }
+        for(const std::string& name : m_histSvc->getEfficiencies()) {
+            TEfficiency *h = nullptr;
+            if(m_histSvc->getEfficiency(name, h)) {
+                std::unique_ptr<TH1> pass{h->GetCopyPassedHisto()};
+                pass->Reset();
+                h->SetPassedHistogram(*pass.get(), "");
+                std::unique_ptr<TH1> tot{h->GetCopyTotalHisto()};
+                tot->Reset();
+                h->SetTotalHistogram(*tot.get(), "");
+                h->SetWeight(1);
             };
         }
     }
