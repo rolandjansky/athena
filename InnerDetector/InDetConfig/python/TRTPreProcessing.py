@@ -93,6 +93,28 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     acc.setPrivateTools(CompFactory.TRT_DriftFunctionTool(name, **kwargs))
     return acc
 
+
+def TRTDriftTimes( isData, isCosmics ):
+    from collections import namedtuple
+    from AthenaCommon.SystemOfUnits import ns
+    driftTimes = namedtuple("driftTimes", ("LowGate", "HighGate", "LowGateArgon", "HighGateArgon"))
+    if isCosmics:
+        return driftTimes(LowGate         = 19.0*ns,
+                          HighGate        = 44.0*ns,
+                          LowGateArgon    = 19.0*ns,
+                          HighGateArgon   = 44.0*ns)
+    if isData:
+        return driftTimes(LowGate         = 17.1875*ns,
+                          HighGate        = 45.3125*ns,
+                          LowGateArgon    = 18.75*ns,
+                          HighGateArgon   = 43.75*ns)
+    # MC
+    return driftTimes(LowGate         = 14.0625*ns, # 4.5*3.125 ns
+                      HighGate        = 42.1875*ns, # LowGate + 9*3.125 ns
+                      LowGateArgon    = 14.0625*ns,
+                      HighGateArgon   = 42.1875*ns)
+
+
 def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
     acc = ComponentAccumulator()
     #
@@ -106,21 +128,10 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     # set gating values for MC/DATA
     from AthenaCommon.SystemOfUnits import ns
 
+    ## sync with: ConfiguredInDetPreProcessingTRT.py
     MinTrailingEdge = 11.0*ns
     MaxDriftTime    = 60.0*ns
-    LowGate         = 14.0625*ns # 4.5*3.125 ns
-    HighGate        = 42.1875*ns # LowGate + 9*3.125 ns
-    if flags.Beam.Type == 'cosmics':
-        LowGate         = 19.0*ns
-        HighGate        = 44.0*ns
-    if not flags.Input.isMC:
-        MinTrailingEdge = 11.0*ns
-        MaxDriftTime    = 60.0*ns
-        LowGate         = 14.0625*ns ## 4.5*3.125 ns
-        HighGate        = 42.1875*ns ## LowGate + 9*3.125 ns
-        if flags.Beam.Type == 'cosmics':
-            LowGate         = 19.0*ns
-            HighGate        = 44.0*ns
+    gains = TRTDriftTimes(isData= not flags.Input.isMC, isCosmics= flags.Beam.Type == 'cosmics')
     #
     # --- TRT_DriftFunctionTool
     #
@@ -140,15 +151,15 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     kwargs.setdefault("MinTrailingEdge", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTime", MaxDriftTime)
     kwargs.setdefault("ValidityGateSuppression", flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
-    kwargs.setdefault("LowGate", LowGate)
-    kwargs.setdefault("HighGate", HighGate)
+    kwargs.setdefault("LowGate", gains.LowGate)
+    kwargs.setdefault("HighGate", gains.HighGate)
     kwargs.setdefault("SimpleOutOfTimePileupSupressionArgon" , flags.Beam.Type == 'cosmics') #flags.InDet.doCosmics
     kwargs.setdefault("RejectIfFirstBitArgon", False)
     kwargs.setdefault("MinTrailingEdgeArgon", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTimeArgon", MaxDriftTime)
     kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
-    kwargs.setdefault("LowGateArgon", LowGate)
-    kwargs.setdefault("HighGateArgon", HighGate)
+    kwargs.setdefault("LowGateArgon", gains.LowGateArgon)
+    kwargs.setdefault("HighGateArgon", gains.HighGateArgon)
     kwargs.setdefault("useDriftTimeHTCorrection", True)
     kwargs.setdefault("useDriftTimeToTCorrection", True)
 
