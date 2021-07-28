@@ -23,6 +23,7 @@
 #include "JetCMX.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfData/L1Threshold.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -55,6 +56,7 @@ StatusCode JetCMX::initialize()
   ATH_CHECK( m_CMXJetTobLocation.initialize() );
   ATH_CHECK( m_TopoOutputLocation.initialize() );
   ATH_CHECK( m_CTPOutputLocation.initialize() );
+  ATH_CHECK( m_L1MenuKey.initialize() );
   return StatusCode::SUCCESS ;
 }
 
@@ -152,33 +154,31 @@ StatusCode JetCMX::execute(const EventContext& ctx) const
           if (iphi < 0) iphi += 64;
 	  int etLarge = tob.etLarge();
 	  int etSmall = tob.etSmall();
-	   
+		 
 	  // Now check against trigger thresholds
-	  for ( std::vector< TriggerThreshold* >::const_iterator itTh = thresholds.begin();
-                itTh != thresholds.end(); ++itTh ) {
+    auto l1Menu = SG::makeHandle( m_L1MenuKey, ctx );
+    std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
 	    // Right type?
-	    if ( (*itTh)->type() != L1DataDef::jetType() ) continue;
+	      for ( const auto& thresh : allThresholds ) {
+          if ( thresh->type() != L1DataDef::jetType() ) continue;
+
             // Does TOB satisfy this threshold?
-            TriggerThresholdValue* ttv = (*itTh)->triggerThresholdValue( ieta, iphi );
-            JetThresholdValue* jtv = dynamic_cast< JetThresholdValue* >( ttv );
-	    if (jtv) {
-              int etCut              = jtv->ptcut()*jepScale;
-              std::string windowSize = jtv->windowSizeAsString();
-                              
-              if ( (windowSize == "LARGE" && etLarge > etCut) ||
-		   (windowSize == "SMALL" && etSmall > etCut) ) {
-                int num = ( *itTh )->thresholdNumber();
-		if (num < 25) {
-		  if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
-	          else if ( num >= 10 && crateHits[crate][num] < 3 ) crateHits[crate][num]++;
-		  if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
-		  else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
-		}
-		else ATH_MSG_WARNING("Invalid threshold number " << num );
-              } // passes cuts
-		    
-            } // JetThresholdValue pointer valid
-          } // Loop over thresholds
+            std::shared_ptr<TrigConf::L1Threshold_JET> thresh_JET = std::static_pointer_cast<TrigConf::L1Threshold_JET>(thresh);
+            int etCut              = thresh->thrValue(ieta)*jepScale;
+            unsigned int window = thresh_JET->window();
+            if ( (window == m_configSvc->thresholdConfig()->caloInfo().jetWindowSizeLarge() && etLarge > etCut) ||
+
+                (window == m_configSvc->thresholdConfig()->caloInfo().jetWindowSizeSmall() && etSmall > etCut) ) {
+                int num = thresh->mapping();
+                if (num < 25) {
+                if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
+                else if ( num >= 10 && crateHits[crate][num] < 3 ) crateHits[crate][num]++;
+                if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
+                else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
+                }
+                else ATH_MSG_WARNING("Invalid threshold number " << num );
+            } // passes cuts
+        } // Loop over thresholds
 		 
 	} // Loop over TOBs
 	    

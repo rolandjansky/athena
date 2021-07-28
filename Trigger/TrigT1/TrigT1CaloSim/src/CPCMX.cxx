@@ -26,6 +26,8 @@
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
+#include "TrigConfData/L1Threshold.h"
+
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXCPHits_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXCPTob_ClassDEF.h"
