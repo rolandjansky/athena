@@ -24,7 +24,7 @@ namespace FlavorTagDiscriminants {
   public:
     DL2HighLevel(const std::string& nn_file_name,
                  FlipTagConfig = FlipTagConfig::STANDARD,
-                 std::map<std::string, std::string> var_remap = {});
+                 std::map<std::string, std::string> remap_scalar = {});
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;
