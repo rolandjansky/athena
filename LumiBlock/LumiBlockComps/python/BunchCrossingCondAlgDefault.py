@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgSequence import AthSequencer
-#from AthenaCommon.Logging import logging
+from AthenaCommon.Logging import logging
 
 
 def BunchCrossingCondAlgDefault():
     name = 'BunchCrossingCondAlgDefault'
+    mlog = logging.getLogger(name)
+
     condSeq = AthSequencer ('AthCondSeq')
 
     if hasattr (condSeq, name):
@@ -20,8 +22,12 @@ def BunchCrossingCondAlgDefault():
 
     if (isMC):
         folder = "/Digitization/Parameters"
-        conddb.addFolderWithTag('', folder, 'HEAD',
-                                className = 'AthenaAttributeList')
+        if not conddb.folderRequested(folder):
+            mlog.info("Adding folder ", folder)
+            conddb.addFolderWithTag('', folder, 'HEAD',
+                                    className = 'AthenaAttributeList')
+        else:
+            mlog.info("Folder ",folder," already requested")
     else:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
         # Mistakenly created as multi-version folder, must specify HEAD 

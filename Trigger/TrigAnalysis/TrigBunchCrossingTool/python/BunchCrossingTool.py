@@ -202,7 +202,8 @@ def MCBunchCrossingTool():
     for f in __folders:
         if not conddb.folderRequested( f ):
             __logger.info( "Adding folder to IOVDbSvc: %s", f ) 
-            conddb.addFolderWithTag( __dbConnection, f, "HEAD" )
+            conddb.addFolderWithTag( __dbConnection, f, "HEAD",
+                                     className='AthenaAttributeList')
             pass
         pass
 
