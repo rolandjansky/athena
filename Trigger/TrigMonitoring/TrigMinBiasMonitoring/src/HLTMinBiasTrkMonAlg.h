@@ -46,6 +46,5 @@ private:
   StatusCode monitorSPCounts(const EventContext& context) const;
   StatusCode monitorTrkCounts(const EventContext& context) const;
 
-
 };
 #endif // TRIGMINBIASMONITORING_HLTMinBiasTrkMonAlg_H
