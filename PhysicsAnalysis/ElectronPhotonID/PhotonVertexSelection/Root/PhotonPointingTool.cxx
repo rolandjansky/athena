@@ -135,7 +135,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   std::pair<float, float> result;
   for (const auto *egamma: egammas) {
     if(egamma==nullptr){
-      ATH_MSG_WARNING("Passed Egamma was a nullptr  -- skipping");
+      ATH_MSG_DEBUG("Passed Egamma was a nullptr  -- skipping");
       continue;
     }
     // Get calo pointing variables

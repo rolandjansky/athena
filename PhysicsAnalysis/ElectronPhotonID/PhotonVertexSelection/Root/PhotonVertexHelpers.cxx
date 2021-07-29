@@ -51,6 +51,9 @@ getZCommonAndError(const xAOD::EventInfo* eventInfo,
   // Beam position is the base for zCommon weighted average
   double beamPosZ = eventInfo->beamPosZ();
   double beamPosSigmaZ = eventInfo->beamPosSigmaZ();
+  
+  if( beamPosSigmaZ == 0 )
+    beamPosSigmaZ = 10;
 
   zCommon = beamPosZ / beamPosSigmaZ / beamPosSigmaZ;
   zCommonError = 1.0 / beamPosSigmaZ / beamPosSigmaZ;

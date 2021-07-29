@@ -19,7 +19,7 @@ InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -162,7 +162,7 @@ ToolSvc += PhotonVertexSelectionTool
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__DiphotonVertexDecorator
 DiphotonVertexDecorator = DerivationFramework__DiphotonVertexDecorator(name = "DiphotonVertexDecorator",  
-                                                                     PhotonVertexSelectionTool = PhotonVertexSelectionTool)
+                                                                       PhotonVertexSelectionTool = PhotonVertexSelectionTool)
 ToolSvc += DiphotonVertexDecorator
 SeqHIGG1D1 += CfgMgr.DerivationFramework__CommonAugmentation("DiphotonVertexKernel", AugmentationTools = [DiphotonVertexDecorator])
 
@@ -347,12 +347,16 @@ largeRJetCollections = [
 ]
 
 OutputJets["HIGG1D1"] = largeRJetCollections
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
+jetList = ["AntiKt4EMTopoJets",
+           "AntiKt4EMPFlowJets",
+           "AntiKt2PV0TrackJets",
+           "AntiKt4PV0TrackJets",
+           "AntiKtVR30Rmax4Rmin02PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["HIGG1D1"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
-replaceAODReducedJets(reducedJetList,SeqHIGG1D1,"HIGG1D1")
+addDAODJets(jetList,SeqHIGG1D1,"HIGG1D1")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqHIGG1D1,"jetalgAntiKt10TruthTrimmedPtFrac5SmallR20")
 addDefaultTrimmedJets(SeqHIGG1D1,"HIGG1D1",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
 
@@ -360,33 +364,11 @@ addDefaultTrimmedJets(SeqHIGG1D1,"HIGG1D1",dotruth=add_largeR_truth_jets, linkVR
 if (DerivationFrameworkIsMonteCarlo):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqHIGG1D1,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqHIGG1D1,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1,algname="QGTaggerToolPFAlg")
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqHIGG1D1)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1)
 
 # fJVT
-getPFlowfJVT(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1, algname="PHYSJetForwardPFlowJvtToolAlg")
-
-
-
-
-OutputJets["HIGG1D1"] = []
-reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
-
-replaceAODReducedJets(reducedJetList,SeqHIGG1D1,"HIGG1D1")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqHIGG1D1,"jetalgAntiKt10TruthTrimmedPtFrac5SmallR20")
-addDefaultTrimmedJets(SeqHIGG1D1,"HIGG1D1",dotruth=add_largeR_truth_jets, linkVRGhosts=True)
-
-# Add large-R jet truth labeling
-#if (DerivationFrameworkIsMonteCarlo):
-#   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqHIGG1D1,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
-
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqHIGG1D1,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1,algname="QGTaggerToolPFAlg")
-
-# fJVT
-getPFlowfJVT(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1, algname="HIGG1D1JetForwardPFlowJvtToolAlg")
-
-
+getPFlowfJVT(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1)
 
 
 #====================================================================
@@ -406,6 +388,8 @@ SeqHIGG1D1 += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1Kernel",
 # Custom JETS
 #====================================================================
 
+# Ideally there would be a nice way to configure the PFlowCustomVtx jets cut but at the moment 
+#all tools need to be configured manually to ensure that the track to vertex association is done correctly.
 PrefixForHggCollection   = "Hgg"
 HggVertexContainerName   = PrefixForHggCollection+"PrimaryVertices"
 CustomPFJetContainerName = "AntiKt4PFlowCustomVtxHgg"
@@ -414,52 +398,156 @@ CustomPFJetContainerName = "AntiKt4PFlowCustomVtxHgg"
 from ROOT import xAODType
 from JetRec.JetRecStandardToolManager import jtm
 from JetRecTools.ConstitToolManager import ctm
-from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, SoftKillerWeightTool, ConstituentSubtractorTool, ChargedHadronSubtractionTool, CorrectPFOTool
+from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, SoftKillerWeightTool, ConstituentSubtractorTool, ChargedHadronSubtractionTool, CorrectPFOTool, TrackVertexAssociationTool
+from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
+from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
+from JetMomentTools.JetMomentToolsConf import JetTrackSumMomentsTool
+from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
+from JetMomentTools.JetMomentToolsConf import JetConstitFourMomTool
 from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, defineEDAlg
+from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+
+# Tools for custom track-vertex association
+jtm += getTTVAToolForReco("customVtxTVAtool",
+                          WorkingPoint   = "Custom", d0_cut = 2.0, dzSinTheta_cut = 2.0, # TODO: WP to be updated to a recommended one in the future
+                          TrackContName  = jtm.trackContainer,
+                          VertexContName = HggVertexContainerName)
+
+
+jtm += TrackVertexAssociationTool(
+  "tvassocCustomVtx",
+  TrackParticleContainer  = jtm.trackContainer,
+  TrackVertexAssociation  = "JetTVACustomVtx",
+  VertexContainer         = HggVertexContainerName,
+  TrackVertexAssoTool     = jtm.customVtxTVAtool,
+)
+
+# Jet vertex fraction with selection.
+# This is never used without jtm.trksummoms when configured from here, so suppress input dependence.
+jtm += JetVertexFractionTool(
+  "jvfCustomVtx",
+  VertexContainer = HggVertexContainerName,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassocCustomVtx.TrackVertexAssociation,
+  TrackParticleContainer  = jtm.trackContainer,
+  TrackSelector = jtm.trackselloose,
+  JVFName = "JVF",
+  K_JVFCorrScale = 0.01,
+  #Z0Cut = 3.0,
+  PUTrkPtCut = 30000.0,
+  SuppressInputDependence = True
+)
+
+# Jet vertex tagger.
+# This is never used without jtm.jvf and jtm.trksummoms when configured from here, so suppress input dependence.
+jtm += JetVertexTaggerTool(
+  "jvtCustomVtx",
+  VertexContainer = HggVertexContainerName,
+  JVTName = "Jvt",
+  SuppressInputDependence = True,
+)
+
+# Jet track info.
+jtm += JetTrackMomentsTool(
+  "trkmomsCustomVtx",
+  VertexContainer = HggVertexContainerName,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassocCustomVtx.TrackVertexAssociation,
+  TrackMinPtCuts = [500, 1000],
+  TrackSelector = jtm.trackselloose
+)
+
+# Jet track vector sum info
+jtm += JetTrackSumMomentsTool(
+  "trksummomsCustomVtx",
+  VertexContainer = HggVertexContainerName,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassocCustomVtx.TrackVertexAssociation,
+  RequireTrackPV = True,
+  TrackSelector = jtm.trackselloose
+)
+
+# Just set the PV without applying origin correction
+jtm += JetOriginCorrectionTool(
+  "jetorigin_setpvCustomVtx",
+  VertexContainer = HggVertexContainerName,
+  OriginCorrectedName = "",
+  OnlyAssignPV = True,
+)
 
 # Tools to correct PFO"s
-ctm.add(CorrectPFOTool("correctPFOCustomVtx",   WeightPFOTool = jtm.pflowweighter, InputIsEM=True, CalibratePFO=True, CorrectNeutral=True,InputType = xAODType.ParticleFlow,VertexContainerKey=HggVertexContainerName ), alias="correctPFOCustomVtx")
-ctm.add(ChargedHadronSubtractionTool("pfoCHSCustomVtx", InputType = xAODType.ParticleFlow, VertexContainerKey=HggVertexContainerName), alias="pfoCHSCustomVtx")
+ctm.add(CorrectPFOTool("correctPFOCustomVtx",   WeightPFOTool = jtm.pflowweighter, InputIsEM=True, CalibratePFO=True, CorrectNeutral=True,InputType = xAODType.FlowElement,VertexContainerKey=HggVertexContainerName ), alias="correctPFOCustomVtx")
+ctm.add(ChargedHadronSubtractionTool("pfoCHSCustomVtx", InputType = xAODType.FlowElement, VertexContainerKey=HggVertexContainerName, TrackVertexAssociation="JetTVACustomVtx"), alias="pfoCHSCustomVtx")
 
 # here we prepare a tool building our unified PFlow container. The prefix of the output collection is "PlainLC"
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCustomVtx",
-                                    OutputContainer = "CustomVtx", #"ParticleFlowObjects" will be appended to the end
-                                    InputContainer= "JetETMiss",
-                                    InputType = xAODType.ParticleFlow,
-                                    modList = [ "correctPFOCustomVtx", "pfoCHSCustomVtx" ] )
+                                      OutputContainer = "CustomVtx", #"ParticleFlowObjects" will be appended to the end
+                                      InputContainer= "JetETMiss",
+                                     # InputType = xAODType.FlowElement,
+                                      modList = [ "correctPFOCustomVtx", "pfoCHSCustomVtx" ] )
 
+# Add the tool runner. It runs the jetrec tools.
+ctools = []
+ctools += [jtm.tvassocCustomVtx]
+ctools += [jtm.JetConstitSeq_PFlowCustomVtx]
 # Run the FPO correction tools
-ctools = [jtm.JetConstitSeq_PFlowCustomVtx]
-
 from JetRec.JetRecConf import JetToolRunner
 from JetRec.JetRecConf import JetAlgorithm
 jtm += JetToolRunner("jetconstitPFlowCustomVtx",
-                         EventShapeTools=[],
-                         Tools=ctools,
-                         Timer=jetFlags.timeJetToolRunner()
-                         )
-SeqHIGG1D1 += JetAlgorithm("jetalgConstituentsPFlowCustomVtx",
-                        Tools=[jtm.jetconstitPFlowCustomVtx])
+                      EventShapeTools=[],
+                      Tools=ctools,
+                      Timer=jetFlags.timeJetToolRunner() )
 
+SeqHIGG1D1 += JetAlgorithm("jetalgConstituentsCustomVtx",
+                    Tools=[jtm.jetconstitPFlowCustomVtx])
+
+print( "Added CustomVtx PFlow sequence to \'SeqHIGG1D1\'" )
+
+#List of tools that use track to vertex association 
+# of some kind in the jet reconstruction that need to be replaced with new ones
+replaceTools = [[jtm.trkmoms, jtm.trkmomsCustomVtx], 
+                [jtm.trksummoms, jtm.trkmomsCustomVtx], 
+                [jtm.jvf, jtm.jvfCustomVtx], 
+                [jtm.jvt, jtm.jvtCustomVtx],
+                [jtm.jetorigin_setpv, jtm.jetorigin_setpvCustomVtx]]
+#function to replace tools in a list
+def replace(replaceTools, tools):
+  outtools = []
+  remtoolnames = []
+  for tool in tools:
+    toolToUse = tool
+    for rtools in replaceTools:
+      same = rtools[0] == tool
+      if same:
+        toolToUse = rtools[1]
+        remtoolnames += [ rtools[0].name() ]
+    outtools += [toolToUse]
+
+  print(  "Replaced tools: " + str(remtoolnames) )
+  return outtools
+
+pflow_ungroomedCustomVtx_modifiers = replace( replaceTools , jtm.modifiersMap["pflow_ungroomed"])
+jtm.modifiersMap["pflow_ungroomedCustomVtx"] = list(pflow_ungroomedCustomVtx_modifiers) 
 
 if not hasattr(SeqHIGG1D1, jtm.pflowcustomvtxget.name()):
     SeqHIGG1D1 += jtm.pflowcustomvtxget
 
-#EventShape (needed for calibration)
+#EventShape (needed for calibration)  
 if not hasattr(SeqHIGG1D1, "EventDensityAlgEDTool4PFlowCustomVtx"):
     SeqHIGG1D1 += defineEDAlg(R=0.4, inputtype="PFlowCustomVtx")
 
 # Get empflow_reduced getters but replace empflowget with pflowcustomvtxge
 myGetters=[jtm.pflowcustomvtxget if i==jtm.empflowget else i for i in jtm.gettersMap["empflow_reduced"]]  
-for getter in myGetters:
-    print( "MyGetter: ", getter.name()) 
+print( "Ungroomed Modifier map" )
+print( jtm.modifiersMap["pflow_ungroomedCustomVtx"]  )
 
 # Finally add the new jet collection
 finderArgs = dict()
 finderArgs["ptmin"] = 5000
 finderArgs["ptminFilter"] = 10000
 finderArgs["ghostArea"] = 0.01
-finderArgs["mods"] = "pflow_ungroomed"
+finderArgs["mods"] = "pflow_ungroomedCustomVtx" 
 finderArgs["calibOpt"] = "a:pflow"
 finderArgs["algseq"] = SeqHIGG1D1
 finderArgs["outputGroup"] = CustomPFJetContainerName
@@ -467,22 +555,42 @@ finderArgs["customGetters"] = myGetters
 addStandardJets("AntiKt", 0.4, "PFlowCustomVtx", **finderArgs)
 
 # Add QG tagger
-addQGTaggerTool(jetalg="AntiKt4PFlowCustomVtx",sequence=SeqHIGG1D1,algname="QGTaggerToolPFCVAlg")
+addQGTaggerTool(jetalg="AntiKt4PFlowCustomVtx",sequence=SeqHIGG1D1)
 
 # fJVT
-# TODO fails becasue of residual pileup correction file name issue
-getPFlowfJVT(jetalg="AntiKt4PFlowCustomVtx",sequence=SeqHIGG1D1, algname="JetForwardPFlowCustomVtxHggJvtToolAlg", primaryVertexCont=HggVertexContainerName,overlapLabel="")
+# Current fuction won't set TVA and calibration will fail --  need to manually configure everything
+# getPFlowfJVT(jetalg="AntiKt4PFlowCustomVtx",sequence=SeqHIGG1D1,primaryVertexCont=HggVertexContainerName,overlapLabel="")
 
+jetalg = "AntiKt4PFlowCustomVtx"
+fJVTAlgName = "DFJetFJVTAlgCustomVtx_" + jetalg
+
+# Calibration tool specific for pFlow fJVT: without GSC and smearing
+jetCalibrationToolCustomVtx = CfgMgr.JetCalibrationTool("DFJetFJVTCustomVtx _" + jetalg + "_CalibTool",
+                                                JetCollection = "AntiKt4EMPFlow",
+                                                ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
+                                                CalibSequence = "JetArea_Residual_EtaJES",
+                                                CalibArea = "00-04-82",
+                                                RhoKey = "Kt4EMPFlowEventShape",
+                                                IsData = False)
+wPFOToolCustomVtx = CfgMgr.CP__WeightPFOTool("DFJetFJVTCustomVtx _" + jetalg + "_wPFO")
+fJVTToolCustomVtx = CfgMgr.JetForwardPFlowJvtTool("DFJetFJVTCustomVtx_" + jetalg,
+                                            verticesName = HggVertexContainerName,
+                                            JetContainer = jetalg+"Jets",
+                                            TrackVertexAssociation = jtm.tvassocCustomVtx.TrackVertexAssociation,
+                                            WeightPFOTool = wPFOToolCustomVtx,
+                                            JetCalibrationTool = jetCalibrationToolCustomVtx,
+                                            FEName = "CHSParticleFlowObjects",
+                                            ORName = "",
+                                            FjvtRawName = "DFCommonJets_fJvt",
+                                            includePV = False)
+print("ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: " + jetalg + "Jets")
+SeqHIGG1D1 += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+"Jets", Decorators=[fJVTToolCustomVtx ])
 
 
 
 #MET associated to HggPrimaryVertices
 from DerivationFrameworkJetEtMiss import METCommon
-#TODO  Understand if DerivationFrameworkJetEtMiss/METCommon.py" need to be updated 
-METCommon.scheduleMETCustomVertex ( vxColl="Hgg", jetcoll="AntiKt4PFlowCustomVtx", outputlist = "CustomMET" )
-METCommon.scheduleMETAssocAlg(SeqHIGG1D1)
-
-
+METCommon.scheduleMETCustomVertex(vxColl="Hgg", jetcoll="AntiKt4PFlowCustomVtx")
 
 
 #====================================================================
@@ -576,7 +684,7 @@ if DerivationFrameworkIsMonteCarlo:
    HIGG1D1SlimmingHelper.AllVariables += ["TruthHFWithDecayParticles","TruthHFWithDecayVertices","TruthCharm"]
 
 
-HIGG1D1SlimmingHelper.AllVariables   += ['EventInfo']
+HIGG1D1SlimmingHelper.AllVariables   += ["EventInfo"]
 HIGG1D1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
@@ -595,8 +703,8 @@ HIGG1D1SlimmingHelper.AppendToDictionary.update({  "AntiKt4PFlowCustomVtxJets": 
         "MET_Core_AntiKt4PFlowCustomVtxHgg":"xAOD::MissingETContainer", "MET_Core_AntiKt4PFlowCustomVtxHggAux":"xAOD::MissingETAuxContainer",
         HggVertexContainerName:"xAOD::VertexContainer", HggVertexContainerName+"Aux":"xAOD::ShallowAuxContainer",
         "Kt4PFlowCustomVtxEventShape":"xAOD::EventShape", "Kt4PFlowCustomVtxEventShapeAux":"xAOD::EventShapeAuxInfo",
-        'BTagging_AntiKt4PFlowCustomVtx':'xAOD::BTaggingContainer', 'BTagging_AntiKt4PFlowCustomVtxAux' : 'xAOD::BTaggingAuxContainer',
-        'ZeeRefittedPrimaryVertices':'xAOD::VertexContainer','ZeeRefittedPrimaryVerticesAux':'xAOD:VertexAuxContainer',
+        "BTagging_AntiKt4PFlowCustomVtx":"xAOD::BTaggingContainer", "BTagging_AntiKt4PFlowCustomVtxAux" : "xAOD::BTaggingAuxContainer",
+        "ZeeRefittedPrimaryVertices":"xAOD::VertexContainer","ZeeRefittedPrimaryVerticesAux":"xAOD:VertexAuxContainer",
      })
 
 HIGG1D1SlimmingHelper.AllVariables += [HggVertexContainerName,"ZeeRefittedPrimaryVertices","AntiKt4PFlowCustomVtxJets","Kt4PFlowCustomVtxEventShape"]
@@ -646,3 +754,6 @@ HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
 #====================================================================
 # Ideally, this should come at the end of the job
 DerivationFrameworkJob += SeqHIGG1D1
+
+print(DerivationFrameworkJob)
+print(topSequence)
