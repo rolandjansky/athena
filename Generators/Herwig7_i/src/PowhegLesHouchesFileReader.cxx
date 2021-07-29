@@ -30,7 +30,6 @@ using namespace ThePEG;
 using namespace std;
 
 int maxev;
-const int max_num_weights=100;
 int numweights;
 int radtype;
 double upbfact[2] = {1., 1.};   /*Corrective factors in case upper bound violations are computed, they depend on radtype */
