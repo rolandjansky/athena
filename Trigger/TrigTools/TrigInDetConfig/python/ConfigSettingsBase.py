@@ -60,6 +60,7 @@ class _ConfigSettingsBase() :
       self._dodEdxTrk           = False 
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
+      self._usePixelNN          = False
 
       if hasattr(self.__class__, 'override') and callable(getattr(self.__class__, 'override')) :
          self.override()
@@ -302,6 +303,10 @@ class _ConfigSettingsBase() :
    @property
    def doDisappearingTrk(self):
        return self._doDisappearingTrk
+
+   @property
+   def usePixelNN(self):
+       return self._usePixelNN
 
    def printout(self):
       from AthenaCommon.Logging import logging

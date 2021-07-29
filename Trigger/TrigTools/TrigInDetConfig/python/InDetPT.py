@@ -101,7 +101,10 @@ def ambiguitySolver_builder( signature, config, summaryTool, outputTrackName=Non
     log.info( "Precision tracking using new configuration: {} {} {} {}".format(  signature, config.input_name, config.name, prefix ) )
 
     scoreMap        = 'ScoreMap'+config.input_name
-    ambiguityScore  = ambiguityScore_builder( signature, config, scoreMap, prefix ) 
+    if config.usePixelNN:
+        ambiguityScore  = ambiguityScoreNN_builder( signature, config, scoreMap, prefix )
+    else:
+        ambiguityScore  = ambiguityScore_builder( signature, config, scoreMap, prefix )
     ambiguitySolver = ambiguitySolverInternal_builder( signature, config, summaryTool, scoreMap, outputTrackName, prefix )
 
     return [ ambiguityScore, ambiguitySolver ]
@@ -124,11 +127,50 @@ def ambiguityScore_builder( signature, config, scoreMap, prefix=None ):
 
 
 
+def ambiguityScoreNN_builder( signature, config, scoreMap, prefix=None ):
+    MultiplicityContent = [1 , 1 , 1]
+    from AthenaCommon.CfgGetter import getPublicTool
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = False)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = False)
+    TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
+    TrigNnClusterizationFactory = TrackingCommon.getNnClusterizationFactory( name                  = "%sTrigNnClusterizationFactory_%s"%(prefix, config.input_name),
+                                                                      PixelLorentzAngleTool        = TrigPixelLorentzAngleTool,
+                                                                      useToT                       = InDetTrigFlags.doNNToTCalibration(),
+                                                                      NnCollectionReadKey          = 'PixelClusterNN',
+                                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack',
+                                                                      useTTrainedNetworks          = True)
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool as PixelClusterSplitProbTool
+    TrigNnPixelClusterSplitProbTool=PixelClusterSplitProbTool(name       = "%sTrigNnPixelClusterSplitProbTool_%s"%(prefix, config.input_name),
+                                                                PriorMultiplicityContent = MultiplicityContent,
+                                                                NnClusterizationFactory  = TrigNnClusterizationFactory,
+                                                                useBeamSpotInfo          = True)
+    ToolSvc += TrigNnPixelClusterSplitProbTool
+    from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool
+    trackMapTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
+    scoringTool = scoringTool_builder( signature, config, summaryTool=ToolSvc.InDetTrigTrackSummaryTool, prefix=None )
+    ambiguityScoreProcessor = Trk__DenseEnvironmentsAmbiguityScoreProcessorTool( name               = "%sInDetTrigMT_AmbiguityScoreProcessorTool_%s"%(prefix, config.input_name),
+                                                                 ScoringTool        = scoringTool,
+                                                                 AssociationTool    = trackMapTool,
+                                                                 SplitProbTool      = TrigNnPixelClusterSplitProbTool
+                                                                )
+    from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+    ambiguityScore = Trk__TrkAmbiguityScore( name                    = '%sAmbiguityScore_%s'%(prefix, config.input_name),
+                                             TrackInput              = [ config.trkTracks_FTF() ],
+                                             TrackOutput             = scoreMap,
+                                             AmbiguityScoreProcessor = ambiguityScoreProcessor )
+    log.info(ambiguityScore)
+    return ambiguityScore
 # next level alg
 
 def ambiguitySolverInternal_builder( signature, config, summaryTool, scoreMap, outputTrackName=None, prefix=None ):
-  
-    ambiguityProcessorTool = ambiguityProcessorTool_builder( signature, config, summaryTool, prefix )
+    if config.usePixelNN: 
+        ambiguityProcessorTool = ambiguityProcessorToolNN_builder( signature, config, summaryTool, prefix )
+    else:
+        ambiguityProcessorTool = ambiguityProcessorTool_builder( signature, config, summaryTool, prefix )
     
     from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
     ambiguitySolver = Trk__TrkAmbiguitySolver( name               = '%sAmbiguitySolver_%s'%(prefix,config.input_name),
@@ -165,6 +207,34 @@ def ambiguityProcessorTool_builder( signature, config, summaryTool ,prefix=None 
     
     return ambiguityProcessorTool
 
+def ambiguityProcessorToolNN_builder( signature, config, summaryTool ,prefix=None ) : 
+
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
+
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    trackMapTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
+
+    scoringTool = scoringTool_builder( signature, config, summaryTool, prefix )
+   
+    InDetTrigAmbiTrackSelectionTool.doPixelSplitting=True 
+    from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
+    ambiguityProcessorTool = ProcessorTool( name             = '%sDenseEnvironmentsAmbiguityProcessor_%s'%(prefix,config.input_name),
+                                                                Fitter           = [InDetTrigTrackFitter],
+                                                                ScoringTool      = scoringTool,
+                                                                AssociationTool  = trackMapTool,
+                                                                TrackSummaryTool = summaryTool,
+                                                                SelectionTool    = InDetTrigAmbiTrackSelectionTool,
+                                                                SuppressHoleSearch = False,
+                                                                tryBremFit         = False,
+                                                                caloSeededBrem     = False,
+                                                                RefitPrds          = True,
+                                                                pTminBrem          = 1000.0 )
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += ambiguityProcessorTool
+    
+    return ambiguityProcessorTool
 
 
 
@@ -473,6 +543,7 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                                             # RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
     
     return trtExtensionProcessor
+
 
 
 
