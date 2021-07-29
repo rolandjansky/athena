@@ -193,9 +193,9 @@ namespace FlavorTagDiscriminants {
                                  const std::string& prefix) {
       auto [getter, deps] = customSequenceGetterWithDeps(name, prefix);
       return {
-        [name, getter](const xAOD::Jet& j,
+        [n=name, g=getter](const xAOD::Jet& j,
                        const std::vector<const xAOD::TrackParticle*>& t) {
-          return std::make_pair(name, getter(j, t));
+          return std::make_pair(n, g(j, t));
         },
         deps
       };
