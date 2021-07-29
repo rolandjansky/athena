@@ -2644,7 +2644,7 @@ namespace Trk {
         
         Trk::MaterialEffectsOnTrack newmeot(
           meff->thicknessInX0(), 
-          std::move(newsa), 
+          newsa, 
           nullptr,
           tsos->surface()
         );
