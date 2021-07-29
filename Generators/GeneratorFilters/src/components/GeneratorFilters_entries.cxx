@@ -5,6 +5,7 @@
 #include "GeneratorFilters/DirectPhotonFilter.h"
 #include "GeneratorFilters/HeavyFlavorHadronFilter.h"
 #include "GeneratorFilters/LeptonFilter.h" 
+#include "GeneratorFilters/M4MuIntervalFilter.h"
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/MultiCjetFilter.h"
 #include "GeneratorFilters/MultiElecMuTauFilter.h"
@@ -103,6 +104,7 @@ DECLARE_COMPONENT( DirectPhotonFilter )
 DECLARE_COMPONENT( DecayTimeFilter )
 DECLARE_COMPONENT( HeavyFlavorHadronFilter )
 DECLARE_COMPONENT( LeptonFilter )
+DECLARE_COMPONENT( M4MuIntervalFilter )
 DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( MultiCjetFilter )
 DECLARE_COMPONENT( MultiElecMuTauFilter )
