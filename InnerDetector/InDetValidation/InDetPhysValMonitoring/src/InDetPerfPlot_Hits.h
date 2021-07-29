@@ -113,6 +113,22 @@ private:
   TProfile* m_nTRTHighThresholdOutliers_vs_phi{nullptr};
   TProfile* m_nPixelDeadSensors_vs_phi{nullptr};
   TProfile* m_nSCTDeadSensors_vs_phi{nullptr};
+
+  //
+  // 2D profile content 
+  //
+  TProfile2D* m_nInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nExpectedInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nNextToInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nExpectedNextToInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelHoles_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelDeadSensors_vs_etaphi{nullptr};
+
+  TProfile2D* m_nSCTHits_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTHoles_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTDeadSensors_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTDoubleHoles_vs_etaphi{nullptr};
   //
   //TProfiles versus mu
   //

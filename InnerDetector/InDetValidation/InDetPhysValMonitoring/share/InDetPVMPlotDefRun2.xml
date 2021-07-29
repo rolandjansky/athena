@@ -36,6 +36,8 @@
 <!-- Number of tracks vs MU -->
 <!ENTITY EXPMU "100">
 <!ENTITY EXPTRK "2000">
+<!ENTITY ETABINS2D "160">
+<!ENTITY PHIBINS2D "160">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
