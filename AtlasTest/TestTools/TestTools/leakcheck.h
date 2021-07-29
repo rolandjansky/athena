@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file TestTools/leakcheck.h
  * @author scott snyder <snyder@bnl.gov>
@@ -24,6 +23,10 @@
 // Can't use CxxUtils/checker_macros.h here, since that would be circular dependency.
 #ifdef ATLAS_GCC_CHECKERS
 #pragma ATLAS no_check_thread_safety
+#endif
+
+#if __GNUC__ == 11 // work around false positive
+# pragma GCC diagnostic ignored "-Wmismatched-new-delete"
 #endif
 
 #include <malloc.h>
