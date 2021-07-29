@@ -202,10 +202,10 @@
 
       for(const xAOD::FlowElement* fe : *FlowElementHandle){
         if (!m_orFEKey.key().empty()){
-	  SG::ReadDecorHandle<xAOD::FlowElement, char> orHandle(m_orFEKey);
-	  if (!orHandle(*fe)) continue;
-	}
-	if (fe->isCharged()) {
+          SG::ReadDecorHandle<xAOD::FlowElement, char> orHandle(m_orFEKey);
+          if (!orHandle(*fe)) continue;
+        }
+        if (fe->isCharged()) {
           const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>(fe->chargedObject(0));
 
           if (vx.index()==pv_index && std::abs((vx.z()-track->z0())*sin(track->theta()))>m_dzCut)
@@ -228,9 +228,9 @@
 
       for(const xAOD::PFO* pfo : *PFOHandle){
         if (!m_orKey.key().empty()){
-	  SG::ReadDecorHandle<xAOD::PFO, char> orHandle(m_orKey);
-	  if (!orHandle(*pfo)) continue;
-	}
+          SG::ReadDecorHandle<xAOD::PFO, char> orHandle(m_orKey);
+          if (!orHandle(*pfo)) continue;
+        }
         if (pfo->isCharged()) {
           if (vx.index()==pv_index && std::abs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut)
             continue;
@@ -242,9 +242,9 @@
           charged_pfo.insert(pfo->index());
         }
         else if (std::abs(pfo->eta())<m_neutMaxRap && !pfo->isCharged() && pfo->eEM()>0)
-          {
-            input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
-          }
+        {
+          input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
+        }
       }
     }
 
@@ -365,11 +365,16 @@
 
     //const xAOD::VertexContainer *vxCont = 0;
     SG::ReadHandle<xAOD::VertexContainer> vxContHandle(m_vxContKey);
-      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-      for(const xAOD::Vertex *vx : *vxContHandle) {
-        if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
-      }
-    ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+    ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+    for(const xAOD::Vertex *vx : *vxContHandle) {
+      if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
+    } 
+    // If no verticies are found in the event the Primary Vertex container will just contain a dummy vertex and no primary vertex   
+    if(vxContHandle->size() == 0 ){     
+      ATH_MSG_ERROR("Primary vertex container is empty ");
+    } else if(vxContHandle->size() != 1 ){     
+      ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)! ");
+    }
     // this almost certainly isn't what we should do here, the
     // caller doesn't check this for errors
     return 0;

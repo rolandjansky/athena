@@ -113,32 +113,38 @@ def scheduleStandardMETContent(sequence=DerivationFrameworkJob, algname = 'METSt
     if not hasattr(sequence,algname):
         sequence += assocAlg
 
-def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
-                            configlist="CustomMET",
-                            outputlist="CustomMET"):
-    from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
-    jettype = {'AntiKt4EMTopo':'EMJet',
-           'AntiKt4LCTopo':'LCJet',
-           'AntiKt4EMPFlow':'PFlowJet',
-           'AntiKt4PFlowCustomVtx':'PFlowJet'}
-    associators = [AssocConfig(jettype[jetcoll]),
-               AssocConfig('Muon'),
-               AssocConfig('Ele'),
-               AssocConfig('Gamma'),
-               AssocConfig('Tau'),
-               AssocConfig('Soft')]
+def scheduleCustomVtxMETContent(vxColl, jetColl, constituentColl="", sequence=DerivationFrameworkJob, algname = 'METCustomVtxAssociationAlg'):
+    assocAlg = None
+    if algname in metalgs.keys():
+        print ("Get preexisting alg:", algname, metalgs[algname])
+        assocAlg = metalgs[algname]
+    else:
 
-    cfg = METAssocConfig(jetcoll+vxColl,
-                 associators,
-                 'PFlow' in jetcoll # doPFlow
-                 )
-    for assoc in cfg.assoclist:
-        assoc.PrimVxColl = vxColl+'PrimaryVertices'
+        from METReconstruction.METAssocConfig import METAssocConfig, AssocConfig, getMETAssocAlg
+        jettype = {'AntiKt4EMTopo':'EMJet',
+            'AntiKt4LCTopo':'LCJet',
+            'AntiKt4EMPFlow':'PFlowJet',
+            'AntiKt4PFlowCustomVtx':'PFlowJet'}
+        associators = [AssocConfig(jettype[jetColl]),
+                AssocConfig('Muon'),
+                AssocConfig('Ele'),
+                AssocConfig('Gamma'),
+                AssocConfig('Tau'),
+                AssocConfig('Soft')]
+        cfg = METAssocConfig(suffix = jetColl+vxColl,
+                             buildconfigs = associators,
+                             doPFlow = ('PFlow' in jetColl),
+                             modConstKey = constituentColl)
 
-    customMETConfigs.setdefault(configlist,{})[cfg.suffix] = cfg
+        for assoc in cfg.assoclist:
+            assoc.PrimVxColl = vxColl+'PrimaryVertices'
+        cfgDict = {cfg.suffix : cfg}
+        assocAlg = getMETAssocAlg(algname,cfgDict)
+        metalgs[algname] = assocAlg
+        print ("Generate MET alg:", algname, assocAlg)
 
-    maplist.append(cfg.suffix)
-    METLists.setdefault(outputlist,[]).append(cfg.suffix)
+    if not hasattr(sequence,algname):
+        sequence += assocAlg
 
 def scheduleMETCustomTrackPtCut(ptcut,jetcoll='AntiKt4EMTopo',
                                 configlist="CustomMET",
