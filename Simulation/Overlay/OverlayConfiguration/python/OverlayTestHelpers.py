@@ -63,14 +63,14 @@ def defaultTestFlags(configFlags, args):
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY
         configFlags.Input.SecondaryFiles = defaultTestFiles.RAW_BKG
         configFlags.Output.RDOFileName = "dataOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12"
+        configFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12-01"
         configFlags.IOVDb.DatabaseInstance = "CONDBR2"
         configFlags.Overlay.DataOverlay = True
     else:
         configFlags.Input.Files = defaultTestFiles.RDO_BKG
         configFlags.Input.SecondaryFiles = defaultTestFiles.HITS
         configFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
-        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
+        configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20-01"
         configFlags.Overlay.DataOverlay = False
 
     if args.output:

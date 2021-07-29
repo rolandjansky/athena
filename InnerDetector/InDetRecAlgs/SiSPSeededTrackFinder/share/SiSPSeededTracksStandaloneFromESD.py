@@ -126,7 +126,7 @@ if doPrint:
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"
+IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-20-01"
 IOVDbSvc.OutputLevel = WARNING
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
