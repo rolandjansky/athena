@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TrkSurfaces/AnnulusBoundsPC.h"
 #include "TrkSurfaces/AnnulusBounds.h"
 #include <cmath>
@@ -78,10 +82,10 @@ Trk::AnnulusBoundsPC::AnnulusBoundsPC(double minR,
 std::pair<Trk::AnnulusBoundsPC, double>
 Trk::AnnulusBoundsPC::fromCartesian(const Trk::AnnulusBounds& annbo)
 {
-  double k_L = annbo.m_k_L;
-  double k_R = annbo.m_k_R;
-  double d_L = annbo.m_d_L;
-  double d_R = annbo.m_d_R;
+  double k_L = annbo.m_k_L; // Gradiant of left edge
+  double k_R = annbo.m_k_R; // Gradiant of right edge
+  double d_L = annbo.m_d_L; // Intercept of left edge with y-axis
+  double d_R = annbo.m_d_R; // Intercept of right edge with y-axis
 
   double O_x = (d_L - d_R) / (k_R - k_L);
   double O_y = std::fma(O_x, k_L, d_L); // O_x * k_L + d_L
@@ -94,11 +98,11 @@ Trk::AnnulusBoundsPC::fromCartesian(const Trk::AnnulusBounds& annbo)
   double phiAvg = 0; // phiAvg is the bounds-internal local rotation. We don't want one
 
   // phi is the total opening angle, set up symmetric phi bounds
-  double phiMax = phi/2.;
+  double phiMax = phi/2.0;
   double phiMin = -phiMax;
 
-  // need to rotate pi/2 to reproduce ABXY orientation, phiS so that phi=0 is center and symmetric
-  double phiShift = M_PI/2. - phiS;
+  // need to rotate pi/2 to reproduce ABCartesian orientation, phiS so that phi=0 is center and symmetric
+  double phiShift = M_PI_2 - phiS;
 
   // we need to rotate the origin into the bounds local coordinate system
   Transform2D avgPhiRotation;
@@ -133,7 +137,7 @@ Trk::AnnulusBoundsPC::inside(const Amg::Vector2D& locpo, double tol1, double tol
   if (tolR == 0.) {
     // don't need R, can use R^2
     double r_mod2 = m_shiftPC[Trk::locR]*m_shiftPC[Trk::locR]
-        + rLoc*rLoc + 2*m_shiftPC[Trk::locR]*rLoc * cos(phiLoc - m_shiftPC[Trk::locPhi]);
+        + rLoc*rLoc + 2*m_shiftPC[Trk::locR]*rLoc * std::cos(phiLoc - m_shiftPC[Trk::locPhi]);
 
     if (r_mod2 < m_minR*m_minR || r_mod2 > m_maxR*m_maxR) {
       return false;
@@ -141,8 +145,8 @@ Trk::AnnulusBoundsPC::inside(const Amg::Vector2D& locpo, double tol1, double tol
   }
   else {
     // use R
-    double r_mod = sqrt(m_shiftPC[Trk::locR]*m_shiftPC[Trk::locR]
-        + rLoc*rLoc + 2*m_shiftPC[Trk::locR]*rLoc * cos(phiLoc - m_shiftPC[Trk::locPhi]));
+    double r_mod = std::sqrt(m_shiftPC[Trk::locR]*m_shiftPC[Trk::locR]
+        + rLoc*rLoc + 2*m_shiftPC[Trk::locR]*rLoc * std::cos(phiLoc - m_shiftPC[Trk::locPhi]));
 
     if (r_mod < (m_minR - tolR) || r_mod > (m_maxR + tolR)) {
       return false;
@@ -279,7 +283,7 @@ Trk::AnnulusBoundsPC::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bc
     double minDist = std::numeric_limits<double>::max();
 
     Amg::Vector2D currentClosest;
-    double currentDist;
+    double currentDist = 0.0; // initialise to zero
 
     // do projection in STRIP PC
 
@@ -290,9 +294,7 @@ Trk::AnnulusBoundsPC::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bc
 
     currentClosest = closestOnSegment(m_inRightStripPC, m_outRightStripPC, locpo_rotated, weightStripPC);
     currentDist = squaredNorm(locpo_rotated-currentClosest, weightStripPC);
-    if(currentDist < minDist) {
-      minDist = currentDist;
-    }
+    minDist = std::min(minDist, currentDist);
 
     // now: MODULE system. Need to transform locpo to MODULE PC
     //  transform is STRIP PC -> STRIP XY -> MODULE XY -> MODULE PC
@@ -306,15 +308,11 @@ Trk::AnnulusBoundsPC::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bc
     // is correctly transformed
     currentClosest = closestOnSegment(m_inLeftModulePC, m_inRightModulePC, locpoModulePC, weightModulePC);
     currentDist = squaredNorm(locpoModulePC-currentClosest, weightModulePC);
-    if(currentDist < minDist) {
-      minDist = currentDist;
-    }
+    minDist = std::min(minDist, currentDist);
 
     currentClosest = closestOnSegment(m_outLeftModulePC, m_outRightModulePC, locpoModulePC, weightModulePC);
     currentDist = squaredNorm(locpoModulePC-currentClosest, weightModulePC);
-    if(currentDist < minDist) {
-      minDist = currentDist;
-    }
+    minDist = std::min(minDist, currentDist);
 
     // compare resulting Mahalanobis distance to configured
     // "number of sigmas"
@@ -361,7 +359,7 @@ Trk::AnnulusBoundsPC::insideLoc1(const Amg::Vector2D& locpo, double tol1) const
   else {
     // use R
     double r_mod = sqrt(m_shiftPC[Trk::locR]*m_shiftPC[Trk::locR]
-        + rLoc*rLoc + 2*m_shiftPC[Trk::locR]*rLoc * cos(phiLoc - m_shiftPC[Trk::locPhi]));
+        + rLoc*rLoc + 2.0*m_shiftPC[Trk::locR]*rLoc * std::cos(phiLoc - m_shiftPC[Trk::locPhi]));
 
     if (r_mod < (m_minR - tolR) || r_mod > (m_maxR + tolR)) {
       return false;
@@ -390,52 +388,40 @@ Trk::AnnulusBoundsPC::minDistance(const Amg::Vector2D& locpo) const
 
   Amg::Vector2D closestStripPC;
   double minDist = std::numeric_limits<double>::max();;
-  double curDist;
+  double curDist = 0.0; // initalise to 0
 
   // for rmin
   if (m_inRightModulePC[Trk::locPhi] <= phiMod && phiMod < m_inLeftModulePC[Trk::locPhi]) {
     // is inside phi bounds, to comparison to rmin and r max
     // r min
     curDist = std::abs(m_minR - rMod);
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
   }
   else {
     // is outside phi bounds, closest can only be the edge points here
 
     // in left
     curDist = (m_inLeftStripXY - locpoStripXY).norm();
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
 
     // in right
     curDist = (m_inRightStripXY - locpoStripXY).norm();
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
   }
 
   if (m_phiMin <= phiStrip && phiStrip < m_phiMax) {
     // r max
     curDist = std::abs(m_maxR - rMod);
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
   }
   else {
     // out left
     curDist = (m_outLeftStripXY - locpoStripXY).norm();
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
 
     // out right
     curDist = (m_outRightStripXY - locpoStripXY).norm();
-    if (curDist < minDist) {
-      minDist = curDist;
-    }
+    minDist = std::min(minDist, curDist);
   }
 
   Matrix2D weight = Matrix2D::Identity();
@@ -460,7 +446,7 @@ Trk::AnnulusBoundsPC::minDistance(const Amg::Vector2D& locpo) const
 double
 Trk::AnnulusBoundsPC::r() const
 {
-  return (rMax() + rMin()) / 2.;
+  return (rMax() + rMin()) * 0.5;
 }
 
 MsgStream& Trk::AnnulusBoundsPC::dump( MsgStream& sl ) const

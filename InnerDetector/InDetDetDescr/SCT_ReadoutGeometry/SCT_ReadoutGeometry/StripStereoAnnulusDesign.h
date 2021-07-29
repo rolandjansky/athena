@@ -29,6 +29,7 @@
 
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "TrkSurfaces/SurfaceBounds.h"
 
 #include <vector>
 #include <stdexcept> // For throw stuff
@@ -59,9 +60,10 @@ public:
                    const std::vector<double> &stripStart,
                    const std::vector<double> &stripEnd,
                    const double &stereoAngle,
-                   const double &centreR);
+                   const double &centreR,
+                   const bool &usePC);
 
-StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
+    StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
                    const SiDetectorDesign::Axis &thicknessDirection,
                    const double &thickness,
                    const int &readoutSide,
@@ -72,11 +74,13 @@ StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
                    const std::vector<double> &stripStart,
                    const std::vector<double> &stripEnd,
                    const double &stereoAngle,
-                   const double &centreR,//this is the centre radius for e.g. the local/global position
-                   const double &waferCentreR);//this is the centre radius needed for calculating the bounds
-                                               //It is common to all elements on the same wafer/module/sensor (i.e. with a common MotherDesign)
+                   const double &centreR,      // this is the centre radius for e.g. the local/global position
+                   const double &waferCentreR, // this is the centre radius needed for calculating the bounds
+                                               // It is common to all elements on the same wafer/module/sensor 
+                                               // (i.e. with a common MotherDesign)
+                   const bool &usePC);
 
-   ~StripStereoAnnulusDesign();
+    ~StripStereoAnnulusDesign() = default;
 
    
     HepGeom::Point3D<double> sensorCenter() const;
@@ -210,6 +214,7 @@ StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
     double deadAreaUpperBoundary() const;
     double deadAreaLowerBoundary() const;
     double deadAreaLength() const;
+    // bool getUsePC() {return m_usePC;}
 private:
     const int m_nRows;
     const std::vector<int> m_nStrips;
@@ -221,7 +226,8 @@ private:
     const double m_R;
     const double m_waferCentreR;
     const double m_lengthBF;
-    Trk::AnnulusBounds *m_bounds;
+    std::unique_ptr<Trk::SurfaceBounds> m_bounds;
+    const bool m_usePC;
 
 };
 

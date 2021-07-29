@@ -9,8 +9,11 @@
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/AnnulusBounds.h"
+#include "TrkSurfaces/AnnulusBoundsPC.h"
 
 using namespace std;
+
+
 
 namespace InDetDD {
 StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -25,7 +28,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
                                const std::vector<double> &stripEndRadius,
                                const double &stereoAngle,
                                const double &centreR,
-                               const double &waferCentreR) :
+                               const double &waferCentreR,
+                               const bool &usePC) :
     SCT_ModuleSideDesign(thickness, false, false, true, 1, 0, 0, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection),
   m_nRows(nRows),
@@ -36,8 +40,11 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_stereo(stereoAngle),
   m_R(centreR),
   m_waferCentreR(waferCentreR),//if not specified in constructor, wafer centre assumed to simply be element centre 
-  m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5))// Eq. 5 p. 7
+  m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5)), // Eq. 5 p. 7
+  m_usePC(usePC)
 {
+    REPORT_MESSAGE(MSG::INFO) << "StripStereoAnnulusDesign called with usePC=" << usePC << std::endl;
+
     if (nRows < 0) {
         throw std::runtime_error(
                   "ERROR: StripStereoAnnulusDesign called with negative number of rows");
@@ -69,9 +76,15 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setCells(totalStrips);
     m_scheme.setDiodes(totalStrips);
 
-// AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
-    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_waferCentreR, m_nStrips[0] * m_pitch[0], m_stereo);
+    double phi = m_nStrips[0] * m_pitch[0];
 
+    if (m_usePC) {
+        // Maths for calculating PC bounds is based off Trk::AnnulusBoundsPC::fromCartesian() and detailed at https://hep.ph.liv.ac.uk/~jsmith/dropbox/AnnulusBoundsPC_Constructor_Maths.pdf. This will later form some kind of INT Note or report or similar internal documentation,
+        Amg::Vector2D origin(m_waferCentreR * (1.0 - std::cos(m_stereo)) , m_waferCentreR*std::sin(-m_stereo));
+        m_bounds = std::make_unique<Trk::AnnulusBoundsPC>(Trk::AnnulusBoundsPC(m_stripStartRadius[0], m_stripEndRadius.back(),phi*-0.5,phi*0.5,origin,0));
+    } else {
+        m_bounds = std::make_unique<Trk::AnnulusBounds>(Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_waferCentreR, phi, m_stereo));
+    }
 }
 
 StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -85,15 +98,13 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
                                const std::vector<double> &stripStartRadius,
                                const std::vector<double> &stripEndRadius,
                                const double &stereoAngle,
-                               const double &centreR):
+                               const double &centreR,
+                               const bool &usePC):
     StripStereoAnnulusDesign(stripDirection,thicknessDirection,thickness,readoutSide,carrier,nRows,nStrips,
-                             pitch,stripStartRadius,stripEndRadius,stereoAngle,centreR,centreR){
+                             pitch,stripStartRadius,stripEndRadius,stereoAngle,centreR,centreR,usePC){
 //assuming here that centreR==waferCentreR
 }
 
-StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
-    delete m_bounds;
-}
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
   return HepGeom::Point3D<double>(m_R, 0., 0.);
@@ -150,9 +161,14 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
     return;
 }
 
+/**
+ * @brief Get a reference to the module bounds object. 
+ * 
+ * @return const Trk::SurfaceBounds& The module bounds.
+ */
 const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
-
-    return *m_bounds;
+    return *(m_bounds.get()); // Equivalent but more explicit than *m_bounds - 
+                              // gets the normal pointer from the unique then dereferences it.
 }
 
 SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
@@ -196,46 +212,14 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
-    double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
-    return stripPosAtR(strip, row, r);
-}
-
-SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {
-
-    double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
-
-    double b = -2. * m_lengthBF * sin(m_stereo/2. + phiPrime);
-    double c = m_lengthBF * m_lengthBF - r * r;
-    double rPrime = (-b + sqrt(b * b - 4. * c))/2.;
-
-    double xPrime = rPrime * cos(phiPrime);
-    double yPrime = rPrime * sin(phiPrime);
-    double x = cos(m_stereo) * (xPrime - m_waferCentreR) - sin(m_stereo) * yPrime + m_waferCentreR;
-    double y = sin(m_stereo) * (xPrime - m_waferCentreR) + cos(m_stereo) * yPrime;
-
-    return SiLocalPosition(x, y, 0.0);
-}
-
-SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const &cellId, int clusterSize) const {
-//
-//    Return the average centre-position of the first and last strips.
-//
-
-    SiLocalPosition startPos = localPositionOfCell(cellId);
-
-    if (clusterSize <= 1) {
-        return startPos;
+    if (m_usePC) {
+        return localPositionOfCellPC(cellId);
+    } else {
+        int strip, row;
+        getStripRow(cellId, &strip, &row);
+        double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
+        return stripPosAtR(strip, row, r);
     }
-
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
-    int stripEnd = strip + clusterSize - 1;
-    SiCellId endId = strip1Dim(stripEnd, row);
-    SiLocalPosition endPos = localPositionOfCell(endId);
-
-    return (startPos + endPos) / 2.0;
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &cellId) const {
@@ -260,6 +244,55 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
     return SiLocalPosition(rPrime, phi); 
 }
 
+SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {
+
+    double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+
+    double b = -2. * m_lengthBF * sin(m_stereo/2. + phiPrime);
+    double c = m_lengthBF * m_lengthBF - r * r;
+    double rPrime = (-b + sqrt(b * b - 4. * c))/2.;
+
+    double xPrime = rPrime * cos(phiPrime);
+    double yPrime = rPrime * sin(phiPrime);
+    double x = cos(m_stereo) * (xPrime - m_waferCentreR) - sin(m_stereo) * yPrime + m_waferCentreR;
+    double y = sin(m_stereo) * (xPrime - m_waferCentreR) + cos(m_stereo) * yPrime;
+
+    return SiLocalPosition(x, y, 0.0);
+}
+
+SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const &cellId, int clusterSize) const {
+//
+//    Return the average centre-position of the first and last strips.
+//
+
+    SiLocalPosition startPos = localPositionOfCell(cellId); // Should automatically detect PC Usage
+
+    if (clusterSize <= 1) {
+        return startPos;
+    }
+
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    int stripEnd = strip + clusterSize - 1;
+    SiCellId endId = strip1Dim(stripEnd, row);
+    SiLocalPosition endPos = localPositionOfCell(endId); // Should automatically detect PC Usage
+
+    return (startPos + endPos) / 2.0;
+}
+
+/**
+ * @brief This is for debugging only. Call to explicitly get PC clusters.
+ * 
+ * The method StripStereoAnnulusDesign::localPositionOfCluster() should detect the use of polar co-ordinates
+ * automatically and return the cluster in the appropriate co-ordinate system. This is handled in the call to the 
+ * localPositionOfCell() function. Therefore, the only use of this method is to explicitly get a polar cluster when the 
+ * module was created with a cartesian co-ordinate system. After the integration of polar co-ordinates is complete, this
+ * method will be removed.
+ * 
+ * @param cellId 
+ * @param clusterSize 
+ * @return SiLocalPosition 
+ */
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId const &cellId, int clusterSize) const {
     SiLocalPosition startPos = localPositionOfCellPC(cellId);
 
