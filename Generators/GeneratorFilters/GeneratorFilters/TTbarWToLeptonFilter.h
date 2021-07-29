@@ -23,6 +23,8 @@ private:
 
   double m_Ptmin;
   int m_numLeptons;
+  bool m_fourTopsFilter;
+  bool m_SSMLFilter;
 
 };
 
