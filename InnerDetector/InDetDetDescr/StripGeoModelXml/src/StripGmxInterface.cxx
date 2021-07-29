@@ -382,7 +382,9 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
       singleRowPitch.push_back(phiPitch[i]);
       singleRowMinR.push_back(startR[i]);
       singleRowMaxR.push_back(endR[i]);
-
+    //"shift" radius for correcting local<->global transforms
+    //centreR remains the relevant radius for bounds/stereo calculations
+    //since the strip frame is defined per wafer not per row
       double thisCentreR = (singleRowMinR[0] + singleRowMaxR[0] ) *0.5;
 
       auto design = std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
@@ -390,13 +392,14 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
                                                                         thickness,
                                                                         readoutSide,
                                                                         carrier,
-                                                                        1,
+                                                                        1,//this design represents a single row by definition
                                                                         singleRowStrips,
                                                                         singleRowPitch,
                                                                         singleRowMinR,
                                                                         singleRowMaxR,
                                                                         stereoAngle,
                                                                         thisCentreR,
+                                                                        centreR,
                                                                         usePC);
 
       // Add to map for addSensor routine

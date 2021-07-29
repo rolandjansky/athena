@@ -22,7 +22,7 @@ AnnulusBounds::maxR() const
 }
 
 inline double
-AnnulusBounds::R() const
+AnnulusBounds::waferCentreR() const
 {
   return m_boundValues[AnnulusBounds::bv_R];
 }

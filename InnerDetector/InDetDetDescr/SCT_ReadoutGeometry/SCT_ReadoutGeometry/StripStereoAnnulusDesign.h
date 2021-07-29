@@ -63,6 +63,21 @@ public:
                    const double &centreR,
                    const bool &usePC);
 
+StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
+                   const SiDetectorDesign::Axis &thicknessDirection,
+                   const double &thickness,
+                   const int &readoutSide,
+                   const InDetDD::CarrierType &carrier,
+                   const int &nRows,
+                   const std::vector<int> &nStrips,
+                   const std::vector<double> &pitch,
+                   const std::vector<double> &stripStart,
+                   const std::vector<double> &stripEnd,
+                   const double &stereoAngle,
+                   const double &centreR,//this is the centre radius for e.g. the local/global position
+                   const double &waferCentreR,//this is the centre radius needed for calculating the bounds, It is common to all elements on the same wafer/module/sensor (i.e. with a common MotherDesign)
+                   const bool &usePC);
+
     ~StripStereoAnnulusDesign() = default;
 
     Amg::Vector3D sensorCenter() const;
@@ -143,6 +158,14 @@ public:
     // member
     SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const;
 
+    //Returns the wafer centre Radius (needed for annulus shape)
+    double waferCentreR() const;
+
+    //Returns the "element" centre radius - the same as above for elements
+    //representing a full wafer with multiple rows,
+    //different for elements where each row is its own element
+    double centreR() const;
+
     // ---------------------------------------------------------------------------------------
     // DEPRECATED at least for Strips
     HepGeom::Vector3D<double> phiMeasureSegment(const SiLocalPosition &position) const;
@@ -194,6 +217,7 @@ private:
     const std::vector<double> m_stripEndRadius;
     const double m_stereo;
     const double m_R;
+    const double m_waferCentreR;
     const double m_lengthBF;
     std::unique_ptr<Trk::SurfaceBounds> m_bounds;
     //members to avoid repeating cos/sin calculations
@@ -298,6 +322,14 @@ inline int StripStereoAnnulusDesign::strip(int stripId1Dim) const {
                      m_firstStrip[rowNum + 1] << "\n";
     }
     return strip2D;
+}
+
+inline double StripStereoAnnulusDesign::waferCentreR() const {
+    return m_waferCentreR;
+}
+
+inline double StripStereoAnnulusDesign::centreR() const {
+    return m_R;
 }
 
 /// DEPRECATED for StripStereoAnnulusDesign; no dead area

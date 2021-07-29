@@ -46,6 +46,8 @@ class AnnulusBounds final: public SurfaceBounds
 
 public:
   /** @enum BoundValues - for readability */
+  /** NB bv_R is the radius of the wafer centre which may different from the assumed surface centre*/
+  /** e.g. if a single wafer/sensor/mdodule has been split into multiple surfaces*/
   enum BoundValues
   {
     bv_minR = 0,
@@ -88,8 +90,11 @@ public:
   /**This method returns the bigger radius*/
   double maxR() const;
 
-  /**This method returns the radius of a tilt*/
-  double R() const;
+  /**This method returns the R-parameter from design of
+    sensors, which is the radius that the original centre of a silicon
+     wafer ends up at. It is therefore common to all surfaces on the same wafer
+     and can be different from the assume surface centre*/
+  double waferCentreR() const;
 
   /**This method returns the opening angle*/
   double phi() const;
