@@ -40,6 +40,11 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 
   StatusCode sc = StatusCode::SUCCESS;
   const xAOD::JetContainer* jet_cont = 0;
+
+  if (!evtStore()->contains<xAOD::JetContainer>("AntiKt4EMPFlowJets")){
+    return StatusCode::SUCCESS;
+  }
+
   sc = evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() );
   if(!sc.isSuccess())
   {
