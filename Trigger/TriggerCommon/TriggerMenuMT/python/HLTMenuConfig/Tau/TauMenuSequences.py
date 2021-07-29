@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackSequence, tauTrackTwoSequence, tauMVASequence, tauLLPSequence, tauPreSelTTSequence, tauPrecIsoTrackSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackTwoSequence, tauMVASequence, tauLLPSequence, tauPreSelTTSequence, tauPrecIsoTrackSequence
 
 # ===============================================================================================
 #      Calo step
@@ -101,25 +101,6 @@ def tauFTFTauIsoBDTSeq():
                           Maker       = ftfIsoBDTViewsMaker,
                           Hypo        = fastTrkHypo,
                           HypoToolGen = TrigTauTrackHypoToolFromDict )
-
-
-# ===============================================================================================                                
-#     Tau Precision Alg + EFMVHypo step  (track)                                                                 
-# ===============================================================================================
-
-def tauTrackPrecSeq():
-    (sequence, tauTrackViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauTrackSequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoTrack")
-    precisionHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = tauTrackViewsMaker,
-                          Hypo        = precisionHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 # ===============================================================================================                                            
 #     Tau Precision Alg + EFMVHypo step   (tracktwo)
