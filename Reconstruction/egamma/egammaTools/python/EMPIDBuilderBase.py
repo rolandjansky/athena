@@ -1,16 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the EMPIDBuilder
-from ROOT import LikeEnum
-from ROOT import egammaPID
+from ElectronPhotonSelectorTools.LikelihoodEnums import LikeEnum
+from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 from AthenaCommon.Logging import logging
 
 # import base class
 from egammaTools.egammaToolsConf import EMPIDBuilder
-
-# Eventually we need to get rid of this
-#import cppyy
-#cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 class EMPIDBuilderElectronBase (EMPIDBuilder):
@@ -44,7 +40,6 @@ class EMPIDBuilderElectronBase (EMPIDBuilder):
         TightLHSelector = ConfiguredAsgElectronLikelihoodTool(
             "TightLHSelector", LikeEnum.Tight)
         TightLHSelector.primaryVertexContainer = "PrimaryVertices"
-
 
         self.electronIsEMselectors = [
             LooseElectronSelector,

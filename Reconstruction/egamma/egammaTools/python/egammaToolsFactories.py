@@ -5,7 +5,7 @@ all egammaTools with default configuration"""
 __author__ = "Bruno Lenzi"
 
 
-from ROOT import egammaPID
+from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors \
     import ConfiguredAsgForwardElectronIsEMSelector
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
@@ -143,9 +143,6 @@ PhotonPIDBuilder = ToolFactory(
     name="PhotonPIDBuilder")
 
 # ForwardElectron Selectors
-
-## Eventually we want to get rid of cppyy here
-#cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 LooseForwardElectronSelector = ToolFactory(
     ConfiguredAsgForwardElectronIsEMSelector,
