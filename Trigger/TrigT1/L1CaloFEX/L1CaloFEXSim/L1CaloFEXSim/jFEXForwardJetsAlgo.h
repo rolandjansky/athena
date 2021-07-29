@@ -49,9 +49,9 @@ namespace LVL1 {
     virtual unsigned int localEta(int nphi, int neta) override;
     virtual unsigned int getTTowerET(int nphi, int neta) override; 
 
-    virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists();
-    virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima();    
-    virtual std::map<int, jFEXForwardJetsInfo> calculateJetETs();
+    virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
+    virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
+    virtual std::map<int, jFEXForwardJetsInfo> calculateJetETs() override;
   protected:
 
   private:
