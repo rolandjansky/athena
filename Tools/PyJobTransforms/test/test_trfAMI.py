@@ -36,7 +36,7 @@ class trfAMIUnitTests(unittest.TestCase):
     # test a new transform tag from AMI
     def test_info_q220(self):
         self.maxDiff = None
-        physics = {'conditionsTag': {'all': 'CONDBR2-BLKPA-2018-03-01'},
+        physics = {'conditionsTag': {'all': 'CONDBR2-BLKPA-2018-03'},
                    'beamType': 'cosmics',
                    'ignoreErrors': False,
                    'autoConfiguration': ['everything'],
