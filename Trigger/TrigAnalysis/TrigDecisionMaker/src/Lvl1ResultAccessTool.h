@@ -212,6 +212,8 @@ namespace HLT {
       /// access to L1Prescales
       SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_l1PrescaleSetInputKey{ this, "L1Prescales", "L1Prescales", "L1 prescales set"};
 
+      SG::WriteHandleKey<LVL1CTP::Lvl1Result> m_l1ResultKey{ this, "L1Result", "L1Result", "L1 result"};
+
       std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > m_lvl1ItemConfig; //!< vector holding all configured LVL1 items
       std::vector< ConfigThreshold > m_muonCfg;           //!< vector holding all configured LVL1 muon thresholds
       std::vector< ConfigThreshold > m_emCfg;             //!< vector holding all configured LVL1 EM thresholds
