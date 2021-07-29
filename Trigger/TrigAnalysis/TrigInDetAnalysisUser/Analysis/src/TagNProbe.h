@@ -46,28 +46,31 @@ public:
 
   /// configuration methods
 
-  void SetToolEventConfiguration( 
-      NtupleTrackSelector * refTracks,    // reference tracks
-      TrackFilter* refFilter,             // reference filter
-      std::string refName,                // reference objects name
-      TrigObjectMatcher* tom,             // trigger object matcher 
-      TIDA::Chain * chain,                // tag Chain
-      TIDA::Chain * chain_tnp,            // probe Chain
-      double ZmassMin,                     // ZmassMin
-      double ZmassMax,                     // ZmassMax
-      bool unique_flag=true               // unique flag (default=true)
-        ) {
-
+  void SetEventConfiguration( 
+          NtupleTrackSelector * refTracks,    // reference tracks
+          TrackFilter* refFilter,             // reference filter
+          std::string refName,                // reference objects name
+          TrigObjectMatcher* tom,             // trigger object matcher 
+          double ZmassMin,                    // ZmassMin
+          double ZmassMax,                    // ZmassMax
+          bool unique_flag=true ) {           // unique flag (default=true)
     m_refTracks = refTracks;
     m_refFilter = refFilter;
     m_particleType = refName;
     m_tom = tom;
-    m_chain = chain;
-    m_chain_tnp = chain_tnp;
     m_ZmassMin = ZmassMin;
     m_ZmassMax = ZmassMax;
     m_unique = unique_flag;
+  }
 
+  void ResetEventConfiguration() { 
+    m_refTracks = 0;
+    m_refFilter = 0;
+    m_particleType = "";
+    m_tom = 0;
+    m_ZmassMin = 0.;
+    m_ZmassMax = 999.;
+    m_unique = false;
   }
     
   void SetUniqueFlag( bool flag ) { m_unique = flag; }
@@ -104,6 +107,8 @@ public:
 
   std::vector<double> GetInvMasses_obj( unsigned int probe_index=0 ) { return m_masses_obj[ probe_index ]; }
 
+  std::vector<TIDA::Roi*> GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains );
+
 
   /// utility methods
   
@@ -117,7 +122,7 @@ public:
 
   void BookMinvHisto( std::string chain_name );
 
-  void FillMinvHisto( std::string chain_name, std::vector<double>& probeMinv, std::vector<double>& probeMinv_obj );
+  void FillMinvHisto( std::string chain_name, unsigned int probe_index );
 
   void WriteMinvHisto( TDirectory* foutdir );
 

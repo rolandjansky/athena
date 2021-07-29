@@ -238,6 +238,40 @@ TIDA::Chain* TagNProbe::GetTagChain( std::string probe_name, std::vector<TIDA::C
 
 // ------------------------------------------------------------------
 
+std::vector<TIDA::Roi*> TagNProbe::GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains ) {
+
+  std::vector<TIDA::Roi*> rois;
+  TIDA::Chain* chain_tag = 0;
+
+  /// for each configured probe chain find the correspondig tag chain in the event
+  chain_tag = GetTagChain( chain->name(), chains );
+  
+  if ( chain_tag == 0 ) {
+    std::cerr << "Chain for Tag&Probe was not found!" << std::endl;
+    return rois;
+  }
+
+  /// resetting the chains
+  m_chain = 0;
+  m_chain_tnp = 0;
+
+  /// setting the chains
+  SetChains( chain, chain_tag );
+
+  /// find the probe RoIs
+  if ( !FindProbes() ) {
+    std::cout << "No Probes were found!" << std::endl;
+    return rois;
+  }
+
+  /// getting the vector of rois to process
+  rois = GetProbes();
+
+  return rois;
+}
+
+// ------------------------------------------------------------------
+
 void TagNProbe::BookMinvHisto( std::string chain_name ) {
 
   std::string hname_base = chain_name;
@@ -254,7 +288,7 @@ void TagNProbe::BookMinvHisto( std::string chain_name ) {
 
 // ------------------------------------------------------------------
 
-void TagNProbe::FillMinvHisto( std::string chain_name, std::vector<double>& probeMinv, std::vector<double>& probeMinv_obj ) {
+void TagNProbe::FillMinvHisto( std::string chain_name, unsigned int probe_index ) {
 
   /// find the histogram for chain_name
   std::map<std::string,TH1D*>::iterator hMinv_itr = m_hMinv_map.find( chain_name );
@@ -263,11 +297,11 @@ void TagNProbe::FillMinvHisto( std::string chain_name, std::vector<double>& prob
   /// check if histod exist, if yes fill them
   if ( hMinv_itr != m_hMinv_map.end() &&  
        hMinv_obj_itr != m_hMinv_obj_map.end() &&
-       probeMinv.size() == probeMinv_obj.size() ) {
+       m_masses[probe_index].size() == m_masses_obj[probe_index].size() ) {
 
-    for ( size_t im=0 ; im<probeMinv.size() ; im++ ) { 
-      hMinv_itr->second->Fill( probeMinv.at(im) );
-      hMinv_obj_itr->second->Fill( probeMinv_obj.at(im) );
+    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
+      hMinv_itr->second->Fill( m_masses[probe_index].at(im) );
+      hMinv_obj_itr->second->Fill( m_masses_obj[probe_index].at(im) );
     }
   } else
     std::cerr << " ****** Could not find T&P histos " << std::endl;
