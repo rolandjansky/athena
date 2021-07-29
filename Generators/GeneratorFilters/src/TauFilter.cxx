@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 */
@@ -161,7 +162,8 @@ StatusCode TauFilter::filterEvent() {
 
         int tauType = 0; 
         //TauType initialized as 0. tauType = 1 is an Tau_el, tauType = 2 is an Tau_mu, tauType = 0 is an Tau_had, tauType = 11 is a tau with tau parent, e.g a photon radiation event.
-        
+        // Sherpa has some status code 20 particles without decays
+        if(!tau->end_vertex()) continue;
         for ( auto beg: *(tau->end_vertex()) ) {
           if ( (beg)->production_vertex() != tau->end_vertex() ) continue; 
          

@@ -115,27 +115,28 @@ StatusCode MultiCjetFilter::filterEvent() {
     HepMC::GenEvent::particle_const_iterator pitr;
 
     // Make a vector containing all the event's b-hadrons
-    std::vector< HepMC::GenEvent::particle_const_iterator > bHadrons;
-    for(pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
-      if( !isBwithWeakDK( (*pitr)->pdg_id()) ) continue;
-      if( (*pitr)->momentum().perp() < m_bottomPtMin ) continue;
-      if( std::abs( (*pitr)->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
+    std::vector< HepMC::ConstGenParticlePtr > bHadrons;
+    for(auto pitr: *genEvt) {
+      if( !isBwithWeakDK( pitr->pdg_id()) ) continue;
+      if( pitr->momentum().perp() < m_bottomPtMin ) continue;
+      if( std::abs( pitr->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
       bHadrons.push_back(pitr);
     }
 
+
     // Make a vector containing all the event's c-hadrons
-    std::vector< HepMC::GenEvent::particle_const_iterator > cHadrons;
-    for(pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
-      if( !isCwithWeakDK( (*pitr)->pdg_id()) ) continue;
-      if( (*pitr)->momentum().perp() < m_charmPtMin ) continue;
-      if( std::abs( (*pitr)->momentum().pseudoRapidity() ) > m_charmEtaMax) continue;
-      cHadrons.push_back(pitr);
+    std::vector< HepMC::ConstGenParticlePtr > cHadrons;
+    for(auto pitr: *genEvt) {
+      if( !isCwithWeakDK( pitr->pdg_id()) ) continue;
+      if( pitr->momentum().perp() < m_charmPtMin ) continue;
+      if( std::abs( pitr->momentum().pseudoRapidity() ) > m_charmEtaMax) continue;
+      bHadrons.push_back(pitr);
     }
 
     // Count how many truth jets contain c-hadrons
     for(uint i = 0; i < jets.size(); i++){
       for(uint j = 0; j < cHadrons.size(); j++){
-        HepMC::FourVector tmp = (*cHadrons[j])->momentum();
+        HepMC::FourVector tmp = cHadrons.at(j)->momentum();
 	TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
 	double dR = (*jets[i])->p4().DeltaR(genpart);
 	if(dR<m_deltaRFromTruth){
@@ -152,7 +153,7 @@ StatusCode MultiCjetFilter::filterEvent() {
     for(uint i = 0; i < cjets_all.size(); i++){
       bool b_inside_cjet = false; 
       for(uint j = 0; j < bHadrons.size(); j++){
-        HepMC::FourVector tmp = (*bHadrons[j])->momentum();
+        HepMC::FourVector tmp = bHadrons.at(j)->momentum();
         TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
         double dR = (*cjets_all[i])->p4().DeltaR(genpart);
         if(dR<m_deltaRFromTruth){
