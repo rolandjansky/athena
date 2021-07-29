@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AnnulusDebug/AnnulusTestAlg.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -11,6 +15,11 @@
 #include <sstream>
 #include <fstream>
 #include <random>
+
+// preprocessor macros so that stringify (#) can be used
+// PRINT_VECTOR and DUMP allow for a flexible output to any ATH_MSG stream - see lines 99-109
+// ATH_MSG streams are always used in the end
+
 
 #define CHECK_TRUE(x, msg) do { \
   if ((x) != true) { \
@@ -87,7 +96,7 @@ AnnulusTestAlg::testInsideDistances()
 
     double actDistance = asymT1Ab.minDistance(testPointPC);
 
-    MsgStream  log(msgSvc(),name());
+    // MsgStream  log(msgSvc(),name());
     auto dumpContext = [&,this](auto level) {
 
       this->msg(level) << "--- Begin test context----" << endmsg;

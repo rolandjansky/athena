@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRKSURFACES_ANNULUSBOUNDSPC_H
 #define TRKSURFACES_ANNULUSBOUNDSPC_H
 
@@ -83,31 +87,31 @@ public:
   /// @param tol1 Tolerance in r
   /// @param tol2 Tolerance in phi
   /// @return true if is inside, false if not
-  bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
+  bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
   
   /// @brief Returns if a point in local coordinates is inside the bounds
   /// @param locpo Local position
   /// @param bchk The boundary check object to consult for inside checks
   /// @return true if is inside, false if not
-  bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /// @brief Check if local point is inside of r bounds
   /// @param locpo Local position
   /// @param tol1 Tolerance in r
   /// @return true if is inside, false if not
-  bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
   
   /// @brief Check if local point is inside of phi bounds
   /// @param locpo Local position
   /// @param tol2 Tolerance in phi
   /// @return true if is inside, false if not
-  bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /// @brief Return minimum distance a point is away from the bounds
   /// @param locpo Local position
   /// @note Even though @c locpo is considered in STRIP system, the distance
   ///       will be calculated with cartesian metric.
-  double minDistance(const Amg::Vector2D& locpo) const override;
+  double minDistance(const Amg::Vector2D& locpo) const override final;
 
   /// @brief Returns middle radius
   /// @return The middle radius

@@ -243,21 +243,22 @@ int split = 0;
 }
 
 void SCT_GmxInterface::makeStereoAnnulus(std::string typeName, std::map<std::string, std::string> &par) { 
-//
-//    Get all parameters. 
-//
-int readoutSide;
-InDetDD::SiDetectorDesign::Axis fieldDirection;
-InDetDD::SiDetectorDesign::Axis stripDirection;
-InDetDD::CarrierType carrier(InDetDD::electrons);
-double thickness(0.320);
-double stereoAngle(0.020);
-double centreR(500.);
-int nRows(1);
-vector <int> nStrips;
-vector<double> phiPitch;
-vector<double> startR;
-vector<double> endR;
+    //
+    //    Get all parameters. 
+    //
+    int readoutSide;
+    InDetDD::SiDetectorDesign::Axis fieldDirection;
+    InDetDD::SiDetectorDesign::Axis stripDirection;
+    InDetDD::CarrierType carrier(InDetDD::electrons);
+    double thickness(0.320);
+    double stereoAngle(0.020);
+    double centreR(500.);
+    int nRows(1);
+    vector <int> nStrips;
+    vector<double> phiPitch;
+    vector<double> startR;
+    vector<double> endR;
+    bool usePC=false; // initialise to false
 
     string car = getstr(typeName, "carrierType", par);
     if (car == "electrons") {
@@ -345,72 +346,74 @@ vector<double> endR;
         *m_log << MSG::FATAL << "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of endR's " << typeName << endmsg;
         exit(999);
     }
+    // getparm(typeName, "usePC", par, usePC);
+    // std::cout << "Read usePC: " << usePC << std::endl;
+    if (checkparm(typeName, "usePC", par, usePC)) *m_log << MSG::INFO << "Using polar co-ordinates for strip stereo annulus modules (usePC=1)" << endmsg;
 
-     int split = 0;
-     if(checkparm(typeName, "splitLevel", par, split)){
+    int split = 0;
+    if (checkparm(typeName, "splitLevel", par, split)) { 
 
+        std::vector<int> singleRowStrips;
+        std::vector<double> singleRowPitch;
+        std::vector<double> singleRowMinR;
+        std::vector<double> singleRowMaxR;
 
+        //now, the "Mother"...
+        //This is a container for all the other designs, to allow navigation
+        //between the different rows on a simulated sensor in the HITS
+        std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign = 
+                    std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection, fieldDirection, thickness,
+                    readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR, usePC);
+        
+        for (int i = 0;i<split;i++) {
 
-    std::vector<int> singleRowStrips;
-    std::vector<double> singleRowPitch;
-    std::vector<double> singleRowMinR;
-    std::vector<double> singleRowMaxR;
-
-    //now, the "Mother"...
-    //This is a container for all the other designs, to allow navigation
-    //between the different rows on a simulated sensor in the HITS
-    std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+            singleRowStrips.clear();
+            singleRowPitch.clear();
+            singleRowMinR.clear();
+            singleRowMaxR.clear();
+            
+            
+            singleRowStrips.push_back(nStrips[i]);
+            singleRowPitch.push_back(phiPitch[i]);
+            singleRowMinR.push_back(startR[i]);
+            singleRowMaxR.push_back(endR[i]);
+            
+            double thisCentreR = (singleRowMinR[0]+singleRowMaxR[0])*0.5;
+            
+            //DetectorManager takes ownership of this - in master we use unique_ptr like for motherDesign. Stick to old pattern here to avoid
+            //cascading interface changes being required...
+            InDetDD::StripStereoAnnulusDesign * design = new InDetDD::StripStereoAnnulusDesign(
+                        stripDirection, fieldDirection, thickness, readoutSide, carrier, 1, singleRowStrips, 
+                        singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR, centreR, usePC);
+            
+            //
+            //    Add to map for addSensor routine
+            
+            std::string splitName = typeName+"_"+std::to_string(i);
+            
+            design->setMother(motherDesign.get());
+            motherDesign->addChildDesign(i,design);
+            
+            m_geometryMap[splitName] = design;
+            m_detectorManager->addDesign(design);
+        
+        }
+        
+        //finally, declare to the manager (now becomes const)
+        m_motherMap[typeName] = motherDesign.get();
+        m_detectorManager->addMotherDesign(std::move(motherDesign));
     
-    for(int i = 0;i<split;i++){
-      
-      
-      singleRowStrips.clear();
-      singleRowPitch.clear();
-      singleRowMinR.clear();
-      singleRowMaxR.clear();
-      
-      
-      singleRowStrips.push_back(nStrips[i]);
-      singleRowPitch.push_back(phiPitch[i]);
-      singleRowMinR.push_back(startR[i]);
-      singleRowMaxR.push_back(endR[i]);
-      
-      double thisCentreR = (singleRowMinR[0]+singleRowMaxR[0])*0.5;
-      
-      //DetectorManager takes ownership of this - in master we use unique_ptr like for motherDesign. Stick to old pattern here to avoid
-      //cascading interface changes being required...
-      InDetDD::StripStereoAnnulusDesign * design = new InDetDD::StripStereoAnnulusDesign(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR,centreR);
-      
-      //
-      //    Add to map for addSensor routine
-      
-      std::string splitName = typeName+"_"+std::to_string(i);
-      
-      design->setMother(motherDesign.get());
-      motherDesign->addChildDesign(i,design);
-      
-      m_geometryMap[splitName] = design;
-      m_detectorManager->addDesign(design);
-	 
+    } else {
+        //
+        //    Make Sensor Design and add it to the DetectorManager
+        //
+        const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection, thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR, usePC); 
+        m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
+        //
+        //    Add to map for addSensor routine
+        //
+        m_geometryMap[typeName] = design;
     }
-    //finally, declare to the manager (now becomes const)
-    m_motherMap[typeName] = motherDesign.get();
-    m_detectorManager->addMotherDesign(std::move(motherDesign));
-    
-    
-     }
-     else{
-       //
-       //    Make Sensor Design and add it to the DetectorManager
-       //
-       const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
-											       thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
-       m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
-       //
-       //    Add to map for addSensor routine
-       //
-       m_geometryMap[typeName] = design;
-     }
 
 }
 
