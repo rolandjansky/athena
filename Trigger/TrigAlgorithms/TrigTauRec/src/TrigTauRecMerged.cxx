@@ -71,13 +71,6 @@ StatusCode TrigTauRecMerged::initialize()
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
-
-  // Retrieve beam conditions
-  if(m_beamSpotKey.initialize().isFailure()) {
-    ATH_MSG_WARNING( "Unable to retrieve Beamspot key" );
-  } else {
-    ATH_MSG_DEBUG( "Successfully retrieved Beamspot key" );
-  }
   
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
@@ -155,9 +148,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
  
-  auto EF_beamspot_x    = Monitored::Scalar<float>("beamspot_x",-999.9);
-  auto EF_beamspot_y    = Monitored::Scalar<float>("beamspot_y",-999.9);
-  auto EF_beamspot_z    = Monitored::Scalar<float>("beamspot_z",-999.9);
   auto EF_vertex_x      = Monitored::Scalar<float>("vertex_x", -999.9);
   auto EF_vertex_y      = Monitored::Scalar<float>("vertex_y", -999.9); 
   auto EF_vertex_z      = Monitored::Scalar<float>("vertex_z", -999.9);
@@ -185,7 +175,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
                    innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_beamspot_x, EF_beamspot_y, EF_beamspot_z, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
 
@@ -576,25 +566,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
         if (success_CENTER_LAMBDA) center_lambda = std::log10(center_lambda + 1e-6);
         cluster_CENTER_LAMBDA.push_back(center_lambda);
      
-    }
-  
-    // Get beamspot
-    // Copy the first vertex from a const object
-    xAOD::Vertex theBeamspot;
-    theBeamspot.makePrivateStore();
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-    if(beamSpotHandle.isValid()){
-
-        // Alter the position of the vertex
-        theBeamspot.setPosition(beamSpotHandle->beamPos()); 
-
-        EF_beamspot_x=theBeamspot.x();
-        EF_beamspot_y=theBeamspot.y();
-        EF_beamspot_z=theBeamspot.z();
-
-        // Create a AmgSymMatrix to alter the vertex covariance mat.
-        const AmgSymMatrix(3) &cov = beamSpotHandle->beamVtx().covariancePosition();
-        theBeamspot.setCovariancePosition(cov);
     }
 
     // monitoring tau vertex
