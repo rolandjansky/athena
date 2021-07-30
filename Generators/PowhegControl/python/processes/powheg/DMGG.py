@@ -151,3 +151,4 @@ class DMGG(PowhegV2):
         # Set the decay parameter appropriately
         __decay_mode_lookup = {"EFT": 1, "full theory": -1}
         self.parameters_by_keyword("decaymode")[0].value = __decay_mode_lookup[self.DM_model]
+        
