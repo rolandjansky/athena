@@ -21,7 +21,8 @@ class VBF_W(PowhegV2):
         super(VBF_W, self).__init__(base_directory, "VBF_W-Z", **kwargs)
 
         # Add algorithms to the sequence
-        self.add_algorithm(ExternalVBFNLO("W", ["w+ > e+ ve", "w+ > mu+ vm", "w- > e- ve~", "w- > mu- vm~"]))
+        self.add_algorithm(ExternalVBFNLO("W", ["w+ > e+ ve", "w+ > mu+ vm", "w- > e- ve~", "w- > mu- vm~",\
+                                                "w+ > tau+ vt", "w- > tau- vt~"]))
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bornktmin")
@@ -60,6 +61,7 @@ class VBF_W(PowhegV2):
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
+        self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
         self.add_keyword("Phasespace")
         self.add_keyword("ptj_gencut")
