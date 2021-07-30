@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -35,7 +35,7 @@ def egammaMVASvcCfg(flags, name="egammaMVASvc"):
                             UnconvertedPhotonTool=unconvertedPhotonMVATool,
                             ConvertedPhotonTool=convertedPhotonMVATool)
 
-    acc.addService(egMVASvc)
+    acc.addService(egMVASvc, primary=True)
     return acc
 
 

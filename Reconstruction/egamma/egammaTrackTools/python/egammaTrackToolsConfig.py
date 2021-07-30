@@ -30,7 +30,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     if "PerigeeCaloExtensionTool" not in kwargs:
         perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
-            name="PerigeeCaloExtensionTool",
+            name="EMParticleCaloExtensionTool",
             Extrapolator=kwargs["Extrapolator"],
             ParticleType="electron",
             StartFromPerigee=True)
@@ -41,7 +41,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     if "LastCaloExtensionTool" not in kwargs:
         lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
             flags,
-            name="LastCaloExtensionTool",
+            name="EMLastCaloExtensionTool",
             ParticleType="electron",
             Extrapolator=kwargs["Extrapolator"])
 

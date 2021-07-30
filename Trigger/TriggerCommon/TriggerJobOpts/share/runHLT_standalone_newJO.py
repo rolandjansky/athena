@@ -43,6 +43,7 @@ flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
 flags.Scheduler.EnableVerboseViews = True
+flags.Calo.ClusterCorrection.defaultSource = 'pool' # temporary, until a complete support for the cool, pool, jo is present
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)

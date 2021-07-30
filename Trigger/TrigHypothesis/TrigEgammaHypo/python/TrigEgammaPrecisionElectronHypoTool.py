@@ -7,6 +7,7 @@ from AthenaCommon.SystemOfUnits import GeV
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 #
 # Create the hypo alg with all selectors
@@ -19,9 +20,7 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
     from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlg
-   
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlg(name)
+    thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.Do_idperf = do_idperf
     thePrecisionElectronHypo.RunInView = True
@@ -43,7 +42,12 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
 
     return thePrecisionElectronHypo
 
-
+def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  acc.addEventAlgo( createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf ))
+  acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
+  return acc
 
 class TrigEgammaPrecisionElectronHypoToolConfig:
 
@@ -102,8 +106,8 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__lhInfo = cpart['lhInfo']
     
     if not tool:
-      from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoTool
-      tool = TrigEgammaPrecisionElectronHypoTool( name )
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      tool = CompFactory.TrigEgammaPrecisionElectronHypoTool( name )
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     tool.ETthr          = same( self.__threshold*GeV, tool )
