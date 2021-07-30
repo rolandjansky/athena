@@ -6,15 +6,15 @@
 
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
-from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ROOT import egammaPID
-from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
-
-# Add ONNX into app service mgr
-from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
-from AthenaCommon.AppMgr import ServiceMgr
-ServiceMgr += AthONNX__ONNXRuntimeSvc()
+# Add ONNX into app service mgr (in rec-ex common style), but only in Run 2 conf style
+from AthenaCommon.Configurable import Configurable
+if not Configurable.configurableRun3Behavior:
+    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 
 log = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
     selectors = []
     log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
-      SelectorTool = CfgMgr.AsgElectronSelectorTool(name)
+      SelectorTool = CompFactory.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
       SelectorTool.skipDeltaPoverP = True
       selectors.append(SelectorTool)
@@ -116,7 +116,7 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
     selectors = []
     log.debug('Configuring electron PID' )
     for pidname, name in SelectorNames.items():
-      SelectorTool = CfgMgr.AsgElectronLikelihoodTool(name)
+      SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
@@ -174,7 +174,7 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
 
     selectors = []
     for sel, name in SelectorNames.items():
-        SelectorTool = CfgMgr.AsgElectronIsEMSelector(name)
+        SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.isEMMask = ElectronMaskBits[sel]
         selectors.append(SelectorTool)
@@ -186,6 +186,7 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
 # Photon IsEM selectors
 #
 def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
+    from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
     if not ConfigFilePath:
       ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
@@ -231,7 +232,6 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
 
 def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
-    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
     import collections
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
@@ -261,7 +261,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
@@ -273,7 +273,6 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 #
 def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 
-    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
     import collections
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
@@ -301,7 +300,7 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
@@ -312,7 +311,6 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 #
 def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
 
-    from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgRingerSelectorTool 
     from AthenaCommon.Logging import logging
     import collections
     # We should include the ringer here
@@ -334,7 +332,7 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors

@@ -65,7 +65,7 @@ tit_lrt.TrackParticleLocation = TrigEgammaKeys_LRT.TrigElectronTracksCollectionN
 tit_lrt.VertexLocation = ''
 tit_lrt.TracksInConeTool	  = tpict_lrt
 
-
+    
 """Configuring EMTrackMatchBuilder Tool """
 TrigEMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
                       TrackParticlesName = TrigEgammaKeys.TrigElectronTracksCollectionName,
