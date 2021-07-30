@@ -28,3 +28,5 @@ PowhegConfig.generate()
 #--------------------------------------------------------------
 include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
 include("Pythia8_i/Pythia8_Powheg_Main31.py")
+genSeq.Pythia8.Commands += ['Powheg:NFinal = 3']
+genSeq.Pythia8.Commands += ['SpaceShower:dipoleRecoil = on']

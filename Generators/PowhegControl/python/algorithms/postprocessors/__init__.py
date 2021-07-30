@@ -10,6 +10,7 @@ from output_file_renamer import output_file_renamer
 from output_tarball_preparer import output_tarball_preparer
 from photos import PHOTOS
 from quark_colour_fixer import quark_colour_fixer
+from mu2tau import mu2tau
 from reweighter import reweighter
 from lhe_cleaner import lhe_cleaner
 from lhe_nominal_weight_updater import lhe_nominal_weight_updater
