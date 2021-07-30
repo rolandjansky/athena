@@ -146,6 +146,7 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
     world->add(pvMotherFwdPlus);
     m_detectorManager->addTreeTop(pvMotherFwdPlus);
     // FwdMinus
+    world->add(tag);
     world->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::degree)));
     world->add(pvMotherFwdMinus);
     m_detectorManager->addTreeTop(pvMotherFwdMinus);
