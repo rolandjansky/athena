@@ -15,25 +15,23 @@ RangeFilter::RangeFilter(std::size_t begin, std::size_t end):
 }
 
 
-std::pair<HypoJetCIter, HypoJetCIter>
-RangeFilter::filter (const HypoJetCIter& begin,
-			 const HypoJetCIter& end,
-			 const std::unique_ptr<ITrigJetHypoInfoCollector>&) {
+HypoJetVector
+RangeFilter::filter(const HypoJetVector& jv,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const {
 
-  m_filtered.clear();
-  if (m_nToSort > (end - begin)) {// too few jets
-    return std::make_pair(m_filtered.begin(), m_filtered.end());
+  if (m_nToSort > jv.size()) {// too few jets
+    return HypoJetVector();
   }
 
-  m_filtered.assign(begin, end);
+  auto filtered = HypoJetVector(jv.cbegin(), jv.cend());
 
-  std::partial_sort(m_filtered.begin(),
-		    m_filtered.begin() + m_end,
-		    m_filtered.end(),
+  std::partial_sort(filtered.begin(),
+		    filtered.begin() + m_end,
+		    filtered.end(),
 		    HypoJetPtGreater());
-  
-  return std::make_pair(m_filtered.begin() + m_begin,
-			m_filtered.begin() + m_end);
+
+  return HypoJetVector(filtered.begin() + m_begin,
+		       filtered.begin() + m_end);
 }
 
 std::string RangeFilter::toString() const {
