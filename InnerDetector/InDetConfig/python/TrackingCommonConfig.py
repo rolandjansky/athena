@@ -121,8 +121,8 @@ def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", *
         kwargs.setdefault("PositionStrategy", 0)
 
     kwargs.setdefault("DisableDistortions", flags.InDet.doFatras or flags.InDet.doDBMstandalone )
-    kwargs.setdefault("applyNNcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' and not flags.InDet.doSLHC )
-    kwargs.setdefault("NNIBLcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' and not flags.InDet.doSLHC )
+    kwargs.setdefault("applyNNcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' )
+    kwargs.setdefault("NNIBLcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' )
     kwargs.setdefault("SplitClusterAmbiguityMap", 'SplitClusterAmbiguityMap' + split_cluster_map_extension )
     kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi )
 
@@ -463,7 +463,7 @@ def InDetTRT_dEdxToolCfg(flags, name = "InDetTRT_dEdxTool", **kwargs):
     acc = ComponentAccumulator()
     the_name = makeName( name, kwargs)
 
-    if not flags.Detector.EnableTRT or flags.InDet.doSLHC or flags.InDet.doHighPileup \
+    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
             or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
@@ -480,7 +480,7 @@ def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwar
     acc = ComponentAccumulator()
     the_name = makeName( name, kwargs)
 
-    if not flags.Detector.EnableTRT or flags.InDet.doSLHC or flags.InDet.doHighPileup \
+    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
             or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 

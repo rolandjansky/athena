@@ -14,9 +14,6 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     # --- SiSpacePointMakerTool (public)
     #
 
-    if flags.InDet.doSLHC:
-        kwargs.setdefault("SCTGapParameter", 0.0015)
-
     if flags.Beam.Type == "cosmics" or flags.InDet.doBeamHalo:
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
@@ -127,10 +124,7 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
     kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
 
-    if flags.InDet.doSLHC:
-        NnPixelClusterSplitProbTool = CompFactory.InDet.TruthPixelClusterSplitProbTool(name=name,**kwargs)
-    else:
-        NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
+    NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
 
     acc.setPrivateTools(NnPixelClusterSplitProbTool)
     return acc
@@ -150,10 +144,7 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     kwargs.setdefault("SplitOnlyOnBLayer", False)
     kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
     # --- new NN splitter
-    if flags.InDet.doSLHC:
-        NnPixelClusterSplitter = CompFactory.InDet.TruthPixelClusterSplitter(name=name,**kwargs)
-    else:
-        NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
+    NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
 
     acc.setPrivateTools(NnPixelClusterSplitter)
     return acc

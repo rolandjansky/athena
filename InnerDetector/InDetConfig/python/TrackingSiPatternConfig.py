@@ -240,7 +240,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("CombinatorialTrackFinder", track_finder)
     kwargs.setdefault("pTmin", flags.InDet.Tracking.minPT)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.minPTBrem)
-    kwargs.setdefault("pTminSSS", flags.InDet.pT_SSScut)
+    kwargs.setdefault("pTminSSS", flags.InDet.Tracking.pT_SSScut)
     kwargs.setdefault("nClustersMin", flags.InDet.Tracking.minClusters)
     kwargs.setdefault("nHolesMax", flags.InDet.Tracking.nHolesMax)
     kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.nHolesGapMax)
