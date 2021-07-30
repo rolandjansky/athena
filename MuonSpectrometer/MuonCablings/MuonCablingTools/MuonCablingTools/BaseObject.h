@@ -36,12 +36,10 @@
 
 #include "MuonCablingTools/OutputDef.h"
 
-#ifndef LVL1_STANDALONE
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
-#endif
 
 enum ObjectType { Logic, Data, Hardware, Monitoring };
 

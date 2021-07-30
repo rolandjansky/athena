@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDOINDEX_H
@@ -80,11 +80,7 @@
 //  |   |   RX=0,   SL=00,   ROD=ROB=00    |   RX=0,   SL=00,   ROD=ROB=00    |
 //  +   +----------------------------------+----------------------------------+
 
-#ifndef LVL1_STANDALONE
-
 #include "MuonIdHelpers/RpcIdHelper.h"
-
-#endif
 
 class RDOindex {
 private:
@@ -145,7 +141,6 @@ public:
 
     bool status(void) const { return m_status; }
 
-#ifndef LVL1_STANDALONE
 public:
     void offline_indexes(int& name, int& eta, int& phi, int& doublet_r, int& doublet_z, int& doublet_phi, int& gas_gap, int& measures_phi,
                          int& strip) const;
@@ -156,8 +151,6 @@ public:
 
 private:
     static const RpcIdHelper* s_rpcIdHelper;
-
-#endif
 
     friend std::ostream& operator<<(std::ostream&, const RDOindex&);
 };

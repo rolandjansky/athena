@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/RDOindex.h"
@@ -20,9 +20,7 @@ RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name,
     m_doubletR{dR},
     m_doubletZ{dZ},
     m_doubletPhi{dP} {
-#ifndef LVL1_STANDALONE
     if (s_rpcIdHelper) m_stationName = s_rpcIdHelper->stationNameIndex(Name);
-#endif
     set_indexes();
 }
 
@@ -43,7 +41,6 @@ bool RDOindex::operator!() const { return !m_status; }
 
 void RDOindex::set_hash(unsigned int h) { m_hash = h; }
 
-#ifndef LVL1_STANDALONE
 
 const RpcIdHelper* RDOindex::s_rpcIdHelper = nullptr;
 
@@ -88,11 +85,9 @@ void RDOindex::pad_identifier(Identifier& id) const {
     }
 }
 
-#endif
 
 std::ostream& operator<<(std::ostream& stream, const RDOindex& rdo) {
     std::stringstream tmp_stream;
-#ifndef LVL1_STANDALONE
 
     int name;
     int eta;
@@ -109,12 +104,6 @@ std::ostream& operator<<(std::ostream& stream, const RDOindex& rdo) {
     tmp_stream << "RPC PAD /" << std::hex << std::showbase << rdo.side() << "/" << rdo.SLid() << "/" << rdo.PADid()
                << "   mapped on offline Id /" << std::dec << name << "/" << eta << "/" << phi << "/" << doublet_r << "/" << doublet_z << "/"
                << doublet_phi << "/" << gas_gap << "/" << measures_phi << "/" << strip << " .... hashId = " << rdo.hash() << std::endl;
-
-#else
-    std::string side = (rdo.side() == 0x66) ? "Negative" : "Positive";
-    tmp_stream << "/side=" << side << "/ROB=ROD=" << setw(2) << rdo.ROBid() << "/SL=RX=" << setw(2) << rdo.SLid() << "/PAD=" << setw(2)
-               << rdo.PADid() << "/" << std::endl;
-#endif
 
     stream << tmp_stream.str();
 

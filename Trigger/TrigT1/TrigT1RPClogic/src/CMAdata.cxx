@@ -4,33 +4,19 @@
 
 #include "TrigT1RPClogic/CMAdata.h"
 
-#ifdef LVL1_STANDALONE
-#include "RPCcablingInterface/CablingRPCBase.h"
-#endif
-
-CMAdata::CMAdata(unsigned long int debug) : 
+CMAdata::CMAdata(unsigned long int debug) :
     BaseObject(Data,"CMApatterns"),m_debug(debug)
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
 }
 
-#ifdef LVL1_STANDALONE
-CMAdata::CMAdata(const RPCdata* rpcData) :
-    BaseObject(Data,"CMApatterns"),
-    m_debug(0) 
-#else
-CMAdata::CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug) : 
+CMAdata::CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug) :
     BaseObject(Data,"CMApatterns"),
     m_debug(debug)
-#endif
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
-
-#ifdef LVL1_STANDALONE
-    const CablingRPCBase* rpcCabling = RPCcabling::CablingRPC::instance();
-#endif
 
     RPCdata::digitList eta = rpcData->eta_digits_list();
     RPCdata::digitList::const_iterator digi = eta.begin();

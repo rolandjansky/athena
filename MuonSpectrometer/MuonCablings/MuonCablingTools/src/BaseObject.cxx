@@ -20,15 +20,11 @@ ObjectType BaseObject::tag() const { return m_tag; }
 std::string BaseObject::name() const { return m_name; }
 
 void BaseObject::dump_message(__osstream& display, MSG::Level lvl) const {
-#ifdef LVL1_STANDALONE
-    std::cout << display.str() << std::endl;
-#else
     if (m_message) {
         (*m_message) << lvl << display.str() << endmsg;
     } else {
         std::cout << to_string(lvl) << display.str() << std::endl;
     }
-#endif
 }
 bool BaseObject::msgLevel(MSG::Level lvl) const {
     if (m_message) return m_message->level() >= lvl;
