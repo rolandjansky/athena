@@ -10,7 +10,6 @@ atlas_add_library( BTaggingLib
                    src/BTagSecVertexing.cxx
                    src/BTagLightSecVertexing.cxx
                    src/JetBTaggerTool.cxx
-                   src/JetBTaggerAlg.cxx
                    src/JetBTaggingAlg.cxx
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
