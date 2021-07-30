@@ -2407,8 +2407,3 @@ if(expo) {
 }
 return output;  
 }//end-of-CMAword Matrix::intPow
-//----------------------------------------------------------------------------//
-void Matrix::histo(rpcbook *p) {  // rpcbook
-p->fill(100,24.);
-p->fill(200,35.);
-}

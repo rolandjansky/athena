@@ -10,7 +10,6 @@
 #include <cstring>
 #include "TrigT1RPChardware/Lvl1Def.h"
 #include "MuonCablingTools/BaseObject.h"
-#include "TrigT1RPChardware/RpcBook.h" // rpcbook
 
 class Matrix : public BaseObject {
 public:
@@ -100,7 +99,6 @@ void dispWind() const;
 void dispWind(ubit16 thres) const;
 void dispDefaultConfiguration() const;
 ubit16 char2int(const char *str, CMAword the32[2]);
-void histo(rpcbook *p);  // rpcbook
 //
 private:
 int m_run;
