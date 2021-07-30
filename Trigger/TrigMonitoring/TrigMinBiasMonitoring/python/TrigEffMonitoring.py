@@ -28,7 +28,7 @@ def _TrigEff(configFlags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
     length = len(alg.triggerList)
 
     mainGroup = monConfig.addGroup(
-        alg, 'TrigAll', topPath='HLT/MinBiasMon/')
+        alg, 'TrigAll', topPath='HLT/MinBiasMon/Counts/')
 
     alreadyConfigured = set()
     for cdef in triggerAndRef:
@@ -44,12 +44,11 @@ def _TrigEff(configFlags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
         # if the chain cuts on higher pt (there is a few predefined chains) use different counter
         if '_pt' in chain:
             whichcounter += '_'+chain.split('_')[3]
-
-        effGroup.defineHistogram(f'EffPassed,{whichcounter};{chain}_ref_{refchain}', type='TEfficiency',
-                                  title=chain+';Offline Good nTrk;Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
-        if '_pt' in chain:
             effGroup.defineHistogram(f'EffPassed,leadingTrackPt;{chain}_ref_{refchain}_pt', type='TEfficiency',
                                       title=chain+';Leading track pt;Efficiency', xbins=100, xmin=0.0, xmax=10)
+        effGroup.defineHistogram(f'EffPassed,{whichcounter};{chain}_ref_{refchain}', type='TEfficiency',
+                                    title=chain+';Offline Good nTrk;Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
+
 
         if chain not in alreadyConfigured:
             alreadyConfigured.add(chain)
@@ -97,14 +96,14 @@ def TrigMinBiasEff(ConfigFlags):
         triggerAndRef += [ _c(hmt[0], "HLT_mb_sptrk_L1RD0_FILLED", xmax=_trk(hmt[0])+30)]
 
         # group set the ref for each trigger to be one of lower threshold
-        triggerAndRef += [  _c(chain, ref, xmin=_trk(chain)-20, xmax=_trk(chain)+30) for chain,ref in zip(hmt[1:], hmt) ]
+        triggerAndRef += [  _c(chain, ref, xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain,ref in zip(hmt[1:], hmt) ]
 
         # pu suppressing trigger should be monitored using trigger of the same threshold w/o pu suppression
         pusup = [c for c in mbChains if '_hmt_' in c and '_pusup' in c]
         def _dropsup(chain):
             s = chain.split("_")
             return "_".join(s[:3]+s[4:])
-        triggerAndRef += [  _c(chain, _dropsup(chain),  xmin=_trk(chain)-20, xmax=_trk(chain)+30) for chain in pusup ]
+        triggerAndRef += [  _c(chain, _dropsup(chain),  xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain in pusup ]
     # add here all the special cases
     return _TrigEff(ConfigFlags, triggerAndRef)
 
@@ -121,10 +120,12 @@ if __name__ == '__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     #ConfigFlags.Input.Files = ['myAOD.pool.root']
-    ConfigFlags.Input.Files = [
-        'AOD.25577237._000120.pool.root.1'
-#        '/afs/cern.ch/user/k/kburka/workspace/mbts/AOD.25577237._000120.pool.root.1'
-    ]
+#     ConfigFlags.Input.Files = [
+#         'AOD.25577237._000120.pool.root.1'
+# #        '/afs/cern.ch/user/k/kburka/workspace/mbts/AOD.25577237._000120.pool.root.1'
+#     ]
+    import glob
+    ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/athena/add-view-to-zfinder-output-config/*/*AOD._lb*")
     ConfigFlags.Output.HISTFileName = 'TestEffMonitorOutput.root'
     import sys
     thisScriptIndex = [ i for i, option in enumerate(sys.argv) if "TrigEffMonitoring" in option][0]
