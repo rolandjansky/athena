@@ -34,30 +34,26 @@ TEST(RangeFilterTester, insufficient0) {
 
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 
   tv.push_back(make_jet(0, 2.));
-
-  pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
+	    
+  fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 
   tv.push_back(make_jet(0, 1.));
 
-  pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
+  fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 
   tv.push_back(make_jet(0, 3.));
 
-  pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 3);
+  fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 3);
 
-  const auto& fiter = pair.first;
-  const auto& siter = pair.second;
-  
-  EXPECT_GT( (*fiter)->pt(), (*(fiter+1))->pt());
-  EXPECT_GT((*(fiter+1))->pt(), (*(fiter+2))->pt());
-  EXPECT_EQ((fiter+3), siter); 
+  EXPECT_GT(fj[0]->pt(), fj[1]->pt());
+  EXPECT_GT(fj[1]->pt(), fj[2]->pt());
 }
 
 TEST(RangeFilterTester, insufficient1) {
@@ -68,8 +64,8 @@ TEST(RangeFilterTester, insufficient1) {
 
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 
 }
 
@@ -82,7 +78,7 @@ TEST(RangeFilterTester, run2TLA) {
 
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 2);
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 2);
 
 }

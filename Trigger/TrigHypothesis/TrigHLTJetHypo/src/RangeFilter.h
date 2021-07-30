@@ -16,19 +16,16 @@ class RangeFilter: public IHypoJetVectorFilter  {
   RangeFilter(std::size_t begin, std::size_t end);
 
   // find the subset of jets which satisfy a sequence of ranges
-  virtual std::pair<HypoJetCIter, HypoJetCIter>
-  filter (const HypoJetCIter& b,
-	  const HypoJetCIter& e,
+  virtual HypoJetVector
+  filter (const HypoJetVector& jv,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>&
-	  ) override;
-
+	  ) const override;
+  
   virtual std::string toString() const override;  
- private:
+private:
   std::size_t m_begin{0};
   std::size_t m_end{0};
-  long int m_nToSort{0};
-  
-  HypoJetVector m_filtered{};  
+  long unsigned int m_nToSort{0u};
 };
 
 std::ostream& operator<<(std::ostream&, const RangeFilter&);

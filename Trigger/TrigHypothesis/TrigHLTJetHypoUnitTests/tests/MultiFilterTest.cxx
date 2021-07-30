@@ -40,25 +40,20 @@ TEST(MultiFilterTester, fourjets_twofilters) {
   std::vector<double> jet_eta{1.0, 0.5, 2.0, 4.0};
   HypoJetVector tv = makeHypoJets(jet_eta);
 
-  std::pair<HypoJetCIter, HypoJetCIter> iters =
-    std::make_pair(tv.begin(), tv.end());
-
   EXPECT_EQ(filters.size(), 2u);
 
   // apply the filters in a chain
+  auto fj = tv;
   for (const auto& fp : filters) {
-    iters = fp->filter(iters.first, iters.second, deb);
+    fj = fp->filter(tv, deb);
   }
-
-  EXPECT_EQ((iters.second - iters.first), 2);
-
-  const auto& fiter = iters.first;
-  const auto& siter = iters.second;
+  
+  EXPECT_EQ(fj.size(), 2);
 
   auto etas = std::vector<double> {};
-  etas.reserve(siter-fiter);
-  std::transform(fiter,
-		 siter,
+  etas.reserve(fj.size());
+  std::transform(fj.begin(),
+		 fj.end(),
 		 std::back_inserter(etas),
 		 [](const pHypoJet& hj){return hj->eta();});
   std::sort(etas.begin(), etas.end());

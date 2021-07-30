@@ -58,76 +58,73 @@ TEST(ConditionFilterTester, zerojets_zeroconditions) {
 
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = rf.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
+  auto fj = rf.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 
-  EXPECT_EQ(pair.first, tv.begin());
-  EXPECT_EQ(pair.second, tv.end());
 }
 
 TEST(ConditionFilterTester, zerojets_onecondition) {
-
+  
   auto conditionPtrs = cftMakeRepeatedConditions();
   ConditionFilter filter(std::move(conditionPtrs));
-
+  
   HypoJetVector tv{};
-
+  
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
-  auto pair = filter.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 0);
-  
-  EXPECT_EQ(pair.first, tv.begin());
-  EXPECT_EQ(pair.second, tv.end());
+  auto fj = filter.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 0);
 }
 
 TEST(ConditionFilterTester, twojets_zeroconditions) {
-
+    
   ConditionFilter filter;
-
+  
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   std::vector<double> jet_eta{1.0, 0.5, 2.0, 4.0};
   HypoJetVector tv = makeHypoJets(jet_eta);
   
-  EXPECT_EQ((tv.end() - tv.begin()),  4u);
-
-  auto pair = filter.filter(tv.begin(), tv.end(), deb);
-  EXPECT_EQ((pair.second - pair.first), 4u);
-
+  EXPECT_EQ(tv.size(),  4u);
+  
+  auto fj = filter.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 4u);
+  
+  /*
   const auto& fiter = pair.first;
   const auto& siter = pair.second;
-
+  
   double f_eta = (*fiter)->eta();
   double s_eta = (*(siter-1))->eta();
   
   EXPECT_EQ( f_eta, (*(tv.begin()))->eta());
   EXPECT_EQ( s_eta, (*(tv.end()-1))->eta());
-
+  */
+  
+  double f_eta = fj.front()->eta();
+  double s_eta = fj.back()->eta();
+  
+  EXPECT_EQ(f_eta, tv.front()->eta());
+  EXPECT_EQ(s_eta, tv.back()->eta());
+  
 }
-
-
+  
+  
 TEST(ConditionFilterTester, twojets_onecondition) {
-
+    
   ConditionPtrs conditionPtrs = cftMakeRepeatedConditions();
   auto filter = ConditionFilter(std::move(conditionPtrs));
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
-
+    
   std::vector<double> jet_eta{1.0, 0.5, 2.0, 4.0};
   HypoJetVector tv = makeHypoJets(jet_eta);
 
-  std::pair<HypoJetCIter, HypoJetCIter> iters =
-    std::make_pair(tv.begin(), tv.end());
-  
-  iters = filter.filter(iters.first, iters.second, deb);
-  EXPECT_EQ((iters.second - iters.first), 2);
-
-  const auto& fiter = iters.first;
-  const auto& siter = iters.second;
+  auto fj = filter.filter(tv, deb);
+  EXPECT_EQ(fj.size(), 2);
 
   auto etas = std::vector<double> {};
-  etas.reserve(siter-fiter);
-  std::transform(fiter,
-		 siter,
+  etas.reserve(fj.size());
+  std::transform(fj.begin(),
+		 fj.end(),
 		 std::back_inserter(etas),
 		 [](const pHypoJet& hj){return hj->eta();});
   std::sort(etas.begin(), etas.end());
@@ -135,5 +132,5 @@ TEST(ConditionFilterTester, twojets_onecondition) {
   EXPECT_EQ(etas.size(), 2u);
   EXPECT_DOUBLE_EQ(etas[0], 0.5);
   EXPECT_DOUBLE_EQ(etas[1], 1.0);
-
-}
+  
+  }

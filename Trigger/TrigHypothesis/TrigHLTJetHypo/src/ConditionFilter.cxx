@@ -6,7 +6,6 @@
 
 #include "./ConditionFilter.h"
 
-
 ConditionFilter::ConditionFilter(ConditionPtrs&& conditions):
   m_conditions(std::move(conditions)) {
 }
@@ -28,26 +27,28 @@ struct FilterPred{
   const std::unique_ptr<ITrigJetHypoInfoCollector>& m_collector;
 };
 
-std::pair<HypoJetCIter, HypoJetCIter>
-ConditionFilter::filter (const HypoJetCIter& begin,
-			 const HypoJetCIter& end,
-			 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) {
+HypoJetVector
+ConditionFilter::filter (const HypoJetVector& jv,
+			 const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
+  
   
   if (m_conditions.empty()) {
-    return std::make_pair(begin, end);
+    return jv;
   }
   
-  m_filtered = HypoJetVector(begin, end);
-  auto filtered_begin = m_filtered.begin();
-  auto filtered_end = m_filtered.end();
+  auto filtered = HypoJetVector(jv.cbegin(), jv.cend());
+  auto filtered_begin = filtered.begin();
+  auto filtered_end = filtered.end();
   
   for (const auto& cptr : m_conditions) {
     filtered_end = std::partition(filtered_begin,
 				  filtered_end,
 				  FilterPred(cptr, collector));
   }
-  
-  return std::make_pair(filtered_begin, filtered_end);
+
+  filtered.resize(filtered_end - filtered_begin);
+
+  return filtered;
 }
 
 std::string ConditionFilter::toString() const {

@@ -6,9 +6,6 @@
 #include <set>
 #include <string>
 
-#include <iostream>
-
-
 JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
 				 const CondInd2JetGroupsInds& satisfiedBy,
 				 const std::vector<std::size_t>& condMult) {
