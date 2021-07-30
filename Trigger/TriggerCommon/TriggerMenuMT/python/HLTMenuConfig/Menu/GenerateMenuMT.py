@@ -200,7 +200,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 if current_sig != previous_sig:
                     previous_sig = current_sig
                     log.info("Now starting generation of signature %s",current_sig)
-            elif len(set(chainDict['signatures'])) > 1:
+            elif len(set(chainDict['signatures'])) > 1 and set(chainDict['signatures'])!= set(['Bjet','Jet']):
                 current_sig = 'Combined'
                 if current_sig != previous_sig:
                     previous_sig = current_sig
