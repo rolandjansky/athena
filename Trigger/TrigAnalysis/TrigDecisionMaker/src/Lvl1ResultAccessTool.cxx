@@ -56,6 +56,7 @@ HLT::Lvl1ResultAccessTool::initialize() {
 
    ATH_MSG_INFO("Initializing with UseNewConfig = " << m_useNewConfig);
    ATH_CHECK( m_l1PrescaleSetInputKey.initialize( m_useNewConfig ) );
+   ATH_CHECK( m_l1ResultKey.initialize( ) );
 
    ATH_MSG_DEBUG("Retrieving TrigConfigSvc.");
    CHECK( m_lvl1ConfigSvc.retrieve() );
@@ -595,7 +596,7 @@ HLT::Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL
       while (lvl1Result->itemsAfterPrescale().size() < 8) lvl1Result->itemsAfterPrescale().push_back(0);
       while (lvl1Result->itemsAfterVeto().size() < 8) lvl1Result->itemsAfterVeto().push_back(0);
       *lvl1ResultOut = lvl1Result.get();
-      evtStore()->record(std::move(lvl1Result), "Lvl1Result").ignore();
+      ATH_CHECK(SG::makeHandle(m_l1ResultKey).record( std::move(lvl1Result)), {});
    } // if (lvl1ResultOut)
 
    return items;
