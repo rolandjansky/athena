@@ -483,6 +483,8 @@ namespace InDet
 
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
 
+    BooleanProperty m_doITk{this, "doITk", false};
+
   }; 
 } // end of namespace
 

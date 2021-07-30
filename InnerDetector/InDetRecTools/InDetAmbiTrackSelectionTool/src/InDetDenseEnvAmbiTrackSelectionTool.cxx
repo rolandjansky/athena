@@ -46,10 +46,12 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
 {
   ATH_CHECK(AlgTool::initialize());
 
-  if (m_IBLParameterSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
-  } else {
-    m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
+  if(!m_doITk){
+    if (m_IBLParameterSvc.retrieve().isFailure()) {
+      ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+    } else {
+      m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
+    }
   }
 
   // Get segment selector tool

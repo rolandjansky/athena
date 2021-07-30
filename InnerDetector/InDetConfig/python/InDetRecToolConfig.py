@@ -163,54 +163,54 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   withTdaqTool=kwargs.pop("withTdaqTool", True)
 
   ConditionsTools = []
-  if not flags.InDet.doSLHC:
-      cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags)
-      SCT_ConfigurationConditionsTool = cfgCondToolAcc.popPrivateTools()
-      result.merge(cfgCondToolAcc)
-      ConditionsTools += [ SCT_ConfigurationConditionsTool]
-      if (flags.InDet.doPrintConfigurables):
-        print (SCT_ConfigurationConditionsTool)
 
-      if withFlaggedCondTool:
-        flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
-        SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
-        result.merge(flCondToolAcc)
-        ConditionsTools += [ SCT_FlaggedConditionTool ]
-        if (flags.InDet.doPrintConfigurables):
-          print (SCT_FlaggedConditionTool)
+  cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags)
+  SCT_ConfigurationConditionsTool = cfgCondToolAcc.popPrivateTools()
+  result.merge(cfgCondToolAcc)
+  ConditionsTools += [ SCT_ConfigurationConditionsTool]
+  if (flags.InDet.doPrintConfigurables):
+    print (SCT_ConfigurationConditionsTool)
 
-      # Load bytestream errors tool (use default instance without "InDet")
-      if not flags.Input.isMC :
-        SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})
-        SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
-        result.merge(SCT_BSToolAcc)
-        ConditionsTools+= [ SCT_ByteStreamErrorsTool ]
-        if (flags.InDet.doPrintConfigurables):
-          print (SCT_ByteStreamErrorsTool)
+  if withFlaggedCondTool:
+    flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
+    SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
+    result.merge(flCondToolAcc)
+    ConditionsTools += [ SCT_FlaggedConditionTool ]
+    if (flags.InDet.doPrintConfigurables):
+      print (SCT_FlaggedConditionTool)
 
-      if flags.InDet.useSctDCS:
-          from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
-          SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
-          SCT_DCSConditionsTool = SCT_DCSCondAcc.popPrivateTools()
-          ConditionsTools += [ SCT_DCSConditionsTool ]
-          result.merge(SCT_DCSCondAcc)
-          if (flags.InDet.doPrintConfigurables):
-              print (SCT_DCSConditionsTool)
+  # Load bytestream errors tool (use default instance without "InDet")
+  if not flags.Input.isMC :
+    SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})
+    SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
+    result.merge(SCT_BSToolAcc)
+    ConditionsTools+= [ SCT_ByteStreamErrorsTool ]
+    if (flags.InDet.doPrintConfigurables):
+      print (SCT_ByteStreamErrorsTool)
 
-      if withTdaqTool and not flags.Input.isMC :
-        SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
-        ConditionsTools += [ SCT_TdaqEnabledTool ]
-        if (flags.InDet.doPrintConfigurables):
-          print (SCT_TdaqEnabledTool)
+  if flags.InDet.useSctDCS:
+    from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
+    SCT_DCSCondAcc = SCT_DCSConditionsCfg(flags)
+    SCT_DCSConditionsTool = SCT_DCSCondAcc.popPrivateTools()
+    ConditionsTools += [ SCT_DCSConditionsTool ]
+    result.merge(SCT_DCSCondAcc)
+    if (flags.InDet.doPrintConfigurables):
+      print (SCT_DCSConditionsTool)
 
-      # Load calibration conditions tool
-      # @TODO or just for data?
-      calDataAcc = SCT_ReadCalibDataToolCfg(flags)
-      SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
-      result.merge(calDataAcc)
-      ConditionsTools += [ SCT_ReadCalibDataTool ]
-      if (flags.InDet.doPrintConfigurables):
-        print (SCT_ReadCalibDataTool)
+  if withTdaqTool and not flags.Input.isMC :
+    SCT_TdaqEnabledTool = result.popToolsAndMerge(SCT_TdaqEnabledToolCfg(flags))
+    ConditionsTools += [ SCT_TdaqEnabledTool ]
+    if (flags.InDet.doPrintConfigurables):
+      print (SCT_TdaqEnabledTool)
+
+  # Load calibration conditions tool
+  # @TODO or just for data?
+  calDataAcc = SCT_ReadCalibDataToolCfg(flags)
+  SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
+  result.merge(calDataAcc)
+  ConditionsTools += [ SCT_ReadCalibDataTool ]
+  if (flags.InDet.doPrintConfigurables):
+    print (SCT_ReadCalibDataTool)
 
   # Load conditions Monitoring tool
   if not flags.Common.isOnline :
