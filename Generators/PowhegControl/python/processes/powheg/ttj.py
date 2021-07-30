@@ -97,6 +97,7 @@ class ttj(PowhegV2):
         self.add_keyword("par_fsrtinyy")
         self.add_keyword("par_isrtinycsi")
         self.add_keyword("par_isrtinyy")
+        self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
         self.add_keyword("psgen")
         self.add_keyword("ptmin_jet", 20.0)
