@@ -17,10 +17,7 @@ import AthenaCommon.CfgMgr as CfgMgr
 #This utilizes name of the reco sequence from which checks specific string pattern
 def _getTauSignatureShort( name ):
     signature = ""
-    if "FTFTau" in name:
-      signature = 'tauTau'
-      signatureID = 'tauTau'
-    elif "FTFCore" in name:
+    if "FTFCore" in name:
       signature = 'tauCore'
       signatureID = 'tauCore'
     elif "IsoInView" in name:
@@ -29,9 +26,6 @@ def _getTauSignatureShort( name ):
     elif "IsoBDT" in name:
       signature = 'tauIsoBDT'
       signatureID = 'tauIsoBDT'
-    elif "TrackInView" in name:
-      signature = 'tauTrk'
-      signatureID = 'tauTau'
     elif "TrackTwo" in name:
       signature = 'tauTrkTwo'
       signatureID = 'tauIso'
@@ -273,12 +267,8 @@ def preSelSequence( RoIs, name):
 
     tauPreSelSequence += ViewVerifyPreSel
 
-    if "TrackInView" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_FTF(), step = "Track")
-      ViewVerifyPreSel.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Tau_FTF' )]
-    if "TrackTwo" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_FTF(), step = "TrackTwo")
-      ViewVerifyPreSel.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_TauIso_FTF' )]
+    tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_FTF(), step = "TrackTwo")
+    ViewVerifyPreSel.DataObjects += [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_TauIso_FTF' )]
 
     tauPreSelSequence += tauPreselectionAlg
 
@@ -308,11 +298,7 @@ def tauIdSequence( RoIs, name):
 
     tauPrecisionAlg = ""
 
-    if "TrackInView" in name:
-      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "Track")
-      ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
-                                   ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
-    elif "TrackTwo" in name:
+    if "TrackTwo" in name:
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "TrackTwo")
       ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
                                    ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
@@ -528,28 +514,6 @@ def tauPrecIsoTrackSequence(ConfigFlags):
 
     tauPrecIsoTrkSequence = seqAND("tauPrecIsoTrkSequence", [tauPrecIsoViewsMaker, tauPrecIsoTrackInViewSequence ])
     return (tauPrecIsoTrkSequence, tauPrecIsoViewsMaker, sequenceOut)
-
-# ===============================================================================================                                                            
-#    Reco sequence for Tau Precision Alg   (track)                                                              
-# ===============================================================================================  
-
-def tauTrackSequence(ConfigFlags):
-
-    RecoSequenceName                     = "tauTrackInViewSequence"
-
-    ftfTrackViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrack")
-    ftfTrackViewsMaker.RoIsLink          = "roi"
-    ftfTrackViewsMaker.RoITool           = ViewCreatorPreviousROITool()
-    ftfTrackViewsMaker.InViewRoIs        = "RoiForTau"
-    ftfTrackViewsMaker.Views             = "TAUFTFTrackViews"
-    ftfTrackViewsMaker.ViewFallThrough   = True
-    ftfTrackViewsMaker.RequireParentView = True
-    ftfTrackViewsMaker.ViewNodeName      = RecoSequenceName
-
-    (tauTrackInViewSequence, sequenceOut) = tauIdSequence( ftfTrackViewsMaker.InViewRoIs, RecoSequenceName)
-
-    tauFastTrackSequence = seqAND("tauFastTrackSequence", [ftfTrackViewsMaker, tauTrackInViewSequence ])
-    return (tauFastTrackSequence, ftfTrackViewsMaker, sequenceOut)
 
 # ===============================================================================================                                                            
 #    Reco sequence for Tau Precision Alg (tracktwo)
