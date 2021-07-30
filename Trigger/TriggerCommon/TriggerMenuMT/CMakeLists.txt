@@ -197,7 +197,7 @@ atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
 
 function( atlas_test_slice_independence slice )
    atlas_add_test( slice_independence_${slice}
-                  SCRIPT scripts/test_slice_independence.sh slice
+                  SCRIPT scripts/test_slice_independence.sh ${slice}
                   PRIVATE_WORKING_DIRECTORY
                   POST_EXEC_SCRIPT nopost.sh )
 endfunction()

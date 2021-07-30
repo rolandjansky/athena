@@ -570,6 +570,15 @@ def setupMenu():
         ChainProp(name='HLT_mu26_ivarmedium_2j20_0eta290_020jvt_pf_ftf_boffperf_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=TagAndProbeLegGroup+MuonBjetGroup),
         ### Affected by ATR-23722
         #ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], groups=TagAndProbeLegGroup+EgammaBjetGroup),
+
+        #Isolated High pt Track Trigger
+        #Primary
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
+        #Backup for Primary Triggers
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
+        #Support
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+SupportLegGroup),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=UnconvTrkGroup+SupportLegGroup),
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
@@ -585,12 +594,4 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
     TriggerFlags.UnconventionalTrackingSlice.signatures = [
-        #Isolated High pt Track Trigger
-        #Primary
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
-        #Backup for Primary Triggers
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk140_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+PrimaryLegGroup),
-        #Support
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+SupportLegGroup),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=UnconvTrkGroup+SupportLegGroup),
  ]

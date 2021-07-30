@@ -12,5 +12,7 @@
 # The configuration will exit early, just after attempting to
 # generate a dummy config for each chain in the tested slice
 
+# Fail if any command fails:
+set -e
 
 athena.py -c "setMenu='LS2_v1';doWriteBS=False;doWriteRDOTrigger=True;fpeAuditor=True; doEmptyMenu=True; do${1}Slice=True; from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.Test.doDummyChainConfig=True" --filesInput=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1 --threads=1 TriggerJobOpts/runHLT_standalone.py --config-only=config.pkl
