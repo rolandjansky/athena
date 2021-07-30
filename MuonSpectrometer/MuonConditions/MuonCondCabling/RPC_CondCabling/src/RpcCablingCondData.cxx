@@ -404,7 +404,7 @@ StatusCode RpcCablingCondData::giveROB_fromPRD(const IdentifierHash prdHashId, s
 bool RpcCablingCondData::give_Pad_Parameters(unsigned short int logic_sector, unsigned short int PADId, bool& feet, bool& eta_and_phi,
                                              unsigned short int& cma_mask, unsigned short int& feet_th0, unsigned short int& feet_th1,
                                              unsigned short int& feet_th2) const {
-    if (logic_sector >= 64 || PADId >= 8) return false;
+    if (logic_sector >= 64 || PADId >= 10) return false;  // max PADId was 8 in Run2, increased to 10 for Run3 to allow BIS78
 
     feet = m_RPCPadParameters_array[logic_sector][PADId].feet_on();
     eta_and_phi = m_RPCPadParameters_array[logic_sector][PADId].eta_and_phi();
