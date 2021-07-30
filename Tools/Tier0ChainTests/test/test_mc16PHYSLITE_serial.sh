@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-description: DAOD building PHYSLITE mc16
 # art-type: grid
 # art-output: *.pool.root
