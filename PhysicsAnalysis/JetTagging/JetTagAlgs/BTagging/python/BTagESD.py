@@ -10,8 +10,6 @@ from BTagging.BTagRun3Config import JetBTaggerSplitAlgsCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
-# this seems to only be used in this script
-from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 
 def BTagHLTaggersCfg(inputFlags, JetCollection = []):
     acc = ComponentAccumulator()
@@ -86,22 +84,6 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     return result
 
-def BTagESDtoESDCfg(flags, jet, timestamp):
-    acc=ComponentAccumulator()
-
-    ESDItemList = []
-    #Register new ouput ESD container
-    for ts in timestamp:
-        ESDItemList += registerOutputBTaggingContainers(flags, jet, ts)
-
-    ESDItemList += registerJetCollectionEL(flags, jet, timestamp)
-
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList))
-
-    return acc
-
-
 def BTagRedoESDCfg(flags, jet, extraContainers=[]):
     acc=ComponentAccumulator()
 
@@ -166,56 +148,37 @@ def BTagCfg(inputFlags, JetCollection = [], **kwargs):
     #Once a first complete example runs, this will be split into small modular chunks.
     result=ComponentAccumulator()
 
-    timestamp = kwargs.get('TimeStamp', None)
-    if timestamp: del kwargs['TimeStamp']
-    splitAlg = kwargs.get('SplitAlg', None)
-    if splitAlg: del kwargs['SplitAlg']
-
     TrainedTaggers = inputFlags.BTagging.run2TaggersList + ['MultiSVbb1','MultiSVbb2']
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = TrainedTaggers, **kwargs))
 
     for jet in JetCollection:
         taggerList = inputFlags.BTagging.run2TaggersList
         taggerList += ['MultiSVbb1','MultiSVbb2']
-        if timestamp:
-            #Time-stamped BTagging container (21.2)
-            result.merge(BTagESDtoESDCfg(inputFlags, jet, timestamp))
-            kwargs['TimeStamp'] = timestamp
-            result.merge(RenameInputContainerCfg("old"))
-        else:
-            extraCont = []
-            extraCont.append("xAOD::VertexContainer#PrimaryVertices")
-            extraCont.append("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
-            extraCont.append("xAOD::TrackParticleContainer#InDetTrackParticles")
-            extraCont.append("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
-            if splitAlg:
-                JFSecVtx = "xAOD::BTagVertexContainer#"
-                AuxJFSecVtx= "xAOD::BTagVertexAuxContainer#"
-                SecVtx = "xAOD::VertexContainer#"
-                AuxSecVtx = "xAOD::VertexAuxContainer#"
-                author = inputFlags.BTagging.OutputFiles.Prefix + jet
-                extraCont.append(JFSecVtx + author + 'JFVtxMT')
-                extraCont.append(AuxJFSecVtx + author + 'JFVtxMTAux.')
-                extraCont.append(SecVtx + author + 'SecVtxMT')
-                extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
-                extraCont.append(SecVtx + author + 'MSVMT')
-                extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
-                extraCont.append("xAOD::BTaggingContainer#" + author + 'MT')
-                extraCont.append("xAOD::BTaggingAuxContainer#" + author + 'MTAux.')
-            result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
-        if splitAlg:
-            if kwargs.get('Release', None) == '22':
-                #JetParticleAssociationAlg not implemented for BTagTrackToJetAssociatorBB in rel 22
-                secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
-            else:
-                secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator', 'MSV':'BTagTrackToJetAssociatorBB'}
+        extraCont = []
+        extraCont.append("xAOD::VertexContainer#PrimaryVertices")
+        extraCont.append("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
+        extraCont.append("xAOD::TrackParticleContainer#InDetTrackParticles")
+        extraCont.append("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
 
-            result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
-        else:
-            if kwargs.get('Release', None):
-              del kwargs['Release']
-            result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
+        JFSecVtx = "xAOD::BTagVertexContainer#"
+        AuxJFSecVtx= "xAOD::BTagVertexAuxContainer#"
+        SecVtx = "xAOD::VertexContainer#"
+        AuxSecVtx = "xAOD::VertexAuxContainer#"
+        author = inputFlags.BTagging.OutputFiles.Prefix + jet
+        extraCont.append(JFSecVtx + author + 'JFVtxMT')
+        extraCont.append(AuxJFSecVtx + author + 'JFVtxMTAux.')
+        extraCont.append(SecVtx + author + 'SecVtxMT')
+        extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
+        extraCont.append(SecVtx + author + 'MSVMT')
+        extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
+        extraCont.append("xAOD::BTaggingContainer#" + author + 'MT')
+        extraCont.append("xAOD::BTaggingAuxContainer#" + author + 'MTAux.')
+        result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
+
+        secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+
+        result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
 
     return result
 
@@ -227,9 +190,7 @@ if __name__=="__main__":
                             usage="Call with an input file, pass -n=0 to skip execution, -t 0 for serial or 1 for threaded execution.")
     parser.add_argument("-f", "--filesIn", default = inputESD, type=str, help="Comma-separated list of input files")
     parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
-    parser.add_argument("-r", "--release", default="22", type=str, help="Release number to test different scenarii.")
     parser.add_argument("-l", "--highlevel", type=str2bool, default=False, help="Run only high level taggers.")
-    parser.add_argument('-s', '--splitAlg', type=str2bool, default=False, help="Split JetBTaggerAlg.")
 
     args = parser.parse_args()
 
@@ -265,16 +226,6 @@ if __name__=="__main__":
 
     if args.highlevel:
         acc.merge(BTagHLTaggersCfg(cfgFlags, JetCollection = JetCollection))
-    else:
-        kwargs = {}
-        kwargs['Release'] = args.release
-        if args.release == "21.2":
-            kwargs["TimeStamp"] = ['201810','201903']
-            kwargs['Release'] = '21'
-        if args.splitAlg:
-            kwargs["SplitAlg"] = args.splitAlg
-
-        acc.merge(BTagCfg(cfgFlags, JetCollection = JetCollection, **kwargs))
 
     acc.setAppProperty("EvtMax",-1)
 
