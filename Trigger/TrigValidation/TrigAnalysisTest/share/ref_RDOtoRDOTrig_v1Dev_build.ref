@@ -8722,13 +8722,13 @@ HLT_xe30_cell_xe30_tcpufit_L1XE30:
   stepFeatures:
     0: 24
 HLT_xe30_cvfpufit_L1XE30:
-  eventCount: 12
+  eventCount: 14
   stepCounts:
     0: 14
-    1: 12
+    1: 14
   stepFeatures:
     0: 14
-    1: 12
+    1: 14
 HLT_xe30_mht_L1XE30:
   eventCount: 14
   stepCounts:
