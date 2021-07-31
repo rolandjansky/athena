@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -548,7 +548,7 @@ void TCCPlots::setTrackProdRadiusBinning(const std::vector<float>& bins) {
 
 void TCCPlots::initializePlots() {
   
-  if (m_collectionType!="")
+  if (!m_collectionType.empty())
     std::cout << "INFO: TCCPlots configured for " << m_collectionType << " type collection" << std::endl;    
   
   if (m_collectionType == "jets") {
@@ -2175,7 +2175,7 @@ void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc, std::vector<const xAOD
       
       static SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
 
-      if (tcc.caloClusterLinks().size()) {
+      if (!tcc.caloClusterLinks().empty()) {
 	int N = tcc.caloClusterLinks().size();
 // 	std::cout << "N = " << N << std::endl;
 	for (size_t c = 0; c < tcc.caloClusterLinks().size(); ++c) {
@@ -2204,7 +2204,7 @@ void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc, std::vector<const xAOD
 }
 
 void TCCPlots::finalizePlots() {
-  if (m_collectionType!= "")
+  if (!m_collectionType.empty())
     std::cout << "Finalising " << m_collectionType << " in folder " << m_folder << std::endl;
   
   if (m_collectionType == "jets") {
@@ -2539,7 +2539,7 @@ void TCCPlots::resizeHistograms() {
   
   if (m_collectionType == "tracks") {
     
-    if (m_trackPtBins.size()>0) {
+    if (!m_trackPtBins.empty()) {
      
       const float* ptBins = m_trackPtBins.data();
       int           nBins = m_trackPtBins.size()-1;
@@ -2627,7 +2627,7 @@ void TCCPlots::resizeHistograms() {
      
     }
     
-    if (m_trackProdRadiusBins.size()>0) {
+    if (!m_trackProdRadiusBins.empty()) {
       const float* radiusBins = m_trackProdRadiusBins.data();
       int               nBins = m_trackProdRadiusBins.size()-1;
       
@@ -2648,7 +2648,7 @@ void TCCPlots::resizeHistograms() {
     }
   } else if (m_collectionType == "jets")  {
         
-    if (m_jetPtBins.size()>0) {
+    if (!m_jetPtBins.empty()) {
       
       float* ptBins = m_jetPtBins.data();
       int     nBins = m_jetPtBins.size()-1;
@@ -2683,7 +2683,7 @@ void TCCPlots::resizeHistograms() {
       m_jet_resolution_add_d2_subleading   ->GetXaxis()->Set(nBins, ptBins);      
     }
     
-    if (m_jetPtBins.size()>0 and m_jetMassOverPtBins.size()>0) {
+    if (!m_jetPtBins.empty() and !m_jetMassOverPtBins.empty()) {
       
       float* ptBins = m_jetPtBins.data();
       int   nBinsPt = m_jetPtBins.size()-1;
@@ -2783,7 +2783,7 @@ void TCCPlots::resizeHistograms() {
       m_jet_resolution_mopt_pt_d2_subleading  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
     }
   } else if (m_collectionType == "tccs") {
-    if (m_trackPtBins.size()>0) {  
+    if (!m_trackPtBins.empty()) {  
       float* ptBins = m_trackPtBins.data();
       int     nBins = m_trackPtBins.size()-1;
       

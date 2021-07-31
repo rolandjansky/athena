@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_CALIBRATIONNTUPLEMAKERTOOL_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_CALIBRATIONNTUPLEMAKERTOOL_H
@@ -42,9 +42,9 @@ private:
   // Get a data container; implementation at end of this header file
   template<class T> const T* getContainer( const std::string & containerName);
   
-  int Matched(const xAOD::Jet* truth, const xAOD::JetContainer* jets, std::vector<const xAOD::Jet*>& matched, int& index);
+  int Matched(const xAOD::Jet* truth, const xAOD::JetContainer* jets, std::vector<const xAOD::Jet*>& matched, int& index) const;
   
-  double DRmin(const xAOD::Jet* myjet, const xAOD::JetContainer* jets, double PtMin);
+  static double DRmin(const xAOD::Jet* myjet, const xAOD::JetContainer* jets, double PtMin);
   
   float DetectorEta(const xAOD::Jet* jet);
   
@@ -66,9 +66,9 @@ private:
   
   TH1*                                         m_h_events;
   
-  float                                        m_eventWeight;
-  float                                        m_mu;
-  float                                        m_npv;
+  float                                        m_eventWeight = 0.0F;
+  float                                        m_mu = 0.0F;
+  float                                        m_npv = 0.0F;
   
   std::vector < int >*                         m_index;
   
