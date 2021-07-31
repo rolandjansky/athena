@@ -1,4 +1,4 @@
 sweep-targets:
   '22.0-mc20':
-    '.*':
+    'NONE':
       - 'master'
