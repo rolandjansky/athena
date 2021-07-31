@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUMONTOOL_H
@@ -41,7 +41,7 @@ protected:
 	bool        m_doTrigger;
 
 	int  m_maxNLB;
-	int  m_currentLB;
+	int  m_currentLB = 0;
 
 	//global plots
 	struct s_basicPlots {
@@ -65,11 +65,11 @@ protected:
 
 		TH2* h_Eta_vs_LB;
 		TH2* h_Phi_vs_LB;
-	} m_basicPlots, m_tauBasePlots, m_emPlots, m_jetPlots, m_mbtsPlots, m_basic_LS;
+	} m_basicPlots{}, m_tauBasePlots{}, m_emPlots{}, m_jetPlots{}, m_mbtsPlots{}, m_basic_LS{};
 
 	//trigger
-	TH1* m_triggers;
-	TH2* m_triggers_vs_LB;
+	TH1* m_triggers = nullptr;
+	TH2* m_triggers_vs_LB = nullptr;
 
 	struct s_BDTFolder{
 		TH1* h_et;
@@ -180,18 +180,18 @@ protected:
 		s_kinFolder  kinFolder;
                 s_sbstrctFolder sbstrctFolder ;
 
-	} m_tauB, m_tauCR, m_tauE, m_tauPlots, m_tauLS ;
+	} m_tauB{}, m_tauCR{}, m_tauE{}, m_tauPlots{}, m_tauLS{} ;
 
 	// Z details
-	TH1* m_eta_Tau_Z;
-	TH2* m_pTVsEta_Tau_Z;
-	TH2* m_pTVsEta_Lepton_Z;
+	TH1* m_eta_Tau_Z = nullptr;
+	TH2* m_pTVsEta_Tau_Z = nullptr;
+	TH2* m_pTVsEta_Lepton_Z = nullptr;
 
 	// W details
-	TH2* m_pTVsEta_Tau_W;
+	TH2* m_pTVsEta_Tau_W = nullptr;
 
 private:
-        bool m_Trigged, m_doLS ;
+        bool m_Trigged = false, m_doLS = false ;
         std::vector< std::vector< std::string > > m_trigItems ;
 
 	StatusCode bookBasicPlots(s_basicPlots& trigPlots, MonGroup &aGroup, std::string preffix);

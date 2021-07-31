@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.h
@@ -82,7 +82,7 @@
     Gaudi::Property<double> m_fjvtThresh{this, "FjvtThresh", 15e3, "FJVT threshold"}; //15GeV->92%,11GeV->85%
     Gaudi::Property<bool> m_tightOP{this, "UseTightOP", false, "Use tight (true) or loose (false)"};
     mutable std::vector<TVector2> m_pileupMomenta;
-    mutable size_t m_pvind;
+    mutable size_t m_pvind = 0UL;
     void getPV() const;
 
     /// Default constructor:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -154,15 +154,15 @@ namespace iFatras {
 
        mutable int                   m_hadIntChildren;             				//!< nutple variable : hadronic interaction children numbers
        mutable float                 m_hadIntChildE;             				//!< nutple variable : hadronic interaction children total energy
-       mutable float                 m_hadIntChildP[MAXHADINTCHILDREN];     //!< nutple variable : hadronic interaction child Energy
-       mutable float                 m_hadIntChildPcms[MAXHADINTCHILDREN];     //!< nutple variable : hadronic interaction child Energy
-       mutable int                   m_hadIntChildPdg[MAXHADINTCHILDREN];        //!< nutple variable : hadronic interaction child Pdg
-       mutable float                 m_hadIntChildPhi[MAXHADINTCHILDREN];        //!< nutple variable : hadronic interaction child phi
-       mutable float                 m_hadIntChildEta[MAXHADINTCHILDREN];        //!< nutple variable : hadronic interaction child eta
-       mutable float                 m_hadIntChildTh[MAXHADINTCHILDREN];        //!< nutple variable : hadronic interaction child phi
-       mutable float                 m_hadIntChildThc[MAXHADINTCHILDREN];        //!< nutple variable : hadronic interaction child eta
-       mutable float                 m_hadIntChildDeltaPhi[MAXHADINTCHILDREN];   //!< nutple variable : hadronic interaction child delta phi
-       mutable float                 m_hadIntChildDeltaEta[MAXHADINTCHILDREN];   //!< nutple variable : hadronic interaction child delta eta
+       mutable float                 m_hadIntChildP[MAXHADINTCHILDREN]{};     //!< nutple variable : hadronic interaction child Energy
+       mutable float                 m_hadIntChildPcms[MAXHADINTCHILDREN]{};     //!< nutple variable : hadronic interaction child Energy
+       mutable int                   m_hadIntChildPdg[MAXHADINTCHILDREN]{};        //!< nutple variable : hadronic interaction child Pdg
+       mutable float                 m_hadIntChildPhi[MAXHADINTCHILDREN]{};        //!< nutple variable : hadronic interaction child phi
+       mutable float                 m_hadIntChildEta[MAXHADINTCHILDREN]{};        //!< nutple variable : hadronic interaction child eta
+       mutable float                 m_hadIntChildTh[MAXHADINTCHILDREN]{};        //!< nutple variable : hadronic interaction child phi
+       mutable float                 m_hadIntChildThc[MAXHADINTCHILDREN]{};        //!< nutple variable : hadronic interaction child eta
+       mutable float                 m_hadIntChildDeltaPhi[MAXHADINTCHILDREN]{};   //!< nutple variable : hadronic interaction child delta phi
+       mutable float                 m_hadIntChildDeltaEta[MAXHADINTCHILDREN]{};   //!< nutple variable : hadronic interaction child delta eta
 
    };
 }

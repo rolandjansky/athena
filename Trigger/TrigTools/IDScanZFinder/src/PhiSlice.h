@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PHI_SLICE_H
@@ -73,11 +73,11 @@ private:
 		       std::vector< std::vector<double> >* AllWeights );
 
   std::vector< std::vector<double> >   m_layerRhos, m_layerZs, m_layerPhis;
-  std::vector< std::vector<double> >*  m_allLayerRhos;
-  std::vector< std::vector<double> >*  m_allLayerZs;
-  std::vector< std::vector<double> >*  m_allLayerPhis;
-  std::vector< std::vector<int> >*     m_allSliceWidths;
-  std::vector<long>*                   m_filledLayerIndices;
+  std::vector< std::vector<double> >*  m_allLayerRhos = nullptr;
+  std::vector< std::vector<double> >*  m_allLayerZs = nullptr;
+  std::vector< std::vector<double> >*  m_allLayerPhis = nullptr;
+  std::vector< std::vector<int> >*     m_allSliceWidths = nullptr;
+  std::vector<long>*                   m_filledLayerIndices = nullptr;
   std::vector<long>                    m_hitHistogram, m_otherChargeHitHistogram, m_sliceStart, m_sliceEnd;
   std::vector<double>                  m_weightHistogram, m_otherChargeWeightHistogram;
   double                  m_invZBinWidth;
@@ -91,7 +91,7 @@ private:
   int    m_halfZBins;
   int    m_zeroOffset;
   int    m_sliceIndex;
-  int    m_filledLayerTotal;
+  int    m_filledLayerTotal = 0;
   //int    m_layerMaximum;
   int    m_barrelMaximum;
   bool   m_internalHistogramsAreValid;

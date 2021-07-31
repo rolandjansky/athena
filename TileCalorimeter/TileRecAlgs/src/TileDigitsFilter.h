@@ -93,7 +93,7 @@ class TileDigitsFilter: public AthReentrantAlgorithm {
     ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
         "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
-    int m_threshold[2];  //!< Threshold value for low and high gain
+    int m_threshold[2]{};  //!< Threshold value for low and high gain
 };
 
 #endif // TILERECALGS_TILEDIGITSFILTER_H
