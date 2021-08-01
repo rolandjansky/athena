@@ -20,7 +20,7 @@ Overlay_tf.py \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
 --maxEvents ${events} \
 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-RUN2-04  \
+--conditionsTag OFLCOND-MC16-SDR-RUN2-08  \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preInclude 'all:Campaigns/MC20a.py' \
 --imf False

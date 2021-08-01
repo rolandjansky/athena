@@ -19,7 +19,7 @@ OverlayChain_tf.py \
 --triggerBit 240 \
 --skipEvents 0 --maxEvents 10 --randomSeed 123456789 \
 --geometryVersion ATLAS-R2-2015-03-01-00 \
---conditionsTag CONDBR2-BLKPA-2016-12 \
+--conditionsTag CONDBR2-BLKPA-2016-12-01 \
 --digiSeedOffset1=211 --digiSeedOffset2=122 \
 --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' \
