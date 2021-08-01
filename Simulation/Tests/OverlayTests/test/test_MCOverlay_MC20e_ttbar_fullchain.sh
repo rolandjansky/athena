@@ -17,7 +17,7 @@ Reco_tf.py \
 --autoConfiguration everything \
 --inputHITSFile ${HITS_File} \
 --inputRDO_BKGFile ${RDO_BKG_File} \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-04 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --maxEvents ${events} --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
 --preInclude "all:Campaigns/MC20e.py" \
