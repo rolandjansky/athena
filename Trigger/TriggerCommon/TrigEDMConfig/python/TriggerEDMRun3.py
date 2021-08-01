@@ -777,10 +777,11 @@ TriggerHLTListRun3 = [
 
     # UTT
     # hit-based displaced vertex
-    ('xAOD::TrigCompositeContainer#HLT_HitDVTrk',                          'BS ESD', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.'+hitDVTrkVars,      'BS ESD', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HitDVSP',                           'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.'+hitDVSPVars,        'BS ESD AODFULL', 'ID'),
+    # commented out temporarly due to HLT truncation issue (ATR-23958)
+    #('xAOD::TrigCompositeContainer#HLT_HitDVTrk',                          'BS ESD', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.'+hitDVTrkVars,      'BS ESD', 'ID'),
+    #('xAOD::TrigCompositeContainer#HLT_HitDVSP',                           'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.'+hitDVSPVars,        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HitDV',                             'BS ESD AODFULL AODSLIM', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.'+hitDVVars,            'BS ESD AODFULL AODSLIM', 'ID'),
 
