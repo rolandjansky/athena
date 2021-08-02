@@ -152,7 +152,7 @@ namespace CP {
             StatusCode getJetTopology( xAOD::Jet& jet_reco, std::string& jetTopology) const;
 
             double Read3DHistogram(const TH3* histo, double x, double y, double z) const;
-
+            double Interpolate2D(const TH2* histo, double x, double y) const;
 
 
             // Private members
@@ -169,11 +169,11 @@ namespace CP {
             JetTools::FFJetAllowedMassDefEnum m_MassDef;
             std::string m_configFile;
             std::string m_path;
-            std::string  m_HistogramsFilePath;
+            std::string m_HistogramsFilePath;
 
             //Response matrix
-            std::unique_ptr<TH2D> m_CALO_ResponseMap;
-            std::unique_ptr<TH2D> m_TA_ResponseMap;
+            std::unique_ptr<TH2> m_CALO_ResponseMap;
+            std::unique_ptr<TH2> m_TA_ResponseMap;
 
             //Two histograms to extract the Calo and TA weights in the Combined mass of the jet
             std::unique_ptr<TH3F> m_caloMassWeight;
@@ -187,9 +187,9 @@ namespace CP {
             std::map<std::string,std::string> m_Syst_MassDefAffected_map;
             std::map<std::string,std::string> m_Syst_TopologyAffected_map;
             std::map<std::string,std::string> m_Syst_HistPath_map;
-            std::map<std::string,std::unique_ptr<TH2D>> m_Syst_Hist_map;
+            std::map<std::string,std::unique_ptr<TH2>> m_Syst_Hist_map;
             std::map<std::string,std::string> m_Syst_HistTAPath_map;
-            std::map<std::string,std::unique_ptr<TH2D>> m_Syst_HistTA_map;
+            std::map<std::string,std::unique_ptr<TH2>> m_Syst_HistTA_map;
             std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
 
             //The current systematic configuration
