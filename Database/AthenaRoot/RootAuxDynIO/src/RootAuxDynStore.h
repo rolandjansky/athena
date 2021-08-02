@@ -45,6 +45,13 @@ public:
    */
   virtual bool isDecoration (SG::auxid_t auxid) const override;
 
+  /**
+   * @brief Return the number of elements in the store.
+   *
+   * May return 0 for a store with no aux data.
+   */
+  virtual size_t size() const override;
+
      
 protected:
   /// read data from ROOT and store it in m_vecs. Returns False on error
