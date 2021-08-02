@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<fstream>
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 #include "TrigT1RPChardware/Matrix.h"
 #include "TrigT1RPChardware/Pad.h"
 #include "TrigT1RPChardware/SectorL.h"
@@ -67,8 +68,7 @@ if( padAdd<10 && RoIAdd<4 && pT<7 && OPL<2 && overlapPhi<2 &&
  m_sectorInput[BX][m_numOfPads[BX]][7]=BCIDcounter;
  m_numOfPads[BX]++;
 } else {
-DISP<<" problems loading Pad Output Data "<<endl;
-DISP_ERROR;
+ throw std::out_of_range("problems loading Pad Output Data");
 }
 }//end-of-SectorL::load
 //-------------------------------------------------------------------//
@@ -82,9 +82,8 @@ for(i=0; i<m_nBunMax; i++) {
  for(j=0; j<m_numOfPads[i]; j++) {
   if(m_sectorInput[i][j][2]) m_numberOfRoIs[i]++;
 //  if(m_sectorInput[i][j][2]) {
-//   DISP<<" Bunch "<<i<<" PadInd "<<j<<" PT "<<m_sectorInput[i][j][2]
+//   cout<<" Bunch "<<i<<" PadInd "<<j<<" PT "<<m_sectorInput[i][j][2]
 //       <<endl;
-//   DISP_DEBUG;
 //  }//end-of-if(m_sectorInput[i][j][2]
   for(k=0; k<2; k++) {
    if(m_sectorInput[i][j][2]>m_pTArray[i][k][0]) {
@@ -96,12 +95,11 @@ for(i=0; i<m_nBunMax; i++) {
 }//end-of-for(i
 //
 //for(i=0; i<m_nBunMax; i++) {
-// DISP<<" pTArray[0] pT= "<<m_pTArray[i][0][0]
+// cout<<" pTArray[0] pT= "<<m_pTArray[i][0][0]
 //     <<" padInd= "<<m_pTArray[i][0][1]<<endl
 //     <<" pTArray[1] pT= "<<m_pTArray[i][1][0]
 //     <<" padInd= "<<m_pTArray[i][1][1]<<endl
 //     <<" number of RoIs= "<<m_numberOfRoIs[i]<<endl;
-// DISP_DEBUG;
 //}
 //
 // now fill the output buffer
@@ -140,7 +138,7 @@ for(i=0; i<m_nBunMax; i++) {
  if(!m_sectorOut[i][3]) m_sectorOut[i][3]=7;
  if(!m_sectorOut[i][4]) m_sectorOut[i][4]=7;
 
-// DISP<<" Bunch ID "<<i<<endl
+// cout<<" Bunch ID "<<i<<endl
 //     <<" >2 Candidates in a sector "<<m_sectorOut[i][0]<<endl
 //     <<" ROI 1 "<<m_sectorOut[i][1]<<endl
 //     <<" ROI 2 "<<m_sectorOut[i][2]<<endl
@@ -151,7 +149,6 @@ for(i=0; i<m_nBunMax; i++) {
 //     <<" BCID counter "<<m_sectorOut[i][7]<<endl
 //     <<" Candidate1 sign "<<m_sectorOut[i][8]<<endl
 //     <<" Candidate2 sign "<<m_sectorOut[i][9]<<endl;
-// DISP_DEBUG;
 //
 // now fille the Sector Logic Output word
 // 

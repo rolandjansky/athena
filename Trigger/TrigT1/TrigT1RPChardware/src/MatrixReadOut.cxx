@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<fstream>
@@ -74,8 +74,7 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
     //
     // Fragment Scanning ...
     //
-    //    DISP<<" field= "<<field<<endl;
-    //    DISP_DEBUG;
+    //    cout<<" field= "<<field<<endl;
     if(field=='B') {
       //
       // this is a Body word
@@ -291,8 +290,7 @@ void MatrixReadOut::makeHeader() {
     }  
     writeHeader(CMcode);
   } else {
-    DISP<<" MatrixReadOut::makeHeader: m_CM object does not exist"<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::makeHeader: m_CM object does not exist");
   }//end-of-if
 }//end-of-MatrixReadOut::makeHeader
 //----------------------------------------------------------------------------//
@@ -300,20 +298,17 @@ void MatrixReadOut::makeSubHeader() {
   if(m_CM) {
     writeSubHeader();
   } else {
-    DISP<<" MatrixReadOut::makeSubHeader: m_CM object does not exist"<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::makeSubHeader: m_CM object does not exist");
   }//end-of-if
 }//end-of-MatrixReadOut::makeSubHeader
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeCMABody() {
   if(m_CM) {
-    //    DISP<<"number of hits in matrixReadOut:"<<makeCMABodyHit()<<endl;
-    //    DISP_DEBUG;
+    //    cout<<"number of hits in matrixReadOut:"<<makeCMABodyHit()<<endl;
     makeCMABodyHit();
     makeCMABodyTrg();
   } else {
-    DISP<<" MatrixReadOut::makeCMABody: m_CM object does not exist"<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::makeCMABody: m_CM object does not exist");
   }//end-of-if
 }//end-of-MatrixReadOut::makeCMABody
 //----------------------------------------------------------------------------//
@@ -321,8 +316,7 @@ void MatrixReadOut::makeFooter() {
   if(m_CM) {
     writeFooter();
   } else {
-    DISP<<" MatrixReadOut::makeFooter: m_CM object does not exist"<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::makeFooter: m_CM object does not exist");
   }//end-of-if(m_CM
 }//end-of-makeFooter
 //----------------------------------------------------------------------------//
@@ -411,8 +405,7 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 	    //   
 	    //       #4 STRIP filled with: CHANNEL  or k-readout 
 	    //    
-	    //	DISP<<"rodat="<<m_CM->rodat[i][j][k][l/32]<<" boh="<<(1<<(l%32))<<endl;
-	    //  DISP_DEBUG;
+	    //	cout<<"rodat="<<m_CM->rodat[i][j][k][l/32]<<" boh="<<(1<<(l%32))<<endl;
 	    if( (m_CM->rodat[i][j][k][l/32]&(1<<(l%32))) ) {
 	      ubit16 SIDE=i;
 	      ubit16 TIME =(k+m_ROOffset)%m_NDLLCYC;     // from struct rpcdata in Matrix
@@ -431,10 +424,9 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 	      // BC>0 and BC<=7 and time>0
 	      //
               if (BC>=m_BunchFrom && BC<=m_BunchTo){
-//  		DISP<<"Now store CM_hit with: BCID= "<<BC<<" TIME = "<<TIME
+//  		cout<<"Now store CM_hit with: BCID= "<<BC<<" TIME = "<<TIME
 //  		    <<" SIDE = "<<SIDE<<" layer = "<<j
-//  		    <<" IJK = " <<IJK<< " CHANNEL = "<<CHANNEL<<endl; //print
-//              DISP_DEBUG;
+//  		    <<" IJK = " <<IJK<< " CHANNEL = "<<CHANNEL<<endl;
 		CMABodyval[0] = 0;
 		CMABodyval[1] = BC-m_BunchFrom;
 		CMABodyval[2] = TIME;
@@ -450,95 +442,10 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 
     //
   } else {
-    DISP<<" MatrixReadOut::makeCMABodyHit: m_CM class empty"<<endl;
-    DISP_DEBUG;
+    throw std::runtime_error("MatrixReadOut::makeCMABodyHit: m_CM object does not exist");
   }//end-of-if
   return numberOfHits;
 }//end-of-MatrixReadOut::makeCMABodyHit
-//----------------------------------------------------------------------------//
-ubit16 MatrixReadOut::makeCMABodyTrgObsolete() {
-  ubit16 CMABodyval[5];
-  ubit16 channel=0;
-  ubit16 BC, TIME, IJK, CHANNEL;
-  int set_latenza;
-  int h_last[32]; // only pivot plane
-//
-// initialize h_last to value large value
-//
-  for(ubit16 i=0; i<m_nchan[0]; i++) {h_last[i]=0xffff;}
-//
-  ubit16 numberOfHits=0;
-  if(m_CM) {
-    CMAword one=1;
-    //
-    for (int h=0; h<m_nclock;h++){               // loop on time clock
-      for (channel=0; channel<m_nchan[0]; channel++){
-	if(m_CM->k_readout[h]&(one<<channel)){ //check K-readout register for 
-	  set_latenza=abs(h-h_last[channel]);
-	  if (set_latenza >m_timeSeparation) {
-	    // a real-trigger data!
-	    BC=(h+m_ROOffset)/m_NDLLCYC;       // fill BCID word
-	    TIME=(h+m_ROOffset)%m_NDLLCYC;    // from struct rpcdata in Matrix
-	    IJK=6;              //Trigger flag for IJK
-	    CHANNEL=channel;
-	    h_last[channel]=h;
-
-	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<BC
-		<<" TIME = "<<TIME<<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
-            DISP_DEBUG;
-	    //       
-	    CMABodyval[0] = 0;
-	    CMABodyval[1] = BC;
-	    CMABodyval[2] = TIME;
-	    CMABodyval[3] = IJK;
-	    CMABodyval[4] = CHANNEL;
-	    makeNewHit(m_MROS.makeBody(CMABodyval));
-	    numberOfHits++;
-	  }//end of if set_latenza   
-	}//end of if k_readout
-      }//end of for(channel
-    }//end of for(int h 
-//
-// Thershold and overlap word
-//
-    ubit16 lastTime=0xffff;
-    for (int n=0;n<m_nclock;n++){
-//**      if(!m_CM->highestthRO[n] || m_CM->highestthRO[n]!=highestthprec)????chefamo
-       if(m_CM->highestthRO[n]){
-        set_latenza=abs(n-lastTime);
-	if(set_latenza>m_timeSeparation) {
-         ubit16 thresh_n= m_CM->highestthRO[n];
-	 ubit16 over_n=m_CM->overlapRO[n];
-	 over_n=over_n<<2;
-	 BC=(n+m_ROOffset)/m_NDLLCYC;       // fill BCID word
-	 TIME=(n+m_ROOffset)%m_NDLLCYC;
-	 CHANNEL =(over_n|thresh_n);
-	 IJK=7;
-	 lastTime=n;
-//  	 DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "
-//  	     <<BC<<" TIME = "<<TIME
-//  	     <<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
-//       DISP_DEBUG;
-	 //
-	 CMABodyval[0] = 0;
-	 CMABodyval[1] = BC;
-	 CMABodyval[2] = TIME;
-	 CMABodyval[3] = IJK;
-	 CMABodyval[4] = CHANNEL;
-	 makeNewHit(m_MROS.makeBody(CMABodyval));
-	 numberOfHits++;
-	}//end-of-if(set_latenza
-      }//end-of-if(highestthRO  
-    }//end-of-for(n=0
-    //
-    //    DISP<<"     ** Exit from makeCMABodyTrg method **"<<endl<<endl;
-    //    DISP_DEBUG;
-  } else {
-    DISP<<" MatrixReadOut::makeCMABodyTrg: m_CM class empty"<<endl;
-    DISP_ERROR;
-  }//end-of-if(m_CM
-  return numberOfHits;
-}//end-of-MatrixReadOut::makeCMABodyTrgObsolete
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::makeCMABodyTrg() {
   ubit16 CMABodyval[5];
@@ -570,9 +477,8 @@ ubit16 MatrixReadOut::makeCMABodyTrg() {
 	    CHANNEL=channel;
 	    // h_last[channel]=h;
 
-	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<BC
-		<<" TIME = "<<TIME<<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
-            DISP_DEBUG;
+	    //cout<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<BC
+		//<<" TIME = "<<TIME<<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
 	    //
 	    if (BC>=m_BunchFrom && BC<=m_BunchTo){   
 	      triggerRO=true; // there is a trigger hit in the ReadOut
@@ -600,10 +506,9 @@ ubit16 MatrixReadOut::makeCMABodyTrg() {
 	 CHANNEL =(over_h|thresh_h);
 	 IJK=7;
 //
-//  	 DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "
+//  	 cout<<"MatrixReadOut: Now store Trigger_hit with: BCID= "
 //  	     <<BC<<" TIME = "<<TIME
 //  	     <<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
-//       DISP_DEBUG;
 	 //
 	 CMABodyval[0] = 0;
 	 CMABodyval[1] = BC-m_BunchFrom;
@@ -616,12 +521,10 @@ ubit16 MatrixReadOut::makeCMABodyTrg() {
       }//end-of-if(highestthRO  
     }//end of for(int h 
 //
-//    DISP<<"     ** Exit from makeCMABodyTrg method **"<<endl<<endl;
-//    DISP_DEBUG;
+//    cout<<"     ** Exit from makeCMABodyTrg method **"<<endl<<endl;
 //
   } else {
-    DISP<<" MatrixReadOut::makeCMABodyTrg: m_CM class empty"<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::makeHeader: m_CM object does not exist");
   }//end-of-if(m_CM
   return numberOfHits;
 }//end-of-MatrixReadOut::makeCMABodyTrg
@@ -690,20 +593,17 @@ void MatrixReadOut::makeNewHit(ubit16 newHit,
 void MatrixReadOut::sortAndMakeNewHit(ubit16 newHit) {
   CMROData *p, *previous;//, *newElement;
   char field;
-  DISP<<" new Hit is "<<hex<<newHit<<dec<<endl;
-  DISP_DEBUG;
+  //cout<<" new Hit is "<<hex<<newHit<<dec<<endl;
   p          = m_Body;
   previous   = m_Body;
   //newElement = 0;
   m_MROS.decodeFragment(newHit,field);
-  DISP<<" IELD= "<<field<<endl;
-  DISP_DEBUG;
+  //cout<<" IELD= "<<field<<endl;
   const ubit16 hitBCID      = m_MROS.bcid();
   const ubit16 hitTIME      = m_MROS.time();
   const ubit16 hitIJK       = m_MROS.ijk();
   const ubit16 hitCHANNEL   = m_MROS.channel();
-  DISP<<" decode HIT "<<hitBCID<<" "<<hitTIME<<" "<<hitIJK<<" "<<hitCHANNEL<<endl;
-  DISP_DEBUG;
+  //cout<<" decode HIT "<<hitBCID<<" "<<hitTIME<<" "<<hitIJK<<" "<<hitCHANNEL<<endl;
   //
   do {
 
@@ -745,9 +645,8 @@ void MatrixReadOut::sortAndMakeNewHit(ubit16 newHit) {
 			    makeNewHit(newHit,previous,p);
 			    break;
 			  } else {
-			    DISP<<" duplicazione di hit??? "<<endl;
-			    DISP_ERROR;
-			    break; 
+			    throw std::runtime_error("duplicazione di hit???");
+			    break;
 			  }//end-of-if(hitCHANNEL 
 		      }//end-of-if(hitTIME
 		}//end-of-if(hitBCID
@@ -810,10 +709,9 @@ MatrixReadOutStructure MatrixReadOut::getCMAHit(int index) {
   MatrixReadOutStructure theStruct;
   ubit16 theHit;
   if((m_numberOfWordsInBody<=index)||(m_numberOfWordsInBody==0)){
-    DISP<<" getCMAHit: Wrong index given;"
-	<<" numberOfWordsInBody= "<<m_numberOfWordsInBody
-	<<" index = "<<index<<endl;
-    DISP_DEBUG;
+    //cout<<" getCMAHit: Wrong index given;"
+	//<<" numberOfWordsInBody= "<<m_numberOfWordsInBody
+	//<<" index = "<<index<<endl;
   } else {
 
     CMROData *p;
@@ -919,7 +817,7 @@ stream<<hex<<m_Footer<<dec<<endl;      // footer
 }//end-of-MatrixReadOut::bytestream
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::checkFragment() {
-//DISP<<" MatrixReadOut(ubit16 *pointer, ubit16 num) ";
+//cout<<" MatrixReadOut(ubit16 *pointer, ubit16 num) ";
 //    cout<<endl
 //    cout<<" check dump "<<endl
 //    std::cout<<" m_checkHeaderNum = "<<m_checkHeaderNum
@@ -930,7 +828,6 @@ ubit16 MatrixReadOut::checkFragment() {
 //        <<" CheckFooterPos = "<<m_checkFooterPos<<endl
 //    cout<<" CheckUnkown = "<<m_checkUnkown<<endl
 //    cout<<" Number of Words In Fragment = "<<m_numberOfWordsInFrag<<endl;
-//DISP_DEBUG;
   ubit16 output = 0;
   if(m_checkHeaderNum!=1 &&                   !(output&0x00000001)) output+=1;//=1
   if(m_checkHeaderPos>1 &&                    !(output&0x00000002)) output+=2;//=1 
@@ -949,7 +846,7 @@ ubit16 MatrixReadOut::checkCRC8(ubit16 foot) {
   return output;
 }//end-of-MatrixReadOut::checkCRC8()
 //----------------------------------------------------------------------------//
-ubit16 MatrixReadOut::checkBodyOrder() {
+ubit16 MatrixReadOut::checkBodyOrder(bool debugPrint) {
   CMROData *p, *pnext;
   char field;
   ubit16 currIJK, currBCID, currTIME, currCHANNEL;
@@ -1015,24 +912,20 @@ ubit16 MatrixReadOut::checkBodyOrder() {
       
       }//end-of-if(currIJK
       
-      if(outTemp>0){
-       DISP<<"checkBodyOrder output= "<<output<<" with "<< hex<<pnext->hit<<dec
-           <<endl;
-       DISP_DEBUG;
-      }//end-of-if(outTemp      
+      if(outTemp>0 && debugPrint){
+        cout<<"checkBodyOrder output= "<<output<<" with "<< hex<<pnext->hit<<dec<<endl;
+      }//end-of-if(outTemp
       outTemp=0;     
       
     } else {  // else of if(p->next
      
      if(currIJK==6) {
       output+=64;
-      DISP<<" CheckBodyOrder; IJK 6 exists but the related IJK 7 has been found "<<endl;
-      DISP_DEBUG;
+      if (debugPrint) cout<<" CheckBodyOrder; IJK 6 exists but the related IJK 7 has been found "<<endl;
      } else if(currIJK==7 && prevIJK!=6) {   // we are at the last m_CM hit; if this has IJK=7
       output+=128;                            // then the previous m_CM hit must have IJK=6
-      DISP<<" CheckBodyOrder; IJK 7 exists but the related IJK 6 has been found "<<endl;
-      DISP_DEBUG;
-     }    
+      if (debugPrint) cout<<" CheckBodyOrder; IJK 7 exists but the related IJK 6 has been found "<<endl;
+     }
        
     }//end-of-if(p->next   
     
@@ -1046,49 +939,6 @@ ubit16 MatrixReadOut::checkBodyOrder() {
   
   return output;
 }//end-of-checkBodyOrder
-//----------------------------------------------------------------------------//
-ubit16 MatrixReadOut::checkBodyOrderObsolete() {
-  CMROData *p, *pnext;
-  char field;
-  ubit16 currIJK, currBCID, currTIME, currCHANNEL;
-  ubit16 nextIJK, nextBCID, nextTIME, nextCHANNEL;
-  ubit16 output=0;
-  ubit16 outTemp=0;
-  p=m_Body;
-  while(p) {
-    pnext=p->next;
-    if(pnext) {
-      //      output=0;
-      m_MROS.decodeFragment(p->hit,field);
-      currIJK     = m_MROS.ijk();
-      currBCID    = m_MROS.bcid();
-      currTIME    = m_MROS.time();
-      currCHANNEL = m_MROS.channel();
-      m_MROS.decodeFragment(pnext->hit,field);
-      nextIJK     = m_MROS.ijk();
-      nextBCID    = m_MROS.bcid();
-      nextTIME    = m_MROS.time();
-      nextCHANNEL = m_MROS.channel();
-      //
-      if(nextIJK<currIJK)          {output+=1; outTemp=1;} else if(nextIJK==currIJK) {
-	if(nextBCID<currBCID)        {output+=2; outTemp=2;} else if(nextBCID==currBCID) {
-	  if(nextTIME<currTIME)        {output+=4; outTemp=4;} else if(nextTIME==currTIME) {
-	    if(nextCHANNEL<=currCHANNEL) {output+=8; outTemp=8;}
-          }
-        }
-      }
-
-      if(outTemp>0){
-       DISP<<"checkBodyOrder output= "<<output<<" with "<< hex<<pnext->hit<<dec
-           <<endl;
-       DISP_DEBUG;
-      }//end-of-if
-      outTemp=0;
-    }//end-of-if(p->next
-    p=p->next;
-  }//end-of-while(p)
-  return output;
-}//end-of-checkBodyOrderObsolete
 //----------------------------------------------------------------------------//
 void MatrixReadOut::setManager( ReadOutManager* boss ) {
   m_myBoss= boss;
@@ -1153,8 +1003,7 @@ for(ubit16 n=0; n<m_numberOfWordsInBody; n++) {
     sidemat=1; layer=1; stripaddress= CHANNEL;
     break;
    default:
-    DISP<<" IJK= "<<IJK<<" out of RANGE "<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("MatrixReadOut::doMatrix: IJK= "+std::to_string(IJK)+" out of RANGE");
   }//end-of-switch
 //
 // estimate absolute time from CMA time
@@ -1182,9 +1031,8 @@ ubit16 cmid = MRS.cmid(); // m_CM Address (or identifier)
 ofstream vhdlinput;
 vhdlinput.open("vhdl.input",ios::app);
 if(!vhdlinput){
- DISP<<" File for vhdl analysis not opened. "<<endl
+ cout<<" File for vhdl analysis not opened. "<<endl
      <<" =================================="<<endl<<endl;
- DISP_ERROR;
  };
 //
 const ubit16 maxchan = 100;

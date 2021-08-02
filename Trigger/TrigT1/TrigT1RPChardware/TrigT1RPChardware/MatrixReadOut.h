@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigT1RPChardware_MatrixReadOut_H
@@ -68,8 +68,7 @@ void bytestream(std::ostream &stream);
 //*********************************************************//
 // general user methods to check ReadOut stream structure  //
 //*********************************************************//
-ubit16 checkBodyOrder();
-ubit16 checkBodyOrderObsolete();
+ubit16 checkBodyOrder(bool debugPrint=false);
 ubit16 checkFragment();
 //*********************************************************//
 // overload of "inseritore" operator                       //
@@ -145,7 +144,6 @@ void makeCMABody();
 void makeFooter();
 ubit16 makeCMABodyHit();
 ubit16 makeCMABodyTrg();
-ubit16 makeCMABodyTrgObsolete();
 void makeNewHit(ubit16 newHit);
 void makeNewHit(ubit16 newHit, CMROData *previous, CMROData *next);
 void sortAndMakeNewHit(ubit16 newHit);

@@ -115,6 +115,7 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
 
   RPCbytestream bytestream (patterns,
                             (std::string) m_bytestream_file,
+                            msg(),
                             (unsigned long int) m_cma_ro_debug,
                             (unsigned long int) m_pad_ro_debug,
                             (unsigned long int) m_rx_ro_debug,
