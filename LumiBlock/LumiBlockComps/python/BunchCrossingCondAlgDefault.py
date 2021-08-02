@@ -23,11 +23,11 @@ def BunchCrossingCondAlgDefault():
     if (isMC):
         folder = "/Digitization/Parameters"
         if not conddb.folderRequested(folder):
-            mlog.info("Adding folder ", folder)
+            mlog.info("Adding folder %s", folder)
             conddb.addFolderWithTag('', folder, 'HEAD',
                                     className = 'AthenaAttributeList')
         else:
-            mlog.info("Folder ",folder," already requested")
+            mlog.info("Folder %s already requested", folder)
     else:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
         # Mistakenly created as multi-version folder, must specify HEAD 
