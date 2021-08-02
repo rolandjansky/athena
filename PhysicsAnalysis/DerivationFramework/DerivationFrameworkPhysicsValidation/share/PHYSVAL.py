@@ -12,7 +12,8 @@ from typing import Sequence
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkInDet import InDetCommon
 from DerivationFrameworkEGamma import EGammaCommon
-from DerivationFrameworkEGamma import ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import (
+   GSFTracksCPDetailedContent)
 from DerivationFrameworkMuons import MuonsCommon
 # Common augmentations ("DFCommon")
 InDetCommon.makeInDetDFCommon()
@@ -321,10 +322,9 @@ PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
-                                      "MET_Track.sumet",
-                                      "GSFTrackParticles.eProbabilityHT.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition"
+                                      "MET_Track.sumet"
 ]
-
+PHYSVALSlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSVALSlimmingHelper)
 trigmatching_helper_tau.add_to_slimming(PHYSVALSlimmingHelper)
