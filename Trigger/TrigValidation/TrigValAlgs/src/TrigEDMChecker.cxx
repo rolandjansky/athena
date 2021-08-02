@@ -4264,21 +4264,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "  node [shape=rectangle]" << std::endl;
   ss << "  rankdir = BT" << std::endl;
 
-  const std::vector<std::string> vetoList = { // Patterns to ignore when dumping all
-    "HLT_TrigCostContainer",
-    "L1DecoderSummary"
-    };
-
   // Now process them
   for (const std::string& key : keys) {
-    bool veto = false;
-    for (const std::string& vetoStr : vetoList) {
-      if (m_doDumpAllTrigComposite && key.find(vetoStr) != std::string::npos) {
-        veto = true;
-        break;
-      }
+    if (m_doDumpAllTrigComposite && key.find("HLTNav_") != 0) { // Nav containers should always start with HLTNav_
+      continue;
     }
-    if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
     bool writtenHeader = false;
