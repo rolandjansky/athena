@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -179,8 +179,8 @@ class ExecStep(Step):
             return
         opt_match = match.group(0)
 
-        # Refine the match to avoid matching '--preExec "foo" --postExec "bar"'
-        refine_pattern = re.compile(r'(--\w*\s*"|--\w*\s*\'|--\w*="|--\w*=\')')
+        # Refine the match to avoid matching '--preExec "foo" --postExec "bar"' or '-c "foo" --bar'
+        refine_pattern = re.compile(r'(--\w*\s*"|--\w*\s*\'|--\w*="|--\w*=\'|-c\s*"|-c\s*\')')
         refine_matches = re.findall(refine_pattern, opt_match)
         if len(refine_matches) > 1:
             opt_match = opt_match[0:opt_match.find(refine_matches[1])]
@@ -191,14 +191,11 @@ class ExecStep(Step):
             self.misconfig_abort('Failed to add precommand ' + precommand + ' to step ' + self.name)
         old_cmd = old_cmd_match.group(0)
 
-
-
         # Transform case
         if self.type.endswith('_tf'):
             new_cmd = '--preExec {:s} "{:s}" '.format(old_cmd, precommand)
             self.args = self.args.replace(opt_match, new_cmd)
             return
-
 
         # athena(HLT) case
         old_cmd = old_cmd[1:-1]
