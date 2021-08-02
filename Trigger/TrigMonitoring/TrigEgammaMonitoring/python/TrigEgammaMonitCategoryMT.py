@@ -88,4 +88,11 @@ validation_Zee = [
         'HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', 
         'HLT_e26_lhtight_e15_etcut_idperf_Zee_L1EM22VHI', 
         'HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I'
-        ] # adding Zee/special chains later      
+        ] # adding Zee/special chains later
+
+#
+# All single triggers 
+#
+single_electron_triggers = set(monitoring_electron + monitoringTP_electron + validation_electron + validationTP_electron)
+single_photon_triggers = set(monitoring_photon + validation_photon)
+

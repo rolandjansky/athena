@@ -10,11 +10,11 @@
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationToolMT.h"
-#include "TrigEgammaEmulationTool/TrigEgammaEmulationInfo.h"
 
 
 namespace Trig{
 
+  class TrigData;
 
   class ITrigEgammaEmulationChain: virtual public asg::IAsgTool
   { 

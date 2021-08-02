@@ -20,7 +20,7 @@ TrigEgammaEmulationChain::TrigEgammaEmulationChain( const std::string& myname )
 StatusCode TrigEgammaEmulationChain::initialize() 
 {
 
-    ATH_CHECK( m_steps.retrieve());
+    ATH_CHECK( m_steps.retrieve() );
 
     //add cuts into TAccept
     m_accept.addCut("L1Calo"  , "Trigger L1Calo step"     );

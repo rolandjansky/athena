@@ -14,6 +14,15 @@ TrigEgammaEmulationFastCaloHypoTool::TrigEgammaEmulationFastCaloHypoTool( const 
 
 //!==========================================================================
 
+StatusCode TrigEgammaEmulationFastCaloHypoTool::initialize() 
+{
+  ATH_CHECK( TrigEgammaEmulationBaseHypoTool::initialize());
+  return StatusCode::SUCCESS;
+}
+
+//!==========================================================================
+
+
 bool TrigEgammaEmulationFastCaloHypoTool::emulate(const Trig::TrigData &input,
                                                   bool &pass ) const
 {
@@ -260,23 +269,12 @@ bool TrigEgammaEmulationFastCaloHypoTool::decide_ringer( const Trig::TrigData &i
     return false;
   }
   
-  std::string pidName = m_pidName;
-  if( boost::contains( pidName , "tight") ){
-    float output = input.ringerTools[0]->predict( input.rings );
-    return bool( input.ringerTools[0]->accept(input.rings, output, avgmu() ) );
-  }else if( boost::contains( pidName , "medium")){
-    float output = input.ringerTools[1]->predict( input.rings );
-    return bool( input.ringerTools[1]->accept(input.rings, output, avgmu() ) );
-  }else if( boost::contains( pidName , "vloose")){
-    float output = input.ringerTools[3]->predict( input.rings );
-    return bool( input.ringerTools[3]->accept(input.rings, output, avgmu() ) );
-  }else if( boost::contains( pidName , "loose")){
-    float output = input.ringerTools[2]->predict( input.rings );
-    return bool( input.ringerTools[2]->accept(input.rings, output, avgmu() ) );
-  }
+  
+  bool pass = input.isPassed( input.rings, avgmu(), m_pidName);
+
   
   // got this far => passed!
-  return true;
+  return pass;
 }
 
 

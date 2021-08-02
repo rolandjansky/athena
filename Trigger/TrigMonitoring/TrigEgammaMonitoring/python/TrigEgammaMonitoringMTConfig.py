@@ -242,7 +242,6 @@ class TrigEgammaMonAlgBuilder:
       LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
       MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
       TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
-
       # cutbased for photons
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -262,7 +261,6 @@ class TrigEgammaMonAlgBuilder:
       LooseDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"
       MediumDNNElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"
       TightDNNElectronSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"
-
       # cut based for photons 
       TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
       MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
@@ -273,6 +271,12 @@ class TrigEgammaMonAlgBuilder:
       raise RuntimeError( 'Wrong run flag configuration' )
     
 
+
+    if self.emulation:
+      from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfigMT import TrigEgammaEmulationToolConfig
+      triggerList = self.tpList
+      emulator = TrigEgammaEmulationToolConfig("EgammaEmulationTool", triggerList)
+      acc.addPublicTool(emulator())
 
     
 
@@ -300,8 +304,9 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
-      self.zeeMonAlg.DoEmulation = False
-
+      if self.emulation:
+        self.zeeMonAlg.DoEmulation = True
+        self.zeeMonAlg.EmulationTool = emulator()
 
     if self.activate_jpsiee:
 

@@ -12,6 +12,8 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionPhotonHypoTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationPrecisionTrackingHypoTool.h"
 
+#include "../TrigEgammaEmulationToolTest.h"
+
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolMT )
 
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationChain )
@@ -26,3 +28,4 @@ DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionPhotonHypoTool )
 DECLARE_COMPONENT( Trig::TrigEgammaEmulationPrecisionTrackingHypoTool )
 
 
+DECLARE_COMPONENT(TrigEgammaEmulationToolTest)

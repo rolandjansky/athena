@@ -26,6 +26,8 @@ namespace Trig{
       /* emulate */
       virtual bool emulate(  const Trig::TrigData &input, bool &pass ) const override;
 
+      virtual StatusCode initialize() override;
+
     private:
 
         bool decide(  const Trig::TrigData &input ) const;
@@ -53,6 +55,10 @@ namespace Trig{
         Gaudi::Property< std::vector<float> > m_F3thr { this, "F3thr", {}, "" };
         Gaudi::Property< float >              m_detacluster { this, "dETACLUSTERthr", 0. , "" };
         Gaudi::Property< float >              m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
+
+
+
+
 
   };
 

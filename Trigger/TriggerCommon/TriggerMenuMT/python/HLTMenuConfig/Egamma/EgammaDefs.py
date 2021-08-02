@@ -32,7 +32,7 @@ class TrigEgammaKeys(object):
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel22_20210611'
       dnnVersion = 'mc16_20210430'
-      ringerVersion = 'TrigL2_20210227_r3'
+      ringerVersion = 'TrigL2_20210702_r4'
       
 
 
@@ -238,8 +238,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
     # We should include the ringer here
     if not ConfigFilePath:
-      #ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
-      ConfigFilePath = TrigEgammaKeys.ringerVersion
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
 
   
     SelectorNames = collections.OrderedDict({
