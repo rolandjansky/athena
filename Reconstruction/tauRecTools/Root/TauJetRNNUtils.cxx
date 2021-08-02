@@ -114,6 +114,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("trFlightPathSig", Variables::trFlightPathSig);
     calc->insert("massTrkSys", Variables::massTrkSys);
     calc->insert("pt", Variables::pt);
+    calc->insert("pt_tau_log", Variables::pt_tau_log);
     calc->insert("ptDetectorAxis", Variables::ptDetectorAxis);
     calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis);
     //---added for the eVeto
@@ -251,6 +252,11 @@ bool massTrkSys(const xAOD::TauJet &tau, double &out) {
 
 bool pt(const xAOD::TauJet &tau, double &out) {
     out = std::log10(std::min(tau.pt() / GeV, 100.0));
+    return true;
+}
+
+bool pt_tau_log(const xAOD::TauJet &tau, double &out) {
+    out = std::log10(std::max(tau.pt() / GeV, 1e-6));
     return true;
 }
 
