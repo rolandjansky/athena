@@ -188,6 +188,7 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(bool needsInit)
 }
 
 void Trk::TrackingGeometrySvc::setTrackingGeometry(const Trk::TrackingGeometry *ptr) {
+   ATH_MSG_WARNING("Please use the GeometryConditions Algorithm instead of this service!");
    if (!m_useConditionsData) {
       ATH_MSG_FATAL("Logic error:  external TrackingGeometry provided despite being configured to build an internal one.");
    }

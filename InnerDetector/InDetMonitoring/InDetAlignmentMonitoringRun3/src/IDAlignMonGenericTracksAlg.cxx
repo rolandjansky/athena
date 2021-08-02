@@ -11,11 +11,6 @@
 //main header
 #include "IDAlignMonGenericTracksAlg.h"
 
-#include <cmath>
-#include "TMath.h"
-
-#include "GaudiKernel/MsgStream.h"
-
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -34,6 +29,8 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
+
+#include <cmath>
 
 // *********************************************************************
 // Public Methods

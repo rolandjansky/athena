@@ -37,8 +37,8 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 
-#include <vector>
 #include <map>
+#include <string>
 
 class AtlasDetectorID;
 class PixelID;
@@ -71,20 +71,20 @@ private:
   static const Trk::Track*   getTrkTrack(const Trk::VxTrackAtVertex*);
   const xAOD::Vertex* findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *) const;
 
-  const AtlasDetectorID*                m_idHelper;
-  const PixelID*                        m_pixelID;
-  const SCT_ID*                         m_sctID; 
-  const TRT_ID*                         m_trtID; 
+  const AtlasDetectorID*                m_idHelper{};
+  const PixelID*                        m_pixelID{};
+  const SCT_ID*                         m_sctID{}; 
+  const TRT_ID*                         m_trtID{}; 
   
-  bool  m_extendedPlots;
-  float m_d0Range;
-  float m_d0BsRange;
-  float m_pTRange = 0.0F;
-  float m_z0Range;
-  float m_etaRange;
-  int   m_NTracksRange;
-  bool  m_doIP;
-  bool  m_doHitQuality = false;
+  bool  m_extendedPlots{};
+  float m_d0Range{};
+  float m_d0BsRange{};
+  float m_pTRange{0.0F};
+  float m_z0Range{};
+  float m_etaRange{};
+  int   m_NTracksRange{};
+  bool  m_doIP{};
+  bool  m_doHitQuality{false};
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_VxPrimContainerName{this,"vxPrimContainerName","PrimaryVertices","Primary Vertices for Alignment Monitoring"};
   SG::ReadHandleKey<TrackCollection> m_tracksKey  {this, "TrackName", "ExtendedTracks", "track data key"};

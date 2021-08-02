@@ -42,7 +42,12 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         #################################################################################
         
         # the name to register the Geometry
-        AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
+        from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+        # previously set to 'AtlasTrackingGeometry', now defaulted to empty string to
+        # trigger the use of the condAlg in place of this service
+        AtlasTrackingGeometryName = ''
+        if not use_tracking_geometry_cond_alg :
+          AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
         
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
