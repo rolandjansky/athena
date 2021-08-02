@@ -601,7 +601,7 @@ Trk::GsfExtrapolator::extrapolateM(
     return nullptr;
   }
   cache.m_matstates->push_back(new TrackStateOnSurface(
-    nullptr, parameterAtDestination.begin()->first->clone(), nullptr, nullptr));
+    nullptr, parameterAtDestination.begin()->first->uniqueClone(), nullptr, nullptr));
 
   // assign the temporary states
   std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> tmpMatStates =
@@ -1513,12 +1513,12 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
       *materialProperties, absP, pathcorr, dir, particle, Trk::addNoise);
 
     // use curvilinear TPs to simplify retrieval by fitters
-    Trk::CurvilinearParameters* cvlTP = new Trk::CurvilinearParameters(
+    auto cvlTP = std::make_unique<const Trk::CurvilinearParameters>(
       nextPar->position(), nextPar->momentum(), nextPar->charge());
-    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(
+    auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
       dInX0, newsa, eloss, cvlTP->associatedSurface());
     cache.m_matstates->push_back(
-      new TrackStateOnSurface(nullptr, cvlTP, nullptr, mefot));
+      new TrackStateOnSurface(nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
   }
 }
 
