@@ -5,6 +5,10 @@
 // CaloClusterROI.cxx
 
 // Trk
+#include <memory>
+
+
+
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
@@ -55,7 +59,7 @@ Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& cot)
 {
   if (&cot != this) {
     SurfacePtrHolder::operator=(cot);
-    m_localParams.reset(new Trk::LocalParameters(*cot.m_localParams));
+    m_localParams = std::make_unique<Trk::LocalParameters>(*cot.m_localParams);
     m_energy = cot.m_energy;
     m_phiWidth = cot.m_phiWidth;
     m_etaWidth = cot.m_etaWidth;

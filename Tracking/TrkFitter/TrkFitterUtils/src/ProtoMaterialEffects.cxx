@@ -287,7 +287,7 @@ MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
     }
     else neweloss=new Trk::EnergyLoss(m_deltae,m_sigmadeltae,m_sigmadeltaeneg,m_sigmadeltaepos);
   }
-  MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,std::move(scatangles),neweloss,*m_surf,typePattern);
+  MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,scatangles,neweloss,*m_surf,typePattern);
   const_cast<bool&>(m_owneloss)=false; //Non MT safe function
   //m_eloss=0;
   return meot;  

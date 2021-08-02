@@ -21,8 +21,10 @@
 #include "../TrkParametersBase/ParametersBase.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
-#include <string>
 #include <ostream>
+#include <string>
+#include <utility>
+
 
 //Tests run by typing 'ctest' in the build directory (-v for verbose)
 //or can run the executable directly, e.g
@@ -39,13 +41,13 @@ namespace Trk{
   class Surface{
   public:
     static constexpr unsigned int id{12345};
-    std::string str() const{
+    static std::string str() {
       return std::string("TestSurface");
     }
   };
   
-  std::ostream & operator<< (std::ostream & out, const Surface & s){
-    out<<s.str();
+  std::ostream & operator<< (std::ostream & out, const Surface &  /*s*/){
+    out<<Trk::Surface::str();
     return out;
   }
 }
@@ -53,20 +55,20 @@ namespace Trk{
 class ChargedParametersStub final : public Trk::ParametersBase<DIM,T>{
 public:
   //access base class Constructors
-  ChargedParametersStub(const AmgVector(DIM) parameters,
+  ChargedParametersStub(const AmgVector(DIM)& parameters,
     std::optional<AmgSymMatrix(DIM)> covariance, const T chargeDef):
-    Trk::ParametersBase<DIM,T>(parameters, covariance,chargeDef){
+    Trk::ParametersBase<DIM,T>(parameters, std::move(covariance),chargeDef){
     //nop           
   }
   
   ChargedParametersStub(std::optional<AmgSymMatrix(DIM)> covariance):
-    ParametersBase(covariance){
+    ParametersBase(std::move(covariance)){
    //nop
   }
   
   ChargedParametersStub(const AmgVector(DIM) & parameters,
     std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt):
-    ParametersBase(parameters,covariance){
+    ParametersBase(parameters,std::move(covariance)){
     //nop  
   }
 
@@ -119,7 +121,7 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
   BOOST_AUTO_TEST_CASE(Constructors){
     //constructors are 'tested' just by seeing whether the following
     //compiles for each instantiation, but I put the 'NO_THROW' check around them
-    typedef Trk::ParametersBase<DIM,T> ChargedParams_t;
+    using ChargedParams_t = Trk::ParametersBase<DIM, T>;
     //ChargedParams_t x; <-constructors are protected, this won't compile
     //Instantiate a derived class using default c'tor . Never do this! 
     //The default c'tor is only for use by POOL
@@ -228,7 +230,7 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
     BOOST_TEST(!(u == x),"Two differently constructed objects are not equal");
     u=x;
     BOOST_TEST(u == x,"After assignment, the objects are equal");
-    const auto p = x.clone();
+    auto *const p = x.clone();
     BOOST_TEST(*p == x,"Cloning an object results in a similar object");
     std::unique_ptr<Trk::ParametersBase<DIM, T>> uniquePtr{x.uniqueClone()};
     BOOST_TEST(*uniquePtr == x,"Cloning to unique_ptr gives identical results");
