@@ -116,10 +116,14 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
         caloExtension = uniqueExtension.get();
       }
     }
+    if( not caloExtension){
+      ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloExtension is nullptr" );
+      return StatusCode::RECOVERABLE;
+    }
     const std::vector<Trk::CurvilinearParameters>& clParametersVector = caloExtension->caloLayerIntersections();
-    if( not caloExtension || clParametersVector.empty() ){
+    if(clParametersVector.empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloLayerIntersection is empty" );
-      return StatusCode::SUCCESS;
+      return StatusCode::RECOVERABLE;
     }
     // loop over calo layers
     for( const Trk::CurvilinearParameters& cur : clParametersVector ){
