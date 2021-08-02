@@ -149,7 +149,7 @@ class tauRecTauJetRNNConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'tauid_rnn_1p_R22_v0.json', 'tauid_rnn_2p_R22_v0.json', 'tauid_rnn_3p_R22_v0.json' ]
+    StoredValue=[ 'tauid_rnn_1p_R22_v1.json', 'tauid_rnn_2p_R22_v1.json', 'tauid_rnn_3p_R22_v1.json' ]
 
 class tauRecTauJetRNNWPConfig(JobProperty):
     """Config files for TauWPDecorator for RNN jet ID
@@ -163,14 +163,14 @@ class tauRecTauEleRNNConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnneveto_mc16d_config_1p.json', 'rnneveto_mc16d_config_3p.json' ]
+    StoredValue=[ 'taueveto_rnn_config_1P_r22.json', 'taueveto_rnn_config_3P_r22.json' ]
 
 class tauRecTauEleRNNWPConfig(JobProperty):
     """Config files for TauWPDecorator for RNN eVeto
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnneveto_mc16d_flat_1p.root', 'rnneveto_mc16d_flat_3p.root' ]
+    StoredValue=[ 'taueveto_rnn_flat_1P_r22.root', 'taueveto_rnn_flat_3P_r22.root' ]
 
 class tauRecPi0ScoreConfig(JobProperty):
     """Config file for TauPi0ScoreCalculator
