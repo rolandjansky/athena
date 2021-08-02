@@ -16,8 +16,8 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
   #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
-  from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlg
-  theFastCaloHypo = TrigEgammaFastCaloHypoAlg(name)
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
 
   # Just for electrons
@@ -42,6 +42,12 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
 
 
   return theFastCaloHypo
+
+def TrigEgammaFastCaloHypoAlgCfg(flags, name, CaloClusters):
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  acc = ComponentAccumulator()
+  acc.addEventAlgo(createTrigEgammaFastCaloHypoAlg(name=name, sequenceOut=CaloClusters))
+  return acc
 
 #
 # For photons only

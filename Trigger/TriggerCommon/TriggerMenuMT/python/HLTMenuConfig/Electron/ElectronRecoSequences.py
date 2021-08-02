@@ -19,8 +19,4 @@ def l2CaloRecoCfg( flags ):
     reco.mergeReco( ca )
     return reco
 
-def l2CaloHypoCfg( flags, name='UNSPECIFIED', CaloClusters='UNSPECIFIED' ):
-    l2CaloHypo                     = CompFactory.TrigEgammaFastCaloHypoAlg( name )
-    l2CaloHypo.CaloClusters        = CaloClusters
-    return l2CaloHypo
 

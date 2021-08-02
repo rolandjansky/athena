@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, SelectionCA, ChainStep, Chain
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
@@ -21,11 +21,11 @@ def _fastCalo(flags, chainDict):
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     selAcc.merge(LumiBlockMuWriterCfg(flags))
 
-    l2CaloHypo = l2CaloHypoCfg(flags,
-                               name='L2PhotonCaloHypo',
-                               CaloClusters=recordable('HLT_FastCaloEMClusters'))
-
-    selAcc.addHypoAlgo(l2CaloHypo)
+    from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoAlgCfg
+    l2CaloHypo = TrigEgammaFastCaloHypoAlgCfg(flags,
+                                              name='ElectronEgammaFastCaloHypo',
+                                              CaloClusters=recordable('HLT_FastCaloEMClusters'))
+    selAcc.mergeHypo(l2CaloHypo)
 
     fastCaloSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
