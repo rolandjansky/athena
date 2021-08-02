@@ -21,7 +21,7 @@
 
 /**
  * \class TrigComboHypoTool
- * \brief TrigComboHypoTool is a ComboHypoTool that calculates the deltaR between two particles and
+ * \brief TrigComboHypoTool is a ComboHypoTool that calculates topological quantities between two particles and
  * apply cuts on it (upper and lower cut) accepting the event if the required condition is 
  * satisfied
  *
@@ -43,28 +43,28 @@ class TrigComboHypoTool:  public ComboHypoToolBase {
  private:
   
   virtual bool executeAlg(const std::vector<Combo::LegDecision>& combination) const override;
+  bool         executeAlgStep(const std::vector<Combo::LegDecision>& combination, size_t index, std::vector<float>& values) const;
   
   // flags
-  Gaudi::Property< bool >      m_acceptAll {this, "AcceptAll", false, "Ignore selection"  };
-  Gaudi::Property<std::string> m_varTag    {this, "Variable" ,    "", "Variable to cut on"};
-  Gaudi::Property< bool >      m_useMin    {this, "UseMin"   , false, "Apply min_cut"     };
-  Gaudi::Property< bool >      m_useMax    {this, "UseMax"   , false, "Apply max_cut"     };
+  Gaudi::Property<std::vector<std::string>> m_varTag_vec     {this, "Variables"  , {   ""}, "Variables to cut on"};
+  Gaudi::Property< std::vector<bool> >      m_useMin_vec     {this, "UseMinVec"  , {false}, "Array with the apply_min_cut setting"};
+  Gaudi::Property< std::vector<bool> >      m_useMax_vec     {this, "UseMaxVec"  , {false}, "Array with the apply_max_cut setting"};
 
   //legs
-  Gaudi::Property<std::string> m_legA       {this, "LegA"      ,    "", "First Leg"};
-  Gaudi::Property<std::string> m_legB       {this, "LegB"      ,    "", "Second Leg"};
-  Gaudi::Property< bool >      m_isLegA_MET {this, "IsLegA_MET", false, "Is first Leg MET?"};
-  Gaudi::Property< bool >      m_isLegB_MET {this, "IsLegB_MET", false, "Is second Leg MET?"};
+  Gaudi::Property<std::vector<std::string>> m_legA_vec       {this, "LegAVec"      , {   ""}, "Array with the first Leg ID"};
+  Gaudi::Property<std::vector<std::string>> m_legB_vec       {this, "LegBVec"      , {   ""}, "Array with the second Leg ID"};
+  Gaudi::Property<std::vector< bool >>      m_isLegA_MET_vec {this, "IsLegA_METVec", {false}, "Array with the first Leg MET identifier"};
+  Gaudi::Property<std::vector< bool >>      m_isLegB_MET_vec {this, "IsLegB_METVec", {false}, "Array with the second Leg MET identifier"};
 
   // cuts
-  Gaudi::Property<float> m_varMin {this,"LowerCut", -9999., "Lower cut for legs pair"};
-  Gaudi::Property<float> m_varMax {this,"UpperCut", -9999., "Upper cut for legs pair"};
+  Gaudi::Property<std::vector<float>>       m_varMin_vec     {this, "LowerCutVec", {-9999.}, "Array with the lower cut for legs pair"};
+  Gaudi::Property<std::vector<float>>       m_varMax_vec     {this, "UpperCutVec", {-9999.}, "Array with the upper cut for legs pair"};
   
   // monitoring
-  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandleArray<GenericMonitoringTool>    m_monTool_vec    {this, "MonTools", {}, "Monitoring tools" };
 
-  std::map<std::string, comboHypoVars>  m_varMap;
-  comboHypoVars                         m_var;
+  std::map<std::string, comboHypoVars>      m_varMap;
+  std::vector<comboHypoVars>                m_var_vec;
 
   void     fillVarMap();
 
