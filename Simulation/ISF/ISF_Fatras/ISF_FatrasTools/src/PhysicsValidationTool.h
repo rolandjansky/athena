@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,15 +99,15 @@ namespace iFatras
     /** Validation output TTree (+variables) */
 
     // FIXME mutable variables are not thread-safe.
-    TTree                                                                *m_particles;    //!< ROOT tree containing track info
-    mutable int                                                           m_pdg;
-    mutable int                                                           m_scIn;  
-    mutable int                                                           m_scEnd;
-    mutable int                                                           m_gen;
-    mutable int                                                           m_geoID;  
-    mutable float                                                         m_pth;
-    mutable float                                                         m_pph;
-    mutable float                                                         m_p;
+    TTree                                                                *m_particles = nullptr;    //!< ROOT tree containing track info
+    mutable int                                                           m_pdg = 0;
+    mutable int                                                           m_scIn = 0;  
+    mutable int                                                           m_scEnd = 0;
+    mutable int                                                           m_gen = 0;
+    mutable int                                                           m_geoID = 0;  
+    mutable float                                                         m_pth = 0.0F;
+    mutable float                                                         m_pph = 0.0F;
+    mutable float                                                         m_p = 0.0F;
     mutable float                                                         m_eloss;
     mutable float                                                         m_ionloss;
     mutable float                                                         m_radloss;
@@ -135,9 +135,9 @@ namespace iFatras
     mutable float                                                 m_vtx_plong_diff;
     mutable float                                                 m_vtx_pperp_diff;
     mutable float                                                 m_p_mother;
-    mutable int                                                   m_pdg_child[MAXCHILDREN];     // decay product pdg code
-    mutable float                                                 m_fp_child[MAXCHILDREN];      // fraction of incoming momentum 
-    mutable float                                                 m_oa_child[MAXCHILDREN];      // opening angle wrt the mother
+    mutable int                                                   m_pdg_child[MAXCHILDREN]{};     // decay product pdg code
+    mutable float                                                 m_fp_child[MAXCHILDREN]{};      // fraction of incoming momentum 
+    mutable float                                                 m_oa_child[MAXCHILDREN]{};      // opening angle wrt the mother
         
   }; 
 }

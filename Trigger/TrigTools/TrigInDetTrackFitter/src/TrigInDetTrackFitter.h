@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETTRACKFITTER_TRIGINDETTRACKFITTER_H
@@ -66,9 +66,9 @@ private:
   ToolHandle<ITrigDkfTrackMakerTool>    m_trackMaker;
 	ToolHandle<Trk::IRIO_OnTrackCreator>  m_ROTcreator;
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-  const PixelID* m_pixelId;
-  const SCT_ID* m_sctId;
-  const AtlasDetectorID* m_idHelper;
+  const PixelID* m_pixelId = nullptr;
+  const SCT_ID* m_sctId = nullptr;
+  const AtlasDetectorID* m_idHelper = nullptr;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIG_SPACEPOINT_CONVERSION_TOOL__
@@ -44,9 +44,9 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
 
   ToolHandle<ITrigL2LayerNumberTool> m_layerNumberTool;
 
-  const AtlasDetectorID* m_atlasId;
-  const SCT_ID*  m_sctId;
-  const PixelID* m_pixelId;
+  const AtlasDetectorID* m_atlasId = nullptr;
+  const SCT_ID*  m_sctId = nullptr;
+  const PixelID* m_pixelId = nullptr;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 

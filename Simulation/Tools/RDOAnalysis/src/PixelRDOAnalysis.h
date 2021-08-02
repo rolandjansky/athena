@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -112,17 +112,17 @@ private:
   TH1* m_h_ecLVL1A;
   TH1* m_h_ecLVL1ID;
 
-  TH1* m_h_sdoID;
-  TH1* m_h_sdoWord;
-  TH1* m_h_barrelEndcap_sdo;
-  TH1* m_h_layerDisk_sdo;
-  TH1* m_h_phiModule_sdo;
-  TH1* m_h_etaModule_sdo;
-  TH1* m_h_phiIndex_sdo;
-  TH1* m_h_etaIndex_sdo;
-  TH1* m_h_barcode;
-  TH1* m_h_eventIndex;
-  TH1* m_h_charge;
+  TH1* m_h_sdoID = nullptr;
+  TH1* m_h_sdoWord = nullptr;
+  TH1* m_h_barrelEndcap_sdo = nullptr;
+  TH1* m_h_layerDisk_sdo = nullptr;
+  TH1* m_h_phiModule_sdo = nullptr;
+  TH1* m_h_etaModule_sdo = nullptr;
+  TH1* m_h_phiIndex_sdo = nullptr;
+  TH1* m_h_etaIndex_sdo = nullptr;
+  TH1* m_h_barcode = nullptr;
+  TH1* m_h_eventIndex = nullptr;
+  TH1* m_h_charge = nullptr;
   TH1* m_h_TruthMatchedRDOs;
 
   TTree* m_tree;
