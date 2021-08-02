@@ -18,6 +18,7 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--hardScatterStrategy", help='Strategy to select the hard scatter. 0 = SumPt² 1 = SumPt', choices=["0","1"], default="0")
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
+    IDPVMparser.add_argument("--ancestorIDList", help='List of ancestor truth IDs to match.', default = [], nargs='+', type=int)
     return IDPVMparser.parse_args()
 
 # Parse the arguments 
@@ -37,6 +38,7 @@ InDetPhysValFlags.doValidateMuonMatchedTracks.set_Value_and_Lock(MyArgs.doMuonMa
 InDetPhysValFlags.doValidateElectronMatchedTracks.set_Value_and_Lock(MyArgs.doElectronMatchedTracks)
 InDetPhysValFlags.doPerAuthorPlots.set_Value_and_Lock(MyArgs.doPerAuthor)
 InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(MyArgs.doHitLevelPlots)
+InDetPhysValFlags.ancestorIDs.set_Value_and_Lock(MyArgs.ancestorIDList)
 InDetPhysValFlags.hardScatterStrategy.set_Value_and_Lock(int(MyArgs.hardScatterStrategy))
 
 # Print the configuration

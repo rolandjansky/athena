@@ -146,6 +146,11 @@ class setTruthStrategy(InDetPhysValFlagsJobProperty):
     allowedTypes = ['string']
     StoredValue = 'HardScatter'
 
+class ancestorIDs(InDetPhysValFlagsJobProperty):
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
 
 class hardScatterStrategy(InDetPhysValFlagsJobProperty):
     """The hard-scatter vertex selection strategy to use when running hard-scatter efficiency / performance plots in IDPVM. 0 corresponds to sumPt^2, 1 corresponds to sumPt"""
@@ -226,6 +231,7 @@ _list_InDetPhysValJobProperties = [
     doTruthOriginPlots,
     doPerAuthorPlots,
     doHitLevelPlots,
+    ancestorIDs,
     hardScatterStrategy
 ]
 
