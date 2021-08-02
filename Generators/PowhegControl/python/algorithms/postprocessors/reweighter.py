@@ -203,13 +203,15 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             logger.info("Fixing comment lines from lhe file - these lines can be simply removed using the 'remove_oldStyle_rwt_comments=True' argument in generate()")
             for pattern in comment_patterns: # no whitespace needed in patterns here
                 repair_comment_lines(powheg_LHE_output, pattern) # the last pattern starts with a space
-           
+
+    replacelist = []    
     # Rename all weights
     for weight in weight_list:
-        FileParser(powheg_LHE_output).text_replace(".* id='{}' .*".format(weight.ID), "<weight id='{weight_id}'>{weight_name}</weight>".format(weight_id=weight.ID, weight_name=weight.name))
+        replacelist += [[".* id='{}' .*".format(weight.ID), "<weight id='{weight_id}'>{weight_name}</weight>".format(weight_id=weight.ID, weight_name=weight.name), 1]]
 
     # Correct LHE version identification; otherwise Pythia will treat all files as v1
-    FileParser(powheg_LHE_output).text_replace('LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"')
+    replacelist += [['LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"', 1]]
+    FileParser(powheg_LHE_output).text_replace_multi(replacelist)
 
     # Restore generation statistics and initial runcard
     shutil.move("powheg_nominal.input", "powheg.input")
