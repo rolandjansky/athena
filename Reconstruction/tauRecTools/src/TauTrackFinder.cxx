@@ -431,9 +431,10 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
   std::unique_ptr<Trk::CaloExtension> uniqueExtension;
   for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
     const xAOD::TrackParticle *orgTrack = tauTrack->track();
+    if( !orgTrack ) continue;
     trackIndex = orgTrack->index();
 
-    if( !orgTrack ) continue;
+    
 
     // set default values
     float etaEM = -10.0;
