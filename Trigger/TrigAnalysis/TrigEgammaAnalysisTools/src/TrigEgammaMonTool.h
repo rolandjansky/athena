@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIGEGAMMAMONTOOL_H
@@ -18,6 +18,7 @@ class TrigEgammaMonTool : public IHLTMonTool {
     private:
         ToolHandleArray< ITrigEgammaAnalysisBaseTool > m_asgtools;
         std::vector<std::string> m_asgToolNames;
+        SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey{ this, "JetContainerKey", "AntiKt4EMTopoJets", "jet container for OLR" };
     protected:
 
 };

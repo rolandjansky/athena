@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.cxx
@@ -238,6 +238,7 @@ StatusCode HLTTauMonTool::init() {
     ATH_CHECK(m_jetRoIKey.initialize());
     ATH_CHECK(m_pvKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
+    ATH_CHECK(m_ditauOfflineJetContainer.initialize(m_dijetFakeTausEff));
 
     return StatusCode::SUCCESS;
 }
