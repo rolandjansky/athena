@@ -97,11 +97,10 @@ CMAdata::create_patterns(const CMAparameters* cma,const RPCdigit* digit)
     if( (patterns = find(sector,cma)) ) patterns->load_digit(digit);
     else 
     {
-        patterns = new CMApatterns(sector,cma,m_debug);
-        patterns->load_digit(digit);
-	if(type == Eta)       m_eta_cma_patterns.push_back(*patterns);
-        else if (type == Phi) m_phi_cma_patterns.push_back(*patterns);
-	delete patterns;
+        CMApatterns patterns(sector,cma,m_debug);
+        patterns.load_digit(digit);
+        if(type == Eta)       m_eta_cma_patterns.push_back(std::move(patterns));
+        else if (type == Phi) m_phi_cma_patterns.push_back(std::move(patterns));
     }
 }
 

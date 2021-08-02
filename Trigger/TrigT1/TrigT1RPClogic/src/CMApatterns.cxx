@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -25,8 +25,7 @@ m_pivot1("pivot1 ",PATTERNidentity(Pivot,1),CMAparameters::pivot_channels),
 m_lowPt0("lowPt0 ",PATTERNidentity(LowPt,0),CMAparameters::confirm_channels),
 m_lowPt1("lowPt1 ",PATTERNidentity(LowPt,1),CMAparameters::confirm_channels),
 m_highPt0("highPt0",PATTERNidentity(HighPt,0),CMAparameters::confirm_channels),
-m_highPt1("highPt1",PATTERNidentity(HighPt,1),CMAparameters::confirm_channels),
-m_low_pt_matrix(0),m_high_pt_matrix(0)
+m_highPt1("highPt1",PATTERNidentity(HighPt,1),CMAparameters::confirm_channels)
 {}
 
 CMApatterns::CMApatterns(const CMApatterns& patterns) :
@@ -39,15 +38,8 @@ CMApatterns::CMApatterns(const CMApatterns& patterns) :
     m_lowPt0(patterns.lowPt0()),
     m_lowPt1(patterns.lowPt1()),
     m_highPt0(patterns.highPt0()),
-    m_highPt1(patterns.highPt1()),
-    m_low_pt_matrix(0),m_high_pt_matrix(0)
+    m_highPt1(patterns.highPt1())
 {}
-
-CMApatterns::~CMApatterns()
-{
-    if(m_low_pt_matrix) delete m_low_pt_matrix;
-    if(m_high_pt_matrix) delete m_high_pt_matrix;
-}
 
 CMApatterns
 CMApatterns::operator=(const CMApatterns& patterns)
@@ -63,8 +55,6 @@ CMApatterns::operator=(const CMApatterns& patterns)
     m_lowPt1 = patterns.lowPt1();
     m_highPt0 = patterns.highPt0();
     m_highPt1 = patterns.highPt1();
-    m_low_pt_matrix  = 0;
-    m_high_pt_matrix = 0;  
     return *this;
 }
 
@@ -732,7 +722,6 @@ CMApatterns::create_hardware(TrigType type)
 
     if(type == None) return;
 
-    Matrix* matrix          = 0; 
     int run                 = 0;
     int event               = 0;
     unsigned int long debug = m_debug;
@@ -748,8 +737,8 @@ CMApatterns::create_hardware(TrigType type)
 
     // Instanciate the Matrix
 
-    matrix = new Matrix(run,event,debug,subsystem,proj,sector,PADadd,lohi,
-                        address,localAdd);
+    auto matrix = std::make_unique<Matrix>(run,event,debug,subsystem,proj,sector,PADadd,lohi,
+                                           address,localAdd);
 
     ////////////////////////////////////////////////////////////////////////
     // ****************** START PROGRAMMING THE MATRIX ****************** //
@@ -774,8 +763,8 @@ CMApatterns::create_hardware(TrigType type)
     if(type == Low) 
     {
       // Loading pivot data into Matrix
-      load_data(0,0,m_pivot0,matrix);
-      load_data(0,1,m_pivot1,matrix);
+      load_data(0,0,m_pivot0,matrix.get());
+      load_data(0,1,m_pivot1,matrix.get());
       
       // Load the theshold registers into Matrix hardware simulation
       const CMAprogram* program = cma_parameters().lowPt_program();
@@ -846,12 +835,12 @@ CMApatterns::create_hardware(TrigType type)
       matrix->setMatOverlap(1, ovl2);
       
       // Load Low Pt plane data into Matrix
-      load_data(1,0,m_lowPt0,matrix);
-      load_data(1,1,m_lowPt1,matrix);
+      load_data(1,0,m_lowPt0,matrix.get());
+      load_data(1,1,m_lowPt1,matrix.get());
       
       // Execute the matrix simulation
       matrix->execute(); 
-      m_low_pt_matrix = matrix;
+      m_low_pt_matrix = std::move(matrix);
     }
     else 
       {
@@ -921,17 +910,17 @@ CMApatterns::create_hardware(TrigType type)
 	matrix->setMatOverlap(1, ovl2);
 
         // Load High Pt plane data into Matrix
-        load_data(1,0,m_highPt0,matrix);
-        load_data(1,1,m_highPt1,matrix); 
+        load_data(1,0,m_highPt0,matrix.get());
+        load_data(1,1,m_highPt1,matrix.get());
 
         if(!m_low_pt_matrix) create_hardware(Low);
 
         // Put the Low Pt patterns into the High Pt Matrix input
-        matrix->putPatt(m_low_pt_matrix);
+        matrix->putPatt(m_low_pt_matrix.get());
 
         // Execute the matrix simulation
         matrix->execute();
-        m_high_pt_matrix = matrix;
+        m_high_pt_matrix = std::move(matrix);
     }
 }
 
@@ -954,7 +943,7 @@ CMApatterns::give_low_pt_matrix(void)
 {
   
   if(!m_low_pt_matrix) create_hardware(Low);
-  return m_low_pt_matrix;
+  return m_low_pt_matrix.get();
 }
 
 
@@ -963,5 +952,5 @@ CMApatterns::give_high_pt_matrix(void)
 {
   
   if(!m_high_pt_matrix) create_hardware(High);
-  return m_high_pt_matrix;
+  return m_high_pt_matrix.get();
 }
