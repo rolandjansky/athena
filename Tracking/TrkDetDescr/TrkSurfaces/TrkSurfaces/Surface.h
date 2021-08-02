@@ -444,11 +444,6 @@ public:
      - only done if no Layer is set already  */
   void associateLayer(const Layer& lay);
 
-  /** const method to associate the associated Trk::Layer which is alreay owned
-   - only allowed by LayerBuilder
-   - only done if no Layer is set already  */
-  void associateLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const;
-
 protected:
   friend class ::SurfaceCnv_p1;
 

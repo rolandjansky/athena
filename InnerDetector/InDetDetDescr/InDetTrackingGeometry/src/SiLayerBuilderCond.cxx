@@ -1172,14 +1172,18 @@ void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const 
     for (; laySurfIter != laySurfIterEnd; ++laySurfIter){
         if (*laySurfIter) { 
             // register the current surface --------------------------------------------------------
-            Trk::ILayerBuilderCond::associateLayer(lay, **laySurfIter);
+            // Needs care for Athena MT 
+            Trk::ILayerBuilderCond::associateLayer(lay, const_cast<Trk::Surface&>(**laySurfIter));
             const InDetDD::SiDetectorElement* detElement 
                 = dynamic_cast<const InDetDD::SiDetectorElement*>((*laySurfIter)->associatedDetectorElement());             
             // register the backise if necessary ---------------------------------------------------
             const InDetDD::SiDetectorElement* otherSideElement = detElement ?  detElement->otherSide() : nullptr;                 
             const Trk::Surface* otherSideSurface = otherSideElement ? &(otherSideElement->surface()) : nullptr;
-            if (otherSideSurface) Trk::ILayerBuilderCond::associateLayer(lay, *otherSideSurface);
+            if (otherSideSurface) {
+              // Needs care for Athena MT 
+              Trk::ILayerBuilderCond::associateLayer(lay, const_cast<Trk::Surface&>(*otherSideSurface));
             }
+        }
     }   
     
     return;

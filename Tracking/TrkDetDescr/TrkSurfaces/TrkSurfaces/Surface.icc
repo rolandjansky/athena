@@ -280,11 +280,5 @@ Surface::associateLayer(const Layer& lay)
   m_associatedLayer = (&lay);
 }
 
-inline void Surface::associateLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const
-{
-  const_cast<Surface*>(this)->m_associatedLayer = (&lay);
-}
-
 } // end of namespace Trk
 
