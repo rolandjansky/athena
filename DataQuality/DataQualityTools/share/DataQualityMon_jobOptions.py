@@ -2,9 +2,6 @@
 # jopOptions file for Combined Monitoring in Athena
 #**************************************************************
 
-#disable stuff calling topoclustering until further notice - PUEO 4/1/14
-CALOCLUSTER=False
-
 #Make m_trigDecTool available:
 TrigDecisionTool= monTrigDecTool if DQMonFlags.useTrigger() else "",
 
@@ -23,9 +20,6 @@ listOfTriggers = ['EF_g20_loose', 'EF_tauNoCut', 'EF_mu15', 'EF_2mu4_Upsimumu',
 # Import AlgSequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-if rec.doCalo and CALOCLUSTER:
-    include ('DataQualityTools/HadTopoClusterMaker.py')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 isOnline=False
@@ -46,15 +40,6 @@ from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
 if not hasattr(topSequence,"IsolationBuilderTight1000"):
     topSequence += GetUpdatedIsoTrackCones()
 
-# Import Algorithm
-from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-topSequence += AthenaMonManager( "GlobalMonManager" )
-ManagedAthenaGlobalMon = topSequence.GlobalMonManager
-ManagedAthenaGlobalMon.FileKey             = DQMonFlags.monManFileKey()
-ManagedAthenaGlobalMon.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
-ManagedAthenaGlobalMon.DataType            = DQMonFlags.monManDataType()
-ManagedAthenaGlobalMon.Environment         = DQMonFlags.monManEnvironment()
-
 from AthenaCommon.JobProperties import jobproperties
 if not 'InDetKeys' in dir():
     from InDetRecExample.InDetKeys import InDetKeys
@@ -68,73 +53,63 @@ if jobproperties.Beam.beamType()=='cosmics':
     isCosmics=True
     isBeam=False
 
-if DQMonFlags.monManEnvironment != 'tier0ESD':
-     # Import Det Synch tool
-    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
-        from DataQualityTools.DQTDetSynchMonAlg import DQTDetSynchMonAlgConfigOld
-        topSequence += DQTDetSynchMonAlgConfigOld(DQMonFlags)
+if DQMonFlags.doDataFlowMon():
+    from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfigOld
+    topSequence += DQTDataFlowMonAlgConfigOld(DQMonFlags)
 
-    if rec.doCalo and CALOCLUSTER:
-        # Import CaloCluster Tool
-        from DataQualityTools.DataQualityToolsConf import DQTCaloClusterTool
-        DQTCaloClusterTool = DQTCaloClusterTool(name           = 'DQTCaloClusterTool',
-                                                histoPathBase  = "/GLOBAL/DQTCaloCluster",
-                                                doRunCosmics   = isCosmics,
-                                                doRunBeam      = isBeam,
-                                                doOfflineHists = isOffline,
-                                                doOnlineHists  = isOnline );
+if DQMonFlags.doGlobalMon():
+    if DQMonFlags.monManEnvironment != 'tier0ESD':
+        # Import Det Synch tool
+        if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
+            from DataQualityTools.DQTDetSynchMonAlg import DQTDetSynchMonAlgConfigOld
+            topSequence += DQTDetSynchMonAlgConfigOld(DQMonFlags)
 
-        ManagedAthenaGlobalMon.AthenaMonTools += [ DQTCaloClusterTool ];
+        # Background Monitoring
+        if DQMonFlags.useTrigger():
+            from DataQualityTools.DQTBackgroundMon import DQTBackgroundMonAlgConfig
+            topSequence += DQTBackgroundMonAlgConfig(DQMonFlags,isOld=True)
 
-    # Background Monitoring
-    if DQMonFlags.useTrigger():
-        from DataQualityTools.DQTBackgroundMon import DQTBackgroundMonAlgConfig
-        topSequence += DQTBackgroundMonAlgConfig(DQMonFlags,isOld=True)
+        # Default values
+        MinSCTHits=5
+        MinPtCut=4000
 
-    # Default values
-    MinSCTHits=5
-    MinPtCut=4000
+        #For now, to increase statistics in cosmics data taking
+        if athenaCommonFlags.isOnline==True:
+            MinSCTHits=0
+            MinPtCut=500
 
-    #For now, to increase statistics in cosmics data taking
-    if athenaCommonFlags.isOnline==True:
-        MinSCTHits=0
-        MinPtCut=500
+        if not rec.doMuon:
+            try:
+                svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("RpcPadContainer/RPCPAD")
+            except:
+                printfunc ('RPCPAD cannot be removed')
 
-    if not rec.doMuon:
-        try:
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("RpcPadContainer/RPCPAD")
-        except:
-            printfunc ('RPCPAD cannot be removed')
+    if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
 
-from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfigOld
-topSequence += DQTDataFlowMonAlgConfigOld(DQMonFlags)
+        topSequence += AthenaMonManager( "GlobalMonPhysicsManager" )
+        ManagedAthenaGlobalPhysMon = topSequence.GlobalMonPhysicsManager
+        ManagedAthenaGlobalPhysMon.FileKey             = DQMonFlags.monManFileKey()
+        ManagedAthenaGlobalPhysMon.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
+        ManagedAthenaGlobalPhysMon.DataType            = DQMonFlags.monManDataType()
+        ManagedAthenaGlobalPhysMon.Environment         = DQMonFlags.monManEnvironment()
 
-if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
+        from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+        ToolSvc += CP__MuonSelectionTool("DQTMuonSelectionTool",
+                                        MaxEta=2.4,
+                                        MuQuality=1)
+        ToolSvc += CfgMgr.CP__IsolationSelectionTool("DQTIsoGradientTool",
+                                                    MuonWP="Loose_VarRad",
+                                                    ElectronWP="Loose_VarRad"
+                                                    );
 
-    topSequence += AthenaMonManager( "GlobalMonPhysicsManager" )
-    ManagedAthenaGlobalPhysMon = topSequence.GlobalMonPhysicsManager
-    ManagedAthenaGlobalPhysMon.FileKey             = DQMonFlags.monManFileKey()
-    ManagedAthenaGlobalPhysMon.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
-    ManagedAthenaGlobalPhysMon.DataType            = DQMonFlags.monManDataType()
-    ManagedAthenaGlobalPhysMon.Environment         = DQMonFlags.monManEnvironment()
+        from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
+        MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
+            name  = 'DQTGlobalWZFinderTool',
+            doTrigger = rec.doTrigger(),
+            MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
+            IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
+        )
+        ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
-    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
-    ToolSvc += CP__MuonSelectionTool("DQTMuonSelectionTool",
-                                     MaxEta=2.4,
-                                     MuQuality=1)
-    ToolSvc += CfgMgr.CP__IsolationSelectionTool("DQTIsoGradientTool",
-                                                 MuonWP="Loose_VarRad",
-                                                 ElectronWP="Loose_VarRad"
-                                                 );
-
-    from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
-    MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
-        name  = 'DQTGlobalWZFinderTool',
-        doTrigger = rec.doTrigger(),
-        MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
-        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
-    )
-    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
-
-    from DataQualityTools.DQTLumiMonAlg import DQTLumiMonAlgConfig
-    topSequence += DQTLumiMonAlgConfig(DQMonFlags, isOld=True)
+        from DataQualityTools.DQTLumiMonAlg import DQTLumiMonAlgConfig
+        topSequence += DQTLumiMonAlgConfig(DQMonFlags, isOld=True)

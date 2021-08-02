@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTTauMonTool.h"
@@ -29,7 +29,6 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const float 		leadingJetPtCut = 450000.; //MeV
   const float 		leadingJetEtaCut = 3.2;
   const std::string 	singleJetTrigger = "j420_L1J100";
-  const std::string     offlineJetContainer = "AntiKt4EMPFlowJets";
   const float 		dRCut = 0.2;
   const float 		dRL1Cut = 0.3;
   const float 		dPhiCut = 2.5;
@@ -38,18 +37,12 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const float 		offlineTauEtaCut = 2.5;
   const std::vector<unsigned int>	offlineTauTrackCut = {1,2,3};
 
-  StatusCode sc = StatusCode::SUCCESS;
-  const xAOD::JetContainer* jet_cont = 0;
+  const xAOD::JetContainer* jet_cont = SG::get(m_ditauOfflineJetContainer);
 
-  if (!evtStore()->contains<xAOD::JetContainer>("AntiKt4EMPFlowJets")){
-    return StatusCode::SUCCESS;
-  }
-
-  sc = evtStore()->retrieve(jet_cont, offlineJetContainer.c_str() );
-  if(!sc.isSuccess())
+  if(!jet_cont)
   {
     ATH_MSG_WARNING("Failed to retrieve offline Jet container. Exiting.");
-    return sc;
+    return StatusCode::SUCCESS; // don't kill job just for this
   }
 
   /* select events that pass the required trigger */

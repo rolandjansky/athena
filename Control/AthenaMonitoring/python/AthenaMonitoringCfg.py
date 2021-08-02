@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from .AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
 
 def AthenaMonitoringCfg(flags):
     import logging
@@ -10,37 +11,7 @@ def AthenaMonitoringCfg(flags):
     error = local_logger.error
     result = ComponentAccumulator()
 
-    if flags.DQ.Environment == 'AOD':
-        info('Running on AOD: Scheduling rebuild of standard jet collections if necessary')
-        jets_to_schedule = []
-        for container in ('AntiKt4EMTopo', 'AntiKt4EMPFlow', 'AntiKt4LCTopo'):
-            if f'{container}Jets' not in flags.Input.Collections:
-                jets_to_schedule.append(container)
-        if not jets_to_schedule:
-            info('All needed jet collections in input file; nothing needed')
-        else:
-            info(f'Will rebuild jet collections: {jets_to_schedule}')
-            from JetRecConfig.JetRecConfig import JetRecCfg
-            import JetRecConfig.StandardSmallRJets
-            for container in jets_to_schedule:
-                result.merge(JetRecCfg(flags, getattr(JetRecConfig.StandardSmallRJets, container)))
-            info('Scheduling b-tagging of rebuilt jets')
-            from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-            result.merge(AtlasGeometryCfg(flags))
-            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-            result.merge(BeamSpotCondAlgCfg(flags))
-            from BTagging.BTagRun3Config import BTagRecoSplitCfg
-            for container in jets_to_schedule:
-                if container in ('AntiKt4EMTopo', 'AntiKt4EMPFlow'):
-                    result.merge(BTagRecoSplitCfg(flags, [container]))
-            info('Scheduling rebuild of standard MET')
-            from METReconstruction.METAssociatorCfg import METAssociatorCfg
-            for container in jets_to_schedule:
-                result.merge(METAssociatorCfg(flags, container))          
-            from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
-            result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
-            from METReconstruction.METCalo_Cfg import METCalo_Cfg
-            result.merge(METCalo_Cfg(flags))
+    result.merge(AthenaMonitoringAODRecoCfg(flags))
 
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')
