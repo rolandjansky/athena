@@ -240,10 +240,13 @@ def getInDetPhysValMonitoringToolDBM(**kwargs):
 def getInDetLargeD0PhysValMonitoringTool(**kwargs):
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys import InDetKeys
+    from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
     kwargs = setDefaults(
         kwargs,
         name='InDetPhysValMonitoringToolLargeD0',
-        SubFolder='LargeD0/',
+        SubFolder='LRT/',
+        TruthSelectionTool=getInDetRttTruthSelectionTool(name="AthTruthSelectionToolForIDPVM_LargeD0",maxProdVertRadius = 440.,minPt=1200.,ancestorList=InDetPhysValFlags.ancestorIDs()),
         TrackParticleContainerName=InDetKeys.xAODLargeD0TrackParticleContainer(
         ) if InDetFlags.storeSeparateLargeD0Container() else InDetKeys.xAODTrackParticleContainer(),
         useTrackSelection=True)
