@@ -41,6 +41,7 @@ class FileParser(object):
         @param regex_line_match  If not 'None' then only do replacement on lines matching this
         """
         replaced_lines = 0
+        c_regex_find = re.compile(regex_find)
         for input_file_name in self.__input_file_names:
             shutil.move(input_file_name, "{}.text_replace_backup".format(input_file_name))
             with open("{}.text_replace_backup".format(input_file_name), "r") as f_input:
@@ -49,9 +50,38 @@ class FileParser(object):
                         if regex_line_match is not None and not re.search(regex_line_match, line):
                             f_output.write(line)
                             continue
-                        new_line = re.sub(regex_find, string_replace, line.rstrip(), count)
+                        new_line = c_regex_find.sub(regex_find, string_replace, line.rstrip(), count)
                         f_output.write(new_line + "\n")
                         replaced_lines += 1
+            os.remove("{}.text_replace_backup".format(input_file_name))
+        return replaced_lines
+
+    def text_replace_multi(self, regex_find_replace_count, regex_line_match=None):
+        """! Replace a whole list of regex_find_replace_count in input_file_name.
+        Returns the number of lines where such replacement was made.
+
+        @param regex_find_replace_count    List of regular expressions to search for, strings to replace by, and how often to replace
+        @param regex_line_match  If not 'None' then only do replacement on lines matching this
+        """
+        replaced_lines = 0
+        for i in range(len(regex_find_replace_count)):
+            regex_find_replace_count[i][0] = re.compile(regex_find_replace_count[i][0])
+
+        for input_file_name in self.__input_file_names:
+            shutil.move(input_file_name, "{}.text_replace_backup".format(input_file_name))
+            f_input = open("{}.text_replace_backup".format(input_file_name), "rb")
+            f_output = open(input_file_name, "wb")
+            for line in f_input:
+                if regex_line_match is not None and not re.search(regex_line_match, line):
+                    f_output.write(line)
+                    continue
+                new_line = line.rstrip()
+                for i in range(len(regex_find_replace_count)):
+                    if regex_find_replace_count[i][2] != 0 and regex_find_replace_count[i][0].match(new_line):
+                        new_line = regex_find_replace_count[i][0].sub(regex_find_replace_count[i][1], new_line)
+                        regex_find_replace_count[i][2] -= 1
+                        replaced_lines += 1
+                f_output.write(new_line + "\n")
             os.remove("{}.text_replace_backup".format(input_file_name))
         return replaced_lines
 
@@ -62,12 +92,14 @@ class FileParser(object):
         @param regex_find Regular expression to search for.
         """
         removed_lines = 0
+        c_regex_find = re.compile(regex_find)
+
         for input_file_name in self.__input_file_names:
             shutil.move(input_file_name, "{}.text_replace_backup".format(input_file_name))
             with open("{}.text_replace_backup".format(input_file_name), "r") as f_input:
                 with open(input_file_name, "w") as f_output:
                     for line in f_input:
-                        if re.search(regex_find, line.rstrip()) is None:
+                        if c_regex_find.search(line.rstrip()) is None:
                             f_output.write(line)
                         else:
                             removed_lines += 1
