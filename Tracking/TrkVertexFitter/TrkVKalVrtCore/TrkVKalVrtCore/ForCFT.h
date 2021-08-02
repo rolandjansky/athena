@@ -73,6 +73,7 @@ namespace Trk {
       for (int ic=0; ic<vkalMaxNMassCnst; ++ic) wmfit[ic] = -10000.;
       for (int it=0; it<vkalNTrkM; ++it) {
          wm[it] = 139.57018;
+         robres[it] = 1.;
          for(int ic=0; ic<vkalMaxNMassCnst; ic++) indtrkmc[ic][it]=0;
       }
       localbmag=1.997;   // Safety: standard magnetic field in ID 
