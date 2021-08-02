@@ -129,11 +129,8 @@ TrackRNN::TrackRNN(const std::string& name)
   : TauRecToolBase(name)
   , m_inputWeightsPath("")
 {
-  // for conversion compatibility cast nTracks 
-  int nMaxNtracks = 0;
-  declareProperty( "InputWeightsPath", m_inputWeightsPath );
-  declareProperty( "MaxNtracks",  nMaxNtracks);
-  m_nMaxNtracks = (unsigned int)nMaxNtracks;
+  declareProperty("InputWeightsPath", m_inputWeightsPath = "");
+  declareProperty("MaxNtracks", m_nMaxNtracks = 0);
 }
 
 //______________________________________________________________________________
