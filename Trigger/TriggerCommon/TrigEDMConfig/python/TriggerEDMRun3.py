@@ -855,7 +855,7 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
     HLTNavEDMTargets = ''
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if not ConfigFlags.Trigger.doOnlineNavigationCompactificaiton:
+    if not ConfigFlags.Trigger.doOnlineNavigationCompactification:
         # If we are not compacting the online EDM, then we must write out all of the individual collections
         # ESD is added for MC support
         HLTNavEDMTargets = 'BS ESD'
