@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <cassert>
+#include <memory>
 
 #include "CxxUtils/checker_macros.h"
 
@@ -37,6 +38,9 @@ class ObjRef;
 /** Template to be specialised if object cloning is not handled by the copy operator of the container object class.
  */
 template <class T_Obj> T_Obj *cloneObj(const T_Obj *obj)      { return (obj ? new T_Obj(*obj): obj); }
+
+template <class T_Obj> 
+std::unique_ptr<T_Obj> uniqueClone(const T_Obj *obj)      { return std::unique_ptr<T_Obj>(cloneObj(obj)); }
 
 /** @brief Template which can be specialised to eventually instrument the managed objects.
  * Prerequisite for specialisation: the container object base class has a virtual destructor.
@@ -650,6 +654,17 @@ public:
       if (!m_ref) return nullptr;
       else        return m_container->release(m_ref);
    }
+   
+   /** Release the object this pointer points to from the container.
+    * @return a unique_ptr to the object
+    * This will remove the ownership over this object from the container. If there
+    * are still other ObjPtr instances alive which point to this object, then
+    * the object will remain in the container. Then it is up to the user to ensure that
+    * the unique_ptr stays alive at least as long as the container.
+    */
+    std::unique_ptr<T_Obj> to_unique() {
+      return std::unique_ptr<T_Obj>(release());
+    }
 
    /** Get a light-weight reference to the object pointed to by this pointer
     * The returned light-weight reference does not provide any lifetime guarantees of the object.
