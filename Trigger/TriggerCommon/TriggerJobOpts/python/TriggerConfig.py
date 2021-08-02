@@ -394,7 +394,6 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
-        acc.addEventAlgo(hltResultMakerAlg)
 
         # Provide ByteStreamMetaData from input, required by the result maker tool
         if flags.Input.Format == 'BS':
@@ -406,7 +405,6 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
-        acc.addEventAlgo(decmaker)
 
         # Schedule the insertion of L1 prescales into the conditions store
         # Required for writing L1 trigger bits to xTrigDecision
@@ -419,6 +417,8 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         writingInputs = [("HLT::HLTResultMT", "HLTResultMT"),
                          ("xAOD::TrigDecision", "xTrigDecision")]
         writingAcc = ByteStreamWriteCfg(flags, type_names=writingOutputs, extra_inputs=writingInputs)
+        writingAcc.addEventAlgo(hltResultMakerAlg)
+        writingAcc.addEventAlgo(decmaker)
         acc.merge(writingAcc)
     else:
         from TrigServices.TrigServicesConfig import TrigServicesCfg
