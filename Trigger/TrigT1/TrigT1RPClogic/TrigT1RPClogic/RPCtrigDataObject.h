@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAOBJECT_H
 #define DATAOBJECT_H
 
-#include <iostream>
+#include <sstream>
 #include <string>
 
 #include "MuonCablingTools/BaseObject.h"
-
-#ifndef LVL1_STANDALONE
-#include "GaudiKernel/MsgStream.h"
-#endif
 
 
 class RPCtrigDataObject : public BaseObject
@@ -41,16 +37,7 @@ class RPCtrigDataObject : public BaseObject
 
 template <class X> X& operator<<(X& stream,const RPCtrigDataObject& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[1000];
-    for (int i=0;i<1000;++i) buffer[i] = '\0';
-    __osstream display(buffer,1000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

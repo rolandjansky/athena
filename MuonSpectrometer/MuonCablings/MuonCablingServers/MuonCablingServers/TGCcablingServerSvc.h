@@ -5,8 +5,6 @@
 #ifndef TGCcablingServerSvc_H
 #define TGCcablingServerSvc_H
 
-#ifndef LVL1_STANDALONE
-
 #include "AthenaBaseComps/AthService.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
@@ -28,6 +26,4 @@ class TGCcablingServerSvc : public AthService,
     virtual bool isAtlas(void) const;
 };
  
-#endif
-
 #endif  //TGCcablingServerSvc_H

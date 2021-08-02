@@ -1,22 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/EtaCMA.h"
-
-#include <cstdio>
-#include <cstdlib>
-
-#include <fstream>
-
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "RPC_CondCabling/CMAprogram.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
 
-#ifndef LVL1_STANDALONE
-#include "PathResolver/PathResolver.h"
-#endif
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 
 using namespace RPC_CondCabling;
 
@@ -298,17 +290,11 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
 
     if (p_trigroads == nullptr) {
         while (!CMAprogLow.is_open() && it != sectors.end()) {
-            __osstream namestr;
-#ifdef LVL1_STANDALONE
-            namestr << "./" << LVL1_configuration_repository << "/" << s_tag << "/" << s_tag << "_" << t_tag << "_pl"
-                    << "/" << s_tag << "_" << t_tag << "_pl" << c_tag << "/" << s_tag << "_" << t_tag << "_pl" << c_tag << ".txt"
-                    << std::ends;
-#else
+            std::ostringstream namestr;
+
             std::string dir;
             dir = setup.online_database();
             namestr << dir << "/" << s_tag << "_" << t_tag << "_pl" << c_tag << ".txt" << std::ends;  // M.C. search for local files
-
-#endif
 
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
@@ -402,17 +388,10 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
 
     if (p_trigroads == nullptr) {
         while (!CMAprogHigh.is_open() && it != sectors.end()) {
-            __osstream namestr;
-#ifdef LVL1_STANDALONE
-            namestr << "./"
-                    << "/" << s_tag << "/" << s_tag << "_" << t_tag << "_ph"
-                    << "/" << s_tag << "_" << t_tag << "_ph" << c_tag << "/" << s_tag << "_" << t_tag << "_ph" << c_tag << ".txt"
-                    << std::ends;
-#else
+            std::ostringstream namestr;
             std::string dir;
             dir = setup.online_database();
             namestr << dir << "/" << s_tag << "_" << t_tag << "_ph" << c_tag << ".txt" << std::ends;
-#endif
 
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
