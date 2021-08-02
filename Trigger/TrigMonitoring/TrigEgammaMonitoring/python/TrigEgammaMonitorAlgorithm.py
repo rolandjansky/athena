@@ -44,6 +44,11 @@ def TrigEgammaMonConfig(inputFlags):
 
 
 if __name__=='__main__':
+
+    # ATR-11839 to fix the egammaPid import
+    from PyUtils.Helpers import ROOT6Setup
+    ROOT6Setup()
+
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1

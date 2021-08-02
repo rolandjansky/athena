@@ -28,7 +28,7 @@ namespace Trig{
       TrigEgammaEmulationBaseHypoTool(const std::string& myname);
       ~TrigEgammaEmulationBaseHypoTool()=default;
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       bool emulate( const TrigData &, bool &) const {return true;};
 

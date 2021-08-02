@@ -24,6 +24,7 @@ namespace Trig{
 
       virtual bool emulate(  const Trig::TrigData &input, bool &pass ) const override;
       
+
     private:
 
         bool decide( const Trig::TrigData &input , const xAOD::TrigElectron* electron) const;

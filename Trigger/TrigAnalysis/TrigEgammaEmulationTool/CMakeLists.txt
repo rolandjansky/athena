@@ -21,6 +21,7 @@ atlas_add_library( TrigEgammaEmulationToolLib
    xAODBase xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo 
    xAODTrigRinger xAODTrigger RingerSelectorToolsLib
    AthOnnxruntimeServiceLib
+   AthenaMonitoringKernelLib AthenaMonitoringLib 
    )
 
 atlas_add_component( TrigEgammaEmulationTool
