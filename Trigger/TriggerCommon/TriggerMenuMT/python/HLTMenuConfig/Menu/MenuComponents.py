@@ -797,11 +797,8 @@ class Chain(object):
     # The string is needed to rename the step after addition of the ComboHypoTool
     def addTopo(self,topoPair,step="last"):
         stepname = "last step" if step=="last" else step.name
-        if step in self.topoMap:
-            log.error("Multiple topo ComboHypos requested in the same step (%s)", stepname)
-        else:
-            log.debug("Adding topo configurator %s for %s to %s", topoPair[0].__qualname__, topoPair[1], "step " + stepname)
-            self.topoMap[step] = topoPair
+        log.debug("Adding topo configurator %s for %s to %s", topoPair[0].__qualname__, topoPair[1], "step " + stepname)
+        self.topoMap[step] = topoPair
 
     def __repr__(self):
         return "-*- Chain %s -*- \n + Seeds: %s \n + Steps: \n %s \n"%(\

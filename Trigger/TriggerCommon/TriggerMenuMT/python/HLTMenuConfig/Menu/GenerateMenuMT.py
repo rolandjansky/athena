@@ -448,17 +448,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 theChainConfig = listOfChainConfigs[0]
             
-            # Unless we invent a way to add multiple ComboHypos, e.g.
-            # a tool that aggregates a list
-            if len(mainChainDict['extraComboHypos'])>1:
-                raise RuntimeError("More than one entry in extraComboHypos (%s), cannot assign to steps",mainChainDict['extraComboHypos'])
-            elif len(mainChainDict['extraComboHypos'])==1 and not ConfigFlags.Trigger.Test.doDummyChainConfig:
-                # Add the topo info to the chain config, default last step.
-                # Assumes the topo is expressed as [min]thetopo[Leg1][Leg2][max], where
-                # min,max are all numbers, Leg1, Leg2 are capital letters in topoLegIndices.
-                # Probably should add a regex check for the formatting, or similar
-                thetopo = mainChainDict['extraComboHypos'][0].strip(string.digits).rstrip(topoLegIndices)
-                theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
+            if not ConfigFlags.Trigger.Test.doDummyChainConfig:
+                for topoID in range(len(mainChainDict['extraComboHypos'])):
+                    thetopo = mainChainDict['extraComboHypos'][topoID].strip(string.digits).rstrip(topoLegIndices)
+                    theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
 
             # Now we know where the topos should go, we can insert them in the right steps
             if len(theChainConfig.topoMap) > 0:
