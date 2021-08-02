@@ -39,7 +39,7 @@ def InDetAlignmentMonitoringRun3Config(flags):
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.minNInnermostLayerHits      = 1
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.minPt                       = 5000
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxD0                       = 100000 
-        inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxZ0SinTheta               = 150 
+        inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxZ0SinTheta               = 150
         IDAlignMonGenericTracksAlgCfg(helper, inDetAlignMonGenericTracksAlg, **kwargsIDAlignMonGenericTracksAlg)
         
         ########### here ends InDetAlignMonGenericTracksAlg ###########
