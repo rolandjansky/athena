@@ -156,7 +156,7 @@
         "source": "mc",
         "format": "RDO",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/RDO/RDO_DiMuon_Endcap_R3LatestLayout_asym_v1.root"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_NSW_r20210728.root"
         ]
     },
     "pileup_low": {
