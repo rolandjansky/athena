@@ -60,6 +60,14 @@ extern bool LINES;
 
 
 
+void SetZeros( TH2D* h ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    for ( int j=1 ; j<=h->GetNbinsY() ; j++ ) { 
+      int ibin = h->GetBin( i, j );
+      if ( h->GetBinContent(ibin)==0 ) h->SetBinContent(ibin, 0.1); 
+    }
+  }
+}
 
 TH1F* Rebin( TH1F* h, double f ) { 
   
@@ -176,7 +184,7 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="",
   if ( h == 0 ) { 
     if ( chainmap && chainmap->size()!=0 ) { 
       for ( chainmap_t::const_iterator itr=chainmap->begin() ; itr!=chainmap->end() ; itr++ ) { 
-      	if ( contains( name, itr->first ) ) { 
+	if ( contains( name, itr->first ) ) { 
 	  std::cout << "\tmatch: " << itr->first << " -> " << itr->second << std::endl;
 	  name.replace( name.find(itr->first), itr->first.size(), itr->second );
 	  h = (T*)f.Get( name.c_str() );
@@ -810,7 +818,7 @@ int main(int argc, char** argv) {
   gStyle->SetPadLeftMargin(0.15);
   gStyle->SetPadBottomMargin(0.15);
 
-  gStyle->SetPadRightMargin(0.01);
+  gStyle->SetPadRightMargin(0.02);
   gStyle->SetPadTopMargin(0.05);
 
   std::cout << "Chains: " << std::endl;
@@ -826,7 +834,7 @@ int main(int argc, char** argv) {
   TString* releaseData = new TString("");
   std::vector<std::string> release_data;
   
-  if ( !nowatermark ) { 
+  if ( !nowatermark && ftest_ ) { 
 
     dataTree = (TTree*)ftest_->Get("dataTree");
   
@@ -1300,7 +1308,7 @@ int main(int argc, char** argv) {
 
       /// How are you supposed to get the paremeters of the *actual* 
       /// pad ? It is insane.
-      
+
       tc->Divide( ncolsp, nrowsp, 0.0001, 0.0003 );
       //  atlaslabel = "     " + atlaslabel_tmp;
     }
@@ -1312,6 +1320,12 @@ int main(int argc, char** argv) {
     for ( size_t i=0 ; i<panel.size() ; i++ ) {
 
       HistDetails histo = panel[i];
+
+      bool drawmeans     = false;
+      bool drawresiduals = true;
+      
+      if ( contains(histo.detail(), "+mean" )  )   drawmeans = true;
+      if ( contains(histo.detail(), "-residual") ) drawresiduals = false;
 
       std::string xaxis = histo.xtitle();
       std::string yaxis = histo.ytitle();
@@ -1477,7 +1491,29 @@ int main(int argc, char** argv) {
 	
 	/// refit the resplots - get the 2d histogram and refit
 	
-	if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
+	gPad->SetRightMargin(0.03);
+
+	if ( contains(histo.name(),"/2d") ) { 
+	  
+	  gPad->SetRightMargin(0.13);
+
+	  TH2D* h2test = Get<TH2D>( *fftest, chains[j]+"/"+histo.name(), testrun, 0, &savedhistos );
+				    
+	  DrawLabel( 0.5, 0.5, "a test" );
+	  
+	  h2test->GetYaxis()->SetTitleOffset(1.55); 
+	  h2test->GetXaxis()->SetTitleOffset(1.5); 
+	  h2test->GetXaxis()->SetTitle(xaxis.c_str());
+	  h2test->GetYaxis()->SetTitle(yaxis.c_str());
+          
+	  SetZeros( h2test );
+          
+	  h2test->DrawCopy("colz");
+	  
+	  gPad->SetLogz(true);
+          
+	}
+	else if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
 	  
 	  bool bsigma = false;
 	  if ( contains(histo.name(),"/sigma") ) bsigma = true;
@@ -2114,7 +2150,19 @@ int main(int argc, char** argv) {
 
 	if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
 
-	if ( residual ) {
+	if ( drawmeans ) {
+	  
+          double   mean_95 = htest->GetMean();
+          double  dmean_95 = htest->GetMeanError();
+          double    rms_95 = htest->GetRMS();
+          double   drms_95 = htest->GetRMSError();
+          
+          Mean.push_back(label("     mean = %4.2lf #pm %4.2lf", mean_95, dmean_95) );
+          RMS.push_back(label( "     rms   = %4.2lf #pm %4.2lf", rms_95,  drms_95 ) );
+          
+        }
+	
+	if ( residual && drawresiduals ) {
 	
 	  /// resolutions 
 
@@ -2208,9 +2256,11 @@ int main(int argc, char** argv) {
 	
 	  htest->Sumw2();
 	  if ( href ) href->Sumw2();
+	}
+
+	if ( yinfo.normset() ) {
 	  htest->Scale(1./NeventTest);
 	  if ( href ) href->Scale(1./NeventRef);
-
 	}
      
 	if ( yinfo.normset() ) { 
@@ -2405,23 +2455,23 @@ int main(int argc, char** argv) {
 
       if ( ( !nostats || !nomeans ) && !noplots ) { 
 	if ( dochi2 ) for ( unsigned  j=0 ; j<Chi2.size() ; j++ ) DrawLabel( 0.75, 0.85-j*0.035, Chi2[j], colours[j%6] );
-	if ( (contains(histo.name(),"_res") || 
-	      contains(histo.name(),"1d")   ||
-	      histo.name()=="pT"            || 
-	      contains(histo.name(),"residual_") ||
-	      contains(histo.name(),"vs_pt") ) && !contains(histo.name(),"sigma") ) { 
+	if ( ( (contains(histo.name(),"_res") || 
+		contains(histo.name(),"1d")   ||
+		histo.name()=="pT"            || 
+		contains(histo.name(),"residual_") ||
+		contains(histo.name(),"vs_pt") ) && !contains(histo.name(),"sigma") ) || drawmeans ) { 
 
-	  if ( contains(histo.name(),"_res") || contains(histo.name(),"residual_") || contains(histo.name(),"1d") ){
+	  if ( contains(histo.name(),"_res") || contains(histo.name(),"residual_") || contains(histo.name(),"1d") || drawresiduals ){
 	    for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
 	      if ( !noreftmp ) { 
 		if ( j<MeanRef.size() ) {
-		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
-		  DrawLabel( xpos_original-0.01, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.67-j*0.035), MeanRef[j], colours[j%6] );
+		  DrawLabel( xpos_original-0.01, (0.67-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
 		}
 	      }
 	      if ( j<Mean.size() ) {
-		if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
-		DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+		if ( !nomeans ) DrawLabel( 0.62, (0.67-j*0.035), Mean[j],  colours[j%6] );
+		DrawLabel( 0.62, (0.67-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
 	      }
 	    }
 	  }

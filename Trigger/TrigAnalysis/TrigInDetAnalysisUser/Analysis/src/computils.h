@@ -480,11 +480,11 @@ public:
   std::string plotfilename() const { return m_plotfilename; }
 
   void trim_errors(bool b) { m_trim_errors=b; } 
-
+  
   bool  trim_errors() const { return m_trim_errors; } 
-
+  
   void Draw( int i, Legend& leg, bool mean=false, bool first=true, bool drawlegend=false ) { 
-
+    
     if ( htest() ) {
       gStyle->SetOptStat(0);
       if ( href() ) { 
@@ -498,7 +498,7 @@ public:
       if ( LINEF ) htest()->SetMarkerColor(htest()->GetLineColor());
       if ( LINEF ) htest()->SetMarkerStyle(markers[i%6]);
 
-      if ( htest() ) std::cout << "\tentries " << plotable( htest() );
+      if ( htest() ) std::cout << "\tentries: " << plotable( htest() );
       std::cout << std::endl;
 
       if ( first )  {
@@ -507,6 +507,8 @@ public:
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
 	    if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
+
+
 	    htest()->Draw("ep");
 	    if ( LINES ) htest()->Draw("lhistsame");
 	    setParameters( htest(), tgtest() );
@@ -519,6 +521,7 @@ public:
 	}
        
       }
+
 
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
@@ -1051,19 +1054,22 @@ class HistDetails {
 
 public:
 
-  HistDetails( const std::vector<std::string>& v ) : m_xinfo(v[2]), m_yinfo(v[4]) { 
+  HistDetails( const std::vector<std::string>& v ) : m_extra(""), m_xinfo(v[2]), m_yinfo(v[4]) { 
     if ( v.size() < 6 ) throw std::exception();
     m_details.reserve(6);
     for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(v[i]); 
+    getextra();
   }
 
-  HistDetails( const std::string* vp ) : m_xinfo(vp[2]), m_yinfo(vp[4]) { 
+  HistDetails( const std::string* vp ) : m_extra(""), m_xinfo(vp[2]), m_yinfo(vp[4]) { 
     m_details.reserve(6);
     for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(vp[i]); 
+    getextra();
   }
 
-
   std::string  name() const { return m_details[0]; } 
+
+  std::string  detail() const { return m_extra; }
 
   std::string  info() const { return m_details[1]; } 
 
@@ -1075,7 +1081,22 @@ public:
 
 private:
 
+  void getextra() { 
+    if ( contains( m_details[0], "-" ) ) { 
+      m_extra = m_details[0].substr( m_details[0].find("-"), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find("-") );
+    }
+    if ( contains( m_details[0], "+" ) ) { 
+      m_extra = m_details[0].substr( m_details[0].find("+"), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find("+") );
+    }
+  }
+
+private:
+
   std::vector<std::string> m_details;
+
+  std::string m_extra;
 
   AxisInfo m_xinfo;
   AxisInfo m_yinfo;
