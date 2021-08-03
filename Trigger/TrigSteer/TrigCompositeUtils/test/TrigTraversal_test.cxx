@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -95,9 +95,9 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
 
   // Starting nodes
-  Decision* MU0 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
-  Decision* MU1 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
-  Decision* EM0 = newDecisionIn(decisionContainerPtr, l1DecoderNodeName());
+  Decision* MU0 = newDecisionIn(decisionContainerPtr, hltSeedingNodeName());
+  Decision* MU1 = newDecisionIn(decisionContainerPtr, hltSeedingNodeName());
+  Decision* EM0 = newDecisionIn(decisionContainerPtr, hltSeedingNodeName());
 
   // Terminus node
   Decision* END = newDecisionIn(decisionContainerPtr, summaryPassNodeName()); // This name is important

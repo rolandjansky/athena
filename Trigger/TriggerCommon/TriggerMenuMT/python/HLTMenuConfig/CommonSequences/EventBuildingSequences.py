@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from libpyeformat_helper import SourceIdentifier, SubDetector
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, findAlgorithm

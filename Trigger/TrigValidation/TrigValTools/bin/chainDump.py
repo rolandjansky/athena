@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''Script to dump trigger counts to a text file'''
@@ -83,7 +83,7 @@ def get_parser():
                         nargs='+',
                         default=[
                             'TrigSteer_HLT/NInitialRoIsPerEvent',
-                            'HLTFramework/L1Decoder/RoIsEM/count'],
+                            'HLTFramework/HLTSeeding/RoIsEM/count'],
                         help='Histograms to use for total events. First existing '
                              'histogram from the list is used, default = %(default)s')
     parser.add_argument('--histDict',

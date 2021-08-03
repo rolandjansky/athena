@@ -23,9 +23,9 @@ doL2Egamma=True
 from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 
-topSequence.remove( findAlgorithm(topSequence, "L1Decoder") )
-from L1Decoder.L1DecoderConf import L1TestDecoder
-topSequence += L1TestDecoder("L1TestDecoder", OutputLevel=DEBUG)
+topSequence.remove( findAlgorithm(topSequence, "HLTSeeding") )
+from HLTSeeding.HLTSeedingConf import HLTSeedingNoCtpForTesting
+topSequence += HLTSeedingNoCtpForTesting("HLTSeedingNoCtpForTesting", OutputLevel=DEBUG)
 
 steps = seqOR("HLTTop")
 topSequence += steps

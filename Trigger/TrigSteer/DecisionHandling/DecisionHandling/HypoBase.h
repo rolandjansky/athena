@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DECISIONHANDLING_HYPOBASE_H
@@ -71,7 +71,7 @@ class HypoBase : public ::AthReentrantAlgorithm {
   static StatusCode validateDecisionIDs(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL,
     MsgStream& msg);
 
-  /// Ensure that the Decision has at least one valid parent, unless it is a initial Decision from the L1 Decoder
+  /// Ensure that the Decision has at least one valid parent, unless it is a initial Decision from the HLTSeeding
   static StatusCode validateParentLinking(const ElementLink<TrigCompositeUtils::DecisionContainer>& dEL, 
     MsgStream& msg,
     bool runTwoConversion);

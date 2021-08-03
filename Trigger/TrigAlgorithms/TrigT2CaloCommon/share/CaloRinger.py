@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 if 'doHLTCaloTopo' not in dir() :
@@ -23,14 +23,13 @@ from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from AthenaCommon.Constants import DEBUG
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-topSequence.remove( findAlgorithm(topSequence, "L1Decoder") )
-from L1Decoder.L1DecoderConf import L1TestDecoder
-topSequence += L1TestDecoder("L1TestDecoder", OutputLevel=DEBUG)
+topSequence.remove( findAlgorithm(topSequence, "HLTSeeding") )
+from HLTSeeding.HLTSeedingConf import HLTSeedingNoCtpForTesting
+topSequence += HLTSeedingNoCtpForTesting("HLTSeedingNoCtpForTesting", OutputLevel=DEBUG)
 
 
 steps = seqOR("HLTTop")
 topSequence += steps
-#steps += topSequence.L1Decoder
 
 if TriggerFlags.doCalo:
 

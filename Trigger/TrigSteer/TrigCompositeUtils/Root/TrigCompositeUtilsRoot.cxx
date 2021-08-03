@@ -422,8 +422,8 @@ namespace TrigCompositeUtils {
         // such that by default we start to NOT flag all the parent nodes to be kept
         modeKeep = false;
       }
-      if (node->node()->name() == l1DecoderNodeName()) {
-        // We also keep the initial node from the L1 decoder
+      if (node->node()->name() == hltSeedingNodeName()) {
+        // We also keep the initial node from the HLTSeeding
         keep = true;
       }
     }
@@ -448,7 +448,7 @@ namespace TrigCompositeUtils {
         continue;
       }
 #endif
-      // Recursivly call all the way up the graph to the initial nodes from the L1 decoder
+      // Recursivly call all the way up the graph to the initial nodes from the HLTSeeding
       recursiveFlagForThinningInternal(seed, modeKeep, fullyExploredFrom, keepOnlyFinalFeatures, nodesToDrop);
     }
 
@@ -766,8 +766,8 @@ namespace TrigCompositeUtils {
     return Decision::s_seedString;
   }
   
-  const std::string& l1DecoderNodeName(){
-    return Decision::s_l1DecoderNodeNameString;
+  const std::string& hltSeedingNodeName(){
+    return Decision::s_hltSeedingNodeNameString;
   }
 
   const std::string& filterNodeName(){

@@ -18,7 +18,7 @@
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/ITrigThresholdDecisionTool.h"
 
-#include "L1Decoder/IRoIThresholdsTool.h"
+#include "HLTSeeding/IRoIThresholdsTool.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from egammaAlgs import egammaAlgsConf
@@ -95,7 +95,7 @@ def egammaFSCaloRecoSequence():
     setMinimalCaloSetup()
 
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+    from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
 
     cellMaker = HLTCaloCellMaker('HLTCaloCellMakerEGFS')

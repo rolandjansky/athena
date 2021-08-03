@@ -38,7 +38,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects, \
      triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
 from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
@@ -55,7 +55,7 @@ log = logging.getLogger( __name__ )
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
-    summary.InputDecision = "L1DecoderSummary"
+    summary.InputDecision = "HLTSeedingSummary"
     summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
     return summary
 
@@ -135,7 +135,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
 
     # find main HLT top sequence (already set up in runHLT_standalone)
-    l1decoder = findAlgorithm(topSequence, "L1Decoder")
+    hltSeeding = findAlgorithm(topSequence, "HLTSeeding")
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -194,11 +194,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # Add any required algs to hltFinalizeSeq here
 
     # More collections required to configure the algs below
-    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryAlg )
+    decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     Configurable.configurableRun3Behavior=1
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, hltSeeding )
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )

@@ -23,7 +23,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doHLT', True)
 
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
-    flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
+    flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
 #    # Enable Run-3 LVL1 simulation and/or decoding
 #    flags.addFlag('Trigger.enableL1Phase1', False)
@@ -62,7 +62,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doCalo', True)
 
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
-    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    # parents all the way back to the HLTSeeding. Potentially CPU expensive.
     # also enables per step decison printouts
     flags.addFlag('Trigger.doRuntimeNaviVal', False)
 

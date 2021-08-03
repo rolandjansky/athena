@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "DecisionSummaryMakerAlg.h"
@@ -11,7 +11,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   renounceArray( m_finalDecisionKeys );
   ATH_CHECK( m_finalDecisionKeys.initialize() );
   ATH_CHECK( m_summaryKey.initialize() );
-  ATH_CHECK( m_l1SummaryKey.initialize() );
+  ATH_CHECK( m_hltSeedingSummaryKey.initialize() );
 
   for ( auto& [chain, collections]: m_lastStepForChain ) {
     for ( auto& collection: collections ) {
@@ -102,12 +102,12 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
   }
 
-  // Get the data from the L1 decoder, this is where prescales were applied
-  SG::ReadHandle<DecisionContainer> l1DecoderSummary( m_l1SummaryKey, context );
+  // Get the data from the HLTSeeding, this is where prescales were applied
+  SG::ReadHandle<DecisionContainer> hltSeedingSummary( m_hltSeedingSummaryKey, context );
   const Decision* l1SeededChains = nullptr; // Activated by L1
   const Decision* activeChains = nullptr; // Activated and passed prescale check
   const Decision* prescaledChains = nullptr; // Activated but failed prescale check
-  for (const Decision* d : *l1DecoderSummary) {
+  for (const Decision* d : *hltSeedingSummary) {
     if (d->name() == "l1seeded") {
       l1SeededChains = d;
     } else if (d->name() == "unprescaled") {
@@ -115,13 +115,13 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     } else if (d->name() == "prescaled") {
       prescaledChains = d;
     } else {
-      ATH_MSG_ERROR("DecisionSummaryMakerAlg encountered an unknown set of decisions from the L1Decoder, name '" << d->name() << "'");
+      ATH_MSG_ERROR("DecisionSummaryMakerAlg encountered an unknown set of decisions from the HLTSeeding, name '" << d->name() << "'");
       return StatusCode::FAILURE;
     }
   }
 
   if (l1SeededChains == nullptr || activeChains == nullptr || prescaledChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder. Cannot write to the HLT output summary the prescale status of HLT chains.");
+    ATH_MSG_ERROR("Unable to read in the summary from the HLTSeeding. Cannot write to the HLT output summary the prescale status of HLT chains.");
     return StatusCode::FAILURE;
   }
 

@@ -286,7 +286,7 @@ def generateDecisionTree(flags, chains):
         output = None
         for currentCounter in range(stepCounter, -1, -1):
             if currentCounter == 0:
-                from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+                from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
                 thisStep = [ (''.join([c for c in seed if not c.isnumeric()]), mapThresholdToL1DecisionCollection(seed))  for seed in chain.vseeds ]
             else:
                 thisStep = [__nameAndOutput(h) for h in findAllHypoAlgs( currentCounter, chain.steps[currentCounter-1].name )]

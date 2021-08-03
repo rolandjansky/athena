@@ -12,7 +12,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from GaudiKernel.DataHandle import DataHandle
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from TrigCompositeUtils.TrigCompositeUtils import legName
 
 from inspect import signature
@@ -686,7 +686,7 @@ class Chain(object):
             self.topoMap.update(topoMap)
 
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
-        # in practice it is the L1Decoder Decision output
+        # in practice it is the HLTSeeding Decision output
         log.debug("Chain.__init__ L1 thresholds %s",L1Thresholds)
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
         self.setSeedsToSequences()
