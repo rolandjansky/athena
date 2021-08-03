@@ -108,6 +108,16 @@ namespace {
         return a.z0SinTheta(t);
       });
     }
+    if (name == "d0Uncertainty") {
+      return TJGetter([a](const Tp& t, const Jet&){
+        return a.d0Uncertainty(t);
+      });
+    }
+    if (name == "z0SinThetaUncertainty") {
+      return TJGetter([a](const Tp& t, const Jet&){
+        return a.z0SinThetaUncertainty(t);
+      });
+    }
     return std::nullopt;
 
   }
