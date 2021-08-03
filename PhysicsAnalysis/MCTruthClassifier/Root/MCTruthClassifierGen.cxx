@@ -331,7 +331,7 @@ const xAOD::TruthParticle* MCTruthClassifier::getParentHadron(const xAOD::TruthP
 
   ATH_MSG_DEBUG( "Executing getParentHadron" );
 
-  if(!thePart) { ATH_MSG_WARNING( "Passed a nullptr" ); return 0; }
+  if(!thePart) { ATH_MSG_WARNING( "Passed a nullptr" ); return nullptr; }
 
   return std::get<1>(defOrigOfParticle(thePart));
 }
