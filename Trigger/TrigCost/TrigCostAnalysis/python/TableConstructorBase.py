@@ -35,10 +35,19 @@ class Column:
         self.needNormalizing = needNormalizing
 
 
-    def addValue(self, value):
+    def addValue(self, value, index=-1):
         ''' @brief Add value to the column '''
-        self.content.append(value)
+        if index < 0 or index >= len(self.content):
+            self.content.append(value)
+        else:
+            self.content[index] += value
 
+    def updateValue(self, value, index=-1):
+        ''' @brief Add value to the column '''
+        if index < 0 or index >= len(self.content):
+            self.content.append(value)
+        else:
+            self.content[index] = value
 
     def getValue(self, index):
         ''' @brief Get value from column with given index'''

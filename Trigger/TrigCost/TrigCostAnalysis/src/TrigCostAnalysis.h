@@ -115,6 +115,9 @@ class TrigCostAnalysis: public ::AthAlgorithm {
     Gaudi::Property<bool> m_doMonitorChainAlgorithm { this, "DoMonitorChainAlgorithm", false,
       "Monitor algorithms associated with chains by instance name" };
 
+    Gaudi::Property<bool> m_doMonitorSequence { this, "DoMonitorSequence", true,
+      "Monitor individual sequences by name" };
+
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
 

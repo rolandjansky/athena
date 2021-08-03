@@ -99,7 +99,7 @@ def exploreTree(inputFile):
                 t.fillTable(histPrefix)
                 t.normalizeColumns(walltime)
                 t.saveToFile(fileName)
- 
+
             except (NameError, ImportError):
                 log.warning("Class {0} not defined - directory {1} will not be processed"
                             .format(table.GetName()+"_TableConstructor", table.GetName()))
