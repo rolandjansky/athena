@@ -28,7 +28,8 @@ namespace top {
     m_config(nullptr),
     m_doFull_JER(false),
     m_doFull_JER_Pseudodata(false),
-    m_doOnly_JER_largeR(false),
+    m_doFull_JER_largeR(false),
+    m_doFull_JER_largeR_Pseudodata(false),
     m_isMC(false),
     m_doMultipleJES(false),
 
@@ -42,11 +43,13 @@ namespace top {
     m_jetCalibrationToolLargeR("JetCalibrationToolLargeR"),
 
     m_jetUncertaintiesTool("JetUncertaintiesTool"),
+    m_jetUncertaintiesToolPseudoData("JetUncertaintiesToolPseudoData"),
     m_jetUncertaintiesToolReducedNPScenario1("JetUncertaintiesToolReducedNPScenario1"),
     m_jetUncertaintiesToolReducedNPScenario2("JetUncertaintiesToolReducedNPScenario2"),
     m_jetUncertaintiesToolReducedNPScenario3("JetUncertaintiesToolReducedNPScenario3"),
     m_jetUncertaintiesToolReducedNPScenario4("JetUncertaintiesToolReducedNPScenario4"),
     m_jetUncertaintiesToolLargeR("JetUncertaintiesToolLargeR"),
+    m_jetUncertaintiesToolLargeRPseudoData("JetUncertaintiesToolLargeRPseudoData"),
     m_FFJetSmearingTool("FFJetSmearingTool"),
 
     m_jetUpdateJvtTool("JetUpdateJvtTool"),
@@ -55,22 +58,26 @@ namespace top {
     m_jetSubstructure(nullptr),
 
     m_systMap_AllNP(),
+    m_systMap_JERPseudo(),
     m_systMap_ReducedNPScenario1(),
     m_systMap_ReducedNPScenario2(),
     m_systMap_ReducedNPScenario3(),
     m_systMap_ReducedNPScenario4(),
-    m_systMap_LargeR() {
+    m_systMap_LargeR(),
+    m_systMap_LargeR_JERPseudo() {
     declareProperty("config", m_config);
 
     declareProperty("JetCalibrationTool", m_jetCalibrationTool);
     declareProperty("JetCalibrationToolLargeR", m_jetCalibrationToolLargeR);
 
     declareProperty("JetUncertaintiesTool", m_jetUncertaintiesTool);
+    declareProperty("JetUncertaintiesToolPseudoData", m_jetUncertaintiesToolPseudoData);
     declareProperty("JetUncertaintiesToolReducedNPScenario1", m_jetUncertaintiesToolReducedNPScenario1);
     declareProperty("JetUncertaintiesToolReducedNPScenario2", m_jetUncertaintiesToolReducedNPScenario2);
     declareProperty("JetUncertaintiesToolReducedNPScenario3", m_jetUncertaintiesToolReducedNPScenario3);
     declareProperty("JetUncertaintiesToolReducedNPScenario4", m_jetUncertaintiesToolReducedNPScenario4);
     declareProperty("JetUncertaintiesToolLargeR", m_jetUncertaintiesToolLargeR);
+    declareProperty("JetUncertaintiesToolLargeRPseudoData", m_jetUncertaintiesToolLargeRPseudoData);
     declareProperty("FFJetSmearingTool", m_FFJetSmearingTool);
 
     declareProperty("JetUpdateJvtTool", m_jetUpdateJvtTool);
@@ -96,6 +103,9 @@ namespace top {
       if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
 	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
 		   "Failed to retrieve JetUncertaintiesToolLargeR");
+        if (m_config->isMC() && m_config->doLargeRPseudodataJER())
+          top::check(m_jetUncertaintiesToolLargeRPseudoData.retrieve(),
+                     "Failed to retrieve JetUncertaintiesToolLargeRPseudoData");
         if (!m_config->isSystNominal(m_config->systematics()))
           top::check(m_FFJetSmearingTool.retrieve(),
                      "Failed to retrieve FFJetSmearingTool");
@@ -114,12 +124,12 @@ namespace top {
     else m_doFull_JER_Pseudodata = false;
 
     ///-- Large-R JER (Pseudo-)Data Smearing Config --///
-    if ((!m_config->isMC() || m_config->largeRSysts_TreatMCasPseudodata())
-        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") == std::string::npos) m_doOnly_JER_largeR = true;
-    else m_doOnly_JER_largeR = false;
-    bool skip_systs = false;
-    if (m_config->largeRSysts_TreatMCasPseudodata()
-        && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") != std::string::npos) skip_systs = true;
+    if (!m_config->isMC() && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") == std::string::npos)
+      m_doFull_JER_largeR = true;
+    else m_doFull_JER_largeR = false;
+    if (m_config->isMC() && m_config->doLargeRPseudodataJER() && (m_config->largeRJetUncertainties_NPModel()).find("_SimpleJER_") == std::string::npos)
+      m_doFull_JER_largeR_Pseudodata = true;
+    else m_doFull_JER_largeR_Pseudodata = false;
 
     m_isMC = m_config->isMC();
     m_doMultipleJES = m_config->doMultipleJES();
@@ -128,6 +138,9 @@ namespace top {
     if (m_isMC || m_doFull_JER) {
       if (!m_doMultipleJES) {
         top::check(m_jetUncertaintiesTool.retrieve(), "Failed to retrieve JetUncertaintiesTool");
+        if (m_doFull_JER_Pseudodata) {
+          top::check(m_jetUncertaintiesToolPseudoData.retrieve(), "Failed to retrieve JetUncertaintiesTool for pseudo data");
+        }
       } else {
         top::check(
           m_jetUncertaintiesToolReducedNPScenario1.retrieve(),
@@ -180,7 +193,6 @@ namespace top {
       }
     }
 
-
     ///-- JES systematics --///
     if (m_isMC || m_doFull_JER) {
       std::string allNP(""),
@@ -189,27 +201,34 @@ namespace top {
       bool onlyJER = ((!m_isMC) && m_doFull_JER) || (m_isMC && m_doFull_JER_Pseudodata);
 
       if (!m_doMultipleJES) {
-        addSystematics(syst, m_jetUncertaintiesTool->recommendedSystematics(), m_systMap_AllNP, allNP, false, onlyJER);
+        if (!m_isMC && m_doFull_JER) { // full JER on data = only JER systematics
+          addSystematics(syst, m_jetUncertaintiesTool->recommendedSystematics(), m_systMap_AllNP, allNP, false, true, false);
+        } else { // if it is MC run all JES/JER
+          addSystematics(syst, m_jetUncertaintiesTool->recommendedSystematics(), m_systMap_AllNP, allNP, false, false, false);
+        }
+        if (m_doFull_JER_Pseudodata) { // if it is PseudoData JER run extra PD smearing
+          addSystematics(syst, m_jetUncertaintiesToolPseudoData->recommendedSystematics(), m_systMap_JERPseudo, allNP, false, true, true);
+        }
       } else {
         addSystematics(syst,
                        m_jetUncertaintiesToolReducedNPScenario1->recommendedSystematics(), m_systMap_ReducedNPScenario1, np1, false,
-                       onlyJER);
+                       onlyJER, false);
         addSystematics(syst,
                        m_jetUncertaintiesToolReducedNPScenario2->recommendedSystematics(), m_systMap_ReducedNPScenario2, np2, false,
-                       onlyJER);
+                       onlyJER, false);
         addSystematics(syst,
                        m_jetUncertaintiesToolReducedNPScenario3->recommendedSystematics(), m_systMap_ReducedNPScenario3, np3, false,
-                       onlyJER);
+                       onlyJER, false);
         addSystematics(syst,
                        m_jetUncertaintiesToolReducedNPScenario4->recommendedSystematics(), m_systMap_ReducedNPScenario4, np4, false,
-                       onlyJER);
+                       onlyJER, false);
       }
     }
 
 
     ///-- Large-R JES/JER/JMS/JMR systematics --///
     CP::SystematicSet largeRsysts;
-    if ((m_config->isMC() || m_doOnly_JER_largeR) && m_config->useLargeRJets()) {
+    if ((m_isMC || m_doFull_JER_largeR) && m_config->useLargeRJets()) {
       if (m_config->largeRJESJMSConfig() == "CombMass") { // Only CombMass is supported for large-R JES/JER/JMS/JMR systematics at the moment
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
         if (!m_config->isSystNominal(m_config->systematics()))
@@ -257,9 +276,11 @@ namespace top {
 
 
     // add the merged set of systematics for large-R jets including the tagging SF systs
-    if ((m_config->isMC() || m_doOnly_JER_largeR) && (m_config->useLargeRJets()) && (!skip_systs)) {
+    if ((m_config->isMC() || m_doFull_JER_largeR) && m_config->useLargeRJets()) {
       std::string allNPlargeR("");
-      addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, allNPlargeR, true, m_doOnly_JER_largeR);
+      addSystematics(systLargeR, largeRsysts, m_systMap_LargeR, allNPlargeR, true, m_doFull_JER_largeR, false);
+      if (m_doFull_JER_largeR_Pseudodata)
+        addSystematics(systLargeR, largeRsysts, m_systMap_LargeR_JERPseudo, allNPlargeR, true, true, true);
     }
     
     ///-- Large R jet substructure --///
@@ -361,7 +382,10 @@ namespace top {
       ///-- JES --///
       if (m_isMC || m_doFull_JER) {
         if (!m_doMultipleJES) {
-          top::check(applySystematic(m_jetUncertaintiesTool, m_systMap_AllNP), "Failed to apply JES");
+          top::check(applySystematic(m_jetUncertaintiesTool, m_systMap_AllNP, false), "Failed to apply JES");
+          if (m_doFull_JER_Pseudodata) {
+            top::check(applySystematic(m_jetUncertaintiesToolPseudoData, m_systMap_JERPseudo, false), "Failed to apply JES for pseudodata");
+          }
         }
         if (m_doMultipleJES) {
           top::check(applySystematic(m_jetUncertaintiesToolReducedNPScenario1,
@@ -378,10 +402,13 @@ namespace top {
       // tag calibrated (nominal) jets -- the tagging information will be available
       // for systematically-shifted shallow copies as well
       top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
-      if (m_isMC || m_doOnly_JER_largeR) {
+      if (m_isMC || m_doFull_JER_largeR) {
         top::check(applyTaggingSFSystematic(), "Failed to apply large-R tagging SFs syst.");
         top::check(applySystematic(m_jetUncertaintiesToolLargeR, m_systMap_LargeR,
                                    true), "Failed to apply large-R syst.");
+        if (m_doFull_JER_largeR_Pseudodata)
+          top::check(applySystematic(m_jetUncertaintiesToolLargeRPseudoData, m_systMap_LargeR_JERPseudo,
+                                     true), "Failed to apply large-R pseudodata JER.");
       }
     }
 
@@ -622,7 +649,6 @@ namespace top {
                                       m_nominalSystematicSet.hash())), "Failed to retrieve " + msg_jet_collection);
     }
 
-
     ///-- Loop over the systematics --///
     for (Itr syst = map.begin(); syst != map.end(); ++syst) {
       ///-- Don't do the nominal, we've already done that --///
@@ -800,39 +826,45 @@ namespace top {
   void JetObjectCollectionMaker::addSystematics(const std::set<std::string>& specifiedSystematics,
                                                 const CP::SystematicSet& recommendedSysts,
                                                 std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
-                                                const std::string& modName, bool isLargeR, bool onlyJER) {
+                                                const std::string& modName,
+                                                bool isLargeR,
+                                                bool onlyJER,
+                                                bool isPseudoData) {
+
+    if (isPseudoData && m_config->isSystNominal(m_config->systematics())) return;
 
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
 
     for (const CP::SystematicSet& s : systList) {
-      if (s.size() == 1) {
-        CP::SystematicSet::const_iterator ss = s.begin();
+      if (s.size() != 1) continue;
+      CP::SystematicSet::const_iterator ss = s.begin();
 
-	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
+      if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
-        if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
+      if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 
-        CP::SystematicSet modSet(modName + ss->name());
+      const std::string name = isPseudoData ? modName + ss->name() + "_PseudoData" :  modName + ss->name();
 
-        m_recommendedSystematics.push_back(modSet);
-        if (!m_config->isSystNominal(m_config->systematics())) {
-          if (specifiedSystematics.size() == 0) {
-            if (!isLargeR) m_specifiedSystematics.push_back(modSet);
-            else m_specifiedSystematicsLargeR.push_back(modSet);
-            map.insert(std::make_pair(modSet, s));
-          } else if (specifiedSystematics.size() > 0) {
-            for (std::string i : specifiedSystematics) {
-	      TreeFilter filter(i);
-              if (!filter.filterTree(modSet.name())) {
-                if (!isLargeR) m_specifiedSystematics.push_back(modSet);
-                else m_specifiedSystematicsLargeR.push_back(modSet);
-                map.insert(std::make_pair(modSet, s));
-              }
+      CP::SystematicSet modSet(name);
+
+      m_recommendedSystematics.push_back(modSet);
+      if (!m_config->isSystNominal(m_config->systematics())) {
+        if (specifiedSystematics.size() == 0) {
+          if (!isLargeR) m_specifiedSystematics.push_back(modSet);
+          else m_specifiedSystematicsLargeR.push_back(modSet);
+          map.insert(std::make_pair(modSet, s));
+        } else {
+          for (const std::string& i : specifiedSystematics) {
+            TreeFilter filter(i);
+            if (!filter.filterTree(modSet.name())) {
+              if (!isLargeR) m_specifiedSystematics.push_back(modSet);
+              else m_specifiedSystematicsLargeR.push_back(modSet);
+              map.insert(std::make_pair(modSet, s));
             }
-          } // User has specified a systematic
-        } // Don't do anything if the user requests nominal only
-      } // size() == 1 -- this means that there is a CP::SystematicVariation
+          }
+        } // User has specified a systematic
+      } // Don't do anything if the user requests nominal only
     } // Loop over systList
 
     m_recommendedSystematics.sort();

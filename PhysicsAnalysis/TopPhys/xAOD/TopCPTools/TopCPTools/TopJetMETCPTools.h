@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPJETMETCPTOOLS_H_
@@ -84,8 +84,10 @@ namespace top {
     ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeRPseudoData;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolPseudoData;
     ToolHandle<ICPJetCorrectionTool> m_FFJetSmearingTool;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;

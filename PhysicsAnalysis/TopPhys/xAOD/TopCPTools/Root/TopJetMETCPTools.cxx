@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopJetMETCPTools.h"
@@ -23,6 +23,7 @@
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 #include "JetSelectorTools/EventCleaningTool.h"
+#include "JetUncertainties/FFJetSmearingTool.h"
 
 
 // MET include(s):
@@ -70,7 +71,11 @@ namespace top {
     declareProperty("JetCalibrationTool", m_jetCalibrationTool);
     declareProperty("JetCalibrationToolLargeR", m_jetCalibrationToolLargeR);
 
+    declareProperty("JetUncertaintiesToolLargeR", m_jetUncertaintiesToolLargeR);
+    declareProperty("JetUncertaintiesToolLargeRPseudoData", m_jetUncertaintiesToolLargeRPseudoData);
+
     declareProperty("JetUncertaintiesTool", m_jetUncertaintiesTool);
+    declareProperty("JetUncertaintiesToolPseudoData", m_jetUncertaintiesToolPseudoData);
     declareProperty("FFJetSmearingTool", m_FFJetSmearingTool);
     declareProperty("JetUncertaintiesToolReducedNPScenario1", m_jetUncertaintiesToolReducedNPScenario1);
     declareProperty("JetUncertaintiesToolReducedNPScenario2", m_jetUncertaintiesToolReducedNPScenario2);
@@ -280,16 +285,25 @@ namespace top {
     std::string calib_area = "None";
 
     // JER string option configuration
-    bool JERisMC = m_config->isMC();
+    const bool JERisPseudoData = (m_config->jetJERSmearingModel() == "Full_PseudoData") || (m_config->jetJERSmearingModel() == "All_PseudoData");
     std::string JERSmearModel = m_config->jetJERSmearingModel();
+    std::string JMSOption = m_config->jetJMSOption();
+    if (JMSOption != "None") {
+      conference = "Spring2021"; // Updated files using the JMS option are in Spring2021
+      if (JMSOption == "JMS_frozen") JMSOption = "_JMS_frozen";
+      else if (JMSOption == "JMS_scaled") JMSOption = "_JMS_scaled";
+      else {
+        ATH_MSG_ERROR("Incorrect JMS option: None, JMS_frozen, JMS_scaled");
+        return StatusCode::FAILURE;
+      }
+    }
+    else JMSOption = ""; // Default JMSOption
     // Any PseudoData Option (Smear MC as data)
     if (JERSmearModel == "Full_PseudoData") {
-      if (JERisMC) JERisMC = false;
       JERSmearModel = "Full";
       ATH_MSG_INFO("JER PseudoData option provided - Treating MC as if it is data for JER uncertainty");
     }
     if (JERSmearModel == "All_PseudoData") {
-      if (JERisMC) JERisMC = false;
       JERSmearModel = "All";
       ATH_MSG_INFO("JER PseudoData option provided - Treating MC as if it is data for JER uncertainty");
     }
@@ -308,15 +322,34 @@ namespace top {
       m_jetUncertaintiesTool = setupJetUncertaintiesTool("JetUncertaintiesTool",
                                                          jetCalibrationName,
                                                          MC_type,
-                                                         JERisMC,
+                                                         m_config->isMC(),
                                                          "rel21/" + conference
                                                          + "/R4_" + m_config->jetUncertainties_NPModel()
                                                          + JERSmearModel
+                                                         + JMSOption
                                                          + ".config",
                                                          nullptr,
                                                          m_config->jetUncertainties_QGFracFile(),
                                                          calib_area
                                                          );
+      // setup the pseudodata tool when required
+      if (JERisPseudoData) {
+        m_jetUncertaintiesToolPseudoData = setupJetUncertaintiesTool("JetUncertaintiesToolPseudoData",
+                                                                     jetCalibrationName,
+                                                                     MC_type,
+                                                                     false, // treat MC as data
+                                                                     "rel21/" + conference
+                                                                     + "/R4_" + m_config->jetUncertainties_NPModel()
+                                                                     + JERSmearModel
+                                                                     + JMSOption
+                                                                     + ".config",
+                                                                     nullptr,
+                                                                     m_config->jetUncertainties_QGFracFile(),
+                                                                     calib_area
+                                                                     );
+
+      }
+    
     } else {
       // Strong reductions now enabled. If you want to run a single scenario please note the new config file names
       // R4_SR_Scenario*_SimpleJER
@@ -324,10 +357,12 @@ namespace top {
         = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario1",
                                     jetCalibrationName,
                                     MC_type,
-                                    JERisMC,
+                                    m_config->isMC(),
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario1_SimpleJER.config",
+                                    + "/R4_SR_Scenario1_SimpleJER"
+                                    + JMSOption
+                                    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -335,10 +370,12 @@ namespace top {
         = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario2",
                                     jetCalibrationName,
                                     MC_type,
-                                    JERisMC,
+                                    m_config->isMC(),
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario2_SimpleJER.config",
+                                    + "/R4_SR_Scenario2_SimpleJER"
+                                    + JMSOption
+                                    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -346,10 +383,12 @@ namespace top {
         = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario3",
                                     jetCalibrationName,
                                     MC_type,
-                                    JERisMC,
+                                    m_config->isMC(),
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario3_SimpleJER.config",
+                                    + "/R4_SR_Scenario3_SimpleJER"
+                                    + JMSOption
+                                    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -357,10 +396,12 @@ namespace top {
         = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario4",
                                     jetCalibrationName,
                                     MC_type,
-                                    JERisMC,
+                                    m_config->isMC(),
                                     "rel21/"
                                     + conference
-                                    + "/R4_SR_Scenario4_SimpleJER.config",
+                                    + "/R4_SR_Scenario4_SimpleJER"
+                                    + JMSOption
+                                    + ".config",
                                     nullptr,
                                     m_config->jetUncertainties_QGFracFile(),
                                     calib_area);
@@ -449,18 +490,35 @@ namespace top {
     std::string MC_type = "MC16";
 
     configDir = m_config->largeRJetUncertaintiesConfigDir(); 
-
-    //This has zero impact on the JES uncertainties, but controls how the JER uncertainties (currently only for small-R
-    // jets) are applied
-    bool JERisMC = true;
-
+   
     if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+
       m_jetUncertaintiesToolLargeR
 	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
-				    jetCalibrationNameLargeR, MC_type, JERisMC,
-				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config", nullptr, "", calibArea);
+				    jetCalibrationNameLargeR, 
+                                    MC_type, 
+                                    m_config->isMC(),
+				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
+                                    nullptr,
+                                    "",
+                                    calibArea);
+      
+      // setup the large-R pseudodata tool when required
+      if (m_config->isMC() && m_config->doLargeRPseudodataJER()) {
+        m_jetUncertaintiesToolLargeRPseudoData
+          = setupJetUncertaintiesTool("JetUncertaintiesToolLargeRPseudoData",
+                                      jetCalibrationNameLargeR,
+                                      MC_type,
+                                      false, // treat MC as data
+                                      configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
+                                      nullptr,
+                                      "",
+                                      calibArea);      
+      } 
+
       if (!m_config->isSystNominal(m_config->systematics()))
         m_FFJetSmearingTool = setupFFJetSmearingTool(calibChoice,configDir + "/R10_" + largeRJMR_unc_config + ".config");
+
     }
 
     return StatusCode::SUCCESS;
@@ -642,13 +700,10 @@ namespace top {
                    "Failed to set VariablesToShift for LargeR Jes Uncertainty " + name);
       }
       if (analysis_file != "None") {
-        if (m_config->jetUncertainties_QGHistPatterns().size() == 0 || analysis_file == "") { // no histogram pattern to
-                                                                                              // look for, or empty
-                                                                                              // analysis_file argument
+        if (m_config->jetUncertainties_QGHistPatterns().size() == 0 || analysis_file == "") { // no histogram pattern to look for, or empty analysis_file argument
           top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
                      "Failed to set AnalysisFile for " + name);
-        } else if (m_config->jetUncertainties_QGHistPatterns().size() == 1) { // a single pattern was specified - let's
-                                                                              // use it for all DSIDs
+        } else if (m_config->jetUncertainties_QGHistPatterns().size() == 1) { // a single pattern was specified - let's use it for all DSIDs
           top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
                      "Failed to set AnalysisFile for " + name);
           top::check(asg::setProperty(tool, "AnalysisHistPattern", m_config->jetUncertainties_QGHistPatterns()[0]),
