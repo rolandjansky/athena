@@ -405,7 +405,7 @@ namespace VKalVrtAthena {
       while(true) {
 
         // Find a solution from the given set of incompatible tracks (==weit)
-        pgraph->pgraphm_( weit.data(), &nEdges, &nTracks, solution.data(), &solutionSize, &nth);
+        pgraph->pgraphm_( weit.data(), nEdges, nTracks, solution.data(), &solutionSize, nth);
 
         ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Trk::pgraphm_() output: solutionSize = " << solutionSize );
 
