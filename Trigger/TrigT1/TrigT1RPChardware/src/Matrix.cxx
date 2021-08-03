@@ -47,12 +47,11 @@ m_event=event;
 m_matrixDebug = debug;
 
 if(m_matrixDebug&1<<df) {
- DISP <<"============================================="<<endl
+ cout <<"============================================="<<endl
       <<"Constructor of Matrix called with parameters:"<<endl
       <<subsys<<" "<<proj<<" "<<sect<<" "<<lowhig
       <<" "<<add[0]<<add[1]<<endl
       <<"============================================="<<endl;
- DISP_DEBUG;
 }
 m_thisBC=0;                       // temporary initialization
 
@@ -111,8 +110,7 @@ Matrix::~Matrix() {
 ubit16 df=1;
 deleteRPCdata();
 if(m_matrixDebug&1<<df) {
- DISP<<"Distructor of Matrix executed "<<endl;
- DISP_DEBUG;
+ cout<<"Distructor of Matrix executed "<<endl;
 }
 }//end-of-Matrix::~Matrix()
 //-----------------------------------------------------------------------//
@@ -329,11 +327,10 @@ m_BunchOffset=0; // test with hardware; use with setBCzero(0);
 for(i=0; i<s_nchan[0]; i++) { m_diagonal[i]=0;}
  
 if(m_matrixDebug&1<<df) {
-    DISP <<"===================================================================="<<endl
+    cout <<"===================================================================="<<endl
          <<"Matrix::setDefaultConfiguration: "
          <<"Default settings have been loaded."<<std::endl
          <<"==================================================================="<<endl;
-    DISP_DEBUG;
     dispDefaultConfiguration();
 } 
 }//end-of-Matrix::setDefaultConfiguration
@@ -343,116 +340,95 @@ ubit16 i,j,k;
 //
 // Coincidence Windows for the the three thresholds
 //
-DISP <<"================================="<<std::endl
+cout <<"================================="<<std::endl
      <<"Matrix::dispDefaultConfiguration:"<<std::endl
-     <<"=================================";
-DISP_DEBUG;
-DISP <<"--------------------------------"<<std::endl
+     <<"================================="<<std::endl;
+cout <<"--------------------------------"<<std::endl
      <<"+ Coincidence Windows:          "<<std::endl;
-DISP_DEBUG;
 for(i=0; i<s_nthres; i++) {
- DISP  <<" + Threshold address:"<<i;
- DISP_DEBUG;
+ cout  <<" + Threshold address:"<<i<<std::endl;
  for(j=0; j<s_nchan[0]; j++) {
-  DISP  <<"    -Channel address:"<<j
+  cout  <<"    -Channel address:"<<j
         <<" Window 63-32 "
-	<<std::hex<<m_trigRoad[i][j][1]
+        <<std::hex<<m_trigRoad[i][j][1]
         <<" Window 31-00 "
-	<<          m_trigRoad[i][j][0]<<std::dec;
-  DISP_DEBUG;
+        <<          m_trigRoad[i][j][0]<<std::dec<<std::endl;
  }//end-of-for(j
 }//end-of-for(i
 //
 // Majority setting
 //
-DISP <<"--------------------------------"<<std::endl
+cout <<"--------------------------------"<<std::endl
      <<"+ Majority addresses:           "<<std::endl
-     <<"--------------------------------";
-DISP_DEBUG;
+     <<"--------------------------------"<<std::endl;
 for(i=0; i<s_nthres; i++) {
- DISP <<" - threshold address "<<i<<" value "<<m_majorities[i];
- DISP_DEBUG;
-}    
+ cout <<" - threshold address "<<i<<" value "<<m_majorities[i]<<std::endl;
+}
 //
 // threshold to be used for coincidence of the lowpt trigger with the
 // external RPC doublet
 //
-DISP <<"--------------------------------"<<std::endl
+cout <<"--------------------------------"<<std::endl
      <<"+ Threshold address low-to-high: "<<m_lowtohigh<<std::endl
      <<"+ Threshold address low-to-readout: "<<m_toreadout<<std::endl
-     <<"+ Threshold address for overlap: "<<m_overlapthres;
-DISP_DEBUG;
+     <<"+ Threshold address for overlap: "<<m_overlapthres<<std::endl;
 //
 // address of the configuration for the local coincidence
 //
-DISP <<"--------------------------------"<<std::endl
+cout <<"--------------------------------"<<std::endl
      <<"+ Local coincidence setting:    "<<std::endl
      <<" -Pivot Plane:       "<<m_localDirec[0]<<std::endl
-     <<" -Coincidence Plane: "<<m_localDirec[1];
-DISP_DEBUG;
+     <<" -Coincidence Plane: "<<m_localDirec[1]<<std::endl;
 //
 // Overlap default masking
 //
-DISP <<"--------------------------------"<<std::endl
+cout <<"--------------------------------"<<std::endl
      <<"+ Overlap mask setting:    "<<std::endl
      <<" -`right' address          "<<m_matOverlap[0]<<std::endl
-     <<" -`left ' address          "<<m_matOverlap[1];
-DISP_DEBUG;
+     <<" -`left ' address          "<<m_matOverlap[1]<<std::endl;
 //
 // default for the signal delay, deadtime and pulse width arrays
 //
-DISP <<"-----------------------------------------------"<<std::endl
-     <<"+ Channel pulse-width, delay and deadtime :    ";
-DISP_DEBUG;
+cout <<"-----------------------------------------------"<<std::endl
+     <<"+ Channel pulse-width, delay and deadtime :    "<<std::endl;
 for(i=0; i<2; i++) {    // side
  if(!i) {
-  DISP<<" +Pivot Plane ";
-  DISP_DEBUG;
+  cout<<" +Pivot Plane "<<std::endl;
  } else {
-  DISP<<" +Coincidence Plane ";
-  DISP_DEBUG;
+  cout<<" +Coincidence Plane "<<std::endl;
  }
  for(j=0; j<2; j++) {   // layer
-  DISP<<"  +Layer "<<j;
-  DISP_DEBUG;
+  cout<<"  +Layer "<<j<<std::endl;
   for(k=0; k<(s_nchan[i]/s_timeGroupB); k++) {  // group
-   DISP <<"   -group "<<k
-        <<" pulsewidth "<<m_pulseWidth[i][j][k];
-   DISP_DEBUG;
+   cout <<"   -group "<<k
+        <<" pulsewidth "<<m_pulseWidth[i][j][k]<<std::endl;
   }//end-of-for(k
   for(k=0; k<(s_nchan[i]/s_timeGroupA); k++) {  // group
-   DISP <<"   -group "<<k
-	<<" delay "<<m_channDelay[i][j][k];
-   DISP_DEBUG;
+   cout <<"   -group "<<k
+        <<" delay "<<m_channDelay[i][j][k]<<std::endl;
   }//end-of-for(k
   for(k=0; k<(s_nchan[i]/s_timeGroupB); k++) {  // group
-   DISP <<"   -group "<<k
-	<<" deadtime "<<m_channDeadT[i][j][k];
-   DISP_DEBUG;
+   cout <<"   -group "<<k
+        <<" deadtime "<<m_channDeadT[i][j][k]<<std::endl;
   }//end-of-for(k
  }//end-of-for(j
 }//end-of-for(i
 //
 // Masking to 0
 //
-DISP <<"-----------------------------------------------"<<std::endl
-     <<"+ Map of the masked-to-0 channels :    ";
-DISP_DEBUG;
+cout <<"-----------------------------------------------"<<std::endl
+     <<"+ Map of the masked-to-0 channels :    "<<std::endl;
 for(i=0; i<2; i++) {    // side
  if(!i) {
-  DISP<<" +Pivot Plane ";
-  DISP_DEBUG;
+  cout<<" +Pivot Plane "<<std::endl;
  } else {
-  DISP<<" +Coincidence Plane ";
-  DISP_DEBUG;
+  cout<<" +Coincidence Plane "<<std::endl;
  }
  for(j=0; j<2; j++) {   // layer
-  DISP<<"  +Layer "<<j;
-  DISP_DEBUG;
+  cout<<"  +Layer "<<j<<std::endl;
   for(k=0; k<s_nchan[1]; k++) {
    if(m_channMask0[i][j][k]) {
-    DISP<<"   -channel "<<k;
-    DISP_DEBUG;
+    cout<<"   -channel "<<k<<std::endl;
    }//end-of-if
   }//end-of-for(k
  }//end-of-for(j
@@ -460,38 +436,32 @@ for(i=0; i<2; i++) {    // side
 //
 // default for trigger dead time
 //
-DISP <<"-----------------------------------------------"<<std::endl
-     <<"+ Trigger Dead Time   ";
-DISP_DEBUG;
+cout <<"-----------------------------------------------"<<std::endl
+     <<"+ Trigger Dead Time   "<<std::endl;
 for(k=0; k<(s_nchan[0]/s_timeGroupB); k++) {  // group
- DISP <<" -group "<<k
-      <<" Trigger DeadTime "<<m_trigDeadTime[k];
- DISP_DEBUG;
+ cout <<" -group "<<k
+      <<" Trigger DeadTime "<<m_trigDeadTime[k]<<std::endl;
 }//end-of-for(
 //
 // Simulation relevant parameters (used to align with the hardware)
 //
-DISP <<"-----------------------------------------------"<<std::endl
-     <<"+ Simulation parameters to align with the hardware (not used in CM)";
-DISP_DEBUG;
+cout <<"-----------------------------------------------"<<std::endl
+     <<"+ Simulation parameters to align with the hardware (not used in CM)"<<std::endl;
 //
 // m_BunchPhase and m_BunchOffset
 //
-DISP <<"+BunchPhase  "<<m_BunchPhase<<std::endl
+cout <<"+BunchPhase  "<<m_BunchPhase<<std::endl
      <<"  BunchPhase =  0 : to be used for standard ATLAS LVL1 simulation"<<std::endl
      <<"  BunchPhase = -1 : to be used to compare with the hardware; "<<std::endl
-     <<"                    this value fixed with VHDL comparison 1-7 august 2004.";  
-DISP_DEBUG;
-DISP <<"+BunchOffset  "<<m_BunchOffset<<std::endl
-     <<"  BunchOffset = 0 : to test with hardware; use this setting with setBCzero(0).";
-DISP_DEBUG;
+     <<"                    this value fixed with VHDL comparison 1-7 august 2004."<<std::endl
+     <<"+BunchOffset  "<<m_BunchOffset<<std::endl
+     <<"  BunchOffset = 0 : to test with hardware; use this setting with setBCzero(0)."<<std::endl;
 //
 // the end
 //
-DISP <<"======================================"<<std::endl
+cout <<"======================================"<<std::endl
      <<"Matrix::dispDefaultConfiguration: Done"<<std::endl
-     <<"======================================";
-DISP_DEBUG;
+     <<"======================================"<<std::endl;
 }//end-of-Matrix::dispDefaultConfiguration
 //-----------------------------------------------------------------------//
 void  Matrix::putData (int sidemat, int layer, int stripaddress, float time){
@@ -501,9 +471,8 @@ ubit16 DLLID;            // DLL time bin (from 0)
 ubit16 df=2;             // debug flag address
 rpcdata *rpcpntnew;	
 if(m_matrixDebug&1<<df) {
- DISP<<"Matrix:putData: putting data on Matrix"<<endl;
- DISP_DEBUG;
-}   
+ cout<<"Matrix:putData: putting data on Matrix"<<endl;
+}
 //
    BCID = (int)(time/s_BCtime);
    if(time<0.0) BCID--; // to cope with negative times
@@ -550,9 +519,8 @@ if (BCID>=NOBXS) return;
    m_datarpc[sidemat] = rpcpntnew;  
 
    } else {
-    DISP<<" Matrix::putData failure: channel addressed is "
-        <<stripaddress<<" for matrix side "<<sidemat<<endl;
-    DISP_ERROR;
+    throw std::out_of_range("Matrix::putData failure: channel addressed is " + std::to_string(stripaddress) +
+                            " for matrix side " + std::to_string(sidemat));
    }//end-of-if
 }//end-of-putData
 //----------------------------------------------------------------------//
@@ -565,8 +533,7 @@ CMAword k;
 ubit16 i, j;
 ubit16 df=3; // debug flag address
 if(m_matrixDebug&1<<df) {
- DISP<<" method putPatt called; p is "<<p<<endl;
- DISP_DEBUG;
+ cout<<" method putPatt called; p is "<<p<<endl;
 }
 //
 //
@@ -609,8 +576,7 @@ for(i=0; i<s_nchan[0]; i++) {
 }//end-of-for(i
 //
 if(m_matrixDebug&1<<df) {
- DISP<<" copy_pivot; input matrix address "<<p<<endl;
- DISP_DEBUG;
+ cout<<" copy_pivot; input matrix address "<<p<<endl;
 }//end-of-if(m_matrixDebug&1<<df)
 }//end-of-method putPatt
 //----------------------------------------------------------------------//
@@ -649,25 +615,22 @@ void Matrix::setDeadTime (ubit16 iside, ubit16 ilayer, ubit16 igroup,
 if(iside<2 && ilayer<2 && igroup<(s_nchan[1]/s_timeGroupB)) {
  m_channDeadT[iside][ilayer][igroup]=deadt;
  if(iside==0 && igroup>3) {
-  DISP<<" Matrix::setDeadTime: problems with side and group addresses"<<endl
-      <<" Matrix::setDeadTime: side="<<iside<<" layer="<<ilayer
-      <<" group="<<igroup<<endl;
-  DISP_ERROR;
+  throw std::out_of_range("Matrix::setDeadTime: problems with side and group addresses: "
+                          "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                          " group="+std::to_string(igroup));
  }//end-of-if
 } else {
- DISP<<" Matrix::setDeadTime: problems in adressing pulseWidth"<<endl
-     <<" Matrix::setDeadTime: side="<<iside<<" layer="<<ilayer
-     <<" group="<<igroup<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setDeadTime: problems in adressing pulseWidth: "
+                         "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                         " group="+std::to_string(igroup));
 }//end-of-if
 }//end-of-setDeadTime
 //----------------------------------------------------------------------//
 void Matrix::setDelay (ubit16 iside, ubit16 ilayer, 
                        ubit16 delay) {
 if(iside > 1 || ilayer > 1 ) {
-   DISP<<" Matrix::setDelay: problems with side and layer addresses"<<endl
-       <<" Matrix::setDelay: side="<<iside<<" layer="<<ilayer<<endl;
-   DISP_ERROR;
+ throw std::out_of_range("Matrix::setDelay: problems with side and layer addresses: "
+                         "side="+std::to_string(iside)+" layer="+std::to_string(ilayer));
 } else {
   for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupA); k++) {
    setDelay(iside,ilayer,k,delay);
@@ -680,16 +643,14 @@ void Matrix::setDelay (ubit16 iside, ubit16 ilayer, ubit16 igroup,
 if(iside<2 && ilayer<2 && igroup<(s_nchan[1]/s_timeGroupA)) {
  m_channDelay[iside][ilayer][igroup]=delay;
  if(iside==0 && igroup>3) {
-  DISP<<" Matrix::setDelay: problems with side and group addresses"<<endl
-      <<" Matrix::setDelay: side="<<iside<<" layer="<<ilayer
-      <<" group="<<igroup<<endl;
-  DISP_ERROR;
+  throw std::out_of_range("Matrix::setDelay: problems with side and group addresses:"
+                          "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                          " group="+std::to_string(igroup));
  }//end-of-if
 } else {
- DISP<<" Matrix::setDelay: problems in adressing pulseWidth"<<endl
-     <<" Matrix::setDelay: side="<<iside<<" layer="<<ilayer
-     <<" group="<<igroup<<endl;
- DISP_ERROR;
+  throw std::out_of_range("Matrix::setDelay: problems in adressing pulseWidth:"
+                          "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                          " group="+std::to_string(igroup));
 }//end-of-if
 }//end-of-setDelay
 //----------------------------------------------------------------------//
@@ -715,25 +676,22 @@ void Matrix::setPulseWidth (ubit16 iside, ubit16 ilayer, ubit16 igroup,
 if(iside<2 && ilayer<2 && igroup<s_nchan[1]/s_timeGroupB) {
  m_pulseWidth[iside][ilayer][igroup]=length;
  if(iside==0 && igroup>3) {
-  DISP<<" Matrix::setPulseWidth: problems with side and group addresses"<<endl
-      <<" Matrix::setPulseWidth: side="<<iside<<" layer="<<ilayer
-      <<" group="<<igroup<<endl;
-  DISP_ERROR;
+  throw std::out_of_range("Matrix::setDelay: problems with side and group addresses:"
+                          "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                          " group="+std::to_string(igroup));
  }//end-of-if
 } else {
- DISP<<" Matrix::setPulseWidth: problems in adressing pulseWidth"<<endl
-     <<" Matrix::setPulseWidth: side="<<iside<<" layer="<<ilayer
-     <<" group="<<igroup<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setDelay: problems in adressing pulseWidth:"
+                         "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                         " group="+std::to_string(igroup));
 }//end-of-if
 }//end-of-setPulseWidth
 //----------------------------------------------------------------------//
 void Matrix::setMask0 (ubit16 iside, ubit16 ilayer, ubit16 ichannel) {
 if(iside>1 || ilayer>1 || ichannel>(s_nchan[iside]-1)) {
- DISP<<" Matrix::setMask0: problems with side/layer/channel addresses"<<endl
-     <<" Matrix::setMask0: side="<<iside<<" layer="<<ilayer
-     <<" channel="<<ichannel<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setMask0: problems with side/layer/channel addresses: "
+                         "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                         " channel="+std::to_string(ichannel));
 } else {
  m_channMask0[iside][ilayer][ichannel]=1;
 }
@@ -741,10 +699,9 @@ if(iside>1 || ilayer>1 || ichannel>(s_nchan[iside]-1)) {
 //----------------------------------------------------------------------//
 void Matrix::setMask1 (ubit16 ithreshold, ubit16 iside, ubit16 imajority, ubit16 ichannel) {
 if(ithreshold>2 || iside>1 || imajority>1 || ichannel>(s_nchan[iside]-1)) {
- DISP<<" Matrix::setMask1: problems with side/layer/channel addresses"<<endl
-     <<" Matrix::setMask1: threshold= "<<ithreshold<<" side="<<iside<<" majority="<<imajority
-     <<" channel="<<ichannel<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setMask1: problems with side/layer/channel addresses: "
+                         "threshold= "+std::to_string(ithreshold)+" side="+std::to_string(iside)+
+                         " majority="+std::to_string(imajority)+" channel="+std::to_string(ichannel));
 } else {
  set_to_1 (&m_channMask1[ithreshold][iside][imajority][0],ichannel);
 }
@@ -764,9 +721,9 @@ for(int imajority=0; imajority<2; imajority++) {
 //----------------------------------------------------------------------//
 void Matrix::setMaskReadOut (ubit16 iside, ubit16 ilayer, ubit16 ichannel) {
 if(iside>1 || ilayer>1 || ichannel>(s_nchan[iside]-1)) {
- DISP<<" Matrix::setMaskReadOut: problems with side/layer/channel addresses"<<endl
-     <<" Matrix::setMaskReadOut: side= "<<iside<<" layer="<<ilayer<<" channel="<<ichannel<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setMaskReadout: problems with side/layer/channel addresses: "
+                         "side="+std::to_string(iside)+" layer="+std::to_string(ilayer)+
+                         " channel="+std::to_string(ichannel));
 } else {
  set_to_1 (&m_channReadOutMask[iside][ilayer][0],ichannel);
 }
@@ -833,8 +790,7 @@ for(i=0; i<s_nchan[0]; i++) { setDiagonal(i,*(m_geome+i));}
 //----------------------------------------------------------------------//
 void Matrix::setLocalDirection(ubit16 add, int content) {
 if(add>1) {
- DISP<<" Matrix::setLocalDirection :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setLocalDirection :  add="+std::to_string(add)+" not valid");
 } else {
  m_localDirec[add]=content;
 }//end-of-if;
@@ -842,9 +798,8 @@ if(add>1) {
 //----------------------------------------------------------------------//
 void Matrix::setKReadOut(int content) {
 if(content<0||content>>2) {
- DISP<<" Matrix::setKReadout :  threshold address = "
-     <<content<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setKReadout :  threshold address = "+
+                         std::to_string(content)+" not valid");
 } else {
  m_toreadout=content;
 }//end-of-if
@@ -862,8 +817,7 @@ void Matrix::setTrigDeadTime (ubit16 igroup, ubit16 deadt) {
 if(igroup<4) {
  m_trigDeadTime[igroup] = deadt;
 } else {
- DISP<<" Matrix::setTrigDeadTime :  igroup= "<<igroup<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setTrigDeadTime :  igroup= "+std::to_string(igroup)+" not valid");
 }
 }//end-of-setTrigDeadTime
 //----------------------------------------------------------------------//
@@ -875,8 +829,7 @@ for(ubit16 k=0; k<(s_nchan[0]/s_timeGroupB); k++) {
 //----------------------------------------------------------------------//
 void Matrix::setMajority(ubit16 add, int content) {
 if(add>=s_nthres) {
- DISP<<" Matrix::setMajority :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setMajority :  add="+std::to_string(add)+" not valid");
 } else {
  m_majorities[add]=content;
 }//end-of-if
@@ -885,10 +838,9 @@ if(add>=s_nthres) {
 void Matrix::setRoad(ubit16 addThres, ubit16 addChn, ubit16 add64, 
                       CMAword content){
 if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
- DISP<<" Matrix::setRoad :  addThres= "<<addThres
-     <<" addChn= "<<addChn
-     <<" add64= "<<add64<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setRoad :  addThres= "+std::to_string(addThres)+
+                         " addChn= "+std::to_string(addChn)+
+                         " add64= "+std::to_string(add64)+" not valid");
 } else {
  m_trigRoad[addThres][addChn][add64] = content;
 }//end-of-if
@@ -896,16 +848,13 @@ if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
 //----------------------------------------------------------------------//
 void Matrix::setRoad(ubit16 addThres, ubit16 addChn, char road[17]) {
 if(addThres>=s_nthres||addChn>s_nchan[0]) {
- DISP<<" Matrix::setRoad :  addThres= "<<addThres
-     <<" addChn= "<<addChn<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setRoad :  addThres= "+std::to_string(addThres)+
+                         " addChn= "+std::to_string(addChn));
 } else {
  CMAword the32[2]={0,0};
  ubit16 outflag = char2int(road,the32);
  if(outflag) {
-  DISP<<" Matrix::setRoad; outflag from char2int is positive: "
-      <<outflag<<endl;
-  DISP_ERROR;
+  throw std::runtime_error("Matrix::setRoad; outflag from char2int is positive: "+std::to_string(outflag));
   m_trigRoad[addThres][addChn][0] = 0;
   m_trigRoad[addThres][addChn][1] = 0;
  } else {
@@ -917,8 +866,7 @@ if(addThres>=s_nthres||addChn>s_nchan[0]) {
 //----------------------------------------------------------------------//
 void Matrix::setMatOverlap(ubit16 add, CMAword content) {
 if(add>1) {
- DISP<<" Matrix::setMatOverlap :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setMatOverlap :  add= "+std::to_string(add)+" not valid");
 } else {
  m_matOverlap[add]=content;
 }
@@ -926,8 +874,7 @@ if(add>1) {
 //----------------------------------------------------------------------//
 void Matrix::setDiagonal(ubit16 add, sbit32 content) {
 if(add>s_nchan[0]) {
- DISP<<" Matrix::setDiagonal :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::setDiagonal :  add= "+std::to_string(add)+" not valid");
 } else {
  m_diagonal[add]=content;
 }//end-of-if
@@ -936,8 +883,7 @@ if(add>s_nchan[0]) {
 CMAword Matrix::getMatOverlap(ubit16 add) const {
 CMAword output=0;
 if(add>1) {
- DISP<<" Matrix::getMatOverlap :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::getMatOverlap :  add= "+std::to_string(add)+" not valid");
 } else {
  output=m_matOverlap[add];
 }
@@ -948,10 +894,9 @@ CMAword Matrix::getRoad(ubit16 addThres,
                                    ubit16 addChn, ubit16 add64) const {
 CMAword output=0;
 if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
- DISP<<" Matrix::getRoad :  addThres= "<<addThres
-     <<" addChn= "<<addChn
-     <<" add64= "<<add64<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::getRoad :  addThres= "+std::to_string(addThres)+
+                         " addChn= "+std::to_string(addChn)+
+                         " add64= "+std::to_string(add64)+" not valid");
 } else {
 output=m_trigRoad[addThres][addChn][add64];
 }//end-of-if
@@ -961,8 +906,7 @@ return output;
 int Matrix::getMajority(ubit16 add) const {
 int output=0;
 if(add>=s_nthres) {
- DISP<<" Matrix::getMajority :  add= "<<add<<" not valid"<<endl;
- DISP_ERROR;
+ throw std::out_of_range("Matrix::getMajority :  add= "+std::to_string(add)+" not valid");
 } else {
  output=m_majorities[add];
 }//end-of-if
@@ -978,13 +922,12 @@ void Matrix::execute() {
 //
 ubit16 df=4;  // debug flag address 
 if(m_matrixDebug&1<<df) {
- DISP<<"===================="<<endl
+ cout<<"===================="<<endl
      <<"|                  |"<<endl
      <<"|  Matrix::execute |"<<endl
      <<"|  --------------- |"<<endl
      <<"|                  |"<<endl
      <<"===================="<<endl;
- DISP_DEBUG;
  show_attributes();
 }//end-of-if(m_matrixDebug&1<<df)
 //
@@ -1019,10 +962,9 @@ void Matrix::storeDeadtime() {
 ubit16 df=5;
 rpcdata *rpchit;
 if(m_matrixDebug&1<<df) {
- DISP<<"--------------------------"<<endl
+ cout<<"--------------------------"<<endl
      <<"|  Matrix::storeDeadtime |"<<endl
      <<"--------------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
  rpchit=m_datarpc[i];
@@ -1038,10 +980,9 @@ void Matrix::masking() {
 ubit16 df=6;
 rpcdata *rpchit;
 if(m_matrixDebug&1<<df) {
- DISP<<"--------------------"<<endl 
+ cout<<"--------------------"<<endl
      <<"|  Matrix::masking |"<<endl
      <<"--------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
  rpchit=m_datarpc[i];
@@ -1057,10 +998,9 @@ void Matrix::delay() {
 ubit16 df=7;
 rpcdata *rpchit;
 if(m_matrixDebug&1<<df) {
- DISP<<"--------------------"<<endl
+ cout<<"--------------------"<<endl
      <<"|  Matrix::delay   |"<<endl
      <<"--------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
  rpchit=m_datarpc[i];
@@ -1078,17 +1018,16 @@ sbit32 abs_time, timeadd;
 rpcdata *rpcpnt;
 //
 if(m_matrixDebug&1<<df) {
- DISP<<"--------------------"<<endl
+ cout<<"--------------------"<<endl
      <<"|  Matrix::load    |"<<endl
      <<"--------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
  rpcpnt=m_datarpc[i];
  while (rpcpnt) {
   if(m_matrixDebug&1<<df) {
-   DISP<<"  Layer= " <<rpcpnt->layer
+   cout<<"  Layer= " <<rpcpnt->layer
        <<" stripadd= "<<rpcpnt->stripadd
        <<" time= "<<rpcpnt->time
        <<" mask= "<<rpcpnt->masked
@@ -1096,7 +1035,6 @@ for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
        <<" DLL= "<<rpcpnt->DLL
        <<" delay= "<<rpcpnt->delay
        <<endl;
-   DISP_DEBUG;
   }//end-of-if(m_matrixDebug&1<<df)
   abs_time = s_NDLLCYC*rpcpnt->BC
            + rpcpnt->DLL
@@ -1106,8 +1044,7 @@ for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
           + s_NDLLCYC*m_BCzero;         // put m_thisBC at the center of the buffer
                                       
   if(m_matrixDebug&1<<df) {
-   DISP<<" abs_time= "<<abs_time<<" timeadd= "<<timeadd<<endl;
-   DISP_DEBUG;
+   cout<<" abs_time= "<<abs_time<<" timeadd= "<<timeadd<<endl;
   }
   
 //
@@ -1115,10 +1052,9 @@ for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
 //   
   if(timeadd>=0 && timeadd<s_nclock && !rpcpnt->masked) {
    if(m_matrixDebug&1<<df) {
-    DISP<<" setting input with side "<<i<<" "<<rpcpnt->layer
+    cout<<" setting input with side "<<i<<" "<<rpcpnt->layer
         <<" "<<timeadd<<" 0"<<" for channel "<<rpcpnt->stripadd
 	<<" timeadd "<<timeadd<<endl;
-    DISP_DEBUG;
    }//end-of-if(m_matrixDebug&1<<df)
    set_to_1(&m_input[i][rpcpnt->layer][timeadd][0],rpcpnt->stripadd);
   }//end-of-if(timeadd
@@ -1147,10 +1083,9 @@ for(ubit16 i=0; i<2; i++)      {     // side address
 void Matrix::prepro () {
 ubit16 df=9;
 if(m_matrixDebug&1<<df) {
- DISP<<"-------------------------"<<endl
+ cout<<"-------------------------"<<endl
      <<"| matrix: preprocessing |"<<endl
      <<"-------------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // 1) pulse width
@@ -1182,10 +1117,9 @@ for(i=0;i<4;i++) {
 }
 //
 if(m_matrixDebug&1<<df) {
- DISP<<"--------------------"<<endl
+ cout<<"--------------------"<<endl
      <<"| matrix: coincide |"<<endl
      <<"--------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // nconf gives the number of possible configurations compatible with
@@ -1194,10 +1128,9 @@ if(m_matrixDebug&1<<df) {
 // array respectively correspondent to the configurtion number "i"
 //
 if(m_matrixDebug&1<<df) {
- DISP<<" Matrix::coincidence; lowhigh= "<<m_lowhigh<<endl
+ cout<<" Matrix::coincidence; lowhigh= "<<m_lowhigh<<endl
      <<" Matrix::coincidence; majority array ="
      <<" "<<m_majorities[0]<<" "<<m_majorities[1]<<" "<<m_majorities[2]<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 for(i=0; i<s_nclock; i++)             { // loop on clock cycles
@@ -1207,12 +1140,11 @@ for(i=0; i<s_nclock; i++)             { // loop on clock cycles
   nconf = config(thres,&conf[0][0]);  // number of config. for this threshold
 //
 //if(m_matrixDebug&1<<df) {
-// DISP<<"nconf="<<nconf<<" conf=";
-// DISP_DEBUG;
-// for(int ii=0;ii<4;ii++){ DISP<<" "<<conf[ii][0]; DISP_DEBUG;}
-// DISP<<"  "; DISP_DEBUG;
-// for(int ii=0;ii<4;ii++){ DISP<<" "<<conf[ii][1]; DISP_DEBUG;}
-// DISP<<endl; DISP_DEBUG;
+// cout<<"nconf="<<nconf<<" conf="<<endl;
+// for(int ii=0;ii<4;ii++){ cout<<" "<<conf[ii][0]<<endl;}
+// cout<<endl;
+// for(int ii=0;ii<4;ii++){ cout<<" "<<conf[ii][1]<<endl;}
+// cout<<endl;
 //}//end-of-if(m_matrixDebug&1<<df)
 
   for(l=0; l<nconf; l++)            { // loop on all config. for this threshold
@@ -1238,8 +1170,7 @@ for(i=0; i<s_nclock; i++)             { // loop on clock cycles
              |  (m_mjori[thres][1][conf[l][1]][i][1]&m_trigRoad[thres][j][1]))){
 
     if(m_matrixDebug&1<<df) {
-     DISP<<"coincidence!!!"<<" clock="<<i<<" xchan="<<j<<endl;
-     DISP_DEBUG;
+     cout<<"coincidence!!!"<<" clock="<<i<<" xchan="<<j<<endl;
     }//end-of-if(m_matrixDebug
 
      set_to_1(&m_trigg[thres][i],j);
@@ -1353,10 +1284,9 @@ for(i=0;i<s_NBunch; i++) { //loop on bunches
 void Matrix::maskTo1 () {
 ubit16 df=11;
 if(m_matrixDebug&1<<df) {
- DISP<<"---------------------"<<endl
+ cout<<"---------------------"<<endl
      <<"| Matrix::mask_to_1 |"<<endl
      <<"---------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 
 ubit16 i, j, k, l, m;
@@ -1421,10 +1351,9 @@ ubit16 df=12;
 ubit16 i,j,l,m;
 sbit16 k;
 if(m_matrixDebug&1<<df) {
- DISP<<"-----------------------"<<endl
+ cout<<"-----------------------"<<endl
      <<"| Matrix::pulse_width |"<<endl
      <<"-----------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 for(i=0; i<2; i++) {                // loop on the two Matrix sides 
@@ -1462,10 +1391,9 @@ ubit16 i, j, k, l, n;
 ubit16 df=13;  // debug flag address
 CMAword buffi[2], buffo[2];
 if(m_matrixDebug&1<<df) {
- DISP<<"-------------------"<<endl
+ cout<<"-------------------"<<endl
      <<"| Matrix::majori  |"<<endl
      <<"-------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // the loop on the CMA sides has to be made as follows:
@@ -1561,10 +1489,9 @@ ubit16 df=14;
 ubit16 nup,first, i,j,k,l;
 first=0;
 if(m_matrixDebug&1<<df) {
- DISP<<"------------------------"<<endl
+ cout<<"------------------------"<<endl
      <<"| matrix: declustering |"<<endl
      <<"------------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // loop on m_input data
@@ -1607,11 +1534,10 @@ ubit16 df=15;
 ncop=0;
 j=0;
 if(m_matrixDebug&1<<df) {
- DISP<<" --------------------"<<endl
+ cout<<" --------------------"<<endl
      <<" |  Matrix::reduce  |"<<endl
      <<" --------------------"<<endl
      <<" nup= "<<nup<<" first "<<first<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // analyse nup value and apply the cluster reduction according to it.
@@ -1632,8 +1558,7 @@ if        (nup<=2) {
            ncop=nup-4;
 }//end-of-if
 if(m_matrixDebug&1<<df) {
- DISP<<" j= "<<j<<" ncop= "<<ncop<<endl;
- DISP_DEBUG;
+ cout<<" j= "<<j<<" ncop= "<<ncop<<endl;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 // copy the reduced cluster into the "s_nthres" m_prepr registers
@@ -1713,10 +1638,9 @@ strcpy(plane[1],"I1");
 strcpy(plane[2],"J0");
 strcpy(plane[3],"J1");
 if(m_matrixDebug&1<<df) {
- DISP<<"-------------------------------"<<endl
+ cout<<"-------------------------------"<<endl
      <<"|  Matrix::makeTestPattern    |"<<endl
      <<"-------------------------------"<<endl;
- DISP_DEBUG;
 }//end-of-if(m_matrixDebug&1<<df)
 //
 ntimes = 0;
@@ -1772,13 +1696,11 @@ while(!completed) {
 ofstream vhdlinput;
 vhdlinput.open("k-trigger.output",ios::app);
 if(!vhdlinput){
- DISP<<" File for vhdl analysis not opened. "<<endl
+ cout<<" File for vhdl analysis not opened. "<<endl
      <<" =================================="<<endl<<endl;
- DISP_ERROR;
  } else {
   if(m_matrixDebug&1<<df) {
-   DISP<<" File for vhdl analysis correctly opened"<<endl<<endl;
-   DISP_ERROR;
+   cout<<" File for vhdl analysis correctly opened"<<endl<<endl;
  }//end-of-if(m_matrixDebug&1<<df)
 }//end-of-if(!vhdlinput
 if(mode) {
@@ -1898,9 +1820,8 @@ ubit16 Matrix::config (ubit16 i, ubit16 *arr) const {
 //
 ubit16 nconf=0;
 //
-// DISP<<"lowhig="<<m_lowhigh<< "majorities= "<<m_majorities[0]
+// cout<<"lowhig="<<m_lowhigh<< "majorities= "<<m_majorities[0]
 //     <<" "<< m_majorities[1]<<" "<<m_majorities[2]<<endl;
-// DISP_DEBUG;
 //
 switch (m_lowhigh) {
  case 0:                    // low-pt trigger matrix
@@ -1923,9 +1844,8 @@ switch (m_lowhigh) {
    *(arr+0)=1; *(arr+1)=1;
    break;
   default:
-   DISP<<" Matrix::config: the majority "<<m_majorities[i]
-       <<" is unforeseen "<<endl;
-   DISP_ERROR;
+   throw std::runtime_error("Matrix::config: the majority "+std::to_string(m_majorities[i])+
+                            " is unforeseen");
  }
   break;
  case 1:                    // high-pt trigger matrix
@@ -1942,14 +1862,12 @@ switch (m_lowhigh) {
     *(arr+1)=1;
     break;
    default:
-    DISP<<" Matrix::config: the majority "<<m_majorities[i]
-        <<" is unforeseen "<<endl;
-    DISP_ERROR;
+    throw std::runtime_error("Matrix::config: the majority "+std::to_string(m_majorities[i])+
+                             " is unforeseen");
   }
   break;
  default:
-  DISP<<" Matrix::config: lowhighpt "<<m_lowhigh<<" is unforeseen "<<endl;
-  DISP_ERROR;
+  throw std::runtime_error("Matrix::config: lowhighpt "+std::to_string(m_lowhigh)+" is unforeseen");
 }
  return nconf;
 }//end-of-method-config
@@ -1995,10 +1913,8 @@ inds(&i[0],channel);
 if(!(channel<0)) {
  *(p+i[0]) = *(p+i[0]) | j<<i[1];
 } else {
- DISP<<" Matrix::set_to_1: channel is negative; channel= "
-     <<channel<<endl;
- DISP_ERROR;
-}//end-of-if(!(channel<0 
+ throw std::out_of_range("Matrix::set_to_1: channel is negative; channel="+std::to_string(channel));
+}//end-of-if(!(channel<0
 }//end-of-Matrix::set_to_1
 //----------------------------------------------------------------------//
 void Matrix::set_to_0(CMAword *p, sbit16 channel) const {
@@ -2009,10 +1925,8 @@ inds(&i[0],channel);
 if(!(channel<0)) {
  *(p+i[0]) = *(p+i[0]) & ~(j<<i[1]);
 } else {
- DISP<<" Matrix::set_to_1: channel is negative; channel= "
-     <<channel<<endl;
- DISP_ERROR;
-}//end-of-if(!(channel<0 
+ throw std::out_of_range("Matrix::set_to_1: channel is negative; channel="+std::to_string(channel));
+}//end-of-if(!(channel<0
 }//end-of-Matrix::set_to_1
 //----------------------------------------------------------------------//
 ubit16 Matrix::bitstatus(const CMAword *p,ubit16 channel) const {
@@ -2025,31 +1939,26 @@ return *(p+id[0])& j<<id[1] ? 1 : 0 ;
 //----------------------------------------------------------------------//
 void Matrix::wind () const {
 sbit16 i, j;
- DISP<<"-----------------------"<<endl
+ cout<<"-----------------------"<<endl
      <<"|     Matrix::wind    |"<<endl
      <<"-----------------------"<<endl
      <<" Matrix Roads "<<endl;
- DISP_DEBUG;
  for(i=0; i<s_nthres; i++) {
   for(j=0; j<s_nchan[0]; j++) {
-   DISP<<" thres. "<<i<<" channel "<<j
+   cout<<" thres. "<<i<<" channel "<<j
 //       <<" Road0 "<<hex<<(*(m_roads+32*2*i+2*j+0))<<dec
 //       <<" Road1 "<<hex<<(*(m_roads+32*2*i+2*j+1))<<dec<<endl;
        <<" Road0 "<<hex<<(m_trigRoad[i][j][0])<<dec
        <<" Road1 "<<hex<<(m_trigRoad[i][j][1])<<dec<<endl;
-   DISP_DEBUG;
   }
  }
- DISP<<" majorities: ";
- DISP_DEBUG;
- for(i=0;i<3;i++) {DISP<<m_majorities[i]<<" ";DISP_DEBUG;} 
- DISP<<" "<<endl; DISP_DEBUG;
- DISP<<" number of overlapping ' low' channels: "<<m_matOverlap[0]<<endl
+ cout<<" majorities: "<<endl;
+ for(i=0;i<3;i++) {cout<<m_majorities[i]<<" "<<endl;}
+ cout<<endl
+     <<" number of overlapping ' low' channels: "<<m_matOverlap[0]<<endl
      <<" number of overlapping 'high' channels: "<<m_matOverlap[1]<<endl;
- DISP_DEBUG;
  for(i=0;i<s_nchan[0];i++) {
- DISP<<" channel "<<i<<" in coincidence with "<<m_diagonal[i]<<endl;
- DISP_DEBUG;
+ cout<<" channel "<<i<<" in coincidence with "<<m_diagonal[i]<<endl;
  }//end-of-for(i
 }//end-of-method-wind
 //----------------------------------------------------------------------//
@@ -2059,23 +1968,18 @@ ubit16 df=19;
 rpcdata *rpcpnt;
 //
 //if(this) {
- DISP<<"======================="<<endl
+ cout<<"======================="<<endl
      <<"||   Matrix Display  ||"<<endl
      <<"======================="<<endl
      <<endl;
- DISP_DEBUG;
  show_attributes();
- DISP<<" "<<endl;
- DISP_DEBUG;
-//
- DISP<<" All raw data "<<endl;
- DISP_DEBUG;
+
+ cout<<endl<<" All raw data "<<endl;
  for(i=0; i<2; i++) {
-  DISP<<" Matrix Side is "<<i<<endl;
-  DISP_DEBUG;
+  cout<<" Matrix Side is "<<i<<endl;
   rpcpnt=m_datarpc[i];
   while (rpcpnt) {
-   DISP<<"  Layer= " <<rpcpnt->layer
+   cout<<"  Layer= " <<rpcpnt->layer
        <<" stripadd= "<<rpcpnt->stripadd
        <<" time= "<<rpcpnt->time
        <<" mask= "<<rpcpnt->masked
@@ -2083,50 +1987,43 @@ rpcdata *rpcpnt;
        <<" DLL= "<<rpcpnt->DLL
        <<" delay= "<<rpcpnt->delay
        <<endl;
-   DISP_DEBUG;
    rpcpnt=rpcpnt->next;
   }//end-of-while(rpcpnt)
  }//end-of-for(i
 //
 if(m_matrixDebug&1<<(df+0)) {
- DISP<<" Display Matrix Input "<<endl;
- DISP_DEBUG;
+ cout<<" Display Matrix Input "<<endl;
  disp_CMAreg(0); //display the input registers
 }
 //
 //
 if(m_matrixDebug&1<<(df+1)) {
- DISP<<" Display Matrix Preprocessing "<<endl;
- DISP_DEBUG;
+ cout<<" Display Matrix Preprocessing "<<endl;
  disp_CMAreg(1); //display the prepro registers
 }
 //
 if(m_matrixDebug&1<<(df+2)) {
- DISP<<" Display Matrix Majority "<<endl;
- DISP_DEBUG;
+ cout<<" Display Matrix Majority "<<endl;
  disp_CMAreg(2); //display the majority registers
 }
 //
 if(m_matrixDebug&1<<(df+3)) {
- DISP<<" Display Trigger  "<<endl;
- DISP_DEBUG;
+ cout<<" Display Trigger  "<<endl;
  disp_CMAreg(3); //display the trigger registers
 }
 //
 //} else {
-// DISP<<"======================="<<endl
+// cout<<"======================="<<endl
 //     <<"||    Matrix EMPTY   ||"<<endl
 //     <<"======================="<<endl;
-// DISP_DEBUG;
 //}//end-of-Matrix::display
 }//end-of-method display
 //------------------------------------------------------------------------//
 void Matrix::show_attributes () const {
-DISP<<" Matrix Attributes: "<<endl
+cout<<" Matrix Attributes: "<<endl
     <<" Subsystem "<<m_subsystem<<"; Projection "<<m_projection
     <<"; Sector "<<m_sector<<"; Pad "<<m_pad<<"; LowHig "<<m_lowhigh
     <<"; addresses: "<<m_address[0]<<"  "<<m_address[1]<<endl; 
-DISP_DEBUG;
 }//end-of-Matrix::attributes
 //------------------------------------------------------------------------//
 void Matrix::disp_CMAreg(ubit16 id) const {
@@ -2136,23 +2033,19 @@ void Matrix::disp_CMAreg(ubit16 id) const {
 ubit16 i, j, k;
 if(id<2) {
  for(i=0; i<2; i++) {     // loop on the two Matrix sides
-  DISP<<" CMA Side (0=side-x; 1=side-y) "<<i;
-  DISP_DEBUG;
+  cout<<" CMA Side (0=side-x; 1=side-y) "<<i<<endl;
   for(j=0; j<2; j++) {    // loop on the two Matrix layers
    switch (id) {
     case 0:
-     DISP<<" Layer "<<j<<endl;
-     DISP_DEBUG;
+     cout<<" Layer "<<j<<endl;
      dispRegister(&m_input[i][j][0][0],i);
      break;
     case 1:
-     DISP<<" Layer "<<j<<endl;
-     DISP_DEBUG;
+     cout<<" Layer "<<j<<endl;
      dispRegister(&m_prepr[0][i][j][0][0],i);
      break;
     default:
-     DISP<<" Matrix::disp_CMAreg id value "<<id<<" not foreseen "<<endl;
-     DISP_DEBUG;
+     cout<<" Matrix::disp_CMAreg id value "<<id<<" not foreseen "<<endl;
    }//end-of-switch
   }//end-of-for(j
  }//end-of-for(i
@@ -2162,14 +2055,11 @@ if(id<2) {
  switch (id) {
   case 2:  
    for(i=0; i<s_nthres; i++) { // loop on threshold
-    DISP<<" Threshold address "<<i<<endl;
-    DISP_DEBUG;
+    cout<<" Threshold address "<<i<<endl;
     for(j=0; j<2; j++) {     // loop on matrix sides
-     DISP<<" CMA Side (0=side-x; 1=side-y) "<<j;
-     DISP_DEBUG;
+     cout<<" CMA Side (0=side-x; 1=side-y) "<<j<<endl;
      for(k=0; k<2; k++) {    // loop on majority types
-      DISP<<" Majority type (0=1/2; 1=2/2) "<<k<<endl;
-      DISP_DEBUG;
+      cout<<" Majority type (0=1/2; 1=2/2) "<<k<<endl;
       dispRegister(&m_mjori[i][j][k][0][0],j);
      }//end-of-for(k
     }//end-of-for(j
@@ -2177,22 +2067,18 @@ if(id<2) {
    break;
   case 3:
    for(i=0; i<s_nthres; i++) { // loop on the three thresholds
-    DISP<<" Trigger Threshold address "<<i<<endl;
-    DISP_DEBUG;
+    cout<<" Trigger Threshold address "<<i<<endl;
     dispTrigger(&m_trigg[i][0]);
    }//end-of-for(i
-   DISP<<" ReadOut Buffer "<<endl;
-   DISP_DEBUG;
+   cout<<" ReadOut Buffer "<<endl;
    dispRegister(&rodat[0][0][0][0],0);
    break;
    default:
-    DISP<<" Matrix::disp_CMAreg id value "<<id<<" not foreseen "<<endl;
-    DISP_DEBUG;
-  }//end-of-switch (id) 
+    cout<<" Matrix::disp_CMAreg id value "<<id<<" not foreseen "<<endl;
+  }//end-of-switch (id)
  
 }//end-of-if(id
-DISP<<" "<<endl;
-DISP_DEBUG;
+cout<<" "<<endl;
 }//end-of-Matrix::disp_CMAreg
 //------------------------------------------------------------------------//
 void Matrix::dispRegister(const CMAword *p, ubit16 side) const {
@@ -2226,8 +2112,7 @@ for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
 
 }//end-of-for(j
 
- DISP << strdisp->str();
- DISP_DEBUG;
+ cout << strdisp->str() << endl;
  
  delete strdisp;
 }//end-of-Matrix::dispRegister
@@ -2260,10 +2145,9 @@ for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
  *strdisp<<" "<<endl;
 }//end-of-for(j
 
- DISP << strdisp->str();
- DISP_DEBUG;
+cout << strdisp->str() << endl;
  
- delete strdisp;
+delete strdisp;
 }//end-of-Matrix::dispTrigger
 //------------------------------------------------------------------------//
 void Matrix::dispBinary (const CMAword *p, __osstream *strdisp) const {
@@ -2325,9 +2209,8 @@ for(sbit16 j=s_nchan[1]-1; j>=0; j--) {
 *strdisp<<"   00000000001111111111222222222233"<<endl
         <<"   01234567890123456789012345678901"<<endl;
 //
- DISP << strdisp->str();
- DISP_DEBUG; 
- delete strdisp;
+cout << strdisp->str() << endl;
+delete strdisp;
 }//end-of-dispWind
 //------------------------------------------------------------------------//
 void Matrix::inds(ubit16 *i, ubit16 channel) const{

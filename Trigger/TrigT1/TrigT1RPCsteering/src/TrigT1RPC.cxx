@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -125,9 +126,14 @@ StatusCode TrigT1RPC::execute() {
       int logic_sector  = sector%32;//
 
       for (int dbc=m_firstBC_to_MUCTPI; dbc<=m_lastBC_to_MUCTPI; dbc++){
-          
-          unsigned int data_word = logic->outputToMuCTPI(dbc);
-          
+
+          unsigned int data_word = 0;
+          try {
+              data_word = logic->outputToMuCTPI(dbc);
+          }
+          catch (const std::out_of_range& ex) {
+              ATH_MSG_WARNING(ex.what());
+          }
           ATH_MSG_DEBUG(                                               //
               "Input to MuCTPI: side=" << subsystem                    //
               << ", SL= " << logic_sector                                 //
@@ -177,7 +183,8 @@ StatusCode TrigT1RPC::execute() {
   if(m_bytestream_production)
   {
       RPCbytestream bytestream (patterns,
-			       (std::string) m_bytestream_file,
+                               (std::string) m_bytestream_file,
+                               msg(),
                                (unsigned long int) m_cma_ro_debug,
                                (unsigned long int) m_pad_ro_debug,
                                (unsigned long int) m_rx_ro_debug,
