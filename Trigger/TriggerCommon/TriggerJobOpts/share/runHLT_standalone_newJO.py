@@ -47,7 +47,7 @@ flags.Calo.ClusterCorrection.defaultSource = 'pool' # temporary, until a complet
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
-flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25' if f.Input.isMC else "CONDBR2-HLTP-2018-01"
+flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-01"
 flags.Common.isOnline = lambda f: not f.Input.isMC
 flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
