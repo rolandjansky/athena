@@ -10,6 +10,18 @@
 
 ###########################################################
 #
+# Activate magnetic field switch off in central LAr calorimeter
+#  More info: https://its.cern.ch/jira/browse/ATLPHYSVAL-773
+#
+###########################################################
+
+
+simFlags.MuonFieldOnlyInCalo=True
+printfunc ("Turning on MuonFieldOnlyInCalo = %s." % (simFlags.MuonFieldOnlyInCalo()) )
+
+
+###########################################################
+#
 # Photon Russian Roulette
 # "Fast simulation" killing low energy photons with some
 #  probability.
