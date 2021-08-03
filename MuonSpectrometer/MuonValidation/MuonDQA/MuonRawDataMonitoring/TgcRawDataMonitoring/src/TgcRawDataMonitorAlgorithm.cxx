@@ -416,7 +416,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       std::set<unsigned int> ctpMuonCands;
       std::set<unsigned int> inputMuonCands;
       // collecting roiWords out of the CTP decision
+      bool isRun2Legacy = false;
       if(getTrigDecisionTool()->getNavigationFormat() == "TriggerElement") { // run 2 access
+	isRun2Legacy = true;
 	if(!monObj.title.Contains("Run2Legacy")) continue;
 	auto fc = getTrigDecisionTool()->features(monObj.trigItem.Data(),TrigDefs::alsoDeactivateTEs);
 	for(const auto& comb : fc.getCombinations()){
@@ -456,8 +458,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	inputMuonCands.insert(roi->roiWord());
 	allCands.insert(roi->roiWord());
       }
-      if(isRun3 && monObj.title.Contains("Run2"))continue;
-      if(!isRun3 && monObj.title.Contains("Run3"))continue;
+      if(!isRun3 && isRun2Legacy && !monObj.title.Contains("Run2Legacy"))continue; // Run2Legacy
+      if(!isRun3 && !isRun2Legacy && (monObj.title.Contains("Run2Legacy")||monObj.title.Contains("Run3")))continue; // Run2
+      if(isRun3 && !monObj.title.Contains("Run3"))continue; // Run3
 
       if(ctpMuonCands.size()==0 && inputMuonCands.size()<monObj.multiplicity)continue;
 
@@ -467,6 +470,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       std::vector<double> roi_Eta;
       std::vector<double> roi_Phi;
       std::vector<double> roi_dRmin;
+      std::vector<double> roi_pTdiff;
       std::vector<int> roi_ThrNum;
       std::vector<int> roi_Charge;
       std::vector<int> roi_BW3Coin;
@@ -487,12 +491,16 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	roiMatching_CTPin.push_back(ctp_in?1:0);
 	roiMatching_CTPout.push_back(ctp_out?1:0);
 	double dRmin = 1000;
+	double pTdiff = -15;
 	for(const auto roi2 : *rois){ // scan all the other MuonRoIs to check the isolation
 	  if(roi == roi2)continue;
 	  double dphi = xAOD::P4Helpers::deltaPhi(roi->phi(),roi2->phi());
 	  double deta = roi->eta() - roi2->eta();
 	  double dr = std::sqrt(dphi*dphi + deta*deta);
-	  if(dr < dRmin) dRmin = dr;
+	  if(dr < dRmin){
+	    dRmin = dr;
+	    pTdiff = roi2->getThrNumber() - roi->getThrNumber();
+	  }
 	}
 	// adjust the value so that the value can be in the histgram range
 	if(dRmin>999) dRmin = -0.05;
@@ -500,6 +508,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	roi_Eta.push_back(roi->eta());
 	roi_Phi.push_back(roi->phi());
 	roi_dRmin.push_back(dRmin);
+	roi_pTdiff.push_back(pTdiff);
 	roi_ThrNum.push_back((roi->getSource()==xAOD::MuonRoI::Barrel)?(roi->getThrNumber()):(-roi->getThrNumber()));
 	roi_Charge.push_back((roi->getCharge()==xAOD::MuonRoI::Neg)?(-1):((roi->getCharge()==xAOD::MuonRoI::Pos)?(+1):(0)));
 	roi_BW3Coin.push_back((roi->getSource()!=xAOD::MuonRoI::Barrel)?roi->getBW3Coincidence():-1);
@@ -525,6 +534,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       auto val_roi_Eta = Monitored::Collection(Form("%s_roi_Eta",monObj.title.Data()),roi_Eta);
       auto val_roi_Phi = Monitored::Collection(Form("%s_roi_Phi",monObj.title.Data()),roi_Phi);
       auto val_roi_dRmin = Monitored::Collection(Form("%s_roi_dRmin",monObj.title.Data()),roi_dRmin);
+      auto val_roi_pTdiff = Monitored::Collection(Form("%s_roi_pTdiff",monObj.title.Data()),roi_pTdiff);
       auto val_roi_ThrNum = Monitored::Collection(Form("%s_roi_ThrNum",monObj.title.Data()),roi_ThrNum);
       auto val_roi_Charge = Monitored::Collection(Form("%s_roi_Charge",monObj.title.Data()),roi_Charge);
       auto val_roi_BW3Coin = Monitored::Collection(Form("%s_roi_BW3Coin",monObj.title.Data()),roi_BW3Coin);
@@ -546,6 +556,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       ctpMonVariables.push_back(val_roi_Eta);
       ctpMonVariables.push_back(val_roi_Phi);
       ctpMonVariables.push_back(val_roi_dRmin);
+      ctpMonVariables.push_back(val_roi_pTdiff);
       ctpMonVariables.push_back(val_roi_ThrNum);
       ctpMonVariables.push_back(val_roi_Charge);
       ctpMonVariables.push_back(val_roi_BW3Coin);
