@@ -14,6 +14,7 @@
 #include "TrigT1RPChardware/PadReadOut.h"
 
 #include <array>
+#include <memory>
 
 class PADreadout : public RPCtrigDataObject
 {
