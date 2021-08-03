@@ -133,6 +133,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
         myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inOk_outOk',
                                 title=objname+'_roi_EtaVsisVetoed_inOk_outOk;MuonRoI Eta;isVetoed flag',
                                 cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inOk_outOk',title=objname+'_L1Count_EtaVspTdiff_inOk_outOk;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inOk_outOk',title=objname+'_roi_pTdiff_inOk_outOk;pT difference;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
+
 
         myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_Phi;'+objname+'_L1Count_EtaVsPhi_inOk_outNg',title=objname+'_L1Count_EtaVsPhi_inOk_outNg;MuonRoI Eta;MuonRoI Phi',
                                 cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -167,6 +172,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
         myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inOk_outNg',
                                 title=objname+'_roi_EtaVsisVetoed_inOk_outNg;MuonRoI Eta;isVetoed flag',
                                 cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inOk_outNg',title=objname+'_L1Count_EtaVspTdiff_inOk_outNg;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inOk_outNg',title=objname+'_roi_pTdiff_inOk_outNg;pT difference;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
+
 
         myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_Phi;'+objname+'_L1Count_EtaVsPhi_inNg_outOk',title=objname+'_L1Count_EtaVsPhi_inNg_outOk;MuonRoI Eta;MuonRoI Phi',
                                 cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -201,6 +211,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
         myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inNg_outOk',
                                 title=objname+'_roi_EtaVsisVetoed_inNg_outOk;MuonRoI Eta;isVetoed flag',
                                 cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inNg_outOk',title=objname+'_L1Count_EtaVspTdiff_inNg_outOk;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inNg_outOk',title=objname+'_roi_pTdiff_inNg_outOk;pT difference;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
 
 
 
