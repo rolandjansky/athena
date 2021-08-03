@@ -209,10 +209,15 @@ namespace top {
                       "None");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
-                      "Simple");
-    registerParameter("LargeRSysts_TreatMCasPseudodata",
-                      "If set to True, treat MC as pseudo-data; only apply JER smearing, and only when FullJER/AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
-                      "False",{"True", "False"});
+                      "Full_PseudoData", {"All", "All_PseudoData", "Full", "Full_PseudoData", "Simple"});
+    registerParameter("JetJMSOption",
+		      "None (default),"
+                      "JMS_frozen (The shape and magnitude of the uncertainties at m/pT = 0.25 are also used for m/pT > 0.25),"
+                       "JMS_scaled (The magnitude of the uncertainties at m/pT = 0.25 was scaled linearly with increasing m/pT)",
+                      "None");
+    registerParameter("DoLargeRPseudodataJER",
+                      "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
+                      "True",{"True", "False"});
     registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
     registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
