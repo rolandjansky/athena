@@ -358,7 +358,7 @@ namespace TrigCompositeUtils {
   const std::string& featureString();
   const std::string& seedString();
 
-  const std::string& l1DecoderNodeName();
+  const std::string& hltSeedingNodeName();
   const std::string& filterNodeName();
   const std::string& inputMakerNodeName();
   const std::string& hypoAlgNodeName();
@@ -430,7 +430,7 @@ namespace TrigCompositeUtils {
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
    * @param[inout] links Reference to vector, this will be populated with the found links. 
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @param[inout] fullyExploredFrom Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
@@ -448,7 +448,7 @@ namespace TrigCompositeUtils {
    * @param[in] start the Decision Object from where recursive search should begin
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @return Vector with the found links. 
    */
@@ -502,7 +502,7 @@ namespace TrigCompositeUtils {
    * @param[inout] indexVec The return vector of the link's index inside its collection.
    * @param[inout] sourceVec The return vector of the link's originating Decision object.
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @param[inout] fullyExploredFrom Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */

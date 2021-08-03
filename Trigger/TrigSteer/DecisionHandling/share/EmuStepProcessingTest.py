@@ -19,7 +19,7 @@ class opt:
 
 from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from DecisionHandling.EmuStepProcessingConfig import generateL1DecoderAndChainsManually, generateL1DecoderAndChainsByMenu
+from DecisionHandling.EmuStepProcessingConfig import generateHLTSeedingAndChainsManually, generateHLTSeedingAndChainsByMenu
 from AthenaCommon.AlgSequence import AlgSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 
@@ -55,9 +55,9 @@ svcMgr += conf2toConfigurable( getL1ConfigSvc(ConfigFlags))
 topSequence = AlgSequence()
 
 if opt.doMenu is True:
-    generateL1DecoderAndChainsByMenu(topSequence)
+    generateHLTSeedingAndChainsByMenu(topSequence)
 else:
-    generateL1DecoderAndChainsManually(topSequence)
+    generateHLTSeedingAndChainsManually(topSequence)
 
 generateJSON()
 

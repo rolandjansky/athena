@@ -117,12 +117,11 @@ createL1PrescalesFileFromMenu(flags)
 
 
 acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
-#acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = not flags.Input.isMC # test setup on data
 
 
 logging.getLogger('forcomps').setLevel(DEBUG)
-acc.foreach_component("*/L1Decoder").OutputLevel = INFO
-acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
+acc.foreach_component("*/HLTSeeding").OutputLevel = INFO
+acc.foreach_component("*/HLTSeeding/*Tool").OutputLevel = INFO # tools
 acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = INFO # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters

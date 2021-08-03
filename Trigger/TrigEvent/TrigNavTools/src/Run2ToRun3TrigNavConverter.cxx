@@ -161,7 +161,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
     kIn = 1;
 
     auto d1 = TrigCompositeUtils::newDecisionIn(dOutput);
-    d1->setName(TrigCompositeUtils::l1DecoderNodeName());
+    d1->setName(TrigCompositeUtils::hltSeedingNodeName());
     return d1;
   };
 
@@ -312,7 +312,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
               if (s_iter == first_s_iter)
               {
                 l1_decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
-                l1_decision->setName(TrigCompositeUtils::l1DecoderNodeName());
+                l1_decision->setName(TrigCompositeUtils::hltSeedingNodeName());
                 TrigCompositeUtils::addDecisionID(chainId, l1_decision);
                 TrigCompositeUtils::linkToPrevious(decision, l1_decision, context);
               }

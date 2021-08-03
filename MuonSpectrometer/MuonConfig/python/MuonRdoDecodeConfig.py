@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -79,7 +79,7 @@ def RpcRDODecodeCfg(flags, name="RpcRdoToRpcPrepData"):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
@@ -112,7 +112,7 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData"):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         TgcRdoToTgcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(TgcRdoToTgcPrepData)
@@ -150,7 +150,7 @@ def MdtRDODecodeCfg(flags, name="MdtRdoToMdtPrepData"):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(MdtRdoToMdtPrepData) 
@@ -187,7 +187,7 @@ def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData"):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         CscRdoToCscPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(CscRdoToCscPrepData)

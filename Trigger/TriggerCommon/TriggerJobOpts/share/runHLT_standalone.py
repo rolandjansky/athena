@@ -464,13 +464,13 @@ if opt.doL1Sim:
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
 # ---------------------------------------------------------------
-# Add L1Decoder providing inputs to HLT
+# Add HLTSeeding providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
-        ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
-        from L1Decoder.L1DecoderConfig import L1DecoderCfg
-        CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
+        ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
+        from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
+        CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
@@ -495,12 +495,12 @@ if not opt.createHLTMenuExternally:
         menu.selectChainsForTesting = opt.selectChains
 
     # generating the HLT structure requires
-    # the L1Decoder to be defined in the topSequence
+    # the HLTSeeding to be defined in the topSequence
     menu.generateMT()
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,
-    #   depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    #   depending on the property HLTSeeding.PrescalingTool.KeepUnknownChains being True or False
 
 
     if opt.endJobAfterGenerate:
@@ -590,15 +590,15 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
-    l1decoder = findAlgorithm(topSequence, "L1Decoder")
+    hltSeeding = findAlgorithm(topSequence, "HLTSeeding")
 
-    if l1decoder and summaryMakerAlg:
-        decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
+    if hltSeeding and summaryMakerAlg:
+        decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryMakerAlg )
         decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
         log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
         log.debug(decObj)
     else:
-        log.error("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
+        log.error("Failed to find HLTSeeding or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
 

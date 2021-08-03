@@ -135,32 +135,32 @@ StatusCode HypoBase::validateParentLinking(const ElementLink<DecisionContainer>&
   bool runTwoConversion)
 {
   const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
-  // All Decision object must have at least one parent, unless they are the initial set of objects created by the L1 decoder
+  // All Decision object must have at least one parent, unless they are the initial set of objects created by the HLTSeeding
   const std::string& name = (*dEL)->name();
-  if (seeds.size() == 0 && name != l1DecoderNodeName()) {
+  if (seeds.size() == 0 && name != hltSeedingNodeName()) {
     printErrorHeader(dEL, msg);
-    msg << MSG::ERROR << "! Decision has zero parents. This is only allowed for the initial Decisions created by the L1Decoder." << endmsg;
+    msg << MSG::ERROR << "! Decision has zero parents. This is only allowed for the initial Decisions created by the HLTSeeding." << endmsg;
     msg << MSG::ERROR << "! SOLUTION: Attach parent Decision(s) with TrigCompositeUtils::linkToPrevious" << endmsg;
     printBangs(msg);
     return StatusCode::FAILURE;
   }
 
-  if (name == l1DecoderNodeName()) {
+  if (name == hltSeedingNodeName()) {
     if (seeds.size() > 0) {
       printErrorHeader(dEL, msg);
-       msg << MSG::ERROR << "! Decision has parents. This is not allowed for the initial Decisions created by the L1Decoder." << endmsg;
-       msg << MSG::ERROR << "! SOLUTION: Check L1Decoder, no where should it be adding a parent link." << endmsg;
+       msg << MSG::ERROR << "! Decision has parents. This is not allowed for the initial Decisions created by the HLTSeeding." << endmsg;
+       msg << MSG::ERROR << "! SOLUTION: Check HLTSeeding, no where should it be adding a parent link." << endmsg;
       printBangs(msg);
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
   }
 
-  static const std::set<std::string> expectedParentsFilter = {hypoAlgNodeName(), comboHypoAlgNodeName(), l1DecoderNodeName()};
+  static const std::set<std::string> expectedParentsFilter = {hypoAlgNodeName(), comboHypoAlgNodeName(), hltSeedingNodeName()};
   static const std::set<std::string> expectedParentsInputMaker = {filterNodeName()};
   static const std::set<std::string> expectedParentsHypoAlg = {inputMakerNodeName()};
-  static const std::set<std::string> expectedParentsComboHypoAlg = {hypoAlgNodeName(), inputMakerNodeName(), l1DecoderNodeName()}; // TODO check l1DecoderNodeName(), needed for newJO
-  static const std::set<std::string> expectedParentsSummaryFilter = {hypoAlgNodeName(), comboHypoAlgNodeName(), l1DecoderNodeName()};
+  static const std::set<std::string> expectedParentsComboHypoAlg = {hypoAlgNodeName(), inputMakerNodeName(), hltSeedingNodeName()}; // TODO check hltSeedingNodeName(), needed for newJO
+  static const std::set<std::string> expectedParentsSummaryFilter = {hypoAlgNodeName(), comboHypoAlgNodeName(), hltSeedingNodeName()};
   static const std::set<std::string> expectedParentsSummaryPassed = {"SF"}; // TODO change to summaryFilterNodeName() when merged
 
   const std::set<std::string>* expectedParentsPtr = nullptr;
@@ -247,7 +247,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
   const LogicalFlowCheckMode mode)
 {
   // Do not need to validate for L1 Decisions as these have no parents
-  if ((*dEL)->name() == l1DecoderNodeName()) {
+  if ((*dEL)->name() == hltSeedingNodeName()) {
     return StatusCode::SUCCESS;
   }
 
@@ -357,20 +357,20 @@ StatusCode HypoBase::validateHasLinks(const ElementLink<DecisionContainer>& dEL,
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! Decision has no '" << roiString() << "' ElementLink." << endmsg;
       msg << MSG::ERROR << "! Every Decision created by a InputMaker must link to the ROI which reconstruction will run on for that Decision object in this Step." << endmsg;
-      msg << MSG::ERROR << "! It can be the FullScan ROI created by the L1 Decoder (FSNOSEED) if no other suitable ROI exists." << endmsg;
+      msg << MSG::ERROR << "! It can be the FullScan ROI created by the HLTSeeding (FSNOSEED) if no other suitable ROI exists." << endmsg;
       msg << MSG::ERROR << "! SOLUTION: Check the configuration of InputMakerForRoI or EventViewCreatorAlgorithm responsible for creating this Decision Object" << endmsg;
       msg << MSG::ERROR << "! SOLUTION: The algorithm must have an ROITool which must attach an '"<< roiString() <<"' link to each Decision Object" << endmsg;
       printBangs(msg);
     }
 
-  } else if (name == l1DecoderNodeName()) {
+  } else if (name == hltSeedingNodeName()) {
 
     if (not (*dEL)->hasObjectLink( initialRoIString() )) {
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! Decision has no '" << initialRoIString() << "' ElementLink." << endmsg;
-      msg << MSG::ERROR << "! Every Decision created by the L1Decoder must link to the initial ROI which caused it to be created." << endmsg;
+      msg << MSG::ERROR << "! Every Decision created by the HLTSeeding must link to the initial ROI which caused it to be created." << endmsg;
       msg << MSG::ERROR << "! This includes the Decision Object created to represent the Full-Scan/NoSeed (FSNOSEED) ROI." << endmsg;
-      msg << MSG::ERROR << "! SOLUTION: Check the configuration of the L1Decoder tool responsible for creating this Decision Object" << endmsg;
+      msg << MSG::ERROR << "! SOLUTION: Check the configuration of the HLTSeeding tool responsible for creating this Decision Object" << endmsg;
       printBangs(msg);
     }
 

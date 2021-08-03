@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -52,10 +52,10 @@ StatusCode CounterThread::newEvent(const CostData& data, size_t index, const flo
 }
 
 StatusCode CounterThread::postProcess(float weight) {
-  // Total time from start of L1Decoder to "stop" of SummaryMaker.
+  // Total time from start of HLTSeeding to "stop" of SummaryMaker.
   const float eventTime = timeToMilliSec(m_globalLowTimestamp, m_globalHighTimestamp);
   
-  // We know that we may loose data on algs which started executing before the L1Decoder triggered the data collection.
+  // We know that we may loose data on algs which started executing before the HLTSeeding triggered the data collection.
   // But we truncate the data for algs which are running still when we stop collecting data.
   float unmonitoredTime = 0;
   if (m_highTimestamp > 0) {

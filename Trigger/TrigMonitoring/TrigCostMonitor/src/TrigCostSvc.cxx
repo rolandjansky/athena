@@ -94,9 +94,9 @@ StatusCode TrigCostSvc::startEvent(const EventContext& context, const bool enabl
     m_eventMonitored[ context.slot() ] = monitoredEvent;
   }
 
-  // As we missed the AuditType::Before of the L1Decoder (which is calling this TrigCostSvc::startEvent), let's add it now.
+  // As we missed the AuditType::Before of the HLTSeeding (which is calling this TrigCostSvc::startEvent), let's add it now.
   // This will be our canonical initial timestamps for measuring this event. Similar will be done for DecisionSummaryMakerAlg at the end
-  ATH_CHECK(processAlg(context, m_l1DecoderName, AuditType::Before));
+  ATH_CHECK(processAlg(context, m_hltSeedingName, AuditType::Before));
 
   return StatusCode::SUCCESS;
 }
@@ -204,7 +204,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
   }
 
   // As we will miss the AuditType::After of the DecisionSummaryMakerAlg (which is calling this TrigCostSvc::endEvent), let's add it now.
-  // This will be our canonical final timestamps for measuring this event. Similar was done for L1Decoder at the start
+  // This will be our canonical final timestamps for measuring this event. Similar was done for HLTSeeding at the start
   ATH_CHECK(processAlg(context, m_decisionSummaryMakerAlgName, AuditType::After));
 
   // Reset eventMonitored flags
@@ -235,11 +235,11 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
   // And the global START time for the event
   uint64_t eventStartTime = 0;
   {
-    const AlgorithmIdentifier l1DecoderAi = AlgorithmIdentifierMaker::make(context, m_l1DecoderName, msg());
-    ATH_CHECK( l1DecoderAi.isValid() );
+    const AlgorithmIdentifier hltSeedingAi = AlgorithmIdentifierMaker::make(context, m_hltSeedingName, msg());
+    ATH_CHECK( hltSeedingAi.isValid() );
     tbb::concurrent_hash_map<AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_accessor startAcessor;
-    if (m_algStartInfo.retrieve(l1DecoderAi, startAcessor).isFailure()) {
-      ATH_MSG_ERROR("No alg info for '" << l1DecoderAi.m_caller << "', '" << l1DecoderAi.m_store << "'"); // Error as we know this info must be present
+    if (m_algStartInfo.retrieve(hltSeedingAi, startAcessor).isFailure()) {
+      ATH_MSG_ERROR("No alg info for '" << hltSeedingAi.m_caller << "', '" << hltSeedingAi.m_store << "'"); // Error as we know this info must be present
     } else { // retrieve was a success
       eventStartTime = startAcessor->second.m_algStartTime.microsecondsSinceEpoch();
     }
@@ -303,7 +303,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
       continue;
     }
     if (startTime < eventStartTime) {
-      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " started just after the cost container was unlocked, but before the L1Decoder record was written." 
+      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " started just after the cost container was unlocked, but before the HLTSeeding record was written." 
         << " truncating its starting time stamp from " << startTime << " to " << eventStartTime);
       startTime = eventStartTime;
     }

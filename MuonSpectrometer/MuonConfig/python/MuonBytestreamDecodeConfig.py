@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -70,7 +70,7 @@ def RpcBytestreamDecodeCfg(flags, name="RpcRawDataProvider"):
 
     if flags.Muon.MuonTrigger:
         # Configure the RAW data provider for ROI access
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         RpcRawDataProvider.RoIs = mapThresholdToL1RoICollection("MU")
         RpcRawDataProvider.DoSeededDecoding = True
         # add RegSelTool

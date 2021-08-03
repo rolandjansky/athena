@@ -30,7 +30,7 @@ namespace xAOD {
   const std::string TrigComposite_v1::s_featureString{"feature"};
   const std::string TrigComposite_v1::s_seedString{"seed"};
 
-  const std::string TrigComposite_v1::s_l1DecoderNodeNameString{"L1"};
+  const std::string TrigComposite_v1::s_hltSeedingNodeNameString{"L1"};
   const std::string TrigComposite_v1::s_filterNodeNameString{"F"};
   const std::string TrigComposite_v1::s_inputMakerNodeNameString{"IM"};
   const std::string TrigComposite_v1::s_hypoAlgNodeNameString{"H"};

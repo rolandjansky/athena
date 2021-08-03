@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigHLTJetHypo_TrigJetHypoAlg_H
 #define TrigHLTJetHypo_TrigJetHypoAlg_H
@@ -33,7 +33,7 @@ class TrigJetHypoAlg : public ::HypoBase {
  * collection.
  * @param[in] jets Input container of reco jets
  * @param[in] previousDecision The Decision object from the previous step 
- * (L1Decoder). Jet workflow specifies there to be exactly one previous 
+ * (HLTSeeding). Jet workflow specifies there to be exactly one previous 
  * decision object.
  * @param[out] outputDecisions Output container of Decision objects. 
  * To be populated with one Decision object per jet, and these filled with IDs 

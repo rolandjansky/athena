@@ -375,7 +375,7 @@ StatusCode TrigSignatureMoni::execute( const EventContext& context ) const {
   }
 
   if (l1SeededChains == nullptr || unprescaledChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder.");
+    ATH_MSG_ERROR("Unable to read in the summary from the HLTSeeding.");
     return StatusCode::FAILURE;
   }
 

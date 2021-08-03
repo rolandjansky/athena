@@ -682,7 +682,7 @@ def muEFSARecoSequence( RoIs, name ):
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
         if name == "FS":
-          from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+          from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection 
           efAlg.RoIs = mapThresholdToL1RoICollection("FS")
         else:
           efAlg.RoIs = RoIs
