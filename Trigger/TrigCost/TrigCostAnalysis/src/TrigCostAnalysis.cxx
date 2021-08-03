@@ -20,6 +20,7 @@
 #include "monitors/MonitorROS.h"
 #include "monitors/MonitorChain.h"
 #include "monitors/MonitorChainAlgorithm.h"
+#include "monitors/MonitorSequence.h"
 
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
@@ -202,14 +203,24 @@ StatusCode TrigCostAnalysis::execute() {
 
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
+  std::map<std::string, std::set<size_t>> seqToAlgIdx;
   std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
+
+  // Retrieve active sequences and algorithms
+  std::map<std::string, std::string> algToSeq;
+  ATH_CHECK(m_algToChainTool->getAllActiveSequences(context, algToSeq));
+
   for (const xAOD::TrigComposite* tc : *costDataHandle) {
     const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
     const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
 
     for (const TrigConf::Chain& chain : algToChain[name]){
       chainToAlgIdx[chain.name()].insert(tc->index());
+    }
+
+    if (algToSeq.count(name)){
+      seqToAlgIdx[algToSeq[name]].insert(tc->index());
     }
   }
 
@@ -234,6 +245,7 @@ StatusCode TrigCostAnalysis::execute() {
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
   costData.setChainToAlgMap(chainToAlgIdx);
+  costData.setSequencersMap(seqToAlgIdx);
   costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
@@ -294,9 +306,14 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
     ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
-  }if (m_doMonitorChainAlgorithm) {
+  }
+  if (m_doMonitorChainAlgorithm) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
     ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorSequence) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorSequence>("Sequence_HLT", range)) );
+    ATH_MSG_INFO("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;
