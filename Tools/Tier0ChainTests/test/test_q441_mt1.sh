@@ -3,6 +3,7 @@
 # art-description: RecoTrf
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 
 Reco_tf.py \
 --AMI=q441 \
