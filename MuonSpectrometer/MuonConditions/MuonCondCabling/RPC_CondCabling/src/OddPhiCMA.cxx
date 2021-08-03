@@ -18,7 +18,7 @@ const OddPhiCMA::WORlink& OddPhiCMA::lowPt_WORs(void) const { return m_lowPt_WOR
 const OddPhiCMA::WORlink& OddPhiCMA::highPt_WORs(void) const { return m_highPt_WORs; }
 bool OddPhiCMA::inversion(void) const { return m_inversion; }
 
-OddPhiCMA::OddPhiCMA(parseParams parse, IMessageSvc* svc) : CMAparameters(parse, svc) {
+OddPhiCMA::OddPhiCMA(parseParams parse) : CMAparameters(parse) {
     m_inversion = false;
     m_conf_type = CMAparameters::Atlas;
 

@@ -59,7 +59,7 @@ namespace RPC_CondCabling {
         bool connect(SectorLogicSetup&);
 
     public:
-        WiredOR(parseParams, IMessageSvc*);
+        WiredOR(parseParams);
 
         // WiredOR(int, int, int, int, int);
         WiredOR(const WiredOR&) = default;

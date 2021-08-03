@@ -25,7 +25,7 @@ public:
         int sectorType{0};
     };
 
-    CablingObject(const cablingParameters&, const std::string&, IMessageSvc*);
+    CablingObject(const cablingParameters&, const std::string&);
     CablingObject(const CablingObject&) = default;
     virtual ~CablingObject() = default;
 

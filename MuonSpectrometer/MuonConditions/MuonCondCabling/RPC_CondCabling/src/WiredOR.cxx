@@ -11,7 +11,7 @@
 
 using namespace RPC_CondCabling;
 
-WiredOR::WiredOR(parseParams pars, IMessageSvc* msgSvc) : CablingObject{pars, "WOR", msgSvc}, m_params{pars} {}
+WiredOR::WiredOR(parseParams pars) : CablingObject{pars, "WOR"}, m_params{pars} {}
 
 WiredOR::~WiredOR() = default;
 

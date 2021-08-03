@@ -12,7 +12,6 @@
 #include "RPC_CondCabling/WiredOR.h"
 
 class MsgStream;
-class IMessageSvc;
 
 namespace RPC_CondCabling {
 
@@ -35,7 +34,7 @@ namespace RPC_CondCabling {
         int get_max_strip_readout(int);
 
     public:
-        OddPhiCMA(parseParams parse, IMessageSvc* svc);
+        OddPhiCMA(parseParams parse);
         OddPhiCMA(const OddPhiCMA&);
         virtual ~OddPhiCMA();
 

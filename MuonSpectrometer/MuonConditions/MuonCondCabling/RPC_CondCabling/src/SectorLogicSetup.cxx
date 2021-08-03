@@ -11,8 +11,8 @@
 using namespace RPC_CondCabling;
 const std::map<std::string, std::string>* RPC_CondCabling::SectorLogicSetup::s_trigroads = nullptr;
 
-SectorLogicSetup::SectorLogicSetup(int type, const std::string& database, const std::string& layout, bool conf, IMessageSvc* msgSvc) :
-    BaseObject(Logic, "Sector Logic Map", msgSvc), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
+SectorLogicSetup::SectorLogicSetup(int type, const std::string& database, const std::string& layout, bool conf) :
+    BaseObject(Logic, "Sector Logic Map"), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
     m_online_database = database;
     m_layout = layout;
     m_cosmic = conf;

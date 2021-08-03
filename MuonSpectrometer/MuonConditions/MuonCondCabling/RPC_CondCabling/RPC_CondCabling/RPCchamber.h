@@ -80,7 +80,7 @@ namespace RPC_CondCabling {
         [[nodiscard]] std::string error(const std::string&) const;
 
     public:
-        RPCchamber(const RPCchamber::chamberParameters& params, IMessageSvc* msgSvc);
+        RPCchamber(const RPCchamber::chamberParameters& params);
         RPCchamber(const RPCchamber&) = default;
         virtual ~RPCchamber();
 

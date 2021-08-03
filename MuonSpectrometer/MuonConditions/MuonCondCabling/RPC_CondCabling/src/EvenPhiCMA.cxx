@@ -19,7 +19,7 @@ const EvenPhiCMA::WORlink& EvenPhiCMA::highPt_WORs() const { return m_highPt_WOR
 
 bool EvenPhiCMA::inversion() const { return m_inversion; }
 
-EvenPhiCMA::EvenPhiCMA(EvenPhiCMA::parseParams pars, IMessageSvc* msgSvc) : CMAparameters(pars, msgSvc) {
+EvenPhiCMA::EvenPhiCMA(EvenPhiCMA::parseParams pars) : CMAparameters(pars) {
     m_inversion = false;
     m_conf_type = CMAparameters::Atlas;
 

@@ -4,11 +4,13 @@
 
 #include "RPC_CondCabling/WiredORdata.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 #include <iomanip>
 
 using namespace RPC_CondCabling;
 
-WiredORdata::WiredORdata(DBline& data, int type, IMessageSvc* msgSvc) : BaseObject{Logic, "Wired OR Data", msgSvc} {
+WiredORdata::WiredORdata(DBline& data, int type) : BaseObject{Logic, "Wired OR Data"} {
     reset_data();
     if (!(data("station") >> m_station)) return;
 
@@ -20,7 +22,7 @@ WiredORdata::WiredORdata(DBline& data, int type, IMessageSvc* msgSvc) : BaseObje
         parse_params.sectorType = type;
         parse_params.station = m_station;
         parse_params.number = -1;
-        if (get_data(data, parse_params)) { m_wor.emplace_back(parse_params, msgSvc); }
+        if (get_data(data, parse_params)) { m_wor.emplace_back(parse_params); }
         data++;
     } while (!data("}"));
 }
@@ -30,12 +32,11 @@ void WiredORdata::reset_data() { m_fail = true; }
 bool WiredORdata::confirm_boundary(WiredOR::parseParams& parse_params) const {
     if (parse_params.start > parse_params.stop) {
         std::ostringstream display;
-
-        display << "WORdata error in configuration for Sector Type " << parse_params.sectorType << ", station " << parse_params.station
-                << ", WOR number " << parse_params.number << std::endl
-                << " start RPC chamber (" << parse_params.start << ") is greater than "
-                << "stop RPC chamber (" << parse_params.stop << ")" << std::endl;
-        display_error(display);
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredORdata")
+             << "WORdata error in configuration for Sector Type " << parse_params.sectorType << ", station " << parse_params.station
+             << ", WOR number " << parse_params.number << std::endl
+             << " start RPC chamber (" << parse_params.start << ") is greater than "
+             << "stop RPC chamber (" << parse_params.stop << ")";
         return false;
     }
     return true;

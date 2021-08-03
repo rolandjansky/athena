@@ -177,7 +177,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
             ATH_MSG_DEBUG("setup() - Loop over " << maxType << " sector-types");
 
             for (int i = 1; i <= maxType; ++i) {
-                sectorType.emplace_back(i, dataName, layout, m_cosmic_configuration, msgSvc().get());
+                sectorType.emplace_back(i, dataName, layout, m_cosmic_configuration);
                 RPC_CondCabling::SectorLogicSetup* sec = &(sectorType[i - 1]);
                 sectorType[i - 1].SetPtoTrigRoads(&trigroads);
                 for (int j = 0; j < 64; ++j) {
@@ -194,22 +194,22 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         for (int i = 1; i <= maxType; ++i) {
             // Read the RPC geometry
             if (data("RPC GEOM  # :", i)) {
-                RPC_CondCabling::RPCchamberdata RPCdata(data, i, msgSvc().get());
+                RPC_CondCabling::RPCchamberdata RPCdata(data, i);
                 if (!(sectorType[i - 1] += RPCdata)) return StatusCode::FAILURE;
             }
             // Read the Wired OR geometry
             if (data("WIRED OR  # :", i)) {
-                RPC_CondCabling::WiredORdata WORdata(data, i, msgSvc().get());
+                RPC_CondCabling::WiredORdata WORdata(data, i);
                 if (!(sectorType[i - 1] += WORdata)) return StatusCode::FAILURE;
             }
             // Read the CMAs segmentation
             if (data("CMAs  # : pivot segmentation", i)) {
-                RPC_CondCabling::CMApivotdata CMAdata(data, i, layout, msgSvc().get());
+                RPC_CondCabling::CMApivotdata CMAdata(data, i, layout);
                 if (!(sectorType[i - 1] += CMAdata)) return StatusCode::FAILURE;
             }
             // Read the CMAs cabling
             if (data("CMAs  # : eta cabling", i)) {
-                RPC_CondCabling::CMAcablingdata CMAdata(data, i, msgSvc().get());
+                RPC_CondCabling::CMAcablingdata CMAdata(data, i);
                 if (!(sectorType[i - 1] += CMAdata)) return StatusCode::FAILURE;
             }
         }
