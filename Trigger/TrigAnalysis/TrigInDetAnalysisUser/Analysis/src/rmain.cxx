@@ -424,9 +424,10 @@ int main(int argc, char** argv)
 
   std::string binningConfigFile = "";
 
-  bool useoldrms = true;
-  bool nofit     = false;
-  bool doTnP     = false;  // added for tagNprobe
+  bool useoldrms    = true;
+  bool nofit        = false;
+  bool doTnP        = false;  // added for tagNprobe
+  bool doTnP_histos = false;  // added for tagNprobe
 
   std::string vertexSelection     = "";
   std::string vertexSelection_rec = "";
@@ -447,6 +448,7 @@ int main(int argc, char** argv)
     }
     else if ( std::string(argv[i])=="--rms" )   useoldrms = false;
     else if ( std::string(argv[i])=="--tnp" )   doTnP = true;
+    else if ( std::string(argv[i])=="--tnph" )  doTnP_histos = true;
     else if ( std::string(argv[i])=="-n" || std::string(argv[i])=="--nofit" ) nofit = true;
     else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--testChain" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -642,6 +644,8 @@ int main(int argc, char** argv)
   /// set upper and lower Zmass window cuts from datafile for Tag&Probe analysis
   if ( inputdata.isTagDefined("ZmassMax") ) ZmassMax = inputdata.GetValue("ZmassMax");
   if ( inputdata.isTagDefined("ZmassMin") ) ZmassMin = inputdata.GetValue("ZmassMin");
+  /// set doTnP_histos flag from datafile for Tag&Probe analysis
+  if ( inputdata.isTagDefined("doTnPHistos") )  doTnP_histos = ( inputdata.GetValue("doTnPHistos")==0 ? false : true );
 
   std::string useMatcher = "DeltaR";
   if ( inputdata.isTagDefined("UseMatcher") ) useMatcher = inputdata.GetString("UseMatcher");  
@@ -682,6 +686,7 @@ int main(int argc, char** argv)
     TnP_tool->FillMap( tnpChains ); // fill tag/probe chains map for bookkeeping
 
     doTnP = TnP_tool->isTnP(); // set the T&P flag
+    if ( !doTnP ) doTnP_histos = false; // set this flag to false if doTnP is false
 
     testChains = TnP_tool->GetProbeChainNames(); // replace testChains
 
@@ -1175,7 +1180,7 @@ int main(int argc, char** argv)
     }
 
     /// filling map for Tag&Probe invariant mass histograms
-    if ( doTnP ) TnP_tool->BookMinvHisto( chainname );
+    if ( doTnP_histos ) TnP_tool->BookMinvHisto( chainname );
 
   }
 
@@ -1750,7 +1755,19 @@ int main(int argc, char** argv)
     if ( debugPrintout ) { 
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
-    
+
+    /// configure the T&P tool for this event, if doTnP = true
+    if ( doTnP ) {
+        TnP_tool->ResetEventConfiguration(); /// reset the TnP_tool for this event
+
+        /// do the event-by-event configuration
+        TnP_tool->SetEventConfiguration( 
+                    &refTracks, refFilter,          // offline tracks and filter
+                    refChain,                       // offline chain name
+                    &tom,                           // trigger object matcher
+                    ZmassMin, ZmassMax );           // set the Zmass range
+    }
+
     for ( unsigned ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
 
       TIDA::Chain& chain = track_ev->chains()[ic];
@@ -1771,44 +1788,15 @@ int main(int argc, char** argv)
      
       std::vector<TIDA::Roi*> rois; /// these are the rois to process
 
-      /// if in tagNprobe mode, look for corresponding tagNprobe chain
       if ( doTnP ) {
-       
-        TIDA::Chain* chain_tag = 0;
-
-        /// for each configured probe chain find the correspondig tag chain in the event
-        chain_tag = TnP_tool->GetTagChain( chain.name(), track_ev->chains() );
-  
-        if ( chain_tag == 0 ) {
-          std::cerr << "Chain for Tag&Probe was not found!" << std::endl;
-          continue;
-        }
-
-        /// configuring the Tag&Probe tool for this 
-        TnP_tool->SetToolEventConfiguration( 
-                    &refTracks, refFilter,          // offline tracks and filter
-                    refChain,                       // offline chain name
-                    &tom,                           // trigger object matcher
-                    chain_tag, &chain,              // tag and probe chains
-                    ZmassMin, ZmassMax );           // set the Zmass range
-
-
-        /// run the T&P tool to find the probe RoIs
-        if ( !TnP_tool->FindProbes() ) {
-          std::cout << "No Probes were found!" << std::endl;
-          continue;
-        }
-
-        /// getting the vector of rois to process
-        rois = TnP_tool->GetProbes();
+        /// if doTnP = true, do the T&P selection and get the vector of RoIs
+        rois = TnP_tool->GetRois( &chain, track_ev->chains() );
 
         /// now the TnP_tool object contains all the info on the good probes that have been found 
         /// including, for each one of them, the invariant mass(es) calculated with the 
         /// corresponding tag(s). One can access to these info at any time in the following lines
-
-      } /// end of if( doTnP )
+      } 
       else {
-
         /// if doTnP==false, do std analysis and fill the rois vector from chain
         rois.reserve( chain.size() );
         for ( size_t ir=0 ; ir<chain.size() ; ir++ )
@@ -1829,36 +1817,12 @@ int main(int argc, char** argv)
         TIDA::Roi& troi = *rois[ir]; // changed for tagNprobe
         TIDARoiDescriptor roi( troi.roi() );
 
-        if ( doTnP ) {
-          /// retrieve additional info for Tag&Probe analysis
-          /// these vectors will have more than one element when the current probe 
-          /// is selected for more than one tags
-
-          /// retrieve the list of invariant masses for probe ir
-          std::vector<double> probeInvM = TnP_tool->GetInvMasses(ir);
-          std::vector<double> probeInvM_obj = TnP_tool->GetInvMasses_obj(ir);
-
-          if ( false ) {
-            /// retrieve list of tag indices for probe ir
-            std::vector<TIDA::Roi*> tags = TnP_tool->GetTags(ir);
-
-            /// debug printout
-            std::cout << "---------------------------------" << std::endl;
-            std::cout << "--- Event N " << track_ev->event_number() << " ---" << std::endl;
-            std::cout << "---------------------------------" << std::endl;
-            std::cout << "Probe " << ir << " (eta:" << roi.eta() << ") for (N=" << tags.size() << ") tags with eta= ";
-            for ( size_t it=0 ; it<tags.size() ; it++ )
-              std::cout << (tags[it])->roi().eta() << "\t";
-            std::cout << "\nInvariant masses (N=" << probeInvM.size() << ") are = ";
-            for ( size_t im=0 ; im<probeInvM.size() ; im++ )
-              std::cout << probeInvM[im] << "\t";
-            std::cout << std::endl;
-            std::cout << "---------------------------------END" << std::endl;
-          }
-
-          /// filling the invariant mass histos for Tag&Probe analysis
-          TnP_tool->FillMinvHisto( chain.name(), probeInvM, probeInvM_obj );
-
+        /// filling the invariant mass histos for Tag&Probe analysis 
+        /// for the current probe (ir) and if doTnP_histos = true
+        if ( doTnP_histos ) {
+          /// Minv vectors may have more than one element when the current probe 
+          /// is selected for more than one tag
+          TnP_tool->FillMinvHisto( chain.name(), ir );
         }
 
 
@@ -2300,9 +2264,11 @@ int main(int argc, char** argv)
 
   /// write out the histograms
   if ( doTnP ) {
-    TnP_tool->WriteMinvHisto( foutdir );  // saving Minv histos for Tag&Probe analysis
+    // saving Minv histos for Tag&Probe analysis if doTnP_histos = true
+    if ( doTnP_histos ) TnP_tool->WriteMinvHisto( foutdir );
     delete TnP_tool;  // deleting T&P tool
   }
+
   foutput.Write();
   foutput.Close();
 
