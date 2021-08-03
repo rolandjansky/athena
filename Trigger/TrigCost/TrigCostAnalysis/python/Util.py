@@ -50,7 +50,7 @@ def saveMetadata(inputFile, userDetails):
         json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
 
 
-def exploreTree(inputFile):
+def exploreTree(inputFile, dumpSummary=False):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 
     Per each found directory TableConstructor object is created.
@@ -92,6 +92,9 @@ def exploreTree(inputFile):
 
                 if table.GetName() == "Global_HLT":
                     t.lbLength = walltime
+
+                if table.GetName() == "Algorithm_HLT":
+                    t.dumpSummary = dumpSummary
 
                 fileName = getFileName(table.GetName(), key.GetName())
                 histPrefix = getHistogramPrefix(table.GetName(), key.GetName())
