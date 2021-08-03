@@ -62,7 +62,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         ########### here ends InDetGlobalTrackMonAlg ###########
 
 
-
+    if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw') and flags.DQ.DataType != 'cosmics':
         ########### here begins InDetGlobalLRTMonAlg ###########
         kwargsInDetGlobalLRTMonAlg = { 
             'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
