@@ -353,9 +353,9 @@ void CMAparameters::showMt(char display[][90], int ln, TrigType type) const {
     down = 45;
 
     // Set input for the display
-    __osstream** disp = new __osstream*[ln];
+    std::ostringstream** disp = new std::ostringstream*[ln];
 
-    for (int i = 0; i < ln; ++i) disp[i] = new __osstream;
+    for (int i = 0; i < ln; ++i) disp[i] = new std::ostringstream;
 
     int pivot_loop = (m_pivot_rpc_read < 4) ? m_pivot_rpc_read : 3;
     int conf_loop = 0;
@@ -474,16 +474,17 @@ void CMAparameters::Print(std::ostream& stream, bool detail) const {
     if (detail) showDt(stream);
 }
 
-void CMAparameters::noMoreChannels(const std::string& stat) {
+std::string CMAparameters::noMoreChannels(const std::string& stat) {
     int max_channels = 0;
     if (stat == "Pivot")
         max_channels = pivot_channels;
     else
         max_channels = confirm_channels;
 
-    DISP << "Error in Sector Type " << this->sector_type() << ":" << std::endl
-         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side" << std::endl;
-    DISP_ERROR;
+    std::ostringstream disp;
+    disp << "Error in Sector Type " << this->sector_type() << ":" << std::endl
+         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side";
+    return disp.str();
 }
 
 const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const {
@@ -508,43 +509,44 @@ const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const
     return nullptr;
 }
 
-void CMAparameters::two_obj_error_message(const std::string& msg, CMAparameters* cma) {
-    this->error_header();
-
-    DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
+std::string CMAparameters::two_obj_error_message(const std::string& msg, CMAparameters* cma) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
          << *this << *cma;
-    DISP_ERROR;
+    return disp.str();
 }
 
-void CMAparameters::no_confirm_error(int stat) {
-    this->error_header();
+std::string CMAparameters::no_confirm_error(int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
     if (stat == lowPt_station()) {
-        DISP << "Low Pt cabling inconsistence (cabling from connector " << m_params.lowPtStartCo << " to connector " << m_params.lowPtStopCo
+        disp << "Low Pt cabling inconsistence (cabling from connector " << m_params.lowPtStartCo << " to connector " << m_params.lowPtStopCo
              << ") for" << std::endl
              << *this;
-        DISP_ERROR;
     } else if (stat == highPt_station()) {
-        DISP << "High Pt cabling inconsistence (cabling from connector " << m_params.highPtStartCo << " to connector "
+        disp << "High Pt cabling inconsistence (cabling from connector " << m_params.highPtStartCo << " to connector "
              << m_params.highPtStopCo << ") for" << std::endl
              << *this;
-        DISP_ERROR;
-    } else
-        return;
+    }
+    return disp.str();
 }
 
-void CMAparameters::no_wor_readout(int num, int stat) {
-    this->error_header();
+std::string CMAparameters::no_wor_readout(int num, int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
-    DISP << this->id() << "   receives input from" << std::endl
-         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!" << std::endl;
-    DISP_ERROR;
+    disp << this->id() << "   receives input from" << std::endl
+         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!";
+    return disp.str();
 }
 
-void CMAparameters::error(const std::string& str) {
-    this->error_header();
-    DISP << this->id() << str << std::endl;
-    DISP_ERROR;
+std::string CMAparameters::error(const std::string& str) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << this->id() << str;
+    return disp.str();
 }
 
 CMAinput CMAparameters::whichCMAinput(int stat) const {

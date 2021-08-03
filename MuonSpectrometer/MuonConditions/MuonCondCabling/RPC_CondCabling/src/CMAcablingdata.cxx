@@ -24,7 +24,7 @@ bool CMAcablingdata::confirm_data(ViewType side, const CMAparameters::parseParam
     unsigned int div = 247;
     std::string view = (side == ViewType::Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     bool have_low_Pt_input = (parser.lowPtNumCo != -1);
     bool have_high_Pt_input = (parser.highPtNumCo != -1);

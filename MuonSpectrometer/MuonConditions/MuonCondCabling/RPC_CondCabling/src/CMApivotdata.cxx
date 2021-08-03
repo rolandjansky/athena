@@ -38,7 +38,7 @@ bool CMApivotdata::confirm_data(ViewType side, CMAparameters::parseParams& parse
     int stop = parser.pivotStopChan * 100 + parser.pivotStopStation;
     std::string view = (side == Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (!CMAidentity::coverage(m_covtag, parser.coverage)) {
         disp << "CMA cabling error into configuration for Sector Type " << parser.sectorType << ", " << m_covtag << " " << view

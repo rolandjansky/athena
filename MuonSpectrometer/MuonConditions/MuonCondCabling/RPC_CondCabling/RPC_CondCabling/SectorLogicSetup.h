@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SECTORLOGICSETUP_H
@@ -50,7 +50,7 @@ namespace RPC_CondCabling {
         std::string m_layout;
         bool m_cosmic;
 
-        void no_elements(const std::string&, int);
+        [[nodiscard]] std::string no_elements(const std::string&, int);
         void get_station(CMAinput, int);
 
         EtaCMAmap::const_iterator find_etaCMA(int Eta, int Phi) const;
@@ -95,7 +95,7 @@ namespace RPC_CondCabling {
         OddPhiCMA* previousCMA(const OddPhiCMA&);
         std::list<const EtaCMA*> find_eta_CMAs_in_PAD(int);
 
-        bool setup();
+        bool setup(MsgStream&);
         bool check();
 
         bool global_strip_add(ViewType, HalfType, int, int, int, int&) const;
