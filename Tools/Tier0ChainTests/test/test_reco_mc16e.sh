@@ -60,7 +60,7 @@ then
   ArtPackage=$1
   ArtJobName=$2
   echo "Running art.py command"
-  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
