@@ -112,6 +112,11 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
 
    ATH_MSG_DEBUG("L1PrescaleCondAlg::execute with lb " << ctx.eventID().lumi_block());
 
+   SG::WriteCondHandle<TrigConf::L1PrescalesSet> writeCondHandle(m_l1PrescalesSetOutputKey, ctx);
+   if (writeCondHandle.isValid()) {  // prescales already available?
+     return StatusCode::SUCCESS;
+   }
+
    unsigned int l1Psk = m_psk;
    EventIDRange range;
 
@@ -176,8 +181,6 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
    }
 
    // record L1 prescales set
-   SG::WriteCondHandle<TrigConf::L1PrescalesSet> writeCondHandle(m_l1PrescalesSetOutputKey, ctx);
-
    if( pss == nullptr ) {
       ATH_MSG_INFO("Recording empty L1 prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet ) );
