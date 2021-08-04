@@ -116,6 +116,7 @@ m_athenaTool("")
 
   ATH_MSG_INFO("XML Path is " + xmlpath());
 
+  m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +142,6 @@ StatusCode Pythia8_i::genInitialize() {
 
   bool canInit = true;
 
-  m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
   m_version = m_pythia->settings.parm("Pythia:versionNumber");
 
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
