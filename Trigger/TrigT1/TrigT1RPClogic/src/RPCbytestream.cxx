@@ -102,8 +102,7 @@ RPCbytestream::build_pad_readout(MsgStream& log)
 
                 for (CMA_Readout::iterator it = PAD_l; it != PAD_h; ++it)
 	        {
-                    MatrixReadOut** cma_readout = 
-                                            (*it).second.give_matrix_readout();
+                    auto cma_readout = (*it).second.give_matrix_readout(log);
                     pad_readout.load_readout(cma_readout);
                     if (log.level() <= MSG::DEBUG) {
                         log << MSG::DEBUG << "Dump of the matrices readout into PAD " << PADid

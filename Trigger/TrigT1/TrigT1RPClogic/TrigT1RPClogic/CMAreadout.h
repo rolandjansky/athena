@@ -14,6 +14,10 @@
 #include "TrigT1RPChardware/Matrix.h"
 #include "TrigT1RPChardware/MatrixReadOut.h"
 
+#include "GaudiKernel/MsgStream.h"
+
+#include <memory>
+#include <array>
 
 class CMAreadout : public RPCtrigDataObject
 {
@@ -24,12 +28,11 @@ class CMAreadout : public RPCtrigDataObject
     CMAidentity m_cma_identity;
     Matrix* m_low_pt_matrix;
     Matrix* m_high_pt_matrix;
-    MatrixReadOut* m_matrices_readout[2];
+    std::unique_ptr<MatrixReadOut> m_low_pt_matrix_readout, m_high_pt_matrix_readout;
 
     public:
     CMAreadout(CMApatterns*);
     CMAreadout(const CMAreadout&);
-    ~CMAreadout();
 
     CMAreadout operator=(const CMAreadout&);
 
@@ -43,7 +46,7 @@ class CMAreadout : public RPCtrigDataObject
     const CMAidentity& id(void)  const {return m_cma_identity;}
     const Matrix* low_pt_matrix(void)  const {return m_low_pt_matrix;}
     const Matrix* high_pt_matrix(void) const {return m_high_pt_matrix;}
-    MatrixReadOut** give_matrix_readout(void);
+    std::array<MatrixReadOut*, 2> give_matrix_readout(MsgStream& log);
 };
 
 #endif

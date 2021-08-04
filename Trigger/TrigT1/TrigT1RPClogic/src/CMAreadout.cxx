@@ -12,8 +12,6 @@ CMAreadout::CMAreadout(CMApatterns* patterns) :
 {
     m_low_pt_matrix  = patterns->give_low_pt_matrix();
     m_high_pt_matrix = patterns->give_high_pt_matrix();
-    m_matrices_readout[0] = 0;
-    m_matrices_readout[1] = 0;
 }
 
 
@@ -25,14 +23,6 @@ CMAreadout::CMAreadout(const CMAreadout& readout) :
               m_low_pt_matrix(readout.m_low_pt_matrix),
               m_high_pt_matrix(readout.m_high_pt_matrix)
 {
-    m_matrices_readout[0] = 0;
-    m_matrices_readout[1] = 0;
-}
-
-CMAreadout::~CMAreadout()
-{
-    delete m_matrices_readout[0];
-    delete m_matrices_readout[1];
 }
 
 CMAreadout
@@ -80,25 +70,23 @@ CMAreadout::operator< (const CMAreadout& cmaReadout) const
     return false;
 }
 
-MatrixReadOut**
-CMAreadout::give_matrix_readout()
+std::array<MatrixReadOut*, 2>
+CMAreadout::give_matrix_readout(MsgStream& log)
 {
     MatrixReadOut::DataVersion type=(m_CMAconfiguration==CMAparameters::Atlas)? 
                             MatrixReadOut::Atlas : MatrixReadOut::Simulation;
    
-    if(!m_matrices_readout[0]) 
-        m_matrices_readout[0] = new MatrixReadOut(m_low_pt_matrix,0,type);
-    if(!m_matrices_readout[1]) 
-        m_matrices_readout[1] = new MatrixReadOut(m_high_pt_matrix,0,type);
-    
-    
-    unsigned short int lowFrag = m_matrices_readout[0]->checkFragment();	
-    DISP << "CheckFragment for low Pt Matrix = " << lowFrag;
-    DISP_DEBUG;
-    
-    unsigned short int highFrag = m_matrices_readout[1]->checkFragment();
-    DISP << "CheckFragment for high Pt matrix = " << highFrag;
-    DISP_DEBUG;
-    
-    return m_matrices_readout;
+    if(!m_low_pt_matrix_readout)
+        m_low_pt_matrix_readout = std::make_unique<MatrixReadOut>(m_low_pt_matrix,0,type);
+    if(!m_high_pt_matrix_readout)
+        m_high_pt_matrix_readout = std::make_unique<MatrixReadOut>(m_high_pt_matrix,0,type);
+
+    unsigned short int lowFrag = m_low_pt_matrix_readout->checkFragment();
+    unsigned short int highFrag = m_high_pt_matrix_readout->checkFragment();
+    if (log.level()<=MSG::DEBUG) {
+      log << MSG::DEBUG << "CheckFragment for low Pt Matrix = " << lowFrag << endmsg;
+      log << MSG::DEBUG << "CheckFragment for high Pt Matrix = " << highFrag << endmsg;
+    }
+
+    return {m_low_pt_matrix_readout.get(), m_high_pt_matrix_readout.get()};
 }

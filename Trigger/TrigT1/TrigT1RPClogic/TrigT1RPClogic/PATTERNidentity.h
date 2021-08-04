@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PATTERNIDENTITY_H
@@ -7,16 +7,7 @@
 
 #include "RPC_CondCabling/CMAparameters.h"
 
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    #include <sstream>
-    typedef std::ostringstream __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    #include <strstream>
-    typedef ostrstream __osstream;
-#endif
+#include <sstream>
 
 class PATTERNidentity
 {
@@ -45,16 +36,7 @@ class PATTERNidentity
 
 template <class X> X& operator<<(X& stream,const PATTERNidentity& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[1000];
-    for (int i=0;i<1000;++i) buffer[i] = '\0';
-    __osstream display(buffer,1000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

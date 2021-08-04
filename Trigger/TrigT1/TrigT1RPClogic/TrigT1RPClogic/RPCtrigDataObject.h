@@ -29,7 +29,6 @@ class RPCtrigDataObject : public BaseObject
     int number(void)         const {return m_number;}
 
     void PrintElement(std::ostream&,std::string,bool) const {}
-    void error_header(void);
 
     void Print(std::ostream&,bool) const;
 };

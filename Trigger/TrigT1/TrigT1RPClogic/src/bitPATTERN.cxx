@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/bitPATTERN.h"
@@ -7,17 +7,19 @@
 using namespace std;
 
 bitPATTERN::bitPATTERN(std::string name,const PATTERNidentity& id,int size) : 
-    RPCtrigDataObject(0,name),m_size(size)
+    RPCtrigDataObject(0,name),
+    m_id(id),
+    m_size(size)
 {
-    m_id = new PATTERNidentity(id);
     m_digits = new const RPCdigit* [m_size];
     reset();
 }
 
 bitPATTERN::bitPATTERN(const bitPATTERN& pattern) : 
-    RPCtrigDataObject(0,pattern.name()),m_size(pattern.size())
+    RPCtrigDataObject(0,pattern.name()),
+    m_id(pattern.id()),
+    m_size(pattern.size())
 {
-    m_id = new PATTERNidentity(pattern.id());
     m_digits = new const RPCdigit* [m_size];
     reset();
     for(int i=0;i<m_size;++i) m_digits[i] = pattern[i];
@@ -25,7 +27,6 @@ bitPATTERN::bitPATTERN(const bitPATTERN& pattern) :
 
 bitPATTERN::~bitPATTERN() 
 {
-    delete m_id;
     delete [] m_digits;
 }
 
@@ -34,10 +35,9 @@ bitPATTERN::operator=(const bitPATTERN& pattern)
 {
     if(pattern.size() != m_size) return *this;
 
-    delete m_id;
     reset();
 
-    m_id = new PATTERNidentity(pattern.id());
+    m_id = pattern.id();
     for(int i=0;i<m_size;++i) m_digits[i] = pattern[i];
     return *this;
 }
@@ -45,7 +45,7 @@ bitPATTERN::operator=(const bitPATTERN& pattern)
 bool
 bitPATTERN::operator<(const bitPATTERN& pattern)
 {
-    if(*m_id < pattern.id()) return true;
+    if(m_id < pattern.id()) return true;
     else return false;
 }
 

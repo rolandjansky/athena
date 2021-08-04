@@ -1,13 +1,14 @@
 /* // -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef PADPATTERNS_H
 #define PADPATTERNS_H
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <list>
@@ -28,13 +29,12 @@ class PADpatterns : public RPCtrigDataObject
     CMAdata::PatternsList m_cma_patterns;
     
     
-    Pad* m_pad;
+    std::unique_ptr<Pad> m_pad;
 
     public:
     PADpatterns(int,int,unsigned long int);
 
     PADpatterns(const PADpatterns&);
-    ~PADpatterns();
 
     PADpatterns operator=(const PADpatterns&);
 
@@ -59,16 +59,7 @@ class PADpatterns : public RPCtrigDataObject
 
 template <class X> X& operator<<(X& stream,const PADpatterns& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[300000];
-    for (int i=0;i<300000;++i) buffer[i] = '\0';
-    __osstream display(buffer,300000);
-#endif
-
+    std::ostringstream display;
     data.Print(display,false);
     stream << display.str();
     return stream;

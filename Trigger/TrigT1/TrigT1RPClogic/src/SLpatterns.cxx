@@ -12,7 +12,6 @@ SLpatterns::SLpatterns(int sector,unsigned long int debug) :
     RPCtrigDataObject(0,"Sector Logic patterns"),m_sector(sector),
     m_debug(debug) 
 {
-    m_SectorL = 0;
 }
 
 SLpatterns::SLpatterns(const SLpatterns& sl) : 
@@ -21,13 +20,6 @@ SLpatterns::SLpatterns(const SLpatterns& sl) :
     m_sector = sl.sector();
     m_debug  = sl.debug();
     m_pad_patterns = sl.pad_patterns();
-
-    m_SectorL = 0;
-}
-
-SLpatterns::~SLpatterns()
-{
-    if(m_SectorL) delete m_SectorL;
 }
 
 SLpatterns
@@ -40,8 +32,6 @@ SLpatterns::operator=(const SLpatterns& sl)
     m_pad_patterns.clear();
     m_pad_patterns = sl.pad_patterns();
     return *this;
-
-    m_SectorL = 0;
 }
 
 bool
@@ -96,7 +86,7 @@ SLpatterns::give_SectorL(const RpcCablingCondData* readCdo)
       oldSimulation=(*pad)->give_pad(readCdo)->isOldSimulation();
     }
 
-    m_SectorL = new SectorLogic(0,0,m_debug,subsystem,logic_sector,oldSimulation);
+    m_SectorL = std::make_unique<SectorLogic>(0,0,m_debug,subsystem,logic_sector,oldSimulation);
 
     while(pad != m_pad_patterns.end())
     {
@@ -121,7 +111,7 @@ SLpatterns::give_SectorL(const RpcCablingCondData* readCdo)
 
   }
 
-  return m_SectorL;
+  return m_SectorL.get();
 }
 
 void
