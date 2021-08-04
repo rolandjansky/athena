@@ -32,13 +32,13 @@ if DetFlags.overlay.Truth_on():
     if not overlayFlags.isDataOverlay():
         if 'xAOD::JetContainer' in overlayFlags.optionalContainerMap():
             outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt4TruthJets']
-            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights']
             outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt4TruthJets']
-            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.']
+            outStream.ItemList += ['xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights']
             outStream.ItemList += ['xAOD::JetContainer#InTimeAntiKt6TruthJets']
-            outStream.ItemList += ['xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.']
+            outStream.ItemList += ['xAOD::AuxContainerBase!#InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights']
             outStream.ItemList += ['xAOD::JetContainer#OutOfTimeAntiKt6TruthJets']
-            outStream.ItemList += ['xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux.']
+            outStream.ItemList += ['xAOD::AuxContainerBase!#OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights']
         if 'xAOD::TruthParticleContainer' in overlayFlags.optionalContainerMap():
             outStream.ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles"]
             outStream.ItemList += ["xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]

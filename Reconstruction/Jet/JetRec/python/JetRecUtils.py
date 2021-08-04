@@ -12,8 +12,8 @@ def retrieveAODList(enableOutputOverride = False):
     jetPileUpTruthList = []
     if rec.doTruth():
       jetPileUpTruthList += [
-        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
-        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
       ]
 
     #If we don't want to write jets to AOD then we just return the above list of pileup truth jets

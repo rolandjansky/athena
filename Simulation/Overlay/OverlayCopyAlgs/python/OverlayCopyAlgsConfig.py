@@ -253,13 +253,13 @@ def CopyJetTruthInfoOutputCfg(flags, **kwargs):
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
             "xAOD::JetContainer#InTimeAntiKt4TruthJets",
-            "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.",
+            "xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights",
             "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets",
-            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.",
+            "xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights",
             "xAOD::JetContainer#InTimeAntiKt6TruthJets",
-            "xAOD::JetAuxContainer#InTimeAntiKt6TruthJetsAux.",
+            "xAOD::AuxContainerBase!#InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights",
             "xAOD::JetContainer#OutOfTimeAntiKt6TruthJets",
-            "xAOD::JetAuxContainer#OutOfTimeAntiKt6TruthJetsAux."
+            "xAOD::AuxContainerBase!#OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"
         ]))
     return acc
 
