@@ -56,7 +56,7 @@ std::vector<AGDDDetector*> AGDDDetectorStore::GetDetectorsByType(const std::stri
 	std::vector<AGDDDetector*> detectors;
 	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		AGDDDetector* det=(*it).second;
 		if (dt==det->DetectorType()) detectors.push_back(det);
@@ -68,7 +68,7 @@ AGDDDetector* AGDDDetectorStore::GetDetectorByID(const std::string& dt) const
 {
 	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		AGDDDetector* det=(*it).second;
 		if (dt==det->DetectorID()) return det;
@@ -81,7 +81,7 @@ template<class T> std::vector<T*> AGDDDetectorStore::GetDetectorsByType() const
 	std::vector<T*> detectors;
 	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		T* det=dynamic_cast<T*>((*it).second);
 		if (det) detectors.push_back(det);
@@ -92,7 +92,7 @@ template<class T> T* AGDDDetectorStore::GetDetectorByID(const std::string& id) c
 {
 	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		if (id==(*it).second->DetectorID())
 	    {

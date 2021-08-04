@@ -33,7 +33,7 @@ public:
 	void *GetSolid() {return m_theSolid;}
 	void SetSolid(void *p) {m_theSolid=p;}
 	void SetVolume(void *p) {m_theVolume=p;}
-	void SetColor(std::string c) {m_color=c;}
+	void SetColor(const std::string& c) {m_color=c;}
 	void IsSensitiveVolume(bool v); 
 	bool IsSensitiveVolume() const {return m_isSensitive;}
         const std::string& GetColor() const {return m_color;}
