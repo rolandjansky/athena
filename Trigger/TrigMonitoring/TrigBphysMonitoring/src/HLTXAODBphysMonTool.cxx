@@ -210,7 +210,7 @@ StatusCode HLTXAODBphysMonTool::init()
     
     ATH_MSG_INFO ("Initializing... ");
     ATH_CHECK( m_tdt.retrieve());
-    ATH_CHECK( m_JpsiCandidatesKey.initialize() );
+    ATH_CHECK( m_JpsiCandidatesKey.initialize(SG::AllowEmpty) );
     
     if(m_GenerateChainDictsFromDB)
       if(generateChainDicts().isFailure())
@@ -1067,7 +1067,12 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
     // fill the hists with offline comparisons
     ATH_MSG_DEBUG("in JpsiFinder()");
     
-    const xAOD::VertexContainer* jpsiContainer = SG::get(m_JpsiCandidatesKey);
+    const xAOD::VertexContainer* jpsiContainer = nullptr;
+    if (not m_JpsiCandidatesKey.empty()) {
+      jpsiContainer = SG::get(m_JpsiCandidatesKey);
+      ATH_CHECK( jpsiContainer != nullptr );
+    }
+
     if (!jpsiContainer) {
         ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
         return StatusCode::SUCCESS;
@@ -1441,7 +1446,11 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
     bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed) { 
-      const xAOD::VertexContainer* jpsiContainer = SG::get(m_JpsiCandidatesKey);
+      const xAOD::VertexContainer* jpsiContainer = nullptr;
+      if (not m_JpsiCandidatesKey.empty()) {
+        jpsiContainer = SG::get(m_JpsiCandidatesKey);
+        ATH_CHECK( jpsiContainer != nullptr );
+      }
     
       if (!jpsiContainer) {
       ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
