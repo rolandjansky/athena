@@ -24,7 +24,6 @@
 #include "RPCSDOVariables.h"
 #include "RPCDigitVariables.h"
 #include "CSCSimHitVariables.h"
-#include "CSCSDOVariables.h"
 #include "CSCDigitVariables.h"
 #include "CSCRDOVariables.h"
 #include "CSCPRDVariables.h"
@@ -78,7 +77,6 @@ class NSWPRDValAlg:public AthAlgorithm
   std::unique_ptr<MMRDOVariables>         m_MmRdoVar;
   std::unique_ptr<MMPRDVariables>         m_MmPrdVar;
   std::unique_ptr<CSCSimHitVariables>     m_CSCSimHitVar;
-  std::unique_ptr<CscSDOVariables>        m_CSCSDOVar;
   std::unique_ptr<CSCDigitVariables>      m_CscDigitVar;
   std::unique_ptr<CSCRDOVariables>        m_CSCRDOVar;
   std::unique_ptr<CSCPRDVariables>        m_CSCPRDVar;
@@ -124,7 +122,6 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doMMRDO;            // switch on the output of the MicroMegas RDO
   BooleanProperty  m_doMMPRD;            // switch on the output of the MicroMegas prepdata
   BooleanProperty  m_doCSCHit;           // switch on the output of the CSC simulated hits
-  BooleanProperty  m_doCSCSDO;           // switch on the output of the CSC SDO
   BooleanProperty  m_doCSCDigit;         // switch on the output of the CSC digitization
   BooleanProperty  m_doCSCRDO;           // switch on the output of the CSC RDO
   BooleanProperty  m_doCSCPRD;           // switch on the output of the CSC prepdata
@@ -156,7 +153,6 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_NSWMM_RDOContainerName;
   std::string m_NSWMM_PRDContainerName;
   std::string m_CSC_SimContainerName;
-  std::string m_CSC_SDOContainerName;
   std::string m_CSC_DigitContainerName;
   std::string m_CSC_RDOContainerName;
   std::string m_CSC_PRDContainerName;
