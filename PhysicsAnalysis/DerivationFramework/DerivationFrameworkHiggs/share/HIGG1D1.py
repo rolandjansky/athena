@@ -19,7 +19,8 @@ InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -46,7 +47,7 @@ SeqHIGG1D1 = CfgMgr.AthSequencer("SeqHIGG1D1")
 #====================================================================
 # MONTE CARLO TRUTH
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkIsMonteCarlo:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
    #import DerivationFrameworkHiggs.TruthCategories
    # Add charm quark collection
@@ -362,13 +363,17 @@ addDefaultTrimmedJets(SeqHIGG1D1,"HIGG1D1",dotruth=add_largeR_truth_jets, linkVR
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqHIGG1D1,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqHIGG1D1,labelname="R10TruthLabel_R21Consolidated")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqHIGG1D1)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1)
 
 # fJVT
 getPFlowfJVT(jetalg="AntiKt4EMPFlow",sequence=SeqHIGG1D1)
+
+# Event cleaning flags
+addEventCleanFlags(sequence=SeqHIGG1D1)
+scheduleStandardMETContent(sequence=SeqHIGG1D1, algname="METAssociationAlg")
 
 
 #====================================================================
@@ -536,6 +541,7 @@ if not hasattr(SeqHIGG1D1, jtm.pflowcustomvtxget.name()):
 #EventShape (needed for calibration)  
 if not hasattr(SeqHIGG1D1, "EventDensityAlgEDTool4PFlowCustomVtx"):
     SeqHIGG1D1 += defineEDAlg(R=0.4, inputtype="PFlowCustomVtx")
+    SeqHIGG1D1 += defineEDAlg(R=0.4, inputtype="EMPFlow")
 
 # Get empflow_reduced getters but replace empflowget with pflowcustomvtxge
 myGetters=[jtm.pflowcustomvtxget if i==jtm.empflowget else i for i in jtm.gettersMap["empflow_reduced"]]  
@@ -590,7 +596,7 @@ SeqHIGG1D1 += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+"Jets", D
 
 #MET associated to HggPrimaryVertices
 from DerivationFrameworkJetEtMiss import METCommon
-METCommon.scheduleMETCustomVertex(vxColl="Hgg", jetcoll="AntiKt4PFlowCustomVtx")
+METCommon.scheduleCustomVtxMETContent(vxColl="Hgg", jetColl="AntiKt4PFlowCustomVtx",  sequence=SeqHIGG1D1)
 
 
 #====================================================================
@@ -703,11 +709,12 @@ HIGG1D1SlimmingHelper.AppendToDictionary.update({  "AntiKt4PFlowCustomVtxJets": 
         "MET_Core_AntiKt4PFlowCustomVtxHgg":"xAOD::MissingETContainer", "MET_Core_AntiKt4PFlowCustomVtxHggAux":"xAOD::MissingETAuxContainer",
         HggVertexContainerName:"xAOD::VertexContainer", HggVertexContainerName+"Aux":"xAOD::ShallowAuxContainer",
         "Kt4PFlowCustomVtxEventShape":"xAOD::EventShape", "Kt4PFlowCustomVtxEventShapeAux":"xAOD::EventShapeAuxInfo",
+        "Kt4EMPFlowEventShape":"xAOD::EventShape", "Kt4EMPFlowEventShapeAux":"xAOD::EventShapeAuxInfo",
         "BTagging_AntiKt4PFlowCustomVtx":"xAOD::BTaggingContainer", "BTagging_AntiKt4PFlowCustomVtxAux" : "xAOD::BTaggingAuxContainer",
         "ZeeRefittedPrimaryVertices":"xAOD::VertexContainer","ZeeRefittedPrimaryVerticesAux":"xAOD:VertexAuxContainer",
      })
 
-HIGG1D1SlimmingHelper.AllVariables += [HggVertexContainerName,"ZeeRefittedPrimaryVertices","AntiKt4PFlowCustomVtxJets","Kt4PFlowCustomVtxEventShape"]
+HIGG1D1SlimmingHelper.AllVariables += [HggVertexContainerName,"ZeeRefittedPrimaryVertices","AntiKt4PFlowCustomVtxJets","Kt4PFlowCustomVtxEventShape","Kt4EMPFlowEventShape"]
 
 
 from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent, BTaggingXbbContent
@@ -731,8 +738,13 @@ for tool in HIGG1D1_ClusterEnergyPerLayerDecorators:
     HIGG1D1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
-addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4PFlowCustomVtxHgg"])
-addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow"])
+addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow","AntiKt4PFlowCustomVtxHgg"])
+HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHgg")
+HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4PFlowCustomVtxHggAux.")
+HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_AntiKt4PFlowCustomVtxHgg")
+HIGG1D1SlimmingHelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_AntiKt4PFlowCustomVtxHggAux.")
+
+
 HIGG1D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 
