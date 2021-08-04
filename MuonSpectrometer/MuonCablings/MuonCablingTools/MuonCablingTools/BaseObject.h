@@ -8,8 +8,6 @@
 #include <iostream>
 #include <string>
 
-#include "MuonCablingTools/OutputDef.h"
-
 enum ObjectType { Logic, Data, Hardware, Monitoring };
 
 class BaseObject {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // INTRODUCTION
@@ -264,8 +264,6 @@
 #include <sstream>
 #include <string>
 #include <typeinfo>
-typedef std::ostringstream __osstream;
-typedef std::istringstream __isstream;
 
 typedef enum result_extraction { not_extracted, extracted } DBstatus;
 

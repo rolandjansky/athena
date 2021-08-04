@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/dbline.h"
@@ -212,7 +212,7 @@ template <class type> DBline& DBline::token(const std::string& str, type t) {
     std::string new_token = str;
     unsigned long int pos = new_token.find('#');
     if (pos != std::string::npos) {
-        __osstream tmp;
+        std::ostringstream tmp;
         tmp << t;
         std::string rep = tmp.str();
 
@@ -228,7 +228,7 @@ template <class type> DBline& DBline::token(const std::string& str, type t, int 
     std::string new_token = str;
     unsigned long int pos = new_token.find('#');
     if (pos != std::string::npos) {
-        __osstream tmp;
+        std::ostringstream tmp;
         tmp << std::setw(2) << std::setfill('0') << t;
         std::string rep = tmp.str();
 
