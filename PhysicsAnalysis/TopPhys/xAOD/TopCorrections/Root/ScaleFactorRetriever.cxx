@@ -85,8 +85,7 @@ namespace top {
   float ScaleFactorRetriever::leptonSF(const top::Event& event, const top::topSFSyst SFSyst) const {
     return
       electronSF(event, SFSyst, top::topSFComp::ALL)
-      * muonSF(event, SFSyst, top::topSFComp::ALL)
-      * triggerSF(event, SFSyst);
+      * muonSF(event, SFSyst, top::topSFComp::ALL);
   }
 
   float ScaleFactorRetriever::globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const {
@@ -177,21 +176,7 @@ namespace top {
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
 
-    // if it has photon triggers return 1;
-    if (event.m_isLoose) {
-      if (!m_photonTriggers_Loose.empty()) return 1.;
-    } else {
-      if (!m_photonTriggers_Tight.empty()) return 1.;
-    }
-
-    return(m_preferGlobalTriggerSF &&
-           m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
-  }
-
-  float ScaleFactorRetriever::triggerSFPhoton(const top::Event& event,
-                                              const top::topSFSyst SFSyst) const {
-
-    if (!m_config->useGlobalTrigger()) {
+    if (!m_config->useGlobalTrigger() && (!m_photonTriggers_Tight.empty() || !m_photonTriggers_Loose.empty())) {
       if (s_warn_counter < 5) {
         ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
         ++s_warn_counter;
@@ -199,7 +184,8 @@ namespace top {
       return 1.;
     }
 
-    return globalTriggerSF(event, SFSyst);
+    return(m_preferGlobalTriggerSF &&
+           m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
   }
 
   float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
@@ -1149,15 +1135,13 @@ namespace top {
     float sf(1.);
     float reco(1.);
     float isol(1.);
-    float trigger(1.);
 
     for (auto photon : event.m_photons) {
       reco *= photonSF_Reco(*photon, SFSyst);
       isol *= photonSF_Isol(*photon, SFSyst, event.m_isLoose);
     }
-    trigger = triggerSFPhoton(event, SFSyst);
 
-    sf = reco * isol * trigger;
+    sf = reco * isol;
 
     return sf;
   }

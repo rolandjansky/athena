@@ -47,8 +47,6 @@ namespace top {
     // cumulative SF
     m_weight_leptonSF(0.),
 
-    m_weight_leptonSF_EL_SF_Trigger_UP(0.),
-    m_weight_leptonSF_EL_SF_Trigger_DOWN(0.),
     m_weight_leptonSF_EL_SF_Reco_UP(0.),
     m_weight_leptonSF_EL_SF_Reco_DOWN(0.),
     m_weight_leptonSF_EL_SF_ID_UP(0.),
@@ -56,10 +54,6 @@ namespace top {
     m_weight_leptonSF_EL_SF_Isol_UP(0.),
     m_weight_leptonSF_EL_SF_Isol_DOWN(0.),
 
-    m_weight_leptonSF_MU_SF_Trigger_STAT_UP(0.),
-    m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN(0.),
-    m_weight_leptonSF_MU_SF_Trigger_SYST_UP(0.),
-    m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN(0.),
     // Muon ID SF systematics (regular)
     m_weight_leptonSF_MU_SF_ID_STAT_UP(0.),
     m_weight_leptonSF_MU_SF_ID_STAT_DOWN(0.),
@@ -79,63 +73,17 @@ namespace top {
     m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN(0.),
     m_weight_leptonSF_MU_SF_TTVA_SYST_UP(0.),
     m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN(0.),
-    // Special global lepton trigger SF + systematics
-    m_weight_globalLeptonTriggerSF(0.),
-    m_weight_globalLeptonTriggerSF_EL_Trigger_UP(0.),
-    m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN(0.),
-    m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP(0.),
-    m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
-    m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
-    m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
-    m_weight_oldTriggerSF(0.),
-    m_weight_oldTriggerSF_EL_Trigger_UP(0.),
-    m_weight_oldTriggerSF_EL_Trigger_DOWN(0.),
-    m_weight_oldTriggerSF_MU_Trigger_STAT_UP(0.),
-    m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN(0.),
-    m_weight_oldTriggerSF_MU_Trigger_SYST_UP(0.),
-    m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
-    // individual components electrons
-    m_weight_indiv_SF_EL_Reco(0.),
-    m_weight_indiv_SF_EL_Reco_UP(0.),
-    m_weight_indiv_SF_EL_Reco_DOWN(0.),
-    m_weight_indiv_SF_EL_ID(0.),
-    m_weight_indiv_SF_EL_ID_UP(0.),
-    m_weight_indiv_SF_EL_ID_DOWN(0.),
-    m_weight_indiv_SF_EL_Isol(0.),
-    m_weight_indiv_SF_EL_Isol_UP(0.),
-    m_weight_indiv_SF_EL_Isol_DOWN(0.),
-    m_weight_indiv_SF_EL_ChargeID(0.),
-    m_weight_indiv_SF_EL_ChargeID_UP(0.),
-    m_weight_indiv_SF_EL_ChargeID_DOWN(0.),
-    m_weight_indiv_SF_EL_ChargeMisID(0.),
-    m_weight_indiv_SF_EL_ChargeMisID_STAT_UP(0.),
-    m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN(0.),
-    m_weight_indiv_SF_EL_ChargeMisID_SYST_UP(0.),
-    m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN(0.),
-
-    // Muon ID SF systematics (regular)
-    m_weight_indiv_SF_MU_ID(0.),
-    m_weight_indiv_SF_MU_ID_STAT_UP(0.),
-    m_weight_indiv_SF_MU_ID_STAT_DOWN(0.),
-    m_weight_indiv_SF_MU_ID_SYST_UP(0.),
-    m_weight_indiv_SF_MU_ID_SYST_DOWN(0.),
-    // Muon ID SF systematics (low pt)
-    m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP(0.),
-    m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN(0.),
-    m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP(0.),
-    m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN(0.),
-    // Muon isolation SF systematics
-    m_weight_indiv_SF_MU_Isol(0.),
-    m_weight_indiv_SF_MU_Isol_SYST_UP(0.),
-    m_weight_indiv_SF_MU_Isol_SYST_DOWN(0.),
-    m_weight_indiv_SF_MU_Isol_STAT_UP(0.),
-    m_weight_indiv_SF_MU_Isol_STAT_DOWN(0.),
-    m_weight_indiv_SF_MU_TTVA(0.),
-    m_weight_indiv_SF_MU_TTVA_SYST_UP(0.),
-    m_weight_indiv_SF_MU_TTVA_SYST_DOWN(0.),
-    m_weight_indiv_SF_MU_TTVA_STAT_UP(0.),
-    m_weight_indiv_SF_MU_TTVA_STAT_DOWN(0.),
+    // triggers
+    m_weight_trigger(0.),
+    m_weight_trigger_EL_SF_UP(0.),
+    m_weight_trigger_EL_SF_DOWN(0.),
+    m_weight_trigger_MU_SF_STAT_UP(0.),
+    m_weight_trigger_MU_SF_STAT_DOWN(0.),
+    m_weight_trigger_MU_SF_SYST_UP(0.),
+    m_weight_trigger_MU_SF_SYST_DOWN(0.),
+    m_weight_trigger_PH_UNCERT_UP(0.),
+    m_weight_trigger_PH_UNCERT_DOWN(0.),
 
     m_ASMsize(0.),
     m_ASMweights(),
@@ -426,6 +374,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_weight_pileup, "weight_pileup");
         systematicTree->makeOutputVariable(m_weight_beamspot, "weight_beamspot");
         systematicTree->makeOutputVariable(m_weight_leptonSF, "weight_leptonSF");
+        systematicTree->makeOutputVariable(m_weight_trigger, "weight_trigger");
 
         if (m_config->useFwdElectrons()) systematicTree->makeOutputVariable(m_weight_fwdElSF, "weight_fwdElSF");
 
@@ -433,10 +382,6 @@ namespace top {
 
         if (m_config->useTaus()) systematicTree->makeOutputVariable(m_weight_tauSF,
                                                                     "weight_tauSF");
-
-        if (m_config->useGlobalTriggerConfiguration()) systematicTree->makeOutputVariable(
-            m_weight_globalLeptonTriggerSF, "weight_globalLeptonTriggerSF");
-        systematicTree->makeOutputVariable(m_weight_oldTriggerSF, "weight_oldTriggerSF");
 
         // nominal b-tagging SFs
         for (auto& tagWP : m_config->bTagWP_available()) {
@@ -530,15 +475,15 @@ namespace top {
             systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_UP, "weight_fwdElSF_FWDEL_SF_ID_UP");
             systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_DOWN, "weight_fwdElSF_FWDEL_SF_ID_DOWN");
           }
-          systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_UP, "weight_leptonSF_EL_SF_Trigger_UP");
-          systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_DOWN,
-                                             "weight_leptonSF_EL_SF_Trigger_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Reco_UP, "weight_leptonSF_EL_SF_Reco_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Reco_DOWN, "weight_leptonSF_EL_SF_Reco_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_ID_UP, "weight_leptonSF_EL_SF_ID_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_ID_DOWN, "weight_leptonSF_EL_SF_ID_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_UP, "weight_leptonSF_EL_SF_Isol_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_DOWN, "weight_leptonSF_EL_SF_Isol_DOWN");
+          
+          systematicTree->makeOutputVariable(m_weight_trigger_EL_SF_UP, "weight_trigger_EL_SF_Trigger_UP");
+          systematicTree->makeOutputVariable(m_weight_trigger_EL_SF_DOWN, "weight_trigger_EL_SF_Trigger_DOWN");
 
           if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
             systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Reco_UP,
@@ -561,14 +506,14 @@ namespace top {
                                                "_Iso_DOWN");
           }
 
-          systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_STAT_UP,
-                                             "weight_leptonSF_MU_SF_Trigger_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN,
-                                             "weight_leptonSF_MU_SF_Trigger_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_SYST_UP,
-                                             "weight_leptonSF_MU_SF_Trigger_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN,
-                                             "weight_leptonSF_MU_SF_Trigger_SYST_DOWN");
+          systematicTree->makeOutputVariable(m_weight_trigger_MU_SF_STAT_UP,
+                                             "weight_trigger_MU_SF_STAT_UP");
+          systematicTree->makeOutputVariable(m_weight_trigger_MU_SF_STAT_DOWN,
+                                             "weight_trigger_MU_SF_STAT_DOWN");
+          systematicTree->makeOutputVariable(m_weight_trigger_MU_SF_SYST_UP,
+                                             "weight_trigger_MU_SF_SYST_UP");
+          systematicTree->makeOutputVariable(m_weight_trigger_MU_SF_SYST_DOWN,
+                                             "weight_trigger_MU_SF_SYST_DOWN");
           // Muon ID SF systematics (regular)
           systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_ID_STAT_UP, "weight_leptonSF_MU_SF_ID_STAT_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_ID_STAT_DOWN,
@@ -602,83 +547,6 @@ namespace top {
                                              "weight_leptonSF_MU_SF_TTVA_SYST_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN,
                                              "weight_leptonSF_MU_SF_TTVA_SYST_DOWN");
-          // Special global lepton trigger SF when requested
-          if (m_config->useGlobalTriggerConfiguration()) {
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_UP,
-                                               "weight_globalLeptonTriggerSF_EL_Trigger_UP");
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN,
-                                               "weight_globalLeptonTriggerSF_EL_Trigger_DOWN");
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP,
-                                               "weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP");
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN,
-                                               "weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN");
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,
-                                               "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
-            systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN,
-                                               "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
-          }
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_UP, "weight_oldTriggerSF_EL_Trigger_UP");
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_EL_Trigger_DOWN,
-                                             "weight_oldTriggerSF_EL_Trigger_DOWN");
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_UP,
-                                             "weight_oldTriggerSF_MU_Trigger_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN,
-                                             "weight_oldTriggerSF_MU_Trigger_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_UP,
-                                             "weight_oldTriggerSF_MU_Trigger_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN,
-                                             "weight_oldTriggerSF_MU_Trigger_SYST_DOWN");
-
-          // write also out the individual components:
-
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco, "weight_indiv_SF_EL_Reco");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_UP, "weight_indiv_SF_EL_Reco_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Reco_DOWN, "weight_indiv_SF_EL_Reco_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ID, "weight_indiv_SF_EL_ID");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ID_UP, "weight_indiv_SF_EL_ID_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ID_DOWN, "weight_indiv_SF_EL_ID_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Isol, "weight_indiv_SF_EL_Isol");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Isol_UP, "weight_indiv_SF_EL_Isol_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Isol_DOWN, "weight_indiv_SF_EL_Isol_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeID, "weight_indiv_SF_EL_ChargeID");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeID_UP, "weight_indiv_SF_EL_ChargeID_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeID_DOWN, "weight_indiv_SF_EL_ChargeID_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID, "weight_indiv_SF_EL_ChargeMisID");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_STAT_UP,
-                                             "weight_indiv_SF_EL_ChargeMisID_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN,
-                                             "weight_indiv_SF_EL_ChargeMisID_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_UP,
-                                             "weight_indiv_SF_EL_ChargeMisID_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN,
-                                             "weight_indiv_SF_EL_ChargeMisID_SYST_DOWN");
-
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID, "weight_indiv_SF_MU_ID");
-          // Muon ID SF systematics (regular)
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_UP, "weight_indiv_SF_MU_ID_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_DOWN, "weight_indiv_SF_MU_ID_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_SYST_UP, "weight_indiv_SF_MU_ID_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_SYST_DOWN, "weight_indiv_SF_MU_ID_SYST_DOWN");
-          // Muon ID SF systematics (low pt)
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP,
-                                             "weight_indiv_SF_MU_ID_STAT_LOWPT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN,
-                                             "weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP,
-                                             "weight_indiv_SF_MU_ID_SYST_LOWPT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN,
-                                             "weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN");
-          // Muon isolation SF systematics
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Isol, "weight_indiv_SF_MU_Isol");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Isol_STAT_UP, "weight_indiv_SF_MU_Isol_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Isol_STAT_DOWN, "weight_indiv_SF_MU_Isol_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Isol_SYST_UP, "weight_indiv_SF_MU_Isol_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_Isol_SYST_DOWN, "weight_indiv_SF_MU_Isol_SYST_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA, "weight_indiv_SF_MU_TTVA");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA_STAT_UP, "weight_indiv_SF_MU_TTVA_STAT_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA_STAT_DOWN, "weight_indiv_SF_MU_TTVA_STAT_DOWN");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA_SYST_UP, "weight_indiv_SF_MU_TTVA_SYST_UP");
-          systematicTree->makeOutputVariable(m_weight_indiv_SF_MU_TTVA_SYST_DOWN, "weight_indiv_SF_MU_TTVA_SYST_DOWN");
 
           if (m_config->useTaus()) {
             // Tau-electron overlap removal
@@ -702,10 +570,10 @@ namespace top {
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
                                                "weight_photonSF_effIso_DOWN");
-            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_UP,
-                                               "weight_photonSF_Trigger_UNCERT_UP");
-            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_DOWN,
-                                               "weight_photonSF_Trigger_UNCERT_DOWN");
+            systematicTree->makeOutputVariable(m_weight_trigger_PH_UNCERT_UP,
+                                               "weight_trigger_PH_UNCERT_UP");
+            systematicTree->makeOutputVariable(m_weight_trigger_PH_UNCERT_DOWN,
+                                               "weight_trigger_PH_UNCERT_DOWN");
           }
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
@@ -1996,14 +1864,12 @@ namespace top {
       m_weight_pileup = m_sfRetriever->pileupSF(event);
 
       m_weight_leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
+      m_weight_trigger = m_sfRetriever->triggerSF(event, top::topSFSyst::nominal);
       if (m_config->useFwdElectrons()) m_weight_fwdElSF = m_sfRetriever->fwdElectronSF(event, top::topSFSyst::nominal);
 
       if (m_config->useTaus()) m_weight_tauSF = m_sfRetriever->tauSF(event, top::topSFSyst::nominal);
 
       if (m_config->usePhotons()) m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
-
-      if (m_config->useGlobalTriggerConfiguration()) m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
-      m_weight_oldTriggerSF = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::nominal);
 
       for (auto& tagWP : m_config->bTagWP_available()) {
         if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
@@ -2035,8 +1901,8 @@ namespace top {
         m_weight_pileup_UP = m_sfRetriever->pileupSF(event, +1); // up variation
         m_weight_pileup_DOWN = m_sfRetriever->pileupSF(event, -1); // down variation
 
-        m_weight_leptonSF_EL_SF_Trigger_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Trigger_UP);
-        m_weight_leptonSF_EL_SF_Trigger_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+        m_weight_trigger_EL_SF_UP = m_sfRetriever->triggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+        m_weight_trigger_EL_SF_DOWN = m_sfRetriever->triggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
         m_weight_leptonSF_EL_SF_Reco_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Reco_UP);
         m_weight_leptonSF_EL_SF_Reco_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Reco_DOWN);
         m_weight_leptonSF_EL_SF_ID_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_ID_UP);
@@ -2052,10 +1918,10 @@ namespace top {
           m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, 1);
           m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, -1);
         }
-        m_weight_leptonSF_MU_SF_Trigger_STAT_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
-        m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
-        m_weight_leptonSF_MU_SF_Trigger_SYST_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
-        m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
+        m_weight_trigger_MU_SF_STAT_UP = m_sfRetriever->triggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+        m_weight_trigger_MU_SF_STAT_DOWN = m_sfRetriever->triggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+        m_weight_trigger_MU_SF_SYST_UP = m_sfRetriever->triggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+        m_weight_trigger_MU_SF_SYST_DOWN = m_sfRetriever->triggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
         // Muon ID SF systematics (regular)
         m_weight_leptonSF_MU_SF_ID_STAT_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_ID_STAT_UP);
         m_weight_leptonSF_MU_SF_ID_STAT_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_ID_STAT_DOWN);
@@ -2075,69 +1941,6 @@ namespace top {
         m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_TTVA_STAT_DOWN);
         m_weight_leptonSF_MU_SF_TTVA_SYST_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_TTVA_SYST_UP);
         m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_TTVA_SYST_DOWN);
-        // Special global lepton trigger SF systematics if requested
-        if (m_config->useGlobalTriggerConfiguration()) {
-          m_weight_globalLeptonTriggerSF_EL_Trigger_UP = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
-          m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
-          m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
-          m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
-          m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
-          m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
-        }
-        m_weight_oldTriggerSF_EL_Trigger_UP = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
-        m_weight_oldTriggerSF_EL_Trigger_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
-        m_weight_oldTriggerSF_MU_Trigger_STAT_UP = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
-        m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
-        m_weight_oldTriggerSF_MU_Trigger_SYST_UP = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
-        m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->oldTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
-
-        m_weight_indiv_SF_EL_Reco = m_sfRetriever->electronSF(event, top::topSFSyst::nominal, top::topSFComp::RECO);
-        m_weight_indiv_SF_EL_Reco_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_Reco_UP, top::topSFComp::RECO);
-        m_weight_indiv_SF_EL_Reco_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_Reco_DOWN, top::topSFComp::RECO);
-        m_weight_indiv_SF_EL_ID = m_sfRetriever->electronSF(event, top::topSFSyst::nominal, top::topSFComp::ID);
-        m_weight_indiv_SF_EL_ID_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ID_UP, top::topSFComp::ID);
-        m_weight_indiv_SF_EL_ID_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ID_DOWN, top::topSFComp::ID);
-        m_weight_indiv_SF_EL_Isol = m_sfRetriever->electronSF(event, top::topSFSyst::nominal, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_EL_Isol_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_Isol_UP, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_EL_Isol_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_Isol_DOWN, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_EL_ChargeID = m_sfRetriever->electronSF(event, top::topSFSyst::nominal, top::topSFComp::CHARGEID);
-        m_weight_indiv_SF_EL_ChargeID_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeID_UP, top::topSFComp::CHARGEID);
-        m_weight_indiv_SF_EL_ChargeID_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeID_DOWN, top::topSFComp::CHARGEID);
-        m_weight_indiv_SF_EL_ChargeMisID = m_sfRetriever->electronSF(event, top::topSFSyst::nominal, top::topSFComp::CHARGEMISID);
-        m_weight_indiv_SF_EL_ChargeMisID_STAT_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeMisID_STAT_UP, top::topSFComp::CHARGEMISID);
-        m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeMisID_STAT_DOWN, top::topSFComp::CHARGEMISID);
-        m_weight_indiv_SF_EL_ChargeMisID_SYST_UP = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeMisID_SYST_UP, top::topSFComp::CHARGEMISID);
-        m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN = m_sfRetriever->electronSF(event, top::topSFSyst::EL_SF_ChargeMisID_SYST_DOWN, top::topSFComp::CHARGEMISID);
-        ATH_MSG_DEBUG("Electron Reco SF = " << m_weight_indiv_SF_EL_Reco << " + " << m_weight_indiv_SF_EL_Reco_UP << " - " << m_weight_indiv_SF_EL_Reco_DOWN);
-        ATH_MSG_DEBUG("Electron ID SF = " << m_weight_indiv_SF_EL_ID << " + " << m_weight_indiv_SF_EL_ID_UP << " - " << m_weight_indiv_SF_EL_ID_DOWN);
-        ATH_MSG_DEBUG("Electron Charge ID SF = " << m_weight_indiv_SF_EL_ChargeID << " + " << m_weight_indiv_SF_EL_ChargeID_UP << " - " << m_weight_indiv_SF_EL_ChargeID_DOWN);
-        ATH_MSG_DEBUG("Electron Charge Mis ID SF = " << m_weight_indiv_SF_EL_ChargeMisID << " + " << m_weight_indiv_SF_EL_ChargeMisID_STAT_UP << " - " << m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN << " + " << m_weight_indiv_SF_EL_ChargeMisID_SYST_UP << " - " << m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN);
-
-        m_weight_indiv_SF_MU_ID = m_sfRetriever->muonSF(event, top::topSFSyst::nominal, top::topSFComp::ID);
-        // Muon ID SF systematics (regular)
-        m_weight_indiv_SF_MU_ID_STAT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_UP, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_STAT_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_DOWN, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_SYST_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_SYST_UP, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_SYST_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_SYST_DOWN, top::topSFComp::ID);
-        // Muon ID SF systematics (low pt)
-        m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP, top::topSFComp::ID);
-        m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN, top::topSFComp::ID);
-        // Muon isolation SF systematics
-        m_weight_indiv_SF_MU_Isol = m_sfRetriever->muonSF(event, top::topSFSyst::nominal, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_MU_Isol_STAT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_Isol_STAT_UP, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_MU_Isol_STAT_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_Isol_STAT_DOWN, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_MU_Isol_SYST_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_Isol_SYST_UP, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_MU_Isol_SYST_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_Isol_SYST_DOWN, top::topSFComp::ISOLATION);
-        m_weight_indiv_SF_MU_TTVA = m_sfRetriever->muonSF(event, top::topSFSyst::nominal, top::topSFComp::TTVA);
-        m_weight_indiv_SF_MU_TTVA_STAT_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_TTVA_STAT_UP, top::topSFComp::TTVA);
-        m_weight_indiv_SF_MU_TTVA_STAT_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_TTVA_STAT_DOWN, top::topSFComp::TTVA);
-        m_weight_indiv_SF_MU_TTVA_SYST_UP = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_TTVA_SYST_UP, top::topSFComp::TTVA);
-        m_weight_indiv_SF_MU_TTVA_SYST_DOWN = m_sfRetriever->muonSF(event, top::topSFSyst::MU_SF_TTVA_SYST_DOWN, top::topSFComp::TTVA);
-
-
-        ATH_MSG_DEBUG("Muon ID SF = " << m_weight_indiv_SF_MU_ID << " + " << m_weight_indiv_SF_MU_ID_STAT_UP << " - " << m_weight_indiv_SF_MU_ID_STAT_DOWN << "     + " << m_weight_indiv_SF_MU_ID_SYST_UP << " - " << m_weight_indiv_SF_MU_ID_SYST_DOWN);
 
         if (m_config->useTaus()) {
           // Tau-electron overlap removal
@@ -2151,17 +1954,17 @@ namespace top {
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
-          m_weight_photonSF_Trigger_UNCERT_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP);
-          m_weight_photonSF_Trigger_UNCERT_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN);
+          m_weight_trigger_PH_UNCERT_UP = m_sfRetriever->triggerSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP);
+          m_weight_trigger_PH_UNCERT_DOWN = m_sfRetriever->triggerSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN);
         }
 
 
         m_weight_jvt_up = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_UP);
         m_weight_jvt_down = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_DOWN);
-	if (m_config->getfJVTWP() != "None"){
-	  m_weight_forwardjvt_up = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_UP);
-	  m_weight_forwardjvt_down = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_DOWN);
-	}
+        if (m_config->getfJVTWP() != "None"){
+          m_weight_forwardjvt_up = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_UP);
+          m_weight_forwardjvt_down = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_DOWN);
+        }
       }
 
       // for b-tagging SFs, can also have systematic-shifted in systematics trees
@@ -2470,17 +2273,17 @@ namespace top {
         m_mu_true_isPrompt.resize(n_muons);
       }
       if (m_config->enablePromptLeptonImprovedVetoStudies()) {
-	m_PLIV_mu_PromptLeptonRNN_non_prompt_b.resize(n_muons);
-	m_PLIV_mu_PromptLeptonRNN_non_prompt_c.resize(n_muons);
-	m_PLIV_mu_PromptLeptonRNN_prompt.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_PtFrac.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_DRlj.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.resize(n_muons);
-	m_PLIV_mu_PromptLeptonImprovedVeto.resize(n_muons);
+        m_PLIV_mu_PromptLeptonRNN_non_prompt_b.resize(n_muons);
+        m_PLIV_mu_PromptLeptonRNN_non_prompt_c.resize(n_muons);
+        m_PLIV_mu_PromptLeptonRNN_prompt.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_PtFrac.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_DRlj.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.resize(n_muons);
+        m_PLIV_mu_PromptLeptonImprovedVeto.resize(n_muons);
       }
 
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_non_prompt_b("PromptLeptonRNN_non_prompt_b");
@@ -2515,19 +2318,19 @@ namespace top {
         if (muPtr->isAvailable<float>("d0sig")) m_mu_d0sig[i] = muPtr->auxdataConst<float>("d0sig");
         if (muPtr->isAvailable<float>("delta_z0_sintheta")) m_mu_delta_z0_sintheta[i] = muPtr->auxdataConst<float>("delta_z0_sintheta");
 
-	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
-	  m_PLIV_mu_PromptLeptonRNN_non_prompt_b[i] = PLIV_mu_PromptLeptonRNN_non_prompt_b.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_b(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonRNN_non_prompt_c[i] = PLIV_mu_PromptLeptonRNN_non_prompt_c.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_c(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonRNN_prompt[i] = PLIV_mu_PromptLeptonRNN_prompt.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_prompt(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_mu_PromptLeptonImprovedInput_MVAXBin.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_MVAXBin(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_PtFrac[i] = PLIV_mu_PromptLeptonImprovedInput_PtFrac.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_PtFrac(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_DRlj[i] = PLIV_mu_PromptLeptonImprovedInput_DRlj.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_DRlj(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel[i] = PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel[i] = PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest[i] = PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest(*muPtr) : -999.;
-	  m_PLIV_mu_PromptLeptonImprovedVeto[i] = PLIV_mu_PromptLeptonImprovedVeto.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedVeto(*muPtr) : -999.;
-	}
+        if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+          m_PLIV_mu_PromptLeptonRNN_non_prompt_b[i] = PLIV_mu_PromptLeptonRNN_non_prompt_b.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_b(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonRNN_non_prompt_c[i] = PLIV_mu_PromptLeptonRNN_non_prompt_c.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_c(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonRNN_prompt[i] = PLIV_mu_PromptLeptonRNN_prompt.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_prompt(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_mu_PromptLeptonImprovedInput_MVAXBin.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_MVAXBin(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_PtFrac[i] = PLIV_mu_PromptLeptonImprovedInput_PtFrac.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_PtFrac(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_DRlj[i] = PLIV_mu_PromptLeptonImprovedInput_DRlj.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_DRlj(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel[i] = PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel[i] = PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest[i] = PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest(*muPtr) : -999.;
+          m_PLIV_mu_PromptLeptonImprovedVeto[i] = PLIV_mu_PromptLeptonImprovedVeto.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedVeto(*muPtr) : -999.;
+        }
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {
