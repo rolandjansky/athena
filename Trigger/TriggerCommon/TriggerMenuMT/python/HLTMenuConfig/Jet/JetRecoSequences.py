@@ -146,7 +146,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
             buildSeq += constitModAlg
 
     # Add the PseudoJetGetter alg to the sequence
-    constitPJAlg = JetRecConfig.getConstitPJGAlg( jetDef.inputdef )
+    constitPJAlg = JetRecConfig.getConstitPJGAlg( jetDef.inputdef , suffix=None)
     buildSeq += conf2toConfigurable( constitPJAlg )
     finalpjs = str(constitPJAlg.OutputContainer)
 
@@ -305,7 +305,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
     rcModList = [] # Could set substructure mods
     rcJetDef.modifiers = rcModList
 
-    rcConstitPJAlg = JetRecConfig.getConstitPJGAlg( rcJetDef.inputdef )
+    rcConstitPJAlg = JetRecConfig.getConstitPJGAlg( rcJetDef.inputdef, suffix=jetDefString)
     rcConstitPJKey = str(rcConstitPJAlg.OutputContainer)
     recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
@@ -314,7 +314,9 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
     monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+rcJetDef.fullname()+"/")
 
     rcJetDef._internalAtt['finalPJContainer'] = rcConstitPJKey
-    rcJetRecAlg = JetRecConfig.getJetRecAlg(rcJetDef, monTool)
+    # Depending on whether running the trackings step
+    ftf_suffix = "" if jetRecoDict["trkopt"] == "notrk" else "_ftf" 
+    rcJetRecAlg = JetRecConfig.getJetRecAlg(rcJetDef, monTool, ftf_suffix)
     recoSeq += conf2toConfigurable( rcJetRecAlg )
 
     jetsOut = recordable(rcJetDef.fullname())

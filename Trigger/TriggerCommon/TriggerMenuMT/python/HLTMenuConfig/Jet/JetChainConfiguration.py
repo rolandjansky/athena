@@ -44,9 +44,18 @@ class JetChainConfiguration(ChainConfigurationBase):
         jChainParts = jetChainParts(self.chainPart)
         # Register if this is a performance chain, in which case the HLT should be exactly j0_perf
         self.isPerf = False
+        # Exotic hypo (emerging-jets, trackless jets)
+        self.exotHypo = ''
         # Check if we intend to preselect events with calo jets in step 1
         self.trkpresel = "nopresel"
         for ip,p in enumerate(jChainParts):
+
+            # Check if there is exactly one exotic hypothesis defined
+            if len(p['exotHypo']) > 1:
+                raise RuntimeError(f'Exotic chains currently not configurable with more than one exotic selection!')
+            if p['exotHypo']:
+                self.exotHypo = p['exotHypo'][0]
+
             if p['addInfo'] == 'perf':
                 # Slightly awkward check but we want to permit any L1, while
                 # restricting HLT to have exactly this form and nothing else
@@ -101,6 +110,11 @@ class JetChainConfiguration(ChainConfigurationBase):
             # (No diff in practice if the TLA cut is higher than the hypo filter)
             TLAStep = self.getJetTLAChainStep(jetDef.fullname())
             chainSteps+= [TLAStep]
+
+        # Add exotic jets hypo
+        if self.exotHypo != '' and ("Exotic" in self.exotHypo or "Trackless" in self.exotHypo):
+            EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
+            chainSteps+= [EJsStep]
         
         myChain = self.buildChain(chainSteps)
 
@@ -191,6 +205,40 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "TLAStep_"+jetCollectionName
         jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, None, jetsin=jetCollectionName )
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+        return chainStep
+
+
+    def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):
+        from TriggerMenuMT.HLTMenuConfig.Jet.ExoticJetSequences import jetEJsMenuSequence
+
+        # Must be configured similar to : ExoticPTF0p0dR1p2 or TracklessdR1p2
+        if 'Exotic' in exotdictstring and ('dR' not in exotdictstring \
+           or 'PTF' not in exotdictstring):
+            log.error('Misconfiguration of exotic jet chain - need dR and PTF options')
+            exit(1)
+        if 'Trackless' in exotdictstring and 'dR' not in exotdictstring:
+            log.error('Misconfiguration of trackless exotic jet chain - need dR option')
+            exit(1)
+
+        trackless = int(0)
+        if 'Exotic' in exotdictstring:
+            ptf = float(exotdictstring.split('PTF')[1].split('dR')[0].replace('p', '.'))
+            dr  = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
+        elif 'Trackless' in exotdictstring:
+            trackless = int(1)
+            ptf = 0.0
+            dr = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
+        else:
+            log.error('Misconfiguration of trackless exotic jet chain - need Exotic or Trackless selection')
+            exit(1)
+
+        log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)
+
+        stepName = "EJsStep_"+self.chainName
+        jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, None, jetsin=jetCollectionName, name=thresh)
+        #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
 
         return chainStep
 

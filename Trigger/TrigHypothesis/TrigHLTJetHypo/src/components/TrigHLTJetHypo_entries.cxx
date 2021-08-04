@@ -30,6 +30,8 @@
 #include "../TrigJetHypoToolHelperNoGrouper.h"
 #include "../TrigJetTLAHypoAlg.h"
 #include "../TrigJetTLAHypoTool.h"
+#include "../TrigJetEJsHypoAlg.h"
+#include "../TrigJetEJsHypoTool.h"
 
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_conditionfilter)
@@ -58,3 +60,5 @@ DECLARE_COMPONENT(TrigJetTLAHypoAlg)
 DECLARE_COMPONENT(TrigJetTLAHypoTool)
 DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
 
+DECLARE_COMPONENT(TrigJetEJsHypoAlg)
+DECLARE_COMPONENT(TrigJetEJsHypoTool)
