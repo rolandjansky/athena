@@ -173,17 +173,17 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         if (stop == 63 || stop == 8) {
             for (int i = 0; i < 64; ++i) { maxType = std::max(sectorMap[i], maxType); }
             sectorType.clear();
-            sectorType.reserve(maxType);
+            //sectorType.reserve(maxType); // this would require a copy-constructor
             ATH_MSG_DEBUG("setup() - Loop over " << maxType << " sector-types");
 
             for (int i = 1; i <= maxType; ++i) {
                 sectorType.emplace_back(i, dataName, layout, m_cosmic_configuration);
-                RPC_CondCabling::SectorLogicSetup* sec = &(sectorType[i - 1]);
-                sectorType[i - 1].SetPtoTrigRoads(&trigroads);
+                RPC_CondCabling::SectorLogicSetup& sec = sectorType[i - 1];
+                sec.SetPtoTrigRoads(&trigroads);
                 for (int j = 0; j < 64; ++j) {
                     if (sectorMap[j] == i) {
-                        *sec << j;
-                        sectorLogic.insert(SLmap_t::value_type(j, sec));
+                        sec << j;
+                        sectorLogic.insert(SLmap_t::value_type(j, &sec));
                         ATH_MSG_DEBUG("setup() - filling sectorLogicSetup Map for type " << i << " sector  " << j);
                     }
                 }
@@ -222,7 +222,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         if (!sectorType[i - 1].check()) return StatusCode::FAILURE;
         if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("calling get_cabling for i=" << i);
-            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap CMAs = sectorType[i - 1].giveEtaCMA();
+            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap& CMAs = sectorType[i - 1].giveEtaCMA();
             for (const auto& cma : CMAs) {
                 unsigned int cabling = UINT_MAX;
                 if (cma.second.get_cabling(CMAinput::Pivot, 0, 0, 0, cabling)) {
@@ -243,10 +243,10 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
 
         if (sectorMap[sector]) {
             // get the Sector Logic Setup
-            RPC_CondCabling::SectorLogicSetup Sector = sectorType[sectorMap[sector] - 1];
+            const RPC_CondCabling::SectorLogicSetup& Sector = sectorType[sectorMap[sector] - 1];
 
             // get the Eta CMA map from the Sector Logic Setup
-            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap CMAs = Sector.giveEtaCMA();
+            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap& CMAs = Sector.giveEtaCMA();
             RPC_CondCabling::SectorLogicSetup::EtaCMAmap::const_iterator it = CMAs.begin();
 
             bool isFirst = false;
@@ -266,7 +266,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                     unsigned int RPC_station = (*it).second.whichCMAstation(CMAinput::Pivot);
                     unsigned int lvl1_sector = sector;
 
-                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    const RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side) ? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector == 31) ? 1 : (logic_sector + 1) / 4 + 1;
@@ -319,7 +319,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                         RPC_station = (*it).second.whichCMAstation(CMAinput::HighPt);
                     unsigned int lvl1_sector = sector;
 
-                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    const RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side) ? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector == 31) ? 1 : (logic_sector + 1) / 4 + 1;
@@ -646,7 +646,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     ATH_MSG_DEBUG("Number of valid RPC Pad IDs " << writeCdo->m_int2id.size());
 
     for (int i = 0; i < 64; i++) writeCdo->m_SectorMap[i] = sectorMap[i];
-    writeCdo->m_SectorType.assign(sectorType.begin(), sectorType.end());
+    writeCdo->m_SectorType = std::move(sectorType);
     writeCdo->m_MaxType = maxType;
 
     if (msgLvl(MSG::DEBUG)) {
@@ -708,7 +708,7 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
     ep = (ep == 1) ? 0 : 1;
 
     // retrieve the Sector Logic setup
-    const RPC_CondCabling::SectorLogicSetup s = sType[smap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = sType[smap[logic_sector] - 1];
 
     // retrieve the CMAparameters associated to the identifiers
     if (ep) {
