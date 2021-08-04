@@ -13,6 +13,7 @@ class SortedCollectionCreator:
    def __init__(self, name= "sortEvents"):
       from AthenaCommon import Logging
       Logging.log.name = name
+      self.name = name
       self.info = Logging.log.info
       self.debug = Logging.log.debug
       self.verbose = Logging.log.verbose
@@ -76,12 +77,12 @@ class SortedCollectionCreator:
       self.verbose('='*80)
       self.info("Finished reading input collections, total events read: {}".format(len(self.allRows)) )
 
-   def sortEvents(self, sortAttrName):
+   def sortEvents(self, sortAttrName, sortReverse=False):
       """sort the events based on an attribute name"""
-      self.info("Sorting on attribute {}".format(sortAttrName))
-      # +1 because the Ref is first
+      self.info("Sorting on attribute {}, sort order {}".format(sortAttrName, ("Descending" if sortReverse else "Ascending") ))
+      # add 1 to offsets because the Ref is first
       attrPos = self.attrNames.index(sortAttrName)+1
-      self.allRows.sort( key=lambda t: t[attrPos] )
+      self.allRows.sort( key=lambda t: t[attrPos], reverse=sortReverse )
 
       for t in self.allRows:
          self.verbose( t[1:], t[0] )
@@ -106,16 +107,20 @@ class SortedCollectionCreator:
       dstColl.commit()
       dstColl.close()
        
-   def execute(self, inputCollections, outputCollection="PFN:collection.root", sortAttribute="LumiBlockN"):
-      self.info("Executing SortedCollectionCreator, inputs={}, output={}, sort on: {}"
-                .format(inputCollections, outputCollection, sortAttribute))
+   def execute(self, inputCollections, outputCollection="PFN:collection.root", sortAttribute="LumiBlockN", sortOrder="Ascending"):
+      sort_opts = ("Ascending", "Descending")
+      self.info("Executing SortedCollectionCreator, inputs={}, output='{}', sort by: {}, order: {}"
+                .format(inputCollections, outputCollection, sortAttribute, sortOrder))
       if isinstance(inputCollections, str):
          inputs = [inputCollections]
       else:
          inputs = inputCollections
+      if sortOrder.lower() not in [opt.lower() for opt in sort_opts]:
+          raise Exception(self.name + ": Accepted sortOrder values are: " + str(sort_opts))
+      sortReverse = ( sortOrder.lower()[0] == "d" )
       self.loadRoot()
       self.readInputCollections(inputs)
-      self.sortEvents(sortAttribute)
+      self.sortEvents(sortAttribute, sortReverse)
       self.writeCollection(outputCollection)
       
 
