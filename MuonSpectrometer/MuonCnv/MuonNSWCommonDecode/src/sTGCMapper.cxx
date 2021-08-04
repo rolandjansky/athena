@@ -34,7 +34,7 @@ Muon::nsw::sTGCMapper::sTGCMapper ()
           else if (q == 0 && l_type == 1 && (j == jmax - 336 || j == jmax - 400)) j -= 32;
 
           unsigned int vmm_chan = l_type == 0 ? i : j;
-          uint32_t id = private_id (s_type, l_type, q, vmm_chan);
+          uint32_t id = private_id (s_type, q, l_type, vmm_chan);
           std::pair <uint32_t, uint16_t> p (id, c);
           m_channel_map.insert (p);
         }

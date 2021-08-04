@@ -31,7 +31,7 @@ uint16_t Muon::nsw::VMMChannel::channel_number ()
     // Configuration of channels in a quadruplets is the same for 0, 3 and 1, 2
 
     uint8_t quad_layer = m_elink->elinkId ()->layer () % 4;
-    uint8_t layer_type = (quad_layer & 0x1) ^ (quad_layer & 0x2);
+    uint8_t layer_type = (quad_layer & 0x1) ^ ((quad_layer >> 1) & 0x1);
 
     // In the offline convention (sectors 1-16) odd sectors are large, even sectors are small;
     // in the online convention (sectors 0-15) odd sectors are small, even sectors are large

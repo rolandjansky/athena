@@ -26,7 +26,7 @@ namespace Muon
 
     static const std::vector <uint8_t> s_stgc_sector_type = {0, 1};
 
-    // Layer type: 0 for layers 0 and 4 and 1 for layers 2 and 4 in the quadruplet
+    // Layer type: 0 for layers 0 and 3 and 1 for layers 1 and 2 in the quadruplet
 
     static const std::vector <uint8_t> s_stgc_layer_type = {0, 1};
 
@@ -40,7 +40,7 @@ namespace Muon
     static const std::map <std::pair <uint8_t, uint8_t>, uint16_t> s_stgc_nchan_map =
       {{{0, 0}, Muon::nsw::sTGCQS1ChannelNumber}, {{0, 1}, Muon::nsw::sTGCQS2ChannelNumber},
        {{0, 2}, Muon::nsw::sTGCQS3ChannelNumber}, {{1, 0}, Muon::nsw::sTGCQL1ChannelNumber},
-       {{1, 1}, Muon::nsw::sTGCQS2ChannelNumber}, {{1, 2}, Muon::nsw::sTGCQS3ChannelNumber}};
+       {{1, 1}, Muon::nsw::sTGCQL2ChannelNumber}, {{1, 2}, Muon::nsw::sTGCQL3ChannelNumber}};
 
     // First VMM (number, channel) used as function of {sector type, layer_type, quadruplet}
 
