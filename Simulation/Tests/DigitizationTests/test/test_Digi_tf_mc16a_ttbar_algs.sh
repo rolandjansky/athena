@@ -3,9 +3,9 @@
 # art-description: Run digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up and using digitizationFlags.doXingByXingPileUp=False
 # art-type: grid
 # art-include: master/Athena
-# art-output: mc16a_ttbar.RDO.pool.root
+# art-output: mc16a_ttbar_algs.RDO.pool.root
 
-DigiOutFileName="mc16a_ttbar.RDO.pool.root"
+DigiOutFileName="mc16a_ttbar_algs.RDO.pool.root"
 
 InputHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
