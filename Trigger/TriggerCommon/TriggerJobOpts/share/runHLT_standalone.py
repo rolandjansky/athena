@@ -149,8 +149,10 @@ if len(athenaCommonFlags.FilesInput())>0:
     if opt.setDetDescr is None:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
     if opt.setGlobalTag is None:
-        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
-            (ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
+        if globalflags.DataSource=='data':
+            opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
+        else:
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
     TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
 
 else:   # athenaHLT
