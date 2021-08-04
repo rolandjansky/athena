@@ -28,8 +28,6 @@ public:
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final {return StatusCode::SUCCESS;}
-  /** Make this algorithm clonable. */
-  virtual bool isClonable() const override final{ return true; };
 
 private:
 
