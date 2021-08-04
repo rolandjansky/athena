@@ -15,13 +15,15 @@
 #include <CrestApi/CrestApiExt.h>
 #include <filesystem>
 
+#include <CrestApi/picosha2.h>
+
 using namespace Crest;
 
 using namespace std;
 std::string SURL = "http://mvg-pc-04.cern.ch:8090";
 
 void print_path() {
-  std::cout << (std::string) SURL << endl;
+  std::cout << (std::string) SURL << std::endl;
 }
 
 bool createDirTree(const std::string full_path) {
@@ -825,7 +827,7 @@ void testCreateTagMetaInfoIOVDbSvc(std::string tagname) {
     {"channel_list", chanList},
     {"node_description", "description of the node"},
     {"payload_spec",
-      "AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"}
+     "AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"}
   };
 
   try{
@@ -868,7 +870,8 @@ void testConvertTagMetaInfo2CREST() {
   {
     {"channel_list", chanList},
     {"node_description", "description of the node"},
-    {"payload_spec", "AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"}
+    {"payload_spec",
+     "AlgorithmID:UInt32,LBAvInstLumi:Float,LBAvEvtsPerBX:Float,LumiType:UInt32,Valid:UInt32,BunchInstLumi:Blob64k"}
   };
 
   std::cout << std::endl << "tagInfo = " << std::endl
@@ -1302,6 +1305,256 @@ void testFindGlobalTagMapFs(std::string tagname) {
   }
 }
 
+// Hash calculation tests
+
+void testGetHash(std::string str) {
+  std::cout << std::endl << "test: getHash" << std::endl;
+  CrestClient myCrestClient = CrestClient((std::string) SURL);
+
+  std::cout << myCrestClient.getHash(str) << std::endl;
+}
+
+void hashCalculationTest(std::string str) {
+  std::cout << "Hash(" << str << ") = ";
+  std::string hash_hex_str = picosha2::hash256_hex_string(str.begin(), str.end());
+  std::cout << hash_hex_str << std::endl;
+}
+
+// Global Tag tests:
+
+void testCreateGlobalTag(std::string tagname, std::string description) {
+  std::cout << std::endl << "test: createGlobalTag (2 parameters)" << std::endl;
+  CrestClient myCrestClient = CrestClient((std::string) SURL);
+
+  try {
+    myCrestClient.createGlobalTag(tagname, description);
+    std::cout << std::endl << "test: createGlobalTag (success) (2 parameters)" << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: createGlobalTag (failed) (2 parameters)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+// global tag and tag have to exist
+void testCreateGlobalTagMap(std::string globaltag, std::string tagname,
+                            std::string record, std::string label) {
+  std::cout << std::endl << "test: createGlobalTagMap (all parameters)" << std::endl;
+  CrestClient myCrestClient = CrestClient((std::string) SURL);
+
+  nlohmann::json js =
+  {
+    {"globalTagName", globaltag},
+    {"record", record},
+    {"label", label},
+    {"tagName", tagname}
+  };
+
+  try{
+    myCrestClient.createGlobalTagMap(js);
+    std::cout << std::endl << "test: createGlobalTagMap (all parameters) (success) " << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: createGlobalTagMap (all parameters) (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+// current time & date test
+
+void testGetDateAndTime() {
+  std::cout << std::endl << "test: getDateAndTime" << std::endl;
+  CrestClient myCrestClient = CrestClient((std::string) SURL);
+
+  try{
+    std::string time = myCrestClient.getDateAndTime();
+    std::cout << std::endl << "now = " << time << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getDateAndTime (failed)" << std::endl;
+    std::cerr << e.what() << std::endl;
+  }
+}
+
+// payload method tests for file starage
+
+void testGetPayloadAsStringFS(std::string hash) {
+  std::cout << std::endl << "test: getPayloadAsStringFS" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try {
+    std::string info = myCrestClient.getPayloadAsStringFS(hash);
+    std::cout << std::endl << "test: getPayloadAsStringFS (result) =" << std::endl
+              << info << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getPayloadAsStringFS (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testGetPayloadAsJsonFS(std::string hash) {
+  std::cout << std::endl << "test: getPayloadAsJsonFS" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try {
+    nlohmann::json info = myCrestClient.getPayloadAsJsonFS(hash);
+    std::cout << std::endl << "test: getPayloadAsJsonFS (result) =" << std::endl
+              << info.dump(4) << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getPayloadAsJsonFS (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testGetPayloadMetaInfoAsStringFS(std::string hash) {
+  std::cout << std::endl << "test: getPayloadMetaInfoAsStringFS" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try {
+    std::string info = myCrestClient.getPayloadMetaInfoAsStringFS(hash);
+    std::cout << std::endl << "test: getPayloadMetaInfoAsStringFS (result) =" << std::endl
+              << info << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getPayloadMetaInfoAsStringFS (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testGetPayloadMetaInfoAsJsonFS(std::string hash) {
+  std::cout << std::endl << "test: getPayloadMetaInfoAsJsonFS" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try {
+    nlohmann::json info = myCrestClient.getPayloadMetaInfoAsJsonFS(hash);
+    std::cout << std::endl << "test: getPayloadMetaInfoAsJsonFS (result) =" << std::endl
+              << info.dump(4) << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getPayloadMetaInfoAsJsonFS (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testGetBlobInStreamFS(std::string hash) {
+  std::cout << std::endl << "test: getBlobInStreamFs" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try{
+    remove("data.txt");
+
+    std::ofstream out8;          // stream for writing
+    out8.open("data.txt"); // open the file to write
+    if (out8.is_open()) {
+      string tag_info8 = myCrestClient.getBlobInStreamFs(hash, out8);
+      std::cout << std::endl << "test: getBlobInStreamFs (result) =" << std::endl;
+      std::cout << tag_info8 << std::endl;
+      std::cout << std::endl << "test: getBlobInStreamFs" << std::endl;
+    }
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getBlobInStreamFs (failed)" << std::endl;
+    std::cerr << e.what() << std::endl;
+  }
+}
+
+void testGetBlobFS(std::string hash) {
+  std::cout << std::endl << "test: getBlobFs" << std::endl;
+  CrestClient myCrestClient = CrestClient(true);
+
+  try {
+    std::string info = myCrestClient.getBlobFs(hash);
+    std::cout << std::endl << "test: getBlobFs (result) =" << std::endl
+              << info << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: getBlobFs (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testReturnJArray() {
+  std::cout << std::endl << "test: returnJArray" << std::endl;
+  CrestClient myCrestClient = CrestClient((std::string) SURL);
+
+  nlohmann::json js = {
+    {"name", "test"}
+  };
+
+  try {
+    nlohmann::json res = myCrestClient.returnJArray(js);
+    std::cout << std::endl << "test: returnJArray (result) =" << std::endl
+              << res.dump(4) << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: returnJArray (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+}
+
+void testFindAllIovsFS(std::string tagname) {
+  std::cout << std::endl << "test: findAllIovsFS" << std::endl;
+  // CrestClient myCrestClient = CrestClient((std::string) SURL);
+  CrestClient myCrestClient = CrestClient(true);
+
+  try{
+    nlohmann::json tag_info = myCrestClient.findAllIovsFs(tagname);
+    std::cout << std::endl << "test: findAllIovsFS (result) =" << std::endl;
+    std::cout << tag_info.dump(4) << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: findAllIovsFS (failed)" << std::endl;
+    std::cerr << e.what() << std::endl;
+  }
+}
+
+// The test to create a tag with the iovs/payloads together.
+
+void testTagAndStoreBatchFs(std::string tagname) {
+  std::cout << std::endl << "test: createTagFs" << std::endl;
+
+  bool rewrite = true;
+  CrestClient myCrestClient = CrestClient(rewrite);
+
+  nlohmann::json js =
+  {
+    {"description", "none"},
+    {"endOfValidity", 0},
+    {"insertionTime", "2018-12-06T11:18:35.641+0000"},
+    {"lastValidatedTime", 0},
+    {"modificationTime", "2018-12-06T11:18:35.641+0000"},
+    {"name", tagname},
+    {"payloadSpec", "stave: Int32, eta: Int32, mag: Float, base: Float, free: Float"},
+    {"synchronization", "none"},
+    {"timeType", "time"}
+  };
+
+  try{
+    myCrestClient.createTag(js);
+    std::cout << std::endl << "test: createTagFs (success)" << std::endl;
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: createTagFs (failed)" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
+
+  uint64_t endtime = 200;
+  std::string str = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+  nlohmann::json js2 = myCrestClient.getJson(str);
+
+  try {
+    myCrestClient.storeBatchPayloads(tagname, endtime, js2);
+    std::cout << std::endl << "test: storeBatchPayloads (success) " << std::endl;
+    //myCrestClient.flush();
+  }
+  catch (const std::exception& e) {
+    std::cout << std::endl << "test: storeBatchPayloads (failed)" << std::endl;
+    std::cerr << e.what() << std::endl;
+  }
+}
+
 //----------------------
 
 int main(int argc, char* argv[]) {
@@ -1373,10 +1626,10 @@ int main(int argc, char* argv[]) {
     // testGetBlobInStream("3e744b9dc39389baf0c5a0660589b8402f3dbb49b89b3e75f2c9355852a3c677");
     // testGetBlobInStream("9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0");
   } else {
-    std::cout << "CREST Server path not found" << endl;
-    std::cout << "Please, run this program with a server path:" << endl;
-    std::cout << "crest_example http://mvg-pc-04.cern.ch:8090" << endl;
+    std::cout << "CREST Server path not found" << std::endl;
+    std::cout << "Please, run this program with a server path:" << std::endl;
+    std::cout << "crest_example http://mvg-pc-04.cern.ch:8090" << std::endl;
   }
-  std::cout << "Test ended" << endl;
+  std::cout << "Test ended" << std::endl;
   return 0;
 }
