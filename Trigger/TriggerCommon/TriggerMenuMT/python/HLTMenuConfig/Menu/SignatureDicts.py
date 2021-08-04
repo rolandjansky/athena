@@ -220,9 +220,11 @@ JetChainParts = {
                       'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
+    'exotHypo' : ['ExoticPTF0p4dR1p2', 'ExoticPTF0p3dR1p2', 'ExoticPTF0p2dR1p2', 'ExoticPTF0p1dR1p2', 'ExoticPTF0p0dR1p2', 'TracklessdR1p2', 'ExoPhotonPTF0p4dR1p2'],
+
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490'],
+      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
@@ -277,6 +279,7 @@ JetChainParts_Default = {
     'momCuts'       : '',
     'prefilters'    : [],
     'hypoScenario'  : 'simple',
+    'exotHypo'      : [],
     'smc'           : 'nosmc',
     #
     'bTag'          : '',

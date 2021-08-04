@@ -27,7 +27,6 @@ from JetRecConfig.JetGrooming import GroomingDefinition
 from JetRecConfig.DependencyHelper import solveDependencies, solveGroomingDependencies, aliasToModDef
 
 
-
 __all__ = ["JetRecCfg", "JetInputCfg"]
 
 
@@ -209,7 +208,7 @@ def getPseudoJetAlgs(jetdef):
     (this function is factorized out of PseudoJetCfg so it can be used standalone in the trigger config)
     """
     
-    constitpjalg = getConstitPJGAlg( jetdef.inputdef )
+    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None)
     #print("aaaa" , constitpjalg, constitpjalg.OutputContainer)
     finalPJContainer = str(constitpjalg.OutputContainer)
     pjalglist = [constitpjalg]
@@ -315,18 +314,18 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
 
 
 
-def getConstitPJGAlg(constitdef):
+def getConstitPJGAlg(constitdef,suffix=None):
     """returns a configured PseudoJetAlgorithm which converts the inputs defined by constitdef into fastjet::PseudoJet
 
     IMPORTANT : constitdef must have its dependencies solved (i.e. it must result from a solveDependencies() call)
 """
-    
+
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
-    full_label = constitdef.label
+    full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
     
     pjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_"+constitdef.label,
+        "pjgalg_"+full_label,
         InputContainer = constitdef.containername,
         OutputContainer = "PseudoJet"+full_label,
         Label = full_label,
@@ -362,7 +361,7 @@ def getGhostPJGAlg(ghostdef):
     return pjgalg
 
 
-def getJetRecAlg( jetdef, monTool = None):
+def getJetRecAlg( jetdef, monTool = None, ftf_suffix = ''):
     """Returns the configured JetRecAlg instance corresponding to jetdef
 
     IMPORTANT : jetdef must have its dependencies solved (i.e. it must result from solveDependencies() )
@@ -370,10 +369,10 @@ def getJetRecAlg( jetdef, monTool = None):
     pjContNames = jetdef._internalAtt['finalPJContainer']
     jclust = CompFactory.JetClusterer(
         "builder",
-        JetAlgorithm = jetdef.algorithm,
+        JetAlgorithm = jetdef.algorithm,#
         JetRadius = jetdef.radius,
         PtMin = jetdef.ptmin,
-        InputPseudoJets = pjContNames,
+        InputPseudoJets = pjContNames,#
         GhostArea = 0.01, 
         JetInputType = int(jetdef.inputdef.jetinputtype),
         RandomOption = 1,
@@ -385,10 +384,10 @@ def getJetRecAlg( jetdef, monTool = None):
 
     jetname = jetdef.fullname()
     jra = CompFactory.JetRecAlg(
-        "jetrecalg_"+jetname,
+        "jetrecalg_"+jetname+ftf_suffix,
         Provider = jclust,
         Modifiers = mods,
-        OutputContainer = jetname,
+        OutputContainer = jetname+ftf_suffix,
         )
     if monTool:
         # this option can't be set in AnalysisBase -> set only if explicitly asked :

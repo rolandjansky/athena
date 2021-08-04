@@ -73,6 +73,27 @@ def  trigJetHypoToolFromDict(chain_dict):
 def  trigJetTLAHypoToolFromDict(chain_dict):
     return  CompFactory.TrigJetTLAHypoTool(chain_dict['chainName'])
 
+def  trigJetEJsHypoToolFromDict(chain_dict):
+    chain_name = chain_dict['chainName']
+
+    if 'Exotic' in chain_name:
+        trackless = int(0)
+        ptf = float(chain_name.split('PTF')[1].split('dR')[0].replace('p', '.'))
+        dr  = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
+    elif 'Trackless' in chain_name:
+        trackless = int(1)
+        ptf = 0.0
+        dr = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
+    else:
+        raise Exception("misconfiguration of Exotic jet chain")
+
+    hypo = CompFactory.TrigJetEJsHypoTool(chain_name)
+    hypo.PTF       = ptf
+    hypo.dR        = dr
+    hypo.Trackless = trackless
+
+    return  hypo
+
 
 import unittest
 class TestStringMethods(unittest.TestCase):
