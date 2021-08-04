@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -178,7 +178,7 @@ void _count( size_t from, size_t choose) {
     ++counter;
   };
   std::cout << from << " choose " << choose << " " << counter << std::endl;
-  VALUE ( counter) EXPECTED ( std::tgamma(from+1)/( std::tgamma(from-choose+1)* std::tgamma(choose+1)) );
+  VALUE ( counter) EXPECTED ( static_cast<int> (std::tgamma(from+1)/( std::tgamma(from-choose+1)* std::tgamma(choose+1)) + 0.5) );
 }
 
 void countUniqueCombinations() {
