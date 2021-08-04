@@ -42,7 +42,6 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("NSWMM_RDOContainerName",         m_NSWMM_RDOContainerName="MMRDO");
   declareProperty("NSWMM_PRDContainerName",         m_NSWMM_PRDContainerName="MM_Measurements");
   declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
-  declareProperty("CSC_SDOContainerName",           m_CSC_SDOContainerName="CSC_SDO");
   declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
   declareProperty("CSC_RDOContainerName",           m_CSC_RDOContainerName="CSCRDO");
   declareProperty("CSC_PRDContainerName",           m_CSC_PRDContainerName="CSCPRD");
@@ -73,7 +72,6 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("doMMRDO",         m_doMMRDO=false);
   declareProperty("doMMPRD",         m_doMMPRD=false);
   declareProperty("doCSCHit",        m_doCSCHit=false);
-  declareProperty("doCSCSDO",        m_doCSCSDO=false);
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
   declareProperty("doCSCRDO",        m_doCSCRDO=false);
   declareProperty("doCSCPRD",        m_doCSCPRD=false);
@@ -213,11 +211,6 @@ StatusCode NSWPRDValAlg::initialize() {
      m_CSCSimHitVar = std::make_unique<CSCSimHitVariables>(&(*(evtStore())), m_muonDetMgrDS,
                                              &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel());
      ATH_CHECK( m_CSCSimHitVar->initializeVariables() );
-  }
-  if (m_doCSCSDO){
-     m_CSCSDOVar = std::make_unique<CscSDOVariables>(&(*(evtStore())), m_muonDetMgrDS,
-                                             &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SDOContainerName, msgLevel());
-     ATH_CHECK( m_CSCSDOVar->initializeVariables() );
   }
   if (m_doCSCDigit){
      m_CscDigitVar = std::make_unique<CSCDigitVariables>(&(*(evtStore())), m_muonDetMgrDS,
@@ -359,7 +352,6 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doMMPRD) ATH_CHECK( m_MmPrdVar->fillVariables(muonDetMgr) );
 
   if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
-  if (m_doCSCSDO) ATH_CHECK( m_CSCSDOVar->fillVariables(muonDetMgr) );
   if (m_doCSCDigit) ATH_CHECK( m_CscDigitVar->fillVariables(muonDetMgr) );
   if (m_doCSCRDO) ATH_CHECK( m_CSCRDOVar->fillVariables(muonDetMgr) );
   if (m_doCSCPRD) ATH_CHECK( m_CSCPRDVar->fillVariables(muonDetMgr) );

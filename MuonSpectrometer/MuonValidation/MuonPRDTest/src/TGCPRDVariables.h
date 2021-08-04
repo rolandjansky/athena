@@ -33,9 +33,8 @@ class TGCPRDVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_TgcIdHelper = dynamic_cast<const TgcIdHelper*>(idhelper);
-    if(m_TgcIdHelper == 0) {
-       ATH_MSG_ERROR("casting IdHelper to TgcIdHelper failed");
-       throw;
+    if(!m_TgcIdHelper) {
+      throw std::runtime_error("casting IdHelper to TgcIdHelper failed");
     }
   }
 

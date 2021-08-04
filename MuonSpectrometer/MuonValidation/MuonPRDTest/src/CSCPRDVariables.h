@@ -33,9 +33,8 @@ class CSCPRDVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_CscIdHelper = dynamic_cast<const CscIdHelper*>(idhelper);
-    if(m_CscIdHelper == 0) {
-       ATH_MSG_ERROR("casting IdHelper to CscIdHelper failed");
-       throw;
+    if(!m_CscIdHelper) {
+      throw std::runtime_error("casting IdHelper to CscIdHelper failed");
     }
   }
 
