@@ -20,7 +20,7 @@ def McEventSelectorCfg(configFlags, **kw):
     if isinstance(rn, type([])):
         rn = rn[0]
     evSel.RunNumber = rn
-    evSel.InitialTimeStamp = configFlags.Input.InitialTimeStamp
+    evSel.InitialTimeStamp = configFlags.Input.TimeStamp
 
     for k, v in kw.items():
         setattr (evSel, k, v)
