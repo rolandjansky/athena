@@ -15,6 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
     class TrackingGeometry;
@@ -32,7 +33,8 @@ namespace Trk {
       @author Andreas.Salzburger@cern.ch
      */
 
-    class LayerMaterialProvider :  public AthAlgTool, virtual public IGeometryProcessor {
+    class LayerMaterialProvider //process methods call non-safe code
+      :  public AthAlgTool, virtual public IGeometryProcessor {
      
       public:
         /** Constructor */
@@ -42,14 +44,19 @@ namespace Trk {
         virtual ~LayerMaterialProvider();
 
         /** Processor Action to work on TrackingGeometry& tgeo */
-        virtual StatusCode process(const TrackingGeometry& tgeo) const;
-       
-        /** Processor Action to work on TrackingVolumes - the level is for the hierachy tree*/
-        virtual StatusCode process(const TrackingVolume& tvol, size_t level = 0) const;
-       
+        virtual StatusCode process
+        ATLAS_NOT_THREAD_SAFE(const TrackingGeometry& tgeo) const;
+
+        /** Processor Action to work on TrackingVolumes - the level is for the
+         * hierachy tree*/
+        virtual StatusCode process
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
+                              size_t level = 0) const;
+
         /** Processor Action to work on Layers */
-        virtual StatusCode process(const Layer& lay, size_t level = 0) const;
-       
+        virtual StatusCode process
+        ATLAS_NOT_THREAD_SAFE(const Layer& lay, size_t level = 0) const;
+
         /** Processor Action to work on Surfaces */
         virtual StatusCode process(const Surface& surf, size_t level = 0) const;
 

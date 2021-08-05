@@ -28,14 +28,10 @@
 #include "TrkGeometry/GlueVolumesDescriptor.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-// Gaudi
-#include "GaudiKernel/SystemOfUnits.h"
 
 #include <memory>
-
 #include <stdexcept>
 
-double Trk::TrackingVolumeHelper::s_layerThickness        = 1.*Gaudi::Units::mm;
 
 // constructor
 Trk::TrackingVolumeHelper::TrackingVolumeHelper(const std::string& t, const std::string& n, const IInterface* p)

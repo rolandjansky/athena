@@ -23,12 +23,13 @@
 // Gaudi & Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 // STL
 #include <algorithm>
 #include <string>
 #include <fstream>
 
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
     class ILayerArrayCreator;
@@ -73,11 +74,12 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        void glueTrackingVolumes(const TrackingVolume& firstVol,
-                                 BoundarySurfaceFace firstFace,
-                                 const TrackingVolume& secondVol,
-                                 BoundarySurfaceFace secondFace,
-                                 bool buildBoundaryLayer = false) const;
+        void glueTrackingVolumes
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& firstVol,
+                              BoundarySurfaceFace firstFace,
+                              const TrackingVolume& secondVol,
+                              BoundarySurfaceFace secondFace,
+                              bool buildBoundaryLayer = false) const;
 
         /** Method to glue two Volumes together
             input:
@@ -88,12 +90,13 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        void glueTrackingVolumes(const TrackingVolume& firstVol,
-                                 BoundarySurfaceFace firstFace,
-                                 const std::vector<const TrackingVolume*>& secondVolumes,
-                                 BoundarySurfaceFace secondFace,
-                                 bool buildBoundaryLayer = false,
-                                 bool boundaryFaceExchange = false) const;
+        void glueTrackingVolumes ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& firstVol,
+          BoundarySurfaceFace firstFace,
+          const std::vector<const TrackingVolume*>& secondVolumes,
+          BoundarySurfaceFace secondFace,
+          bool buildBoundaryLayer = false,
+          bool boundaryFaceExchange = false) const;
 
         /** Method to glue two VolumeArrays together (at navigation level) - without output
 
@@ -106,12 +109,13 @@ namespace Trk {
             
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
         */
-        void glueTrackingVolumes(const std::vector<const TrackingVolume*>& firstVolumes,
-                                 BoundarySurfaceFace firstFace,
-                                 const std::vector<const TrackingVolume*>& secondVolumes,
-                                 BoundarySurfaceFace secondFace,
-                                 bool buildBoundaryLayer = false,
-                                 bool boundaryFaceExchange = false) const;
+        void glueTrackingVolumes ATLAS_NOT_THREAD_SAFE(
+          const std::vector<const TrackingVolume*>& firstVolumes,
+          BoundarySurfaceFace firstFace,
+          const std::vector<const TrackingVolume*>& secondVolumes,
+          BoundarySurfaceFace secondFace,
+          bool buildBoundaryLayer = false,
+          bool boundaryFaceExchange = false) const;
 
         /** Method to glue two VolumeArrays together (at navigation level)
             - relies on information from glueDescriptor
@@ -125,10 +129,12 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        Trk::TrackingVolume* glueTrackingVolumeArrays(const TrackingVolume& firstVol,
-                               BoundarySurfaceFace firstFace,
-                               const TrackingVolume& secondVol,
-                               BoundarySurfaceFace secondFace, std::string name) const;
+        Trk::TrackingVolume* glueTrackingVolumeArrays
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& firstVol,
+                              BoundarySurfaceFace firstFace,
+                              const TrackingVolume& secondVol,
+                              BoundarySurfaceFace secondFace,
+                              std::string name) const;
 
         /** protected method to set inside Volume of a BoundarySurface:
             input:
@@ -138,9 +144,10 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        void setInsideTrackingVolume(const TrackingVolume& tvol,
-                                     BoundarySurfaceFace face,
-                                     const TrackingVolume* insidevol) const;
+        void setInsideTrackingVolume
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
+                              BoundarySurfaceFace face,
+                              const TrackingVolume* insidevol) const;
 
         /** protected method to set inside VolumeArray of a BoundarySurface:
             input:
@@ -150,13 +157,15 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        void setInsideTrackingVolumeArray(const TrackingVolume& tvol,
-                                          BoundarySurfaceFace face,
-                                          BinnedArray<TrackingVolume>* insidevolarray) const;
+        void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& tvol,
+          BoundarySurfaceFace face,
+          BinnedArray<TrackingVolume>* insidevolarray) const;
 
-        void setInsideTrackingVolumeArray(const TrackingVolume& tvol,
-                                          BoundarySurfaceFace face,
-                                          SharedObject<BinnedArray<TrackingVolume> >insidevolarray) const;
+        void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& tvol,
+          BoundarySurfaceFace face,
+          SharedObject<BinnedArray<TrackingVolume>> insidevolarray) const;
 
         /** protected method to set outside Volume of a BoundarySurface:
             input:
@@ -166,23 +175,25 @@ namespace Trk {
 
             --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
          */
-        void setOutsideTrackingVolume(const TrackingVolume& tvol,
-                                      BoundarySurfaceFace face,
-                                      const TrackingVolume* outsidevol) const;
+        void setOutsideTrackingVolume
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
+                              BoundarySurfaceFace face,
+                              const TrackingVolume* outsidevol) const;
 
         /** protected method to set outside VolumeArray of a BoundarySurface:
             input:
             - the volume that holds the BoundarySurface
             - the face type of the boundary to be set
             - the volume array to be set as outside volume array */
-        void setOutsideTrackingVolumeArray(const TrackingVolume& tvol,
-                                           BoundarySurfaceFace face,
-                                           BinnedArray<TrackingVolume>* outsidevolarray) const;
+        void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& tvol,
+          BoundarySurfaceFace face,
+          BinnedArray<TrackingVolume>* outsidevolarray) const;
 
-        void setOutsideTrackingVolumeArray(const TrackingVolume& tvol,
-                                           BoundarySurfaceFace face,
-                                           SharedObject<BinnedArray<TrackingVolume> >outsidevolarray) const;
-
+        void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& tvol,
+          BoundarySurfaceFace face,
+          SharedObject<BinnedArray<TrackingVolume>> outsidevolarray) const;
 
       private:
 
@@ -194,16 +205,17 @@ namespace Trk {
                            - it checks whether there is a sub-structure (i.e. GlueVolumeDescriptor exists)
                              and adds either the volume itself or the associated subvolume
                            - volumes on glueVols level are all on navigation level*/
-        void fillGlueVolumes(const std::vector< const TrackingVolume*>& topLevelVolumes,
-                             const std::vector< const TrackingVolume*>& envelopeFaceVolumes,
-                             BoundarySurfaceFace glueFace,
-                             std::vector<const Trk::TrackingVolume*>& glueVols) const;
+        void fillGlueVolumes ATLAS_NOT_THREAD_SAFE(
+          const std::vector<const TrackingVolume*>& topLevelVolumes,
+          const std::vector<const TrackingVolume*>& envelopeFaceVolumes,
+          BoundarySurfaceFace glueFace,
+          std::vector<const Trk::TrackingVolume*>& glueVols) const;
 
         /** Execute the glueing  - the input volumes are all on navigation level */
-        void glueTrackingVolumes(const std::vector<const Trk::TrackingVolume*>& glueVols,
-                                 BoundarySurfaceFace glueFace,
-                                 BoundarySurfaceFace secondFace) const;
-
+        void glueTrackingVolumes ATLAS_NOT_THREAD_SAFE(
+          const std::vector<const Trk::TrackingVolume*>& glueVols,
+          BoundarySurfaceFace glueFace,
+          BoundarySurfaceFace secondFace) const;
 
         ToolHandle<ILayerArrayCreator>          m_layerArrayCreator;            //!< A Tool for coherent LayerArray creation
         ToolHandle<ITrackingVolumeArrayCreator> m_trackingVolumeArrayCreator;   //!< Helper Tool to create TrackingVolume Arrays
@@ -214,7 +226,7 @@ namespace Trk {
         int                                     m_endcapLayerBinsR;               //!< material bins in R
         int                                     m_endcapLayerBinsPhi;             //!< material bins in Phi
 
-        static double                           s_layerThickness;                  //!< standard layer thickness
+        static constexpr double                s_layerThickness = 1.*Gaudi::Units::mm;  //!< standard layer thickness
 
     };
 

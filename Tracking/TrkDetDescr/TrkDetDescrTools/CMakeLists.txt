@@ -7,4 +7,6 @@ atlas_subdir( TrkDetDescrTools )
 atlas_add_component( TrkDetDescrTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GaudiKernel GeoPrimitives SubDetectorEnvelopesLib TrkDetDescrInterfaces TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes )
+                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GaudiKernel GeoPrimitives 
+                     SubDetectorEnvelopesLib TrkDetDescrInterfaces TrkDetDescrUtils 
+                     TrkGeometry TrkSurfaces TrkVolumes CxxUtils)

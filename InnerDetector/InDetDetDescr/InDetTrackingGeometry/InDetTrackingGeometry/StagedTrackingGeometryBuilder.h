@@ -162,37 +162,49 @@ namespace InDet {
                                    
       /** Private helper method to check if a sector is compatible with the cache */
       bool setupFitsCache(LayerSetup& layerSetup, std::vector<InDet::LayerSetup>& layerSetupCache) const;
-                                   
-                                   
-      /** Private helper method to flush the cache into the id volumes - return volume is the one to be provided */
-      const Trk::TrackingVolume* createFlushVolume ATLAS_NOT_THREAD_SAFE
-                                                  (std::vector<InDet::LayerSetup>& layerSetupCache,
-                                                   double innerRadius, double& outerRadius, double extendZ) const;                                                         
-        
-      /** Private helper method, creates a TrackingVolume - and checks if configured - for Ring Layout 
-            - in case a ring layout is given, it creates the corresponding sub-volumes and updates the radius                                       
+
+      /** Private helper method to flush the cache into the id volumes - return
+       * volume is the one to be provided */
+      const Trk::TrackingVolume* createFlushVolume
+      ATLAS_NOT_THREAD_SAFE(std::vector<InDet::LayerSetup>& layerSetupCache,
+                            double innerRadius,
+                            double& outerRadius,
+                            double extendZ) const;
+
+      /** Private helper method, creates a TrackingVolume - and checks if
+         configured - for Ring Layout
+            - in case a ring layout is given, it creates the corresponding
+         sub-volumes and updates the radius
             */
-      const Trk::TrackingVolume* createTrackingVolume(const std::vector<const Trk::Layer*>& layers, 
-                                                      double innerRadius, double& outerRadius,
-                                                      double zMin, double zMax,
-                                                      const std::string& volumeName,
-                                                      Trk::BinningType btype,
-						      bool doAdjustOuterRadius = true) const;                                                  
-        
-      /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers
-          - in case of a ring layout the subvolumes are created and the rMax is adapted                                             
+      const Trk::TrackingVolume* createTrackingVolume
+      ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
+                            double innerRadius,
+                            double& outerRadius,
+                            double zMin,
+                            double zMax,
+                            const std::string& volumeName,
+                            Trk::BinningType btype,
+                            bool doAdjustOuterRadius = true) const;
+
+      /** Private helper method, creates and packs a triple containing of
+         NegEndcap-Barrel-PosEndcap layers
+          - in case of a ring layout the subvolumes are created and the rMax is
+         adapted
          */
-      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
-                                                 (const LayerSetup& layerSetup,
-                                                  double rMin, double& rMax,
-                                                  double zMin, double zPosCentral) const;      
-      
+      const Trk::TrackingVolume* packVolumeTriple
+      ATLAS_NOT_THREAD_SAFE(const LayerSetup& layerSetup,
+                            double rMin,
+                            double& rMax,
+                            double zMin,
+                            double zPosCentral) const;
+
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::TrackingVolume*>& negVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& centralVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& posVolumes,
-                                                  const std::string& baseName="UndefinedVolume") const;
-                                                  
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE(
+        const std::vector<const Trk::TrackingVolume*>& negVolumes,
+        const std::vector<const Trk::TrackingVolume*>& centralVolumes,
+        const std::vector<const Trk::TrackingVolume*>& posVolumes,
+        const std::string& baseName = "UndefinedVolume") const;
+
       /** Private helper method for detection of Ring layout */
       bool ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const;                                              
 

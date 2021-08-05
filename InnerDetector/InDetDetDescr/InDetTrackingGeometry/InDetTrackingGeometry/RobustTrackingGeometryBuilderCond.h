@@ -24,6 +24,8 @@
 #include <vector>
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
+
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
 #define takeSmaller(current,test) current = current < test ? current : test
@@ -59,12 +61,12 @@ namespace InDet {
       @author Andreas.Salzburger@cern.ch
     
     */
-    
-  class RobustTrackingGeometryBuilderCond : public AthAlgTool, 
-                                        public Trk::TrackingVolumeManipulator,
-                                        virtual public Trk::IGeometryBuilderCond {
-    
-    
+  class RobustTrackingGeometryBuilderCond
+    : public AthAlgTool
+    , public Trk::TrackingVolumeManipulator
+    , virtual public Trk::IGeometryBuilderCond
+    {
+   
     public:
       /** Constructor */
       RobustTrackingGeometryBuilderCond(const std::string&,const std::string&,const IInterface*);
@@ -77,29 +79,36 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
+      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry
+      ATLAS_NOT_THREAD_SAFE(
+        const EventContext& ctx,
+        std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
       
     private:
-        
-      /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
-      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
-                                                 (const std::vector<const Trk::Layer*>& negLayers,
-                                                  const std::vector<const Trk::Layer*>& centralLayers,
-                                                  const std::vector<const Trk::Layer*>& posLayers,
-                                                  double rMin, double rMax,
-                                                  double zMin, double zPosCentral,
-                                                  const std::string& baseName="UndefinedVolume",
-                                                  int colorCode = 21,
-                                                  Trk::BinningType bintype=Trk::arbitrary) const;      
-      
-      /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::TrackingVolume*>& negVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& centralVolumes,
-                                                  const std::vector<const Trk::TrackingVolume*>& posVolumes,
-                                                  const std::string& baseName="UndefinedVolume") const;
+      /** Private method, creates and packs a triple containing of
+       * NegEndcap-Barrel-PosEndcap layers */
+      const Trk::TrackingVolume* packVolumeTriple
+      ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& negLayers,
+                            const std::vector<const Trk::Layer*>& centralLayers,
+                            const std::vector<const Trk::Layer*>& posLayers,
+                            double rMin,
+                            double rMax,
+                            double zMin,
+                            double zPosCentral,
+                            const std::string& baseName = "UndefinedVolume",
+                            int colorCode = 21,
+                            Trk::BinningType bintype = Trk::arbitrary) const;
+
+      /** Private method, creates and packs a triple containing of
+       * NegEndcap-Barrel-PosEndcap volumes */
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE(
+        const std::vector<const Trk::TrackingVolume*>& negVolumes,
+        const std::vector<const Trk::TrackingVolume*>& centralVolumes,
+        const std::vector<const Trk::TrackingVolume*>& posVolumes,
+        const std::string& baseName = "UndefinedVolume") const;
 
       // helper tools for the geometry building
       ToolHandle<Trk::ILayerBuilderCond>             m_beamPipeBuilder;          //!< BeamPipe builder (is different from layers)
