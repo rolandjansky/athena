@@ -28,15 +28,15 @@ namespace LArSamples {
       void TestRun(const TString& inputfile);
       void TestRun(const char* inputfile){ TString str(inputfile); Run(str); } // wrapper
 
-      void GetLimits_EqLB(const char* inputfile, int& lbmin, int& lbmax, int& emin, int& emax, int& qmin, int& qmax, int& runNumber, std::vector<int, std::allocator<int> > BadLBList);
-      std::vector<int, std::allocator<int> >  ReadBadLBList(const TString LBfile);
+      void GetLimits_EqLB(const char* inputfile, int& lbmin, int& lbmax, int& emin, int& emax, int& qmin, int& qmax, int& runNumber, const std::vector<int, std::allocator<int> >& BadLBList);
+      std::vector<int, std::allocator<int> >  ReadBadLBList(const TString& LBfile);
       std::vector<int, std::allocator<int> >  GetBadLBList(const char* inputfile, int lbmin, int lbmax, double nsigma, int nlb, std::vector<int, std::allocator<int> >  DQLBList);
       bool CheckBadLBList(int lumiBlock, std::vector<int, std::allocator<int> > BadLBList);
-      void GetMeanCellHits(const char* inputfile, int nlb, int lbmin, int lbmax, int nsigma, std::vector<int, std::allocator<int> > BadLBList, double& MeanHits, double& rmsHits, int& nlb_corr);
+      void GetMeanCellHits(const char* inputfile, int nlb, int lbmin, int lbmax, int nsigma, const std::vector<int, std::allocator<int> >& BadLBList, double& MeanHits, double& rmsHits, int& nlb_corr);
       bool CheckEventSelectionCriteria(int lumiBlock, int nsigma, double energy, Float_t noise, int lbmin, int lbmax);
-      int CheckCellSelectionCriteria(int EventCount, int nsigmaHits, double MeanHits, double rmsHits, int nEvents_E_gt_ecut, double EventEnergySum, int nBadLBs, int nlb);
+      int CheckCellSelectionCriteria(int EventCount, int nsigmaHits, double MeanHits, double rmsHits, int nEvents_E_gt_ecut, double EventEnergySum, int nBadLBs, int nlb) const;
       bool CheckForPresamplerCells(int index);
-      bool CheckPartition(int index);
+      bool CheckPartition(int index) const;
 
 
       // setters
@@ -65,7 +65,7 @@ namespace LArSamples {
       }
       void SetPresamplerMask(bool PS = false){ m_MaskPresampler = PS; }
       void SetCaloMask(bool calo = false){ m_MaskCalo = calo; }
-      void SetPartition(bool setpart, std::string partname );      
+      void SetPartition(bool setpart, const std::string& partname );      
       std::string GetCryostat(int calo);
 
       // satellite functions that do not affect the main Run() functionalities
@@ -96,15 +96,15 @@ namespace LArSamples {
       int m_LowerCountThreshold;
       double m_LowerCellEnergyThreshold;
       double m_UpperCellEnergyThreshold;
-      bool m_MaskPresampler; // whether to mask the EMBPS
-      bool m_MaskCalo; // whether to mask everything but the EMBPS
+      bool m_MaskPresampler = false; // whether to mask the EMBPS
+      bool m_MaskCalo = false; // whether to mask everything but the EMBPS
       bool m_SelectRecurringBadCells; // whether to only select channels flagged by both algorithms
       bool m_SetPartition;
-      int m_PartitionIndex;
+      int m_PartitionIndex = 0;
       std::string m_PartitionName;
-      double m_Mean_checkBadLBs;
-      double m_RMS_checkBadLBs;
-      bool m_ReadDefectLBList;
+      double m_Mean_checkBadLBs = 0.0;
+      double m_RMS_checkBadLBs = 0.0;
+      bool m_ReadDefectLBList = false;
       TString m_LBfile;
 
   };

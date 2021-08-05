@@ -88,7 +88,7 @@ namespace LArSamples {
 
       Interface* makeTemplate(const TString& fileName) const;
 
-      Interface* refit(TString newFileName, Chi2Params pars = DefaultChi2) const;
+      Interface* refit(const TString& newFileName, Chi2Params pars = DefaultChi2) const;
       
       const Accessor& accessor() const { return *m_accessor; }
       bool isValid() const;

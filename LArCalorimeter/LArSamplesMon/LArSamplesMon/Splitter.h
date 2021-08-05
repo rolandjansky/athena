@@ -24,7 +24,7 @@ namespace LArSamples {
       /** @brief Constructor  */
       Splitter(const Interface& interface) : m_interface(&interface) { }
     
-      bool splitEvents(TString name, unsigned int max = 20) const;
+      bool splitEvents(const TString& name, unsigned int max = 20) const;
       
     private:
       

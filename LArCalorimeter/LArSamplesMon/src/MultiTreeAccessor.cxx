@@ -37,7 +37,7 @@ MultiTreeAccessor* MultiTreeAccessor::open(const std::vector<TString>& files)
     accessors.push_back(accessor);
   }
   
-  if (accessors.size() == 0) return 0;
+  if (accessors.empty()) return nullptr;
   return new MultiTreeAccessor(accessors);
 }
 
@@ -47,7 +47,7 @@ MultiTreeAccessor* MultiTreeAccessor::openList(const TString& fileList)
   std::ifstream f(fileList);
   if (!f) {
     cout << "file " << fileList << " not accessible" << endl;
-    return 0;
+    return nullptr;
   }
 
   std::string fileName;  
@@ -66,7 +66,7 @@ MultiTreeAccessor* MultiTreeAccessor::openList(const TString& fileList)
     accessors.push_back(accessor);
   }
   
-  if (accessors.size() == 0) return 0;
+  if (accessors.empty()) return nullptr;
   return new MultiTreeAccessor(accessors);
 }
 
@@ -90,7 +90,7 @@ MultiTreeAccessor* MultiTreeAccessor::openWild(const TString& wcName)
     accessors.push_back(accessor);
   }
   
-  if (accessors.size() == 0) return 0;
+  if (accessors.empty()) return nullptr;
   return new MultiTreeAccessor(accessors);
 }
 
@@ -111,7 +111,7 @@ const EventData* MultiTreeAccessor::eventData(unsigned int i) const
     if (i < nEventsSoFar + n) return (*accessor)->eventData(i - nEventsSoFar);
     nEventsSoFar += n;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -124,7 +124,7 @@ const RunData* MultiTreeAccessor::runData(unsigned int i) const
     if (i < nRunsSoFar + n) return (*accessor)->runData(i - nRunsSoFar);
     nRunsSoFar += n;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -163,7 +163,7 @@ unsigned int MultiTreeAccessor::historySize(unsigned int i) const
 
 const History* MultiTreeAccessor::getCellHistory(unsigned int i) const 
 { 
-  CellInfo* cellInfo = 0;
+  CellInfo* cellInfo = nullptr;
   std::vector<const Data*> allData;
   std::vector<const EventData*> allEventData;
   for (std::vector<const TreeAccessor*>::const_iterator accessor = m_accessors.begin();
@@ -190,11 +190,11 @@ const History* MultiTreeAccessor::getCellHistory(unsigned int i) const
    
     for (unsigned int i = 0; i < thisHistory->nData(); i++) {
      //cout << "------> Creating new data " << i << endl; 
-      allData.push_back(new Data(*thisHistory->data(i), eventMap[thisHistory->data(i)->eventData()], 0, -1));
+      allData.push_back(new Data(*thisHistory->data(i), eventMap[thisHistory->data(i)->eventData()], nullptr, -1));
      //cout << "------> done Creating new data " << i << endl; 
       if (!cellInfo->shape(thisHistory->data(i)->gain())) {
         const ShapeInfo* thisShape = thisHistory->cellInfo()->shape(thisHistory->data(i)->gain());
-        cellInfo->setShape(thisHistory->data(i)->gain(), thisShape ? new ShapeInfo(*thisShape) : 0);
+        cellInfo->setShape(thisHistory->data(i)->gain(), thisShape ? new ShapeInfo(*thisShape) : nullptr);
       }
      //cout << "------> done shape " << i << endl; 
     }
@@ -202,7 +202,7 @@ const History* MultiTreeAccessor::getCellHistory(unsigned int i) const
     delete thisHistory;
   }
   //cout << "--->returning new history..." << endl; 
-  return (cellInfo ? new History(allData, *cellInfo, allEventData, i) : 0); 
+  return (cellInfo ? new History(allData, *cellInfo, allEventData, i) : nullptr); 
 }
       
         
@@ -214,7 +214,7 @@ const CellInfo* MultiTreeAccessor::getCellInfo(unsigned int i) const
     const HistoryContainer* cont = (*accessor)->historyContainer(i);
     if (cont && cont->cellInfo()) return new CellInfo(*cont->cellInfo());
   }
-  return 0;
+  return nullptr;
 }
 
 

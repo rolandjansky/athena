@@ -39,12 +39,12 @@ LArIdTranslatorHelper::LArIdTranslatorHelper(const TString& file)
   bec=0,side=0,ft=0,sl=0,ch=0,sa=0,part=0;
   eta=0.,phi=0.,x=-99999.,y=-99999.,z=-99999.;
   onlid=0,offlid=0,ttid=0;
-  hvid=0;
+  hvid=nullptr;
   entry=0;
   binetadqm=0,binphidqm1=0,binphidqm2=0,m_ntotal=0,m_extrabins=0;
   m_map_ft=0,m_map_sl=0,m_map_ch=0,m_map_onlid=0,m_map_entry=0;
-  m_tree = NULL;
-  m_file = NULL;
+  m_tree = nullptr;
+  m_file = nullptr;
   m_canvas_counts = 0;
   m_clonemap_counts = 0;
 
@@ -69,7 +69,7 @@ LArIdTranslatorHelper::LArIdTranslatorHelper(const TString& file)
     m_PartitionLayers[ipl] = new Char_t[8];
     sprintf(m_PartitionLayers[ipl],"%s",pl[ipl]);
     m_HistCellmaps[ipl] = new TH2I*[m_nHistCategories];
-    for(int ic=0;ic<m_nHistCategories;ic++) m_HistCellmaps[ipl][ic] = NULL;
+    for(int ic=0;ic<m_nHistCategories;ic++) m_HistCellmaps[ipl][ic] = nullptr;
   }
   for(int ic=0;ic<m_nHistCategories;ic++){
     m_HistCategories[ic] = new Char_t[8];
@@ -231,7 +231,7 @@ bool LArIdTranslatorHelper::FindChannel(const int index, float eta, float phi)
   return true; // found it
 }
 //____________________________________________________________________________________________________
-bool LArIdTranslatorHelper::IsHVLine(const int hvline)
+bool LArIdTranslatorHelper::IsHVLine(const int hvline) const
 {
   // Loops over the current entry hvline vector and determines if this corresponds
   // to the input.
@@ -246,7 +246,7 @@ const Char_t* LArIdTranslatorHelper::GetPartitonLayerName(const int index)
 {
   if(index < 0 || index >= m_nPartitionLayers){
     printf("LArIdTranslatorHelper::GetPartitonLayerName : Supplied index out of range: %d, [%d,%d].\n",index,0,m_nPartitionLayers-1);
-    return NULL;
+    return nullptr;
   }
 
   return m_PartitionLayers[index];
@@ -262,13 +262,13 @@ TH2* LArIdTranslatorHelper::GetCaloPartitionLayerMap(const int index,bool kProfi
 
   if(index < 0 || index >= m_nPartitionLayers){
     printf("LArIdTranslatorHelper::GetCaloPartitionLayerMap : Supplied index out of range: %d, [%d,%d].\n",index,0,m_nPartitionLayers-1);
-    return NULL;
+    return nullptr;
   }
 
-  TH2* th2 = NULL;
+  TH2* th2 = nullptr;
   if(!m_HistCellmaps[index][0]){
     printf("LArIdTranslatorHelper::GetCaloPartitionLayerMap : Could not clone map for index %d. Check that maps were loaded from input rootfile.\n",index);
-    return NULL;
+    return nullptr;
   } else {
     sprintf(m_namebuf,"%s_Cloned_%d",m_PartitionLayers[index],m_clonemap_counts);
     if(kProfile){
@@ -296,7 +296,7 @@ TCanvas* LArIdTranslatorHelper::CaloPartitionLayerDisplay(TH1** h,const Char_t* 
 
   if(m_nPartitionLayers!=30){
     printf("Error in LArIdTranslatorHelper::CaloPartitionLayerDisplay: dimension must be 30.\n");
-    return NULL;
+    return nullptr;
   }
 
   // create new name according to scheme
@@ -333,7 +333,7 @@ TCanvas* LArIdTranslatorHelper::CaloPartitionLayerDisplay(TH1** h,const Char_t* 
   if(kLogz && zmin<=0.) zmin = 0.1;
   //printf("Object %s: Extrema: [%.1e,%.1e]\n",c->GetName(),zmin,zmax);
 
-  TPad* subpad = NULL;
+  TPad* subpad = nullptr;
   for(i=0;i<n;i++){
     c->cd(cmapping[i]);
     j = larmapping[i];
@@ -369,7 +369,7 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
   float t_Etaf,t_Phif,t_Eta_Rawf,t_Phi_Rawf,t_x,t_y,t_z;
   ULong64_t t_onlid,t_offlid;
   ULong64_t t_ttid;
-  std::vector<int>* t_hvid = 0;
+  std::vector<int>* t_hvid = nullptr;
   TFile* ifile = new TFile(inputtreefile);
   TTree* idtree = (TTree*)ifile->Get("LarId");
   idtree->SetBranchAddress("BEC",&t_barrel_ec);
@@ -408,7 +408,7 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
   // ------------------------------------------
   
   Int_t ix,iy,nbinsx,nbinsy;
-  Double_t* xbins=NULL,*ybins=NULL;
+  Double_t* xbins=nullptr,*ybins=nullptr;
   TH2I*** h2map = new TH2I**[m_nPartitionLayers];
   TH2I*** h2count = new TH2I**[m_nPartitionLayers];
   for(i=0;i<m_nPartitionLayers;i++){
@@ -447,7 +447,7 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
   Int_t iEta,iPhi;
   Float_t Eta,Phi,Eta_Raw,Phi_Raw,x,y,z;
   ULong64_t onlid,offlid,ttid;
-  std::vector<int>* hvid = 0;
+  std::vector<int>* hvid = nullptr;
   Int_t binetadqm,binphidqm1,binphidqm2;
 
   // new file and TTree with appendices

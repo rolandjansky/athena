@@ -13,6 +13,8 @@
 
 // Base includes
 #include <map>
+#include <utility>
+
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -151,7 +153,7 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
 
 
   // Declare and open output textfile
-  FILE * pFile=NULL;
+  FILE * pFile=nullptr;
   if (m_SaveTextFile){
     if (!m_SetPartition){
       textfilename.Form("Output/BadCellList_run%d.txt",runNumber);
@@ -187,12 +189,12 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
   TFile* fout = new TFile(rootfilename,"RECREATE");
   Float_t noise = 0;
   Float_t fr_q4k = 0;
-  TH1F* h1_lb = 0;
-  TH1F* h1_elb = 0;
-  TH1F* h1_qlb = 0;
-  TH1F* h1_e = 0;
-  TH1F* h1_q = 0;
-  TH2F* h2_elb = 0;
+  TH1F* h1_lb = nullptr;
+  TH1F* h1_elb = nullptr;
+  TH1F* h1_qlb = nullptr;
+  TH1F* h1_e = nullptr;
+  TH1F* h1_q = nullptr;
+  TH2F* h2_elb = nullptr;
 
 
   // -------------------------------------------------------------------------
@@ -521,24 +523,24 @@ void LArCellsEmptyMonitoring::Run(const TString& inputfile)
   printf("Done.\n LBmin: %d  LBmax: %d  Emin: %d  Emax: %d  Qmin: %d  Qmax: %d\n",lbmin,lbmax,emin,emax,qmin,qmax);
 
   // Declare and open summary textfile
-  FILE * outputFile=NULL;
+  FILE * outputFile=nullptr;
   if (!m_SetPartition){
   textfilename.Form("Output/BadCellSelection_run%d.txt",runNumber);
   outputFile = fopen (textfilename , "w");
   if (!outputFile){
-    printf("Cannot open output selection summary file " + textfilename + "\n");
+    std::cout<<("Cannot open output selection summary file " + textfilename)<< "\n";
     exit(0);}
   } else {
     textfilename.Form("BadCellSelection_%s_run%d.txt",m_LarIdTranslator->GetPartitonLayerName(m_PartitionIndex),runNumber);
     outputFile = fopen (textfilename , "w");
     if (!outputFile){
-      printf("Cannot open output selection summary file " + textfilename + "\n");
+      std::cout<<("Cannot open output selection summary file " + textfilename)<< "\n";
       exit(0);}
   }
   
 
   // Declare and open output textfile
-  FILE * pFile=NULL;
+  FILE * pFile=nullptr;
   if (m_SaveTextFile){
     if (!m_SetPartition){
       textfilename.Form("Output/BadCellList_run%d.txt",runNumber);
@@ -590,15 +592,15 @@ printf("Set threshold at %4.3f counts per cell for LB range. \n",(MeanHits+(nsig
   Float_t noise = 0;
   Float_t meanECell = 0;
   Float_t fr_q4k = 0;
-  TH1F* h1_lb = 0;
-  TH1F* h1_e = 0;
-  TH1F* h1_q = 0;
-  TH2F* h2_elb = 0;
-  TH2D* h2_pulse = 0;
-  TH2D* h2_t_LB = 0;
-  TProfile* TProf_pulse = 0;
-  TH1F* h1_ADCmax = 0;
-  TTree* tree_cells = NULL;
+  TH1F* h1_lb = nullptr;
+  TH1F* h1_e = nullptr;
+  TH1F* h1_q = nullptr;
+  TH2F* h2_elb = nullptr;
+  TH2D* h2_pulse = nullptr;
+  TH2D* h2_t_LB = nullptr;
+  TProfile* TProf_pulse = nullptr;
+  TH1F* h1_ADCmax = nullptr;
+  TTree* tree_cells = nullptr;
   if(m_SaveRootFile){
     tree_cells = new TTree("BadTree","LAr Tree ordered by OnlID");
     tree_cells->Branch("Energy",&h1_e);
@@ -984,7 +986,7 @@ printf("Set threshold at %4.3f counts per cell for LB range. \n",(MeanHits+(nsig
 }
 
 //____________________________________________________________________________________________________
-void LArCellsEmptyMonitoring::GetLimits_EqLB(const char* inputfile, int& lbmin, int& lbmax, int& emin, int& emax, int& qmin, int& qmax, int& runNumber, std::vector<int, std::allocator<int> > BadLBList){
+void LArCellsEmptyMonitoring::GetLimits_EqLB(const char* inputfile, int& lbmin, int& lbmax, int& emin, int& emax, int& qmin, int& qmax, int& runNumber, const std::vector<int, std::allocator<int> >& BadLBList){
   int lb=0.;
 
   // Opening file:
@@ -1155,7 +1157,7 @@ std::vector<int, std::allocator<int> >  LArCellsEmptyMonitoring::GetBadLBList(co
    m_RMS_checkBadLBs = RMS2;
    vector<int> BadLB;
    // vector<int> BadLB_tot;
-   vector<int> BadLB_tot=DQLBList;
+   vector<int> BadLB_tot=std::move(DQLBList);
 
    double value1 = (MEAN2+(RMS2*3.));
    int numberFlagged=0;
@@ -1202,7 +1204,7 @@ bool LArCellsEmptyMonitoring::CheckBadLBList(int lumiBlock, std::vector<int, std
 }
 
 //____________________________________________________________________________________________________
-void LArCellsEmptyMonitoring::GetMeanCellHits(const char* inputfile, int nlb, int lbmin, int lbmax, int nsigma, std::vector<int, std::allocator<int> > BadLBList, double& MeanHits, double& rmsHits, int& nlb_corr)
+void LArCellsEmptyMonitoring::GetMeanCellHits(const char* inputfile, int nlb, int lbmin, int lbmax, int nsigma, const std::vector<int, std::allocator<int> >& BadLBList, double& MeanHits, double& rmsHits, int& nlb_corr)
 {
 
 
@@ -1308,7 +1310,7 @@ bool LArCellsEmptyMonitoring::CheckEventSelectionCriteria(int lumiBlock, int nsi
 
 
 //____________________________________________________________________________________________________
-int LArCellsEmptyMonitoring::CheckCellSelectionCriteria(int EventCount, int nsigmaHits, double MeanHits, double rmsHits, int nEvents_E_gt_ecut, double EventEnergySum, int nBadLBs, int nlb){
+int LArCellsEmptyMonitoring::CheckCellSelectionCriteria(int EventCount, int nsigmaHits, double MeanHits, double rmsHits, int nEvents_E_gt_ecut, double EventEnergySum, int nBadLBs, int nlb) const{
   //FLAG KEY:
   //selectionFlag == 0 -> Used EventEnergyCut
   //selectionFlag == 1 -> Used MeanCellHitCut
@@ -1351,33 +1353,27 @@ int LArCellsEmptyMonitoring::CheckCellSelectionCriteria(int EventCount, int nsig
 //____________________________________________________________________________________________________
 bool LArCellsEmptyMonitoring::CheckForPresamplerCells(int index){
 
-  if (index == 0 || index == 4){
-    return true;
-  }
-  return false;
+  return index == 0 || index == 4;
 }
 
 //____________________________________________________________________________________________________
-bool LArCellsEmptyMonitoring::CheckPartition(int index){
-  if (index == m_PartitionIndex){
-    return true;
-  }
-  return false;
+bool LArCellsEmptyMonitoring::CheckPartition(int index) const{
+  return index == m_PartitionIndex;
 }
 
 //____________________________________________________________________________________________________
-void LArCellsEmptyMonitoring::SetPartition(bool setpart, std::string partname)
+void LArCellsEmptyMonitoring::SetPartition(bool setpart, const std::string& partname)
 {
   const int npl = m_LarIdTranslator->GetNpl();
   
   m_SetPartition = setpart;
   
-  if(setpart == false)
+  if(!setpart)
     {
       m_PartitionName = "";
       m_PartitionIndex = -1;
     }   
-  else if(setpart == true)
+  else if(setpart)
     {
       bool isFoundPartition = false;
       for(int i=0; i< npl; i++){
@@ -1427,7 +1423,7 @@ void LArCellsEmptyMonitoring::ReadDefectLBList(bool ReadList, const TString& LBf
 }
 
 //____________________________________________________________________________________________________
-std::vector<int> LArCellsEmptyMonitoring::ReadBadLBList(const TString LBfile)
+std::vector<int> LArCellsEmptyMonitoring::ReadBadLBList(const TString& LBfile)
 {
   std::vector<int> LBList;
 
@@ -1642,8 +1638,8 @@ void LArCellsEmptyMonitoring::DoEtaPhiMonitoring(const char* inputfile,const cha
     }
   }
 
-  TFile* tout = NULL;
-  TCanvas* c0 = NULL, *c1 = NULL;
+  TFile* tout = nullptr;
+  TCanvas* c0 = nullptr, *c1 = nullptr;
 
   if(!strcmp(optionsave,"root")){
     tout = new TFile("EtaPhiMonitoring.root","recreate");

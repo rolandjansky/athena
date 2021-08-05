@@ -16,16 +16,18 @@
 #include "LArSamplesMon/Residual.h"
 #include "LArCafJobs/Geometry.h"
 
+#include "TCanvas.h"
+#include "TF1.h"
 #include "TH1I.h"
 #include "TH2D.h"
-#include "TF1.h"
-#include "TPaveText.h"
 #include "TLatex.h"
 #include "TMath.h"
-#include "TVectorD.h"
+#include "TPaveText.h"
 #include "TROOT.h"
-#include "TCanvas.h"
+#include "TVectorD.h"
 #include <map>
+#include <utility>
+
 #include <vector>
 
 #include <iostream>
@@ -35,33 +37,33 @@ using std::endl;
 using namespace LArSamples;
 
 
-TH1D* DigitMonitor::energyDist(TString name, int nBins, double eMax) const
+TH1D* DigitMonitor::energyDist(const TString& name, int nBins, double eMax) const
 {return dist(&Data::_energy, DataFuncArgs(), name, nBins, 0, eMax, "Energy distribution", "Energy (MeV)"); }
 
-TH1D* DigitMonitor::timeDist(TString name, int nBins, double tMin, double tMax) const
+TH1D* DigitMonitor::timeDist(const TString& name, int nBins, double tMin, double tMax) const
 { return dist(&Data::_ofcTime, DataFuncArgs(), name, nBins, tMin, tMax, "Time distribution", "Time (ns)"); }
 
-TH1D* DigitMonitor::adcMaxDist(TString name, int nBins, double aMin, double aMax) const
+TH1D* DigitMonitor::adcMaxDist(const TString& name, int nBins, double aMin, double aMax) const
 { return dist(&Data::_adcMax, DataFuncArgs(), name, nBins, aMin, aMax, "ADCMax distribution", "ADCMax (counts)"); }
 
-TH1D* DigitMonitor::noiseDist(TString name, int nBins, double max) const
+TH1D* DigitMonitor::noiseDist(const TString& name, int nBins, double max) const
 { return dist(&Data::_noise, DataFuncArgs(), name, nBins, 0, max, "Noise distribution", "Noise (ADC counts)"); }
 
 TH2D* DigitMonitor::maxValueMap(TString name, PartitionId partition) const
-{ return partitionMap(&Data::_maxValue, DataFuncArgs(), name, partition, "Max sample value (ADC counts)", MaxValue); }
+{ return partitionMap(&Data::_maxValue, DataFuncArgs(), std::move(name), partition, "Max sample value (ADC counts)", MaxValue); }
 
 TH2D* DigitMonitor::minValueMap(TString name, PartitionId partition) const
-{ return partitionMap(&Data::_minValue, DataFuncArgs(), name, partition, "Min sample value (ADC counts)", MinValue); }
+{ return partitionMap(&Data::_minValue, DataFuncArgs(), std::move(name), partition, "Min sample value (ADC counts)", MinValue); }
 
 
-TH1D* DigitMonitor::chi2Dist(TString name, int nBins, double max, double kFactor,
+TH1D* DigitMonitor::chi2Dist(const TString& name, int nBins, double max, double kFactor,
                              double fitMax, int lwb, int upb, unsigned int chi2Pars, 
                              ShapeErrorType shapeErrorType, unsigned int nDof) const
 {
   TH1D* h = new TH1D(name, "#chi^{2} distribution", nBins, 0, max);
   unsigned int nDofEff = 0, nDofLast = 0;
-  UniformShapeErrorGetter* kFactorGetter = 0;
-  CombinedShapeErrorGetter* shapeErrorGetter = 0;
+  UniformShapeErrorGetter* kFactorGetter = nullptr;
+  CombinedShapeErrorGetter* shapeErrorGetter = nullptr;
   if (kFactor > 0) {
     kFactorGetter = new UniformShapeErrorGetter(kFactor);
     shapeErrorGetter = new CombinedShapeErrorGetter();
@@ -125,7 +127,7 @@ TF1* DigitMonitor::fitChi2(TH1D& h, const char* name, double xMin, double xMax,
 }
 
 
-TH1D* DigitMonitor::bestChi2Dist(TString name, int nBins, double max, 
+TH1D* DigitMonitor::bestChi2Dist(const TString& name, int nBins, double max, 
                                              double refErrMin, double refErrMax, unsigned int refErrNBins,
                                              int lwb, int upb, unsigned int chi2Pars, unsigned int nDof) const
 {
@@ -176,7 +178,7 @@ TH1D* DigitMonitor::bestChi2Dist(TString name, int nBins, double max,
 
 
 
-TH1D* DigitMonitor::gainDist(TString name) const
+TH1D* DigitMonitor::gainDist(const TString& name) const
 {
   TH1D* h = new TH1D(name, "gain distribution", 3, -0.5, 2.5);
   h->GetXaxis()->SetBinLabel(1, "Low");
@@ -191,7 +193,7 @@ TH1D* DigitMonitor::gainDist(TString name) const
 }
 
 
-TH1D* DigitMonitor::layerDist(TString name) const
+TH1D* DigitMonitor::layerDist(const TString& name) const
 {
   TH1D* h = new TH1D(name, "layer distribution", 4, -0.5, 3.5);
   h->GetXaxis()->SetBinLabel(1, "PS");
@@ -207,7 +209,7 @@ TH1D* DigitMonitor::layerDist(TString name) const
 }
 
 
-TH1D* DigitMonitor::residualDist(unsigned int k, TString name, int nBins, double rMin, double rMax, bool norm) const
+TH1D* DigitMonitor::residualDist(unsigned int k, const TString& name, int nBins, double rMin, double rMax, bool norm) const
 {
   TH1D* h = new TH1D(name, "Residual distribution", nBins, rMin, rMax);
   h->GetXaxis()->SetTitle(norm ? "Residual/ADCMax (%)" : "Residual (ADC counts)");
@@ -434,7 +436,7 @@ bool DigitMonitor::residualPlotsGainComp(CaloId calo, unsigned int layer, bool r
 }
 
 
-TH1D* DigitMonitor::shapeErrorDist(unsigned int k, TString name, int nBins, double rMin, double rMax, double mean) const
+TH1D* DigitMonitor::shapeErrorDist(unsigned int k, const TString& name, int nBins, double rMin, double rMax, double mean) const
 {
   TH1D* h = new TH1D(name, "Shape error", nBins, rMin, rMax);
   h->GetXaxis()->SetTitle("#epsilon^{2}");
@@ -522,12 +524,12 @@ bool DigitMonitor::residualParams(int lwb, int upb, CovMatrix& k, TVectorD& mean
 }
 
 
-int DigitMonitor::combine(SimpleShape*& shape, SimpleShape*& ref, TString selection, bool timeAligned) const
+int DigitMonitor::combine(SimpleShape*& shape, SimpleShape*& ref, const TString& selection, bool timeAligned) const
 {
   FilterParams f;
   if (!f.set(selection)) return 0;
   int n = 0;
-  shape = ref = 0;
+  shape = ref = nullptr;
   
   double maxSum = 0;
   
@@ -561,7 +563,7 @@ int DigitMonitor::combine(SimpleShape*& shape, SimpleShape*& ref, TString select
 Residuals* DigitMonitor::getResiduals(unsigned int hash, CaloGain::CaloGain gain, double absResTrunc, bool adjust, bool zeroTime) const
 {
   const History* history = cellHistory(hash);
-  if (!history) return 0;
+  if (!history) return nullptr;
   if (adjust) history = history->adjust();
   Residuals* residuals = history->residuals(gain, absResTrunc, false, zeroTime);
   if (adjust) delete history;
@@ -569,7 +571,7 @@ Residuals* DigitMonitor::getResiduals(unsigned int hash, CaloGain::CaloGain gain
 }
 
 
-bool DigitMonitor::makeResidualCorrections(TString outputFile, short resTrunc, short timeTrunc, double absResTrunc,
+bool DigitMonitor::makeResidualCorrections(const TString& outputFile, short resTrunc, short timeTrunc, double absResTrunc,
                                            unsigned int minSize, bool weigh, bool adjust, bool zeroTime) const
 {
   TreeShapeErrorGetter* shapeError = new TreeShapeErrorGetter(outputFile, true);
@@ -592,10 +594,10 @@ bool DigitMonitor::makeResidualCorrections(TString outputFile, short resTrunc, s
 
       if (residuals && residuals->size() < minSize) {
         delete residuals;
-        residuals = 0;
+        residuals = nullptr;
       }
 
-      ResidualCalculator* resCalc = 0;
+      ResidualCalculator* resCalc = nullptr;
       if (residuals) {
         resCalc = residuals->calculator(weigh);
         delete residuals;

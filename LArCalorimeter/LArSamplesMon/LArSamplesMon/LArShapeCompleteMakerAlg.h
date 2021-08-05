@@ -44,24 +44,23 @@ class LArShapeCompleteMakerAlg : public AthAlgorithm
 
   //standart algorithm methods
   virtual StatusCode initialize() override final;
-  //virtual StatusCode execute() override final;
-  virtual StatusCode execute() ;
+  virtual StatusCode execute() override final;
   virtual StatusCode finalize() override final;
 
   //virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
   
  private:
   
-  const LArOnlineID* m_onlineHelper;  //good
+  const LArOnlineID* m_onlineHelper = nullptr;  //good
 
   LArSamples::DataStore* m_template;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool;
   ToolHandle<LArCablingLegacyService> m_larCablingSvc;
   
-  mutable unsigned int m_nSamples ATLAS_THREAD_SAFE;
-  mutable unsigned int m_nPhases ATLAS_THREAD_SAFE;
-  mutable unsigned int m_iPhase ATLAS_THREAD_SAFE;
+  unsigned int m_nSamples = 0U;
+  unsigned int m_nPhases  = 0U;
+  unsigned int m_iPhase   = 0U;
   //unsigned int m_nSamples, m_nPhases, m_iPhase;
   //
   Gaudi::Property<int> m_minNPulses{this,"minNPulses",0}; //default

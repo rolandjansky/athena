@@ -20,7 +20,7 @@ using namespace LArSamples;
 
 LArShapeCompleteMaker::LArShapeCompleteMaker(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  m_template(0),
+  m_template(nullptr),
   m_dumperTool("LArShapeDumperTool"),
   m_larCablingSvc("LArCablingLegacyService")
 {
@@ -92,7 +92,7 @@ StatusCode LArShapeCompleteMaker::execute()
     
     for (unsigned int g = 0; g < 3; g++) {
       CaloGain::CaloGain gain = (CaloGain::CaloGain)g;
-      const LArSamples::ShapeErrorData* sed = 0;
+      const LArSamples::ShapeErrorData* sed = nullptr;
       if (history) sed = history->shapeErrorData(gain, LArSamples::BestShapeError);
       
       // The containers

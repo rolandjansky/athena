@@ -90,7 +90,7 @@ HistoryContainer* History::dissolve()
 
 const Data* History::data(unsigned int i) const 
 { 
-  if (i >= nData()) return 0;
+  if (i >= nData()) return nullptr;
   return m_data[i]; 
 }
 
@@ -102,7 +102,7 @@ const Data* History::data_for_event(int event, int run) const
     if (run > 0 && data(k)->run() != run) continue;
     return data(k);
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -126,11 +126,11 @@ const Data* History::data_for_event(const EventData& eventData) const
 
 bool History::sum(SimpleShape*& sum, SimpleShape*& reference) const
 {
-  reference = sum = 0;
+  reference = sum = nullptr;
   if (nData() == 0) return false;
   
   sum = new SimpleShape(m_data[0]->nSamples());
-  reference = 0;
+  reference = nullptr;
 
   for (unsigned int j = 0; j < nData(); j++) {
     if (sum->nPoints() !=  m_data[j]->nSamples()) return false;
@@ -208,17 +208,17 @@ double History::maxChi2(int lwb, int upb, int chi2Params) const
 
 OFC* History::ofc(unsigned int k, int lwb, int upb, double time, bool withAutoCorr) const
 {
-  if (k >= nData()) return 0;
+  if (k >= nData()) return nullptr;
   if (Definitions::isNone(time)) {
     time = data(k)->ofcTime();
     //cout << "Using reference time = " << time << endl;
   }
   SimpleShape* reference = referenceShape(k, 1, time); // ADC=1 : we need a normalized shape
-  if (!reference) return 0;
+  if (!reference) return nullptr;
   OFC* result = new OFC(*reference, *m_data[k], lwb, upb, shapeErrorData(CaloGain::LARHIGHGAIN), withAutoCorr); // FixMe
   delete reference;
-  if (!result) return 0;
-  if (result->g().GetNrows() == 0) { delete result; result = 0; }
+  if (!result) return nullptr;
+  if (result->g().GetNrows() == 0) { delete result; result = nullptr; }
   return result;
 }
 
@@ -245,7 +245,7 @@ History* History::refit(Chi2Params pars) const
     Data* refitData = tw.tweak(*data(j));
     if (!refitData) {
       for (unsigned int k = 0; k < datas.size(); k++) delete datas[k];
-      return 0;
+      return nullptr;
     }
     datas.push_back(refitData);
   }
@@ -268,7 +268,7 @@ History* History::adjust() const
     Data* newData = tw.tweak(*data(j));
     if (!newData) {
       for (unsigned int k = 0; k < datas.size(); k++) delete datas[k];
-      return 0;
+      return nullptr;
     }
     datas.push_back(newData);
   }
@@ -284,7 +284,7 @@ History* History::adjust() const
 History* History::filter(const TString& cuts) const
 {
   FilterParams f;
-  if (!f.set(cuts)) return 0;
+  if (!f.set(cuts)) return nullptr;
   
   std::vector<const Data*> datas;
 
@@ -303,18 +303,18 @@ History* History::filter(const TString& cuts) const
 
 const ShapeErrorData* History::shapeErrorData(CaloGain::CaloGain gain, ShapeErrorType shapeErrorType, const Residual* res) const
 {
-  if (shapeErrorType == NoShapeError || !shapeErrorGetter()) return 0;
+  if (shapeErrorType == NoShapeError || !shapeErrorGetter()) return nullptr;
   if (shapeErrorType == BestShapeError) {
     for (unsigned int i = 0; i < NShapeErrorTypes; i++) {
       const ShapeErrorData* sed = shapeErrorData(gain, (ShapeErrorType)i, res);
       if (sed) return sed;
     }
-    return 0;
+    return nullptr;
   }
   
   if (shapeErrorType == CellShapeError) {
     const ShapeErrorData* sed = shapeErrorGetter()->shapeErrorData(hash(), gain, res);
-    if (!sed) return 0;
+    if (!sed) return nullptr;
     sed->setShapeErrorType(CellShapeError);
     return sed;
   }
@@ -323,14 +323,14 @@ const ShapeErrorData* History::shapeErrorData(CaloGain::CaloGain gain, ShapeErro
     CaloGain::CaloGain fbGain = (shapeErrorType == LowGainCellShapeError ? CaloGain::LARLOWGAIN :
                                 (shapeErrorType == MedGainCellShapeError ? CaloGain::LARMEDIUMGAIN :CaloGain::LARHIGHGAIN));
     const ShapeErrorData* sed = shapeErrorGetter()->shapeErrorData(hash(), fbGain, res);
-    if (!sed) return 0;
+    if (!sed) return nullptr;
     sed->setShapeErrorType(shapeErrorType);
     return sed;
   }
   
   if (shapeErrorType == RingShapeError) {
     const ShapeErrorData* sed = shapeErrorGetter()->phiSymShapeErrorData(cellInfo()->globalPhiRing(), gain, res);
-    if (!sed) return 0;
+    if (!sed) return nullptr;
     sed->setShapeErrorType(RingShapeError);
     return sed;
   }
@@ -339,23 +339,23 @@ const ShapeErrorData* History::shapeErrorData(CaloGain::CaloGain gain, ShapeErro
     CaloGain::CaloGain fbGain = (shapeErrorType == LowGainRingShapeError ? CaloGain::LARLOWGAIN :
                                 (shapeErrorType == MedGainRingShapeError ? CaloGain::LARMEDIUMGAIN :CaloGain::LARHIGHGAIN));
     const ShapeErrorData* sed = shapeErrorGetter()->phiSymShapeErrorData(cellInfo()->globalPhiRing(), fbGain, res);
-    if (!sed) return 0;
+    if (!sed) return nullptr;
     sed->setShapeErrorType(shapeErrorType);
     return sed;
   }
  
-  return 0;
+  return nullptr;
 }
 
 
 const ScaledErrorData* History::scaledErrorData(unsigned int k, double adcMax, double time,
                                                 ShapeErrorType shapeErrorType) const
 {
-  if (shapeErrorType == NoShapeError || !shapeErrorGetter()) return 0;
-  if (k >= nData() || data(k)->adcMax() <= 0) return 0;
+  if (shapeErrorType == NoShapeError || !shapeErrorGetter()) return nullptr;
+  if (k >= nData() || data(k)->adcMax() <= 0) return nullptr;
 
   const ShapeErrorData* sed = shapeErrorData(data(k)->gain(), shapeErrorType, residual(k, false));
-  if (!sed) return 0;
+  if (!sed) return nullptr;
 
   double sf = (adcMax < 0 ? data(k)->adcMax() : adcMax);
   double ts = (Definitions::isNone(time) ? data(k)->ofcTime() : time);  
@@ -382,7 +382,7 @@ TVectorD History::deltas(unsigned int k, int lwb, int upb, bool correct) const
   if (!reference) return TVectorD();  
   Chi2Calc c2c;
   CovMatrix errors;
-  const ScaledErrorData* sea = (correct ? scaledErrorData(k) : 0);
+  const ScaledErrorData* sea = (correct ? scaledErrorData(k) : nullptr);
   TVectorD dv = c2c.deltas(*data(k), *reference, errors, sea, lwb, upb);
   if (sea) delete sea;
   delete reference;
@@ -414,8 +414,8 @@ bool History::residualError(unsigned int k, short sample1, short sample2, double
       
 bool History::allShape(GraphShape*& allData, SimpleShape*& allRef) const
 {
-  allData = 0;
-  allRef  = 0;
+  allData = nullptr;
+  allRef  = nullptr;
   
   for (unsigned int j = 0; j < nData(); j++) {
    if ( m_data[j]->isDisconnected()) continue; 
@@ -442,8 +442,8 @@ double History::allChi2(Chi2Params pars) const
 {
   Chi2Calc c2c(pars);
   
-  GraphShape* allData = 0;
-  SimpleShape* allRef = 0;
+  GraphShape* allData = nullptr;
+  SimpleShape* allRef = nullptr;
   if (!allShape(allData, allRef)) return -1;
   double chi2Value = c2c.chi2(*allData, *allRef);
   delete allData;
@@ -452,7 +452,7 @@ double History::allChi2(Chi2Params pars) const
 }
 
 
-bool History::drawWithReference(int k, TString atlasTitle) const
+bool History::drawWithReference(int k, const TString& atlasTitle) const
 {
   if ((unsigned int)k >= nData()) return false;
   SimpleShape* refShape = referenceShape(k);
@@ -549,7 +549,7 @@ bool History::drawResiduals(int k, bool errors, bool rescale) const
 SimpleShape* History::referenceShape(unsigned int k, double adcMax, double time, 
                                                              bool samplesOnly) const
 {
-  if (!cellInfo()->shape(m_data[k]->gain())) return 0;
+  if (!cellInfo()->shape(m_data[k]->gain())) return nullptr;
   if (adcMax < 0) adcMax = m_data[k]->adcMax();
   if (Definitions::isNone(time)) time = m_data[k]->ofcTime();
   SimpleShape* shape = new SimpleShape(*cellInfo()->shape(m_data[k]->gain()), adcMax, time, samplesOnly);
@@ -559,16 +559,16 @@ SimpleShape* History::referenceShape(unsigned int k, double adcMax, double time,
 
 SimpleShape* History::deltaShape(unsigned int k, int lwb, int upb) const
 {
-  if (k >= nData()) return 0;
+  if (k >= nData()) return nullptr;
   SimpleShape* reference = referenceShape(k);
-  if (!reference) return 0;  
+  if (!reference) return nullptr;  
   Chi2Calc c2c;
   CovMatrix errors;
   const ScaledErrorData* sea = scaledErrorData(k);
   TVectorD dv = c2c.deltas(*data(k), *reference, errors, sea, lwb, upb);
   if (sea) delete sea;
   delete reference;
-  if (dv.GetNrows() == 0) return 0;
+  if (dv.GetNrows() == 0) return nullptr;
   SimpleShape* shape = new SimpleShape(dv.GetNrows(), Definitions::samplingInterval, data(k)->time(c2c.lwb()) + data(k)->ofcTime());
   for (int l = c2c.lwb(); l <= c2c.upb(); l++) shape->set(l - c2c.lwb(), dv(l), TMath::Sqrt(errors(l, l)));
   return shape;
@@ -607,7 +607,7 @@ Averager* History::calculatePedestal(int i) const
 
 Residual* History::residual(unsigned int k, bool correct, bool zeroTime) const
 {
-  if (k >= nData()) return 0;
+  if (k >= nData()) return nullptr;
   TVectorD del = deltas(k, -1, -1, correct);
   return new Residual(del, data(k)->run(), data(k)->event(), data(k)->adcMax(), 
                       (zeroTime ? 0 : data(k)->ofcTime() /*- Definitions::samplingTime(del.GetLwb()) */));
@@ -623,13 +623,13 @@ Residuals* History::residuals(CaloGain::CaloGain gain, double absResCut, bool co
     if (gain != CaloGain::LARNGAIN && data(k)->gain() != gain) continue;
     //if (goodForCorrOnly && !data(k)->goodForShapeCorr()) continue;    
     Residual* res = residual(k, correct, zeroTime);
-    if (!res) { cout << "Error calculating residual for hash = " << m_hash << ", index = " << k << endl; return 0; }
+    if (!res) { cout << "Error calculating residual for hash = " << m_hash << ", index = " << k << endl; return nullptr; }
     if (residuals->size() > 0 && !residuals->hasSameRange(*res)) {
       cout << "Warning for hash = " << m_hash << ", index = " << k << " : index interval changed from [" 
            << residuals->lwb() << ", " << residuals->upb() << "] to " << res->rangeStr() << endl;      
       delete res;
       delete residuals;
-      return 0;
+      return nullptr;
     }
     bool pass = true;
     for (int i = res->lwb(); i < res->upb(); i++) {
@@ -651,7 +651,7 @@ double History::upstreamEnergy(unsigned int k) const
   if (k >= nData() || !data(k)->eventData()) return -1;
   std::vector<unsigned int> upstreamNeighbors;
   if (!m_interface->firstNeighbors(hash(), upstreamNeighbors, cellInfo()->layer() - 1)) return -1;
-  if (upstreamNeighbors.size() == 0) return -1;
+  if (upstreamNeighbors.empty()) return -1;
   std::vector<const Data*> unData;
   if (!m_interface->data(upstreamNeighbors, *data(k)->eventData(), unData)) return -1;
   double upstreamE = 0;

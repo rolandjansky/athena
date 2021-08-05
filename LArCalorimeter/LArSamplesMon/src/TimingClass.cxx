@@ -32,7 +32,7 @@ LArSamples::TimingClass::~TimingClass()
 
 
 // ***************************************************************************** //
-void LArSamples::TimingClass::timePerFebAllFebs(std::string nrun, std::string name)
+void LArSamples::TimingClass::timePerFebAllFebs(const std::string& nrun, const std::string& name)
 // ***************************************************************************** //
 {
 
@@ -89,7 +89,7 @@ void LArSamples::TimingClass::timePerFebAllFebs(std::string nrun, std::string na
 }
 
 // ********************************************************************************** //
-void LArSamples::TimingClass::fitTimePerFebAllFebs(std::string nrun, std::string name)
+void LArSamples::TimingClass::fitTimePerFebAllFebs(const std::string& nrun, const std::string& name)
 // ********************************************************************************** //
 {
   
@@ -262,7 +262,7 @@ void LArSamples::TimingClass::fitTimePerFebAllFebs(std::string nrun, std::string
 
 
 /************************************************************/
-void LArSamples::TimingClass::Time(int dete, std::string nrun)
+void LArSamples::TimingClass::Time(int dete, const std::string& nrun)
 /************************************************************/
 {
   
@@ -348,7 +348,7 @@ void LArSamples::TimingClass::Time(int dete, std::string nrun)
 
 
 // ******************************************************************************* //
-void LArSamples::TimingClass::PlotFebAverageTime(std::string nrun, std::string name)
+void LArSamples::TimingClass::PlotFebAverageTime(const std::string& nrun, const std::string& name)
 // ******************************************************************************* //
 {
   string Filename = "FEB_time_fitMean_" + nrun + "_" + name + ".txt"; 
@@ -428,7 +428,7 @@ void LArSamples::TimingClass::PlotFebAverageTime(std::string nrun, std::string n
 
 
 // ******************************************************* //
-void LArSamples::TimingClass::MergeFebTime( std::string nrun )
+void LArSamples::TimingClass::MergeFebTime( const std::string& nrun )
 // ******************************************************* //
 {
   
@@ -465,7 +465,7 @@ void LArSamples::TimingClass::MergeFebTime( std::string nrun )
 
 
 // ****************************************************************************** //
-void LArSamples::TimingClass::getFebCorrection( std::string nrun )
+void LArSamples::TimingClass::getFebCorrection( const std::string& nrun )
 // ****************************************************************************** //
 { 
   // The structure of the Feb correction file is different than what we need
@@ -733,7 +733,7 @@ bool LArSamples::TimingClass::EnergyThreshold( int calo, int layer, int quality,
 }
 
 // ******************************************************************************* //
-vector< vector<double> > LArSamples::TimingClass::readTimingFiles(std::string file)
+vector< vector<double> > LArSamples::TimingClass::readTimingFiles(const std::string& file)
 // ******************************************************************************* //
 {  
 
@@ -824,11 +824,10 @@ double LArSamples::TimingClass::getTimeWeightedMedian(std::vector<double> time, 
     cumulWeights = cumulWeights + weights;
     g->SetPoint( g->GetN(), cumulWeights, time[i] );	
     if( i == 0 ) w0 = weight[pos] / totalW; 
-    if( w0 > 0.5 ) wcondition = true;
-    else wcondition = false;      
+    wcondition = w0 > 0.5;      
   }
  
-  if( wcondition == true ) wmedian = g->Eval(w0+(1-w0)/2);
+  if( wcondition ) wmedian = g->Eval(w0+(1-w0)/2);
   else wmedian= g->Eval(0.5);
   
   g->Delete();

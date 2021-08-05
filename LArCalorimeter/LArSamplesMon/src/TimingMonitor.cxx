@@ -27,7 +27,7 @@ using namespace LArSamples;
 TH2D** TimingMonitor::timingPlots(PartitionId part, unsigned int tBins, double tMin, double tMax) const
 {
   TH2D** hists = new TH2D*[Geo::nFeedThroughs(part)];
-  for (int i = 0; i < Geo::nFeedThroughs(part); i++) hists[i] = 0;
+  for (int i = 0; i < Geo::nFeedThroughs(part); i++) hists[i] = nullptr;
   
   for (unsigned int i = 0; i < nChannels(); i++) {
     const History* history = cellHistory(i);

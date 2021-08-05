@@ -33,28 +33,28 @@ using namespace LArSamples;
 Interface* Interface::open(const TString& fileName) 
 {
   TreeAccessor* accessor = TreeAccessor::open(fileName);
-  return (accessor ? new Interface(*accessor) : 0);
+  return (accessor ? new Interface(*accessor) : nullptr);
 }
 
 
 Interface* Interface::open(const std::vector<TString>& fileNames) 
 {
   MultiTreeAccessor* accessor = MultiTreeAccessor::open(fileNames);
-  return (accessor ? new Interface(*accessor) : 0);
+  return (accessor ? new Interface(*accessor) : nullptr);
 }
 
 
 Interface* Interface::openList(const TString& fileList) 
 {
   MultiTreeAccessor* accessor = MultiTreeAccessor::openList(fileList);
-  return (accessor ? new Interface(*accessor) : 0);
+  return (accessor ? new Interface(*accessor) : nullptr);
 }
 
 
 Interface* Interface::openWild(const TString& wcName) 
 {
   MultiTreeAccessor* accessor = MultiTreeAccessor::openWild(wcName);
-  return (accessor ? new Interface(*accessor) : 0);
+  return (accessor ? new Interface(*accessor) : nullptr);
 }
 
 
@@ -80,7 +80,7 @@ void Interface::setShapeErrorGetter(const AbsShapeErrorGetter* err)
 void Interface::setShapeError(double k)
 {
   if (m_ownShapeErrorGetter) delete m_shapeErrorGetter;
-  if (k == 0) { m_shapeErrorGetter = 0; m_ownShapeErrorGetter = false; return; }
+  if (k == 0) { m_shapeErrorGetter = nullptr; m_ownShapeErrorGetter = false; return; }
   m_shapeErrorGetter = new UniformShapeErrorGetter(k);
   m_ownShapeErrorGetter = true;
 }
@@ -264,7 +264,7 @@ Interface* Interface::merge(const std::vector<const Interface*>& interfaces, con
 Interface* Interface::merge(const TString& listFileName, const TString& fileName)
 {
   Interface* multi = openList(listFileName);
-  if (!multi) return 0;
+  if (!multi) return nullptr;
   std::vector<const Interface*> justOne;
   justOne.push_back(multi);
   return merge(justOne, fileName);
@@ -273,7 +273,7 @@ Interface* Interface::merge(const TString& listFileName, const TString& fileName
 Interface* Interface::merge(const TString& listFileName, const TString& fileName, const TString& LBFile)
 {
   Interface* multi = openList(listFileName);
-  if (!multi) return 0;
+  if (!multi) return nullptr;
   std::vector<const Interface*> justOne;
   justOne.push_back(multi);
   return merge(justOne, fileName, LBFile);
@@ -347,10 +347,10 @@ bool Interface::filterAndMerge(const TString& listFileName, const TString& outFi
 Interface* Interface::filter(const TString& sel, const TString& fileName, const TString& tweaks) const
 {
   FilterParams f;
-  if (!f.set(sel)) return 0;
+  if (!f.set(sel)) return nullptr;
 
   DataTweaker tweak;
-  if (!tweak.set(tweaks)) return 0;
+  if (!tweak.set(tweaks)) return nullptr;
  
   TString thisFN = fileName;
   if (thisFN.Index(".root") < 0 && dynamic_cast<const TreeAccessor*>(&accessor())) {
@@ -384,7 +384,7 @@ Interface* Interface::makeTemplate(const TString& fileName) const
 }
 
 
-Interface* Interface::refit(TString newFileName, Chi2Params pars) const
+Interface* Interface::refit(const TString& newFileName, Chi2Params pars) const
 {
   FilterParams f;
   DataTweaker tw;
@@ -446,14 +446,14 @@ TH1D* Interface::Draw(const TString& var, int nBins, double xMin, double xMax, c
 {
   MonitorBase m(*this);
   FilterParams f;
-  if (!f.set(sel)) return 0;
+  if (!f.set(sel)) return nullptr;
   
   std::vector<TString> vars;
   std::vector<DataFuncSet> funcs;
   std::vector<DataFuncArgs> args;
   if (!MonitorBase::parseVariables(var, vars, funcs, args) || funcs.size() != 1) {
     cout << "Invalid variable specification " << var << endl;
-    return 0;
+    return nullptr;
   }
 
   TString title = vars[0];
@@ -461,7 +461,7 @@ TH1D* Interface::Draw(const TString& var, int nBins, double xMin, double xMax, c
   
   TH1D* h = m.dist(funcs[0], args[0], vars[0], nBins, xMin, xMax, 
 		   title, vars[0], "digits", f);
-  if (!h) return 0;
+  if (!h) return nullptr;
   h->Draw(opt);
   return h;
 }
@@ -473,14 +473,14 @@ TH2D* Interface::Draw(const TString& varList, int nBinsX, double xMin, double xM
 {
   MonitorBase m(*this);
   FilterParams f;
-  if (!f.set(sel)) return 0;
+  if (!f.set(sel)) return nullptr;
   
   std::vector<TString> vars;
   std::vector<DataFuncSet> funcs;
   std::vector<DataFuncArgs> args;
   if (!MonitorBase::parseVariables(varList, vars, funcs, args) || funcs.size() != 2) {
     cout << "Invalid variable specification " << varList << endl;
-    return 0;
+    return nullptr;
   }
 
   TString title = vars[1] + " vs. " + vars[0];
@@ -489,7 +489,7 @@ TH2D* Interface::Draw(const TString& varList, int nBinsX, double xMin, double xM
   TH2D* h = m.dist(funcs[0], args[0], funcs[1], args[1], vars[0] + "_" + vars[1], 
 		   nBinsX, xMin, xMax,  nBinsY, yMin, yMax, 
 		   title, vars[0], vars[1], f);
-  if (!h) return 0;
+  if (!h) return nullptr;
   h->Draw(opt);
   return h;
 }
@@ -501,14 +501,14 @@ TH2D* Interface::DrawPartition(PartitionId partition, const TString& var,
 {
   MonitorBase m(*this);
   FilterParams f;
-  if (!f.set(sel)) return 0;
+  if (!f.set(sel)) return nullptr;
 
   std::vector<TString> vars;
   std::vector<DataFuncSet> funcs;
   std::vector<DataFuncArgs> args;
   if (!MonitorBase::parseVariables(var, vars, funcs, args) || funcs.size() != 1) {
     cout << "Invalid variable specification " << var << endl;
-    return 0;
+    return nullptr;
   }
 
   TString title = var;
@@ -516,7 +516,7 @@ TH2D* Interface::DrawPartition(PartitionId partition, const TString& var,
   if (TString(sel) != "") title = title + ", " + sel;
 
   TH2D* h = m.partitionMap(funcs[0], args[0], var, partition, title, comb, f);
-  if (!h) return 0;
+  if (!h) return nullptr;
   h->Draw(opt);
   return h;
 }
@@ -528,21 +528,21 @@ TH2D* Interface::DrawEtaPhi(CaloId calo, short layer, const TString& var,
 {
   MonitorBase m(*this);
   FilterParams f;
-  if (!f.set(sel)) return 0;
+  if (!f.set(sel)) return nullptr;
 
   std::vector<TString> vars;
   std::vector<DataFuncSet> funcs;
   std::vector<DataFuncArgs> args;
   if (!MonitorBase::parseVariables(var, vars, funcs, args) || funcs.size() != 1) {
     cout << "Invalid variable specification " << var << endl;
-    return 0;
+    return nullptr;
   }
   TString title = var;
   title += Form(", %s, layer %d", Id::str(calo).Data(), layer);
   if (TString(sel) != "") title = title + ", " + sel;
  
   TH2D* h = m.etaPhiMap(funcs[0], args[0], var, calo, layer, title, comb, f);
-  if (!h) return 0;
+  if (!h) return nullptr;
   h->Draw(opt);
   return h;
 }

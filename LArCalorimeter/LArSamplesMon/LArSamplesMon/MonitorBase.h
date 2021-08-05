@@ -35,20 +35,20 @@ namespace LArSamples {
       MonitorBase(const Interface& interface) : m_interface(&interface) { } 
 
 #ifndef __GCCXML__
-      TH1D* dist(const DataFuncSet& func, const DataFuncArgs& args, TString name, int nBins, double xMin, double xMax, 
-                 TString title = "", TString xTitle = "", TString yTitle = "", 
+      TH1D* dist(const DataFuncSet& func, const DataFuncArgs& args, const TString& name, int nBins, double xMin, double xMax, 
+                 const TString& title = "", const TString& xTitle = "", const TString& yTitle = "", 
                  const FilterParams& f = FilterParams()) const;
                  
-      TH2D* dist(const DataFuncSet& funcX, const DataFuncArgs& argsX, const DataFuncSet& funcY, const DataFuncArgs& argsY, TString name, 
+      TH2D* dist(const DataFuncSet& funcX, const DataFuncArgs& argsX, const DataFuncSet& funcY, const DataFuncArgs& argsY, const TString& name, 
 		 int nBinsX, double xMin, double xMax, 
 		 int nBinsY, double yMin, double yMax, 
-                 TString title = "", TString xTitle = "", TString yTitle = "", 
+                 const TString& title = "", const TString& xTitle = "", const TString& yTitle = "", 
                  const FilterParams& f = FilterParams()) const;
                  
       TH2D* partitionMap(const DataFuncSet& func, const DataFuncArgs& args, TString name, PartitionId partition, 
-                TString title = "", CombinationType comb = AverageValue, 
+                const TString& title = "", CombinationType comb = AverageValue, 
                          const FilterParams& f = FilterParams()) const;
-      TH2D* etaPhiMap(const DataFuncSet& func, const DataFuncArgs& args, TString name, CaloId calo, 
+      TH2D* etaPhiMap(const DataFuncSet& func, const DataFuncArgs& args, const TString& name, CaloId calo, 
                       short layer, TString title = "", CombinationType comb = AverageValue, 
                       const FilterParams& f = FilterParams()) const;
 
@@ -62,7 +62,7 @@ namespace LArSamples {
       static double history_value(const History& history, const DataFuncSet& func, const DataFuncArgs& args,
                                   CombinationType comb,  const FilterParams& f, unsigned int& nValues);
 		      
-      static DataFuncSet func(TString var);
+      static DataFuncSet func(const TString& var);
       static bool parseVariables(TString varStr, std::vector<TString>& vars, std::vector<DataFuncSet>& funcs, 
                                  std::vector<DataFuncArgs>& args);
       

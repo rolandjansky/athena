@@ -12,21 +12,21 @@ GraphShape::GraphShape(const std::vector<double>& times, const std::vector<doubl
                                    const std::vector<double>& errors)
 {
   for (unsigned int k = 0; k < times.size(); k++)
-    m_points.push_back(GraphPoint(times[k], values[k], errors[k]));
+    m_points.emplace_back(times[k], values[k], errors[k]);
 }
 
 
 GraphShape::GraphShape(const AbsShape& shape, double scale, double shift)
 {
   for (unsigned int k = 0; k < shape.nPoints(); k++)
-    m_points.push_back(GraphPoint(shape.time(k) + shift, shape.value(k)*scale, shape.error(k)*scale));
+    m_points.emplace_back(shape.time(k) + shift, shape.value(k)*scale, shape.error(k)*scale);
 }
 
 
 bool GraphShape::add(const AbsShape& other)
 {
   for (unsigned int k = 0; k < other.nPoints(); k++)
-    m_points.push_back(GraphPoint(other.time(k), other.value(k), other.error(k)));
+    m_points.emplace_back(other.time(k), other.value(k), other.error(k));
 
   std::sort(m_points.begin(), m_points.end());
   return true;

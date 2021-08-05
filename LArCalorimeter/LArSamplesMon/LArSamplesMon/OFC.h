@@ -84,7 +84,7 @@ namespace LArSamples {
    private:
 
     TVectorD m_g, m_gp, m_a, m_b;
-    double m_G, m_Gp, m_Gpp;
+    double m_G = 0.0, m_Gp = 0.0, m_Gpp = 0.0;
     CovMatrix m_invGamma, m_Gamma;
     TMatrixD m_resProj;
     std::vector<TVectorD> m_r;
