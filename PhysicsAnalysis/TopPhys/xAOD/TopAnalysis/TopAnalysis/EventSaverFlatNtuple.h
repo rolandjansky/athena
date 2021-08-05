@@ -296,8 +296,6 @@ namespace top {
     ///-- Lepton SF --///
     float m_weight_leptonSF;
     ///-- Lepton SF - electron SF systematics --///
-    float m_weight_leptonSF_EL_SF_Trigger_UP;
-    float m_weight_leptonSF_EL_SF_Trigger_DOWN;
     float m_weight_leptonSF_EL_SF_Reco_UP;
     float m_weight_leptonSF_EL_SF_Reco_DOWN;
     float m_weight_leptonSF_EL_SF_ID_UP;
@@ -312,11 +310,6 @@ namespace top {
     std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Iso_UP;
     std::vector<float> m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN;
 
-    ///-- Lepton SF - muon SF systematics --///
-    float m_weight_leptonSF_MU_SF_Trigger_STAT_UP;
-    float m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN;
-    float m_weight_leptonSF_MU_SF_Trigger_SYST_UP;
-    float m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN;
     // Muon ID SF systematics (regular)
     float m_weight_leptonSF_MU_SF_ID_STAT_UP;
     float m_weight_leptonSF_MU_SF_ID_STAT_DOWN;
@@ -336,63 +329,17 @@ namespace top {
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;
-    // Additional global event calculated trigger SF + systematics
-    float m_weight_globalLeptonTriggerSF;
-    float m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
-    float m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN;
-    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP;
-    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
-    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;
-    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;
-    // Old trigger SFs
-    float m_weight_oldTriggerSF;
-    float m_weight_oldTriggerSF_EL_Trigger_UP;
-    float m_weight_oldTriggerSF_EL_Trigger_DOWN;
-    float m_weight_oldTriggerSF_MU_Trigger_STAT_UP;
-    float m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN;
-    float m_weight_oldTriggerSF_MU_Trigger_SYST_UP;
-    float m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN;
 
-    ///-- individual components for lepton SF --///
-    float m_weight_indiv_SF_EL_Reco;
-    float m_weight_indiv_SF_EL_Reco_UP;
-    float m_weight_indiv_SF_EL_Reco_DOWN;
-    float m_weight_indiv_SF_EL_ID;
-    float m_weight_indiv_SF_EL_ID_UP;
-    float m_weight_indiv_SF_EL_ID_DOWN;
-    float m_weight_indiv_SF_EL_Isol;
-    float m_weight_indiv_SF_EL_Isol_UP;
-    float m_weight_indiv_SF_EL_Isol_DOWN;
-    float m_weight_indiv_SF_EL_ChargeID;
-    float m_weight_indiv_SF_EL_ChargeID_UP;
-    float m_weight_indiv_SF_EL_ChargeID_DOWN;
-    float m_weight_indiv_SF_EL_ChargeMisID;
-    float m_weight_indiv_SF_EL_ChargeMisID_STAT_UP;
-    float m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;
-    float m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;
-    float m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;
-    float m_weight_indiv_SF_MU_ID;
-    // Muon ID SF systematics (regular)
-    float m_weight_indiv_SF_MU_ID_STAT_UP;
-    float m_weight_indiv_SF_MU_ID_STAT_DOWN;
-    float m_weight_indiv_SF_MU_ID_SYST_UP;
-    float m_weight_indiv_SF_MU_ID_SYST_DOWN;
-    // Muon ID SF systematics (low pt)
-    float m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP;
-    float m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN;
-    float m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP;
-    float m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN;
-    // Muon isolation systematics
-    float m_weight_indiv_SF_MU_Isol;
-    float m_weight_indiv_SF_MU_Isol_SYST_UP;
-    float m_weight_indiv_SF_MU_Isol_SYST_DOWN;
-    float m_weight_indiv_SF_MU_Isol_STAT_UP;
-    float m_weight_indiv_SF_MU_Isol_STAT_DOWN;
-    float m_weight_indiv_SF_MU_TTVA;
-    float m_weight_indiv_SF_MU_TTVA_SYST_UP;
-    float m_weight_indiv_SF_MU_TTVA_SYST_DOWN;
-    float m_weight_indiv_SF_MU_TTVA_STAT_UP;
-    float m_weight_indiv_SF_MU_TTVA_STAT_DOWN;
+    ///-- triggers --///
+    float m_weight_trigger;
+    float m_weight_trigger_EL_SF_UP;
+    float m_weight_trigger_EL_SF_DOWN;
+    float m_weight_trigger_MU_SF_STAT_UP;
+    float m_weight_trigger_MU_SF_STAT_DOWN;
+    float m_weight_trigger_MU_SF_SYST_UP;
+    float m_weight_trigger_MU_SF_SYST_DOWN;
+    float m_weight_trigger_PH_UNCERT_UP;
+    float m_weight_trigger_PH_UNCERT_DOWN;
 
     // Taus
     float m_weight_tauSF;
@@ -1068,8 +1015,6 @@ namespace top {
     const float& weight_leptonSF() const {return m_weight_leptonSF;}
 
     ///-- Lepton SF - electron SF systematics --///
-    const float& weight_leptonSF_EL_SF_Trigger_UP() const {return m_weight_leptonSF_EL_SF_Trigger_UP;}
-    const float& weight_leptonSF_EL_SF_Trigger_DOWN() const {return m_weight_leptonSF_EL_SF_Trigger_DOWN;}
     const float& weight_leptonSF_EL_SF_Reco_UP() const {return m_weight_leptonSF_EL_SF_Reco_UP;}
     const float& weight_leptonSF_EL_SF_Reco_DOWN() const {return m_weight_leptonSF_EL_SF_Reco_DOWN;}
     const float& weight_leptonSF_EL_SF_ID_UP() const {return m_weight_leptonSF_EL_SF_ID_UP;}
@@ -1078,10 +1023,6 @@ namespace top {
     const float& weight_leptonSF_EL_SF_Isol_DOWN() const {return m_weight_leptonSF_EL_SF_Isol_DOWN;}
 
     ///-- Lepton SF - muon SF systematics --///
-    const float& weight_leptonSF_MU_SF_Trigger_STAT_UP() const {return m_weight_leptonSF_MU_SF_Trigger_STAT_UP;}
-    const float& weight_leptonSF_MU_SF_Trigger_STAT_DOWN() const {return m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN;}
-    const float& weight_leptonSF_MU_SF_Trigger_SYST_UP() const {return m_weight_leptonSF_MU_SF_Trigger_SYST_UP;}
-    const float& weight_leptonSF_MU_SF_Trigger_SYST_DOWN() const {return m_weight_leptonSF_MU_SF_Trigger_SYST_DOWN;}
     // Muon ID SF systematics (regular)
     const float& weight_leptonSF_MU_SF_ID_STAT_UP() const {return m_weight_leptonSF_MU_SF_ID_STAT_UP;}
     const float& weight_leptonSF_MU_SF_ID_STAT_DOWN() const {return m_weight_leptonSF_MU_SF_ID_STAT_DOWN;}
@@ -1101,79 +1042,6 @@ namespace top {
     const float& weight_leptonSF_MU_SF_TTVA_STAT_DOWN() const {return m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;}
     const float& weight_leptonSF_MU_SF_TTVA_SYST_UP() const {return m_weight_leptonSF_MU_SF_TTVA_SYST_UP;}
     const float& weight_leptonSF_MU_SF_TTVA_SYST_DOWN() const {return m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;}
-    // Special global lepton trigger SF + systematics
-    const float& weight_globalLeptonTriggerSF() const {return m_weight_globalLeptonTriggerSF;}
-    const float& weight_globalLeptonTriggerSF_EL_Trigger_UP() const {
-      return m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
-    }
-    const float& weight_globalLeptonTriggerSF_EL_Trigger_DOWN() const {
-      return m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN;
-    }
-    const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP() const {
-      return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP;
-    }
-    const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN() const {
-                                                                            return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
-                                                                                                                                       }
-    const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP() const {return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;}
-    const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN() const {return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;}
-    // Old trigger SFs
-    const float& weight_oldTriggerSF() const {return m_weight_oldTriggerSF;}
-    const float& weight_oldTriggerSF_EL_Trigger_UP() const {return m_weight_oldTriggerSF_EL_Trigger_UP;}
-    const float& weight_oldTriggerSF_EL_Trigger_DOWN() const {return m_weight_oldTriggerSF_EL_Trigger_DOWN;}
-    const float& weight_oldTriggerSF_MU_Trigger_STAT_UP() const {return m_weight_oldTriggerSF_MU_Trigger_STAT_UP;}
-    const float& weight_oldTriggerSF_MU_Trigger_STAT_DOWN() const {return m_weight_oldTriggerSF_MU_Trigger_STAT_DOWN;}
-    const float& weight_oldTriggerSF_MU_Trigger_SYST_UP() const {return m_weight_oldTriggerSF_MU_Trigger_SYST_UP;}
-    const float& weight_oldTriggerSF_MU_Trigger_SYST_DOWN() const {return m_weight_oldTriggerSF_MU_Trigger_SYST_DOWN;}
-
-    ///-- individual components for lepton SF --///
-    const float& weight_indiv_SF_EL_Trigger() const {return weight_oldTriggerSF();}
-    const float& weight_indiv_SF_EL_Trigger_UP() const {return weight_oldTriggerSF_EL_Trigger_UP();}
-    const float& weight_indiv_SF_EL_Trigger_DOWN() const {return weight_oldTriggerSF_EL_Trigger_DOWN();}
-    const float& weight_indiv_SF_EL_Reco() const {return m_weight_indiv_SF_EL_Reco;}
-    const float& weight_indiv_SF_EL_Reco_UP() const {return m_weight_indiv_SF_EL_Reco_UP;}
-    const float& weight_indiv_SF_EL_Reco_DOWN() const {return m_weight_indiv_SF_EL_Reco_DOWN;}
-    const float& weight_indiv_SF_EL_ID() const {return m_weight_indiv_SF_EL_ID;}
-    const float& weight_indiv_SF_EL_ID_UP() const {return m_weight_indiv_SF_EL_ID_UP;}
-    const float& weight_indiv_SF_EL_ID_DOWN() const {return m_weight_indiv_SF_EL_ID_DOWN;}
-    const float& weight_indiv_SF_EL_Isol() const {return m_weight_indiv_SF_EL_Isol;}
-    const float& weight_indiv_SF_EL_Isol_UP() const {return m_weight_indiv_SF_EL_Isol_UP;}
-    const float& weight_indiv_SF_EL_Isol_DOWN() const {return m_weight_indiv_SF_EL_Isol_DOWN;}
-    const float& weight_indiv_SF_EL_ChargeID() const {return m_weight_indiv_SF_EL_ChargeID;}
-    const float& weight_indiv_SF_EL_ChargeID_UP() const {return m_weight_indiv_SF_EL_ChargeID_UP;}
-    const float& weight_indiv_SF_EL_ChargeID_DOWN() const {return m_weight_indiv_SF_EL_ChargeID_DOWN;}
-    const float& weight_indiv_SF_EL_ChargeMisID() const {return m_weight_indiv_SF_EL_ChargeMisID;}
-    const float& weight_indiv_SF_EL_ChargeMisID_STAT_UP() const {return m_weight_indiv_SF_EL_ChargeMisID_STAT_UP;}
-    const float& weight_indiv_SF_EL_ChargeMisID_STAT_DOWN() const {return m_weight_indiv_SF_EL_ChargeMisID_STAT_DOWN;}
-    const float& weight_indiv_SF_EL_ChargeMisID_SYST_UP() const {return m_weight_indiv_SF_EL_ChargeMisID_SYST_UP;}
-    const float& weight_indiv_SF_EL_ChargeMisID_SYST_DOWN() const {return m_weight_indiv_SF_EL_ChargeMisID_SYST_DOWN;}
-    const float& weight_indiv_SF_MU_Trigger() const {return weight_oldTriggerSF();}
-    const float& weight_indiv_SF_MU_Trigger_STAT_UP() const {return weight_oldTriggerSF_MU_Trigger_STAT_UP();}
-    const float& weight_indiv_SF_MU_Trigger_STAT_DOWN() const {return weight_oldTriggerSF_MU_Trigger_STAT_DOWN();}
-    const float& weight_indiv_SF_MU_Trigger_SYST_UP() const {return weight_oldTriggerSF_MU_Trigger_SYST_UP();}
-    const float& weight_indiv_SF_MU_Trigger_SYST_DOWN() const {return weight_oldTriggerSF_MU_Trigger_SYST_DOWN();}
-    const float& weight_indiv_SF_MU_ID() const {return m_weight_indiv_SF_MU_ID;}
-    // Muon ID SF systematics (regular)
-    const float& weight_indiv_SF_MU_ID_STAT_UP() const {return m_weight_indiv_SF_MU_ID_STAT_UP;}
-    const float& weight_indiv_SF_MU_ID_STAT_DOWN() const {return m_weight_indiv_SF_MU_ID_STAT_DOWN;}
-    const float& weight_indiv_SF_MU_ID_SYST_UP() const {return m_weight_indiv_SF_MU_ID_SYST_UP;}
-    const float& weight_indiv_SF_MU_ID_SYST_DOWN() const {return m_weight_indiv_SF_MU_ID_SYST_DOWN;}
-    // Muon ID SF systematics (low pt)
-    const float& weight_indiv_SF_MU_ID_STAT_LOWPT_UP() const {return m_weight_indiv_SF_MU_ID_STAT_LOWPT_UP;}
-    const float& weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN() const {return m_weight_indiv_SF_MU_ID_STAT_LOWPT_DOWN;}
-    const float& weight_indiv_SF_MU_ID_SYST_LOWPT_UP() const {return m_weight_indiv_SF_MU_ID_SYST_LOWPT_UP;}
-    const float& weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN() const {return m_weight_indiv_SF_MU_ID_SYST_LOWPT_DOWN;}
-    // Muon isolation systematics
-    const float& weight_indiv_SF_MU_Isol() const {return m_weight_indiv_SF_MU_Isol;}
-    const float& weight_indiv_SF_MU_Isol_SYST_UP() const {return m_weight_indiv_SF_MU_Isol_SYST_UP;}
-    const float& weight_indiv_SF_MU_Isol_SYST_DOWN() const {return m_weight_indiv_SF_MU_Isol_SYST_DOWN;}
-    const float& weight_indiv_SF_MU_Isol_STAT_UP() const {return m_weight_indiv_SF_MU_Isol_STAT_UP;}
-    const float& weight_indiv_SF_MU_Isol_STAT_DOWN() const {return m_weight_indiv_SF_MU_Isol_STAT_DOWN;}
-    const float& weight_indiv_SF_MU_TTVA() const {return m_weight_indiv_SF_MU_TTVA;}
-    const float& weight_indiv_SF_MU_TTVA_SYST_UP() const {return m_weight_indiv_SF_MU_TTVA_SYST_UP;}
-    const float& weight_indiv_SF_MU_TTVA_SYST_DOWN() const {return m_weight_indiv_SF_MU_TTVA_SYST_DOWN;}
-    const float& weight_indiv_SF_MU_TTVA_STAT_UP() const {return m_weight_indiv_SF_MU_TTVA_STAT_UP;}
-    const float& weight_indiv_SF_MU_TTVA_STAT_DOWN() const {return m_weight_indiv_SF_MU_TTVA_STAT_DOWN;}
 
     // Photons
     const float& weight_photonSF() const {return m_weight_photonSF;}

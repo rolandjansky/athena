@@ -235,7 +235,6 @@ namespace top {
 
     // Obtain the trigger SF
     float triggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
-    float triggerSFPhoton(const top::Event& event, const top::topSFSyst SFSyst) const;
 
     // Obtain trigger SF via global tool
     float globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
