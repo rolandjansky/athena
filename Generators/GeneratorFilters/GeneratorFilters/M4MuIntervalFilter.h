@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef GENERATORFILTERSM4MUINTERVALFILTER_H
-#define GENERATORFILTERSM4MuINTERVALFILTER_H
+#define GENERATORFILTERSM4MUINTERVALFILTER_H
 
 #include "GeneratorModules/GenFilter.h"
 
