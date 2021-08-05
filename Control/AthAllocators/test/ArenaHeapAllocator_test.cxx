@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHeapAllocator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaHeapAllocator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,10 @@
 #include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <unistd.h>
+
+
+static const size_t pageSize = sysconf (_SC_PAGESIZE);
 
 
 //==========================================================================
@@ -32,6 +34,7 @@ struct Payload
 
   int x;
   int y;
+  char pad[40-2*sizeof(int)-sizeof(void*)];
   static std::atomic<int> n;
   static std::vector<int> v ATLAS_THREAD_SAFE;
 };
@@ -71,8 +74,8 @@ void test1()
   assert (aha.stats().blocks.inuse == 0);
   assert (aha.stats().blocks.free  == 0);
   assert (aha.stats().blocks.total == 0);
-  size_t elt_size = aha.params().eltSize;
-  size_t block_ov = SG::ArenaBlock::overhead();
+  const size_t elt_size = aha.params().eltSize;
+  const size_t block_ov = SG::ArenaBlock::overhead();
 
   int nptr = 987;
   std::vector<Payload*> ptrs;
@@ -81,75 +84,81 @@ void test1()
     ptrs.push_back (p);
     p->y = 2*p->x;
   }
-  assert  (Payload::v.size() == 1000);
-  for (int i=0; i < 1000; ++i) {
-    assert (Payload::v[i] == i);
+  const size_t nelt = Payload::v.size();
+  assert  (nelt >= 1000);
+  for (size_t i=0; i < nelt; ++i) {
+    assert (Payload::v[i] == static_cast<int>(i));
   }
+
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks = (1000 + elts_per_block-1) / elts_per_block;
+
   assert (aha.stats().elts.inuse == 987);
-  assert (aha.stats().elts.free == 13);
-  assert (aha.stats().elts.total == 1000);
-  assert (aha.stats().blocks.inuse == 10);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().elts.free == nelt - 987);
+  assert (aha.stats().blocks.inuse == nblocks);
   assert (aha.stats().blocks.free  ==  0);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().blocks.total == nblocks);
 
   for (size_t i = 0; i < ptrs.size(); i += 2)
     aha.free ((char*)ptrs[i]);
   assert (aha.stats().elts.inuse == 493);
-  assert (aha.stats().elts.free == 507);
-  assert (aha.stats().elts.total == 1000);
-  assert (aha.stats().blocks.inuse == 10);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().elts.free == nelt - 493);
+  assert (aha.stats().blocks.inuse == nblocks);
   assert (aha.stats().blocks.free  ==  0);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().blocks.total == nblocks);
   for (size_t i = 0; i < ptrs.size(); i += 2)
     assert (ptrs[i]->y == 0);
   for (size_t i = 0; i < 300; i++)
     ptrs.push_back (reinterpret_cast<Payload*>(aha.allocate()));
   //printf ("%d %d %d\n", aha.stats().elts.inuse, aha.stats().elts.free, aha.stats().elts.total);
   assert (aha.stats().elts.inuse == 793);
-  assert (aha.stats().elts.free == 207);
-  assert (aha.stats().elts.total == 1000);
-  assert (aha.stats().blocks.inuse == 10);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().elts.free == nelt - 793);
+  assert (aha.stats().blocks.inuse == nblocks);
   assert (aha.stats().blocks.free  ==  0);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().blocks.total == nblocks);
 
-  assert (aha.stats().bytes.inuse ==  (793 * elt_size + 10 * block_ov));
-  assert (aha.stats().bytes.free  ==  207 * elt_size);
-  assert (aha.stats().bytes.total == (1000 * elt_size + 10 * block_ov));
+  assert (aha.stats().bytes.inuse ==  (793 * elt_size + nblocks * block_ov));
+  assert (aha.stats().bytes.free  ==  (nelt - 793) * elt_size);
+  assert (aha.stats().bytes.total == (nelt * elt_size + nblocks * block_ov));
 
   aha.reset();
   assert (aha.stats().elts.inuse == 0);
-  assert (aha.stats().elts.free == 1000);
-  assert (aha.stats().elts.total == 1000);
+  assert (aha.stats().elts.free == nelt);
+  assert (aha.stats().elts.total == nelt);
   assert (aha.stats().blocks.inuse ==  0);
-  assert (aha.stats().blocks.free  == 10);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().blocks.free  == nblocks);
+  assert (aha.stats().blocks.total == nblocks);
 
   ptrs.clear();
   for (size_t i = 0; i < 300; i++)
     ptrs.push_back (reinterpret_cast<Payload*>(aha.allocate()));
   assert (aha.stats().elts.inuse == 300);
-  assert (aha.stats().elts.free == 700);
-  assert (aha.stats().elts.total == 1000);
-  assert (aha.stats().blocks.inuse ==  3);
-  assert (aha.stats().blocks.free  ==  7);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().elts.free == nelt - 300);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().blocks.inuse == (300 + elts_per_block-1) / elts_per_block);
+  assert (aha.stats().blocks.free  ==  nblocks - aha.stats().blocks.inuse);
+  assert (aha.stats().blocks.total == nblocks);
 
   aha.reserve (550);
   assert (aha.stats().elts.inuse == 300);
-  assert (aha.stats().elts.free == 300);
-  assert (aha.stats().elts.total == 600);
-  assert (aha.stats().blocks.inuse ==  3);
-  assert (aha.stats().blocks.free  ==  3);
-  assert (aha.stats().blocks.total ==  6);
+  assert (aha.stats().elts.total == ((550 + elts_per_block-1) / elts_per_block) * elts_per_block);
+  assert (aha.stats().elts.free == aha.stats().elts.total - 300);
+  assert (aha.stats().blocks.inuse ==  (300 + elts_per_block-1) / elts_per_block);
+  assert (aha.stats().blocks.total ==  (550 + elts_per_block-1) / elts_per_block);
+  assert (aha.stats().blocks.free  ==  aha.stats().blocks.total - aha.stats().blocks.inuse);
 
   aha.reserve (1000);
   //printf ("%d %d %d\n", aha.stats().elts.inuse, aha.stats().elts.free, aha.stats().elts.total);
   assert (aha.stats().elts.inuse == 300);
-  assert (aha.stats().elts.free == 700);
-  assert (aha.stats().elts.total == 1000);
-  assert (aha.stats().blocks.inuse ==  3);
-  assert (aha.stats().blocks.free  ==  4);
-  assert (aha.stats().blocks.total ==  7);
+  assert (aha.stats().elts.total >= 1000);
+  assert (aha.stats().elts.free == aha.stats().elts.total - 300);
+  assert (aha.stats().blocks.inuse ==  (300 + elts_per_block-1) / elts_per_block);
+  assert (aha.stats().blocks.total == (550 + elts_per_block-1) / elts_per_block + 1); 
+  assert (aha.stats().blocks.free  ==  aha.stats().blocks.total - aha.stats().blocks.inuse);
+  const size_t nelt2 = aha.stats().elts.total;
 
   Payload::v.clear();
   aha.erase();
@@ -159,14 +168,10 @@ void test1()
   assert (aha.stats().blocks.inuse ==  0);
   assert (aha.stats().blocks.free  ==  0);
   assert (aha.stats().blocks.total ==  0);
-  assert (Payload::v.size() == 1000);
+  assert (Payload::v.size() == nelt2);
   std::sort (Payload::v.begin(), Payload::v.end());
-  for (size_t i = 0; i < 700; i++) {
-    assert (Payload::v[i] == (int)i-1399);
-    //printf ("%d %d\n", Payload::v[i], i);
-  }
-  for (size_t i = 700; i < Payload::v.size(); i++) {
-    assert (Payload::v[i] == (int)i-999);
+  for (size_t i = 0; i < Payload::v.size(); i++) {
+    assert (Payload::v[i] <= 0);
   }
 }
 
@@ -174,6 +179,8 @@ void test1()
 void test2()
 {
   std::cout << "test2\n";
+  Payload::v.clear();
+  
   SG::ArenaHeapAllocator::Params params = 
     SG::ArenaHeapAllocator::initParams<Payload, true>(100);
   params.mustClear = true;
@@ -200,12 +207,20 @@ void test2()
   }
   aha.reset();
   assert (nclear == 987);
+
+  size_t nelt = Payload::v.size();
+  assert  (nelt >= 1000);
+
+  const size_t elt_size = aha.params().eltSize;
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks = (1000 + elts_per_block-1) / elts_per_block;
+
   assert (aha.stats().elts.inuse == 0);
-  assert (aha.stats().elts.free == 1000);
-  assert (aha.stats().elts.total == 1000);
+  assert (aha.stats().elts.free == nelt);
+  assert (aha.stats().elts.total == nelt);
   assert (aha.stats().blocks.inuse ==  0);
-  assert (aha.stats().blocks.free  == 10);
-  assert (aha.stats().blocks.total == 10);
+  assert (aha.stats().blocks.free  == nblocks);
+  assert (aha.stats().blocks.total == nblocks);
 
   for (size_t i = 0; i < ptrs.size(); i++) {
     if ((i&1) != 0)
@@ -227,14 +242,21 @@ void test3()
     aha.allocate();
   }
 
+  const size_t nelt = Payload::v.size();
+  assert  (nelt >= 150);
+
+  const size_t elt_size = aha.params().eltSize;
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks = (150 + elts_per_block-1) / elts_per_block;
+
   assert (aha.name() == "bar");
   assert (aha.params().name == "bar");
   assert (aha.stats().elts.inuse == 150);
-  assert (aha.stats().elts.free == 50);
-  assert (aha.stats().elts.total == 200);
-  assert (aha.stats().blocks.inuse == 2);
+  assert (aha.stats().elts.free == nelt - 150);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().blocks.inuse == nblocks);
   assert (aha.stats().blocks.free  == 0);
-  assert (aha.stats().blocks.total == 2);
+  assert (aha.stats().blocks.total == nblocks);
 
   SG::ArenaHeapAllocator aha2 (std::move (aha));
   assert (aha.name() == "bar");
@@ -242,11 +264,11 @@ void test3()
   assert (aha2.name() == "bar");
   assert (aha2.params().name == "bar");
   assert (aha2.stats().elts.inuse == 150);
-  assert (aha2.stats().elts.free == 50);
-  assert (aha2.stats().elts.total == 200);
-  assert (aha2.stats().blocks.inuse == 2);
+  assert (aha2.stats().elts.free == nelt - 150);
+  assert (aha2.stats().elts.total == nelt);
+  assert (aha2.stats().blocks.inuse == nblocks);
   assert (aha2.stats().blocks.free  == 0);
-  assert (aha2.stats().blocks.total == 2);
+  assert (aha2.stats().blocks.total == nblocks);
   assert (aha.stats().elts.inuse == 0);
   assert (aha.stats().elts.free == 0);
   assert (aha.stats().elts.total == 0);
@@ -260,11 +282,11 @@ void test3()
   assert (aha2.name() == "bar");
   assert (aha2.params().name == "bar");
   assert (aha.stats().elts.inuse == 150);
-  assert (aha.stats().elts.free == 50);
-  assert (aha.stats().elts.total == 200);
-  assert (aha.stats().blocks.inuse == 2);
+  assert (aha.stats().elts.free == nelt - 150);
+  assert (aha.stats().elts.total == nelt);
+  assert (aha.stats().blocks.inuse == nblocks);
   assert (aha.stats().blocks.free  == 0);
-  assert (aha.stats().blocks.total == 2);
+  assert (aha.stats().blocks.total == nblocks);
   assert (aha2.stats().elts.inuse == 0);
   assert (aha2.stats().elts.free == 0);
   assert (aha2.stats().elts.total == 0);
@@ -278,11 +300,11 @@ void test3()
   assert (aha2.name() == "bar");
   assert (aha2.params().name == "bar");
   assert (aha2.stats().elts.inuse == 150);
-  assert (aha2.stats().elts.free == 50);
-  assert (aha2.stats().elts.total == 200);
-  assert (aha2.stats().blocks.inuse == 2);
+  assert (aha2.stats().elts.free == nelt - 150);
+  assert (aha2.stats().elts.total == nelt);
+  assert (aha2.stats().blocks.inuse == nblocks);
   assert (aha2.stats().blocks.free  == 0);
-  assert (aha2.stats().blocks.total == 2);
+  assert (aha2.stats().blocks.total == nblocks);
   assert (aha.stats().elts.inuse == 0);
   assert (aha.stats().elts.free == 0);
   assert (aha.stats().elts.total == 0);

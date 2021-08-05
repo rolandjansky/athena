@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHandle_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaHandle_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -61,9 +59,9 @@ void test1()
     assert (nctor == 100);
     assert (ndtor == 0);
     assert (nclear == 0);
+    assert (hand.stats().elts.total >= 100);
     assert (hand.stats().elts.inuse == 100);
-    assert (hand.stats().elts.free == 0);
-    assert (hand.stats().elts.total == 100);
+    assert (hand.stats().elts.free == hand.stats().elts.total - 100);
 
     std::vector<int> v;
     for (Handtype::iterator ii = hand.begin();
@@ -109,9 +107,9 @@ void test1()
     assert (nctor == 100);
     assert (ndtor == 100);
     assert (nclear == 0);
+    assert (hand.stats().elts.total >= 100);
     assert (hand.stats().elts.inuse == 0);
-    assert (hand.stats().elts.free == 100);
-    assert (hand.stats().elts.total == 100);
+    assert (hand.stats().elts.free == hand.stats().elts.total);
 
     ptrs.clear();
     for (int i=0; i < 100; i++) {
@@ -122,9 +120,9 @@ void test1()
     assert (nctor == 200);
     assert (ndtor == 100);
     assert (nclear == 0);
+    assert (hand.stats().elts.total >= 100);
     assert (hand.stats().elts.inuse == 100);
-    assert (hand.stats().elts.free == 0);
-    assert (hand.stats().elts.total == 100);
+    assert (hand.stats().elts.free == hand.stats().elts.total - 100);
   }
 
   {
@@ -134,9 +132,9 @@ void test1()
     assert (nctor == 200);
     assert (ndtor == 150);
     assert (nclear == 00);
+    assert (hand2.stats().elts.total >= 100);
     assert (hand2.stats().elts.inuse == 50);
-    assert (hand2.stats().elts.free == 50);
-    assert (hand2.stats().elts.total == 100);
+    assert (hand2.stats().elts.free == hand2.stats().elts.total - 50);
 
     hand2.erase();
     assert (nctor == 200);
@@ -175,9 +173,9 @@ void test2()
   assert (nctor == 100);
   assert (ndtor == 0);
   assert (nclear == 0);
+  assert (hand.stats().elts.total >= 100);
   assert (hand.stats().elts.inuse == 100);
-  assert (hand.stats().elts.free == 0);
-  assert (hand.stats().elts.total == 100);
+  assert (hand.stats().elts.free == hand.stats().elts.total - 100);
 
   for (size_t i = 0; i < ptrs.size(); i+=2) {
     hand.free (ptrs[i]);
@@ -185,23 +183,26 @@ void test2()
   assert (nctor == 100);
   assert (ndtor == 50);
   assert (nclear == 0);
+  assert (hand.stats().elts.total >= 100);
   assert (hand.stats().elts.inuse == 50);
-  assert (hand.stats().elts.free == 50);
-  assert (hand.stats().elts.total == 100);
-  assert (hand.stats().blocks.inuse == 2);
+  assert (hand.stats().elts.free == hand.stats().elts.total - 50);
+  const size_t nblock = hand.stats().blocks.total;
+  assert (nblock >= 1);
+  const size_t nelt = hand.stats().elts.total;
+  assert (hand.stats().blocks.inuse == nblock);
   assert (hand.stats().blocks.free == 0);
-  assert (hand.stats().blocks.total == 2);
-  assert (hand.stats().bytes.inuse ==  50 * elt_size + 2 * block_ov);
-  assert (hand.stats().bytes.free  ==  50 * elt_size);
-  assert (hand.stats().bytes.total == 100 * elt_size + 2 * block_ov);
+  assert (hand.stats().blocks.total == nblock);
+  assert (hand.stats().bytes.inuse ==  50 * elt_size + nblock * block_ov);
+  assert (hand.stats().bytes.free  ==  (nelt - 50) * elt_size);
+  assert (hand.stats().bytes.total == nelt * elt_size + nblock * block_ov);
 
   hand.reset();
   assert (nctor == 100);
   assert (ndtor == 100);
   assert (nclear == 0);
+  assert (hand.stats().elts.total >= 100);
   assert (hand.stats().elts.inuse == 0);
-  assert (hand.stats().elts.free == 100);
-  assert (hand.stats().elts.total == 100);
+  assert (hand.stats().elts.free == hand.stats().elts.total);
 
   ptrs.clear();
   for (int i=0; i < 100; i++) {
@@ -213,9 +214,9 @@ void test2()
   assert (nctor == 200);
   assert (ndtor == 100);
   assert (nclear == 0);
+  assert (hand.stats().elts.total >= 100);
   assert (hand.stats().elts.inuse == 100);
-  assert (hand.stats().elts.free == 0);
-  assert (hand.stats().elts.total == 100);
+  assert (hand.stats().elts.free == hand.stats().elts.total - 100);
 }
 
 
@@ -229,9 +230,9 @@ void test3()
   Handtype hand (&head, &params);
 
   hand.reserve (100);
+  assert (hand.stats().elts.total >= 100);
   assert (hand.stats().elts.inuse == 0);
-  assert (hand.stats().elts.free == 100);
-  assert (hand.stats().elts.total == 100);
+  assert (hand.stats().elts.free == hand.stats().elts.total);
 }
 
 
