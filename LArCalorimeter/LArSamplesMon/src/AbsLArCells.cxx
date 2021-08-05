@@ -33,7 +33,7 @@ void AbsLArCells::resetCache() const
 {
   if (m_cellCache) {
     delete m_cellCache;
-    m_cellCache = 0;
+    m_cellCache = nullptr;
   }
   m_pos = nChannels() + 1;
 }
@@ -42,7 +42,7 @@ void AbsLArCells::resetCache() const
 const History* AbsLArCells::newCellHistory(unsigned int i) const 
 { 
   const History* history = getCellHistory(i);
-  if (!history) return 0;
+  if (!history) return nullptr;
   if (!m_cellInfoCache[i]) {
     const CellInfo* ci=history->cellInfo();
     if (ci) {
@@ -59,7 +59,7 @@ const History* AbsLArCells::cellHistory(unsigned int i) const
   if (m_pos == i) return m_cellCache;
   resetCache();
   const History* history = newCellHistory(i);
-  if (!history) return 0;
+  if (!history) return nullptr;
   m_cellCache = history;
   m_pos = i;
   return m_cellCache;
@@ -69,7 +69,7 @@ const History* AbsLArCells::cellHistory(unsigned int i) const
 const CellInfo* AbsLArCells::cellInfo(unsigned int i) const
 {
   const CellInfo* info = cellInfoCache(i);
-  if (info) return (info->isValid() ? new CellInfo(*info) : 0);
+  if (info) return (info->isValid() ? new CellInfo(*info) : nullptr);
   info = getCellInfo(i);
   if (info)  m_cellInfoCache[i] =  new CellInfo(*info, false); 
   //m_cellInfoCache[i] = (info ? new CellInfo(*info, false) : new CellInfo());
@@ -86,8 +86,8 @@ const CellInfo* AbsLArCells::cellInfoCache(unsigned int i) const
 const CellInfo* AbsLArCells::getCellInfo(unsigned int i) const
 {
   const History* history = this->getCellHistory(i);
-  if (!history) return 0;
-  if (!history->cellInfo()) { delete history; return 0; }
+  if (!history) return nullptr;
+  if (!history->cellInfo()) { delete history; return nullptr; }
   CellInfo* info = new CellInfo(*history->cellInfo());
   delete history;
   return info;
@@ -97,15 +97,15 @@ const CellInfo* AbsLArCells::getCellInfo(unsigned int i) const
 const History* AbsLArCells::pass(unsigned int i, const FilterParams& f) const 
 { 
   //std::cout << "Called AbsLArCells with hash " << i  << std::endl;
-  if (!f.passHash(i)) return 0;
+  if (!f.passHash(i)) return nullptr;
   const CellInfo* info = cellInfo(i);
   if (!info) {
-    return 0;
+    return nullptr;
   }
   //std::cout << "Called AbsLArCells::pass on a cell belonging to " << Id::str(info->calo()) << std::endl;
   bool result = f.passCell(*info);
   delete info;  
-  return result ? cellHistory(i) : 0;
+  return result ? cellHistory(i) : nullptr;
 }
 
 

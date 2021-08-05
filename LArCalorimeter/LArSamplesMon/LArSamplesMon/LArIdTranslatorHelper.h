@@ -48,7 +48,7 @@ class LArIdTranslatorHelper
     TH2* GetCaloPartitionLayerMap(const int index,bool kProfile=false);
     const Char_t* GetPartitonLayerName(const int index);
     void MakeTranslatorMapping(const char* inputtreefile,const char* inputhistfile,const int run);
-    bool IsHVLine(const int hvline);
+    bool IsHVLine(const int hvline) const;
 
     Int_t GetNpl(){ return m_nPartitionLayers; }
 
@@ -63,7 +63,7 @@ class LArIdTranslatorHelper
     Int_t m_map_ft,m_map_sl,m_map_ch,m_map_onlid,m_map_entry;
 
     Int_t m_canvas_counts,m_clonemap_counts;
-    Char_t m_namebuf[128];
+    Char_t m_namebuf[128]{};
 
     Int_t m_nPartitionLayers; // number of partition layers (nominally 30, from CaloCell monitoring)
     Char_t** m_PartitionLayers;

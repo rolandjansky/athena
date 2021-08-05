@@ -42,9 +42,9 @@ namespace LArSamples {
 
       void dump(CaloGain::CaloGain gain) const;
       TH2D* correlate(const TreeShapeErrorGetter& other, CaloGain::CaloGain gain, unsigned short sample, bool xip, 
-                      unsigned int nBins, double xMin, double xMax); 
+                      unsigned int nBins, double xMin, double xMax) const; 
  
-      bool compare(const TreeShapeErrorGetter& other, const TString& fileName, const Interface* tmpl = 0);
+      bool compare(const TreeShapeErrorGetter& other, const TString& fileName, const Interface* tmpl = 0) const;
       
       const ResidualCalculator* cellCalc() const { return m_cellCalc; }
       const ResidualCalculator* ringCalc() const { return m_ringCalc; }

@@ -45,7 +45,7 @@ class LArShapeCompleteMaker : public AthAlgorithm
   
  private:
    
-  const LArOnlineID* m_onlineHelper;  
+  const LArOnlineID* m_onlineHelper = nullptr;  
 
   LArSamples::DataStore* m_template;
 

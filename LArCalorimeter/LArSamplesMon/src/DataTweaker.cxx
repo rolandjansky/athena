@@ -68,7 +68,7 @@ Data* DataTweaker::tweak(const Data& data, int evtIndex) const
     time = time - data.time(i1);
   }
   
-  if (m_samples.size() > 0) {
+  if (!m_samples.empty()) {
     std::vector<short> oldSamples = samples;
     samples.clear();
     for (std::map<unsigned int, bool>::const_iterator i = m_samples.begin();
@@ -84,16 +84,16 @@ Data* DataTweaker::tweak(const Data& data, int evtIndex) const
     const ScaledErrorData* sed = data.scaledErrorData();
     ShapeFitter fitter(m_fitParams);
     double chi2;
-    if (!reference) return 0;
+    if (!reference) return nullptr;
     bool result = fitter.fit(data, *reference, k, deltaT, chi2, sed);
     delete sed;
-    if (!result) return 0;
+    if (!result) return nullptr;
   }
 
   if (m_adjust) {
-    if (!data.history() || data.adcMax() == 0) return 0;
+    if (!data.history() || data.adcMax() == 0) return nullptr;
     OFC* ofc = data.history()->ofc(data.index());
-    if (!ofc) return 0;
+    if (!ofc) return nullptr;
     k = ofc->A(data)/data.adcMax();
     deltaT = ofc->time(data);
   }

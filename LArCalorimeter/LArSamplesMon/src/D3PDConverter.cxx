@@ -24,7 +24,7 @@ using namespace LArSamples;
 bool D3PDConverter::makeSamplesTuple(const TString& outputFileName)
 {
   DataStore* samples = new DataStore();
-  RunData* runData = 0;
+  RunData* runData = nullptr;
   
   cout << "Processing " << fChain->GetEntries() << " entries" << endl;
   for (long long i = 0; i < fChain->GetEntries(); i++) {
@@ -62,13 +62,13 @@ bool D3PDConverter::makeSamplesTuple(const TString& outputFileName)
       //if (digitIndex >= 0) cout << "digitIndex = " << digitIndex << endl;
       hash -= 1;
       HistoryContainer* histCont = samples->hist_cont(hash);
-      CellInfo* info = 0;
+      CellInfo* info = nullptr;
       if (!histCont) {
         const CellInfo* templateInfo = m_template->cellInfo(hash);
         info = new CellInfo(templateInfo->calo(), templateInfo->layer(),
                             templateInfo->iEta(), templateInfo->iPhi(),
                             templateInfo->feedThrough(), templateInfo->slot(), templateInfo->channel(),
-                            0,0,0, templateInfo->position(), templateInfo->onlid());
+                            nullptr,nullptr,nullptr, templateInfo->position(), templateInfo->onlid());
         histCont = samples->makeNewHistory(IdentifierHash(hash), info);
       }
       else

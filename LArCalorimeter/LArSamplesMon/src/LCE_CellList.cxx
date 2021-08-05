@@ -131,7 +131,7 @@ void LCE_CellList:: printThresholds() const {
 
 void LCE_CellList::readDefectLBList(const char* LBfile) {
 
-  if (m_badLBs.size()) 
+  if (!m_badLBs.empty()) 
     printf("Appending to already-existing list of bad lumi-blocks of size %lu\n",m_badLBs.size());
     
 
@@ -140,12 +140,12 @@ void LCE_CellList::readDefectLBList(const char* LBfile) {
 
   // assume single-line format with coma-separated LBs (from python)                                                                                                                
   std::getline(infile,line,'\n');
-  if (line.size()==0) {
+  if (line.empty()) {
     printf("No bad LBs found in file %s\n" ,(const char*)LBfile);
     return;
   }
 
-  for (size_t pos=0;pos!=std::string::npos;pos=line.find(",",pos)) {
+  for (size_t pos=0;pos!=std::string::npos;pos=line.find(',',pos)) {
     if (pos) pos++; //Jump over comma if not the first iteration
     //std::cout << "Parsing " << line.c_str()+pos << std::endl;
     unsigned LB=std::atoi(line.c_str()+pos);
@@ -231,10 +231,7 @@ void  LCE_CellList::addFlags(std::vector<LCE_CellList::thrCounter_t>& celllist, 
 
 
 bool LCE_CellList::applySelection(const LCE_CellList::thrCounter_t& counter) const {
-  if (counter.nSeen > m_minNSeen && counter.nAboveSigNoise > m_minAboveSigNoise) 
-    return true;
-  else
-    return false;
+  return counter.nSeen > m_minNSeen && counter.nAboveSigNoise > m_minAboveSigNoise;
 }
 
 

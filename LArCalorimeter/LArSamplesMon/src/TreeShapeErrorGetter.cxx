@@ -20,7 +20,7 @@ using namespace LArSamples;
 
 
 TreeShapeErrorGetter::TreeShapeErrorGetter(const TString& fileName, bool recreate)
- : m_file(0), m_cellTrees(3), m_ringTrees(3), m_cellCalc(0), m_ringCalc(0)
+ : m_file(nullptr), m_cellTrees(3), m_ringTrees(3), m_cellCalc(nullptr), m_ringCalc(nullptr)
 {
   m_file = TFile::Open(fileName, (recreate ? "RECREATE" : "READ"));
   if (!m_file || !m_file->IsOpen()) {
@@ -89,9 +89,9 @@ TTree* TreeShapeErrorGetter::cellTree(CaloGain::CaloGain gain) const
     case CaloGain::LARHIGHGAIN   : return m_cellTrees[0];
     case CaloGain::LARMEDIUMGAIN : return m_cellTrees[1];
     case CaloGain::LARLOWGAIN    : return m_cellTrees[2];
-    default : return 0;
+    default : return nullptr;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -101,30 +101,30 @@ TTree* TreeShapeErrorGetter::ringTree(CaloGain::CaloGain gain) const
     case CaloGain::LARHIGHGAIN   : return m_ringTrees[0];
     case CaloGain::LARMEDIUMGAIN : return m_ringTrees[1];
     case CaloGain::LARLOWGAIN    : return m_ringTrees[2];
-    default : return 0;
+    default : return nullptr;
   }
-  return 0;
+  return nullptr;
 }
 
 
 ShapeErrorData* TreeShapeErrorGetter::shapeErrorData(unsigned int hash, CaloGain::CaloGain gain, const Residual* toExclude) const
 {
-  if (!cellTree(gain) || hash >= cellTree(gain)->GetEntries()) return 0;
+  if (!cellTree(gain) || hash >= cellTree(gain)->GetEntries()) return nullptr;
   cellTree(gain)->GetEntry(hash);
 
   if (toExclude) m_cellCalc->remove(*toExclude);
-  if (m_cellCalc->size() < 2) return 0;
+  if (m_cellCalc->size() < 2) return nullptr;
   return m_cellCalc->shapeErrorData();
 }
 
 
 ShapeErrorData* TreeShapeErrorGetter::phiSymShapeErrorData(short ring, CaloGain::CaloGain gain, const Residual* toExclude) const
 { 
-  if (!ringTree(gain) || ring >= ringTree(gain)->GetEntries()) return 0;
+  if (!ringTree(gain) || ring >= ringTree(gain)->GetEntries()) return nullptr;
   ringTree(gain)->GetEntry(ring);
 
   if (toExclude) m_ringCalc->remove(*toExclude);
-  if (m_ringCalc->size() < 2) return 0;
+  if (m_ringCalc->size() < 2) return nullptr;
   return m_ringCalc->shapeErrorData();
 }
 
@@ -163,7 +163,7 @@ void TreeShapeErrorGetter::dump(CaloGain::CaloGain gain) const
 }
 
 TH2D* TreeShapeErrorGetter::correlate(const TreeShapeErrorGetter& other, CaloGain::CaloGain gain, unsigned short sample, bool xip, 
-                                       unsigned int nBins, double xMin, double xMax)
+                                       unsigned int nBins, double xMin, double xMax) const
 {
   TH2D* h = new TH2D(Form("%s_%d", xip ? "xip" : "xi", sample), "", nBins, xMin, xMax, nBins, xMin, xMax);
   for (long long i = 0; i < Definitions::nChannels; i++) {
@@ -262,7 +262,7 @@ bool TreeShapeErrorGetter::merge(const std::vector<const TreeShapeErrorGetter*>&
 }
 
 
-bool TreeShapeErrorGetter::compare(const TreeShapeErrorGetter& other, const TString& fileName, const Interface* tmpl)
+bool TreeShapeErrorGetter::compare(const TreeShapeErrorGetter& other, const TString& fileName, const Interface* tmpl) const
 {
   TFile* f = TFile::Open(fileName, "RECREATE");
   TTree* tree = new TTree("tree", "");

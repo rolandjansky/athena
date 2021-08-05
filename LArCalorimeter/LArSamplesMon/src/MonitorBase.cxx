@@ -12,14 +12,16 @@
 #include "LArCafJobs/Geometry.h"
 #include "LArSamplesMon/Averager.h"
 
+#include "TF1.h"
 #include "TH1I.h"
 #include "TH2D.h"
-#include "TF1.h"
-#include "TPaveText.h"
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "TPaveText.h"
 #include <map>
+#include <utility>
+
 #include <vector>
 
 #include <iostream>
@@ -60,8 +62,8 @@ TString  MonitorBase::str(CombinationType comb)
 
 
 TH1D* MonitorBase::dist(const DataFuncSet& func, const DataFuncArgs& args, 
-                        TString name, int nBins, double xMin, double xMax, 
-                        TString title, TString xTitle, TString yTitle, const FilterParams& f) const
+                        const TString& name, int nBins, double xMin, double xMax, 
+                        const TString& title, const TString& xTitle, const TString& yTitle, const FilterParams& f) const
 {
   TH1D* h = new TH1D(name, title, nBins, xMin, xMax);
   if (xTitle != "") h->GetXaxis()->SetTitle(xTitle);
@@ -81,10 +83,10 @@ TH1D* MonitorBase::dist(const DataFuncSet& func, const DataFuncArgs& args,
 
 TH2D* MonitorBase::dist(const DataFuncSet& funcX, const DataFuncArgs& argsX,
                         const DataFuncSet& funcY, const DataFuncArgs& argsY,
-                        TString name, 
+                        const TString& name, 
                         int nBinsX, double xMin, double xMax, 
                         int nBinsY, double yMin, double yMax, 
-                        TString title, TString xTitle, TString yTitle, 
+                        const TString& title, const TString& xTitle, const TString& yTitle, 
                         const FilterParams& f) const
 {
   TH2D* h = new TH2D(name, title, nBinsX, xMin, xMax, nBinsY, yMin, yMax);
@@ -104,9 +106,9 @@ TH2D* MonitorBase::dist(const DataFuncSet& funcX, const DataFuncArgs& argsX,
 }
 
 TH2D* MonitorBase::partitionMap(const DataFuncSet& func, const DataFuncArgs& args, TString name, PartitionId partition, 
-                                TString title, CombinationType comb, const FilterParams& f) const
+                                const TString& title, CombinationType comb, const FilterParams& f) const
 {
-  TH2D* h = Geo::partitionHist(partition, name, title + " " + Id::str(partition));
+  TH2D* h = Geo::partitionHist(partition, std::move(name), title + " " + Id::str(partition));
   unsigned int nValues = 0;
   FilterParams ff(f);
   ff.addPartition(partition);
@@ -122,7 +124,7 @@ TH2D* MonitorBase::partitionMap(const DataFuncSet& func, const DataFuncArgs& arg
 
 
 TH2D* MonitorBase::etaPhiMap(const DataFuncSet& func, const DataFuncArgs& args,
-                             TString name, CaloId calo, short layer,
+                             const TString& name, CaloId calo, short layer,
                              TString title, CombinationType comb, const FilterParams& f) const
 {
   if (title == "") title = Form("%s %s (%s, layer %d)", name.Data(), str(comb).Data(), Id::str(calo).Data(), layer);
@@ -227,7 +229,7 @@ bool MonitorBase::parseVariables(TString varStr, std::vector<TString>& vars,
     }
     vars.push_back(varAndSample);
     funcs.push_back(fcn);
-    args.push_back(DataFuncArgs(sample1, sample2, par, Definitions::none, str));
+    args.emplace_back(sample1, sample2, par, Definitions::none, str);
   }
   delete varList;
   return true;
@@ -260,7 +262,7 @@ bool MonitorBase::prepareDumpParams(const TString& vars, int verbosity,
   locHeader = Form(locFormatHeader, "hash", "location");
     
   for (unsigned int i = 0; i < variables.size(); i++) {
-    formats.push_back(" %-9.8g |");
+    formats.emplace_back(" %-9.8g |");
     TString fH = formats[i]; fH.ReplaceAll("g", "s");
     TString varName = variables[i];
     if (args[i].i2 != -1) varName += Form("[%d, %d]", args[i].i1, args[i].i2);
@@ -421,7 +423,7 @@ double MonitorBase::history_value(const History& history, const DataFuncSet& fun
 }
 
 
-DataFuncSet MonitorBase::func(TString var)
+DataFuncSet MonitorBase::func(const TString& var)
 {
   if (var == "sample")         return DataFuncSet(&Data::_sample);
   if (var == "pedSubSample")   return DataFuncSet(&Data::_pedestalSubstractedSample);

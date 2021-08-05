@@ -151,11 +151,11 @@ Residuals* Residuals::truncate(double nWidthsRes, double nWidthsTime, unsigned i
   if (nMax > 0) {
     Residuals* original = new Residuals();
     for (unsigned int i = 0; i < nMax; i++) original->add(*residual(i));
-    if (!original->medianVars(medians, widths)) { delete original; return 0;}
+    if (!original->medianVars(medians, widths)) { delete original; return nullptr;}
     delete original;
   }
   else {
-    if (!medianVars(medians, widths)) return 0;
+    if (!medianVars(medians, widths)) return nullptr;
   }
   Residuals* truncated = new Residuals();
 
@@ -188,7 +188,7 @@ TH1D* Residuals::histogram(short sample, const TString& name, int nBins, double 
 
 ResidualCalculator* Residuals::calculator(bool weigh) const
 {           
-  if (size() == 0) return 0;
+  if (size() == 0) return nullptr;
 
   ResidualCalculator* calc = new ResidualCalculator(lwb(), upb(), weigh);
   for (std::vector<Residual>::const_iterator residual = m_residuals.begin(); residual != m_residuals.end(); residual++)
@@ -274,8 +274,7 @@ double  ResidualCalculator::weight(const Residual& residual) const
 bool ResidualCalculator::fill_with_weight(const Residual& residual, double w)
 {
   w *= weight(residual);
-  if (!m_regresser.fill(residual.scaledDeltasAndTime(), w)) return false;
-  return true;
+  return m_regresser.fill(residual.scaledDeltasAndTime(), w);
 }
 
 

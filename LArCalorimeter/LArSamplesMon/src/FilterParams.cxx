@@ -175,7 +175,7 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "Invalid argument " + arg;
   }
   if (var == "cell") {
-    if (oring != "cell" && m_channels.size() > 0) return "Variable " + var + " already set";
+    if (oring != "cell" && !m_channels.empty()) return "Variable " + var + " already set";
     if (op == "==") {
       if (m_channelSel == -1) return "Cannot have positive channel selections and vetos in the same command";
       cout << "---> set channel sel == 1" << endl;
@@ -186,7 +186,7 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
       cout << "---> set channel sel == -1" << endl;
       m_channelSel = -1;
     }    
-    TObjArray* chTokens = 0;
+    TObjArray* chTokens = nullptr;
     if (TString(arg[0]) == "[" || TString(arg[arg.Length() - 1]) == "]")
       chTokens = TString(arg(1, arg.Length() - 2)).Tokenize(",");
     else 
@@ -220,7 +220,7 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "";
   }
   if (var == "calo" && op == "==") {
-    if (oring != "calo" && m_calos.size() > 0) return "Variable " + var + " already set";
+    if (oring != "calo" && !m_calos.empty()) return "Variable " + var + " already set";
     CaloId caloId = Id::caloId(arg);
     if (caloId == UNKNOWN_CALO) return "Invalid argument " + arg;
     addCalo(caloId);
@@ -228,7 +228,7 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "";
   }
   if (var == "partition" && op == "==") {
-    if (oring != "partition" && m_calos.size() > 0) return "Variable " + var + " already set";
+    if (oring != "partition" && !m_calos.empty()) return "Variable " + var + " already set";
     PartitionId partId = Id::partitionId(arg);
     if (partId == UNKNOWN_PARTITION) return "Invalid argument " + arg;
     addPartition(partId);
@@ -236,14 +236,14 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "";
   }
   if (var == "layer" && op == "==") {
-    if (oring != "layer" && m_layers.size() > 0) return "Variable " + var + " already set";
+    if (oring != "layer" && !m_layers.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addLayer(arg.Atoi());
     cout << "---> addLayer " << arg.Atoi() << endl;
     return "";
   }
   if (var == "gain" && op == "==") {
-    if (oring != "gain" && m_gains.size() > 0) return "Variable " + var + " already set";
+    if (oring != "gain" && !m_gains.empty()) return "Variable " + var + " already set";
     CaloGain::CaloGain gain = CaloGain::UNKNOWNGAIN;
     if (arg == "HIGH")   gain = CaloGain::LARHIGHGAIN;
     if (arg == "MEDIUM") gain = CaloGain::LARMEDIUMGAIN;
@@ -254,21 +254,21 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "";
   }
   if (var == "runNum" && op == "==") {
-    if (oring != "runNum" && m_runs.size() > 0) return "Variable " + var + " already set";
+    if (oring != "runNum" && !m_runs.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addRun(arg.Atoi());
     cout << "---> addRun " << arg.Atoi() << endl;
     return "";
   }
   if (var == "eventNum" && op == "==") {
-    if (oring != "eventNum" && m_events.size() > 0) return "Variable " + var + " already set";
+    if (oring != "eventNum" && !m_events.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addEvent(arg.Atoi());
     cout << "---> addEvent " << arg.Atoi() << endl;
     return "";
   }
   if (var == "eventSpec" && op == "==") {
-    if (oring != "eventSpec" && m_events.size() > 0) return "Variable " + var + " already set";
+    if (oring != "eventSpec" && !m_events.empty()) return "Variable " + var + " already set";
     TObjArray* evTokens = arg.Tokenize("/");
     if (evTokens->GetEntries() != 2) { delete evTokens; return "Invalid argument " + arg; }
     TString evt = ((TObjString*)evTokens->At(0))->String();
@@ -282,7 +282,7 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     return "";
   }
   if (var == "eventFile" && op == "==") {
-    if (oring != "eventFile" && m_events.size() > 0) return "Variable " + var + " already set";
+    if (oring != "eventFile" && !m_events.empty()) return "Variable " + var + " already set";
     ifstream fs(arg);
     if (!fs.is_open() || fs.eof()) return "File " + arg + " does not contain a valid event list";
     while (!fs.eof()) {
@@ -303,21 +303,21 @@ TString FilterParams::processToken(const TString& var, const TString& op, const 
     fs.close();
   }
   if (var == "lb" && op == "==") {
-    if (oring != "lb" && m_lbs.size() > 0) return "Variable " + var + " already set";
+    if (oring != "lb" && !m_lbs.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addLB(arg.Atoi());
     cout << "---> addLB " << arg.Atoi() << endl;
     return "";
   }
   if (var == "hashId" && op == "==") {
-    if (oring != "hashId" && m_hashIds.size() > 0) return "Variable " + var + " already set";
+    if (oring != "hashId" && !m_hashIds.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addHashId(arg.Atoi());
     cout << "---> addHashId " << arg.Atoi() << endl;
     return "";
   }
   if (var == "hashId" && op == "<") {
-    if (oring != "hashId" && m_hashIds.size() > 0) return "Variable " + var + " already set";
+    if (oring != "hashId" && !m_hashIds.empty()) return "Variable " + var + " already set";
     if (!arg.IsDigit()) return "Invalid argument " + arg;
     addHashIdRange(0, arg.Atoi());
     cout << "---> addHashIdRange 0 " << arg.Atoi() << endl;
@@ -372,7 +372,7 @@ void FilterParams::addRunEventFromData(const Data& data)
 
 void FilterParams::addChannel(CaloId calo, int feedThrough, int slot, int channel)
 {
-  m_channels.push_back(ChannelSpec(calo, feedThrough, slot, channel));
+  m_channels.emplace_back(calo, feedThrough, slot, channel);
 }
 
 
@@ -411,7 +411,7 @@ bool FilterParams::pass(unsigned int hashId, const History& history, unsigned in
 
 bool FilterParams::passHash(unsigned int hashId) const
 {
-  if (m_hashIds.size() != 0) {
+  if (!m_hashIds.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_hashIds.size(); k++)
       if (m_hashIds[k].first <= (int)hashId && (int)hashId < m_hashIds[k].second) {
@@ -435,7 +435,7 @@ bool FilterParams::passEvent(const Data& data) const
   if ((m_requireSat & 1) && data.maxSample() < m_saturation) return false;
   if ((m_requireSat & 2) && data.maxSample() > m_saturation) return false;
   if (m_indexParity > 0 && (data.index() % 2) != (m_indexParity % 2)) return false;
-  if (m_runs.size() != 0) {
+  if (!m_runs.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_runs.size(); k++)
       if (m_runs[k].first <= data.run() && data.run() < m_runs[k].second) {
@@ -445,7 +445,7 @@ bool FilterParams::passEvent(const Data& data) const
     if (!pass) return false;
   }
   
-  if (m_events.size() != 0) {
+  if (!m_events.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_events.size(); k++)
       if (m_events[k].first <= data.event() && data.event() < m_events[k].second) {
@@ -455,7 +455,7 @@ bool FilterParams::passEvent(const Data& data) const
     if (!pass) return false;
   }
 
-  if (m_lbs.size() != 0) {
+  if (!m_lbs.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_lbs.size(); k++)
       if (m_lbs[k].first <= data.lumiBlock() && data.lumiBlock() < m_lbs[k].second) {
@@ -465,7 +465,7 @@ bool FilterParams::passEvent(const Data& data) const
     if (!pass) return false;
   }
  
-  if (m_gains.size() != 0) {
+  if (!m_gains.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_gains.size(); k++)
       if (m_gains[k] == data.gain()) {
@@ -481,7 +481,7 @@ bool FilterParams::passEvent(const Data& data) const
 
 bool FilterParams::passCell(const CellInfo& info) const
 {
-  if (m_calos.size() != 0) {
+  if (!m_calos.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_calos.size(); k++)
       if (Id::matchCalo(info.calo(), m_calos[k])) {
@@ -491,7 +491,7 @@ bool FilterParams::passCell(const CellInfo& info) const
     if (!pass) return false;
   }
 
-  if (m_partitions.size() != 0) {
+  if (!m_partitions.empty()) {
     bool pass = false;
     for (unsigned int k = 0; k < m_partitions.size(); k++)
       if (info.partition() == m_partitions[k]) {
@@ -501,7 +501,7 @@ bool FilterParams::passCell(const CellInfo& info) const
     if (!pass) return false;
   }
   
-  if (m_layers.size() != 0) {
+  if (!m_layers.empty()) {
     bool found = false;
     for (unsigned int k = 0; k < m_layers.size(); k++)
       if (m_layers[k] == info.layer()) {
@@ -511,7 +511,7 @@ bool FilterParams::passCell(const CellInfo& info) const
     if (!found) return false; 
   }
   
-  if (m_channels.size() != 0) {
+  if (!m_channels.empty()) {
     bool found = false;
     for (unsigned int k = 0; k < m_channels.size(); k++)
       if (m_channels[k].match(info)) {

@@ -38,7 +38,7 @@ namespace LArSamples {
       /** @brief Constructor  */
       DigitMonitor(const Interface& interface) : MonitorBase(interface) { } 
     
-      TH1D* chi2Dist(TString name, int nBins, double max, double kFactor = 0, double fitMax = -1, 
+      TH1D* chi2Dist(const TString& name, int nBins, double max, double kFactor = 0, double fitMax = -1, 
                      int lwb = -1, int upb = -1, unsigned int chi2Pars = DefaultChi2, ShapeErrorType shapeErrorType = BestShapeError,
                      unsigned int nDof = 0) const;
 
@@ -46,23 +46,23 @@ namespace LArSamples {
       static TF1* fitChi2(TH1D& h, const char* name, double xMin, double xMax, double nDof = -1, 
 			  double fitMin = Definitions::none, double fitMax = Definitions::none);
 
-      TH1D* bestChi2Dist(TString name, int nBins, double max, 
+      TH1D* bestChi2Dist(const TString& name, int nBins, double max, 
                          double refErrMin, double refErrMax, unsigned int refErrNBins,
                          int lwb = -1, int upb = -1, unsigned int chi2Pars = DefaultChi2,
                          unsigned int nDof = 0) const;
         
-      TH1D* gainDist(TString name) const;
-      TH1D* layerDist(TString name) const;
+      TH1D* gainDist(const TString& name) const;
+      TH1D* layerDist(const TString& name) const;
       
-      TH1D* energyDist(TString name, int nBins, double eMax = 10000) const;
-      TH1D* timeDist(TString name, int nBins, double tMin = -25, double tMax = 25) const;
-      TH1D* adcMaxDist(TString name, int nBins, double aMin = 0, double aMax = 4096) const;
-      TH1D* noiseDist(TString name, int nBins, double max) const;
+      TH1D* energyDist(const TString& name, int nBins, double eMax = 10000) const;
+      TH1D* timeDist(const TString& name, int nBins, double tMin = -25, double tMax = 25) const;
+      TH1D* adcMaxDist(const TString& name, int nBins, double aMin = 0, double aMax = 4096) const;
+      TH1D* noiseDist(const TString& name, int nBins, double max) const;
     
       TH2D* maxValueMap(TString name, PartitionId partition) const;
       TH2D* minValueMap(TString name, PartitionId partition) const;
       
-      TH1D* residualDist(unsigned int k, TString name, int nBins, double rMin, double rMax, bool norm = false) const;
+      TH1D* residualDist(unsigned int k, const TString& name, int nBins, double rMin, double rMax, bool norm = false) const;
       
       bool residualPlots(CaloId calo, unsigned int layer, CaloGain::CaloGain gain = CaloGain::LARHIGHGAIN, bool xip = false, bool ring = false, 
                          double lo = -0.05, double hi = 0.05, const TString& fileName = "residuals");
@@ -71,10 +71,10 @@ namespace LArSamples {
       bool residualPlotsGainComp(CaloId calo, unsigned int layer, bool ring = false, bool xip = false,
                          double lo = -0.05, double hi = 0.05, const TString& fileName = "residuals");
 
-      TH1D* shapeErrorDist(unsigned int k, TString name, int nBins, double rMin, double rMax, double mean = 0) const;
+      TH1D* shapeErrorDist(unsigned int k, const TString& name, int nBins, double rMin, double rMax, double mean = 0) const;
       double residualCorr(unsigned int k1, unsigned int k2) const;
       
-      bool makeResidualCorrections(TString outputFile, short resTrunc = -1, short timeTrunc = -1, 
+      bool makeResidualCorrections(const TString& outputFile, short resTrunc = -1, short timeTrunc = -1, 
                                    double absResTrunc = -1, unsigned int minSize = 0, 
                                    bool weigh = false, bool adjust = false, bool zeroTime = false) const;
       Residuals* getResiduals(unsigned int hash, CaloGain::CaloGain gain, double absResTrunc = -1, bool adjust = false, bool zeroTime = false) const;
@@ -83,7 +83,7 @@ namespace LArSamples {
       CovMatrix kMatrix(int lwb, int upb) { CovMatrix k; TVectorD means; residualParams(lwb, upb, k, means); return k; }
       TVectorD means(int lwb, int upb) { CovMatrix k; TVectorD means; residualParams(lwb, upb, k, means); return means; }
                   
-      int combine(SimpleShape*& shape, SimpleShape*& ref, TString selection = "", bool timeAligned = true) const;
+      int combine(SimpleShape*& shape, SimpleShape*& ref, const TString& selection = "", bool timeAligned = true) const;
   };
 }
   

@@ -17,7 +17,7 @@ using std::endl;
 using namespace LArSamples;
 
 
-bool Splitter::splitEvents(TString name, unsigned int max) const
+bool Splitter::splitEvents(const TString& name, unsigned int max) const
 {
   std::map<unsigned int, bool> events;
   

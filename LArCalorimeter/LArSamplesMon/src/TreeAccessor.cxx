@@ -28,12 +28,12 @@ using namespace LArSamples;
 TreeAccessor* TreeAccessor::open(const TString& fileName) 
 {
   TFile* file = TFile::Open(fileName);
-  if (!file) return 0;
-  if (!file->IsOpen()) { delete file; return 0; }
+  if (!file) return nullptr;
+  if (!file->IsOpen()) { delete file; return nullptr; }
   TTree* cellTree = (TTree*)file->Get("cells");
-  if (!cellTree) return 0;
+  if (!cellTree) return nullptr;
   TTree* eventTree = (TTree*)file->Get("events");
-  if (!eventTree) return 0;
+  if (!eventTree) return nullptr;
   TTree* runTree = (TTree*)file->Get("runs");
   TreeAccessor* accessor = new TreeAccessor(*cellTree, *eventTree, runTree, file);
   return accessor;
@@ -43,7 +43,7 @@ TreeAccessor* TreeAccessor::open(const TString& fileName)
 const CellInfo* TreeAccessor::getCellInfo(unsigned int i) const 
 { 
   const HistoryContainer* cont = historyContainer(i);
-  if (!cont || !cont->cellInfo()) return 0;
+  if (!cont || !cont->cellInfo()) return nullptr;
   return new CellInfo(*cont->cellInfo());
 }
 
@@ -51,7 +51,7 @@ const CellInfo* TreeAccessor::getCellInfo(unsigned int i) const
 const History* TreeAccessor::getCellHistory(unsigned int i) const 
 { 
   //cout << "A" << endl;
-  if (i >= cellTree().GetEntries()) return 0;
+  if (i >= cellTree().GetEntries()) return nullptr;
   //cout << "---> TTree::GetEntry " << i << endl;
   getCellEntry(i);
   //cout << "---> done TTree::GetEntry" << endl;
@@ -61,12 +61,12 @@ const History* TreeAccessor::getCellHistory(unsigned int i) const
   
   for (unsigned int k = 0; k < currentContainer()->nDataContainers(); k++) {
     const EventData* evtData = eventData(currentContainer()->dataContainer(k)->eventIndex());
-    EventData* newEvtData = (evtData ? new EventData(*evtData) : 0);
+    EventData* newEvtData = (evtData ? new EventData(*evtData) : nullptr);
     eventDatas.push_back(newEvtData);
   }
   //cout << "C" << endl;
   //cout << "---> TreeAcc : make new hist" << endl;
-  return (currentContainer()->cellInfo() ? new History(*currentContainer(), eventDatas, i) : 0);
+  return (currentContainer()->cellInfo() ? new History(*currentContainer(), eventDatas, i) : nullptr);
 }
 
 
@@ -76,7 +76,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   cout << "Merging to " << fileName << endl;
   TreeAccessor* newAcc = new TreeAccessor(fileName);
   unsigned int size = 0;
-  CellInfo* info = 0;
+  CellInfo* info = nullptr;
 
   int evtIndex = 0, runIndex = 0;
   std::map<std::pair<int, int>, int> evtMap;
@@ -87,7 +87,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
        accessor != accessors.end(); accessor++) {
     if (!*accessor) {
       cout << "Cannot merge: one of the inputs is null!" << endl;
-      return 0;
+      return nullptr;
     }
     for (unsigned int i = 0; i < (*accessor)->nRuns(); i++) {
       int run = (*accessor)->runData(i)->run();
@@ -127,7 +127,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
       cout << "Merging channel " << i << "/" <<  newAcc->nChannels() << " (current size = " << size << ")" << endl;
       //ClassCounts::printCountsTable();
     }
-    HistoryContainer* historyContainer = 0;
+    HistoryContainer* historyContainer = nullptr;
     for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
 	 accessor != accessors.end(); accessor++) {
       const History* history = (*accessor)->cellHistory(i);
@@ -147,7 +147,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
           const ShapeInfo* shape = history->cellInfo()->shape(history->data(j)->gain());
           if (!shape) 
             cout << "Shape not filled for hash = " << i << ", index = " << j << ", gain = " << Data::gainStr(history->data(j)->gain()) << endl;
-          info->setShape(history->data(j)->gain(), (shape ? new ShapeInfo(*shape) : 0));
+          info->setShape(history->data(j)->gain(), (shape ? new ShapeInfo(*shape) : nullptr));
         }
       }
     }
@@ -178,7 +178,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   if(list->GetEntries() == 0){
     printf("No LB filtering specified, or bad format. Exiting.\n");
     delete list;
-    return 0;
+    return nullptr;
   }
   
   for(int k = 0; k < list->GetEntries(); k++){
@@ -192,7 +192,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   // from here it is similar to other functions of this class
   TreeAccessor* newAcc = new TreeAccessor(fileName);
   unsigned int size = 0;
-  CellInfo* info = 0;
+  CellInfo* info = nullptr;
 
   int evtIndex = 0, runIndex = 0;
   std::map<std::pair<int, int>, int> evtMap;
@@ -203,7 +203,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
        accessor != accessors.end(); accessor++) {
     if (!*accessor) {
       cout << "Cannot merge: one of the inputs is null!" << endl;
-      return 0;
+      return nullptr;
     }
     for (unsigned int i = 0; i < (*accessor)->nRuns(); i++) {
       int run = (*accessor)->runData(i)->run();
@@ -256,7 +256,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
       cout << "Merging channel " << i << "/" <<  newAcc->nChannels() << " (current size = " << size << ")" << endl;
       //ClassCounts::printCountsTable();
     }
-    HistoryContainer* historyContainer = 0;
+    HistoryContainer* historyContainer = nullptr;
     for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
 	 accessor != accessors.end(); accessor++) {
       const History* history = (*accessor)->cellHistory(i);
@@ -276,7 +276,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
          const ShapeInfo* shape = history->cellInfo()->shape(history->data(j)->gain());
          if (!shape) 
            cout << "Shape not filled for hash = " << i << ", index = " << j << ", gain = " << Data::gainStr(history->data(j)->gain()) << endl;
-          info->setShape(history->data(j)->gain(), (shape ? new ShapeInfo(*shape) : 0));
+          info->setShape(history->data(j)->gain(), (shape ? new ShapeInfo(*shape) : nullptr));
         }
       }
     }
@@ -285,7 +285,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
     }
     newAcc->add(historyContainer);
     delete historyContainer;
-    historyContainer=0;
+    historyContainer=nullptr;
     //}
   }
 
@@ -305,7 +305,7 @@ TreeAccessor* TreeAccessor::filter(const Accessor& accessor,
 {
   FilterList filterList; filterList.add(filterParams, fileName);  
   std::vector<TreeAccessor*> result = filter(accessor, filterList, tweaker);
-  return (result.size() >= 1 ? result[0] : 0);
+  return (!result.empty() ? result[0] : nullptr);
 }
 
 std::vector<TreeAccessor*> 
@@ -348,7 +348,7 @@ TreeAccessor::filter(const Accessor& accessor,
     }    
     bool first = true;
     
-    const History* history = 0;
+    const History* history = nullptr;
     for (unsigned int f = 0; f < filterList.size(); f++) {
       history = accessor.pass(i, filterList.filterParams(f));
       if (history) break;
@@ -476,7 +476,7 @@ TreeAccessor* TreeAccessor::makeTemplate(const Accessor& accessor, const TString
 bool TreeAccessor::writeToFile(const TString& fileName) const
 {
   TFile* newFile = new TFile(fileName, "RECREATE");
-  if (newFile && !newFile->IsOpen()) { delete newFile; newFile = 0; }
+  if (newFile && !newFile->IsOpen()) { delete newFile; newFile = nullptr; }
   if (!newFile) return false;
   
   cellTree().Write();

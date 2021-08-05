@@ -33,7 +33,7 @@ void CaloD3PDClass::Loop()
 // METHOD2: replace line
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
-   if (fChain == 0) return;
+   if (fChain == nullptr) return;
 
    Long64_t nentries = fChain->GetEntriesFast();
 

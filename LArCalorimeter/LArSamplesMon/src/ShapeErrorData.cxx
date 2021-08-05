@@ -59,7 +59,7 @@ ShapeErrorData* ShapeErrorData::add(const ShapeErrorData& other) const
 {
   int newLwb = commonLwb(other);
   int newUpb = commonUpb(other);
-  if (newUpb < newLwb) return 0;
+  if (newUpb < newLwb) return nullptr;
   TVectorD newXi = xi(newLwb, newUpb) + other.xi(newLwb, newUpb);
   TVectorD newXip = xip(newLwb, newUpb) + other.xip(newLwb, newUpb);
   CovMatrix newXiErr = xiErr(newLwb, newUpb)  + other.xiErr(newLwb, newUpb);

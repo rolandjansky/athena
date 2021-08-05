@@ -65,7 +65,7 @@ const DataContainer* Data::dissolve()
 
 double Data::noise() const 
 { 
-  return (m_container->corrs().size() == 0 ? 0 : TMath::Sqrt(m_container->corrs()[0]));
+  return (m_container->corrs().empty() ? 0 : TMath::Sqrt(m_container->corrs()[0]));
 }
 
 double Data::adcMax_new() const
@@ -148,7 +148,7 @@ TString Data::problems(bool sayNone) const
 */  
 
   TString problems = "";
-  if (problems = "" && sayNone) problems = "None";
+  if (problems =="" && sayNone) problems = "None";
   return problems;
 }
 
@@ -184,14 +184,14 @@ SimpleShape* Data::timeAlignedShape() const
 
 SimpleShape* Data::referenceShape() const
 {
-  if (!m_history) return 0;
+  if (!m_history) return nullptr;
   return m_history->referenceShape(m_index);
 }
 
 
 const ScaledErrorData* Data::scaledErrorData() const
 {
-  if (!m_history) return 0;
+  if (!m_history) return nullptr;
   return m_history->scaledErrorData(m_index);
 }
 

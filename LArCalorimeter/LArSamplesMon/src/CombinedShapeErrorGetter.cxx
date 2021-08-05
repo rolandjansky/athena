@@ -17,7 +17,7 @@ ShapeErrorData* CombinedShapeErrorGetter::shapeErrorData(unsigned int hash, Calo
 {
   TVectorD offsets(32);
   CovMatrix errors(32);
-  ShapeErrorData* sed = 0;
+  ShapeErrorData* sed = nullptr;
   for (std::vector<const AbsShapeErrorGetter*>::const_iterator getter = m_getters.begin();
        getter != m_getters.end(); getter++) {
     const ShapeErrorData* other = (*getter)->shapeErrorData(hash, gain);
@@ -28,7 +28,7 @@ ShapeErrorData* CombinedShapeErrorGetter::shapeErrorData(unsigned int hash, Calo
       ShapeErrorData* newSed = sed->add(*other);
       delete sed;
       sed = newSed;
-      if (!sed) return 0;
+      if (!sed) return nullptr;
     }
     delete other;
   }

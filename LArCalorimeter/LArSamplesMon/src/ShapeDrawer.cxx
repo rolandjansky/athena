@@ -49,7 +49,7 @@ TGraphErrors* ShapeDrawer::draw(const AbsShape* shape, const char* title, bool d
 bool ShapeDrawer::draw(const char* title, const std::vector<const AbsShape*>& shapes, 
                                    const AbsShape* reference, const AbsShape* refSamples) const
 {
-  if (shapes.size() == 0) return false;
+  if (shapes.empty()) return false;
   
   if (m_pars & AtlasStyle) {
     gStyle->SetTitleXOffset(1.0);
@@ -59,11 +59,13 @@ bool ShapeDrawer::draw(const char* title, const std::vector<const AbsShape*>& sh
     gStyle->SetPadLeftMargin(0.12);
   }
   
-  TLegend* legend = 0;
-  if (m_pars & AtlasStyle) 
+  TLegend* legend = nullptr;
+  if (m_pars & AtlasStyle) {
     legend = new TLegend(0.45, 0.7, 0.8, 0.5, "", "NDC");
-  else if ((m_pars | Legend) && shapes.size() <= 4)
+  }
+  else if ((m_pars & Legend) && shapes.size() <= 4){
     legend = new TLegend(0.6, 0.85, 0.85, 0.85 - 0.1*shapes.size(), "", "NDC");
+  }
     
   if (legend) {
     legend->SetFillColor(0);

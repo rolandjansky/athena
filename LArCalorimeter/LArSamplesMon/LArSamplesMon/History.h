@@ -96,7 +96,7 @@ namespace LArSamples {
       bool residualOffset(unsigned int i, short sample, double& offset, double adcMax = -1, double time = Definitions::none) const;
       bool residualError(unsigned int i, short sample1, short sample2, double& offset, double adcMax = -1, double time = Definitions::none) const;
       
-      bool drawWithReference(int i, TString atlasTitle = "") const;
+      bool drawWithReference(int i, const TString& atlasTitle = "") const;
       bool drawSumWithReference() const;
       bool drawAllWithReference(bool refit = false) const;
       bool drawResiduals(int k = -1, bool errors = true, bool rescale = true) const;
@@ -117,7 +117,7 @@ namespace LArSamples {
      std::vector<const EventData*> m_eventData;
      unsigned int m_hash;
      mutable const AbsShapeErrorGetter* m_shapeErrorGetter;
-     mutable const Interface* m_interface;
+     mutable const Interface* m_interface = nullptr;
      //mutable std::hash_map<int, std::pair<int, const Data*> > m_dataForEvent;
   };
 }

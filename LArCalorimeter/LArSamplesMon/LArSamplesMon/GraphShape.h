@@ -21,8 +21,11 @@ namespace LArSamples {
   struct GraphPoint
   {
     GraphPoint(double t, double v, double e) : time(t), value(v), error(e) { }
-    bool operator<(const GraphPoint& other) const { return time < other.time; } 
-    GraphPoint& operator=(const GraphPoint& other) { time = other.time; value = other.value; error = other.error; return *this; }
+    bool operator<(const GraphPoint& other) const { return time < other.time; }
+    GraphPoint(const GraphPoint& other) = default;
+    GraphPoint(GraphPoint&& other) = default;
+    GraphPoint& operator=(const GraphPoint& other) = default;
+    GraphPoint& operator=(GraphPoint&& other) = default;
     double time, value, error;
   };    
   
