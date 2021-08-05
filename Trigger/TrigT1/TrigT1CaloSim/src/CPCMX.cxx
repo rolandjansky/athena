@@ -69,7 +69,6 @@ StatusCode CPCMX::initialize()
   ATH_CHECK(m_CPMCMXDataLocation.initialize());
   ATH_CHECK( m_L1MenuKey.initialize() );
 
-  ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -140,7 +139,7 @@ StatusCode CPCMX::execute( )
   auto l1Menu = SG::makeHandle( m_L1MenuKey );
 
 
-  float cpScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
+  float cpScale = l1Menu->thrExtraInfo().EM().emScale();
   std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
   std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds;
   for ( const auto& thresh : allThresholds  ) {

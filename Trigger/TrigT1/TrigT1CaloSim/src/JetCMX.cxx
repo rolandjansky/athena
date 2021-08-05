@@ -27,9 +27,6 @@
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/JetThresholdValue.h"
 
 
 
@@ -50,7 +47,6 @@ JetCMX::JetCMX(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode JetCMX::initialize()
 {
-  ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_JetCMXDataLocation.initialize() );
   ATH_CHECK( m_CMXJetHitsLocation.initialize() );
   ATH_CHECK( m_CMXJetTobLocation.initialize() );
@@ -106,18 +102,6 @@ StatusCode JetCMX::execute(const EventContext& ctx) const
   for (int crate = 0; crate < 2; ++crate) {
     topoData->push_back(std::make_unique<JetCMXTopoData>(crate));
   }
-  
-
-  /** Get Trigger Thresholds */
-  std::vector< TrigConf::TriggerThreshold* > thresholds;
-  std::vector< TrigConf::TriggerThreshold* > allThresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  for ( std::vector< TrigConf::TriggerThreshold* >::const_iterator it = allThresholds.begin();
-        it != allThresholds.end(); ++it ) {
-    if ( ( *it )->type() == L1DataDef::jetType() ) 
-      thresholds.push_back( *it );
-  }
-  float jepScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
-
 
   /** Retrieve the JetCMXData (backplane data packages) */
   SG::ReadHandle<JetCMXDataCollection> bpDataVec = SG::makeHandle(m_JetCMXDataLocation, ctx);
@@ -153,22 +137,19 @@ StatusCode JetCMX::execute(const EventContext& ctx) const
 	  int iphi = tob.iphi();
           if (iphi < 0) iphi += 64;
 	  int etLarge = tob.etLarge();
-	  int etSmall = tob.etSmall();
 		 
 	  // Now check against trigger thresholds
     auto l1Menu = SG::makeHandle( m_L1MenuKey, ctx );
+    float jepScale = l1Menu->thrExtraInfo().JET().jetScale();
+
     std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
 	    // Right type?
 	      for ( const auto& thresh : allThresholds ) {
           if ( thresh->type() != L1DataDef::jetType() ) continue;
 
             // Does TOB satisfy this threshold?
-            std::shared_ptr<TrigConf::L1Threshold_JET> thresh_JET = std::static_pointer_cast<TrigConf::L1Threshold_JET>(thresh);
             int etCut              = thresh->thrValue(ieta)*jepScale;
-            unsigned int window = thresh_JET->window();
-            if ( (window == m_configSvc->thresholdConfig()->caloInfo().jetWindowSizeLarge() && etLarge > etCut) ||
-
-                (window == m_configSvc->thresholdConfig()->caloInfo().jetWindowSizeSmall() && etSmall > etCut) ) {
+            if (etLarge > etCut) {
                 int num = thresh->mapping();
                 if (num < 25) {
                 if ( num < 10 && crateHits[crate][num] < 7 )       crateHits[crate][num]++;
@@ -265,43 +246,6 @@ StatusCode JetCMX::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS ;
 }
 
-
-
-/** print trigger configuration, for debugging purposes */
-void LVL1::JetCMX::printTriggerMenu() const {
-  /** This is all going to need updating for the new menu structure.
-      Comment out in the meanwhile 
-  
-  L1DataDef def;
-
-  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
-          << "  threshold number " << (*it)->thresholdNumber() << endmsg
-          << "  number of values = " << (*it)->numberofValues() );
-      for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
-           tv != (*it)->thresholdValueVector().end(); ++tv) {
-        ClusterThresholdValue* ctv;
-        ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
-	if (!ctv) {
-          ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
-          continue;
-        }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
-            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
-            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
-            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
-            << "  Had veto = " << ctv->hadVetoCount() << endmsg
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
-        
-      } // end of loop over threshold values
-    } //  is type == em or tau?
-  } // end of loop over thresholds
-  
-  */   
-}
 
 } // end of namespace bracket
 

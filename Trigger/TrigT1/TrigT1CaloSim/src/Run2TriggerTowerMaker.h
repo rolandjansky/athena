@@ -21,8 +21,7 @@
 // - this is defined by setting a parameter
 // CellType to 1 for CaloCells, 2 to reprocess TriggerTowers and 3 for LAr/Tile TTL1 input (a simulation of analogue towers);
 //
-// ................................................................
-//
+// ................................................................  //
 
 #ifndef TRIGT1CALOSIM_RUN2TRIGGERTOWERMAKER_H
 #define TRIGT1CALOSIM_RUN2TRIGGERTOWERMAKER_H
@@ -50,6 +49,8 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaults.h"
 
+#include "TrigConfData/L1Menu.h"
+
 // EDM include(s)
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
@@ -74,7 +75,6 @@ namespace ATHRNG {
 }
 
 namespace CLHEP { class HepRandomEngine; }
-namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1BS {
    class ITrigT1CaloDataAccessV2;
@@ -150,7 +150,6 @@ private:
   std::string m_deadChannelsKeyoverlay;
 
   // Tools/Services
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ServiceHandle <IAthRNGSvc> m_rngSvc;
   ServiceHandle<L1CaloCondSvc> m_condSvc;
   ATHRNG::RNGWrapper* m_rndmADCs; // non owning ptr
@@ -281,6 +280,8 @@ private:
   SG::ReadHandleKey<LArTTL1Container> m_EmTTL1ContainerName;
   SG::ReadHandleKey<LArTTL1Container> m_HadTTL1ContainerName;
   SG::ReadHandleKey<TileTTL1Container> m_TileTTL1ContainerName;
+
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 };
 
 } // namespace LVL1
