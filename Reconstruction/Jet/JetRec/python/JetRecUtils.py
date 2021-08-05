@@ -52,7 +52,9 @@ def retrieveAODList(enableOutputOverride = False):
     if rec.doTruth():
       l += jetPileUpTruthList
 
-    if jetFlags.detailLevel()>=JetContentDetail.Full:
+    if jetFlags.detailLevel()==JetContentDetail.Trigger:
+        l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
+    elif jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
             'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',

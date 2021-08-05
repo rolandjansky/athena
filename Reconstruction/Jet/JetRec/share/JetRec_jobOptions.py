@@ -46,7 +46,7 @@ if not jetFlags.useCalibThresholdsLCTopo:
   jetlog.info(myname + "Switching off the jet pT threshold applied at the calibrated scale specifically for LCTopo jets")
 
 # Finders.
-if jetFlags.detailLevel()==JetContentDetail.Reduced:
+if jetFlags.detailLevel()==JetContentDetail.Reduced or jetFlags.detailLevel()==JetContentDetail.Trigger:
   if jetFlags.useTopo():
     jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo_reduced", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
     jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= ptmin_lctopo, ptminFilter=ptminFilter_lctopo, calibOpt=calibopt)
