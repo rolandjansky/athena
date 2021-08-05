@@ -21,6 +21,7 @@
 // STL
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
 class VolumeBounds;
@@ -56,53 +57,54 @@ public:
        --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
       */
-  virtual void glueTrackingVolumes(const TrackingVolume& firstVol,
-                                   BoundarySurfaceFace firstFace,
-                                   const TrackingVolume& secondVol,
-                                   BoundarySurfaceFace secondFace,
-                                   bool buildBoundaryLayer = false) const = 0;
+  virtual void glueTrackingVolumes
+  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& firstVol,
+                        BoundarySurfaceFace firstFace,
+                        const TrackingVolume& secondVol,
+                        BoundarySurfaceFace secondFace,
+                        bool buildBoundaryLayer = false) const = 0;
 
   /** Glue Volume method: One to many
        --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
       */
-  virtual void glueTrackingVolumes(
-    const TrackingVolume& firstVol,
-    BoundarySurfaceFace firstFace,
-    const std::vector<const TrackingVolume*>& secondVolumes,
-    BoundarySurfaceFace secondFace,
-    bool buildBoundaryLayer = false,
-    bool boundaryFaceExchange = false) const = 0;
+  virtual void glueTrackingVolumes
+  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& firstVol,
+                        BoundarySurfaceFace firstFace,
+                        const std::vector<const TrackingVolume*>& secondVolumes,
+                        BoundarySurfaceFace secondFace,
+                        bool buildBoundaryLayer = false,
+                        bool boundaryFaceExchange = false) const = 0;
 
   /** Method to glue two VolumeArrays together (at navigation level) - without
      output
      --- Necessary as friendship cannot be inherited: your father's friend isn't
      necessary yours ---
   */
-  virtual void glueTrackingVolumes(
-    const std::vector<const TrackingVolume*>& firstVolumes,
-    BoundarySurfaceFace firstFace,
-    const std::vector<const TrackingVolume*>& secondVolumes,
-    BoundarySurfaceFace secondFace,
-    bool buildBoundaryLayer = false,
-    bool boundaryFaceExchange = false) const = 0;
+  virtual void glueTrackingVolumes
+  ATLAS_NOT_THREAD_SAFE(const std::vector<const TrackingVolume*>& firstVolumes,
+                        BoundarySurfaceFace firstFace,
+                        const std::vector<const TrackingVolume*>& secondVolumes,
+                        BoundarySurfaceFace secondFace,
+                        bool buildBoundaryLayer = false,
+                        bool boundaryFaceExchange = false) const = 0;
 
   /** Glue Volume method: many to many plus enveloping volume
        --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
       */
-  virtual Trk::TrackingVolume* glueTrackingVolumeArrays(
-    const TrackingVolume& firstVol,
-    BoundarySurfaceFace firstFace,
-    const TrackingVolume& secondVol,
-    BoundarySurfaceFace secondFace,
-    std::string name) const = 0;
+  virtual Trk::TrackingVolume* glueTrackingVolumeArrays
+  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& firstVol,
+                        BoundarySurfaceFace firstFace,
+                        const TrackingVolume& secondVol,
+                        BoundarySurfaceFace secondFace,
+                        std::string name) const = 0;
 
   /**  Glue Volume method: set inside Volume
      --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
   */
-  virtual void setInsideTrackingVolume(
+  virtual void setInsideTrackingVolume ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
     const TrackingVolume* insidevol) const = 0;
@@ -111,12 +113,12 @@ public:
       --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
   */
-  virtual void setInsideTrackingVolumeArray(
+  virtual void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
     BinnedArray<TrackingVolume>* insidevolarray) const = 0;
 
-  virtual void setInsideTrackingVolumeArray(
+  virtual void setInsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
     SharedObject<BinnedArray<TrackingVolume>> insidevolarray) const = 0;
@@ -125,21 +127,21 @@ public:
        --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
   */
-  virtual void setOutsideTrackingVolume(
-    const TrackingVolume& tvol,
-    BoundarySurfaceFace face,
-    const TrackingVolume* outsidevol) const = 0;
+  virtual void setOutsideTrackingVolume
+  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
+                        BoundarySurfaceFace face,
+                        const TrackingVolume* outsidevol) const = 0;
 
   /**  Glue Volume method: set outside Volume array
        --- Neccessary as friendship cannot be inherited: your father's friend
      isn't necessary yours ---
    */
-  virtual void setOutsideTrackingVolumeArray(
-    const TrackingVolume& tvol,
-    BoundarySurfaceFace face,
-    BinnedArray<TrackingVolume>* outsidevolarray) const = 0;
+  virtual void setOutsideTrackingVolumeArray
+  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
+                        BoundarySurfaceFace face,
+                        BinnedArray<TrackingVolume>* outsidevolarray) const = 0;
 
-  virtual void setOutsideTrackingVolumeArray(
+  virtual void setOutsideTrackingVolumeArray ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol,
     BoundarySurfaceFace face,
     SharedObject<BinnedArray<TrackingVolume>> outsidevolarray) const = 0;

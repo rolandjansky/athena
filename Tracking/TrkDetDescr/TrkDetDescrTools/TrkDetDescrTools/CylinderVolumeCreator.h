@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
 
     class ILayerArrayCreator;
@@ -104,13 +104,12 @@ namespace Trk {
                 const std::vector<const TrackingVolume*>, Material&, ,
                 const std::string&) const;
          */
-        const TrackingVolume* createContainerTrackingVolume(
-                                              const std::vector<const TrackingVolume*>& volumes,
-                                              Material& matprop,
-                                              const std::string& volumeName ="UndefinedVolume",
-                                              bool buildBoundaryLayers = false,
-                                              bool replaceBoundaryFace = false) const;
-
+        const TrackingVolume* createContainerTrackingVolume
+        ATLAS_NOT_THREAD_SAFE(const std::vector<const TrackingVolume*>& volumes,
+                              Material& matprop,
+                              const std::string& volumeName = "UndefinedVolume",
+                              bool buildBoundaryLayers = false,
+                              bool replaceBoundaryFace = false) const;
 
       private:
         /** Private method - it estimates the CylinderBounds and Translation of layers,
@@ -127,23 +126,26 @@ namespace Trk {
 
         /** Private method - interglue all volumes contained by a TrackingVolume
                     and set the outside glue volumes in the descriptor */
-        StatusCode interGlueTrackingVolume(TrackingVolume& tVolume,
-                                           bool rBinned,
-                                           bool buildBoundaryLayers,
-                                           bool replaceBoundaryFace = false) const;
+        StatusCode interGlueTrackingVolume
+        ATLAS_NOT_THREAD_SAFE(TrackingVolume& tVolume,
+                              bool rBinned,
+                              bool buildBoundaryLayers,
+                              bool replaceBoundaryFace = false) const;
 
         /** Private method - helper method not to duplicate code */
-        void addFaceVolumes(const TrackingVolume& tvol,
-                            Trk::BoundarySurfaceFace bsf,
-                            std::vector<const Trk::TrackingVolume*>& vols) const;
+        void addFaceVolumes ATLAS_NOT_THREAD_SAFE(
+          const TrackingVolume& tvol,
+          Trk::BoundarySurfaceFace bsf,
+          std::vector<const Trk::TrackingVolume*>& vols) const;
 
         /** Private method - glue volume to the other -- use trackingVolume helper */
-        void glueTrackingVolumes(const TrackingVolume& volumeOne,
-                                 BoundarySurfaceFace faceOne,
-                                 const TrackingVolume& volumeTwo,
-                                 BoundarySurfaceFace faceTwo,
-                                 bool buildBoundaryLayers,
-                                 bool replaceBoundaryFace = false) const;
+        void glueTrackingVolumes
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& volumeOne,
+                              BoundarySurfaceFace faceOne,
+                              const TrackingVolume& volumeTwo,
+                              BoundarySurfaceFace faceTwo,
+                              bool buildBoundaryLayers,
+                              bool replaceBoundaryFace = false) const;
 
         /** Private method - helper method to save some code */
         CylinderLayer* createCylinderLayer(double z,
