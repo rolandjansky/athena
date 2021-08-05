@@ -16,7 +16,16 @@ JetFitterV0FinderTool::JetFitterV0FinderTool(const std::string &t, const std::st
     m_compatibilityAccessor( "TrackCompatibility" ),
     m_tracksAccessor( "VxTrackAtVertex" )
 {
+  
   declareInterface< JetFitterV0FinderTool >(this);
+  
+  std::string toolname = this->name();
+  std::string delimiter = "_";
+  std::string::size_type firstDelimiter = toolname.find(delimiter);
+  std::string sub = toolname.substr(0, firstDelimiter);
+  std::string decoratorName = std::string("JetFitter_TrackCompatibility_") + sub;
+  m_compatibilityAccessor = SG::AuxElement::Accessor< float >( decoratorName );
+  
 }
 
 JetFitterV0FinderTool::~JetFitterV0FinderTool() {}

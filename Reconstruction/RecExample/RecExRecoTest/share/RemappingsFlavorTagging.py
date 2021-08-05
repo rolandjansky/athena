@@ -8,7 +8,8 @@ AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackPa
 AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.btagIp_z0SinTheta','InDetTrackParticles.btagIp_z0SinTheta_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.btagIp_trackMomentum','InDetTrackParticles.btagIp_trackMomentum_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.btagIp_trackDisplacement','InDetTrackParticles.btagIp_trackDisplacement_renamed')
-AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.TrackCompatibility','InDetTrackParticles.TrackCompatibility_renamed')
+AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.JetFitter_TrackCompatibility_antikt4emtopo','InDetTrackParticles.JetFitter_TrackCompatibility_antikt4emtopo_renamed')
+AddressRemappingSvc.addInputRename ('xAOD::TrackParticleContainer','InDetTrackParticles.JetFitter_TrackCompatibility_antikt4empflow','InDetTrackParticles.JetFitter_TrackCompatibility_antikt4empflow_renamed')
 #Jet Decorations
 AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.BTagTrackToJetAssociator','AntiKt4EMTopoJets.BTagTrackToJetAssociator_renamed')
 AddressRemappingSvc.addInputRename ('xAOD::JetContainer','AntiKt4EMTopoJets.JFVtx','AntiKt4EMTopoJets.JFVtx_renamed')
