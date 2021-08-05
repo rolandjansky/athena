@@ -70,6 +70,9 @@
     },
     "EFFSLRT":{
         "chains" : "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_FTF_DTE  HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_IDTrig_DTE"
+    },
+    "TagnProbe":{
+	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
     }
 }
 

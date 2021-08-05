@@ -1,0 +1,110 @@
+// emacs: this is -*- c++ -*-
+
+//NFiles  = 10;
+
+pT     = 10000;
+eta    = 2.5;
+// npix   = 1;
+// nsct   = 2;
+
+/// hmmm
+/// npix   = 4; /// double up, this is number of degrees of freedomw and really means 2 pixle "clusters"  
+npix   = 2; /// double up, this is number of degrees of freedomw and so 4 really means 2 pixeL "clusters"  
+nsct   = 4;
+
+nholes = 2;
+
+expectBL=1;
+
+pT_rec  = 0;
+eta_rec = 5;
+Rmatch = 0.05;
+
+
+dumpflag = 1;
+
+a0v = 10.5;
+z0v = 10.5;
+
+ZmassMin = 0.0;
+ZmassMax = 110.0;
+
+doTnPHistos = 1;
+
+refChain = "Offline";
+//refChain = "Electrons";
+//refChain = "Muons_Medium";
+//refChain = "Taus";
+
+/// NB: For the "Truth" chains, need to specify what 
+///     sort of particle (ie which pdgID) is needed
+/// Fixme: should add a flag to enable/disable this
+///        what if we want all final state particles
+///        independent of pdgID?
+
+//pdgId=11; // electron --entered in command line now
+
+// Nentries = 10000;
+
+// MinVertices = 0;
+
+// VertexSelection    = "0"; // possible flags: BestPT2, LeadPT, Ntracks
+// VertexSelectionRec = "0";
+
+// FilterRoi = { 2.4, 1, 2 };
+
+testChains = {
+  //  "Offline",
+  //  "Muons",
+  //  "Electrons",                                                                        
+  //  "Electrons_MediumCB",
+  //  "Electrons_TightCB",
+  //  "Electrons_MediumLH",
+  //  "Electrons_TightLH",
+
+//  "HLT_mu40_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+//  "HLT_mu40_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+
+//  "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+//  "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+
+//  "HLT_mu10_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+//  "HLT_mu10_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+
+//  "HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+//  "HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+
+//  "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+//  "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig"
+
+//	"HLT_mu13_mu13_idperf_Zmumu:L2_muon_combMuon10GeV_v15a_MU10_wOvlpRm/InDetTrigTrackingxAODCnv_Muon_FTF:L2_muon_combMuon10GeV_v15a_MU10_wOvlpRm/forID1",
+//	"HLT_mu13_mu13_idperf_Zmumu:L2_mucomb_mu10idperf_MU10/InDetTrigTrackingxAODCnv_Muon_FTF:L2_mucomb_mu10idperf_MU10/forID1"
+};
+ 
+
+TagnProbe = {
+        "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:0",
+        "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1",
+	//"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon:0",
+        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon:1",
+
+	"HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:0",
+	"HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
+        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon:0",
+        //"HLT_mu10_ivarmedium_mu10_10invm70_L12MU10:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon:1"
+}; 
+
+
+InitialiseFirstEvent = 1;
+
+outputFile = "data-electron-tnp.root";
+
+//#include "dataset.dat"
+
+// GRL = "/afs/cern.ch/user/s/sutt/tida/data16_13TeV.periodAllYear_HEAD_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.xml";
+
+//#include "grl.dat"
+
+DataFiles = {"TrkNtuple-0000.root"};
+//DataSets = {"/eos/atlas/atlascerngroupdisk/trig-id/data18_13TeV/muon-tnp/user.maparo.00363979.physics_Main.merge.AOD.f1002_m2037-20191004-141732_EXT0"};
+//DataSets = {"/eos/atlas/atlascerngroupdisk/trig-id/data18_13TeV/muon-tnp/user.maparo.00358395.physics_Main.merge.AOD.f961_m2015-20191004-141716_EXT0"};
