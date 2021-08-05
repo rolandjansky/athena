@@ -64,7 +64,7 @@ namespace RPC_CondCabling {
         const static std::map<std::string, std::string>* s_trigroads;
 
     public:
-        SectorLogicSetup(int, const std::string&, const std::string&, bool, IMessageSvc*);
+        SectorLogicSetup(int, const std::string&, const std::string&, bool);
         SectorLogicSetup(const SectorLogicSetup&) = default;
         virtual ~SectorLogicSetup() = default;
 

@@ -120,7 +120,7 @@ protected:
     [[nodiscard]] std::string error(const std::string&);
 
 public:
-    CMAparameters(parseParams parse, IMessageSvc* svc);
+    CMAparameters(parseParams parse);
     CMAparameters(const CMAparameters&);
     virtual ~CMAparameters();
 

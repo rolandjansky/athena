@@ -6,8 +6,8 @@
 
 #include <iomanip>
 
-CablingObject::CablingObject(const CablingObject::cablingParameters& params, const std::string& obj_name, IMessageSvc* msgSvc) :
-    BaseObject(Logic, obj_name, msgSvc), m_number{params.number}, m_station{params.station}, m_sector_type{params.sectorType} {}
+CablingObject::CablingObject(const CablingObject::cablingParameters& params, const std::string& obj_name) :
+    BaseObject(Logic, obj_name), m_number{params.number}, m_station{params.station}, m_sector_type{params.sectorType} {}
 
 int CablingObject::number() const { return m_number; }
 int CablingObject::station() const { return m_station; }

@@ -13,7 +13,7 @@
 
 using namespace RPC_CondCabling;
 /// Helper struct to reduce the number of arguments in the constructor
-RPCchamber::RPCchamber(const RPCchamber::chamberParameters& params, IMessageSvc* msgSvc) : CablingObject{params, "RPC", msgSvc}, m_params{params} {
+RPCchamber::RPCchamber(const RPCchamber::chamberParameters& params) : CablingObject{params, "RPC"}, m_params{params} {
     for (int i = 0; i < m_params.etaStrips; ++i) m_eta_read_mul.push_back(0);
 }
 

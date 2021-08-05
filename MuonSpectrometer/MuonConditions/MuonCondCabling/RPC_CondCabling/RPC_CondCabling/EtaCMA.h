@@ -12,7 +12,6 @@
 #include "RPC_CondCabling/RPCchamber.h"
 
 class MsgStream;
-class IMessageSvc;
 
 namespace RPC_CondCabling {
 
@@ -36,7 +35,7 @@ namespace RPC_CondCabling {
         bool begin_at_RPC_Z_boundary(void) const;
 
     public:
-        EtaCMA(parseParams parse, IMessageSvc* svc);
+        EtaCMA(parseParams parse);
         EtaCMA(const EtaCMA&);
         virtual ~EtaCMA();
 

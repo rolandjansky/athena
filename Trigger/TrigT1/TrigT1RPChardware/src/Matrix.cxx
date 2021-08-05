@@ -2086,35 +2086,24 @@ ubit16 n, j, k;
 //
 // allocation for oststream strdisp
 //
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream* strdisp = new std::ostringstream;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = 0;
-    __osstream* strdisp = new __osstream(buffer,5000);
-#endif
-//
+ std::ostringstream strdisp;
 n = (s_nchan[side]-1)/s_wordlen+1;
-*strdisp<<"  ";
+strdisp<<"  ";
 
 for(j=0;j<s_nchan[side];j+=2) {
- *strdisp<<" "<<j%10;
+ strdisp<<" "<<j%10;
 }//end-of-for
-*strdisp<<" "<<endl;
+strdisp<<" "<<endl;
 for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
- *strdisp<<" "<<j%10<<" ";
+ strdisp<<" "<<j%10<<" ";
  for(k=0; k<n; k++)      {      // loop on the buffer words
    dispBinary(p+k+2*j,strdisp);
  }//end-of-for(k
- *strdisp<<" "<<endl;
+ strdisp<<" "<<endl;
 
 }//end-of-for(j
 
- cout << strdisp->str() << endl;
- 
- delete strdisp;
+ cout << strdisp.str() << endl;
 }//end-of-Matrix::dispRegister
 //------------------------------------------------------------------------//
 void Matrix::dispTrigger(const CMAword *p) const {
@@ -2123,42 +2112,31 @@ ubit16 j;
 // allocation for oststream strdisp
 //
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream* strdisp = new std::ostringstream;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = 0;
-    __osstream* strdisp = new __osstream(buffer,5000);
-#endif
-//
-*strdisp<<"  ";
+std::ostringstream strdisp;
+strdisp<<"  ";
 
 for(j=0;j<s_nchan[0];j+=2) {
- *strdisp<<" "<<j%10;
+ strdisp<<" "<<j%10;
 }//end-of-for
-*strdisp<<" "<<endl;
+strdisp<<" "<<endl;
 for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
- *strdisp<<" "<<j%10<<" ";
+ strdisp<<" "<<j%10<<" ";
   dispBinary(p+j,strdisp);
- *strdisp<<" "<<endl;
+ strdisp<<" "<<endl;
 }//end-of-for(j
 
-cout << strdisp->str() << endl;
- 
-delete strdisp;
+cout << strdisp.str() << endl;
 }//end-of-Matrix::dispTrigger
 //------------------------------------------------------------------------//
-void Matrix::dispBinary (const CMAword *p, __osstream *strdisp) const {
+void Matrix::dispBinary (const CMAword *p, std::ostringstream& strdisp) const {
 ubit16 i;
 CMAword j;
 j=1;
 for(i=0; i<s_wordlen; i++) {
  if((*p) & j ){
-  *strdisp<<"|";
+  strdisp<<"|";
  } else {
-  *strdisp<<".";
+  strdisp<<".";
  }//end-of-if
  j=j<<1;
  }//end-of-for(
@@ -2169,48 +2147,39 @@ for(ubit16 i=0; i<s_nthres; i++) {dispWind(i);}
 }//end-of-dispWind
 //------------------------------------------------------------------------//
 void Matrix::dispWind (ubit16 thres) const {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream* strdisp = new std::ostringstream;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = 0;
-    __osstream* strdisp(buffer,5000);
-#endif
+std::ostringstream strdisp;
 
-*strdisp<<endl
-        <<" ========================="<<endl
-        <<" =                       ="<<endl
-        <<" =  Matrix::dispWind     ="<<endl
-        <<" =  Threshold address "<<thres<<"  ="<<endl
-        <<" =                       ="<<endl
-        <<" ========================="<<endl
-        <<endl;
+strdisp<<endl
+       <<" ========================="<<endl
+       <<" =                       ="<<endl
+       <<" =  Matrix::dispWind     ="<<endl
+       <<" =  Threshold address "<<thres<<"  ="<<endl
+       <<" =                       ="<<endl
+       <<" ========================="<<endl
+       <<endl;
 //
 for(sbit16 j=s_nchan[1]-1; j>=0; j--) {
  ubit16 ad1 = j/32;
  ubit16 ad2 = j%32;
  if(j<10) {
-  *strdisp<<" "<<j<<" "; 
+  strdisp<<" "<<j<<" ";
  } else {
-  *strdisp<<j<<" ";
+  strdisp<<j<<" ";
  }
  for(ubit16 k=0; k<s_nchan[0]; k++) {
   if((m_trigRoad[thres][k][ad1])&(1<<ad2)) {
-   *strdisp<<"*";
+   strdisp<<"*";
   } else {
-   *strdisp<<".";
+   strdisp<<".";
   }//end-of-if
  }//end-of-for(k
- *strdisp<<" "<<endl;
+ strdisp<<" "<<endl;
 }//end-of-for(j
-*strdisp<<" "<<endl;
-*strdisp<<"   00000000001111111111222222222233"<<endl
-        <<"   01234567890123456789012345678901"<<endl;
+strdisp<<" "<<endl;
+strdisp<<"   00000000001111111111222222222233"<<endl
+       <<"   01234567890123456789012345678901"<<endl;
 //
-cout << strdisp->str() << endl;
-delete strdisp;
+cout << strdisp.str() << endl;
 }//end-of-dispWind
 //------------------------------------------------------------------------//
 void Matrix::inds(ubit16 *i, ubit16 channel) const{

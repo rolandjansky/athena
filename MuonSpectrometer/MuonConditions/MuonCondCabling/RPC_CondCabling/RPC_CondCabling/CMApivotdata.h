@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIVOTDATA_H
@@ -39,14 +39,14 @@ namespace RPC_CondCabling {
         bool confirm_data(ViewType, CMAparameters::parseParams& parser);
 
     public:
-        CMApivotdata(DBline&, int, const std::string&, IMessageSvc*);
+        CMApivotdata(DBline&, int, const std::string&);
         virtual ~CMApivotdata() = default;
 
         std::unique_ptr<EtaCMA> give_eta_cma();
         std::unique_ptr<EvenPhiCMA> give_evenphi_cma();
         std::unique_ptr<OddPhiCMA> give_oddphi_cma();
 
-        void Print(std::ostream&, bool) const;
+        virtual void Print(std::ostream&, bool) const override;
     };
 
     template <class X> X& operator<<(X& stream, CMApivotdata& data) {

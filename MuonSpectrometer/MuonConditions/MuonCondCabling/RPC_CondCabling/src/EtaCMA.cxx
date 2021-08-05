@@ -15,7 +15,7 @@
 
 using namespace RPC_CondCabling;
 
-EtaCMA::EtaCMA(CMAparameters::parseParams parse, IMessageSvc* svc) : CMAparameters(parse, svc) {
+EtaCMA::EtaCMA(CMAparameters::parseParams parse) : CMAparameters(parse) {
     m_pivot_rpc_read = 1;
     m_lowPt_rpc_read = 1;
     m_highPt_rpc_read = 1;

@@ -4,15 +4,17 @@
 
 #include "RPC_CondCabling/CMAcablingdata.h"
 
+#include "AthenaKernel/errorcheck.h"
+
 using namespace RPC_CondCabling;
 
-CMAcablingdata::CMAcablingdata(DBline& data, int type, IMessageSvc* msgSvc) : BaseObject(Logic, "CMA Cabling Data", msgSvc) {
+CMAcablingdata::CMAcablingdata(DBline& data, int type) : BaseObject(Logic, "CMA Cabling Data") {
     (++data)("{");
     do {
         CMAparameters::parseParams parser;
         parser.sectorType = type;
         if (get_data(data, parser)) {
-            if (m_view == ViewType::Eta) { m_etaCMA.emplace_back(parser, msgSvc); }
+            if (m_view == ViewType::Eta) { m_etaCMA.emplace_back(parser); }
         }
         data++;
     } while (!data("}"));
@@ -31,36 +33,36 @@ bool CMAcablingdata::confirm_data(ViewType side, const CMAparameters::parseParam
 
     if (side == Eta) {
         if (parser.lowPtStartCo >= parser.lowPtStopCo && have_low_Pt_input) {
-            disp << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMAcablingdata")
+                 << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
                  << " CMA at eta = " << parser.etaIndex << ",  phi = " << parser.phiIndex << std::endl
                  << " start position for low Pt cabling (" << parser.lowPtStartCo << ") is greater than stop position ("
-                 << parser.lowPtStopCo << std::endl;
-            display_error(disp);
+                 << parser.lowPtStopCo;
             return false;
         }
         if (parser.lowPtStopCo - parser.lowPtStartCo + 1 != parser.lowPtNumCo && have_low_Pt_input) {
-            disp << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMAcablingdata")
+                 << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
                  << " CMA at eta = " << parser.etaIndex << ",  phi = " << parser.phiIndex << std::endl
                  << " cabling inconsistence for low Pt <" << parser.lowPtNumCo << ", " << parser.lowPtStartCo << " " << (char)div << " "
-                 << parser.lowPtStopCo << ">" << std::endl;
-            display_error(disp);
+                 << parser.lowPtStopCo << ">";
             return false;
         }
 
         if (parser.highPtStartCo >= parser.highPtStopCo && have_high_Pt_input) {
-            disp << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMAcablingdata")
+                 << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
                  << " CMA at eta = " << parser.etaIndex << ",  phi = " << parser.phiIndex << std::endl
                  << " start position for high Pt cabling (" << parser.highPtStartCo << ") is greater than stop position ("
-                 << parser.highPtStopCo << std::endl;
-            display_error(disp);
+                 << parser.highPtStopCo;
             return false;
         }
         if (parser.highPtStopCo - parser.highPtStartCo + 1 != parser.highPtNumCo && have_high_Pt_input) {
-            disp << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "CMAcablingdata")
+                 << "CMA cabling error in CONF data for Sector Type " << parser.sectorType << ", " << view
                  << " CMA at eta = " << parser.etaIndex << ",  phi = " << parser.phiIndex << std::endl
                  << " cabling inconsistence for high Pt <" << parser.highPtNumCo << ", " << parser.highPtStartCo << " " << (char)div << " "
-                 << parser.highPtStopCo << ">" << std::endl;
-            display_error(disp);
+                 << parser.highPtStopCo << ">";
             return false;
         }
     }

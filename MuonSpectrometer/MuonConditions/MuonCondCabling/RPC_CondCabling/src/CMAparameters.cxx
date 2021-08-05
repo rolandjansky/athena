@@ -68,8 +68,8 @@ unsigned int CMAparameters::last_highPt_code() const { return m_last_highPt_code
 
 CMAparameters::CMAconfiguration CMAparameters::conf_type() const { return m_conf_type; }
 
-CMAparameters::CMAparameters(CMAparameters::parseParams parse, IMessageSvc* svc) :
-    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage), svc), m_params{parse} {
+CMAparameters::CMAparameters(CMAparameters::parseParams parse) :
+    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage)), m_params{parse} {
     m_id = std::make_unique<CMAidentity>(parse);
 }
 
