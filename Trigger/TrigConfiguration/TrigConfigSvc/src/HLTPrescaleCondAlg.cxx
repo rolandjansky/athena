@@ -122,6 +122,11 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    ATH_MSG_DEBUG("HLTPrescaleCondAlg::execute with lb " << ctx.eventID().lumi_block());
 
+   SG::WriteCondHandle<TrigConf::HLTPrescalesSet> writeCondHandle(m_hltPrescalesSetOutputKey, ctx);
+   if (writeCondHandle.isValid()) {  // prescales already available?
+     return StatusCode::SUCCESS;
+   }
+
    unsigned int hltPsk = m_psk;
    EventIDRange range;
 
@@ -191,8 +196,6 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
    }
 
    // record HLT prescales set
-   SG::WriteCondHandle<TrigConf::HLTPrescalesSet> writeCondHandle(m_hltPrescalesSetOutputKey, ctx);
-
    if( pss == nullptr ) {
       ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );
