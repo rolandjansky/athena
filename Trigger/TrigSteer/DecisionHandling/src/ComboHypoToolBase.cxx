@@ -267,7 +267,7 @@ StatusCode ComboHypoToolBase::printDebugInformation(const Combo::LegDecisionsMap
     // Only print for this chain
     if (id == m_decisionId or (isLegId(id) and m_decisionId == getIDFromLeg(id))) { 
       ATH_MSG_DEBUG("-- " << HLT::Identifier(id) << " with " << ELV.size() << " elements");
-      for (const auto& EL : ELV) {
+      for (const auto EL : ELV) {
         ATH_MSG_DEBUG("-- -- container:" << EL.dataID() << ", index:" << EL.index());
       }
     }
