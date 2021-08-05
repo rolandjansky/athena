@@ -47,7 +47,7 @@ bool RPCchamberdata::confirm_connectors(ViewType side, RPCchamber::chamberParame
     float str = (float)strips / (float)connectors;
     std::string view = (side == ViewType::Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (str > strips_in_conn) {
         disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "
@@ -81,7 +81,7 @@ bool RPCchamberdata::confirm_ijk(ViewType side, RPCchamber::chamberParameters& p
     int ijk = (side == ViewType::Phi) ? params.ijk_PhiReadOut : params.ijk_EtaReadOut;
     std::string view = (side == ViewType::Phi) ? "phi" : "eta";
 
-    __osstream disp;
+    std::ostringstream disp;
 
     if (ijk != 1 && ijk != 10) {
         disp << "RPCdata error in configuration for Sector Type " << params.sectorType << ", station " << params.station << ", RPC number "

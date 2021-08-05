@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef WIREDOR_H
@@ -9,6 +9,8 @@
 #include <list>
 #include <map>
 #include <vector>
+
+#include "GaudiKernel/MsgStream.h"
 
 #include "MuonCablingTools/ShowRequest.h"
 #include "RPC_CondCabling/CMAidentity.h"
@@ -88,13 +90,19 @@ namespace RPC_CondCabling {
 
         void Print(std::ostream&, bool) const;
 
-        void two_obj_error_message(const std::string&, WiredOR*);
-        void error(const std::string&);
+        [[nodiscard]] std::string two_obj_error_message(const std::string&, WiredOR*);
+        [[nodiscard]] std::string error(const std::string&);
     };
 
-    template <class X> X& operator<<(X& stream, const WiredOR& Wor) {
+    inline std::ostream& operator<<(std::ostream& stream, const WiredOR& Wor) {
         Wor.Print(stream, false);
         return stream;
+    }
+
+    inline MsgStream& operator<<(MsgStream& stream, const WiredOR& Wor) {
+        std::ostringstream oss;
+        Wor.Print(oss, false);
+        return (stream << oss.str());
     }
 
 }  // namespace RPC_CondCabling

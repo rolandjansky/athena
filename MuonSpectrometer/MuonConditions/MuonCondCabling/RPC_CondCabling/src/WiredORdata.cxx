@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/WiredORdata.h"
@@ -29,7 +29,7 @@ void WiredORdata::reset_data() { m_fail = true; }
 
 bool WiredORdata::confirm_boundary(WiredOR::parseParams& parse_params) const {
     if (parse_params.start > parse_params.stop) {
-        __osstream display;
+        std::ostringstream display;
 
         display << "WORdata error in configuration for Sector Type " << parse_params.sectorType << ", station " << parse_params.station
                 << ", WOR number " << parse_params.number << std::endl

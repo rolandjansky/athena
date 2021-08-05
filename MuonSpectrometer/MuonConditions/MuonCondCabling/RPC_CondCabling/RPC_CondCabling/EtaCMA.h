@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ETACMA_H
@@ -11,6 +11,7 @@
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/RPCchamber.h"
 
+class MsgStream;
 class IMessageSvc;
 
 namespace RPC_CondCabling {
@@ -47,7 +48,7 @@ namespace RPC_CondCabling {
 
         bool inversion(void) const { return m_inversion; }
 
-        bool setup(SectorLogicSetup&);
+        bool setup(SectorLogicSetup&, MsgStream&);
     };
 
 }  // namespace RPC_CondCabling

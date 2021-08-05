@@ -4,9 +4,10 @@
 
 #include "RPC_CondCabling/WiredOR.h"
 
-#include <iomanip>
-
+#include "AthenaKernel/errorcheck.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
+
+#include <iomanip>
 
 using namespace RPC_CondCabling;
 
@@ -23,7 +24,7 @@ bool WiredOR::connect(SectorLogicSetup& setup) {
             rpc->add_wor(this);
             m_RPCread.insert(RPClink::value_type(i, rpc));
         } else {
-            no_connection_error("RPC", i);
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") << no_connection_error("RPC", i);
             return false;
         }
     }
@@ -67,7 +68,7 @@ void WiredOR::add_odd_read_mul(ReadoutCh& mul) {
 bool WiredOR::setup(SectorLogicSetup& setup) {
     WiredOR* prev = setup.previousWOR(*this);
     if (prev && !(start() == prev->stop() + 1)) {
-        two_obj_error_message("boundary inconsistence", prev);
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") << two_obj_error_message("boundary inconsistence", prev);
         return false;
     }
 
@@ -88,27 +89,33 @@ bool WiredOR::check() {
     int ch = (m_params.side == ViewType::Eta) ? give_max_eta_strips() : give_max_phi_strips();
     for (int i = 0; i < ch; ++i) {
         if (!m_even_read_mul[i]) {
-            error("==> No readout coverage for the full set of even PHI strip!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> No readout coverage for the full set of even PHI strip!");
             return false;
         }
         if (!m_odd_read_mul[i]) {
-            error("==> No readout coverage for the full set of odd PHI strip!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> No readout coverage for the full set of odd PHI strip!");
             return false;
         }
         if (m_even_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Pivot plane even PHI strips must be read only once!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> Pivot plane even PHI strips must be read only once!");
             return false;
         }
         if (m_odd_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Pivot plane odd PHI strips must be read only once!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> Pivot plane odd PHI strips must be read only once!");
             return false;
         }
         if (m_even_read_mul[i] > 2) {
-            error("==> Confirm plane even PHI strips can be read only 3 times!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") <<
+                error("==> Confirm plane even PHI strips can be read only 3 times!");
             return false;
         }
         if (m_odd_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Confirm plane odd PHI strips can be read only 3 times");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") <<
+                error("==> Confirm plane odd PHI strips can be read only 3 times");
             return false;
         }
     }
@@ -156,19 +163,18 @@ void WiredOR::Print(std::ostream& stream, bool detail) const {
     }
 }
 
-void WiredOR::two_obj_error_message(const std::string& msg, WiredOR* wor) {
-    error_header();
-
-    DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << wor->name() << " n. " << wor->number() << std::endl
+std::string WiredOR::two_obj_error_message(const std::string& msg, WiredOR* wor) {
+    std::ostringstream disp;
+    disp << error_header()
+         << "  " << msg << " between " << name() << " n. " << number() << " and " << wor->name() << " n. " << wor->number() << std::endl
          << *this << *wor;
-    DISP_ERROR;
+    return disp.str();
 }
 
-void WiredOR::error(const std::string& msg) {
-    error_header();
-
-    DISP << msg << std::endl << *this;
-    DISP_ERROR;
+std::string WiredOR::error(const std::string& msg) {
+    std::ostringstream disp;
+    disp << error_header() << msg << std::endl << *this;
+    return disp.str();
 }
 
 ViewType WiredOR::side() const { return m_params.side; }

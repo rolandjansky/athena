@@ -4,8 +4,6 @@
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
 
-#include <TString.h>  // for Form
-
 #include <sstream>
 
 #include "PathResolver/PathResolver.h"
@@ -220,7 +218,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     ATH_MSG_INFO("setup() - version is " << version << " " << setup << " " << layout << " (cosmic=" << (int)m_cosmic_configuration << ")");
 
     for (int i = 1; i <= maxType; ++i) {
-        if (!sectorType[i - 1].setup()) return StatusCode::FAILURE;
+        if (!sectorType[i - 1].setup(msg())) return StatusCode::FAILURE;
         if (!sectorType[i - 1].check()) return StatusCode::FAILURE;
         if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("calling get_cabling for i=" << i);
@@ -727,8 +725,8 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
     while (it != CodeList.end()) {
         RPCdecoder decode(*it);
         if (!decode)
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nRpcCablingCondAlg::give_strip_id() - cannot decode LVL1 Id", __FILE__, __LINE__));
+            throw std::runtime_error("RpcCablingCondAlg::give_strip_id() - cannot decode LVL1 Id at " +
+                                     std::string(__FILE__) + ":" + std::to_string(__LINE__));
         RPCofflineId rpcId;
 
         int RPC_strip = decode.strip_number();

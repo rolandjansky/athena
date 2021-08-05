@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAPARAMETERS_H
@@ -113,11 +113,11 @@ protected:
     void create_lowPt_map(int);
     void create_highPt_map(int);
 
-    void noMoreChannels(const std::string& stat);
-    void two_obj_error_message(const std::string&, CMAparameters*);
-    void no_confirm_error(int);
-    void no_wor_readout(int, int);
-    void error(const std::string&);
+    [[nodiscard]] std::string noMoreChannels(const std::string& stat);
+    [[nodiscard]] std::string two_obj_error_message(const std::string&, CMAparameters*);
+    [[nodiscard]] std::string no_confirm_error(int);
+    [[nodiscard]] std::string no_wor_readout(int, int);
+    [[nodiscard]] std::string error(const std::string&);
 
 public:
     CMAparameters(parseParams parse, IMessageSvc* svc);

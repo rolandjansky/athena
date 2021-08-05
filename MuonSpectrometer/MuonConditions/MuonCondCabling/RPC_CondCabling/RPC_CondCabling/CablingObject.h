@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LVL1LOGICOBJECT_H
@@ -35,8 +35,8 @@ public:
     int station() const;
     int sector_type() const;
 
-    void error_header() const;
-    void no_connection_error(const std::string&, int);
+    [[nodiscard]] std::string error_header() const;
+    [[nodiscard]] std::string no_connection_error(const std::string&, int) const;
 
     friend std::ostream& operator<<(std::ostream& stream, const CablingObject& obj);
 };

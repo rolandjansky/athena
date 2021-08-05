@@ -2,6 +2,9 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
+
 #include "RPC_CondCabling/EtaCMA.h"
 #include "RPC_CondCabling/CMAprogram.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
@@ -56,7 +59,7 @@ bool EtaCMA::cable_CMA_channels(HalfType side) {
             if (i == pivot_stop_ch()) final_strip = pivot_stop_st();
             do {
                 if (m_active_pivot_chs == pivot_channels) {
-                    noMoreChannels("Pivot");
+                    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << noMoreChannels("Pivot");
                     return false;
                 }
 
@@ -88,7 +91,7 @@ bool EtaCMA::cable_CMA_channels(HalfType side) {
             if (i == lowPt_stop_ch()) final_strip = lowPt_stop_st();
             do {
                 if (m_active_lowPt_chs == confirm_channels) {
-                    noMoreChannels("Low Pt");
+                    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << noMoreChannels("Low Pt");
                     return false;
                 }
 
@@ -120,7 +123,7 @@ bool EtaCMA::cable_CMA_channels(HalfType side) {
             if (i == highPt_stop_ch()) final_strip = highPt_stop_st();
             do {
                 if (m_active_highPt_chs == confirm_channels) {
-                    noMoreChannels("High Pt");
+                    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << noMoreChannels("High Pt");
                     return false;
                 }
 
@@ -155,7 +158,7 @@ bool EtaCMA::connect(SectorLogicSetup& setup) {
                 rpc->add_cma(this);
                 m_pivot_RPCs.insert(RPClink::value_type(i, rpc));
             } else {
-                no_connection_error("RPC - pivot", i);
+                REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << no_connection_error("RPC - pivot", i);
                 return false;
             }
         }
@@ -170,13 +173,13 @@ bool EtaCMA::connect(SectorLogicSetup& setup) {
                     rpc->add_cma(this);
                     m_lowPt_RPCs.insert(RPClink::value_type(i, rpc));
                 } else {
-                    no_connection_error("RPC - low Pt", i);
+                    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << no_connection_error("RPC - low Pt", i);
                     return false;
                 }
                 if (i == m_lowPt_stop_ch) m_lowPt_stop_st += rpc->strips_in_Eta_Conn();
             }
         } else {
-            no_confirm_error(lowPt_station());
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << no_confirm_error(lowPt_station());
             return false;
         }
     }
@@ -190,13 +193,13 @@ bool EtaCMA::connect(SectorLogicSetup& setup) {
                     rpc->add_cma(this);
                     m_highPt_RPCs.insert(RPClink::value_type(i, rpc));
                 } else {
-                    no_connection_error("RPC - high Pt", i);
+                    REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << no_connection_error("RPC - high Pt", i);
                     return false;
                 }
                 if (i == m_highPt_stop_ch) m_highPt_stop_st += rpc->strips_in_Eta_Conn();
             }
         } else {
-            no_confirm_error(highPt_station());
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EtaCMA") << no_confirm_error(highPt_station());
             return false;
         }
     }
@@ -209,31 +212,29 @@ bool EtaCMA::got_confirm_cabling(SectorLogicSetup& setup, int stat) {
         bool result = setup.local_conn_add(Eta, stat, lowPt_start_co(), l, m_lowPt_start_ch, m_lowPt_start_st) &&
                       setup.local_conn_add(Eta, stat, lowPt_stop_co(), l, m_lowPt_stop_ch, m_lowPt_stop_st);
         if ((!m_lowPt_start_ch || !m_lowPt_stop_ch) && setup.side() == NoHalf) {
-            DISP << "Sector Type must belong to a specific side when"
-                 << " RPC chamber is in between eta 0" << std::endl;
-            DISP_ERROR;
-            return false;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EvenPhiCMA") << "Sector Type must belong "
+                "to a specific side when RPC chamber is in between eta 0";
+             return false;
         }
         return result;
     } else if (stat == highPt_station()) {
         bool result = setup.local_conn_add(Eta, stat, highPt_start_co(), l, m_highPt_start_ch, m_highPt_start_st) &&
                       setup.local_conn_add(Eta, stat, highPt_stop_co(), l, m_highPt_stop_ch, m_highPt_stop_st);
         if ((!m_highPt_start_ch || !m_highPt_stop_ch) && setup.side() == NoHalf) {
-            DISP << "Sector Type must belong to a specific side when"
-                 << " RPC chamber is in between eta 0" << std::endl;
-            DISP_ERROR;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EvenPhiCMA") << "Sector Type must belong "
+                "to a specific side when RPC chamber is in between eta 0";
             return false;
         }
         return result;
 
     } else {
-        DISP << "Station n. " << stat << " don't give input to CMA confirm planes!" << std::endl;
-        DISP_ERROR;
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "EvenPhiCMA") << "Station n. " << stat
+             << " don't give input to CMA confirm planes!";
         return false;
     }
 }
 
-bool EtaCMA::setup(SectorLogicSetup& setup) {
+bool EtaCMA::setup(SectorLogicSetup& setup, MsgStream& log) {
     // Connect the CMA with RPC chambers
     if (!connect(setup)) return false;
 
@@ -242,15 +243,15 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
     if (prev && pivot_station()) {
         if (pivot_start_ch() == prev->pivot_stop_ch()) {
             if (!(pivot_start_st() == prev->pivot_stop_st() + 1)) {
-                two_obj_error_message("strips mismatch", prev);
+                log << MSG::ERROR << two_obj_error_message("strips mismatch", prev) << endmsg;
                 return false;
             }
         } else if (!(pivot_start_ch() == prev->pivot_stop_ch() + 1)) {
-            two_obj_error_message("chambers mismatch", prev);
+            log << MSG::ERROR << two_obj_error_message("chambers mismatch", prev) << endmsg;
             return false;
         } else {
             if (!prev->end_at_RPC_Z_boundary() || !begin_at_RPC_Z_boundary()) {
-                two_obj_error_message("boundary mismatch", prev);
+                log << MSG::ERROR << two_obj_error_message("boundary mismatch", prev) << endmsg;
                 return false;
             }
         }
@@ -298,9 +299,8 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
 
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
-            if (msgLevel(MSG::DEBUG)) {
-                DISP << "filename for the trigger roads " << name;
-                DISP_DEBUG;
+            if (log.level() <= MSG::DEBUG) {
+                log << "filename for the trigger roads " << name << endmsg;
             }
 
             CMAprogLow.open(name);
@@ -311,7 +311,7 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
     // Trigger configuration loaded from COOL
     else {
         while (CMAprogLow_COOL.str().empty() && it != sectors.end()) {
-            __osstream namestr;
+            std::ostringstream namestr;
             namestr << s_tag << "_" << t_tag << "_pl" << c_tag << ".txt" << std::ends;
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
@@ -320,13 +320,11 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
             if (itc != p_trigroads->end()) {
                 CMAprogLow_COOL.str(itc->second.c_str());
 
-                if (msgLevel(MSG::VERBOSE)) {
-                    DISP << "EtaCMA low: key " << name << "found in the Trigger Road Map --> OK";
-                    DISP_VERBOSE;
-                    DISP << "EtaCMA low: key " << itc->second.c_str();
-                    DISP_VERBOSE;
-                    DISP << "Etacma:CMAPROGLOW " << CMAprogLow_COOL.str();
-                    DISP_VERBOSE;
+                if (log.level() <= MSG::VERBOSE) {
+                    log << MSG::VERBOSE << "EtaCMA low: key " << name << "found in the Trigger Road Map --> OK"
+                         << ", EtaCMA low: key " << itc->second.c_str()
+                         << ", Etacma:CMAPROGLOW " << CMAprogLow_COOL.str()
+                         << endmsg;
                 }
             }
             ++it;
@@ -343,17 +341,16 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
             }
             for (unsigned int i = 0; i < 3; ++i) {
                 if (!m_lowPt_program->hasProgrammed(i)) {
-                    if (msgLevel(MSG::DEBUG)) {
-                        DISP << s_tag << ": " << id() << ": low-pt: has threshold " << i << " not programmed.";
-                        DISP_DEBUG;
+                    if (log.level() <= MSG::DEBUG) {
+                        log << MSG::DEBUG << s_tag << ": " << id() << ": low-pt: has threshold " << i
+                             << " not programmed." << endmsg;
                     }
                 }
             }
         }
         CMAprogLow.close();
-        if (msgLevel(MSG::DEBUG)) {
-            DISP << "EtaCMA::setup low_pt program has been read ---- " <<'\n';
-            DISP_DEBUG;
+        if (log.level() <= MSG::DEBUG) {
+            log << MSG::DEBUG << "EtaCMA::setup low_pt program has been read ---- " << endmsg;
         }
     } else if (!CMAprogLow_COOL.str().empty()) {
         std::unique_ptr<CMAprogram> program = std::make_unique<CMAprogram>(CMAprogLow_COOL, true);
@@ -365,18 +362,17 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
             }
             for (unsigned int i = 0; i < 3; ++i) {
                 if (!m_lowPt_program->hasProgrammed(i)) {
-                    if (msgLevel(MSG::DEBUG)) {
-                        DISP << s_tag << ": " << id() << ": low-pt: has threshold " << i << " not programmed.";
-                        DISP_DEBUG;
+                    if (log.level() <= MSG::DEBUG) {
+                        log << MSG::DEBUG << s_tag << ": " << id() << ": low-pt: has threshold " << i
+                             << " not programmed." << endmsg;
                     }
                 }
             }
         }
         CMAprogLow_COOL.str("");
     } else {
-        if (msgLevel(MSG::DEBUG)) {
-            DISP << name << " not found! Putting a dummy configuration";
-            DISP_DEBUG;
+        if (log.level() <= MSG::DEBUG) {
+            log << MSG::DEBUG << name << " not found! Putting a dummy configuration" << endmsg;
         }
         m_lowPt_program = std::make_unique<CMAprogram>();
         m_lowPt_program->open_threshold(0);
@@ -395,9 +391,8 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
 
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
-            if (msgLevel(MSG::DEBUG)) {
-                DISP << "filename for the trigger roads " << name;
-                DISP_DEBUG;
+            if (log.level() <= MSG::DEBUG) {
+                log << MSG::DEBUG << "filename for the trigger roads " << name << endmsg;
             }
             CMAprogHigh.open(name);
             ++it;
@@ -407,23 +402,20 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
     // Trigger configuration loaded from COOL
     else {
         while (CMAprogHigh_COOL.str().empty() && it != sectors.end()) {
-            __osstream namestr;
+            std::ostringstream namestr;
             namestr << s_tag << "_" << t_tag << "_ph" << c_tag << ".txt" << std::ends;
             namestr.str().copy(name, namestr.str().length(), 0);
             name[namestr.str().length()] = 0;
             std::map<std::string, std::string>::const_iterator itc;
             itc = p_trigroads->find(name);
             if (itc != p_trigroads->end()) {
-                if (msgLevel(MSG::VERBOSE)) {
-                    DISP << "EtaCMA high: key " << name << "found in the Trigger Road Map --> OK";
-                    DISP_VERBOSE;
-                    DISP << "EtaCMA high: key " << itc->second.c_str();
-                    DISP_VERBOSE;
+                if (log.level() <= MSG::VERBOSE) {
+                    log << MSG::VERBOSE << "EtaCMA high: key " << name << "found in the Trigger Road Map --> OK"
+                         << ", EtaCMA high: key " << itc->second.c_str() << endmsg;
                 }
                 CMAprogHigh_COOL.str(itc->second.c_str());
-                if (msgLevel(MSG::VERBOSE)) {
-                    DISP << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str() << '\n';
-                    DISP_VERBOSE;
+                if (log.level() <= MSG::VERBOSE) {
+                    log << MSG::VERBOSE << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str() << endmsg;
                 }
             }
             ++it;
@@ -441,17 +433,16 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
             }
             for (unsigned int i = 0; i < 3; ++i) {
                 if (!m_highPt_program->hasProgrammed(i)) {
-                    if (msgLevel(MSG::DEBUG)) {
-                        DISP << s_tag << ": " << id() << ": high-pt: has threshold " << i << " not programmed.";
-                        DISP_DEBUG;
+                    if (log.level() <= MSG::DEBUG) {
+                        log << MSG::DEBUG << s_tag << ": " << id() << ": high-pt: has threshold " << i
+                             << " not programmed." << endmsg;
                     }
                 }
             }
         }
         CMAprogHigh.close();
-        if (msgLevel(MSG::DEBUG)) {
-            DISP << "EtaCMA::setup high_pt program has been read ---- ";
-            DISP_DEBUG;
+        if (log.level() <= MSG::DEBUG) {
+            log << MSG::DEBUG << "EtaCMA::setup high_pt program has been read ---- " << endmsg;
         }
     } else if (!CMAprogHigh_COOL.str().empty()) {
         std::unique_ptr<CMAprogram> program = std::make_unique<CMAprogram>(CMAprogHigh_COOL, true);
@@ -463,18 +454,17 @@ bool EtaCMA::setup(SectorLogicSetup& setup) {
             }
             for (unsigned int i = 0; i < 3; ++i) {
                 if (!m_highPt_program->hasProgrammed(i)) {
-                    if (msgLevel(MSG::DEBUG)) {
-                        DISP << s_tag << ": " << id() << ": high-pt: has threshold " << i << " not programmed.";
-                        DISP_DEBUG;
+                    if (log.level() <= MSG::DEBUG) {
+                        log << MSG::DEBUG << s_tag << ": " << id() << ": high-pt: has threshold " << i
+                            << " not programmed." << endmsg;
                     }
                 }
             }
         }
         CMAprogHigh_COOL.str("");
     } else {
-        if (msgLevel(MSG::DEBUG)) {
-            DISP << " not found! Putting a dummy configuration";
-            DISP_DEBUG;
+        if (log.level() <= MSG::DEBUG) {
+            log << MSG::DEBUG << " not found! Putting a dummy configuration" << endmsg;
         }
         m_highPt_program = std::make_unique<CMAprogram>();
         m_highPt_program->open_threshold(0);

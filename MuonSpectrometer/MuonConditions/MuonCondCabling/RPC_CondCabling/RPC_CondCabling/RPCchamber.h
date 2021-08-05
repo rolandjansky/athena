@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCCHAMBER_H
@@ -7,6 +7,8 @@
 
 #include <list>
 #include <vector>
+
+#include "GaudiKernel/MsgStream.h"
 
 #include "MuonCablingTools/RPCdecoder.h"
 #include "MuonCablingTools/ShowRequest.h"
@@ -75,7 +77,7 @@ namespace RPC_CondCabling {
         WORlist m_readoutWORs;
 
         int residual(ViewType, int) const;
-        void error(const std::string&) const;
+        [[nodiscard]] std::string error(const std::string&) const;
 
     public:
         RPCchamber(const RPCchamber::chamberParameters& params, IMessageSvc* msgSvc);
@@ -133,9 +135,15 @@ namespace RPC_CondCabling {
         void add_eta_channel(int);
     };
 
-    template <class X> X& operator<<(X& stream, const RPCchamber& cham) {
+    inline std::ostream& operator<<(std::ostream& stream, const RPCchamber& cham) {
         cham.Print(stream, false);
         return stream;
+    }
+
+    inline MsgStream& operator<<(MsgStream& stream, const RPCchamber& cham) {
+        std::ostringstream oss;
+        cham.Print(oss, false);
+        return (stream << oss.str());
     }
 
 }  // namespace RPC_CondCabling
