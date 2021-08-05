@@ -10,7 +10,6 @@ MonitorSequence::MonitorSequence(const std::string& name, const MonitoredRange* 
 }
 
 StatusCode MonitorSequence::newEvent(const CostData& data, const float weight) {
-  std::cout.clear();
   for (const auto& sequencePair : data.sequencersMap()) {
     if (sequencePair.first.empty()) continue;
     ATH_CHECK( getCounter(sequencePair.first)->newEvent(data, 0, weight) );
