@@ -60,18 +60,7 @@ AugmentationTools.append(SUSY19TrackSelection)
 #thinning_expression = "InDetTrackParticles.DFLoose && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)"
 #thinning_expression = ""
 # JEFF: remove the track thinning (pt > 0.5 GeV shouldn't actually do any thinning)
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) "#&& (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)
-thinning_expression = "(InDetTrackParticles.pt > 0.2*GeV) "#&& (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)
-# Sicong angular thinning requirement
-met_var = 'MET_Truth["NonInt"]'
-met_var = 'MET_Core_AntiKt4EMPFlow["PVSoftTrkCore"]'
-dPhi_expr_list = [
-"(abs(%s.phi +(%.0f)*3.1415- InDetTrackParticles.phi) < 3.1415/2.0 )"%(met_var,0)
-,"(abs(%s.phi +(%.0f)*3.1415- InDetTrackParticles.phi) < 3.1415/2.0 )"%(met_var,-2)
-,"(abs(%s.phi +(%.0f)*3.1415- InDetTrackParticles.phi) < 3.1415/2.0 )"%(met_var,+2)
-]
-
-#thinning_expression += "&& ("+" || ".join(dPhi_expr_list)+")"
+thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV)"
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 # TrackParticles directly
@@ -121,6 +110,8 @@ thinningTools.append(SUSY19PhotonTPThinningTool)
 
 
 
+
+
 # JEFF: run V0 finder
 # JEFF: See also:
 #       https://gitlab.cern.ch/atlas/athena/-/tree/21.2/InnerDetector/InDetRecAlgs/InDetV0Finder
@@ -154,11 +145,21 @@ ToolSvc += SUSY19_Reco_V0Finder
 DecorationTools.append(SUSY19_Reco_V0Finder)
 print SUSY19_Reco_V0Finder
 
+
+
+
+
+
+
+
+
+
+
+
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-#if DerivationFrameworkIsMonteCarlo:
-if False:
+if DerivationFrameworkIsMonteCarlo:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     SUSY19TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY19TruthThinningTool",
@@ -295,24 +296,10 @@ trackExpression='( count('+stdTrackRequirements+') + count('+pixTrackRequirement
 applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY19) # JEFF: trying this, otherwise breaks with PFlow jets
 jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
 jetSelection = '(count('+jetRequirements+') >= 1)'
-jetSelection = '(count('+jetRequirements+') >= 1) && (MET_Truth["NonInt"].met > 50*GeV)' #Sicong: Attempt to use the MET container if possible 
-'''
-bkg_example_evt = [1522881, 1520251,1522288,1520949,2539848,2540060,2540794,2541214,2540508,2544370,2541868,2544605,2542559,2547392,2546911,2545903]
-#[3388408,3387460,3388975,3389723,3390819,3391706,3398433,3397846,3398488,3401562]
-
-run_event_select = '||'.join([ '(EventInfo.eventNumber == %i)'%i for i in bkg_example_evt])
-run_event_select = '('+run_event_select+')'
-run_event_select = '(EventInfo.eventNumber>1)'
-print(("INFO "*10+"\n")*10)
-print(run_event_select)
-#expression='('+jetSelection+"&&"+run_event_select+')' # Sicong: try specific event for testing...
-'''
 
 #expression='('+leptonSelection+' && '+trackExpression+')' # nominal version from Tomasso
 #expression='('+leptonSelection+' && '+trackExpression+' && '+jetSelection+')' # JEFF: add jet selection
 expression='('+jetSelection+')' # JEFF: add jet selection
-#expression='1'
-
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 
@@ -428,104 +415,6 @@ SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools = thinningTools,
 )
 
-# Sicong Try VrtSecInclusive
-#
-#
-#
-#
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-ServiceMgr += InDetSCT_ConditionsSummarySvc
-
-from RecExConfig.RecFlags import rec
-
-# get inputFileSummary - will use it to extract info for MC/DATA
-from RecExConfig.InputFilePeeker import inputFileSummary
-
-# import the data types 
-import EventKernel.ParticleDataType
-
-# get a handle on the ServiceManager which holds all the services
-from AthenaCommon.AppMgr import ServiceMgr
-
-include ("RecExCond/RecExCommon_flags.py")
-
-include( "RecExCond/AllDet_detDescr.py" )
-include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
-
-#----------------------------------------------------------
-#  VrtSecInclusive creates also TrackSummary tool.
-#   TrackSummary tool creates InDetExtrapolator and AtlasMagneticFieldTool
-#
-from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
-SUSY19_VSI = VrtSecInclusive()
-
-
-##SeqSUSY19.VrtSecInclusive.OutputLevel = DEBUG
-#SUSY19_VSI.OutputLevel = DEBUG
-SUSY19_VSI.OutputLevel = INFO
-#SUSY19_VSI.CutBLayHits = 1
-#SUSY19_VSI.CutPixelHits = 1
-SUSY19_VSI.CutSctHits = 1
-SUSY19_VSI.TrkA0ErrCut = 200000
-SUSY19_VSI.TrkZErrCut = 200000
-SUSY19_VSI.a0TrkPVDstMinCut = 0.0
-SUSY19_VSI.TrkPtCut = 300
-SUSY19_VSI.SelVrtChi2Cut=4.5
-SUSY19_VSI.CutSharedHits=5
-SUSY19_VSI.TrkChi2Cut=5.0
-SUSY19_VSI.TruthTrkLen=1
-SUSY19_VSI.DoSAloneTRT=False
-SUSY19_VSI.DoTruth = False
-# following is when there is no GEN_AOD in input file,
-# e.g., when I run on output of InDetRecExample or on a ESD file
-# when running on AOD output of InDetRecEx, explicitly uncomment the next line and comment out rec.readESD
-#     SUSY19_VSI.MCEventContainer = "TruthEvent"
-
-if rec.readESD():
-    SUSY19_VSI.MCEventContainer = "TruthEvent"
-
-if 'IS_SIMULATION' in inputFileSummary['evt_type']:
-    SUSY19_VSI.DoTruth=True
-
-
-from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
-	                                      Extrapolator        = ToolSvc.AtlasExtrapolator,
-	                                      IterationNumber     = 30
-					     )
-ToolSvc +=  InclusiveVxFitterTool;
-InclusiveVxFitterTool.OutputLevel = INFO
-SUSY19_VSI.VertexFitterTool=InclusiveVxFitterTool
-SUSY19_VSI.Extrapolator = ToolSvc.AtlasExtrapolator
-
-print VrtSecInclusive
-SeqSUSY19 += SUSY19_VSI
-# The input file
-#ServiceMgr.EventSelector.InputCollections = jp.AthenaCommonFlags.FilesInput()
-
-#==============================================================================
-# VrtSecInclusive IP Augmentor
-#==============================================================================
-
-from VrtSecInclusive.IPAugmentor import IPAugmentor
-
-IPAugmentor = IPAugmentor("VsiIPAugmentor")
-IPAugmentor.doAugmentDVimpactParametersToMuons     = True
-IPAugmentor.doAugmentDVimpactParametersToElectrons = True
-IPAugmentor.VertexFitterTool=InclusiveVxFitterTool
-
-SeqSUSY19 += IPAugmentor
-
-MSMgr.GetStream("StreamDAOD_SUSY19").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
-                                                  'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
-                                                  'xAOD::VertexContainer#VrtSecInclusive*',
-                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'] )
-
-
-# Sicong End Try VrtSecInclusive
-
 #====================================================================
 # Prompt Lepton Tagger
 #====================================================================
@@ -540,8 +429,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY19, "SUSY19")
 SeqSUSY19 += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 # Tau algorithm: PromptTauVeto
-#SeqSUSY19 += JetTagConfig.GetDecoratePromptTauAlgs()
-#Sicong: Temporarily remove for Pile-Up
+SeqSUSY19 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
 
@@ -577,14 +465,12 @@ SUSY19SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVert
                                      "InDetPixelPrdAssociationTrackParticles"]
 SUSY19SlimmingHelper.ExtraVariables = SUSY19ExtraVariables
 SUSY19SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
-#SUSY19SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
-#Sicong: Temporarily remove for Pile-Up
+SUSY19SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 SUSY19SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY19SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY19SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 SUSY19SlimmingHelper.IncludeJetTriggerContent = True
-#SUSY19SlimmingHelper.IncludeTauTriggerContent = False
-#Sicong: Temporarily remove for Pile-Up
+SUSY19SlimmingHelper.IncludeTauTriggerContent = False
 SUSY19SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY19SlimmingHelper.IncludeBJetTriggerContent = False
 
@@ -593,7 +479,6 @@ SUSY19SlimmingHelper.IncludeBJetTriggerContent = False
 
 # JEFF
 StaticContent = []
-'''
 StaticContent += [
             'xAOD::VertexContainer#SUSY19RecoV0Candidates',
             'xAOD::VertexAuxContainer#SUSY19RecoV0CandidatesAux'
@@ -609,48 +494,9 @@ StaticContent += [
             + '.-gamma_massError'
             + '.-gamma_probability',
  ]
-'''
-for containerName in ["SUSY19RecoV0Candidates","SUSY19RecoKshortCandidates","SUSY19RecoLambdaCandidates","SUSY19RecoLambdabarCandidates"]:
-  StaticContent += [
-            'xAOD::VertexContainer#%s'%containerName,
-            'xAOD::VertexAuxContainer#%sAux'%containerName
-            + '.-vxTrackAtVertex'  
-            + '.-vertexType'
-            + '.-neutralParticleLinks'
-            + '.-neutralWeights'
-            + '.-KshortLink'
-            + '.-LambdaLink'
-            + '.-LambdabarLink'
-            + '.-gamma_fit'
-            + '.-gamma_mass'
-            + '.-gamma_massError'
-            + '.-gamma_probability',
-  ]
 SUSY19SlimmingHelper.StaticContent = StaticContent
 
-# Sicong: Try VSI
-SUSY19SlimmingHelper.AllVariables += [
-                                        "VrtSecInclusive_SecondaryVertices"
-                                       ]
 
-# Include dvtrack variables from re-running of VSI 
-original_dvtrack_vars = "is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV".split(".")
-SUSY19SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(original_dvtrack_vars) ]
-
-vtx_vars = ["trackParticleLinks","neutralParticleLinks"]
-SUSY19SlimmingHelper.ExtraVariables += [ "VrtSecInclusive_SecondaryVertices." + ".".join(vtx_vars) ]
-StaticContent = []
-StaticContent += [
-            'xAOD::VertexContainer#VrtSecInclusive_SecondaryVertices',
-            'xAOD::VertexAuxContainer#VrtSecInclusive_SecondaryVerticesAux'
-            + '.-vxTrackAtVertex'
-            + '.-vertexType'
-            + '.-neutralParticleLinks'
-            + '.-trackParticleLinks'
-            + '.-neutralWeights'
- ]
-
-# Sicong: End VSI
 
 
 
