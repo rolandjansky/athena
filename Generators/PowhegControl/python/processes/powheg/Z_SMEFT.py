@@ -111,6 +111,7 @@ class Z_SMEFT(PowhegV2):
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
+        self.add_keyword("rwl_group_events")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
         self.add_keyword("sthw2")
