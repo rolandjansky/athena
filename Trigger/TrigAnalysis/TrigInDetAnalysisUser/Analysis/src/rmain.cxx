@@ -543,6 +543,8 @@ int main(int argc, char** argv)
   double eta    = 2.5;
   double zed    = 2000;
 
+  double a0min=0.;
+
   int npix = 1;
   int nsct = 6;
   int nbl = -1;
@@ -637,6 +639,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("eta_rec") ) eta_rec = inputdata.GetValue("eta_rec");
 
   if ( inputdata.isTagDefined("a0") )           a0     = inputdata.GetValue("a0");
+  if ( inputdata.isTagDefined("a0min") )    a0min     = inputdata.GetValue("a0min");
+
   if ( inputdata.isTagDefined("Rmatch") )       Rmatch = inputdata.GetValue("Rmatch");
 
   /// set upper and lower Zmass window cuts from datafile for Tag&Probe analysis
@@ -985,7 +989,7 @@ int main(int argc, char** argv)
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000, zed, pT, 
+  Filter_Track filter_offline( eta, 1000, a0min, zed, pT, 
                                npix, nsct, -1, nbl, 
                                -2, -2, chi2prob, 
                                npixholes, nsctholes, nsiholes, expectBL ); /// include chi2 probability cut 
@@ -1018,11 +1022,11 @@ int main(int argc, char** argv)
 
   Filter_Combined  filter_muon( &filter_offline, &filter_vertex);
 
-  Filter_Track      filter_onlinekine(  eta_rec, 1000, 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
+  Filter_Track      filter_onlinekine(  eta_rec, 1000, 0., 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
   Filter_Vertex     filter_onlinevertex(a0vrec, z0vrec);
   Filter_Combined   filter_online( &filter_onlinekine, &filter_onlinevertex ); 
 
-  Filter_Track      filter_offkinetight(  5, 1000, 2000, pT,    -1,  0,  0, -1,  -2, -2);
+  Filter_Track      filter_offkinetight(  5, 1000, 0., 2000, pT,    -1,  0,  0, -1,  -2, -2);
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
 
 
@@ -1074,7 +1078,7 @@ int main(int argc, char** argv)
 
   std::cout << "filter_passthrough" << std::endl;
 
-  Filter_Track filter_passthrough( 10, 1000,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
+  Filter_Track filter_passthrough( 10, 1000, 0.,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
 
   TrackFilter* testFilter = &filter_passthrough;
 
