@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_TGCRDO_H
@@ -10,14 +10,6 @@
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
-
-// This cast is needed to remove warning: dereferencing type-punned pointer will break strict-aliasing rules 
-// bug #67256: compiler warning in MuonEventAthenaPool/src/TgcRdoCnv_p2.cxx
-// This cast breaks ATLAS C++ Coding Standard : CC4 Do not use reinterpret_cast. (REQUIRED)  
-template<typename DEST, typename SRC> const DEST* TgcRdo_const_pointer_cast(const SRC* src) {
-  const void* ptr = src;
-  return reinterpret_cast<const DEST*>(ptr);
-}
 
 /*
   TGC collection class used for bare RDO ByteStream Conversion.
@@ -171,7 +163,12 @@ public:
     {
         // FIXME BUG: This is not portable!
         //   The layout of bitfields in a structure is implementation-defined.
-        m_errors = *TgcRdo_const_pointer_cast<Errors>(&data);
+        union cnvErrors {
+          uint16_t data;
+          Errors errors;
+        } cnv;
+        cnv.data = data;
+        m_errors = cnv.errors;
     }
 
     const RodStatus& rodStatus() const
@@ -182,7 +179,12 @@ public:
     {
         // FIXME BUG: This is not portable!
         //   The layout of bitfields in a structure is implementation-defined.
-        m_rodStatus = *TgcRdo_const_pointer_cast<RodStatus>(&data);
+        union cnvRodStatus {
+          uint16_t data;
+          RodStatus rodStatus;
+        } cnv;
+        cnv.data = data;
+        m_rodStatus = cnv.rodStatus;
     }
 
     const LocalStatus& localStatus() const
@@ -193,7 +195,12 @@ public:
     {
         // FIXME BUG: This is not portable!
         //   The layout of bitfields in a structure is implementation-defined.
-        m_localStatus = *TgcRdo_const_pointer_cast<LocalStatus>(&data);
+        union cnvLocalStatus {
+          uint16_t data;
+          LocalStatus localStatus;
+        } cnv;
+        cnv.data = data;
+        m_localStatus = cnv.localStatus;
     }
 
     uint32_t orbit() const
