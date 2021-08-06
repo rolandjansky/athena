@@ -16,7 +16,7 @@ from ISF_Services.ISF_ServicesConfigNew import (
     TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
-
+from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
@@ -99,11 +99,11 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG:
+    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG == "Off":
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
     if ConfigFlags.Beam.Type == "cosmics" and not ConfigFlags.Sim.ISFRun:
-        actions += [CompFactory.G4UA.G4CosmicFilterTool()]
+        actions += [result.popToolsAndMerge(CosmicFilterToolCfg(ConfigFlags))]
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),
                     result.popToolsAndMerge(StoppedParticleActionToolCfg(ConfigFlags))]

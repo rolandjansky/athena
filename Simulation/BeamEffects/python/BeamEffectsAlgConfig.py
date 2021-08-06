@@ -112,7 +112,7 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
      # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
-    manipulators.append(toolVertexPositioner) 
+    if not ConfigFlags.Beam.Type == 'cosmics': manipulators.append(toolVertexPositioner)
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
     # manipulators.append(makeVertexPositionFromFile()) # todo
     # manipulators.append(makeCrabKissingVertexPositioner()) # todo Callback registration failed

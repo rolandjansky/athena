@@ -9,9 +9,7 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # TODO: how to autoconfigure those
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    ConfigFlags.Sim.RecordStepInfo = False
-    ConfigFlags.Sim.CavernBG = "Signal"
-    ConfigFlags.Sim.ReleaseGeoModel = False
+    # ConfigFlags.Sim.CavernBG = "Signal"
     ConfigFlags.Sim.ISFRun = False # Need to change this for G4AA and ISF!
     ConfigFlags.GeoModel.Align.Dynamic = False
 
@@ -64,8 +62,22 @@ def fromRunArgs(runArgs):
 
     if hasattr(runArgs, 'inputEVNTFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
+    elif hasattr(runArgs, 'inputEVNT_TRFile'):
+        ConfigFlags.Input.Files = runArgs.inputEVNT_TRFile
+        ConfigFlags.Sim.ReadTR = True
+        ConfigFlags.Sim.CosmicFilterVolumeNames = ['Muon']
+
+        ConfigFlags.Beam.Type = 'cosmics'
+        ConfigFlags.Detector.GeometryCavern = True # simulate the cavern with a cosmic TR file
+
+    elif hasattr(runArgs,'beamType') and runArgs.beamType == 'cosmics':
+        ConfigFlags.Beam.Type = 'cosmics'
+        log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
+        # athenaCommonFlags.PoolEvgenInput.set_Off()
     else:
-        raise RuntimeError('No input EVNT file defined')
+        log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
+        # athenaCommonFlags.PoolEvgenInput.set_Off()
+
 
     if hasattr(runArgs, 'outputHITSFile'):
         if runArgs.outputHITSFile == 'None':
@@ -108,6 +120,10 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(PoolWriteCfg(ConfigFlags))
+
+    if ConfigFlags.Sim.ReadTR:
+        from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
+        cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
 
     # add BeamEffectsAlg
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg

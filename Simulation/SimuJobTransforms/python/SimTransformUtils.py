@@ -173,6 +173,7 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
 
 def addAtlasG4Substep(executorSet):
     executorSet.add(athenaExecutor(name = 'AtlasG4TfTRIn', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
+                                   skeletonCA = 'SimuJobTransforms.G4AtlasAlg_Skeleton',
                                    substep = 'simTRIn', tryDropAndReload = False,
                                    inData=['EVNT_TR'],
                                    outData=['HITS','NULL'] ))
