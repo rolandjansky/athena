@@ -101,17 +101,25 @@ StatusCode ComboHypoToolBase::decide(Combo::LegDecisionsMap& passingLegs, const 
       }
     }
 
+    ++iterations;
+
     try {
       if (executeAlg(combinationToCheck)) {
-        ATH_MSG_DEBUG("Combination " << iterations << " decided to be passing");
+        ATH_MSG_DEBUG("Combination " << (iterations - 1) << " decided to be passing");
         passingCombinations.push_back(combinationToCheck);
+        if (m_modeOR == true and m_enableOverride) {
+          break;
+        }
+      } else { // the combination failed
+        if (m_modeOR == false and m_enableOverride) {
+          break;
+        }
       }
     } catch (std::exception& e) {
       ATH_MSG_ERROR(e.what());
       return StatusCode::FAILURE;
     }
 
-    ++iterations;
     if ((iterations >= m_combinationsThresholdWarn && warnings == 0) or (iterations >= m_combinationsThresholdBreak)) {
       ATH_MSG_WARNING("Have so far processed " << iterations << " combinations for " << m_decisionId << " in this event, " << passingCombinations.size() << " passing.");
       ++warnings;
@@ -123,8 +131,32 @@ StatusCode ComboHypoToolBase::decide(Combo::LegDecisionsMap& passingLegs, const 
 
   } while (nucg);
 
-  ATH_MSG_DEBUG("Passing " << passingCombinations.size() << " combinations out of " << iterations << ", " 
-    << m_decisionId << (passingCombinations.size() ? " **ACCEPTS**" : " **REJECTS**") << " this event.");
+
+  if (m_modeOR) {
+
+    ATH_MSG_DEBUG("Passing " << passingCombinations.size() << " combinations out of " << iterations << ", " 
+      << m_decisionId << (passingCombinations.size() ? " **ACCEPTS**" : " **REJECTS**") << " this event based on OR logic.");
+
+    if (m_enableOverride) {
+      ATH_MSG_DEBUG("Note: stopped after the first successful combination due to the EnableOverride flag.");  
+    }
+
+  } else {  // modeAND
+
+    const bool passAll = (passingCombinations.size() == iterations);
+
+    ATH_MSG_DEBUG("Passing " << passingCombinations.size() << " combinations out of " << iterations << ", " 
+      << m_decisionId << (passAll ? " **ACCEPTS**" : " **REJECTS**") << " this event based on AND logic.");
+
+    if (m_enableOverride) {
+      ATH_MSG_DEBUG("Note: stopped after the first failed combination due to the EnableOverride flag.");  
+    }
+
+    if (not passAll) {
+      passingCombinations.clear();
+    }
+
+  }
 
   if (not passingCombinations.empty()) { // need partial erasure of the decsions (only those not present in any combination)
     updateLegDecisionsMap(passingCombinations, passingLegs);

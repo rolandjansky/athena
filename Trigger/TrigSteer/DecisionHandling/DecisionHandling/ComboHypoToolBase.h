@@ -108,6 +108,12 @@ public:
 
   Gaudi::Property<size_t> m_combinationsThresholdBreak {this, "CombinationsThresholdBreak", 10000,
     "Events processing this many combinations will generate a second WARNING message, and the loop over combinations will be terminated at this point."};  
+
+  Gaudi::Property<bool> m_modeOR {this, "ModeOR", true,
+    "Accepts based on the logical OR over all calls to executeAlg. If this flag is set to false then the logical AND is required instead."}; 
+
+  Gaudi::Property<bool> m_enableOverride {this, "EnableOverride", false,
+    "Stops processing combinations as soon as a valid combination is found in OR mode, or as soon as an invalid combination is found in AND mode. This is to save CPU."}; 
  
   // TODO - add optional write out of the data stored in passingCombinations in the decide function.
   
