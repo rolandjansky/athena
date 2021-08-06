@@ -23,7 +23,11 @@ class Wj_MiNNLO(PowhegV2):
         @param kwargs          dictionary of arguments from Generate_tf.
         """
 
-        super(Wj_MiNNLO, self).__init__(base_directory, os.path.join("Wj", "WjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+        # this is very hacky
+        warnings = super(Wj_MiNNLO, self).hoppet_warning()
+        infos = super(Wj_MiNNLO, self).hoppet_info()
+
+        super(Wj_MiNNLO, self).__init__(base_directory, os.path.join("Wj", "WjMiNNLO"), powheg_executable="pwhg_main", warning_output=warnings, info_output=infos, **kwargs)
 
         # Add algorithms to the sequence
 

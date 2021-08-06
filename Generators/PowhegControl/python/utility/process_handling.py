@@ -47,15 +47,18 @@ class SingleProcessThread(object):
     __output_prefix = "    | "
     __ignore_output = []
 
-    def __init__(self, command_list, seed_index=None, stdin=None, ignore_output=None):
+    def __init__(self, command_list, seed_index=None, stdin=None, ignore_output=None, warning_output=[], info_output=[], error_output=[]):
         """! Constructor.
 
         Setup underlying process together with non-blocking readers for stdout and stderr.
 
-        @param command_list  Command that will be run (possibly with options).
-        @param seed_index    Which seed from pwgseeds.dat to use.
-        @param stdin         An open file handle providing input.
-        @param ignore_output List of strings to filter out from messages.
+        @param command_list   Command that will be run (possibly with options).
+        @param seed_index     Which seed from pwgseeds.dat to use.
+        @param stdin          An open file handle providing input.
+        @param ignore_output  List of strings to filter out from messages.
+        @param warning_output List of strings which would always trigger a warning only, even if produced in stderr.
+        @param info_output    List of strings which would always trigger an info only, even if produced in stderr.
+        @param error_output   List of strings which would always trigger an error, even if produced in stdout.
         """
         if not isinstance(command_list, list):
             command_list = [command_list]
@@ -63,6 +66,11 @@ class SingleProcessThread(object):
         # Set up messages to ignore
         if ignore_output is not None:
             self.__ignore_output = ignore_output
+        # Set up messages with special treatment
+        self.__warning_output = warning_output
+        self.__info_output = info_output
+        self.__error_output = error_output
+        ignore_output
         # Usual case, where no open file handle is provided
         if stdin is None:
             self.__process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -80,6 +88,8 @@ class SingleProcessThread(object):
         # Setup non-blocking stream readers for stdout and stderr
         self.__stdout = NonBlockingStreamReader(self.__process.stdout)
         self.__stderr = NonBlockingStreamReader(self.__process.stderr)
+
+
 
     def has_output(self):
         """! Write queued output and return process status."""
@@ -111,7 +121,13 @@ class SingleProcessThread(object):
         for stream in ["stdout", "stderr"]:
             while True:
                 output, queue_size = getattr(self, stream).readline(timeout=0.1)
-                if not (output is None or len(output) == 0):
+                if output is not None and any([(pattern in output) for pattern in self.__error_output]):
+                    self.log(output, "error")
+                elif output is not None and any([(pattern in output) for pattern in self.__warning_output]):
+                    self.log(output, "warning")
+                elif output is not None and any([(pattern in output) for pattern in self.__info_output]):
+                    self.log(output, "info")
+                elif not (output is None or len(output) == 0):
                     self.log(output, self.log_level[stream])
                 if queue_size == 0:
                     break

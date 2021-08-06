@@ -25,7 +25,10 @@ def singlecore_untimed(process):
     """
     if not os.path.isfile(process.executable):
         raise OSError("Powheg executable {} not found!".format(process.executable))
-    threads = [SingleProcessThread(process.executable)]
+    threads = [SingleProcessThread(process.executable,
+                                   warning_output=(process.warning_output if hasattr(process,"warning_output") else None),
+                                   info_output=(process.info_output if hasattr(process,"info_output") else None),
+                                   error_output=(process.error_output if hasattr(process,"error_output") else None))]
     manager = ProcessManager(threads)
     while manager.monitor():
         pass
