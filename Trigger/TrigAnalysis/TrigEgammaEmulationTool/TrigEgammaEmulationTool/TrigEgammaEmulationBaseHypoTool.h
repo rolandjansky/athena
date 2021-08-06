@@ -30,7 +30,7 @@ namespace Trig{
 
       virtual StatusCode initialize() override;
 
-      bool emulate( const TrigData &, bool &) const {return true;};
+      virtual bool emulate( const TrigData &, bool &) const override {return true;};
 
     protected:
       
