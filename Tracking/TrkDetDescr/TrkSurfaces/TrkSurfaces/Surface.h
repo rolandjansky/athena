@@ -420,10 +420,6 @@ public:
 
   void setMaterialLayer(const Layer* mlay);
 
-  /** set material layer const */
-  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const;
-  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const;
-
   /** Output Method for MsgStream, to be overloaded by child classes */
   virtual MsgStream& dump(MsgStream& sl) const;
 
