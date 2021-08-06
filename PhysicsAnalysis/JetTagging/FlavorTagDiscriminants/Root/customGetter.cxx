@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
@@ -70,7 +70,6 @@ namespace {
 
     using Tp = xAOD::TrackParticle;
     using Jet = xAOD::Jet;
-    typedef std::vector<const xAOD::TrackParticle*> Tracks;
 
     BTagTrackIpAccessor a(prefix);
     if (name == "IP3D_signed_d0_significance") {
