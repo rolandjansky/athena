@@ -20,8 +20,10 @@ def McEventSelectorCfg(configFlags, **kw):
     if isinstance(rn, type([])):
         rn = rn[0]
     evSel.RunNumber = rn
-    evSel.InitialTimeStamp = configFlags.Input.TimeStamp
-
+    tstamp = configFlags.Input.TimeStamp
+    if isinstance(tstamp, type([])):
+        tstamp = tstamp[0]
+    evSel.InitialTimeStamp = tstamp
     for k, v in kw.items():
         setattr (evSel, k, v)
     cfg.addService(evSel)
