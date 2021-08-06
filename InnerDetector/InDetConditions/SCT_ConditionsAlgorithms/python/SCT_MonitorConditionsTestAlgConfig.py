@@ -25,7 +25,7 @@ if __name__=="__main__":
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
     ConfigFlags.Input.RunNumber = 310000 # MC16e 2018 run number
-    ConfigFlags.addFlag("Input.InitialTimeStamp", 1550000000) # MC16e 2018 time stamp
+    ConfigFlags.Input.TimeStamp = 1550000000 # MC16e 2018 time stamp
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-RUN2-01"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
     ConfigFlags.Detector.GeometrySCT = True

@@ -93,7 +93,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
 ConfigFlags.Input.Files = defaultTestFiles.RDO
-ConfigFlags.addFlag("Input.InitialTimeStamp", 1000)
+ConfigFlags.Input.TimeStamp = 1000
 
 ConfigFlags.lock()
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg 

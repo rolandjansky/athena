@@ -25,7 +25,7 @@ if __name__=="__main__":
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.ProjectName = "data12_8TeV"
     ConfigFlags.Input.RunNumber = 142913
-    ConfigFlags.addFlag("Input.InitialTimeStamp", 1260630000) # During run 142913, 12/12/2009 @ 3:00pm (UTC)
+    ConfigFlags.Input.TimeStamp = 1260630000 # During run 142913, 12/12/2009 @ 3:00pm (UTC)
     ConfigFlags.IOVDb.GlobalTag = "COMCOND-BLKPA-RUN1-09"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R1-2012-03-00-00"
     ConfigFlags.Detector.GeometrySCT = True
