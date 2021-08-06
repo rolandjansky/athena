@@ -45,58 +45,54 @@ GlobalOutput::setMultiplicityTriggerLines(const vector<TrigConf::TriggerLine> & 
   
 uint64_t 
 GlobalOutput::decision_field(const std::string & l1connName) const {
-   try {
-      return m_decision.find(l1connName)->second;
-   } 
-   catch(std::exception &) {
-      TRG_MSG_ERROR("Connector name " << l1connName << " unknown");
-      throw;
-   }
-
+  if (m_decision.find(l1connName) != m_decision.end()) {
+    return m_decision.find(l1connName)->second;
+  }else{
+    TRG_MSG_WARNING("Connector name " << l1connName << " unknown");
+    return 0;
+  }
 }
 
 uint32_t
 GlobalOutput::decision_field(string l1connName, unsigned int clock) const {
-   try {
-      if(clock==0) {
-         // lower 32 bit
-         return static_cast<uint32_t>(m_decision.at(l1connName) & 0xffffffff);
-      } else {
-         // upper 32 bit
-         uint64_t clock1 = m_decision.at(l1connName) & 0xffffffff00000000;
-         return static_cast<uint32_t>(clock1 >> 32);
-      }
-   }
-   catch(std::exception &) {
-      TRG_MSG_ERROR("Connector name " << l1connName << " unknown");
-      throw;
-   }
-}
-uint64_t 
-GlobalOutput::overflow_field(std::string l1connName) const {
-   try {
-      return m_overflow.find(l1connName)->second;
-   }
-   catch(std::exception &){
-      TRG_MSG_ERROR("Connector name " << l1connName << " unknown");
-      throw;
-   }
+  if (m_decision.find(l1connName) != m_decision.end()) {
+    if(clock==0) {
+      // lower 32 bit
+      return static_cast<uint32_t>(m_decision.at(l1connName) & 0xffffffff);
+    } else {
+      // upper 32 bit
+      uint64_t clock1 = m_decision.at(l1connName) & 0xffffffff00000000;
+      return static_cast<uint32_t>(clock1 >> 32);
+    }
+  }else{
+    TRG_MSG_WARNING("Connector name " << l1connName << " unknown");
+    return 0;
+  }
 }
 
 std::bitset<128>
 GlobalOutput::count_field(std::string l1connName) const {
-   try{
-      return m_count.find(l1connName)->second;
-   }
-   catch(std::exception &){
-      TRG_MSG_ERROR("Connector name " << l1connName << " unknown");
-      throw;
-   }
+  if (m_count.find(l1connName) != m_count.end()) {
+    return m_count.find(l1connName)->second;
+  }else{
+    TRG_MSG_WARNING("Connector name " << l1connName << " unknown");
+    return 0;
+  }
+}
+
+uint64_t 
+GlobalOutput::overflow_field(std::string l1connName) const {
+  if (m_overflow.find(l1connName) != m_overflow.end()) {
+    return m_overflow.find(l1connName)->second;
+  }else{
+    TRG_MSG_WARNING("Connector name " << l1connName << " unknown");
+    return 0;
+  }
 }
 
 uint32_t
 GlobalOutput::overflow_field(string l1connName, unsigned int clock) const {
-   try{
+   if (m_overflow.find(l1connName) != m_overflow.end()) {
       if(clock==0) {
          // lower 32 bit
          return static_cast<uint32_t>(m_overflow.find(l1connName)->second & 0xffffffff);
@@ -105,11 +101,10 @@ GlobalOutput::overflow_field(string l1connName, unsigned int clock) const {
          uint64_t clock1 = m_overflow.find(l1connName)->second & 0xffffffff00000000;
          return static_cast<uint32_t>(clock1 >> 32);
       }
-   }
-   catch(std::exception &){
-      TRG_MSG_ERROR("Connector name " << l1connName << " unknown");
-      throw;
-   }
+   }else{
+    TRG_MSG_WARNING("Connector name " << l1connName << " unknown");
+    return 0;
+  }
 }
 
 
@@ -169,15 +164,12 @@ GlobalOutput::collectOutput(const set<DecisionConnector*> & outConn, const set<C
 
 TCS::StatusCode
 GlobalOutput::resetOutput() {
-   for(auto const& dec : m_decision)
-     m_decision[dec.first] = 0;
-   for(auto const& ovf : m_overflow)
-     m_overflow[ovf.first] = 0;
-   for(auto const& count : m_count)
-      m_count[count.first] = 0;
-   
-   m_valid = false;
-   return TCS::StatusCode::SUCCESS;
+  m_decision.clear();
+  m_overflow.clear();
+  m_count.clear();
+  
+  m_valid = false;
+  return TCS::StatusCode::SUCCESS;
 }
 
 
