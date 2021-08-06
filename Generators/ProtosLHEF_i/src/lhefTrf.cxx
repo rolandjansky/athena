@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ProtosLHEF_i/lhefTrf.h"
@@ -12,8 +12,6 @@ extern "C" {
   void writelhef_(int*retval);
   void endlhef_();
 }
-
-lhefTrf::lhefTrf() {}
 
 int lhefTrf::initializeTrf() {
 
