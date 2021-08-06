@@ -247,11 +247,10 @@ L1TopoSimulation::execute() {
      }    
 
      // set optical connectors
-      
      for( auto connOpt : l1menu->board("Topo1").connectorNames() ) {
-      topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
+       topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
      }
-      
+     
      CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
      CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
    }
