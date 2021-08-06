@@ -93,9 +93,14 @@ private:
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelection; // baseline
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
-  PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
-     {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
-  
+  //doIP false disables this one
+  ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator{
+    this,
+    "TrackToVertexIPEstimator",
+    "Trk::TrackToVertexIPEstimator",
+    ""
+  };
+
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
