@@ -251,10 +251,18 @@ HLT_2mu50_msonly_L1MU20:
   eventCount: 0
 HLT_2mu6_10invm70_L1MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
 HLT_2mu6_L12MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu6_bBmumu_L1BPH-2M9-2DR15-2MU6:
   eventCount: 0
 HLT_2mu6_bBmumu_Lxy0_L1BPH-2M9-2DR15-2MU6:
@@ -269,6 +277,10 @@ HLT_2mu6_bBmumux_BsmumuPhi_L1LFV-MU6:
   eventCount: 0
 HLT_2mu6_bDimu_L12MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu6_bDimu_L1BPH-2M9-2DR15-2MU6:
   eventCount: 0
 HLT_2mu6_bDimu_L1LFV-MU6:
@@ -283,14 +295,27 @@ HLT_2mu6_bUpsimumu_L1BPH-8M15-0DR22-2MU6:
   eventCount: 0
 HLT_2mu6_l2io_L12MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu6_mu4_bTau_L12MU6_3MU4:
   eventCount: 0
 HLT_2mu6_mu4_bUpsi_L12MU6_3MU4:
   eventCount: 0
 HLT_2mu6_muonqual_L12MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu6_noL2Comb_bJpsimumu_L12MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+    1: 2
 HLT_3j200_L1J100:
   eventCount: 0
 HLT_3j200_ftf_L1J100:
@@ -994,11 +1019,11 @@ HLT_eb_low_L1RD2_FILLED:
   stepFeatures:
     0: 9
 HLT_eb_medium_L1RD2_FILLED:
-  eventCount: 7
+  eventCount: 6
   stepCounts:
-    0: 7
+    0: 6
   stepFeatures:
-    0: 7
+    0: 6
 HLT_g0_hiptrt_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -2467,48 +2492,108 @@ HLT_mu11_mu6_bBmumu_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bBmumu_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bBmumux_BcmumuPi_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bBmumux_BdmumuKst_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bBmumux_BpmumuKp_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bBmumux_BpmumuKp_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bBmumux_BsmumuPhi_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bBmumux_LbPqKm_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bDimu2700_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bDimu2700_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bDimu2700_Lxy0_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bDimu_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bDimu_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bDimu_Lxy0_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bJpsimumu_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bJpsimumu_Lxy0_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bPhi_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bPhi_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bTau_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bTau_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu11_mu6_bUpsimumu_L1LFV-MU11:
   eventCount: 0
 HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6:
   eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 3
 HLT_mu14_L1MU10:
   eventCount: 0
   stepCounts:
@@ -2542,7 +2627,7 @@ HLT_mu20_L1MU6:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_mu20_L1MU6_AFP_A_AND_C:
   eventCount: 0
 HLT_mu20_L1MU6_AFP_A_OR_C:
@@ -2579,10 +2664,6 @@ HLT_mu20_msonly_L1MU20:
     0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU20-MU6:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_J40:
   eventCount: 0
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU20_XE30:
@@ -2671,8 +2752,6 @@ HLT_mu24_ivarmedium_mu6_ivarmedium_L1MU20:
     0: 3
 HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU20:
   eventCount: 0
-  stepCounts:
-    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
@@ -2683,14 +2762,10 @@ HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
     0: 3
 HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU20:
   eventCount: 0
-  stepCounts:
-    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_ivarmedium_mu6_probe_L1MU20:
   eventCount: 0
-  stepCounts:
-    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_mu10noL1_L1MU20:
@@ -2707,8 +2782,6 @@ HLT_mu24_mu6_L1MU20:
     0: 3
 HLT_mu24_mu6_probe_L1MU20:
   eventCount: 0
-  stepCounts:
-    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_mu8noL1_L1MU20:
@@ -2878,29 +2951,29 @@ HLT_mu6_L1MU6:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_mu6_LRT_idperf_L1MU6:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu6_idperf_L1MU6:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu6_ivarmedium_L1MU6:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_mu6_j45_nojcalib_L1J20:
   eventCount: 0
 HLT_mu6_msonly_L1MU6:
@@ -2908,7 +2981,7 @@ HLT_mu6_msonly_L1MU6:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_mu6_mu4_L12MU4:
   eventCount: 0
   stepCounts:
@@ -2930,7 +3003,7 @@ HLT_mu6_mu4_bDimu_L1MU6_2MU4:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 3
+    0: 4
 HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU6MU4:
   eventCount: 0
 HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU6MU4:
@@ -2942,14 +3015,14 @@ HLT_mu6_mu6noL1_L1MU6:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_mu6_noL2Comb_mu4_noL2Comb_bJpsimumu_L1MU6_2MU4:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
-    0: 3
-    1: 3
+    0: 4
+    1: 4
 HLT_mu6_xe30_mht_L1XE30:
   eventCount: 0
 HLT_mu80_L1MU20:
@@ -2969,7 +3042,7 @@ HLT_mu8_L1MU6:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_noalg_AlfaPEB_L1ALFA_ANY:
   eventCount: 0
 HLT_noalg_CIS_TilePEB_L1CALREQ1:
