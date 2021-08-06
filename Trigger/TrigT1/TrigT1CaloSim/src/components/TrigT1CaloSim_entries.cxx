@@ -1,4 +1,3 @@
-#include "../TriggerTowerMaker.h"
 #include "../Run2TriggerTowerMaker.h"
 #include "../CPMTowerMaker.h"
 #include "../JetElementMaker.h"
@@ -22,7 +21,6 @@
 
 using namespace LVL1;
 
-DECLARE_COMPONENT( TriggerTowerMaker )
 DECLARE_COMPONENT( Run2TriggerTowerMaker )
 DECLARE_COMPONENT( CPMTowerMaker )
 DECLARE_COMPONENT( JetElementMaker )

@@ -87,16 +87,6 @@ if rec.doTrigger():
         ToolSvc.RecMuCTPIByteStreamTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
 
-        # need thresholds so should be called just if the info is there in COOL
-        from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToxAOD
-        a2 = RoIBResultToxAOD()
-        a2.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1JEMJetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1CPMTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
-        a4 = LVL1__TriggerTowerMaker("TriggerTowerMaker")
-        a4.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         if not hasattr(ToolSvc,'L1EtTools'):
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EtTools
