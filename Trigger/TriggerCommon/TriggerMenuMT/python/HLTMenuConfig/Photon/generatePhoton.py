@@ -7,13 +7,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromD
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-# TODO reuse electron calo setup (these two could share all algorithms)
-def _fastCalo(flags, chainDict):
+@AccumulatorCache
+def _fastCaloSeq(flags):
     selAcc=SelectionCA('FastCaloPhoton')
     selAcc.mergeReco(l2CaloRecoCfg(flags))
 
@@ -30,10 +31,17 @@ def _fastCalo(flags, chainDict):
     fastCaloSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
 
+    return (selAcc , fastCaloSequence)
+
+# TODO reuse electron calo setup (these two could share all algorithms)
+def _fastCalo(flags, chainDict):
+    
+    selAcc , fastCaloSequence = _fastCaloSeq(flags)
+
     return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-
-def _fastPhoton(flags, chainDict):
+@AccumulatorCache
+def _fastPhotonSeq(flags):
     selAcc=SelectionCA('FastPhoton')
     selAcc.mergeReco(l2PhotonRecoCfg(flags))
 
@@ -45,6 +53,12 @@ def _fastPhoton(flags, chainDict):
     l2PhotonSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict)
 
+    return (selAcc , l2PhotonSequence)
+
+def _fastPhoton(flags, chainDict):
+    
+    selAcc , l2PhotonSequence = _fastPhotonSeq(flags)
+    
     return ChainStep(selAcc.name, Sequences=[l2PhotonSequence], chainDicts=[chainDict],  multiplicity=getChainMultFromDict(chainDict) )
 
 
