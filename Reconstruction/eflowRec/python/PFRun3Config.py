@@ -140,6 +140,10 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
+    from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm,getEGamFlowElementAssocAlgorithm
+    result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+    result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
+
     return result
 
 if __name__=="__main__":

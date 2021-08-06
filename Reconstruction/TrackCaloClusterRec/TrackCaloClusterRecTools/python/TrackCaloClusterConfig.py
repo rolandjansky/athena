@@ -135,7 +135,8 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
         TrackVertexAssoTool=setupTrackVertexAssocTool(), # will associate trks from PV0 only
         VertexContainerName = "PrimaryVertices" if onlyPV0Tracks else "",
         AssociatedClusterDecorKey = decorKey("AssoClusters"),
-        OutputLevel=2)
+#        OutputLevel=2
+    )
 
 
     components.addEventAlgo( trackParticleClusterAssociation )
@@ -205,26 +206,26 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     
     FEContainerName=""
     if(doNeutral):
-        FEContainerName="JetETMissNeutralFlowElements"
+        FEContainerName="JetETMissNeutralParticleFlowObjects"
         neutraloutputTCCName=outputTCCName+"Neutral"
         neutraltccAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlg_neutral",
                                                         OutputTCCName = neutraloutputTCCName,
                                                         TCCInfo = "TCCInfo",
                                                         TCCTools = tccTools,
-                                                        OutputLevel = 2,
+                                                        #OutputLevel
                                                         AppendToTCCName = FEContainerName
                                                         
                                                     )
         components.addEventAlgo(neutraltccAlg)
 
     if(doCharged):
-        FEContainerName="JetETMissChargedFlowElements"
+        FEContainerName="JetETMissChargedParticleFlowObjects"
         chargedoutputTCCName=outputTCCName+"Charged"
         chargedtccAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlg_charged",
                                                         OutputTCCName = chargedoutputTCCName,
                                                         TCCInfo = "TCCInfo",
                                                         TCCTools = tccTools,
-                                                        OutputLevel = 2,
+                                                        #OutputLevel = 2,
                                                         AppendToTCCName = FEContainerName                                                        
                                                     )
         components.addEventAlgo(chargedtccAlg)
