@@ -10,7 +10,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ParticleID",False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr", "Off"
 
-    scf.addFlag("Sim.CavernBG",False) #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
+    scf.addFlag("Sim.CavernBG","Off") #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
     scf.addFlag("Sim.ReadTR",False)
     scf.addFlag("Sim.WorldRRange", False) #12500. #int or float
     scf.addFlag("Sim.WorldZRange", False) #22031. #int or float
@@ -81,9 +81,10 @@ def createSimConfigFlags():
     #  volume(s) used to do cosmics filtering
     #  G4 volume names from {"Muon", "Calo", "InnerDetector", "TRT_Barrel", "TRT_EC", "SCT_Barrel", "Pixel"}
     scf.addFlag("Sim.CosmicFilterVolumeNames", ["InnerDetector"])
-    scf.addFlag("Sim.CosmicFilterID", "13") # PDG ID to be filtered
-    scf.addFlag("Sim.CosmicFilterPTmin", "5000") # min pT filtered in cosmics processing (MeV)
-    scf.addFlag("Sim.CosmicFilterPTmax", "6000") # max pT filtered in cosmics processing (MeV)
+    scf.addFlag("Sim.CosmicFilterID", False) # PDG ID to be filtered ("13")
+    scf.addFlag("Sim.CosmicFilterPTmin", False) # min pT filtered in cosmics processing (MeV) ("5000")
+    scf.addFlag("Sim.CosmicFilterPTmax", False) # max pT filtered in cosmics processing (MeV) ("6000")
+    scf.addFlag("Sim.CosmicPtSlice", False) #slice1, 'slice2', 'slice3', 'slice4', 'NONE' 
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
