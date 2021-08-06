@@ -31,6 +31,8 @@ filter_bs.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
 tzrecoPreExec = ' '.join([
   "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
   "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
+  "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
+  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"
