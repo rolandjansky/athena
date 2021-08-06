@@ -28,7 +28,7 @@ ex.input = 'ttbar_pu80'
 ex.threads = 8
 ex.concurrent_events = 8
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=False;doWriteRDOTrigger=True;setGlobalTag=\'OFLCOND-RUN12-SDR-31\';from IOVDbSvc.CondDB import conddb;conddb.addOverride(\'/PIXEL/PixelModuleFeMask\',\'PixelModuleFeMask-SIM-MC16-000-03\')"'
 
 test = Test.Test()
 test.art_type = 'grid'
