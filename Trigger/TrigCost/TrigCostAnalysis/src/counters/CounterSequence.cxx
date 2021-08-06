@@ -45,7 +45,7 @@ StatusCode CounterSequence::newEvent(const CostData& data, size_t /*index*/, con
     const uint64_t stop  = alg->getDetail<uint64_t>("stop"); // in mus
     const float cpuTime = timeToMilliSec(start, stop);
     ATH_CHECK( fill("Time_perEvent", cpuTime, weight) );
-    ATH_CHECK( fill("Time_perCall", cpuTime, weight) );
+    //ATH_CHECK( fill("Time_perCall", cpuTime, weight) );
 
     // Monitor data requests
     if (!data.algToRequestMap().count(algIndex)) continue;
