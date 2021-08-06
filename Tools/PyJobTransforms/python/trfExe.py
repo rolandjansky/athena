@@ -1672,25 +1672,28 @@ class hybridPOOLMergeExecutor(athenaExecutor):
 ## @brief Specialist executor to manage the handling of multiple implicit input
 #  and output files within the reduction framework. 
 class reductionFrameworkExecutor(athenaExecutor):
-    
     ## @brief Take inputDAODFile and setup the actual outputs needed
     #  in this job.
     def preExecute(self, input=set(), output=set()):
         self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
-
         if 'NTUP_PILEUP' not in output:
             if 'reductionConf' not in self.conf.argdict:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No reduction configuration specified')
 
-            if 'DAOD' not in output:
+            if ('DAOD' not in output) and ('D2AOD' not in output):
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No base name for DAOD reduction')
         
             for reduction in self.conf.argdict['reductionConf'].value:
-                dataType = 'DAOD_' + reduction
-                outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
+                if ('DAOD' in output):
+                    dataType = 'DAOD_' + reduction
+                    outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
+                if ('D2AOD' in output):
+                    dataType = 'D2AOD_' + reduction
+                    outputName = 'D2AOD_' + reduction + '.' + self.conf.argdict['outputD2AODFile'].value[0]
+
                 msg.info('Adding reduction output type {0}'.format(dataType))
                 output.add(dataType)
                 newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
@@ -1700,10 +1703,15 @@ class reductionFrameworkExecutor(athenaExecutor):
             
             # Clean up the stub file from the executor input and the transform's data dictionary
             # (we don't remove the actual argFile instance)
-            output.remove('DAOD')
-            del self.conf.dataDictionary['DAOD']
-            del self.conf.argdict['outputDAODFile']
-        
+            if ('DAOD' in output):
+                output.remove('DAOD')
+                del self.conf.dataDictionary['DAOD']
+                del self.conf.argdict['outputDAODFile']
+            if ('D2AOD' in output):
+                output.remove('D2AOD')
+                del self.conf.dataDictionary['D2AOD']
+                del self.conf.argdict['outputD2AODFile']      
+ 
             msg.info('Data dictionary is now: {0}'.format(self.conf.dataDictionary))
             msg.info('Input/Output: {0}/{1}'.format(input, output))
         
