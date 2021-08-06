@@ -795,7 +795,7 @@ bool RpcCablingCondAlg::BoardParamCheck(const unsigned short int SubId, const un
                                         const unsigned int type, const unsigned short int Channel1, const unsigned short int Channel2,
                                         const short int Number) const {
     if (SubId != 0x65 && SubId != 0x66) {
-        ATH_MSG_ERROR("Subsystem Id out of range [0x65,0x66].");
+        ATH_MSG_ERROR("Subsystem Id out of range: " << SubId << " not in [0x65,0x66].");
         return false;
     }
     if (SecId > 31) {
