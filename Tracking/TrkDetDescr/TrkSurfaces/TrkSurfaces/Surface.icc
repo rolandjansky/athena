@@ -262,18 +262,6 @@ Surface::setMaterialLayer(const Layer* mlay)
   m_materialLayer = mlay;
 }
 
-inline void Surface::setMaterialLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const
-{
-  const_cast<Surface*>(this)->m_materialLayer = (&mlay);
-}
-
-inline void Surface::setMaterialLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const
-{
-  const_cast<Surface*>(this)->m_materialLayer = mlay;
-}
-
 inline void
 Surface::associateLayer(const Layer& lay)
 {
