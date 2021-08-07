@@ -26,7 +26,7 @@ TEST(PassThroughFilterTester, zerojets) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 }
 
 TEST(PassThroughFilterTester, twojets) {
@@ -38,7 +38,7 @@ TEST(PassThroughFilterTester, twojets) {
   HypoJetVector tv = makeHypoJets(eta);
 
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 2);
+  EXPECT_EQ(fj.size(), 2u);
   
   EXPECT_EQ(fj.front()->eta(), tv.front()->eta());
   EXPECT_EQ(fj.back()->eta(), tv.back()->eta());

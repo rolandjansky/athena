@@ -35,22 +35,22 @@ TEST(RangeFilterTester, insufficient0) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 
   tv.push_back(make_jet(0, 2.));
 	    
   fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 
   tv.push_back(make_jet(0, 1.));
 
   fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 
   tv.push_back(make_jet(0, 3.));
 
   fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 3);
+  EXPECT_EQ(fj.size(), 3u);
 
   EXPECT_GT(fj[0]->pt(), fj[1]->pt());
   EXPECT_GT(fj[1]->pt(), fj[2]->pt());
@@ -65,7 +65,7 @@ TEST(RangeFilterTester, insufficient1) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 
 }
 
@@ -79,6 +79,6 @@ TEST(RangeFilterTester, run2TLA) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 2);
+  EXPECT_EQ(fj.size(), 2u);
 
 }

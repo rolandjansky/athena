@@ -59,7 +59,7 @@ TEST(ConditionFilterTester, zerojets_zeroconditions) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = rf.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 
 }
 
@@ -73,7 +73,7 @@ TEST(ConditionFilterTester, zerojets_onecondition) {
   std::unique_ptr<ITrigJetHypoInfoCollector> deb(nullptr);
   
   auto fj = filter.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 0);
+  EXPECT_EQ(fj.size(), 0u);
 }
 
 TEST(ConditionFilterTester, twojets_zeroconditions) {
@@ -119,7 +119,7 @@ TEST(ConditionFilterTester, twojets_onecondition) {
   HypoJetVector tv = makeHypoJets(jet_eta);
 
   auto fj = filter.filter(tv, deb);
-  EXPECT_EQ(fj.size(), 2);
+  EXPECT_EQ(fj.size(), 2u);
 
   auto etas = std::vector<double> {};
   etas.reserve(fj.size());
