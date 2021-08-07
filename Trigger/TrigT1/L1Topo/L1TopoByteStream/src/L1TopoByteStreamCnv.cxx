@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IRegistry.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
@@ -27,8 +26,7 @@
  * base class in the correct way.
  */
 L1TopoByteStreamCnv::L1TopoByteStreamCnv(ISvcLocator* svcloc)
-    : Converter(storageType(), classID(), svcloc),
-      AthMessaging(svcloc != 0 ? msgSvc() : 0, "L1TopoByteStreamCnv"),
+    : AthConstConverter(storageType(), classID(), svcloc, "L1TopoByteStreamCnv"),
       m_tool("L1TopoByteStreamTool"),
       m_srcIdMap(0),
       m_robDataProvider("ROBDataProviderSvc", "L1TopoByteStreamCnv"),
@@ -69,19 +67,17 @@ StatusCode L1TopoByteStreamCnv::initialize() {
     return sc;
   }
 
-  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
-  log << MSG::DEBUG << "L1TopoByteStreamCnv in initialize() " << endmsg;
+  ATH_MSG_DEBUG("L1TopoByteStreamCnv in initialize() ");
 
   //
   // Get ByteStreamCnvSvc:
   //
   sc = m_ByteStreamEventAccess.retrieve();
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endmsg;
+    ATH_MSG_FATAL("Can't get ByteStreamEventAccess interface");
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface"
-        << endmsg;
+    ATH_MSG_DEBUG("Connected to ByteStreamEventAccess interface");
   }
 
   //
@@ -89,10 +85,10 @@ StatusCode L1TopoByteStreamCnv::initialize() {
   //
   sc = m_tool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Can't get L1TopoByteStreamTool" << endmsg;
+    ATH_MSG_FATAL("Can't get L1TopoByteStreamTool");
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to L1TopoByteStreamTool" << endmsg;
+    ATH_MSG_DEBUG("Connected to L1TopoByteStreamTool");
   }
 
   //
@@ -100,10 +96,10 @@ StatusCode L1TopoByteStreamCnv::initialize() {
   //
   sc = m_robDataProvider.retrieve();
   if (sc.isFailure()) {
-    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
+    ATH_MSG_WARNING("Can't get ROBDataProviderSvc");
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
+    ATH_MSG_DEBUG("Connected to ROBDataProviderSvc");
   }
 
   //
@@ -119,8 +115,8 @@ StatusCode L1TopoByteStreamCnv::initialize() {
  * the ROB fragments with the ROB IDs of the L1Topo DAQ modules and gives these
  * fragments to the L1TopoByteStreamTool for conversion.
  */
-StatusCode L1TopoByteStreamCnv::createObj(IOpaqueAddress* pAddr,
-                                          DataObject*& pObj) {
+StatusCode L1TopoByteStreamCnv::createObjConst(IOpaqueAddress* pAddr,
+                                               DataObject*& pObj) const {
   ATH_MSG_DEBUG("createObj() called");
   // -------------------------------------------------------------------------
   ByteStreamAddress* pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
@@ -148,21 +144,18 @@ StatusCode L1TopoByteStreamCnv::createObj(IOpaqueAddress* pAddr,
  * of the L1Topo to the current raw event using the IByteStreamEventAccess
  * interface.
  */
-StatusCode L1TopoByteStreamCnv::createRep(DataObject* pObj,
-                                          IOpaqueAddress*& pAddr) {
-  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
-
-  log << MSG::DEBUG << "createRep() called" << endmsg;
+StatusCode L1TopoByteStreamCnv::createRepConst(DataObject* pObj,
+                                               IOpaqueAddress*& pAddr) const {
+  ATH_MSG_DEBUG("createRep() called");
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   L1TopoRDOCollection* result;
   if (!SG::fromStorable(pObj, result)) {
-    log << MSG::ERROR << " Cannot cast to L1TopoRDOCollection" << endmsg;
+    ATH_MSG_ERROR(" Cannot cast to L1TopoRDOCollection");
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found " << result->size()
-        << " L1TopoRDOs to convert to ROBs" << endmsg;
+    ATH_MSG_DEBUG(" Found " << result->size() << " L1TopoRDOs to convert to ROBs");
   }
 
   ByteStreamAddress* addr =
@@ -175,8 +168,7 @@ StatusCode L1TopoByteStreamCnv::createRep(DataObject* pObj,
        it != result->end(); ++it) {
     StatusCode sc = m_tool->convert(*it, re);
     if (sc.isFailure()) {
-      log << MSG::ERROR << " Failed to create ROB for L1TopoRDO:  " << **it
-          << endmsg;
+      ATH_MSG_ERROR(" Failed to create ROB for L1TopoRDO:  " << **it);
       return sc;
     }
   }
