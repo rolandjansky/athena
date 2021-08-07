@@ -3,7 +3,6 @@
 */
 
 #include "PhysValFE.h"
-#include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 
 PhysValFE::PhysValFE (const std::string& type, const std::string& name, const IInterface* parent ) : 
@@ -16,8 +15,7 @@ PhysValFE::PhysValFE (const std::string& type, const std::string& name, const II
 PhysValFE::~PhysValFE() {}
 
 StatusCode PhysValFE::initialize(){
-  ATH_CHECK(ManagedMonitorToolBase::initialize());
-  ATH_CHECK(m_PFOContainerHandleKey.initialize());
+  ATH_CHECK(ManagedMonitorToolBase::initialize());  
   ATH_CHECK(m_vertexContainerReadHandleKey.initialize());
   ATH_CHECK(m_FEContainerHandleKey.initialize());
 
@@ -33,13 +31,11 @@ StatusCode PhysValFE::initialize(){
 
 StatusCode PhysValFE::bookHistograms(){
     
-  std::string theName = "PFlow/FlowElement/"+m_FEContainerHandleKey.key();
-  std::string PFO_name=m_PFOContainerHandleKey.key();
+  std::string theName = "PFlow/FlowElement/"+m_FEContainerHandleKey.key();  
   std::vector<HistData> hists;
-  std::vector<HistData> additional_hists;
-  std::vector<HistData> PFO_FE_comparison_hists;
+  std::vector<HistData> additional_hists;  
   if (!m_useNeutralFE){
-    m_FEChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName,"", theName));
+    m_FEChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName,theName));
     m_FEChargedValidationPlots->setDetailLevel(100);
     m_FEChargedValidationPlots->initialize();
     hists = m_FEChargedValidationPlots->retrieveBookedHistograms();
@@ -48,19 +44,10 @@ StatusCode PhysValFE::bookHistograms(){
     m_LeptonLinkerPlots_CFE->initialize();
     m_LeptonLinkerPlots_CFE->retrieveBookedHistograms();
     additional_hists=m_LeptonLinkerPlots_CFE->retrieveBookedHistograms();
-
-
-   // PFO vs FE comparison based on track matching
-   if(m_compareFEtoPFO){
-      m_charged_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,false));
-      m_charged_PFO_FE_comparison->setDetailLevel(100);
-      m_charged_PFO_FE_comparison->initialize();
-      PFO_FE_comparison_hists=m_charged_PFO_FE_comparison->retrieveBookedHistograms();
-    } 
    
   }
   else if (m_useNeutralFE){
-    m_FENeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, "",theName));
+    m_FENeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, theName));
     m_FENeutralValidationPlots->setDetailLevel(100);
     m_FENeutralValidationPlots->initialize();
     hists = m_FENeutralValidationPlots->retrieveBookedHistograms();
@@ -68,24 +55,12 @@ StatusCode PhysValFE::bookHistograms(){
     m_LeptonLinkerPlots_NFE.reset(new LeptonNFEValidationPlots(0,theName,theName));
     m_LeptonLinkerPlots_NFE->setDetailLevel(100);
     m_LeptonLinkerPlots_NFE->initialize();
-    additional_hists=m_LeptonLinkerPlots_NFE->retrieveBookedHistograms();
-    
-    if(m_compareFEtoPFO){
-      //PFO vs FE comparison based on cluster matching
-      m_neutral_PFO_FE_comparison.reset(new PFO_FE_ComparisonPlots(0,theName,theName+PFO_name,theName,true));
-      m_neutral_PFO_FE_comparison->setDetailLevel(100);
-      m_neutral_PFO_FE_comparison->initialize();
-      PFO_FE_comparison_hists=m_neutral_PFO_FE_comparison->retrieveBookedHistograms();
-    }
+    additional_hists=m_LeptonLinkerPlots_NFE->retrieveBookedHistograms();    
 
   }
-  
 
-  hists.insert(hists.end(),additional_hists.begin(),additional_hists.end()); // append lepton-FE linker plots to collection of hists
+  hists.insert(hists.end(),additional_hists.begin(),additional_hists.end()); // append lepton-FE linker plots to collection of hists  
 
-  hists.insert(hists.end(),PFO_FE_comparison_hists.begin(),PFO_FE_comparison_hists.end());  // add the PFO vs FE comparison plots
-
-  
   for (auto hist : hists) {
     ATH_MSG_DEBUG("Processing histogram named: "<<hist.first->GetName()<<" (title) "<<hist.first->GetTitle());
     ATH_CHECK(regHist(hist.first,hist.second,all));
@@ -137,11 +112,7 @@ StatusCode PhysValFE::fillHistograms(){
        else if (m_useNeutralFE) m_FENeutralValidationPlots->fill(*theFE,*eventInfoReadHandle);
     }
     else ATH_MSG_WARNING("Invalid pointer to xAOD::FlowElement");
-  }
-
-  //Don't check if this is valid - we no longer create PFO by default, so its expected this will not be valid.
-  //Future MR will remove all PFO code from these tools
-  SG::ReadHandle<xAOD::PFOContainer> PFOContainerReadHandle(m_PFOContainerHandleKey);
+  }  
 
   SG::ReadHandle<xAOD::MuonContainer> MuonContainerReadHandle(m_MuonContainerHandleKey);
   if(!MuonContainerReadHandle.isValid()){
@@ -183,18 +154,7 @@ StatusCode PhysValFE::fillHistograms(){
       if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Tau,*eventInfoReadHandle);
       else m_LeptonLinkerPlots_NFE->fill(*Tau,*eventInfoReadHandle);
     }
-  }
-    
-  if (m_compareFEtoPFO){
-    if(PFOContainerReadHandle.isValid() and FEContainerReadHandle.isValid()){
-      if(!m_useNeutralFE) {
-      m_charged_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
-     }
-     else{
-      m_neutral_PFO_FE_comparison->MatchAndFill( FEContainerReadHandle, PFOContainerReadHandle);
-     }    
-    }
-  } 
+  }  
   
   return StatusCode::SUCCESS;
 

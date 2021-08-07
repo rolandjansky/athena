@@ -15,7 +15,7 @@ Reco_tf.py --AMI=r12806 --outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.po
 RES=$?
 echo "art-result: $RES Reco"
 
-Reco_tf.py --inputAODFile=myAOD.pool.root --outputNTUP_PHYSVALFile physval.root  --validationFlags 'doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doTopoCluster,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult'
+Reco_tf.py --inputAODFile=myAOD.pool.root --outputNTUP_PHYSVALFile physval.root  --validationFlags 'doExample,doMET,doPFlow_FlowElements,doTau,doEgamma,doBtag,doZee,doJet,doTopoCluster,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult'
 RES=$?
 echo "art-result: $RES Reco"
 
