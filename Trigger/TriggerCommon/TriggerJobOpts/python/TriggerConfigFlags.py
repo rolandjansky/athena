@@ -170,7 +170,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-02')
 
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
