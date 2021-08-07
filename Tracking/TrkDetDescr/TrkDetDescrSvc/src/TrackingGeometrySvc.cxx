@@ -41,6 +41,10 @@ Trk::TrackingGeometrySvc::~TrackingGeometrySvc() {}
 StatusCode
 Trk::TrackingGeometrySvc::initialize()
 {
+
+  ATH_MSG_WARNING(
+    "!!! Initialization of TrackingGeometrySvc !!! The Service it to be "
+    "deprecated in favour of the relevant Condition Algorithm. !!!");
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;
 
