@@ -65,10 +65,14 @@ namespace RPC_CondCabling {
 
     public:
         SectorLogicSetup(int, const std::string&, const std::string&, bool);
-        SectorLogicSetup(const SectorLogicSetup&) = default;
         virtual ~SectorLogicSetup() = default;
 
-        SectorLogicSetup& operator=(const SectorLogicSetup&) = default;
+        /* Copying of this bag class should not be needed. To prevent the
+           creation of accidental (temporary) copies, we only allow move. */
+        SectorLogicSetup(const SectorLogicSetup&) = delete;
+        SectorLogicSetup& operator=(const SectorLogicSetup&) = delete;
+        SectorLogicSetup(SectorLogicSetup&&) = default;
+        SectorLogicSetup& operator=(SectorLogicSetup&&) = default;
 
         std::string positive_sector() const { return m_positive_sector; }
         std::string negative_sector() const { return m_negative_sector; }
