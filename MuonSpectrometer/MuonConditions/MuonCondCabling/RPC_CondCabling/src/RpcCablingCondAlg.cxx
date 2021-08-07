@@ -358,8 +358,6 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     }
 
     DBline data_corr(MAP_corr);
-    // switch to new DBline I/O format
-    data_corr.setdbfmtflag(0);
     nlines = 0;
     while (++data_corr) {
         ++nlines;
@@ -425,9 +423,6 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         }
     }
     ATH_MSG_DEBUG("setup() - corrected map n. of lines read is " << nlines);
-    // switch back to previous DBline I/O format
-    data_corr.setdbfmtflag(1);
-
     ATH_MSG_DEBUG("setup() - " << m_readKey_map_schema_corr.key() << " maps have been parsed");
 
     for (int side = 0; side < 2; ++side) {
@@ -795,7 +790,7 @@ bool RpcCablingCondAlg::BoardParamCheck(const unsigned short int SubId, const un
                                         const unsigned int type, const unsigned short int Channel1, const unsigned short int Channel2,
                                         const short int Number) const {
     if (SubId != 0x65 && SubId != 0x66) {
-        ATH_MSG_ERROR("Subsystem Id out of range [0x65,0x66].");
+        ATH_MSG_ERROR("Subsystem Id out of range: " << SubId << " not in [0x65,0x66].");
         return false;
     }
     if (SecId > 31) {

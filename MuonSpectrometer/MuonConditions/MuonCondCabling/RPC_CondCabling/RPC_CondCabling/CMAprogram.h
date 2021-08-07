@@ -106,7 +106,6 @@ private:
     bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels];
     uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2];
 
-    bool read(DBline&);
     bool read_v02(DBline&);
 
 public:

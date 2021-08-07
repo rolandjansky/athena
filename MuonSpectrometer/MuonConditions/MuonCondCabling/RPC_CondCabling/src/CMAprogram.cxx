@@ -4,7 +4,7 @@
 
 #include "RPC_CondCabling/CMAprogram.h"
 
-#include <cstring>
+#include <string>
 
 CMAprogram::CMAprogram() {
 
@@ -34,61 +34,9 @@ CMAprogram::CMAprogram(std::istringstream& filestr, bool NewCab) :
     m_status = read_v02(data);
 }
 
-bool CMAprogram::read(DBline& data) {
-    unsigned long right_bit = 0x1;
-
-    // switch to new DBline I/O format
-    data.setdbfmtflag(0);
-
-    ++data;
-
-    while (data) {
-        // start read the threshold registers
-        for (int i = 1; i <= 3; ++i) {
-            int majority;
-
-            if (data("th #", i) && data("maj_reg") >> majority) {
-                int th = 0;
-                int ch = 0;
-                uint32_t first_word = 0;
-                uint32_t second_word = 0;
-
-                ++data;
-
-                while (data("th") >> th >> "thr_reg" >> ch >> data.dbhex() >> first_word >> second_word >> data.dbdec()) {
-                    if (th < 1) return false;
-                    m_program_bytes[th - 1][ch][1] = first_word;
-                    m_program_bytes[th - 1][ch][0] = second_word;
-
-                    for (int bit = 0; bit < 32; ++bit) {
-                        m_threshold_registers[th - 1][ch][bit] = ((second_word >> bit) & right_bit) != 0;
-                        m_threshold_registers[th - 1][ch][bit + 32] = ((first_word >> bit) & right_bit) != 0;
-                    }
-
-                    ++data;
-                }
-            }
-        }
-
-        data("overlap1") >> data.dbhex() >> m_overlap1;
-        data("overlap2") >> data.dbhex() >> m_overlap2;
-        data("trig_local_direc_i") >> m_trig_local_direc_i;
-        data("trig_local_direc_j") >> m_trig_local_direc_j;
-        data("trig_k_readout") >> m_trig_k_readout;
-
-        ++data;
-    }
-
-    // switch back to previous DBline I/O format
-    data.setdbfmtflag(1);
-    return true;
-}
-
 bool CMAprogram::read_v02(DBline& data) {
     uint32_t right_bit = 0x1;
-
-    // switch to new DBline I/O format
-    data.setdbfmtflag(0);
+    std::string ignore;
 
     ++data;
 
@@ -175,12 +123,12 @@ bool CMAprogram::read_v02(DBline& data) {
         if (m_isnewcab) {
             // case RPC_CondCabling
             if (data("set_trig_thr0_thr_reg_00")) {
-                std::string newString = "empty";
                 for (int i = 0; i < 32; ++i) {
+                    ignore.clear();
                     if (i == 0)
                         data >> data.dbhex() >> twowords >> data.dbdec();
                     else
-                        data >> newString >> data.dbhex() >> twowords >> data.dbdec();
+                        data >> ignore >> data.dbhex() >> twowords >> data.dbdec();
 
                     union Data {
                         uint64_t bits;
@@ -201,12 +149,12 @@ bool CMAprogram::read_v02(DBline& data) {
             }
 
             if (data("set_trig_thr1_thr_reg_00")) {
-                std::string newString = "empty";
+                ignore.clear();
                 for (int i = 0; i < 32; ++i) {
                     if (i == 0)
                         data >> data.dbhex() >> twowords >> data.dbdec();
                     else
-                        data >> newString >> data.dbhex() >> twowords >> data.dbdec();
+                        data >> ignore >> data.dbhex() >> twowords >> data.dbdec();
 
                     union Data {
                         uint64_t bits;
@@ -228,12 +176,12 @@ bool CMAprogram::read_v02(DBline& data) {
             }
 
             if (data("set_trig_thr2_thr_reg_00")) {
-                std::string newString = "empty";
+                ignore.clear();
                 for (int i = 0; i < 32; ++i) {
                     if (i == 0)
                         data >> data.dbhex() >> twowords >> data.dbdec();
                     else
-                        data >> newString >> data.dbhex() >> twowords >> data.dbdec();
+                        data >> ignore >> data.dbhex() >> twowords >> data.dbdec();
 
                     union Data {
                         uint64_t bits;
@@ -294,8 +242,7 @@ bool CMAprogram::read_v02(DBline& data) {
             ++data;
         }
     }
-    // switch back to previous DBline I/O format
-    data.setdbfmtflag(1);
+
     return true;
 }
 
