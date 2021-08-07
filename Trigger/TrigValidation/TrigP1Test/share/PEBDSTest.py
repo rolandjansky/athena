@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -10,13 +10,12 @@ and executes several chains testing various types of Partial Event Building and 
 from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
 from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from libpyeformat_helper import SubDetector
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.AlgSequence import dumpSequence
+from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 log = logging.getLogger('dataScoutingTest')
 
@@ -87,6 +86,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.EtaEdge = 5.0
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
+        tool.MaxRoIs = 3
         tool.addRegSelDets(['All'])
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
@@ -165,10 +165,3 @@ doMuonSlice = True
 
 # Set up everything to run HLT
 include('TriggerJobOpts/runHLT_standalone.py')  # noqa: F821
-
-# Generate the menu
-menu = GenerateMenuMT()
-allChainConfigs = menu.generateMT()
-
-# Dump top sequence for debug information
-dumpSequence(topSequence)  # noqa: F821
