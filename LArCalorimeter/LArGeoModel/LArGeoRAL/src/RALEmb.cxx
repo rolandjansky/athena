@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RALEmb
@@ -21,6 +21,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 
 #include <iostream>
 #include <string>
@@ -50,72 +51,78 @@ LArGeo::RALEmb::RALEmb():
   m_c(new Clockwork())
 {
   // First, fetch the Athena services.
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-
-  StatusCode sc;
-  IRDBAccessSvc *pAccessSvc;
-  sc = svcLocator->service("RDBAccessSvc",pAccessSvc);
+  IGeoDbTagSvc* geoDbTagSvc{nullptr};
+  StatusCode sc = svcLocator->service("GeoDbTagSvc",geoDbTagSvc);
   if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
+    throw std::runtime_error ("Cannot locate GeoDBTagSvc");
   }
-
-
-
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-  }
-
   
-  std::string AtlasVersion = geoModel->atlasVersion();
-  std::string LArVersion = geoModel->LAr_VersionOverride();
-
-  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-
-
-  if ( LArVersion.empty()) {
-     LArVersion=pAccessSvc->getChildTag("LAr",AtlasVersion,"ATLAS");
+  IRDBAccessSvc* pAccessSvc{nullptr};
+  sc = svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc);
+  if (sc != StatusCode::SUCCESS) {
+    throw std::runtime_error ("Cannot locate " + geoDbTagSvc->getParamSvcName());
   }
-  m_oldDB=false; 
-  if (LArVersion == "LAr-00" || LArVersion == "LAr-01" ||
-      LArVersion == "LAr-Rome-Initial-00" ||
-      LArVersion == "LAr-H6-00" ||
-      LArVersion == "LAr-Commissioning-00" ||
-      LArVersion == "LAr-G3-00") {
-     m_oldDB=true;
-     std::cout << " in RALEmb: old database tag used, some values are hard coded" << std::endl;
-     std::cout << " Non projectivity of lead transition will not be simulated " << std::endl;
-   } 
-   m_oldSagging=false;
-   if (LArVersion == "LAr-00" || LArVersion == "LAr-01" || LArVersion == "LAr-02" ||
-      LArVersion == "LAr-Rome-Initial-00" ||
-      LArVersion == "LAr-H8-00" ||
-      LArVersion == "LAr-H6-00" ||
-      LArVersion == "LAr-Commissioning-00" ||
-      LArVersion == "LAr-G3-00") {
-     m_oldSagging=true;
-     std::cout << " in RALEmb: only old sagging values available" << std::endl;
-   }
-   m_oldContract=false;
-   if (LArVersion == "LAr-00" || LArVersion == "LAr-01" || LArVersion == "LAr-02" ||
-       LArVersion == "LAr-03" || LArVersion == "LAr-04" ||
-       LArVersion == "LAr-Rome-Initial-00" ||
-       LArVersion == "LAr-H8-00" ||
-       LArVersion == "LAr-H6-00" ||
-       LArVersion == "LAr-Commissioning-00" ||
-       LArVersion == "LAr-Commissioning-01" ||
-       LArVersion == "LAr-G3-00" ||
-       LArVersion == "LAr-02-Align-00" ||
-       LArVersion == "LAr-02-Align-01" ||
-       LArVersion == "LAr-H6-2002-00" ||
-       LArVersion == "LAr-H6-2003-00" ||
+
+  std::string detectorKey;
+  std::string detectorNode;
+
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    // The geometry DB is used
+    IGeoModelSvc* geoModel{nullptr};
+    sc = svcLocator->service ("GeoModelSvc",geoModel);
+    if (sc != StatusCode::SUCCESS) {
+      throw std::runtime_error ("Cannot locate GeoModelSvc");
+    }
+
+    std::string AtlasVersion = geoModel->atlasVersion();
+    std::string LArVersion = geoModel->LAr_VersionOverride();
+
+    detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+    detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+
+    
+    if ( LArVersion.empty()) {
+      LArVersion=pAccessSvc->getChildTag("LAr",AtlasVersion,"ATLAS");
+    }
+
+    if (LArVersion == "LAr-00" || LArVersion == "LAr-01" ||
+	LArVersion == "LAr-Rome-Initial-00" ||
+	LArVersion == "LAr-H6-00" ||
+	LArVersion == "LAr-Commissioning-00" ||
+	LArVersion == "LAr-G3-00") {
+      m_oldDB=true;
+      std::cout << " in RALEmb: old database tag used, some values are hard coded" << std::endl;
+      std::cout << " Non projectivity of lead transition will not be simulated " << std::endl;
+    } 
+
+    if (LArVersion == "LAr-00" || LArVersion == "LAr-01" || LArVersion == "LAr-02" ||
+	LArVersion == "LAr-Rome-Initial-00" ||
+	LArVersion == "LAr-H8-00" ||
+	LArVersion == "LAr-H6-00" ||
+	LArVersion == "LAr-Commissioning-00" ||
+	LArVersion == "LAr-G3-00") {
+      m_oldSagging=true;
+      std::cout << " in RALEmb: only old sagging values available" << std::endl;
+    }
+
+    if (LArVersion == "LAr-00" || LArVersion == "LAr-01" || LArVersion == "LAr-02" ||
+	LArVersion == "LAr-03" || LArVersion == "LAr-04" ||
+	LArVersion == "LAr-Rome-Initial-00" ||
+	LArVersion == "LAr-H8-00" ||
+	LArVersion == "LAr-H6-00" ||
+	LArVersion == "LAr-Commissioning-00" ||
+	LArVersion == "LAr-Commissioning-01" ||
+	LArVersion == "LAr-G3-00" ||
+	LArVersion == "LAr-02-Align-00" ||
+	LArVersion == "LAr-02-Align-01" ||
+	LArVersion == "LAr-H6-2002-00" ||
+	LArVersion == "LAr-H6-2003-00" ||
        LArVersion == "LAr-TBEC-00" ) {
       m_oldContract=true;
-   }
-
+    }
+  }
 
 
   m_c->barrelGeometry             = pAccessSvc->getRecordsetPtr("BarrelGeometry",detectorKey, detectorNode); 

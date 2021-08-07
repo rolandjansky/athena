@@ -60,16 +60,16 @@ Geo2G4Builder::Geo2G4Builder(const std::string& detectorName)
     for(unsigned int i=0; i<m_treeTops.size();i++)
       ATH_MSG_INFO( "   Tree Top " << i << " " << m_treeTops[i]->getLogVol()->getName() );
 
-    if(m_treeTops.size()>1)
-      {
+    if(m_treeTops.size()>1) {
         // -------- -------- MATERIAL MANAGER -------- ----------
-        const StoredMaterialManager* theMaterialManager = nullptr;
-        sc = m_pDetStore->retrieve(theMaterialManager, "MATERIALS");
-        if(sc.isFailure())
-          ATH_MSG_ERROR("Detector "<< detectorName << "could not retrieve Material Manager when number of tree tops > 1");
-        else
+        const StoredMaterialManager* theMaterialManager = m_pDetStore->tryConstRetrieve<StoredMaterialManager>("MATERIALS");
+	if(theMaterialManager) {
           m_matAir = theMaterialManager->getMaterial("std::Air");
-      }
+	}
+	else {
+	  m_matAir = m_treeTops[0]->getLogVol()->getMaterial();
+	}
+    }
 
     Geo2G4SvcAccessor accessor;
     Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
