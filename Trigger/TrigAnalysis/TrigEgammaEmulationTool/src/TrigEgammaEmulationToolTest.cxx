@@ -81,7 +81,7 @@ StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx 
   {
     auto info = getInfo(trigger);
     ATH_MSG_DEBUG(trigger);
-    for (const auto &el : *offElectrons) 
+    for (const auto el : *offElectrons) 
     {
 
 
