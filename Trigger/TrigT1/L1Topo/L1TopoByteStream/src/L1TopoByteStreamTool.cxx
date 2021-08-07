@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <exception>
 #include <bitset>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
 #include "ByteStreamData/ROBData.h"
 
 // Trigger include(s):
@@ -68,10 +67,12 @@ StatusCode L1TopoByteStreamTool::initialize() {
     ATH_MSG_INFO(
         "ROBSourceIDs property is set: this overrides decodeDAQROBs and "
         "decodeROIROBs");
+  } else {
+    m_sourceIDs = sourceIDs();
   }
   ATH_MSG_DEBUG(m_doDAQROBs);
   ATH_MSG_DEBUG(m_doROIROBs);
-  ATH_MSG_DEBUG("using sourceIDs " << std::hex << std::showbase << sourceIDs()
+  ATH_MSG_DEBUG("using sourceIDs " << std::hex << std::showbase << m_sourceIDs
                                    << std::dec << std::noshowbase);
 
   CHECK(m_robDataProvider.retrieve());
@@ -127,20 +128,20 @@ const std::vector<uint32_t>& L1TopoByteStreamTool::sourceIDs() {
  * This is called from the L1TopoByteStreamCnv::createRep method.
  */
 StatusCode L1TopoByteStreamTool::convert(const L1TopoRDO* result,
-                                         RawEventWrite* re) {
+                                         RawEventWrite* re) const{
   ATH_MSG_DEBUG("executing convert() from RDO to ROBFragment");
 
-  // Clear Event Assembler
-  m_fea.clear();
+  // Create Event Assembler
+  FullEventAssembler<L1TopoSrcIdMap> fea;
 
   // Reset lumi-block number to 1
-  m_fea.setDetEvtType(1);
+  fea.setDetEvtType(1);
   // Set L1Apos to center of readout window
   // uint16_t minorVersion = ( result->getNumberOfBunches() - 1u ) / 2u;
   // minorVersion &= ctpVersion.getL1APositionMask();
   // minorVersion <<= ctpVersion.getL1APositionShift();
   uint16_t minorVersion = 0;
-  m_fea.setRodMinorVersion(minorVersion);
+  fea.setRodMinorVersion(minorVersion);
 
   FullEventAssembler<L1TopoSrcIdMap>::RODDATA* theROD;
 
@@ -149,11 +150,10 @@ StatusCode L1TopoByteStreamTool::convert(const L1TopoRDO* result,
   // produce one with an unconventional ID of 0x91000000.
   const uint32_t rodId = m_srcIdMap->getRodID();
   ATH_MSG_DEBUG(" ROD ID:" << MSG::hex << rodId);
-  const std::vector<uint32_t> rodIds = sourceIDs();
-  ATH_MSG_DEBUG(" ROD IDs:" << MSG::hex << rodIds << " NOT YET IMPLEMENTED");
+  ATH_MSG_DEBUG(" ROD IDs:" << MSG::hex << m_sourceIDs << " NOT YET IMPLEMENTED");
 
   // get the ROD data container to be filled
-  theROD = m_fea.getRodData(rodId);
+  theROD = fea.getRodData(rodId);
 
   ATH_MSG_VERBOSE(" Dumping L1Topo data words:");
   // fill Data Words
@@ -167,21 +167,18 @@ StatusCode L1TopoByteStreamTool::convert(const L1TopoRDO* result,
 
   // Now fill full event
   ATH_MSG_DEBUG("Now filling the event with the L1Topo fragment");
-  m_fea.fill(re, msg());
+  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode L1TopoByteStreamTool::convert(const std::string& sgKey,
-                                         L1TopoRDOCollection* result) {
-  std::vector<uint32_t> vID;
-  vID = sourceIDs();
-
+                                         L1TopoRDOCollection* result) const {
   //
   // Get the ROB fragment:
   //
   IROBDataProviderSvc::VROBFRAG robFrags;
-  m_robDataProvider->getROBData(vID, robFrags);
+  m_robDataProvider->getROBData(m_sourceIDs, robFrags);
 
   if (robFrags.size() == 0) {
     ATH_MSG_WARNING("No ROB fragments found");
@@ -209,18 +206,17 @@ StatusCode L1TopoByteStreamTool::convert(const std::string& sgKey,
  */
 // change to VROBFRAG and use IROBDataProviderSvc::VROBFRAG::const_iterator to
 // loop over them
-StatusCode L1TopoByteStreamTool::convert(const ROBF* rob, L1TopoRDO*& result) {
+StatusCode L1TopoByteStreamTool::convert(const ROBF* rob, L1TopoRDO*& result) const {
   ATH_MSG_DEBUG("executing convert() from ROBFragment to RDO");
 
-  const std::vector<uint32_t> l1TopoRodIds = sourceIDs();
   uint32_t rodId = rob->rob_source_id();
 
-  ATH_MSG_DEBUG("expected ROD sub-detector ID: " << MSG::hex << l1TopoRodIds
+  ATH_MSG_DEBUG("expected ROD sub-detector ID: " << MSG::hex << m_sourceIDs
                                                  << " ID found: " << MSG::hex
                                                  << rodId << MSG::dec);
 
   bool idMatch = false;
-  for (auto id : l1TopoRodIds) {
+  for (auto id : m_sourceIDs) {
     if (rodId == id) {
       idMatch = true;
     }
