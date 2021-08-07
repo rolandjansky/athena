@@ -37,7 +37,7 @@ Release = "current"
 
 ExtraAna = ' -c LRT="True" '
 
-preinclude_file = 'all:TrigInDetValidation/TIDAlrt_preinclude.py'
+preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py,TrigInDetValidation/TIDAlrt_preinclude.py' #conditions fix for ATR-23982. In future find a more recent RDO  
 
 
 Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root -p 13", "Test_bin_lrt.dat" ),
