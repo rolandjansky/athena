@@ -91,12 +91,7 @@ if DetFlags.pixel_on():
 
     if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-            # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
-            if globalflags.DataSource=='data':
-                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-            else:
-                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
@@ -132,7 +127,7 @@ if DetFlags.pixel_on():
     #####################
     if commonGeoFlags.Run()=="RUN3":
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
