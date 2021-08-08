@@ -409,11 +409,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     ############################################################################################
     if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        # TODO: Once new global tag is updated, this line should be removed. (Current MC global tag is too old!!! (before RUN-2!!!))
-        if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg

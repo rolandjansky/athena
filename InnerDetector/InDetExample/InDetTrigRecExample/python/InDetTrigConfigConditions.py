@@ -122,13 +122,9 @@ class PixelConditionsServicesSetup:
     # Deadmap Setup (RUN-3) #
     #########################
     if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
-      # TODO: Once global tag is updated, this line should be removed.
       if not athenaCommonFlags.isOnline():
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if (globalflags.DataSource=='data'):
-          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
       alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
