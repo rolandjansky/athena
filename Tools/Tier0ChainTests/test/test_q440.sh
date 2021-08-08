@@ -14,6 +14,7 @@
 Reco_tf.py \
 --AMI=q440 \
 --athenaopts "RDOtoRDOTrigger:--threads=8" "RAWtoESD:--threads=8" "ESDtoAOD:--threads=8" \
+--conditionsTag 'all:OFLCOND-MC16-SDR-RUN2-08' \
 --maxEvents=500 \
 --outputRDOFile=myRDO.pool.root --outputTAGFile=myTAG.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
