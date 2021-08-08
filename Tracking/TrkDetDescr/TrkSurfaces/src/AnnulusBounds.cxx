@@ -301,8 +301,7 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
 
   AmgMatrix(2, 2) normal;
   // cppcheck-suppress constStatement
-  normal << 0, -1, 
-            1,  0;
+  normal << 0, -1, 1,  0;
 
   // ellipse is always at (0,0), surface is moved to ellipse position and then rotated
   Amg::Vector2D p;
