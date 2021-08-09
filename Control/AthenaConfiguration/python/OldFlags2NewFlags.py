@@ -20,6 +20,12 @@ def getNewConfigFlags():
     ConfigFlags.GeoModel.AtlasVersion = jobproperties.Global.DetDescrVersion()
     ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
 
+    # Concurrency
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+    ConfigFlags.Concurrency.NumProcs = jp.ConcurrencyFlags.NumProcs()
+    ConfigFlags.Concurrency.NumThreads = jp.ConcurrencyFlags.NumThreads()
+
+
     # Let's build a map whose key is new flagname, and whose value is old flagname.
     geom_flag_map = {}
     # Geometry - InnerDetector

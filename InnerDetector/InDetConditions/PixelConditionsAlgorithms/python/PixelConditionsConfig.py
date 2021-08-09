@@ -444,9 +444,19 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
     """Return a ComponentAccumulator with configured PixelDetectorElementCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelAlignCondAlgCfg(flags))
+    
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
-    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))
+    def merge_lists(a, b):
+        a.extend([item for item in b if item not in a])
+        return a
+
+    alg=CompFactory.PixelDetectorElementCondAlg(name, **kwargs)
+    alg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
+    alg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
+    alg._descriptors['SCTAlignmentStore'].semantics.merge = merge_lists
+    acc.addCondAlgo(alg)    
+
     return acc
 
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):

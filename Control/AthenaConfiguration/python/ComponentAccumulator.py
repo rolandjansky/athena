@@ -1177,7 +1177,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         setattr(clone, pname, alreadySetProperties[pname])
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
-                        except TypeError:
+                        except (TypeError, ValueError):
                             err_message = f"Failed merging new config value ({getattr(newConf2Instance, pname)}) and old config value ({getattr(clone, pname)}) for the ({pname}) property of {existingConfigurableInstance.getFullJobOptName() } ({newConf2Instance.getFullJobOptName()}) old (new)." 
                             _log.fatal( err_message )
                             raise ConfigurationError(err_message)
