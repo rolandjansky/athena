@@ -78,6 +78,14 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     binnings      += [ PixelLayerBinning ]
     colors        += [ 3 ]
 
+    # add artifical dependencies to Pixel DetectorElement conditions algs to ensure that the IOV
+    # is identical to the IOV of the tracking geoemtry cond alg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
+    result.merge(PixelDetectorElementCondAlgCfg(flags,
+                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0  else [],
+                                                TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0  else [],
+                                                SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT and flags.Concurrency.NumThreads > 0  else []))
+
   if flags.Detector.GeometrySCT:
     # for SCT DetectorElement conditions data :
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
@@ -112,6 +120,13 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     layerbuilders += [ SCT_LayerBuilder ]
     binnings      += [ SCT_LayerBinning ]
     colors        += [ 4 ]
+
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
+    result.merge(SCT_DetectorElementCondAlgCfg(flags,
+                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0 else [],
+    
+                                                TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0 else [],
+                                                PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel and flags.Concurrency.NumThreads > 0 else []))
 
   if flags.Detector.GeometryTRT:
     # for TRT DetectorElement conditions data :

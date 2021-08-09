@@ -20,6 +20,18 @@ from AthenaCommon.DetFlags import DetFlags
 #################################################################################
 # Material for the Geometry comes from COOL or local database
 #################################################################################
+def modifyCondAlg(the_name, **props) :
+    from AthenaCommon.AlgSequence import AlgSequence
+    from AthenaCommon.AlgSequence import AthSequencer
+    cond_seq=AthSequencer("AthCondSeq")
+    for seq in [AlgSequence(),cond_seq] :
+        if hasattr(seq,the_name) :
+            alg = getattr(seq,the_name)
+            print('Modified %s' % the_name)
+            for k,v in props.items() :
+                setattr(alg,k,v)
+            print (alg)
+            return
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
@@ -73,7 +85,25 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
           # and give it to the Geometry Builder
           AtlasGeometryBuilder.InDetTrackingGeometryBuilder = InDetTrackingGeometryBuilder
-          # 
+
+          # artifical dependencies to Si-DetectorElement conditions algs to ensure that
+          # the IOV is identical to the IOV of the tracking geoemtry
+          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+          if jp.ConcurrencyFlags.NumThreads() > 0:
+
+              MuonManagerKey  = ['MuonDetectorManager']     if (DetFlags.Muon_on() and not DetFlags.writeRDOPool.Muon_on()) else []
+              TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
+              SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
+              PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
+
+              modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
+                                                      TRT_DetEltContKey   = TRT_DetEltKey,
+                                                      PixelAlignmentStore = PixelAlignStore)
+
+              modifyCondAlg('PixelDetectorElementCondAlg', MuonManagerKey     = MuonManagerKey,
+                                                       TRT_DetEltContKey  = TRT_DetEltKey,
+                                                       SCTAlignmentStore  = SCTAlignStore)
+
         # (Calo)
         if DetFlags.Calo_on() :
            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CylinderVolumeCreator
@@ -96,7 +126,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            MuonTrackingGeometryBuilderCond.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            # and give it to the Geometry Builder
            AtlasGeometryBuilder.MuonTrackingGeometryBuilder = MuonTrackingGeometryBuilderCond
-           
+
         # processors
         AtlasGeometryProcessors = []   
            

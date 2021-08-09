@@ -36,11 +36,6 @@ def PixelGeometryCfg( flags ):
       acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
   if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
       if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
-          PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
-          pixelAlignCondAlg = PixelAlignCondAlg(name = "PixelAlignCondAlg",
-                                                UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)
-          acc.addCondAlgo(pixelAlignCondAlg)
-          PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
-          pixelDetectorElementCondAlg = PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
-          acc.addCondAlgo(pixelDetectorElementCondAlg)
+          from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
+          acc.merge(PixelDetectorElementCondAlgCfg(flags))
   return acc

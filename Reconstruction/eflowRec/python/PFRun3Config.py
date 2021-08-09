@@ -59,16 +59,16 @@ def PFCfg(inputFlags,**kwargs):
     #Setup Pixel conditions
     PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
     result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
-
-    PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
-    result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+    
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
+    result.merge(PixelDetectorElementCondAlgCfg(inputFlags))
 
     #Setup SCT conditions
     SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
     result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
-    SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
-    result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
+    result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
 
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
