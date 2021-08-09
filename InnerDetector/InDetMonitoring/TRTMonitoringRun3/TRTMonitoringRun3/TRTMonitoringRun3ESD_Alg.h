@@ -45,7 +45,7 @@ namespace Trk {
 namespace InDetDD {
     class TRT_DetectorManager;
 }
- 
+
 class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
@@ -72,9 +72,9 @@ private:
     StatusCode fillTRTTracks(const xAOD::TrackParticleContainer& trackCollection,
                          const xAOD::TrigDecision* trigDecision,
                          const ComTime* comTimeObject,
-                         const xAOD::EventInfo& eventInfo) const;                             
+                         const xAOD::EventInfo& eventInfo) const;
     StatusCode fillTRTHighThreshold(const xAOD::TrackParticleContainer& trackCollection,
-                                const xAOD::EventInfo& eventInfo) const;
+                                const xAOD::EventInfo& eventInfo, const EventContext& ctx) const;
     int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;
 
 
@@ -159,7 +159,7 @@ private:
         }
         return Gas;
     }
-    
+
     int  m_EventBurstCut;
 };
 #endif

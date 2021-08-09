@@ -3,12 +3,37 @@
 # Separate blocks with ---
 #
 ---
-Input:  [ 'run_(?P<n>\d.....)/TRT/Barrel/Stack(?P<stack>\d.)(?P<side>[A,C]*)/hHitAMapS' ]
-Output: [ 'run_{n}/TRT/Barrel/Stack{stack}{side}/hOccupancyS' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.occupancyS
-Description: TRTOCCS
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/hHitAMap(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hOccupancy{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hOccupancy
+Description: TRTOCCUPANCY
 ---
-Input:  [ 'run_(?P<n>\d.....)/TRT/Barrel/Stack(?P<stack>\d.)(?P<side>[A,C]*)/hHitAMapC' ]
-Output: [ 'run_{n}/TRT/Barrel/Stack{stack}{side}/hOccupancyC' ]
-Function: TRTMonitoringRun3.TRTPostProcessing.occupancyC
-Description: TRTOCCC
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitHWonTMap|hEfficiency)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitHWonTMap{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Description: TRTHITHWONTMAP
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitWonTMap|hEfficiency)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitWonTMap{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Description: TRTHITWONTMAP
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAonTMap|hEfficiency)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitAonTMap{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Description: TRTHITAONTMAP
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAWonTMap|hEfficiency)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitAWonTMap{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Description: TRTHITAWONTMAP
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitHonTMap|hEfficiency)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitHonTMap{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitXonTMap
+Description: TRTHITHONTMAP
+---
+Input:  [ 'run_(?P<n>\d.....)/TRT/(?P<region>Barrel/Stack\d.[A,C]*|[EndcapA|EndcapC]*/Sector\d.)/(?P<histogram>unscaled_hHitAonTMap|hHitAMap|unscaled_hHitAMap)(?P<element>S|C)' ]
+Output: [ 'run_{n}/TRT/{region}/hHitOnTrackVsAll{element}' ]
+Function: TRTMonitoringRun3.TRTPostProcessing.hHitOnTrackVsAll
+Description: TRTHITONTRACKVSALL
