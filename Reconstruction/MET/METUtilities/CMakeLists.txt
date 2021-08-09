@@ -44,6 +44,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetResolution
    Reconstruction/Jet/JetCalibTools
+   Reconstruction/Jet/JetInterface
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
    Reconstruction/tauRecTools
@@ -53,13 +54,14 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 find_package( GTest )
+find_package( onnxruntime )
 
 # Libraries in the package:
 atlas_add_library( METUtilitiesLib
    METUtilities/*.h Root/*.cxx
    PUBLIC_HEADERS METUtilities
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolutionLib JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
    METInterface MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
@@ -80,7 +82,7 @@ atlas_add_dictionary( METUtilitiesDict
 
 #set readLib, used below to compile apps/tests
 set( readLib )
-if( XAOD_STANDALONE ) 
+if( XAOD_STANDALONE )
   set( readLib xAODRootAccess )
 else()
   set( readLib POOLRootAccessLib )
@@ -107,7 +109,7 @@ if( XAOD_ANALYSIS )
     atlas_add_test( ${test}
           SOURCES test/${test}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib} 
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib}
                 AsgTools xAODBase xAODMissingET METUtilitiesLib )
   endforeach()
 endif()
@@ -117,4 +119,3 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 atlas_install_data( data/* )
-

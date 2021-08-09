@@ -5,6 +5,8 @@
 #include "METUtilities/METRebuilder.h"
 #include "METUtilities/METSystematicsTool.h"
 #include "METUtilities/METSignificance.h"
+#include "METUtilities/METNet.h"
+
 // Algs
 #include "../METUtilAlg.h"
 #include "../METMakerAlg.h"
@@ -16,7 +18,8 @@ DECLARE_TOOL_FACTORY(METMaker)
 DECLARE_TOOL_FACTORY(METRebuilder)
 DECLARE_TOOL_FACTORY(METSystematicsTool)
 DECLARE_TOOL_FACTORY(METSignificance)
-//
+DECLARE_TOOL_FACTORY(METNet)
+
 DECLARE_ALGORITHM_FACTORY(METUtilAlg)
 DECLARE_ALGORITHM_FACTORY(METMakerAlg)
 DECLARE_ALGORITHM_FACTORY(METSignificanceAlg)
@@ -26,7 +29,8 @@ DECLARE_FACTORY_ENTRIES(METReconstruction) {
   DECLARE_TOOL(METRebuilder)
   DECLARE_TOOL(METSystematicsTool)
   DECLARE_TOOL(METSignificance)
-  //
+  DECLARE_TOOL(METNet)
+
   DECLARE_ALGORITHM(METUtilAlg)
   DECLARE_ALGORITHM(METMakerAlg)
   DECLARE_ALGORITHM(METSignificanceAlg)

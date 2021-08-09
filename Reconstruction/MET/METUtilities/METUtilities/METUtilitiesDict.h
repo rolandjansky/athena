@@ -13,5 +13,6 @@
 #include "METUtilities/METMaker.h"
 #include "METUtilities/METSystematicsTool.h"
 #include "METUtilities/METSignificance.h"
+#include "METUtilities/METNet.h"
 
 #endif //METUTILITIESDICT_H

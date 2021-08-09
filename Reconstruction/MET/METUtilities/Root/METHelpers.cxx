@@ -35,8 +35,8 @@ namespace met {
     for (const auto& jet: jets) {
       // Fill this with muons to be associated
       std::vector<const xAOD::Muon*> muons_in_jet;
-      // Get the tracks associated to the jet 
-      jet_tracks.clear(); 
+      // Get the tracks associated to the jet
+      jet_tracks.clear();
       if ( jet->getAssociatedObjects("GhostTrack", jet_tracks) ) {
 
 	for(const auto& muon : muons) {
@@ -52,7 +52,7 @@ namespace met {
 		//check if the track pointers match
 		// std::cout << "METHelpers::addGhostMuonsToJets -- Muon/jet tracks match!" << std::endl;
 		muons_in_jet.push_back(muon);
-		break; 
+		break;
 	      }
 	    } // loop over jet tracks
 
@@ -134,5 +134,5 @@ namespace met {
 
         return StatusCode::SUCCESS;
     }
-    
+
 }
