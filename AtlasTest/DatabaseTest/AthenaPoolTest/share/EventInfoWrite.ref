@@ -1,12 +1,8 @@
 TagInfoMgr          DEBUG initialize()
 TagInfoMgr          DEBUG ExtraTagValuePairs 
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr.IOVD...  DEBUG in initialize()
 TagInfoMgr.IOVD...  DEBUG initialize(): need to modify folders
 TagInfoMgr          DEBUG Adding private ToolHandle tool TagInfoMgr.IOVDbMetaDataTool (IOVDbMetaDataTool)
-TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG addTag - adding name/value pairs: IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Align
@@ -46,7 +42,6 @@ TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /L
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/LArTTCellMapAtlas
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/fSampl
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/uA2MeV
-TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG adding IOV callback object to DetStore
 TagInfoMgr          DEBUG Registered IOV callback for TagInfo changes
@@ -54,11 +49,11 @@ EventInfoWriter     DEBUG EventInfoWriter::initialize()
 EventInfoWriter     DEBUG CreateDummyTags          'CreateDummyTags':False
 EventInfoWriter     DEBUG RemoveDummyTags          'RemoveDummyTags':False
 EventInfoWriter     DEBUG CreateDummyOverrideTags  'CreateDummyOverrideTags':False
-TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
 EventInfoWriter     DEBUG Added tag to TagInfoMgr
 EventInfoWriter     DEBUG EventInfoWriter::fillTagInfo()
 EventInfoWriter     DEBUG Called fillTagInfo
+TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG start()
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
 TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [1,1:0] 

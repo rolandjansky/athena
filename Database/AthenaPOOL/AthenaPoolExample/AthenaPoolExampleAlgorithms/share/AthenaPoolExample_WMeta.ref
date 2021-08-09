@@ -37,6 +37,11 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Setting run/LB/time from EventSelector override in initialize
+IOVDbSvc             INFO ../time set to [0,0 : 0]
+IOVDbSvc             INFO Initialised with 1 connections and 0 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 EventInfoTagBui...   INFO No input attribute list
 WriteData           DEBUG in execute()
@@ -852,7 +857,7 @@ WriteCond            INFO in finalize()
 WriteCond            INFO Pedestal x = 193136 y = -5580.01 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
-Stream1.FileMet...  DEBUG Not writing incomplete FileMetaData object
+Stream1.FileMet...  DEBUG Not writing empty or incomplete FileMetaData object
 Stream1             DEBUG addItemObjects(9102,"PedestalWriteData") called
 Stream1             DEBUG            Key:PedestalWriteData
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -880,6 +885,7 @@ Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+Stream1             DEBUG  Added object 1316383046,"/TagInfo"
 Stream1             DEBUG connectOutput done for ROOTTREE:SimplePoolFile5.root
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(ExampleHitContainer_p1/PedestalWriteData)
 MetaData(Exampl...  DEBUG Opening
@@ -912,19 +918,31 @@ SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO IOVMetaDataContainer_p1 [????]
+SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+MetaData(IOVMet...  DEBUG Opening
+MetaData(IOVMet...  DEBUG    attributes# = 1
+MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
+MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(IOVMetaDataContainer_p1//TagInfo) [202]  (17 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
+SimplePoolFile5...  DEBUG ---->Class:IOVMetaDataContainer_p1
+SimplePoolFile5...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (17 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (18 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (18 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (19 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
