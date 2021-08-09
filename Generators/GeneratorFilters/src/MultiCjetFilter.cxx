@@ -10,21 +10,21 @@
 //
 // Written by Dominik Derendarz (dominik.derendarz@cern.ch) based on MultiBjetFilter
 
+#include <math.h>
+#include <fstream>
+
 // Header for this module:-
 #include "GeneratorFilters/MultiCjetFilter.h"
 
 // Other classes used by this class:-
-#include <math.h>
 #include "GaudiKernel/SystemOfUnits.h"
 #include "xAODJet/JetContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
 #include "TLorentzVector.h"
 
-#include <fstream>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
+
 
 MultiCjetFilter::MultiCjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator){
@@ -112,7 +112,6 @@ StatusCode MultiCjetFilter::filterEvent() {
   for(itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     weight = genEvt->weights().front();
-    HepMC::GenEvent::particle_const_iterator pitr;
 
     // Make a vector containing all the event's b-hadrons
     std::vector< HepMC::ConstGenParticlePtr > bHadrons;
