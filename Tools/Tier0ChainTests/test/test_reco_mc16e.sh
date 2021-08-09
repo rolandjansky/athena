@@ -12,7 +12,7 @@
 Reco_tf.py \
 --athenaopts "RDOtoRDOTrigger:--threads=8" "RAWtoESD:--threads=8" "ESDtoAOD:--threads=8" \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
---conditionsTag 'default:OFLCOND-MC16-SDR-25' \
+--conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-08' \
 --valid 'True' \
 --pileupFinalBunch '6' \
 --numberOfHighPtMinBias '0.2595392' \
