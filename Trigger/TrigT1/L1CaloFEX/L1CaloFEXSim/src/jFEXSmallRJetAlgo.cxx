@@ -66,28 +66,40 @@ int LVL1::jFEXSmallRJetAlgo::realValue(int ID, int eta){
   
 }
 
+
 //Gets the ET for the TT. This ET is EM + HAD
-unsigned int LVL1::jFEXSmallRJetAlgo::getTTowerET(){
- SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-
- const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[3][3]);
- unsigned int et = tmpTower->getTotalET();  
- return et;
+unsigned int LVL1::jFEXSmallRJetAlgo::getTTowerET(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    } 
+    
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][0];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
 }
-//Gets Phi of the TT
-unsigned int LVL1::jFEXSmallRJetAlgo::getRealPhi() {  
 
-  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-  
-  unsigned int phi = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[3][3])->phi();
-  return phi;
+//Gets Phi of the TT
+unsigned int LVL1::jFEXSmallRJetAlgo::getRealPhi(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    }
+    SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
+
+    unsigned int phi = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(TTID)->phi();
+    return phi;
 }
 //Gets Eta of the TT
-int LVL1::jFEXSmallRJetAlgo::getRealEta() { 
-
-  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-  const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[3][3]);
-  return realValue(m_jFEXalgoTowerID[3][3],tmpTower->eta());
+int LVL1::jFEXSmallRJetAlgo::getRealEta(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    }
+    SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
+    const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(TTID);
+    return realValue(TTID,tmpTower->eta());
 }
 
 
@@ -96,32 +108,31 @@ int LVL1::jFEXSmallRJetAlgo::getRealEta() {
 void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 {
 
-  m_seedSet = false;
-  m_LMDisplaced = false;
-  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey);
+    m_seedSet = false;
+    m_LMDisplaced = false;
 
-  for(int mphi = 1; mphi < 6; mphi++){
-    for(int meta = 1; meta< 6; meta++){
-      int et_tmp = 0;
-      int seedTotalET = 0;  
-      for(int ieta = -1; ieta < 2; ieta++){
-        for(int iphi = -1; iphi < 2; iphi++){
-          const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[meta + ieta][mphi + iphi]);
-          //for that TT, build the seed
-          //here we sum TT ET to calculate seed	    	
-          et_tmp = tmpTower->getTotalET();
-          seedTotalET += et_tmp;
-       	  }
-    	}
-   	m_jFEXalgoSearchWindowSeedET[meta -1][mphi -1] = seedTotalET;
-      	}
+    for(int mphi = 1; mphi < 6; mphi++) {
+        for(int meta = 1; meta< 6; meta++) {
+            int et_tmp = 0;
+            int seedTotalET = 0;
+            for(int ieta = -1; ieta < 2; ieta++) {
+                for(int iphi = -1; iphi < 2; iphi++) {
+                    //for that TT, build the seed
+                    //here we sum TT ET to calculate seed
+                    et_tmp = getTTowerET(m_jFEXalgoTowerID[meta + ieta][mphi + iphi]);
+                    seedTotalET += et_tmp;
+                }
+            }
+            m_jFEXalgoSearchWindowSeedET[meta -1][mphi -1] = seedTotalET;
+        }
 
-     }
-  
-  int centralTT_ET = getTTowerET();    
-  if(centralTT_ET==m_jFEXalgoSearchWindowSeedET[3][3]){
-    m_LMDisplaced = true;
-  }
+    }
+
+    int centralTT_ET = getTTowerET(m_jFEXalgoTowerID[3][3]);
+    if(centralTT_ET==m_jFEXalgoSearchWindowSeedET[3][3]) {
+        m_LMDisplaced = true;
+    }
+
     m_seedSet = true;
 }
 
@@ -171,28 +182,22 @@ bool LVL1::jFEXSmallRJetAlgo::checkDisplacedLM()
 //in this clustering func, the central TT in jet is the parameters
 unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET(){
 
-  SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
 
   //first summing search window (25 TTs)
   unsigned int searchWindowET = 0;
   for(int neta = 0; neta< 7; neta++){ 
     for(int nphi = 0; nphi< 7; nphi++){
-      const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[neta][nphi]);
-      searchWindowET += tmpTower->getTotalET();
+      searchWindowET += getTTowerET(m_jFEXalgoTowerID[neta][nphi]);
     }
   } 
 
   //corners removed in 7x7 window to obtain SmallRJetCluser ET;
   int cornersET = 0;  
 
-  const LVL1::jTower * tmpTower_a = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[0][0]);
-  cornersET += tmpTower_a->getTotalET();
-  const LVL1::jTower * tmpTower_b = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[6][6]);
-  cornersET += tmpTower_b->getTotalET(); 
-  const LVL1::jTower * tmpTower_c = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[0][6]);
-  cornersET += tmpTower_c->getTotalET();
-  const LVL1::jTower * tmpTower_d = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[6][0]);
-  cornersET += tmpTower_d->getTotalET();
+  cornersET += getTTowerET(m_jFEXalgoTowerID[0][0]);
+  cornersET += getTTowerET(m_jFEXalgoTowerID[6][6]);
+  cornersET += getTTowerET(m_jFEXalgoTowerID[0][6]);
+  cornersET += getTTowerET(m_jFEXalgoTowerID[6][0]);
 
   //SR Jet Energy cluster
   int SRJetClusterET = searchWindowET + cornersET;
@@ -212,13 +217,22 @@ std::unique_ptr<jFEXSmallRJetTOB> LVL1::jFEXSmallRJetAlgo::getSmallRJetTOBs(){
   unsigned int et = getSmallClusterET();
 
   tob->setET(et); 
-  tob->setPhi(getRealPhi());
-  tob->setEta(getRealEta());
+  tob->setPhi(getRealPhi(m_jFEXalgoTowerID[3][3]));
+  tob->setEta(getRealEta(m_jFEXalgoTowerID[3][3]));
   tob->setRes(0);
   tob->setSat(0);
   return tob;
 }
 
+
+unsigned int LVL1::jFEXSmallRJetAlgo::getTTIDcentre(){
+  return m_jFEXalgoTowerID[3][3];
+}
+
+
+void LVL1::jFEXSmallRJetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
+}
 
 }// end of namespace LVL1
 

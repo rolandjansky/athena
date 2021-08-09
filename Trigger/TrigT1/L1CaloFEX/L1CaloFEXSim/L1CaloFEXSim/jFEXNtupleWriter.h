@@ -81,6 +81,16 @@ private:
   std::vector<int> m_tau_TOB_phi;
   std::vector<int> m_tau_TOB_ISO;
   std::vector<int> m_tau_TOB_Sat;
+  
+  //Pile-up
+  std::vector<int> m_pileup_FPGAid;
+  std::vector<int> m_pileup_jFEXid;
+  std::vector<int> m_pileup_rho_EM;
+  std::vector<int> m_pileup_rho_HAD1;
+  std::vector<int> m_pileup_rho_HAD2;
+  std::vector<int> m_pileup_rho_HAD3;
+  std::vector<int> m_pileup_rho_FCAL;
+
 
 //std::string m_jet_container_name = "AntiKt10TruthJets";
 
@@ -89,6 +99,7 @@ private:
   StatusCode loadsmallRJetAlgoVariables();
   StatusCode loadlargeRJetAlgoVariables();
   StatusCode loadtauAlgoVariables();
+  StatusCode loadPileupVariables();
 };
 }
 #endif

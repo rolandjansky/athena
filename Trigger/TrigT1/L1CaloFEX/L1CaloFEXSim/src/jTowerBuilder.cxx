@@ -314,7 +314,9 @@ void jTowerBuilder::BuildEMEjTowers(std::unique_ptr<jTowerContainer> & jTowerCon
 
 void jTowerBuilder::BuildAllTowers(std::unique_ptr<jTowerContainer> & jTowerContainerRaw) const
 {
+
 //  BuildSingleTower(jTowerContainerRaw, 0.0, 0.0, 0, -1.0, 0, 0.0, 0.0, 0);
+
   BuildEMBjTowers(jTowerContainerRaw);
   BuildTRANSjTowers(jTowerContainerRaw);
   BuildEMEjTowers(jTowerContainerRaw);

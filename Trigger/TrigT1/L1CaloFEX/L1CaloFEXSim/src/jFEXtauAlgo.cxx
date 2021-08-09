@@ -57,32 +57,12 @@ void LVL1::jFEXtauAlgo::setup(int TTwindow[5][5], int seed[3][3]) {
 
 }
      
-//TOB for Tau Algo
-/*LVL1::jFEXtauAlgoTOB * LVL1::jFEXtauAlgo::getTauTOB()
-{
-  jFEXtauAlgoTOB *tob = new jFEXtauTOB();
-//  unsigned int et = getTTowerET();
-//  unsigned int phi = getTTowerET;
-//  unsigned int eta = getRealPhi();
-//  tob->setEta();
-//  tob->setPhi();
-//  tob->setET(et);
- // tob->setRes();
- // tob->setSat();
-  return tob;
-}
-
-*/
-
-
-
 
 //this function calculates seed for a given TT
 void LVL1::jFEXtauAlgo::buildSeeds()
 {
     ATH_MSG_DEBUG("---------------- jFEXtauAlgo::buildsSeeds ----------------");
     m_seedSet = false;
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
     
     for(int mphi = 0; mphi<3; mphi++) {
         for(int meta = 0; meta<3; meta++) {
@@ -92,16 +72,13 @@ void LVL1::jFEXtauAlgo::buildSeeds()
 
             for(int iphi = -1; iphi < 2; iphi++) {
                 for(int ieta = -1; ieta < 2; ieta++) {
-
-                    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(m_TTwindow[(mphi+1) + iphi][(meta+1) + ieta]);
-                    et_tmp = tmpTower->getTotalET();
+                    et_tmp =  getTTowerET(m_TTwindow[(mphi+1) + iphi][(meta+1) + ieta]);
                     seedTotalET += et_tmp;
                 }
             }
             m_SeedCluster_ET[mphi][meta] = seedTotalET;
-
-            const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(m_TTwindow[(mphi+1)][(meta+1)]);
-            et_tmp = tmpTower->getTotalET();
+            
+            et_tmp = getTTowerET(m_TTwindow[(mphi+1)][(meta+1)]);
             m_SeedConditions_ET[mphi][meta] = et_tmp;
         }
     }
@@ -159,82 +136,61 @@ bool LVL1::jFEXtauAlgo::isSeedLocalMaxima(){
 std::unique_ptr<jFEXtauTOB> LVL1::jFEXtauAlgo::getTauTOBs(int mphi, int meta){
 
   std::unique_ptr<jFEXtauTOB> tob = std::make_unique<jFEXtauTOB>();
+  
+  int sat = 0; 
+  unsigned int et = m_ClusterEt/200.;
+  if (et > 0x7ff) { //0x7ff is 11 bits
+    et = 0x7ff;
+    sat=1;
+  }
+  unsigned int iso = m_TauIsolation/200.;
+  if (iso > 0x7ff) { //0x7ff is 11 bits
+    iso = 0x7ff;
+  }
 
-
-  tob->setET(m_ClusterEt);
+  tob->setET(et);
   tob->setPhi(mphi-8); // coord within the FPGA core area
   tob->setEta(meta-8); // coord within the FPGA core area
-  tob->setIso(m_TauIsolation);
-  tob->setSat(0);
+  tob->setIso(iso);
+  tob->setSat(sat);
   return tob;
 }
 
 
-
-
-void LVL1::jFEXtauAlgo::Represent(int var_,int dim_) {
-    int rows_ = dim_;
-    int colums_ = dim_;
-    int row_center= (int) rows_/2;
-    int col_center= (int) colums_/2;
-
-
-    for(int i = 0; i< rows_; i++ ) {
-        //if(i == 0) printf("%3s %s%4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %s\n -7 ","","",-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,"");
-        //else printf("%3d ",i);
-        for(int j = 0; j< colums_; j++) {
-            std::string col_= "";
-            if(sqrt(pow(i-row_center,2)+pow(j-col_center,2))<2) {
-                col_= m_color.B_RED; //RED
-                if((i-row_center)==0 and (j-col_center)==0) col_= m_color.B_PURPLE;  //PURPLE
-            }
-            else if(sqrt(pow(i-row_center,2)+pow(j-col_center,2))<4) col_= m_color.B_ORANGE; //ORANGE
-            else if(sqrt(pow(i-row_center,2)+pow(j-col_center,2))<8) col_= m_color.B_BLUE; //BLUE
-            else col_= m_color.B_GRAY; //GREY
-
-            if(var_==0) printf("%s%4.1f %s",col_.c_str(),sqrt(pow(i,2)+pow(j,2)),"\033[0m");
-            if(var_==1) printf("%s%d-%d %6d%s ",col_.c_str(),i,j,m_SeedIDs[i][j],"\033[0m");  //Trigger Tower ID
-            if(var_==2) printf("%s%6d%s ",col_.c_str(),getTTowerET(i,j),"\033[0m");  //Trigger Tower ID
-            if(var_==3) printf("%s%6d%s ",col_.c_str(),getRealEta(i,j),"\033[0m");  //Trigger Tower ID
-            if(var_==4) printf("%s%6d%s ",col_.c_str(),getRealPhi(i,j),"\033[0m");  //Trigger Tower ID
-            if(var_==5) printf("%s%2d-%2d%s ",col_.c_str(),i,j,"\033[0m");
-            if(var_==6){
-              if(m_SeedConditions_ET[i][j]<m_SeedConditions_ET[1][1]) col_= m_color.B_GREEN;
-              printf("%s%6d<%6d%6d%s ",col_.c_str(),m_SeedConditions_ET[i][j],m_SeedConditions_ET[1][1],(int)(m_SeedConditions_ET[i][j]<m_SeedConditions_ET[1][1]),"\033[0m");  //Trigger Tower ID
-            } 
-            if(var_==7) printf("%s%6d%s ",col_.c_str(),m_TTwindow[i][j],"\033[0m");
-            if(var_==8) printf("%s%6d%s ",col_.c_str(),getTTowerET(i,j),"\033[0m");
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-}
-
-
-
-
-
 //Gets the ET for the TT. This ET is EM + HAD
-int LVL1::jFEXtauAlgo::getTTowerET(unsigned int row_,unsigned int col_) {
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(m_SeedIDs[row_][col_]);
-    return tmpTower->getTotalET();
-}
-//Gets Phi of the TT
-int LVL1::jFEXtauAlgo::getRealPhi(unsigned int row_,unsigned int col_) {
-
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(m_SeedIDs[row_][col_]);
+int LVL1::jFEXtauAlgo::getTTowerET(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    } 
     
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][0];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
+}
+
+//Gets Phi of the TT
+int LVL1::jFEXtauAlgo::getRealPhi(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    }
+    
+    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
+    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(TTID);
     return tmpTower->phi();
 }
 //Gets Eta of the TT
-int LVL1::jFEXtauAlgo::getRealEta(unsigned int row_,unsigned int col_) {
-
+int LVL1::jFEXtauAlgo::getRealEta(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    }
+    
     SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(m_SeedIDs[row_][col_]);
-    return realValue(m_SeedIDs[row_][col_],tmpTower->eta()); //return positive ETA for even TTs ID 2XX.XXX.. etc and negative ETA for odd TTs ID 1XX.XXX.. and so on
+    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(TTID);
+    return realValue(TTID,tmpTower->eta()); //return positive ETA for even TTs ID 2XX.XXX.. etc and negative ETA for odd TTs ID 1XX.XXX.. and so on
     //return tmpTower->eta();
 }
 
@@ -252,9 +208,7 @@ void LVL1::jFEXtauAlgo::setFirstEtRing(int First_ETring[36]) {
   m_TauIsolation=0;
 
   for(int i=0;i<36;i++){
-    SG::ReadHandle<jTowerContainer> jk_jFEXtauAlgo_jTowerContainer(m_jFEXtauAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXtauAlgo_jTowerContainer->findTower(First_ETring[i]);
-    m_TauIsolation += tmpTower->getTotalET();
+    m_TauIsolation += getTTowerET(First_ETring[i]);
   }
   
 }
@@ -274,6 +228,10 @@ int LVL1::jFEXtauAlgo::realValue(int ID, int eta){
 
   return ((int)(ID/pow(10,5)) % 10) % 2==0 ?  eta : -eta ;
   
+}
+
+void LVL1::jFEXtauAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
 }
 
 

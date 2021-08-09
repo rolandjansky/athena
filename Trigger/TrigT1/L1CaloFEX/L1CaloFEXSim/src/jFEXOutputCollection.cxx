@@ -25,6 +25,10 @@ LVL1::jFEXOutputCollection::~jFEXOutputCollection()
    delete iValues;
   }
   
+ for(auto iValues: m_allvalues_pileup){
+   delete iValues;
+  }
+  
 }
 
 void LVL1::jFEXOutputCollection::clear() 
@@ -36,6 +40,9 @@ void LVL1::jFEXOutputCollection::clear()
     iValues->clear();
   }
   for(auto iValues : m_allvalues_tau){
+    iValues->clear();
+  }
+  for(auto iValues : m_allvalues_pileup){
     iValues->clear();
   }
 }
@@ -53,6 +60,11 @@ void LVL1::jFEXOutputCollection::addValue_largeRJet(std::string key, int value)
 void LVL1::jFEXOutputCollection::addValue_tau(std::string key, int value)
 {
  m_values_tem_tau.insert(std::make_pair(key, value));
+}
+
+void LVL1::jFEXOutputCollection::addValue_pileup(std::string key, int value)
+{
+ m_values_tem_pileup.insert(std::make_pair(key, value));
 }
 
 void LVL1::jFEXOutputCollection::fill_smallRJet()
@@ -76,6 +88,13 @@ void LVL1::jFEXOutputCollection::fill_tau()
   m_values_tem_tau.clear();
 
 }
+void LVL1::jFEXOutputCollection::fill_pileup()
+{
+  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_pileup);
+  m_allvalues_pileup.push_back(values_local);
+  m_values_tem_pileup.clear();
+
+}
 
 
 int LVL1::jFEXOutputCollection::SRsize()
@@ -91,6 +110,10 @@ int LVL1::jFEXOutputCollection::tausize()
 {
   return m_allvalues_tau.size();
 }
+int LVL1::jFEXOutputCollection::pileupsize()
+{
+  return m_allvalues_pileup.size();
+}
 
 std::map<std::string, int>* LVL1::jFEXOutputCollection::get_smallRJet(int location)
 {
@@ -103,4 +126,8 @@ std::map<std::string, int>* LVL1::jFEXOutputCollection::get_largeRJet(int locati
 std::map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int location)
 {
   return m_allvalues_tau[location];
+}
+std::map<std::string, int>* LVL1::jFEXOutputCollection::get_pileup(int location)
+{
+  return m_allvalues_pileup[location];
 }

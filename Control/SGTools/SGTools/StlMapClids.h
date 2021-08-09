@@ -24,7 +24,7 @@ CLASS_DEF2( std::map<std::string,int> ,          170542827 , 1 )
 CLASS_DEF2( std::map<std::string,unsigned int> , 113556225 , 1 )
 CLASS_DEF2( std::map<std::string,float> ,        193758082 , 1 )
 CLASS_DEF2( std::map<std::string,double> ,       252602412 , 1 )
-CLASS_DEF2( std::map<std::string,std::string> , 143489258 , 1 )
+CLASS_DEF2( std::map<std::string,std::string> ,  143489258 , 1 )
 
 CLASS_DEF2( std::map<std::string,std::vector<int> > ,          181049313 , 1 )
 CLASS_DEF2( std::map<std::string,std::vector<unsigned int> > , 199376827 , 1 )

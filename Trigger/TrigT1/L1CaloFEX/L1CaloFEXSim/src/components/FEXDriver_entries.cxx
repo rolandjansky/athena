@@ -25,7 +25,7 @@
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 #include "L1CaloFEXSim/eFEXSuperCellTowerIdProvider.h"
 #include "L1CaloFEXSim/eFakeTower.h"
-
+#include "L1CaloFEXSim/jFEXPileupAndNoise.h"
 
 
 using namespace LVL1;
@@ -53,6 +53,7 @@ DECLARE_COMPONENT(jSuperCellTowerMapper)
 DECLARE_COMPONENT(jFEXFPGA)
 DECLARE_COMPONENT(jFEXSmallRJetAlgo)
 DECLARE_COMPONENT(jFEXtauAlgo)
+DECLARE_COMPONENT(jFEXPileupAndNoise)
 DECLARE_COMPONENT(jFEXsumETAlgo)
 DECLARE_COMPONENT(jFEXmetAlgo)
 DECLARE_COMPONENT(jFEXLargeRJetAlgo)

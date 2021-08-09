@@ -32,6 +32,8 @@ class IjFEXmetAlgo : virtual public IAlgTool {
         virtual void buildFWDmet()  =0;
         virtual int GetMetXComponent()  =0;
         virtual int GetMetYComponent()  =0;
+        virtual int getTTowerET(unsigned int TTID ) =0; 
+        virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)   =0;
         
 
         virtual std::unique_ptr<jFEXmetTOB> getmetTOBs() = 0;

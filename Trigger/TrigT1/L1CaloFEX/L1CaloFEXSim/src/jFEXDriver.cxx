@@ -23,6 +23,7 @@
 #include "L1CaloFEXSim/jFEXLargeRJetTOB.h"
 #include "L1CaloFEXSim/jFEXtauTOB.h"
 
+
 #include "TROOT.h"
 #include "TH1.h"
 #include "TH1F.h"
@@ -76,7 +77,7 @@ StatusCode jFEXDriver::initialize()
   ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
 
   ATH_CHECK( m_jFEXSysSimTool.retrieve() );
-
+  
   ATH_CHECK( m_jTowerContainerSGKey.initialize() );
 
   ATH_CHECK( m_jFexSRJetEDMKey.initialize() );
@@ -103,7 +104,7 @@ StatusCode jFEXDriver::finalize()
   ATH_MSG_DEBUG("Executing " << name() << ", processing event number " << m_numberOfEvents );
 
   // OLD DIMA STUFF---------------------- Maybe useful in the future again
-  //if (fabsf((*cell)->eta()) > 2.55) continue;
+  //if (std::fabsf((*cell)->eta()) > 2.55) continue;
   //if (!((*cell)->provenance() & 0x40)) continue; // BCID cut
   //// if (!((*cell)->provenance() & 0x200)) continue;
   //// 8192 & 0x40 = 0
@@ -142,7 +143,10 @@ StatusCode jFEXDriver::finalize()
   // STEP 3 - Do the supercell-tower mapping - put this information into the jTowerContainer
   ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_jTowerContainerRaw));
+
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_jTowerContainerRaw));
+  
+
 
   // STEP 4 - Write the completed jTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::jTowerContainer> jTowerContainerSG(m_jTowerContainerSGKey/*, ctx*/);

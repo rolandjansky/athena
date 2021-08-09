@@ -103,6 +103,15 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("tau_TOB_phi",  &m_tau_TOB_phi);
   m_myTree->Branch ("tau_TOB_ISO",  &m_tau_TOB_ISO);
   m_myTree->Branch ("tau_TOB_Sat",  &m_tau_TOB_Sat);
+
+    //Pileup
+  m_myTree->Branch ("pileup_FPGAid",    &m_pileup_FPGAid);
+  m_myTree->Branch ("pileup_jFEXid",    &m_pileup_jFEXid);
+  m_myTree->Branch ("pileup_rho_EM",    &m_pileup_rho_EM);
+  m_myTree->Branch ("pileup_rho_HAD1",  &m_pileup_rho_HAD1);
+  m_myTree->Branch ("pileup_rho_HAD2",  &m_pileup_rho_HAD2);
+  m_myTree->Branch ("pileup_rho_HAD3",  &m_pileup_rho_HAD3);
+  m_myTree->Branch ("pileup_rho_FCAL",  &m_pileup_rho_FCAL);
   
 
   return StatusCode::SUCCESS;
@@ -120,6 +129,7 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
   CHECK(loadsmallRJetAlgoVariables());
   CHECK(loadlargeRJetAlgoVariables());
   CHECK(loadtauAlgoVariables());
+  CHECK(loadPileupVariables());
   m_myTree->Fill();
   m_jFEXOutputCollection->clear();
   return StatusCode::SUCCESS;
@@ -233,6 +243,33 @@ StatusCode LVL1::jFEXNtupleWriter::loadtauAlgoVariables() {
     m_tau_TOB_phi.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_phi"]);
     m_tau_TOB_ISO.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_ISO"]);
     m_tau_TOB_Sat.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_Sat"]);
+
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LVL1::jFEXNtupleWriter::loadPileupVariables() {
+
+
+  m_pileup_FPGAid.clear();
+  m_pileup_jFEXid.clear();
+  m_pileup_rho_EM.clear();
+  m_pileup_rho_HAD1.clear();
+  m_pileup_rho_HAD2.clear();
+  m_pileup_rho_HAD3.clear();
+  m_pileup_rho_FCAL.clear();
+
+  
+  for (int i = 0; i < m_jFEXOutputCollection->pileupsize(); i++)
+  {
+
+    m_pileup_FPGAid.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_FPGAid"]);
+    m_pileup_jFEXid.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_jFEXid"]);
+    m_pileup_rho_EM.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_EM"]);
+    m_pileup_rho_HAD1.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD1"]);
+    m_pileup_rho_HAD2.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD2"]);
+    m_pileup_rho_HAD3.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD3"]);
+    m_pileup_rho_FCAL.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_FCAL"]);
 
   }
   return StatusCode::SUCCESS;
