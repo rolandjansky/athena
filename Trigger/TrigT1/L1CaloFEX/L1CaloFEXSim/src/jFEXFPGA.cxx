@@ -25,19 +25,22 @@
 #include "L1CaloFEXSim/jFEXmetTOB.h"  
 #include "L1CaloFEXSim/jFEXForwardJetsAlgo.h"
 #include "L1CaloFEXSim/jFEXForwardJetsInfo.h"
+#include "L1CaloFEXSim/jFEXPileupAndNoise.h"
+
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include <vector>
+#include "TH1F.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include <vector>
-#include "TH1F.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
+#include "StoreGate/StoreGateSvc.h"
 
 namespace LVL1 {
 
@@ -82,6 +85,7 @@ void jFEXFPGA::reset() {
   m_LRJet_tobwords.clear();
   m_sumET_tobwords.clear();
   m_Met_tobwords.clear();
+  m_map_Etvalues_FPGA.clear();
 
 }
 
@@ -92,60 +96,98 @@ StatusCode jFEXFPGA::execute() {
     ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
-   
-    //std::cout<< "******************************************** "<<m_jfexid<<std::endl;
+
+  jFEXOutputCollection* jFEXOutputs;
+  StatusCode sc_tobs = evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection");
+
+  
+    ATH_CHECK( m_jFEXPileupAndNoiseTool.retrieve());
+    ATH_CHECK( m_jFEXPileupAndNoiseTool->safetyTest());
+    ATH_CHECK( m_jFEXPileupAndNoiseTool->reset());        
+    if(m_jfexid == 0 || m_jfexid == 5){
+        m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Wide);
+    }
+    else{
+        m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Thin);
+        
+                
+    }
+    //Calculating and sustracting pileup
+    std::vector<int> pileup_rho;
+    pileup_rho = m_jFEXPileupAndNoiseTool->CalculatePileup();
+    jFEXOutputs->addValue_pileup("pileup_FPGAid"  , m_id);
+    jFEXOutputs->addValue_pileup("pileup_jFEXid"  , m_jfexid);
+    jFEXOutputs->addValue_pileup("pileup_rho_EM"  , pileup_rho[0]);
+    jFEXOutputs->addValue_pileup("pileup_rho_HAD1", pileup_rho[1]);
+    jFEXOutputs->addValue_pileup("pileup_rho_HAD2", pileup_rho[2]);
+    jFEXOutputs->addValue_pileup("pileup_rho_HAD3", pileup_rho[3]);
+    jFEXOutputs->addValue_pileup("pileup_rho_FCAL", pileup_rho[4]);
+    jFEXOutputs->fill_pileup();
+    
+    
+    //Applying pileup sustraction in jet or met independently - this sets the flags to true in m_jFEXPileupAndNoiseTool
+    // now masked -> no pileup applied.
+    //m_jFEXPileupAndNoiseTool->ApplyPileupJets();     
+    //m_jFEXPileupAndNoiseTool->ApplyPileupMet();
+    
+    //Getting the values 
+    m_map_HAD_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->Get_HAD_Et_values();
+    m_map_EM_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->Get_EM_Et_values();
+    m_map_Etvalues_FPGA = m_jFEXPileupAndNoiseTool->GetEt_values();
+    
+
+
     if(m_id==0 || m_id==2){
+        ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
+        ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
+        ATH_CHECK( m_jFEXsumETAlgoTool->reset());  
+        ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
+        ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
+        ATH_CHECK( m_jFEXmetAlgoTool->reset());  
+        m_jFEXsumETAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+        m_jFEXmetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+        
         if(m_jfexid > 0 && m_jfexid < 5){
         
             //-----------------jFEXsumETAlgo-----------------
-            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXsumETAlgoTool->reset());            
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Thin);
             m_jFEXsumETAlgoTool->buildBarrelSumET();
             //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
             m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
             
             //-----------------jFEXmetAlgo-----------------            
-            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
             m_jFEXmetAlgoTool->setup(m_jTowersIDs_Thin);     
             m_jFEXmetAlgoTool->buildBarrelmet();
             m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
         }
-        else if(m_jfexid == 0 and 0){ //skipping until the module 0 bug fix (flip the m_jTowersIDs_Wide matrix)
+        else if(m_jfexid == 0 ){
+            int flipped_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
+            int max_phi_it = FEXAlgoSpaceDefs::jFEX_algoSpace_height-1;
+            int max_eta_it = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width-1;
+            for(int mphi = 0; mphi <= max_phi_it; mphi++) {   
+                for(int meta = 0; meta <= max_eta_it; meta++) {
+                    flipped_jTowersIDs[mphi][meta]=m_jTowersIDs_Wide[mphi][max_eta_it-meta];
+                }
+            }
             //-----------------jFEXsumETAlgo-----------------
-            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXsumETAlgoTool->reset());         
-            m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXsumETAlgoTool->setup(flipped_jTowersIDs);
             m_jFEXsumETAlgoTool->buildFWDSumET();
             //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
             m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
             
             //-----------------jFEXmetAlgo-----------------    
-            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
-            m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
+            m_jFEXmetAlgoTool->setup(flipped_jTowersIDs);
             m_jFEXmetAlgoTool->buildFWDmet();
             m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
         }
         else if(m_jfexid == 5){
             //-----------------jFEXsumETAlgo-----------------
-            ATH_CHECK( m_jFEXsumETAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXsumETAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXsumETAlgoTool->reset());         
             m_jFEXsumETAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXsumETAlgoTool->buildFWDSumET();
             //The number 3 below is arbitrary, NEEDS TO BE CHANGED with the numbers from the Trigger Menu (future MR)
             m_sumET_tobwords.push_back(formSumETTOB(m_jFEXsumETAlgoTool->getETlowerEta(3),m_jFEXsumETAlgoTool->getETupperEta(3)));
               
             //-----------------jFEXmetAlgo-----------------    
-            ATH_CHECK( m_jFEXmetAlgoTool.retrieve());
-            ATH_CHECK( m_jFEXmetAlgoTool->safetyTest());
-            ATH_CHECK( m_jFEXmetAlgoTool->reset());             
             m_jFEXmetAlgoTool->setup(m_jTowersIDs_Wide);
             m_jFEXmetAlgoTool->buildFWDmet();
             m_Met_tobwords.push_back(formMetTOB(m_jFEXmetAlgoTool->GetMetXComponent(),m_jFEXmetAlgoTool->GetMetYComponent()));
@@ -156,17 +198,13 @@ StatusCode jFEXFPGA::execute() {
   //-----------jFEXSmallRJet & Large R Jet Algo-----------------
   ATH_MSG_DEBUG("==== jFEXSmallRJetAlgo ========");
 
-  jFEXOutputCollection* jFEXOutputs;
-  StatusCode sc_tobs = evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection");
 
-  if(sc_tobs == StatusCode::FAILURE) {
-    ATH_MSG_DEBUG("\n==== jFEXSmallRJetAlgo ======== Failed to find jFEXOutputCollection in jFEXFPGA");
-  }
 
  //Central region algorithms
  if(m_jfexid > 0 && m_jfexid < 5){ 
   for(int mphi = 8; mphi < FEXAlgoSpaceDefs::jFEX_algoSpace_height -8; mphi++) {   
     for(int meta = 8; meta < FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width -8; meta++) {
+
   
     //create search window including towerIDs required for seeding.
     int SRJet_SearchWindow[7][7] = {{0}};
@@ -209,19 +247,21 @@ StatusCode jFEXFPGA::execute() {
           }
         }
       }
-
+      m_jFEXSmallRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+      m_jFEXLargeRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
       m_jFEXSmallRJetAlgoTool->setup(SRJet_SearchWindow);
       m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);
       m_jFEXSmallRJetAlgoTool->buildSeeds();
       bool SRJet_LM = m_jFEXSmallRJetAlgoTool->isSeedLocalMaxima(); 
 
       jFEXOutputs->addValue_smallRJet("smallRJet_isCentralTowerSeed", SRJet_LM);
-     
-      int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();      
+
+      int smallClusterET = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
       //These are plots of the central TT for each 5x5 search window.
-      jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET());
-      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi());
-      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta());
+      jFEXOutputs->addValue_smallRJet("smallRJet_ET", m_jFEXSmallRJetAlgoTool->getTTowerET(m_jTowersIDs_Thin[mphi][meta]));
+      jFEXOutputs->addValue_smallRJet("smallRJet_phi",m_jFEXSmallRJetAlgoTool->getRealPhi(m_jTowersIDs_Thin[mphi][meta]));
+      jFEXOutputs->addValue_smallRJet("smallRJet_eta",m_jFEXSmallRJetAlgoTool->getRealEta(m_jTowersIDs_Thin[mphi][meta]));
+
       jFEXOutputs->addValue_smallRJet("smallRJet_clusterET", smallClusterET);
   
     
@@ -265,8 +305,8 @@ StatusCode jFEXFPGA::execute() {
       if (largeClusterET/200. >  0x1fff) LR_TOB_saturated = 1;
  
       jFEXOutputs->addValue_largeRJet("largeRJet_ET", largeClusterET);
-      jFEXOutputs->addValue_largeRJet("largeRJet_phi", m_jFEXSmallRJetAlgoTool->getRealPhi());
-      jFEXOutputs->addValue_largeRJet("largeRJet_eta", m_jFEXSmallRJetAlgoTool->getRealEta());
+      jFEXOutputs->addValue_largeRJet("largeRJet_phi", m_jFEXSmallRJetAlgoTool->getRealPhi(m_jTowersIDs_Thin[mphi][meta]));
+      jFEXOutputs->addValue_largeRJet("largeRJet_eta", m_jFEXSmallRJetAlgoTool->getRealEta(m_jTowersIDs_Thin[mphi][meta]));
 
       jFEXOutputs->addValue_largeRJet("largeRJetTOB_ET",tmp_LRJet_tob->setET(largeClusterET/200)); 
       jFEXOutputs->addValue_largeRJet("largeRJetTOB_eta",tmp_SRJet_tob->setEta(meta));
@@ -281,6 +321,7 @@ StatusCode jFEXFPGA::execute() {
       jFEXOutputs->addValue_largeRJet("largeRJetTOB_fpgaID", m_id);
       }
   }
+
 } //end of if statement for checking if in central jfex modules
 
 jFEXOutputs->fill_smallRJet();
@@ -289,9 +330,8 @@ jFEXOutputs->fill_largeRJet();
 //**********Forward Jets***********************
 
 //FCAL region algorithm 
-if(m_jfexid ==0 || m_jfexid ==5){
-//This is currently masked due to on going debugging in this FCAL Jets Algorithm
-  return StatusCode::SUCCESS;
+if((m_jfexid ==0 || m_jfexid ==5) and 0 ){ //This is currently masked due to on going debugging in this FCAL Jets Algorithm
+
 
   m_jFEXForwardJetsAlgoTool->setup(m_jTowersIDs_Wide);
   m_FCALJets =  m_jFEXForwardJetsAlgoTool->calculateJetETs();
@@ -380,6 +420,7 @@ if(m_jfexid ==0 || m_jfexid ==5){
   }
 }
 
+
 //******************************** TAU **********************************************
 
 
@@ -409,8 +450,6 @@ if(m_jfexid ==0 || m_jfexid ==5){
     //For Module 1,2,3,4 (central modules) the m_jTowersIDs array is m_jTowersIDs_Thin
     std::copy(&m_jTowersIDs_Thin[0][0], &m_jTowersIDs_Thin[0][0] + FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width, &m_jTowersIDs[0][0]);
   }
-  
-  
   ATH_MSG_DEBUG("============================ jFEXtauAlgo ============================");
   for(int mphi = 8; mphi < 24; mphi++) {   
     for(int meta = 8; meta < max_meta; meta++) {
@@ -439,16 +478,17 @@ if(m_jfexid ==0 || m_jfexid ==5){
       
       ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
       ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
+      m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
       m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
       m_jFEXtauAlgoTool->buildSeeds();
       bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();
       m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
 
-      jFEXOutputs->addValue_tau("tau_ET", m_jFEXtauAlgoTool->getTTowerET());
+      jFEXOutputs->addValue_tau("tau_ET", m_jFEXtauAlgoTool->getTTowerET(m_jTowersIDs[mphi][meta]));
       jFEXOutputs->addValue_tau("tau_clusterET", m_jFEXtauAlgoTool->getClusterEt());
-      jFEXOutputs->addValue_tau("tau_eta",abs(m_jFEXtauAlgoTool->getRealEta())) ;
-      jFEXOutputs->addValue_tau("tau_phi",m_jFEXtauAlgoTool->getRealPhi()) ;
-      jFEXOutputs->addValue_tau("tau_realeta",m_jFEXtauAlgoTool->getRealEta()) ;
+      jFEXOutputs->addValue_tau("tau_eta",std::abs(m_jFEXtauAlgoTool->getRealEta(m_jTowersIDs[mphi][meta]))) ;
+      jFEXOutputs->addValue_tau("tau_phi",m_jFEXtauAlgoTool->getRealPhi(m_jTowersIDs[mphi][meta])) ;
+      jFEXOutputs->addValue_tau("tau_realeta",m_jFEXtauAlgoTool->getRealEta(m_jTowersIDs[mphi][meta])) ;
       jFEXOutputs->addValue_tau("tau_ISO",m_jFEXtauAlgoTool->getFirstEtRing()) ;
       jFEXOutputs->addValue_tau("tau_TT_ID",TT_seed_ID[1][1]) ;
       jFEXOutputs->addValue_tau("tau_isLocalMax",is_tau_LocalMax) ;
@@ -470,6 +510,7 @@ if(m_jfexid ==0 || m_jfexid ==5){
       jFEXOutputs->addValue_tau("tau_TOB_Sat" ,tmp_tob->GetSat());        
         
       jFEXOutputs->fill_tau();
+         
     }
   }
 
@@ -732,14 +773,14 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY )
   int metX = METX/jFEXETResolution;
   
   //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383) the MSB is the sign
-  if (abs(metX) > 0x3fff) { 
+  if (std::abs(metX) > 0x3fff) { 
     ATH_MSG_DEBUG("sumEtlow saturated: " << metX );
     metX = 0x7fff;
     sat=1;
   }
 
   int metY = METY/jFEXETResolution;
-  if (abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
+  if (std::abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
     ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
     metY = 0x7fff;
     sat=1;
@@ -763,6 +804,79 @@ std::vector <uint32_t> jFEXFPGA::getMetTOBs()
 }
 
 
-  
+//Returns the Electromagnetic energy for Jet Algos (NOT MET/SumET)
+int jFEXFPGA::getTTowerET_EM(unsigned int TTID) {
+    
+    if(m_map_EM_Etvalues_FPGA.find(TTID) != m_map_EM_Etvalues_FPGA.end()){
+        return m_map_EM_Etvalues_FPGA[TTID][0];
+    }
+    
+    ATH_MSG_DEBUG("In jFEXFPGA::getTTowerET_EM, TTower ID not found in map: " << TTID );
+    return -99999;
+    
+}
+
+
+//Returns the Hadronic energy for Jet Algos (NOT MET/SumET)
+int jFEXFPGA::getTTowerET_HAD(unsigned int TTID) {
+    
+    if(m_map_HAD_Etvalues_FPGA.find(TTID) != m_map_HAD_Etvalues_FPGA.end()){
+        return m_map_HAD_Etvalues_FPGA[TTID][0];
+    }
+    
+    ATH_MSG_DEBUG("In jFEXFPGA::getTTowerET_HAD, TTower ID not found in map: " << TTID );
+    return -99999;
+    
+}
+
+
+//Returns the Total TT energy for Jet Algos (NOT MET/SumET)
+int jFEXFPGA::getTTowerET(unsigned int TTID) {
+
+    return getTTowerET_EM(TTID)+getTTowerET_HAD(TTID);
+
+}  
+
+
+//Returns the Total TT energy for MET/SumÉT Algos
+int jFEXFPGA::getTTowerET_forMET(unsigned int TTID) {
+
+    int tmp_EM = 0;
+    if(m_map_EM_Etvalues_FPGA.find(TTID) != m_map_EM_Etvalues_FPGA.end()){
+        tmp_EM = m_map_EM_Etvalues_FPGA[TTID][1];
+    }
+    else{
+        ATH_MSG_DEBUG("In jFEXFPGA::getTTowerET_forMET (EM energy), TTower ID not found in map: " << TTID );
+        tmp_EM = -99999;
+    }
+
+
+    int tmp_HAD = 0;
+    if(m_map_HAD_Etvalues_FPGA.find(TTID) != m_map_HAD_Etvalues_FPGA.end()){
+        tmp_HAD = m_map_HAD_Etvalues_FPGA[TTID][1];
+    }
+    else{
+        ATH_MSG_DEBUG("In jFEXFPGA::getTTowerET_forMET (HAD energy), TTower ID not found in map: " << TTID );
+        tmp_HAD = -99999;
+    }
+    
+    
+    return tmp_EM + tmp_HAD;
+
+}  
+
+
+//Returns de ET of a given TT ID for Algorithm
+int jFEXFPGA::getTTowerET_SG(unsigned int TTID) {
+
+    SG::ReadHandle<jTowerContainer> jFEXFPGA_jTowerContainer(m_jFEXFPGA_jTowerContainerKey);
+    const LVL1::jTower * tmpTower = jFEXFPGA_jTowerContainer->findTower(TTID);
+    return tmpTower->getTotalET();
+}
+
+
+
+
+
 } // end of namespace bracket
 

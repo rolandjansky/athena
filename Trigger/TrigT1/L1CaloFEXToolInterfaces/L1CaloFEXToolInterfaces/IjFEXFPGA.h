@@ -61,6 +61,12 @@ Interface definition for jFEXFPGA
     virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) = 0;
     virtual void SetTowersAndCells_SG(int [][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) = 0;
 
+    virtual int getTTowerET_EM     (unsigned int TTID ) =0; 
+    virtual int getTTowerET_HAD    (unsigned int TTID ) =0; 
+    virtual int getTTowerET        (unsigned int TTID ) =0; 
+    virtual int getTTowerET_forMET (unsigned int TTID ) =0; 
+
+
   private:
 
   };

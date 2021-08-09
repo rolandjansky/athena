@@ -41,9 +41,9 @@ namespace LVL1 {
 
     virtual StatusCode safetyTest() override;
     virtual void setup(int TTwindow[5][5], int seed[3][3]) override;
-    virtual int getTTowerET(unsigned int row_=1 ,unsigned int col_=1 ) override; // arguments 2,2 to get the central TT from m_TTwindow[5][5]
-    virtual int getRealPhi(unsigned int row_=1 ,unsigned int col_=1 ) override; // arguments 2,2 to get the central TT from m_TTwindow[5][5]
-    virtual int getRealEta(unsigned int row_=1 ,unsigned int col_=1 ) override; // arguments 2,2 to get the central TT from m_TTwindow[5][5]   
+    virtual int getTTowerET(unsigned int TTID ) override; 
+    virtual int getRealPhi(unsigned int TTID  ) override; 
+    virtual int getRealEta(unsigned int TTID  ) override;  
 
     virtual void buildSeeds() override; 
     virtual bool isSeedLocalMaxima() override;
@@ -51,10 +51,10 @@ namespace LVL1 {
     virtual int getClusterEt() override;
     virtual int getIsLocalMaxima() override;
     virtual int getFirstEtRing()  override;
+    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
     
     
     virtual std::unique_ptr<jFEXtauTOB> getTauTOBs(int mphi, int meta) override;
-    virtual void Represent(int var_=0, int dim_=3) override; 
 
     
 // virtual jFEXtauAlgo* getTauTOBs() override;
@@ -64,6 +64,7 @@ protected:
 
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXtauAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        
         int realValue(int ID, int eta);
         int m_SeedIDs[3][3]={{0}};
         int m_SeedConditions_ET[3][3]={{0}};
@@ -72,8 +73,10 @@ protected:
         int m_ClusterEt = 0;
         int m_TauIsolation = 0;
         //int m_tauClusterIDs[4][5];
-	      bool m_seedSet=false;
-	      bool m_isLocalMaxima=false;
+	    bool m_seedSet=false;
+	    bool m_isLocalMaxima=false;
+          
+        std::map<int,std::vector<int> > m_map_Etvalues;
 
         struct color {
             std::string RED      ="\033[1;31m";
@@ -90,7 +93,6 @@ protected:
             std::string B_RED    ="\033[1;41m";
             std::string B_GREEN  ="\033[1;42m";
         } m_color;
-
 
 
         

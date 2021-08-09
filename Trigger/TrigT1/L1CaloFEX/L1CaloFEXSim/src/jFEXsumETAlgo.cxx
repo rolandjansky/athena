@@ -99,15 +99,13 @@ void LVL1::jFEXsumETAlgo::setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height
 void LVL1::jFEXsumETAlgo::buildBarrelSumET()
 {
     ATH_MSG_DEBUG("---------------- jFEXsumETAlgo::buildBarrelSumET ----------------");
-    SG::ReadHandle<jTowerContainer> jk_jFEXsumETAlgo_jTowerContainer(m_jFEXsumETAlgo_jTowerContainerKey);
     
     m_SumET.clear();
     m_SumET.resize(8,0);
     
     for(uint iphi=0;iphi<m_FPGA.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXsumETAlgo_jTowerContainer->findTower(m_FPGA[iphi][ieta]);
-            m_SumET[ieta]+=tmpTower->getTotalET();
+            m_SumET[ieta]+=getTTowerET(m_FPGA[iphi][ieta]);
         }
     }
 
@@ -117,7 +115,6 @@ void LVL1::jFEXsumETAlgo::buildBarrelSumET()
 void LVL1::jFEXsumETAlgo::buildFWDSumET()
 {
     ATH_MSG_DEBUG("---------------- jFEXsumETAlgo::buildFWDSumET ----------------");
-    SG::ReadHandle<jTowerContainer> jk_jFEXsumETAlgo_jTowerContainer(m_jFEXsumETAlgo_jTowerContainerKey);
     
     m_SumET.clear();
     m_SumET.resize(14,0);
@@ -125,24 +122,21 @@ void LVL1::jFEXsumETAlgo::buildFWDSumET()
     // ECal with resolution of 0.1x0.1
     for(uint iphi=0;iphi<m_FPGA.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXsumETAlgo_jTowerContainer->findTower(m_FPGA[iphi][ieta]);
-            m_SumET[ieta]+=tmpTower->getTotalET();
+            m_SumET[ieta]+=getTTowerET(m_FPGA[iphi][ieta]);
         }
     }
 
     // ECal with resolution of 0.2x0.2
     for(uint iphi=0;iphi<m_FPGA_phi02.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA_phi02[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXsumETAlgo_jTowerContainer->findTower(m_FPGA_phi02[iphi][ieta]);
-            m_SumET[ieta+9]+=tmpTower->getTotalET();
+            m_SumET[ieta+9]+=getTTowerET(m_FPGA_phi02[iphi][ieta]);
         }
     }    
     
     // Fcal
     for(uint iphi=0;iphi<m_FPGA_fcal.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA_fcal[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXsumETAlgo_jTowerContainer->findTower(m_FPGA_fcal[iphi][ieta]);
-            m_SumET[13]+=tmpTower->getTotalET(); //All FCAL is considered one slice due to the non-aligment of the FCal layers
+            m_SumET[13]+=getTTowerET(m_FPGA_fcal[iphi][ieta]); //All FCAL is considered one slice due to the non-aligment of the FCal layers
         }
     }       
 
@@ -185,10 +179,26 @@ std::unique_ptr<jFEXsumETTOB> LVL1::jFEXsumETAlgo::getsumETTOBs(){
 }
 
 
+
 //Gets the ET for the TT. This ET is EM + HAD
-int LVL1::jFEXsumETAlgo::getTTowerET(unsigned int TTID) {
-    SG::ReadHandle<jTowerContainer> jk_jFEXsumETAlgo_jTowerContainer(m_jFEXsumETAlgo_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXsumETAlgo_jTowerContainer->findTower(TTID);
-    return tmpTower->getTotalET();
+int LVL1::jFEXsumETAlgo::getTTowerET(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    } 
+    
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][1];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
 }
+
+
+void LVL1::jFEXsumETAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
+}
+
+
 }// end of namespace LVL1

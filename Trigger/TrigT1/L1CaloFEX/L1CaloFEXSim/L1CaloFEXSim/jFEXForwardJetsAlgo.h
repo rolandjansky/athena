@@ -47,17 +47,19 @@ namespace LVL1 {
     virtual float globalEta(int nphi, int neta) override;   
     virtual unsigned int localPhi(int nphi, int neta) override;
     virtual unsigned int localEta(int nphi, int neta) override;
-    virtual unsigned int getTTowerET(int nphi, int neta) override; 
+    virtual int getTTowerET(int nphi, int neta) override; 
 
     virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
     virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
     virtual std::map<int, jFEXForwardJetsInfo> calculateJetETs() override;
+    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
   protected:
 
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXForwardJetsAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int m_jFEXalgoTowerID[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
         bool m_storeEnergyRingTTIDs; 
+        std::map<int,std::vector<int> > m_map_Etvalues;
   };
 }//end of namespace
 #endif

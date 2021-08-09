@@ -92,13 +92,20 @@ unsigned int LVL1::jFEXForwardJetsAlgo::localEta(int nphi, int neta) {
  return eta;
 }
 
-//Return ET of TT. Should be FCAL 0 + 1 + 2 //maybe check this 
-unsigned int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta){
-
- SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
- const LVL1::jTower * tmpTower = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[nphi][neta]);
- unsigned int et = tmpTower->getTotalET();
- return et;
+//Return ET of TT. Should be FCAL 0 + 1 + 2 //maybe check this
+int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
+    unsigned int TTID = m_jFEXalgoTowerID[nphi][neta];
+    if(TTID == 0) {
+        return 0;
+    } 
+    
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][0];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
 }
 
 std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists(){
@@ -272,6 +279,10 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs(){
     }
   }
   return localMaximas;
+}
+
+void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
 }
 
 }// end of namespace LVL1

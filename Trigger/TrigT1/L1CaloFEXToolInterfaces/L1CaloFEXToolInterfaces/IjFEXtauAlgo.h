@@ -29,16 +29,16 @@ class IjFEXtauAlgo : virtual public IAlgTool {
         virtual void buildSeeds() = 0;
         virtual void setFirstEtRing(int First_ETring[]) =0;
 
-        virtual int getTTowerET(unsigned int row_=1 ,unsigned int col_=1 ) =0; 
-        virtual int getRealPhi(unsigned int row_=1 ,unsigned int col_=1 )  =0; 
-        virtual int getRealEta(unsigned int row_=1 ,unsigned int col_=1 )  =0;
+        virtual int getTTowerET(unsigned int TTID )  =0; 
+        virtual int getRealPhi (unsigned int TTID )  =0; 
+        virtual int getRealEta (unsigned int TTID )  =0;
         virtual int getClusterEt()  =0;
         virtual int getIsLocalMaxima()  =0;
         virtual int getFirstEtRing()  =0;
+        virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)   =0;
         
 
         virtual std::unique_ptr<jFEXtauTOB> getTauTOBs(int, int) = 0;
-        virtual void Represent(int,int) =0;
         
 
     private:

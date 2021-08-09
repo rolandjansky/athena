@@ -56,13 +56,11 @@ void LVL1::jFEXLargeRJetAlgo::setupCluster(int inputTable[15][15]){
 }
 
 unsigned int LVL1::jFEXLargeRJetAlgo::getRingET(){
-  SG::ReadHandle<jTowerContainer> jk_jFEXLargeRJetAlgo_jTowerContainer(m_jFEXLargeRJetAlgo_jTowerContainerKey/*,ctx*/);
   int RingET =0;
   for(int n =0; n <15; n++){
     for(int m =0; m <15; m++){
       if((m_largeRJetEtRing_IDs[n][m]) != 0){
-        const LVL1::jTower * tmpTower = jk_jFEXLargeRJetAlgo_jTowerContainer->findTower(m_largeRJetEtRing_IDs[n][m]);
-        int et = tmpTower->getTotalET();
+        int et = getTTowerET(m_largeRJetEtRing_IDs[n][m]);
         RingET +=et;
       }
     }
@@ -80,15 +78,33 @@ std::unique_ptr<jFEXLargeRJetTOB> LVL1::jFEXLargeRJetAlgo::getLargeRJetTOBs(){
   std::unique_ptr<jFEXLargeRJetTOB> tob = std::make_unique<jFEXLargeRJetTOB>(); 
   unsigned int et = getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),getRingET());
   tob->setET(et);
-  tob->setPhi(m_jFEXSmallRJetAlgoTool->getRealPhi()/10.); 
-  tob->setEta(m_jFEXSmallRJetAlgoTool->getRealEta()/10.); 
+  tob->setPhi(m_jFEXSmallRJetAlgoTool->getRealPhi(m_jFEXSmallRJetAlgoTool->getTTIDcentre())/10.); 
+  tob->setEta(m_jFEXSmallRJetAlgoTool->getRealEta(m_jFEXSmallRJetAlgoTool->getTTIDcentre())/10.); 
   tob->setRes(0); 
   tob->setSat(0); 
 
   return tob;
 }
 
+//Gets the ET for the TT. This ET is EM + HAD
+int LVL1::jFEXLargeRJetAlgo::getTTowerET(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    } 
+    
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][0];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
+}
 
+
+void LVL1::jFEXLargeRJetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
+}
 
 }// end of namespace LVL1
 

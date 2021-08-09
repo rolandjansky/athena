@@ -24,13 +24,26 @@
 #include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXForwardJetsAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXPileupAndNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+#include <vector>
+
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IClassIDSvc.h"
+#include "SGTools/StlMapClids.h"
+#include "SGTools/TestStore.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
+
+#include "StoreGate/StoreGateSvc.h"
+
 
 namespace LVL1 {
   
@@ -82,7 +95,11 @@ namespace LVL1 {
     virtual uint32_t formMetTOB(int , int ) override;
     virtual std::vector <uint32_t> getMetTOBs() override;    
     
- 
+    int getTTowerET_EM     (unsigned int TTID ) override; 
+    int getTTowerET_HAD    (unsigned int TTID ) override; 
+    int getTTowerET        (unsigned int TTID ) override; 
+    int getTTowerET_forMET (unsigned int TTID ) override; 
+    
    /** Internal data */
   private:
     static bool etSRJetSort(uint32_t i, uint32_t j){ return (((i >> 12 ) & 0x7ff)> ((j >> 12) & 0x7ff));}
@@ -101,13 +118,17 @@ namespace LVL1 {
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     std::map<int,jTower> m_jTowersColl;
+    std::map<int,std::vector<int> > m_map_Etvalues_FPGA;
+    std::map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
+    std::map<int,std::vector<int> > m_map_EM_Etvalues_FPGA;
+    
 
     std::map<int, jFEXForwardJetsInfo> m_FCALJets; 
 
     CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
-
+    
     SG::WriteHandleKey<LVL1::jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "jFEXOutputCollection", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
 
     ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
@@ -116,9 +137,16 @@ namespace LVL1 {
     ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
     ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
     ToolHandle<IjFEXForwardJetsAlgo> m_jFEXForwardJetsAlgoTool {this, "jFEXForwardJetsAlgoTool"      , "LVL1::jFEXForwardJetsAlgo"      , "Tool that runs the jFEX FCAL Jets algorithm"};
+
+    //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
+    ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
+    
+    int getTTowerET_SG(unsigned int TTID);
     
   };
   
 } // end of namespace
+
+CLASS_DEF( LVL1::jFEXFPGA , 76081081 , 1 )
 
 #endif
