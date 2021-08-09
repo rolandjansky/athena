@@ -368,7 +368,7 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
@@ -425,7 +425,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasOuterR2 = 14201.
     # if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
     #    (ConfigFlags.Sim.CavernBG != 'Signal'):
-    if not ConfigFlags.Detector.GeometryMuon and ConfigFlags.Sim.CavernBG == 'Off':
+    if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
         if not ConfigFlags.Detector.GeometryCalo:
@@ -501,7 +501,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
 
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if ConfigFlags.Detector.GeometryID:
@@ -737,12 +737,10 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
-        # if False:
+        if ConfigFlags.Beam.Type == 'cosmics' or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
             kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
         else:
-            toolGeo = result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
-            kwargs.setdefault("World", toolGeo)
+            kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
