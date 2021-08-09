@@ -52,7 +52,7 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
-    if enableL1MuonPhase1:
+    if doLVL1 and enableL1MuonPhase1:
         # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
         # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
