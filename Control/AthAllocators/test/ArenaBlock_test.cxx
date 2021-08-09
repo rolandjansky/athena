@@ -14,6 +14,9 @@
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <vector>
+#include <iostream>
+#include <setjmp.h>
+#include <signal.h>
 
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
@@ -80,6 +83,7 @@ Payload& payload (SG::ArenaBlock* bl, size_t i=0)
 
 void test1()
 {
+  std::cout << "test1\n";
   assert (SG::ArenaBlock::nactive() == 0);
   SG::ArenaBlock* bl = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
   assert (SG::ArenaBlock::nactive() == 1);
@@ -100,6 +104,7 @@ void test1()
 
 void test2()
 {
+  std::cout << "test2\n";
   SG::ArenaBlock* b1 = SG::ArenaBlock::newBlock (20, elt_size,
                                                  Payload::constructor);
   SG::ArenaBlock* b2 = SG::ArenaBlock::newBlock (20, elt_size,
@@ -137,17 +142,108 @@ void test2()
   }
 
   Payload::v.clear();
+  size_t totsize = b1->size() + b2->size() + b3->size();
   SG::ArenaBlock::destroyList (b1, Payload::destructor);
-  assert (Payload::v.size() == b1->size() + b2->size() + b3->size());
+  assert (Payload::v.size() == totsize);
   for (size_t j = 0; j < Payload::v.size(); ++j) {
     assert (Payload::v[j] == -(int)j);
   }
 }
 
 
+jmp_buf jmp;
+void handler (int)
+{
+  siglongjmp (jmp, 1);
+}
+void setsig()
+{
+  struct sigaction act;
+  act.sa_handler = handler;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  if (sigaction (SIGSEGV, &act, nullptr) != 0) std::abort();
+}
+void resetsig()
+{
+  struct sigaction act;
+  act.sa_handler = SIG_DFL;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  if (sigaction (SIGSEGV, &act, nullptr) != 0) std::abort();
+  sigset_t sigs;
+  if (sigemptyset (&sigs) != 0) std::abort();
+  if (sigaddset (&sigs, SIGSEGV) != 0) std::abort();
+  if (sigprocmask (SIG_UNBLOCK, &sigs, nullptr) != 0) std::abort();
+}
+
+template <typename CALLABLE>
+void expect_signal (CALLABLE code)
+{
+  // volatile to avoid gcc -Wclobbered warning.
+  volatile bool handled = false;
+  if (sigsetjmp (jmp, 0)) {
+    handled = true;
+  }
+  else {
+    setsig();
+    code();
+  }
+  resetsig();
+  assert (handled);
+}
+
+// Test protect().
+void test3()
+{
+  std::cout << "test3\n";
+  SG::ArenaBlock* b1 = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
+  word(b1, 10) = 42;
+  assert (word(b1, 10) == 42);
+  b1->protect();
+  assert (word(b1, 10) == 42);
+  expect_signal ([&]() { word(b1, 10) = 43; });
+  b1->unprotect();
+  assert (word(b1, 10) == 42);
+  word(b1, 10) = 43;
+  assert (word(b1, 10) == 43);
+  SG::ArenaBlock::destroy (b1, nullptr);
+}
+
+
+// Test protectList().
+void test4()
+{
+  std::cout << "test4\n";
+  SG::ArenaBlock* b1 = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
+  SG::ArenaBlock* b2 = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
+  b1->link() = b2;
+  word(b1, 10) = 42;
+  word(b2, 10) = 442;
+  assert (word(b1, 10) == 42);
+  assert (word(b2, 10) == 442);
+  SG::ArenaBlock::protectList (b1);
+  assert (word(b1, 10) == 42);
+  assert (word(b2, 10) == 442);
+  expect_signal ([&]() { word(b1, 10) = 43; });
+  expect_signal ([&]() { word(b2, 10) = 443; });
+  SG::ArenaBlock::unprotectList (b1);
+  assert (word(b1, 10) == 42);
+  assert (word(b2, 10) == 442);
+  word(b1, 10) = 43;
+  word(b2, 10) = 443;
+  assert (word(b1, 10) == 43);
+  assert (word(b2, 10) == 443);
+  SG::ArenaBlock::destroyList (b1, nullptr);
+}
+
+
 int main()
 {
+  std::cout << "AthAllocators/ArenaBlock_test\n";
   test1();
   test2();
+  test3();
+  test4();
   return 0;
 }

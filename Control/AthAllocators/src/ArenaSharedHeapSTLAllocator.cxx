@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaSharedHeapSTLAllocator.cxx 470825 2011-11-25 23:20:57Z ssnyder $
 /**
  * @file AthAllocators/src/ArenaSharedHeapSTLAllocator.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -71,6 +69,38 @@ void ArenaSharedHeapSTLHeader::report (std::ostream& os) const
   for (size_t i = 0; i < m_allocators.size(); i++) {
     if (m_allocators[i])
       m_allocators[i]->report (os);
+  }
+}
+
+
+/**
+ * @brief Write-protect the memory managed by these allocators.
+ *
+ * Adjust protection on the memory managed by these allocators
+ * to disallow writes.
+ */
+void ArenaSharedHeapSTLHeader::protect()
+{
+  for (ArenaHeapAllocator* a : m_allocators) {
+    if (a) {
+      a->protect();
+    }
+  }
+}
+
+
+/**
+ * @brief Write-enable the memory managed by these allocators.
+ *
+ * Adjust protection on the memory managed by these allocators
+ * to allow writes.
+ */
+void ArenaSharedHeapSTLHeader::unprotect()
+{
+  for (ArenaHeapAllocator* a : m_allocators) {
+    if (a) {
+      a->unprotect();
+    }
   }
 }
 

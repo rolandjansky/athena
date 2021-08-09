@@ -12,9 +12,11 @@
 
 
 #include "AthAllocators/ArenaBlock.h"
+#include "AthAllocators/exceptions.h"
 #include <cstdlib>
 #include <unistd.h>
 #include <cassert>
+#include <sys/mman.h>
 
 
 namespace SG {
@@ -156,6 +158,68 @@ size_t ArenaBlock::overhead()
 {
   // The extra size_t is a guesstimate of malloc overhead.
   return ArenaBlockBodyOffset + sizeof (size_t);
+}
+
+
+/**
+ * @brief Write-protect this block.
+ *
+ * Adjust protection on the memory allocated for this block
+ * to disallow writes.
+ */
+void ArenaBlock::protect()
+{
+  int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
+                       PROT_READ);
+  if (stat) {
+    throw SG::ExcProtection (stat);
+  }
+}
+
+
+/**
+ * @brief Write-enable this block.
+ *
+ * Adjust protection on the memory allocated for this block
+ * to allow writes.
+ */
+void ArenaBlock::unprotect()
+{
+  int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
+                       PROT_READ + PROT_WRITE);
+  if (stat) {
+    throw SG::ExcProtection (stat);
+  }
+}
+
+
+/**
+ * @brief Write-protect all blocks in a list.
+ * @param p The first block to protect.
+ *
+ * Adjust protection on the memory allocated for these blocks
+ * to disallow writes.
+ */
+void ArenaBlock::protectList (ArenaBlock* p)
+{
+  for (; p; p = p->link()) {
+    p->protect();
+  }
+}
+
+
+/**
+ * @brief Write-enable all blocks in a list.
+ * @param p The first block to protect.
+ *
+ * Adjust protection on the memory allocated for these blocks
+ * to allow writes.
+ */
+void ArenaBlock::unprotectList (ArenaBlock* p)
+{
+  for (; p; p = p->link()) {
+    p->unprotect();
+  }
 }
 
 

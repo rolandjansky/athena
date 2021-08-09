@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaSharedHeapSTLAllocator.h 552460 2013-06-25 17:29:25Z ssnyder $
 /**
  * @file AthAllocators/ArenaSharedHeapSTLAllocator.h
  * @author scott snyder <snyder@bnl.gov>
@@ -154,6 +151,24 @@ public:
    * @param os Stream to which to write the report.
    */
   void report (std::ostream& os) const;
+
+
+  /**
+   * @brief Write-protect the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to allow writes.
+   */
+  void unprotect();
 
 
 private:
@@ -428,6 +443,24 @@ public:
   void report (std::ostream& os) const;
   
 
+  /**
+   * @brief Write-protect the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by these allocators.
+   *
+   * Adjust protection on the memory managed by these allocators
+   * to allow writes.
+   */
+  void unprotect();
+
+
 private:
   ArenaSharedHeapSTLHeader* m_header;
   ArenaHeapAllocator* m_pool;
@@ -439,6 +472,18 @@ void swap (ArenaSharedHeapSTLAllocator<T>& a, ArenaSharedHeapSTLAllocator<T>& b)
 {
   a.swap (b);
 }
+
+
+/**
+ * @brief Hook for unprotecting an arena.
+ *
+ * Sometimes we need to ensure that an arena is unprotected before we start
+ * destroying an object that contains the arena.  To do that without
+ * making assumptions about whether the arena supports an unprotect
+ * operation, call this function.
+ */
+template <class T>
+void maybeUnprotect (ArenaSharedHeapSTLAllocator<T>& a);
 
 
 } // namespace SG
