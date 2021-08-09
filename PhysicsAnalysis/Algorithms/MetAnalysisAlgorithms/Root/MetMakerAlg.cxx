@@ -21,7 +21,7 @@
 namespace CP
 {
   MetMakerAlg ::
-  MetMakerAlg (const std::string& name, 
+  MetMakerAlg (const std::string& name,
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
     , m_makerTool ("METMaker", this)
@@ -109,7 +109,7 @@ namespace CP
 
         const xAOD::JetContainer *jets {nullptr};
         ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
-	
+
         if (m_doTrackMet)
         {
           ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metMap, m_doJetJVT));
