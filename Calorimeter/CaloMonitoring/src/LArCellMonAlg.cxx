@@ -495,6 +495,13 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
     }
   }
 
+  std::vector<std::vector<float>> energies_nocut;
+  energies_nocut.reserve(m_layerNames.size());
+  for (size_t ilayer = 0; ilayer < m_layerNames.size(); ++ilayer) {
+    energies_nocut.emplace_back();
+    energies_nocut[ilayer].reserve(m_layerNcells[ilayer]);
+  }
+
   for ( ; it!=it_e;++it) {
     // cell info
     const CaloCell* cell = *it; 
@@ -566,11 +573,10 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
 
     //some additional monitored objects
     auto en = Monitored::Scalar<float>("cellEnergy_"+m_layerNames[iLyr],cellen);
-    auto en0 = Monitored::Scalar<float>("cellEnergy_nocuts_"+m_layerNames[iLyr],cellen); //define two to avoid double filling
     auto tim = Monitored::Scalar<float>("cellTime_"+m_layerNames[iLyr],celltime);
     if(passBeamBackgroundRemoval) {
       // 1D Energy distribution:
-	fill(m_MonGroupName,en0);
+      energies_nocut[iLyr].push_back(cellen);
       //if (m_h_energy[iLyr]) m_h_energy[iLyr]->Fill(cellen); 
 
       // Time vs Energy:
@@ -602,6 +608,12 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
       }//end if m_sporadic_switch
     } // end if m_passBeamBackgroundRemoval
   }//end loop over cells
+
+  for (size_t ilayer = 0; ilayer < energies_nocut.size(); ++ilayer) {
+    auto en0 = Monitored::Collection("cellEnergy_nocuts_"+m_layerNames[ilayer],
+                                     energies_nocut[ilayer]);
+    fill(m_MonGroupName, en0);
+  }
 
   // fill, for every layer/threshold
   for (size_t ilayer = 0; ilayer < monValueVec.size(); ++ilayer) {
