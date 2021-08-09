@@ -35,7 +35,7 @@ Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Over
           --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.Run3G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
           --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.Run3G4Optimizations.py,MuonPRDTest/NSWPRDValAlg.sim.py" \
           --geometryVersion 'default:ATLAS-R3-2021-01-00-02_VALIDATION' \
-          --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-06' \
+          --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-08' \
           --outputHITSFile OUT_HITS.root
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
