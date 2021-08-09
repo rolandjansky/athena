@@ -51,38 +51,42 @@ StatusCode DirectPhotonFilter::filterInitialize() {
   return StatusCode::SUCCESS;
 }
 
-bool DirectPhotonFilterCmpByPt(HepMC::GenParticle* p1, HepMC::GenParticle* p2) {
+bool DirectPhotonFilterCmpByPt(HepMC::ConstGenParticlePtr p1, HepMC::ConstGenParticlePtr p2) {
   return (p1->momentum().perp()>p2->momentum().perp());
 }
 
 StatusCode DirectPhotonFilter::filterEvent() {
-  std::vector<HepMC::GenParticle*> promptPhotonsInEta;
+  std::vector<HepMC::ConstGenParticlePtr> promptPhotonsInEta;
 
   int phot = 0;
   for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
+    ATH_MSG_DEBUG("----->>> Process : " << HepMC::signal_process_id(genEvt));
 
     // Find all prompt photons with within given eta range
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->pdg_id() == 22 &&
-          (*pitr)->status() == 1 &&
-          fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange) {
+    for (auto pitr: *genEvt) {
+      if (pitr->pdg_id() == 22 &&
+          pitr->status() == 1 &&
+          std::abs(pitr->momentum().pseudoRapidity()) <= m_EtaRange) {
         
         // iterate over parent particles to exclude photons from hadron decays
-        HepMC::GenVertex* prodVtx = (*pitr)->production_vertex();
+        auto prodVtx = pitr->production_vertex();
         bool fromHadron(false);
-        for (auto parent = prodVtx->particles_begin(HepMC::parents);
-             parent != prodVtx->particles_end(HepMC::parents); ++parent) {
-          int pdgindex =  abs((*parent)->pdg_id()); 
-          ATH_MSG_DEBUG("Looping on Production (parents) vertex : " << (*parent)->pdg_id() << "  " << (*parent)->barcode());
+#ifdef HEPMC3
+        for (auto parent:  prodVtx->particles_in()) {
+#else
+        for (auto parent_it = prodVtx->particles_begin(HepMC::parents); parent_it != prodVtx->particles_end(HepMC::parents); ++parent_it) {
+          auto parent=*parent_it;
+#endif
+          int pdgindex =  std::abs(parent->pdg_id()); 
+          ATH_MSG_DEBUG("Looping on Production (parents) vertex : " << parent->pdg_id() << "  " << HepMC::barcode(parent));
           if (pdgindex > 100) {
             fromHadron = true;
             if (m_AllowSUSYDecay && ( (pdgindex > 1000000 && pdgindex < 1000040) || (pdgindex > 2000000 && pdgindex < 2000016) ) ) fromHadron = false;
           }
         }
         phot++;
-        if (!fromHadron) promptPhotonsInEta.push_back((*pitr));
+        if (!fromHadron) promptPhotonsInEta.push_back(pitr);
         else ATH_MSG_INFO("non-prompt photon ignored");
       }
     }
