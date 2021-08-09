@@ -801,7 +801,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
     //the -1 is because the parameter numbering in a vector starts at 0
     if (return_bin == -1)
     {
-        return_bin = m_binValues.size()-1;
+        return_bin = binning.size()-1;
     }
 
     // everythin went fine, so
