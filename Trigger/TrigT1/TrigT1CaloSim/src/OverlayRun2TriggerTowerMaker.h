@@ -37,6 +37,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
 
+#include "TrigConfData/L1Menu.h"
+
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
 #include "TileEvent/TileTTL1Container.h"
@@ -69,7 +71,6 @@ namespace ATHRNG {
 }
 
 namespace CLHEP { class HepRandomEngine; }
-namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1BS {
    class ITrigT1CaloDataAccessV2;
@@ -156,7 +157,6 @@ private:
   std::string m_deadChannelsKeyoverlay;
 
   // Tools/Services
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ServiceHandle <IAthRNGSvc> m_rngSvc;
   ServiceHandle<L1CaloCondSvc> m_condSvc;
   ATHRNG::RNGWrapper* m_rndmADCs; // non owning ptr
@@ -168,8 +168,6 @@ private:
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
-  // Global calibration scale (MeV/count, to optimise performance)
-  double m_digitScale;
   // Global LUT scales
   double m_cpLutScale;
   double m_jepLutScale;
@@ -241,6 +239,7 @@ private:
   bool IsDeadChannel(const L1CaloPpmDeadChannels* db) const;
   bool IsDisabledChannel(const L1CaloDisabledTowers* db) const;
   bool IsGoodTower(const xAOD::TriggerTower* tt,const L1CaloPpmDeadChannelsContainer* dead,const L1CaloDisabledTowersContainer* disabled) const;
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   
   /** normalise the number of ADC digits for overlay **/

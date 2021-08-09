@@ -18,7 +18,6 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // calorimeter include(s)
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -77,7 +76,6 @@ namespace LVL1 {
 
   OverlayRun2TriggerTowerMaker::OverlayRun2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_rngSvc("AthRNGSvc", name),
       m_condSvc("L1CaloCondSvc", name), 
       m_rndmADCs(0),
@@ -86,7 +84,6 @@ namespace LVL1 {
       m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
       m_bstowertool("LVL1BS__TrigT1CaloDataAccessV2/TrigT1CaloDataAccessV2",0), //ACH
       m_caloId(0),
-      m_digitScale(250.),
       m_cpLutScale(1.),
       m_jepLutScale(1.),
       m_TileToMeV(s_MEV/4.1), // Scale for converting ET -> counts
@@ -97,7 +94,6 @@ namespace LVL1 {
     declareProperty("RngSvc", m_rngSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
-    declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty("PpmMappingTool", m_mappingTool);
     declareProperty("LumiBlockMuTool", m_lumiBlockMuTool);
 
@@ -162,8 +158,9 @@ namespace LVL1 {
   {
     ATH_MSG_INFO("ACH445: Initialising");
 
+    ATH_CHECK( m_L1MenuKey.initialize() );
+
     CHECK(detStore()->retrieve(m_caloId).isSuccess());
-    CHECK(m_configSvc.retrieve());
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());
     CHECK(m_rngSvc.retrieve());
@@ -194,9 +191,9 @@ namespace LVL1 {
   {
     if(inc.type() != "BeginRun") return;
     /// Get global scales from configSvc
-    double globalScale = m_configSvc->thresholdConfig()->caloInfo().globalScale();
-    m_cpLutScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
-    m_jepLutScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
+    m_cpLutScale = l1Menu->thrExtraInfo().EM().emScale();
+    m_jepLutScale = l1Menu->thrExtraInfo().JET().jetScale();
 
     ATH_MSG_INFO("doOverlay: "<<m_doOverlay<<", isReco: "<<m_isReco);
     if (m_doOverlay && m_isReco) {
@@ -204,13 +201,8 @@ namespace LVL1 {
       return;
     }
 
-    ATH_MSG_INFO("REGTEST Digit scale = " << globalScale << " GeV/count");
     ATH_MSG_INFO("REGTEST CP scale = " << m_cpLutScale << " count/GeV");
     ATH_MSG_INFO("REGTEST JEP scale = " << m_jepLutScale << " count/GeV");
-
-    /// globalScale is number of GeV/count. As code is already written to use
-    /// MeV/count, safest thing here is to convert:
-    m_digitScale = 1000.*globalScale;
 
     // retrieve conditions
     if (! m_condSvc->retrieve(m_chanCalibContainer, m_chanCalibKey).isSuccess()){ATH_MSG_ERROR("failed!");}
