@@ -32,10 +32,10 @@
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
           --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-06' \
-          --AMI=s3680 \
+          --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.Run3G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
+          --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.Run3G4Optimizations.py,MuonPRDTest/NSWPRDValAlg.sim.py" \
           --maxEvents 100 \
           --imf False \
-          --postInclude MuonPRDTest/NSWPRDValAlg.sim.py \
           --outputHITSFile OUT_HITS.root
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
