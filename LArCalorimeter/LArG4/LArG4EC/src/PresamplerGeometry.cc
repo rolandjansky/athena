@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::EC::PresamplerGeometry
@@ -26,6 +26,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -61,14 +62,13 @@ namespace LArG4 {
       ISvcLocator *svcLocator = Gaudi::svcLocator();
       IGeoModelSvc *geoModel(nullptr);
       ATH_CHECK(svcLocator->service ("GeoModelSvc",geoModel));
+      IGeoDbTagSvc *geoDbTagSvc(nullptr);
+      ATH_CHECK(svcLocator->service ("GeoDbTagSvc",geoDbTagSvc));
       // Access the geometry database:
       IRDBAccessSvc *pAccessSvc(nullptr);
-      ATH_CHECK(svcLocator->service("RDBAccessSvc",pAccessSvc));
+      ATH_CHECK(svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc));
       // Obtain the geometry version information:
       const std::string AtlasVersion = geoModel->atlasVersion();
-      const std::string LArVersion = geoModel->LAr_VersionOverride();
-      const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-      const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
       
       // Note Presampler Lives In DB under "cryostats"..
       IRDBRecordset_ptr presamplerPosition = pAccessSvc->getRecordsetPtr("PresamplerPosition",AtlasVersion,"ATLAS");

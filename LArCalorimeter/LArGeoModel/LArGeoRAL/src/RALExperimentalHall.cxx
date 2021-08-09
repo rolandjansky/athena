@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RALExperimentalHall
@@ -21,6 +21,8 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -42,22 +44,33 @@ LArGeo::RALExperimentalHall::RALExperimentalHall():
   m_c(new Clockwork())
 {
   // First, fetch the Athena services.
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-  StatusCode sc;
-  IRDBAccessSvc *pAccessSvc;
-  sc = svcLocator->service("RDBAccessSvc",pAccessSvc);
+  IGeoDbTagSvc* geoDbTagSvc{nullptr};
+  StatusCode sc = svcLocator->service("GeoDbTagSvc",geoDbTagSvc);
   if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
-  }
-
-  IGeoModelSvc *geoModel;
-  sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
+    throw std::runtime_error ("Cannot locate GeoDBTagSvc");
   }
   
-  std::string AtlasVersion = geoModel->atlasVersion();
+  IRDBAccessSvc* pAccessSvc{nullptr};
+  sc = svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc);
+  if (sc != StatusCode::SUCCESS) {
+    throw std::runtime_error ("Cannot locate " + geoDbTagSvc->getParamSvcName());
+  }
+
+  std::string AtlasVersion;
+
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    // The geometry DB is used
+    IGeoModelSvc* geoModel{nullptr};
+    sc = svcLocator->service ("GeoModelSvc",geoModel);
+    if (sc != StatusCode::SUCCESS) {
+      throw std::runtime_error ("Cannot locate GeoModelSvc");
+    }
+  
+    AtlasVersion = geoModel->atlasVersion();
+  }
+
   m_c->atlasMother             = pAccessSvc->getRecordsetPtr("AtlasMother",AtlasVersion, "ATLAS"); 
 }
 

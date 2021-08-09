@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::MiniFCAL::MiniFCALAssignIdentifier
@@ -28,11 +28,11 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
-//#include "AthenaKernel/getMessageSvc.h"
 
 #include "G4ios.hh"
 #include <string>
@@ -71,18 +71,23 @@ namespace LArG4 {
       MsgStream log(m_msgsvc, "LArG4::MiniFcalAssignIdentifier");
       log << MSG::DEBUG << "In MiniFcalAssignIdentifier - constructor; access database" << endmsg;
 
-      IRDBAccessSvc* pAccessSvc(0);
-      sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
-      if(sc != StatusCode::SUCCESS) {
-        log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endmsg;
-      }
-
-      IGeoModelSvc* geoModelSvc(0);
+      IGeoModelSvc* geoModelSvc(nullptr);
       sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
       if (sc != StatusCode::SUCCESS) {
         log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endmsg;
       }
 
+      IGeoDbTagSvc *geoDbTagSvc(nullptr);
+      sc=svcLocator->service("GeoDbTagSvc",geoDbTagSvc);
+      if(sc != StatusCode::SUCCESS) {
+        log << MSG::ERROR <<"Cannot locate GeoDbTagSvc!!" << endmsg;
+      }
+
+      IRDBAccessSvc* pAccessSvc(nullptr);
+      sc=svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc);
+      if(sc != StatusCode::SUCCESS) {
+        log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endmsg;
+      }
 
       std::string AtlasVersion = geoModelSvc->atlasVersion();
       std::string LArVersion = geoModelSvc->LAr_VersionOverride();
