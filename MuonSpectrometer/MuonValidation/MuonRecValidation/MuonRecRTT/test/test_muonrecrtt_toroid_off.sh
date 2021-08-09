@@ -31,7 +31,12 @@ case $ArtProcess in
      echo "Processing files: " ${infile}
      unset  ATHENA_NUM_PROC
 
-     Reco_tf.py --maxEvents=-1 --conditionsTag RAWtoESD:CONDBR2-BLKPA-2017-12 --geometryVersion ATLAS-R2-2016-01-00-01 --inputBSFile=${infile} --outputAODFile=MuonToroidOff_Reco.AOD.pool.root --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+     Reco_tf.py --maxEvents=-1 \
+                --conditionsTag RAWtoESD:CONDBR2-BLKPA-RUN2-06 \
+                --geometryVersion ATLAS-R2-2016-01-00-01 \
+                --inputBSFile=${infile} \
+                --outputAODFile=MuonToroidOff_Reco.AOD.pool.root \
+                --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
 
      echo  "art-result: $? reco_${ArtProcess}"
      ls -lR
