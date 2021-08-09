@@ -39,7 +39,7 @@ Digi_tf.py \
 Digi_tf.py \
 --PileUpPresampling True \
 --DataRunNumber 330000 \
---conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R3-2021-01-00-02 \
@@ -67,7 +67,7 @@ then
     --CA \
     --PileUpPresampling True \
     --DataRunNumber 330000 \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --geometryVersion default:ATLAS-R3-2021-01-00-02 \

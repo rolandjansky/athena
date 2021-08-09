@@ -32,7 +32,7 @@ Digi_tf.py \
 # full run
 Digi_tf.py \
 --DataRunNumber 330000 \
---conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R3-2021-01-00-02 \
 --inputHITSFile ${HSHitsFile} \
@@ -56,7 +56,7 @@ then
     Digi_tf.py \
     --CA \
     --DataRunNumber 330000 \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
     --geometryVersion default:ATLAS-R3-2021-01-00-02 \
     --inputHITSFile ${HSHitsFile} \
