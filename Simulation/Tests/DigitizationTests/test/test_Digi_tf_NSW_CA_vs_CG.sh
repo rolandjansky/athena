@@ -35,7 +35,7 @@ Digi_tf.py \
 
 # full run
 Digi_tf.py \
---conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R3-2021-01-00-02 \
@@ -61,7 +61,7 @@ if [ $rc -eq 0 ]
 then
     Digi_tf.py \
     --CA \
-    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN3-02 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --geometryVersion default:ATLAS-R3-2021-01-00-02 \
