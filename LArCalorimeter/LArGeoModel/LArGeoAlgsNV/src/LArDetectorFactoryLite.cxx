@@ -8,6 +8,8 @@
 #include "LArGeoFcal/FCALChannelMapBuilder.h"
 #include "LArHV/LArHVManager.h"
 #include "LArGeoEndcap/MbtsReadoutBuilder.h"
+#include "LArGeoCode/VDetectorParameters.h"
+#include "LArGeoRAL/RAL.h"
 
 #include "LArReadoutGeometry/HECDetectorManager.h"
 #include "LArReadoutGeometry/FCALDetectorManager.h"
@@ -51,9 +53,14 @@ LArGeo::LArDetectorFactoryLite::~LArDetectorFactoryLite()
 
 void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
 {
+  ATH_MSG_INFO("LArDetectorFactoryLite::create()");
+
   std::string errorMessage{""};
 
-  ATH_MSG_INFO("LArDetectorFactoryLite::create()");
+  // Instantiate VDetectorParameters (needed for some clients)
+  VDetectorParameters* parameters = new  LArGeo::RAL();
+  VDetectorParameters::SetInstance(parameters);
+
   if(LArGeo::buildFcalChannelMap(m_detStore,m_paramSvc,Athena::getMessageSvc()).isFailure()) {
     errorMessage="Failed to build FCAL Channel Map";
     ATH_MSG_FATAL(errorMessage);
