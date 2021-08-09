@@ -1675,6 +1675,10 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
+        if not self.doTIDE_Ambi:
+           # Need to also set new config flag consistently.
+           from AthenaConfiguration.AllConfigFlags import ConfigFlags
+           ConfigFlags.InDet.doTIDE_Ambi = False
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
