@@ -346,7 +346,12 @@ egammaSuperClusterBuilder::createNewCluster(
     ATH_MSG_WARNING("There was problem calibrating the object");
     return nullptr;
   }
-
+  
+  // Avoid negative energy clusters
+  if (newCluster->et() < 0) {
+    ATH_MSG_DEBUG("Negative et after calibration/corrections");
+    return nullptr;
+  }
   // EDM vector to constituent clusters
   std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
   static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
