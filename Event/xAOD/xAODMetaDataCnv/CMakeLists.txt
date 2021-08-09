@@ -34,7 +34,8 @@ else()
       AthenaPoolUtilities
       xAODEventInfo
       PersistentDataModel
-      IOVDbDataModel )
+      IOVDbDataModel
+      EventInfoMgtLib )
 
   atlas_add_test( WriteFileMetaData
     SCRIPT python -m "xAODMetaDataCnv.TestWriteFileMetaData" )
