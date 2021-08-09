@@ -65,7 +65,7 @@ PMonSD::SemiDetHelper::SemiDetHelper(const std::string& jobStartJiffies)
   m_data_std_lastlookup=m_data_std.end();
   m_data_other_lastlookup=m_data_other.end();
   //Small test that our malloc collection actually works on this platform and with this allocator:
-  double m0=get_malloc_kb(); char * c = new char[1024]; double m1=get_malloc_kb(); delete[] c;
+  double m0=get_malloc_kb(); char *volatile  c = new char[1024]; double m1=get_malloc_kb(); delete[] c;
   if (m0==m1) {
     m_malloc_status="noinfo";
     m_meas.disableMalloc();
