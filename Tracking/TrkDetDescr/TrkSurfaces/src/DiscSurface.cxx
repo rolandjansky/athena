@@ -97,12 +97,12 @@ Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans,
 Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans, Trk::AnnulusBoundsPC* annpcbounds)
   : Trk::Surface(htrans),
   m_bounds(annpcbounds),
-  m_referencePoint(0)
+  m_referencePoint(nullptr)
 {}
 
 Trk::DiscSurface::DiscSurface(const Amg::Transform3D& htrans, std::unique_ptr<Trk::AnnulusBounds> annbounds, const TrkDetElementBase* detElem)
   : Trk::Surface(htrans),
-    m_referencePoint(0)
+    m_referencePoint(nullptr)
 {
 
   if(detElem != nullptr) {

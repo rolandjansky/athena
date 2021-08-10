@@ -335,11 +335,7 @@ Trk::AnnulusBoundsPC::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
   double tolPhi = tol2;
   double phiLoc = locpo_rotated[Trk::locPhi];
 
-  if (phiLoc < (m_phiMin - tolPhi) || phiLoc >= (m_phiMax + tolPhi)) {
-    return false;
-  }
-
-  return true;
+  return !(phiLoc < (m_phiMin - tolPhi) || phiLoc >= (m_phiMax + tolPhi));
 }
 bool
 Trk::AnnulusBoundsPC::insideLoc1(const Amg::Vector2D& locpo, double tol1) const
