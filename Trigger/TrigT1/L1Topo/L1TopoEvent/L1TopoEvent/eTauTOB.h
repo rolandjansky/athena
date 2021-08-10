@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoEvent_eEmTOB
-#define L1TopoEvent_eEmTOB
+#ifndef L1TopoEvent_eTauTOB
+#define L1TopoEvent_eTauTOB
 
 #include "L1TopoEvent/Heap.h"
 #include "L1TopoEvent/BaseTOB.h"
@@ -10,7 +10,7 @@
 
 namespace TCS {
     
-   class eEmTOB : public BaseTOB {
+   class eTauTOB : public BaseTOB {
    public:
       
       static unsigned int nBitsEt() { return g_nBitsEt; }
@@ -19,16 +19,16 @@ namespace TCS {
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
       // default constructor
-      eEmTOB(uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
+      eTauTOB(uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
       
       // constructor with individual values
-      eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
+      eTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
 
       // constructor with initial values
-      eEmTOB(const eEmTOB & eem);
+      eTauTOB(const eTauTOB & eem);
 
       // destructor
-      virtual ~eEmTOB();
+      virtual ~eTauTOB();
 
       // accessors
       unsigned int Et() const { return m_Et; }                  // Et in units of 100 MeV
@@ -59,9 +59,9 @@ namespace TCS {
       void setWstot(unsigned int th) { m_wstot = th; }
       
       // memory management
-      static eEmTOB* createOnHeap(const eEmTOB& eem);
+      static eTauTOB* createOnHeap(const eTauTOB& eem);
       static void clearHeap();
-      static const Heap<TCS::eEmTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::eTauTOB>& heap() { return fg_heap; }
 
       virtual void print(std::ostream &o) const;
 
@@ -90,7 +90,7 @@ namespace TCS {
 
       inputTOBType_t  m_tobType { NONE };
 
-      static thread_local Heap<TCS::eEmTOB> fg_heap;
+      static thread_local Heap<TCS::eTauTOB> fg_heap;
    };
 }
 

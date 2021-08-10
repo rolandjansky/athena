@@ -13,6 +13,7 @@
 #include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
+#include "L1TopoEvent/eTauTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
@@ -53,6 +54,9 @@ namespace TCS {
       // constructor from eEm
       GenericTOB(const eEmTOB & eem);
 
+      // constructor from eTau
+      GenericTOB(const eTauTOB & etau);
+
       // constructor from muon
       GenericTOB(const MuonTOB & muon);
       
@@ -83,6 +87,10 @@ namespace TCS {
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
+
+      unsigned int Reta() const { return m_reta; }
+      unsigned int Rhad() const { return m_rhad; }
+      unsigned int Wstot() const { return m_wstot; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -121,6 +129,10 @@ namespace TCS {
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
+
+      unsigned int m_reta {0};
+      unsigned int m_rhad {0};
+      unsigned int m_wstot {0};
       
       inputTOBType_t   m_tobType { NONE };
 

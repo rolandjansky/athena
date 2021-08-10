@@ -27,12 +27,13 @@ namespace TCS {
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
    
    private:
-
+     
       parType_t      m_numberOfeEms = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
-      parType_t      m_iso = { 0 };   
-      parType_t      m_doIsoCut = { 0 };
+      parType_t      m_minREta = { 0 };
+      parType_t      m_minRHad = { 0 };
+      parType_t      m_minWsTot = { 0 };
    };
 
 } // end of namespace TCS

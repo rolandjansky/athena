@@ -96,7 +96,25 @@ TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    , m_EtDouble(eem.EtDouble())
    , m_etaDouble(eem.etaDouble())
    , m_phiDouble(eem.phiDouble())
+   , m_reta(eem.Reta())
+   , m_rhad(eem.Rhad())
+   , m_wstot(eem.Wstot())
    , m_tobType(eem.tobType())
+{}
+
+// constructor from eTau
+TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
+   BaseTOB(etau)
+   , m_Et(etau.Et())
+   , m_eta(etau.eta())
+   , m_phi(etau.phi())
+   , m_EtDouble(etau.EtDouble())
+   , m_etaDouble(etau.etaDouble())
+   , m_phiDouble(etau.phiDouble())
+   , m_reta(etau.Reta())
+   , m_rhad(etau.Rhad())
+   , m_wstot(etau.Wstot())
+   , m_tobType(etau.tobType())
 {}
 
 // constructor from muon

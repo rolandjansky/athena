@@ -35,9 +35,8 @@ namespace TCS {
 
 
    private:
-
+     
       TrigConf::L1Threshold const * m_threshold{nullptr};
-
    };
 
 }
