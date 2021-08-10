@@ -29,6 +29,15 @@ def PoolWriteCfg(flags):
     # Kept in sync with RecoUtils.py
     from AthenaPoolCnvSvc import PoolAttributeHelper as pah
 
+    if flags.Output.EVNT_TRFileName:
+        # Use LZMA w/ Level 1
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.EVNT_TRFileName, 2 ) ]
+        PoolAttributes += [ pah.setFileCompLvl( flags.Output.EVNT_TRFileName, 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.EVNT_TRFileName, "CollectionTree", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.EVNT_TRFileName, "POOLContainer", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.EVNT_TRFileName, "POOLContainerForm", 1 ) ]
+
     if flags.Output.HITSFileName:
         # Use LZMA w/ Level 1
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.HITSFileName, 2 ) ]
