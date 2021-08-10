@@ -658,8 +658,8 @@ Trk::AnnulusBounds::dump(std::ostream& sl) const
  * 
  * @return Array with the gradients (m) and intercepts (c) of the left (_L) and right (_R) edges. [m_L, m_R, c_L, c_R]. Use as `auto [m_L, m_R, c_L, c_R] = bounds.getEdgeLines();`.
  */
-std::array<TDD_real_t,4> Trk::AnnulusBounds::getEdgeLines() {
-    std::array<TDD_real_t,4> returnArr;
+std::array<TDD_real_t,4> Trk::AnnulusBounds::getEdgeLines() const {
+    std::array<TDD_real_t,4> returnArr{};
     returnArr[0]=m_k_L;
     returnArr[1]=m_k_R;
     returnArr[2]=m_d_L;

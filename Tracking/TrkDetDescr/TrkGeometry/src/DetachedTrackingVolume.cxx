@@ -147,7 +147,8 @@ void Trk::DetachedTrackingVolume::compactify ATLAS_NOT_THREAD_SAFE(
   if (layerRepresentation()) {
     ++tSurfaces;
     if (layerRepresentation()->surfaceRepresentation().owner() == Trk::noOwn) {
-      layerRepresentation()->surfaceRepresentation().setOwner(Trk::TGOwn);
+      const_cast<Trk::Surface&>(layerRepresentation()->surfaceRepresentation())
+        .setOwner(Trk::TGOwn);
       ++cSurfaces;
     }
   }
@@ -156,7 +157,8 @@ void Trk::DetachedTrackingVolume::compactify ATLAS_NOT_THREAD_SAFE(
     tSurfaces += m_multilayerRepresentation->size();
     for (const auto& mLayerIter : (*m_multilayerRepresentation)) {
       if ((*mLayerIter).surfaceRepresentation().owner() == Trk::noOwn) {
-        (*mLayerIter).surfaceRepresentation().setOwner(Trk::TGOwn);
+        const_cast<Trk::Surface&>((*mLayerIter).surfaceRepresentation())
+          .setOwner(Trk::TGOwn);
         ++cSurfaces;
       }
     }

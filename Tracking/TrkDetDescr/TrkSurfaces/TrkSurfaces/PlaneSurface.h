@@ -54,6 +54,8 @@ class ParametersT;
  @image html PlaneSurface.gif
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class PlaneSurface : public Surface

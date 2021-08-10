@@ -45,6 +45,8 @@ class ParametersT;
  @image html CylinderSurface.gif
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class CylinderSurface : public Surface
@@ -298,7 +300,8 @@ protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
 
-  SharedObject<const CylinderBounds> m_bounds; //!< bounds (shared)
+  //!< bounds (shared)
+  SharedObject<const CylinderBounds> m_bounds;
   //!< The global reference point (== a point on the  surface)
   CxxUtils::CachedUniquePtr<Amg::Vector3D> m_referencePoint;
   //!< The rotational symmetry axis

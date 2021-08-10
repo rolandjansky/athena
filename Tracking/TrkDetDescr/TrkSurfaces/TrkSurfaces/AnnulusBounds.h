@@ -181,7 +181,7 @@ public:
    * 
    * @return Vector with the gradients (m) and intercepts (c) of the left (_L) and right (_R) edges. [m_L, m_R, c_L, c_R] 
    */
-  std::array<TDD_real_t,4> getEdgeLines();
+  std::array<TDD_real_t,4> getEdgeLines() const;
 
   const std::vector<TDD_real_t>& getBoundsValues();
 

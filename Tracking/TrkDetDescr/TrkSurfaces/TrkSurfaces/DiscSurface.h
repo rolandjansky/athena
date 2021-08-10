@@ -44,6 +44,8 @@ class ParametersT;
  It inherits from Surface.
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class DiscSurface : public Surface
