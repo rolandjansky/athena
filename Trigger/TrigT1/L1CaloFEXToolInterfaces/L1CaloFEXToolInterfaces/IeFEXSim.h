@@ -35,7 +35,7 @@ Interface definition for eFEXSim
 
     virtual void execute() = 0;
     virtual int ID() = 0;
-    virtual void SetTowersAndCells_SG(int tmp[10][18]) = 0;
+     virtual void SetTowersAndCells_SG(int tmp[10][18]) = 0;
 
     virtual StatusCode NewExecute(int tmp[10][18]) = 0;
     virtual std::vector<uint32_t> getEmTOBs() = 0;

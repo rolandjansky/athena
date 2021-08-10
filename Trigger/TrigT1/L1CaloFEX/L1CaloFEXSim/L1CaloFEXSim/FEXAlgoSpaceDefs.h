@@ -3,7 +3,7 @@
 */
 
 //***************************************************************************
-//                           FEXAlgoSpaceDefs.h  -  
+//                           FEXAlgoSpaceDefs.h  -
 //                              -------------------
 //     begin                : 08 02 2021
 //     email                : jacob.julian.kempster@cern.ch
@@ -14,13 +14,13 @@
 #define FEXAlgoSpaceDefs_H
 
 namespace LVL1 {
-  
+
   //Doxygen class description below:
   /** The FEXAlgoSpaceDefs class defines the size of a single jFEX algorithm window, for use in jFEXFPGA
   */
-  
+
   class FEXAlgoSpaceDefs {
-    
+
   public:
 
     constexpr static int jFEX_wide_algoSpace_width = 45;
@@ -64,6 +64,21 @@ namespace LVL1 {
     constexpr static int jFEX_algoSpace_FCAL_start_phi =  2;
     constexpr static int jFEX_algoSpace_FCAL_end_phi =  6;
   
+
+   //define constants needed by gFEX Jet algorithm
+    constexpr static int centralNphi = 32;
+    constexpr static int forwardNphi = 16;
+
+    constexpr static int n_partial = 4;
+    constexpr static int ABCrows = 32;
+    constexpr static int ABcolumns = 12;
+    constexpr static int Ccolumns = 7;
+    constexpr static int ABcolumnsEng = 6;
+    constexpr static bool ENABLE_INTER_AB = false;
+    constexpr static bool ENABLE_INTER_C = false;
+    constexpr static int gJetTOBfib = 4;
+    constexpr static int BTOBFIB = 6;
+
   };
 
 } // end of namespace

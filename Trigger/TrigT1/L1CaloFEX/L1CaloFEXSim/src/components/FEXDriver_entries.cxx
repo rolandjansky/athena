@@ -27,6 +27,14 @@
 #include "L1CaloFEXSim/eFakeTower.h"
 #include "L1CaloFEXSim/jFEXPileupAndNoise.h"
 
+#include "L1CaloFEXSim/gFEXDriver.h"
+#include "L1CaloFEXSim/gFEXSysSim.h"
+#include "L1CaloFEXSim/gFEXSim.h"
+#include "L1CaloFEXSim/gFEXFPGA.h"
+#include "L1CaloFEXSim/gFEXJetAlgo.h"
+#include "L1CaloFEXSim/gFEXNtupleWriter.h"
+
+
 
 using namespace LVL1;
 
@@ -59,3 +67,13 @@ DECLARE_COMPONENT(jFEXmetAlgo)
 DECLARE_COMPONENT(jFEXLargeRJetAlgo)
 DECLARE_COMPONENT(jFEXForwardJetsAlgo)
 DECLARE_COMPONENT(jFEXNtupleWriter)
+
+DECLARE_COMPONENT(gFEXDriver)
+DECLARE_COMPONENT(gFEXSysSim)
+DECLARE_COMPONENT(gFEXSim)
+DECLARE_COMPONENT(gTowerBuilder)
+DECLARE_COMPONENT(gSuperCellTowerMapper)
+DECLARE_COMPONENT(gFEXFPGA)
+DECLARE_COMPONENT(gFEXJetAlgo)
+DECLARE_COMPONENT(gFEXNtupleWriter)
+
