@@ -15,6 +15,9 @@ if nThreads >=1 :
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-RUN2-08")
+
 from RecExConfig.RecFlags import rec
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
