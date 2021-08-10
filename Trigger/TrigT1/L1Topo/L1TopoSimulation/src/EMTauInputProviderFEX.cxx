@@ -40,10 +40,17 @@ EMTauInputProviderFEX::initialize() {
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
-   auto isEDMvalid = m_eEDMKey.initialize();
+   auto is_eEM_EDMvalid = m_eEM_EDMKey.initialize();
 
    //Temporarily check EDM status by hand to avoid the crash!
-   if (isEDMvalid != StatusCode::SUCCESS) {
+   if (is_eEM_EDMvalid != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING("No EDM found for eFEX..");
+   }
+
+   auto is_eTau_EDMvalid = m_eTau_EDMKey.initialize();
+
+   //Temporarily check EDM status by hand to avoid the crash!
+   if (is_eTau_EDMvalid != StatusCode::SUCCESS) {
      ATH_MSG_WARNING("No EDM found for eFEX..");
    }
 
@@ -149,16 +156,17 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
 StatusCode
 EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
-  
-  SG::ReadHandle<xAOD::eFexEMRoIContainer> myRoIContainer(m_eEDMKey);
+
+  //eEM
+  SG::ReadHandle<xAOD::eFexEMRoIContainer> eEM_EDM(m_eEM_EDMKey);
   //Temporarily check EDM status by hand to avoid the crash!
-  if(!myRoIContainer.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEDMKey.key() << ". No eFEX input for L1Topo");
+  if(!eEM_EDM.isValid()){
+    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eEM_EDMKey.key() << ". No eFEX input for L1Topo");
     
     return StatusCode::SUCCESS;
   }
 
-  for(const auto it : * myRoIContainer){
+  for(const auto it : * eEM_EDM){
     const xAOD::eFexEMRoI* eFexRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
 		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
@@ -170,6 +178,12 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
 		   << eFexRoI->phi() // returns a floating point global phi
+		   << " reta: "
+		   << eFexRoI->RetaThresholds() // jet disc 1
+		   << " rhad: "
+		   << eFexRoI->RhadThresholds() // jet disc 2
+		   << " wstot: "
+		   << eFexRoI->WstotThresholds() // jet disc 3
 		   << " is TOB? "
 		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
@@ -179,12 +193,18 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     unsigned int EtTopo = eFexRoI->etTOB();
     int etaTopo = eFexRoI->iEtaTopo();
     int phiTopo = eFexRoI->iPhiTopo();
+    unsigned int reta = eFexRoI->RetaThresholds();
+    unsigned int rhad = eFexRoI->RhadThresholds();
+    unsigned int wstot = eFexRoI->WstotThresholds();
 
     //Em TOB
     TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->Word0()) );
     eem.setEtDouble( static_cast<double>(EtTopo/10.) );
     eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
     eem.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    eem.setReta( reta );
+    eem.setRhad( rhad );
+    eem.setWstot( wstot );
     
     inputEvent.addeEm( eem );
     
@@ -196,8 +216,57 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
   }
 
-  return StatusCode::SUCCESS;
 
+  //eTau
+  SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
+  //Temporarily check EDM status by hand to avoid the crash!
+  if(!eTau_EDM.isValid()){
+    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_eTau_EDMKey.key() << ". No eFEX input for L1Topo");
+    
+    return StatusCode::SUCCESS;
+  }
+
+  for(const auto it : * eTau_EDM){
+    const xAOD::eFexTauRoI* eFexRoI = it;
+    ATH_MSG_DEBUG( "EDM eFex Number: " 
+		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+		   << " et: " 
+		   << eFexRoI->et() // returns the et value of the Tau cluster in MeV
+		   << " etTOB: " 
+		   << eFexRoI->etTOB() // returns the et value of the Tau cluster in units of 100 MeV
+		   << " eta: "
+		   << eFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << " phi: "
+		   << eFexRoI->phi() // returns a floating point global phi
+		   << " is TOB? "
+		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
+		  );
+
+    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
+
+    unsigned int EtTopo = eFexRoI->etTOB();
+    int etaTopo = eFexRoI->iEta();
+    int phiTopo = eFexRoI->iPhi();
+    
+    //Tau TOB
+    TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
+    etau.setEtDouble( static_cast<double>(EtTopo/10.) );
+    etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
+    etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    etau.setReta( 0 );
+    etau.setRhad( 0 );
+    etau.setWstot( 0 );
+    
+    inputEvent.addeTau( etau );
+    
+    m_hTauEt->Fill(etau.EtDouble());  // GeV
+    m_hTauEtaPhi->Fill(etau.eta(),etau.phi());
+    m_hTauEtEta->Fill(etau.EtDouble(),etau.eta());
+    m_hTauEtPhi->Fill(etau.EtDouble(),etau.phi());
+    
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 

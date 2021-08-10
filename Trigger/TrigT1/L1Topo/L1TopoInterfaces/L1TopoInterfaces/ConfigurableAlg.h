@@ -117,7 +117,9 @@ namespace TCS {
 
       void fillHist2D(const std::string & histName, double x, double y);
       
-     
+      bool isocut(const std::string threshold, const unsigned int bit);
+      
+      bool isocut(const unsigned int threshold, const unsigned int bit);
    private:
 
       class ConfigurableAlgImpl;

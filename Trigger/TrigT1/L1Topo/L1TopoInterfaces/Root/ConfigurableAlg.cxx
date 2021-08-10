@@ -378,6 +378,27 @@ std::string ConfigurableAlg::ToString(const int val)
   return temp.str();
 }
 
+bool
+ConfigurableAlg::isocut(const std::string threshold, const unsigned int bit) {
+  unsigned int value = 0;
+  if (threshold == "None") {value = 0;}
+  else if (threshold == "Loose") {value = 1;}
+  else if (threshold == "Medium") {value = 2;}
+  else if (threshold == "Tight") {value = 3;}
+  else {
+    TRG_MSG_WARNING("No isolation defined as " << threshold);
+  }
+  
+  if (bit >= value) {return true;}
+  else {return false;}
+}
+
+bool
+ConfigurableAlg::isocut(const unsigned int threshold, const unsigned int bit) {
+  if (bit >= threshold) {return true;}
+  else {return false;}
+}
+
 namespace TCS {
 
    std::ostream &

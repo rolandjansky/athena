@@ -36,7 +36,7 @@ TCS::inputType(const std::string& input) {
       return TCS::CLUSTER;
 
    if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" )
-      return TCS::CLUSTER;
+      return TCS::ETAU;
 
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::JTAU;

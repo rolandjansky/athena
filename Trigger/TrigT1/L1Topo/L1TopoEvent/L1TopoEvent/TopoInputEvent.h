@@ -8,6 +8,7 @@
 
 #include "L1TopoEvent/ClusterTOBArray.h"
 #include "L1TopoEvent/eEmTOBArray.h"
+#include "L1TopoEvent/eTauTOBArray.h"
 #include "L1TopoEvent/JetTOBArray.h"
 #include "L1TopoEvent/jTauTOBArray.h"
 #include "L1TopoEvent/jLargeRJetTOBArray.h"
@@ -37,6 +38,7 @@ namespace TCS {
       
       const ClusterTOBArray & clusters() const { return m_clusters; }
       const eEmTOBArray & eems() const { return m_eems; }
+      const eTauTOBArray & etaus() const { return m_etaus; }
       const ClusterTOBArray & taus() const { return m_taus; }
       const MuonTOBArray & muons() const { return m_muons; }
       const LateMuonTOBArray & lateMuons() const { return m_lateMuons; }
@@ -64,6 +66,7 @@ namespace TCS {
       /** @} */ // end of groupOverflowGetters
       StatusCode addCluster(const ClusterTOB & cluster);
       StatusCode addeEm(const eEmTOB & eem);
+      StatusCode addeTau(const eTauTOB & etau);
       StatusCode addTau(const ClusterTOB & tau);
       StatusCode addMuon(const MuonTOB & muon);
       StatusCode addLateMuon(const LateMuonTOB & muon);
@@ -111,6 +114,7 @@ namespace TCS {
       // data is owned by the TopoInputEvent
       ClusterTOBArray   m_clusters;
       eEmTOBArray       m_eems;
+      eTauTOBArray      m_etaus;
       ClusterTOBArray   m_taus;
       JetTOBArray       m_jets;
       jTauTOBArray      m_jTaus;

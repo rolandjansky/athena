@@ -60,7 +60,7 @@ TCS::EMMultiplicity::processBitCorrect( const TCS::InputTOBArray & input,
 					 Count & count)
 
 {
-           return process(input, count);
+   return process(input, count);
 }
 
 TCS::StatusCode
@@ -70,11 +70,6 @@ TCS::EMMultiplicity::process( const TCS::InputTOBArray & input,
 
   // Grab the threshold and cast it into the right type
   auto eEMThr = dynamic_cast<const TrigConf::L1Threshold_eEM &>(*m_threshold);
-
-  // TO-DO: Add isolation cuts - need to be implemented in the L1Calo EDM first
-  //cout << "reta: " << TrigConf::Selection::wpToString(eEMThr.reta()) << endl;
-  //cout << "rhad: " << TrigConf::Selection::wpToString(eEMThr.rhad()) << endl;
-  //cout << "wstot: " << TrigConf::Selection::wpToString(eEMThr.wstot()) << endl;
 
   // Grab inputs
   const eEmTOBArray & eems = dynamic_cast<const eEmTOBArray&>(input);
@@ -88,10 +83,13 @@ TCS::EMMultiplicity::process( const TCS::InputTOBArray & input,
     
     const GenericTOB gtob(**eem);
 
-    bool passed = false;
-    for(auto & rv : eEMThr.thrValues())
-      if ( (gtob.eta() < rv.etaMax()) && (gtob.eta() >= rv.etaMin()) && (gtob.EtDouble()> static_cast<unsigned int>(rv.value())) ) passed = true;
-      
+    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
+    bool passed = gtob.Et() >= eEMThr.thrValueCounts(gtob.eta()/4);
+
+    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.reta()), gtob.Reta()) ) {continue;}
+    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.rhad()), gtob.Rhad()) ) {continue;}
+    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.wstot()), gtob.Wstot()) ) {continue;}
+
     if (passed) {
       counting++; 
       fillHist2D( m_histAccept[0], gtob.eta(), gtob.EtDouble() );
