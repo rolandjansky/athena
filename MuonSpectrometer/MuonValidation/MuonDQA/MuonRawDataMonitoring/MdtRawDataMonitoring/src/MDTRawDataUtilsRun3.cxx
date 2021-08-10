@@ -432,9 +432,9 @@ void MdtRawDataMonAlg::mdtchamberId()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 int MdtRawDataMonAlg::mezzmdt(Identifier digcoll_id) const { //int mezz_chamber, int mezz_eta, int mezz_ml, int mezz_tube, int max_tube) {
   int TotmezzTubes = 8;
-  if( m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id) == 4 ) 
+  if( cachedTubeLayerMax(digcoll_id) == 4 ) 
     TotmezzTubes = 6;
-  int Imezz = (int)((m_idHelperSvc->mdtIdHelper().tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id)-1)*((m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id))/TotmezzTubes));
+  int Imezz = (int)((m_idHelperSvc->mdtIdHelper().tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id)-1)*((cachedTubeMax(digcoll_id))/TotmezzTubes));
 
   return Imezz;  
 }

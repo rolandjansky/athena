@@ -309,6 +309,12 @@ StatusCode MdtRawDataMonAlg::initialize()
     m_tubesperchamber_map[hardware_name] = GetTubeMax(*itr, hardware_name); // total number of tubes in chamber
 
   }
+
+  for(auto channel = m_idHelperSvc->mdtIdHelper().detectorElement_begin();
+      channel != m_idHelperSvc->mdtIdHelper().detectorElement_end(); ++channel) {
+    m_tubemax_map[channel->get_compact()] = m_idHelperSvc->mdtIdHelper().tubeMax(*channel);
+    m_tubelayermax_map[channel->get_compact()] = m_idHelperSvc->mdtIdHelper().tubeLayerMax(*channel);
+  }
   
   ATH_MSG_DEBUG(" end of initialize " );
   return AthMonitorAlgorithm::initialize();
@@ -992,7 +998,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
       mdtlayer += 3;
   }   
 
-  int mdttube= m_idHelperSvc->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
+  int mdttube= m_idHelperSvc->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * cachedTubeMax(digcoll_id);
   ChamberTubeNumberCorrection(mdttube, hardware_name, m_idHelperSvc->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
 
@@ -1222,8 +1228,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
         for(unsigned i_ML=0; i_ML<unique_chambers_ML.at(i_chamber).size(); i_ML++) {
           int ML = unique_chambers_ML.at(i_chamber).at(i_ML);
           Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(hardware_name.substr(0,3), m_idHelperSvc->mdtIdHelper().stationEta(station_id), m_idHelperSvc->mdtIdHelper().stationPhi(station_id), ML, 1, 1);   
-          int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(newId);
-          int tubeLayerMax = m_idHelperSvc->mdtIdHelper().tubeLayerMax(newId);
+          int tubeMax = cachedTubeMax(newId);
+          int tubeLayerMax = cachedTubeLayerMax(newId);
           CorrectTubeMax(hardware_name, tubeMax);
           CorrectLayerMax(hardware_name, tubeLayerMax);
           for(int i_tube=m_idHelperSvc->mdtIdHelper().tubeMin(newId); i_tube<=tubeMax; i_tube++) {
@@ -1281,12 +1287,12 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
             }
           }
           Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(hardware_name.substr(0,3), m_idHelperSvc->mdtIdHelper().stationEta(traversed_station_id.at(k)), m_idHelperSvc->mdtIdHelper().stationPhi(traversed_station_id.at(k)), traversed_ML.at(k), 1, 1);
-          int tubeLayerMax = m_idHelperSvc->mdtIdHelper().tubeLayerMax(newId);
+          int tubeLayerMax = cachedTubeLayerMax(newId);
           m_idHelperSvc->mdtIdHelper().get_module_hash( newId, idHash );
 
           CorrectLayerMax(hardware_name, tubeLayerMax); // ChamberTubeNumberCorrection handles the tubeMax problem
           int mdtlayer = ( (traversed_L.at(k) - 1) + (traversed_ML.at(k) - 1) * tubeLayerMax );
-          int ibin = traversed_tube.at(k) + mdtlayer * m_idHelperSvc->mdtIdHelper().tubeMax(newId);
+          int ibin = traversed_tube.at(k) + mdtlayer * cachedTubeMax(newId);
           ChamberTubeNumberCorrection(ibin, hardware_name, traversed_tube.at(k), mdtlayer);
           // Store info for eff calc
           // (Here we make sure we are removing duplicates from overlapping segments by using sets)
