@@ -424,7 +424,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   m_freeSlotStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::now());
 
   // Initialise arena and queues used in parallel I/O steering
-  m_parallelIOTaskArena = std::make_unique<tbb::task_arena>(tbb::task_arena::automatic, 0);
+  m_parallelIOTaskArena = std::make_unique<tbb::task_arena>(int(tbb::task_arena::automatic), 0);
   m_parallelIOQueue.set_capacity(static_cast<size_t>(m_maxParallelIOTasks.value()));
   m_finishedEventsQueue.set_capacity(m_whiteboard->getNumberOfStores());
   m_drainSchedulerStatusQueue.set_capacity(m_whiteboard->getNumberOfStores());
