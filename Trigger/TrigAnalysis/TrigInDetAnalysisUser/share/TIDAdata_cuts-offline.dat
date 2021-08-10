@@ -7,17 +7,18 @@ pT     = 1000;
 
 eta    = 2.5;
 #if defined(LARGED0)
-	a0=10;
+   a0=10.;
 #elif defined(LARGED0_EL)
-	a0=4.;
-#elif defined(LRT)
-        a0=200.;
+   a0=4.;
+#elif defined(LRT) || defined (FSLRT)
+   a0=200.;
 #else
-	a0=3.;
+   a0=3.;
 #endif
 
 #if defined(FSLRT)
-	a0min=2.;
+   a0min=2.;
+#endif
 
 // npix   = 1;
 // nsct   = 2;
@@ -30,7 +31,7 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-#if defined(LRT)
+#if defined(LRT) || defined (FSLRT)
 	a0v = 200.;
 	z0v = 300.5;
 #else
