@@ -34,6 +34,7 @@ Slots   = 8
 Input   = 'Zee_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 Release = "current"
 GridFiles = True
+preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO 
 
 Jobs = [( "Offline",     " TIDAdata-run3-offline-TnP.dat -r Offline -o data-hists-offline-TnP.root" ) ]
 

@@ -1,7 +1,6 @@
 // emacs: this is -*- c++ -*- 
 
-//panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel, trt_panel };
-panels = { eff_panel, tnp_panel };
+panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel, trt_panel, tnp_panel };
 
 panel_columns = { eff_panel, 3 };
 
@@ -14,7 +13,6 @@ eff_panel = {
       "eff_vs_mu",    "Efficiency mu",    "xaxis:lin:auto",        "Pile-up<#mu>",                   "yaxis:lin:auto:90:102",  "Efficiency [%]"       
 };     
 
-/*
 res_panel = { 
 
    "eta_res",             "Residual #eta",       "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries",        
@@ -97,7 +95,6 @@ trt_panel = {
    "ntrt_eta_rec/1d",       " TRT hits",    "xaxis:lin:auto",   "Trigger TRT multiplcicity",     "yaxis:log:auto", "Entries"
 
 };
-*/
 
 tnp_panel = {
   "Minv_TnP",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  ""  , 
