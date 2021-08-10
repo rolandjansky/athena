@@ -52,10 +52,10 @@ for name in default_false_flags:
     _flags.append(newFlag)
 
 class doHLT(JobProperty):
-    """ if False, disable HLT selection """
+    """ if True, run HLT selection algorithms """
     statusOn=True
     allowedType=['bool']
-    StoredValue=True
+    StoredValue=False
     
 _flags.append(doHLT)
 

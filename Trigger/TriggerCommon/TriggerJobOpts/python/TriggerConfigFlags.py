@@ -19,14 +19,11 @@ def createTriggerFlags():
     # need proper documentation
     flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
 
-    # enable HLT part of the trigger
-    flags.addFlag('Trigger.doHLT', True)
+    # Run HLT selection algorithms
+    flags.addFlag('Trigger.doHLT', False)
 
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
-
-#    # Enable Run-3 LVL1 simulation and/or decoding
-#    flags.addFlag('Trigger.enableL1Phase1', False)
 
     # Enable Run-3 LVL1 muon simulation and/or decoding
     flags.addFlag('Trigger.enableL1MuonPhase1', False)

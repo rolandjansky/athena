@@ -4,8 +4,9 @@
 # L1 Getter of the result
 # -------------------------------------------------------------
 from AthenaCommon.GlobalFlags import jobproperties
-from AthenaCommon.Include import include  # to include old style job options
-from AthenaCommon.AppMgr import theApp
+
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 from RecExConfig.RecFlags  import rec
 
@@ -17,13 +18,9 @@ class Lvl1ResultBuilderGetter(Configured):
 
     def configure(self):
 
-        if jobproperties.Global.InputFormat() == 'bytestream':
-            theApp.Dlls += [ "TrigT1Calo" ]
-            include("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
+        if ConfigFlags.Input.Format == 'BS':
+            from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+            CAtoGlobalWrapper(LVL1CaloRun2ReadBSCfg, ConfigFlags)
 
         if rec.doTrigger():
             if (rec.doESD() or rec.doAOD()) and (not(rec.readAOD() or \
@@ -32,10 +29,8 @@ class Lvl1ResultBuilderGetter(Configured):
                     # Decode ROIB::RoIBResult from ByteStream
                     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
                     L1ByteStreamDecodersRecExSetup()
-                from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToxAOD
-                topSequence += RoIBResultToxAOD()
-                pass
-            pass
+                from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+                CAtoGlobalWrapper(RoIBResultToxAODCfg, ConfigFlags)
 
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         objKeyStore.addManyTypesStreamESD(getLvl1ESDList())

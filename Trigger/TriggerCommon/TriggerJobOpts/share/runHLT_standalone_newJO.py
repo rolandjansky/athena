@@ -36,6 +36,7 @@ flags.Trigger.EDMVersion = 3
 flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
+flags.Trigger.doHLT = True
 flags.Trigger.CostMonitoring.doCostMonitoring = True
 flags.Trigger.doRuntimeNaviVal = True
 flags.Scheduler.CheckDependencies = True

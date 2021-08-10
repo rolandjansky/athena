@@ -225,8 +225,8 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
 
-# To turn off HLT for athena running
-TriggerFlags.doHLT = bool(opt.doHLT)
+# Pass on the option enabling HLT selection algorithms
+ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
 
 # To extract the Trigger configuration
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)

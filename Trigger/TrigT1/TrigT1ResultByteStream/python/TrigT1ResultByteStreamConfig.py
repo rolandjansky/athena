@@ -61,7 +61,7 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
 
 def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.MuonRoIByteStreamTool(name)
-  muctpi_moduleid = 1
+  muctpi_moduleid = 1  # RoIB ROB
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
@@ -126,7 +126,8 @@ def L1TriggerByteStreamDecoderCfg(flags):
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, module_id)))
 
   # Run-3 L1Muon decoding
-  if flags.Trigger.enableL1MuonPhase1:
+  if flags.Trigger.enableL1MuonPhase1 and flags.Trigger.doHLT:
+    # Currently added only when running in HLT selection, not in offline reco (ATR-23992)
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool", flags=flags, writeBS=False)
     decoderTools += [muonRoiTool]
 
