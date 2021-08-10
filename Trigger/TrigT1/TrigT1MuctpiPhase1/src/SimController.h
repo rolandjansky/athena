@@ -14,6 +14,7 @@
 #include "L1TopoLUT.h"
 #include "MuonSectorProcessor.h"
 #include "TriggerProcessor.h"
+#include "MUCTPIResults.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
@@ -38,10 +39,8 @@ namespace LVL1MUCTPIPHASE1 {
 					   const std::string& side0LUTFileName,
 					   const std::string& side1LUTFileName);
 
-    std::string processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
+    std::string processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, MUCTPIResults& results, int bcid) const;
     void setConfiguration( const Configuration& conf );
-
-    LVL1::MuCTPIL1Topo getL1TopoData(int bcid) const;
 
     TriggerProcessor& getTriggerProcessor() { return m_triggerProcessor; }
     MuonSectorProcessors& getMuonSectorProcessors() { return m_muonSectorProcessors; }

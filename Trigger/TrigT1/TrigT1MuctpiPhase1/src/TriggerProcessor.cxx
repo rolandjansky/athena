@@ -29,17 +29,18 @@ namespace LVL1MUCTPIPHASE1 {
     m_l1menu = l1menu;
   }
   
-  void TriggerProcessor::mergeInputs(std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs)
+  LVL1MUONIF::Lvl1MuCTPIInputPhase1 TriggerProcessor::mergeInputs(std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs) const
   {
-    m_mergedInputs.clearAll();
+    LVL1MUONIF::Lvl1MuCTPIInputPhase1 mergedInputs;
     int nrInputs = inputs.size();
-    for (int i=0;i<nrInputs;i++) m_mergedInputs.merge(*inputs[i]);
+    for (int i=0;i<nrInputs;i++) mergedInputs.merge(*inputs[i]);
+    return mergedInputs;
   }
   
-  std::string TriggerProcessor::computeMultiplicities(int bcid)
+  std::string TriggerProcessor::computeMultiplicities(LVL1MUONIF::Lvl1MuCTPIInputPhase1& mergedInputs, int bcid, MUCTPIResults& results) const
   {
-    m_ctp_words.clear();
-    m_daq_data.clear();
+    results.ctp_words.clear();
+    results.daq_data.clear();
 
     //initialize the vector to hold the threshold multiplicities
     const std::vector<std::shared_ptr<TrigConf::L1Threshold> > & thresholds = m_l1menu->thresholds("MU");
@@ -57,7 +58,7 @@ namespace LVL1MUCTPIPHASE1 {
         // A+C sides
         for (size_t isub=0;isub<2;isub++)
         {
-          const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_mergedInputs.getSectorLogicData(isys, isub, isec, bcid);
+	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = mergedInputs.getSectorLogicDataPtr(isys, isub, isec, bcid);
           if (!sectorData) continue;
 
           const unsigned int& ncand_max = LVL1MUONIF::NCAND[isys];
@@ -135,7 +136,7 @@ namespace LVL1MUCTPIPHASE1 {
             //find the trigger decisions
             std::vector<std::pair<std::shared_ptr<TrigConf::L1Threshold>, bool> > decisions = m_trigThresholdDecisionTool->getThresholdDecisions(
               daq_word, m_l1menu->thresholds("MU"), m_l1menu->thrExtraInfo().MU());
-            m_daq_data.push_back(DAQData(daq_word, decisions));
+            results.daq_data.push_back(DAQData(daq_word, decisions));
 
             //
             // Perform multiplicity counting
@@ -191,29 +192,12 @@ namespace LVL1MUCTPIPHASE1 {
     for (unsigned i=0;i<n32_ints;i++)
     {
       unsigned int word = static_cast<unsigned int>((full_ctp_word & u32i_mask).to_ulong());
-      m_ctp_words.push_back(word);
+      results.ctp_words.push_back(word);
       full_ctp_word >>= 32;
     }
 
     return "";
   }
   
-  void TriggerProcessor::makeTopoSelections()
-  {
-    //reserved for topo selection functionality
-  }
-
-
-  const std::vector<unsigned int>& TriggerProcessor::getCTPData() const
-  {
-    return m_ctp_words;
-  }
-
-
-  const std::vector<DAQData>& TriggerProcessor::getDAQData() const
-  {
-    return m_daq_data;
-  }
-
 }
 

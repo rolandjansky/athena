@@ -15,7 +15,6 @@
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
-#include "TrigT1Interfaces/IMuctpiSimTool.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TH1.h"
@@ -88,8 +87,6 @@ namespace LVL1 {
 
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"};
       ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"};
-
-      ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool{this, "MuctpiSimTool", "LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool", "Tool for MUCTPIsimulation"};
 
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 

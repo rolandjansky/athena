@@ -225,7 +225,6 @@ namespace LVL1MUCTPIPHASE1 {
 
   MuonSectorProcessor::MuonSectorProcessor(bool side)
     :
-    m_muctpiInput(nullptr),
     m_overlapHelper(std::make_unique<OverlapHelper>()),
     m_l1menu(nullptr),
     m_l1topoLUT(nullptr),
@@ -309,12 +308,7 @@ namespace LVL1MUCTPIPHASE1 {
   }
 
   
-  void MuonSectorProcessor::setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input)
-  {
-    m_muctpiInput=input;
-  }
-  
-  void MuonSectorProcessor::runOverlapRemoval(int bcid)
+  void MuonSectorProcessor::runOverlapRemoval(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid) const
   {
     std::map<std::string,std::vector<std::pair<std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1>, unsigned> > > buckets;
 
@@ -330,7 +324,7 @@ namespace LVL1MUCTPIPHASE1 {
 	  if (isub != size_t(m_side)) continue;
 
 	  //get a pointer to this since we'll need to modify the 'veto' flag of the SL data
-	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = m_muctpiInput->getSectorLogicDataPtr(isys, isub, isec, bcid);
+	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = inputs->getSectorLogicDataPtr(isys, isub, isec, bcid);
 	  if (!sectorData) continue;
 	  
 	  for (unsigned int icand=0;icand<LVL1MUONIF::NCAND[isys];icand++)
@@ -377,9 +371,9 @@ namespace LVL1MUCTPIPHASE1 {
     }
   }
   
-  std::string MuonSectorProcessor::makeL1TopoData(int bcid)
+  std::string MuonSectorProcessor::makeL1TopoData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* inputs, int bcid, 
+						  LVL1::MuCTPIL1Topo& l1topoData) const
   {
-    m_bcid_to_l1topo[bcid] = std::make_unique<LVL1::MuCTPIL1Topo>();
     // Barrel + EC + Fwd
     for (unsigned short isys=0;isys<LVL1MUONIF::Lvl1MuCTPIInputPhase1::numberOfSystems();isys++)
     {
@@ -391,7 +385,7 @@ namespace LVL1MUCTPIPHASE1 {
 	for (unsigned short isub=0;isub<2;isub++)
 	{
 	  if (isub != (unsigned short)(m_side)) continue;
-	  const LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sectorData = &m_muctpiInput->getSectorLogicData(isys, isub, isec, bcid);
+	  std::shared_ptr<LVL1MUONIF::Lvl1MuSectorLogicDataPhase1> sectorData = inputs->getSectorLogicDataPtr(isys, isub, isec, bcid);
 	  if (!sectorData) continue;
 
 	  //build the sector name
@@ -494,7 +488,7 @@ namespace LVL1MUCTPIPHASE1 {
 				  sectorData->charge(icand));
 
 	    
-	    m_bcid_to_l1topo[bcid]->addCandidate(cand);
+	    l1topoData.addCandidate(cand);
 	  }
 	}
       }
@@ -502,14 +496,4 @@ namespace LVL1MUCTPIPHASE1 {
     return "";
   }
 
-  const LVL1MUONIF::Lvl1MuCTPIInputPhase1* MuonSectorProcessor::getOutput() const
-  {
-    return m_muctpiInput;
-  }
-
-  const LVL1::MuCTPIL1Topo* MuonSectorProcessor::getL1TopoData(int bcid) const
-  {
-    const auto& itr = m_bcid_to_l1topo.find(bcid);
-    return itr!=m_bcid_to_l1topo.end() ? itr->second.get() : nullptr;
-  }
 }
