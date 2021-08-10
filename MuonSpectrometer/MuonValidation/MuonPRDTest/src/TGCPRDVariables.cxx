@@ -6,7 +6,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 
 #include "TTree.h"
@@ -20,12 +19,12 @@ StatusCode TGCPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
   const Muon::TgcPrepDataContainer *Tgc_PrepDataContainer = nullptr; 
   CHECK( m_evtStore->retrieve(Tgc_PrepDataContainer, m_ContainerName.c_str()) );
 
-  if(Tgc_PrepDataContainer->size()==0) ATH_MSG_WARNING(" TGC PRD Container empty ");
+  if(Tgc_PrepDataContainer->size()==0){
+    ATH_MSG_DEBUG(" TGC PRD Container empty ");
 
-  for(auto it : *Tgc_PrepDataContainer ) {
+  } 
+  for(const Muon::TgcPrepDataCollection* coll: *Tgc_PrepDataContainer ) {
 
-    const Muon::TgcPrepDataCollection* coll = it;
-    
     for (auto prd: *coll) {
 
       Identifier Id = prd->identify();
