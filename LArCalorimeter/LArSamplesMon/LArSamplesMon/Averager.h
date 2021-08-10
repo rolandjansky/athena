@@ -27,6 +27,7 @@ namespace LArSamples {
       /** @brief Constructor  */
       Averager(unsigned int n = 0);
       Averager(unsigned int lwb, unsigned int upb);
+      Averager(const Averager&) = default;
 
       virtual ~Averager() { }
 
