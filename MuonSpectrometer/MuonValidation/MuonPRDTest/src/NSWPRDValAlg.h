@@ -62,36 +62,9 @@ class NSWPRDValAlg:public AthAlgorithm
   StatusCode setDataAdress (EDM_object &oData, TString branch_name); // This function couples the branch of the NSW validation Ntuple with the EDM object. 
 
  private:
-  std::unique_ptr<TruthVariables>         m_TruthVar;
-  std::unique_ptr<MuEntryVariables>       m_MuEntryVar;
-  std::unique_ptr<sTGCSimHitVariables>    m_sTgcSimHitVar;
-  std::unique_ptr<sTGCRDOVariables>       m_sTgcRdoVar;
-  std::unique_ptr<sTGCSDOVariables>       m_sTgcSdoVar;
-  std::unique_ptr<sTGCSDOVariables>       m_sTgcFastSdoVar;
-  std::unique_ptr<sTGCDigitVariables>     m_sTgcDigitVar;
-  std::unique_ptr<sTGCPRDVariables>       m_sTgcPrdVar;
-  std::unique_ptr<MMSimHitVariables>      m_MmSimHitVar;
-  std::unique_ptr<MMSDOVariables>         m_MmSdoVar;
-  std::unique_ptr<MMSDOVariables>         m_MmFastSdoVar;
-  std::unique_ptr<MMDigitVariables>       m_MmDigitVar;
-  std::unique_ptr<MMRDOVariables>         m_MmRdoVar;
-  std::unique_ptr<MMPRDVariables>         m_MmPrdVar;
-  std::unique_ptr<CSCSimHitVariables>     m_CSCSimHitVar;
-  std::unique_ptr<CSCDigitVariables>      m_CscDigitVar;
-  std::unique_ptr<CSCRDOVariables>        m_CSCRDOVar;
-  std::unique_ptr<CSCPRDVariables>        m_CSCPRDVar;
-  std::unique_ptr<MDTSimHitVariables>     m_MDTSimHitVar;
-  std::unique_ptr<MdtSDOVariables>        m_MDTSDOVar;
-  std::unique_ptr<MdtDigitVariables>      m_MDTDigitVar;
-  std::unique_ptr<RPCSimHitVariables>     m_RPCSimHitVar;
-  std::unique_ptr<RpcSDOVariables>        m_RPCSDOVar;
-  std::unique_ptr<RpcDigitVariables>      m_RPCDigitVar;
-  std::unique_ptr<TGCSimHitVariables>     m_TGCSimHitVar;
-  std::unique_ptr<TgcSDOVariables>        m_TGCSDOVar;
-  std::unique_ptr<TGCDigitVariables>      m_TgcDigitVar;
-  std::unique_ptr<TGCRDOVariables>        m_TgcRdoVar;
-  std::unique_ptr<TGCPRDVariables>        m_TGCPRDVar;
 
+  std::vector<std::unique_ptr<ValAlgVariables>> m_testers;
+  
   TTree* m_tree; // still needed in NSWMatchingAlg during finalize
 
   // MuonDetectorManager from the Detector Store (to be used only at initialize)
@@ -103,42 +76,40 @@ class NSWPRDValAlg:public AthAlgorithm
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};
-      
-  Gaudi::Property<bool> m_retrieveTgcCabling{this,"RetrieveTgcCabling",false};
-
+ 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  BooleanProperty  m_isData;             // if false use MuonDetectorManager from detector store everywhere
-  BooleanProperty  m_doTruth;            // switch on the output of the MC truth
-  BooleanProperty  m_doMuEntry;          // switch on the output of the Muon Entry Layer
-  BooleanProperty  m_doSTGCHit;          // switch on the output of the Small TGC simulated hits
-  BooleanProperty  m_doSTGCFastDigit;    // switch on the output of the Small TGC fast digitization
-  BooleanProperty  m_doSTGCDigit;        // swicth on the output of the Small TGC digit
-  BooleanProperty  m_doSTGCRDO;          // switch on the output of the Small TGC RDO
-  BooleanProperty  m_doSTGCPRD;          // swicth on the output of the Small TGC prepdata
-  BooleanProperty  m_doMMHit;            // switch on the output of the MicroMegas simulated hits
-  BooleanProperty  m_doMMFastDigit;      // switch on the output of the MicroMegas fast digitization
-  BooleanProperty  m_doMMDigit;          // switch on the output of the MicroMegas digitization
-  BooleanProperty  m_doMMRDO;            // switch on the output of the MicroMegas RDO
-  BooleanProperty  m_doMMPRD;            // switch on the output of the MicroMegas prepdata
-  BooleanProperty  m_doCSCHit;           // switch on the output of the CSC simulated hits
-  BooleanProperty  m_doCSCDigit;         // switch on the output of the CSC digitization
-  BooleanProperty  m_doCSCRDO;           // switch on the output of the CSC RDO
-  BooleanProperty  m_doCSCPRD;           // switch on the output of the CSC prepdata
-  BooleanProperty  m_doMDTHit;           // switch on the output of the MDT simulated hits
-  BooleanProperty  m_doMDTSDO;           // switch on the output of the MDT SDO
-  BooleanProperty  m_doMDTDigit;         // switch on the output of the MDT digitization
-  BooleanProperty  m_doRPCHit;           // switch on the output of the RPC simulated hits
-  BooleanProperty  m_doRPCSDO;           // switch on the output of the RPC SDO
-  BooleanProperty  m_doRPCDigit;         // switch on the output of the RPC digitization
-  BooleanProperty  m_doTGCHit;           // switch on the output of the TGC simulated hits
-  BooleanProperty  m_doTGCSDO;           // switch on the output of the TGC SDO
-  BooleanProperty  m_doTGCDigit;         // switch on the output of the TGC digitization
-  BooleanProperty  m_doTGCRDO;           // switch on the output of the TGC RDO
-  BooleanProperty  m_doTGCPRD;           // switch on the output of the TGC prepdata
+   Gaudi::Property<bool>  m_isData{this, "isData", false};             // if false use MuonDetectorManager from detector store everywhere
+   Gaudi::Property<bool>  m_doTruth{this, "doTruth", false};            // switch on the output of the MC truth
+   Gaudi::Property<bool>  m_doMuEntry{this, "doMuEntry", false};          // switch on the output of the Muon Entry Layer
+   Gaudi::Property<bool>  m_doSTGCHit{this, "doSTGCHit", false};          // switch on the output of the Small TGC simulated hits
+   Gaudi::Property<bool>  m_doSTGCFastDigit{this, "doSTGCFastDigit", false};    // switch on the output of the Small TGC fast digitization
+   Gaudi::Property<bool>  m_doSTGCDigit{this, "doSTGCDigit", false};        // swicth on the output of the Small TGC digit
+   Gaudi::Property<bool>  m_doSTGCRDO{this, "doSTGCRDO", false};          // switch on the output of the Small TGC RDO
+   Gaudi::Property<bool>  m_doSTGCPRD{this, "doSTGCPRD", false};          // swicth on the output of the Small TGC prepdata
+   Gaudi::Property<bool>  m_doMMHit{this, "doMMHit", false};            // switch on the output of the MicroMegas simulated hits
+   Gaudi::Property<bool>  m_doMMFastDigit{this, "doMMFastDigit", false};      // switch on the output of the MicroMegas fast digitization
+   Gaudi::Property<bool>  m_doMMDigit{this, "doMMDigit", false};          // switch on the output of the MicroMegas digitization
+   Gaudi::Property<bool>  m_doMMRDO{this, "doMMRDO", false};            // switch on the output of the MicroMegas RDO
+   Gaudi::Property<bool>  m_doMMPRD{this, "doMMPRD", false};            // switch on the output of the MicroMegas prepdata
+   Gaudi::Property<bool>  m_doCSCHit{this, "doCSCHit", false};           // switch on the output of the CSC simulated hits
+   Gaudi::Property<bool>  m_doCSCDigit{this, "doCSCDigit", false};         // switch on the output of the CSC digitization
+   Gaudi::Property<bool>  m_doCSCRDO{this, "doCSCRDO", false};           // switch on the output of the CSC RDO
+   Gaudi::Property<bool>  m_doCSCPRD{this, "doCSCPRD", false};           // switch on the output of the CSC prepdata
+   Gaudi::Property<bool>  m_doMDTHit{this, "doMDTHit", false};           // switch on the output of the MDT simulated hits
+   Gaudi::Property<bool>  m_doMDTSDO{this, "doMDTSDO", false};           // switch on the output of the MDT SDO
+   Gaudi::Property<bool>  m_doMDTDigit{this, "doMDTDigit", false};         // switch on the output of the MDT digitization
+   Gaudi::Property<bool>  m_doRPCHit{this, "doRPCHit", false};           // switch on the output of the RPC simulated hits
+   Gaudi::Property<bool>  m_doRPCSDO{this, "doRPCSDO", false};           // switch on the output of the RPC SDO
+   Gaudi::Property<bool>  m_doRPCDigit{this, "doRPCDigit", false};         // switch on the output of the RPC digitization
+   Gaudi::Property<bool>  m_doTGCHit{this, "doTGCHit", false};           // switch on the output of the TGC simulated hits
+   Gaudi::Property<bool>  m_doTGCSDO{this, "doTGCSDO", false};           // switch on the output of the TGC SDO
+   Gaudi::Property<bool>  m_doTGCDigit{this, "doTGCDigit", false};         // switch on the output of the TGC digitization
+   Gaudi::Property<bool>  m_doTGCRDO{this, "doTGCRDO", false};           // switch on the output of the TGC RDO
+   Gaudi::Property<bool>  m_doTGCPRD{this, "doTGCPRD", false};           // switch on the output of the TGC prepdata
 
-  unsigned int m_runNumber;
-  unsigned int m_eventNumber;
+  unsigned int m_runNumber{0};
+  unsigned int m_eventNumber{0};
 
   std::string m_Truth_ContainerName;
   std::string m_MuEntry_ContainerName;
@@ -169,10 +140,12 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_TGC_PRDContainerName;
 
   // Matching algorithm
-  BooleanProperty m_doNSWMatching;
-  BooleanProperty m_doNSWMatchingMuon;
-  uint m_maxStripDiff;
-  bool  m_noMatchWarning;
+ 
+  Gaudi::Property<bool> m_doNSWMatching{this, "doNSWMatchingAlg", true};
+  Gaudi::Property<bool> m_doNSWMatchingMuon{this, "doNSWMatchingMuonOnly", false};
+  Gaudi::Property<uint> m_maxStripDiff{this, "setMaxStripDistance", 3};
+  // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid
+  Gaudi::Property<bool>  m_noMatchWarning{this, "suppressNoMatchWarning", false};
 };
 
 #endif // NSWPRDVALALG_H
