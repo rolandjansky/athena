@@ -159,7 +159,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       for(const auto& trig : available_muon_triggers){
 	ATH_MSG_INFO("Available Muon Trigger: " << trig);
       }
-      available_muon_triggers.clear();
       return StatusCode::SUCCESS;
     }
   } ///////////////End of printing out available muon triggers
@@ -176,7 +175,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
   if (!m_anaMuonRoI.value()) {
     fill(m_packageName, variables);
-    variables.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -402,11 +400,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       });
     roi_variables.push_back(roi_negCharge);
     fill(m_packageName, roi_variables);
-    roi_variables.clear();
   }
   if (!m_anaOfflMuon.value()) {
     fill(m_packageName, variables);
-    variables.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -797,8 +793,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     mymuons.push_back(mymuon);
   }
 
-  list_of_single_muon_triggers.clear();
-
   auto muon_eta4gev = Monitored::Collection("muon_eta4gev",mymuons,[](const MyMuon& m){
       return (m.muon->pt()>pt_4_cut)?m.muon->eta():-10;
     });
@@ -926,9 +920,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
   if (!m_anaTgcPrd.value()) {
     fill(m_packageName, variables);
-    variables.clear();
-    for(auto& aa : mymuons)aa.clear();
-    mymuons.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -1167,13 +1158,14 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     });
   variables.push_back(bwtiming_wire);
 
-
-
+  std::vector<Monitored::ObjectsCollection<std::vector<TgcHit>, double>> varowner;
+  varowner.reserve(chamber_list.size());
   for (const auto &chamber_name : chamber_list) {
-    auto hits_on_a_chamber = Monitored::Collection(Form("hits_on_%s", chamber_name.Data()), tgcHitsMap[chamber_name], [](const TgcHit &m) {
-	return m.channel;
-      });
-    fill(m_packageName, hits_on_a_chamber);
+    varowner.push_back(Monitored::Collection(Form("hits_on_%s", chamber_name.Data()), tgcHitsMap[chamber_name], 
+      [](const TgcHit &m) {
+      	return m.channel;
+      }));
+    variables.push_back(varowner.back());
   }
 
   for (const auto &phimap : tgcHitPhiMap) {
@@ -1195,28 +1187,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       });
     fill(m_packageName, x, y, z);
   }
-
-  tgcHits.clear();
-  chamber_list.clear();
-  for(auto& aa : tgcHitsMap)aa.second.clear();
-  tgcHitsMap.clear();
-  for(auto& aa : tgcHitPhiMap)aa.second.clear();
-  tgcHitPhiMap.clear();
-  for(auto& aa : tgcHitEtaMap)aa.second.clear();
-  tgcHitEtaMap.clear();
-  for(auto& aa : tgcHitPhiMapGlobal)aa.second.clear();
-  tgcHitPhiMapGlobal.clear();
-  for(auto& aa : tgcHitTiming)aa.second.clear();
-  tgcHitTiming.clear();
-  vec_bw24sectors.clear();
-  vec_bw24sectors_wire.clear();
-  vec_bw24sectors_strip.clear();
-  vec_bwfulleta.clear();
-  vec_bwfulleta_wire.clear();
-  vec_bwfulleta_strip.clear();
-  vec_bwtiming.clear();
-  vec_bwtiming_wire.clear();
-  vec_bwtiming_strip.clear();
 
   SG::ReadHandle < Muon::TgcCoinDataContainer > tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
   if (!tgcCoinCurr.isValid()) {
@@ -1384,26 +1354,6 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
   fillTgcCoin(tgcTrigs_LPT_Forward_Strip,"LPT_Forward_Strip");
 
   fill(m_packageName, variables);
-  variables.clear();
-  for(auto& aa : mymuons)aa.clear();
-  mymuons.clear();
-
-  tgcCoin.clear();
-  tgcTrigs_SL.clear();
-  tgcTrigs_SL_Endcap.clear();
-  tgcTrigs_SL_Forward.clear();
-  tgcTrigs_HPT_Wire.clear();
-  tgcTrigs_HPT_Endcap_Wire.clear();
-  tgcTrigs_HPT_Forward_Wire.clear();
-  tgcTrigs_HPT_Strip.clear();
-  tgcTrigs_HPT_Endcap_Strip.clear();
-  tgcTrigs_HPT_Forward_Strip.clear();
-  tgcTrigs_LPT_Wire.clear();
-  tgcTrigs_LPT_Endcap_Wire.clear();
-  tgcTrigs_LPT_Forward_Wire.clear();
-  tgcTrigs_LPT_Strip.clear();
-  tgcTrigs_LPT_Endcap_Strip.clear();
-  tgcTrigs_LPT_Forward_Strip.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -1519,7 +1469,6 @@ void TgcRawDataMonitorAlgorithm::fillTgcCoin(const std::vector<TgcTrig>& tgcTrig
   variables.push_back(coin_cutmask_pt15);
 
   fill(m_packageName, variables);
-  variables.clear();
 }
 ///////////////////////////////////////////////////////////////
 void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon *muon, MyMuon &mymuon) const {
