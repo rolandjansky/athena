@@ -11,8 +11,6 @@ namespace eFexEMRoIThresholdsToolParams {
 uint64_t eFexEMRoIThresholdsTool::getPattern(const xAOD::eFexEMRoI& roi,
                                              const RoIThresholdsTool::ThrVec& menuThresholds,
                                              const TrigConf::L1ThrExtraInfoBase& /*menuExtraInfo*/) const {
-  // The logic needs to be implemented here, now just return dummy value with all bits fired
-
   // Get RoI properties (once, rather than for every threshold in the menu)
   unsigned int et    = roi.etTOB();
   unsigned int reta  = roi.RetaThresholds();

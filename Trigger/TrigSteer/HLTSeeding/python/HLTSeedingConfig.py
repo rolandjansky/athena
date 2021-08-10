@@ -6,59 +6,77 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('HLTSeedingConfig')
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+_mapL1ThresholdToDecisionCollection = {
+    # Full-scan
+    "FSNOSEED": "HLTNav_L1FSNOSEED",
+    # Muon
+    "MU" : "HLTNav_L1MU",
+    "PROBEMU"  : "HLTNav_L1PROBEMU",
+    # Phase-1 L1Calo
+    "eEM": "HLTNav_L1eEM",
+    "eTAU": "HLTNav_L1eTAU",
+    "jTAU": "HLTNav_L1jTAU",
+    "PROBEeEM" : "HLTNav_L1PROBEeEM",
+    "PROBEeTAU" : "HLTNav_L1PROBEeTAU",
+    "PROBEjTAU" : "HLTNav_L1PROBEjTAU",
+    # Run-2 L1Calo
+    "EM" : "HLTNav_L1EM",
+    "J"  : "HLTNav_L1J",
+    "TAU": "HLTNav_L1TAU",
+    "XE" : "HLTNav_L1MET",
+    "XS" : "HLTNav_L1MET",
+    "TE" : "HLTNav_L1MET",
+    "PROBEEM"  : "HLTNav_L1PROBEEM",
+    "PROBETAU" : "HLTNav_L1PROBETAU",
+}
+
+_mapL1ThresholdToRoICollection = {
+    # Full-scan
+    "FSNOSEED": "HLT_FSRoI",
+    # Muon
+    "MU" : "HLT_MURoIs",
+    "PROBEMU"  : "HLT_MURoIs",
+    # Phase-1 L1Calo
+    "eEM": "HLT_eEMRoIs",
+    "eTAU": "HLT_eTAURoIs",
+    "jTAU": "HLT_jTAURoIs",
+    "PROBEeEM" : "HLT_eEMRoIs",
+    "PROBEeTAU": "HLT_eTAURoIs",
+    "PROBEjTAU": "HLT_jTAURoIs",
+    # Run-2 L1Calo
+    "EM" : "HLT_EMRoIs",
+    "J"  : "HLT_JETRoI",
+    "TAU": "HLT_TAURoI",
+    "XE" : "HLT_FSRoI",
+    "XS" : "HLT_FSRoI",
+    "TE" : "HLT_FSRoI",
+    "PROBEEM"  : "HLT_EMRoIs",
+    "PROBETAU" : "HLT_TAURoI",
+}
+
+
 def mapThresholdToL1DecisionCollection(threshold):
     """
     Translates L1 threshold  name of the DecisionsContainer name in the HLTSeeding unpacking tools
     """
-
-    mapThresholdToHLTSeeding = { "FSNOSEED": "HLTNav_L1FSNOSEED",
-                                "EM" : "HLTNav_L1EM",
-                                "eEM": "HLTNav_L1eEM",
-                                "MU" : "HLTNav_L1MU",
-                                "J"  : "HLTNav_L1J",
-                                "TAU": "HLTNav_L1TAU",
-                                "XE" : "HLTNav_L1MET",
-                                "XS" : "HLTNav_L1MET",
-                                "TE" : "HLTNav_L1MET",
-                                "PROBEEM"  : "HLTNav_L1PROBEEM",
-                                "PROBEeEM" : "HLTNav_L1PROBEeEM",
-                                "PROBEMU"  : "HLTNav_L1PROBEMU",
-                                "PROBETAU" : "HLTNav_L1PROBETAU"
-                                }
-
     # remove actual threshold value from L1 threshold string
-    for (thresholdType, l1Collection) in mapThresholdToHLTSeeding.items():
+    for (thresholdType, l1Collection) in _mapL1ThresholdToDecisionCollection.items():
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold \""+ threshold + "\" not mapped to any Decision collection! Available are: " + str(mapThresholdToHLTSeeding.values()))
+    log.error("Threshold \""+ threshold + "\" not mapped to any Decision collection! Available are: " + str(_mapL1ThresholdToDecisionCollection.values()))
+
 
 def mapThresholdToL1RoICollection(threshold):
     """
     Translates L1 threshold  name of the RoIDescriptor name in the HLTSeeding unpacking tools
     """
-
-    mapThresholdToHLTSeeding = { "FSNOSEED": "HLT_FSRoI",
-                                "EM" : "HLT_EMRoIs",
-                                "eEM": "HLT_eEMRoIs",
-                                "MU" : "HLT_MURoIs",
-                                "J"  : "HLT_JETRoI",
-                                "TAU": "HLT_TAURoI",
-                                "XE" : "HLT_FSRoI",
-                                "XS" : "HLT_FSRoI",
-                                "TE" : "HLT_FSRoI",
-                                "PROBEEM"  : "HLT_EMRoIs",
-                                "PROBEeEM" : "HLT_eEMRoIs",
-                                "PROBEMU"  : "HLT_MURoIs",
-                                "PROBETAU" : "HLT_TAURoI" 
-                                }
-
     # remove actual threshold value from L1 threshold string
-    for (thresholdType, l1Collection) in mapThresholdToHLTSeeding.items():
+    for (thresholdType, l1Collection) in _mapL1ThresholdToRoICollection.items():
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold \""+ threshold + "\" not mapped to any ROI collection! Available are: " + str(mapThresholdToHLTSeeding.values()))
+    log.error("Threshold \""+ threshold + "\" not mapped to any ROI collection! Available are: " + str(_mapL1ThresholdToRoICollection.values()))
 
 
 def createLegacyCaloRoIUnpackers():
@@ -69,9 +87,6 @@ def createLegacyCaloRoIUnpackers():
                                                  DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEEM"),
                                                  OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("EM")),
                                                  MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
-
-    #            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
-
 
     metUnpacker = CompFactory.METRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("XE"))
 
@@ -97,8 +112,19 @@ def createCaloRoIUnpackers():
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeEM"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
         MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=30))
+    eFexTauUnpacker = CompFactory.eFexTauRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("eTAU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeTAU"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eTAU")),
+        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=30))
+    # TODO: Add jFexTauUnpacker once jTAU thresholds are implemented in L1 Menu
+    # jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
+    #     Decisions = mapThresholdToL1DecisionCollection("jTAU"),
+    #     DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
+    #     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
+    #     MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=30))
 
-    return [eFexEMUnpacker]
+    return [eFexEMUnpacker, eFexTauUnpacker]
 
 def createMuonRoIUnpackers(flags):
     #from HLTSeeding.HLTSeedingConf import MURoIsUnpackingTool
@@ -148,10 +174,18 @@ def getL1TriggerResultMaker(flags):
 
     # L1Calo RoIs
     if flags.Trigger.enableL1CaloPhase1:
-       l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
-       l1trMaker.ThresholdPatternTools += [CompFactory.eFexEMRoIThresholdsTool()]
+        l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
+        l1trMaker.eFexTauRoIKey = "L1_eTauRoI"
+        l1trMaker.jFexTauRoIKey = "L1_jFexTauRoI"
+        l1trMaker.ThresholdPatternTools += [
+            CompFactory.eFexEMRoIThresholdsTool(),
+            CompFactory.eFexTauRoIThresholdsTool(),
+            # CompFactory.jFexTauRoIThresholdsTool(),  # TODO: Add once jTAU thresholds are implemented in L1 Menu
+        ]
     else:
        l1trMaker.eFexEMRoIKey = ""
+       l1trMaker.eFexTauRoIKey = ""
+       l1trMaker.jFexTauRoIKey = ""
 
     # Placeholder for other L1 xAOD outputs:
     # - CTP result

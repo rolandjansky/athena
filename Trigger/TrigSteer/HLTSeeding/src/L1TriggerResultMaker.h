@@ -10,6 +10,8 @@
 
 // Trigger includes
 #include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
@@ -45,6 +47,16 @@ private:
   SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eFexEMRoIKey {
     this, "eFexEMRoIKey", "L1_eEMRoI",
     "Key of the eFex EM RoI container to be linked to L1 Trigger Result"};
+
+  // eFex Tau RoIs
+  SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eFexTauRoIKey {
+    this, "eFexTauRoIKey", "L1_eTauRoI",
+    "Key of the eFex Tau RoI container to be linked to L1 Trigger Result"};
+
+  // jFex Tau RoIs
+  SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jFexTauRoIKey {
+    this, "jFexTauRoIKey", "L1_jFexTauRoI",
+    "Key of the jFex Tau RoI container to be linked to L1 Trigger Result"};
 
   // Threshold pattern tools
   ToolHandleArray<IRoIThresholdsTool> m_thresholdPatternTools {
