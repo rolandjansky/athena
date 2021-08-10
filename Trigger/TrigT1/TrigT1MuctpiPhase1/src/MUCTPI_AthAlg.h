@@ -15,8 +15,8 @@ class description
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-namespace LVL1MUCTPI {
-  class IMuctpiSimTool;
+namespace LVL1MUCTPIPHASE1 {
+  class MUCTPI_AthTool;
 }
 namespace LVL1MUCTPIPHASE1 {
 
@@ -32,12 +32,10 @@ namespace LVL1MUCTPIPHASE1 {
     /// Regular Gaudi algorithm execute function
     virtual StatusCode execute(const EventContext& eventContext) const override;
 
-    // Delete this once the algorithm has been made thread-safe (ATR-23540):
-    virtual bool isReEntrant() const override final { return false; }
 
   private:
     
-    ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_muctpiTool{this, "MUCTPI_AthTool", "LVL1MUCTPIPHASE1::MUCTPI_AthTool/MUCTPI_AthTool", "Tool to steer the MUCTPI simulation"};
+    ToolHandle<MUCTPI_AthTool> m_muctpiTool{this, "MUCTPI_AthTool", "LVL1MUCTPIPHASE1::MUCTPI_AthTool/MUCTPI_AthTool", "Tool to steer the MUCTPI simulation"};
   };
 }
 

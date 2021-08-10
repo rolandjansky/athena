@@ -11,7 +11,9 @@
   Tool to perform simulation of PhaseI MUCTPI board
 */
 
-#include "TrigT1Interfaces/IMuctpiSimTool.h"
+#include "SimController.h"
+#include "MUCTPIResults.h"
+
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
@@ -30,8 +32,7 @@ namespace LVL1 {
 
 namespace LVL1MUCTPIPHASE1 {
 
-  class SimController;
-  class MUCTPI_AthTool : public extends2<AthAlgTool, LVL1MUCTPI::IMuctpiSimTool, IIncidentListener>
+  class MUCTPI_AthTool : public AthAlgTool
   {
     
   public:
@@ -39,15 +40,12 @@ namespace LVL1MUCTPIPHASE1 {
     MUCTPI_AthTool(const std::string& type, const std::string& name, 
 		   const IInterface* parent);
 
-    virtual ~MUCTPI_AthTool();
+    ~MUCTPI_AthTool();
 
-    virtual void handle(const Incident&) override;
-    virtual StatusCode initialize() override;
-    virtual StatusCode start() override;
-    virtual StatusCode execute() const override;
+    StatusCode initialize();
+    StatusCode start();
+    StatusCode execute() const;
 
-    virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const override;
-    
   private:
 
     /// Event loop method for running as part of digitization
@@ -57,7 +55,7 @@ namespace LVL1MUCTPIPHASE1 {
     /// Event loop method for running on an RDO file
     StatusCode executeFromRDO() const;
     /// Save the outputs of the simulation into StoreGate
-    StatusCode saveOutput(int bcidOffset = 0) const;
+    StatusCode saveOutput(MUCTPIResults& results, int bcidOffset = 0) const;
 
     
     std::vector<int> m_bcidOffsetList = {-2,-1,1,2};
@@ -112,7 +110,7 @@ namespace LVL1MUCTPIPHASE1 {
     
     ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
 
-    SimController* m_theMuctpi;
+    SimController m_theMuctpi;
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool{this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool", "Tool to get the eta/phi coordinates in the RPC"};
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcTool{this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/LVL1__TrigT1TGCRecRoiTool", "Tool to get the eta/phi coordinates in the TGC"};
     ToolHandle<LVL1::TrigThresholdDecisionTool> m_trigThresholdDecisionTool{this, "TrigThresholdDecisionTool", "LVL1::TrigThresholdDecisionTool/LVL1__TrigThresholdDecisionTool", "Tool to get pass/fail of each trigger threshold"};

@@ -52,35 +52,20 @@ namespace LVL1MUCTPIPHASE1 {
     m_candBcidOffset = conf.getCandBcidOffset();
   }
 
-  std::string SimController::processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid)
+  std::string SimController::processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, MUCTPIResults& results, int bcid) const
   {
     std::string ret = "";
     std::vector<const LVL1MUONIF::Lvl1MuCTPIInputPhase1*> processedInputs;
-    for (MuonSectorProcessor& msp : m_muonSectorProcessors )
-    {
-      msp.setInput(input);
-      msp.runOverlapRemoval(bcid);
-      if ((ret = msp.makeL1TopoData(bcid)) != "") return ret;
-      processedInputs.push_back(msp.getOutput());
-    }
-
-    //Run the trigger processor algorithms
-    
-    m_triggerProcessor.mergeInputs(processedInputs);
-    if ((ret = m_triggerProcessor.computeMultiplicities(bcid)) != "") return ret;
-    m_triggerProcessor.makeTopoSelections();
-    return "";
-  }
-
-  LVL1::MuCTPIL1Topo SimController::getL1TopoData(int bcid) const
-  {
-    LVL1::MuCTPIL1Topo l1topo;
     for (const MuonSectorProcessor& msp : m_muonSectorProcessors )
     {
-      const LVL1::MuCTPIL1Topo* l1topo_ptr = msp.getL1TopoData(bcid);
-      if (l1topo_ptr) l1topo += *l1topo_ptr;
+      msp.runOverlapRemoval(input, bcid);
+      if ((ret = msp.makeL1TopoData(input, bcid, results.l1topoData)) != "") return ret;
+      processedInputs.push_back(input);
     }
-    return l1topo;
-  }
 
+    //Run the trigger processor algorithms    
+    LVL1MUONIF::Lvl1MuCTPIInputPhase1 mergedInputs = m_triggerProcessor.mergeInputs(processedInputs);
+    if ((ret = m_triggerProcessor.computeMultiplicities(mergedInputs, bcid, results)) != "") return ret;
+    return "";
+  }
 }

@@ -77,25 +77,19 @@ def L1TopoSimulationCfg(flags):
     
     acc = ComponentAccumulator()
 
-    #Grab the MUCTPI tool
+    #Configure the MuonInputProvider
     if flags.Trigger.enableL1MuonPhase1:
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthToolCfg
-        muctpiTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
-        acc.addPublicTool(muctpiTool, primary=True)
+        muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
+                                                        ROIBResultLocation = "", #disable input from RoIBResult
+                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
+                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
     else:
+        #Grab the MUCTPI tool
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiToolRDOCfg
         muctpiToolAcc = L1MuctpiToolRDOCfg(flags)
         muctpiTool = muctpiToolAcc.getPrimary()
         acc.merge(muctpiToolAcc)
 
-    #Configure the MuonInputProvider
-    if flags.Trigger.enableL1MuonPhase1:
-        muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
-                                                        ROIBResultLocation = "", #disable input from RoIBResult
-                                                        MuctpiSimTool = muctpiTool,
-                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
-    else:
         muProvider = CompFactory.LVL1.MuonInputProviderLegacy("MuonInputProviderLegacy", 
                                                               ROIBResultLocation = "", #disable input from RoIBResult
                                                               MuctpiSimTool = muctpiTool,
@@ -145,9 +139,6 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         ToolSvc.MuonInputProviderLegacy.ROIBResultLocation = "" #disable input from RoIBResult
 
     if flags.Trigger.enableL1MuonPhase1: 
-        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool
-        ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
-        topoSimSeq.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
         from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
         topoSimSeq.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
         topoSimSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
