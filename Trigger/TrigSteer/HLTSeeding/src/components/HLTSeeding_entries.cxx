@@ -8,6 +8,10 @@
 #include "../CTPUnpackingEmulationTool.h"
 #include "../eFexEMRoIsUnpackingTool.h"
 #include "../eFexEMRoIThresholdsTool.h"
+#include "../eFexTauRoIsUnpackingTool.h"
+#include "../eFexTauRoIThresholdsTool.h"
+#include "../jFexTauRoIsUnpackingTool.h"
+#include "../jFexTauRoIThresholdsTool.h"
 #include "../EMRoIsUnpackingTool.h"
 #include "../METRoIsUnpackingTool.h"
 #include "../FSRoIsUnpackingTool.h"
@@ -32,6 +36,10 @@ DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
 DECLARE_COMPONENT( eFexEMRoIsUnpackingTool )
 DECLARE_COMPONENT( eFexEMRoIThresholdsTool )
+DECLARE_COMPONENT( eFexTauRoIsUnpackingTool )
+DECLARE_COMPONENT( eFexTauRoIThresholdsTool )
+DECLARE_COMPONENT( jFexTauRoIsUnpackingTool )
+DECLARE_COMPONENT( jFexTauRoIThresholdsTool )
 DECLARE_COMPONENT( EMRoIsUnpackingTool )
 DECLARE_COMPONENT( METRoIsUnpackingTool )
 DECLARE_COMPONENT( FSRoIsUnpackingTool )

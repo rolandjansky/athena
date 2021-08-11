@@ -181,13 +181,15 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_EBWeightAux.EBWeight.EBUnbiased', 'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
 
-    ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eTAURoIs',                 'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_jTAURoIs',                 'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_TAURoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
 
     # xAOD::TrigCompositeContainer#HLTNav_Summary is now transient-only
     ('xAOD::TrigCompositeContainer#HLTNav_Summary_OnlineSlimmed', 'BS ESD AODFULL AODSLIM', 'Steer'), # TODO: set to BS-only after slimmed versions are validated
@@ -224,8 +226,12 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
 
-    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                           'BS ESD AODFULL', 'L1'),
-    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',   'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                              'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIContainer#L1_eTauRoI',                            'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIAuxContainer#L1_eTauRoIAux.thresholdPatterns',    'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexTauRoIContainer#L1_jFexTauRoI',                         'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexTauRoIAuxContainer#L1_jFexTauRoIAux.thresholdPatterns', 'BS ESD AODFULL', 'L1'),
 
     ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),

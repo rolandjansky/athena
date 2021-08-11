@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TriggerResultMaker.h"
@@ -32,6 +32,8 @@ StatusCode L1TriggerResultMaker::initialize() {
   ATH_CHECK(m_l1TriggerResultWHKey.initialize());
   ATH_CHECK(m_muRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_eFexEMRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_eFexTauRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_jFexTauRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_thresholdPatternTools.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -69,6 +71,8 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
 
   ATH_CHECK(retrieveAndLink(m_muRoIKey));
   ATH_CHECK(retrieveAndLink(m_eFexEMRoIKey));
+  ATH_CHECK(retrieveAndLink(m_eFexTauRoIKey));
+  ATH_CHECK(retrieveAndLink(m_jFexTauRoIKey));
 
   for (const auto& tool: m_thresholdPatternTools) {
     ATH_CHECK(tool->decorateThresholds(eventContext));
