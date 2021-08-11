@@ -228,7 +228,9 @@ if ( True ) :
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
     
-
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF",
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig"
+    
     ]
 
   from AthenaCommon.AppMgr import release_metadata

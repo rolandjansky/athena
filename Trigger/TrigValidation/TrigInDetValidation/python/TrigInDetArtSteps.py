@@ -125,6 +125,10 @@ class TrigInDetReco(ExecStep):
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU4'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
+            if (i=='bphys') :
+                chains += "'HLT_mu6_idperf_L1MU6',"
+                chains += "'HLT_2mu4_bBmumux_BsmumuPhi_L12MU4',"
+                flags += 'doMuonSlice=True;doBphysicsSlice=True;'
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
