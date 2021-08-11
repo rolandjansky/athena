@@ -222,11 +222,11 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
 
 
 def EnvelopeSensitiveDetectorListCfg(ConfigFlags):
-    # TODO: migrate to CA
     result = ComponentAccumulator()
     tools = []
     if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ReadTR:
-        tools+=['CosmicRecord']
+        from TrackWriteFastSim.TrackWriteFastSimConfigNew import CosmicTRSDCfg
+        tools += [ result.popToolsAndMerge(CosmicTRSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
     return result
 

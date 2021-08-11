@@ -4,18 +4,19 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def configCosmicFilterVolumeNames(ConfigFlags):
-    """returns a list with volume names. Can be merged with 
+    """returns a list with volume names. Can be merged with
     athena/Simulation/ISF/ISF_Core/ISF_Tools/python/ISF_ToolsConfigNew.py#0103
     """
 
     volmap = {
-         "Muon": ["MuonExitLayer"],
-         "Calo": ["MuonEntryLayer"],
-         "InnerDetector": ["CaloEntryLayer"],
-         "TRT_Barrel": ["TRTBarrelEntryLayer"],
-         "TRT_EC": ["TRTECAEntryLayer","TRTECBEntryLayer"],
-         "SCT_Barrel": ["SCTBarrelEntryLayer"],
-         "Pixel": ["PixelEntryLayer"],
+        "Muon": ["MuonExitLayer"],
+        "Calo": ["MuonEntryLayer"],
+        "InnerDetector": ["CaloEntryLayer"],
+        "TRT_Barrel": ["TRTBarrelEntryLayer"],
+        "TRT_EC": ["TRTECAEntryLayer","TRTECBEntryLayer"],
+        "SCT_Barrel": ["SCTBarrelEntryLayer"],
+        "Pixel": ["PixelEntryLayer"],
+        "NONE": [],
      }
     volumeNames = []
     for vol in ConfigFlags.Sim.CosmicFilterVolumeNames:

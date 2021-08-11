@@ -19,11 +19,6 @@ def Input_TrackRecordGeneratorCfg(ConfigFlags,name="TrackRecordGenerator", **kwa
     kwargs.setdefault('stopped_tminus', -25.) # in ns, lower bound
     kwargs.setdefault('stopped_tplus', 25.) # in ns, upper bound
     #kwargs.setdefault('OutputLevel', DEBUG) # for turning up output during testing
-
-
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    from RngComps.RandomServices import dSFMT
-    acc.merge(dSFMT(seed))
     acc.addEventAlgo(TrackRecordGenerator(name,**kwargs))
     return acc
 
