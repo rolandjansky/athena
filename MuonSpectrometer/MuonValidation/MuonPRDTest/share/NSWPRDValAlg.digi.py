@@ -41,7 +41,6 @@ NSWPRDValAlg.doTGCHit= True
 NSWPRDValAlg.doTGCSDO = True
 NSWPRDValAlg.doTGCDigit= True
 NSWPRDValAlg.doTGCRDO = True
-NSWPRDValAlg.doTGCPRD = True
 
 NSWPRDValAlg.doCSCHit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCSDO= MuonGeometryFlags.hasCSC()

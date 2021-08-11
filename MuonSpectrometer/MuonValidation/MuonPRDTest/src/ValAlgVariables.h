@@ -22,7 +22,7 @@ class ValAlgVariables
   ValAlgVariables(StoreGateSvc* evtStore,
                  const MuonGM::MuonDetectorManager* detManager,
                  TTree* tree,
-                 std::string containername,
+                 const std::string& containername,
                  MSG::Level msglvl) :
     m_evtStore(evtStore),
     m_detManager(detManager),
@@ -32,13 +32,13 @@ class ValAlgVariables
   	  m_msg.get().setLevel(msglvl);
   }
 
-  virtual ~ValAlgVariables() {};
+  virtual ~ValAlgVariables() = default;
 
   virtual StatusCode initializeVariables() = 0;
   virtual StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) = 0;
 
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
 

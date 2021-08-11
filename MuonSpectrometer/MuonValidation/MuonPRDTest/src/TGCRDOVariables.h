@@ -18,65 +18,44 @@ class TGCRDOVariables : public ValAlgVariables
  TGCRDOVariables(StoreGateSvc* evtStore,
 		const MuonGM::MuonDetectorManager* detManager,
 		const MuonIdHelper* idhelper,
+    const ITGCcablingSvc* cabling_svc,
 		TTree* tree,
-	 	std::string containername,
-	 	MSG::Level msglvl) :
-    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_TgcIdHelper(0),
-    m_TGC_nrdo(0),
-    m_TGC_rdo_stationName(0),
-    m_TGC_rdo_stationEta(0),
-    m_TGC_rdo_stationPhi(0),
-    m_TGC_rdo_gas_gap(0),
-    m_TGC_rdo_isStrip(0),
-    m_TGC_rdo_channel(0),
-    m_TGC_rdo_localPosX(0),
-    m_TGC_rdo_localPosY(0),
-    m_TGC_rdo_globalPosX(0),
-    m_TGC_rdo_globalPosY(0),
-    m_TGC_rdo_globalPosZ(0)
-  {
-    setHelper(idhelper);
-  }
+	 	const std::string& containername,
+	 	MSG::Level msglvl);
 
-  ~TGCRDOVariables()
-  {
-    deleteVariables();
-  }
-  void setTgcCabling(const ITGCcablingSvc* cabling){
-    m_tgcCabling=cabling;
-  }
+  ~TGCRDOVariables() = default;
+ 
+  
   StatusCode initializeVariables();
   StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
 
  private:
-
+  void deleteVariables(){}
   void setHelper(const MuonIdHelper* idhelper){
     m_TgcIdHelper = dynamic_cast<const TgcIdHelper*>(idhelper);
-    if(m_TgcIdHelper == 0) {
-       ATH_MSG_ERROR("casting IdHelper to TgcIdHelper failed");
-       throw;
+    if(!m_TgcIdHelper) {
+       throw std::runtime_error("Casting IdHelper to TgcIdHelper failed");
     }
   }
 
-  void deleteVariables();
+  
   StatusCode clearVariables();
 
-  const TgcIdHelper* m_TgcIdHelper;
-  const ITGCcablingSvc* m_tgcCabling;
+  const TgcIdHelper* m_TgcIdHelper{nullptr};
+  const ITGCcablingSvc* m_tgcCabling{nullptr};
 
-  int m_TGC_nrdo;
-  std::vector<std::string> m_TGC_rdo_stationName;
-  std::vector<int> m_TGC_rdo_stationEta;
-  std::vector<int> m_TGC_rdo_stationPhi;
-  std::vector<int> m_TGC_rdo_gas_gap;
-  std::vector<int> m_TGC_rdo_isStrip;
-  std::vector<int> m_TGC_rdo_channel;
-  std::vector<double> m_TGC_rdo_localPosX;
-  std::vector<double> m_TGC_rdo_localPosY;
-  std::vector<double> m_TGC_rdo_globalPosX;
-  std::vector<double> m_TGC_rdo_globalPosY;
-  std::vector<double> m_TGC_rdo_globalPosZ;
+  int m_TGC_nrdo{0};
+  std::vector<std::string> m_TGC_rdo_stationName{};
+  std::vector<int> m_TGC_rdo_stationEta{};
+  std::vector<int> m_TGC_rdo_stationPhi{};
+  std::vector<int> m_TGC_rdo_gas_gap{};
+  std::vector<int> m_TGC_rdo_isStrip{};
+  std::vector<int> m_TGC_rdo_channel{};
+  std::vector<double> m_TGC_rdo_localPosX{};
+  std::vector<double> m_TGC_rdo_localPosY{};
+  std::vector<double> m_TGC_rdo_globalPosX{};
+  std::vector<double> m_TGC_rdo_globalPosY{};
+  std::vector<double> m_TGC_rdo_globalPosZ{};
 
 
 };
