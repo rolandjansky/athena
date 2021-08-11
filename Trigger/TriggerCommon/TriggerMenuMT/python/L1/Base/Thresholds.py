@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import re
 from copy import deepcopy
@@ -283,7 +283,7 @@ class EMThreshold (Threshold):
     
     def __init__(self, name, ttype = 'eEM', mapping = -1):
         super(EMThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='eEM' else 2)
-        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHI]*)",name).groupdict()
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",name).groupdict()
         self.suffix = mres["suffix"]
         self.rhad = "None"
         self.reta = "None"
@@ -295,10 +295,20 @@ class EMThreshold (Threshold):
     def isI(self):
         return 'I' in self.suffix
 
+    def isL(self):
+        return 'L' in self.suffix
+
+    def isM(self):
+        return 'M' in self.suffix
+
     def setIsolation(self, rhad = "None", reta = "None", wstot = "None"):
         allowed = [ "None", "Loose", "Medium", "Tight" ]
         if rhad not in allowed:
             raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for rhad, must be one of %s", self.name, self.ttype, rhad, ', '.join(allowed) )
+        if reta not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for reta, must be one of %s", self.name, self.ttype, reta, ', '.join(allowed) )
+        if wstot not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for wstot, must be one of %s", self.name, self.ttype, wstot, ', '.join(allowed) )
         self.rhad = rhad
         self.reta = reta
         self.wstot = wstot
@@ -307,7 +317,7 @@ class EMThreshold (Threshold):
     def addThrValue(self, value, *args, **kwargs):
         # supporting both EM and TAU
         defargs = ThresholdValue.getDefaults(self.ttype.name) 
-        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'em_isolation', 'had_isolation', 'had_veto', 'priority', 'isobits', 'use_relIso'], args))
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
         
         # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
         p = deepcopy(defargs)
@@ -318,11 +328,6 @@ class EMThreshold (Threshold):
                               etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
                               priority = p['priority'], name = self.name+'full')
 
-        thrv.setIsolation( em_isolation = p['em_isolation'],
-                           had_isolation = p['had_isolation'],
-                           had_veto = p['had_veto'],
-                           isobits = p['isobits'],
-                           use_relIso = p['use_relIso'])     
         self.thresholdValues.append(thrv)            
         return self
 

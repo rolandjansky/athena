@@ -83,8 +83,8 @@ def defineInputsMenu():
         "type" : "optical",
         "legacy" : False,
         "thresholds" : [
-            'eEM3', 'eEM7', 'eEM8', 'eEM8VH', 'eEM10', 'eEM10VH', 'eEM15', 'eEM15VH', 'eEM15VHI',
-            'eEM18VHI', 'eEM20', 'eEM20VH', 'eEM20VHI', 'eEM22', 'eEM22VHI',
+            'eEM3', 'eEM7', 'eEM8', 'eEM8L', 'eEM10', 'eEM10L', 'eEM15', 'eEM15L', 'eEM15M',
+            'eEM18M', 'eEM20', 'eEM20L', 'eEM20M', 'eEM22', 'eEM22M', 'eEM22T',
             'eTAU12', 'eTAU12IM', 'eTAU20', 'eTAU20IM', 'eTAU25IM', 'eTAU40', 'eTAU60', 'eTAU100'
         ]
     })

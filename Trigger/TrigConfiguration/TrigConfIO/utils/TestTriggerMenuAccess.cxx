@@ -49,18 +49,30 @@ exampleL1Calo(const string & filename) {
       auto iso_loose  = ei_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
       auto iso_medium = ei_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
       auto iso_tight  = ei_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);
-      int reta_loose = iso_loose.reta(); 
-      int had_loose = iso_loose.had(); 
-      int wstot_loose = iso_loose.wstot(); 
-      cout << "ieta=" << ieta << "  loose => reta=" << reta_loose << ", had=" << had_loose << ", wstot=" << wstot_loose << endl;
-      int reta_medium = iso_medium.reta(); 
-      int had_medium = iso_medium.had(); 
-      int wstot_medium = iso_medium.wstot(); 
-      cout << "ieta=" << ieta << "  medium => reta=" << reta_medium << ", had=" << had_medium << ", wstot=" << wstot_medium << endl;
-      int reta_tight = iso_tight.reta(); 
-      int had_tight = iso_tight.had(); 
-      int wstot_tight = iso_tight.wstot(); 
-      cout << "ieta=" << ieta << "  tight => reta=" << reta_tight << ", had=" << had_tight << ", wstot=" << wstot_tight << endl;
+      int reta_loose_fw = iso_loose.reta_fw(); 
+      int rhad_loose_fw = iso_loose.rhad_fw(); 
+      int wstot_loose_fw = iso_loose.wstot_fw(); 
+      int reta_loose_d = iso_loose.reta_d();
+      int rhad_loose_d = iso_loose.rhad_d();
+      int wstot_loose_d = iso_loose.wstot_d();
+      cout << "ieta=" << ieta << "  loose => reta_fw=" << reta_loose_fw << ", rhad_fw=" << rhad_loose_fw << ", wstot_fw=" << wstot_loose_fw << endl;
+      cout << "ieta=" << ieta << "  loose => reta_d=" << reta_loose_d << ", rhad_d=" << rhad_loose_d << ", wstot_d=" << wstot_loose_d << endl;
+      int reta_medium_fw = iso_medium.reta_fw();
+      int rhad_medium_fw = iso_medium.rhad_fw();
+      int wstot_medium_fw = iso_medium.wstot_fw();
+      int reta_medium_d = iso_medium.reta_d(); 
+      int rhad_medium_d = iso_medium.rhad_d(); 
+      int wstot_medium_d = iso_medium.wstot_d(); 
+      cout << "ieta=" << ieta << "  medium => reta_fw=" << reta_medium_fw << ", rhad_fw=" << rhad_medium_fw << ", wstot_fw=" << wstot_medium_fw << endl;
+      cout << "ieta=" << ieta << "  medium => reta_d=" << reta_medium_d << ", rhad_d=" << rhad_medium_d << ", wstot_d=" << wstot_medium_d << endl;
+      int reta_tight_fw = iso_tight.reta_fw(); 
+      int rhad_tight_fw = iso_tight.rhad_fw(); 
+      int wstot_tight_fw = iso_tight.wstot_fw();
+      int reta_tight_d = iso_tight.reta_d();
+      int rhad_tight_d = iso_tight.rhad_d();
+      int wstot_tight_d = iso_tight.wstot_d(); 
+      cout << "ieta=" << ieta << "  tight => reta_fw=" << reta_tight_fw << ", rhad_fw=" << rhad_tight_fw << ", wstot_fw=" << wstot_tight_fw << endl;
+      cout << "ieta=" << ieta << "  tight => reta_d=" << reta_tight_d << ", rhad_d=" << rhad_tight_d << ", wstot_d=" << wstot_tight_d << endl;
    }
 }
 
@@ -350,7 +362,7 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
               << ", isolation=" << iso.value() << endl;
       }
       //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
-      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,20) << endl;
+      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().jJ();

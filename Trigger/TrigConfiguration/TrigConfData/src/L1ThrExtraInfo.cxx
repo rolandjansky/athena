@@ -212,15 +212,18 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
  *******/
 TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt ) {
    m_isDefined = true;
-   m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
-   m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
-   m_rhad  = lround(100 * pt.get_optional<float>("rhad").get_value_or(0));
+   m_reta_d  = pt.get_optional<float>("reta").get_value_or(0);
+   m_wstot_d = pt.get_optional<float>("wstot").get_value_or(0);
+   m_rhad_d  = pt.get_optional<float>("rhad").get_value_or(0);
+   m_reta_fw  = pt.get_optional<int>("reta_fw").get_value_or(0);
+   m_wstot_fw = pt.get_optional<int>("wstot_fw").get_value_or(0);
+   m_rhad_fw  = pt.get_optional<int>("rhad_fw").get_value_or(0);
    m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
 TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM & iso) {
-   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
+   os << "reta_fw=" << iso.reta_fw() << ", wstot_fw=" << iso.wstot_fw() << ", rhad_fw=" << iso.rhad_fw();
    return os;
 }
 

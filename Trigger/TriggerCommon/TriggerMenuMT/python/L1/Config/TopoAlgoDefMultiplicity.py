@@ -15,8 +15,8 @@ class TopoAlgoDefMultiplicity(object):
         currentAlgoId = 0
 
         emThresholds = [
-            'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 'eEM15VHI', 'eEM18VHI', 'eEM20VH', 
-            'eEM20VHI', 'eEM22', 'eEM22VHI', 'eEM3', 'eEM8', 'eEM10', 'eEM15', 'eEM20',
+            'eEM3', 'eEM7', 'eEM8', 'eEM8L', 'eEM10', 'eEM10L',  'eEM15', 'eEM15L', 'eEM15M', 'eEM18M', 
+            'eEM20', 'eEM20L', 'eEM20M', 'eEM22', 'eEM22M', 'eEM22T', 
         ]
 
         for em in emThresholds:
