@@ -12,14 +12,16 @@ easily merged, but we can revisit this design choice if necessary.
 from .FullScanDefs import caloFSRoI, fs_cells, em_clusters, lc_clusters
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
+@AccumulatorCache
 def FSCaloCellCfg(flags):
     """ Create the full-scan cells """
     from TrigCaloRec.TrigCaloRecConfig import hltCaloCellMakerCfg
 
     return hltCaloCellMakerCfg(flags, name="HLTCaloCellMaker_FS", roisKey=caloFSRoI)
 
-
+@AccumulatorCache
 def CaloClusterCfg(flags, doLCCalib=False):
     """ Create the clusters """
     acc = ComponentAccumulator()

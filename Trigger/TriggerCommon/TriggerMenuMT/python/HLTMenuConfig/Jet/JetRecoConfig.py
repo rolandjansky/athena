@@ -27,9 +27,12 @@ import copy
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from GaudiKernel import SystemOfUnits
 
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+
 _jetNamePrefix = "HLT_"
 
 
+@AccumulatorCache
 def JetRecoCfg(flags, clustersKey, trkcolls=None, **jetRecoDict):
     """The top-level sequence
 
@@ -54,6 +57,7 @@ def JetRecoCfg(flags, clustersKey, trkcolls=None, **jetRecoDict):
         )
 
 
+@AccumulatorCache
 def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Standard jet reconstruction, no reclustering or grooming 
     
@@ -157,6 +161,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     return acc, jetsOut, jetDef
 
 
+@AccumulatorCache
 def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Full reconstruction for 'simple' (ungroomed, not reclustered) jets
 
@@ -236,6 +241,7 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     return acc, jetsOut, jetDef
 
 
+@AccumulatorCache
 def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Create the groomed jets
 
@@ -277,6 +283,7 @@ def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDi
     return acc, jetsOut, groomDef
 
 
+@AccumulatorCache
 def ReclusteredJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Create the reclustered jets
 
