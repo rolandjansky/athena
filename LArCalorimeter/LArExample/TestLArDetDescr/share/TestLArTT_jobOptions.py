@@ -13,7 +13,7 @@ theApp.EvtMax = 1
 #(0=ALL 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel               = 3
-include( "CaloDetMgrDetDescrCnv/CaloTTDetMgrDetDescrCnv_joboptions.py" )
+include( "CaloConditions/CaloConditions_jobOptions.py" )
 
 theApp.Dlls += [ 
 "TestLArDetDescr"
