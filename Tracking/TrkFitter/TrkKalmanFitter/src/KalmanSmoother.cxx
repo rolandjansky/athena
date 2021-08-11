@@ -281,7 +281,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1;
   Trk::Trajectory::reverse_iterator lastSmoothableState
     = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
-  for( ; rit!=trajectory.rend(); rit++) {
+  for( ; rit!=trajectory.rend(); ++rit) {
     if (!rit->isOutlier()) {
       smooPar_eta_for_monitoring = 1000.;
 
@@ -540,7 +540,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   Trk::Trajectory::reverse_iterator rit = lastPredictedState + 1; // go to one-but-last state
   Trk::Trajectory::reverse_iterator lastSmoothableState
     = Trk::Trajectory::reverse_iterator(Trk::ProtoTrajectoryUtility::firstFittableState(trajectory)) - 1; // this takes outliers into account
-  for( ; rit!=trajectory.rend(); rit++) {
+  for( ; rit!=trajectory.rend(); ++rit) {
 
     smooPar_eta_for_monitoring=1000.;
 
