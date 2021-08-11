@@ -104,7 +104,10 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
 
     # Set default properties
     alg.ISFRun = ConfigFlags.Sim.ISFRun
-    alg.InputMcEventCollection = "GEN_EVENT"
+    if ConfigFlags.Sim.DoFullChain and ConfigFlags.Digitization.PileUp:
+        alg.InputMcEventCollection = "OriginalEvent_SG+GEN_EVENT"
+    else:
+        alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
     # Set (todo) the appropriate manipulator tools

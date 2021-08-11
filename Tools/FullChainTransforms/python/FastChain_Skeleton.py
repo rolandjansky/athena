@@ -25,10 +25,10 @@ def fromRunArgs(runArgs):
 
     # Autoconfigure enabled subdetectors
     if hasattr(runArgs, 'detectors'):
-         detectors = runArgs.detectors
+        detectors = runArgs.detectors
     else:
-         from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
-         detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
+        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
+        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
 
     # Support switching on simulation of Forward Detectors
     if hasattr(runArgs, 'LucidOn'):
@@ -38,28 +38,18 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'ALFAOn'):
         detectors = detectors+['ALFA']
     if hasattr(runArgs, 'FwdRegionOn'):
-        detectors = detectors+['FwdRegion'] 
+        detectors = detectors+['FwdRegion']
 
     if hasattr(runArgs, 'simulator'):
         ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
-
-    # Setup common simulation flags
-    from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
-    defaultSimulationFlags(ConfigFlags, detectors)
-
-    # Setup digitization flags
-    from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags, pileupRunArgsToFlags
-    digitizationRunArgsToFlags(runArgs, ConfigFlags)
-    pileupRunArgsToFlags(runArgs, ConfigFlags)
- 
-    # Setup common digitization flags
-    from Digitization.DigitizationSteering import setupDigitizationFlags
-    setupDigitizationFlags(ConfigFlags)
 
     if hasattr(runArgs, 'inputEVNTFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
     else:
         raise RuntimeError('No input EVNT file defined')
+
+    if hasattr(runArgs, 'outputHITSFile'):
+        ConfigFlags.Output.HITSFileName = runArgs.outputHITSFile
 
     if hasattr(runArgs, 'outputRDOFile'):
         if runArgs.outputRDOFile == 'None':
@@ -70,9 +60,9 @@ def fromRunArgs(runArgs):
         raise RuntimeError('No outputRDOFile defined')
 
     if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber] # is it updating?
+        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]  # is it updating?
         ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
+        ConfigFlags.Input.LumiBlockNumber = [1]  # dummy value
 
     if hasattr(runArgs, 'conditionsTag'):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
@@ -80,8 +70,19 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
-    from AthenaConfiguration.Enums import ProductionStep
-    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
+    # Setup common simulation flags
+    from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
+    defaultSimulationFlags(ConfigFlags, detectors)
+
+    # Setup digitization flags
+    from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags
+    digitizationRunArgsToFlags(runArgs, ConfigFlags)
+
+    # Setup common digitization flags
+    from Digitization.DigitizationConfigFlags import setupDigitizationFlags
+    setupDigitizationFlags(runArgs, ConfigFlags)
+    log.info('Running with pile-up: %s', ConfigFlags.Digitization.PileUp)
+    # ConfigFlags.dump()
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -89,10 +90,25 @@ def fromRunArgs(runArgs):
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
 
+    # Load pile-up stuff after pre-include/exec to ensure everything is up-to-date
+    from Digitization.DigitizationConfigFlags import pileupRunArgsToFlags
+    pileupRunArgsToFlags(runArgs, ConfigFlags)
+
+    ConfigFlags.Sim.DoFullChain = True
+    # FastChain Flags
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.FastChain
+
     # Lock flags
     ConfigFlags.lock()
 
-    cfg = MainServicesCfg(ConfigFlags)
+    if ConfigFlags.Digitization.PileUp:
+        from Digitization.PileUpConfigNew import PileUpEventLoopMgrCfg
+        cfg = MainServicesCfg(ConfigFlags, LoopMgr="PileUpEventLoopMgr")
+        cfg.merge(PileUpEventLoopMgrCfg(ConfigFlags))
+    else:
+        cfg = MainServicesCfg(ConfigFlags)
+
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(PoolWriteCfg(ConfigFlags))
 
@@ -106,12 +122,18 @@ def fromRunArgs(runArgs):
     from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
     cfg.merge(ISF_KernelCfg(ConfigFlags))
 
+    from Digitization.DigitizationSteering import DigitizationMainContentCfg
+    cfg.merge(DigitizationMainContentCfg(ConfigFlags))
+
+    # Special message service configuration
+    from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
+    cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
     processPostExec(runArgs, ConfigFlags, cfg)
-
 
     # Run the final accumulator
     sc = cfg.run()
