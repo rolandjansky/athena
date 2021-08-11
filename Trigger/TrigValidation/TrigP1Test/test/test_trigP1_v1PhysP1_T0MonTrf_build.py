@@ -45,17 +45,19 @@ tzreco.max_events = 50
 tzreco.args = '--inputBSFile=RAW.pool.root'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --outputNTUP_TRIGRATEFile=rate.ntup.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 #====================================================================================================
-# Tier-0 monitoring step (AOD->HIST)                                                         
-tzmon = ExecStep.ExecStep('Tier0Mon')                                                        
+# Tier-0 monitoring step (AOD->HIST)
+tzmon = ExecStep.ExecStep('Tier0Mon')
 tzmon.type = 'other'
-tzmon.executable = 'Run3DQTestingDriver.py'                                                  
-tzmon.input = ''                                                                             
-tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'  
+tzmon.executable = 'Run3DQTestingDriver.py'
+tzmon.input = ''
+tzmon.args = '--threads=1'
+tzmon.args += ' --dqOffByDefault'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
 
 #====================================================================================================
 # Merging NTUP_TRIGRATE/COST
