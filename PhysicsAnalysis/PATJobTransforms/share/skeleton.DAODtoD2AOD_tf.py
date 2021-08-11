@@ -38,6 +38,8 @@ if hasattr(runArgs,"inputDAOD_PHYSFile"):
     rec.doDPD.set_Value_and_Lock(True)
     rec.OutputFileNameForRecoStep.set_Value_and_Lock("DAODtoD2AOD")
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputDAOD_PHYSFile )
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
 else:
     msg.error('DAOD_PHYS skimming job started, but with no DAOD_PHYS inputs - aborting')
     raise RuntimeError("No DAOD_PHYS input")
