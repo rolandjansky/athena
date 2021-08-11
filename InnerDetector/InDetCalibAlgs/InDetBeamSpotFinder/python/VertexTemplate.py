@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id: VertexTemplate.py 601782 2014-06-14 00:00:08Z btamadio $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
@@ -125,13 +124,6 @@ topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBea
                                                  MaxTransverseErr    = jobConfig['MaxTransverseErr'],
                                                  OutputLevel         = min(INFO,jobConfig['outputlevel']))
 
-
-if jobConfig['UseFilledBCIDsOnly']:
-    # Bunch crossing tool to allow selecting on non-empty BCIDs
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    bunchCrossingTool =  BunchCrossingTool()
-    #bunchCrossingTool.FilledBunchNames=[] 
-    topSequence.InDetBeamSpotFinder.BCTool = bunchCrossingTool
 
 try:
     topSequence.InDetBeamSpotFinder.UseLBFromViewed   = jobConfig['UseLBFromViewed']
