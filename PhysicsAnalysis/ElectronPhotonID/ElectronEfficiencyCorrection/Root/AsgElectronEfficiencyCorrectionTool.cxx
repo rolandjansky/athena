@@ -880,7 +880,7 @@ AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(
   for (; itr_ptBEGIN != itr_ptEND; ++itr_ptBEGIN) {
     std::map<float, std::vector<float>>::const_iterator itr_ptBEGINplusOne =
       itr_ptBEGIN;
-    itr_ptBEGINplusOne++;
+    ++itr_ptBEGINplusOne;
     // Find the pt bin : Larger or equal from the current and (the next one is
     // the last or the next one is larger).
     if (et >= itr_ptBEGIN->first &&
