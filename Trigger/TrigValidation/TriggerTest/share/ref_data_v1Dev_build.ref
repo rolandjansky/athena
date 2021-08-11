@@ -570,6 +570,8 @@ HLT_e12_lhvloose_L1EM10VH:
     1: 6
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
+HLT_e140_lhloose_L1eEM22M:
+  eventCount: 0
 HLT_e140_lhloose_noringer_L1EM22VHI:
   eventCount: 0
 HLT_e14_etcut_L1EM7:
@@ -720,6 +722,10 @@ HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_ivarloose_L1EM22VHI:
   eventCount: 0
+HLT_e26_lhtight_ivarloose_L1eEM22M:
+  eventCount: 0
+HLT_e26_lhtight_ivarloose_L1eEM22T:
+  eventCount: 0
 HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:
@@ -769,6 +775,8 @@ HLT_e28_idperf_loose_L1EM24VHI:
 HLT_e28_lhmedium_mu8noL1_L1EM24VHI:
   eventCount: 0
 HLT_e300_etcut_L1EM22VHI:
+  eventCount: 0
+HLT_e300_etcut_L1eEM22M:
   eventCount: 0
 HLT_e30_lhvloose_L1EM22VHI:
   eventCount: 0
@@ -955,6 +963,8 @@ HLT_e60_idperf_gsf_medium_L1EM22VHI:
 HLT_e60_idperf_medium_L1EM22VHI:
   eventCount: 0
 HLT_e60_lhmedium_L1EM22VHI:
+  eventCount: 0
+HLT_e60_lhmedium_L1eEM22M:
   eventCount: 0
 HLT_e60_lhmedium_noringer_L1EM22VHI:
   eventCount: 0
@@ -3239,6 +3249,38 @@ HLT_noalg_L1XE55:
   eventCount: 1
 HLT_noalg_L1XE60:
   eventCount: 1
+HLT_noalg_L1eEM10:
+  eventCount: 4
+HLT_noalg_L1eEM10L:
+  eventCount: 0
+HLT_noalg_L1eEM15:
+  eventCount: 4
+HLT_noalg_L1eEM15L:
+  eventCount: 0
+HLT_noalg_L1eEM15M:
+  eventCount: 0
+HLT_noalg_L1eEM18M:
+  eventCount: 0
+HLT_noalg_L1eEM20:
+  eventCount: 2
+HLT_noalg_L1eEM20L:
+  eventCount: 0
+HLT_noalg_L1eEM20M:
+  eventCount: 0
+HLT_noalg_L1eEM22:
+  eventCount: 2
+HLT_noalg_L1eEM22M:
+  eventCount: 0
+HLT_noalg_L1eEM22T:
+  eventCount: 0
+HLT_noalg_L1eEM3:
+  eventCount: 20
+HLT_noalg_L1eEM7:
+  eventCount: 7
+HLT_noalg_L1eEM8:
+  eventCount: 6
+HLT_noalg_L1eEM8L:
+  eventCount: 0
 HLT_noalg_LArPEBCalib_L1RD0_BGRP11:
   eventCount: 0
 HLT_noalg_LArPEBCalib_L1RD0_EMPTY:

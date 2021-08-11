@@ -147,23 +147,23 @@ StatusCode eFEXFPGA::execute(){
       auto iso_tight  = thr_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);  
 
       std::vector<unsigned int> threshReta;
-      threshReta.push_back(iso_loose.reta());
-      threshReta.push_back(iso_medium.reta());
-      threshReta.push_back(iso_tight.reta());
+      threshReta.push_back(iso_loose.reta_fw());
+      threshReta.push_back(iso_medium.reta_fw());
+      threshReta.push_back(iso_tight.reta_fw());
 
       std::vector<unsigned int> threshRhad;
-      threshRhad.push_back(iso_loose.rhad());
-      threshRhad.push_back(iso_medium.rhad());
-      threshRhad.push_back(iso_tight.rhad());
+      threshRhad.push_back(iso_loose.rhad_fw());
+      threshRhad.push_back(iso_medium.rhad_fw());
+      threshRhad.push_back(iso_tight.rhad_fw());
 
       std::vector<unsigned int> threshWstot;
-      threshWstot.push_back(iso_loose.wstot());
-      threshWstot.push_back(iso_medium.wstot());
-      threshWstot.push_back(iso_tight.wstot());
+      threshWstot.push_back(iso_loose.wstot_fw());
+      threshWstot.push_back(iso_medium.wstot_fw());
+      threshWstot.push_back(iso_tight.wstot_fw());
 
-      ATH_MSG_DEBUG("ieta=" << ieta << "  loose => reta=" << threshReta[0] << ", had=" << threshRhad[0] << ", wstot=" << threshWstot[0]);
-      ATH_MSG_DEBUG("ieta=" << ieta << "  medium => reta=" << threshReta[1] << ", had=" << threshRhad[1] << ", wstot=" << threshWstot[1]);
-      ATH_MSG_DEBUG("ieta=" << ieta << "  tight => reta=" << threshReta[2] << ", had=" << threshRhad[2] << ", wstot=" << threshWstot[2]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  loose => reta_fw=" << threshReta[0] << ", rhad_fw=" << threshRhad[0] << ", wstot_fw=" << threshWstot[0]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  medium => reta_fw=" << threshReta[1] << ", rhad_fw=" << threshRhad[1] << ", wstot_fw=" << threshWstot[1]);
+      ATH_MSG_DEBUG("ieta=" << ieta << "  tight => reta_fw=" << threshReta[2] << ", rhad_fw=" << threshRhad[2] << ", wstot_fw=" << threshWstot[2]);
 
       // Get Reta and Rhad outputs
       std::vector<unsigned int> RetaCoreEnv; 

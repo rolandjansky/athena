@@ -47,17 +47,28 @@ def getConfig_MU():
 def getConfig_eEM():
     confObj = odict()
     confObj["workingPoints"] = odict()
+    # based on https://indico.cern.ch/event/1035198/contributions/4378014/attachments/2251846/3820098/20210526_l1calo_TGM.pdf
     confObj["workingPoints"]["Loose"] = [
-        odict([("reta", 0.12), ("wstot", 0.79), ("rhad", 0.31), ("maxEt", 60)]),
+        odict([("reta_fw", 58), ("reta", 0.121), ("wstot_fw", 8), ("wstot", 4.0), ("rhad_fw", 16), ("rhad", 0.333), ("maxEt", 60), ("etamin", -49), ("etamax", 49), ("priority", 1)]),
+        odict([("reta_fw", 53), ("reta", 0.131), ("wstot_fw", 8), ("wstot", 4.0), ("rhad_fw", 16), ("rhad", 0.333), ("maxEt", 60), ("etamin", -25), ("etamax", 25), ("priority", 2)]),
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("reta", 0.09), ("wstot", 0.65), ("rhad", 0.20), ("maxEt", 60)]),
+        odict([("reta_fw", 65), ("reta", 0.11), ("wstot_fw", 9), ("wstot", 3.556), ("rhad_fw", 22), ("rhad", 0.267), ("maxEt", 60), ("etamin", -49), ("etamax", 49), ("priority", 1)]),
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("reta", 0.08), ("wstot", 0.52), ("rhad", 0.19), ("maxEt", 60)]),
+        odict([("reta_fw", 72), ("reta", 0.1), ("wstot_fw", 25), ("wstot", 1.28), ("rhad_fw", 23), ("rhad", 0.258), ("maxEt", 60), ("etamin", -49), ("etamax", 49), ("priority", 1)]),
     ]
     confObj["ptMinToTopo"] = 3
     confObj["resolutionMeV"] = 100
+
+    # Check that FW values are integers
+    for wp in confObj["workingPoints"]:
+        for ssthr in confObj["workingPoints"][wp]:
+            for ssthr_i in ssthr:
+                if "_fw" in ssthr_i:
+                     if not isinstance(ssthr[ssthr_i], int):
+                          raise RuntimeError("Threshold %s in eEM configuration is not an integer!", ssthr_i )
+
     return confObj
 
 
