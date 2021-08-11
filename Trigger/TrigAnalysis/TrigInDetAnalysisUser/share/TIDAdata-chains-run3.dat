@@ -61,6 +61,10 @@ testChains = {
     "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FS_FTF;DTE",
     "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_IDTrig;DTE",
 
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF",
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig",
+
+
 #endif
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS:post:rvtx=HLT_IDVertex_FS",

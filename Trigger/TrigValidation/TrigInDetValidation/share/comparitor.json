@@ -71,6 +71,12 @@
     "EFFSLRT":{
         "chains" : "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_FTF_DTE  HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_IDTrig_DTE"
     },
+    "L2bphys":{ 
+	"chains" : "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF"
+    },
+    "EFbphys":{ 
+	"chains" : "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF  HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig"
+    },
     "TagnProbe":{
 	"chains" : "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:HLT_Roi_FastElectron:1"
     }
