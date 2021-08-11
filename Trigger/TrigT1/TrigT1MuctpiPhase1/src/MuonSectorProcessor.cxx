@@ -69,11 +69,6 @@ namespace LVL1MUCTPIPHASE1 {
   class OverlapHelper
   {
   public:
-    int active_side = -1;
-    std::string sub_left="";
-    std::string sub_right="";
-    int sec_left = -1;
-    int sec_right = -1;
     std::map<int,std::set<std::string> > global_pairs;
     
     std::array<std::map<std::string,std::vector<std::string>>,2> lhs_index;
@@ -147,12 +142,11 @@ namespace LVL1MUCTPIPHASE1 {
 	std::string topElementName = x.first;
 	ptree lut = x.second;
 	
-	
 	if (topElementName != "LUT") continue;
 
 	std::string SectorId1 = MuctpiXMLHelper::getAttribute(lut,"SectorId1");
 	std::string SectorId2 = MuctpiXMLHelper::getAttribute(lut,"SectorId2");
-	
+
 	unsigned left_mod = 32;
 	unsigned right_mod = 32;
 	if (SectorId1[0] == 'E') left_mod = 48;
@@ -161,61 +155,26 @@ namespace LVL1MUCTPIPHASE1 {
 	if (SectorId2[0] == 'F') right_mod = 24;
 	
 	std::string snum_left = std::string(1,SectorId1[1])+std::string(1,SectorId1[2]);
-	sub_left = std::string(1,SectorId1[0]);
-	sec_left = std::stoi(snum_left) % left_mod;
+	int sec_left = std::stoi(snum_left) % left_mod;
 	
 	std::string snum_right = std::string(1,SectorId2[1])+std::string(1,SectorId2[2]);
-	sub_right = std::string(1,SectorId2[0]);
-	sec_right = std::stoi(snum_right) % right_mod;
+	int sec_right = std::stoi(snum_right) % right_mod;
 	
 	std::string side = MuctpiXMLHelper::getAttribute(lut,"Side");
-	if (side == "C") active_side = 0;
-	else active_side = 1;
-	
+	int active_side = (side == "C") ? 0 : 1;
+
+	std::string System1 = SectorId1.substr(0,1);
+	std::string System2 = SectorId2.substr(0,1);
+
 	for(const boost::property_tree::ptree::value_type &z: lut) {
 	  std::string menuElementName = z.first;
 	  ptree ele = z.second;
-	  
-	  if (std::string("BBElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("B",sec_left,roi1);
-	    auto rhs_key = make_key("B",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("BEElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "BRoI");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "ERoI");
-	    auto lhs_key = make_key("B",sec_left,roi1);
-	    auto rhs_key = make_key("E",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("EEElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("E",sec_left,roi1);
-	    auto rhs_key = make_key("E",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("EFElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "ERoI");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "FRoI");
-	    auto lhs_key = make_key("E",sec_left,roi1);
-	    auto rhs_key = make_key("F",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
-	  else if (std::string("FFElement").compare(menuElementName) == 0){
-	    auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	    auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
-	    auto lhs_key = make_key("F",sec_left,roi1);
-	    auto rhs_key = make_key("F",sec_right,roi2);
-	    auto region = make_pair(lhs_key,rhs_key);
-	    global_pairs[active_side].insert(region);
-	  }
+	  auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
+	  auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
+	  auto lhs_key = make_key(System1,sec_left,roi1);
+	  auto rhs_key = make_key(System2,sec_right,roi2);
+	  auto region = make_pair(lhs_key,rhs_key);
+	  global_pairs[active_side].insert(region);
 	}
       }
       create_indices();
@@ -342,6 +301,7 @@ namespace LVL1MUCTPIPHASE1 {
 
 	    for(auto rr : m_overlapHelper->relevant_regions(m_side,sectorName,roiID,isec))
 	    {
+	      // for the barrel-barrel overlap removal, only the muons having the phi-overlap flag are considered
               if( std::count(rr.begin(),rr.end(),'B') == 2 && isys == 0 && sectorData->ovl(icand) == 0 )continue;
 	      buckets[rr].push_back(std::make_pair(sectorData, icand));
 	    }
