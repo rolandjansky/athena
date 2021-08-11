@@ -8,3 +8,4 @@ class ProductionStep(Enum):
     Simulation = 'Simulation'
     PileUpPresampling = 'PileUpPresampling'
     Overlay = 'Overlay'
+    FastChain = 'FastChain'

@@ -12,7 +12,7 @@ def LArGMCfg(configFlags):
     doAlignment=configFlags.LAr.doAlign
 
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
-    if configFlags.Common.ProductionStep != ProductionStep.Simulation:
+    if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
         tool.GeometryConfig = "RECO"
 
     result.getPrimary().DetectorTools += [ tool ]
