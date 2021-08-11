@@ -97,8 +97,8 @@ StatusCode jFEXFPGA::execute() {
     return StatusCode::FAILURE;
   }
 
-  jFEXOutputCollection* jFEXOutputs;
-  StatusCode sc_tobs = evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection");
+  jFEXOutputCollection* jFEXOutputs = nullptr;
+  ATH_CHECK( evtStore()->retrieve(jFEXOutputs, "jFEXOutputCollection") );
 
   
     ATH_CHECK( m_jFEXPileupAndNoiseTool.retrieve());
