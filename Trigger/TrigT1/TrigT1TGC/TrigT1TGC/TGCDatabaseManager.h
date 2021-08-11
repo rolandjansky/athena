@@ -52,7 +52,7 @@ class TGCDatabaseManager : public AthMessaging
 
   const TGCConnectionPPToSL* getConnectionPPToSL(TGCRegionType type) const;
   const TGCConnectionASDToPP* getConnectionASDToPP(TGCRegionType region, int type, TGCForwardBackwardType forwardBackward) const;
-  const TGCRPhiCoincidenceMap* getRPhiCoincidenceMap(int sideId, int octantId) const;
+  std::shared_ptr<TGCRPhiCoincidenceMap> getRPhiCoincidenceMap(int sideId, int octantId) const;
   const TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> getTileMuCoincidenceLUT() const;
   std::shared_ptr<TGCNSWCoincidenceMap> getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const;
@@ -75,7 +75,7 @@ class TGCDatabaseManager : public AthMessaging
  private:
   enum {NumberOfModuleInBW=9};
 
-  TGCRPhiCoincidenceMap* m_mapRphi[NumberOfSide][NumberOfOctant];
+  std::array<std::array<std::shared_ptr<TGCRPhiCoincidenceMap>, NumberOfOctant>,NumberOfSide> m_mapRphi;
   TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> m_tileMuLUT;
   std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
@@ -91,7 +91,7 @@ class TGCDatabaseManager : public AthMessaging
 };
 
 inline 
-const TGCRPhiCoincidenceMap* TGCDatabaseManager::getRPhiCoincidenceMap(int sideId, int octantId) const
+std::shared_ptr<TGCRPhiCoincidenceMap> TGCDatabaseManager::getRPhiCoincidenceMap(const int sideId, const int octantId) const
 {
   return m_mapRphi[sideId][octantId];
 }

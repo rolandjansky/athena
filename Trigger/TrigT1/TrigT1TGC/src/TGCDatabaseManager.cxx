@@ -88,9 +88,6 @@ TGCDatabaseManager::TGCDatabaseManager()
   }
   for (int side=0; side<NumberOfSide; side +=1) {
     m_mapEIFI[side] = 0;
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = 0;
-    }
   }
 
 }
@@ -146,7 +143,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   // RPhi Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey,readLUTsCondKey, ver_BW, side, oct);
+      m_mapRphi[side][oct].reset(new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey,readLUTsCondKey, ver_BW, side, oct));
     }
   }
 
@@ -204,11 +201,6 @@ TGCDatabaseManager::~TGCDatabaseManager()
     m_PPToSL[j]=0;
   }
 
-  for (int side=0; side<NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++)
-       delete m_mapRphi[side][oct];
-  }
-
   for(int side=0; side<NumberOfSide; side +=1) {
     delete m_mapEIFI[side];
   }
@@ -227,10 +219,6 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   for( int i=0; i<NumberOfRegionType; i+=1) m_PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
     m_mapEIFI[side] =0;
-    
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = 0;
-    }
   }
 
   *this = right;
@@ -257,11 +245,6 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     for (int side=0; side<NumberOfSide; side +=1) {
       if (m_mapEIFI[side]!=0) delete m_mapEIFI[side];
       m_mapEIFI[side] = new TGCEIFICoincidenceMap(*(right.m_mapEIFI[side]));
-      
-      for (int oct=0; oct<NumberOfOctant; oct++) {
-	if(m_mapRphi[side][oct]!=0) delete m_mapRphi[side][oct];
-	m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.m_mapRphi[side][oct]));
-      }
     }
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;

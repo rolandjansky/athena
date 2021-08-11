@@ -18,7 +18,7 @@ class TGCRPhiCoincidenceMatrix {
 public:
   void setSSCId(int SSCIdIn){ m_SSCId=SSCIdIn;};
   void setSideId(int sideIdIn){ m_sideId=sideIdIn;};
-  void setRPhiMap(const TGCRPhiCoincidenceMap* map);
+  void setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map);
   void inputR(int rIn, int dRIn, int ptRIn);
   void inputPhi(int phiIn, int dPhiIn, int ptPhiIn);
   void clear();
@@ -39,7 +39,7 @@ private:
   const  TGCSectorLogic*  m_sectorLogic; 
 
   TGCRPhiCoincidenceOut* m_matrixOut;
-  const TGCRPhiCoincidenceMap* m_map;
+  std::shared_ptr<const TGCRPhiCoincidenceMap> m_map;
 
   int m_nPhiHit;
   int m_SSCId;

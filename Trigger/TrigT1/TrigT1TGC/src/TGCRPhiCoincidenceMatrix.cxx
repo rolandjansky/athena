@@ -141,7 +141,7 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   return out;
 }
 
-void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
+void TGCRPhiCoincidenceMatrix::setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map)
 {
   this->m_map = map;
 }
@@ -170,8 +170,6 @@ TGCRPhiCoincidenceMatrix& TGCRPhiCoincidenceMatrix::operator=(const TGCRPhiCoinc
     m_sectorLogic = right.m_sectorLogic;
     delete m_matrixOut;
     m_matrixOut =0;
-    delete m_map;
-    m_map = new TGCRPhiCoincidenceMap(*(right.m_map));
     m_nPhiHit = 0;
     m_SSCId   = 0;
     m_r       = 0;
