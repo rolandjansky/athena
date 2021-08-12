@@ -3,37 +3,21 @@
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "StoreGate/ReadDecorHandle.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 MURoIsUnpackingTool::MURoIsUnpackingTool( const std::string& type, 
             const std::string& name, 
             const IInterface* parent )
-  : RoIsUnpackingToolBase  ( type, name, parent ),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
-{
-}
-
+  : RoIsUnpackingToolBase  ( type, name, parent ) {}
 
 StatusCode MURoIsUnpackingTool::initialize() {
-
   CHECK( RoIsUnpackingToolBase::initialize() );
-  CHECK( m_configSvc.retrieve() );
-  CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize(SG::AllowEmpty) );
   CHECK( m_thresholdPatternsKey.initialize(!m_thresholdPatternsKey.empty()) );
   CHECK( m_recRpcRoITool.retrieve() );
   CHECK( m_recTgcRoITool.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -42,72 +26,64 @@ StatusCode MURoIsUnpackingTool::start() {
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode MURoIsUnpackingTool::updateConfiguration() {
-  using namespace TrigConf;
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
-    if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      m_muonThresholds.push_back( th );    
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
                                         const ROIB::RoIBResult& roib,
                                         const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
+
   // create and record the collections needed
-  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
-  auto trigRoIs = handle1.ptr();
-  SG::WriteHandle< DataVector<LVL1::RecMuonRoI> > handle2 = createAndStoreNoAux( m_recRoIsKey, ctx );
-  auto recRoIs = handle2.ptr();
-  SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
-  auto decisionOutput = handle3.ptr();
-  SG::WriteHandle<DecisionContainer> handle4 = createAndStore(m_decisionsKeyProbe, ctx ); 
-  auto decisionOutputProbe = handle4.ptr();
+  SG::WriteHandle<TrigRoiDescriptorCollection> trigRoIs = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
+  SG::WriteHandle< DataVector<LVL1::RecMuonRoI> > recRoIs = createAndStoreNoAux( m_recRoIsKey, ctx );
+  SG::WriteHandle<DecisionContainer> decisionOutput = createAndStore(m_decisionsKey, ctx ); 
+  SG::WriteHandle<DecisionContainer> decisionOutputProbe = createAndStore(m_decisionsKeyProbe, ctx ); 
+
+  // Retrieve the L1 menu configuration
+  SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, ctx);
+  ATH_CHECK(l1Menu.isValid());
+  std::optional<ThrVecRef> muThresholds;
+  ATH_CHECK(getL1Thresholds(*l1Menu, "MU", muThresholds));
 
   for ( auto& roi : roib.muCTPIResult().roIVec() ) {    
     const uint32_t roIWord = roi.roIWord();
-    int thresholdNumber = roi.pt();
+    unsigned int thresholdNumber = roi.pt();
     ATH_MSG_DEBUG( "MUON RoI with the threshold number: " << thresholdNumber );
     if ( thresholdNumber < 1 or thresholdNumber > 6 ) {
       ATH_MSG_WARNING( "Incorrect threshold number, should be between 1 and 6 but is: "
            << thresholdNumber << ", force setting it to 1" );
       thresholdNumber = 1;
     }
-    LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI( roIWord, m_recRpcRoITool.get(), m_recTgcRoITool.get(), &m_muonThresholds );
-    recRoIs->push_back( recRoI );
-    auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
-            recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-            recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
-    trigRoIs->push_back( trigRoI );
+
+    recRoIs->push_back( std::make_unique<LVL1::RecMuonRoI>(roIWord, m_recRpcRoITool.get(), m_recTgcRoITool.get(), l1Menu.cptr()) );
+    const LVL1::RecMuonRoI* recRoI = recRoIs->back();
+    
+    trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
+      roIWord, 0u ,0u,
+      recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
+      recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth) );
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
     // The hltSeedingNodeName() denotes an initial node with no parents
-    Decision* decisionMain  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); 
+    Decision* decisionMain  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
     decisionMain->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     decisionMain->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
 
-    Decision* decisionProbe  = TrigCompositeUtils::newDecisionIn( decisionOutputProbe, hltSeedingNodeName() ); 
+    Decision* decisionProbe  = TrigCompositeUtils::newDecisionIn( decisionOutputProbe.ptr(), hltSeedingNodeName() );
     decisionProbe->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     decisionProbe->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
-    for ( auto th: m_muonThresholds ) {
-      if ( th->thresholdNumber() < thresholdNumber )  { 
-      //th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
-      const std::string thresholdProbeName = getProbeThresholdName(th->name());
-      ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
-      addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );
-      addChainsToDecision( HLT::Identifier(thresholdProbeName ), decisionProbe, activeChains );
+    for (const auto th : muThresholds.value().get()) {
+      if ( th->mapping() < thresholdNumber )  {
+        //th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
+        const std::string thresholdProbeName = getProbeThresholdName(th->name());
+        ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
+        addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );
+        addChainsToDecision( HLT::Identifier(thresholdProbeName ), decisionProbe, activeChains );
       }
     }
 
   }
+
   // monitoring
   {
     auto RoIsCount = Monitored::Scalar( "count", trigRoIs->size() );
@@ -118,10 +94,16 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   return StatusCode::SUCCESS;
 }
 
-
 StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
                                        const xAOD::TrigComposite& l1TriggerResult,
                                        const HLT::IDSet& activeChains) const {
+  using namespace TrigCompositeUtils;
+
+  // Create and record RoI descriptor and decision containers
+  SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx );
+  SG::WriteHandle<DecisionContainer> decisions = createAndStore(m_decisionsKey, ctx );
+  SG::WriteHandle<DecisionContainer> decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx );
+
   // Retrieve the xAOD RoI container from L1TriggerResult
   if (!l1TriggerResult.hasObjectLink(m_muRoILinkName, ClassID_traits<xAOD::MuonRoIContainer>::ID())) {
     ATH_MSG_DEBUG("No muon RoIs in this event");
@@ -133,11 +115,13 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
 
   // Create threshold patterns decoration accessor
   auto thrPatternAcc = SG::makeHandle<uint64_t>(m_thresholdPatternsKey, ctx);
+  ATH_CHECK(thrPatternAcc.isPresent());
 
-  // Create and record RoI descriptor and decision containers
-  using namespace TrigCompositeUtils;
-  SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
-  SG::WriteHandle<DecisionContainer> decisions = createAndStore(m_decisionsKey, ctx);
+  // Retrieve the L1 menu configuration
+  SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, ctx);
+  ATH_CHECK(l1Menu.isValid());
+  std::optional<ThrVecRef> muThresholds;
+  ATH_CHECK(getL1Thresholds(*l1Menu, "MU", muThresholds));
 
   size_t linkIndex{0};
   for (const xAOD::MuonRoI* roi : rois) {
@@ -155,14 +139,22 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
     decision->setObjectLink(initialRecRoIString(),
                             ElementLink<xAOD::MuonRoIContainer>(m_muRoILinkName, linkIndex, ctx));
 
+    Decision* decisionProbe = TrigCompositeUtils::newDecisionIn(decisionsProbe.ptr(), hltSeedingNodeName());
+    decisionProbe->setObjectLink(initialRoIString(),
+                                 ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+    decisionProbe->setObjectLink(initialRecRoIString(),
+                                 ElementLink<xAOD::MuonRoIContainer>(m_muRoILinkName, linkIndex, ctx));
+
     // Add positive decisions for chains above the threshold
     uint64_t thresholdPattern = thrPatternAcc(*roi);
     ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
-    for (const TrigConf::TriggerThreshold* thr : m_muonThresholds) {
+    for (const auto thr : muThresholds.value().get()) {
       if (not (thresholdPattern & (1 << thr->mapping()))) {continue;}
-      ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->thresholdNumber()
-                    << " name " << thr->name());
+      const std::string thresholdProbeName = getProbeThresholdName(thr->name());
+      ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()
+                    << " names " << thr->name() << " and " << thresholdProbeName);
       addChainsToDecision(HLT::Identifier(thr->name()), decision, activeChains);
+      addChainsToDecision(HLT::Identifier(thresholdProbeName), decisionProbe, activeChains);
       if (msgLvl(MSG::DEBUG)) {
         DecisionIDContainer ids;
         decisionIDs(decision, ids);

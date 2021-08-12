@@ -12,10 +12,7 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 HLTSeeding::HLTSeeding(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator)
-{
-}
-
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode HLTSeeding::initialize() {
   ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
@@ -38,38 +35,10 @@ StatusCode HLTSeeding::initialize() {
     ATH_CHECK( m_keyWriterTool.retrieve() );
   }
 
-  ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
-  ATH_CHECK(incidentSvc.retrieve());
-  incidentSvc->addListener(this,"BeginRun", 200);
-  incidentSvc.release().ignore();
-
   if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-void HLTSeeding::handle(const Incident& incident) {
-  if (incident.type()!="BeginRun") return;
-  ATH_MSG_DEBUG( "In HLTSeeding BeginRun incident" );
-    
-  for ( auto t: m_roiUnpackers_roib ) {
-    if ( t->updateConfiguration().isFailure() ) {
-      ATH_MSG_ERROR( "Problem in configuring " << t->name() );
-    }
-  }
-
-  for ( auto t: m_roiUnpackers_xaod ) {
-    if ( t->updateConfiguration( ).isFailure() ) {
-      ATH_MSG_ERROR( "Problem in configuring " << t->name() );
-    }
-  }
-}
-
-
-StatusCode HLTSeeding::readConfiguration() {
   return StatusCode::SUCCESS;
 }
 

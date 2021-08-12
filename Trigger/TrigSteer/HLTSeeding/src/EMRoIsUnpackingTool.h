@@ -4,22 +4,10 @@
 #ifndef HLTSEEDING_EMROISUNPACKINGTOOL_H
 #define HLTSEEDING_EMROISUNPACKINGTOOL_H 1
 
-// STL includes
-#include <string>
-#include <functional>
-#include <vector>
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigT1Interfaces/RecEmTauRoI.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-// FrameWork includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/WriteHandleKey.h"
-
-// HLTSeeding includes
 #include "RoIsUnpackingToolBase.h"
 
+#include "TrigT1Interfaces/RecEmTauRoI.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class EMRoIsUnpackingTool : public RoIsUnpackingToolBase { 
 public: 
@@ -34,17 +22,10 @@ public:
                     const HLT::IDSet& activeChains) const override;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode updateConfiguration() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode start() override;
   
 private: 
-
   ///@{ @name Properties
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoIs", "HLT_EMRoIs",
-    "Name of the RoIs object produced by the unpacker"};
-
   SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey{
     this, "OutputRecRoIs", "HLT_RecEMRoIs",
     "Name of the RoIs object produced by the unpacker"};
@@ -52,9 +33,6 @@ private:
   Gaudi::Property<float> m_roIWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};
   ///@}
-  
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
-}; 
+};
 
 #endif //> !HLTSEEDING_EMROISUNPACKINGTOOL_H

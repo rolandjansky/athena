@@ -1,37 +1,22 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-// HLTSeeding includes
 #include "RoIsUnpackingEmulationTool.h"
-#include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include <fstream>
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 RoIsUnpackingEmulationTool::RoIsUnpackingEmulationTool( const std::string& type, 
 					  const std::string& name, 
 					  const IInterface* parent ) 
-  : RoIsUnpackingToolBase ( type, name, parent )
-{}
-
+  : RoIsUnpackingToolBase ( type, name, parent ) {}
 
 StatusCode RoIsUnpackingEmulationTool::initialize() {  
-
   ATH_CHECK( RoIsUnpackingToolBase::initialize() );
-  ATH_CHECK( m_trigRoIsKey.initialize() );
 
   if (readEmulatedData().isFailure() ) {
     ATH_MSG_ERROR( "Failed to read emulated data" );
     return StatusCode::FAILURE;
   }
-
-
-  ATH_CHECK( decodeThresholdToChainMapping() );
 
   return StatusCode::SUCCESS;
 }
@@ -40,14 +25,6 @@ StatusCode RoIsUnpackingEmulationTool::start() {
   ATH_CHECK( decodeMapping( [&](const std::string& name ){ return name.find(m_thresholdPrefix) == 0;  } ) );
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode RoIsUnpackingEmulationTool::decodeThresholdToChainMapping() {
-
-  return StatusCode::SUCCESS;
-}
-
-
 
 StatusCode RoIsUnpackingEmulationTool::readEmulatedData(){
   if ( m_inputFilename.empty() ) {
@@ -155,46 +132,38 @@ RoIsUnpackingEmulationTool::FakeRoI RoIsUnpackingEmulationTool::parseInputRoI(co
   return result;
 }
 
-
-
 StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
 					       const ROIB::RoIBResult& /*roib*/,
 					       const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
 
   // create and record the collections needed
-  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
-  auto trigRoIs = handle1.ptr();
-  SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
-  auto decisionOutput = handle3.ptr();
+  SG::WriteHandle<TrigRoiDescriptorCollection> trigRoIs = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
+  SG::WriteHandle<DecisionContainer> decisionOutput = createAndStore(m_decisionsKey, ctx ); 
   
   // retrieve fake data for this event
-  
   if (m_inputData.size() ==0){
     ATH_MSG_ERROR("No input dataset found. Cannot decode RoI emulation");
     return StatusCode::FAILURE;
   }
-  
   int line = ctx.evt() % m_inputData.size();
   ATH_MSG_DEBUG("Getting RoIs for event "<< line);
   auto FakeRoIs = m_inputData[line];
-  
-  
+
   for (auto& roi : FakeRoIs) {
     uint32_t roIWord = roi.roIWord;      
-    auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
-					  roi.eta, roi.eta-m_roIWidth, roi.eta+m_roIWidth,
-					  roi.phi, roi.phi-m_roIWidth, roi.phi+m_roIWidth );
-    trigRoIs->push_back( trigRoI );
+    trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
+      roIWord, 0u ,0u,
+			roi.eta, roi.eta-m_roIWidth, roi.eta+m_roIWidth,
+			roi.phi, roi.phi-m_roIWidth, roi.phi+m_roIWidth) );
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << MSG::dec );      
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
     
     for ( auto th: roi.passedThresholdIDs ) {
       ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains " );
       addChainsToDecision( HLT::Identifier( th ), decision, activeChains );
-      
       
       // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail("Thresholds", passedThresholds); // record passing threshold names (for easy debugging)            
       decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
@@ -205,7 +174,5 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     ATH_MSG_DEBUG("RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord());
   }
   
-  return StatusCode::SUCCESS; // what else
- 
+  return StatusCode::SUCCESS;
 }
-
