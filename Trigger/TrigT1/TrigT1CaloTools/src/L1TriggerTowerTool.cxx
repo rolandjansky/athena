@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1TriggerTowerTool.cxx 
@@ -68,13 +68,14 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_caloMgr(0),
   m_lvl1Helper(0),
-  m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-  m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
-  m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
+  m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools", this),
+  m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService", this),
+  m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool", this),
   m_l1CondSvc("L1CaloCondSvc", n),
   m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
   m_dbFineTimeRefsTowers(0),
-  m_correctFir(false)
+  m_correctFir(false),
+  m_dynamicPedestalProvider("", this)
 {
   declareInterface<IL1TriggerTowerTool>(this);
 

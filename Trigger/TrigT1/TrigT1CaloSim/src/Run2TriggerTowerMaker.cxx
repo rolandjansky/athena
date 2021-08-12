@@ -98,6 +98,7 @@ namespace LVL1 {
     declareProperty("RngSvc", m_rngSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
+    declareProperty("L1TriggerTowerTool", m_TTtool);
     declareProperty("PpmMappingTool", m_mappingTool);
     declareProperty("LumiBlockMuTool", m_lumiBlockMuTool);
 
