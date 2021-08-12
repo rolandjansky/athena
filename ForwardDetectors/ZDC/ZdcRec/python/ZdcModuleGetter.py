@@ -29,10 +29,11 @@ class ZdcModuleGetter ( Configured ) :
       #   return False
 
       # a bit unusual: check if input exist before scheduling the alg. Will nt report ERROR in input does not exist
-      from RecExConfig.ObjKeyStore import objKeyStore
-      if not objKeyStore.isInInput("xAOD::TriggerTowerContainer","ZdcTriggerTowers"):
-         mlog.info("no ZdcTriggerTowers: Quit.")
-         return False
+
+      #from RecExConfig.ObjKeyStore import objKeyStore
+      #if not objKeyStore.isInInput("xAOD::TriggerTowerContainer","ZdcTriggerTowers"):
+      #   mlog.info("no ZdcTriggerTowers: Quit.")
+      #   return False
 
       
       return True
@@ -54,7 +55,7 @@ class ZdcModuleGetter ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon import CfgMgr
         mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled")
-        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")   
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="PbPb2018")   
         #zdcAnalysisTool = CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="pPb2016")   
         
         #zdcAnalysisTool.FixTau1=True

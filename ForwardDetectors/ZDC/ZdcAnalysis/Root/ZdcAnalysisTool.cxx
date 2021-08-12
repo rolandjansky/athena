@@ -926,14 +926,12 @@ StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
 
 StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer)
 {
-    if (!m_eventReady)
-    {
-        ATH_MSG_INFO("Event not ready for ZDC reco!");
-        return StatusCode::FAILURE;
-    }
 
-    const xAOD::EventInfo* eventInfo = 0;
-    ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  if (!eventInfo.isValid()) return StatusCode::FAILURE;
+
+  //  const xAOD::EventInfo* eventInfo = 0;
+  //  ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
 
     // check for new run number, if new, possibly update configuration and/or calibrations
     //
