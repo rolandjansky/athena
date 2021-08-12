@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
-#include "TrigT1TGC/TGCSectorLogic.h"
+
 #include <iostream>
 #include <cstdlib>
+
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
+#include "TrigT1TGC/BigWheelCoincidenceLUT.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -78,23 +81,21 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     } else {
       subsector = 4*(2*m_SSCId+m_r)+m_phi[j];
     }
-    
-    int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
 
     // calculate pT of muon candidate
     uint8_t ptOut = 0;   // 0 is no candidate.
-    if(tgcArgs()->useRun3Config()){
-      //Algorithm for Run3
-      int pt=m_map->test_Run3(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),
-                            subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
+    if(tgcArgs()->useRun3Config()){   // for Run-3
+      int type = m_lut->getMapType(m_ptR, m_ptPhi[j]);
+      int pt = m_lut->test(m_sectorLogic->getOctantID(), m_sectorLogic->getModuleID(),
+                           subsector,type,m_dR,m_dPhi[j]);
       ptOut = std::abs(pt);
       chargeOut = pt<0 ? 0:1;
       // the charge is inverted on the C-side.
       chargeOut = m_sideId == 0 ? chargeOut : !chargeOut; 
 
       CoincidenceTypeOut=(type==0);
-
     } else {    // for Run-2
+      int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
       ptOut = m_map->test(m_sectorLogic->getOctantID(),
                           m_sectorLogic->getModuleID(), subsector,
                           type, m_dR, m_dPhi[j]);
@@ -141,14 +142,17 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   return out;
 }
 
-void TGCRPhiCoincidenceMatrix::setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map)
-{
+void TGCRPhiCoincidenceMatrix::setCoincidenceLUT(std::shared_ptr<const LVL1TGC::BigWheelCoincidenceLUT> lut) {
+  this->m_lut = lut;
+}
+
+void TGCRPhiCoincidenceMatrix::setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map) {
   this->m_map = map;
 }
 
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCArguments* tgcargs,const TGCSectorLogic* sL)
   : m_sectorLogic(sL),
-    m_matrixOut(0), m_map(0),
+    m_matrixOut(0), m_lut(0), m_map(0),
     m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_sideId(0), m_tgcArgs(tgcargs)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
@@ -161,7 +165,6 @@ TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCArguments* tgcargs,c
 TGCRPhiCoincidenceMatrix::~TGCRPhiCoincidenceMatrix()
 {
   m_matrixOut=0;
-  m_map = 0;
 }
 
 TGCRPhiCoincidenceMatrix& TGCRPhiCoincidenceMatrix::operator=(const TGCRPhiCoincidenceMatrix& right)
@@ -182,14 +185,6 @@ TGCRPhiCoincidenceMatrix& TGCRPhiCoincidenceMatrix::operator=(const TGCRPhiCoinc
     }
   }
   return *this;
-}
-
-TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right)
-  : m_sectorLogic(0),
-    m_matrixOut(0), m_map(0),
-    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0)
-{
-  *this = right;  
 }
 
 } //end of namespace bracket

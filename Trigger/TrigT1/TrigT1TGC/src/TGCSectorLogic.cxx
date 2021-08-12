@@ -63,14 +63,15 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
   m_SSCController.setRegion(regionIn);
 
   m_matrix.setSideId(m_sideId);
-  m_matrix.setRPhiMap(db->getRPhiCoincidenceMap(m_sideId, m_octantId));
   m_mapEIFI = db->getEIFICoincidenceMap(m_sideId);
 
   m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP);
   if(tgcArgs()->useRun3Config()) {
+    m_matrix.setCoincidenceLUT(db->getBigWheelCoincidenceLUT());
     m_tileMuLUT = db->getTileMuCoincidenceLUT();
     m_useTileMu = (m_tileMuLUT != nullptr) && m_useTileMu;
   } else {
+    m_matrix.setRPhiMap(db->getRPhiCoincidenceMap(m_sideId, m_octantId));
     m_mapRun2TileMu = db->getRun2TileMuCoincidenceMap();
     m_useTileMu = (m_mapRun2TileMu != nullptr) && m_useTileMu;
   }

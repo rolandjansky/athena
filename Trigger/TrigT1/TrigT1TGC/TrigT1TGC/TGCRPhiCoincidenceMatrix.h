@@ -6,18 +6,23 @@
 #define TGCRPhiCoincidenceMatrix_hh
 
 #include "TrigT1TGC/TGCSSCControllerOut.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCArguments.h"
+
+namespace LVL1TGC {
+class BigWheelCoincidenceLUT;
+}
 
 namespace LVL1TGCTrigger {
 
+class TGCRPhiCoincidenceMap;
 class TGCSectorLogic;
 class TGCRPhiCoincidenceOut;
 
 class TGCRPhiCoincidenceMatrix {
-public:
+ public:
   void setSSCId(int SSCIdIn){ m_SSCId=SSCIdIn;};
   void setSideId(int sideIdIn){ m_sideId=sideIdIn;};
+  void setCoincidenceLUT(std::shared_ptr<const LVL1TGC::BigWheelCoincidenceLUT> lut);
   void setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map);
   void inputR(int rIn, int dRIn, int ptRIn);
   void inputPhi(int phiIn, int dPhiIn, int ptPhiIn);
@@ -27,18 +32,18 @@ public:
   TGCRPhiCoincidenceMatrix(const TGCArguments*, const  TGCSectorLogic*  sL=0);
   virtual ~TGCRPhiCoincidenceMatrix();
 
-  TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right);
+  TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right) = default;
   TGCRPhiCoincidenceMatrix& operator=(const TGCRPhiCoincidenceMatrix& right);
   
   const TGCArguments* tgcArgs() const { return m_tgcArgs; }
   
-private:
-
+ private:
   enum {MaxNPhiHit = 2}; 
     
   const  TGCSectorLogic*  m_sectorLogic; 
 
   TGCRPhiCoincidenceOut* m_matrixOut;
+  std::shared_ptr<const LVL1TGC::BigWheelCoincidenceLUT> m_lut;
   std::shared_ptr<const TGCRPhiCoincidenceMap> m_map;
 
   int m_nPhiHit;
@@ -54,7 +59,7 @@ private:
   const TGCArguments* m_tgcArgs;
 };
 
-} //end of namespace bracket
+}   // LVL1TGCTrigger namespace
 
 #endif // TGCRPhiCoincidenceMatrix_hh
 
