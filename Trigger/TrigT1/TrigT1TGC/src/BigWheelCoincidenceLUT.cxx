@@ -129,10 +129,7 @@ bool BigWheelCoincidenceLUT::readMap()
         fn += sideName[m_side]+moduleName[iModule]+coincidenceTypeName[iCoinType]+"_Octant_";
       }
       fn += m_verName + ".db";
-//      bool Forward_type1=(moduleName[iModule]=="2b"||moduleName[iModule]=="5a"||moduleName[iModule]=="8b");
-//      bool Forward_type2=(moduleName[iModule]=="2a"||moduleName[iModule]=="5b"||moduleName[iModule]=="8a");
-//      if(m_octant%2==0 && Forward_type1){continue;}
-//      if(m_octant%2==1 && Forward_type2){continue;}
+
       int type = -1;
       int lDR, hDR, lDPhi, hDPhi;
 
