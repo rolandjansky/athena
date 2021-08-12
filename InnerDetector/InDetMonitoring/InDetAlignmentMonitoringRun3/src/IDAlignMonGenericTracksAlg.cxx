@@ -101,13 +101,11 @@ StatusCode IDAlignMonGenericTracksAlg::initialize()
     ATH_MSG_DEBUG("Hit quality tool setup - hit quality cuts will be applied to Si hits");
     m_doHitQuality = true;
   }
-
+  
   if (m_doIP) {
-    ATH_CHECK(m_trackToVertexIPEstimator.retrieve());
-  } else {
-    m_trackToVertexIPEstimator.disable();
+    ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
-
+  
   if ( m_beamSpotKey.initialize().isFailure() ) {
     ATH_MSG_WARNING("Failed to retrieve beamspot service " << m_beamSpotKey << " - will use nominal beamspot at (0,0,0)");
     m_hasBeamCondSvc = false;
