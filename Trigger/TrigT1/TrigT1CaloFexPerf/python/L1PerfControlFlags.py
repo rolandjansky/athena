@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Flags to control the L1 calo upgrade simulation  """
 
@@ -7,9 +7,6 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 # get logger for this file
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigT1CaloFexPerf.L1PerfControlFlags' )
-log.setLevel(logging.DEBUG)
-
-
 
 _caloflags = list()
 _ctpflags = list()
