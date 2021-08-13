@@ -20,7 +20,7 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
     raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % globalflags.DataSource() )
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
-  if athenaCommonFlags.isOnline: 
+  if athenaCommonFlags.isOnline:
       kwargs["ReadKey"] = ""
   return Muon__RpcRdoToPrepDataToolMT(name,**kwargs)
 
@@ -33,7 +33,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
   from AthenaCommon.Include import include
   MuonCalibConfig.setupMdtCondDB()
   include("AmdcAth/AmdcAth_jobOptions.py")
-  
+
   if globalflags.DataSource.is_data():
     kwargs.setdefault("UseTwin", True)
   kwargs.setdefault("CalibrationTool", MuonCalibConfig.MdtCalibrationTool())
@@ -43,13 +43,13 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
 
 
 def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
-  # setup dependencies which are not yet in C++  
+  # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig  # noqa: F401
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
   return Muon__TgcRdoToPrepDataToolMT(name, **kwargs)
-  
-  
+
+
 def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig  # noqa: F401
@@ -71,13 +71,13 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
   return Muon__CscRdoToCscPrepData(name, **kwargs)
 
 #############################################################################
-def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
+def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs):
   kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
   kwargs.setdefault("NSWCalibTool","NSWCalibTool")
   from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataToolMT
   return Muon__MmRdoToPrepDataToolMT(name,**kwargs)
 
-def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs): 
+def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs):
   kwargs.setdefault("ClusterBuilderTool","SimpleSTgcClusterBuilderTool")
   from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataToolMT
   return Muon__sTgcRdoToPrepDataToolMT(name,**kwargs)
