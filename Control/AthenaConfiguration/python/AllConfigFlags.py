@@ -101,6 +101,7 @@ def _createCfgFlags():
 
 
     acf.addFlag('Output.EVNTFileName', '')
+    acf.addFlag('Output.EVNT_TRFileName', '')
     acf.addFlag('Output.HITSFileName', '')
     acf.addFlag('Output.RDOFileName',  '')
     acf.addFlag('Output.RDO_SGNLFileName', '')
