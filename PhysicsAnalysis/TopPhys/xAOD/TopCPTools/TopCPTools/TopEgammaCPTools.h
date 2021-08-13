@@ -22,7 +22,6 @@
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 //#include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
-//#include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
 #include "TopConfiguration/Tokenize.h"
 
