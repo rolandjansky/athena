@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -38,7 +38,6 @@ TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
      m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
      m_matchTool( "Trig::MatchingTool/MatchingTool", this ),
      m_tah( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
-     m_bcTool( "Trig::TrigConfBunchCrossingTool/BunchCrossingTool" ),
      m_histSvc( "THistSvc", name ) {
          
          declareProperty( "TriggerList", m_chain_names, "List of triggers to analyze");
@@ -53,7 +52,6 @@ StatusCode TriggerAnalysisTutorial::initialize() {
    // retrieve the tools and services:
    CHECK( m_trigDec.retrieve() );
    CHECK( m_matchTool.retrieve() );
-   //CHECK( m_bcTool.retrieve() );
    CHECK( m_histSvc.retrieve() );
    m_trigDec->ExperimentalAndExpertMethods()->enable();
    // done

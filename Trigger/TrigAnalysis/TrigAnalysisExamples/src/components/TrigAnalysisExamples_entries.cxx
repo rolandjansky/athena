@@ -5,7 +5,6 @@
 #include "../TriggerAnalysisTutorial.h"
 #include "../TrigExpressStreamAlg.h"
 #include "../TrigEmulatorExAlg.h"
-#include "../BunchCrossingExample.h"
 #include "../TriggerAnalysisHelper.h"
 
 DECLARE_COMPONENT( Trig::TDTExample )
@@ -15,6 +14,4 @@ DECLARE_COMPONENT( TrigMatchExAlg )
 DECLARE_COMPONENT( TriggerAnalysisTutorial )
 DECLARE_COMPONENT( TrigExpressStreamAlg )
 DECLARE_COMPONENT( TrigEmulatorExAlg )
-DECLARE_COMPONENT( Trig::BunchCrossingExample )
 DECLARE_COMPONENT( Trig::TriggerAnalysisHelper )
-
