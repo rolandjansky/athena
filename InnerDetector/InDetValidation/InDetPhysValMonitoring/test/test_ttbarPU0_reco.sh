@@ -22,6 +22,7 @@ run Reco_tf.py \
   --inputRDOFile   "$inputRDO" \
   --outputAODFile   physval.AOD.root \
   --outputNTUP_PHYSVALFile physval.ntuple.root \
+  --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
   --steering        doRAWtoALL \
   --checkEventCount False \
   --ignoreErrors    True \
