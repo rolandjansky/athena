@@ -379,7 +379,7 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     Pythia8::Event &pyev = *(m_BEventBuffer.begin());
     evt->set_event_number(*(m_internalEventNumbers.begin()));
-    m_pythiaToHepMC.fill_next_event(pyev, evt, 1);
+    m_pythiaToHepMC.fill_next_event(pyev, evt, 1, &Pythia8_i::m_pythia->info);
     
     
     // set the randomseeds
