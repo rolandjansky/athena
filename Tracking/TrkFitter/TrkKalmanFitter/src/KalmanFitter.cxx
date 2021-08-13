@@ -527,7 +527,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     if (msgLvl(MSG::VERBOSE)) {
       ATH_MSG_VERBOSE(" Sorting passed, sorted list by distance to ref point:" );
       PrepRawDataSet::const_iterator it1    = orderedPRDColl.begin();
-      for( ; it1!=orderedPRDColl.end(); it1++) {
+      for( ; it1!=orderedPRDColl.end(); ++it1) {
         if ( !(*it1)->detectorElement() ) {
           ATH_MSG_ERROR( "corrupt data - PrepRawData has no element link.\n"
           << "The track fitter won't help you here -> segfault expected." );
@@ -627,14 +627,14 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     // fill measurements into fitter-internal trajectory: no outlier, external meas't
     MeasurementSet::const_iterator it    = sortedHitSet.begin();
     MeasurementSet::const_iterator itEnd = sortedHitSet.end();
-    for(int istate=1 ; it!=itEnd; it++, istate++) {
+    for(int istate=1 ; it!=itEnd; ++it, ++istate) {
       m_trajectory.push_back(ProtoTrackStateOnSurface((*it),false,false,istate));
       m_trajectory.back().identifier(Trk::IdentifierExtractor::extract(*it));
     }
   } else {
     MeasurementSet::const_iterator it    = inputMeasSet.begin();
     MeasurementSet::const_iterator itEnd = inputMeasSet.end();
-    for(int istate=1 ; it!=itEnd; it++, istate++) {
+    for(int istate=1 ; it!=itEnd; ++it, ++istate) {
       m_trajectory.push_back(ProtoTrackStateOnSurface((*it),false,false,istate));
       m_trajectory.back().identifier(Trk::IdentifierExtractor::extract(*it));
     }
@@ -1075,7 +1075,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const EventContext& ctx,
         int nMeasPrecise = 0;  int nMeasTube = 0;  int nOutlPrecise = 0; int nOutlTube = 0;
 	int posFirstTrt=0;
         Trajectory::iterator it = m_trajectory.begin();
-        for(; it!=m_trajectory.end(); it++) {
+        for(; it!=m_trajectory.end(); ++it) {
           if (it->isDriftCircle()) {
             if (posFirstTrt == 0) posFirstTrt = it->positionOnTrajectory();
             if (it->measurement()->localCovariance()(Trk::locR,Trk::locR) > 1.0) {
@@ -1184,7 +1184,7 @@ bool Trk::KalmanFitter::invokeAnnealingFilter(const Trk::TrackParameters*&  star
         else
           dafStatus = m_smoother->fit(m_trajectory, newFitQuality, kalMec);
         ATH_MSG_INFO( "Internal DAF returned with chi2 chain:");
-        for (Trk::Trajectory::const_iterator it=m_trajectory.begin();it!=m_trajectory.end(); it++) {
+        for (Trk::Trajectory::const_iterator it=m_trajectory.begin();it!=m_trajectory.end(); ++it) {
           if (!it->isOutlier()) {
             if (it->fitQuality()) ATH_MSG_INFO( it->fitQuality()->chiSquared() << " % ");
             else                  ATH_MSG_INFO( "Problem - no FitQ % ");
@@ -1239,7 +1239,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
   // get chi2 asymmetry
   double Chi2FilterAfb = 0.0;
   if (FQ  != nullptr) {
-    for (Trk::Trajectory::const_iterator it=m_trajectory.begin(); it!=m_trajectory.end(); it++)
+    for (Trk::Trajectory::const_iterator it=m_trajectory.begin(); it!=m_trajectory.end(); ++it)
       if ( !it->isOutlier() ||
            (it->trackStateType() != Trk::TrackState::ExternalOutlier
             && it->iterationShowingThisOutlier() == int(upcomingIteration-1)) )
@@ -1349,7 +1349,7 @@ Trk::KalmanFitter::makeTrack(
     bool dnaFitPresent = Trk::ProtoTrajectoryUtility::trajectoryHasMefot(m_trajectory);
     Trajectory::iterator it = m_trajectory.begin();
     int i=0;
-    for(; it!=m_trajectory.end(); it++, i++) {
+    for(; it!=m_trajectory.end(); ++it, i++) {
       const TrackStateOnSurface* trkState = it->createState();
       if (trkState) finalTrajectory.push_back( trkState );
       else ATH_MSG_WARNING ("fitter inconsistency - no track state #"<<i<<" available!");
@@ -1574,14 +1574,14 @@ Trk::KalmanFitter::callValidation(const EventContext& ctx,
     const Trk::PerigeeSurface   perSurf; // default perigee at origin
     const Trk::TrackParameters* nearestParam   = nullptr;
     Trajectory::const_iterator it = m_trajectory.begin();
-    for ( ; it != m_trajectory.end(); it++ ) { // FIXME this can be coded more elegantly
+    for ( ; it != m_trajectory.end(); ++it ) { // FIXME this can be coded more elegantly
         if (!it->isOutlier() && (it->smoothedTrackParameters())) {
             nearestParam = it->smoothedTrackParameters();
             break;
         }
     }
     if (!nearestParam) {
-        for ( it = m_trajectory.begin(); it != m_trajectory.end(); it++ ) {
+        for ( it = m_trajectory.begin(); it != m_trajectory.end(); ++it ) {
             if (!it->isOutlier() && (it->forwardTrackParameters())) {
                 nearestParam = it->forwardTrackParameters();
                 break;
