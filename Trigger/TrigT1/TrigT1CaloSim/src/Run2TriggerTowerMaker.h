@@ -39,6 +39,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //Calorimeter tower includes
@@ -56,7 +57,6 @@
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 // forward decl(s)
-class ILumiBlockMuTool;
 class CaloLVL1_ID;
 class CaloTriggerTowerService;
 class L1CaloCondSvc;
@@ -69,7 +69,6 @@ class L1CaloPpmDeadChannelsContainer;
 class L1CaloPpmDeadChannels;
 
 class IAthRNGSvc;
-class ILumiBlockMuTool;
 namespace ATHRNG {
   class RNGWrapper;
 }
@@ -156,7 +155,6 @@ private:
 
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<LVL1BS::ITrigT1CaloDataAccessV2> m_bstowertool;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
@@ -211,18 +209,18 @@ private:
   StatusCode getCaloTowers();
 
   /** Convert analogue pulses to digits */
-  void digitize();
+  void digitize(const EventContext& ctx);
 
   /** Simulate PreProcessing on analogue amplitudes */
-  StatusCode preProcess(const int eventBCID);
-  StatusCode preProcessTower(const int eventBCID,xAOD::TriggerTower* tower);
+  StatusCode preProcess(int bcid,float mu);
+  StatusCode preProcessTower(int bcid,float mu,xAOD::TriggerTower* tower);
   
   /** Add overlay data **/
-  virtual StatusCode addOverlay(const int eventBCID);
-  virtual StatusCode addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
+  virtual StatusCode addOverlay(int bcid,float mu);
+  virtual StatusCode addOverlay(int bcid,float mu,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
   
   /** PreProcess up to LUT in **/
-  StatusCode preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
+  StatusCode preProcessTower_getLutIn(int bcid,float mu,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
   
   /** calculate LUT out **/
   StatusCode calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
@@ -258,7 +256,6 @@ private:
   int EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const;
 
   // void preProcessLayer(int layer, int eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);
-  StatusCode preProcessTower(xAOD::TriggerTower* tower, int eventBCID);
 
   int etaToElement(float feta, int layer) const;
   
@@ -269,6 +266,8 @@ private:
   // Read and Write Handlers
   // --------------------------------------------------------------------------
   SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey;
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_actMuKey { this, "actualInteractionsPerCrossingKey", "EventInfo.actualInteractionsPerCrossing", "Decoration for actual interactions per crossing" };
+
   //  location of input TriggerTowers (for reprocessing)
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_inputTTLocation;
   // locations within StoreGate to store collections of Trigger Towers

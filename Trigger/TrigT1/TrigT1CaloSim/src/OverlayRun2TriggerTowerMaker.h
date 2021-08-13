@@ -48,11 +48,11 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaults.h"
 
 // EDM include(s)
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 // forward decl(s)
-class ILumiBlockMuTool;
 class CaloLVL1_ID;
 class CaloTriggerTowerService;
 class L1CaloCondSvc;
@@ -65,7 +65,6 @@ class L1CaloPpmDeadChannelsContainer;
 class L1CaloPpmDeadChannels;
 
 class IAthRNGSvc;
-class ILumiBlockMuTool;
 namespace ATHRNG {
   class RNGWrapper;
 }
@@ -163,7 +162,6 @@ private:
 
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<LVL1BS::ITrigT1CaloDataAccessV2> m_bstowertool;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
@@ -219,15 +217,15 @@ private:
   void digitize();
 
   /** Simulate PreProcessing on analogue amplitudes */
-  StatusCode preProcess(const int eventBCID);
-  StatusCode preProcessTower(const int eventBCID,xAOD::TriggerTower* tower);
+  StatusCode preProcess(const xAOD::EventInfo& event);
+  StatusCode preProcessTower(const xAOD::EventInfo& event,xAOD::TriggerTower* tower);
   
   /** Add overlay data **/
-  virtual StatusCode addOverlay(const int eventBCID);
-  virtual StatusCode addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
+  virtual StatusCode addOverlay(const xAOD::EventInfo& event);
+  virtual StatusCode addOverlay(const xAOD::EventInfo& event,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
   
   /** PreProcess up to LUT in **/
-  StatusCode preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
+  StatusCode preProcessTower_getLutIn(const xAOD::EventInfo& event,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
   
   /** calculate LUT out **/
   StatusCode calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
