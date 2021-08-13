@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -7,7 +7,6 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon import CfgMgr
 from AthenaCommon import Logging
 dfjetlog = Logging.logging.getLogger('JetCommon')
@@ -581,10 +580,6 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
         dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
         return
     else:
-        isMC = False
-        if globalflags.DataSource() == 'geant4':
-          isMC = True
-
         distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
         sequence += distanceintrainaug
 
@@ -595,14 +590,9 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
             distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
         else:
             distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
-            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-            if isMC:
-                ToolSvc += BunchCrossingTool( "MC" )
-                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
-            else:
-                ToolSvc += BunchCrossingTool( "LHC" )
-                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
-            ToolSvc += distanceintrainaugtool
+            from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+            BunchCrossingCondAlgDefault()
+
         if distanceintrainaugtool not in distanceintrainaug.AugmentationTools:
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
