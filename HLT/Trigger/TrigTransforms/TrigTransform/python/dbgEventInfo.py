@@ -186,8 +186,7 @@ class dbgEventInfo:
 
         # Decode Lvl1 trigger info
         info = event.lvl1_trigger_info()
-        nwords = len(info)//3  # TBP, TAP, TAV
-        l1Bits = [self.decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
+        l1Bits = self.decodeTriggerBits(info, 3)  # TBP, TAP, TAV
 
         for id in l1Bits[0]:
             if id in L1ItemNames:
@@ -214,10 +213,23 @@ class dbgEventInfo:
         if not HLTChainNames:
             return
 
+        # Find ROD minor version
+        version = (1,1)
+        for rob in event.children():
+            if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_HLT:
+                rod_version = rob.rod_version()
+                minor_version = rod_version.minor_version()
+                minor_version_M = (minor_version & 0xff00) >> 8
+                minor_version_L = minor_version & 0xff
+                version = (minor_version_M, minor_version_L)
+                break
+
+        # Version 1.0 has {passed, prescaled, rerun}, 1.1 and later only {passed, prescaled}
+        num_sets = 3 if version[0] < 1 or version==(1,0) else 2
+
         # Decode HLT trigger info
         info = event.event_filter_info()
-        nwords = len(info)//3  # raw, prescaled, rerun
-        chainList = [self.decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
+        chainList = self.decodeTriggerBits(info, num_sets)
 
         for id in chainList[0]:
             self.HLT_Triggered_IDs.push_back(id)
@@ -230,12 +242,17 @@ class dbgEventInfo:
 
 
     # Copied from ​TrigTools/TrigByteStreamTools/trigbs_dumpHLTContentInBS_run3.py
-    def decodeTriggerBits(self, words, base=32):
-        bit_indices = []
-        for iw in range(len(words)):
-            bit_indices.extend([base*iw+i for i in range(base) if words[iw] & (1 << i)])
-
-        return bit_indices
+    def decodeTriggerBits(self, words, num_sets, base=32):
+        assert len(words) % num_sets == 0
+        n_words_per_set = len(words) // num_sets
+        result = []
+        for iset in range(num_sets):
+            words_in_set = words[iset*n_words_per_set:(iset+1)*n_words_per_set]
+            bit_indices = []
+            for iw in range(len(words_in_set)):
+                bit_indices.extend([base*iw+i for i in range(base) if words_in_set[iw] & (1 << i)])
+            result.append(bit_indices)
+        return result
 
 
     # If line 246 not possible - to delete

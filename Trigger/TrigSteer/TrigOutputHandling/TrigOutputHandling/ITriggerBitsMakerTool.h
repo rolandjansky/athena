@@ -19,7 +19,6 @@ public:
 
   virtual StatusCode getBits(boost::dynamic_bitset<uint32_t>& passRaw,
     boost::dynamic_bitset<uint32_t>& prescaled,
-    boost::dynamic_bitset<uint32_t>& rerun,
     const EventContext& ctx) const = 0;
 
   virtual ~ITriggerBitsMakerTool() override = default;
