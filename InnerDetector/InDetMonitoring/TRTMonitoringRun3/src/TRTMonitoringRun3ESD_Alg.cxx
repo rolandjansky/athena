@@ -1269,39 +1269,32 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParticleContainer& trackCollection,
                                                      const xAOD::EventInfo& eventInfo, const EventContext& ctx) const {
 //----------------------------------------------------------------------------------//
-    int maxtimestamp = 0.; // ToDo - this should be outside the function, 
-                           // but such thing is restricted by the MT-safe paradigm
 
     auto IntLum         = Monitored::Scalar<float>("IntLum", 0.0);
     auto LBvsLum        = Monitored::Scalar<float>("LBvsLum", 0.0);
-    auto LBvsTime       = Monitored::Scalar<float>("LBvsTime", 0.0);
+    auto LBvsTime_x     = Monitored::Scalar<float>("LBvsTime_x", 0.0);
+    auto LBvsTime_y     = Monitored::Scalar<float>("LBvsTime_y", 0.0);
     auto IntLumWeight   = Monitored::Scalar<float>("IntLumWeight", 0.0);
     auto LBvsLumWeight  = Monitored::Scalar<float>("LBvsLumWeight", 0.0);
-    auto LBvsTimeWeight = Monitored::Scalar<float>("LBvsTimeWeight", 0.0);
 
     int lumiBlockNumber;
     int timeStamp;
     lumiBlockNumber = eventInfo.lumiBlock();
     timeStamp = eventInfo.timeStamp();
 
-    if (timeStamp > maxtimestamp) {
-        maxtimestamp = timeStamp;
-    }
-
     int runNumber;
     runNumber = eventInfo.runNumber();
     // get Online Luminosity
     double intLum = (lbDuration(ctx) * lbAverageLuminosity(ctx));
-    double timeStampAverage = (maxtimestamp - 0.5*lbDuration(ctx));
     IntLum = 0.5;
     IntLumWeight = intLum;
     fill("SmryHistograms", IntLumWeight, IntLum);
     LBvsLum = lumiBlockNumber;
     LBvsLumWeight = intLum;
     fill("SmryHistograms", LBvsLumWeight, LBvsLum);
-    LBvsTime = lumiBlockNumber;
-    LBvsTimeWeight = timeStampAverage;
-    fill("SmryHistograms", LBvsTimeWeight, LBvsTime);
+    LBvsTime_x = lumiBlockNumber;
+    LBvsTime_y = timeStamp;
+    fill("SmryHistograms", LBvsTime_x, LBvsTime_y);
 
     ATH_MSG_VERBOSE("Filling TRT Aging Histos");
 

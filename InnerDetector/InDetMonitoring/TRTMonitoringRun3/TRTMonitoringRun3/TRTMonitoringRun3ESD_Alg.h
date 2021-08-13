@@ -138,8 +138,7 @@ private:
     int m_min_trt_hits;
     int m_minTRThits;
     float m_minP;
-	float m_min_pT;
-
+    float m_min_pT;
 
     // Deciphers status HT to  GasType Enumerator
     inline GasType Straw_Gastype(int stat) const {

@@ -214,7 +214,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     smryGroup.defineHistogram('Summary;hSummary',weight='SummaryWeight',type='TH1F',title='Run Summary;;Entries',path='TRT/Shift/Summary',xbins=8,xmin=0,xmax=8,xlabels=sumLabels)
     smryGroup.defineHistogram('IntLum;hIntLum',weight='IntLumWeight',type='TH1F',title='Luminosity;;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=1,xmin=0.,xmax=1.)
     smryGroup.defineHistogram('LBvsLum;hLBvsLum',weight='LBvsLumWeight',type='TH1F',title='Luminosity;Luminosity Bin;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
-    smryGroup.defineHistogram('LBvsTime;hLBvsTime',weight='LBvsTimeWeight',type='TH1F',title='Time;Luminosity Bin;Time [s]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
+    smryGroup.defineHistogram('LBvsTime_x,LBvsTime_y;hLBvsTime',type='TProfile',title='Time;Luminosity Bin;Time [s]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
 
     acc = helper.result()
     result.merge(acc)
