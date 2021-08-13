@@ -32,7 +32,3 @@ elif (SimFlags.SimLayout.get_Value()=="tb_LArH6_2004"):
     LArDetTool.isFcal = SimFlags.LArTB_H6Fcal.get_Value()
     LArDetTool.isColdnose = SimFlags.LArTB_H6Coldnose.get_Value()
     GeoModelSvc.DetectorTools += [ LArDetTool ]
-
-
-# as long as not created anywhere else in GeoModel :
-from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv  # noqa: F401
