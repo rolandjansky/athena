@@ -4,9 +4,9 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.OLD.HITS.pool.root
-# art-output: test.NEW.HITS.pool.root
-# art-output: log.G4AtlasAlg*
+# art-output: test.*.HITS.pool.root
+# art-output: log.*
+# art-output: Config*.pkl
 
 AtlasG4_tf.py \
 --CA \
@@ -21,6 +21,8 @@ AtlasG4_tf.py \
 --maxEvents '10' \
 --skipEvents '0' \
 --randomSeed '10' \
+--postExec 'with open("ConfigSimCA.pkl", "wb") as f: cfg.store(f)' \
+--truthStrategy 'MC15aPlus' \
 --imf False
 
 rc=$?
@@ -29,8 +31,22 @@ echo  "art-result: $rc G4AtlasAlg_AthenaCA"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    ArtPackage=$1
-    ArtJobName=$2
+    AtlasG4_tf.py \
+    --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+    --physicsList 'FTFP_BERT' \
+    --postInclude 'default:PyJobTransforms/UseFrontier.py' \
+    --preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+    --DataRunNumber '222525' \
+    --geometryVersion 'ATLAS-R2-2015-03-01-00' \
+    --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/e_E50_eta34_49.EVNT.pool.root" \
+    --outputHITSFile "test.NEW.HITS.pool.root" \
+    --maxEvents '10' \
+    --skipEvents '0' \
+    --randomSeed '10' \
+    --truthStrategy 'MC15aPlus' \
+    --imf False \
+    --athenaopts '"--config-only=ConfigSimCG.pkl"'
+
     AtlasG4_tf.py \
     --conditionsTag 'OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \

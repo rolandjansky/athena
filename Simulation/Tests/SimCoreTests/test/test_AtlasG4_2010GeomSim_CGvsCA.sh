@@ -4,14 +4,15 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.OLD.HITS.pool.root
-# art-output: test.NEW.HITS.pool.root
-# art-output: log.G4AtlasAlg*
+# art-output: test.*.HITS.pool.root
+# art-output: log.*
+# art-output: Config*.pkl
 
 AtlasG4_tf.py \
 --CA \
 --conditionsTag 'OFLCOND-RUN12-SDR-19' \
 --physicsList 'FTFP_BERT' \
+--truthStrategy 'MC15aPlus' \
 --postInclude 'PyJobTransforms.TransformUtils.UseFrontier' \
 --DataRunNumber '155697' \
 --geometryVersion 'ATLAS-R1-2010-02-00-00' \
@@ -20,6 +21,7 @@ AtlasG4_tf.py \
 --maxEvents '10' \
 --skipEvents '0' \
 --randomSeed '10' \
+--postExec 'with open("ConfigSimCA.pkl", "wb") as f: cfg.store(f)' \
 --imf False
 
 rc=$?
@@ -28,9 +30,22 @@ echo  "art-result: $rc G4AtlasAlg_AthenaCA"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    ArtPackage=$1
-    ArtJobName=$2
-    AtlasG4_tf.py \
+     AtlasG4_tf.py \
+    --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+    --physicsList 'FTFP_BERT' \
+    --postInclude 'default:PyJobTransforms/UseFrontier.py' \
+    --DataRunNumber '155697' \
+    --geometryVersion 'ATLAS-R1-2010-02-00-00' \
+    --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mu_E200_eta0-25.evgen.pool.root' \
+    --outputHITSFile 'test.NEW.HITS.pool.root' \
+    --maxEvents '10' \
+    --skipEvents '0' \
+    --randomSeed '10' \
+    --truthStrategy 'MC15aPlus' \
+    --imf False \
+   --athenaopts '"--config-only=ConfigSimCG.pkl"'
+
+     AtlasG4_tf.py \
     --conditionsTag 'OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \
     --postInclude 'default:PyJobTransforms/UseFrontier.py' \
