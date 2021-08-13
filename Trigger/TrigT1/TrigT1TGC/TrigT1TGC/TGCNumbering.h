@@ -1,11 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCNumbering_hh
-#define TGCNumbering_hh
+#ifndef TrigT1TGC_TGCNumbering_h
+#define TrigT1TGC_TGCNumbering_h
 
 #include <string>
+
+namespace LVL1TGC {
+
+/** The number of sides of TGC (A- or C-side) */
+static constexpr unsigned int kNSide = 2;
+
+/** The number of octants per side */
+static constexpr unsigned kNOctant = 8;
+
+}   // namespace LVL1TGC
 
 namespace LVL1TGCTrigger {
 

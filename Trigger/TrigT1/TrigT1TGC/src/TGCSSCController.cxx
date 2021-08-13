@@ -5,7 +5,7 @@
 #include "TrigT1TGC/TGCSSCController.h"
 #include "TrigT1TGC/TGCSSCControllerOut.h"
 #include "TrigT1TGC/TGCSectorLogic.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
+//#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCHighPtBoardOut.h"
 #include <iostream>
 
