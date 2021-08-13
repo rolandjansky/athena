@@ -19,14 +19,7 @@ namespace ROIB {
 class IRoIsUnpackingTool : virtual public IAlgTool { 
 public: 
   DeclareInterfaceID(IRoIsUnpackingTool, 1, 0);
-    
 
-  /**
-   * Invoked when there is a potential change of the configuration. Typically beginRun
-   * it obtains the information about the L1 item -> HLT seeding relation in a form of a map where the key is the HLT chain name and value is the L1 item
-   **/
-  virtual StatusCode updateConfiguration( ) = 0; 
-  
   /**
    * Unpack RoIB result depending on implementaton (e.g. EM, Jet, ...)
    *

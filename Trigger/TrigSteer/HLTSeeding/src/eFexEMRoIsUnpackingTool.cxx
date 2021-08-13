@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "eFexEMRoIsUnpackingTool.h"
-#include "xAODTrigger/eFexEMRoIContainer.h"
 #include "StoreGate/ReadDecorHandle.h"
 
 // =============================================================================
@@ -30,21 +29,12 @@ StatusCode eFexEMRoIsUnpackingTool::start() {
 StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
                                            const xAOD::TrigComposite& l1TriggerResult,
                                            const HLT::IDSet& activeChains) const {
-  // Retrieve the L1 menu configuration
-  SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, ctx);
-  ATH_CHECK(l1Menu.isValid());
+  using namespace TrigCompositeUtils;
 
-  // Retrieve the eEM thresholds vector from L1 menu configuration
-  using ThrVec = const std::vector<std::shared_ptr<TrigConf::L1Threshold>>;
-  using ThrVecRef = std::reference_wrapper<ThrVec>;
-  std::optional<ThrVecRef> thresholds;
-  try {
-    thresholds = ThrVecRef(l1Menu->thresholds("eEM"));
-  }
-  catch (const std::exception& ex) {
-    ATH_MSG_ERROR("Failed to retrieve eEM thresholds from L1 menu. Exception:" << ex.what());
-    return StatusCode::FAILURE;
-  }
+  // Create and record RoI descriptor and decision containers
+  SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
+  SG::WriteHandle<DecisionContainer> decisionsMain = createAndStore(m_decisionsKey, ctx);
+  SG::WriteHandle<DecisionContainer> decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx);
 
   // Retrieve the xAOD RoI container from L1TriggerResult
   if (!l1TriggerResult.hasObjectLink(m_eFexEMRoILinkName, ClassID_traits<xAOD::eFexEMRoIContainer>::ID())) {
@@ -57,12 +47,13 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
 
   // Create threshold patterns decoration accessor
   auto thrPatternAcc = SG::makeHandle<uint64_t>(m_thresholdPatternsKey, ctx);
+  ATH_CHECK(thrPatternAcc.isPresent());
 
-  // Create and record RoI descriptor and decision containers
-  using namespace TrigCompositeUtils;
-  SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
-  SG::WriteHandle<DecisionContainer> decisionsMain = createAndStore(m_decisionsKey, ctx);
-  SG::WriteHandle<DecisionContainer> decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx);
+  // Retrieve the L1 menu configuration
+  SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, ctx);
+  ATH_CHECK(l1Menu.isValid());
+  std::optional<ThrVecRef> thresholds;
+  ATH_CHECK(getL1Thresholds(*l1Menu, "eEM", thresholds));
 
   size_t linkIndex{0};
   for (const xAOD::eFexEMRoI* roi : rois) {

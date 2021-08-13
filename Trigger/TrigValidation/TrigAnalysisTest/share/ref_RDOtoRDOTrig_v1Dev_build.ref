@@ -6811,8 +6811,27 @@ HLT_mu24_ivarmedium_mu6_ivarmedium_L1MU20:
     4: 3
 HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU20:
   eventCount: 0
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 4
+    5: 2
+    6: 1
+    7: 1
+    8: 1
   stepFeatures:
     0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 4
+    5: 6
+    6: 3
+    7: 2
+    8: 2
+    9: 1
 HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
   eventCount: 1
   stepCounts:
@@ -6828,13 +6847,51 @@ HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
     3: 7
     4: 5
 HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU20:
-  eventCount: 0
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 4
+    5: 2
+    6: 1
+    7: 1
+    8: 1
+    9: 1
   stepFeatures:
     0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 4
+    5: 6
+    6: 3
+    7: 2
+    8: 2
+    9: 2
 HLT_mu24_ivarmedium_mu6_probe_L1MU20:
-  eventCount: 0
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 4
+    5: 2
+    6: 1
+    7: 1
+    8: 1
   stepFeatures:
     0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 4
+    5: 6
+    6: 3
+    7: 2
+    8: 2
 HLT_mu24_mu10noL1_L1MU20:
   eventCount: 2
   stepCounts:
@@ -6864,9 +6921,25 @@ HLT_mu24_mu6_L1MU20:
     2: 7
     3: 7
 HLT_mu24_mu6_probe_L1MU20:
-  eventCount: 0
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 6
+    2: 6
+    3: 6
+    4: 3
+    5: 2
+    6: 2
+    7: 2
   stepFeatures:
     0: 10
+    1: 7
+    2: 7
+    3: 7
+    4: 9
+    5: 5
+    6: 4
+    7: 4
 HLT_mu24_mu8noL1_L1MU20:
   eventCount: 2
   stepCounts:

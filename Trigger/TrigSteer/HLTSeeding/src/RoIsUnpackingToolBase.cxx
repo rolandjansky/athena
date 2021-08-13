@@ -9,25 +9,35 @@
 RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
-  : base_class(type, name, parent)
-{
-}
+  : base_class(type, name, parent) {}
 
-
-StatusCode RoIsUnpackingToolBase::initialize()
-{
+StatusCode RoIsUnpackingToolBase::initialize() {
   if ( !m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   ATH_CHECK( m_decisionsKey.initialize() );
   ATH_CHECK( m_decisionsKeyProbe.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_trigRoIsKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_l1MenuKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode RoIsUnpackingToolBase::getL1Thresholds(const TrigConf::L1Menu& l1Menu,
+                                                  const std::string& thrType,
+                                                  std::optional<ThrVecRef>& thrVec) const {
+  try {
+    thrVec = ThrVecRef(l1Menu.thresholds(thrType));
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("Failed to retrieve " << thrType << " thresholds from L1 menu. Exception:" << ex.what());
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 std::string RoIsUnpackingToolBase::getProbeThresholdName(const std::string& thresholdName) {
   return "PROBE" + thresholdName;
 }
-
 
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
@@ -88,17 +98,4 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
   }
   TrigCompositeUtils::insertDecisionIDs(ids, d);
   ATH_MSG_DEBUG( "Number of decisions in this RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
-}
-
-StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {
-  for ( auto th: src ) {
-    if ( th == nullptr ) {
-      ATH_MSG_INFO( "Nullptr TrigConf::TriggerThreshold" );
-    } else {
-      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() );
-      dest.push_back( th );
-    }
-  }
-
-  return StatusCode::SUCCESS;
 }

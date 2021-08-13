@@ -2,32 +2,18 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "FSRoIsUnpackingTool.h"
-
-#include "TrigT1Result/RoIBResult.h"
-#include "TrigConfL1Data/TrigConfData.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 
 FSRoIsUnpackingTool::FSRoIsUnpackingTool( const std::string& type,
 					    const std::string& name,
 					    const IInterface* parent )
-  : RoIsUnpackingToolBase(type, name, parent),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
-{}
+  : RoIsUnpackingToolBase(type, name, parent) {}
 
 StatusCode FSRoIsUnpackingTool::initialize()
 {
-  ATH_CHECK( m_fsRoIKey.initialize() );
-
   ATH_CHECK(RoIsUnpackingToolBase::initialize());
-  // for ( auto th2chains: m_thresholdToChainMapping ) {
-  //   m_allFSChains.insert( th2chains.second.begin(), th2chains.second.end() );
-  // }
-
-  CHECK( m_configSvc.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -36,12 +22,6 @@ StatusCode FSRoIsUnpackingTool::start() {
 	  name.find("FS") == 0 or
 	  name == ""; } ) );
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode FSRoIsUnpackingTool::updateConfiguration() {
-  using namespace TrigConf;
   m_allFSChains.clear();
   
   for ( auto thresholdToChain: m_thresholdToChainMapping ) {
@@ -76,17 +56,13 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
       TrigCompositeUtils::DecisionIDContainer ids; 
       TrigCompositeUtils::decisionIDs( decision, ids ); 
       return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
-  
 
-  std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
-  TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
-  fsRoIsColl->push_back( fsRoI );
-
-  auto roiHandle = SG::makeHandle( m_fsRoIKey, ctx );
-  ATH_CHECK( roiHandle.record ( std::move( fsRoIsColl ) ) );
+  auto roiHandle = SG::makeHandle( m_trigRoIsKey, ctx );
+  ATH_CHECK(roiHandle.record( std::make_unique<TrigRoiDescriptorCollection>() ));
+  roiHandle->push_back( std::make_unique<TrigRoiDescriptor>(true) ); // true == FS
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");
-  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey.key(), 0 ) );  
+  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), 0 ) );  
 
   return StatusCode::SUCCESS;
 }

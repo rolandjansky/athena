@@ -26,25 +26,17 @@
   All the unpacking is outsourced to tools. However the menu mapping, this is from CTP items to chains
   and threshods to chains is maintained in this algorithm and provided to unpacking tools.
  */
-
-class HLTSeeding : public AthReentrantAlgorithm, public IIncidentListener {
+class HLTSeeding : public AthReentrantAlgorithm {
 public:
   HLTSeeding(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
-  virtual void handle(const Incident& incident) override;
   virtual StatusCode execute (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
-protected: // protected to support unit testing
-  //  StatusCode flagPassingRoIs(TrigCompositeUtils::DecisionContainer* rois,
-  //			     const xAOD::TrigCompositeUtils* chains) const;
-  virtual StatusCode readConfiguration();
-
+private:
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
                             xAOD::TrigCompositeContainer* storage,
                             const std::string& type) const;
-
-private:
 
   ///@{ @name Properties
 

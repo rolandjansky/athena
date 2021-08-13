@@ -4,7 +4,6 @@
 */
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/EventContext.h"
-#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

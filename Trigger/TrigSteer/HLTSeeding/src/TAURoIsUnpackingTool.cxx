@@ -6,35 +6,22 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigConfL1Data/CTPConfig.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 TAURoIsUnpackingTool::TAURoIsUnpackingTool( const std::string& type, 
               const std::string& name, 
               const IInterface* parent ) 
-  : RoIsUnpackingToolBase(type, name, parent),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ){
-}
+  : RoIsUnpackingToolBase(type, name, parent) {}
 
 
 StatusCode TAURoIsUnpackingTool::initialize() {
-
   ATH_CHECK( RoIsUnpackingToolBase::initialize() );
-  ATH_CHECK( m_configSvc.retrieve() );
-  ATH_CHECK( m_trigRoIsKey.initialize() );
   ATH_CHECK( m_recRoIsKey.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode TAURoIsUnpackingTool::start() {
   ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("TAU") == 0 or name.find(getProbeThresholdName("TAU")) == 0; } ) );
-  // for taus, since there is threshold name change from HA to TAU we need to fill up mapping wiht same threshold but prefixed by HA
+  // for taus, since there is threshold name change from HA to TAU we need to fill up mapping with same threshold but prefixed by HA
   // TODO remove once L1 configuration switches to TAU
   for ( const auto& [threshold, chains] : m_thresholdToChainMapping ) {
     if ( threshold.name().find("TAU") != std::string::npos ) {
@@ -45,38 +32,26 @@ StatusCode TAURoIsUnpackingTool::start() {
     }
   }
 
-
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode TAURoIsUnpackingTool::updateConfiguration() {
-  using namespace TrigConf;
-
-  m_tauThresholds.clear();
-  ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::TAU ), m_tauThresholds ) );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TAURoIsUnpackingTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
            const ROIB::RoIBResult& roib,
            const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
-  SG::WriteHandle<TrigRoiDescriptorCollection> handle1 = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
-  auto trigRoIs = handle1.ptr();
-  SG::WriteHandle< DataVector<LVL1::RecEmTauRoI> > handle2 = createAndStoreNoAux( m_recRoIsKey, ctx );
-  auto recRoIs = handle2.ptr();
-  SG::WriteHandle<DecisionContainer> handle3 = createAndStore(m_decisionsKey, ctx ); 
-  auto decisionOutput = handle3.ptr();
-  SG::WriteHandle<DecisionContainer> handle4 = createAndStore(m_decisionsKeyProbe, ctx ); 
-  auto decisionOutputProbe = handle4.ptr();
+
+  // create and record the collections needed
+  SG::WriteHandle<TrigRoiDescriptorCollection> trigRoIs = createAndStoreNoAux(m_trigRoIsKey, ctx ); 
+  SG::WriteHandle< DataVector<LVL1::RecEmTauRoI> > recRoIs = createAndStoreNoAux( m_recRoIsKey, ctx );
+  SG::WriteHandle<DecisionContainer> decisionOutput = createAndStore(m_decisionsKey, ctx ); 
+  SG::WriteHandle<DecisionContainer> decisionOutputProbe = createAndStore(m_decisionsKeyProbe, ctx ); 
   
+  // Retrieve the L1 menu configuration
+  SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey, ctx);
+  ATH_CHECK(l1Menu.isValid());
+  std::optional<ThrVecRef> tauThresholds;
+  ATH_CHECK(getL1Thresholds(*l1Menu, "TAU", tauThresholds));
+
   // RoIBResult contains vector of TAU fragments
   for ( auto& emTauFragment : roib.eMTauResult() ) {
     for ( auto& roi : emTauFragment.roIVec() ) {
@@ -86,23 +61,23 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
         continue;
       }
       
-      auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_tauThresholds );
-      recRoIs->push_back( recRoI );
-      
-      auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
-              recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-              recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
-      trigRoIs->push_back( trigRoI );
+      recRoIs->push_back( std::make_unique<LVL1::RecEmTauRoI>(roIWord, l1Menu.cptr()) );
+      const LVL1::RecEmTauRoI* recRoI = recRoIs->back();
+
+      trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
+        roIWord, 0u ,0u,
+        recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
+        recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth) );
         
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
       
       // The hltSeedingNodeName() denotes an initial node with no parents
-      Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); 
-      Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe, hltSeedingNodeName() );
+      Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() ); 
+      Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe.ptr(), hltSeedingNodeName() );
 
-      for ( auto th: m_tauThresholds ) {
+      for (const auto th : tauThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
-        if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+        if ( recRoI->passedThreshold( th->mapping() ) ) {
           const std::string thresholdProbeName = getProbeThresholdName(th->name());
           ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
           addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );

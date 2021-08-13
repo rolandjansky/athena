@@ -5,8 +5,6 @@
 #define HLTSEEDING_JFEXTAUROISUNPACKINGTOOL_H 1
 
 #include "RoIsUnpackingToolBase.h"
-#include "TrigConfData/L1Menu.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 
@@ -25,14 +23,6 @@ public:
   virtual StatusCode start() override;
 
 private:
-  SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{
-    this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
-    "Name of the L1Menu object to read configuration from"};
-
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoIs", "HLT_jTAURoIs",
-    "Name of the TrigRoiDescriptor collection produced by the unpacker"};
-
   Gaudi::Property<std::string> m_jFexTauRoILinkName {
     this, "jFexTauRoILinkName", "L1_jFexTauRoI",
     "Name of the link to read from L1TriggerResult for jFexTauRoI container"};

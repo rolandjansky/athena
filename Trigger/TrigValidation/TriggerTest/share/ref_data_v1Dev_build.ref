@@ -2762,6 +2762,8 @@ HLT_mu24_ivarmedium_mu6_ivarmedium_L1MU20:
     0: 3
 HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU20:
   eventCount: 0
+  stepCounts:
+    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
@@ -2772,10 +2774,14 @@ HLT_mu24_ivarmedium_mu6_ivarperf_L1MU20:
     0: 3
 HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU20:
   eventCount: 0
+  stepCounts:
+    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_ivarmedium_mu6_probe_L1MU20:
   eventCount: 0
+  stepCounts:
+    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_mu10noL1_L1MU20:
@@ -2792,6 +2798,8 @@ HLT_mu24_mu6_L1MU20:
     0: 3
 HLT_mu24_mu6_probe_L1MU20:
   eventCount: 0
+  stepCounts:
+    0: 1
   stepFeatures:
     0: 1
 HLT_mu24_mu8noL1_L1MU20:
