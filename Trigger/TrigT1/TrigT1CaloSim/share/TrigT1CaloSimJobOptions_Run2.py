@@ -37,8 +37,6 @@ if globalflags.isOverlay() is True:
     _doPC = False
     from AthenaCommon import CfgMgr
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "LumiBlockMuTool"):
-        ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
     from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__OverlayRun2TriggerTowerMaker
     job += LVL1__OverlayRun2TriggerTowerMaker('Run2TriggerTowerMaker', 
                                       CellType = 3, 

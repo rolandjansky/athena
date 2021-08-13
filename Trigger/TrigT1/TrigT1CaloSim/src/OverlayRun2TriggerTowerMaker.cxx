@@ -23,7 +23,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "TileConditions/TileInfo.h"
 
-#include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //For getting TriggerTowers from BS
@@ -79,10 +78,9 @@ namespace LVL1 {
       m_rngSvc("AthRNGSvc", name),
       m_condSvc("L1CaloCondSvc", name), 
       m_rndmADCs(0),
-      m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-      m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
-      m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-      m_bstowertool("LVL1BS__TrigT1CaloDataAccessV2/TrigT1CaloDataAccessV2",0), //ACH
+      m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool", this),
+      m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool", this),
+      m_bstowertool("LVL1BS__TrigT1CaloDataAccessV2/TrigT1CaloDataAccessV2", this),
       m_caloId(0),
       m_cpLutScale(1.),
       m_jepLutScale(1.),
@@ -95,7 +93,6 @@ namespace LVL1 {
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
     declareProperty("PpmMappingTool", m_mappingTool);
-    declareProperty("LumiBlockMuTool", m_lumiBlockMuTool);
 
     declareProperty("inputTTLocation", m_inputTTLocation=TrigT1CaloDefs::xAODTriggerTowerLocation);
     declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName= "LArTTL1EM");
@@ -164,7 +161,6 @@ namespace LVL1 {
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());
     CHECK(m_rngSvc.retrieve());
-    CHECK(m_lumiBlockMuTool.retrieve());
     CHECK(m_condSvc.retrieve());
     CHECK(m_bstowertool.retrieve());
 
@@ -322,15 +318,13 @@ namespace LVL1 {
       ATH_MSG_ERROR("Unsupported Cell Type!!!!!!"); return StatusCode::FAILURE;
     }
     
-    // Pedestal Correction: Get the BCID number
     const xAOD::EventInfo* evt = nullptr;
     CHECK(evtStore()->retrieve(evt));
-    int eventBCID = evt->bcid();    
     
-    CHECK(preProcess(eventBCID)); // FIR, BCID etc
+    CHECK(preProcess(*evt)); // FIR, BCID etc
     
     if (m_doOverlay) {         
-      CHECK( addOverlay(eventBCID) );
+      CHECK( addOverlay(*evt) );
     }
 
     // store them thar trigger towers
@@ -362,7 +356,7 @@ namespace LVL1 {
     return false;
   }
 
-  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const xAOD::EventInfo& event)
   {
     // Get the overlay data TTs from Bytestream
     xAOD::TriggerTowerContainer* overlayDataTTs = new xAOD::TriggerTowerContainer();
@@ -405,7 +399,7 @@ namespace LVL1 {
       Itr match = overlayMap.find( tt->coolId() );
       if (match != overlayMap.end()) {
         
-        CHECK( addOverlay(eventBCID,tt,(*match).second) );
+        CHECK( addOverlay(event,tt,(*match).second) );
         
         // Let the overlay TT know that it has been used
         (*match).second->auxdecor<char>(decor_name) = decor_ttUsedInOverlay;
@@ -440,7 +434,7 @@ namespace LVL1 {
   }
   
   /** Add the overlay TriggerTower to the signal TriggerTower **/
-  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const xAOD::EventInfo& event,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
   {
     // Get the relevant databases 
     const L1CaloPprChanCalib* sigDB = m_chanCalibContainer->pprChanCalib(sigTT->coolId());
@@ -465,8 +459,8 @@ namespace LVL1 {
     
     // Get LUT input
     std::vector<int> sigLutIn,ovLutIn;
-    CHECK( preProcessTower_getLutIn(eventBCID,sigTT,sigDB,sigDigits,sigLutIn) );
-    CHECK( preProcessTower_getLutIn(eventBCID,ovTT,ovDB,normOverlayDigits,ovLutIn) );
+    CHECK( preProcessTower_getLutIn(event,sigTT,sigDB,sigDigits,sigLutIn) );
+    CHECK( preProcessTower_getLutIn(event,ovTT,ovDB,normOverlayDigits,ovLutIn) );
        
     // LUT ouput
     std::vector<int> lutOut_cp,lutOut_jep;
@@ -562,7 +556,7 @@ namespace LVL1 {
     }     
   }
   
-  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower_getLutIn(const xAOD::EventInfo& event,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
   {
     // factorised version of OverlayRun2TriggerTowerMaker::preProcessTower 
     
@@ -587,8 +581,8 @@ namespace LVL1 {
                                   firPed,
                                   etaToElement(tower->eta(), tower->layer()),
                                   tower->layer(),
-                                  eventBCID,
-                                  m_lumiBlockMuTool->actualInteractionsPerCrossing(),
+                                  event.bcid(),
+                                  event.actualInteractionsPerCrossing(),
                                   correction);
     }
     
@@ -648,16 +642,16 @@ namespace LVL1 {
 
   /** Emulate FIR filter, bunch-crossing identification & LUT, and create & fill
       TriggerTowers. */
-  StatusCode OverlayRun2TriggerTowerMaker::preProcess(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcess(const xAOD::EventInfo& event)
   {
     // Loop over all existing towers and simulate preprocessor functions
     for(auto tower : *m_xaodTowers) {
-      CHECK(preProcessTower(eventBCID,tower));
+      CHECK(preProcessTower(event,tower));
     }
     return StatusCode::SUCCESS;
   }
 
-  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower(const int eventBCID,xAOD::TriggerTower *tower)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower(const xAOD::EventInfo& event,xAOD::TriggerTower *tower)
   {
     
     const L1CaloPprChanCalib* chanCalib =  m_chanCalibContainer->pprChanCalib(tower->coolId());
@@ -708,8 +702,8 @@ namespace LVL1 {
                                   firPed,
                                   etaToElement(tower->eta(), tower->layer()),
                                   tower->layer(),
-                                  eventBCID,
-                                  m_lumiBlockMuTool->actualInteractionsPerCrossing(),
+                                  event.bcid(),
+                                  event.actualInteractionsPerCrossing(),
                                   correction);
     } 
     

@@ -22,11 +22,6 @@ class Run2TriggerTowerMaker(Run2TriggerTowerMakerBase):
         from SGComps.AddressRemappingSvc import addInputRename
         addInputRename ( 'xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers')
         
-        from AthenaCommon import CfgMgr
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "LumiBlockMuTool"):
-            ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
-
 class Run2TriggerTowerMaker25ns(Run2TriggerTowerMaker):
     """ Run2 TriggerTower configuration for 25ns running """
     __slots__ = []
@@ -61,7 +56,6 @@ def Run2TriggerTowerMakerCfg(flags, name):
                                                  ZeroSuppress = True, 
                                                  #ExtraInputs = ['LArTTL1Container#LArTTL1EM', 'LArTTL1Container#LArTTL1HAD', 'TileTTL1Container#TileTTL1Cnt']
                                                  )
-    acc.addPublicTool(CompFactory.LumiBlockMuTool('LumiBlockMuTool'))
     acc.addEventAlgo(alg)
 
     return acc
