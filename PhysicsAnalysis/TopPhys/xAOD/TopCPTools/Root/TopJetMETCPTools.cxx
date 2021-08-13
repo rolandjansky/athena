@@ -525,11 +525,11 @@ namespace top {
     if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
 
       m_jetUncertaintiesToolLargeR
-	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
+        = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
 				    jetCalibrationNameLargeR, 
                                     MC_type, 
                                     m_config->isMC(),
-				    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
+                                    configDir + "/R10_" + largeRJESJERJMS_unc_config + ".config",
                                     nullptr,
                                     "",
                                     calibArea);
