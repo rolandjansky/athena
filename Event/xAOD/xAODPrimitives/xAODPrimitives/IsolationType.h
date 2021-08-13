@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODPRIMITIVES_ISOLATIONTYPE_H
@@ -70,48 +70,48 @@ namespace xAOD {
          /// Mini-Isolation http://arxiv.org/abs/1007.2221 for high mu
          /// @{
 
-         ptvarcone20_TightTTVA_pt500 = 52,
-         ptvarcone30_TightTTVA_pt500 = 54,
-         ptvarcone40_TightTTVA_pt500 = 56,
-         ptvarcone20_TightTTVA_pt1000 = 62,
-         ptvarcone30_TightTTVA_pt1000 = 64,
-         ptvarcone40_TightTTVA_pt1000 = 66,
+         ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500 = 52,
+         ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500 = 54,
+         ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt500 = 56,
+         ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000 = 62,
+         ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000 = 64,
+         ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt1000 = 66,
 
          /// @}
 
          /// Ptcone http://arxiv.org/abs/1007.2221 for high mu
          /// @{
 
-         ptcone20_TightTTVA_pt500 = 72,
-         ptcone30_TightTTVA_pt500 = 74,
-         ptcone40_TightTTVA_pt500 = 76,
-         ptcone20_TightTTVA_pt1000 = 82,
-         ptcone30_TightTTVA_pt1000 = 84,
-         ptcone40_TightTTVA_pt1000 = 86,
+         ptcone20_Nonprompt_All_MaxWeightTTVA_pt500 = 72,
+         ptcone30_Nonprompt_All_MaxWeightTTVA_pt500 = 74,
+         ptcone40_Nonprompt_All_MaxWeightTTVA_pt500 = 76,
+         ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000 = 82,
+         ptcone30_Nonprompt_All_MaxWeightTTVA_pt1000 = 84,
+         ptcone40_Nonprompt_All_MaxWeightTTVA_pt1000 = 86,
 
          /// @}
 
          /// Mini-Isolation http://arxiv.org/abs/1007.2221 for high mu
          /// @{
 
-         ptvarcone20_TightTTVALooseCone_pt500 = 92,
-         ptvarcone30_TightTTVALooseCone_pt500 = 94,
-         ptvarcone40_TightTTVALooseCone_pt500 = 96,
-         ptvarcone20_TightTTVALooseCone_pt1000 = 102,
-         ptvarcone30_TightTTVALooseCone_pt1000 = 104,
-         ptvarcone40_TightTTVALooseCone_pt1000 = 106,
+         ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 92,
+         ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 94,
+         ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 96,
+         ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 102,
+         ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 104,
+         ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 106,
 
          /// @}
 
          /// Ptcone http://arxiv.org/abs/1007.2221 for high mu
          /// @{
 
-         ptcone20_TightTTVALooseCone_pt500 = 112,
-         ptcone30_TightTTVALooseCone_pt500 = 114,
-         ptcone40_TightTTVALooseCone_pt500 = 116,
-         ptcone20_TightTTVALooseCone_pt1000 = 122,
-         ptcone30_TightTTVALooseCone_pt1000 = 124,
-         ptcone40_TightTTVALooseCone_pt1000 = 126,
+         ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 112,
+         ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 114,
+         ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 116,
+         ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 122,
+         ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 124,
+         ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 126,
 
          /// @}
          
@@ -136,37 +136,37 @@ namespace xAOD {
               case ptvarcone30:    return "ptvarcone30";
               case ptvarcone40:    return "ptvarcone40";
 
-              case ptcone20_TightTTVA_pt500:    return "ptcone20_TightTTVA_pt500";
-              case ptcone30_TightTTVA_pt500:    return "ptcone30_TightTTVA_pt500";
-              case ptcone40_TightTTVA_pt500:    return "ptcone40_TightTTVA_pt500";
+              case ptcone20_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptcone20_Nonprompt_All_MaxWeightTTVA_pt500";
+              case ptcone30_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptcone30_Nonprompt_All_MaxWeightTTVA_pt500";
+              case ptcone40_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptcone40_Nonprompt_All_MaxWeightTTVA_pt500";
 
-              case ptcone20_TightTTVA_pt1000:    return "ptcone20_TightTTVA_pt1000";
-              case ptcone30_TightTTVA_pt1000:    return "ptcone30_TightTTVA_pt1000";
-              case ptcone40_TightTTVA_pt1000:    return "ptcone40_TightTTVA_pt1000";
+              case ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000";
+              case ptcone30_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptcone30_Nonprompt_All_MaxWeightTTVA_pt1000";
+              case ptcone40_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptcone40_Nonprompt_All_MaxWeightTTVA_pt1000";
 
-              case ptvarcone20_TightTTVA_pt500:    return "ptvarcone20_TightTTVA_pt500";
-              case ptvarcone30_TightTTVA_pt500:    return "ptvarcone30_TightTTVA_pt500";
-              case ptvarcone40_TightTTVA_pt500:    return "ptvarcone40_TightTTVA_pt500";
+              case ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500";
+              case ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500";
+              case ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt500:    return "ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt500";
 
-              case ptvarcone20_TightTTVA_pt1000:    return "ptvarcone20_TightTTVA_pt1000";
-              case ptvarcone30_TightTTVA_pt1000:    return "ptvarcone30_TightTTVA_pt1000";
-              case ptvarcone40_TightTTVA_pt1000:    return "ptvarcone40_TightTTVA_pt1000";
+              case ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000";
+              case ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000";
+              case ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt1000:    return "ptvarcone40_Nonprompt_All_MaxWeightTTVA_pt1000";
 
-              case ptcone20_TightTTVALooseCone_pt500:    return "ptcone20_TightTTVALooseCone_pt500";
-              case ptcone30_TightTTVALooseCone_pt500:    return "ptcone30_TightTTVALooseCone_pt500";
-              case ptcone40_TightTTVALooseCone_pt500:    return "ptcone40_TightTTVALooseCone_pt500";
+              case ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+              case ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+              case ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
 
-              case ptcone20_TightTTVALooseCone_pt1000:    return "ptcone20_TightTTVALooseCone_pt1000";
-              case ptcone30_TightTTVALooseCone_pt1000:    return "ptcone30_TightTTVALooseCone_pt1000";
-              case ptcone40_TightTTVALooseCone_pt1000:    return "ptcone40_TightTTVALooseCone_pt1000";
+              case ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
+              case ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
+              case ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
 
-              case ptvarcone20_TightTTVALooseCone_pt500:    return "ptvarcone20_TightTTVALooseCone_pt500";
-              case ptvarcone30_TightTTVALooseCone_pt500:    return "ptvarcone30_TightTTVALooseCone_pt500";
-              case ptvarcone40_TightTTVALooseCone_pt500:    return "ptvarcone40_TightTTVALooseCone_pt500";
+              case ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+              case ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+              case ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500:    return "ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
 
-              case ptvarcone20_TightTTVALooseCone_pt1000:    return "ptvarcone20_TightTTVALooseCone_pt1000";
-              case ptvarcone30_TightTTVALooseCone_pt1000:    return "ptvarcone30_TightTTVALooseCone_pt1000";
-              case ptvarcone40_TightTTVALooseCone_pt1000:    return "ptvarcone40_TightTTVALooseCone_pt1000";
+              case ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptvarcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
+              case ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
+              case ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:    return "ptvarcone40_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
 
               case topoetcone20:    return "topoetcone20";
               case topoetcone30:    return "topoetcone30";

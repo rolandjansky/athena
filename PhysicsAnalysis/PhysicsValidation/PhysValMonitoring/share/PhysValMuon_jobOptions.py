@@ -21,11 +21,11 @@ for class_name, name in metadata['metadata_items'].items():
             isDAOD_PHYSVAL=True
     
 if not isDAOD_PHYSVAL:
-        from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
-        addUsedInFitDecoratorForReco(add2Seq = algseq)
-        from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
-        if not hasattr(algseq,"IsolationBuilderTight500"):
-            algseq += GetUpdatedIsoTrackCones()
+    from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
+    addUsedInFitDecoratorForReco(add2Seq = algseq)
+    from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+    if not hasattr(algseq,"IsolationBuilderNonprompt_All_MaxWeight500"):
+        algseq += GetUpdatedIsoTrackCones()
 
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags

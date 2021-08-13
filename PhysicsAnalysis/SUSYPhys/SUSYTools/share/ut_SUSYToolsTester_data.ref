@@ -1,13 +1,10 @@
-Package.UserCode         INFO    Unit test for SUSYTools on data
-Package.UserCode         INFO    Will now run this command: SUSYToolsTester /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root maxEvents=500 isData=1 isAtlfast=0 Debug=0
-Package.SUSYToolsTester  INFO    ===== Processing key /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root with value 
+Package.SUSYToolsTester  INFO    ===== Processing key /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root with value 
 Package.SUSYToolsTester  INFO    ===== Processing key maxEvents with value 500
 Package.SUSYToolsTester  INFO    ===== Processing key isData with value 1
 Package.SUSYToolsTester  INFO    ===== Processing key isAtlfast with value 0
 Package.SUSYToolsTester  INFO    ===== Processing key Debug with value 0
-Package.SUSYToolsTester  INFO    Opening file: /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4441.PHYS.pool.root
+Package.SUSYToolsTester  INFO    Opening file: /eos/atlas/atlascerngroupdisk/data-art/grid-input/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root
 Warning in <TClass::Init>: no dictionary for class DataHeader_p6 is available
-Warning in <TClass::Init>: no dictionary for class DataHeader_p6::FullElement is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6::DbRecord is available
 Warning in <TClass::Init>: no dictionary for class Guid is available
@@ -17,7 +14,6 @@ Warning in <TClass::Init>: no dictionary for class IOVPayloadContainer_p1 is ava
 Warning in <TClass::Init>: no dictionary for class IOVPayloadContainer_p1::CondAttrListCollection_p1 is available
 Warning in <TClass::Init>: no dictionary for class IOVPayloadContainer_p1::CondAttrListEntry_p1 is available
 Warning in <TClass::Init>: no dictionary for class IOVPayloadContainer_p1::IOVRange_p1 is available
-Warning in <TClass::Init>: no dictionary for class AttrListIndexes is available
 Warning in <TClass::Init>: no dictionary for class ILockable is available
 Warning in <TClass::Init>: no dictionary for class ByteStreamMetadataContainer_p1 is available
 Warning in <TClass::Init>: no dictionary for class ByteStreamMetadata_p1 is available
@@ -26,13 +22,13 @@ Warning in <TClass::Init>: no dictionary for class EventType_p3 is available
 Warning in <TClass::Init>: no dictionary for class EventInfo_p4 is available
 Warning in <TClass::Init>: no dictionary for class EventID_p1 is available
 Warning in <TClass::Init>: no dictionary for class TriggerInfo_p2 is available
-Package.SUSYToolsTester  INFO    Number of events in the file: 38555
+Package.SUSYToolsTester  INFO    Number of events in the file: 2000
 --- TGRLCollection      : Now merging GRLs where possible. Metadata required to be identical.[0m
 Package.SUSYToolsTester  INFO    GRL tool retrieve & initialized... 
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -254,7 +250,7 @@ SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconf
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconfigPRWCombinedmode" with value 0
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconfigPRWRPVmode" with value 0
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconfigPRWHFFilter" with value 
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconfigPRWRtags" with value mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249_r12020_r12034_r12405,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "PRW.autoconfigPRWRtags" with value mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249_r12020_r12034_r12405_r12627,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "StrictConfigCheck" with value 1
 SUSYObjDef_xAOD          INFO    Configured for jet collection: AntiKt4EMPFlowJets
 SUSYObjDef_xAOD          INFO    Configured for truth jet collection: AntiKt4TruthDressedWZJets
@@ -267,7 +263,7 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xac38fe0
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xb4a4890
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -453,8 +449,8 @@ ToolSvc.JetTruthLabeli...INFO    Parameters for ToolSvc.JetTruthLabelingTool
 ToolSvc.JetTruthLabeli...INFO    xAOD information:
 ToolSvc.JetTruthLabeli...INFO    TruthLabelName:               R10TruthLabel_R21Consolidated
 ToolSvc.JetTruthLabeli...INFO    UseTRUTH3:                    True
-ToolSvc.JetTruthLabeli...INFO    TruthBosonContainerName:      TruthBoson
-ToolSvc.JetTruthLabeli...INFO    TruthTopQuarkContainerName:   TruthTop
+ToolSvc.JetTruthLabeli...INFO    TruthBosonContainerName:      'TruthBoson'
+ToolSvc.JetTruthLabeli...INFO    TruthTopQuarkContainerName:   'TruthTop'
 ToolSvc.JetTruthLabeli...INFO    TruthJetCollectionName:         AntiKt10TruthTrimmedPtFrac5SmallR20Jets
 ToolSvc.JetTruthLabeli...INFO    dRTruthJet:    0.750000
 ToolSvc.JetTruthLabeli...INFO    dRTruthPart:   0.750000
@@ -719,7 +715,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -967,8 +963,8 @@ CalibrationDataInterface: retrieved container DL1/AntiKt4EMPFlowJets_BTagging201
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
-ToolSvc.METSystTool      INFO    PWD: /afs/cern.ch/work/y/yoyamagu/private/IFF/IsolationSelectionTool_cleanup/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/data:/afs/cern.ch/user/y/yoyamagu/work/IFF/IsolationSelectionTool_cleanup/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBase/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBaseExternals/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-06-18T0524/AnalysisBaseExternals/22.2.30/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
+ToolSvc.METSystTool      INFO    PWD: /data/CERN/BGF/MR45546/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
+ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/data:/data/CERN/BGF/MR45546/build/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBase/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBaseExternals/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc8-opt/2021-08-06T0524/AnalysisBaseExternals/22.2.36/InstallArea/x86_64-centos7-gcc8-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    Systpath :/
@@ -1077,6 +1073,7 @@ ToolSvc.METSigAutoConf...INFO    ep combination = 0
 ToolSvc.METSigAutoConf...INFO    use MVA calibration = 2
 ToolSvc.METSigAutoConf...INFO    use temperature correction 2015 = 2
 ToolSvc.METSigAutoConf...INFO    use uA2MeV correction 2015 1/2 week = 2
+ToolSvc.METSigAutoConf...INFO    Using calibration file: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/tauRecTools/R22_preprod/CombinedTES_R22_v0.root
 ToolSvc.xAODConfigTool   INFO    Initialising...
 ToolSvc.TrigDecisionTool INFO    Initializing Trig::TrigDecisionTool (standalone version even for athena)
 ToolSvc.TrigDecisionTool INFO    Initialized TDT
@@ -1116,10 +1113,10 @@ ToolSvc.ttva_selection...INFO    (For Custom WP:) cut on Δz * sin θ: -1	(dzSin
 ToolSvc.ttva_selection...INFO    (For Custom WP:) allow UsedInFit MatchStatus: 1	(doUsedInFit).
 ToolSvc.ttva_selection...INFO    Require VxType::PriVtx for unique match: 1	(requirePriVtx).
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Electron
-ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_TightTTVALooseCone_pt1000
+ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000
 ToolSvc.IsoCloseByTool   INFO         --- topoetcone20
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Muon
-ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_TightTTVA_pt1000
+ToolSvc.IsoCloseByTool   INFO         --- ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000
 ToolSvc.IsoCloseByTool   INFO         --- topoetcone20
 ToolSvc.IsoCloseByTool   INFO    The following isolation cones are considered for Photon
 ToolSvc.IsoCloseByTool   INFO         --- topoetcone40
@@ -1132,61 +1129,61 @@ Package.SUSYToolsTester  INFO    SUSYObjDef_xAOD initialized...
 Package.SUSYToolsTester  INFO    Initialized SUSYTools
 Package.SUSYToolsTester  INFO    Config file opened
 ToolSvc.xAODConfigTool   INFO    Loaded xAOD::TriggerMenu configuration:
-ToolSvc.xAODConfigTool   INFO      SMK = 2740, L1PSK = 23222, HLTPSK = 17386
-ToolSvc.TrigDecisionTool INFO    Tool: updating config in slot 0 with SMK: 2740 and L1PSK: 23222 and HLTPSK: 17386 getForceConfigUpdate()=1 HLT Chains: 3171
+ToolSvc.xAODConfigTool   INFO      SMK = 2740, L1PSK = 23209, HLTPSK = 17444
+ToolSvc.TrigDecisionTool INFO    Tool: updating config in slot 0 with SMK: 2740 and L1PSK: 23209 and HLTPSK: 17444 getForceConfigUpdate()=1 HLT Chains: 3171
 Package.SUSYToolsTester  INFO    == cbkname: AllExecutedEvents, description: Number of processed events before any cut, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: AllStreams
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 12718
+Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
 Package.SUSYToolsTester  INFO    == cbkname: TauAugmentationKernelTopAlg, description: N/A, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: 
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 12718
+Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
 Package.SUSYToolsTester  INFO    == cbkname: PHYSKernel, description: N/A, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: StreamDAOD_PHYS
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 12718
+Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
 Package.SUSYToolsTester  INFO    No relevent CutBookKeepers found
 Package.SUSYToolsTester  INFO    Found kernel: PHYS
 Package.SUSYToolsTester  INFO    Found stream: StreamAOD
 Info in <CP::TPileupReweighting::GetLumiBlockMu>: Initializing the subtool..
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 252706848run #358031 0 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #252706848, run #358031 1 events processed so far  <<<===
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836030867run #358031 0 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #836030867, run #358031 1 events processed so far  <<<===
 ToolSvc.TrigDecisionTool INFO    decision not set on first (?) assert. deciding how to unpack
 ToolSvc.TrigDecisionTool INFO    SG contains xAOD decision, use DecisionUnpackerStandalone
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 252808698run #358031 99 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #252808698, run #358031 100 events processed so far  <<<===
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 835983333run #358031 99 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #835983333, run #358031 100 events processed so far  <<<===
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Warning in <SUSYToolsTester>: No PV found for this event! Skipping...
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 252869255run #358031 199 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #252869255, run #358031 200 events processed so far  <<<===
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 252689918run #358031 299 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #252689918, run #358031 300 events processed so far  <<<===
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 252990016run #358031 399 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #252990016, run #358031 400 events processed so far  <<<===
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 253017498run #358031 499 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #253017498, run #358031 500 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 835764972run #358031 199 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #835764972, run #358031 200 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836098077run #358031 299 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #836098077, run #358031 300 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836130511run #358031 399 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #836130511, run #358031 400 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836035578run #358031 499 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #836035578, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 321.840000 / 343.053210 ms
-  First event           - 600.000000 / 1775.295973 ms
-  Excluding first event - 321.282565 / 340.183000 ms
+  Entire loop           - 192.180000 / 330.101846 ms
+  First event           - 260.000000 / 25722.627163 ms
+  Excluding first event - 192.044088 / 279.215022 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
-Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 500, mu: 500
-Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 500, mu: 500
-Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 500, mu: 500
-Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 500, mu: 500
-Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 496, mu: 496
-Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 47, mu: 67
-Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 38, mu: 54
-Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 38, mu: 53
-Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 32, mu: 52
-Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 0
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 499, mu: 499
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 499, mu: 499
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 499, mu: 499
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 499, mu: 499
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 494, mu: 494
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 52, mu: 70
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 42, mu: 48
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 41, mu: 46
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 41, mu: 45
+Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 1
 ToolSvc.TrigDecisionTool INFO    TDT finalized and removed from instance list
 		CalibrationDataInterfaceROOT object out-of-bounds summary:
 			No issues found
-Package.UserCode         INFO    Finished (return code was 0)
