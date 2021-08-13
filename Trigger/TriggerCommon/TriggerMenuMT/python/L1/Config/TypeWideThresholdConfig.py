@@ -34,8 +34,15 @@ def getConfig_MU():
     confObj = odict()
     confObj["exclusionLists"] = odict()
     confObj["exclusionLists"]["rpcFeet"] = []
-    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B31"), ("rois",[1, 2, 3, 4, 5, 6, 7, 8])]) )
-    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B32"), ("rois",[1, 2, 3, 4, 5, 6, 7, 8])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B21"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B22"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B25"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B26"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B53"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B54"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B57"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+    confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B58"), ("rois",[8,9,10,11,16,17,18,19,20,21,22,23,28,29,30,31])]) )
+
     
     # roads from https://indico.cern.ch/event/1011425/contributions/4272884/
     confObj["roads"] = odict()
