@@ -47,29 +47,10 @@ public:
   /** Initialize this class */
   StatusCode initialize();
 
-  /** The main accept method: the actual cuts are applied here */
-  asg::AcceptData accept(
-    // eta
-    float eta,
-    // NVP
-    float nvtx,
-    // secondlambda
-    float secondLambda,
-    // lateral
-    float lateral,
-    // longitudinal
-    float longitudinal,
-    // fracMax
-    float fracMax,
-    // centerlambda
-    float centerLambda,
-    // secondR
-    float secondR) const;
-
   /** Return dummy accept with only info */
   asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
 
-  // calculate the isEM. (Used internally by accept)
+  // calculate the isEM.
   unsigned int calcIsEm(
     // eta
     float eta,
