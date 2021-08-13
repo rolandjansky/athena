@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactories to instantiate
 all egammaTools with default configuration"""
@@ -31,7 +31,8 @@ _clusterTypes = dict(
 
 # Configure fixed-size (non-supercell) corrections
 def configureFixedSizeClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for fixed-size cluster corrections."
+    """Add attributes ClusterCorrectionToolsXX to egammaSwTool
+       object for fixed-size cluster corrections."""
     from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
     from CaloRec.CaloRecMakers import _process_tools
 
@@ -49,11 +50,9 @@ def configureFixedSizeClusterCorrections(swTool):
 
 # Configure corrections for superclusters.
 def configureSuperClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for corrections for superclusters."
-    from CaloClusterCorrection.CaloSwCorrections import (
-        make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
-        etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
-        time, listBadChannel)
+    """Add attributes ClusterCorrectionToolsXX to egammaSwTool
+       object for corrections for superclusters."""
+    from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
     from CaloRec.CaloRecMakers import _process_tools
 
     for attrName, clName in _clusterTypes.items():
@@ -66,20 +65,8 @@ def configureSuperClusterCorrections(swTool):
             make_CaloSwCorrections(
                 clName,
                 suffix='EGSuperCluster',
-                version=jobproperties.egammaRecFlags.clusterCorrectionVersion(),
-                corrlist=[
-                    [rfac, 'v5'],
-                    [etaoff_b1, 'v5'],
-                    [etaoff_e1, 'v5'],
-                    [etaoff_b2, 'v5'],
-                    [etaoff_e2, 'v5'],
-                    [phioff_b2, 'v5data'],
-                    [phioff_e2, 'v5data'],
-                    [update],
-                    [time],
-                    [listBadChannel]],
+                version=jobproperties.egammaRecFlags.superClusterCorrectionVersion(),
                 cells_name=egammaKeys.caloCellKey())))
-
 
 
 def configureClusterCorrections(swTool):
@@ -93,8 +80,9 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
 
-egammaSwSuperClusterTool = ToolFactory(egammaToolsConf.egammaSwTool,
-                                       postInit=[configureSuperClusterCorrections])
+egammaSwSuperClusterTool = ToolFactory(
+    egammaToolsConf.egammaSwTool,
+    postInit=[configureSuperClusterCorrections])
 
 
 EMClusterTool = ToolFactory(
@@ -129,7 +117,7 @@ egammaLargeFWDClusterMakerTool = ToolFactory(
     name="egammaLCFWDMakerTool",
     InputClusterCollection=egammaKeys.FwdClusterKey(),
     CellsName=egammaKeys.caloCellKey(),
-    doFWDelesurraundingWindows = True
+    doFWDelesurraundingWindows=True
 )
 
 # Electron Selectors
