@@ -8,4 +8,4 @@ atlas_add_library( TrigInDetToolInterfacesLib
                    TrigInDetToolInterfaces/*.h
                    INTERFACE
                    PUBLIC_HEADERS TrigInDetToolInterfaces
-                   LINK_LIBRARIES LINK_LIBRARIES ByteStreamData GaudiKernel IRegionSelector Identifier InDetPrepRawData TrigInDetEvent TrigInDetPattRecoEvent TrkEventPrimitives TrkTrack )
+                   LINK_LIBRARIES LINK_LIBRARIES ByteStreamData GaudiKernel IRegionSelector Identifier InDetPrepRawData TrigInDetEvent TrigInDetPattRecoEvent TrkTrack )
