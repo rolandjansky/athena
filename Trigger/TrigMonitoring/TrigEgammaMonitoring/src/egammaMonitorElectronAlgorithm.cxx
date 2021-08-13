@@ -49,7 +49,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch(const EventC
     auto deltaPhiLast_col = Monitored::Collection("deltaPhiLast",deltaPhiLast_vec );
     auto d0_col = Monitored::Collection("d0",d0_vec);
 
-    for (const auto electron : *electrons){
+    for (const auto *const electron : *electrons){
 
         deltaEta0_vec.push_back(getCaloTrackMatch_deltaEta0(electron));
         deltaEta1_vec.push_back(getCaloTrackMatch_deltaEta1(electron));
@@ -102,7 +102,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronShowerShapes(const EventCon
     auto eta_col                = Monitored::Collection("eta"      , eta_vec     );
     auto phi_col                = Monitored::Collection("phi"      , phi_vec     );
     
-    for ( const auto electron : *electrons ){
+    for ( const auto *const electron : *electrons ){
 
         if(!electron) continue;
         
@@ -137,7 +137,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronIsolation(const EventContex
   
   // This is ok but defeats a bit the purpose...
   std::map<TString,std::vector<float>> iso_vec;
-  for (auto hk : m_isoKey) {
+  for (const auto& hk : m_isoKey) {
     TString n = hk.key();
     n.ReplaceAll(m_baseName,"");
     iso_vec.emplace(n,std::vector<float>());
@@ -148,7 +148,7 @@ void egammaMonitorElectronAlgorithm::filltopoElectronIsolation(const EventContex
 
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> allMonIsoVars;
   allMonIsoVars.insert(allMonIsoVars.end(),{col0,col1});
-  for (auto hk : m_isoKey) {
+  for (const auto& hk : m_isoKey) {
     TString n = hk.key();
     n.ReplaceAll(m_baseName,"");
     SG::ReadDecorHandle<xAOD::ElectronContainer, float> handle(hk,ctx);

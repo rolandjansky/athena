@@ -89,7 +89,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
 
 
-StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, std::string pidName,  
+StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, const std::string& trigItem, float etthr, const std::string& pidName,  
                                                        std::vector<std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision * >> &pairObjs) 
   const
 {
@@ -107,7 +107,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
 
   const std::string decor="is"+pidName;
 
-  for(const auto eg : *offPhotons ){
+  for(const auto *const eg : *offPhotons ){
       const TrigCompositeUtils::Decision *dec=nullptr; 
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");

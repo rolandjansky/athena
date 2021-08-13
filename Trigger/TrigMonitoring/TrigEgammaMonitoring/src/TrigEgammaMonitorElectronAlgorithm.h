@@ -30,7 +30,7 @@ class TrigEgammaMonitorElectronAlgorithm: public TrigEgammaMonitorAnalysisAlgori
 
   
     /*! navigation method called by executeNavigation */
-    StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,float,std::string,
+    StatusCode executeNavigation(const EventContext& ctx, const std::string& trigItem,float,const std::string&,
                                  std::vector<std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision*>> &) const;
     
     

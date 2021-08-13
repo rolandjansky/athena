@@ -56,7 +56,7 @@ void egammaMonitorPhotonAlgorithm::filltopoPhotonShowerShapes( const EventContex
     auto eta_col                = Monitored::Collection("eta"      , eta_vec     );
     auto phi_col                = Monitored::Collection("phi"      , phi_vec     );
 
-    for ( const auto photon : *photons ){
+    for ( const auto *const photon : *photons ){
 
         if(!photon) continue;
         
@@ -93,7 +93,7 @@ void egammaMonitorPhotonAlgorithm::filltopoPhotonIsolation(const EventContext& c
   auto topoetcone20_col       = Monitored::Collection("topoetcone20", topoetcone20_vec);
   auto topoetcone40_shift_col = Monitored::Collection("topoetcone40_shift", topoetcone40_shift_vec);
 
-  for (auto hk : m_isoKey) {
+  for (const auto& hk : m_isoKey) {
     TString n = hk.key();
     n.ReplaceAll(m_baseName,"");
     SG::ReadDecorHandle<xAOD::PhotonContainer, float> handle(hk,ctx);
