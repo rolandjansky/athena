@@ -176,8 +176,6 @@ MetaDataSvc         DEBUG handle() BeginInputFile for SimplePoolReplica1.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name SimplePoolReplica1.root
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
-Stream1.FileMet...  DEBUG beam energy tag could not be converted to float
-Stream1.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 12
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000203][OID=00000005-00000000].
@@ -383,6 +381,8 @@ SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(MagicNumber)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 MetaDataSvc         DEBUG MetaDataSvc will handle EventStreamInfo ClassID: 167728019
 MetaDataSvc         DEBUG MetaDataSvc will handle xAOD::EventFormat_v1 ClassID: 243004407
+Stream1.FileMet...  DEBUG beam energy "" tag could not be converted to float
+Stream1.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
 Stream1.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream1.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream1.FileMet...  DEBUG Retrieved  'StreamName':'Stream1'
