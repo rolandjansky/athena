@@ -38,12 +38,16 @@ SimplePoolFile1...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23
 SimplePoolFile1...  DEBUG --->Reading Shape[8 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[9 , ????]: [1 Column(s)]
-SimplePoolFile1...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[10 , ????]: [1 Column(s)]
-SimplePoolFile1...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[11 , ????]: [1 Column(s)]
+SimplePoolFile1...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1...  DEBUG --->Reading Shape[12 , ????]: [1 Column(s)]
+SimplePoolFile1...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1...  DEBUG --->Reading Shape[13 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 12 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 14 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -84,17 +88,21 @@ SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(BunchId) [20
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [203]  (14 , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [203]  (15 , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [203]  (15 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (16 , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (17 , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [203]  (17 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (18 , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 23 Entries in total.
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [203]  (19 , ffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 25 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
