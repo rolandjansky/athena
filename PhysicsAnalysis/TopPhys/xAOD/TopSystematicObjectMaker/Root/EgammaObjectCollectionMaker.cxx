@@ -231,7 +231,7 @@ namespace top {
           }
         }
         ///-- Isolation selection --///
-        static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
+        static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000("ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000");
         char passIsol_FixedCutTight(0);
         char passIsol_FixedCutTightCaloOnly(0);
         char passIsol_FixedCutLoose(0);
@@ -250,7 +250,7 @@ namespace top {
         if (m_isolationTool_TightCaloOnly->accept(*photon)) {
           passIsol_TightCaloOnly = 1;
         }
-        if (ptcone20_TightTTVA_pt1000.isAvailable(*photon)) {
+        if (ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*photon)) {
           if (m_isolationTool_Tight->accept(*photon)) {
             passIsol_Tight = 1;
           }
@@ -285,10 +285,10 @@ namespace top {
   }
 
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal) {
-    static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVALooseCone_pt1000("ptcone20_TightTTVALooseCone_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500("ptvarcone30_TightTTVALooseCone_pt500");
+    static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000("ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000("ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000("ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500("ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500");
     static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
     static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
     static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
@@ -372,19 +372,23 @@ namespace top {
         electron->auxdecor<char>("AnalysisTop_Isol_Gradient") = passIsol_Gradient;
         electron->auxdecor<char>("AnalysisTop_Isol_FCHighPtCaloOnly") = passIsol_FCHighPtCaloOnly;
         electron->auxdecor<char>("AnalysisTop_Isol_HighPtCaloOnly") = passIsol_HighPtCaloOnly;
-        if (ptvarcone20_TightTTVA_pt1000.isAvailable(*electron)) {
+        if (ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_FCTight(*electron) = (m_isolationTool_FCTight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_FCLoose(*electron) = (m_isolationTool_FCLoose->accept(*electron) ? 1 : 0);
         }
-        if (ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
+	else {
+          AnalysisTop_Isol_FCTight(*electron) = 0;
+          AnalysisTop_Isol_FCLoose(*electron) = 0;
+	}
+        if (ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_TightTrackOnly->accept(*electron) ? 1 : 0);
-	  if (ptcone20_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
+	  if (ptcone20_Nonprompt_All_MaxWeightTTVALooseCone_pt1000.isAvailable(*electron)) {
 	    AnalysisTop_Isol_TightTrackOnly_FixedRad(*electron) = (m_isolationTool_TightTrackOnly_FixedRad->accept(*electron) ? 1 : 0);
 	  }
         }
-        if (ptvarcone30_TightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
+        if (ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
           AnalysisTop_Isol_PflowTight(*electron) = (m_isolationTool_PflowTight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_PflowLoose(*electron) = (m_isolationTool_PflowLoose->accept(*electron) ? 1 : 0);
         }

@@ -135,13 +135,13 @@ namespace top {
   StatusCode MuonObjectCollectionMaker::execute(bool executeNominal) {
 
     static const SG::AuxElement::ConstAccessor<float> topoetcone20("topoetcone20");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt500("ptvarcone20_TightTTVA_pt500");
-    static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
-    static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt500("ptcone20_TightTTVA_pt500");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt500("ptvarcone30_TightTTVA_pt500");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000("ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500("ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500");
+    static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000("ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptcone20_Nonprompt_All_MaxWeightTTVA_pt500("ptcone20_Nonprompt_All_MaxWeightTTVA_pt500");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500("ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500");
     static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000("ptvarcone30_Nonprompt_All_MaxWeightTTVALooseCone_pt1000");
     static const SG::AuxElement::ConstAccessor<int> chamberIndex("chamberIndex");
     static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
     static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
@@ -243,7 +243,7 @@ namespace top {
 	passIsol_Tight_VarRad = -1;
 	passIsol_Loose_VarRad = -1;
         
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)
 	    && topoetcone20.isAvailable(*muon)) {
 	  passIsol_FCTight = m_isolationTool_FCTight->accept(*muon) ? 1 : 0;
 	  passIsol_FCLoose = m_isolationTool_FCLoose->accept(*muon) ? 1 : 0;
@@ -251,40 +251,40 @@ namespace top {
 	  passIsol_FCTight_FixedRad = m_isolationTool_FCTight_FixedRad->accept(*muon) ? 1 : 0;
 	}
 
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_FCTightTrackOnly = m_isolationTool_FCTightTrackOnly->accept(*muon) ? 1 : 0;
 	  passIsol_FCTightTrackOnly_FixedRad = m_isolationTool_FCTightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
 	}
 
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)
-	    && ptvarcone20_TightTTVA_pt500.isAvailable(*muon)
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)
+	    && ptvarcone20_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)
 	    && neflowisol20.isAvailable(*muon)) {
 	  passIsol_FixedCutPflowTight = m_isolationTool_FixedCutPflowTight->accept(*muon) ? 1 : 0;
 	  passIsol_FixedCutPflowLoose = m_isolationTool_FixedCutPflowLoose->accept(*muon) ? 1 : 0;
 	}
 
 	//new Iso WPs
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)
 	    && neflowisol20.isAvailable(*muon)
-	    && ptcone20_TightTTVA_pt500.isAvailable(*muon)) {
+	    && ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)) {
 	  passIsol_PflowTight_FixedRad = m_isolationTool_PflowTight_FixedRad->accept(*muon) ? 1 : 0;
 	  passIsol_PflowLoose_FixedRad = m_isolationTool_PflowLoose_FixedRad->accept(*muon) ? 1 : 0;
 	}
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)
 	    && neflowisol20.isAvailable(*muon)) {
 	  passIsol_PflowTight_VarRad = m_isolationTool_PflowTight_VarRad->accept(*muon) ? 1 : 0;
 	  passIsol_PflowLoose_VarRad = m_isolationTool_PflowLoose_VarRad->accept(*muon) ? 1 : 0;
         }
-	if (ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
+	if (ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_HighPtTrackOnly = m_isolationTool_HighPtTrackOnly->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_TightTrackOnly_VarRad = m_isolationTool_TightTrackOnly_VarRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) &&  ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon) &&  ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_TightTrackOnly_FixedRad = m_isolationTool_TightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500.isAvailable(*muon)) {
 //	  if ( PLV_TrackJetNTrack.isAvailable(*muon) &&
 //	       PLV_DRlj.isAvailable(*muon) &&
 //	       PLV_PtRel.isAvailable(*muon) &&
@@ -293,11 +293,11 @@ namespace top {
 //	  else
 //	    byhand_LowPtPLV(*muon) = 1.1;
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon) && ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon)) {
 	  passIsol_Tight_FixedRad = m_isolationTool_Tight_FixedRad->accept(*muon) ? 1 : 0;
 	  passIsol_Loose_FixedRad = m_isolationTool_Loose_FixedRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && topoetcone20.isAvailable(*muon)) {
+	if (ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.isAvailable(*muon) && topoetcone20.isAvailable(*muon)) {
 	  passIsol_Tight_VarRad = m_isolationTool_Tight_VarRad->accept(*muon) ? 1 : 0;
 	  passIsol_Loose_VarRad = m_isolationTool_Loose_VarRad->accept(*muon) ? 1 : 0;
         }

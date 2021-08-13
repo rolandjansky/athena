@@ -556,7 +556,7 @@ namespace top {
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel;
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_PtFrac;
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_DRlj;
-    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500rel;
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel;
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest;
     std::vector<float> m_PLIV_mu_PromptLeptonImprovedVeto;

@@ -452,7 +452,7 @@ from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM10SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # add new TTVA isolation variables
-EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500"]
+EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500"]
 
 # additional truth-level variables
 if DerivationFrameworkIsMonteCarlo:
