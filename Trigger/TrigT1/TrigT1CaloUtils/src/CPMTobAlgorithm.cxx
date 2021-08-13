@@ -14,13 +14,6 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
-#include "TrigConfL1Data/IsolationParam.h"
-#include "TrigConfL1Data/CaloInfo.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfData/L1Menu.h"
 
 #include <math.h>
@@ -46,8 +39,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
 LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer,
-                                ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu, int slice ):
-  m_configSvc(config),
+                                        const TrigConf::L1Menu * l1menu, int slice ):
   m_l1menu(l1menu),
   m_Core(0),
   m_EMClus(0),
@@ -223,14 +215,9 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   // Need to worry about digit scale not being GeV
   float emEnergyScale{1}; 
   unsigned int tobPtMinEM{0};
-  if( m_l1menu ) {
-    emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
-    tobPtMinEM = m_l1menu->thrExtraInfo().EM().ptMinToTopo();
-  } else {
-    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-    emEnergyScale = caloInfo.globalEmScale();
-    tobPtMinEM = caloInfo.minTobEM().ptmin;
-  }
+  emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
+  tobPtMinEM = m_l1menu->thrExtraInfo().EM().ptMinToTopo();
+
   unsigned int thresh = tobPtMinEM * emEnergyScale;
 
   if (m_EMClus <= thresh) return;
@@ -261,75 +248,36 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
     * Also must rescale ET sums to same scale for comparison */
   std::vector<int> emisolcuts(5,m_noIsol);
   std::vector<int> hadisolcuts(5,m_noIsol);
-  if( m_l1menu ) {
-    for(size_t bit = 1; bit<=5; ++bit) {
-      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("EMIsoForEMthr", bit);
-      if(! iso.isDefined() ) {
-        continue;
-      }
-      int offset = iso.offset();
-      int slope  = iso.slope();
-      int mincut = iso.mincut();
-      int upperlimit = iso.upperlimit()*10;
-      if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        // As "slope" = 10* slope, rescale clus too to get fraction right.
-        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-        if (cut < mincut) cut = mincut;
-        emisolcuts[bit-1] = cut;
-      }
+  for(size_t bit = 1; bit<=5; ++bit) {
+    const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("EMIsoForEMthr", bit);
+    if(! iso.isDefined() ) {
+      continue;
     }
-    for(size_t bit = 1; bit<=5; ++bit) {
-      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("HAIsoForEMthr", bit);
-      if(! iso.isDefined() ) {
-        continue;
-      }
-      int offset = iso.offset();
-      int slope  = iso.slope();
-      int mincut = iso.mincut();
-      int upperlimit = iso.upperlimit()*10;
-      if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        // As "slope" = 10* slope, rescale clus too to get fraction right.
-        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-        if (cut < mincut) cut = mincut;
-        hadisolcuts[bit-1] = cut;
-      }
+    int offset = iso.offset();
+    int slope  = iso.slope();
+    int mincut = iso.mincut();
+    int upperlimit = iso.upperlimit()*10;
+    if (clus < upperlimit && bit >= 1 && bit <= 5) {
+      // As "slope" = 10* slope, rescale clus too to get fraction right.
+      int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+      if (cut < mincut) cut = mincut;
+      emisolcuts[bit-1] = cut;
     }
-  } else {
-    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-
-    const std::vector<IsolationParam> & emIsolParams  = caloInfo.isolationEMIsoForEMthr();
-    for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-        // Offset & Mincut are in 100 MeV units. Slope = 10* the actual slope, but we will stick with integers here
-        int offset = (*it).offset();
-        int slope  = (*it).slope();
-        int mincut = (*it).mincut();
-        
-        // Upperlimit is in GeV, so convert that to 100 MeV steps
-        int upperlimit = (*it).upperlimit()*10;
-        
-        int bit = (*it).isobit();
-        
-        if (clus < upperlimit && bit >= 1 && bit <= 5) {
-          // As "slope" = 10* slope, rescale clus too to get fraction right.
-          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-          if (cut < mincut) cut = mincut;
-          emisolcuts[bit-1] = cut;
-        }
+  }
+  for(size_t bit = 1; bit<=5; ++bit) {
+    const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("HAIsoForEMthr", bit);
+    if(! iso.isDefined() ) {
+      continue;
     }
-    
-    const std::vector<IsolationParam> & hadIsolParams = caloInfo.isolationHAIsoForEMthr();  
-    for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
-        int offset = (*it).offset();
-        int slope  = (*it).slope();
-        int mincut = (*it).mincut();
-        int upperlimit = (*it).upperlimit()*10;
-        int bit = (*it).isobit();
-        
-        if (clus < upperlimit && bit >= 1 && bit <= 5) {
-          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-          if (cut < mincut) cut = mincut;
-          hadisolcuts[bit-1] = cut;
-        }
+    int offset = iso.offset();
+    int slope  = iso.slope();
+    int mincut = iso.mincut();
+    int upperlimit = iso.upperlimit()*10;
+    if (clus < upperlimit && bit >= 1 && bit <= 5) {
+      // As "slope" = 10* slope, rescale clus too to get fraction right.
+      int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+      if (cut < mincut) cut = mincut;
+      hadisolcuts[bit-1] = cut;
     }
   }
 
@@ -355,14 +303,8 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   // Need to worry about digit scale not being GeV
   float emEnergyScale{1}; 
   unsigned int tobPtMinTau{0};
-  if( m_l1menu ) {
-    emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
-    tobPtMinTau = m_l1menu->thrExtraInfo().TAU().ptMinToTopo();
-  } else {
-    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-    emEnergyScale = caloInfo.globalEmScale();
-    tobPtMinTau = caloInfo.minTobTau().ptmin;
-  }
+  emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
+  tobPtMinTau = m_l1menu->thrExtraInfo().TAU().ptMinToTopo();
   unsigned int thresh = tobPtMinTau * emEnergyScale;
 
   if (m_TauClus <= thresh) return;
@@ -387,43 +329,20 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   
   // Get isolation values from menu (placeholder code - example logic)
   std::vector<int> emisolcuts(5,m_noIsol);
-  if( m_l1menu ) {
-    for(size_t bit = 1; bit<=5; ++bit) {
-      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().TAU().isolation("EMIsoForTAUthr", bit);
-      if(! iso.isDefined() ) {
-        continue;
-      }
-      int offset = iso.offset();
-      int slope  = iso.slope();
-      int mincut = iso.mincut();
-      int upperlimit = iso.upperlimit()*10;
-      if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        // As "slope" = 10* slope, rescale clus too to get fraction right.
-        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-        if (cut < mincut) cut = mincut;
-        emisolcuts[bit-1] = cut;
-      }
+  for(size_t bit = 1; bit<=5; ++bit) {
+    const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().TAU().isolation("EMIsoForTAUthr", bit);
+    if(! iso.isDefined() ) {
+      continue;
     }
-  } else {
-    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-    std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForTAUthr();
-    
-    for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-      if ((*it).isDefined()) {
-        float offset = (*it).offset();
-        float slope  = (*it).slope();
-        float mincut = (*it).mincut();
-        // upperlimit is in GeV, so convert to 100 MeV units
-        int upperlimit = (*it).upperlimit()*10;
-        int bit = (*it).isobit();
-        
-        if (clus < upperlimit && bit >= 1 && bit <= 5) {
-          // slope parameter is 10* actual slope, so correct for that here
-          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
-          if (cut < mincut) cut = mincut;
-          emisolcuts[bit-1] = cut;
-        }
-      }
+    int offset = iso.offset();
+    int slope  = iso.slope();
+    int mincut = iso.mincut();
+    int upperlimit = iso.upperlimit()*10;
+    if (clus < upperlimit && bit >= 1 && bit <= 5) {
+      // As "slope" = 10* slope, rescale clus too to get fraction right.
+      int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+      if (cut < mincut) cut = mincut;
+      emisolcuts[bit-1] = cut;
     }
   }
 

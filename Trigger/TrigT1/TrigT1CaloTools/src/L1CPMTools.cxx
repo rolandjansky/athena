@@ -25,10 +25,7 @@ L1CPMTools::L1CPMTools(const std::string& t, const std::string& n, const IInterf
 
 StatusCode L1CPMTools::initialize()
 {
-  ATH_CHECK(m_configSvc.retrieve());
-  if( m_useNewConfig ) {
-    ATH_CHECK(detStore()->retrieve(m_l1menu));
-  }
+  ATH_CHECK(detStore()->retrieve(m_l1menu));
   return StatusCode::SUCCESS;
 }
 
@@ -78,7 +75,7 @@ void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, in
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          CPMTobAlgorithm tob(eta, phi, towers, m_configSvc, m_l1menu, slice); // quicker to do both in one go, though maybe not cleaner
+          CPMTobAlgorithm tob(eta, phi, towers, m_l1menu, slice); // quicker to do both in one go, though maybe not cleaner
           
           /** Did it pass as EM TOB? If so:
               * Create TOB RoI object and push back into system results
@@ -239,7 +236,7 @@ void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobR
         if (test == analysed.end()) {
           analysed.insert(std::map<int, int>::value_type(key,1));
           
-          CPMTobAlgorithm tob(tempEta, tempPhi, towers, m_configSvc, m_l1menu, slice);
+          CPMTobAlgorithm tob(tempEta, tempPhi, towers, m_l1menu, slice);
 
           // Did this pass as an EM TOB?
           if (tob.isEMRoI()) { 
@@ -305,7 +302,7 @@ void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAl
         if (test == analysed.end()) {
           analysed.insert(std::map<int, int>::value_type(key,1));
           
-          CPMTobAlgorithm* tob = new CPMTobAlgorithm(tempEta, tempPhi, towers, m_configSvc, m_l1menu, slice);
+          CPMTobAlgorithm* tob = new CPMTobAlgorithm(tempEta, tempPhi, towers, m_l1menu, slice);
           if ( (tob->isEMRoI() || tob->isTauRoI()) ) tobs->push_back(tob);
           else delete tob;
         } // not done this one already
@@ -354,14 +351,14 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTow
 
 CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
 }
 
 /** Form clusters for given coordinates */
 
 CPMTobAlgorithm L1CPMTools::formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
 }
 
 /** Form sums for given RoI */
@@ -373,7 +370,7 @@ CPMTobAlgorithm L1CPMTools::formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t
   float RoIeta = coord.eta();
 
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_configSvc, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
 }
 
 } // end of namespace
