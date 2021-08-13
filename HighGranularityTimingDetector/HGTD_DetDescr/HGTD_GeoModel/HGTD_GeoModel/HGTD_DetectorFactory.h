@@ -105,6 +105,8 @@ public:
     std::vector< ModulePosition > prepareModulePositionsInRowThreeRing( int row, int back = 0 );
     int reorderRows( PositionsInQuadrant* quadrant );
 
+    void mirrorPositionsAroundYaxis(std::array< PositionsInQuadrant, 4 >& arr);
+
     // 2-ring layout
     std::vector<ModulePosition> prepareModulePositionsInRowTwoRing(int row, bool back = false);
 
