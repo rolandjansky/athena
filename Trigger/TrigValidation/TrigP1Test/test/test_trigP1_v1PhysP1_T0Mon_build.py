@@ -47,7 +47,7 @@ tzreco.explicit_input = True
 tzreco.max_events = 50
 tzreco.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
@@ -56,7 +56,9 @@ tzmon = ExecStep.ExecStep('Tier0Mon')
 tzmon.type = 'other'
 tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
-tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+tzmon.args = '--threads=1'
+tzmon.args += ' --dqOffByDefault'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
 
 # The full test
 test = Test.Test()
