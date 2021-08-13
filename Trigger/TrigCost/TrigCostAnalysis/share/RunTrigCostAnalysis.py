@@ -26,7 +26,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
 
   enhancedBiasWeighter = CompFactory.EnhancedBiasWeighter()
   enhancedBiasWeighter.RunNumber = runNumbers[0]
-  enhancedBiasWeighter.UseBunchCrossingTool = False
+  enhancedBiasWeighter.UseBunchCrossingData = False
   enhancedBiasWeighter.IsMC = isMC
   if isMC:
     MCpayload = readMCpayload(args)

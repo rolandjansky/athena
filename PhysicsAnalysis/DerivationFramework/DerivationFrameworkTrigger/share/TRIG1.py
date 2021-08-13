@@ -18,10 +18,11 @@ run_number = af.run_number[0]
 from AthenaCommon.GlobalFlags import globalflags
 isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
 #globalflags.DataSource = 'data' 
-globalflags.DatabaseInstance = 'CONDBR2' 
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-if isMC: ToolSvc += BunchCrossingTool( "MC" )
-else: ToolSvc += BunchCrossingTool( "LHC" )
+globalflags.DatabaseInstance = 'CONDBR2'
+
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
+
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
@@ -37,7 +38,7 @@ else: ToolSvc += BunchCrossingTool( "LHC" )
 from EnhancedBiasWeighter.EnhancedBiasWeighterConf import EnhancedBiasWeighter
 TRIG1AugmentationTool = EnhancedBiasWeighter(name = "TRIG1AugmentationTool")
 TRIG1AugmentationTool.RunNumber = run_number
-TRIG1AugmentationTool.UseBunchCrossingTool = True
+TRIG1AugmentationTool.UseBunchCrossingData = True
 # These are needed for MC rates
 #TRIG1AugmentationTool.MCCrossSection = xxx
 #TRIG1AugmentationTool.MCFilterEfficiency = xxx
