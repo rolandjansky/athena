@@ -168,6 +168,7 @@ namespace LVL1MUCTPIPHASE1 {
 
 	for(const boost::property_tree::ptree::value_type &z: lut) {
 	  std::string menuElementName = z.first;
+	  if(menuElementName!="Element" && menuElementName!="BBElement")continue;
 	  ptree ele = z.second;
 	  auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
 	  auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
