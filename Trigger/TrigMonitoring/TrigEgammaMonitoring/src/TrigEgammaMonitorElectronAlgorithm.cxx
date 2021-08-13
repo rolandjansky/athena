@@ -89,9 +89,9 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
 
 StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventContext& ctx, 
-                                                             std::string trigItem,
+                                                             const std::string& trigItem,
                                                              float etthr,
-                                                             std::string pidName,
+                                                             const std::string& pidName,
                                                              std::vector<std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision* >> &pairObjs) const
 {
 
@@ -107,7 +107,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
 
 
   const std::string decor="is"+pidName;
-  for(const auto eg : *offElectrons ){
+  for(const auto *const eg : *offElectrons ){
 
       const TrigCompositeUtils::Decision *dec=nullptr; 
 

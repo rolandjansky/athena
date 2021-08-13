@@ -29,7 +29,7 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
     bool executeTandP( const EventContext& ctx, std::vector<std::shared_ptr<const xAOD::Electron>> & ) const;
 
     /*! Match probes called by derived classes */
-    void matchObjects(const std::string trigItem,  std::vector<std::shared_ptr<const xAOD::Electron>>&, 
+    void matchObjects(const std::string& trigItem,  std::vector<std::shared_ptr<const xAOD::Electron>>&, 
                       std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> &) const; 
     
    
@@ -44,9 +44,9 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
     /*! at least one chain should pass. e28_tight_iloose? */
     bool minimalTriggerRequirement () const;
     /*! Tag Electron selection */
-    bool isTagElectron( ToolHandle<GenericMonitoringTool> monGroup, const xAOD::Electron *el) const;
+    bool isTagElectron( const ToolHandle<GenericMonitoringTool>& monGroup, const xAOD::Electron *el) const;
     /*! Probe selection */
-    bool isGoodProbeElectron( ToolHandle<GenericMonitoringTool> monGroup, const xAOD::Electron *el, const xAOD::JetContainer *) const;
+    bool isGoodProbeElectron( const ToolHandle<GenericMonitoringTool>& monGroup, const xAOD::Electron *el, const xAOD::JetContainer *) const;
     /*! Return pseudo-lifetime of Jpsi */
     float getPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*) const;
     /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */

@@ -121,33 +121,33 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Get the trig info map */
     std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; } 
     /*! Get offline electron decision */
-    bool ApplyElectronPid(const xAOD::Electron *eg,const std::string) const;
+    bool ApplyElectronPid(const xAOD::Electron *eg,const std::string&) const;
     /*! Get offline electron decision */
-    bool ApplyPhotonPid(const xAOD::Photon *eg,const std::string) const;
+    bool ApplyPhotonPid(const xAOD::Photon *eg,const std::string&) const;
     /*! Get the TDT  */
     const ToolHandle<Trig::TrigDecisionTool>& tdt() const {return m_trigdec;};
     /*! Get the e/g match tool */
     const ToolHandle<TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
     /*! Set the accept object for all trigger levels */
-    asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo) const;
+    asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo&) const;
     /*! Get the trigger info parsed from the chain name */
-    TrigInfo getTrigInfo(const std::string) const;
+    TrigInfo getTrigInfo(const std::string&) const;
     /*! Get delta R */
     float dR(const float, const float, const float, const float) const;
     /*! Simple setter to pick up correct probe PID for given trigger */
-    void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&) const;
+    void parseTriggerName(const std::string&,const std::string&, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&) const;
     /*! Split double object trigger in two simple object trigger */
-    bool splitTriggerName(const std::string, std::string &, std::string &) const;
+    bool splitTriggerName(const std::string&, std::string &, std::string &) const;
     /*! Creates static map to return L1 item from trigger name */
-    std::string getL1Item(std::string trigger) const;
+    std::string getL1Item(const std::string& trigger) const;
     /*! Check if electron fulfils isolation criteria */
-    bool isIsolated(const xAOD::Electron*, const std::string) const;
+    bool isIsolated(const xAOD::Electron*, const std::string&) const;
     /*! Check if the event is prescaled */
-    bool isPrescaled(const std::string) const;
+    bool isPrescaled(const std::string&) const;
     /*! Get the pid name */
-    std::string getProbePid(const std::string) const;
+    std::string getProbePid(const std::string&) const;
     /*! Set the trigger info parsed from the chain name */
-    void setTrigInfo(const std::string);
+    void setTrigInfo(const std::string&);
     
     
   
