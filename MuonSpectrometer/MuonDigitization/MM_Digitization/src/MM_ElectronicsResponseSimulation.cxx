@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -191,7 +191,7 @@ int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 	float time,
 	int VMM_id,
 	std::vector<int> trigger_VMM_id,
-	const std::vector<float> electronicsThresholdStripTime,
+	const std::vector<float>& electronicsThresholdStripTime,
 	float timeWindowLower,
 	float timeWindowUpper){
 	int theFastestSignal = -1;

@@ -90,7 +90,7 @@ class sTgcDigitMaker {
      Determines whether a hit is detected or not.
   */
   bool efficiencyCheck(const int channelType) const;
-  bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const;
+  bool efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi, const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const;
 
   //uint16_t bcTagging(const float digittime, const int channelType) const;
   void addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, int channelType) const;
@@ -109,28 +109,28 @@ class sTgcDigitMaker {
   /** Read share/sTGC_Digitization_alignment.dat file */
   //void readFileOfAlignment();
   ///** Get energy threshold value for each chamber */
-  double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
+  double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
   //                     const float posInStrip, const double digitTime);
   /** Method to check a chamber is dead or active */
-  bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
+  bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
   float getChamberEfficiency(int stationName, int stationEta, int stationPhi, int multiPlet, int gasGap);
-  double getTimeWindowOffset(const std::string stationName, int stationEta, int channelType) const;
+  double getTimeWindowOffset(const std::string& stationName, int stationEta, int channelType) const;
   /** Get stationName integer from stationName string */
-  int getIStationName(const std::string staionName) const;
+  int getIStationName(const std::string& staionName) const;
   /** Ad hoc implementation of detector position shift */
   //void adHocPositionShift(const std::string stationName, int stationEta, int stationPhi,
   //                        const Amg::Vector3D direCos, Amg::Vector3D &localPos) const;
 
   /** Energy threshold value for each chamber */
-  double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP][N_CHANNELTYPE];
+  double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP][N_CHANNELTYPE]{};
   ///** Cross talk probabilty for each chamber */
   //double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_CHANNELTYPE][N_CROSSTALK_PARAMETER];
   /** Dead chamber flag for each chamber */
-  bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP];
-  float m_ChamberEfficiency[2][4][8][2][4];
+  bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP]{};
+  float m_ChamberEfficiency[2][4][8][2][4]{};
   /** Time window offset for each chamber */
-  double m_timeWindowOffset[N_STATIONNAME][N_STATIONETA][N_CHANNELTYPE];
+  double m_timeWindowOffset[N_STATIONNAME][N_STATIONETA][N_CHANNELTYPE]{};
 
   ///** Alignment z constants. Translation in the global r direction */
   //double m_alignmentZ[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];

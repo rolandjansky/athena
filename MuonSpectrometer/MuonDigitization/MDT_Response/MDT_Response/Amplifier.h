@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_RESPONSE_AMPLIFIER_H
@@ -51,13 +51,13 @@ class Amplifier {
   double Integral();                         // charge integral
   void   AddCluster(int bin,double charge);  
 
-  double m_binsize;                          // binsize in ns
-  double m_triggerElectron;                  // trigger electron 
-  double m_threshold;                        // threshold 
+  double m_binsize = 0.0;                          // binsize in ns
+  double m_triggerElectron = 0.0;                  // trigger electron 
+  double m_threshold = 0.0;                        // threshold 
   int    m_integrationWindow;                // integration window in bins
 
   // maximum of the single electron response
-  double m_responseMax;
+  double m_responseMax = 0.0;
 
   cluster_vec             m_response;
   cluster_vec             m_signal;
@@ -72,9 +72,9 @@ class Amplifier {
 
   /* non linear response: 
      R = m_adcOffset + m_adcFactor*(log(Q)/log(m_adcFraction)-1) */
-  double m_adcOffset;
-  double m_adcFactor;
-  double m_adcFraction;
+  double m_adcOffset = 0.0;
+  double m_adcFactor = 0.0;
+  double m_adcFraction = 0.0;
   
 };
 

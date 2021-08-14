@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -218,8 +218,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
 
-		float m_noiseSlope;
-		float m_noiseIntercept;
+		float m_noiseSlope = 0.0F;
+		float m_noiseIntercept = 0.0F;
 };
 
 #endif // MM_DigitizationTool

@@ -70,8 +70,8 @@ namespace {
  // values from https://indico.cern.ch/event/1002207/contributions/4240818
  // slide 10
 
- static constexpr float maxNoise = 2600;
- static constexpr float minNoise = 1000;
+ constexpr float maxNoise = 2600;
+ constexpr float minNoise = 1000;
 
 }
 
@@ -333,7 +333,7 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 
     if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                             bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
       ATH_MSG_ERROR("Could not fill TimedHitCollList");
       return StatusCode::FAILURE;
     } else {
@@ -345,7 +345,7 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
     TimedHitCollList::iterator endColl(hitCollList.end());
 
     // Iterating over the list of collections
-    for( ; iColl != endColl; iColl++){
+    for( ; iColl != endColl; ++iColl){
 
       auto hitCollPtr = std::make_unique<MMSimHitCollection>(*iColl->second);
       PileUpTimeEventIndex timeIndex(iColl->first);
@@ -372,7 +372,7 @@ StatusCode MM_DigitizationTool::getNextEvent(const EventContext& ctx) {
 	ATH_MSG_DEBUG ( "MM_DigitizationTool::getNextEvent()" );
 
 	//  get the container(s)
-	typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
+	using TimedHitCollList = PileUpMergeSvc::TimedList<MMSimHitCollection>::type;
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
@@ -393,7 +393,7 @@ StatusCode MM_DigitizationTool::getNextEvent(const EventContext& ctx) {
 	TimedHitCollList hitCollList;
 
 	ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList) );
-	if (hitCollList.size()==0) {
+	if (hitCollList.empty()) {
 		ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
 		return StatusCode::FAILURE;
 	}
@@ -530,7 +530,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       m_n_hitDepositEnergy = hit.depositEnergy();
       m_n_hitKineticEnergy = hit.kineticEnergy();
       
-      const Amg::Vector3D globalHitPosition = hit.globalPosition();
+      const Amg::Vector3D& globalHitPosition = hit.globalPosition();
       
       m_globalHitTime = hit.globalTime();
       m_tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
@@ -955,7 +955,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
       
       // This block is purely validation
-      for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
+      for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); ++i){
         int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
         bool isValid;
         Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
@@ -984,7 +984,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     
     // Now at Detector Element Level (VMM)
     
-    if(v_stripDigitOutput.size()==0){
+    if(v_stripDigitOutput.empty()){
       ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no strip response on this VMM." );
       continue;
     }
@@ -1057,7 +1057,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     //
     MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
     
-    MM_ElectronicsToolTriggerOutput finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
+    const MM_ElectronicsToolTriggerOutput& finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
     
     
     //
@@ -1113,7 +1113,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
       }
 
-      if ( stripPosSmeared.size() > 0 ) { 
+      if ( !stripPosSmeared.empty() ) { 
 	newDigit = std::make_unique<MmDigit>(digitId,
 							   stripTimeSmeared,
 							   stripPosSmeared,
@@ -1202,13 +1202,13 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 			max_kineticEnergy = i_stripDigitOutput.kineticEnergy();
 		}
 		//---
-		for(size_t i = 0; i<i_stripDigitOutput.NumberOfStripsPos().size(); i++){
+		for(size_t i = 0; i<i_stripDigitOutput.NumberOfStripsPos().size(); ++i){
 			int strip_id = i_stripDigitOutput.NumberOfStripsPos()[i];
 			bool found = false;
 
-			for(size_t ii = 0; ii<v_stripStripResponseAllHits.size(); ii++){
+			for(size_t ii = 0; ii<v_stripStripResponseAllHits.size(); ++ii){
 				if(v_stripStripResponseAllHits[ii]==strip_id){
-					for(size_t iii = 0; iii<(i_stripDigitOutput.chipTime()[i]).size(); iii++){
+					for(size_t iii = 0; iii<(i_stripDigitOutput.chipTime()[i]).size(); ++iii){
 						v_timeStripResponseAllHits[ii].push_back(i_stripDigitOutput.chipTime()[i].at(iii));
 						v_qStripResponseAllHits[ii].push_back(i_stripDigitOutput.chipCharge()[i].at(iii));
 					}

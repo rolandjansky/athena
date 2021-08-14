@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Digitization/RT_Relation_DigiTool.h"
@@ -49,7 +49,7 @@ StatusCode RT_Relation_DigiTool::initialize() {
 bool RT_Relation_DigiTool::initializeTube(const MuonGM::MuonDetectorManager* detMgr) {
     m_maxRadius = detMgr->getGenericMdtDescriptor()->innerRadius;
 
-    if (m_rt.size() < 1) {
+    if (m_rt.empty()) {
         std::string inputFile = RT_DATA;
         // Find the full path to inputFile:
         std::string file = PathResolver::find_file(inputFile, "DATAPATH");

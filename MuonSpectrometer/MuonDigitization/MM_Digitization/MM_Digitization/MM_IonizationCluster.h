@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_IONIZATIONCLUSTER_H
@@ -34,7 +34,7 @@ class MM_IonizationCluster {
 
   // Members supplied by user
   std::vector<std::unique_ptr<MM_Electron>> m_Electrons;
-  float m_HitX;
+  float m_HitX = 0.0F;
   TVector2 m_IonizationStart;
 
 };

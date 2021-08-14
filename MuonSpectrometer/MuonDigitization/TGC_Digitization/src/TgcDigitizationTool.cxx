@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -130,7 +130,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
 					  bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -142,7 +142,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator endColl(hitCollList.end());
 
   // Iterating over the list of collections
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
 
     TGCSimHitCollection *hitCollPtr = new TGCSimHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
@@ -168,7 +168,7 @@ StatusCode TgcDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
-  m_thpcTGC = 0;
+  m_thpcTGC = nullptr;
 
   std::list<TGCSimHitCollection*>::iterator TGCHitColl    = m_TGCHitCollList.begin();
   std::list<TGCSimHitCollection*>::iterator TGCHitCollEnd = m_TGCHitCollList.end();
@@ -191,7 +191,7 @@ StatusCode TgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
-  m_thpcTGC = 0;
+  m_thpcTGC = nullptr;
   return StatusCode::SUCCESS;
 }
 
@@ -200,7 +200,7 @@ StatusCode TgcDigitizationTool::finalize() {
   ATH_MSG_DEBUG("finalize.");
 
   delete m_digitizer;
-  m_digitizer = 0;
+  m_digitizer = nullptr;
 
   return StatusCode::SUCCESS;
 }
@@ -213,7 +213,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
   m_thpcTGC = nullptr;
   
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<TGCSimHitCollection>::type;
   
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
@@ -238,7 +238,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
     ATH_MSG_FATAL("Could not fill TimedHitCollList"); 
     return StatusCode::FAILURE;
   }
-  if(hitCollList.size()==0) {
+  if(hitCollList.empty()) {
     ATH_MSG_FATAL("TimedHitCollList has size 0"); 
     return StatusCode::FAILURE;
   } else {
@@ -355,7 +355,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 			    << m_idHelper->show_to_string(newDigiId, &context) 
 			    << " BC tag = " << newBcTag);  
 	      delete newDigit; 
-	      newDigit = 0;
+	      newDigit = nullptr;
 	      break;
 	    }
 	  }
@@ -397,7 +397,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 	
       }
       delete digiHits;
-      digiHits = 0;
+      digiHits = nullptr;
     }//while(i != e)
   }//while(m_thpcTGC->nextDetectorElement(i, e))
 

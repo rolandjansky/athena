@@ -25,7 +25,7 @@ using namespace MuonGM;
 CSC_Digitizer::CSC_Digitizer(CscHitIdHelper * cscHitHelper,
 			     const MuonDetectorManager* muonMgr,
                              ICscCalibTool* pcalib) :
-  m_cscIdHelper(NULL),
+  m_cscIdHelper(nullptr),
   m_Polia(0.0),
   m_timeWindowLowerOffset(0.0),
   m_timeWindowUpperOffset(0.0),
@@ -34,7 +34,7 @@ CSC_Digitizer::CSC_Digitizer(CscHitIdHelper * cscHitHelper,
 {
   m_cscHitHelper        = cscHitHelper;
   m_muonMgr             = muonMgr;
-  m_sprob               = 0;
+  m_sprob               = nullptr;
   m_pcalib              = pcalib;
   m_debug =0;
 
@@ -71,7 +71,7 @@ StatusCode CSC_Digitizer::initialize() {
   //  std::cout << "CSC_Digitizer::intialize() : MaxElectron  " << m_maxElectron << std::endl;
 
   m_sprob = new double[m_maxElectron];
-  if (m_sprob == 0) {
+  if (m_sprob == nullptr) {
     std::cout << "CSC_Digitizer::initialize() : cannot request memory from the heap"  << std::endl;
     return StatusCode::FAILURE;
   }

@@ -34,7 +34,7 @@ TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
   m_runperiod               = runperiod;
-  m_idHelper                = 0;
+  m_idHelper                = nullptr;
   m_efficiency[kWIRE] = m_efficiency[kSTRIP] = 1.000; // 100% efficiency for TGCSimHit_p1
   m_timeWindowOffsetSensor[kWIRE]  = m_timeWindowOffsetSensor[kSTRIP] = 0.;
   m_gateTimeWindow[kOUTER][kWIRE]  = 29.32; // 29.32ns = 26ns + 4  * 0.83ns(outer station)
@@ -100,7 +100,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() Got HIT Id." << endmsg;
 
   // Check the chamber is dead or not. 
-  if(isDeadChamber(stationName, stationEta, stationPhi, ilyr)) return 0;
+  if(isDeadChamber(stationName, stationEta, stationPhi, ilyr)) return nullptr;
 
   const Identifier elemId = m_idHelper -> elementID(stationName,stationEta,stationPhi);
   if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() - element identifier is: " << m_idHelper->show_to_string(elemId) << endmsg;
@@ -108,7 +108,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(elemId);
   if(!tgcChamber) {
     if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "executeDigi() - no ReadoutElement found for " << m_idHelper->show_to_string(elemId) << endmsg;
-    return 0;
+    return nullptr;
   }
 
   
@@ -426,7 +426,7 @@ StatusCode TgcDigitMaker::readFileOfTimeJitter()
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   std::ifstream ifs;
-  if (fileWithPath != "") {
+  if (!fileWithPath.empty()) {
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {
@@ -582,7 +582,7 @@ void TgcDigitMaker::readFileOfEnergyThreshold() {
   // Find path to the TGC_Digitization_energyThreshold.dat file 
   const std::string fileName = "TGC_Digitization_energyThreshold.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
@@ -662,7 +662,7 @@ void TgcDigitMaker::readFileOfCrossTalk() {
   // Find path to the TGC_Digitization_crossTalk.dat file 
   const std::string fileName = "TGC_Digitization_crossTalk.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     msg(MSG::FATAL) << "readFileOfCrossTalk(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
@@ -752,7 +752,7 @@ void TgcDigitMaker::readFileOfDeadChamber() {
     return;
   }
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
@@ -823,7 +823,7 @@ void TgcDigitMaker::readFileOfTimeWindowOffset() {
   // Find path to the TGC_Digitization_timeWindowOffset.dat file 
   const std::string fileName = "TGC_Digitization_timeWindowOffset.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
@@ -887,7 +887,7 @@ void TgcDigitMaker::readFileOfAlignment() {
   // Find path to the TGC_Digitization_alignment.dat file 
   const std::string fileName = "TGC_Digitization_alignment.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     msg(MSG::FATAL) << "readFileOfAlignment(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
