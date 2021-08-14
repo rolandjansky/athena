@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PHYSVALMONITORING_TRKANDVTXPLOTS_H
@@ -15,20 +15,20 @@ namespace PhysVal{
   
 class TrkAndVtxPlots:public PlotBase {
     public:
-      TrkAndVtxPlots(PlotBase* pParent, std::string sDir);
+      TrkAndVtxPlots(PlotBase* pParent, const std::string& sDir);
       void fill(const xAOD::TrackParticle* trk,const xAOD::EventInfo* evt);
-      void fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt);
-      void fill(unsigned int ntrack, unsigned int nvertex, float pileup = 0,const xAOD::EventInfo* evt=NULL);
+      void fill(const xAOD::Vertex* vtx,const xAOD::EventInfo* evt) const;
+      void fill(unsigned int ntrack, unsigned int nvertex, float pileup = 0,const xAOD::EventInfo* evt=NULL) const;
       
       // Reco only information
-      TH1* ntrk;
+      TH1* ntrk = nullptr;
 
-      TH1* nvtx;
-      TH1* vtx_x;
-      TH1* vtx_y;
-      TH1* vtx_z;
+      TH1* nvtx = nullptr;
+      TH1* vtx_x = nullptr;
+      TH1* vtx_y = nullptr;
+      TH1* vtx_z = nullptr;
 
-      TH1* mu;
+      TH1* mu = nullptr;
 
     private:
       virtual void initializePlots();
