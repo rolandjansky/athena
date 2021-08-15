@@ -41,8 +41,8 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
   ATH_CHECK(getL1Thresholds(*l1Menu, "EM", emThresholds));
 
   // RoIBResult contains vector of EM fragments
-  for ( auto& emTauFragment : roib.eMTauResult() ) {
-    for ( auto& roi : emTauFragment.roIVec() ) {
+  for ( const auto & emTauFragment : roib.eMTauResult() ) {
+    for ( const auto & roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::EMRoIWordType == roi.roIType() ) )  {
         ATH_MSG_DEBUG( "Skipping RoI as it is not EM threshold " << roIWord );
@@ -65,7 +65,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 
       std::vector<unsigned> passedThresholdIDs;
 
-      for (const auto th : emThresholds.value().get()) {
+      for (const auto& th : emThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
         if ( recRoI->passedThreshold( th->mapping() ) ) {
           passedThresholdIDs.push_back( HLT::Identifier( th->name() ) );

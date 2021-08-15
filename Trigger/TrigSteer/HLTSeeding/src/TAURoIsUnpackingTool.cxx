@@ -53,8 +53,8 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
   ATH_CHECK(getL1Thresholds(*l1Menu, "TAU", tauThresholds));
 
   // RoIBResult contains vector of TAU fragments
-  for ( auto& emTauFragment : roib.eMTauResult() ) {
-    for ( auto& roi : emTauFragment.roIVec() ) {
+  for ( const auto & emTauFragment : roib.eMTauResult() ) {
+    for ( const auto & roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::TauRoIWordType == roi.roIType() ) )  {
         ATH_MSG_DEBUG( "Skipping RoI as it is not TAU threshold " << roIWord );
@@ -75,7 +75,7 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
       Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() ); 
       Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe.ptr(), hltSeedingNodeName() );
 
-      for (const auto th : tauThresholds.value().get()) {
+      for (const auto& th : tauThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
         if ( recRoI->passedThreshold( th->mapping() ) ) {
           const std::string thresholdProbeName = getProbeThresholdName(th->name());

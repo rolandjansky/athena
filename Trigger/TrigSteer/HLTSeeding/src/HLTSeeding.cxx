@@ -82,7 +82,7 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   }
 
   SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_summaryKey, ctx );
-  auto chainsInfo = handle.ptr();
+  auto *chainsInfo = handle.ptr();
 
   /*
   auto chainsInfo = std::make_unique<DecisionContainer>();

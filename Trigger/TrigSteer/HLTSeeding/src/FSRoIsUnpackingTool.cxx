@@ -41,7 +41,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
 					const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   SG::WriteHandle<DecisionContainer> handle = createAndStore(m_decisionsKey, ctx );
-  auto decisionOutput = handle.ptr();
+  auto *decisionOutput = handle.ptr();
 
   HLT::IDSet activeFSchains;
   // see if any chain we care of is active
@@ -49,7 +49,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
   			m_allFSChains.begin(), m_allFSChains.end(),
 			std::inserter(activeFSchains, activeFSchains.end() ) );
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
+  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
   addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
   ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 

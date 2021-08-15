@@ -43,7 +43,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   std::optional<ThrVecRef> muThresholds;
   ATH_CHECK(getL1Thresholds(*l1Menu, "MU", muThresholds));
 
-  for ( auto& roi : roib.muCTPIResult().roIVec() ) {    
+  for ( const auto & roi : roib.muCTPIResult().roIVec() ) {    
     const uint32_t roIWord = roi.roIWord();
     unsigned int thresholdNumber = roi.pt();
     ATH_MSG_DEBUG( "MUON RoI with the threshold number: " << thresholdNumber );
@@ -72,7 +72,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     decisionProbe->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     decisionProbe->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
-    for (const auto th : muThresholds.value().get()) {
+    for (const auto& th : muThresholds.value().get()) {
       if ( th->mapping() < thresholdNumber )  {
         //th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
         const std::string thresholdProbeName = getProbeThresholdName(th->name());
@@ -148,7 +148,7 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
     // Add positive decisions for chains above the threshold
     uint64_t thresholdPattern = thrPatternAcc(*roi);
     ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
-    for (const auto thr : muThresholds.value().get()) {
+    for (const auto& thr : muThresholds.value().get()) {
       if (not (thresholdPattern & (1 << thr->mapping()))) {continue;}
       const std::string thresholdProbeName = getProbeThresholdName(thr->name());
       ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()

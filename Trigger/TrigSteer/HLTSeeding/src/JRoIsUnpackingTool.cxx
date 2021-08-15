@@ -39,7 +39,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   std::optional<ThrVecRef> jetThresholds;
   ATH_CHECK(getL1Thresholds(*l1Menu, "JET", jetThresholds));
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );   // This hltSeedingNodeName() denotes an initial node with no parents
+  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );   // This hltSeedingNodeName() denotes an initial node with no parents
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
   CHECK( roiEL.isValid() );
@@ -47,15 +47,15 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   ATH_MSG_DEBUG("Now get jet L1 thresholds from RoIB");
 
   // RoIBResult contains vector of jet fragments
-  for ( auto& jetFragment : roib.jetEnergyResult() ) {
-    for ( auto& roi : jetFragment.roIVec() ) {
+  for ( const auto & jetFragment : roib.jetEnergyResult() ) {
+    for ( const auto & roi : jetFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::JetRoIWordType == roi.roIType() ) )  {
 	ATH_MSG_DEBUG( "Skipping RoI as it is not JET threshold " << roIWord <<" Type "<< roi.roIType() );
 	continue;
       }
       
-      auto recRoI = new LVL1::RecJetRoI( roIWord, l1Menu.cptr() );
+      auto *recRoI = new LVL1::RecJetRoI( roIWord, l1Menu.cptr() );
       recRoIs->push_back( recRoI );
 
       /* TDOD, decide if we need this collection at all here, now keep filling of it commented out
@@ -67,7 +67,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
       */
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
       
-      for (const auto th : jetThresholds.value().get()) {
+      for (const auto& th : jetThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
         if ( recRoI->passedThreshold(th->mapping()) ) {
           ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
