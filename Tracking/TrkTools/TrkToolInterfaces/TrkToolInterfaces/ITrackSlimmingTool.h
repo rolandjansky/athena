@@ -23,6 +23,7 @@ static const InterfaceID IID_ITrackSlimmingTool("Trk::ITrackSlimmingTool",
 /** @brief Interface for constructing 'slimmed' Tracks from complete tracks.
 
     @author edward.moyse@cern.ch
+    @author  Christos Anastopoulos Athena MT modifications
 */
 class ITrackSlimmingTool : virtual public IAlgTool
 {
@@ -41,14 +42,19 @@ public:
    * When asetPersistificationHints = True
    * it sets persistification hints
    * @return nullptr
-   * The later behaviour can be not thread-safe as it
+   *
+   * The later behaviour can be nom thread-safe as it
    * modifies the const TrackStateOnSurfaces attached
-   * to the Trk::Track.
+   * to the const Trk::Track reference.
+   *
+   * If you need MT safety 
+   * A. If the Trk::Track is not const consider the slimTrack method
+   * B. If it is const consider using slimCopy
    */
   virtual Trk::Track* slim
   ATLAS_NOT_THREAD_SAFE(const Trk::Track& track) const = 0;
   /**
-   * This method always creates a std::unique_ptr<Trk::Track*> with information
+   * This method always creates a std::unique_ptr<Trk::Track> with information
    * removed
    * @param track A const reference to the track to be skimmed. It will not be
    * modified in any way.
