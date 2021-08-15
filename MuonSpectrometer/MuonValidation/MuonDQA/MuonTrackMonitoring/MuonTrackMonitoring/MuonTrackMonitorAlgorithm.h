@@ -44,10 +44,10 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
     StatusCode analyseCombinedTracks(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons that lead to a Z Boson Candidate event
-    StatusCode analyseZBosonCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
+    StatusCode analyseResonanceCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons that lead to a JPsi Meson Candidate event
-    StatusCode analyseJPsiCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
+    StatusCode plotResonanceCandidates(std::string resonanceName, std::vector<const xAOD::Muon*>& muonCandidates, uint32_t lumiBlockID) const;
 
     Gaudi::Property< std::vector<std::string> > m_hltchainList{ this, "HLTTriggerList", {"HLT_2mu14", "HLT_mu26_ivarmedium"}, "High-level triggers used" };
 
