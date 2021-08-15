@@ -159,8 +159,6 @@ private:
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
-  // Global calibration scale (MeV/count, to optimise performance)
-  double m_digitScale;
   // Global LUT scales
   double m_cpLutScale;
   double m_jepLutScale;
