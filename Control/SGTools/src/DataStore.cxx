@@ -495,7 +495,7 @@ StatusCode
 DataStore::t2pRegister(const void* const pTrans, DataProxy* const pPers)
 {
     std::string name=pPers->name();
-    int i=name.find("/", 0);
+    int i=name.find('/', 0);
     name=name.erase(0,i+1);  
 
   if (doAudit()) m_pSGAudSvc->SGAudit(name, pPers->clID(), 1, m_storeID);

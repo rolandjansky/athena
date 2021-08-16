@@ -138,7 +138,7 @@ std::string munge_names (const std::string& str_in)
 std::string munge_filename (const std::string& file, const std::string& pkg)
 {
   // Extract package name in case there is a version (MyPackage-00-00-00)
-  const std::string p = pkg.substr(0, pkg.find("-"));
+  const std::string p = pkg.substr(0, pkg.find('-'));
   if (!p.empty()) {
     // Find package name in path and remove any leading entries
     std::string::size_type ipos = file.find("/"+p+"/");

@@ -1084,7 +1084,7 @@ StatusCode IOVDbSvc::setupFolders() {
   for (const auto & folderToWrite : m_par_foldersToWrite) {
     // match wildcard * at end of string only (i.e. /A/* matches /A/B, /A/C/D)
     std::string match=folderToWrite;
-    std::string::size_type idx=folderToWrite.find("*");
+    std::string::size_type idx=folderToWrite.find('*');
     if (idx!=std::string::npos) {
       match=folderToWrite.substr(0,idx);
     }

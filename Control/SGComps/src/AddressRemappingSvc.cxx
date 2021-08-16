@@ -63,7 +63,7 @@ StatusCode AddressRemappingSvc::initialize() {
       const std::pair<std::string, std::string> entry(overwrite.substr(p_sep + 2), overwrite.substr(0, p_sep));
       ATH_MSG_INFO("TypeKeyOverwriteMaps for: " << entry.second
                    << " -> " << entry.first);
-      const std::string::size_type p_oldSep = entry.first.find("#");
+      const std::string::size_type p_oldSep = entry.first.find('#');
       if (p_oldSep == std::string::npos) {
          ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << overwrite);
          return(StatusCode::FAILURE);
@@ -71,12 +71,12 @@ StatusCode AddressRemappingSvc::initialize() {
 
       std::string clidStr = entry.first.substr(0, p_oldSep);
       std::set<CLID> symClids;
-      for (std::string::size_type p_clidSep = clidStr.rfind(","); p_clidSep != std::string::npos; clidStr = clidStr.substr(0, p_clidSep), p_clidSep = clidStr.rfind(",")) {
+      for (std::string::size_type p_clidSep = clidStr.rfind(','); p_clidSep != std::string::npos; clidStr = clidStr.substr(0, p_clidSep), p_clidSep = clidStr.rfind(',')) {
          symClids.insert(getClid(clidStr.substr(p_clidSep + 1)));
       }
       std::string keyStr = entry.first.substr(p_oldSep + 1);
       std::set<std::string> aliases;
-      for (std::string::size_type p_keySep = keyStr.rfind(","); p_keySep != std::string::npos; keyStr = keyStr.substr(0, p_keySep), p_keySep = keyStr.rfind(",")) {
+      for (std::string::size_type p_keySep = keyStr.rfind(','); p_keySep != std::string::npos; keyStr = keyStr.substr(0, p_keySep), p_keySep = keyStr.rfind(',')) {
          aliases.insert(keyStr.substr(p_keySep + 1));
       }
       SG::TransientAddress oldTad(getClid(clidStr), keyStr);
@@ -85,7 +85,7 @@ StatusCode AddressRemappingSvc::initialize() {
       }
       oldTad.setAlias(aliases);
 
-      const std::string::size_type p_newSep = entry.second.find("#");
+      const std::string::size_type p_newSep = entry.second.find('#');
       if (p_newSep == std::string::npos) {
          ATH_MSG_ERROR("Unexpected format in TypeKeyOverwriteMaps: " << overwrite);
          return(StatusCode::FAILURE);
@@ -132,7 +132,7 @@ StatusCode AddressRemappingSvc::initInputRenames()
   // Parse input properties.
   for (const std::string& remap : m_typeKeyRenameMaps)
   {
-    std::string::size_type pos1 = remap.find("#");
+    std::string::size_type pos1 = remap.find('#');
     std::string::size_type pos2 = remap.find("->");
     if (pos1 == std::string::npos || pos2 == std::string::npos || pos2 < pos1)
     {

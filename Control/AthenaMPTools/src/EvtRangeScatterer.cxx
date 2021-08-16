@@ -264,7 +264,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     while(endpos!=std::string::npos) {
       // Get the Key-Value pair
       std::string keyValue(eventRange.substr(startpos,endpos-startpos));
-      size_t colonPos = keyValue.find(":");
+      size_t colonPos = keyValue.find(':');
       std::string strKey = keyValue.substr(0,colonPos);
       std::string strVal = keyValue.substr(colonPos+1);
       trimRangeStrings(strKey);
@@ -276,7 +276,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     }
     // Get the final Key-Value pair
     std::string keyValue(eventRange.substr(startpos));
-    size_t colonPos = keyValue.find(":");
+    size_t colonPos = keyValue.find(':');
     std::string strKey = keyValue.substr(0,colonPos);
     std::string strVal = keyValue.substr(colonPos+1);
     trimRangeStrings(strKey);
