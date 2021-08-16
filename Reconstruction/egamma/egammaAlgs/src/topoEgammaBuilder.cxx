@@ -385,7 +385,10 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
   }
   electron->setTrackParticleLinks(trackLinks);
 
-  electron->setCharge(electron->trackParticle()->charge());
+  const xAOD::TrackParticle* trackParticle = electron->trackParticle();
+  if (trackParticle) {
+    electron->setCharge(trackParticle->charge());
+  }
   // Set DeltaEta, DeltaPhi , DeltaPhiRescaled
   std::array<double, 4> deltaEta = egRec->deltaEta();
   std::array<double, 4> deltaPhi = egRec->deltaPhi();
