@@ -2,6 +2,7 @@
 # art-description: AOD->HIST, R21 data AOD, Threads=8
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 # art-athena-mt: 8

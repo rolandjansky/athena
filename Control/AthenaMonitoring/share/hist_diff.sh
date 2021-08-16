@@ -15,7 +15,7 @@ while getopts "itx:" opt; do
 	    ;;
 	i )
 		echo "Doing fuzzy check"
-		DUMPOPTS="$DUMPOPTS --no_onfile -r name"
+		DUMPOPTS="$DUMPOPTS --fuzzy_histbins --no_onfile -r name"
 		;;
 	t )
 		echo "Doing loose TTree check"

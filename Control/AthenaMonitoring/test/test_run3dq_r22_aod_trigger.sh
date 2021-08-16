@@ -3,6 +3,7 @@
 # art-type: grid
 # art-memory: 3072
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 
