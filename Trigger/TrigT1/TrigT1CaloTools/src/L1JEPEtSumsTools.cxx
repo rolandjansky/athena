@@ -26,12 +26,10 @@ L1JEPEtSumsTools::L1JEPEtSumsTools(const std::string& type,
                                const IInterface*  parent)
   :
   AthAlgTool(type, name, parent),
-  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
   m_jeTool("LVL1::L1JetElementTools/L1JetElementTools"),
   m_etTool("LVL1::L1EtTools/L1EtTools")
 {
   declareInterface<IL1JEPEtSumsTools>(this);
-  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty( "JetElementTool", m_jeTool);
   declareProperty( "EtTool", m_etTool);
 }
@@ -49,32 +47,16 @@ StatusCode L1JEPEtSumsTools::initialize()
 {
   // Connect to the LVL1ConfigSvc for the trigger configuration:
 
-  StatusCode sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
-    return sc;
-  } 
-  ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
-
+  ATH_CHECK( m_L1MenuKey.initialize() );
   // Retrieve jet element tool
 
-  sc = m_jeTool.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't retrieve JetElementTool" );
-    return sc;
-  }
+  ATH_CHECK(m_jeTool.retrieve());
 
   // Retrieve energy sums tool
 
-  sc = m_etTool.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't retrieve EtTool" );
-    return sc;
-  }
+  ATH_CHECK(m_etTool.retrieve());
   
-  ATH_MSG_INFO( "Initialization completed" );
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalisation */
@@ -347,6 +329,7 @@ void L1JEPEtSumsTools::etSumsToSystemEnergy(
     const ErrorVector&  eyErrVec(sums->EyErrorVec());
     const ErrorVector&  etErrVec(sums->EtErrorVec());
     unsigned int slices = et.size();
+    auto l1Menu = SG::makeHandle( m_L1MenuKey );
     for (unsigned int sl = 0; sl < slices; ++sl) {
       DataError exErr(exErrVec[sl]);
       DataError eyErr(eyErrVec[sl]);
@@ -356,7 +339,7 @@ void L1JEPEtSumsTools::etSumsToSystemEnergy(
                                            exErr.get(DataError::Overflow),
                                            eyErr.get(DataError::Overflow),
                                            restricted,
-					   m_configSvc));
+					   &(*l1Menu)));
     }
   }
 }

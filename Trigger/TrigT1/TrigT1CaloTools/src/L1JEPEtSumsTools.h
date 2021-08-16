@@ -115,12 +115,11 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
     void etMapsToEtSums(const MultiSliceSystemEnergy& systemVec,
                        DataVector<CMMEtSums>* cmmEtSumsVec, int peak) const;
 
-    /** trigger configuration service */
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
     /** Tool for JetElement map */
     ToolHandle<LVL1::IL1JetElementTools> m_jeTool;
     /** Tool for energy sums */
     ToolHandle<LVL1::IL1EtTools> m_etTool;
+    SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
      
 };
 

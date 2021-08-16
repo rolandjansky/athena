@@ -116,8 +116,7 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     void findRestrictedEta(uint32_t &maskXE, uint32_t &maskTE) const;
 
     void dumpCrateEnergies(const std::string& msg, const MultiSliceCrateEnergy& crates) const;
-    /** trigger configuration service */
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+    SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
     /** Tool for JetElement map */
     ToolHandle<LVL1::IL1JetElementTools> m_jeTool;
     /** Tool for energy sums */
