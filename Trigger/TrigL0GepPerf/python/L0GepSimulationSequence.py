@@ -2,8 +2,25 @@
 import logging as log
 from AthenaCommon.Include import include
 
-def setupL0GepSimulationSequence():
+#
+# The algorithms can be set from the joboptions.
+# The current available options are the following.
+#
+# topoclustering and default clusters:
+# topoclAlgs = ['CaloCal','Calo420','Calo422','CaloWFS']
+#
+# pileup suppression:
+# puSupprAlgs = ['', 'Vor', 'SK', 'VorSK']
+#
+# jet reconstruction:
+# jetAlgs = ['AntiKt4']
+# 
 
+def setupL0GepSimulationSequence(
+        topoclAlgs = ['Calo422'], 
+        puSupprAlgs = [''],
+        jetAlgs = ['AntiKt4'] ):
+    
     from AthenaCommon import CfgMgr
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
@@ -33,13 +50,6 @@ def setupL0GepSimulationSequence():
     topSequence+=ClusterCreator("CaloCluster2xAOD")
 
 
-    # choose algorithms to run
-    # topoclustering and default clusters
-    topoclAlgs = ['CaloCal','Calo420','Calo422','CaloWFS']
-    # pileup suppression
-    puSupprAlgs = ['', 'Vor', 'SK', 'VorSK']
-    # jet reconstruction
-    jetAlgs = ['AntiKt4']
 
     for topoMaker in topoclAlgs:
 
