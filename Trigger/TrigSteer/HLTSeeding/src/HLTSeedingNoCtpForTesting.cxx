@@ -31,34 +31,34 @@ StatusCode HLTSeedingNoCtpForTesting::execute (const EventContext& ctx) const {
   ATH_CHECK( roibH.isValid() );
 
   SG::WriteHandle<TrigRoiDescriptorCollection> handleTrigRoIs = createAndStoreNoAux(m_trigEMRoIsKey, ctx ); 
-  auto emRoIs = handleTrigRoIs.ptr();
+  auto *emRoIs = handleTrigRoIs.ptr();
 
   SG::WriteHandle<TrigRoiDescriptorCollection> handleTrigFSRoI = createAndStoreNoAux(m_trigFSRoIKey, ctx ); 
-  auto fsRoIs = handleTrigFSRoI.ptr();
+  auto *fsRoIs = handleTrigFSRoI.ptr();
   fsRoIs->push_back( new TrigRoiDescriptor( true ) );
   using namespace TrigConf;
   TrigConf::TriggerThreshold threshold;
 
   SG::WriteHandle<DecisionContainer> handleDecisions = createAndStore(m_EMDecisionsKey, ctx ); 
-  auto decisionOutput = handleDecisions.ptr();
+  auto *decisionOutput = handleDecisions.ptr();
   
   std::vector<TrigConf::TriggerThreshold*> thresholds{ & threshold};
   
-  for ( auto& emTauFragment : roibH->eMTauResult() ) {
-    for ( auto& roi : emTauFragment.roIVec() ) {
+  for ( const auto & emTauFragment : roibH->eMTauResult() ) {
+    for ( const auto & roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::EMRoIWordType == roi.roIType() ) )  {
 	ATH_MSG_VERBOSE( "Skipping RoI as it is not EM threshold " << roIWord );
 	continue;
       }
       LVL1::RecEmTauRoI recRoI( roIWord, &thresholds );
-      auto roiDesc = new TrigRoiDescriptor( roIWord, 0u ,0u,
+      auto *roiDesc = new TrigRoiDescriptor( roIWord, 0u ,0u,
 					recRoI.eta(), recRoI.eta()-m_roIWidth, recRoI.eta()+m_roIWidth,
 					recRoI.phi(), recRoI.phi()-m_roIWidth, recRoI.phi()+m_roIWidth );
       ATH_MSG_DEBUG("Decoded EM RoI at position " << *roiDesc );
       emRoIs->push_back( roiDesc );
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() );
+      auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() );
       decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigEMRoIsKey.key(), emRoIs->size()-1 ) );
       addDecisionID( HLT::Identifier( "HLT_EMTestChain" ), decision );      
     }

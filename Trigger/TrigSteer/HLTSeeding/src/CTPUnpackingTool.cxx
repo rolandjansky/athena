@@ -79,7 +79,7 @@ StatusCode CTPUnpackingTool::start() {
     }
   }
 
-  for ( auto ctpIDtoChain: m_ctpToChain ) {
+  for ( const auto& ctpIDtoChain: m_ctpToChain ) {
     for ( auto chain: ctpIDtoChain.second ) {
       ATH_MSG_DEBUG( "CTP seed of " << ctpIDtoChain.first << " enables chains " << chain );
     }
