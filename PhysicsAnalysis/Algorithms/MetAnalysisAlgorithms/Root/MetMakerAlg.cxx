@@ -81,76 +81,78 @@ namespace CP
     // Helper keeps track of object selection flags for this map
     xAOD::MissingETAssociationHelper metHelper(&(*metMap));
 
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        auto met = std::make_unique<xAOD::MissingETContainer> ();
-        auto aux = std::make_unique<xAOD::MissingETAuxContainer> ();
-        met->setStore (aux.get());
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      auto met = std::make_unique<xAOD::MissingETContainer> ();
+      auto aux = std::make_unique<xAOD::MissingETAuxContainer> ();
+      met->setStore (aux.get());
 
-        metHelper.resetObjSelectionFlags();
+      metHelper.resetObjSelectionFlags();
 
-        if (m_invisHandle) {
-          const xAOD::IParticleContainer* invisible = nullptr;
-          ATH_CHECK( m_invisHandle.retrieve(invisible, sys) );
-          ATH_CHECK( m_makerTool->markInvisible(invisible, metHelper, met.get() ) );
-        }
+      if (m_invisHandle) {
+        const xAOD::IParticleContainer* invisible = nullptr;
+        ATH_CHECK( m_invisHandle.retrieve(invisible, sys) );
+        ATH_CHECK( m_makerTool->markInvisible(invisible, metHelper, met.get() ) );
+      }
 
-        // Lambda helping with calculating the MET terms coming from the leptons
-        // (and photons).
-        auto processParticles =
-          [&] (SysReadHandle<xAOD::IParticleContainer>& handle,
-               xAOD::Type::ObjectType type,
-               const std::string& term) -> StatusCode {
-            if (!handle) {
-              return StatusCode::SUCCESS;
-            }
-            const xAOD::IParticleContainer* particles = nullptr;
-            ANA_CHECK (handle.retrieve (particles, sys));
-            ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
-                                                particles, metHelper));
+      // Lambda helping with calculating the MET terms coming from the leptons
+      // (and photons).
+      auto processParticles =
+        [&] (SysReadHandle<xAOD::IParticleContainer>& handle,
+             xAOD::Type::ObjectType type,
+             const std::string& term) -> StatusCode {
+          if (!handle) {
             return StatusCode::SUCCESS;
-          };
-
-        // Calculate the terms coming from the user's selected objects.
-        ANA_CHECK (processParticles (m_electronsHandle, xAOD::Type::Electron,
-                                     m_electronsKey));
-        ANA_CHECK (processParticles (m_photonsHandle, xAOD::Type::Photon,
-                                     m_photonsKey));
-        ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
-        ANA_CHECK (processParticles (m_muonsHandle, xAOD::Type::Muon,
-                                     m_muonsKey));
-
-        const xAOD::JetContainer *jets {nullptr};
-        ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
-	
-        if (m_doTrackMet)
-        {
-          ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
-        } else
-        {
-          ANA_CHECK (m_makerTool->rebuildJetMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
-        }
-
-        // Systematics
-        if (!m_systematicsTool.empty())
-        {
-          ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
-
-          xAOD::MissingET *softTerm = (*met)[m_softTermKey];
-          if (softTerm == nullptr)
-          {
-            ANA_MSG_ERROR ("failed to find MET soft-term \"" << m_softTermKey << "\"");
-            return StatusCode::FAILURE;
           }
+          const xAOD::IParticleContainer* particles = nullptr;
+          ANA_CHECK (handle.retrieve (particles, sys));
+          ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
+                                              particles, metHelper));
+          return StatusCode::SUCCESS;
+        };
 
-          // This returns a `CorrectionCode`, so in principle this could
-          // return an `OutOfValidity` result, but I have no idea what
-          // that would mean or how to handle it, so I'm implicitly
-          // converting it into a `FAILURE` instead.
-          ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm, metHelper));
+      // Calculate the terms coming from the user's selected objects.
+      ANA_CHECK (processParticles (m_electronsHandle, xAOD::Type::Electron,
+                                   m_electronsKey));
+      ANA_CHECK (processParticles (m_photonsHandle, xAOD::Type::Photon,
+                                   m_photonsKey));
+      ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
+      ANA_CHECK (processParticles (m_muonsHandle, xAOD::Type::Muon,
+                                   m_muonsKey));
+
+      const xAOD::JetContainer *jets {nullptr};
+      ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
+	
+      if (m_doTrackMet)
+      {
+        ANA_CHECK (m_makerTool->rebuildTrackMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
+      } else
+      {
+        ANA_CHECK (m_makerTool->rebuildJetMET (m_jetsKey, m_softTermKey, met.get(), jets, metcore, metHelper, m_doJetJVT));
+      }
+
+      // Systematics
+      if (!m_systematicsTool.empty())
+      {
+        ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
+
+        xAOD::MissingET *softTerm = (*met)[m_softTermKey];
+        if (softTerm == nullptr)
+        {
+          ANA_MSG_ERROR ("failed to find MET soft-term \"" << m_softTermKey << "\"");
+          return StatusCode::FAILURE;
         }
 
-        ANA_CHECK (m_metHandle.record (std::move (met), std::move (aux), sys));
-        return StatusCode::SUCCESS;
-      });
+        // This returns a `CorrectionCode`, so in principle this could
+        // return an `OutOfValidity` result, but I have no idea what
+        // that would mean or how to handle it, so I'm implicitly
+        // converting it into a `FAILURE` instead.
+        ANA_CHECK (m_systematicsTool->applyCorrection (*softTerm, metHelper));
+      }
+
+      ANA_CHECK (m_metHandle.record (std::move (met), std::move (aux), sys));
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

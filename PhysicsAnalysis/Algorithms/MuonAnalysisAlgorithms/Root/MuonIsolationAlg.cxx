@@ -58,20 +58,21 @@ namespace CP
   StatusCode MuonIsolationAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::MuonContainer *muons = nullptr;
-        ANA_CHECK (m_muonHandle.getCopy (muons, sys));
-        for (xAOD::Muon *muon : *muons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::MuonContainer *muons = nullptr;
+      ANA_CHECK (m_muonHandle.getCopy (muons, sys));
+      for (xAOD::Muon *muon : *muons)
+      {
+        if (m_preselection.getBool (*muon))
         {
-          if (m_preselection.getBool (*muon))
-          {
-            m_isolationAccessor->setBits
-              (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
-          } else {
-            m_isolationAccessor->setBits (*muon, m_setOnFail);
-          }
+          m_isolationAccessor->setBits
+            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+        } else {
+          m_isolationAccessor->setBits (*muon, m_setOnFail);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

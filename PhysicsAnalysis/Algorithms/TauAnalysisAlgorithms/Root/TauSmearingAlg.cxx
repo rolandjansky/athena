@@ -46,18 +46,19 @@ namespace CP
   StatusCode TauSmearingAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_smearingTool->applySystematicVariation (sys));
-        xAOD::TauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::TauJet *tau : *taus)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_smearingTool->applySystematicVariation (sys));
+      xAOD::TauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.getCopy (taus, sys));
+      for (xAOD::TauJet *tau : *taus)
+      {
+        if (m_preselection.getBool (*tau))
         {
-          if (m_preselection.getBool (*tau))
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_smearingTool->applyCorrection (*tau));
-          }
+          ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_smearingTool->applyCorrection (*tau));
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

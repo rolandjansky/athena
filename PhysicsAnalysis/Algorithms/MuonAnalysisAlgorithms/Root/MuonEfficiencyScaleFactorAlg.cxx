@@ -59,49 +59,51 @@ namespace CP
   StatusCode MuonEfficiencyScaleFactorAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
-        const xAOD::MuonContainer *muons = nullptr;
-        ANA_CHECK (m_muonHandle.retrieve (muons, sys));
-        const xAOD::EventInfo *eventInfo = nullptr;
-        ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
-        for (const xAOD::Muon *muon : *muons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
+      const xAOD::MuonContainer *muons = nullptr;
+      ANA_CHECK (m_muonHandle.retrieve (muons, sys));
+      const xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
+      for (const xAOD::Muon *muon : *muons)
+      {
+        if (m_preselection.getBool (*muon))
         {
-          if (m_preselection.getBool (*muon))
-          {
-            if (m_scaleFactorDecoration) {
-              float sf = 0;
-              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getEfficiencyScaleFactor (*muon, sf, eventInfo));
-              m_scaleFactorDecoration.set (*muon, sf, sys);
-            }
+          if (m_scaleFactorDecoration) {
+            float sf = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getEfficiencyScaleFactor (*muon, sf, eventInfo));
+            m_scaleFactorDecoration.set (*muon, sf, sys);
+          }
 
-            if (m_mcEfficiencyDecoration) {
-              float eff = 0;
-              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
-              m_mcEfficiencyDecoration.set (*muon, eff, sys);
-            }
+          if (m_mcEfficiencyDecoration) {
+            float eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getMCEfficiency (*muon, eff, eventInfo));
+            m_mcEfficiencyDecoration.set (*muon, eff, sys);
+          }
 
-            if (m_dataEfficiencyDecoration) {
-              float eff = 0;
-              ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
-              m_dataEfficiencyDecoration.set (*muon, eff, sys);
-            }
-          } else
-          {
-            if (m_scaleFactorDecoration) {
-              m_scaleFactorDecoration.set (*muon, invalidScaleFactor(), sys);
-            }
+          if (m_dataEfficiencyDecoration) {
+            float eff = 0;
+            ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getDataEfficiency (*muon, eff, eventInfo));
+            m_dataEfficiencyDecoration.set (*muon, eff, sys);
+          }
+        } else
+        {
+          if (m_scaleFactorDecoration) {
+            m_scaleFactorDecoration.set (*muon, invalidScaleFactor(), sys);
+          }
 
-            if (m_mcEfficiencyDecoration) {
-              m_mcEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
-            }
+          if (m_mcEfficiencyDecoration) {
+            m_mcEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
+          }
 
-            if (m_dataEfficiencyDecoration) {
-              m_dataEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
-            }
+          if (m_dataEfficiencyDecoration) {
+            m_dataEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
           }
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

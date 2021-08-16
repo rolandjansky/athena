@@ -87,6 +87,19 @@ namespace CP
 
 
     /// \brief the list of systematics to loop over
+    ///
+    /// The way used should use this is as:
+    /// ```
+    ///   for (const auto& sys : m_systematicsList.systematicsVector())
+    ///   {
+    ///     ...
+    ///   }
+    /// ```
+    ///
+    /// The important part is to use `const auto&` instead of `const
+    /// CP::SystematicSet&` here, as in the future this may be updated
+    /// to be a vector of something other than a `CP::SystematicSet`
+    /// (still convertible to `const CP::SystematicSet&` though).
   public:
     const std::vector<CP::SystematicSet>& systematicsVector () const;
 
@@ -109,7 +122,12 @@ namespace CP
     /// \par Failures
     ///   function failures
     /// \pre isInitialized()
+    ///
+    /// \warn This is deprecated in favor of just calling \ref
+    /// systematicsVector directly (mostly to make code easier to
+    /// understand for new users).
   public:
+    [[deprecated("please use systematicsVector() instead")]]
     StatusCode foreach
       (const std::function<StatusCode(const CP::SystematicSet&)>& func) const;
 

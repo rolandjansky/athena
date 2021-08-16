@@ -223,7 +223,10 @@ namespace CP
   StatusCode AsgViewFromSelectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        return (this->*m_function) (sys);});
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK ((this->*m_function) (sys));
+    }
+    return StatusCode::SUCCESS;
   }
 }

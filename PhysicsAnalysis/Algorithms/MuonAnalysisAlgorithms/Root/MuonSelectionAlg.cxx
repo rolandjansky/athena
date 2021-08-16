@@ -63,7 +63,7 @@ namespace CP
   StatusCode MuonSelectionAlgV2 ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : m_systematicsList.systematicsVector())
     {
       xAOD::MuonContainer *muons = nullptr;
       ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
@@ -87,7 +87,7 @@ namespace CP
           }
         }
       }
-      return StatusCode::SUCCESS;
-    });
+    }
+    return StatusCode::SUCCESS;
   }
 }
