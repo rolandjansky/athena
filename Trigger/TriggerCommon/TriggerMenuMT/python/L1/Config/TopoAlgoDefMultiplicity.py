@@ -26,14 +26,22 @@ class TopoAlgoDefMultiplicity(object):
                                       nbits = 3)
             tm.registerTopoAlgo(alg)
                 
+        # eTAU 3 bits (4 Thresholds)
+        tauThresholds_3bits = [ "eTAU8", "eTAU12", "eTAU12M", "eTAU20" ]
+        # eTAU 2 bits (max 12 Thresholds, 16 in production)
+        tauThresholds_2bits = [ "eTAU20M", "eTAU25", "eTAU25M", "eTAU30H", "eTAU40", "eTAU60", "eTAU100" ]
 
-        tauThresholds = [ "eTAU12", "eTAU12IM", "eTAU20", "eTAU20IM", "eTAU25IM", "eTAU40", "eTAU60", "eTAU100" ]
-
-        for tau in tauThresholds:
+        for tau in tauThresholds_3bits:
             alg = TauMultiplicityAlgo( name = tau,
                                        algoId = currentAlgoId,
                                        threshold = tau,
                                        nbits = 3)
+            tm.registerTopoAlgo(alg)
+        for tau in tauThresholds_2bits:
+            alg = TauMultiplicityAlgo( name = tau,
+                                       algoId = currentAlgoId,
+                                       threshold = tau,
+                                       nbits = 2)
             tm.registerTopoAlgo(alg)
 
         jJThresholds = [ "jJ12", "jJ12p0ETA25", "jJ15", "jJ15p0ETA25", "jJ20", "jJ25", "jJ25p0ETA23", "jJ30", 

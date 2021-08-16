@@ -32,7 +32,7 @@ def checkL1HLTConsistency():
         for p in chain['chainParts']:
             #now check that the thresholds of the chain are listed in the L1Menu.thresholds field
             th = p['L1threshold'][5:] if p['L1threshold'].startswith("PROBE") else p['L1threshold']
-            if 'TAU' in th: 
+            if ('TAU' in th) and ('e' not in th) and ('j' not in th): 
                 th = th.replace('TAU','HA')
             thFoundInL1Menu = False
             l1type          = "NOTFOUND"

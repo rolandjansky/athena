@@ -49,6 +49,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  EOFBPhysL1MuGroup,
                                                                  EOFTLALegGroup,
                                                                  UnconvTrkGroup,
+                                                                 TauPhaseIStreamersGroup,
                                                                  EgammaPhaseIStreamersGroup
                                                                  )
 
@@ -193,10 +194,10 @@ def setupMenu():
         ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
 
         #ATR-21882
-        ChainProp(name='HLT_2g15_tight_dPhi25_m80_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_tight_dPhi25_m80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup), # TODO: mismatch between L1topo threshold and L1 seed to be fixed
 
         #Support photon chains ATR-23425
-        ChainProp(name='HLT_2g15_loose_dPhi25_m80_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=SupportPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_loose_dPhi25_m80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=SupportPhIGroup+MultiPhotonGroup), # TODO: mismatch between L1topo threshold and L1 seed to be fixed
         ChainProp(name='HLT_2g20_loose_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup),
         
         #------------ 1e_1g HEG ATR-23158
@@ -755,11 +756,17 @@ def setupMenu():
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),   # 
         ChainProp(name="HLT_tau200_tightRNN_tracktwoLLP_L1TAU100", groups=SupportLegGroup+SingleTauGroup),
 
-
         # displaced tau+X (ATR-21754)
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup),        ChainProp(name="HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup), 
-        ChainProp(name="HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=SupportLegGroup+TauJetGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40", l1SeedThresholds=['TAU60','TAU40'], groups=SupportLegGroup+TauJetGroup),
+        ChainProp(name="HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40", l1SeedThresholds=['TAU60','TAU40'], groups=SupportLegGroup+TauJetGroup),
+        ChainProp(name="HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40", l1SeedThresholds=['TAU60','TAU40'], groups=SupportLegGroup+TauJetGroup),
 
+        # Phase-I
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12",   groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M",  groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20",   groups=SingleTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20M",  groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100", groups=SingleTauGroup),
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -1087,8 +1094,19 @@ def setupMenu():
         #ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
         ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['Primary:CostAndRate', 'RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC. To move to MC menu once good nightly in LS2_v1.
 
+        #Phase-I
+        ChainProp(name='HLT_noalg_L1eTAU8',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU12',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU12M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU20',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU20M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU25',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU25M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU30H',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU40',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU60',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
+        ChainProp(name='HLT_noalg_L1eTAU100',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
 
-        #Phase-I streamers:
         ChainProp(name='HLT_noalg_L1eEM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
         ChainProp(name='HLT_noalg_L1eEM7',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
         ChainProp(name='HLT_noalg_L1eEM8',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
@@ -1105,6 +1123,7 @@ def setupMenu():
         ChainProp(name='HLT_noalg_L1eEM22',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
         ChainProp(name='HLT_noalg_L1eEM22M',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
         ChainProp(name='HLT_noalg_L1eEM22T',      l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaPhaseIStreamersGroup),
+
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [

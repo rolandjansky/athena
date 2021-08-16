@@ -67,12 +67,12 @@ def defineMenu():
         'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM',  'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
         'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_EMPTY', 'L1_TAU40_UNPAIRED_ISO',
         # new calo
-        'L1_eTAU12', 'L1_eTAU100',
+        'L1_eTAU8', 'L1_eTAU12', 'L1_eTAU12M', 'L1_eTAU20', 'L1_eTAU20M', 'L1_eTAU25', 'L1_eTAU25M', 
+        'L1_eTAU30H', 
+        'L1_eTAU40', 'L1_eTAU60', 'L1_eTAU100',
 
         # multi tau
         'L1_2TAU8', 'L1_TAU20IM_2TAU12IM', 'L1_TAU60_2TAU40',
-        # new calo
-        'L1_eTAU60_2eTAU40',
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -83,17 +83,11 @@ def defineMenu():
         'L1_MU10_TAU20IM',
         'L1_MU11_TAU20IM',
         'L1_MU10_TAU20IM_J25_2J20',
-        # new calo
-        'L1_MU10_eTAU20IM',
 
         # combined tau - jet
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
         'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
         'L1_TAU25IM_2TAU20IM_2J25_3J20',
-        # new calo
-        'L1_eTAU20IM_2jJ20_gXERHO45',
-        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA25',
-        'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20',
 
         # combined tau - xe
         'L1_TAU20IM_2J20_XE45',
@@ -103,17 +97,10 @@ def defineMenu():
         'L1_MU10_TAU12IM_XE35',  
         'L1_TAU20IM_2TAU12IM_XE35', 
         'L1_TAU40_2TAU12IM_XE40',  
-        # new calo
-        'L1_eTAU40_2eTAU12IM_gXERHO40',
 
         # combined em - jet
         'L1_EM18VHI_3J20',
         'L1_EM20VH_3J20',
-
-        # combined em / mu - tau - jet / XE
-        'L1_MU10_eTAU12IM_3jJ12',
-        'L1_MU10_eTAU12IM_jJ25_2jJ12',
-        'L1_MU10_eTAU12IM_gXERHO35',
         
         # combined mu - jet
         'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
@@ -301,10 +288,10 @@ def defineMenu():
         'L1_DPHI-2eEM3', 
         'L1_jHT150-jJ20s5pETA31_jMJJ-400-CF',
         'L1_DY-BOX-2MU6',
-        'L1_LFV-eEM8I-MU11', 'L1_LFV-eEM12I-MU6',
+        'L1_LFV-eEM8L-MU11', 'L1_LFV-eEM12L-MU6',
         'L1_LFV-MU6',
         'L1_LFV-MU11',
-        'L1_LFV-eEM8I', 'L1_LFV-eEM15I', 
+        'L1_LFV-eEM8L', 'L1_LFV-eEM15L', 
         'L1_jMJJ-700-NFF',
         'L1_jMJJ-300-NFF',
         'L1_jMJJ-500-NFF',
@@ -332,12 +319,12 @@ def defineMenu():
         'L1_BPH-0M10-3MU4',
 
         #ATR-18824
-        'L1_ZAFB-04DPHI-eEM15I',
-        'L1_ZAFB-25DPHI-eEM15I',
+        'L1_ZAFB-04DPHI-eEM15M',
+        'L1_ZAFB-25DPHI-eEM15M',
         #ATR-22109
-        'L1_ZAFB-25DPHI-eEM18I',
+        'L1_ZAFB-25DPHI-eEM18M',
 
-        'L1_DPHI-M70-2eEM10I', 'L1_DPHI-M70-2eEM12I', #ATR-19302
+        'L1_DPHI-M70-2eEM10M', 'L1_DPHI-M70-2eEM12M', #ATR-19302
         'L1_DPHI-M70-2eEM12', # ATR-21637 (no shower shape cuts)
 
         #ATR-19510

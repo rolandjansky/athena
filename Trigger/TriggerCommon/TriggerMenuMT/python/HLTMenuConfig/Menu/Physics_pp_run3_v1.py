@@ -44,6 +44,7 @@ ZeroBiasGroup = ['RATE:ZeroBias', 'BW:ZeroBias']
 EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
 EgammaPhaseIStreamersGroup = ['RATE:PhaseISeededStreamers', 'BW:Egamma']
 TauStreamersGroup = ['RATE:SeededStreamers', 'BW:Tau']
+TauPhaseIStreamersGroup = ['RATE:PhaseISeededStreamers', 'BW:Tau']
 JetStreamersGroup = ['RATE:SeededStreamers', 'BW:Jet']
 METStreamersGroup = ['RATE:SeededStreamers', 'BW:MET']
 BCIDmonGroup = ['MON:BCID']
@@ -143,7 +144,7 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=TagAndProbeLegGroup+MultiElectronGroup), 
 
         #--------- primary special
-        ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18I', l1SeedThresholds=['EM12'], groups=PrimaryPhIGroup+SingleElectronGroup), 
+        ChainProp(name='HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18M', l1SeedThresholds=['eEM18M'], groups=PrimaryPhIGroup+SingleElectronGroup), 
 
         #--------- support Zee and J/psi TnP
         ChainProp(name='HLT_e26_lhtight_e15_etcut_idperf_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=TagAndProbeLegGroup+MultiElectronGroup),  
@@ -221,7 +222,7 @@ def setupMenu():
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH',l1SeedThresholds=['EM20VH','EM10VH'], groups=PrimaryLegGroup+MultiPhotonGroup), 
 
         #------------ primary special
-        ChainProp(name='HLT_2g15_tight_dPhi25_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_tight_dPhi25_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup), # TODO: mismatch between L1topo threshold and L1 seed to be fixed
 
         #------------ support legs of multi-photons
         ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SupportLegGroup+SinglePhotonGroup), 
@@ -232,7 +233,7 @@ def setupMenu():
         ChainProp(name='HLT_g20_tight_L1EM15VHI', groups=SupportLegGroup+SinglePhotonGroup), 
         ChainProp(name='HLT_g22_tight_L1EM15VHI', groups=SupportLegGroup+SinglePhotonGroup), 
 
-        ChainProp(name='HLT_2g15_tight_L1DPHI-M70-2eEM12I', l1SeedThresholds=['EM12'], groups=SupportPhIGroup+SinglePhotonGroup), 
+        ChainProp(name='HLT_2g15_tight_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=SupportPhIGroup+SinglePhotonGroup), # TODO: mismatch between L1topo threshold and L1 seed to be fixed 
         
         #------------ support bootstrap and background studies
         ChainProp(name='HLT_g250_etcut_L1EM22VHI', groups=SupportLegGroup+SinglePhotonGroup), 

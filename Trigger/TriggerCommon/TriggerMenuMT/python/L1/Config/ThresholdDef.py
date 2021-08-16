@@ -102,11 +102,15 @@ class ThresholdDef:
 
 
         # TAU
-        for et in [12, 20, 40, 60, 100]:
+        for et in [8, 12, 20, 25, 40, 60, 100]:
             TauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
+        # TODO: missing isolation thresholds
         for et in [12,20, 25]:
-            TauThreshold('eTAU%iIM' % et, 'eTAU').setEt(et)
+            TauThreshold('eTAU%iM' % et, 'eTAU').setEt(et)
+        # TODO: missing hadronic isolation
+        for et in [30]:
+            TauThreshold('eTAU%iH' % et, 'eTAU').setEt(et)
 
         # JET
         for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:

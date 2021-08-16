@@ -65,10 +65,10 @@ class TopoAlgo(object):
         confObj["klass"] = self.classtype
         return confObj
 
-    def getScaleToCountsEM(self):
+    def getScaleToCountsEM(self):  # legacy Et conversion!!
         tw = self.menuThr.typeWideThresholdConfig(ThrType["EM"])
         return 1000 // tw["resolutionMeV"]
-    
+
 class Variable(object):
     def __init__(self, name, selection, value):
         self.name = name
@@ -111,15 +111,18 @@ class SortingAlgo(TopoAlgo):
             confObj["fixedParameters"]["generics"][genParm.name] = odict([("value", genParm.value), ("position", pos)]) 
 
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getScaleToCountsEM()
-        _mu_for_decision=1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
+        _emscale_for_decision = self.getScaleToCountsEM() # for legacy algos
+        _mu_for_decision= 10 # MU4->3GeV, MU6->5GeV, MU10->9GeV because selection is done by pt>X in 100 MeV units for Run3 muons
+        if "MUCTP-" in self.name:
+            _mu_for_decision= 1 
         for (pos, variable) in enumerate(self.variables): 
-            # adjust MinET if outputs match with EM or TAU or MU  ==> this is a terrible hack that won't fly in Run 3
             if variable.name == "MinET":
-                if "TAU" in self.outputs or "EM" in self.outputs:
+                if "e" in self.outputs or "j" in self.outputs or "g" in self.outputs: 
+                    variable.value *= 1 # no conversion needed in Run3 algo
+                elif "TAU" in self.outputs or "EM" in self.outputs:
                     variable.value *= _emscale_for_decision
-                if "MU" in self.outputs and variable.value > _mu_for_decision:
-                    variable.value -= _mu_for_decision
+                if "MU" in self.outputs:
+                    variable.value = ((variable.value - _mu_for_decision ) if variable.value>0 else variable.value)
             confObj["variableParameters"].append(odict([("name", variable.name),("value", variable.value)]))
 
             if type(variable.value) == float:
@@ -177,14 +180,18 @@ class DecisionAlgo(TopoAlgo):
 
         # variable parameters
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getScaleToCountsEM()
-        _mu_for_decision = 1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
+        _emscale_for_decision = self.getScaleToCountsEM() # for legacy algos
+        _mu_for_decision= 10 # MU4->3GeV, MU6->5GeV, MU10->9GeV because selection is done by pt>X in 100 MeV units for Run3 muons
+        if "MUCTP-" in self.name:
+            _mu_for_decision= 1 
         for (pos, variable) in enumerate(self.variables):
             # scale MinET if inputs match with EM or TAU
             for _minet in ["MinET"]:
                 if variable.name==_minet+"1" or variable.name==_minet+"2" or variable.name==_minet+"3" or variable.name==_minet:
                     for (tobid, _input) in enumerate(self.inputs):
-                        if (_input.find("TAU")>=0 or _input.find("EM")>=0):
+                        if (_input.find("e")>=0 or _input.find("j")>=0 or _input.find("g")>=0):
+                            variable.value *= 1 # no conversion needed in Run3 algo
+                        elif (_input.find("TAU")>=0 or _input.find("EM")>=0):
                             if (len(self.inputs)>1 and (variable.name==_minet+str(tobid+1) or (tobid==0 and variable.name==_minet))) or (len(self.inputs)==1 and (variable.name.find(_minet)>=0)):
                                 variable.value *= _emscale_for_decision
 
@@ -284,7 +291,7 @@ class EMMultiplicityAlgo(MultiplicityAlgo):
                                                  threshold = threshold, 
                                                  input=None, output="%s" % threshold,
                                                  nbits=nbits)
-        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHI]*)",threshold).groupdict()
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",threshold).groupdict()
         self.input = mres["type"]
 
 
