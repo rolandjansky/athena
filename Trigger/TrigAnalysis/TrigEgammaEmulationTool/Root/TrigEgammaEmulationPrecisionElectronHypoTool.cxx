@@ -67,7 +67,7 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
     return false;
   } 
 
-  ATH_MSG_DEBUG( "; RoI ID = " << roi->roiId() << ": Eta = " << roi->eta() << ", Phi = " << roi->phi() );
+  ATH_MSG_DEBUG( "RoI ID = " << roi->roiId() << ": Eta = " << roi->eta() << ", Phi = " << roi->phi() );
 
   // fill local variables for RoI reference position
   double etaRef = roi->eta();
@@ -76,6 +76,8 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   // correct phi the to right range ( probably not needed anymore )   
   if ( std::abs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
+
+  ATH_MSG_DEBUG("Electron : et " << el->pt() << " eta = " << el->eta() << " phi = " << el->phi());
 
   auto pClus = el->caloCluster();
   
@@ -252,7 +254,7 @@ bool TrigEgammaEmulationPrecisionElectronHypoTool::decide(   const Trig::TrigDat
   ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
   ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
 
-  // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
+  // Evaluating lh *after* retrieving variables for monitoing and DEBUGing purposes
   ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT Likelihood failed");

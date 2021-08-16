@@ -27,9 +27,9 @@ TrigEgammaEmulationToolTest::~TrigEgammaEmulationToolTest() { }
 
 StatusCode TrigEgammaEmulationToolTest::initialize() {
 
-  ATH_MSG_INFO("Initializing " << name() << "...");
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(AthMonitorAlgorithm::initialize());
-  ATH_MSG_INFO("Retrieving tools...");
+  ATH_MSG_DEBUG("Retrieving tools...");
 
   ATH_CHECK(m_trigdec.retrieve());
   ATH_CHECK(m_offElectronKey.initialize());
@@ -56,7 +56,7 @@ StatusCode TrigEgammaEmulationToolTest::initialize() {
 
 StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx ) const
 {
-  ATH_MSG_INFO("=============== Start Event ===============");
+  ATH_MSG_DEBUG("=============== Start Event ===============");
 
   SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
   if( !eventInfo.isValid() ){
@@ -75,31 +75,36 @@ StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx 
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_INFO( "Electron size is " << offElectrons->size() );
+  ATH_MSG_DEBUG( "Electron size is " << offElectrons->size() );
 
   for (const auto &trigger : m_electronTriggerList) 
   {
     auto info = getInfo(trigger);
-    ATH_MSG_INFO(trigger);
+    ATH_MSG_DEBUG(trigger);
     for (const auto &el : *offElectrons) 
     {
+
+
+      ATH_MSG_DEBUG( "Offline Electron cluster object is "<< el->caloCluster());
       const TrigCompositeUtils::Decision *dec=nullptr;
-      m_matchTool->match(el,trigger,dec, TrigDefs::includeFailedDecisions);
-      
+      //m_matchTool->match(el,trigger,dec, TrigDefs::includeFailedDecisions);
+      m_matchTool->match(el,trigger,dec, TrigDefs::Physics);
+
       if (!dec) {
-        ATH_MSG_INFO("e/g matching fail. skip...");
+        ATH_MSG_DEBUG("e/g matching fail. skip...");
         continue;
       }
 
       auto accept = setAccept(dec, info);
       auto emu_accept = m_emulatorTool->emulate( dec, info.trigger );
 
-      ATH_MSG_INFO( "trigger: " << info.trigger << " (tdt/emu)");
-      ATH_MSG_INFO( "L1Calo : " << accept.getCutResult(0) << " / " << emu_accept.getCutResult(0));
-      ATH_MSG_INFO( "L2Calo : " << accept.getCutResult(1) << " / " << emu_accept.getCutResult(1));
-      ATH_MSG_INFO( "L2     : " << accept.getCutResult(2) << " / " << emu_accept.getCutResult(2));
-      ATH_MSG_INFO( "EFCalo : " << accept.getCutResult(3) << " / " << emu_accept.getCutResult(3));
-      ATH_MSG_INFO( "HLT    : " << accept.getCutResult(5) << " / " << emu_accept.getCutResult(5));
+      ATH_MSG_DEBUG( "trigger : " << info.trigger << " (tdt/emu)");
+      ATH_MSG_DEBUG( "L1Calo  : " << accept.getCutResult(0) << " / " << emu_accept.getCutResult(0));
+      ATH_MSG_DEBUG( "L2Calo  : " << accept.getCutResult(1) << " / " << emu_accept.getCutResult(1));
+      ATH_MSG_DEBUG( "L2      : " << accept.getCutResult(2) << " / " << emu_accept.getCutResult(2));
+      ATH_MSG_DEBUG( "EFCalo  : " << accept.getCutResult(3) << " / " << emu_accept.getCutResult(3));
+      ATH_MSG_DEBUG( "EFTrack : " << accept.getCutResult(4) << " / " << emu_accept.getCutResult(4));
+      ATH_MSG_DEBUG( "HLT     : " << accept.getCutResult(5) << " / " << emu_accept.getCutResult(5));
 
       auto monGroup = getGroup( trigger );
 
@@ -145,7 +150,7 @@ StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx 
   }
 
 
-  ATH_MSG_INFO("================= End Event =================");
+  ATH_MSG_DEBUG("================= End Event =================");
 
   return StatusCode::SUCCESS;
 }
@@ -206,7 +211,8 @@ asg::AcceptData TrigEgammaEmulationToolTest::setAccept( const TrigCompositeUtils
                         passedEFTrk=true;// Assume true for photons
 
                         // Step 6
-                        if(info.trigger == "electron"){
+                        if(info.type == "electron"){
+
                             if( info.etcut || info.idperf){// etcut or idperf
                                 passedEF = true; // since we dont run the preciseElectron step
                             }else{
@@ -236,6 +242,7 @@ asg::AcceptData TrigEgammaEmulationToolTest::setAccept( const TrigCompositeUtils
     acceptData.setCutResult("EFCalo",passedEFCalo);
     acceptData.setCutResult("EFTrack",passedEFTrk);
     acceptData.setCutResult("HLT",passedEF);
+    
     ATH_MSG_DEBUG("Accept results:");
     ATH_MSG_DEBUG("L1: "<< passedL1Calo);
     ATH_MSG_DEBUG("L2Calo: " << passedL2Calo);
@@ -263,6 +270,15 @@ TrigEgammaEmulationToolTest::TrigInfo TrigEgammaEmulationToolTest::getInfo( std:
     std::string str_thr = strs.at(1);
     str_thr.erase(0, 1);
     float et = atof(str_thr.c_str());
+
+    ATH_MSG_DEBUG("type   : " << type );
+    ATH_MSG_DEBUG("idperf : " << (idperf?"Yes":"No"));
+    ATH_MSG_DEBUG("etcut  : " << (etcut?"Yes":"No"));
+    ATH_MSG_DEBUG("gsf    : " << (gsf?"Yes":"No"));
+    ATH_MSG_DEBUG("lrt    : " << (lrt?"Yes":"No"));
+
+
+
     return TrigEgammaEmulationToolTest::TrigInfo{trigger,type,et,etcut,idperf,gsf,lrt};
 }
 
