@@ -58,10 +58,10 @@ class LArRawCalibDataReadingAlg : public  AthReentrantAlgorithm {
   const LArOnlineID* m_onlineId=nullptr;
 
   //Switches set in initialize() based of SG keys of output object
-  bool m_doCalibDigits;
-  bool m_doAccDigits;
-  bool m_doAccCalibDigits;
-  bool m_doFebHeaders;
+  bool m_doCalibDigits = false;
+  bool m_doAccDigits = false;
+  bool m_doAccCalibDigits = false;
+  bool m_doFebHeaders = false;
  
 };
 

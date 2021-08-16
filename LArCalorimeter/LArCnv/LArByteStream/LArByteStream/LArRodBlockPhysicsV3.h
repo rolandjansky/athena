@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPYSICSV3_H
@@ -163,14 +163,14 @@ protected:
 
   // Counter for channels inside of a FEB
 
-  int m_RawDataCounter;
-  int m_RawDataIndex;
-  int m_CounterIndex;
-  int m_EnergyIndex;
-  int m_FebInfoIndex;
-  int m_GainIndex;
-  int m_TimeQualityIndex; 
-  int m_SumBlkIndex; //For writing...
+  int m_RawDataCounter = 0;
+  int m_RawDataIndex = 0;
+  int m_CounterIndex = 0;
+  int m_EnergyIndex = 0;
+  int m_FebInfoIndex = 0;
+  int m_GainIndex = 0;
+  int m_TimeQualityIndex = 0; 
+  int m_SumBlkIndex = 0; //For writing...
 
   const uint32_t *m_SumBlkPtr; 
   const uint16_t *m_CounterPtr;
@@ -189,8 +189,8 @@ protected:
 
   int m_NFlaggingWords;
 
-  uint16_t m_numberHotCell; 
-  uint16_t m_numberHotCellOffTime;
+  uint16_t m_numberHotCell = 0U; 
+  uint16_t m_numberHotCellOffTime = 0U;
   uint16_t m_EnergyThreshold;
   int16_t m_OffTimeCut;
   uint16_t m_HottestCellIndex;

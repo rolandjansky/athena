@@ -125,7 +125,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
       Int_t CAL_nb;
       Int_t CAL_chan;
   };
-  tree_struct ts1;
+  tree_struct ts1{};
 
   const Int_t nlayer = 4;
   const Int_t ngain = 3;

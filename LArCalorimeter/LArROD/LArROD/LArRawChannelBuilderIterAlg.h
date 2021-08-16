@@ -83,7 +83,7 @@ class LArRawChannelBuilderIterAlg : public AthReentrantAlgorithm {
   SG::WriteHandleKey<LArOFIterResultsContainer> m_timingContKey{this, "TimingContainerKey", "LArOFIterResult", "Key of the LArOFIterResultsContainer in StoreGate"};
 
   //Identifier helper
-  const LArOnlineID* m_onlineId;
+  const LArOnlineID* m_onlineId = nullptr;
 
   // iterative peak computation
   LArOFIterResults peak(const std::vector<float>& samples, // raw data after pedestal subtraction

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECPresamplerHVManager.h"
@@ -81,8 +81,8 @@ public:
   }
   CellBinning                   phiBinning{0.0, 2*M_PI, 64};
   std::unique_ptr<const EMECPresamplerHVModule> moduleArray[2][64];  // not dense
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 

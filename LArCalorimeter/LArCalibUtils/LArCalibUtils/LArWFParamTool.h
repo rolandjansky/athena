@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -93,8 +93,8 @@ private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
-  const LArEM_Base_ID* m_emId;
-  const LArOnlineID_Base* m_onlineHelper;
+  const LArEM_Base_ID* m_emId = nullptr;
+  const LArOnlineID_Base* m_onlineHelper = nullptr;
 
   LArWaveHelper m_wHelper;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFEBHEADER_H
@@ -198,13 +198,13 @@ class LArFebHeader
     uint16_t BCId;
     uint32_t LVL1TigType;
     uint32_t DetEventType;
-  } m_RodHeader;
+  } m_RodHeader{};
 
   /** @brief DSP-Header (most of it is actually in the DSP-Trailer) */
   struct {
     uint32_t CodeVersion;  // DSP code version
     uint32_t EventCounter; // DSP event counter
-  } m_DspHeader;
+  } m_DspHeader{};
 
   /** @brief FEB EventId */
   uint16_t m_ELVL1Id; 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_HECDETECTORMANAGER_H
@@ -149,7 +149,7 @@ class HECDetectorManager : public GeoVDetectorManager
    *	provide random access to any HECDetectorRegion  held by
    *	this manager.
    */
-  HECDetRegionArray m_DetRegionsRandom;
+  HECDetRegionArray m_DetRegionsRandom{};
       
 
       

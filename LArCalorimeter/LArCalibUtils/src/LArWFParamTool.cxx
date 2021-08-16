@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArWFParamTool.h" 
@@ -287,7 +287,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
 
 LArWFParamTool::WaveTiming_t LArWFParamTool::timeExtr(LArWave& gCali) const
 {
-  WaveTiming_t wt; //return object
+  WaveTiming_t wt{}; //return object
 
   wt.Tstart = m_wHelper.getStart(gCali);
   
@@ -432,7 +432,7 @@ StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier c
   // Define the (raw) minimum research interval (if the Layer card is not set,
   // uses the wider interval, and default value for the first minimum scan)
 
-  omegaScanParams_t OSParams;  
+  omegaScanParams_t OSParams{};  
 
   // defaults (e.g. to be used in case cosRespScan=true)
   OSParams.cosRespScan  = true ;
@@ -498,7 +498,7 @@ StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier c
 
 LArWFParamTool::omegaScanParams_t LArWFParamTool::OmegaScanHelper(const Identifier id, const  WaveTiming_t& wt) const {
 
-  omegaScanParams_t ret;
+  omegaScanParams_t ret{};
 
   // this is a skeleton of the final function: use at your own risk! M.D. & C.G.
   // EMEC part modified by L. March - 7 April 2011
@@ -695,7 +695,7 @@ StatusCode LArWFParamTool::RTM_Taur(const LArWave& gCali, LArWFParams& wf, const
     ATH_MSG_VERBOSE( "*** Injection point skipped\t--> m_Taur    = " << wf.taur() ) ;
   } else {
     // numerical (Brent) log(chi2) minimization
-    waveRange_t range;
+    waveRange_t range{};
     if ( m_TtailMin[3]!=0 && m_TtailMax[3]!=0 && m_TtailMin[3]<m_TtailMax[3]) {
       range.min=m_TtailMin[3];
       range.max=m_TtailMax[3];

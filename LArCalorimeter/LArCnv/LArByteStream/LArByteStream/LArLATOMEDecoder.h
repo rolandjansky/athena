@@ -142,8 +142,8 @@ private:
     std::vector<Word> m_packetEnd;
 
     // rod header
-    uint32_t m_latomeSourceID;
-    Word m_latomeBCID;
+    uint32_t m_latomeSourceID = 0U;
+    Word m_latomeBCID = 0U;
     //// mon header
     Word m_latomeID;
     Word m_l1ID;

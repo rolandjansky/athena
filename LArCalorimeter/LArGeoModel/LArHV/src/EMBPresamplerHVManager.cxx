@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -91,8 +91,8 @@ public:
   }
   std::unique_ptr<EMBPresamplerHVDescriptor>     descriptor;
   std::unique_ptr<const EMBPresamplerHVModule>   moduleArray[2][4][32];
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 

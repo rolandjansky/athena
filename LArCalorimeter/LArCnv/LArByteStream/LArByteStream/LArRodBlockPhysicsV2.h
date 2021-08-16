@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPYSICSV2_H
@@ -125,12 +125,12 @@ protected:
   std::vector<uint32_t>  m_HighEnergyBlock;
   std::vector<uint32_t>  m_RawDataBlock;
   //Counter for channels inside of a FEB
-  int m_ECounter;
-  int m_RawDataCounter;
-  int m_LowEIndex;
-  int m_RawDataIndex;
-  int m_HighEIndex;
-  int m_EIndex; //For writing....
+  int m_ECounter = 0;
+  int m_RawDataCounter = 0;
+  int m_LowEIndex = 0;
+  int m_RawDataIndex = 0;
+  int m_HighEIndex = 0;
+  int m_EIndex = 0; //For writing....
   const uint16_t *m_RawDataPtr; 
   const uint32_t *m_RawDataFlagsPtr; 
   const uint32_t *m_GainPtr; 

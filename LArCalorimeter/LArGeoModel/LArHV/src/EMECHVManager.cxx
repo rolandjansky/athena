@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMECHVManager.h"
@@ -93,8 +93,8 @@ public:
   std::unique_ptr<EMECHVDescriptor> descriptor;
   IOType iWheel;
   std::unique_ptr<const EMECHVModule> moduleArray[2][8][8][8]; // not dense
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 

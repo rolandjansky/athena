@@ -231,7 +231,7 @@ private:
   bool m_larCell; // set to True if it is used for ConvertingLArCell 
   bool m_readtdc; // set to True if the tdc phase is read from the upper byte of the nsamples word.
   bool m_febExchange; //HW cause, can not be fixed otherwise: Ugly hack for swapped FEB
-  unsigned int m_febId1, m_febId2, m_febIdHLT;
+  unsigned int m_febId1, m_febId2, m_febIdHLT = 0U;
 
   int m_firstSample; // FIXED but kept for backward compatibility
   // In Auto-Gain mode, the FEB does not send the samples in the right order, but the one first that 
@@ -245,7 +245,7 @@ private:
   std::vector<int> m_vBEPreselection;
   std::vector<int> m_vPosNegPreselection;
   std::vector<unsigned int> m_vFinalPreselection;
-  uint32_t m_StatusMask, m_StatusNMask;
+  uint32_t m_StatusMask, m_StatusNMask = 0U;
   const LArOnlineID*       m_onlineHelper; 
   MakeLArCellFromRaw m_makeCell;  
   std::vector<std::string> m_LArCellCorrNames;

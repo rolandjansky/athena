@@ -48,7 +48,7 @@ public:
 private: 
 
    MsgStream* m_log;
-   LArLATOMEDecoder* m_scTool;
+   LArLATOMEDecoder* m_scTool = nullptr;
    ByteStreamCnvSvc* m_ByteStreamEventAccess; 
    IROBDataProviderSvc *m_rdpSvc;
    StoreGateSvc* m_storeGate; 

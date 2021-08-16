@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnergyCalculator.h
@@ -73,9 +73,9 @@ namespace LArG4 {
 
 
     private:
-      G4bool (EnergyCalculator::*m_Process_type) (const G4Step*, std::vector<LArHitData>&) const;
-      G4double (EnergyCalculator::*m_GetGapSize_type) (const G4ThreeVector &p) const;
-      G4double (EnergyCalculator::*m_distance_to_the_nearest_electrode_type) (const G4ThreeVector &p, G4double /*Barret_PhiStart*/) const;
+      G4bool (EnergyCalculator::*m_Process_type) (const G4Step*, std::vector<LArHitData>&) const{};
+      G4double (EnergyCalculator::*m_GetGapSize_type) (const G4ThreeVector &p) const{};
+      G4double (EnergyCalculator::*m_distance_to_the_nearest_electrode_type) (const G4ThreeVector &p, G4double /*Barret_PhiStart*/) const{};
 
       G4bool Process_Default(const G4Step*, std::vector<LArHitData>&) const;
       G4bool Process_Barrett(const G4Step*, std::vector<LArHitData>&) const;
@@ -125,7 +125,7 @@ namespace LArG4 {
       UnsignedIntegerProperty m_corrProp;
       EnergyCorrection_t m_correction_type;
 
-      G4double (EnergyCalculator::*m_ecorr_method) (G4double, const G4ThreeVector&, const G4ThreeVector&, G4double /*Barret_PhiStart*/) const;
+      G4double (EnergyCalculator::*m_ecorr_method) (G4double, const G4ThreeVector&, const G4ThreeVector&, G4double /*Barret_PhiStart*/) const{};
       G4double dummy_correction_method(G4double e, const G4ThreeVector&, const G4ThreeVector&,
                                        G4double /*Barret_PhiStart*/) const {
         return e;
@@ -167,12 +167,12 @@ namespace LArG4 {
       };
 
 
-      G4double m_ElectrodeFanHalfThickness;   // used as const after init
-      G4double m_FanEleThicknessOld;          // used as const after init
-      G4double m_FanEleFoldRadiusOld;         // used as const after init
-      G4double m_FanAbsThickness;             // used as const after init
-      G4double m_FanEleThickness;             // used as const after init
-      G4double m_WaveLength;                  // used as const after init
+      G4double m_ElectrodeFanHalfThickness = 0.0;   // used as const after init
+      G4double m_FanEleThicknessOld = 0.0;          // used as const after init
+      G4double m_FanEleFoldRadiusOld = 0.0;         // used as const after init
+      G4double m_FanAbsThickness = 0.0;             // used as const after init
+      G4double m_FanEleThickness = 0.0;             // used as const after init
+      G4double m_WaveLength = 0.0;                  // used as const after init
 
       inline G4double ElectrodeFanHalfThickness() const { return m_ElectrodeFanHalfThickness; };
       inline G4double FanEleThicknessOld() const { return m_FanEleThicknessOld; };
@@ -215,7 +215,7 @@ namespace LArG4 {
       };
 
       static Wheel_Efield_Map s_ChCollInner,s_ChCollOuter; // used as const after init
-      Wheel_Efield_Map* m_ChCollWheelType;             // used as const after init
+      Wheel_Efield_Map* m_ChCollWheelType = nullptr;             // used as const after init
 
       inline const Wheel_Efield_Map* ChCollWheelType() const { return m_ChCollWheelType; };
 
@@ -318,7 +318,7 @@ namespace LArG4 {
       std::string m_suffix;
 
       // Aug 2007 AMS, lost Aug 2008, restored May 2009
-      LArWheelCalculator *m_electrode_calculator;
+      LArWheelCalculator *m_electrode_calculator = nullptr;
       const LArWheelCalculator * elc() const { return m_electrode_calculator; }
 
       G4double GetCurrent1(const G4ThreeVector &, const G4ThreeVector &, G4double) const;

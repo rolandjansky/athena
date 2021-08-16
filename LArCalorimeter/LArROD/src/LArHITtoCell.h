@@ -87,9 +87,9 @@ private:
   const CaloIdManager* m_calo_id_manager;
 
   /** pointer to the offline TT helper */
-  const CaloCell_SuperCell_ID*     m_scHelper;
+  const CaloCell_SuperCell_ID*     m_scHelper = nullptr;
   /** pointer to the offline id helper  */
-  const CaloCell_ID*               m_OflHelper;
+  const CaloCell_ID*               m_OflHelper = nullptr;
 
 
     template <class T>
