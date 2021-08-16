@@ -118,12 +118,12 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
   if (m_doHLT) {
 
-    boost::dynamic_bitset<uint32_t> passRawBitset, prescaledBitset, rerunBitset;
+    boost::dynamic_bitset<uint32_t> passRawBitset, prescaledBitset;
 
     if (m_bitsMakerTool.isSet()) {
 
       ATH_MSG_DEBUG ("MC Mode: Creating bits with TriggerBitsMakerTool");
-      ATH_CHECK(m_bitsMakerTool->getBits(passRawBitset, prescaledBitset, rerunBitset, context));
+      ATH_CHECK(m_bitsMakerTool->getBits(passRawBitset, prescaledBitset, context));
 
     } else {
 
@@ -133,7 +133,6 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
       passRawBitset = hltResult->getHltPassRawBits();
       prescaledBitset = hltResult->getHltPrescaledBits();
-      rerunBitset = hltResult->getHltRerunBits();
 
       const std::vector<HLT::OnlineErrorCode> errorCodes = hltResult->getErrorCodes();
       bool truncated = false;
@@ -151,31 +150,27 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
     ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << passRawBitset.count());
     ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << prescaledBitset.count());
-    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << rerunBitset.count());
 
     if (passRawBitset.any()) {
       ++m_hltPassed;
     }
 
-    std::vector<uint32_t> passRaw, prescaled, rerun;
+    std::vector<uint32_t> passRaw, prescaled;
 
     passRaw.resize(passRawBitset.num_blocks());
     prescaled.resize(prescaledBitset.num_blocks());
-    rerun.resize(rerunBitset.num_blocks());
 
     boost::to_block_range(passRawBitset, passRaw.begin());
     boost::to_block_range(prescaledBitset, prescaled.begin());
-    boost::to_block_range(rerunBitset, rerun.begin());
 
-    if (passRaw.size() != prescaled.size() or passRaw.size() != rerun.size()) {
+    if (passRaw.size() != prescaled.size()) {
       ATH_MSG_ERROR("Trigger bitsets are not all the same size! passRaw:" 
-        << passRaw.size() << " prescaled:" << prescaled.size() << " rerun:" << rerun.size() );
+        << passRaw.size() << " prescaled:" << prescaled.size() );
       return StatusCode::FAILURE;
     } 
 
     trigDec->setEFPassedRaw(passRaw);
     trigDec->setEFPrescaled(prescaled);
-    trigDec->setEFResurrected(rerun);
 
   }
 

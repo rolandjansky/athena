@@ -27,11 +27,6 @@ namespace {
    * a property set from the EDM configuration to avoid multiple definitions, but the value should never change from 0.
    */
   constexpr uint16_t fullResultModuleId = 0;
-  /**
-   * HLT ROBFragment ROD minor version.
-   * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
-   */
-  constexpr uint16_t hltRodMinorVersion = 0x0100;
 }
 
 // Local helper methods
@@ -113,6 +108,17 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     ATH_MSG_ERROR("Failed to convert DataObject to HLTResultMT");
     return StatusCode::FAILURE;
   }
+
+  // Check ROD minor version
+  const HLT::HLTResultMT::RODMinorVersion hltRodMinorVersion = hltResult->getVersion();
+  if (hltRodMinorVersion == HLT::HLTResultMT::RODMinorVersion{0xff,0xff}) {
+    ATH_MSG_ERROR("Invalid HLT ROD minor version {0xff, 0xff}");
+    return StatusCode::FAILURE;
+  }
+  // Encode version X.Y (two 8-bit numbers) into a single 16-bit number
+  const uint16_t hltRodMinorVersion16 = (hltRodMinorVersion.first << 8u) | hltRodMinorVersion.second;
+  ATH_MSG_DEBUG("HLT ROD minor version is " << hltRodMinorVersion.first << "." << hltRodMinorVersion.second
+                << " (0x" << MSG::hex << hltRodMinorVersion16 << MSG::dec << ")");
 
   // Obtain the RawEventWrite (aka eformat::write::FullEventFragment) pointer
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
@@ -220,7 +226,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
       data.data(),
       eformat::STATUS_BACK
     ));
-    cache->robFragments.back()->rod_minor_version(hltRodMinorVersion);
+    cache->robFragments.back()->rod_minor_version(hltRodMinorVersion16);
     re->append(cache->robFragments.back().get());
     ATH_MSG_DEBUG("Appended data for HLT result ID 0x" << MSG::hex << resultId.code() << MSG::dec << " with "
                   << data.size() << " words of serialised payload to the output full event");

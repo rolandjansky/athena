@@ -8,6 +8,15 @@
 // TDAQ includes
 #include "eformat/StreamTag.h"
 
+using RODMinorVersion = HLT::HLTResultMT::RODMinorVersion;
+
+namespace{
+  // Convert RODMinorVersion to string
+  std::string printRodMinorVersion(const RODMinorVersion v) {
+    return std::to_string(v.first) + "." + std::to_string(v.second);
+  }
+}
+
 // =============================================================================
 // Standard constructor
 // =============================================================================
@@ -33,6 +42,39 @@ StatusCode HLTResultMTByteStreamDecoderTool::finalize() {
 }
 
 // =============================================================================
+RODMinorVersion HLTResultMTByteStreamDecoderTool::getHltRodMinorVersion(
+  const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf) const {
+
+  if (vrobf.empty()) {
+    ATH_MSG_ERROR("Empty ROBFragment vector passed to getHltRodMinorVersion, returning invalid version");
+    return {0xff, 0xff};
+  }
+
+  uint16_t version{0xffff};
+  bool first{true};
+  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robf : vrobf) {
+    uint32_t thisRodVersion = robf->rod_version();
+    uint16_t thisRodMinorVersion = (thisRodVersion & 0xffffu);
+    if (thisRodMinorVersion == 0xffffu) {
+      ATH_MSG_WARNING("Invalid HLT ROD minor version 0xffff found in ROBFragment 0x"
+                      << MSG::hex << robf->rob_source_id() << MSG::dec);
+    }
+    if (first) {
+      version = thisRodMinorVersion;
+    }
+    else if (thisRodMinorVersion != version) {
+      ATH_MSG_ERROR("Inconsistent HLT ROD minor versions in different ROBFragments, 0x"
+                    << MSG::hex << version << " and " << thisRodMinorVersion << MSG::dec
+                    << ", getHltRodMinorVersion returning invalid version");
+      return {0xff, 0xff};
+    }
+    first = false;
+  }
+  // Split the version 0xabcd into {0xab, 0xcd}
+  return {((version & 0xff00u) >> 8u), (version & 0x00ffu)};
+}
+
+// =============================================================================
 StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEvent, HLT::HLTResultMT& resultToFill) const {
 
   if (!rawEvent) {
@@ -40,6 +82,9 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Decoding HLTResultMT from ByteStream event " << rawEvent->global_id());
+
+  const RODMinorVersion hltRodMinorVersion = resultToFill.getVersion();
+  ATH_CHECK(checkRodMinorVersion(hltRodMinorVersion));
 
   // ---------------------------------------------------------------------------
   // Read the status words (error codes from online event processing)
@@ -102,25 +147,30 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     ATH_MSG_ERROR("Unknown exception caught when reading HLT bits");
     return StatusCode::FAILURE;
   }
-  if (hltBitWords.size() % 3 != 0) {
-    ATH_MSG_ERROR("Size of hltBitWords=" << hltBitWords.size() << " must be divisible by three. Expecting {raw, prescaled, rerun} bits.");
+
+  // Version 1.0 includes rerun bits, removed since version 1.1
+  const size_t numBitSets = (hltRodMinorVersion==RODMinorVersion{1,0}) ? 3 : 2;
+
+  if (hltBitWords.size() % numBitSets != 0) {
+    ATH_MSG_ERROR("Size of hltBitWords=" << hltBitWords.size() << " must be divisible by " << numBitSets
+                  << ". Expecting {raw, prescaled" << (numBitSets==3 ? ", rerun" : "") << "} bits.");
     return StatusCode::FAILURE;
   }
-  const size_t sizeOfBlock = hltBitWords.size() / 3;
-  auto beginPrescaledIt = hltBitWords.begin();
-  std::advance(beginPrescaledIt, sizeOfBlock);
-  auto beginRerunIt = hltBitWords.begin();
-  std::advance(beginRerunIt, 2 * sizeOfBlock);
-  resultToFill.setHltPassRawBits( {hltBitWords.begin(), beginPrescaledIt} );
-  resultToFill.setHltPrescaledBits( {beginPrescaledIt, beginRerunIt} );
-  resultToFill.setHltRerunBits( {beginRerunIt, hltBitWords.end()} );
-  ATH_MSG_DEBUG("Successfully read " << hltBitWords.size() << " HLT bit words");
+  const size_t sizeOfBlock = hltBitWords.size() / numBitSets;
+  auto beginPrescaledIt = hltBitWords.cbegin() + sizeOfBlock;
+  auto endIt = (numBitSets==2) ? hltBitWords.cend() : hltBitWords.cbegin() + 2*sizeOfBlock;
+  resultToFill.setHltBits( {hltBitWords.cbegin(), beginPrescaledIt},
+                           {beginPrescaledIt, endIt} );
+  ATH_MSG_DEBUG("Successfully read " << std::distance(hltBitWords.cbegin(), endIt) << " HLT bit words");
   return StatusCode::SUCCESS;
 }
 
 // =============================================================================
 StatusCode HLTResultMTByteStreamDecoderTool::decodePayload(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
                                                            HLT::HLTResultMT& resultToFill) const {
+  const RODMinorVersion hltRodMinorVersion = resultToFill.getVersion();
+  ATH_CHECK(checkRodMinorVersion(hltRodMinorVersion));
+
   for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robf : vrobf) {
     eformat::helper::SourceIdentifier sid(robf->rob_source_id());
     ATH_MSG_DEBUG("Reading ROBFragment " << sid.human());
@@ -146,5 +196,20 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodePayload(const std::vector<con
     ATH_MSG_DEBUG("Successfully read " << datasize << " words of HLT result payload for module ID "
                   << sid.module_id());
   }
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+StatusCode HLTResultMTByteStreamDecoderTool::checkRodMinorVersion(const RODMinorVersion version) const {
+  if (version == RODMinorVersion{0xff, 0xff}) {
+    ATH_MSG_ERROR("Invalid HLT ROD minor version {0xff, 0xff}");
+    return StatusCode::FAILURE;
+  }
+  if (version.first < 1) {
+    ATH_MSG_ERROR("HLT ROD minor version " << printRodMinorVersion(version) << " is lower than 1.0. "
+                  << "This tool is for decoding versions 1.0 or later (i.e. HLT ByteStream from Run 3 or later)");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("HLT ROD minor version is " << printRodMinorVersion(version));
   return StatusCode::SUCCESS;
 }

@@ -6,8 +6,22 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include <algorithm>
 #include <utility>
+#include <string_view>
 
-#define CONTEXT_NAME "HLT::HLTResultMT"
+// Local constants
+namespace {
+  /**
+   * HLT ROBFragment ROD minor version
+   *
+   * Changed from 0.0 to 1.0 in September 2019 to differentiate Run-3 HLT ByteStream format from earlier formats.
+   * Further version changes:
+   * - v1.1 (August 2021): Remove rerun bits from the HLT bits in event header
+   */
+  constexpr HLT::HLTResultMT::RODMinorVersion s_currentHltRodMinorVersion{1,1};
+
+  /// Class name to print in messages
+  constexpr std::string_view s_contextName{"HLT::HLTResultMT"};
+}
 
 // =============================================================================
 // Standard constructor
@@ -15,16 +29,15 @@
 HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
                               boost::dynamic_bitset<uint32_t> hltPassRawBits,
                               boost::dynamic_bitset<uint32_t> hltPrescaledBits,
-                              boost::dynamic_bitset<uint32_t> hltRerunBits,
                               std::unordered_map<uint16_t, std::vector<uint32_t> > data,
                               std::vector<uint32_t> status,
                               std::set<uint16_t> truncatedModuleIds)
 : m_streamTags(std::move(streamTags)),
   m_hltPassRawBits(std::move(hltPassRawBits)),
   m_hltPrescaledBits(std::move(hltPrescaledBits)),
-  m_hltRerunBits(std::move(hltRerunBits)),
   m_data(std::move(data)),
   m_status(std::move(status)),
+  m_version(s_currentHltRodMinorVersion),
   m_truncatedModuleIds(std::move(truncatedModuleIds)) {}
 
 // =============================================================================
@@ -59,7 +72,7 @@ StatusCode HLT::HLTResultMT::addStreamTag(const eformat::helper::StreamTag& stre
   // In case of duplicate, merge ROBs and SubDets, otherwise just append the tag to the result
   if (p != m_streamTags.end()) {
     if (streamTag.obeys_lumiblock != p->obeys_lumiblock) {
-      ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, CONTEXT_NAME)
+      ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, s_contextName.data())
         << "Stream tags have equal type and name (" << streamTag.type << "/" << streamTag.name
         << "), but inconsistent obeys_lumiblock flag";
       return StatusCode::FAILURE;
@@ -87,20 +100,13 @@ const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltPrescaledBits() c
 }
 
 // -----------------------------------------------------------------------------
-const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltRerunBits() const {
-  return m_hltRerunBits;
-}
-
-// -----------------------------------------------------------------------------
-const std::vector<uint32_t>& HLT::HLTResultMT::getHltBitsAsWords() {
-  m_hltBitWords.clear();
-  if (m_hltPassRawBits.num_blocks() != m_hltPrescaledBits.num_blocks() || m_hltPassRawBits.num_blocks() != m_hltRerunBits.num_blocks()) {
-    throw std::runtime_error("Must have the same number of bits in m_hltPassRawBits, m_hltPrescaledBits and m_hltRerunBits.");
+const std::vector<uint32_t>& HLT::HLTResultMT::getHltBitsAsWords() const {
+  if (m_hltPassRawBits.num_blocks() != m_hltPrescaledBits.num_blocks()) {
+    throw std::runtime_error("Must have the same number of bits in m_hltPassRawBits and m_hltPrescaledBits");
   }
-  m_hltBitWords.resize(m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks() + m_hltRerunBits.num_blocks());
-  boost::to_block_range(m_hltPassRawBits, m_hltBitWords.begin());
-  boost::to_block_range(m_hltPrescaledBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks());
-  boost::to_block_range(m_hltRerunBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks());
+  if (m_hltBitWords.size() != m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks()) {
+    throw std::runtime_error("m_hltBitWords size differs from the sum of m_hltPassRawBits and m_hltPrescaledBits");
+  }
   return m_hltBitWords;
 }
 
@@ -108,18 +114,34 @@ const std::vector<uint32_t>& HLT::HLTResultMT::getHltBitsAsWords() {
 void HLT::HLTResultMT::setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset) {
   // copy assignment
   m_hltPassRawBits = bitset;
+  updateHltBitWords();
 }
 
 // -----------------------------------------------------------------------------
 void HLT::HLTResultMT::setHltPrescaledBits(const boost::dynamic_bitset<uint32_t>& bitset) {
   // copy assignment
   m_hltPrescaledBits = bitset;
+  updateHltBitWords();
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset) {
-  // copy assignment
-  m_hltRerunBits = bitset;
+void HLT::HLTResultMT::setHltBits(const boost::dynamic_bitset<uint32_t>& passRawBitset,
+                                  const boost::dynamic_bitset<uint32_t>& prescaledBitset) {
+  if (passRawBitset.num_blocks() != prescaledBitset.num_blocks()) {
+    throw std::runtime_error("Must have the same number of bits in passRawBitset and prescaledBitset");
+  }
+  // copy assignments
+  m_hltPassRawBits = passRawBitset;
+  m_hltPrescaledBits = prescaledBitset;
+  updateHltBitWords();
+}
+
+// -----------------------------------------------------------------------------
+void HLT::HLTResultMT::updateHltBitWords() {
+  m_hltBitWords.clear();
+  m_hltBitWords.resize(m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks(), 0);
+  boost::to_block_range(m_hltPassRawBits, m_hltBitWords.begin());
+  boost::to_block_range(m_hltPrescaledBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks());
 }
 
 // =============================================================================
@@ -134,7 +156,7 @@ StatusCode HLT::HLTResultMT::getSerialisedData(const uint16_t moduleId, const st
   data = nullptr;
   const auto it = m_data.find(moduleId);
   if (it==m_data.cend()) {
-    REPORT_MESSAGE_WITH_CONTEXT(MSG::DEBUG, CONTEXT_NAME)
+    REPORT_MESSAGE_WITH_CONTEXT(MSG::DEBUG, s_contextName.data())
       << "No data available in the stored map for the requested moduleId=" << moduleId;
     return StatusCode::FAILURE;
   }
@@ -160,7 +182,7 @@ void HLT::HLTResultMT::addSerialisedData(const uint16_t moduleId, const std::vec
 // -----------------------------------------------------------------------------
 StatusCode HLT::HLTResultMT::addSerialisedDataWithCheck(const uint16_t moduleId, std::vector<uint32_t> data) {
   if (m_data.find(moduleId)!=m_data.cend()) {
-    ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, CONTEXT_NAME)
+    ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, s_contextName.data())
       << "Trying to add data for a module which already exists in the stored map, moduleId=" << moduleId;
     return StatusCode::FAILURE;
   }
@@ -221,6 +243,18 @@ void HLT::HLTResultMT::addErrorCode(const HLT::OnlineErrorCode& errorCode,
 }
 
 // =============================================================================
+// Getter/setter methods for HLT ROD minor version
+// =============================================================================
+HLT::HLTResultMT::RODMinorVersion HLT::HLTResultMT::getVersion() const {
+  return m_version;
+}
+
+// -----------------------------------------------------------------------------
+void HLT::HLTResultMT::setVersion(RODMinorVersion version) {
+  m_version = version;
+}
+
+// =============================================================================
 // Getter/setter methods for truncation information
 // =============================================================================
 const std::set<uint16_t>& HLT::HLTResultMT::getTruncatedModuleIds() const {
@@ -263,21 +297,15 @@ std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
   // HLT bits
   std::vector<uint32_t> hltPassRawBitWords;
   std::vector<uint32_t> hltPrescaledBitWords;
-  std::vector<uint32_t> hltRerunBitWords;
   hltPassRawBitWords.resize(hltResult.getHltPassRawBits().num_blocks());
   hltPrescaledBitWords.resize(hltResult.getHltPrescaledBits().num_blocks());
-  hltRerunBitWords.resize(hltResult.getHltRerunBits().num_blocks());
   boost::to_block_range(hltResult.getHltPassRawBits(),hltPassRawBitWords.begin());
   boost::to_block_range(hltResult.getHltPrescaledBits(),hltPrescaledBitWords.begin());
-  boost::to_block_range(hltResult.getHltRerunBits(),hltRerunBitWords.begin());
   str << "--> HLT bits     = ";
   for (const uint32_t word : hltPassRawBitWords) {
     printWord(word);
   }
   for (const uint32_t word : hltPrescaledBitWords) {
-    printWord(word);
-  }
-  for (const uint32_t word : hltRerunBitWords) {
     printWord(word);
   }
   str << std::endl;
