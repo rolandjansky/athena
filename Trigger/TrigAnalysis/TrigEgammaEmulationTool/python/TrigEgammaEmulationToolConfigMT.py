@@ -120,17 +120,11 @@ class TrigEgammaEmulationToolConfig:
     def setupL1Calo( self, name , info):
 
         from AthenaConfiguration.ComponentFactory import CompFactory
-        from AthenaCommon.SystemOfUnits import GeV
         import re
 
         #chainName = info['chainName']
         L1Item = info['chainParts'][0]['L1threshold']
         L1thr = float( re.findall(r'\d+', L1Item)[0] )
-
-        print('AKI JOAO L1')
-        print(L1Item)
-        print(L1thr)
-        
         wp = 0 # default
 
         #                        [Default, Tight , Medium, Loose ]
@@ -145,7 +139,7 @@ class TrigEgammaEmulationToolConfig:
         L1CaloTool = CompFactory.Trig.TrigEgammaEmulationL1CaloHypoTool(
                                     name                   = name,
                                     L1Item                 = L1Item,
-                                    L1Thr                  = L1thr * GeV,
+                                    L1Thr                  = L1thr, 
                                     HadCoreCutMin          = HadCoreCutMin[wp],
                                     HadCoreCutOff          = HadCoreCutOff[wp],
                                     HadCoreSlope           = HadCoreSlope[wp],
@@ -167,10 +161,12 @@ class TrigEgammaEmulationToolConfig:
 def TrigEgammaEmulationToolTestConfig(inputFlags):
 
     from AthenaConfiguration.ComponentFactory import CompFactory    
-    triggerList = [ "HLT_e17_lhvloose_L1EM15VHI",
+    triggerList = [ 
+                    "HLT_e17_lhvloose_L1EM15VHI",
                     "HLT_e5_etcut_L1EM3",
                     "HLT_e26_lhtight_L1EM22VHI", 
-                    "HLT_g20_loose_L1EM15"]
+                    "HLT_g20_loose_L1EM15"
+                    ]
 
     '''Function to configures some algorithms in the monitoring system.'''
     # The following class will make a sequence, configure algorithms, and link
@@ -228,8 +224,7 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1663_r12711_tid25855934_00/AOD.25855934._000067.pool.root.1'
-
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1664_r12711_tid25855898_00/AOD.25855898._000124.pool.root.1'
     ConfigFlags.Input.Files = [path]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
@@ -245,7 +240,7 @@ if __name__=='__main__':
   
     # If you want to turn on more detailed messages ...
     cfg.printConfig(withDetails=False) # set True for exhaustive info
-    cfg.run(-1) #use cfg.run(20) to only run on first 20 events
+    cfg.run(20) #use cfg.run(20) to only run on first 20 events
 
 
 

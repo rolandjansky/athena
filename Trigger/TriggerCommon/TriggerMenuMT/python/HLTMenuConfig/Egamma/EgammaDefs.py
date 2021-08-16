@@ -260,7 +260,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
@@ -299,7 +299,7 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
@@ -331,7 +331,7 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
-      SelectorTool=CompFactory.Ringer__AsgRingerSelectorTool(name)
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors

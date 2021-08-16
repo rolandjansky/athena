@@ -48,7 +48,7 @@ StatusCode TrigEgammaEmulationToolMT::initialize()
     m_accept.addCut("EFTrack" , "Trigger EFTrack step"    );
     m_accept.addCut("HLT"     , "Trigger HLT decision"    );
 
-   
+  
     return StatusCode::SUCCESS;
 }
 
@@ -84,9 +84,10 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
   output.clear();
 
   if(!roi) {
-    ATH_MSG_INFO("no Roi!");
+    ATH_MSG_DEBUG("no Roi!");
     return false;
   }
+
 
   // Link all selectors with this trig object to easy acesss throut of the chain
   // Avoid multiple selectors
@@ -100,8 +101,9 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
   if(output.signature == "electron"){
     for (auto& trigger : m_electronTrigList){
 
-      if(boost::contains(output.trigger,"gsf") && !boost::contains(trigger,"gsf"))  continue;
-      if(boost::contains(output.trigger,"lrt") && !boost::contains(trigger,"lrt"))  continue;
+      if(boost::contains(trigger,"gsf")) continue;
+      if(boost::contains(trigger,"lrt")) continue;
+      ATH_MSG_DEBUG("Matching with " << trigger );
 
 
       auto vec_el_linkInfo = match()->getFeatures<xAOD::ElectronContainer>(roi,trigger,condition);
@@ -112,9 +114,11 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
 
         // Step 5
         {
-          for(auto&featLinkInfo : vec_el_linkInfo){
+          for(auto&featLinkInfo : vec_el_linkInfo)
+          {
             if(!featLinkInfo.isValid()) continue;
-            output.electrons.push_back(*featLinkInfo.link);
+            auto el = *featLinkInfo.link;
+            output.electrons.push_back(el);
           }
         }
 
@@ -123,7 +127,7 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
           auto vec_feat = match()->getFeatures<xAOD::CaloClusterContainer>(roi,trigger,condition);
           for(auto& featLinkInfo : vec_feat){
             if(!featLinkInfo.isValid()) continue;
-            output.clusters.push_back(*featLinkInfo.link);
+            output.clusters.push_back(*featLinkInfo.link); 
           }
         }
 
@@ -138,13 +142,11 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
 
         // Step 1
         {
-          auto featLinkInfo = match()->getFeature<xAOD::TrigEMClusterContainer>(roi,trigger);
-          if(featLinkInfo.isValid()){
-            output.emCluster = *featLinkInfo.link;
-          }
           // get rings from container access
           output.rings = match()->getRingsFeature(roi);
-
+          if(output.rings){
+            output.emCluster = output.rings->emCluster();
+          }
         }
 
 
@@ -153,19 +155,19 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
         {
           // L1Calo (step 0)
           output.l1 = match()->getL1Feature(roi);
-          auto featLinkInfo = match()->getFeature<TrigRoiDescriptorCollection>(roi,trigger);
+          auto featLinkInfo = match()->getFeature<TrigRoiDescriptorCollection>(roi,trigger, condition);
           if(featLinkInfo.isValid()){
             output.roi = *featLinkInfo.link;
           }
         }
 
-        ATH_MSG_INFO( "L1 RoI TDET  = " << (output.roi?"Yes":"No")); 
-        ATH_MSG_INFO( "L1 RoI EmTau = " << (output.l1?"Yes":"No")); 
-        ATH_MSG_INFO( "L2 Cluster   = " << (output.emCluster?"Yes":"No")); 
-        ATH_MSG_INFO( "L2 Rings     = " << (output.rings?"Yes":"No")); 
-        ATH_MSG_INFO( "L2 Electrons = " << (output.trig_electrons.size())); 
-        ATH_MSG_INFO( "HLT Cluster  = " << output.clusters.size()); 
-        ATH_MSG_INFO( "HLT el       = " << output.electrons.size()); 
+        ATH_MSG_DEBUG( "L1 RoI TDET  = " << (output.roi?"Yes":"No")); 
+        ATH_MSG_DEBUG( "L1 RoI EmTau = " << (output.l1?"Yes":"No")); 
+        ATH_MSG_DEBUG( "L2 Cluster   = " << (output.emCluster?"Yes":"No")); 
+        ATH_MSG_DEBUG( "L2 Rings     = " << (output.rings?"Yes":"No")); 
+        ATH_MSG_DEBUG( "L2 Electrons = " << (output.trig_electrons.size())); 
+        ATH_MSG_DEBUG( "HLT Cluster  = " << output.clusters.size()); 
+        ATH_MSG_DEBUG( "HLT el       = " << output.electrons.size()); 
 
       }// has electron
 
@@ -272,11 +274,11 @@ void TrigData::clear()
 
 bool TrigData::isValid() const
 {
-  return (this->roi && this->l1 && this->emCluster && this->rings);
+  bool passed = (this->roi && this->l1 && this->emCluster && this->rings);
   if (this->signature == "photon"){
-    return (this->trig_photon && !this->photons.empty());
+    return (this->trig_photon && !this->photons.empty() && passed);
   }else if (this->signature == "electron"){
-    return (!this->trig_electrons.empty() && !this->electrons.empty());
+    return (!this->trig_electrons.empty() && !this->electrons.empty() && passed);
   }else{
     return false;
   }
