@@ -62,57 +62,9 @@ def defineMenu():
         'L1_3MU4', 'L1_MU6_2MU4', 'L1_3MU6',  'L1_4MU4', 'L1_MU6_3MU4', 'L1_2MU6_3MU4', 'L1_2MU11', 'L1_MU11_2MU10',
         'L1_2EM8VH_MU10', 'L1_EM15VH_MU10',  'L1_EM7_MU20',
 
-        # single tau
-        'L1_TAU12', 'L1_TAU12IM',   'L1_TAU20IM', 'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
-        'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_EMPTY', 'L1_TAU40_UNPAIRED_ISO',
-        # new calo
-        'L1_eTAU12', 'L1_eTAU100',
-
-        # multi tau
-        'L1_2TAU8', 'L1_TAU20IM_2TAU12IM', 'L1_TAU60_2TAU40',
-        # new calo
-        'L1_eTAU60_2eTAU40',
-
-        # combined tau - lepton
-        'L1_EM15VHI_2TAU12IM',
-        'L1_MU10_TAU12IM',  
-        'L1_MU10_TAU12IM_J25_2J12',
-        'L1_MU10_TAU12IM_3J12',
-        'L1_EM15VHI_2TAU12IM_J25_3J12',
-        'L1_MU10_TAU20IM',
-        'L1_MU11_TAU20IM',
-        'L1_MU10_TAU20IM_J25_2J20',
-        # new calo
-        'L1_MU10_eTAU20IM',
-
-        # combined tau - jet
-        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-        'L1_TAU20IM_2TAU12IM_4J12p0ETA25', 
-        'L1_TAU25IM_2TAU20IM_2J25_3J20',
-        # new calo
-        'L1_eTAU20IM_2jJ20_gXERHO45',
-        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA25',
-        'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20',
-
-        # combined tau - xe
-        'L1_TAU20IM_2J20_XE45',
-        'L1_TAU20IM_2J20_XE50',
-        'L1_EM15VHI_2TAU12IM_XE35',
-        'L1_EM15VHI_2TAU12IM_4J12', 
-        'L1_MU10_TAU12IM_XE35',  
-        'L1_TAU20IM_2TAU12IM_XE35', 
-        'L1_TAU40_2TAU12IM_XE40',  
-        # new calo
-        'L1_eTAU40_2eTAU12IM_gXERHO40',
-
         # combined em - jet
         'L1_EM18VHI_3J20',
         'L1_EM20VH_3J20',
-
-        # combined em / mu - tau - jet / XE
-        'L1_MU10_eTAU12IM_3jJ12',
-        'L1_MU10_eTAU12IM_jJ25_2jJ12',
-        'L1_MU10_eTAU12IM_gXERHO35',
         
         # combined mu - jet
         'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
@@ -260,7 +212,6 @@ def defineMenu():
         'L1_EM12' : 2,
         'L1_EM8VH' : 3,
         'L1_EM10VH' : 4,
-        'L1_EM15VHI_2TAU12IM_4J12' : 5,
         'L1_EM15' : 6,
         'L1_EM15VH' : 7,
         'L1_EM18VHI' : 8,
@@ -304,48 +255,9 @@ def defineMenu():
         'L1_2EM8VH_MU10' : 43,
         'L1_EM15VH_MU10' : 44,
         'L1_EM7_MU20' : 483,
-        'L1_TAU12' : 45,
-        'L1_TAU12IM' : 47,
+
         'L1_MU11_2MU10' : 49,
-        #'L1_TAU5' : 50,
-        'L1_TAU20IM' : 51,
-        'L1_TAU100' : 52,
-        #'L1_TAU30' : 53,
-        'L1_TAU40' : 54,
-        'L1_TAU60' : 55,
-        'L1_TAU8_EMPTY' : 57,
-        'L1_TAU8_FIRSTEMPTY' : 391,
-        'L1_TAU8_UNPAIRED_ISO' : 388,
-        #'L1_TAU90' : 56,
-        'L1_TAU20IM_2TAU12IM' : 58,
-        #'L1_2TAU5' : 59,
-        'L1_2TAU8' : 72,
-        'L1_EM15VHI_2TAU12IM' : 60,
-        'L1_EM15VHI_2TAU12IM_XE35' : 78,
-        'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
-        #'L1_EM15VHI_TAU40_2TAU15' : 62,
-        #'L1_EM20VHI_TAU20IM_2TAU20_J25_3J20' : 69,
-        'L1_MU10_TAU12IM' : 63,
-        'L1_MU10_TAU12IM_J25_2J12' : 64,
-        'L1_MU10_TAU12IM_3J12' : 482,
         'L1_EM7_MU10':65,
-        #'L1_TAU30_EMPTY':341,
-        'L1_MU10_TAU20IM' : 67,
-        'L1_MU11_TAU20IM' : 430,
-        'L1_MU10_TAU20IM_J25_2J20' : 377,
-
-
-        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
-        'L1_TAU20IM_2TAU12IM_4J12p0ETA25' : 316,
-        'L1_TAU20IM_2J20_XE45' : 74,
-        #'L1_TAU20IM_2TAU12IM_4J12p0ETA28' : 77,
-        'L1_TAU20IM_2J20_XE50' : 79,
-        #'L1_TAU30_UNPAIRED_ISO' : 343,
-        'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
-        'L1_TAU60_DR-TAU20ITAU12I' : 76,
-        'L1_MU10_TAU12IM_XE35' : 81,
-        'L1_TAU20IM_2TAU12IM_XE35' : 83,
-        'L1_TAU40_2TAU12IM_XE40' : 429,
         'L1_MU6_J20' : 88,
         'L1_MU6_J40' : 89,
         'L1_MU6_J75' : 90,
@@ -433,7 +345,7 @@ def defineMenu():
         'L1_J40_XE60' : 176,
         'L1_MU10_2J20' : 278,
         'L1_MU20_J50' : 82, 
-        'L1_TAU60_2TAU40' : 458,
+
         'L1_MU10_2J15_J20' : 255,
         
         'L1_BPH-0M9-EM7-EM5' : 80,
@@ -517,13 +429,6 @@ def defineMenu():
         'L1_J4-MATCH' : 336,
         'L1_LLP-RO' : 338,
         'L1_LLP-NOMATCH' : 339,
-        'L1_DR-MU10TAU12I' : 340,
-        'L1_EM15TAU12I-J25' : 345,
-        'L1_TAU20ITAU12I-J25' : 347,
-        'L1_DR-TAU20ITAU12I' : 348,
-        'L1_DR-TAU20ITAU12I-J25' : 350,
-
-        'L1_30M-EM20ITAU12' : 387,
         'L1_jMJJ-400-CF': 397,
 
         'L1_LAR-EM' : 351,
@@ -592,40 +497,7 @@ def defineMenu():
         'L1_TRT_FILLED' : 218,
         'L1_TRT_EMPTY' : 219,
 
-        # new items
-        'L1_gXERHO20' : 239,
-        'L1_gXERHO50' : 241,
-        'L1_gXEPUFIT20' : 242,
-        'L1_gXEPUFIT50' : 244,
-        'L1_gXE50' : 257,
-        'L1_jXE50' : 265,
-
-        'L1_eTAU12' : 277,
-        'L1_eTAU100' : 283,
-
-        'L1_jJ100' : 284,
-        'L1_2jJ50_gXERHO40' : 287,
-        'L1_3jJ15p0ETA25_gXERHO40' : 289,
-        'L1_3jJ35p0ETA23' : 296,
-        'L1_3jJ50' : 297,
-        'L1_4jJ15' : 298,
-        'L1_4jJ15p0ETA25' : 304,
-        'L1_jJ25p0ETA23_2jJ15p31ETA49' : 306,
-        'L1_jJ40p0ETA25_2jJ25_jJ20p31ETA49' : 307,
-        'L1_jJ75p31ETA49' : 308,
-        'L1_jJ85_3jJ30' : 310,
-
-        'L1_MU10_eTAU12IM_3jJ12' : 498,
-        'L1_MU10_eTAU12IM_jJ25_2jJ12' : 499,
-        'L1_MU10_eTAU12IM_gXERHO35' : 500,
-        'L1_MU10_eTAU20IM' : 501,
-        'L1_MU20_jJ40' : 502,
-        'L1_MU20_gXERHO30' : 503,
-        'L1_eTAU20IM_2jJ20_gXERHO45' : 504,
-        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA25' : 505,
-        'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20' : 506,
-        'L1_eTAU40_2eTAU12IM_gXERHO40' : 507,
-
+        # ALFA
         'L1_ALFA_A7L1L': 492,
         'L1_ALFA_A7L1U': 491,
         'L1_ALFA_A7R1L': 494,
