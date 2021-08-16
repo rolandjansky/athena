@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArStraightElectrodes_H
@@ -12,11 +12,11 @@
 class LArStraightElectrodes {
 private:
   static PhysicalVolumeAccessor* s_theElectrodes;
-  double m_xcent[1024][14];
-  double m_ycent[1024][14];
-  double m_cosu[1024][14];
-  double m_sinu[1024][14];
-  double m_halflength[1024][14];
+  double m_xcent[1024][14]{};
+  double m_ycent[1024][14]{};
+  double m_cosu[1024][14]{};
+  double m_sinu[1024][14]{};
+  double m_halflength[1024][14]{};
   bool m_filled;
   static LArStraightElectrodes* s_instance;
   int m_parity;

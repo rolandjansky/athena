@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,7 +43,7 @@ class TriggerPatternCount : public AthAlgorithm
 
   int m_event;
   int m_pattern_max;
-  int m_pattern_count[32];
+  int m_pattern_count[32]{};
 };
 
 #endif

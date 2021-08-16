@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/FCALHVManager.h"
@@ -79,8 +79,8 @@ public:
   {
   }
   std::unique_ptr<const FCALHVModule> moduleArray[2][16][3];
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 

@@ -128,7 +128,7 @@ class LArShapeDumper : public AthAlgorithm
   bool m_doStream, m_doTrigger, m_doOFCIter, 
 	m_doAllEvents, m_doRoIs, m_doAllLvl1, m_dumpChannelInfos;
   bool m_doEM, m_doHEC, m_doFCAL;
-  bool m_gains[CaloGain::LARNGAIN];
+  bool m_gains[CaloGain::LARNGAIN]{};
 
   bool m_onlyEmptyBC;
 

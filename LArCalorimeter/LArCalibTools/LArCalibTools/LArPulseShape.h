@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARPULSESHAPE_H
@@ -67,12 +67,12 @@ class LArPulseShape : public AthAlgorithm {
    NTuple::Item<short> m_useMgIntercept;
    NTuple::Item<short> m_useLgIntercept;
    const DataHandle<CaloIdManager> m_caloIdMgr;
-   int m_OffId;  
-   int m_OffId_conv;     
-   const char * m_id_char;  
-   int m_isample;
-   int m_mindist;
-   int m_closestBC;
+   int m_OffId = 0;  
+   int m_OffId_conv = 0;     
+   const char * m_id_char = nullptr;  
+   int m_isample = 0;
+   int m_mindist = 0;
+   int m_closestBC = 0;
 
    ToolHandle<Trig::TrigDecisionTool> m_trigDec;  
 
@@ -81,15 +81,15 @@ class LArPulseShape : public AthAlgorithm {
    SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
    SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey { this, "EventInfo", "EventInfo", "" };
 
-   const ILArPedestal* m_larPedestal;
+   const ILArPedestal* m_larPedestal = nullptr;
 
    std::map<std::string, TProfile*> m_effhistos;
    std::map<int, TProfile*> m_cellHistos;     
-   TProfile* m_TProfpulse_diff;    
+   TProfile* m_TProfpulse_diff = nullptr;    
    std::map<std::string, TH1*> m_histos;
-   TH1D* m_BCID;
-   TH1D* m_diffBCID;   
-   TH1D* m_actualInt;
+   TH1D* m_BCID = nullptr;
+   TH1D* m_diffBCID = nullptr;   
+   TH1D* m_actualInt = nullptr;
   void addHistogram( TH1* h ) {
     std::string name = h->GetName();
     m_histos.insert( std::map<std::string, TH1*>::value_type( name, h) );
@@ -100,7 +100,7 @@ class LArPulseShape : public AthAlgorithm {
   }
   
  protected:   
-  bool  m_addBC, m_addFEBTemp;
+  bool  m_addBC = false, m_addFEBTemp = false;
   enum {NOT_VALID = -999};
 
   std::string m_ntpath, m_ntTitle;
@@ -118,16 +118,16 @@ class LArPulseShape : public AthAlgorithm {
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
 
-  const LArEM_Base_ID* m_emId;
-  const LArHEC_Base_ID* m_hecId;
-  const LArFCAL_Base_ID* m_fcalId;
-  const LArOnlineID_Base* m_onlineId;
-  const CaloCell_ID* m_caloId;
+  const LArEM_Base_ID* m_emId = nullptr;
+  const LArHEC_Base_ID* m_hecId = nullptr;
+  const LArFCAL_Base_ID* m_fcalId = nullptr;
+  const LArOnlineID_Base* m_onlineId = nullptr;
+  const CaloCell_ID* m_caloId = nullptr;
 
-  bool m_isSC;
-  bool m_isFlat;
+  bool m_isSC = false;
+  bool m_isFlat = false;
 
-  bool m_addHash;
+  bool m_addHash = false;
 
 };
 #endif

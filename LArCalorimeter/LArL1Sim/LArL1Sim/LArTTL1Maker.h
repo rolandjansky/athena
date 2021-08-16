@@ -141,7 +141,7 @@ class LArTTL1Maker : public AthAlgorithm,
   /** pointer to the offline FCAL helper */
   const LArFCAL_ID*            m_fcalHelper;
  /** pointer to the offline id helper  */
-  const CaloCell_ID*           m_OflHelper;
+  const CaloCell_ID*           m_OflHelper = nullptr;
   /** Sampling fractions retrieved from DB */
   //const DataHandle<ILArfSampl>    m_dd_fSampl;
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -14,7 +14,7 @@ void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   pers->m_channelID      = trans->identify().get_identifier32().get_compact();
   pers->m_energy         = trans->energy();
@@ -34,7 +34,7 @@ void LArRawChannelCnv_p2::persToTrans(const LArRawChannel_p2* pers, LArRawChanne
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   qprov.m_quality  = pers->m_qualityandgain & 0x3FFFFFFF;
 

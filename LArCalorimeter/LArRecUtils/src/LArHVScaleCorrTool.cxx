@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVScaleCorrTool.h"
@@ -323,7 +323,7 @@ void LArHVScaleCorrTool::buildFixHVList(const std::vector<std::string>& fixHVStr
     float eta_min,eta_max,phi_min,phi_max,corr;
     is >> iDetector >> ilayer_min >> ilayer_max >> eta_min >> eta_max >> phi_min >> phi_max >> corr;
 
-    HVfix_t myfix;
+    HVfix_t myfix{};
     myfix.subdet = iDetector;
     myfix.layer_min = ilayer_min;
     myfix.layer_max = ilayer_max;

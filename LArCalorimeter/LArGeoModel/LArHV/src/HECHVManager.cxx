@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVManager.h"
@@ -83,8 +83,8 @@ public:
   }
   HECHVDescriptor    descriptor{CellBinning(0,2*M_PI,32)};
   std::unique_ptr<const HECHVModule> moduleArray[2][32][4];
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 

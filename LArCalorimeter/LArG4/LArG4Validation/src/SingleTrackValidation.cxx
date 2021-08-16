@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SingleTrackValidation.h"
@@ -63,7 +63,7 @@ inline int getCpu() {
   int cpuTime = 0;
   {
     static int ticksPerJiffy = sysconf(_SC_CLK_TCK)/100;
-    struct tms buff;
+    struct tms buff{};
     times(&buff);
     cpuTime=(buff.tms_utime + buff.tms_stime + buff.tms_cutime + buff.tms_cstime)/ticksPerJiffy;
   }

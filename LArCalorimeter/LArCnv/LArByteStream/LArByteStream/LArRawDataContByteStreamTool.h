@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -136,7 +136,7 @@ private:
   const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
 
   CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
-  LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
+  LArRodDecoder *m_decoder = nullptr;   //!< Pointer to RodDecoder class
 
   /** Indicates which version of DSP code should be used for writing.
       This is equivalent to the DetectorEventType word in the ROD block header.

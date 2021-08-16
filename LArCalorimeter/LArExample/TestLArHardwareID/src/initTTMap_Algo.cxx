@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -216,7 +216,7 @@ StatusCode initTTMap_Algo::initMap(){
 	  if(m_initFromFile == "OFF" || !fcal) {
 	    // fill map only if not FCAL, 
 	    // or FCAL not supposed to be init by Gerald's file
-	    LArTTCell_t t ;
+	    LArTTCell_t t{} ;
 	    
 	    t.det = cell_det;
 	    t.pn  = cell_pn;
@@ -284,7 +284,7 @@ StatusCode initTTMap_Algo::initMap(){
 	    >>  slot >> chan
 	    >> TTlabel >> l1_eta >> TTphi) {
       iline++;
-      LArTTCell_t t ;
+      LArTTCell_t t{} ;
       
       // fields for the offline cell id
       int pos_neg=2; // A side

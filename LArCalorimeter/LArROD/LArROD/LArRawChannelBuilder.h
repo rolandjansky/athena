@@ -62,7 +62,7 @@ private:
   int m_initialTimeSampleShift;
   int m_NOFCPhases;
   int m_NOFCTimeBins;
-  bool m_useIntercept[4];
+  bool m_useIntercept[4]{};
   bool m_useOFCPhase; 
   bool m_phaseInv ;
   float m_ramp_max[3];

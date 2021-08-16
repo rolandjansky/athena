@@ -206,8 +206,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Pt cut on e/photons for window mode (Default=5GeV)"};
   //
   enum CaloNum{EM,HEC,FCAL,EMIW};
-  double m_LowGainThresh[4];       // energy thresholds for the low gain
-  double m_HighGainThresh[4];      // energy thresholds for the high gain
+  double m_LowGainThresh[4]{};       // energy thresholds for the low gain
+  double m_HighGainThresh[4]{};      // energy thresholds for the high gain
 
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
@@ -293,7 +293,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<double> m_Samples;
   std::vector<double> m_Samples_DigiHSTruth;
   std::vector<double> m_Noise;
-  double m_Rndm[32];
+  double m_Rndm[32]{};
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
   std::vector<float> m_energySum_DigiHSTruth;
