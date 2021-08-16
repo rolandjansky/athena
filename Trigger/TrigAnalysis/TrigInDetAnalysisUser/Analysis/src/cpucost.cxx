@@ -35,6 +35,7 @@
 #include "computils.h"
 
 #include "AtlasStyle.h"
+#include "AtlasLabels.h"
 
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
@@ -56,6 +57,7 @@ int usage(const std::string& name, int status) {
   s << "         --logx               \t force logx \n";
   s << "    -w,  --binwidth          \t normalise by bin width\n";
   s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
+  s << "    -al, --atlaslabel        \t show the ATLAS label \n\n";
   s << "    -v,  --verbose           \t verbose output\n\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
@@ -106,6 +108,7 @@ int main(int argc, char** argv) {
   TFile* fref  = 0;
 
   bool atlasstyle = false;
+  bool atlaslabel = false;
   bool ylog = true;
   bool nopng = false;
 
@@ -199,6 +202,9 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-as" || arg == "--atlasstyle") {
       atlasstyle = true;
+    }
+    else if (arg == "-al" || arg == "--atlaslabel") {
+      atlaslabel = true;
     }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
@@ -546,6 +552,8 @@ int main(int argc, char** argv) {
       if ( dirtitle.find("HLT_")==0 && dirtitle.find("__")!=std::string::npos ) dirtitle.erase( dirtitle.find("__"), dirtitle.size() ); 
 
       if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirtitle, kBlack, legend.TextSize(), legend.TextFont() );
+
+      if ( atlasstyle && atlaslabel ) ATLASLabel(0.68, 0.88, "Internal");
 
       /// could simply run gPad->SetLogyx( logx );
       /// but that would interfere with the individual plot 
