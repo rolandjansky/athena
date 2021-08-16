@@ -122,7 +122,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
   // SimHits without energy loss are not recorded.
   double energyDeposit = hit->depositEnergy(); // Energy deposit in MeV 
-  if(energyDeposit==0.) return 0;
+  if(energyDeposit==0.) return nullptr;
 
   //////////  convert ID for this digitizer system 
   sTgcSimIdToOfflineId simToOffline(m_idHelper);  
@@ -138,7 +138,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   const MuonGM::sTgcReadoutElement* detEl = m_mdManager->getsTgcReadoutElement(layid);
   if( !detEl ){
     ATH_MSG_WARNING("Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid) );
-    return 0;
+    return nullptr;
   }
  
   // DO THE DIGITIZATTION HERE ////////
@@ -169,11 +169,11 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     int etaZero = detEl->isEtaZero(tempId, hitOnSurface_wire.y()) ? 1 : 0;
     float efficiency = getChamberEfficiency(stNameInt, std::abs(stationEta)-etaZero, stationPhi-1, multiPlet-1, gasGap-1);
     // Lose Hits to match HV efficiency
-    if (CLHEP::RandFlat::shoot(m_engine,0.0,1.0) > efficiency) return 0;
+    if (CLHEP::RandFlat::shoot(m_engine,0.0,1.0) > efficiency) return nullptr;
   }
 
   //// Check the chamber is dead or not.
-  if(isDeadChamber(stationName, stationEta, stationPhi, multiPlet, gasGap)) return 0;
+  if(isDeadChamber(stationName, stationEta, stationPhi, multiPlet, gasGap)) return nullptr;
 
   //***************************** check effeciency ******************************** 
   // use energyDeposit to implement detector effeciency 
@@ -489,7 +489,7 @@ void sTgcDigitMaker::readFileOfTimeJitter()
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   std::ifstream ifs;
-  if (fileWithPath != "") {
+  if (!fileWithPath.empty()) {
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {
@@ -570,7 +570,7 @@ bool sTgcDigitMaker::efficiencyCheck(const int channelType) const {
   return false;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool sTgcDigitMaker::efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {
+bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {
   // If the energy deposit is equal to or greater than the threshold value of the chamber,
   // return true.
   return (energyDeposit >= getEnergyThreshold(stationName, stationEta, stationPhi, multiPlet, gasGap, channelType));
@@ -610,53 +610,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
   }
 
   bool duplicate = false;
-  //sTgcDigit* multihitDigit = 0;
-  //ATH_MSG_DEBUG( "sTgcDigitMaker::addDigit"
-  //      	    << " id = " << id
-  //      	    << " bctag  = " << bctag
-  //      	    << " channelType  = " << channelType );
-   
-  //if((bctag & 0x1) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_PREVIOUS==(*it)->bcTag()) {
-  //      duplicate = true;
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_PREVIOUS);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS));
-  //  }
-  //}
-  //if((bctag & 0x2) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_CURRENT==(*it)->bcTag()) {
-  //      duplicate = true;
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_CURRENT);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT));
-  //  }
-  //}
-  //if((bctag & 0x4) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_NEXT==(*it)->bcTag()) {
-  //      duplicate = true;
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_NEXT);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT));
-  //  }
-  //}
-
-  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
+  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); ++it) {
     if(id==(*it)->identify() && digittime==(*it)->time()) {
       duplicate = true;
       break;
@@ -676,57 +630,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
   }
 
   bool duplicate = false;
-  //sTgcDigit* multihitDigit = 0;
-  //ATH_MSG_DEBUG( "sTgcDigitMaker::addDigit"
-  //      	    << " id = " << id
-  //      	    << " bctag  = " << bctag
-  //      	    << " charge = " << charge
-  //      	    << " channelType  = " << channelType );
-   
-  //if((bctag & 0x1) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_PREVIOUS==(*it)->bcTag()) {
-  //      duplicate = true;
-  //      (*it)->set_charge(charge+(*it)->charge());  
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_PREVIOUS, charge);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS, charge));
-  //  }
-  //}
-  //if((bctag & 0x2) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_CURRENT==(*it)->bcTag()) {
-  //      (*it)->set_charge(charge+(*it)->charge());  
-  //      duplicate = true;
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_CURRENT, charge);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT, charge));
-  //  }
-  //}
-  //if((bctag & 0x4) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
-  //    if(id==(*it)->identify() && sTgcDigit::BC_NEXT==(*it)->bcTag()) {
-  //      (*it)->set_charge(charge+(*it)->charge());  
-  //      duplicate = true;
-  //      break;
-  //    }
-  //  }
-  //  if(!duplicate) {
-  //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_NEXT, charge);
-  //    //digits->push_back(multihitDigit);
-  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT, charge));
-  //  }
-  //}
-
-  for(sTgcDigitCollection::iterator it=digits->begin(); it!=digits->end(); it++) {
+  for(sTgcDigitCollection::iterator it=digits->begin(); it!=digits->end(); ++it) {
     if(id==(*it)->identify() && digittime==(*it)->time()) {
       (*it)->set_charge(charge+(*it)->charge());  
       duplicate = true;
@@ -762,7 +666,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   // Find path to the sTGC_Digitization_energyThreshold.dat file
   const std::string fileName = "sTGC_Digitization_energyThreshold.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() );
     return;
   }
@@ -836,7 +740,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   // Find path to the sTGC_Digitization_deadChamber.dat file
   const std::string fileName = "sTGC_Digitization_deadChamber.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfDeadChamber(): Could not find file " << fileName.c_str() );
     return;
   }
@@ -912,7 +816,7 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   // Find path to the sTGC_Digitization_EffChamber.dat file
   const std::string fileName = "sTGC_Digitization_EffChamber.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEffChamber(): Could not find file " << fileName.c_str() );
     return;
   }
@@ -992,7 +896,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   // Find path to the sTGC_Digitization_timeWindowOffset.dat file
   const std::string fileName = "sTGC_Digitization_timeWindowOffset.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath == "") {
+  if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() );
     return;
   }
@@ -1038,7 +942,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-double sTgcDigitMaker::getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const {
+double sTgcDigitMaker::getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
@@ -1076,7 +980,7 @@ double sTgcDigitMaker::getEnergyThreshold(const std::string stationName, int sta
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool sTgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) {
+bool sTgcDigitMaker::isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap) {
   bool v_isDeadChamber = true;
 
   // Convert std::string stationName to int iStationName from 41 to 48
@@ -1127,7 +1031,7 @@ float sTgcDigitMaker::getChamberEfficiency(int stationName, int stationEta, int 
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-double sTgcDigitMaker::getTimeWindowOffset(const std::string stationName, int stationEta, int channelType) const {
+double sTgcDigitMaker::getTimeWindowOffset(const std::string& stationName, int stationEta, int channelType) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
@@ -1145,7 +1049,7 @@ double sTgcDigitMaker::getTimeWindowOffset(const std::string stationName, int st
   return m_timeWindowOffset[iStationName][stationEta][channelType];
 }
 
-int sTgcDigitMaker::getIStationName(const std::string stationName) const {
+int sTgcDigitMaker::getIStationName(const std::string& stationName) const {
   int iStationName = 0;
   if(     stationName=="STS") iStationName = 0;
   else if(stationName=="STL") iStationName = 1;

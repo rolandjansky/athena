@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -89,7 +89,7 @@ StatusCode CscDigitizationTool::initialize() {
 // Inherited from PileUpTools
 StatusCode CscDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int /*nInputEvents*/) {
 
-  if (0 == m_thpcCSC)
+  if (nullptr == m_thpcCSC)
     m_thpcCSC = new TimedHitCollection<CSCSimHit>();
 
   m_cscHitCollList.clear();
@@ -114,7 +114,7 @@ StatusCode CscDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_CHECK(cscSimData.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method
-  if (0 == m_thpcCSC ) {
+  if (nullptr == m_thpcCSC ) {
     StatusCode sc = getNextEvent(ctx);
     if (StatusCode::FAILURE == sc) {
       ATH_MSG_INFO ( "There are no CSC hits in this event" );
@@ -204,7 +204,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
       }
       const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
       const HepMcParticleLink trackLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag);
-      for (; vecBeg != vecEnd; vecBeg++) {
+      for (; vecBeg != vecEnd; ++vecBeg) {
         CscSimData::Deposit deposit(trackLink, CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit);
       }
@@ -215,7 +215,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
   // reset the pointer if it is not null
   if (m_thpcCSC) {
     delete m_thpcCSC;
-    m_thpcCSC=0;
+    m_thpcCSC=nullptr;
   }
 
   // now loop over the digit map
@@ -224,7 +224,7 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
 
   if (m_newDigitEDM) {
     double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
-    bool phaseToSet = (flat<0.5) ? true : false;
+    bool phaseToSet = flat<0.5;
     if (phaseToSet)
       return FillCollectionWithNewDigitEDM(data_SampleMapOddPhase, myDeposits, phaseToSet, cscDigits, cscSimData);
     else
@@ -241,7 +241,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
                               bool phaseToSet, CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData
                               ) {
 
-  CscDigitCollection * collection = 0;
+  CscDigitCollection * collection = nullptr;
 
   IdContext context    = m_idHelperSvc->cscIdHelper().channel_context();
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
@@ -297,7 +297,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     int sector = zsec*(2*phisec-istation+1);
 
     auto depositsForHash = myDeposits.find(hashId);
-    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+    if (depositsForHash != myDeposits.end() && !depositsForHash->second.empty()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
       cscSimData->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
@@ -361,7 +361,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 StatusCode CscDigitizationTool::
 FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits,CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData) {
 
-  CscDigitCollection * collection = 0;
+  CscDigitCollection * collection = nullptr;
   IdContext context    = m_idHelperSvc->cscIdHelper().channel_context();
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
@@ -402,7 +402,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     int sector = zsec*(2*phisec-istation+1);
 
     auto depositsForHash = myDeposits.find(hashId);
-    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+    if (depositsForHash != myDeposits.end() && !depositsForHash->second.empty()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
       cscSimData->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
@@ -488,7 +488,7 @@ StatusCode CscDigitizationTool::getNextEvent(const EventContext& ctx) // This is
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   }
-  if (hitCollList.size()==0) {
+  if (hitCollList.empty()) {
     ATH_MSG_ERROR ( "TimedHitCollList has size 0" );
     return StatusCode::FAILURE;
   } else {
@@ -522,12 +522,12 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
 {
   ATH_MSG_DEBUG("CscDigitizationTool::processBunchXing() " << bunchXing);
 
-  typedef PileUpMergeSvc::TimedList<CSCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<CSCSimHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                           bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -539,7 +539,7 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator endColl(hitCollList.end());
 
   // Iterating over the list of collections
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
 
     CSCSimHitCollection *hitCollPtr = new CSCSimHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);

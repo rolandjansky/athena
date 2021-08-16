@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
@@ -63,7 +63,7 @@ double RT_Relation_DB_DigiTool::getDriftTime(double r, Identifier DigitId, CLHEP
     double t = 0.0;
     bool outOfBound = false;
 
-    if (data != 0) {
+    if (data != nullptr) {
         // get RT relation and resolution function
         const MuonCalib::IRtRelation *rtRelation = data->rt();
         const MuonCalib::IRtResolution *rtResolution = data->rtRes();

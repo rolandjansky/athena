@@ -60,7 +60,7 @@
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 namespace {
     // what about this? does this also need to be 1/m_signalSpeed ?
-    static constexpr double s_inv_c_light(1. / Gaudi::Units::c_light);
+    constexpr double s_inv_c_light(1. / Gaudi::Units::c_light);
 }  // namespace
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID) :
     PileUpToolBase(type, name, pIID) {}
@@ -145,7 +145,7 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_CHECK(m_calibrationDbTool.retrieve());
 
     // Gather masked stations
-    for (unsigned int i = 0; i < m_maskedStations.size(); i++) {
+    for (unsigned int i = 0; i < m_maskedStations.size(); ++i) {
         std::string mask = m_maskedStations[i];
         std::string maskedName = mask.substr(0, mask.find(':'));
         std::string temps = mask.substr(maskedName.size() + 1, std::string::npos);
@@ -184,7 +184,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList hitCollList;
 
     if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing, bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
         ATH_MSG_ERROR("Could not fill TimedHitCollList");
         return StatusCode::FAILURE;
     } else {
@@ -195,7 +195,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList::iterator endColl(hitCollList.end());
 
     // Iterating over the list of collections
-    for (; iColl != endColl; iColl++) {
+    for (; iColl != endColl; ++iColl) {
         MDTSimHitCollection* hitCollPtr = new MDTSimHitCollection(*iColl->second);
         PileUpTimeEventIndex timeIndex(iColl->first);
 
@@ -213,7 +213,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx) {
     ATH_MSG_DEBUG("MdtDigitizationTool::getNextEvent()");
 
     //  get the container(s)
-    typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
+    using TimedHitCollList = PileUpMergeSvc::TimedList<MDTSimHitCollection>::type;
 
     // In case of single hits container just load the collection using read handles
     if (!m_onlyUseContainerName) {
@@ -342,7 +342,7 @@ StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigit
         int size_id = readCdo->getDeadStationsId().size();
         ATH_MSG_DEBUG("Number of dead/missing stations retrieved from CondService= " << size_id);
 
-        for (int k = 0; k < size_id; k++) {
+        for (int k = 0; k < size_id; ++k) {
             Identifier Id = readCdo->getDeadStationsId()[k];
             m_IdentifiersToMask.push_back(readCdo->getDeadStationsId()[k]);
             ATH_MSG_VERBOSE("Dead/missing chambers id from CondDB: " << m_idHelperSvc->mdtIdHelper().show_to_string(Id));
@@ -389,7 +389,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     // Important checks for hits (global time, position along tube, masked chambers etc..) DO NOT SET THIS CHECK TO FALSE IF YOU DON'T KNOW
     // WHAT YOU'RE DOING !
     if (m_checkMDTSimHits) {
-        if (checkMDTSimHit(hit) == false) return false;
+        if (!checkMDTSimHit(hit)) return false;
     }
 
     const int id = hit.MDTid();
@@ -413,7 +413,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     // find the detector element associated to the hit
     const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
 
-    if (0 == element) {
+    if (nullptr == element) {
         ATH_MSG_ERROR("MuonGeoManager does not return valid element for given id!");
         return false;
     } else {
@@ -653,7 +653,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 
     //+MASKING OF DEAD/MISSING CHAMBERS
     if (m_UseDeadChamberSvc) {
-        for (unsigned int i = 0; i < m_IdentifiersToMask.size(); i++) {
+        for (unsigned int i = 0; i < m_IdentifiersToMask.size(); ++i) {
             Identifier Id = m_IdentifiersToMask[i];
 
             if ((stationName == m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(Id))) &&
@@ -669,10 +669,10 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
         bool phiMasked = false;
         bool masked = false;
 
-        for (unsigned int i = 0; i < m_maskedStations.size(); i++) {
+        for (unsigned int i = 0; i < m_maskedStations.size(); ++i) {
             bool temp = true;
 
-            for (unsigned int k = 0; k < 3; k++) {
+            for (unsigned int k = 0; k < 3; ++k) {
                 char c = m_vMaskedStations[i].maskedName[k];
                 char cc = stationName[k];
                 if (c == '*') continue;
@@ -695,7 +695,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 
     const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
 
-    if (0 == element) {
+    if (nullptr == element) {
         ATH_MSG_ERROR("MuonGeoManager does not return valid element for given id!");
     } else {
         tubeL = element->tubeLength(DigitId);
@@ -733,7 +733,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
     Identifier currentElementId;
 
     double currentDeadTime = 0.;
-    MdtDigitCollection* digitCollection = 0;
+    MdtDigitCollection* digitCollection = nullptr;
     // loop over sorted hits
     m_hits.sort();
     HitIt it = m_hits.begin();
