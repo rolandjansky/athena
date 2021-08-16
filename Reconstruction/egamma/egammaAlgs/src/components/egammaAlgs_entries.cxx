@@ -8,6 +8,7 @@
 #include "../egammaTopoClusterCopier.h"
 #include "../electronSuperClusterBuilder.h"
 #include "../photonSuperClusterBuilder.h"
+#include "../egammaSuperClusterBuilder.h"
 #include "../egammaSelectedTrackCopy.h"
 #include "../EMGSFCaloExtensionBuilder.h"
 
@@ -21,5 +22,6 @@ DECLARE_COMPONENT( EMVertexBuilder )
 DECLARE_COMPONENT( egammaTopoClusterCopier )
 DECLARE_COMPONENT( electronSuperClusterBuilder )
 DECLARE_COMPONENT( photonSuperClusterBuilder )
+DECLARE_COMPONENT( egammaSuperClusterBuilder )
 DECLARE_COMPONENT( egammaSelectedTrackCopy )
 DECLARE_COMPONENT( EMGSFCaloExtensionBuilder )
