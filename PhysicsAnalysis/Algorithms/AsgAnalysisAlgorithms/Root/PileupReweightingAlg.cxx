@@ -62,51 +62,50 @@ namespace CP
   {
     unsigned int nominalRandomRunNumber{};
 
-    ANA_CHECK (m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_pileupReweightingTool->applySystematicVariation (sys));
-        xAOD::EventInfo *eventInfo = nullptr;
-        ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_pileupReweightingTool->applySystematicVariation (sys));
+      xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
 
-        ATH_CHECK (m_pileupReweightingTool->apply (*eventInfo));
+      ATH_CHECK (m_pileupReweightingTool->apply (*eventInfo));
 
-        // Add additional decorations
-        if (m_correctedScaledAverageMuAccessor)
-        {
-          (*m_correctedScaledAverageMuAccessor) (*eventInfo)
-            = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing (*eventInfo, true);
-        }
+      // Add additional decorations
+      if (m_correctedScaledAverageMuAccessor)
+      {
+        (*m_correctedScaledAverageMuAccessor) (*eventInfo)
+          = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing (*eventInfo, true);
+      }
 
-        if (m_correctedActualMuAccessor)
-        {
-          (*m_correctedActualMuAccessor) (*eventInfo)
-            = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing (*eventInfo);
-        }
+      if (m_correctedActualMuAccessor)
+      {
+        (*m_correctedActualMuAccessor) (*eventInfo)
+          = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing (*eventInfo);
+      }
 
-        if (m_correctedScaledActualMuAccessor)
-        {
-          (*m_correctedScaledActualMuAccessor) (*eventInfo)
-            = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing (*eventInfo, true);
-        }
+      if (m_correctedScaledActualMuAccessor)
+      {
+        (*m_correctedScaledActualMuAccessor) (*eventInfo)
+          = m_pileupReweightingTool->getCorrectedActualInteractionsPerCrossing (*eventInfo, true);
+      }
 
-        //--- PRWHash to recalculate PU weights using analysis ntuples
-        //--- https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting#Using_PRWHash_to_change_pileup_w
+      //--- PRWHash to recalculate PU weights using analysis ntuples
+      //--- https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting#Using_PRWHash_to_change_pileup_w
 
-        if (eventInfo->eventType (xAOD::EventInfo::IS_SIMULATION))
-        {
-          eventInfo->auxdata<ULong64_t>("PRWHash")
-            = m_pileupReweightingTool->getPRWHash (*eventInfo);
-        }
+      if (eventInfo->eventType (xAOD::EventInfo::IS_SIMULATION))
+      {
+        eventInfo->auxdata<ULong64_t>("PRWHash")
+          = m_pileupReweightingTool->getPRWHash (*eventInfo);
+      }
 
-        // In the case of nominal systematics store the RandomRunNumber for
-        // later. Event info can not be decorated at this point as the
-        // decoration will then also be present in subsequent shallow copies.
-        if (sys.empty())
-        {
-          nominalRandomRunNumber = eventInfo->auxdecor<unsigned int> ("RandomRunNumber");
-        }
-
-        return StatusCode::SUCCESS;
-      }));
+      // In the case of nominal systematics store the RandomRunNumber for
+      // later. Event info can not be decorated at this point as the
+      // decoration will then also be present in subsequent shallow copies.
+      if (sys.empty())
+      {
+        nominalRandomRunNumber = eventInfo->auxdecor<unsigned int> ("RandomRunNumber");
+      }
+    }
 
     // Must decorate the actual instance in the event store for
     // the electron tool to work. The decoration is done out of the loop

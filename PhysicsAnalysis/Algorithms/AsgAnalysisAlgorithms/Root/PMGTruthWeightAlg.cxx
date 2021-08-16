@@ -50,15 +50,15 @@ namespace CP
   StatusCode PMGTruthWeightAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : m_systematicsList.systematicsVector())
     {
       ANA_CHECK (m_truthWeightTool->applySystematicVariation (sys));
       const xAOD::EventInfo *eventInfo = nullptr;
       ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
       m_decoration.set (*eventInfo, m_truthWeightTool->getSysWeight (), sys);
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

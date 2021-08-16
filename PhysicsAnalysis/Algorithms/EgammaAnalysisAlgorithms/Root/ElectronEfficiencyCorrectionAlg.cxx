@@ -54,22 +54,23 @@ namespace CP
   StatusCode ElectronEfficiencyCorrectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-        const xAOD::ElectronContainer *electrons = nullptr;
-        ANA_CHECK (m_electronHandle.retrieve (electrons, sys));
-        for (const xAOD::Electron *electron : *electrons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
+      const xAOD::ElectronContainer *electrons = nullptr;
+      ANA_CHECK (m_electronHandle.retrieve (electrons, sys));
+      for (const xAOD::Electron *electron : *electrons)
+      {
+        if (m_preselection.getBool (*electron))
         {
-          if (m_preselection.getBool (*electron))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
-            m_scaleFactorDecoration.set (*electron, sf, sys);
-          } else {
-            m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
+          m_scaleFactorDecoration.set (*electron, sf, sys);
+        } else {
+          m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

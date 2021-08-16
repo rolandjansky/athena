@@ -44,17 +44,18 @@ namespace CP
   StatusCode TauTruthMatchingAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::TauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::TauJet *tau : *taus)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::TauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.getCopy (taus, sys));
+      for (xAOD::TauJet *tau : *taus)
+      {
+        if (m_preselection.getBool (*tau))
         {
-          if (m_preselection.getBool (*tau))
-          {
-            m_matchingTool->applyTruthMatch (*tau);
-          }
+          m_matchingTool->applyTruthMatch (*tau);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

@@ -43,7 +43,7 @@ StatusCode AsgClassificationDecorationAlg::initialize()
 
 StatusCode AsgClassificationDecorationAlg::execute()
 {
-  return m_systematicsList.foreach ([&](const CP::SystematicSet &sys) -> StatusCode
+  for (const auto& sys : m_systematicsList.systematicsVector())
   {
     xAOD::IParticleContainer *particles{};
     ANA_CHECK(m_particlesHandle.getCopy(particles, sys));
@@ -53,9 +53,8 @@ StatusCode AsgClassificationDecorationAlg::execute()
       ANA_CHECK(m_tool->classify(*particle, classification));
       (*m_classificationAccessor)(*particle) = classification;
     }
-
-    return StatusCode::SUCCESS;
-  });
+  }
+  return StatusCode::SUCCESS;
 }
 
 } // namespace CP

@@ -54,20 +54,21 @@ namespace CP
   StatusCode PhotonEfficiencyCorrectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-        xAOD::PhotonContainer *photons = nullptr;
-        ANA_CHECK (m_photonHandle.getCopy (photons, sys));
-        for (xAOD::Photon *photon : *photons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
+      xAOD::PhotonContainer *photons = nullptr;
+      ANA_CHECK (m_photonHandle.getCopy (photons, sys));
+      for (xAOD::Photon *photon : *photons)
+      {
+        if (m_preselection.getBool (*photon))
         {
-          if (m_preselection.getBool (*photon))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
-            (*m_scaleFactorAccessor) (*photon) = sf;
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
+          (*m_scaleFactorAccessor) (*photon) = sf;
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

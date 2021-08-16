@@ -38,7 +38,8 @@ StatusCode EventSelectionByObjectFlagAlg ::execute() {
     SysFilterReporterCombiner filterCombiner (m_filterParams, true);
 
     // loop over systematics
-    return m_systematicsList.foreach ([&](const CP::SystematicSet &sys) -> StatusCode {
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
         SysFilterReporter filter (filterCombiner, sys);
 
         // particle container
@@ -55,9 +56,9 @@ StatusCode EventSelectionByObjectFlagAlg ::execute() {
                 }
             }
         }
+    }
 
-        return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
 }
 
 StatusCode EventSelectionByObjectFlagAlg ::finalize() {

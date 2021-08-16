@@ -52,7 +52,8 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
       const xAOD::EventInfo *eventInfo = nullptr;
       ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
@@ -69,8 +70,8 @@ namespace CP
       }
 
       m_scaleFactorOutputDecoration.set (*eventInfo, scaleFactor, sys);
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }
