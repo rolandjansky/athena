@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingTool.py 784782 2016-11-17 09:42:26Z krasznaa $
 
 ## @package BunchCrossingTool
 #
@@ -9,8 +8,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 
 ##
 # @short Function instantiating the correct type of bunch crossing tool
@@ -28,8 +25,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def BunchCrossingTool( type = "" ):
 
     # Get ourselves a logger:
@@ -50,9 +45,6 @@ def BunchCrossingTool( type = "" ):
         elif type == "Web":
             __logger.info( "Forcing the usage of WebBunchCrossingTool" )
             return WebBunchCrossingTool()
-        elif type == "D3PD":
-            __logger.info( "Forcing the usage of D3PDBunchCrossingTool" )
-            return D3PDBunchCrossingTool()
         else:
             __logger.warning( "Type = " + type + " not recognized" )
             __logger.warning( "Will select tool type based on global flags" )
@@ -342,46 +334,6 @@ def StaticBunchCrossingTool():
 
     # Create a default configuration for it:
     __logger.info( "Set the default values for the StaticBunchCrossingTool configuration" )
-
-    # Add the tool to ToolSvc and return it to the user:
-    ToolSvc += __tool
-    return getattr( ToolSvc, __defaultToolName )
-
-##
-# @short Function creating a default configuration for the Trig::D3PDBunchCrossingTool
-#
-# This function should be used when you read a D3PD in an Athena job. It configures
-# the D3PDBunchCrossingTool implementation to read the bunch configuration from
-# the D3PD metadata.
-#
-# @returns The default configuration of a public Trig::D3PDBunchCrossingTool
-#
-# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
-def D3PDBunchCrossingTool():
-
-    # The default name of the tool:
-    __defaultToolName = "BunchCrossingTool"
-
-    # Get ourselves a logger:
-    from AthenaCommon.Logging import logging
-    __logger = logging.getLogger( "D3PDBunchCrossingTool" )
-
-    # Check if the tool already exists. If it does, let's just return it without
-    # any modifications:
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr( ToolSvc, __defaultToolName ):
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Create a new instance of the tool if it doesn't exist yet:
-    from TrigBunchCrossingTool.TrigBunchCrossingToolConf import \
-         Trig__D3PDBunchCrossingTool
-    __tool = Trig__D3PDBunchCrossingTool( __defaultToolName )
-
-    # Create a default configuration for it:
-    __logger.info( "Set the default values for the D3PDBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool
