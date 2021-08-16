@@ -374,9 +374,8 @@ if ( vp1LarHvData ):
     from time import time
     svcMgr.EventSelector.InitialTimeStamp  = int (time())
     svcMgr.EventSelector.TimeStampInterval = 1
-    from IOVDbSvc.CondDB import conddb
-    conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
-    conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
+    include('LArDetDescr/LArDetDescr_joboptions.py')
+    from LArConditionsCommon import LArHVDB
 #------------
 
 if (vp1Fatras):
@@ -547,20 +546,28 @@ if vp1NoSortDBReplicas:
 
 #Finally, the VP1 algorithm itself:
 from VP1Algs.VP1AlgsConf import VP1Alg
-topSequence += VP1Alg()
+vp1Alg = VP1Alg()
+topSequence += vp1Alg
 
-VP1Alg.NoGui=vp1NoGui
+vp1Alg.NoGui=vp1NoGui
 
 if vp1CruiseTime > 0:
-    VP1Alg.InitialCruiseMode = "EVENT"
-    VP1Alg.InitialCruiseModePeriod = vp1CruiseTime
+    vp1Alg.InitialCruiseMode = "EVENT"
+    vp1Alg.InitialCruiseModePeriod = vp1CruiseTime
 
-VP1Alg.InitiallyLoadedVP1Files = vp1CfgFiles
+vp1Alg.InitiallyLoadedVP1Files = vp1CfgFiles
 if (vp1Multinp):
-    VP1Alg.MultipleFilesON = True
-    VP1Alg.MFSourceDir = vp1Multinpsrc
-    VP1Alg.MFLocalCopyDir = vp1Multinpcpy
-    VP1Alg.MFAvailableLocalInputDirectories = vp1MultiAvailableSrcDirs
+    vp1Alg.MultipleFilesON = True
+    vp1Alg.MFSourceDir = vp1Multinpsrc
+    vp1Alg.MFLocalCopyDir = vp1Multinpcpy
+    vp1Alg.MFAvailableLocalInputDirectories = vp1MultiAvailableSrcDirs
+
+if ( vp1LarHvData ):
+    vp1Alg.ExtraInputs += [('LArHVIdMapping', 'ConditionStore+LArHVIdMap'),
+                           ('CondAttrListCollection', 'ConditionStore+/LAR/DCS/HV/BARREl/I16'),
+                           ('CondAttrListCollection', 'ConditionStore+/LAR/DCS/HV/BARREL/I8'),
+                           ]
+
 
 topSequence.TimeOut=0
 
