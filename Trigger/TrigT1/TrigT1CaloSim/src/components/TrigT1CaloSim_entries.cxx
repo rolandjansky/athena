@@ -1,6 +1,4 @@
 #include "../Run2TriggerTowerMaker.h"
-#include "../CPMTowerMaker.h"
-#include "../JetElementMaker.h"
 #include "../Run2CPMTowerMaker.h"
 #include "../Run2JetElementMaker.h"
 #include "../MergeSlices.h"
@@ -22,8 +20,6 @@
 using namespace LVL1;
 
 DECLARE_COMPONENT( Run2TriggerTowerMaker )
-DECLARE_COMPONENT( CPMTowerMaker )
-DECLARE_COMPONENT( JetElementMaker )
 DECLARE_COMPONENT( Run2CPMTowerMaker )
 DECLARE_COMPONENT( Run2JetElementMaker )
 DECLARE_COMPONENT( MergeSlices )
