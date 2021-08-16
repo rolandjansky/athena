@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValExample.h 
@@ -98,7 +98,7 @@ class PhysValExample
   std::vector<TH1*> m_timingPlots;
 
   StatusCode book(PlotBase& plots);
-  StatusCode getTiming(std::string name, float& recoTime);
+  StatusCode getTiming(const std::string& name, float& recoTime);
 
   //Flags to determine whether to fill example jet,met,btag plots
   bool m_doExJet;
