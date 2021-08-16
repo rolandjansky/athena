@@ -25,7 +25,6 @@ IAtRndmGenSvc*  Pythia8B_i::p_AtRndmGenSvc  = 0;
 // User properties not defined by Pythia8_i
 Pythia8B_i::Pythia8B_i
 (const std::string &name, ISvcLocator *pSvcLocator): Pythia8_i(name,pSvcLocator) {
-    declareProperty("useRndmGenSvc", m_useRndmGenSvc = true);
     declareProperty("NHadronizationLoops", m_had=1);
     declareProperty("NDecayLoops", m_dec=1);
     declareProperty("SelectBQuarks",m_selectBQuarks=true);
@@ -54,7 +53,6 @@ Pythia8B_i::Pythia8B_i
     declareProperty("pT0timesMPI", m_pt0timesMPI=1.0);
     declareProperty("numberAlphaS", m_numberAlphaS=3.0);
     declareProperty("useSameAlphaSasMPI", m_sameAlphaSAsMPI=false);
-    declareProperty("MaxFailures", m_maxFailures = 10); // consecutive failures limit
 
     m_totalBQuark = 0;
     m_totalBBarQuark = 0;
@@ -106,25 +104,25 @@ StatusCode Pythia8B_i::genInitialize() {
     // Sets the built-in UserHook called SuppressLowPT
     // FOR ONIA USE ONLY
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
+
+    bool canSetHook=true;
+    StatusCode returnCode = StatusCode::SUCCESS;
     if (m_doSuppressSmallPT) {
         m_SuppressSmallPT = new Pythia8::SuppressSmallPT(m_pt0timesMPI,m_numberAlphaS,m_sameAlphaSAsMPI);
-#ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER > 8300
-        Pythia8_i::m_pythia.setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
-  #else
-        Pythia8_i::m_pythia.setUserHooksPtr(m_SuppressSmallPT);
-  #endif
-#else
-        Pythia8_i::m_pythia.setUserHooksPtr(m_SuppressSmallPT);
-#endif
-
+        canSetHook=Pythia8_i::m_pythia.setUserHooksPtr(PYTHIA8_PTRWRAP(m_SuppressSmallPT));
     }
+
+    if (!canSetHook) {
+       returnCode=StatusCode::FAILURE;
+       ATH_MSG_ERROR(" *** Unable to initialise PythiaB !! ***");
+    }
+
     if(m_userString == "NONE") m_userString.clear();
     // Call the base class genInitialize()
-    if (Pythia8_i::genInitialize().isSuccess()) {
-        return StatusCode::SUCCESS;
-    } else {return StatusCode::FAILURE;}
-    
+    if (! Pythia8_i::genInitialize().isSuccess() ) returnCode=StatusCode::FAILURE;
+
+    return returnCode;
+
 }
 
 
