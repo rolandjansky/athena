@@ -127,12 +127,12 @@ def modifyJets( topoclAlgs ):
     from JetRec.JetRecConf import PseudoJetGetter
     from JetRec.JetRecStandard import jtm
 
-    Label = "EMTopo"
-    label = "emtopo"
-    if( "CaloCal" in topoclAlgs ): 
-        Label = "LCTopo"
-        label = "lctopo"
-
+    Label = "LCTopo"
+    label = "lctopo"
+    if( "Calo420" in topoclAlgs or "Calo422" in topoclAlgs ): 
+        Label = "EMTopo"
+        label = "emtopo"
+   
     nameAffix = topoclAlgs
     getter = PseudoJetGetter("JetGetter_"+nameAffix,
                               Label = Label,
