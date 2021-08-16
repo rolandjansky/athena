@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValMET.cxx 
@@ -13,10 +13,9 @@
 #include "PhysValMET.h"
 
 // STL includes
-#include <vector>
-#include <map>
 #include <cmath>
-#include <math.h>
+#include <map>
+#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
@@ -132,19 +131,19 @@ namespace MissingEtDQA {
     m_names["PVTrack_Pileup"] = "Track MET for each pileup vertex";
 
     m_types.clear();
-    m_types.push_back("AntiKt4EMTopo");
-    m_types.push_back("AntiKt4EMPFlow");
+    m_types.emplace_back("AntiKt4EMTopo");
+    m_types.emplace_back("AntiKt4EMPFlow");
 
     m_terms.clear();
-    m_terms.push_back("RefEle");
-    m_terms.push_back("RefGamma");
-    m_terms.push_back("RefTau");
-    m_terms.push_back("Muons");
-    m_terms.push_back("RefJet");
-    m_terms.push_back("SoftClus");
-    m_terms.push_back("PVSoftTrk");
-    m_terms.push_back("FinalTrk");
-    m_terms.push_back("FinalClus");
+    m_terms.emplace_back("RefEle");
+    m_terms.emplace_back("RefGamma");
+    m_terms.emplace_back("RefTau");
+    m_terms.emplace_back("Muons");
+    m_terms.emplace_back("RefJet");
+    m_terms.emplace_back("SoftClus");
+    m_terms.emplace_back("PVSoftTrk");
+    m_terms.emplace_back("FinalTrk");
+    m_terms.emplace_back("FinalClus");
 
     ATH_MSG_INFO("Retrieving tools...");
 
@@ -303,24 +302,28 @@ namespace MissingEtDQA {
 
       	name_sub = name_met + "/Correlations";
       	std::vector<std::string> corrClus_names;
-      	corrClus_names.push_back("RefEle");
-      	corrClus_names.push_back("RefGamma");
-      	corrClus_names.push_back("RefTau");
-      	corrClus_names.push_back("Muons");
-      	corrClus_names.push_back("RefJet");
-      	corrClus_names.push_back("SoftClus");
+      	corrClus_names.emplace_back("RefEle");
+      	corrClus_names.emplace_back("RefGamma");
+      	corrClus_names.emplace_back("RefTau");
+      	corrClus_names.emplace_back("Muons");
+      	corrClus_names.emplace_back("RefJet");
+      	corrClus_names.emplace_back("SoftClus");
       	std::vector<std::string> corrTrk_names;
-      	corrTrk_names.push_back("RefEle");
-      	corrTrk_names.push_back("RefGamma");
-      	corrTrk_names.push_back("RefTau");
-      	corrTrk_names.push_back("Muons");
-      	corrTrk_names.push_back("RefJet");
-      	corrTrk_names.push_back("PVSoftTrk");
+      	corrTrk_names.emplace_back("RefEle");
+      	corrTrk_names.emplace_back("RefGamma");
+      	corrTrk_names.emplace_back("RefTau");
+      	corrTrk_names.emplace_back("Muons");
+      	corrTrk_names.emplace_back("RefJet");
+      	corrTrk_names.emplace_back("PVSoftTrk");
 
-      	for(const auto& it : corrClus_names) {
+      	v_MET_CorrFinalClus_Ref.reserve(corrClus_names.size());
+
+for(const auto& it : corrClus_names) {
       	  v_MET_CorrFinalClus_Ref.push_back( new  TH2D((name_met + "_" + it + "_FinalClus").c_str(), (name_met + " " + m_names[it] + " vs. CST MET; E_{T," + it + "}^{miss} [GeV]; E_{T,CST}^{miss} [GeV]; Entries").c_str(), nbinp, 0., suptmi, nbinp, 0., suptmi) );
       	}
-      	for(const auto& it : corrTrk_names) {
+      	v_MET_CorrFinalTrk_Ref.reserve(corrTrk_names.size());
+
+for(const auto& it : corrTrk_names) {
       	  v_MET_CorrFinalTrk_Ref.push_back( new  TH2D((name_met + "_" + it + "_FinalTrk").c_str(), (name_met + " " + m_names[it] + " vs. TST MET; E_{T," + it + "}^{miss} [GeV]; E_{T,TST}^{miss} [GeV]; Entries").c_str(), nbinp, 0., suptmi, nbinp, 0., suptmi) );
       	}
 
@@ -335,11 +338,11 @@ namespace MissingEtDQA {
       	}
 
       	std::vector<std::string> sum_names;
-      	sum_names.push_back("RefEle");
-      	sum_names.push_back("RefGamma");
-      	sum_names.push_back("RefTau");
-      	sum_names.push_back("Muons");
-      	sum_names.push_back("RefJet");
+      	sum_names.emplace_back("RefEle");
+      	sum_names.emplace_back("RefGamma");
+      	sum_names.emplace_back("RefTau");
+      	sum_names.emplace_back("Muons");
+      	sum_names.emplace_back("RefJet");
 
       	m_dir_met.clear();
 
@@ -458,10 +461,14 @@ namespace MissingEtDQA {
       	}
 
       	name_sub = name_met + "/Correlations";
-      	for(const auto& it : corrClus_names) {
+      	v_MET_CorrFinalClus_Reb.reserve(corrClus_names.size());
+
+for(const auto& it : corrClus_names) {
       	  v_MET_CorrFinalClus_Reb.push_back( new  TH2D((name_met + "_" + it + "_FinalClus").c_str(), (name_met + " " + m_names[it] + " vs. CST MET; E_{T," + it + "}^{miss} [GeV]; E_{T,CST}^{miss} [GeV]; Entries").c_str(), nbinp, 0., suptmi, nbinp, 0., suptmi) );
       	}
-      	for(const auto& it : corrTrk_names) {
+      	v_MET_CorrFinalTrk_Reb.reserve(corrTrk_names.size());
+
+for(const auto& it : corrTrk_names) {
       	  v_MET_CorrFinalTrk_Reb.push_back( new  TH2D((name_met + "_" + it + "_FinalTrk").c_str(), (name_met + " " + m_names[it] + " vs. TST MET; E_{T," + it + "}^{miss} [GeV]; E_{T,TST}^{miss} [GeV]; Entries").c_str(), nbinp, 0., suptmi, nbinp, 0., suptmi) );
       	}
 
@@ -555,13 +562,13 @@ namespace MissingEtDQA {
       return StatusCode::SUCCESS;
 
     //Beamspot weight
-    const xAOD::EventInfo* eventInfo(0);
+    const xAOD::EventInfo* eventInfo(nullptr);
     ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
 
     float weight = eventInfo->beamSpotWeight();
 
     //Retrieve MET Truth
-    const xAOD::MissingETContainer* met_Truth = 0;
+    const xAOD::MissingETContainer* met_Truth = nullptr;
     if(m_doTruth) {
       ATH_CHECK( evtStore()->retrieve(met_Truth,"MET_Truth") );
       if (!met_Truth) {
@@ -571,7 +578,7 @@ namespace MissingEtDQA {
     }
 
     //Physics Objects
-    const xAOD::MuonContainer* muons = 0;
+    const xAOD::MuonContainer* muons = nullptr;
     ATH_CHECK( evtStore()->retrieve(muons,m_muonColl) );
     if (!muons) {
       ATH_MSG_ERROR ( "Failed to retrieve Muon container. Exiting." );
@@ -586,7 +593,7 @@ namespace MissingEtDQA {
       }
     }
 
-    const xAOD::ElectronContainer* electrons = 0;
+    const xAOD::ElectronContainer* electrons = nullptr;
     ATH_CHECK( evtStore()->retrieve(electrons,m_eleColl) );
     if (!electrons) {
       ATH_MSG_ERROR ( "Failed to retrieve Electron container. Exiting." );
@@ -601,7 +608,7 @@ namespace MissingEtDQA {
      }
    }
 
-    const xAOD::PhotonContainer* photons = 0;
+    const xAOD::PhotonContainer* photons = nullptr;
     ATH_CHECK( evtStore()->retrieve(photons,m_gammaColl) );
     if (!electrons) {
       ATH_MSG_ERROR ( "Failed to retrieve Photon container. Exiting." );
@@ -614,7 +621,7 @@ namespace MissingEtDQA {
       }
     }
 
-    const TauJetContainer* taus = 0;
+    const TauJetContainer* taus = nullptr;
     ATH_CHECK( evtStore()->retrieve(taus, m_tauColl) );
     if(!taus) {
       ATH_MSG_ERROR("Failed to retrieve TauJet container: " << m_tauColl);
@@ -724,7 +731,7 @@ namespace MissingEtDQA {
 
       // Retrieve Jets
       std::string name_jet = type + "Jets";
-      const xAOD::JetContainer* jets = 0;
+      const xAOD::JetContainer* jets = nullptr;
       ATH_CHECK( evtStore()->retrieve(jets,name_jet) );
       if (!jets) {
     	ATH_MSG_ERROR ( "Failed to retrieve Jet container: " << name_jet << ". Exiting." );
@@ -777,7 +784,7 @@ namespace MissingEtDQA {
 
       // Fill MET_Ref 
       std::string name_met = "MET_Reference_" + type;
-      const xAOD::MissingETContainer* met_Ref = 0;
+      const xAOD::MissingETContainer* met_Ref = nullptr;
       // We're not building METReference anymore in derivations
 
       if(m_doMETRefPlots){
@@ -791,7 +798,7 @@ namespace MissingEtDQA {
 
 	ATH_MSG_INFO( "  MET_Ref_" << type << ":" );
 	for(const auto& it : *met_Ref) {
-	  std::string name = it->name();
+	  const std::string& name = it->name();
 	  if(name == "RefEle"){
 	    (m_MET_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000., weight);
 	    (m_MET_Ref_x[type]).at(0)->Fill((*met_Ref)[name.c_str()]->mpx()/1000., weight);
@@ -874,13 +881,13 @@ namespace MissingEtDQA {
 
       m_mapname = "METAssoc_"+type;
       m_corename = "MET_Core_"+type;
-      const MissingETAssociationMap* metMap = 0;
+      const MissingETAssociationMap* metMap = nullptr;
       if( evtStore()->retrieve(metMap, m_mapname).isFailure() ) {
     	ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_mapname);
     	return StatusCode::SUCCESS;
       }
       MissingETAssociationHelper metHelper(metMap);
-      const MissingETContainer* coreMet(0);
+      const MissingETContainer* coreMet(nullptr);
       if( evtStore()->retrieve(coreMet, m_corename).isFailure() ) {
     	ATH_MSG_WARNING("Unable to retrieve MissingETContainer: " << m_corename);
     	return StatusCode::SUCCESS;
@@ -1064,7 +1071,7 @@ namespace MissingEtDQA {
 	//Fill Correlation Plots
 	//Reference
 	for(const auto& it : *met_Ref) {
-	  std::string name = it->name();
+	  const std::string& name = it->name();
 	  if(name == "RefEle"){
 	    (m_MET_CorrFinalTrk_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalTrk"]->met()/1000., weight);
 	    (m_MET_CorrFinalClus_Ref[type]).at(0)->Fill((*met_Ref)[name.c_str()]->met()/1000.,(*met_Ref)["FinalClus"]->met()/1000., weight);
@@ -1310,7 +1317,7 @@ namespace MissingEtDQA {
     if(m_doMETRefPlots){
 
       //Retrieve MET Track
-      const xAOD::MissingETContainer* met_Track = 0;
+      const xAOD::MissingETContainer* met_Track = nullptr;
       ATH_CHECK( evtStore()->retrieve(met_Track,"MET_Track") );
       if (!met_Track) {
 	ATH_MSG_ERROR ( "Failed to retrieve MET_Track. Exiting." );
@@ -1326,7 +1333,7 @@ namespace MissingEtDQA {
       m_MET_Track_phi->Fill((*met_Track)["Track"]->phi(), weight);
       m_MET_Track_sum->Fill((*met_Track)["Track"]->sumet()/1000., weight);
       
-      const xAOD::VertexContainer *vxCont = 0;
+      const xAOD::VertexContainer *vxCont = nullptr;
       ATH_CHECK( evtStore()->retrieve(vxCont, "PrimaryVertices") );
       for(const auto& vx : *vxCont) {
 	int N = vx->index();
