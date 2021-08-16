@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1DynamicPedestalProviderRoot.cxx 
@@ -73,7 +73,7 @@ StatusCode L1DynamicPedestalProviderRoot::initialize()
 // The correction is currently not available as a function of mu.
 // In case no correction is available or applicable this function
 // returns the uncorrected pedestal.
-int L1DynamicPedestalProviderRoot::dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float /* mu */)
+int L1DynamicPedestalProviderRoot::dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float /* mu */) const
 {
     if(iEta < 0 || iEta >= s_nElement) {
       ATH_MSG_ERROR("Inputs out of range: iEta = " << iEta);
