@@ -44,7 +44,9 @@ flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
 flags.Scheduler.EnableVerboseViews = True
-flags.Calo.ClusterCorrection.defaultSource = 'pool' # temporary, until a complete support for the cool, pool, jo is present
+from CaloClusterCorrection.constants \
+     import CALOCORR_JO, CALOCORR_POOL
+flags.Calo.ClusterCorrection.defaultSource = [CALOCORR_POOL, CALOCORR_JO] # temporary, until a complete support for cool is present
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)

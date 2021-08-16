@@ -21,7 +21,10 @@ def ToolConstantsAlgCfg(flags, prefix, version):
 
 
     # depending on the flags configure one of the input sources
-    if flags.Calo.ClusterCorrection.defaultSource == 'pool':
+    source = flags.Calo.ClusterCorrection.defaultSource
+    if not isinstance (source, list):
+        source = [source]
+    if 'pool' in source:
         from EventSelectorAthenaPool.CondProxyProviderConfig import CondProxyProviderCfg
         from CaloClusterCorrection.poolfiles import poolfiles
         fileID = poolfiles.get("caloswcorr_pool") #TODO figure out how this relates to CalibVersion flag
