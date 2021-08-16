@@ -321,24 +321,27 @@ Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos,
                                           bool& isMSmeas) const
 {
   if (tsos->measurementOnTrack() != nullptr) {
-    bool isPseudo = (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
-                       tsos->measurementOnTrack()) != nullptr);
+    bool isPseudo = (tsos->measurementOnTrack()->type(
+      Trk::MeasurementBaseType::PseudoMeasurementOnTrack));
     // Handle horrible cROTs
-    const Trk::CompetingRIOsOnTrack* cROT =
-      dynamic_cast<const Trk::CompetingRIOsOnTrack*>(
+    const Trk::CompetingRIOsOnTrack* cROT = nullptr;
+    if (tsos->measurementOnTrack()->type(
+          Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+      cROT = static_cast<const Trk::CompetingRIOsOnTrack*>(
         tsos->measurementOnTrack());
+    }
     Identifier id;
     if (cROT) {
       id = cROT->rioOnTrack(cROT->indexOfMaxAssignProb()).identify();
-    } else {
-      id = tsos->measurementOnTrack()
-             ->associatedSurface()
-             .associatedDetectorElementIdentifier();
+      } else {
+        id = tsos->measurementOnTrack()
+               ->associatedSurface()
+               .associatedDetectorElementIdentifier();
+      }
+      isIDmeas = !isPseudo && m_detID->is_indet(id);
+      isMSmeas = tsos->measurementOnTrack() != nullptr && !isPseudo &&
+                 m_detID->is_muon(id);
     }
-    isIDmeas = !isPseudo && m_detID->is_indet(id);
-    isMSmeas = tsos->measurementOnTrack() != nullptr && !isPseudo &&
-               m_detID->is_muon(id);
-  }
 }
 
 void
