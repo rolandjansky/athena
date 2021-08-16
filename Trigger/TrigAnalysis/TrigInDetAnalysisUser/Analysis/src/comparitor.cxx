@@ -69,6 +69,15 @@ void SetZeros( TH2D* h ) {
   }
 }
 
+void Scale( TH1* h, double d=1 ) { 
+  if ( d==1 ) return;
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    h->SetBinContent( i, h->GetBinContent(i)*d ); 
+    h->SetBinError( i, h->GetBinError(i)*d ); 
+  }
+}
+
+
 TH1F* Rebin( TH1F* h, double f ) { 
   
   std::cout << "\nREBIN: " << h->GetName() << " :: " << f << std::endl; 
@@ -966,6 +975,10 @@ int main(int argc, char** argv) {
     NeventRef  = 1; 
   }
 
+
+  if ( NeventTest>1 ) std::cout << "Nevents Test: " << NeventTest << std::endl;
+  if ( NeventRef>1 )  std::cout << "Nevents Ref:  " << NeventRef << std::endl;
+
   chainmap_t* chainmap = nullptr;
 
   if ( mapfile == "" ) mapfile = configfile;
@@ -1506,11 +1519,24 @@ int main(int argc, char** argv) {
 	  h2test->GetXaxis()->SetTitle(xaxis.c_str());
 	  h2test->GetYaxis()->SetTitle(yaxis.c_str());
           
+	  AxisInfo xinfo = histo.xaxis(); 
+	  AxisInfo yinfo = histo.yaxis(); 
+	  
+
+	  std::cout << xinfo << std::endl;
+	  std::cout << yinfo << std::endl;
+
 	  SetZeros( h2test );
           
+	  if ( yinfo.rangeset() ) { 
+	    h2test->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
+	  }
+
 	  h2test->DrawCopy("colz");
 	  
-	  gPad->SetLogz(true);
+	  if ( histo.detail().find("logz")!=std::string::npos ) gPad->SetLogz(true);
+	  else gPad->SetLogz(false);
+	 
           
 	}
 	else if ( refit_resplots && ( contains(histo.name(),"/sigma") || contains(histo.name(),"/mean") ) ) { 
@@ -1724,8 +1750,8 @@ int main(int argc, char** argv) {
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-	  if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
-	  if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) href->Scale(0.5);
+	  if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) Scale(htest,0.5);
+	  if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) Scale(href,0.5);
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
@@ -2258,11 +2284,6 @@ int main(int argc, char** argv) {
 	  if ( href ) href->Sumw2();
 	}
 
-	if ( yinfo.normset() ) {
-	  htest->Scale(1./NeventTest);
-	  if ( href ) href->Scale(1./NeventRef);
-	}
-     
 	if ( yinfo.normset() ) { 
 	  Norm( htest );
 	  if ( href ) Norm( href );
