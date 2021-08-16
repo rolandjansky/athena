@@ -323,11 +323,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if config.doHitDV:
             self.doHitDV_Seeding = True
             self.RecJetRoI = "HLT_RecJETRoIs"
-            # commented out temporarly due to HLT truncation issue (ATR-23958)
-            # self.HitDVTrk  = recordable("HLT_HitDVTrk")
-            # self.HitDVSP   = recordable("HLT_HitDVSP")
-            self.HitDVTrk  = "HLT_HitDVTrk"
-            self.HitDVSP   = "HLT_HitDVSP"
+            self.HitDVTrk  = "HLT_HitDVTrk" # not 'recordable' due to HLT truncation (ATR-23958)
+            self.HitDVSP   = "HLT_HitDVSP"  # not 'recordable' due to HLT truncation (ATR-23958) 
 
         self.doDisappearingTrk = config.doDisappearingTrk
         if config.doDisappearingTrk:

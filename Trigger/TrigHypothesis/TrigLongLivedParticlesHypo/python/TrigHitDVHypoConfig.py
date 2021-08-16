@@ -1,32 +1,33 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TrigLongLivedParticlesHypo.TrigHitDVHypoTool")
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
-log = logging.getLogger('TrigHitDVHypoTool')
+def createTrigHitDVHypoAlg(name):
+    # make the Hypo
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigHitDVHypoAlg)
+    
+    # Setup the hypothesis algorithm
+    theHitDVHypo = TrigHitDVHypoAlg(name)
+    
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    theHitDVHypo.HitDV = recordable("HLT_HitDV")
 
-def TrigHitDVHypoToolFromDict( chainDict ):
-    """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in chainDict['chainParts'] if i['signature']=='UnconventionalTracking']
-    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
-
-    name = chainDict['chainName']
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigHitDVHypoTool(name)
+    if ConfigFlags.Input.isMC:
+        theHitDVHypo.isMC = True
+    else:
+        theHitDVHypo.isMC = False
 
     # monioring
-    #
-
     monTool = GenericMonitoringTool("IM_MonTool"+name)
     monTool.defineHistogram('jet_pt',        type='TH1F', path='EXPERT', title="p_{T}^{jet} [GeV];p_{T}^{jet} [GeV];Nevents", xbins=50, xmin=0, xmax=300) 
     monTool.defineHistogram('jet_eta',       type='TH1F', path='EXPERT', title="#eta^{jet} (after p_{T}^{jet} cut);#eta^{jet};Nevents", xbins=50, xmin=-5.0, xmax=5.0)
     #
+    monTool.defineHistogram('n_dvtrks',      type='TH1F', path='EXPERT', title="Nr of HitDVTrks;N HitDVTrks size;Nevents", xbins=50, xmin=0, xmax=1000) 
+    monTool.defineHistogram('n_dvsps',       type='TH1F', path='EXPERT', title="Nr of HitDVSPs;N HitDVSPs size;Nevents", xbins=50, xmin=0, xmax=110000) 
     monTool.defineHistogram('n_jetseeds',    type='TH1F', path='EXPERT', title="Nr of Jet Seeds;N jet seeds;Nevents", xbins=50, xmin=0, xmax=100) 
     monTool.defineHistogram('n_spseeds',     type='TH1F', path='EXPERT', title="Nr of Ly6/Ly7 SP-doublet Seeds;N sp seeds;Nevents", xbins=50, xmin=0, xmax=100) 
-    monTool.defineHistogram('n_passed_jet',  type='TH1F', path='EXPERT', title="Nr of BDT passed from jet seed;N passed (jet seed);Nevents", xbins=30, xmin=0, xmax=30) 
-    monTool.defineHistogram('n_passed_sp',   type='TH1F', path='EXPERT', title="Nr of BDT passed from SP-doublet seed;N passed (sp seed);Nevents", xbins=30, xmin=0, xmax=30) 
     monTool.defineHistogram('average_mu',    type='TH1F', path='EXPERT', title="Average mu;Average mu;Nevents", xbins=100, xmin=0, xmax=100) 
     #
     monTool.defineHistogram('eta1_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
@@ -50,11 +51,25 @@ def TrigHitDVHypoToolFromDict( chainDict ):
     monTool.defineHistogram('1eta2_n_qtrk',   type='TH1F', path='EXPERT', title="Nr of quality tracks (1<|#eta|<2);Nr of quality tracks;Nevents", xbins=20, xmin=0, xmax=20) 
     monTool.defineHistogram('1eta2_bdtscore', type='TH1F', path='EXPERT', title="BDT score (1<|#eta|<2);BDT score;Nevents", xbins=50, xmin=-1.0, xmax=1.0) 
 
-    monTool.HistPath = 'HitDVHypoAlg/'+tool.getName()
-    tool.MonTool = monTool
+    monTool.HistPath = 'HitDVHypoAlg'
+    theHitDVHypo.MonTool = monTool
+
+    return theHitDVHypo
+
+
+def TrigHitDVHypoToolFromDict( chainDict ):
+
+    log = logging.getLogger('TrigHitDVHypoTool')
+
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='UnconventionalTracking']
+    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
+
+    name = chainDict['chainName']
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tool = CompFactory.TrigHitDVHypoTool(name)
 
     # set thresholds
-    #
 
     strThr = ""
 
@@ -102,10 +117,3 @@ def TrigHitDVHypoToolFromName( name, conf ):
     decodedDict = dictFromChainName(conf)
     
     return TrigHitDVHypoToolFromDict( decodedDict )
-    
-    
-    
-if __name__ == "__main__":
-    tool = TrigHitDVHypoToolFromName("HLT_unconvtrk30_dedx_medium_L1XE50", "HLT_unconvtrk30_dedx_medium_L1XE50")
-    assert tool, "Not configured simple tool"
-    log.debug("ALL OK")
