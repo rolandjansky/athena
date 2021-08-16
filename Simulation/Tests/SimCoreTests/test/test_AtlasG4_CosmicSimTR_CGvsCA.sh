@@ -1,12 +1,10 @@
 #!/bin/sh
 #
 # art-description: Run cosmics simulation outside ISF, using TrackRecords as input, using 2015 geometry and conditions
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
-# art-include: master/Athena
 # art-type: grid
-# art-output: test.HITS.pool.root
+# art-output: test.*.HITS.pool.root
+# art-output: log.*
+# art-output: Config*.pkl
 
 AtlasG4_tf.py \
 --CA \
@@ -21,6 +19,8 @@ AtlasG4_tf.py \
 --firstEvent '0' \
 --beamType 'cosmics' \
 --postInclude 'PyJobTransforms.TransformUtils.UseFrontier' \
+--postExec 'with open("ConfigSimCA.pkl", "wb") as f: cfg.store(f)' \
+--truthStrategy 'MC15aPlus' \
 --imf False
 
 rc=$?
@@ -29,8 +29,22 @@ echo  "art-result: $rc G4AtlasAlg_AthenaCA"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    ArtPackage=$1
-    ArtJobName=$2
+    AtlasG4_tf.py \
+    --inputEVNT_TRFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/Cosmics.TR.pool.root' \
+    --outputHITSFile 'test.OLD.HITS.pool.root' \
+    --maxEvents '-1' \
+    --randomSeed '1234' \
+    --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' \
+    --conditionsTag 'OFLCOND-RUN12-SDR-19' \
+    --physicsList 'FTFP_BERT' \
+    --DataRunNumber '222525' \
+    --firstEvent '0' \
+    --beamType 'cosmics' \
+    --postInclude 'PyJobTransforms/UseFrontier.py' \
+    --truthStrategy 'MC15aPlus' \
+    --imf False \
+   --athenaopts '"--config-only=ConfigSimCG.pkl"'
+
     AtlasG4_tf.py \
     --inputEVNT_TRFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/Cosmics.TR.pool.root' \
     --outputHITSFile 'test.OLD.HITS.pool.root' \
@@ -56,4 +70,4 @@ then
     acmd.py diff-root test.OLD.HITS.pool.root test.NEW.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
     rc4=$?
 fi
-echo  "art-result: $rc4 FullG4MT_OLDvsCA"
+echo  "art-result: $rc4 CompareHITS_CGvsCA"
