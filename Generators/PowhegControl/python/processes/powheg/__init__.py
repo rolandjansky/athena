@@ -30,6 +30,7 @@ from tt_NLOdecays import tt_NLOdecays
 from ttbb import ttbb
 from ttH import ttH
 from ttj import ttj
+from ttj_MiNNLO import ttj_MiNNLO
 from ttWm_EW import ttWm_EW
 from ttWm_QCD import ttWm_QCD
 from ttWp_EW import ttWp_EW
