@@ -33,7 +33,7 @@ listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
 ####################################
 
 class WriteDAOD_PHYSStream(JobProperty):
-    """ DAOD_PHYS - prototype format for Run 3 """
+    """ DAOD_PHYS - main analysis format for Run 3 """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -46,7 +46,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSStream)
 listAODtoDPD.append(WriteDAOD_PHYSStream.StreamName)
 
 class WriteDAOD_PHYSLITEStream(JobProperty):
-    """ DAOD_PHYSLITE - prototype format for Run 3 """
+    """ DAOD_PHYSLITE - prototype format for Run 4 """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -58,18 +58,19 @@ class WriteDAOD_PHYSLITEStream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSLITEStream)
 listAODtoDPD.append(WriteDAOD_PHYSLITEStream.StreamName)
 
-class WriteDAOD_NANOStream(JobProperty):
-    """ DAOD_NANO - prototype format for Run 3 """
+# Second entry needed for PHYS->PHYSLITE case
+class WriteD2AOD_PHYSLITEStream(JobProperty):
+    """ D2AOD_PHYSLITE - prototype format for Run 4 """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-    StreamName   = "StreamDAOD_NANO"
+    StreamName   = "StreamD2AOD_PHYSLITE"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/NANO.py"
+    DPDMakerScript = "DerivationFrameworkPhys/PHYSLITE.py"
     pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_NANOStream)
-listAODtoDPD.append(WriteDAOD_NANOStream.StreamName)
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteD2AOD_PHYSLITEStream)
+listAODtoDPD.append(WriteD2AOD_PHYSLITEStream.StreamName)
 
 class WriteDAOD_TRIGStream(JobProperty):
     """ DAOD_TRIG - trigger prototype format for Run 3 """

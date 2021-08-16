@@ -14,6 +14,7 @@ nanolog = Logging.logging.getLogger('PHYS')
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
+from DerivationFrameworkPhys import PhysCommonTrigger
 from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkJetEtMiss import METCommon
 from DerivationFrameworkJetEtMiss.METCommon import scheduleMETAssocAlg
@@ -218,8 +219,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
 
 # Add trigger matching
-PhysCommon.PhysCommon_trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-PhysCommon.PhysCommon_trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
