@@ -21,7 +21,8 @@ constexpr auto initAccessors(U... names) {
 
 auto boolAccessors = initAccessors<bool>(
   "hasGenericRoiError", "hasGenericDaqError", "hasCrcTobError", "hasCrcFibreError",
-  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference");
+  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference",
+  "hitDVSP_isPix","hitDVSP_isSct");
 
 auto charAccessors = initAccessors<char>(
   "IP2D_isDefaults", "IP3D_isDefaults", "SV1_isDefaults", "rnnip_isDefaults",
@@ -39,7 +40,6 @@ auto intAccessors = initAccessors<int>(
   "sctSP", "sctSPBarrel", "sctSPEndcapA", "sctSPEndcapC",
   "zfinder_tool",
   "hitDVTrk_id","hitDVTrk_n_hits_innermost","hitDVTrk_n_hits_pix","hitDVTrk_n_hits_sct",
-  "hitDVSP_layer","hitDVSP_isPix","hitDVSP_isSct","hitDVSP_usedTrkId",
   "hitDV_seed_type","hitDV_n_track_qual",
   "dEdxTrk_id","dEdxTrk_dedx_n_usedhits",
   "dEdxTrk_n_hits_innermost","dEdxTrk_n_hits_inner","dEdxTrk_n_hits_pix","dEdxTrk_n_hits_sct",
@@ -58,7 +58,7 @@ auto intAccessors = initAccessors<int>(
   "disTrkCand_refit_n_brhits_good_ibl","disTrkCand_refit_n_brhits_good_pix1","disTrkCand_refit_n_brhits_good_pix2","disTrkCand_refit_n_brhits_good_pix3",
   "disTrkCand_refit_n_brhits_good_sct1","disTrkCand_refit_n_brhits_good_sct2","disTrkCand_refit_n_brhits_good_sct3","disTrkCand_refit_n_brhits_good_sct4");
 
-auto int16Accessors = initAccessors<int16_t>("view");
+auto int16Accessors = initAccessors<int16_t>("view", "hitDVSP_layer", "hitDVSP_usedTrkId");
 
 auto int32Accessors = initAccessors<int32_t>("roi");
 
@@ -104,7 +104,7 @@ auto floatAccessors = initAccessors<float>(
   "zfinder_vtx_z", "zfinder_vtx_weight", "caloIso", "calE", "calEta", "calPhi",
   "hitDVTrk_pt","hitDVTrk_eta","hitDVTrk_phi","hitDVTrk_a0beam",
   "hitDVSP_eta","hitDVSP_r","hitDVSP_phi",
-  "hitDV_seed_eta","hitDV_seed_phi","hitDV_ly0_sp_frac","hitDV_ly1_sp_frac","hitDV_ly2_sp_frac",
+  "hitDV_seed_pt","hitDV_seed_eta","hitDV_seed_phi","hitDV_ly0_sp_frac","hitDV_ly1_sp_frac","hitDV_ly2_sp_frac",
   "hitDV_ly3_sp_frac","hitDV_ly4_sp_frac","hitDV_ly5_sp_frac","hitDV_ly6_sp_frac","hitDV_ly7_sp_frac","hitDV_bdt_score",
   "dEdxTrk_pt","dEdxTrk_eta","dEdxTrk_phi","dEdxTrk_dedx","dEdxTrk_a0beam",
   "dEdxHit_dedx","dEdxHit_tot","dEdxHit_trkchi2","dEdxHit_trkndof",

@@ -1522,11 +1522,15 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    std::vector<float> v_sp_r;
    std::vector<float> v_sp_phi;
    std::vector<int>   v_sp_layer;
-   std::vector<int>   v_sp_isPix;
-   std::vector<int>   v_sp_isSct;
+   std::vector<bool>  v_sp_isPix;
+   std::vector<bool>  v_sp_isSct;
    std::vector<int>   v_sp_usedTrkId;
 
-   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); iSp++) {
+   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
+
+      bool isPix = convertedSpacePoints[iSp].isPixel();
+      bool isSct = convertedSpacePoints[iSp].isSCT();
+      if( ! isPix && ! isSct ) continue;
 
       const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
       const Amg::Vector3D& pos_sp = sp->globalPosition();
@@ -1556,8 +1560,6 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       n_sp++;
       if( usedTrack_id != -1 ) n_sp_usedByTrk++;
       int  layer = convertedSpacePoints[iSp].layer();
-      int  isPix = convertedSpacePoints[iSp].isPixel() ? 1 : 0;
-      int  isSct = convertedSpacePoints[iSp].isSCT() ?   1 : 0;
       float sp_r = convertedSpacePoints[iSp].r();
 
       v_sp_eta.push_back(sp_eta);
@@ -1646,6 +1648,8 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 
    // space points
    const float SPCUT_DELTA_R_TO_SEED = 0.6;
+   unsigned int n_sp_stored = 0;
+   const unsigned int N_MAX_SP_STORED = 100000;
    for(unsigned int iSp=0; iSp<v_sp_eta.size(); ++iSp) {
       float sp_eta = v_sp_eta[iSp];
       float sp_phi = v_sp_phi[iSp];
@@ -1659,16 +1663,18 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 	 }
 	 if( ! isNearSeed ) continue;
       }
+      ++n_sp_stored;
+      if( n_sp_stored > N_MAX_SP_STORED ) break;
       xAOD::TrigComposite *hitDVSP = new xAOD::TrigComposite();
       hitDVSP->makePrivateStore();
       hitDVSPContainer->push_back(hitDVSP);
-      hitDVSP->setDetail<float>("hitDVSP_eta",       v_sp_eta[iSp]);
-      hitDVSP->setDetail<float>("hitDVSP_r",         v_sp_r[iSp]);
-      hitDVSP->setDetail<float>("hitDVSP_phi",       v_sp_phi[iSp]);
-      hitDVSP->setDetail<int>  ("hitDVSP_layer",     v_sp_layer[iSp]);
-      hitDVSP->setDetail<int>  ("hitDVSP_isPix",     v_sp_isPix[iSp]);
-      hitDVSP->setDetail<int>  ("hitDVSP_isSct",     v_sp_isSct[iSp]);
-      hitDVSP->setDetail<int>  ("hitDVSP_usedTrkId", v_sp_usedTrkId[iSp]);
+      hitDVSP->setDetail<float>  ("hitDVSP_eta",       v_sp_eta[iSp]);
+      hitDVSP->setDetail<float>  ("hitDVSP_r",         v_sp_r[iSp]);
+      hitDVSP->setDetail<float>  ("hitDVSP_phi",       v_sp_phi[iSp]);
+      hitDVSP->setDetail<int16_t>("hitDVSP_layer",     (int16_t)v_sp_layer[iSp]);
+      hitDVSP->setDetail<bool>   ("hitDVSP_isPix",     v_sp_isPix[iSp]);
+      hitDVSP->setDetail<bool>   ("hitDVSP_isSct",     v_sp_isSct[iSp]);
+      hitDVSP->setDetail<int16_t>("hitDVSP_usedTrkId", (int16_t)v_sp_usedTrkId[iSp]);
    }
 
    // record
