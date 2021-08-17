@@ -22,7 +22,12 @@ class Zj_MiNNLO(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(Zj_MiNNLO, self).__init__(base_directory, os.path.join("Zj", "ZjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+
+        # this is very hacky
+        warnings = super(Zj_MiNNLO, self).hoppet_warning()
+        infos = super(Zj_MiNNLO, self).hoppet_info()
+
+        super(Zj_MiNNLO, self).__init__(base_directory, os.path.join("Zj", "ZjMiNNLO"), powheg_executable="pwhg_main", warning_output=warnings, info_output=infos, **kwargs)
 
         # Add algorithms to the sequence
 
