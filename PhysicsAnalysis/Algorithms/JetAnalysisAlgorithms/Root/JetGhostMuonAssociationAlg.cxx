@@ -38,7 +38,8 @@ namespace CP
   StatusCode JetGhostMuonAssociationAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
       xAOD::JetContainer *jets = nullptr;
       ANA_CHECK (m_jetHandle.getCopy (jets, sys));
 
@@ -46,8 +47,8 @@ namespace CP
       const xAOD::MuonContainer* muons = nullptr;
       ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
       met::addGhostMuonsToJets(*muons, *jets);
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

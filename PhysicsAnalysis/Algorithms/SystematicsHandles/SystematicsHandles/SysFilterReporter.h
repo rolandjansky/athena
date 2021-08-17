@@ -31,12 +31,12 @@ namespace CP
   ///   SysFilterReporterCombiner filterCombiner
   ///       (m_filterParams, m_systematicsList, DEFAULT_DECISION);
   ///
-  ///   return m_systematicsList.foreach ([&](const CP::SystematicSet &sys) -> StatusCode {
+  ///   for (const auto& sys : m_systematicsList.systematicsVector()) {
   ///     SysFilterReporter filter (filterCombiner, sys);
   ///     ...
   ///     filter.setPassed ();
-  ///     return StatusCode::SUCCESS;
-  ///     });
+  ///   }
+  ///   return StatusCode::SUCCESS;
   /// }
   /// ```
 

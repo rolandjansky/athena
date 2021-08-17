@@ -45,17 +45,18 @@ namespace CP
   StatusCode PhotonShowerShapeFudgeAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::PhotonContainer *photons = nullptr;
-        ANA_CHECK (m_photonHandle.getCopy (photons, sys));
-        for (xAOD::Photon *photon : *photons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::PhotonContainer *photons = nullptr;
+      ANA_CHECK (m_photonHandle.getCopy (photons, sys));
+      for (xAOD::Photon *photon : *photons)
+      {
+        if (m_preselection.getBool (*photon))
         {
-          if (m_preselection.getBool (*photon))
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_showerShapeFudgeTool->applyCorrection (*photon));
-          }
+          ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_showerShapeFudgeTool->applyCorrection (*photon));
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

@@ -43,11 +43,13 @@ namespace CP
   StatusCode JetModifierAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::JetContainer *jets = nullptr;
-        ANA_CHECK (m_jetHandle.getCopy (jets, sys));
-        ANA_CHECK (m_modifierTool->modify (*jets));
-        return StatusCode::SUCCESS;
-      });
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::JetContainer *jets = nullptr;
+      ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+      ANA_CHECK (m_modifierTool->modify (*jets));
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

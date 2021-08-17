@@ -60,15 +60,15 @@ namespace CP
     TH1 *histogram = hist (m_histogramName);
 
     int i = 1;
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : m_systematicsList.systematicsVector())
     {
       std::string name;
       ANA_CHECK (m_systematicsList.service().makeSystematicsName (name, "%SYS%", sys));
 
       histogram->GetXaxis()->SetBinLabel(i, name.c_str());
       i++;
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

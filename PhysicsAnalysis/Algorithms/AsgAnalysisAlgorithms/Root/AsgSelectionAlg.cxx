@@ -65,25 +65,27 @@ namespace CP
   StatusCode AsgSelectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        if (m_systematicsTool)
-          ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      if (m_systematicsTool)
+        ANA_CHECK (m_systematicsTool->applySystematicVariation (sys));
 
-        xAOD::IParticleContainer *particles = nullptr;
-        ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
-        for (xAOD::IParticle *particle : *particles)
+      xAOD::IParticleContainer *particles = nullptr;
+      ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
+      for (xAOD::IParticle *particle : *particles)
+      {
+        if (m_preselection.getBool (*particle))
         {
-          if (m_preselection.getBool (*particle))
-          {
-            m_selectionAccessor->setBits
-              (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
-          }
-          else
-          {
-            m_selectionAccessor->setBits(*particle, m_setOnFail);
-          }
+          m_selectionAccessor->setBits
+            (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
         }
-        return StatusCode::SUCCESS;
-      });
+        else
+        {
+          m_selectionAccessor->setBits(*particle, m_setOnFail);
+        }
+      }
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

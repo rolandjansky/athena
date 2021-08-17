@@ -45,22 +45,23 @@ namespace CP
   StatusCode IsolationCloseByCorrectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::ElectronContainer *electrons {nullptr};
-        if (m_electronsHandle)
-          ANA_CHECK (m_electronsHandle.getCopy (electrons, sys));
-        xAOD::MuonContainer *muons {nullptr};
-        if (m_muonsHandle)
-          ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
-        xAOD::PhotonContainer *photons {nullptr};
-        if (m_photonsHandle)
-          ANA_CHECK (m_photonsHandle.getCopy (photons, sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::ElectronContainer *electrons {nullptr};
+      if (m_electronsHandle)
+        ANA_CHECK (m_electronsHandle.getCopy (electrons, sys));
+      xAOD::MuonContainer *muons {nullptr};
+      if (m_muonsHandle)
+        ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
+      xAOD::PhotonContainer *photons {nullptr};
+      if (m_photonsHandle)
+        ANA_CHECK (m_photonsHandle.getCopy (photons, sys));
 
-        ANA_CHECK_CORRECTION_EVENT
-          (m_outOfValidity, m_isolationCorrectionTool->getCloseByIsoCorrection
-           (electrons, muons, photons, m_topoEtConeModel));
+      ANA_CHECK_CORRECTION_EVENT
+        (m_outOfValidity, m_isolationCorrectionTool->getCloseByIsoCorrection
+         (electrons, muons, photons, m_topoEtConeModel));
+    }
 
-        return StatusCode::SUCCESS;
-      });
+    return StatusCode::SUCCESS;
   }
 }
