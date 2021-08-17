@@ -136,6 +136,8 @@ print      BPHY13FourTrackSelectAndWrite
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 
 do_blinding = 'doBlinding' in vars() and doBlinding==True and not isSimulation
+do_unblinding1 = not do_blinding and 'doUnblinding1' in vars() and doUnblinding1==True and not isSimulation
+do_unblinding2 = not do_blinding and 'doUnblinding2' in vars() and doUnblinding2==True and not isSimulation
 
 if do_blinding:
     #
@@ -192,6 +194,65 @@ if do_blinding:
 
     ToolSvc += BPHY13_Select4_FourTrack
     print      BPHY13_Select4_FourTrack
+elif do_unblinding1 or do_unblinding2:
+    if do_unblinding1:
+        #
+        # select 2 regions (unblinding part 1)
+        #
+        BPHY13_Select1_FourTrack     = DerivationFramework__Select_onia2mumu(
+            name                       = "BPHY13_Select1_FourTrack",
+            HypothesisName             = "FourTracks1",
+            InputVtxContainerName      = "BPHY13FourTrack",
+            TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
+            VtxMassHypo                = 6900.0, # for decay time
+            MassMin                    = 0.,
+            MassMax                    = 7500.,
+            Chi2Max                    = 200.)
+    
+        ToolSvc += BPHY13_Select1_FourTrack
+        print      BPHY13_Select1_FourTrack
+
+        BPHY13_Select2_FourTrack     = DerivationFramework__Select_onia2mumu(
+            name                       = "BPHY13_Select2_FourTrack",
+            HypothesisName             = "FourTracks2",
+            InputVtxContainerName      = "BPHY13FourTrack",
+            TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
+            VtxMassHypo                = 6900.0, # for decay time
+            MassMin                    = 9000.,
+            MassMax                    = 10000.,
+            Chi2Max                    = 200.)
+
+        ToolSvc += BPHY13_Select2_FourTrack
+        print      BPHY13_Select2_FourTrack
+    if do_unblinding2:
+        #
+        # select 2 regions (unblinding part 2)
+        #
+        BPHY13_Select3_FourTrack     = DerivationFramework__Select_onia2mumu(
+            name                       = "BPHY13_Select3_FourTrack",
+            HypothesisName             = "FourTracks3",
+            InputVtxContainerName      = "BPHY13FourTrack",
+            TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
+            VtxMassHypo                = 6900.0,  #for decay time
+            MassMin                    = 12000.,
+            MassMax                    = 14000.,
+            Chi2Max                    = 200.)
+
+        ToolSvc += BPHY13_Select3_FourTrack
+        print      BPHY13_Select3_FourTrack
+
+        BPHY13_Select4_FourTrack     = DerivationFramework__Select_onia2mumu(
+            name                       = "BPHY13_Select4_FourTrack",
+            HypothesisName             = "FourTracks4",
+            InputVtxContainerName      = "BPHY13FourTrack",
+            TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
+            VtxMassHypo                = 6900.0,  #for decay time
+            MassMin                    = 17500.,
+            MassMax                    = 19500.,
+            Chi2Max                    = 200.)
+
+        ToolSvc += BPHY13_Select4_FourTrack
+        print      BPHY13_Select4_FourTrack
 else:
     BPHY13_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
         name                       = "BPHY13_Select_FourTrack",
@@ -412,9 +473,16 @@ print      BPHY13_Select_TwoTrackMed
 ##    where "ContainerName" is output container from some Reco_* tool, "HypoName" is the hypothesis name setup in some "Select_*"
 ##    tool and "count" is the number of candidates passing the selection you want to keep. 
 
-expression = "count(BPHY13FourTrack.passed_FourTracks) > 0 && ( count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonHi.passed_TwoMuonsHi) + count(BPHY13TwoTrackHi.passed_TwoTracksHi) > 0 )"
-if do_blinding:
-    expression = "count(BPHY13FourTrack.passed_FourTracks1)+count(BPHY13FourTrack.passed_FourTracks2)+count(BPHY13FourTrack.passed_FourTracks3)+count(BPHY13FourTrack.passed_FourTracks4) > 0 && ( count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonHi.passed_TwoMuonsHi) + count(BPHY13TwoTrackHi.passed_TwoTracksHi) > 0 )"
+expression = "( count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuon.passed_TwoMuons) + count(BPHY13TwoTrackMed.passed_TwoTracksMed) > 1 || count(BPHY13TwoMuonMed.passed_TwoMuonsMed) + count(BPHY13TwoTrack.passed_TwoTracks) > 1 || count(BPHY13TwoMuonHi.passed_TwoMuonsHi) + count(BPHY13TwoTrackHi.passed_TwoTracksHi) > 0 )"
+
+if do_blinding or (do_unblinding1 and do_unblinding2):
+    expression = expression + " && count(BPHY13FourTrack.passed_FourTracks1)+count(BPHY13FourTrack.passed_FourTracks2)+count(BPHY13FourTrack.passed_FourTracks3)+count(BPHY13FourTrack.passed_FourTracks4) > 0"
+elif do_unblinding1:
+    expression = expression + " && count(BPHY13FourTrack.passed_FourTracks1)+count(BPHY13FourTrack.passed_FourTracks2) > 0"
+elif do_unblinding2:
+    expression = expression + " && count(BPHY13FourTrack.passed_FourTracks3)+count(BPHY13FourTrack.passed_FourTracks4) > 0"
+else:
+    expression = expression + " && count(BPHY13FourTrack.passed_FourTracks) > 0"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 BPHY13_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY13_SelectEvent", expression = expression)
@@ -446,8 +514,12 @@ print BPHY13_SelectEvent
 # The name of the kernel (BPHY13Kernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 augmentation_tools = [BPHY13_Reco_mumu, BPHY13FourTrackSelectAndWrite]
-if do_blinding:
+if do_blinding or (do_unblinding1 and do_unblinding2):
     augmentation_tools += [BPHY13_Select1_FourTrack, BPHY13_Select2_FourTrack, BPHY13_Select3_FourTrack, BPHY13_Select4_FourTrack]
+elif do_unblinding1:
+    augmentation_tools += [BPHY13_Select1_FourTrack, BPHY13_Select2_FourTrack]
+elif do_unblinding2:
+    augmentation_tools += [BPHY13_Select3_FourTrack, BPHY13_Select4_FourTrack]
 else:
     augmentation_tools += [BPHY13_Select_FourTrack]
 
