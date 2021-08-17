@@ -20,10 +20,6 @@ MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
-from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
-from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
-from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
-import re
 
 ### Augmentation tools lists
 AugmentationTools   = []
