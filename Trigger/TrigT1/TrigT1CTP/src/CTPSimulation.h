@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CTP_CTPSIMULATION_H
 #define TRIGT1CTP_CTPSIMULATION_H
@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 #include "StoreGate/DataHandle.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // monitoring from HLT
@@ -33,8 +32,6 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Interfaces/CTPSLink.h"
 
@@ -81,21 +78,11 @@ namespace LVL1CTP {
 
 
    private:
-
-      struct ConfigSource {
-      ConfigSource(const TrigConf::CTPConfig* ctpConfig, const TrigConf::L1Menu* l1menu) : m_ctpConfig(ctpConfig), m_l1menu(l1menu) {}
-         const TrigConf::CTPConfig* m_ctpConfig {nullptr}; // run 2
-         const TrigConf::L1Menu * m_l1menu { nullptr }; // run 3
-         const TrigConf::CTPConfig* ctpConfig() const { return m_ctpConfig; }
-         const TrigConf::L1Menu* l1menu() const { return m_l1menu; }
-      };
-
-
-      // histogramming related 
+      // histogramming related
       StatusCode bookHists() const;
-      StatusCode setHistLabels() const;
+      StatusCode setHistLabels(const TrigConf::L1Menu& l1menu) const;
       StatusCode createMultiplicityHist(const std::string & type, unsigned int maxMult = 10 ) const;
-      StatusCode setMultiplicityHistLabels(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt ) const;
+      StatusCode setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu, const std::string & type) const;
       StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist) const;
       StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist) const;
       StatusCode storeMetadata() const;
@@ -110,15 +97,6 @@ namespace LVL1CTP {
 
       StatusCode simulateItems(const std::map<std::string, unsigned int> & thrMultiMap, const EventContext& context) const;
 
-      // private member functions
-      unsigned int calculateMultiplicity    ( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateJetMultiplicity ( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateEMMultiplicity  ( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateTauMultiplicity ( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateMETMultiplicity ( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateMuonMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-      unsigned int calculateTopoMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const;
-
       unsigned int calculateMultiplicity    ( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
       unsigned int calculateJetMultiplicity ( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
       unsigned int calculateEMMultiplicity  ( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
@@ -128,13 +106,9 @@ namespace LVL1CTP {
       unsigned int calculateTopoMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
       unsigned int calculateTopoOptMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
 
-      // member variables
-      mutable std::once_flag m_onceflag;
-
       // Needed services and tools
       ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "LVL1ConfigSvc", "Trigger configuration service" };
-      // ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
+
       ToolHandle<LVL1CTP::ResultBuilder> m_resultBuilder { this, "ResultBuilder", "LVL1CTP__ResultBuilder/ResultBuilder", "Builds the CTP result" };
 
       // random engine for calculating prescales
@@ -176,7 +150,6 @@ namespace LVL1CTP {
       // properties
       Gaudi::Property<bool> m_isData { this, "IsData", false, "emulate CTP as part of MC or rerun on data" };
       Gaudi::Property<std::string>  m_histPath { this, "HistPath",  "/EXPERT/L1", "Booking path for the histogram" };
-      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
       Gaudi::Property<bool> m_forceBunchGroupPattern { this, "ForceBunchGroupPattern", true, "When true, ignore the bunchgroups and use the provided BunchGroupPattern" };
       Gaudi::Property<unsigned int> m_bunchGroupPattern { this, "BunchGroupPattern", 0x0003, "Bunchgroup pattern applied at every event, useful for simulation. Bit x corresponds to bunchgroup x" };
 
