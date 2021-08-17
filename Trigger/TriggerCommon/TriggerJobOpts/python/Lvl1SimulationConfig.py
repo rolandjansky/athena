@@ -50,6 +50,13 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
             caloTowerMaker.ZeroSuppress = True
             caloTowerMaker.CellType     = 3
             l1CaloSimSeq += caloTowerMaker
+
+            from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+            sgil_load=[('LArTTL1Container', 'StoreGateSvc+LArTTL1EM'),
+                       ('LArTTL1Container', 'StoreGateSvc+LArTTL1HAD'),
+                       ('TileTTL1Container', 'StoreGateSvc+TileTTL1Cnt')]
+            CAtoGlobalWrapper(SGInputLoaderCfg, ConfigFlags, Load=sgil_load)
+
             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
             l1CaloSimSeq += LVL1__Run2CPMTowerMaker( 'CPMTowerMaker')
             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
