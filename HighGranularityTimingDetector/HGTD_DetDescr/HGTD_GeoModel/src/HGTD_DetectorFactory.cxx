@@ -615,6 +615,8 @@ GeoVPhysVol* HGTD_DetectorFactory::build( const GeoLogVol* logicalEnvelope, bool
     std::array< PositionsInQuadrant, 4 > positions = prepareLayersFromQuadrants( maxRows ) ;
     // inside m_geomVersion implicitly control 3-ring layout vs 2-ring
 
+    mirrorPositionsAroundYaxis(positions);
+
     // for now create the SiCommonItems here
     // These are items that are shared by all detector elements
     std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(m_athComps->getIdHelper())};
@@ -818,7 +820,6 @@ std::string HGTD_DetectorFactory::formModuleName( int layer, int quadrant, unsig
         eta = mod + 1;
         //module_string = "_R" + std::to_string(phi) + "_M" + std::to_string(eta); //This was the previous string, but doesn't match expectations of HGTDSensorSD
         module_string = "_layer_" + std::to_string(layer) + "_" + std::to_string(phi) + "_" + std::to_string(eta);
-        myx = -myx;
     }
     // two-ring layout
     else {
@@ -1053,6 +1054,17 @@ int HGTD_DetectorFactory::reorderRows( PositionsInQuadrant* quadrant ) {
 
     return xchng;
 }
+
+void HGTD_DetectorFactory::mirrorPositionsAroundYaxis(std::array< PositionsInQuadrant, 4 >& arr) {
+  for (auto& layer : arr) {
+    for (auto& row : layer) {
+      for (auto& module : row) {
+        module.x = -module.x;
+      }
+    }
+  }
+}
+
 
 InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign( double thickness ) {
 
