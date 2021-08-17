@@ -16,13 +16,12 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include <memory>
 #include <cmath>
-
+#include <memory>
 
 photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
-  : egammaSuperClusterBuilder(name, pSvcLocator)
+  : egammaSuperClusterBuilderBase(name, pSvcLocator)
 {}
 
 StatusCode
@@ -40,13 +39,7 @@ photonSuperClusterBuilder::initialize()
     ATH_CHECK(m_conversionBuilder.retrieve());
   }
 
-  return egammaSuperClusterBuilder::initialize();
-}
-
-StatusCode
-photonSuperClusterBuilder::finalize()
-{
-  return StatusCode::SUCCESS;
+  return egammaSuperClusterBuilderBase::initialize();
 }
 
 StatusCode
@@ -54,7 +47,8 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
 {
 
   // Retrieve input egammaRec container.
-  SG::ReadHandle<EgammaRecContainer> egammaRecs(m_inputEgammaRecContainerKey, ctx);
+  SG::ReadHandle<EgammaRecContainer> egammaRecs(m_inputEgammaRecContainerKey,
+                                                ctx);
 
   // check is only used for serial running; remove when MT scheduler used
   if (!egammaRecs.isValid()) {
@@ -64,12 +58,14 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
 
   // Have to register cluster container in order to properly get cluster links.
   SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(
-    m_outputPhotonSuperClustersKey,ctx);
-  ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
-                                          std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    m_outputPhotonSuperClustersKey, ctx);
+  ATH_CHECK(outputClusterContainer.record(
+    std::make_unique<xAOD::CaloClusterContainer>(),
+    std::make_unique<xAOD::CaloClusterAuxContainer>()));
 
   // Create the new Photon Super Cluster based EgammaRecContainer
-  SG::WriteHandle<EgammaRecContainer> newEgammaRecs(m_photonSuperRecCollectionKey,ctx);
+  SG::WriteHandle<EgammaRecContainer> newEgammaRecs(
+    m_photonSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
   // The calo Det Descr manager
@@ -81,15 +77,17 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i]) continue;
+    if (isUsed[i])
+      continue;
 
-    const auto *const egRec = (*egammaRecs)[i];
+    const auto* const egRec = (*egammaRecs)[i];
 
     // Seed selections
-    const auto *const clus = egRec->caloCluster();
+    const auto* const clus = egRec->caloCluster();
 
     // The seed should have 2nd sampling
-    if (!clus->hasSampling(CaloSampling::EMB2) && !clus->hasSampling(CaloSampling::EME2)) {
+    if (!clus->hasSampling(CaloSampling::EMB2) &&
+        !clus->hasSampling(CaloSampling::EME2)) {
       continue;
     }
     const double eta2 = std::abs(clus->etaBE(2));
@@ -97,7 +95,8 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
       continue;
     }
     // Accordeon Energy samplings 1 to 3
-    const double EMAccEnergy = clus->energyBE(1) + clus->energyBE(2) + clus->energyBE(3);
+    const double EMAccEnergy =
+      clus->energyBE(1) + clus->energyBE(2) + clus->energyBE(3);
     const double EMAccEt = EMAccEnergy / cosh(eta2);
     // Require minimum energy for supercluster seeding.
     if (EMAccEt < m_EtThresholdCut) {
@@ -105,28 +104,30 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     }
     // Passed preliminary custs
     ATH_MSG_DEBUG("Creating supercluster egammaRec photon object "
-                  << 'n' << "Using cluster Et = " << clus->et() << " EM Accordeon Et " << EMAccEt);
+                  << 'n' << "Using cluster Et = " << clus->et()
+                  << " EM Accordeon Et " << EMAccEt);
     // Mark seed as used
-    isUsedRevert = isUsed;  // save status in case we fail to create supercluster
+    isUsedRevert = isUsed; // save status in case we fail to create supercluster
     isUsed[i] = true;
 
     // Start accumulating the clusters from the seed
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
     accumulatedClusters.push_back(clus);
 
-
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
 
     for (const auto secClusIndex : secondaryIndices) {
-      const auto *const secRec = (*egammaRecs)[secClusIndex];
+      const auto* const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
       // no need to add vertices
     }
 
-    // Create the new cluster: take the full list of cluster and add their cells together
-    auto egType = (egRec->getNumberOfVertices() > 0) ? xAOD::EgammaParameters::convertedPhoton
-                                                     : xAOD::EgammaParameters::unconvertedPhoton;
+    // Create the new cluster: take the full list of cluster and add their cells
+    // together
+    auto egType = (egRec->getNumberOfVertices() > 0)
+                    ? xAOD::EgammaParameters::convertedPhoton
+                    : xAOD::EgammaParameters::unconvertedPhoton;
 
     std::unique_ptr<xAOD::CaloCluster> newCluster =
       createNewCluster(ctx, accumulatedClusters, *calodetdescrmgr, egType);
@@ -142,9 +143,11 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
-    ElementLink<xAOD::CaloClusterContainer> clusterLink(*outputClusterContainer,
-                                                        outputClusterContainer->size() - 1, ctx);
-    std::vector<ElementLink<xAOD::CaloClusterContainer>> phCluster{ clusterLink };
+    ElementLink<xAOD::CaloClusterContainer> clusterLink(
+      *outputClusterContainer, outputClusterContainer->size() - 1, ctx);
+    std::vector<ElementLink<xAOD::CaloClusterContainer>> phCluster{
+      clusterLink
+    };
 
     // Make egammaRec object, and push it back into output container.
     auto newEgRec = std::make_unique<egammaRec>(*egRec);
@@ -174,20 +177,22 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
 // assume egammaRecs != 0, since the ReadHadler is valid
 // assume seed egammaRec has a valid cluster, since it has been already used
 std::vector<std::size_t>
-photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t seedIndex,
-                                                      const EgammaRecContainer* egammaRecs,
-                                                      std::vector<bool>& isUsed) const
+photonSuperClusterBuilder::searchForSecondaryClusters(
+  std::size_t seedIndex,
+  const EgammaRecContainer* egammaRecs,
+  std::vector<bool>& isUsed) const
 {
 
   std::vector<std::size_t> secondaryIndices;
 
-  const auto *const seedEgammaRec = (*egammaRecs)[seedIndex];
+  const auto* const seedEgammaRec = (*egammaRecs)[seedIndex];
   const xAOD::CaloCluster* const seedCaloClus = seedEgammaRec->caloCluster();
 
   // let's determine some things about the seed
   std::vector<const xAOD::Vertex*> seedVertices;
   std::vector<xAOD::EgammaParameters::ConversionType> seedVertexType;
-  std::vector<const xAOD::TrackParticle*> seedVertexTracks; // tracks from conversion vertex
+  std::vector<const xAOD::TrackParticle*>
+    seedVertexTracks; // tracks from conversion vertex
 
   auto numVertices = seedEgammaRec->getNumberOfVertices();
   if (m_useOnlyLeadingVertex && numVertices > 0) {
@@ -195,11 +200,12 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t seedIndex,
   }
 
   for (std::size_t vx = 0; vx < numVertices; ++vx) {
-    const auto *const vertex = seedEgammaRec->vertex(vx);
+    const auto* const vertex = seedEgammaRec->vertex(vx);
     const auto convType = xAOD::EgammaHelpers::conversionType(vertex);
     seedVertices.push_back(vertex);
     seedVertexType.push_back(convType);
-    const bool addTracks = !m_useOnlySi || convType == xAOD::EgammaParameters::singleSi ||
+    const bool addTracks = !m_useOnlySi ||
+                           convType == xAOD::EgammaParameters::singleSi ||
                            convType == xAOD::EgammaParameters::doubleSi;
     if (addTracks) {
       for (unsigned int tp = 0; tp < vertex->nTrackParticles(); ++tp) {
@@ -216,26 +222,32 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t seedIndex,
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
 
     // if already used continue
-    if (isUsed[i]) { continue; }
+    if (isUsed[i]) {
+      continue;
+    }
 
-    const auto *const secEgammaRec = (*egammaRecs)[i];
+    const auto* const secEgammaRec = (*egammaRecs)[i];
     const xAOD::CaloCluster* const secClus = secEgammaRec->caloCluster();
     if (!secClus) {
-      ATH_MSG_WARNING("The potentially secondary egammaRec does not have a cluster");
+      ATH_MSG_WARNING(
+        "The potentially secondary egammaRec does not have a cluster");
       continue;
     }
 
     bool addCluster = false;
 
-    if (m_addClustersInWindow && matchesInWindow(seedCaloClus, secClus)) {
-      ATH_MSG_DEBUG("Cluster with Et: " << secClus->et() << " matched in window");
+    if (matchesInWindow(seedCaloClus, secClus)) {
+      ATH_MSG_DEBUG("Cluster with Et: " << secClus->et()
+                                        << " matched in window");
       ++nWindowClusters;
       addCluster = true;
-    } else if (m_addClustersMatchingVtx && matchesVtx(seedVertices, seedVertexType, secEgammaRec)) {
+    } else if (m_addClustersMatchingVtx &&
+               matchesVtx(seedVertices, seedVertexType, secEgammaRec)) {
       ATH_MSG_DEBUG("conversion vertices match");
       addCluster = true;
       ++nExtraClusters;
-    } else if (m_addClustersMatchingVtxTracks && matchesVtxTrack(seedVertexTracks, secEgammaRec)) {
+    } else if (m_addClustersMatchingVtxTracks &&
+               matchesVtxTrack(seedVertexTracks, secEgammaRec)) {
       ATH_MSG_DEBUG("conversion track match");
       addCluster = true;
       ++nExtraClusters;
@@ -265,7 +277,8 @@ photonSuperClusterBuilder::matchesVtx(
     numTestVertices = 1;
   }
   for (size_t seedVx = 0; seedVx < seedVertices.size(); ++seedVx) {
-    if (!m_useOnlySi || seedVertexType[seedVx] == xAOD::EgammaParameters::singleSi ||
+    if (!m_useOnlySi ||
+        seedVertexType[seedVx] == xAOD::EgammaParameters::singleSi ||
         seedVertexType[seedVx] == xAOD::EgammaParameters::doubleSi) {
 
       for (size_t testVx = 0; testVx < numTestVertices; ++testVx) {
@@ -287,7 +300,7 @@ photonSuperClusterBuilder::matchesVtxTrack(
   if (m_useOnlyLeadingTrack && numTestTracks > 0) {
     numTestTracks = 1;
   }
-  for (const auto *seedVertexTrack : seedVertexTracks) {
+  for (const auto* seedVertexTrack : seedVertexTracks) {
     // selected tracks alread are just Si if we are only looking at Si tracks
     for (size_t testTk = 0; testTk < numTestTracks; ++testTk) {
       if (seedVertexTrack == egRec->trackParticle(testTk)) {
