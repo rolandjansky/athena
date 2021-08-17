@@ -59,10 +59,10 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
 
    std::copy(&tmp_gTowersIDs_subset[0][0], &tmp_gTowersIDs_subset[0][0]+(rows*cols),&m_gTowersIDs[0][0]);
 
-   gTowersCentral Atwr = {0};
-   gTowersCentral Btwr = {0};
-   gTowersForward CPtwr = {0};
-   gTowersForward CNtwr = {0};
+   gTowersCentral Atwr = {{{0}}};
+   gTowersCentral Btwr = {{{0}}};
+   gTowersForward CPtwr = {{{0}}};
+   gTowersForward CNtwr = {{{0}}};
 
 
    ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
