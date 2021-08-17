@@ -420,13 +420,6 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                                                 ybins = lArCellBinningScheme.phiRange[part],
                                                 pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiTotalOccupancyNames])
 
-        allMonArray.defineHistogram('passThrCut,celleta,cellphi;CellOccupancyFractionVsEtaPhi',
-                                                          title='Fraction of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',
-                                                          type='TEfficiency', path="2d_Occupancy/",
-                                                          xbins = lArCellBinningScheme.etaRange[part],
-                                                          ybins = lArCellBinningScheme.phiRange[part],
-                                                          pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiPercentageOccupancyNames])
-
         allMonArray.defineHistogram('celleta;RAW_CellOccupancyVsEta', #needs weightedAverage/weightedEff
                                                  title='No. of events in (#eta) for '+part+';cell #eta;',
                                                  type='TH1F', path="1d_Occupancy/",

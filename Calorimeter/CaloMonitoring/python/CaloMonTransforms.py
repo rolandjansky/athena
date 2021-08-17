@@ -21,16 +21,16 @@ def divideHistCaloMon(inputs,doPercentage=False):
     cl = inputs[0][1][0].Clone()
     cl.Divide(inputs[0][1][1])
 
-    label=inputs[0][0]['thr']
+    label = inputs[0][0]['thr']
 
-    hnorm=inputs[0][1][2].Clone()
-    n0=hnorm.GetNbinsX()
-    fbin=hnorm.GetXaxis().FindBin(label)
+    hnorm = inputs[0][1][2].Clone()
+    n0 = hnorm.GetNbinsX()
+    fbin = hnorm.GetXaxis().FindBin(label)
 
     if fbin>=n0 or fbin<=0:
         return [cl]
         
-    thenorm=hnorm.GetBinContent(fbin)
+    thenorm = hnorm.GetBinContent(fbin)
     cl.SetEntries(thenorm)
     
     if not doPercentage or thenorm==0:
@@ -65,10 +65,10 @@ def divideByOccupancy(inputs,titleToReplace="",replaceTitWith=""):
 
     if titleToReplace!="":
         tit = cl.GetTitle()
-        tit=tit.replace(titleToReplace,replaceTitWith)
+        tit = tit.replace(titleToReplace,replaceTitWith)
         cl.SetTitle(tit)
 
-    nCells=cl.GetNcells()
+    nCells = cl.GetNcells()
     assert(nCells==inputs[0][1][1].GetNcells())
 
     cppyy.gbl.binbybinDiv(nCells,cl,inputs[0][1][0],inputs[0][1][1])
@@ -83,4 +83,29 @@ def divideByOccupancy(inputs,titleToReplace="",replaceTitWith=""):
 
     cl.SetEntries(inputs[0][1][0].GetEntries())
 
+    return [cl]
+
+
+def divideByAcceptedEvts(inputs):
+    """ This function divides the input histogram by the number of events that passed a given selection"""
+    assert len(inputs) == 1  
+    assert len(inputs[0][1]) == 2
+
+    cl = inputs[0][1][0].Clone()
+
+    label = inputs[0][0]['thr']
+
+    hnorm = inputs[0][1][1].Clone()
+    n0 = hnorm.GetNbinsX()
+    fbin = hnorm.GetXaxis().FindBin(label)
+
+    if fbin>=n0 or fbin<=0: #threshold not found
+        return [cl]
+        
+    thenorm = hnorm.GetBinContent(fbin)
+    
+    if thenorm==0:
+        return [cl]
+    cl.Scale(100.0/thenorm)
+    
     return [cl]
