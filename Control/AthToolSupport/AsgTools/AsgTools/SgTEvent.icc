@@ -8,6 +8,8 @@
 // System include(s):
 #include <iostream>
 
+#include <CxxUtils/AthUnlikelyMacros.h>
+
 // xAOD include(s):
 #ifdef XAOD_STANDALONE
 #   include "xAODRootAccess/TEvent.h"
@@ -23,7 +25,7 @@ namespace asg {
    bool SgTEvent::contains( const std::string& name ) const {
 
       // Make sure the object is initialised:
-      if( ( ! m_pevm ) && initialize().isFailure() ) {
+      if( ATH_UNLIKELY ( ! m_pevm ) && initialize().isFailure() ) {
          std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
@@ -42,7 +44,7 @@ namespace asg {
    bool SgTEvent::transientContains( const std::string& name ) const {
 
       // Make sure the object is initialised:
-      if( ( ! m_pevm ) && initialize().isFailure() ) {
+      if( ATH_UNLIKELY ( ! m_pevm ) && initialize().isFailure() ) {
          std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return false;
@@ -61,7 +63,7 @@ namespace asg {
    T* SgTEvent::retrieve( const std::string& name ) const {
 
       // Make sure the object is initialised:
-      if( ( ! m_pevm ) && initialize().isFailure() ) {
+      if( ATH_UNLIKELY ( ! m_pevm ) && initialize().isFailure() ) {
          std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return 0;
@@ -91,7 +93,7 @@ namespace asg {
    StatusCode SgTEvent::retrieve( T*& pobj, const std::string& name ) {
 
       pobj = retrieve< T >( name );
-      if( pobj ) {
+      if( ATH_LIKELY( pobj ) ) {
          return StatusCode::SUCCESS;
       } else {
          return StatusCode::FAILURE;
@@ -103,7 +105,7 @@ namespace asg {
                                   const std::string& name ) const {
 
       pobj = retrieve< const T >( name );
-      if( pobj ) {
+      if( ATH_LIKELY( pobj ) ) {
          return StatusCode::SUCCESS;
       } else {
          return StatusCode::FAILURE;
@@ -114,7 +116,7 @@ namespace asg {
    StatusCode SgTEvent::record( std::unique_ptr<T> pobj, const std::string& name ) {
 
       // Make sure the object is initialised:
-      if( ( ! m_pevm ) && initialize().isFailure() ) {
+      if( ATH_UNLIKELY ( ! m_pevm ) && initialize().isFailure() ) {
          std::cout << ERROR_SOURCE << "Couldn't initialise the tool"
                    << std::endl;
          return StatusCode::FAILURE;
