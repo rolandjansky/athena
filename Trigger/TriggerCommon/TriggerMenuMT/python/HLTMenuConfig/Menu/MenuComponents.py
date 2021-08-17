@@ -25,6 +25,11 @@ log = logging.getLogger( __name__ )
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
 
+
+class NoHypoToolCreated(Exception):
+    """Exception thrown by HypoTool generators if no HypoTool is needed"""  # see ATR-23920
+
+
 class Node(object):
     """base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
     def __init__(self, Alg):
@@ -181,7 +186,6 @@ class HypoAlgNode(AlgNode):
     def __init__(self, Alg):
         assert isHypoBase(Alg), "Error in creating HypoAlgNode from Alg "  + compName(Alg)
         AlgNode.__init__(self, Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
-        self.tools = []
         self.previous=[]
 
     def addOutput(self, name):
@@ -196,17 +200,11 @@ class HypoAlgNode(AlgNode):
 
 
     def addHypoTool (self, hypoToolConf):
-        log.debug("   Adding HypoTool %s to %s", hypoToolConf.chainDict['chainName'], compName(self.Alg))
-        if hypoToolConf.chainDict['chainName'] not in self.tools:
-            ## HypoTools are private, so need to be created when added to the Alg
-            ## this incantation may seem strange, however it is the only one which works
-            ## trying tool = hypoToolConf.create() and then assignement does not work! will be no problem in run3 config
-            tools = self.Alg.HypoTools
-            self.Alg.HypoTools = tools+[hypoToolConf.create()]
-            self.tools.append( self.Alg.HypoTools[-1].getName() ) # should not be needed anymore
-        else:
-            raise RuntimeError("The hypo tool of name "+ hypoToolConf.chainDict['chainName'] +" already present")
-
+        log.debug("Adding HypoTool %s to %s", hypoToolConf.chainDict['chainName'], compName(self.Alg))
+        try:
+            self.Alg.HypoTools = self.Alg.HypoTools + [hypoToolConf.create()]  # see ATEAM-773
+        except NoHypoToolCreated as e:
+            log.debug("%s returned empty tool: %s", hypoToolConf.name, e)
 
     def setPreviousDecision(self,prev):
         self.previous.append(prev)
@@ -218,10 +216,11 @@ class HypoAlgNode(AlgNode):
         self.resetInput()
 
     def __repr__(self):
-        return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(compName(self.Alg),' '.join(map(str, self.getInputList())),
-                                                                                 ' '.join(map(str, self.getOutputList())),
-                                                                                 ' '.join(map(str, self.previous)),
-                                                                                 ' '.join(map(str, self.tools)))
+        return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]" % \
+            (compName(self.Alg),' '.join(map(str, self.getInputList())),
+             ' '.join(map(str, self.getOutputList())),
+             ' '.join(map(str, self.previous)),
+             ' '.join([t.getName() for t in self.Alg.HypoTools]))
 
 
 class SequenceFilterNode(AlgNode):
@@ -443,9 +442,6 @@ class EmptyMenuSequence(object):
  
         return cfseq_algs, all_hypos, last_step_hypo_nodes
 
-    def getTools(self):
-        log.debug("No tools for empty menu sequences")
-
     def setSeed( self, seed ):
         self._seed = seed
 
@@ -613,9 +609,6 @@ class MenuSequence(object):
  
         return cfseq_algs, all_hypos, last_step_hypo_nodes
 
-
-    def getTools(self):    
-        return self._hypo.tools
 
     def setSeed( self, seed ):
         self._seed = seed
