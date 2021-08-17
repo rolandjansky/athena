@@ -137,8 +137,11 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
   vec.reserve(track.measurementsOnTrack()->size());
   for (const MeasurementBase* meas : *track.measurementsOnTrack())
   {
-    const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(meas);
-    if (rot){
+    const Trk::RIO_OnTrack* rot = nullptr;
+    if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      rot = static_cast<const RIO_OnTrack*>(meas);
+    }
+    if (rot) {
       if(m_idHelperSvc->isMuon(rot->identify())){
         //only use precision hits for muon track overlap
         if(   !m_idHelperSvc->isMdt(rot->identify())
@@ -146,10 +149,12 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
            && !m_idHelperSvc->measuresPhi(rot->identify()))) continue;
       }
       vec.push_back(rot->prepRawData());
-    }
-    else{
-      const Trk::CompetingRIOsOnTrack* competingROT = dynamic_cast <const Trk::CompetingRIOsOnTrack*> (meas);
-      if(competingROT){
+    } else {
+      const Trk::CompetingRIOsOnTrack* competingROT = nullptr;
+      if (meas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+        competingROT = static_cast<const Trk::CompetingRIOsOnTrack*>(meas);
+      }
+      if (competingROT) {
         const unsigned int numROTs = competingROT->numberOfContainedROTs();
         for( unsigned int i=0;i<numROTs;++i ){
           const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
