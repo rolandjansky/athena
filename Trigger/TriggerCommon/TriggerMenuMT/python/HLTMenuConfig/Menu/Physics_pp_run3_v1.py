@@ -158,27 +158,6 @@ def setupMenu():
         ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
         ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_Jpsiee_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup), 
 
-        #------------ support legs of multi-electrons
-        ChainProp(name='HLT_e15_etcut_idperf_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
-
-        ChainProp(name='HLT_e4_etcut_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e9_etcut_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e14_etcut_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e15_etcut_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
-
-        ChainProp(name='HLT_e12_lhvloose_L1EM10VH', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e17_lhvloose_L1EM15VHI', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SupportLegGroup+SingleElectronGroup),
-
-        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e9_lhtight_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e9_lhtight_noringer_L1EM3', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e14_lhtight_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e14_lhtight_noringer_L1EM7', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e20_lhtight_ivarloose_L1EM15VH', groups=SupportLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SupportLegGroup+SingleElectronGroup),
-
         #------------ support validation of tag-and-probe mass cuts
         ChainProp(name='HLT_e26_lhtight_e15_etcut_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=SupportLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e9_lhtight_e4_etcut_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+SingleElectronGroup),
