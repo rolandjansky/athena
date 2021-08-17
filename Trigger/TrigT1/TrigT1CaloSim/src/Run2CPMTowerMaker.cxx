@@ -35,15 +35,6 @@ StatusCode Run2CPMTowerMaker::initialize()
 }
 
 
-/** the finalise() method is called at the end of processing, so it is used
-for deleting histograms and general tidying up*/
-StatusCode Run2CPMTowerMaker::finalize()
-{
-  ATH_MSG_INFO("Finalizing" );
-  return StatusCode::SUCCESS ;
-}
-
-
 /**----------------------------------------------
    execute() method called once per event
    ----------------------------------------------
