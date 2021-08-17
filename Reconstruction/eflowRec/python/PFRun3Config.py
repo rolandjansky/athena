@@ -163,5 +163,11 @@ if __name__=="__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(cfgFlags))
     cfg.merge(PFCfg(cfgFlags))
+    
+    from eflowRec.PFRun3Remaps import ListRemaps
+
+    list_remaps=ListRemaps()
+    for mapping in list_remaps:
+        cfg.merge(mapping)
 
     cfg.run()
