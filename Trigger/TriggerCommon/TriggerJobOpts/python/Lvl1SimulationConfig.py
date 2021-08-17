@@ -104,6 +104,11 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
         l1CaloSimSeq.jFEXDriver.jSuperCellTowerMapperTool.SCell=SCellType
         l1CaloSimSeq.jFEXDriver.jFEXSysSimTool.SCell=SCellType
 
+        l1CaloSimSeq += CfgMgr.LVL1__gFEXDriver('gFEXDriver',
+            SCell=SCellType )
+        l1CaloSimSeq.gFEXDriver.gSuperCellTowerMapperTool.SCell=SCellType
+        l1CaloSimSeq.gFEXDriver.gFEXSysSimTool.SCell=SCellType
+
     ##################################################
     # Muons
     ##################################################
