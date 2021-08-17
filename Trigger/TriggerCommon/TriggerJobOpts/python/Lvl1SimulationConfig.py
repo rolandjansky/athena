@@ -76,9 +76,7 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
 
         if ConfigFlags.Input.isMC:
             from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-            l1CaloSimSeq += [
-              LVL1__TrigT1MBTS(UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON),
-            ]
+            l1CaloSimSeq += [ LVL1__TrigT1MBTS() ]
 
     if ConfigFlags.Trigger.L1.doCalo and ConfigFlags.Trigger.enableL1CaloPhase1:
         if not l1CaloSimSeq:
