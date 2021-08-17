@@ -69,3 +69,11 @@ Input: [ 'CaloMonitoring/LArCellMon_NoTrigSel/2d_PoorQualityFraction/RAW_fractio
 Output: [ 'CaloMonitoring/LArCellMon_NoTrigSel/2d_PoorQualityFraction/fractionOverQthVsEtaPhi_{lay}{side}_{thr}' ]
 Function: CaloMonitoring.CaloMonTransforms.divideByOccupancy
 Description: poorQuality_fraction
+
+
+#2D percentage occupancy (only the thresholds for which percentage occupancy is required
+---
+Input: [ 'CaloMonitoring/LArCellMon_NoTrigSel/2d_Occupancy/CellOccupancyVsEtaPhi_(?P<lay>EMBP|EMB1|EMB2|EMB3|HEC0|HEC1|HEC2|HEC3|EMECP|EMEC1|EMEC2|EMEC3|FCAL1|FCAL2|FCAL3)(?P<side>A|C)_(?P<thr>noEth_CSCveto|medEth_CSCveto)','CaloMonitoring/LArCellMon_NoTrigSel/Summary/nEvtsPerThreshold']
+Output: [ 'CaloMonitoring/LArCellMon_NoTrigSel/2d_Occupancy/PercentCellOccupancyVsEtaPhi_{lay}{side}_{thr}' ]
+Function: CaloMonitoring.CaloMonTransforms.divideByAcceptedEvts
+Description: 2D_percentage_occupancy
