@@ -235,8 +235,8 @@ namespace top {
                       "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
                       "CategoryJES_FullJER_FullJMS");
     registerParameter("LargeRJetUncertainties_JMR_NPModel",
-                      "Full (10 NP; aimed at the most precise jet-dependent measurements), Simple (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
-                      "FullJMR_COMB");
+                      "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Winter2021");
