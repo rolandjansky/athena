@@ -12,6 +12,18 @@ from AthenaCommon.JobProperties import jobproperties
 prodFlags = jobproperties.D3PDProdFlags
 from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 
+# Recent AODs don't contain jets.
+# Need to remake them.
+from D3PDMakerCoreComps.resolveSGKey import testSGKey
+from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
+if not testSGKey ('xAOD::JetContainer', D3PDMakerFlags.JetSGKey()):
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets
+    addDAODJets (['AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], topSequence, 'PhysCommon')
+    D3PDMakerFlags.JetSGKey = 'AntiKt4EMTopoJets'
+    from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
+    scheduleStandardMETContent (topSequence)
+
+
 # Set up a logger:
 from AthenaCommon.Logging import logging
 EgammaD3PDStream_msg = logging.getLogger( 'EgammaD3PD_prodJobOFragment' )
