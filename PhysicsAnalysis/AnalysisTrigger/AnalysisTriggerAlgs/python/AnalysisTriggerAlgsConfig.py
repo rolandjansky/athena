@@ -33,9 +33,7 @@ class RoIBResultToxAOD( Conf.RoIBResultToxAOD ):
                                                                     # later on in the job configuration...
 
         # Set the handle for the algorithm:
-        self.LVL1ConfigSvc = lvl1ConfigSvc
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        self.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         #
         # Set up the L1Calo tools:
