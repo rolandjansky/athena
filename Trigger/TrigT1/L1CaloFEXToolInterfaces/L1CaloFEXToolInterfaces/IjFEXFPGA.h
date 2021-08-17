@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
   

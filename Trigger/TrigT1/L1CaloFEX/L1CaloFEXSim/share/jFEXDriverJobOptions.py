@@ -48,80 +48,87 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Calo_setOn()
 include("RecExCond/AllDet_detDescr.py")
 
+# menu with default configuration for testing
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+svcMgr += getL1ConfigSvc(ConfigFlags)
+
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"]
 
+
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.jFEX.output.root" )
+StreamAOD_Augmented = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.jFEX.output.root" )
+StreamAOD = StreamAOD_Augmented.GetEventStream()
 
 # the jFex containers
-xaodStream.AddItem( ["xAOD::jFexSRJetRoIContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexSRJetRoIAuxContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexLRJetRoIContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexLRJetRoIAuxContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexTauRoIContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexTauRoIAuxContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexSumETRoIContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexSumETRoIAuxContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexMETRoIContainer#*"] )
-xaodStream.AddItem( ["xAOD::jFexMETRoIAuxContainer#*"] )
+StreamAOD.ItemList+=["xAOD::jFexSRJetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSRJetRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexLRJetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexLRJetRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexTauRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexTauRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSumETRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexSumETRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexMETRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexMETRoIAuxContainer#*"]
 
 
+# a random selection of containers/keys from parsing checkSG output from original MC, ignoring Aux and removing those
+# that seemed to give a crash
 # Generic event info
-xaodStream.AddItem( ["xAOD::EventInfo#*"] )
-xaodStream.AddItem( ["xAOD::EventAuxInfo#*"])
-xaodStream.AddItem( ["xAOD::EventShape#Kt4EMTopoOriginEventShape"])
-xaodStream.AddItem( ["xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux."])
-
+StreamAOD.ItemList+=["xAOD::EventInfo#*"]
+StreamAOD.ItemList+=["xAOD::EventAuxInfo#*"]
+StreamAOD.ItemList+=["xAOD::EventShape#Kt4EMTopoOriginEventShape"]
+StreamAOD.ItemList+=["xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux."]
 
 #Physics Objects
-xaodStream.AddItem( ["xAOD::JetContainer#AntiKt4EMTopoJets"])
-xaodStream.AddItem( ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux."])
-xaodStream.AddItem( ["xAOD::MuonContainer#Muons"])
-xaodStream.AddItem( ["xAOD::MuonAuxContainer#MuonsAux."])
-xaodStream.AddItem( ["xAOD::ElectronContainer#Electrons"])
-xaodStream.AddItem( ["xAOD::ElectronAuxContainer#ElectronsAux."])
-xaodStream.AddItem( ["xAOD::PhotonContainer#Photons"])
-xaodStream.AddItem( ["xAOD::PhotonAuxContainer#PhotonsAux."])
-xaodStream.AddItem( ["xAOD::TauJetContainer#TauJets"])
-xaodStream.AddItem( ["xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters."])
-xaodStream.AddItem( ["xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo"])
-xaodStream.AddItem( ["xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.-ConstitObjectLinks.-ConstitObjectWeights"])
-xaodStream.AddItem( ["xAOD::VertexContainer#PrimaryVertices"])
-xaodStream.AddItem( ["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"])
-xaodStream.AddItem( ["xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMTopo"])
-xaodStream.AddItem( ["xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux."])
-xaodStream.AddItem( ["xAOD::MissingETContainer#MET_Core_AntiKt4EMTopo"])
-xaodStream.AddItem( ["xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMTopoAux.name.mpx.mpy.sumet.source"])
-xaodStream.AddItem( ["xAOD::MissingETContainer#MET_Track"])
-xaodStream.AddItem( ["xAOD::MissingETAuxContainer#MET_TrackAux.name.mpx.mpy"])
+StreamAOD.ItemList+=["xAOD::JetContainer#AntiKt4EMTopoJets"]
+StreamAOD.ItemList+=["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux."]
+StreamAOD.ItemList+=["xAOD::MuonContainer#Muons"]
+StreamAOD.ItemList+=["xAOD::MuonAuxContainer#MuonsAux."]
+StreamAOD.ItemList+=["xAOD::ElectronContainer#Electrons"]
+StreamAOD.ItemList+=["xAOD::ElectronAuxContainer#ElectronsAux."]
+StreamAOD.ItemList+=["xAOD::PhotonContainer#Photons"]
+StreamAOD.ItemList+=["xAOD::PhotonAuxContainer#PhotonsAux."]
+StreamAOD.ItemList+=["xAOD::TauJetContainer#TauJets"]
+StreamAOD.ItemList+=["xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters."]
+StreamAOD.ItemList+=["xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo"]
+StreamAOD.ItemList+=["xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.-ConstitObjectLinks.-ConstitObjectWeights"]
+StreamAOD.ItemList+=["xAOD::VertexContainer#PrimaryVertices"]
+StreamAOD.ItemList+=["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"]
+StreamAOD.ItemList+=["xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMTopo"]
+StreamAOD.ItemList+=["xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux."]
+StreamAOD.ItemList+=["xAOD::MissingETContainer#MET_Core_AntiKt4EMTopo"]
+StreamAOD.ItemList+=["xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMTopoAux.name.mpx.mpy.sumet.source"]
+StreamAOD.ItemList+=["xAOD::MissingETContainer#MET_Track"]
+StreamAOD.ItemList+=["xAOD::MissingETAuxContainer#MET_TrackAux.name.mpx.mpy"]
 
 
 
-xaodStream.AddItem( ["xAOD::MissingETComponentMap#METMap_Truth"])
-xaodStream.AddItem( ["xAOD::EmTauRoIContainer#LVL1EmTauRoIs"])
-xaodStream.AddItem( ["xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux."])
-xaodStream.AddItem( ["xAOD::EnergySumRoI#LVL1EnergySumRoI"])
-xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux."])
-xaodStream.AddItem( ["xAOD::JetRoIContainer#LVL1JetRoIs"])
-xaodStream.AddItem( ["xAOD::JetRoIAuxContainer#LVL1JetRoIsAux."])
+StreamAOD.ItemList+=["xAOD::MissingETComponentMap#METMap_Truth"]
+StreamAOD.ItemList+=["xAOD::EmTauRoIContainer#LVL1EmTauRoIs"]
+StreamAOD.ItemList+=["xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux."]
+StreamAOD.ItemList+=["xAOD::EnergySumRoI#LVL1EnergySumRoI"]
+StreamAOD.ItemList+=["xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux."]
+StreamAOD.ItemList+=["xAOD::JetRoIContainer#LVL1JetRoIs"]
+StreamAOD.ItemList+=["xAOD::JetRoIAuxContainer#LVL1JetRoIsAux."]
 
 
-xaodStream.AddItem( ["xAOD::TruthParticleContainer#*"])
-xaodStream.AddItem( ["xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension"])
-xaodStream.AddItem( ["xAOD::TruthVertexContainer#*"])
-xaodStream.AddItem( ["xAOD::TruthVertexAuxContainer#*"])
-xaodStream.AddItem( ["xAOD::TruthEventContainer#*"])
-xaodStream.AddItem( ["xAOD::TruthEventAuxContainer#*"])
+StreamAOD.ItemList+=["xAOD::TruthParticleContainer#*"]
+StreamAOD.ItemList+=["xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension"]
+StreamAOD.ItemList+=["xAOD::TruthVertexContainer#*"]
+StreamAOD.ItemList+=["xAOD::TruthVertexAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::TruthEventContainer#*"]
+StreamAOD.ItemList+=["xAOD::TruthEventAuxContainer#*"]
 
-xaodStream.AddItem( ["TileCellContainer#MBTSContainer"])
-xaodStream.AddItem( ["xAOD::TrigDecision#xTrigDecision"])
-xaodStream.AddItem( ["xAOD::TrigNavigation#TrigNavigation"])
-xaodStream.AddItem( ["xAOD::TrigConfKeys#TrigConfKeys"])
-xaodStream.AddItem( ["HLT::HLTResult#HLTResult_HLT"])
-xaodStream.AddItem( ["xAOD::TrigDecisionAuxInfo#xTrigDecisionAux."])
-xaodStream.AddItem( ["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."])
-
+StreamAOD.ItemList+=["TileCellContainer#MBTSContainer"]
+StreamAOD.ItemList+=["xAOD::TrigDecision#xTrigDecision"]
+StreamAOD.ItemList+=["xAOD::TrigNavigation#TrigNavigation"]
+StreamAOD.ItemList+=["xAOD::TrigConfKeys#TrigConfKeys"]
+StreamAOD.ItemList+=["HLT::HLTResult#HLTResult_HLT"]
+StreamAOD.ItemList+=["xAOD::TrigDecisionAuxInfo#xTrigDecisionAux."]
+StreamAOD.ItemList+=["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."]
 
 
 

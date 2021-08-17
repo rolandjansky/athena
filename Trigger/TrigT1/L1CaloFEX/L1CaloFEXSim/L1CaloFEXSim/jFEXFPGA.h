@@ -32,6 +32,7 @@
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 #include <vector>
 
+#include "TrigConfData/L1Menu.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -128,6 +129,7 @@ namespace LVL1 {
     CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"};
     
     SG::WriteHandleKey<LVL1::jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "jFEXOutputCollection", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
 
@@ -142,6 +144,7 @@ namespace LVL1 {
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);
+    
     
   };
   
