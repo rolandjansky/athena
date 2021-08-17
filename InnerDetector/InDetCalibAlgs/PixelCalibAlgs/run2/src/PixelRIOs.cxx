@@ -531,7 +531,7 @@ void PixelRIOs::Analyze(const std::string& reference,
 
 
 	std::string errorfilename = "PixelClusterOnTrackErrorData"
-	       	+ m_FinalTag.substr(m_FinalTag.find("-"));
+	       	+ m_FinalTag.substr(m_FinalTag.find('-'));
 	m_Validation->WriteErrorsFile(errorfilename);
 
 	std::string histofilename = m_FinalTag + std::string(".root");

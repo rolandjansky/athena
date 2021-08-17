@@ -424,8 +424,8 @@ DbStatus DbDatabaseObj::open()   {
             size_t id1 = dsc.find("[NAME=");
             size_t id2 = dsc.find("[VALUE=");
             if ( id1 != string::npos && id2 != string::npos )  {
-              size_t id11 = dsc.find("]", id1+6);
-              size_t id22 = dsc.find("]", id2+7);
+              size_t id11 = dsc.find(']', id1+6);
+              size_t id22 = dsc.find(']', id2+7);
               if ( id11 != string::npos && id22 != string::npos )  {
                 string n = dsc.substr(id1+6, id11-id1-6);
                 string v = dsc.substr(id2+7, id22-id2-7);

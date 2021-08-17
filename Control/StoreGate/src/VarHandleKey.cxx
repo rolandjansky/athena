@@ -270,7 +270,7 @@ void VarHandleKey::parseKey (const std::string& key,
                                 + sn + "\"");
     }
   } else {
-    sp = m_sgKey.rfind("/");
+    sp = m_sgKey.rfind('/');
     if (sp != std::string::npos) {
       if (sp == 0
 	  && m_sgKey.size() == 1) {

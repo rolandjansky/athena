@@ -86,7 +86,7 @@ StatusCode AthenaOutputStreamTool::initialize() {
      if( (pos != std::string::npos) ) {
        ATH_MSG_INFO("The AttrListKey will be overwritten/set by the value from the OutputName: " << m_outputName);
        const std::string attrListKey = m_outputName.value().substr(pos + keyword.size(),
-								   m_outputName.value().find("]", pos + keyword.size()) - pos - keyword.size());
+								   m_outputName.value().find(']', pos + keyword.size()) - pos - keyword.size());
        m_attrListKey = attrListKey;
      }
    }

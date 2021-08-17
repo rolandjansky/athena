@@ -459,13 +459,13 @@ void EvtRangeScatterer::trimRangeStrings(std::string& str)
   // Get rid of them!
   if(str.find("u\'")==0) {
     str = str.substr(2);
-    if(str.rfind("\'")==str.size()-1) {
+    if(str.rfind('\'')==str.size()-1) {
       str = str.substr(0,str.size()-1);
     }
   }
-  else if(str.find("\"")==0) {
+  else if(str.find('\"')==0) {
     str = str.substr(1);
-    if(str.rfind("\"")==str.size()-1) {
+    if(str.rfind('\"')==str.size()-1) {
       str = str.substr(0,str.size()-1);
     }
   }

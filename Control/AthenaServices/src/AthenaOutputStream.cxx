@@ -991,7 +991,7 @@ AthenaOutputStream::buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
       continue;
     }
     // Then find the compression item key and the compression list string
-    size_t seppos = iter->key().find(".");
+    size_t seppos = iter->key().find('.');
     string comp_item_key{""}, comp_str{""};
     if(seppos != string::npos) {
       comp_item_key = iter->key().substr(0, seppos+1);

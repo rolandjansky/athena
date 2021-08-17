@@ -405,7 +405,7 @@ StatusCode GeoModelSvc::compareTags()
       // Parse Tag Info tag
       std::string::size_type startpos = 0;
       std::string currStr = pair.second;
-      for(std::string::size_type endpos=currStr.find("-"); endpos!=std::string::npos; endpos=currStr.find("-",startpos)) {
+      for(std::string::size_type endpos=currStr.find('-'); endpos!=std::string::npos; endpos=currStr.find('-',startpos)) {
 	tokensTagInfo.push_back(currStr.substr(startpos,endpos-startpos));
 	startpos = endpos+1;
       }
@@ -421,7 +421,7 @@ StatusCode GeoModelSvc::compareTags()
 	// Parse Job Options tag
 	startpos = 0;
 	currStr = m_AtlasVersion;
-	for(std::string::size_type endpos=currStr.find("-"); endpos!=std::string::npos; endpos=currStr.find("-",startpos)) {
+	for(std::string::size_type endpos=currStr.find('-'); endpos!=std::string::npos; endpos=currStr.find('-',startpos)) {
 	  tokensJobOpt.push_back(currStr.substr(startpos,endpos-startpos));
 	  startpos = endpos+1;
 	}
