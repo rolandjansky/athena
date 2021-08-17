@@ -164,17 +164,12 @@ class TrigTauMonAlgBuilder:
     # tau0
     'HLT_tau0_ptonly_L1TAU8',
     'HLT_tau0_ptonly_L1TAU60',
-    'HLT_tau0_ptonly_L1TAU100',
     # tau25
     'HLT_tau25_ptonly_L1TAU12IM',
-    'HLT_tau25_idperf_track_L1TAU12IM',
     'HLT_tau25_idperf_tracktwo_L1TAU12IM',
-    'HLT_tau25_idperf_tracktwoEF_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_perf_track_L1TAU12IM',
     'HLT_tau25_perf_tracktwo_L1TAU12IM',
-    'HLT_tau25_perf_tracktwoEF_L1TAU12IM',
     'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
@@ -183,46 +178,34 @@ class TrigTauMonAlgBuilder:
     'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_medium1_track_L1TAU12IM',
     'HLT_tau25_medium1_tracktwo_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoEF_L1TAU12IM',
     # tau35
-    'HLT_tau35_ptonly_L1TAU12IM',
-    'HLT_tau35_idperf_track_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwo_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoEF_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_perf_track_L1TAU12IM',
-    'HLT_tau35_perf_tracktwo_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoEF_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_ptonly_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwo_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_perf_tracktwo_L1TAU20IM',
+    'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
     # tau80
     'HLT_tau80_medium1_tracktwo_L1TAU60',
     # tau160
     'HLT_tau160_ptonly_L1TAU100',
-    'HLT_tau160_idperf_track_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
-    'HLT_tau160_idperf_tracktwoEF_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_perf_track_L1TAU100',
     'HLT_tau160_perf_tracktwo_L1TAU100',
-    'HLT_tau160_perf_tracktwoEF_L1TAU100',
     'HLT_tau160_perf_tracktwoMVA_L1TAU100',
     'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
-    'HLT_tau160_medium1_tracktwoEF_L1TAU100',
     # tau180
     'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
     'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
@@ -230,14 +213,12 @@ class TrigTauMonAlgBuilder:
     'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_medium1_track_L1TAU100',
     'HLT_tau200_medium1_tracktwo_L1TAU100',
-    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
     'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
     # ditau
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
     'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
     'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
@@ -475,16 +456,12 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
-                               path=monGroupPath,
+    monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='Eta vs Phi; #eta ; #phi',
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
-                               path=monGroupPath,
-                               xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
-   
-    monGroup.defineHistogram('hEFEta,hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
-                               path=monGroupPath,
-                               xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
+    monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F',  title='Et vs Phi; E_{T} [GeV]; #phi',
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=16,ymin=-3.2,ymax=3.2) 
+    monGroup.defineHistogram('hEFEt,hEFEta', type='TH2F',  title='Et vs Eta; E_{T} [GeV]; #eta',
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=26,ymin=-2.6,ymax=2.6)
    
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
