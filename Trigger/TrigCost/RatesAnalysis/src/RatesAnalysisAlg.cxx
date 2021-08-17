@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // RatesAnalysis includes
@@ -534,7 +534,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         }
         ATH_CHECK( trigger.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/data")) );
         ATH_CHECK( trigger.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( trigger.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/" + lvlSubdir + trigger.first + "/rateVsTrain")) );
         else trigger.second->clearTrainHist();
       }
     }
@@ -552,7 +552,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         std::replace( groupName.begin(), groupName.end(), ':', '_');
         ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/data")) );
         ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/" + groupName + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -562,7 +562,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
         if (!group.second->doHistograms()) continue;
         ATH_CHECK( group.second->giveDataHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/data")) );
         ATH_CHECK( group.second->giveMuHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsMu")) );
-        if (m_useBunchCrossingTool) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
+        if (m_useBunchCrossingData) ATH_CHECK( group.second->giveTrainHist(histSvc(), std::string("/RATESTREAM/All/Rate_Group_HLT/RATE_GLOBAL_" + group.first + "/rateVsTrain")) );
         else group.second->clearTrainHist();
       }
     }
@@ -599,7 +599,7 @@ StatusCode RatesAnalysisAlg::execute() {
   m_weightingValues.m_distanceInTrain = distance;
   m_weightingValues.m_eventLiveTime = m_enhancedBiasRatesTool->getEBLiveTime(eventInfo); 
 
-  if (m_useBunchCrossingTool && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
+  if (m_useBunchCrossingData && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
 
   // Bunch factor doesn't change as a fn. of the run. Reminder: m_bunchFactor = m_targetBunches / (double)ebPairedBunches;
   m_weightingValues.m_muFactor = m_targetMu / m_weightingValues.m_eventMu;
