@@ -854,7 +854,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
    // setup the Frontier cache information for the given logical or physical connection string
    // first determine if the connection is logical (no ':')
    std::vector<std::string> physcons;
-   if (conn.find(":") == std::string::npos) {
+   if (conn.find(':') == std::string::npos) {
       // if logical, have to lookup list of physical replicas, and consider each
       // need the CORAL ILookupSvc interface which must be loaded if needed
       const std::string lookSvcStr("CORAL/Services/XMLLookupService");
@@ -915,7 +915,7 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
    for (auto& catalog : m_readCatalog.value()) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << catalog);
       if (catalog.substr(0, 8) == "apcfile:" || catalog.substr(0, 7) == "prfile:") {
-         std::string::size_type cpos = catalog.find(":");
+         std::string::size_type cpos = catalog.find(':');
          // check for file accessed via ATLAS_POOLCOND_PATH
          std::string file = poolCondPath(catalog.substr(cpos + 1));
          if (!file.empty()) {

@@ -143,7 +143,7 @@ StatusCode TrigCompositeUtils::AlgToChainTool::getAllActiveSequences( const Even
                 if (!d->decisions().empty()){
                     // Save algorithm to active sequence mapping
                     for (const std::string& alg : sequence.second) {
-                        algToSeq[alg.substr(alg.find("/") + 1, alg.size())] = sequence.first;
+                        algToSeq[alg.substr(alg.find('/') + 1, alg.size())] = sequence.first;
                     }
                     break;
                 }

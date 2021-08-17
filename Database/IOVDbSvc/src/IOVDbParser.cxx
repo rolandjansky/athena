@@ -22,7 +22,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
   std::string::size_type len=input.size();
   while (iofs!=std::string::npos && iofs<len) {
     // look for the start of the next XML tag
-    std::string::size_type iofs1=input.find("<",iofs);
+    std::string::size_type iofs1=input.find('<',iofs);
     if (iofs1>iofs && iofs1!=std::string::npos) {
       // take any unmarked-up text into the 'outside' data slot
       m_keys[""]+=IOVDbNamespace::spaceStrip(input.substr(iofs,iofs1-iofs));
@@ -30,7 +30,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
     if (iofs1!=std::string::npos) {
       // have an opening XML tag - process it
       // first find the end of the tag, either '>' or ' ', whichever first
-      std::string::size_type iofs2=input.find(">",iofs1);
+      std::string::size_type iofs2=input.find('>',iofs1);
       std::string::size_type iofs3=input.find("/>",iofs1);
       bool noClosingTag = (iofs2 == std::string::npos);
       if (noClosingTag){
@@ -49,7 +49,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
           // found closing tag, store tag and text
           m_keys[tag]=IOVDbNamespace::spaceStrip(input.substr(iofs2+1,iofs4-iofs2-1));
           // advance to the next part of the string, after '>' on closing tag
-          iofs=input.find(">",iofs4);
+          iofs=input.find('>',iofs4);
           if (iofs == std::string::npos) {
             m_msg << MSG::FATAL << 
               "Badly formed XML string, no closing tag in " << input << endmsg;
@@ -69,7 +69,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
       } else if (iofs3!=std::string::npos) {
         // found a />, so tag is of form <tag values info/>
         // find the end of the tag part to see if a value is present
-        std::string::size_type iofs4=input.find(" ",iofs1+1);
+        std::string::size_type iofs4=input.find(' ',iofs1+1);
         std::string value,tag;
         if (iofs4!=std::string::npos && iofs4<iofs3) {
           value=IOVDbNamespace::spaceStrip(input.substr(iofs4,iofs3-iofs4));

@@ -223,7 +223,7 @@ class CyclicSeqSampler : public Sampler {
     size_t pos = 0;
     std::string token;
     std::cout << "Initializing CyclicSeqSampler..." << std::endl;
-    while ((pos = s.find(",")) != std::string::npos) {
+    while ((pos = s.find(',')) != std::string::npos) {
       token = s.substr(0, pos);
       m_sequence.push_back(std::stoi(token));
       s.erase(0, pos + 1);

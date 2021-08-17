@@ -290,8 +290,8 @@ StatusCode TileInfoLoader::initialize() {
                      )) || (run2 == 0); // calibration for all geometries >=RUN2 are the same as in RUN2
 
     if (geo == 0 || comm == 0 || ibl == 0 || run1 == 0 || run2 == 0 || upg == 0 || RUN2) {
-      int pos = (atlasVersion.substr(9)).find("-");
-      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find("-") + 4;
+      int pos = (atlasVersion.substr(9)).find('-');
+      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find('-') + 4;
       std::string geoVersion = atlasVersion.substr(pos+10,2)
                              + atlasVersion.substr(pos+13,2)
                              + atlasVersion.substr(pos+16,2);

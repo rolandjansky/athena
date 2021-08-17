@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-static const char* const storeSeparator = "+";
+constexpr char const storeSeparator = '+';
 
 namespace SG {
 
@@ -227,7 +227,7 @@ void VarHandleKey::parseKey (const std::string& key,
 
   std::string sn;
   // test if storeName has classname
-  std::string::size_type sp = storeName.find("/");
+  std::string::size_type sp = storeName.find('/');
   if (sp == std::string::npos) {
     sn = storeName;
   } else {
@@ -262,7 +262,7 @@ void VarHandleKey::parseKey (const std::string& key,
   st = StoreID::findStoreID(sn);
 
   if (st != StoreID::CONDITION_STORE && st != StoreID::METADATA_STORE) {
-    if (m_sgKey.find("/") != std::string::npos) {
+    if (m_sgKey.find('/') != std::string::npos) {
       throw SG::ExcBadHandleKey("key \"" + key 
                                 + "\": keys with \"/\" only allowed for "
                                 + StoreID::storeName(StoreID::CONDITION_STORE) 

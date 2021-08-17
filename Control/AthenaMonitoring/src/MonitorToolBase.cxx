@@ -140,7 +140,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
   std::vector<std::string>::iterator itr = m_THistSvc_streamnameMapping.begin();
   while( itr != m_THistSvc_streamnameMapping.end() )
     {
-      std::string::size_type location = itr->find("/", 0);
+      std::string::size_type location = itr->find('/', 0);
       if( location == std::string::npos )
 	{
 	  log << MSG::ERROR

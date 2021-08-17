@@ -1012,7 +1012,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
   if( m_environment != AthenaMonManager::online ) {
     TTree* metadata(0);
     std::string mdStreamName( streamName );
-    size_t found=mdStreamName.rfind("/");
+    size_t found=mdStreamName.rfind('/');
     
     if ( found != std::string::npos )
       mdStreamName.replace( found, mdStreamName.length(), "/metadata" );
@@ -2163,7 +2163,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2313,7 +2313,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2418,7 +2418,7 @@ getNewStreamNameFcn() const
 void
 ManagedMonitorToolBase::StreamNameFcn::
 parseString(const std::string& streamName, std::string& root, std::string& rem) {
-  std::string::size_type pos = streamName.find("/");
+  std::string::size_type pos = streamName.find('/');
 
   if (pos == std::string::npos) {
     root = "";

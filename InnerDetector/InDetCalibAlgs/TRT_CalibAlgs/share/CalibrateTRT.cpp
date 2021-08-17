@@ -797,8 +797,8 @@ int main(int argc, char *argv[]){
 
     for (map<string,BDdetector>::iterator it = trt.t.begin(); it != trt.t.end(); ++it){
       TDirectory* dir1 = TRT.Calibrate(file,it->first,SubLev(options,1),startdata);
-      if (SubLev(options,1).find("F")!=string::npos && TRT.data[it->first].t0flag) t0calfile << Form("-3 -1 -1 -1 -1 : %e %e",TRT.data[it->first].t0,TRT.data[it->first].t0err) << endl;
-      if (SubLev(options,1).find("F")!=string::npos && TRT.data[it->first].rtflag) rtcalfile << Form("-3 -1 -1 -1 -1 : %i %e %e %e %e",rtint,TRT.data[it->first].rtpar[0],TRT.data[it->first].rtpar[1],TRT.data[it->first].rtpar[2],TRT.data[it->first].rtpar[3]) << endl;
+      if (SubLev(options,1).find('F')!=string::npos && TRT.data[it->first].t0flag) t0calfile << Form("-3 -1 -1 -1 -1 : %e %e",TRT.data[it->first].t0,TRT.data[it->first].t0err) << endl;
+      if (SubLev(options,1).find('F')!=string::npos && TRT.data[it->first].rtflag) rtcalfile << Form("-3 -1 -1 -1 -1 : %i %e %e %e %e",rtint,TRT.data[it->first].rtpar[0],TRT.data[it->first].rtpar[1],TRT.data[it->first].rtpar[2],TRT.data[it->first].rtpar[3]) << endl;
       
       for (map<string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); ++id){
 	if(SubLev(selection,2).compare("-")==0) {
@@ -812,22 +812,22 @@ int main(int argc, char *argv[]){
 	}
 	if(SubLev(selection,2).compare("*")!=0 && !IsSubLev(id->first,1,SubLev(selection,2))) continue; //skip calibration if not the right id, if * go ahead!
 	TDirectory* dir2 = Detector.Calibrate(dir1,id->first,SubLev(options,2),TRT.data[it->first]);
-	if (SubLev(options,2).find("F")!=string::npos && Detector.data[id->first].t0flag) t0calfile << Form("%i -1 -1 -1 -1 : %e %e",Detector.data[id->first].det,Detector.data[id->first].t0,Detector.data[id->first].t0err) << endl;
-	if (SubLev(options,2).find("F")!=string::npos && Detector.data[id->first].rtflag) rtcalfile << Form("%i -1 -1 -1 -1 : %i %e %e %e %e",Detector.data[id->first].det,rtint,Detector.data[id->first].rtpar[0],Detector.data[id->first].rtpar[1],Detector.data[id->first].rtpar[2],Detector.data[id->first].rtpar[3]) << endl;
+	if (SubLev(options,2).find('F')!=string::npos && Detector.data[id->first].t0flag) t0calfile << Form("%i -1 -1 -1 -1 : %e %e",Detector.data[id->first].det,Detector.data[id->first].t0,Detector.data[id->first].t0err) << endl;
+	if (SubLev(options,2).find('F')!=string::npos && Detector.data[id->first].rtflag) rtcalfile << Form("%i -1 -1 -1 -1 : %i %e %e %e %e",Detector.data[id->first].det,rtint,Detector.data[id->first].rtpar[0],Detector.data[id->first].rtpar[1],Detector.data[id->first].rtpar[2],Detector.data[id->first].rtpar[3]) << endl;
 	
 	for (map<string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); ++il){
 	  if(SubLev(selection,3).compare("-")==0) break;
 	  if(SubLev(selection,3).compare("*")!=0 && !IsSubLev(il->first,2,SubLev(selection,3))) continue;
 	  TDirectory* dir3 = Layer.Calibrate(dir2,il->first,SubLev(options,3),Detector.data[id->first]);
-	  if (SubLev(options,3).find("F")!=string::npos && Layer.data[il->first].t0flag) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
-	  if (SubLev(options,3).find("F")!=string::npos && Layer.data[il->first].rtflag) rtcalfile << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
+	  if (SubLev(options,3).find('F')!=string::npos && Layer.data[il->first].t0flag) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << endl;
+	  if (SubLev(options,3).find('F')!=string::npos && Layer.data[il->first].rtflag) rtcalfile << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << endl;
 	  
 	  for (map<string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); ++im){
 	    if(SubLev(selection,4).compare("-")==0) break;
 	    if(SubLev(selection,4).compare("*")!=0 && !IsSubLev(im->first,3,SubLev(selection,4))) continue;
 	    TDirectory* dir4 = Module.Calibrate(dir3,im->first,SubLev(options,4),Layer.data[il->first]);
-	    if (SubLev(options,4).find("F")!=string::npos && Module.data[im->first].t0flag) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << endl;
-	    if (SubLev(options,4).find("F")!=string::npos && Module.data[im->first].rtflag) rtcalfile << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << endl;
+	    if (SubLev(options,4).find('F')!=string::npos && Module.data[im->first].t0flag) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << endl;
+	    if (SubLev(options,4).find('F')!=string::npos && Module.data[im->first].rtflag) rtcalfile << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << endl;
 	    
  	    for (map<string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ++ib){
 	      if(SubLev(selection,5).compare("-")==0) break;
@@ -846,10 +846,10 @@ int main(int argc, char *argv[]){
 		    if(SubLev(selection,7).compare("-")==0) break;
 		    if(SubLev(selection,7).compare("*")!=0 && !IsSubLev(is->first,6,SubLev(selection,7))) continue;
 		    TDirectory* dir7 = Straw.Calibrate(dir6,is->first,SubLev(options,7),Chip.data[ic->first]);
-		    if (SubLev(options,7).find("F")!=string::npos && (Chip.data[ic->first].t0flag || Board.data[ib->first].t0flag)) {
+		    if (SubLev(options,7).find('F')!=string::npos && (Chip.data[ic->first].t0flag || Board.data[ib->first].t0flag)) {
 		      t0calfile << Form("%i %i %i %i %i : %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,Straw.data[is->first].t0,Straw.data[is->first].t0err) << endl;
 		    }
-		    if (SubLev(options,7).find("F")!=string::npos && (Chip.data[ic->first].rtflag || Board.data[ib->first].rtflag)) 
+		    if (SubLev(options,7).find('F')!=string::npos && (Chip.data[ic->first].rtflag || Board.data[ib->first].rtflag)) 
 		      rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,rtint,Straw.data[is->first].rtpar[0],Straw.data[is->first].rtpar[1],Straw.data[is->first].rtpar[2],Straw.data[is->first].rtpar[3]) << endl;
 		    
 		  }
@@ -865,13 +865,13 @@ int main(int argc, char *argv[]){
     }
 
     
-    if ((SubLev(options,1).find("F")!=string::npos)) TRT.WriteStat(file);
-    if ((SubLev(options,2).find("F")!=string::npos)) Detector.WriteStat(file);
-    if ((SubLev(options,3).find("F")!=string::npos)) Layer.WriteStat(file);
-    if ((SubLev(options,4).find("F")!=string::npos)) Module.WriteStat(file);
-    if ((SubLev(options,5).find("F")!=string::npos)) Board.WriteStat(file);
-    if ((SubLev(options,6).find("F")!=string::npos)) Chip.WriteStat(file);
-    if ((SubLev(options,7).find("F")!=string::npos)) Straw.WriteStat(file);
+    if ((SubLev(options,1).find('F')!=string::npos)) TRT.WriteStat(file);
+    if ((SubLev(options,2).find('F')!=string::npos)) Detector.WriteStat(file);
+    if ((SubLev(options,3).find('F')!=string::npos)) Layer.WriteStat(file);
+    if ((SubLev(options,4).find('F')!=string::npos)) Module.WriteStat(file);
+    if ((SubLev(options,5).find('F')!=string::npos)) Board.WriteStat(file);
+    if ((SubLev(options,6).find('F')!=string::npos)) Chip.WriteStat(file);
+    if ((SubLev(options,7).find('F')!=string::npos)) Straw.WriteStat(file);
 
     file->Write();
     file->Close();
