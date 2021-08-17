@@ -26,7 +26,7 @@
 #include <vector>
 
 class CaloDetDescrManager;
-/** Base class for electronSuperClusterBuilder 
+/** Base class for electronSuperClusterBuilder
  *                 photonSuperClusterBuilder
  *                 egammaSuperClusterBuilder
  * This class cannot be instantiated by itself since the execute method is not
@@ -123,6 +123,11 @@ protected:
     const std::vector<const xAOD::CaloCluster*>& clusters,
     const CaloDetDescrManager& mgr,
     xAOD::EgammaParameters::EgammaType egType) const;
+
+  /** check if we pass the basic criteria for
+   * a seed cluster
+   */
+  bool seedClusterSelection(const xAOD::CaloCluster* clus) const;
 
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;

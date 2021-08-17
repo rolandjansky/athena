@@ -86,35 +86,20 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i])
+    
+    if (isUsed[i]){
       continue;
-
+    }
     const auto* egRec = (*egammaRecs)[i];
-
-    // Seed selections
+    // check for good seed cluster
     const xAOD::CaloCluster* clus = egRec->caloCluster();
-    // The seed should have 2nd sampling
-    if (!clus->hasSampling(CaloSampling::EMB2) &&
-        !clus->hasSampling(CaloSampling::EME2)) {
-      continue;
-    }
-    const double eta2 = std::abs(clus->etaBE(2));
-    if (eta2 > 10) {
-      continue;
-    }
-    // Accordeon Energy samplings 1 to 3
-    const double EMAccEnergy =
-      clus->energyBE(1) + clus->energyBE(2) + clus->energyBE(3);
-    const double EMAccEt = EMAccEnergy / cosh(eta2);
-    // Require minimum energy for supercluster seeding.
-    if (EMAccEt < m_EtThresholdCut) {
+    if (!seedClusterSelection(clus)) {
       continue;
     }
     // We need tracks
     if (egRec->getNumberOfTrackParticles() == 0) {
       continue;
     }
-
     // with possible pixel
     uint8_t nPixelHits(0);
     uint8_t uint8_value(0);
@@ -129,7 +114,6 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     if (nPixelHits < m_numberOfPixelHits) {
       continue;
     }
-
     // and with silicon (add SCT to pixel)
     uint8_t nSiHits = nPixelHits;
     if (egRec->trackParticle(0)->summaryValue(uint8_value,
@@ -139,12 +123,6 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     if (nSiHits < m_numberOfSiHits) {
       continue;
     }
-    ATH_MSG_DEBUG(
-      "Creating supercluster egammaRec electron using cluster Et = "
-      << egRec->caloCluster()->et() << " eta " << egRec->caloCluster()->eta()
-      << " phi " << egRec->caloCluster()->phi() << " EM Accordeon Et "
-      << EMAccEt << " pixel hits " << static_cast<unsigned int>(nPixelHits)
-      << " silicon hits " << static_cast<unsigned int>(nSiHits));
     // Mark seed as used
     isUsedRevert = isUsed; // save status in case we fail to create supercluster
     isUsed[i] = true;

@@ -67,35 +67,17 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i])
+    if (isUsed[i]){
       continue;
+    }
 
     const auto* const egRec = (*egammaRecs)[i];
-
-    // Seed selections
-    const auto* const clus = egRec->caloCluster();
-
-    // The seed should have 2nd sampling
-    if (!clus->hasSampling(CaloSampling::EMB2) &&
-        !clus->hasSampling(CaloSampling::EME2)) {
-      continue;
-    }
-    const double eta2 = std::abs(clus->etaBE(2));
-    if (eta2 > 10) {
-      continue;
-    }
-    // Accordeon Energy samplings 1 to 3
-    const double EMAccEnergy =
-      clus->energyBE(1) + clus->energyBE(2) + clus->energyBE(3);
-    const double EMAccEt = EMAccEnergy / cosh(eta2);
-    // Require minimum energy for supercluster seeding.
-    if (EMAccEt < m_EtThresholdCut) {
+    // check for good seed cluster
+    const xAOD::CaloCluster* clus = egRec->caloCluster();
+    if (!seedClusterSelection(clus)) {
       continue;
     }
     // Passed preliminary custs
-    ATH_MSG_DEBUG("Creating supercluster egammaRec egamma object "
-                  << 'n' << "Using cluster Et = " << clus->et()
-                  << " EM Accordeon Et " << EMAccEt);
     // Mark seed as used
     isUsedRevert = isUsed; // save status in case we fail to create supercluster
     isUsed[i] = true;
