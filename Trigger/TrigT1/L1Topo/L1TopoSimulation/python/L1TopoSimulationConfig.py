@@ -46,15 +46,12 @@ def L1LegacyTopoSimulationCfg(flags):
         muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
                                                         ROIBResultLocation = "", #disable input from RoIBResult
                                                         MuctpiSimTool = muctpiTool,
-                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
+                                                        MuonEncoding = 1 if flags.Input.isMC else 0)
     else:
         muProvider = CompFactory.LVL1.MuonInputProviderLegacy("MuonInputProviderLegacy", 
                                                               ROIBResultLocation = "", #disable input from RoIBResult
                                                               MuctpiSimTool = muctpiTool,
-                                                              MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                              UseNewConfig = flags.Trigger.readLVL1FromJSON)
-
+                                                              MuonEncoding = 1 if flags.Input.isMC else 0)
 
     #Configure the MuonRoiTools for the MIP
     from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
@@ -81,8 +78,7 @@ def L1TopoSimulationCfg(flags):
     if flags.Trigger.enableL1MuonPhase1:
         muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider", 
                                                         ROIBResultLocation = "", #disable input from RoIBResult
-                                                        MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                        UseNewConfig = flags.Trigger.readLVL1FromJSON)
+                                                        MuonEncoding = 1 if flags.Input.isMC else 0)
     else:
         #Grab the MUCTPI tool
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiToolRDOCfg
@@ -93,9 +89,8 @@ def L1TopoSimulationCfg(flags):
         muProvider = CompFactory.LVL1.MuonInputProviderLegacy("MuonInputProviderLegacy", 
                                                               ROIBResultLocation = "", #disable input from RoIBResult
                                                               MuctpiSimTool = muctpiTool,
-                                                              MuonEncoding = 1 if flags.Input.isMC else 0, 
-                                                              UseNewConfig = flags.Trigger.readLVL1FromJSON)
- 
+                                                              MuonEncoding = 1 if flags.Input.isMC else 0)
+
     #Configure the MuonRoiTools for the MIP
     from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
     muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = flags.Trigger.enableL1MuonPhase1)
@@ -120,7 +115,6 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
     topoSimSeq.EnableInputDump = flags.Trigger.enableL1TopoDump
     topoSimSeq.IsLegacyTopo = isLegacy
     topoSimSeq.MonHistBaseDir = 'L1/L1'+key+'TopoAlgorithms'
-    topoSimSeq.MuonInputProvider.UseNewConfig = flags.Trigger.readLVL1FromJSON
 
     # Calo inputs
     if flags.Trigger.enableL1CaloPhase1 and not isLegacy:
@@ -130,8 +124,7 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
 
     # Muon inputs
     from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
-    ToolSvc += MuonInputProviderLegacy('MuonInputProviderLegacy')    
-    ToolSvc.MuonInputProviderLegacy.UseNewConfig = flags.Trigger.readLVL1FromJSON
+    ToolSvc += MuonInputProviderLegacy('MuonInputProviderLegacy')
 
     if flags.Trigger.doLVL1:
         # TODO: the legacy simulation should not need to deal with muon inputs
