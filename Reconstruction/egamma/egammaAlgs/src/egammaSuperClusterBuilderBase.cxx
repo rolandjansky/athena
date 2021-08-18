@@ -375,6 +375,26 @@ egammaSuperClusterBuilderBase::createNewCluster(
   // return the new cluster
   return newCluster;
 }
+bool
+egammaSuperClusterBuilderBase::seedClusterSelection(
+  const xAOD::CaloCluster* clus) const
+{
+  // The seed should have 2nd sampling
+  if (!clus->hasSampling(CaloSampling::EMB2) &&
+      !clus->hasSampling(CaloSampling::EME2)) {
+    return false;
+  }
+  const double eta2 = std::abs(clus->etaBE(2));
+  if (eta2 > 10) {
+    return false;
+  }
+  // Accordeon Energy samplings 1 to 3
+  const double EMAccEnergy =
+    clus->energyBE(1) + clus->energyBE(2) + clus->energyBE(3);
+  const double EMAccEt = EMAccEnergy / cosh(eta2);
+  // Require minimum energy for supercluster seeding.
+  return EMAccEt >= m_EtThresholdCut;
+}
 
 StatusCode
 egammaSuperClusterBuilderBase::fillClusterConstrained(
