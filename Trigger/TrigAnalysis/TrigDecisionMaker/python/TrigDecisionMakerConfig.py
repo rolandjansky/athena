@@ -23,10 +23,7 @@ class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
     __slots__ = []
     def __init__(self, name = "TrigDecMakerMT"):
         super( TrigDecisionMakerMT, self ).__init__( name )
-        log = logging.getLogger( 'TrigDecisionMakerMT' )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s", ConfigFlags.Trigger.readLVL1FromJSON)
-        self.UseNewConfigL1 = ConfigFlags.Trigger.readLVL1FromJSON
         self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
         # Schedule also the prescale conditions algs
         from AthenaCommon.Configurable import Configurable
