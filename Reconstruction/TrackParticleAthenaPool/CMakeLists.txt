@@ -19,7 +19,7 @@ atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( TRACKPARTICLEATHENAPOOL_REFERENCE_TAG
-        TrackParticleAthenaPoolReference-01-00-00 )
+        TrackParticleAthenaPoolReference-03-00-00 )
    run_tpcnv_test( TrackParticleTPCnv_16.6.3   AOD-16.6.3-full
                    REFERENCE_TAG ${TRACKPARTICLEATHENAPOOL_REFERENCE_TAG} )
    run_tpcnv_test( TrackParticleTPCnv_17.2.8   AOD-17.2.8-full
