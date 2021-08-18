@@ -165,7 +165,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
 
-  if ( !calibSeq.Contains("GSC") ) m_doGSC = false;
+  if ( !calibSeq.Contains("GSC") && !calibSeq.Contains("GNNC")) m_doGSC = false;
 
   if ( !calibSeq.Contains("Bcid") ) m_doBcid = false;
 
@@ -305,6 +305,19 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     } else { 
       m_calibClasses.push_back(m_globalSequentialCorr); 
       return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("GNNC") ) {
+    ATH_MSG_INFO("Initializing GenNI correction.");
+    suffix="_GenNI";
+    if(m_devMode) suffix+="_DEV";
+    m_globalNNCorr = new GlobalNNCalibration(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_globalNNCorr->msg().setLevel( this->msg().level() );
+    if ( m_globalNNCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_globalNNCorr);
+      return StatusCode::SUCCESS;
     }
   } else if ( calibration.EqualTo("JMS") ) {
     ATH_MSG_INFO("Initializing JMS correction.");

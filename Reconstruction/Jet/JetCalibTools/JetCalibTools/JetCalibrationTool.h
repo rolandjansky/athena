@@ -30,6 +30,7 @@
 #include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
+#include "JetCalibTools/CalibrationMethods/GlobalNNCalibration.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
@@ -40,6 +41,7 @@ class ResidualOffsetCorrection;
 class BcidOffsetCorrection;
 class EtaJESCorrection;
 class GlobalSequentialCorrection;
+class GlobalNNCalibration;
 class InsituDataCorrection;
 class JMSCorrection;
 class JetSmearingCorrection;
@@ -147,6 +149,7 @@ private:
   JetPileupCorrection * m_jetPileupCorr;
   EtaJESCorrection * m_etaJESCorr;
   GlobalSequentialCorrection * m_globalSequentialCorr;
+  GlobalNNCalibration * m_globalNNCorr;
   InsituDataCorrection * m_insituDataCorr;
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
