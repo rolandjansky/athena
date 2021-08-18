@@ -112,8 +112,9 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   if(trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) {
      tauContainerName="HLT_TrigTauRecMerged_MVA";
   }else if(trigItem.find("LLP_") != std::string::npos){
-    tauContainerName="HLT_TrigTauRecMerged_LLP";
-  }else if(trigItem.find("ptonly") != std::string::npos) tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
+     tauContainerName="HLT_TrigTauRecMerged_LLP";
+  }else if(trigItem.find("ptonly") != std::string::npos) 
+     tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
   for(const auto Tau : *offTaus ){
 
@@ -191,10 +192,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
   if(trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos){ 
-      tauContainerName="HLT_TrigTauRecMerged_MVA";
+     tauContainerName="HLT_TrigTauRecMerged_MVA";
   }else if(trigger.find("LLP_") != std::string::npos){
-    tauContainerName="HLT_TrigTauRecMerged_LLP";
-  }else if(trigger.find("ptonly") != std::string::npos) tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
+     tauContainerName="HLT_TrigTauRecMerged_LLP";
+  }else if(trigger.find("ptonly") != std::string::npos) 
+     tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
   ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 
@@ -414,8 +416,7 @@ void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vect
 
   auto monGroup = getGroup(monGroupName);
 
-
-  auto centFrac           = Monitored::Collection("centFrac", tau_vec,  [] (const xAOD::TauJet* tau){
+  auto CentFrac           = Monitored::Collection("CentFrac", tau_vec,  [] (const xAOD::TauJet* tau){
       float detail = -999;
       if (tau->detail(xAOD::TauJetParameters::centFrac, detail)){
         detail = std::min(detail, 1.0f);
@@ -424,7 +425,7 @@ void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vect
       float detail = -999;
       if (tau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, detail)){
       } return detail;});
-  auto emPOverTrkSysP     = Monitored::Collection("emPOverTrkSysP", tau_vec,  [] (const xAOD::TauJet* tau){
+  auto EMPOverTrkSys     = Monitored::Collection("EMPOverTrkSys", tau_vec,  [] (const xAOD::TauJet* tau){
       float detail = -999;
       if (tau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, detail)){
         detail = TMath::Log10(std::max(detail, 1e-3f));
@@ -444,11 +445,11 @@ void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vect
         detail = std::min(detail, 4.0f);
       } return detail;});
   if(nProng=="1P"){
-    auto sumPtTrkFrac       = Monitored::Collection("sumPtTrkFrac", tau_vec,  [] (const xAOD::TauJet* tau){
+    auto SumPtTrkFrac       = Monitored::Collection("SumPtTrkFrac", tau_vec,  [] (const xAOD::TauJet* tau){
         float detail = -999;
         if (tau->detail(xAOD::TauJetParameters::SumPtTrkFrac, detail)){
         } return detail;});
-    fill(monGroup, centFrac,ChPiEMEOverCaloEME,emPOverTrkSysP,etOverPtLeadTrk,innerTrkAvgDist,ptRatioEflowApprox,sumPtTrkFrac);
+    fill(monGroup, CentFrac,ChPiEMEOverCaloEME,EMPOverTrkSys,etOverPtLeadTrk,innerTrkAvgDist,ptRatioEflowApprox,SumPtTrkFrac);
 
   }
   else if(nProng=="MP"){
@@ -470,7 +471,7 @@ void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vect
         float detail = -999;
         if (tau->detail(xAOD::TauJetParameters::trFlightPathSig, detail)){
         } return detail;});
-    fill(monGroup, centFrac,ChPiEMEOverCaloEME,emPOverTrkSysP,etOverPtLeadTrk,innerTrkAvgDist,ptRatioEflowApprox,dRmax,massTrkSys,mEflowApprox,trFlightPathSig);
+    fill(monGroup, CentFrac,ChPiEMEOverCaloEME,EMPOverTrkSys,etOverPtLeadTrk,innerTrkAvgDist,ptRatioEflowApprox,dRmax,massTrkSys,mEflowApprox,trFlightPathSig);
 
   }
 }
@@ -581,15 +582,15 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
 
       auto track_pt_log = Monitored::Collection("track_pt_log", tracks, [](const xAOD::TauTrack *track){return TMath::Log10( track->pt()); }); 
   
-      auto track_dEta = Monitored::Collection("tracks_dEta", tracks, [&tau](const xAOD::TauTrack *track){auto ddeta=track->eta()- tau->eta();return ddeta; });
+      auto track_dEta = Monitored::Collection("track_dEta", tracks, [&tau](const xAOD::TauTrack *track){auto ddeta=track->eta()- tau->eta();return ddeta; });
 
-      auto track_dPhi = Monitored::Collection("tracks_dPhi", tracks, [&tau](const xAOD::TauTrack *track){return track->p4().DeltaPhi(tau->p4());}); 
+      auto track_dPhi = Monitored::Collection("track_dPhi", tracks, [&tau](const xAOD::TauTrack *track){return track->p4().DeltaPhi(tau->p4());}); 
 
-      auto track_z0sinThetaTJVA_abs_log = Monitored::Collection("tracks_z0sinThetaTJVA_abs_log", tracks, [&tau](const xAOD::TauTrack *track){return track->z0sinThetaTJVA(*tau); }); 
+      auto track_z0sinThetaTJVA_abs_log = Monitored::Collection("track_z0sinThetaTJVA_abs_log", tracks, [&tau](const xAOD::TauTrack *track){return track->z0sinThetaTJVA(*tau); }); 
 
-      auto track_d0_abs_log = Monitored::Collection("tracks_d0_abs_log", tracks, [](const xAOD::TauTrack *track){return  TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6); }); 
+      auto track_d0_abs_log = Monitored::Collection("track_d0_abs_log", tracks, [](const xAOD::TauTrack *track){return  TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6); }); 
 
-      auto track_nIBLHitsAndExp = Monitored::Collection("tracks_nIBLHitsAndExp", tracks, [](const xAOD::TauTrack *track){
+      auto track_nIBLHitsAndExp = Monitored::Collection("track_nIBLHitsAndExp", tracks, [](const xAOD::TauTrack *track){
                                                     uint8_t inner_pixel_hits, inner_pixel_exp;
                                                     const auto success1_innerPixel_hits = track->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
                                                     const auto success2_innerPixel_exp = track->track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);
@@ -597,7 +598,7 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
                                                     if (success1_innerPixel_hits && success2_innerPixel_exp) {detail=inner_pixel_exp ? inner_pixel_hits : 1.;};
                                                     return   detail; });
 
-      auto track_nPixelHitsPlusDeadSensors = Monitored::Collection("tracks_nPixelHitsPlusDeadSensors", tracks, [](const xAOD::TauTrack *track){
+      auto track_nPixelHitsPlusDeadSensors = Monitored::Collection("track_nPixelHitsPlusDeadSensors", tracks, [](const xAOD::TauTrack *track){
                                                     uint8_t pixel_hits, pixel_dead;
                                                     const auto success1_pixel_hits = track->track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);
                                                     const auto success2_pixel_dead = track->track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);
@@ -605,7 +606,7 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
                                                     if (success1_pixel_hits && success2_pixel_dead) {detail=pixel_hits + pixel_dead;};
                                                     return   detail; });
 
-      auto track_nSCTHitsPlusDeadSensors = Monitored::Collection("tracks_nSCTHitsPlusDeadSensors", tracks, [](const xAOD::TauTrack *track){
+      auto track_nSCTHitsPlusDeadSensors = Monitored::Collection("track_nSCTHitsPlusDeadSensors", tracks, [](const xAOD::TauTrack *track){
                                                     uint8_t sct_hits, sct_dead;
                                                     const auto success1_sct_hits = track->track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);
                                                     const auto success2_sct_dead = track->track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);
@@ -623,7 +624,7 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
 
 void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const
 {
-  ATH_MSG_DEBUG("Fill RNN input Cluster: " << trigger);
+  ATH_MSG_DEBUG("Fill RNN input Cluster: " << trigger << " for online/offline " << online);
   
   auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputCluster" : "_RNN_Offline_InputCluster"));
   
@@ -677,25 +678,25 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
     auto cluster_et_log = Monitored::Collection("cluster_et_log",clusters, [](const xAOD::CaloCluster *cluster){return TMath::Log10( cluster->et()); }); 
     auto cluster_dEta = Monitored::Collection("cluster_dEta", clusters, [&tau](const xAOD::CaloCluster *cluster){auto ddeta=cluster->eta()- tau->eta();return ddeta; });
     auto cluster_dPhi = Monitored::Collection("cluster_dPhi", clusters, [&tau](const xAOD::CaloCluster *cluster){return cluster->p4().DeltaPhi(tau->p4()); }); 
-    auto cluster_log_SECOND_R = Monitored::Collection("cluster_log_SECOND_R", clusters, [](const xAOD::CaloCluster *cluster){
+    auto cluster_SECOND_R_log10 = Monitored::Collection("cluster_SECOND_R_log10", clusters, [](const xAOD::CaloCluster *cluster){
                                               double detail = -999.;
                                               const auto success_SECOND_R = cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R,detail);
                                               if (success_SECOND_R) detail = TMath::Log10(detail + 0.1);
                                               return detail;});
 
-      auto cluster_SECOND_LAMBDA = Monitored::Collection("cluster_SECOND_LAMBDA", clusters, [](const xAOD::CaloCluster *cluster){
+      auto cluster_SECOND_LAMBDA_log10 = Monitored::Collection("cluster_SECOND_LAMBDA_log10", clusters, [](const xAOD::CaloCluster *cluster){
                                               double detail = -999.;
                                               const auto success_SECOND_LAMBDA = cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, detail);
                                               if (success_SECOND_LAMBDA) detail = TMath::Log10(detail + 0.1); 
                                               return detail;});
 
-      auto cluster_CENTER_LAMBDA = Monitored::Collection("cluster_CENTER_LAMBDA", clusters, [](const xAOD::CaloCluster *cluster){
+      auto cluster_CENTER_LAMBDA_log10 = Monitored::Collection("cluster_CENTER_LAMBDA_log10", clusters, [](const xAOD::CaloCluster *cluster){
                                               double detail = -999.;
                                               const auto success_CENTER_LAMBDA = cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, detail);
                                               if (success_CENTER_LAMBDA) detail = TMath::Log10(detail + 1e-6); 
                                               return detail;});                                                  
 
-      fill(monGroup,cluster_pt_jetseed_log,cluster_et_log,cluster_dEta,cluster_dPhi,cluster_log_SECOND_R,cluster_SECOND_LAMBDA,cluster_CENTER_LAMBDA);
+      fill(monGroup,cluster_pt_jetseed_log,cluster_et_log,cluster_dEta,cluster_dPhi,cluster_SECOND_R_log10,cluster_SECOND_LAMBDA_log10,cluster_CENTER_LAMBDA_log10);
     }
 
   ATH_MSG_DEBUG("After fill  RNN input Cluster: " << trigger);
