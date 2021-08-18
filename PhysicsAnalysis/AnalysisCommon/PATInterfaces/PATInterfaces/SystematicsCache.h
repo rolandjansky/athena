@@ -10,6 +10,7 @@
 
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <AsgMessaging/MessageCheck.h>
+#include <CxxUtils/AthUnlikelyMacros.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <functional>
 #include <tbb/concurrent_unordered_map.h>
@@ -183,7 +184,7 @@ namespace CP
   {
     // fast-path, check if we already calculated this
     auto iter = m_cache.find (sys);
-    if (iter != m_cache.end()) //[[likely]], removed until C++20 support
+    if (ATH_LIKELY (iter != m_cache.end())) //[[likely]], removed until C++20 support
     {
       result = iter->second.get();
       return StatusCode::SUCCESS;
