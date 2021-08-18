@@ -530,7 +530,6 @@ int LVL1::jFEXPileupAndNoise::getTTowerEta(unsigned int TTID) {
 //Gets ET of the TT
 int LVL1::jFEXPileupAndNoise::getTTowerET(unsigned int TTID) {
     
-    return 10000. ;
     SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
     const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
     return tmpTower->getTotalET();
@@ -538,7 +537,6 @@ int LVL1::jFEXPileupAndNoise::getTTowerET(unsigned int TTID) {
 //Gets EM ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_EM(unsigned int TTID) {
 
-return 2000. ;
     SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
     const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
     return tmpTower->getET_EM();
@@ -546,7 +544,6 @@ return 2000. ;
 //Gets HAD ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_HAD(unsigned int TTID) {
 
-return 1000. ;
     SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
     const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
     return tmpTower->getET_HAD();
