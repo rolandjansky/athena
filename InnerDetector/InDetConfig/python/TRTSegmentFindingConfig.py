@@ -41,8 +41,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     # --- offline version  of TRT segemnt making
     #
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
@@ -73,8 +72,7 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
         # TRT-only/back-tracking segment finding
         pTmin = flags.InDet.Tracking.minSecondaryPt
 
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.TRTSegFinderPtBins)

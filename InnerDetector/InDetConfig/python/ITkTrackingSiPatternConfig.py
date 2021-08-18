@@ -195,9 +195,9 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("Xi2maxMultiTracks", flags.ITk.Tracking.Xi2max[0])
     kwargs.setdefault("useSSSseedsFilter", flags.ITk.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.ITk.doBremRecovery and useBremMode) # only for NewTracking the brem is debugged !!!
-    kwargs.setdefault("doCaloSeededBrem", flags.ITk.doCaloSeededBrem)
-    kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.doHadCaloSeededSSS)
+    kwargs.setdefault("useBremModel", flags.ITk.doBremRecovery and useBremMode and flags.Detector.GeometryLAr) # only for NewTracking the brem is debugged !!!
+    kwargs.setdefault("doCaloSeededBrem", flags.ITk.doCaloSeededBrem and flags.Detector.GeometryLAr)
+    kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.doHadCaloSeededSSS and flags.Detector.GeometryTile)
     kwargs.setdefault("phiWidth", flags.ITk.Tracking.phiWidthBrem[0])
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.etaWidthBrem[0])
     kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
@@ -352,7 +352,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
         kwargs.setdefault("phiWidth"                  , 0.1)     #Split cluster ROI size
         kwargs.setdefault("etaWidth"                  , 0.1)     #Split cluster ROI size
         kwargs.setdefault("InputEmClusterContainerName" , 'ITkCaloClusterROIs')
-        kwargs.setdefault("doEmCaloSeed"              , True)   #Only split in cluster in region of interest
+        kwargs.setdefault("doEmCaloSeed"              , flags.Detector.GeometryLAr)   #Only split in cluster in region of interest
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size

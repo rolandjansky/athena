@@ -232,7 +232,9 @@ def ITkTrackPRD_AssociationCfg(flags, name='ITkTrackPRD_Association', **kwargs):
 
     if kwargs.get('TracksName', None) is None :
         raise Exception('Not TracksName argument provided')
-    kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixelsCfg(flags) \
+
+    AssociationTool = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("AssociationTool", AssociationTool \
                       if 'AssociationTool' not in kwargs else None )
     kwargs.setdefault("AssociationMapName", prefix+'PRDtoTrackMap'+suffix )
     acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name = the_name, **kwargs))
