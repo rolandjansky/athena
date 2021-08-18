@@ -149,13 +149,6 @@ if DetFlags.digitize.LVL1_on():
         topSequence += LVL1__TrigT1BCM()
 
     #-------------------------------------------------------
-    # TrigT1LUCID Alg
-    #-------------------------------------------------------
-    if DetFlags.simulateLVL1.Lucid_on():
-        from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
-        topSequence += LVL1__TrigT1Lucid()
-
-    #-------------------------------------------------------
     # TrigT1CTP Algos
     #-------------------------------------------------------
     from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInDigi
