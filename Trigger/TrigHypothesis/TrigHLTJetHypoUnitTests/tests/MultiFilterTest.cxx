@@ -48,7 +48,7 @@ TEST(MultiFilterTester, fourjets_twofilters) {
     fj = fp->filter(tv, deb);
   }
   
-  EXPECT_EQ(fj.size(), 2);
+  EXPECT_EQ(fj.size(), 2u);
 
   auto etas = std::vector<double> {};
   etas.reserve(fj.size());
