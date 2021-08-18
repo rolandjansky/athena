@@ -247,16 +247,15 @@ def ITkTrackRecoCfg(flags):
     # up to here
     # needed for brem/seeding, TODO decided if needed here
     # commented for now
-    '''
-    from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-    result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    result.merge(CaloRecoCfg(flags,doLCCalib=True))
-    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-    result.merge(egammaTopoClusterCopierCfg(flags))
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-    result.merge(CaloClusterROI_SelectorCfg(flags))
-    '''
+    if flags.Detector.GeometryLAr:
+        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
+        result.merge(LArBadFebCfg(flags))
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        result.merge(CaloRecoCfg(flags,doLCCalib=True))
+        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+        result.merge(egammaTopoClusterCopierCfg(flags))
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        result.merge(CaloClusterROI_SelectorCfg(flags))
 
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))

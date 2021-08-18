@@ -8,8 +8,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     #
     # Silicon det elements road maker tool
     #
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel)
@@ -85,11 +84,8 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- TRT seeded back tracking tool
     #
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
-
-    InDetPatternUpdator = TC.InDetPatternUpdatorCfg()
-    acc.addPublicTool(InDetPatternUpdator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
+    InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
 
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
     acc.addPublicTool(InDetSiComTrackFinder)
@@ -220,8 +216,7 @@ def TrkAmbiguityScoreCfg(flags, name='InDetTRT_SeededAmbiguityScore', **kwargs):
 def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCut)
+    InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)

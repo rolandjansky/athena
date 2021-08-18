@@ -78,6 +78,10 @@ def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
 ##------------------------------------------------------------------------------
 def PixelGangedAmbiguitiesFinderCfg(flags) :
     acc = ComponentAccumulator()
+
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    acc.merge(PixelGeometryCfg(flags))
+
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
     return acc
@@ -239,14 +243,15 @@ def TrackRecoCfg(flags):
 
     # up to here
     # needed for brem/seeding, TODO decided if needed here
-    from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-    result.merge(LArBadFebCfg(flags))
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    result.merge(CaloRecoCfg(flags,doLCCalib=True))
-    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-    result.merge(egammaTopoClusterCopierCfg(flags))
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-    result.merge(CaloClusterROI_SelectorCfg(flags))
+    if flags.Detector.GeometryLAr:
+        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
+        result.merge(LArBadFebCfg(flags))
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        result.merge(CaloRecoCfg(flags,doLCCalib=True))
+        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+        result.merge(egammaTopoClusterCopierCfg(flags))
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        result.merge(CaloClusterROI_SelectorCfg(flags))
 
 
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg

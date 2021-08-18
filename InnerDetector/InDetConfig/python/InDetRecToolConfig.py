@@ -100,9 +100,8 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
   if 'BoundaryCheckTool' not in kwargs:
-    tmpAcc = InDetBoundaryCheckToolCfg(flags)
-    kwargs.setdefault('BoundaryCheckTool', tmpAcc.popPrivateTools())
-    result.merge(tmpAcc)
+    BoundaryCheckTool = result.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+    kwargs.setdefault('BoundaryCheckTool', BoundaryCheckTool)
 
   if flags.Beam.Type == "cosmics" :
     kwargs.setdefault("Cosmics", True)
@@ -319,30 +318,29 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
   kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
 
   result.merge(addFoldersSplitOnline(flags,
-                                           detDb="SCT",
-                                           online_folders=channelFolder,
-                                           offline_folders=channelFolder,
-                                           className='CondAttrListVec',
-                                           splitMC=True))
+                                     detDb="SCT",
+                                     online_folders=channelFolder,
+                                     offline_folders=channelFolder,
+                                     className='CondAttrListVec',
+                                     splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
-                                           detDb="SCT",
-                                           online_folders=config_folder_prefix+"Module",
-                                           offline_folders=config_folder_prefix+"Module",
-                                           className='CondAttrListVec',
-                                           splitMC=True))
+                                     detDb="SCT",
+                                     online_folders=config_folder_prefix+"Module",
+                                     offline_folders=config_folder_prefix+"Module",
+                                     className='CondAttrListVec',
+                                     splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
-                                           detDb="SCT",
-                                           online_folders=config_folder_prefix+"MUR",
-                                           offline_folders=config_folder_prefix+"MUR",
-                                           className='CondAttrListVec',
-                                           splitMC=True))
-  acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
-  result.merge(acc)
+                                     detDb="SCT",
+                                     online_folders=config_folder_prefix+"MUR",
+                                     offline_folders=config_folder_prefix+"MUR",
+                                     className='CondAttrListVec',
+                                     splitMC=True))
 
-  acc = SCT_ReadoutToolCfg(flags)
-  kwargs.setdefault("SCT_ReadoutTool", acc.popPrivateTools())
-  result.merge(acc)
+  SCT_CablingTool = result.popToolsAndMerge(SCT_CablingToolCfg(flags))
+  kwargs.setdefault("SCT_CablingTool", SCT_CablingTool)
+
+  SCT_ReadoutTool = result.popToolsAndMerge(SCT_ReadoutToolCfg(flags))
+  kwargs.setdefault("SCT_ReadoutTool", SCT_ReadoutTool)
 
   result.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(name, **kwargs))
   return result
@@ -375,9 +373,8 @@ def SCT_ReadCalibDataToolCfg(flags, name="InDetSCT_ReadCalibDataTool", cond_kwar
   result.addCondAlgo(CompFactory.SCT_ReadCalibDataCondAlg(name = cond_kwargs["ReadCalibDataCondAlgName"],
                                                           ReadKeyGain = cond_kwargs["GainFolder"],
                                                           ReadKeyNoise = cond_kwargs["NoiseFolder"]))
-  acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
-  result.merge(acc)
+  SCT_CablingTool = result.popToolsAndMerge(SCT_CablingToolCfg(flags))
+  kwargs.setdefault("SCT_CablingTool", SCT_CablingTool)
 
   result.setPrivateTools(CompFactory.SCT_ReadCalibDataTool(name,**kwargs))
   return result
@@ -441,11 +438,8 @@ def SCT_CablingToolCfg(flags):
   return result
 
 def SCT_ReadoutToolCfg(flags, name="SCT_ReadoutTool", **kwargs):
-  result = ComponentAccumulator()
-
-  acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
-  result.merge(acc)
+  result = SCT_CablingToolCfg(flags)
+  kwargs.setdefault("SCT_CablingTool", result.popPrivateTools())
 
   tool = CompFactory.SCT_ReadoutTool(**kwargs)
   result.setPrivateTools(tool)
@@ -491,8 +485,7 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
-  result.addPublicTool( tool )
-  result.setPrivateTools( tool )
+  result.addPublicTool( tool, primary=True )
   return result
 
 def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
@@ -510,8 +503,7 @@ def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
         kwargs.setdefault("MaxStraightLineStep", .004) # Fixes a failed fit
     tool = CompFactory.Trk.RungeKuttaPropagator( name = the_name, **kwargs)
 
-  result.addPublicTool( tool )
-  result.setPrivateTools( tool )
+  result.addPublicTool( tool, primary=True )
   return result
 
 def InDetMaterialEffectsUpdatorCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs):
@@ -524,8 +516,7 @@ def InDetMaterialEffectsUpdatorCfg(flags, name = "InDetMaterialEffectsUpdator", 
       kwargs.setdefault(ForcedMomentumValue = 1000*Units.MeV)
 
   tool = CompFactory.Trk.MaterialEffectsUpdator( name = the_name, **kwargs)
-  result.addPublicTool( tool )
-  result.setPrivateTools( tool )
+  result.addPublicTool( tool, primary=True )
   return result
 
 def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
@@ -543,8 +534,7 @@ def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
               kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
 
   tool = CompFactory.Trk.Navigator( name = the_name, **kwargs)
-  result.addPublicTool( tool )
-  result.setPrivateTools( tool )
+  result.addPublicTool( tool, primary=True )
   return result
 
 def splitDefaultPrefix(name) :
