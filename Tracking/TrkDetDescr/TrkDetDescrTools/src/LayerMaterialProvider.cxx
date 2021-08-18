@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@
 
 // STL
 #include <sstream>
+#include <atomic>
 // Trk include
 #include "TrkDetDescrTools/LayerMaterialProvider.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -16,18 +17,15 @@
 #include "TrkGeometry/LayerMaterialMap.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkSurfaces/Surface.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 // constructor
 Trk::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
-: AthAlgTool(t,n,p),
-  m_layerMaterialMap(nullptr), 
-  m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2")
+: base_class(t,n,p)
 {
-    declareInterface<Trk::IGeometryProcessor>(this);
-    
-    // Name specification from outside
-    declareProperty("LayerMaterialMapName", m_layerMaterialMapName);
-    
+  declareProperty ("LayerMaterialMapName", m_layerMaterialMapName,
+                   "If LayerMaterialMapKey is not set, then fall back to retrieving this from the detector store.");
 }
 
 // destructor
@@ -35,9 +33,27 @@ Trk::LayerMaterialProvider::~LayerMaterialProvider()
 {}
 
 
+StatusCode Trk::LayerMaterialProvider::initialize()
+{
+  ATH_CHECK( m_layerMaterialMapKey.initialize (SG::AllowEmpty) );
+  return StatusCode::SUCCESS;
+}
+
+
 // Processor Action to work on TrackingGeometry 
-StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) const{
-  
+StatusCode Trk::LayerMaterialProvider::process
+ATLAS_NOT_THREAD_SAFE(const Trk::TrackingGeometry& tgeo) const
+{
+  const LayerMaterialMap* layerMaterialMap = nullptr;
+  if (!m_layerMaterialMapKey.key().empty()) {
+    SG::ReadCondHandle<LayerMaterialMap> layerMaterialMapH (m_layerMaterialMapKey);
+    layerMaterialMap = *layerMaterialMapH;
+  }
+  else {
+    ATH_CHECK( detStore()->retrieve (layerMaterialMap, m_layerMaterialMapName) );
+  }
+  dumpMaterialMap (*layerMaterialMap);
+
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
   const Trk::TrackingVolume* worldVolume = tgeo.highestTrackingVolume();  
@@ -45,7 +61,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
   if (worldVolume){
       // TrackingVolume : confined layers
       ATH_MSG_VERBOSE("TrackingVolume '" << worldVolume->volumeName() << "' retrieved as highest level node.");
-      if (process(*worldVolume, 0).isFailure() ) {
+      if (process(*worldVolume, *layerMaterialMap, 0).isFailure() ) {
           ATH_MSG_FATAL("Could not load material maps for provided TrackingGeometry, abort job.");
           return StatusCode::FAILURE;
       }
@@ -60,7 +76,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
               int layIndex = lay->layerIndex().value();  
               // only move on if layer index is different from 0
               if (layIndex){
-                  StatusCode sc( process(*lay, 0) );
+                  StatusCode sc( process(*lay, *layerMaterialMap, 0) );
 		  // @TODO Currently recoverable errors are treated as failure. Is this the intended behaviour ? Elsewhere recoverable errors are treated as recoverable
                   if (sc.isSuccess())
                       ATH_MSG_DEBUG("---[B] Boundary layer with " << layCount << " references : successfully loaded material map for layer " << layIndex );
@@ -81,18 +97,29 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
 }
 
 // Processor Action to work on TrackingVolumes
-StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) const {
-  
-  // load the material map if not done yet
-  bool loadMapFailed = false;
-  std::call_once(m_loadMapOnceFlag, [&](){
-      loadMapFailed = loadMaterialMap().isFailure();
-  });
-  if (loadMapFailed){
-      ATH_MSG_DEBUG( "Problems loading the LayerMaterialMap - check name or call sequence." );
-      return StatusCode::FAILURE;
+StatusCode Trk::LayerMaterialProvider::process
+ATLAS_NOT_THREAD_SAFE(const Trk::TrackingVolume& tvol, size_t level) const
+{
+  const LayerMaterialMap* layerMaterialMap = nullptr;
+  if (!m_layerMaterialMapKey.key().empty()) {
+    SG::ReadCondHandle<LayerMaterialMap> layerMaterialMapH (m_layerMaterialMapKey);
+    layerMaterialMap = *layerMaterialMapH;
   }
-  
+  else {
+    ATH_CHECK( detStore()->retrieve (layerMaterialMap, m_layerMaterialMapName) );
+  }
+  dumpMaterialMap (*layerMaterialMap);
+  ATH_CHECK( process (tvol, *layerMaterialMap, level) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+Trk::LayerMaterialProvider::process
+ATLAS_NOT_THREAD_SAFE(const Trk::TrackingVolume& tvol,
+                      const LayerMaterialMap& layerMaterialMap,
+                      size_t level) const
+{
   std::stringstream displayBuffer;
   for (size_t il = 0; il < level; ++il) displayBuffer << " ";
   // formatted screen output     
@@ -113,7 +140,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
             // get the layer index and only process if it's an indexed layer
             int layIndex = layIter->layerIndex().value();  
             if (layIndex){
-                StatusCode sc = process(*layIter, level);
+                StatusCode sc = process(*layIter, layerMaterialMap, level);
                 if (sc.isSuccess())
                     ATH_MSG_DEBUG(displayBuffer.str() << "---[M] Material layer: successfully loaded material map for layer " << layIndex );
                 else if (sc.isRecoverable())
@@ -137,7 +164,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
        for (; volumesIter != volumes.end(); ++volumesIter){
            if (!(*volumesIter))
               ATH_MSG_WARNING("Zero-pointer found in VolumeArray - indicates problem !");
-           if ((*volumesIter) && process(**volumesIter, ++level).isFailure() ){
+           if ((*volumesIter) && process(**volumesIter, layerMaterialMap, ++level).isFailure() ){
                ATH_MSG_FATAL("Failed to call process(const TrackingVolume&) on confined volumes. Aborting.");
                return StatusCode::FAILURE;  
            }
@@ -150,22 +177,28 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
 }
 
 // Processor Action to work on Layers 
-StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t level) const {
+StatusCode Trk::LayerMaterialProvider::process
+ATLAS_NOT_THREAD_SAFE(const Trk::Layer& lay, size_t level) const
+{
+  const LayerMaterialMap* layerMaterialMap = nullptr;
+  if (!m_layerMaterialMapKey.key().empty()) {
+    SG::ReadCondHandle<LayerMaterialMap> layerMaterialMapH (m_layerMaterialMapKey);
+    layerMaterialMap = *layerMaterialMapH;
+  }
+  else {
+    ATH_CHECK( detStore()->retrieve (layerMaterialMap, m_layerMaterialMapName) );
+  }
+  dumpMaterialMap (*layerMaterialMap);
+  ATH_CHECK( process (lay, *layerMaterialMap, level) );
+  return StatusCode::SUCCESS;
+}
 
-    // load the material map if not done yet
-    bool loadMapFailed = false;
-    std::call_once(m_loadMapOnceFlag, [&](){
-        loadMapFailed = loadMaterialMap().isFailure();
-    });
-    if (loadMapFailed){
-        ATH_MSG_DEBUG( "Problems loading the LayerMaterialMap - check name or call sequence." );
-        return StatusCode::FAILURE;
-    }
-    // is the pointer still null?
-    if (!m_layerMaterialMap) {
-      ATH_MSG_WARNING( "The LayerMaterialMap pointer is NULL - check name or call sequence." );
-      return StatusCode::FAILURE;
-    }
+StatusCode
+Trk::LayerMaterialProvider::process
+ATLAS_NOT_THREAD_SAFE(const Trk::Layer& lay,
+                      const LayerMaterialMap& layerMaterialMap,
+                      size_t level) const
+{
     // skip Layers w/o material
     if (!lay.layerMaterialProperties()) 
         return StatusCode::SUCCESS;
@@ -178,8 +211,8 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t lev
     for (size_t il = 0; il < level; ++il) displayBuffer << " ";
 
     // find the layer and assign the material properties 
-    auto lmIter= m_layerMaterialMap->find(lIndex);
-    if ( lmIter != m_layerMaterialMap->end() ){
+    auto lmIter= layerMaterialMap.find(lIndex);
+    if ( lmIter != layerMaterialMap.end() ){
         ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
         if ( lay.surfaceRepresentation().isFree() ) 
            ATH_MSG_VERBOSE(displayBuffer.str() << "---[!] the Layer is not owned by the TrackingGeometry, could indicate problem.");
@@ -198,25 +231,18 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Surface&, size_t) cons
     return StatusCode::SUCCESS;
 }
 
-// load the material map from StoreGate
-StatusCode Trk::LayerMaterialProvider::loadMaterialMap() const {
-    
-    // -------------------------------------------------------------------------------
-    if (detStore()->retrieve(m_layerMaterialMap, m_layerMaterialMapName).isFailure()){
-        ATH_MSG_FATAL( "Could not retrieve LayerMaterialMap wiht name '" << m_layerMaterialMapName << "'. Aborting.");
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_DEBUG( "Retrieved LayerMaterialMap wiht name '" << m_layerMaterialMapName 
-            << "' for " <<  m_layerMaterialMap->size() << " layers.");
-    
-    // screen output as most VERBOSE debugging        
+
+void
+Trk::LayerMaterialProvider::dumpMaterialMap (const LayerMaterialMap& layerMaterialMap) const
+{
     if (msgLvl (MSG::VERBOSE)) {
+      static std::atomic_flag flag ATLAS_THREAD_SAFE = ATOMIC_FLAG_INIT;
+      if (!flag.test_and_set()) {
         ATH_MSG_VERBOSE("Listing the layer indeces found in the loaded LayerMaterialMap");
-        for ( const auto & lmIter : (*m_layerMaterialMap) ){
-            ATH_MSG_VERBOSE("  -> Found map for layer with index " << lmIter.first);
+        for ( const auto & lmIter : layerMaterialMap ){
+          ATH_MSG_VERBOSE("  -> Found map for layer with index " << lmIter.first);
         }
-    }        
-        
-    return StatusCode::SUCCESS;       
+      }
+    }
 }
 

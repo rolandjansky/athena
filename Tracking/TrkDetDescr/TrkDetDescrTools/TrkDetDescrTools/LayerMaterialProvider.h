@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,8 +11,10 @@
 
 // Trk
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
+#include "TrkGeometry/LayerMaterialMap.h"
 // Gaudi & Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 
 #include "CxxUtils/checker_macros.h"
@@ -34,7 +36,7 @@ namespace Trk {
      */
 
     class LayerMaterialProvider //process methods call non-safe code
-      :  public AthAlgTool, virtual public IGeometryProcessor {
+      :  public extends<AthAlgTool, IGeometryProcessor> {
      
       public:
         /** Constructor */
@@ -42,6 +44,8 @@ namespace Trk {
 
         /** Destructor */
         virtual ~LayerMaterialProvider();
+
+        virtual StatusCode initialize() override;
 
         /** Processor Action to work on TrackingGeometry& tgeo */
         virtual StatusCode process
@@ -53,24 +57,32 @@ namespace Trk {
         ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
                               size_t level = 0) const;
 
+        StatusCode process
+        ATLAS_NOT_THREAD_SAFE(const TrackingVolume& lay,
+                              const LayerMaterialMap& layerMaterialMap,
+                              size_t level) const;
+
         /** Processor Action to work on Layers */
         virtual StatusCode process
         ATLAS_NOT_THREAD_SAFE(const Layer& lay, size_t level = 0) const;
 
+        StatusCode process
+        ATLAS_NOT_THREAD_SAFE(const Layer& lay,
+                              const LayerMaterialMap& layerMaterialMap,
+                              size_t level) const;
+
         /** Processor Action to work on Surfaces */
-        virtual StatusCode process(const Surface& surf, size_t level = 0) const;
+        virtual StatusCode process(const Surface& surf, size_t level = 0) const override;
 
       private:
           
-        StatusCode loadMaterialMap() const;               //!< reatrieve the Material map from the detector store
+        void dumpMaterialMap (const LayerMaterialMap& layerMaterialMap) const;
 
-        //!< boolean switch for assignLayerMaterial
+        SG::ReadCondHandleKey<LayerMaterialMap> m_layerMaterialMapKey
+          { this, "LayerMaterialMapKey", "/GLOBAL/TrackingGeo/LayerMaterialV2",
+            "COOL folder for material map" };
 
-        mutable std::once_flag                      m_loadMapOnceFlag ATLAS_THREAD_SAFE;
-        mutable const LayerMaterialMap*             m_layerMaterialMap ATLAS_THREAD_SAFE;
-        std::string                                 m_layerMaterialMapName;
-                        
-        
+        std::string m_layerMaterialMapName;
     };
 
 } // end of namespace
