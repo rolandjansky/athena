@@ -28,8 +28,7 @@ const int JEMJetAlgorithm::m_satLarge = 0x3FF;
 const int JEMJetAlgorithm::m_satSmall = 0x1FF;
 
 LVL1::JEMJetAlgorithm::JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer,
-                                        ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu):
-  m_configSvc(config),
+                                        const TrigConf::L1Menu * l1menu):
   m_l1menu(l1menu),
   m_ET4x4(0),
   m_ET6x6(0),
@@ -220,22 +219,10 @@ void LVL1::JEMJetAlgorithm::passesTrigger() {
   int threshSmall{0}; // the minimum pT of small jet objects sent to TOPO (in counts, not in GeV)
   int threshLarge{0}; // the minimum pT of large jet objects sent to TOPO (in counts, not in GeV)
 
-  if(m_l1menu)
-  {
-    sizeSmall = 4; // not part of the new menu
-    sizeLarge = 8; // not part of the new menu
-    threshSmall = m_l1menu->thrExtraInfo().JET().ptMinToTopoSmallWindowCounts();
-    threshLarge = m_l1menu->thrExtraInfo().JET().ptMinToTopoLargeWindowCounts();
-  }
-  else 
-  {
-    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-    float scale = caloInfo.globalJetScale(); // the jet energy count scale
-    sizeSmall = caloInfo.jetWindowSizeSmall();  
-    sizeLarge = caloInfo.jetWindowSizeLarge();
-    threshSmall = caloInfo.minTobJetSmall().ptmin * scale;
-    threshLarge = caloInfo.minTobJetLarge().ptmin * scale;
-  }
+  sizeSmall = 4; // not part of the new menu
+  sizeLarge = 8; // not part of the new menu
+  threshSmall = m_l1menu->thrExtraInfo().JET().ptMinToTopoSmallWindowCounts();
+  threshLarge = m_l1menu->thrExtraInfo().JET().ptMinToTopoLargeWindowCounts();
 
   int etLarge = m_ET8x8;
   if (sizeLarge == 6)      etLarge = m_ET6x6;
