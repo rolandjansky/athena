@@ -34,8 +34,6 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "TrigOutputHandling/ITriggerBitsMakerTool.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfData/HLTMenu.h"
 
 // containers
@@ -82,13 +80,7 @@ namespace TrigDec {
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
-    Gaudi::Property<bool> m_useNewConfigL1{this, "UseNewConfigL1", true, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
-    Gaudi::Property<bool> m_useNewConfigHLT{this, "UseNewConfigHLT", true, "When true, read the menu from detector store, when false use the HLTConfigSvc"};
-
     // Tools & services
-    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_l1ConfigSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
-    ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "HLTConfigSvc", "The HLTConfigSvc providing HLT configuration for Run 2"};
-
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"}; //!< tool to ease the access to the L1 results (RoIs, items, etc)
 
     ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};

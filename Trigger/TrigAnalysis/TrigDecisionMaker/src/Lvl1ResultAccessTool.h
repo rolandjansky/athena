@@ -11,6 +11,7 @@
 #include "TrigConfData/L1PrescalesSet.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include <vector>
 #include <bitset>
@@ -18,7 +19,6 @@
 
 // forward declarations
 namespace TrigConf {
-   class ILVL1ConfigSvc;
    class TriggerThreshold;
 }
 

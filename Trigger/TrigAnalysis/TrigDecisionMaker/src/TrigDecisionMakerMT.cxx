@@ -23,9 +23,6 @@
 
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 
-#include "TrigConfL1Data/BunchGroupSet.h"
-#include "TrigConfHLTData/HLTChainList.h"
-#include "TrigConfHLTData/HLTUtils.h"
 #include "TrigConfData/L1BunchGroupSet.h"
 
 #include <boost/dynamic_bitset.hpp>
@@ -60,8 +57,6 @@ TrigDec::TrigDecisionMakerMT::initialize()
   ATH_CHECK( m_trigDecisionKeyOut.initialize() );
 
   ATH_CHECK( m_lvl1Tool.retrieve() );
-  ATH_CHECK(m_l1ConfigSvc.retrieve());
-  ATH_CHECK(m_hltConfigSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -92,16 +87,9 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
   std::unique_ptr<xAOD::TrigDecisionAuxInfo> trigDecAux = std::make_unique<xAOD::TrigDecisionAuxInfo>();
   trigDec->setStore(trigDecAux.get());
 
-  if (m_useNewConfigHLT)
-  {
-    SG::ReadHandle<TrigConf::HLTMenu> hltMenu(m_HLTMenuKey, context);
-    ATH_CHECK(hltMenu.isValid());
-    trigDec->setSMK(hltMenu->smk());
-  }
-  else
-  {
-    trigDec->setSMK(m_hltConfigSvc->masterKey());
-  }
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenu(m_HLTMenuKey, context);
+  ATH_CHECK(hltMenu.isValid());
+  trigDec->setSMK(hltMenu->smk());
 
   if (m_doL1) {
     const LVL1CTP::Lvl1Result* l1Result = nullptr;
@@ -214,41 +202,25 @@ TrigDec::TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result *&result, co
 
 char TrigDec::TrigDecisionMakerMT::getBGByte(unsigned int bcId) const
 {
-  if (bcId >= 3564)
-  { // LHC has 3564 bunch crossings
+  if (bcId >= 3564) { // LHC has 3564 bunch crossings
     ATH_MSG_WARNING("Could not return BGCode for bunch crossing ID " << bcId << ", which is outside allowed range 0..3563 ");
     return 0;
   }
-  if (m_useNewConfigL1)
-  {
-    const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
-    detStore()->retrieve(l1bgs).ignore();
-    if (l1bgs)
-    {
-      char bgword = 0;
-      for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i)
-      {
-        auto bg = l1bgs->getBunchGroup(i);
-        if (bg->contains(bcId))
-        {
-          bgword += 1 << i;
-        }
+
+  const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
+  detStore()->retrieve(l1bgs).ignore();
+  if (l1bgs) {
+    char bgword = 0;
+    for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i) {
+      auto bg = l1bgs->getBunchGroup(i);
+      if (bg->contains(bcId)) {
+        bgword += 1 << i;
       }
-      return bgword;
     }
-    else
-    {
-      ATH_MSG_WARNING("Did not find L1BunchGroupSet in DetectorStore");
-      return 0;
-    }
+    return bgword;
   }
-  else
-  {
-    const TrigConf::BunchGroupSet *bgs = m_l1ConfigSvc->bunchGroupSet();
-    if (!bgs) {
-      ATH_MSG_WARNING ("Could not get BunchGroupSet to calculate BGByte");
-      return 0;
-    }
-    return bgs->bgPattern()[bcId];
+  else {
+    ATH_MSG_WARNING("Did not find L1BunchGroupSet in DetectorStore");
+    return 0;
   }
 }
