@@ -156,7 +156,7 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
    std::lock_guard lockg( m_mutex );
    // build the full output file name for this event range
    std::string fileNameCore = orgFileName, fileNameExt;
-   std::size_t sepPos = orgFileName.find("[");
+   std::size_t sepPos = orgFileName.find('[');
    if (sepPos != std::string::npos) {
       fileNameCore = orgFileName.substr(0, sepPos);
       fileNameExt = orgFileName.substr(sepPos);

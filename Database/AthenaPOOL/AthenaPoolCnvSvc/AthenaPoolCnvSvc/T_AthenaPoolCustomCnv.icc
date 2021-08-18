@@ -60,8 +60,8 @@ StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(IOpaqueAd
       ATH_MSG_ERROR("failed to get Token for " << pObj->name());
       return(StatusCode::FAILURE);
    }
-   std::size_t cpos = pAddr->par()->find(":");
-   std::size_t bpos = pAddr->par()->find("[");
+   std::size_t cpos = pAddr->par()->find(':');
+   std::size_t bpos = pAddr->par()->find('[');
    if (cpos == std::string::npos) {
       cpos = 0;
    } else {

@@ -268,7 +268,7 @@ namespace {
   StatusCode decodeNameEvt(const std::string& s, ValgrindAuditor::NameEvt& nameEvt)
   {
     // Find last(!) "." delimiter (earlier ones might be part of regexp)
-    string::size_type loc = s.rfind(".");
+    string::size_type loc = s.rfind('.');
     if ( loc==string::npos ) return StatusCode::FAILURE;
 
     try {
@@ -292,7 +292,7 @@ StatusCode ValgrindAuditor::decodeIntervals()
   std::vector<string>::const_iterator iter = m_intervals.begin();
   for (; iter!=m_intervals.end(); ++iter) {
     const string& spec = *iter;
-    string::size_type loc = spec.find(":");
+    string::size_type loc = spec.find(':');
 
     // If there is no delimiter interpret as [a,a]
     string s1, s2;

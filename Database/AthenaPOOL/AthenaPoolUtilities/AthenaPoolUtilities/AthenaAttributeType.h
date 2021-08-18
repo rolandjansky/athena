@@ -109,7 +109,7 @@ AthenaAttributeType::fromString(const std::string& i)
    for (std::set<std::string>::iterator it = keys.begin(); it!=keys.end(); ++it) {
       flagpos = i.find(*it);
       if (flagpos != std::string::npos) {
-         endpos = i.find(";",flagpos);
+         endpos = i.find(';',flagpos);
          if (endpos != std::string::npos) {
             this->setInfoForKey(*it,i.substr(flagpos,endpos));
          }
