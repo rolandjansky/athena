@@ -101,6 +101,11 @@ if hasattr( runArgs, 'splitHitMap' ) :
       ReadHitMaps = True
       if EvtMax != 1 :
         print("WARNING! EvtMax is not 1, although HitMap analysis is run!")
+else :
+      DoHitMapsLB = False
+      DoHitMaps   = False
+      ReadHitMaps = False
+    
 
 #--- Setting which algorithms to be run
 if hasattr( runArgs, 'part' ) :
@@ -255,6 +260,7 @@ if DoDeadStrip or DoDeadChip :
 #--- set flag for creating hitmaps
 if DoHV or DoHIST :
     DoHitMaps = False
+    DoHitMapsLB = False
 #--- set flag for creating BSErrors map
 if DoDeadStrip or DoDeadChip :
     DoBSErrors = True

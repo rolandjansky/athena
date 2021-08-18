@@ -59,7 +59,7 @@ def getDsFileName(file,input=False):
             ds=file.split('#')[0]
             name=file.split('#')[1]
         else:
-            if file.find('/') is not -1:
+            if file.find('/')!=-1:
                 fileparts=file.split('/')
                 ds=fileparts[len(fileparts)-1]
             else:
@@ -380,7 +380,7 @@ class SCTCalibExecutor( athenaExecutor ):
             self.conf.addToArgdict('EventNumber', trfArgClasses.argInt(0))
 
         # Set STAGE_SVCCLASS
-        if not SvcClass is '' and not SvcClass is None:
+        if not SvcClass == '' and not SvcClass == None:
             os.environ['STAGE_SVCCLASS']=SvcClass
 
         # Check input type
@@ -408,7 +408,7 @@ class SCTCalibExecutor( athenaExecutor ):
         # set job number
         jobnb=''
         # find seperator for jobnumber
-        if prefix is not '' : 
+        if prefix != '' : 
             sep=prefix.find('._')
             if ( sep != -1 ) :
                 jobnb=prefix[sep+1:]
@@ -456,7 +456,7 @@ class SCTCalibExecutor( athenaExecutor ):
             self._trf.generateReport(fast=True)
             sys.exit(0)
 
-        if jobnb is not '':
+        if jobnb != '':
             self.conf.addToArgdict('JobNumber', trfArgClasses.argString(jobnb))
 
         # get RunNumber from datasetName
@@ -571,7 +571,7 @@ class SCTCalibExecutor( athenaExecutor ):
         
         super(SCTCalibExecutor, self).execute()
 
-        if self._rc is not 0:
+        if self._rc != 0:
             try:
 
                 if 'less than the required minimum number of events' in open('log.sctcalib').read():
@@ -731,11 +731,11 @@ class SCTCalibExecutor( athenaExecutor ):
         else:
             jobnb=''
 
-        if prefix is not '':
+        if prefix != '':
             try:
                 if runArgs['splitHitMap']._value !=1:
                     os.rename('mycool.db',prefix+'.mycool.db')                
-                if jobnb is not '':
+                if jobnb != '':
                     prefixTmp = prefix + "."+ jobnb
                 else :
                     prefixTmp = prefix
