@@ -46,6 +46,11 @@ namespace InDet {
     void set(const Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
+    void setDR(const float&);
+    void setDZDR(const float&);
+    void setEta(const float&);
+    void setScorePenalty(const float&);
+    void setPt(const float&);
 
     const Trk::SpacePoint* spacepoint{}              ; 
     const float&          x() const {return m_x;}
@@ -57,6 +62,11 @@ namespace InDet {
     const float&       covz() const {return m_covz;}
     const float&      param() const {return m_param;}
     const float&    quality() const {return m_q ;}
+    const float&       dzdr() const {return m_dzdr;}
+    const float&        eta() const {return m_eta;}
+    const float&         pt() const {return m_pt;}
+    const float&      scorePenalty() const {return m_scorePenalty;} /// penalty term in the seed score
+    const float&         dR() const {return m_dR;} /// distance between top and central SP
     const Trk::Surface* sur() const {return m_su;}
     const Trk::Surface* sun() const {return m_sn;}
 
@@ -72,6 +82,12 @@ namespace InDet {
     float m_covz{}; //
     float m_param{};
     float m_q{}   ;
+    float m_scorePenalty{}; /// penalty term in the seed score
+    float m_dR{};
+    float m_eta{} ;
+    float m_pt{}  ;
+    float m_dzdr{};
+
 
     float m_b0[3]{};
     float m_b1[3]{};
@@ -81,6 +97,7 @@ namespace InDet {
     const Trk::Surface* m_su{};
     const Trk::Surface* m_sn{};
   };
+  
 
 } // end of name space
 

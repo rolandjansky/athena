@@ -23,6 +23,12 @@
 
 namespace InDet {
 
+  class FloatInt {
+  public:
+    float Fl;
+    int   In;
+  };
+
  /**
   @class InDet::SiSpacePointsSeedMakerEventData
   
@@ -95,7 +101,9 @@ namespace InDet {
     float zmaxB{0.};
     float ftrig{0.};
     float ftrigW{0.};
-    float maxScore{0.};    
+    float maxScore{0.};   
+    float RTmin{0.};
+    float RTmax{0.}; 
 
     /**
      * @name Beam geometry
@@ -136,6 +144,7 @@ namespace InDet {
     std::vector<float> X;
     std::vector<float> Y;
     std::vector<float> Er;    ///< error component on 1/tan(theta)==dz/dr from the position errors on the space-points
+    std::vector<FloatInt> Tn;
     //@}
 
     InDet::SiSpacePointsSeed seedOutput;
@@ -201,6 +210,7 @@ namespace InDet {
         SP_ITK.resize(newSize, nullptr);
         X.resize(newSize, 0.);
         Y.resize(newSize, 0.);
+        Tn.resize(newSize);
       } else {
         SP.resize(newSize, nullptr);
       }
