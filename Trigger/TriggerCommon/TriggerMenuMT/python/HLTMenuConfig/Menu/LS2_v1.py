@@ -86,6 +86,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup, monGroups=['muonMon:shifter','muonMon:val','idMon:t0']),
 
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
+        # Using generic hypo
+        ChainProp(name='HLT_2mu6_10invmAA70_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_lateMu_L1LATE-MU10_XE50', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
         # ATR-20049
@@ -200,6 +202,10 @@ def setupMenu():
         #Support photon chains ATR-23425
         ChainProp(name='HLT_2g15_loose_dPhi25_m80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=SupportPhIGroup+MultiPhotonGroup), # TODO: mismatch between L1topo threshold and L1 seed to be fixed
         ChainProp(name='HLT_2g20_loose_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup),
+        # Copy with generic TrigComboHypoTool
+        ChainProp(name='HLT_2g15_tight_25dphiAA_invmAA80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=SupportPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g15_tight_25dphiAA_L1DPHI-M70-2eEM12M', l1SeedThresholds=['eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup),
         
         #------------ 1e_1g HEG ATR-23158
         ChainProp(name='HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12EM20VH',l1SeedThresholds=['EM20VH','EM20VH'], groups=PrimaryLegGroup+MultiElectronGroup), 
@@ -287,6 +293,30 @@ def setupMenu():
         ChainProp(name='HLT_2g22_tight_L1EM7_UNPAIRED_ISO', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g50_tight_L1EM7_EMPTY', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
         ChainProp(name='HLT_2g50_tight_L1EM7_UNPAIRED_ISO', l1SeedThresholds=['EM7'], stream=['Late'], groups=PrimaryLegGroup+MultiPhotonGroup),
+
+        # Alternative formulation of T&P chains with generic mass cut combohypotool
+        # With & without 'probe' expression to check count consistency
+        # Zee
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_probe_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=TagAndProbeLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=MultiElectronGroup), 
+        # Jpsiee
+        ChainProp(name='HLT_e9_lhtight_e4_etcut_probe_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e9_etcut_probe_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_e4_etcut_probe_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e14_etcut_probe_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_probe_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e9_etcut_probe_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_probe_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_probe_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup), 
+        #
+        ChainProp(name='HLT_e9_lhtight_e4_etcut_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e9_etcut_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_e4_etcut_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_e14_etcut_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e9_etcut_1invmAB3_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=MultiElectronGroup), 
+        ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_1invmAB3_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=MultiElectronGroup), 
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [

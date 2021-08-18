@@ -8,6 +8,8 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 import math
+import re
+from TrigConfHLTData.HLTUtils import string2hash
 
 topoLegIndices = "ABCDEF"
 
@@ -47,161 +49,145 @@ def TrigComboHypoToolFromDict(chainDict):
     from TrigHypoCommonTools.TrigHypoCommonToolsConf import TrigComboHypoTool
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
-    name     = chainDict['chainName']
-    log.debug("[TrigComboHypoToolFromDict] chain %s, combo hypos to be processed: %s, t", name, chainDict['extraComboHypos'])
+    chainName = chainDict['chainName']
+    log.debug("[TrigComboHypoToolFromDict] chain %s, combo hypos to be processed: %s, t", chainName, chainDict['extraComboHypos'])
     #define the list for housing all the info needed to initialize the TrigComboHypoTool module in the form of a dict
     topoDefs = []
 
-    for topoID in range(len(chainDict['extraComboHypos'])):
-        topoInfo = chainDict['extraComboHypos'][topoID]
-        #here we need to decompress the name to get: variable_name, min, max
-        log.debug("[TrigComboHypoToolFromDict] new combo hypo name: %s, topoInfo = %s", name, topoInfo)
-        singleTopoDef = {}
+    # Define regex for parsing the topoInfo
+    # Pattern is: min cut, var, legA, legB, max cut
+    # Min and max are both optional, check afterwards that at least one is filled
+    # Only the allowed vars and legs will be recognised, anything else fails to match
+    theregex = fr"(\d*)({'|'.join(allowed_obs.keys())})([{topoLegIndices}])([{topoLegIndices}])(\d*)"
+    matcher = re.compile(theregex)
 
-        isLegMET = []
-        for chId in range(len(chainDict['chainParts'])):
-            if chainDict['chainParts'][chId]['signature'] == 'MET':
-                isLegMET.append(True)
-            else:
-                isLegMET.append(False)            
-            log.debug("[TrigComboHypoToolFromDict] chainParts[%i]: %s", chId, chainDict['chainParts'][chId])
-        
-        import re
-        # get the variable
-        obs_to_use = []
-        for obs in allowed_obs.keys():
-            if obs in topoInfo:
-                obs_to_use.append(obs)
-        if len(obs_to_use)!=1:
-            log.error("[TrigComboHypoToolFromDict] N of vars found in he hypo name = %d in chain name %s", len(obs_to_use), name)
-            raise Exception("[TrigComboHypoToolFromDict] N of vars found in the hypo name is different from 1")
-        singleTopoDef['var'] = obs_to_use[0]
+    for iTopo, topoInfo in enumerate(chainDict['extraComboHypos']):
+        log.debug("[TrigComboHypoToolFromDict] new combo hypo for chain: %s, topoInfo = %s", chainName, topoInfo)
+        # Attempt to regex-match the topo specification
+        result = matcher.match(topoInfo)
+        if not result:
+            log.error("[TrigComboHypoToolFromDict] Topo expression %s does not conform to format (min?)(var)(legA)(legB)(max?).",topoInfo)
+            log.error("[TrigComboHypoToolFromDict] Must use leg IDs in %s, vars in {allowed_obs.keys()}",topoLegIndices)
+            raise ValueError(f"[TrigComboHypoToolFromDict] Invalid topo expression {topoInfo} received in 'extraComboHypos'!")
 
-        #get the limits
-        l_min = re.findall(r"\d+"+obs_to_use[0], topoInfo)
-        if len(l_min)==1:
-            l_min[0] = l_min[0].replace(obs_to_use[0],"")
-            if obs_to_use[0] in ['dR','dPhi']:
-                cut_min = float(l_min[0])/10.
-            else:
-                cut_min = float(l_min[0])
-        if len(l_min)>1:
-            log.error("[TrigComboHypoToolFromDict] unable to get min value: N min = %d, l_min = %d", len(l_min), l_min)
-            raise Exception("[TrigComboHypoToolFromDict] cannot set min value")
+        # Extract the matched info and validate
+        str_min, var, char_legA, char_legB, str_max = result.groups()
+        # Manipulation of the cuts
+        # At least one must be filled
+        use_min = bool(str_min)
+        use_max = bool(str_max)
+        if not (use_min or use_max):
+            log.error("[TrigComboHypoToolFromDict] Topo expression %s does not specify a min or max cut value.",topoInfo)
+            raise ValueError(f"[TrigComboHypoToolFromDict] Invalid topo expression {topoInfo} received in 'extraComboHypos'!")
+        # Convert into float values, dividing for 0.1 precision as needed
+        if var in ['dR','dphi']:
+            cut_min = float(str_min)/10. if use_min else float('nan')
+            cut_max = float(str_max)/10. if use_max else float('nan')
+        else:
+            cut_min = float(str_min) if use_min else float('nan')
+            cut_max = float(str_max) if use_max else float('nan')
 
-        if len(l_min)==1:#remove the min value from the string name
-            l_max = re.findall(r"\d+", topoInfo.replace(l_min[0],""))
-        else:#no min value was found
-            l_max = re.findall(r"\d+", topoInfo)
-        if len(l_max)>1:
-            log.error("[TrigComboHypoToolFromDict] unable to get max value: N max = %d, l_max = %d", len(l_max), l_max)
-            raise Exception("[TrigComboHypoToolFromDict] cannot set max value")
-        if len(l_max)==1:
-            if obs_to_use[0] in ['dR','dPhi']:
-                cut_max = float(l_max[0])/10.
-            else:
-                cut_max = float(l_min[0])
-        
-        #get the legs
-        l_names = topoInfo.replace(obs_to_use[0], "")
-        if len(l_min)>0: 
-            l_names = l_names.replace(l_min[0], "") 
-        if len(l_max)>0: 
-            l_names = l_names.replace(l_max[0], "") 
+        # Convert char leg representation to int
+        i_legA = topoLegIndices.find(char_legA)
+        i_legB = topoLegIndices.find(char_legB)
 
-        if len(l_names)!=2:
-            log.error("[TrigComboHypoToolFromDict] N_legs = %d, legs_name = %s", len(l_names), l_names)
-            raise Exception("[TrigComboHypoToolFromDict] Number of legs is different from 2")
+        # Fill info for each leg, looking up in chainParts
+        # Convert leg name into HLT identifier for matching in the tool
+        legInfo = []
+        for ileg in [i_legA,i_legB]:
+            cpart = chainDict['chainParts'][ileg]
+            legname = f"leg{ileg:03d}_{chainName}"
+            legInfo.append({
+                'index'       : ileg,
+                'legname'     : legname,
+                'HLTId'       : string2hash(legname),
+                'isMET'       : cpart['signature']=='MET',
+                'multiplicity': int(cpart['multiplicity'])
+            })
 
-        legA = -1
-        legB = -1
-        for i in range(len(topoLegIndices)):
-            if topoLegIndices[i] == l_names[0]:
-                legA = i
-            elif topoLegIndices[i] == l_names[1]:
-                legB = i
-        if legA<0 or legB<0:
-            log.error("[TrigComboHypoToolFromDict] Didn't find leg indexes in %s", l_names)
-            raise Exception("[TrigComboHypoToolFromDict]  Didn't find leg indexes")
-        singleTopoDef['legA'] = "leg{:03d}".format(legA)
-        singleTopoDef['legB'] = "leg{:03d}".format(legB)
+        # Count how many input legs are MET, for consistency checks
+        n_MET_legs = legInfo[0]['isMET'] + legInfo[1]['isMET']
 
-        #count the number of MET legs used in the hypo
-        n_MET_legs=0
-        if isLegMET[legA]:
-            n_MET_legs += 1
-        if isLegMET[legB]:
-            n_MET_legs += 1
+        # Check multiplicity of the configured legs
+        # For chains like "HLT_2muX_10invm70AA", no leg ID will be attached
+        # in which case set a flag to use all objects in the combination list
+        skipLegCheck = False
+        if i_legA==i_legB:
+            if legInfo[0]['multiplicity'] != 2:
+                log.error("[TrigComboHypoToolFromDict] Error configuring topo for chain %s!",chainName)
+                log.error("[TrigComboHypoToolFromDict] Topo selection %s requires multiplicity 2 on leg %d, found %d!",topoInfo,i_legA,legInfo[0]['multiplicity'])
+                raise Exception("[TrigComboHypoToolFromDict] Invalid multiplicity")
+            if n_MET_legs==2:
+                log.error("[TrigComboHypoToolFromDict] Configured with the same MET leg on both sides -- impossible to satisfy!")
+                raise Exception("[TrigComboHypoToolFromDict] Identical MET legs for topo selection")
+            if len(chainDict['chainParts'])==1:
+                skipLegCheck=True
+        else:
+            for li in legInfo:
+                if li['multiplicity'] != 1:
+                    log.error("[TrigComboHypoToolFromDict] Error configuring topo for chain %s!",chainName)
+                    log.error("[TrigComboHypoToolFromDict] Topo selection %s requires multiplicity 1 on leg %d, found %d!",topoInfo,li['index'],li['multiplicity'])
+                    raise Exception("[TrigComboHypoToolFromDict] Invalid multiplicity")
+
         #now check that the variable we plan to use allows the use of the MET
-        if n_MET_legs not in allowed_obs[obs_to_use[0]]['n_MET_legs']:
-            log.error("[TrigComboHypoToolFromDict] Attempting to use the MET leg in var %s. N_MET_legs = %d", obs_to_use[0], isLegMET.count(True))
+        if n_MET_legs not in allowed_obs[var]['n_MET_legs']:
+            log.error("[TrigComboHypoToolFromDict] Attempting var %s with %d MET legs, %s allowed", var, n_MET_legs, allowed_obs[var]['n_MET_legs'])
             raise Exception("[TrigComboHypoToolFromDict] Attempting to use the MET leg in var")
-        singleTopoDef['isLegA_MET'] = isLegMET[legA]
-        singleTopoDef['isLegB_MET'] = isLegMET[legB]
-
+ 
         if len(chainDict['extraComboHypos'])==1:#to avoid breaking changes in the ref files
-            monToolName = "MonTool_"+name
-            histNameTag = obs_to_use[0]
+            monToolName = "MonTool_"+chainName
+            histNameTag = var
         else:
-            monToolName = "MonTool_"+name+"_"+chainDict['extraComboHypos'][topoID]
-            histNameTag = obs_to_use[0] + "leg{:03d}".format(legA) + "leg{:03d}".format(legB)
+            monToolName = f"MonTool_{chainName}_{chainDict['extraComboHypos'][iTopo]}"
+            histNameTag = f"{var}leg{i_legA:03d}leg{i_legB:03d}"
         monTool = GenericMonitoringTool(monToolName)
-        monTool.Histograms = [defineHistogram(histNameTag+'OfAccepted', type='TH1F', path='EXPERT', 
-                                              title=obs_to_use[0]+" in accepted combinations; {}".format(obs_to_use[0]), 
-                                              xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], 
-                                              xmin=allowed_obs[obs_to_use[0]]['hist_min'], 
-                                              xmax=allowed_obs[obs_to_use[0]]['hist_max']), 
-                              defineHistogram(histNameTag+'OfProcessed', type='TH1F', path='EXPERT', 
-                                              title=obs_to_use[0]+" in processed combinations; {}".format(obs_to_use[0]), 
-                                              xbins=allowed_obs[obs_to_use[0]]['hist_nbins'], 
-                                              xmin=allowed_obs[obs_to_use[0]]['hist_min'], 
-                                              xmax=allowed_obs[obs_to_use[0]]['hist_max'])]
-        log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", name, topoInfo)
-        #now fill the holders needed to initialize the TrigComboHypoTool
-        if len(l_min)==1:
-            singleTopoDef['useMin']   = True
-            singleTopoDef['lowerCut'] = cut_min
-        else:
-            singleTopoDef['useMin']   = False
-            singleTopoDef['lowerCut'] = 0.
-            
-        if len(l_max)==1:
-            singleTopoDef['useMax']   = True
-            singleTopoDef['upperCut'] = cut_max
-        else:
-            singleTopoDef['useMax']   = False
-            singleTopoDef['upperCut'] = 0.
+        monTool.Histograms = [defineHistogram(histNameTag+'OfAccepted', type='TH1F', path='EXPERT',
+                                              title=var+" in accepted combinations; {}".format(var),
+                                              xbins=allowed_obs[var]['hist_nbins'],
+                                              xmin=allowed_obs[var]['hist_min'],
+                                              xmax=allowed_obs[var]['hist_max']),
+                              defineHistogram(histNameTag+'OfProcessed', type='TH1F', path='EXPERT',
+                                              title=var+" in processed combinations; {}".format(var),
+                                              xbins=allowed_obs[var]['hist_nbins'],
+                                              xmin=allowed_obs[var]['hist_min'],
+                                              xmax=allowed_obs[var]['hist_max'])]
+        log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", chainName, topoInfo)
 
         if len(chainDict['extraComboHypos'])==1:#to avoid breaking changes in the ref files
-            monTool.HistPath = 'ComboHypo/'+name
+            monTool.HistPath = f'ComboHypo/{chainName}'
         else:
-            monTool.HistPath = 'ComboHypo/'+name+"_detail_"+singleTopoDef['var'] + singleTopoDef['legA'] + singleTopoDef['legB']
-        singleTopoDef['monTool'] = monTool
+            monTool.HistPath = f'ComboHypo/{chainName}_detail_{histNameTag}'
 
+        # Set keys of dict to match tool config properties
+        singleTopoDef = {
+            "Variables"    : var,
+            "UseMinVec"    : use_min,
+            "UseMaxVec"    : use_max,
+            "LowerCutVec"  : cut_min,
+            "UpperCutVec"  : cut_max,
+            "LegAVec"      : legInfo[0]["HLTId"],
+            "LegBVec"      : legInfo[1]["HLTId"],
+            "IsLegA_METVec": legInfo[0]["isMET"],
+            "IsLegB_METVec": legInfo[1]["isMET"],
+            "MonTools"     : monTool,
+        }
         topoDefs.append(singleTopoDef)
 
         #some debug info
-        log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", name, topoInfo)
-        log.debug("[TrigComboHypoToolFromDict] var  = %s", singleTopoDef['var'])
-        log.debug("[TrigComboHypoToolFromDict] legA = %d", singleTopoDef['legA'])
-        log.debug("[TrigComboHypoToolFromDict] legB = %d", singleTopoDef['legB'])
-        if len(l_min)==1:
-            log.debug("[TrigComboHypoToolFromDict] min  = %10.3f", singleTopoDef['lowerCut'])
-        if len(l_max)==1:
-            log.debug("[TrigComboHypoToolFromDict] max  = %10.3f", singleTopoDef['upperCut'])
+        log.debug("[TrigComboHypoToolFromDict] tool configured for hypo name: %s, topoInfo = %s", chainName, topoInfo)
+        log.debug("[TrigComboHypoToolFromDict] var  = %s", singleTopoDef['Variables'])
+        log.debug("[TrigComboHypoToolFromDict] legA = %s", singleTopoDef['LegAVec'])
+        log.debug("[TrigComboHypoToolFromDict] legB = %s", singleTopoDef['LegBVec'])
+        if use_min:
+            log.debug("[TrigComboHypoToolFromDict] min  = %10.3f", singleTopoDef['LowerCutVec'])
+        if use_max:
+            log.debug("[TrigComboHypoToolFromDict] max  = %10.3f", singleTopoDef['UpperCutVec'])
 
         #end of the loop over the hypos
-    tool= TrigComboHypoTool(name)
-    tool.Variables      = [x['var']        for x in topoDefs]
-    tool.LegAVec        = [x['legA']       for x in topoDefs]
-    tool.IsLegA_METVec  = [x['isLegA_MET'] for x in topoDefs]
-    tool.LegBVec        = [x['legB']       for x in topoDefs]
-    tool.IsLegB_METVec  = [x['isLegB_MET'] for x in topoDefs]
-    tool.UseMinVec      = [x['useMin']     for x in topoDefs]
-    tool.LowerCutVec    = [x['lowerCut']   for x in topoDefs]
-    tool.UseMaxVec      = [x['useMax']     for x in topoDefs]
-    tool.UpperCutVec    = [x['upperCut']   for x in topoDefs]
-    tool.MonTools       = [x['monTool']    for x in topoDefs]
+    
+    # convert list of dicts into dict of lists
+    toolProps = {k:[thedef[k] for thedef in topoDefs] for k in topoDefs[0]}
+    tool = TrigComboHypoTool(chainName, SkipLegCheck=skipLegCheck, **toolProps)
 
     return tool
 
@@ -214,6 +200,7 @@ comboConfigurator = {
 }
 
 def addTopoInfo(theChainConfig, mainChainDict, listOfChainDefs, lengthOfChainConfigs):
+    log.debug("[addTopoInfo] Adding topo info to chain %s", theChainConfig)
 
     def findStepIndexInChain(chain, step):
         for istep,chainstep in enumerate(chain.steps):
@@ -222,7 +209,8 @@ def addTopoInfo(theChainConfig, mainChainDict, listOfChainDefs, lengthOfChainCon
         return None
 
     for step,(topoCfg,topoExpr) in theChainConfig.topoMap.items():
-        thestep = -1 if step=="last" else findStepIndexInChain(theChainConfig,step)
+        thestep = theChainConfig.steps[-1] if step=="last" else theChainConfig.steps[findStepIndexInChain(theChainConfig,step)]
+        log.debug("[addTopoInfo] Adding %s to step %s",topoExpr,thestep)
         if thestep is None:
             log.error("Failed to find step %s in Chain! ChainDict follows:", step)
             log.error(mainChainDict)
@@ -237,16 +225,16 @@ def addTopoInfo(theChainConfig, mainChainDict, listOfChainDefs, lengthOfChainCon
 
         # No need to add if it has been added previously
         # Handle better and avoid doing this repeatedly on the same steps?
-        if topoCfg not in theChainConfig.steps[thestep].comboToolConfs:
-            if len(theChainConfig.steps[thestep].comboToolConfs) > 0:
-                log.warning("[addTopoInfo] step %s already has ComboHypo tools %s",theChainConfig.steps[thestep],theChainConfig.steps[thestep].comboToolConfs)
+        if topoCfg not in thestep.comboToolConfs:
+            if len(thestep.comboToolConfs) > 0:
+                log.warning("[addTopoInfo] step %s already has ComboHypo tools %s",thestep,thestep.comboToolConfs)
                 log.warning("[addTopoInfo] these will be added to, make sure this is the behaviour you want.")
 
-            theChainConfig.steps[thestep].addComboHypoTools(topoCfg)
-            theChainConfig.steps[thestep].name = theChainConfig.steps[thestep].name+'_combo_'+topoExpr 
+            thestep.name = thestep.name+'_combo_'+topoExpr 
+            thestep.addComboHypoTools(topoCfg)
     
-            theChainConfig.steps[thestep].makeCombo()
-            log.debug("[addTopoInfo] new combo hypo name: %s",theChainConfig.steps[thestep].combo.name)
+            thestep.makeCombo()
+            log.debug("[addTopoInfo] new combo hypo name: %s",thestep.combo.name)
 
             if bonus_debug:
                 log.debug("[addTopoInfo] new theChainConfig %s", theChainConfig)
