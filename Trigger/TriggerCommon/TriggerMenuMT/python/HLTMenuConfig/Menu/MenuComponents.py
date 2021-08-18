@@ -921,7 +921,7 @@ class ChainStep(object):
         log.debug("[ChainStep] onlyJets, sig_set: %s, %s",self.onlyJets, sig_set)
         self.multiplicity = multiplicity
         self.comboHypoCfg=comboHypoCfg
-        self.comboToolConfs=comboToolConfs
+        self.comboToolConfs = list(comboToolConfs)
         self.stepDicts = chainDicts # one dict per leg
         self.isEmpty=(sum(multiplicity)==0 or isEmpty)
         if not self.isEmpty:

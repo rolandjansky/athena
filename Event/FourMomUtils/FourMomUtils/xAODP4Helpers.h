@@ -106,18 +106,24 @@ namespace xAOD
 
 
 
+    /// @f$ \Delta{R}^2 @f$ from bare rapidity,phi
+    inline
+    double deltaR2( double rapidity1, double phi1, double rapidity2, double phi2 )
+    {
+      const double dPhi = xAOD::P4Helpers::deltaPhi( phi1, phi2 );
+      const double dRapidity = rapidity1-rapidity2;
+      return dRapidity*dRapidity + dPhi*dPhi;
+    }
+
     /// @f$ \Delta{R}^2 @f$ from 1 @c xAOD::IParticle
     inline
     double deltaR2( const xAOD::IParticle& p4, double rapidity, double phi, bool useRapidity=true )
     {
-      const double dPhi = xAOD::P4Helpers::deltaPhi( p4, phi );
       if (useRapidity) {
-        const double dRapidity = p4.rapidity() - rapidity;
-        return dRapidity*dRapidity + dPhi*dPhi;
+        return xAOD::P4Helpers::deltaR2(p4.rapidity(),p4.phi(),rapidity,phi);
       }
       else {
-        const double dEta = p4.eta() - rapidity;
-        return dEta*dEta + dPhi*dPhi;
+        return xAOD::P4Helpers::deltaR2(p4.eta(),p4.phi(),rapidity,phi);
       }
     }
 
@@ -125,24 +131,24 @@ namespace xAOD
     inline
     double deltaR2( const xAOD::IParticle& pA, const xAOD::IParticle& pB, bool useRapidity=true )
     {
-      const double dPhi = xAOD::P4Helpers::deltaPhi( pA, pB );
-      const double dPhiSq = dPhi*dPhi;
       if (useRapidity) {
-        const double dRapidity = xAOD::P4Helpers::deltaRapidity( pA, pB );
-        return dRapidity*dRapidity + dPhiSq;
+        return xAOD::P4Helpers::deltaR2(pA.rapidity(),pA.phi(),pB.rapidity(),pB.phi());
       }
       else {
-        const double dEta = xAOD::P4Helpers::deltaEta( pA, pB );
-        return dEta*dEta + dPhiSq;
+        return xAOD::P4Helpers::deltaR2(pA.eta(),pA.phi(),pB.eta(),pB.phi());
       }
     }
 
-    /** delta R from two xAOD::IParticle pointers */
+    /** delta R^2 from two xAOD::IParticle pointers */
     inline
     double deltaR2( const xAOD::IParticle * const pA, const xAOD::IParticle * const pB, bool useRapidity=true )
     { return xAOD::P4Helpers::deltaR2( *pA, *pB, useRapidity ); }
 
 
+    /// @f$ \Delta{R} @f$ from bare bare rapidity,phi
+    inline
+    double deltaR( double rapidity1, double phi1, double rapidity2, double phi2 )
+    { return std::sqrt( xAOD::P4Helpers::deltaR2( rapidity1, phi1, rapidity2, phi2 ) ); }
 
     /// @f$ \Delta{R} @f$ from 1 @c xAOD::IParticle
     inline
