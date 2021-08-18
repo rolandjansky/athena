@@ -53,6 +53,11 @@ def defineMenu():
         'L1_MU4_EMPTY', 'L1_MU6_EMPTY', 'L1_MU4_FIRSTEMPTY', 'L1_MU11_EMPTY',
         'L1_MU4_UNPAIRED_ISO',
 
+        # Run3
+        'L1_MU3V', 'L1_MU5VF', 'L1_MU8F', 'L1_MU8VF', 'L1_MU14FCH', 'L1_MU14FCHR',
+        'L1_MU3VF', 'L1_MU8FC', 'L1_MU15VFCH', 'L1_MU10BOM', 
+        'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_3MU3V', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_4MU3V',
+
         ##
         # combined lepton (e and mu)
         ##

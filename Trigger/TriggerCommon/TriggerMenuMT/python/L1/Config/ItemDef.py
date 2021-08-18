@@ -237,7 +237,30 @@ class ItemDef:
 
 
         # MUON ctpid=[0x20;0x2f]
-        MenuItem('L1_MU0'  ).setLogic( d.MU0  & physcond).setTriggerType(TT.muon)
+        # RUn3 thresholds
+        MenuItem('L1_MU0'        ).setLogic( d.MU0        & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU3V'       ).setLogic( d.MU3V       & physcond).setTriggerType(TT.muon) # ~ Run2 MU4 eff
+        MenuItem('L1_MU5VF'      ).setLogic( d.MU5VF      & physcond).setTriggerType(TT.muon) # ~ Run2 MU6
+        MenuItem('L1_MU8F'       ).setLogic( d.MU8F       & physcond).setTriggerType(TT.muon) # ~ Run2 MU10
+        MenuItem('L1_MU8VF'      ).setLogic( d.MU8VF      & physcond).setTriggerType(TT.muon) # ~ Run2 MU11
+        MenuItem('L1_MU14FCH'    ).setLogic( d.MU14FCH    & physcond).setTriggerType(TT.muon) # ~ Run2 MU20
+        MenuItem('L1_MU14FCHR'   ).setLogic( d.MU14FCHR   & physcond).setTriggerType(TT.muon) # ~ Run2 MU21
+
+        MenuItem('L1_MU3VF'      ).setLogic( d.MU3VF      & physcond).setTriggerType(TT.muon) # ~ Run2 MU4 rate
+        MenuItem('L1_MU8FC'      ).setLogic( d.MU8FC      & physcond).setTriggerType(TT.muon) # Backup MU8F
+        MenuItem('L1_MU15VFCH'   ).setLogic( d.MU15VFCH   & physcond).setTriggerType(TT.muon) # 
+
+        MenuItem('L1_MU10BOM'    ).setLogic( d.MU10BOM    & physcond).setTriggerType(TT.muon) # Barrel-only close-by muons
+        MenuItem('L1_MU20FC'     ).setLogic( d.MU20FC     & physcond).setTriggerType(TT.muon) # alignment with toroid off
+  
+        MenuItem('L1_2MU8F'        ).setLogic( d.MU8F.x(2)             & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU8VF_2MU5VF' ).setLogic( d.MU8F & d.MU5VF.x(2)   & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_3MU3V'        ).setLogic( d.MU3V.x(3)             & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_3MU5VF'       ).setLogic( d.MU5VF.x(3)            & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU5VF_3MU3V'  ).setLogic( d.MU5VF & d.MU3V.x(3)   & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_4MU3V'        ).setLogic( d.MU3V.x(4)             & physcond).setTriggerType(TT.muon)
+
+        # To be removed
         MenuItem('L1_MU4'  ).setLogic( d.MU4  & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU6'  ).setLogic( d.MU6  & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU10' ).setLogic( d.MU10 & physcond).setTriggerType(TT.muon)
