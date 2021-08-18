@@ -388,7 +388,7 @@ TauChainParts = {
     'multiplicity'  : '',
     'trigType'      : ['tau'],
     'trkInfo'       : '',
-    'extra'         : '',
+    'extra'         : ['probe'],
     'recoAlg'       : '',
     'calib'         : '',
     'addInfo'       : ['IdTest'],

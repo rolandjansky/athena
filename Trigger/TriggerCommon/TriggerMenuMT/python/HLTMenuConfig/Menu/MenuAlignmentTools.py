@@ -27,6 +27,7 @@ the_signature_grouping = OrderedDict([
     ('MuonnoL1', 'MuonnoL1'),
     ('Electronprobe', 'EgammaProbe'),
     ('Photonprobe' , 'EgammaProbe'),
+    ('Tauprobe', 'TauProbe'),
     ('Muonprobe' , 'MuonProbe'),
     ])
     
