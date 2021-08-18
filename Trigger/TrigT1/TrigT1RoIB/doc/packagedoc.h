@@ -15,7 +15,7 @@
 
 This package contains the simulation of the RoIBuilder running between LVL1
 and LVL2 producing the RoIBResult. In addition it contains helper 
-algorithms to access the ROIB::RoIBResult and ROIB::RecRoIBResult objects.
+algorithms to access the ROIB::RoIBResult object.
 
 @section TrigT1RoIB_TrigT1RoIBOverview Class Overview
   The TrigT1RoIB package contains of following classes:
