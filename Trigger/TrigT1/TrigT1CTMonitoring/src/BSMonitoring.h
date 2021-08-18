@@ -60,7 +60,6 @@ namespace LVL1 {
   class EnergyCTP;
   class MbtsCTP;
   class BcmCTP;
-  class LucidCTP;
   class BptxCTP;
   class NimCTP;
   class RecMuonRoiSvc;

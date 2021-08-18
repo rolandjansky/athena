@@ -99,14 +99,6 @@ if DetFlags.overlay.LVL1_on():
           job.newTrigT1BCM.EvtStore = "BkgEvent_0_SG"
 
        #-------------------------------------------------------
-       # TrigT1LUCID Alg
-       #-------------------------------------------------------
-       if DetFlags.simulateLVL1.Lucid_on():
-          from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
-          job += LVL1__TrigT1Lucid("newTrigT1Lucid")
-          job.newTrigT1Lucid.EvtStore = "BkgEvent_0_SG"
-    
-       #-------------------------------------------------------
        # TrigT1CTP Algos
        #-------------------------------------------------------
        from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInOverlay
