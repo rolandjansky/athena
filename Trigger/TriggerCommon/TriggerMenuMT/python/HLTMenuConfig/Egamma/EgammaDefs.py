@@ -26,9 +26,8 @@ class TrigEgammaKeys(object):
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
       EgammaRecKey = 'HLT_egammaRecCollection'
       outputPhotonKey = recordable('HLT_egamma_Photons')
-      outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-      TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
+      TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
       TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel22_20210611'
       dnnVersion = 'mc16_20210430'

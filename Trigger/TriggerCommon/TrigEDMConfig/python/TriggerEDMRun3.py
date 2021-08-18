@@ -358,6 +358,10 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigRNNOutputContainer#HLT_TrigTRTHTCounts',            'BS ESD AODFULL', 'Egamma', 'inViews:TRTHitGeneratorViews'),
     ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'), 
 
+    # CaloCluster object written by EMClusterTool
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionElectronViews_LRT,precisionElectronViews_GSF,precisionPhotonViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClustersAux.',     'BS ESD AODFULL', 'Egamma'),
+
     # Muon
 
     # Id track particles
