@@ -8,15 +8,6 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
     __slots__ = []
     def __init__(self, name = "TrigDecMaker"):
         super( TrigDecisionMaker, self ).__init__( name )
-        log = logging.getLogger( 'TrigDecisionMaker' )
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doConfigVersionConversion)", ConfigFlags.Trigger.doConfigVersionConversion)
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doConfigVersionConversion
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 configuration from the TriggerDB
-            self.Lvl1ResultAccessTool.LVL1ConfigSvc = "TrigConfigSvc"
-
 
 
 class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
@@ -24,7 +15,6 @@ class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
     def __init__(self, name = "TrigDecMakerMT"):
         super( TrigDecisionMakerMT, self ).__init__( name )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
         # Schedule also the prescale conditions algs
         from AthenaCommon.Configurable import Configurable
         Configurable.configurableRun3Behavior += 1
@@ -140,7 +130,6 @@ class WriteTrigDecisionToStream ( object ) :
 
 class WritexAODTrigDecision ( object ) :
     def __init__(self):
-        from AthenaCommon.Logging import logging
         from AthenaCommon.AlgSequence import AlgSequence
         from xAODTriggerCnv.xAODTriggerCnvConf import (xAODMaker__TrigDecisionCnvAlg,
                                                        xAODMaker__TrigDecisionCnvTool,

@@ -7,12 +7,6 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "CTPfragment/CTPdataformatVersion.h"
 
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/PrescaleSet.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
@@ -26,18 +20,9 @@ HLT::Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const s
 
 StatusCode
 HLT::Lvl1ResultAccessTool::initialize() {
-   // Get LVL1 Config Svc handle:
-   if(m_lvl1ConfigSvc.empty()) {
-      ATH_MSG_FATAL("no TrigConfigSvc set in the jobOptions-> abort");
-      return StatusCode::FAILURE;
-   }
 
-   ATH_MSG_INFO("Initializing with UseNewConfig = " << m_useNewConfig);
-   ATH_CHECK( m_l1PrescaleSetInputKey.initialize( m_useNewConfig ) );
+   ATH_CHECK( m_l1PrescaleSetInputKey.initialize( ) );
    ATH_CHECK( m_l1ResultKey.initialize( ) );
-
-   ATH_MSG_DEBUG("Retrieving TrigConfigSvc.");
-   CHECK( m_lvl1ConfigSvc.retrieve() );
 
    return StatusCode::SUCCESS;
 }
@@ -54,40 +39,24 @@ HLT::Lvl1ResultAccessTool::makeLvl1ItemConfig(const EventContext& context) const
    constexpr size_t numberOfCTPItems = 512; // this is fixed
    std::vector<std::unique_ptr<LVL1CTP::Lvl1Item>> lvl1ItemConfig(numberOfCTPItems);
 
-   if( m_useNewConfig ) {
-      const TrigConf::L1Menu *l1menu = nullptr;
-      if( detStore()->retrieve(l1menu).isFailure() ) {
-         ATH_MSG_ERROR("No L1Menu found");
-      } else {
-         SG::ReadCondHandle<TrigConf::L1PrescalesSet> l1psRH(m_l1PrescaleSetInputKey, context);
-         if( !l1psRH.isValid() ) {
-            ATH_MSG_ERROR("No valid L1PrescalesSet handle");
-         } else {
-            const TrigConf::L1PrescalesSet* l1PrescaleSet{*l1psRH};
-            if(l1PrescaleSet == nullptr) {
-               ATH_MSG_ERROR( "No L1PrescalesSet available");
-            } else {
-               for(auto & item : *l1menu) {
-                  double prescale = l1PrescaleSet->getPrescaleFromCut(l1PrescaleSet->prescale(item.name()).cut);
-                  lvl1ItemConfig[item.ctpId()] = std::make_unique<LVL1CTP::Lvl1Item>( item.name(),
-                                                                                    TrigConf::HLTUtils::string2hash(item.name()),
-                                                                                    0, 0, 0, prescale);
-               }
-            }
-         }
-      }
+   const TrigConf::L1Menu *l1menu = nullptr;
+   if( detStore()->retrieve(l1menu).isFailure() ) {
+      ATH_MSG_ERROR("No L1Menu found");
    } else {
-      const TrigConf::CTPConfig *ctpConfig = m_lvl1ConfigSvc->ctpConfig();
-      const auto & prescales = ctpConfig->prescaleSet().prescales_float();
-      for(const TrigConf::TriggerItem * item : ctpConfig->menu().items() ) {
-         unsigned int pos = item->ctpId();
-         if (lvl1ItemConfig[pos] != nullptr && item->name() != lvl1ItemConfig[pos]->name()  ) {
-            ATH_MSG_ERROR( "LVL1 item: " << item->name() << " uses a CTP id: "
-                           << pos << " that is already used!! --> ignore this LVL1 item! ");
+      SG::ReadCondHandle<TrigConf::L1PrescalesSet> l1psRH(m_l1PrescaleSetInputKey, context);
+      if( !l1psRH.isValid() ) {
+         ATH_MSG_ERROR("No valid L1PrescalesSet handle");
+      } else {
+         const TrigConf::L1PrescalesSet* l1PrescaleSet{*l1psRH};
+         if(l1PrescaleSet == nullptr) {
+            ATH_MSG_ERROR( "No L1PrescalesSet available");
          } else {
-            lvl1ItemConfig[pos] =  std::make_unique<LVL1CTP::Lvl1Item>( item->name(),
-                                                                        TrigConf::HLTUtils::string2hash(item->name()),
-                                                                        0, 0, 0, prescales[pos]);
+            for(auto & item : *l1menu) {
+               double prescale = l1PrescaleSet->getPrescaleFromCut(l1PrescaleSet->prescale(item.name()).cut);
+               lvl1ItemConfig[item.ctpId()] = std::make_unique<LVL1CTP::Lvl1Item>( item.name(),
+                                                                                   TrigConf::HLTUtils::string2hash(item.name()),
+                                                                                   0, 0, 0, prescale);
+            }
          }
       }
    }

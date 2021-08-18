@@ -11,17 +11,12 @@
 #include "TrigConfData/L1PrescalesSet.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include <vector>
 #include <bitset>
 #include <string>
 
 // forward declarations
-namespace TrigConf {
-   class TriggerThreshold;
-}
-
 namespace LVL1CTP {
    class Lvl1Result;
    class Lvl1Item;
@@ -85,14 +80,10 @@ namespace HLT {
       LVL1::JEPRoIDecoder m_jepDecoder;
       LVL1::CPRoIDecoder m_cpDecoder;
 
-      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the LVL1ConfigSvc" };
-
       /// access to L1Prescales
       SG::ReadCondHandleKey<TrigConf::L1PrescalesSet> m_l1PrescaleSetInputKey{ this, "L1Prescales", "L1Prescales", "L1 prescales set"};
 
       SG::WriteHandleKey<LVL1CTP::Lvl1Result> m_l1ResultKey{ this, "L1Result", "L1Result", "L1 result"};
-
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc{ this, "LVL1ConfigSvc", "LVL1ConfigSvc", "LVL1 Config Service"}; //!< handle for the LVL1 configuration service
    };
 } // end namespace
 
