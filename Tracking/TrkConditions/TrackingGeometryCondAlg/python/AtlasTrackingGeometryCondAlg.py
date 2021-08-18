@@ -136,7 +136,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
             AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
-            AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
+            AtlasMaterialProvider.LayerMaterialMapKey   = TrkDetFlags.MaterialStoreGateKey()
         
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]
         
@@ -157,7 +157,8 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 MagicTag      = TrkDetFlags.MaterialMagicTag()
                 DataBaseConnection = '<dbConnection>sqlite://X;schema='+DataBasePath+DataBaseName+';dbname=OFLP200</dbConnection>'
                 conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterialV2')
-                conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
+                conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True,
+                                        className = 'Trk::LayerMaterialMap')
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                     print ('[ TrackingGeometryCondAlg ] Using Local Database: '+DataBaseConnection)
                 # make sure that the pool files are in the catalog
@@ -166,13 +167,15 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
                 ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
+                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag,
+                                        className = 'Trk::LayerMaterialMap')
             else :
                 print ('[ TrackingGeometryCondAlg ]     base material tag : ', AtlasMaterialTag)
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
                 print ('[ TrackingGeometryCondAlg ]     translated to COOL: ', cfolder)
                 # load the right folders (preparation for calo inclusion)
-                conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
+                conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder,
+                                        className = 'Trk::LayerMaterialMap')
 
         elif TrkDetFlags.MaterialSource() == 'Input' :
             # the material provider

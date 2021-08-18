@@ -27,7 +27,8 @@ def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
     #   print('[ TrackingGeometrySvc ]     translated to COOL: ' + cfolder)
 
     # load the right folders
-    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True) )
+    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True,
+                                        className = 'Trk::LayerMaterialMap') )
     return result
     
 def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', nameSuffix='',setLayerAssociation = True, buildTrtStrawLayers = False):

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -274,14 +274,14 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
        CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialV2' # Was from TrkDetFlags.MaterialStoreGateKey()
        # the material provider
        Trk__LayerMaterialProvider=CompFactory.Trk.LayerMaterialProvider
-       atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder)
+       atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder, LayerMaterialMapKey='')
        atlas_geometry_processors += [ atlasMaterialProvider ]
 
        # Setup DBs
        result.merge(_setupCondDB(flags, CoolDataBaseFolder))
     elif  flags.TrackingGeometry.MaterialSource == 'Input':
       Trk__InputLayerMaterialProvider=CompFactory.Trk.InputLayerMaterialProvider
-      atlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
+      atlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapKey='')
       atlas_geometry_processors += [ atlasMaterialProvider ]
       
     if doMaterialValidation:

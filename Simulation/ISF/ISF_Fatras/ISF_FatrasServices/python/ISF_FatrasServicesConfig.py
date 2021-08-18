@@ -50,7 +50,8 @@ def initialiseCoolDataBaseFolder():
             MagicTag      = TrkDetFlags.MaterialMagicTag()
             DataBaseConnection = '<dbConnection>sqlite://X;schema='+DataBasePath+DataBaseName+';dbname=OFLP200</dbConnection>'
             conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterial')
-            conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
+            conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True,
+                                    className = 'Trk::LayerMaterialMap')
             if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                 print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection)
             # make sure that the pool files are in the catalog
@@ -61,11 +62,13 @@ def initialiseCoolDataBaseFolder():
             CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
             ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
             cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
+            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag,
+                                    className = 'Trk::LayerMaterialMap')
         else :
             # load the right folders (preparation for calo inclusion)
             cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
+            conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder,
+                                    className = 'Trk::LayerMaterialMap')
 
     #HACK: CoolDataBaseFolder may not be set at this point! Is this right? -KG
     return CoolDataBaseFolder
