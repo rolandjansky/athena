@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .Limits import Limits
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
 
 """
 Thilo's proposal in the CTP meeting Oct 13

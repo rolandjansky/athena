@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
 
 from AthenaCommon.Logging import logging
@@ -27,7 +27,7 @@ def  trigJetHypoToolFromDict(chain_dict):
         # This single HypoTool gets configured to perform the selection for _all_ of the jet legs, and to report
         # the per-jet passing status for all of these legs.
         #
-        # Here we determine if this is the 2nd+ jet leg of a multi-leg chain which has jet legs, and return None tool if it is
+        # Here we determine if this is the 2nd+ jet leg of a multi-leg chain which has jet legs, and return no tool if it is
 
         # Can we fetch this from elsewhere?
 
@@ -59,10 +59,13 @@ def  trigJetHypoToolFromDict(chain_dict):
                 first_leg_index = min(first_leg_index, chain_dict['signatures'].index(signature))
 
         if leg_id > first_leg_index:
-            logger.debug("Not returning a HypoTool for {} as this isn't the first leg with any of {} (leg signatures are {})".format(chain_name,tuple(jet_signature_identifiers),tuple(chain_dict['signatures'])))
-            return None
+            logger.debug("Not returning a HypoTool for %s as this is not the first leg "
+                         "with any of %s (leg signatures are %s)",
+                         chain_name, tuple(jet_signature_identifiers), tuple(chain_dict['signatures']))
+            raise NoHypoToolCreated("No HypoTool created for %s" % chain_name)
 
-    logger.debug("Returning a HypoTool for {} as this is the first leg with any of {} (leg signatures are {})".format(chain_name,tuple(jet_signature_identifiers),tuple(chain_dict['signatures'])))
+    logger.debug("Returning a HypoTool for %s as this is the first leg with any of %s (leg signatures are %s)",
+                 chain_name, tuple(jet_signature_identifiers), tuple(chain_dict['signatures']))
 
     hypo_tool =  hypotool_from_chaindict(chain_dict)
     hypo_tool.visit_debug = debug
