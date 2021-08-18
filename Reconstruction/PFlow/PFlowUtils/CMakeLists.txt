@@ -9,6 +9,12 @@ atlas_add_library( PFlowUtilsLib
    PUBLIC_HEADERS PFlowUtils
    LINK_LIBRARIES AsgTools xAODPFlow )
 
+atlas_add_dictionary( PFlowUtilsDict
+   PFlowUtils/PFlowUtilsDict.h
+   PFlowUtils/selection.xml
+   LINK_LIBRARIES PFlowUtilsLib )
+
+
 if( NOT XAOD_ANALYSIS )
    atlas_add_component( PFlowUtils
       src/*.h src/*.cxx src/components/*.cxx
