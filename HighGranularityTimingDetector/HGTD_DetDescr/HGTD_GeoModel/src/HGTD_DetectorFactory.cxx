@@ -53,6 +53,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 
 using namespace std;
+using namespace InDetDD;
 
 namespace HGTDGeo {
 
