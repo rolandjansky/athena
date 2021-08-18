@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -64,7 +64,7 @@ inline
 void
 CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
                                 const ElementLink<CaloCellContainer>& cellsEL,
-                                CaloTower* tower) const
+                                CaloTower* tower) 
 {
   CaloTowerStore::cell_iterator firstC = tower_it.firstCell();
   CaloTowerStore::cell_iterator lastC = tower_it.lastCell();
