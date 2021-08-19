@@ -22,7 +22,6 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
 
 #ifndef SIMULATIONBASE
 #ifndef GENERATIONBASE
@@ -33,33 +32,6 @@
 #include "Identifier/HWIdentifier.h"
 
 #include <atomic>
-
-
-namespace {
-
-
-struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
-{
-  LegacyIdFunc();
-  std::vector<HWIdentifier> operator()(HWIdentifier id)
-  {
-    return m_cablingTool->getLArElectrodeIDvec (id);
-  }
-  LArHVCablingTool* m_cablingTool;
-};
-
-
-LegacyIdFunc::LegacyIdFunc()
-{
-  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
-  if (!tool.retrieve().isSuccess()) {
-    std::abort();
-  }
-  m_cablingTool = tool.get();
-}
-
-
-} // Anonymous namespace
 
 
 class EMBPresamplerHVManager::Clockwork {
@@ -303,22 +275,6 @@ EMBPresamplerHVManager::getData (idfunc_t idfunc,
 
   return EMBPresamplerHVManager::EMBPresamplerHVData (std::move (payload));
 }
-
-EMBPresamplerHVManager::EMBPresamplerHVData
-EMBPresamplerHVManager::getData ATLAS_NOT_THREAD_SAFE () const
-{
-  std::vector<const CondAttrListCollection*> attrLists;
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
-  const CondAttrListCollection* atrlistcol = nullptr;
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
-    attrLists.push_back (atrlistcol);
-  }
-  return getData (LegacyIdFunc(), attrLists);
-}
-
 
 #ifndef SIMULATIONBASE
 #ifndef GENERATIONBASE
