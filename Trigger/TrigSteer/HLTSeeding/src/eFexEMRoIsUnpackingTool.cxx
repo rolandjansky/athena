@@ -21,7 +21,9 @@ StatusCode eFexEMRoIsUnpackingTool::initialize() {
 
 // =============================================================================
 StatusCode eFexEMRoIsUnpackingTool::start() {
-  ATH_CHECK(decodeMapping([](const std::string& name){return name.find("eEM")==0 or name.find(getProbeThresholdName("eEM"))==0;}));
+  ATH_CHECK(decodeMapping([](const std::string& name){
+    return name.find("eEM")==0 or name.find(getProbeThresholdName("eEM"))==0;
+  }));
   return StatusCode::SUCCESS;
 }
 
@@ -66,21 +68,21 @@ StatusCode eFexEMRoIsUnpackingTool::unpack(const EventContext& ctx,
     // Create new decision and link the RoI objects
     Decision* decisionMain = TrigCompositeUtils::newDecisionIn(decisionsMain.ptr(), hltSeedingNodeName());
     decisionMain->setObjectLink(initialRoIString(),
-                            ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+                                ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
     decisionMain->setObjectLink(initialRecRoIString(),
-                            ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
+                                ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
 
     Decision* decisionProbe = TrigCompositeUtils::newDecisionIn(decisionsProbe.ptr(), hltSeedingNodeName());
     decisionProbe->setObjectLink(initialRoIString(),
-                            ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+                                 ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
     decisionProbe->setObjectLink(initialRecRoIString(),
-                            ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
+                                 ElementLink<xAOD::eFexEMRoIContainer>(m_eFexEMRoILinkName, linkIndex, ctx));
 
     // Add positive decisions for chains to be activated by this RoI object
     uint64_t thresholdPattern = thrPatternAcc(*roi);
     ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
     for (const std::shared_ptr<TrigConf::L1Threshold>& thr : thresholds.value().get()) {
-      if (not (thresholdPattern & (1 << thr->mapping()))) {continue;}
+      if ((thresholdPattern & (1 << thr->mapping())) == 0u) {continue;}
       const std::string thresholdProbeName = getProbeThresholdName(thr->name());
       ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()
                     << " names " << thr->name() << " and " << thresholdProbeName);

@@ -4,20 +4,20 @@
 #ifndef HLTSEEDING_IROISUNPACKINGTOOL_H
 #define HLTSEEDING_IROISUNPACKINGTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
-
+#include "GaudiKernel/IAlgTool.h"
 
 namespace ROIB {
   class RoIBResult;
 }
 
 /**
- * Interface for RoI unpacking tools
+ * @class IRoIsUnpackingTool
+ * @brief Interface for RoI unpacking tools
  */
-class IRoIsUnpackingTool : virtual public IAlgTool { 
-public: 
+class IRoIsUnpackingTool : virtual public IAlgTool {
+public:
   DeclareInterfaceID(IRoIsUnpackingTool, 1, 0);
 
   /**

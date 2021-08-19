@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HLTSEEDING_EFEXEMROISUNPACKINGTOOL_H
-#define HLTSEEDING_EFEXEMROISUNPACKINGTOOL_H 1
+#define HLTSEEDING_EFEXEMROISUNPACKINGTOOL_H
 
 #include "RoIsUnpackingToolBase.h"
 #include "xAODTrigger/eFexEMRoIContainer.h"
