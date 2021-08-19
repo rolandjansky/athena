@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IOVRANGE_H
@@ -31,15 +31,12 @@ IOVRange::IOVRange( const IOVTime& start, const IOVTime& stop ):
 
 IOVRange::IOVRange( const EventIDRange& eir ):
   m_start(eir.start()), m_stop(eir.stop()) {
+    static_assert(std::is_trivially_copyable<IOVRange>::value);
+    static_assert(std::is_trivially_destructible<IOVRange>::value);
+    static_assert(std::is_trivially_copyable<IOVTime>::value);
+    static_assert(std::is_trivially_destructible<IOVTime>::value);
 }
 
-IOVRange& IOVRange::operator= (const IOVRange& r) {
-  if (this != &r) {
-    m_start = r.m_start;
-    m_stop = r.m_stop;
-  }
-  return *this;
-}
 
 IOVRange::operator EventIDRange() const {
   return EventIDRange( EventIDBase(m_start), EventIDBase(m_stop) );
