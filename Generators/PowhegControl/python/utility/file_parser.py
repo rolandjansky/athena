@@ -50,7 +50,7 @@ class FileParser(object):
                         if regex_line_match is not None and not re.search(regex_line_match, line):
                             f_output.write(line)
                             continue
-                        new_line = c_regex_find.sub(regex_find, string_replace, line.rstrip(), count)
+                        new_line = c_regex_find.sub(string_replace, line.rstrip(), count)
                         f_output.write(new_line + "\n")
                         replaced_lines += 1
             os.remove("{}.text_replace_backup".format(input_file_name))
