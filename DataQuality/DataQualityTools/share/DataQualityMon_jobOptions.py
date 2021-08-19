@@ -36,14 +36,7 @@ else:
     JetCollectionKey='AntiKt4EMTopoJets'
 
 # add isolation variables for IsolationSelection
-isESD=False
-for class_name, name in metadata['metadata_items'].items():
-    if name == 'EventStreamInfo':
-        if "ESD" in class_name :
-            print ("Running on ESD - will add TTVA decorations.")
-            isESD=True
-
-if isESD:
+if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'tier0':
     from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
     if not hasattr(topSequence,"IsolationBuilderNonprompt_All_MaxWeight1000"):
         ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = topSequence.name()+"_InDetUsedInFitDecoratorTool_forIso",
