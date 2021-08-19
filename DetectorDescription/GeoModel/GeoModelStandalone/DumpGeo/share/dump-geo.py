@@ -1,5 +1,5 @@
 #/*
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #*/
 
 if not 'vp1InputFiles' in dir(): vp1InputFiles = []
@@ -23,7 +23,6 @@ if not 'vp1Multinp' in dir(): vp1Multinp=False
 if not 'vp1Multinpsrc' in dir(): vp1Multinpsrc=""
 if not 'vp1Multinpcpy' in dir(): vp1Multinpcpy=""
 if not 'vp1MultiAvailableSrcDirs' in dir(): vp1MultiAvailableSrcDirs = []
-if not 'vp1TrigDecXML' in dir(): vp1TrigDecXML=""
 if not 'vp1LarHvData' in dir(): vp1LarHvData=False
 # if not 'vp1FullToroids' in dir(): vp1FullToroids=False
 if not 'vp1CruiseTime' in dir(): vp1CruiseTime=0
@@ -370,14 +369,6 @@ if ( vp1LarHvData ):
 
 if (vp1Fatras):
     include( "FatrasExample/Fatras_jobOptions.py" )
-
-if (vp1TrigDecXML!=""):
-    include( "TrigConfigSvc/jobOptions_commonSetup.py" )
-    include( "TrigConfigSvc/jobOptions_setupLVL1Svc.py" )
-    include( "TrigConfigSvc/jobOptions_setupHLTSvc.py" )
-    HLTConfigSvc.XMLMenuFile     = vp1TrigDecXML
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    ToolSvc += Trig__TrigDecisionTool("TrigDecisionTool")
 
 if (vp1Calo):
     from AthenaCommon.GlobalFlags import globalflags
