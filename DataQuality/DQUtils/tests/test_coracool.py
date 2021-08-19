@@ -65,6 +65,10 @@ def test_refcounting():
     from time import time
     start = time()
     
+    # repr() can allocate a list object the first time it's called.
+    # (cf. Py_ReprEnter)
+    # Make sure that happens now, before we do the gc check.
+    repr([1])
     
     objects = None
 
