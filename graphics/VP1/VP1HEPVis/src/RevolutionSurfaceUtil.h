@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REVOLUTIONSURFACEUTIL_H
@@ -23,8 +23,7 @@ public:
     int lim1 = static_cast<int>(dphi*8.0/(2*M_PI)+0.5);
     if (NPHI<lim1) {
       if (OverrideNPhi<=0) {
-	if (NPHI<lim1)
-	  NPHI = lim1;
+        NPHI = lim1;
       } else {
 	int lim2 = static_cast<int>(dphi*5.0/(2*M_PI)+0.5);
 	if (NPHI<lim2)
