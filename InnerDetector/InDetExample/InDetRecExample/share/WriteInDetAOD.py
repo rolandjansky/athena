@@ -16,7 +16,19 @@ if InDetFlags.doxAOD():
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
   # remove track decorations used internally by FTAG software
-  excludedAuxData += ".-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+  excludedAuxData += '.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow' \
+                   + '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement' \
+                   + '.-VxTrackAtVertex'
+  # @TODO the exclusion of VxTrackAtVertex for InDetTrackParticles is presumably not necessary
+
+  # exclude IDTIDE decorations
+  excludedAuxData += '.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma' \
+  +'.-IDTIDE1_biased_z0.-IDTIDE1_biased_z0Sigma.-IDTIDE1_biased_z0SigmaSinTheta.-IDTIDE1_biased_z0SinTheta.-IDTIDE1_unbiased_PVd0Sigma.-IDTIDE1_unbiased_PVz0Sigma' \
+  +'.-IDTIDE1_unbiased_PVz0SigmaSinTheta.-IDTIDE1_unbiased_d0.-IDTIDE1_unbiased_d0Sigma.-IDTIDE1_unbiased_z0.-IDTIDE1_unbiased_z0Sigma.-IDTIDE1_unbiased_z0SigmaSinTheta' \
+  +'.-IDTIDE1_unbiased_z0SinTheta'
+
+  # exclude IDTIDE/IDTRKVALID decorations
+  excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z.-msosLink'
 
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
