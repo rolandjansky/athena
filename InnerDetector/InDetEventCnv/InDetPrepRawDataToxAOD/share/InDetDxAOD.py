@@ -20,6 +20,7 @@ dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
 dumpSctInfo = True or InDetDxAODFlags.DumpSctInfo()
 dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
 select_aux_items=True
+
 need_pix_ToTList = dumpPixInfo and ( InDetDxAODFlags.DumpPixelRdoInfo() or InDetDxAODFlags.DumpPixelNNInfo() )
 
 ## Autoconfiguration adjustements
@@ -427,7 +428,7 @@ if dumpSctInfo:
 
 if dumpPixInfo:
 
-    add_IDTIDE_content = jobproperties.PrimaryDPDFlags.WriteDAOD_IDTIDEStream == True
+    add_IDTIDE_content = jobproperties.PrimaryDPDFlags.WriteDAOD_IDTIDEStream.get_Value() is True
     xAOD_PixelPrepDataToxAOD = getPixelPrepDataToxAOD( UseTruthInfo = dumpTruthInfo or (add_IDTIDE_content and isIdTrkDxAODSimulation))
     IDDerivationSequenceAfterPresel += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
@@ -498,6 +499,7 @@ if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
                                                                 StorePixel = dumpPixInfo,
                                                                 PixelMsosName = 'Pixel_LargeD0Tracks_MSOSs',
                                                                 IsSimulation = isIdTrkDxAODSimulation,
+                                                                AddExtraEventInfo = False, # can only be done once per job
                                                                 PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.ExtendedLargeD0Tracks(),
                                                                 TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                                 OutputLevel = INFO)
@@ -524,6 +526,7 @@ if makeSplitTracks:
                                                           StorePixel = dumpPixInfo,
                                                           PixelMsosName = 'Pixel_SplitTracks_MSOSs',
                                                           IsSimulation = isIdTrkDxAODSimulation,
+                                                          AddExtraEventInfo = False, # can only be done once per job
                                                           PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
@@ -726,28 +729,23 @@ evtStream = augStream.GetEventStream()
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
+# exclude b-tagging decoration
+excludedAuxData += '.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow' \
+                + '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
+
+# exclude IDTIDE decorations
+excludedAuxData += '.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma' \
+    +'.-IDTIDE1_biased_z0.-IDTIDE1_biased_z0Sigma.-IDTIDE1_biased_z0SigmaSinTheta.-IDTIDE1_biased_z0SinTheta.-IDTIDE1_unbiased_PVd0Sigma.-IDTIDE1_unbiased_PVz0Sigma' \
+    +'.-IDTIDE1_unbiased_PVz0SigmaSinTheta.-IDTIDE1_unbiased_d0.-IDTIDE1_unbiased_d0Sigma.-IDTIDE1_unbiased_z0.-IDTIDE1_unbiased_z0Sigma.-IDTIDE1_unbiased_z0SigmaSinTheta' \
+    +'.-IDTIDE1_unbiased_z0SinTheta'
+
 # Add generic event information
 IDTRKVALIDStream.AddItem("xAOD::EventInfo#*")
 IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
 
 # Add track particles collection and traclets (if available)
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-if not select_aux_items :
-    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
-else :
-    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux"
-            + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices_forReco.TTVA_AMVFWeights_forReco.TrkBLX.TrkBLY.TrkBLZ.TrkIBLX.TrkIBLY.TrkIBLZ.TrkL1X.TrkL1Y'
-            + '.TrkL1Z.TrkL2X.TrkL2Y.TrkL2Z.beamlineTiltX.beamlineTiltY.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty'
-            + '.chiSquared.d0.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.eProbabilityComb.eProbabilityHT.eProbabilityNN.expectInnermostPixelLayerHit'
-            + '.expectNextToInnermostPixelLayerHit.hitPattern.identifierOfFirstHit.msosLink.nBC_meas.numberDoF.numberOfContribPixelLayers.numberOfDBMHits.numberOfGangedFlaggedFakes'
-            + '.numberOfGangedPixels.numberOfIBLOverflowsdEdx.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers.numberOfInnermostPixelLayerSharedHits'
-            + '.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers.numberOfNextToInnermostPixelLayerSharedHits'
-            + '.numberOfNextToInnermostPixelLayerSplitHits.numberOfOutliersOnTrack.numberOfPhiHoleLayers.numberOfPhiLayers.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles'
-            + '.numberOfPixelOutliers.numberOfPixelSharedHits.numberOfPixelSplitHits.numberOfPixelSpoiltHits.numberOfPrecisionHoleLayers.numberOfPrecisionLayers.numberOfSCTDeadSensors'
-            + '.numberOfSCTDoubleHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTOutliers.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits'
-            + '.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits'
-            + '.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit'
-            + '.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.truthMatchProbability.truthParticleLink.vx.vy.vz.z0')
+IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
 
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
@@ -772,12 +770,15 @@ for key in keys :
    IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationAuxContainer#%s*" % prefixName+key)
 
 keys = []
-if dumpPixInfo and not select_aux_items :
+if dumpPixInfo and not select_aux_items:
    keys += ['PixelClusters'] if dumpPixInfo else []
 elif dumpPixInfo :
    keys += ['PixelClustersAux'
             + '.LVL1A.ToT.bec.broken.charge.detectorElementID.eta_module.eta_pixel_index.gangedPixel.globalX.globalY.globalZ.identifier.isFake.isSplit.layer.localX.localXError'
             + '.localXYCorrelation.localY.localYError.nRDO.phi_module.phi_pixel_index.rdoIdentifierList.sihit_barcode.sizePhi.sizeZ.splitProbability1.splitProbability2' ]
+   if dumpTruthInfo :
+       keys[-1] += '.sdo_depositsBarcode.sdo_depositsEnergy.sdo_words.sihit_endPosX.sihit_endPosY.sihit_endPosZ.sihit_energyDeposit.sihit_meanTime.sihit_pdgid' \
+                 + '.sihit_startPosX.sihit_startPosY.sihit_startPosZ.truth_barcode'
 keys+= ['SCT_Clusters']     if dumpSctInfo else []
 keys+= ['TRT_DriftCircles'] if dumpTrtInfo else []
 for key in keys :
