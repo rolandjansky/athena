@@ -788,10 +788,6 @@ HLT_2mu6_bPhi_L1LFV-MU6:
     4: 4
 HLT_2mu6_bUpsimumu_L1BPH-8M15-0DR22-2MU6:
   eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu6_l2io_L12MU6:
   eventCount: 3
   stepCounts:
