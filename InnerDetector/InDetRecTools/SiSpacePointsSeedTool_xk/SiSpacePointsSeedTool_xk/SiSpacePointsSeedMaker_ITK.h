@@ -255,15 +255,9 @@ namespace InDet {
 
     /// @name Data members, which are updated only in initialize
     //@{
-    bool m_initialized{false};
     int m_outputlevel{0};
     
-    int m_fNmax{0};
     int m_fvNmax{0};
-    int m_rfz_b[arraySizePhiZ]{};
-    int m_rfz_t[arraySizePhiZ]{};
-    int m_rfz_ib[arraySizePhiZ][arraySizeNeighbourBins]{};
-    int m_rfz_it[arraySizePhiZ][arraySizeNeighbourBins]{};
     int m_rfzv_n[arraySizePhiZV]{};
     int m_rfzv_i[arraySizePhiZV][arraySizeNeighbourBinsVertex]{};
     float m_dzdrmin0{0.};
@@ -271,8 +265,6 @@ namespace InDet {
     float m_ipt{0.};
     float m_ipt2{0.};
     float m_COF{0.};
-    float m_sF{0.};
-    float m_sFv{0.};
     float m_dzMaxFast   {200.};
     float m_R2MaxFast   {2500.};        
     float m_zmaxPPP     {2700.};
@@ -339,15 +331,15 @@ namespace InDet {
 
 
     /// arrays associating bins to each other for SP formation
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomPPP;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsTopPPP;  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomPPP; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopPPP; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomPPP{};  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsTopPPP{};  ///< number of neighbouring phi-z bins to consider when looking for "top SP" candidates for each phi-z bin
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomPPP{}; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "bottom SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZbottom
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopPPP{}; ///< mapping of neighbour cells in the 2D phi-z binning to consider  for the "top SP" search for central SPs in each phi-z bin. Number of valid entries stored in m_nNeighboursPhiZtop
 
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomSSS;
-    std::array<int,arraySizePhiZ> m_nNeighbourCellsTopSSS;
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomSSS;
-    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopSSS;
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsBottomSSS{};
+    std::array<int,arraySizePhiZ> m_nNeighbourCellsTopSSS{};
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsBottomSSS{};
+    std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> m_neighbourCellsTopSSS{};
 
 
     ///////////////////////////////////////////////////////////////////
@@ -361,11 +353,11 @@ namespace InDet {
     //@}
 
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
-    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
+    static MsgStream& dumpEvent(EventData& data, MsgStream& out) ;
 
     void buildFrameWork();
 
-    void buildConnectionMaps(std::array<int, arraySizePhiZ>& nNeighbourCellsBottom,
+    static void buildConnectionMaps(std::array<int, arraySizePhiZ>& nNeighbourCellsBottom,
 			       std::array<int, arraySizePhiZ>& nNeighbourCellsTop,
 			       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsBottom,
 			       std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ>& neighbourCellsTop,
@@ -386,7 +378,7 @@ namespace InDet {
       *  @param[in] Rmin: starting radius for trajectory displacement
       *  @param[in] Rmax: end radius for trajectory displacement
     **/
-    float azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const;
+    static float azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) ;
 
 
     /** Create a SiSpacePointForSeed from the space point. 
@@ -402,9 +394,9 @@ namespace InDet {
     SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
     SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp, float* r, bool usePixSctInform=false) const;
 
-    void newSeed
+    static void newSeed
     (EventData& data,
-     SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float) const;
+     SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float) ;
 
     void newOneSeed
     (EventData& data, 
@@ -415,12 +407,12 @@ namespace InDet {
     (EventData& data,
      SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float) const;
 
-    void fillSeeds(EventData& data) const;
+    static void fillSeeds(EventData& data) ;
     void fillLists(EventData& data) const;
     void fillListsFast(const EventContext& ctx, EventData& data) const;
-    void pixInform(const Trk::SpacePoint* sp, float* r) const;
-    void sctInform(EventData& data,const Trk::SpacePoint* sp, float* r) const;
-    void erase(EventData& data) const;
+    static void pixInform(const Trk::SpacePoint* sp, float* r) ;
+    static void sctInform(EventData& data,const Trk::SpacePoint* sp, float* r) ;
+    static void erase(EventData& data) ;
     void production2Sp(EventData& data) const;
     void production3Sp(EventData& data) const;
 
@@ -509,7 +501,7 @@ namespace InDet {
     bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;
     void findNext(EventData& data) const;
     bool isZCompatible(EventData& data, float&,float&,float&) const;
-    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) const;
+    static void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) ;
     bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
