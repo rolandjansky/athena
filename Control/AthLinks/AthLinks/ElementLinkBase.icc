@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthLinks/ElementLinkBase.icc
@@ -218,7 +218,7 @@ bool ElementLinkBase::thin (const SG::ThinningCache* thinningCache)
   size_t index = m_persIndex;
   bool ret = m_proxy.thin (m_persKey, index, thinningCache);
   if (ret)
-    m_persIndex = index;
+    m_persIndex = static_cast<stored_index_type>(index);
   return ret1  || ret;
 }
 
@@ -248,7 +248,7 @@ ElementLinkBase::ElementLinkBase (const ID_type& dataID,
                                   CLID link_clid,
                                   index_type elemID,
                                   IProxyDict* sg)
-  : m_persIndex (elemID)
+  : m_persIndex (static_cast<stored_index_type>(elemID))
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -269,7 +269,7 @@ ElementLinkBase::ElementLinkBase (sgkey_t key,
                                   index_type elemID,
                                   IProxyDict* sg)
   : m_persKey (key),
-    m_persIndex (elemID)
+    m_persIndex (static_cast<stored_index_type>(elemID))
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
 }
@@ -293,7 +293,7 @@ ElementLinkBase::ElementLinkBase (const ID_type& dataID,
                                   index_type elemID,
                                   const void* elt,
                                   IProxyDict* sg)
-  : m_persIndex (elemID),
+  : m_persIndex (static_cast<stored_index_type>(elemID)),
     m_element (elt)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
@@ -319,7 +319,7 @@ ElementLinkBase::ElementLinkBase (sgkey_t key,
                                   const void* elt,
                                   IProxyDict* sg)
   : m_persKey (key),
-    m_persIndex (elemID),
+    m_persIndex (static_cast<stored_index_type>(elemID)),
     m_element (elt)
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
@@ -340,7 +340,7 @@ ElementLinkBase::ElementLinkBase (const_pointer_t obj,
                                   CLID link_clid,
                                   index_type elemID,
                                   IProxyDict* sg)
-  : m_persIndex (elemID)
+  : m_persIndex (static_cast<stored_index_type>(elemID))
 {
   m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
 }
@@ -358,7 +358,7 @@ inline
 ElementLinkBase::ElementLinkBase (const ElementLinkBase& other,
                                   index_type elemID)
   : m_persKey (other.m_persKey),
-    m_persIndex (elemID),
+    m_persIndex (static_cast<stored_index_type>(elemID)),
     m_proxy (other.m_proxy)
 {
 }
@@ -467,7 +467,7 @@ bool ElementLinkBase::toIndexedElement (const_pointer_t obj,
 {
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
-    m_persIndex = elemID;
+    m_persIndex = static_cast<stored_index_type>(elemID);
     //clearCachedElement();  // Redundant --- must be 0 due to above test.
     return true;
   }
@@ -493,7 +493,7 @@ void ElementLinkBase::resetWithKeyAndIndex (const ID_type& dataID,
                                             IProxyDict* sg)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
-  m_persIndex = elemID;
+  m_persIndex = static_cast<stored_index_type>(elemID);
   clearCachedElement();
 }
 
@@ -517,7 +517,7 @@ void ElementLinkBase::resetWithKeyAndIndex (sgkey_t key,
 {
   m_persKey = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
-  m_persIndex = elemID;
+  m_persIndex = static_cast<stored_index_type>(elemID);
   clearCachedElement();
 }
 
@@ -529,7 +529,7 @@ void ElementLinkBase::resetWithKeyAndIndex (sgkey_t key,
 inline
 void ElementLinkBase::setIndex (index_type index)
 {
-  m_persIndex = index;
+  m_persIndex = static_cast<stored_index_type>(index);
 }
 
 
