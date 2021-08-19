@@ -5,23 +5,23 @@
 #include "TrigT1Result/JetEnergyResult.h"
 #include "TrigT1Result/RoIBResult.h"
 
-METRoIsUnpackingTool::METRoIsUnpackingTool( const std::string& type,
-					    const std::string& name,
-					    const IInterface* parent )
+
+METRoIsUnpackingTool::METRoIsUnpackingTool(const std::string& type,
+                                           const std::string& name,
+                                           const IInterface* parent)
   : RoIsUnpackingToolBase(type, name, parent) {}
 
-StatusCode METRoIsUnpackingTool::initialize()
-{
+
+StatusCode METRoIsUnpackingTool::initialize() {
   ATH_CHECK(RoIsUnpackingToolBase::initialize());
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode METRoIsUnpackingTool::start() {
-  ATH_CHECK( decodeMapping( [](const std::string& name ){
-	return
-	  name.find("TE") == 0 or
-	  name.find("XE") == 0 or
-	  name.find("XS") == 0 ;  } ) );
+  ATH_CHECK(decodeMapping([](const std::string& name){
+    return name.find("TE") == 0 or name.find("XE") == 0 or name.find("XS") == 0;
+  }));
 
   for ( auto th2chains: m_thresholdToChainMapping ) {
     m_allMETChains.insert( th2chains.second.begin(), th2chains.second.end() );
@@ -30,9 +30,10 @@ StatusCode METRoIsUnpackingTool::start() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
-					const ROIB::RoIBResult& roib,
-					const HLT::IDSet& activeChains ) const {
+
+StatusCode METRoIsUnpackingTool::unpack(const EventContext& ctx,
+                                        const ROIB::RoIBResult& roib,
+                                        const HLT::IDSet& activeChains) const {
   using namespace TrigCompositeUtils;
   SG::WriteHandle<DecisionContainer> decisionOutput = createAndStore(m_decisionsKey, ctx );
 
@@ -53,18 +54,19 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
   HLT::IDSet activeMETchains;
   // see if any chain we care of is active
   std::set_intersection(activeChains.begin(), activeChains.end(),
-  			m_allMETChains.begin(), m_allMETChains.end(),
-			std::inserter(activeMETchains, activeMETchains.end() ) );
+                        m_allMETChains.begin(), m_allMETChains.end(),
+                        std::inserter(activeMETchains, activeMETchains.end()));
 
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");
 
-  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
+  // This hltSeedingNodeName() denotes an initial node with no parents
+  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
   for (const auto& th: thresholds) {
     addChainsToDecision(  HLT::Identifier( th->name() ), decision, activeChains );
   }
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");
-  decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
+  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
 
   // check the MET RoI, TODO unpack and create L1 MET object (only if turns out to be needed)
   bool foundMETRoI = false;

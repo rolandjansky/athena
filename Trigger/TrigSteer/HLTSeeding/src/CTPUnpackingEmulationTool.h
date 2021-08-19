@@ -9,12 +9,12 @@
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
-class CTPUnpackingEmulationTool  : public CTPUnpackingToolBase {
+class CTPUnpackingEmulationTool : public CTPUnpackingToolBase {
 
 public:
 
   CTPUnpackingEmulationTool( const std::string& type,
-                             const std::string& name, 
+                             const std::string& name,
                              const IInterface* parent );
 
   virtual StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
@@ -25,18 +25,15 @@ public:
 
 private:
 
-  ///@{ @name Properties
+  Gaudi::Property<std::string> m_inputFileName{
+    this, "InputFilename", "CTPEmulation.dat", "Fake CTP RoIB input filename"};
 
-  Gaudi::Property<std::string> m_inputFileName{this, "InputFilename", "CTPEmulation.dat", "Fake CTP RoIb input filename"};
+  /// Chain IDs (inner vector) to activate for each event (outer vector)
+  std::vector<HLT::IDVec> m_events;
 
-  ///@}
+  /// Fill the m_events vector with configuration from an input file
+  StatusCode parseInputFile();
 
-  // @brief returns names oc the chains (iner vector) to activate for each event (outer vector) 
-  //  std::vector < std::set< size_t > > m_events; // list of CTPID enabled, per event
-  std::vector < HLT::IDVec > m_events;
-  StatusCode parseInputFile() ;
-
-}; 
-
+};
 
 #endif

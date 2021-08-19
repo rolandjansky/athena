@@ -6,8 +6,6 @@
 
 #include "IRoIsUnpackingTool.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigConfData/L1Menu.h"
@@ -15,27 +13,27 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTrigger/TrigComposite.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 namespace ROIB {
   class RoIBResult;
 }
 
-
 /**
- * Base class for RoI unpackers
+ * @class RoIsUnpackingToolBase
+ * @brief Base class for RoI unpackers
  *
- * Provides common features needed by all unpackers. By itself it does not
- * do anything useful.
+ * Provides common features needed by all unpackers. By itself it does not do anything useful.
  */
-class RoIsUnpackingToolBase : public extends<AthAlgTool, IRoIsUnpackingTool> { 
-public: 
+class RoIsUnpackingToolBase : public extends<AthAlgTool, IRoIsUnpackingTool> {
+public:
   RoIsUnpackingToolBase(const std::string& type,
-                        const std::string& name, 
+                        const std::string& name,
                         const IInterface* parent);
 
-  typedef HLT::IDtoIDVecMap ThresholdToIdentifiers;
-  
   virtual StatusCode initialize() override;
-  
+
   virtual StatusCode unpack(const EventContext& /*ctx*/,
                             const ROIB::RoIBResult& /*roib*/,
                             const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
@@ -44,9 +42,9 @@ public:
                             const xAOD::TrigComposite& /*l1TriggerResult*/,
                             const HLT::IDSet& /*activeChains*/) const override { return StatusCode::SUCCESS; }
 
-
 protected:
-  ///@{ @name Properties
+  /// @name Data dependencies
+  /// @{
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
     this, "Decisions", "RoIDecisions", "Decisions for each RoI"};
 
@@ -61,10 +59,10 @@ protected:
 
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{
     this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "Name of the HLTMenu object to read configuration from"};
+  /// @}
 
   ToolHandle<GenericMonitoringTool> m_monTool{
     this, "MonTool", "", "Monitoring tool"};
-  ///@}
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
   std::map<HLT::Identifier, HLT::Identifier> m_legToChainMapping;
@@ -73,7 +71,7 @@ protected:
   using ThrVecRef = std::reference_wrapper<const ThrVec>;
   /**
    * Retrieve a vector of thresholds with type @c thrType from L1Menu
-   * 
+   *
    * @param[in] l1Menu The L1Menu object
    * @param[in] thrType The threshold type, e.g. EM, MU, eTAU
    * @param[out] thrVec The output will be passed into this parameter
@@ -82,21 +80,23 @@ protected:
   StatusCode getL1Thresholds(const TrigConf::L1Menu& l1Menu, const std::string& thrType, std::optional<ThrVecRef>& thrVec) const;
 
   /**
-   * @brief Concatonate the probe identifier string with the threshold name string to create the alternate version, 
-   * used by lower pT probe legs of tag+probe chains.
+   * Concatenate the probe identifier string with the threshold name string
+   *
+   * Creates an alternate threshold name, used by lower pT probe legs of tag+probe chains.
    **/
   static std::string getProbeThresholdName(const std::string& thresholdName);
 
   /**
    * Fills mapping from L1 threshold -> to HLT chain
-   * @arg filter is a function that, using the threshold name defines if this decoder instance should take care of this threshold
+   *
+   * @arg filter Function that, using the threshold name, defines if this decoder instance should take care
+   * of this threshold
    **/
-  StatusCode decodeMapping( std::function< bool(const std::string&)> filter ) ;
+  StatusCode decodeMapping( std::function< bool(const std::string&)>&& filter );
 
   void addChainsToDecision( HLT::Identifier thresholdId,
                             TrigCompositeUtils::Decision* d,
                             const HLT::IDSet& activeChains ) const;
-}; 
-
+};
 
 #endif

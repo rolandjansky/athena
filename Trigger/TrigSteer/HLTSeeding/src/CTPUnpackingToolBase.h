@@ -3,7 +3,7 @@
 */
 
 #ifndef HLTSEEDING_CTPUNPACKINGTOOLBASE_H
-#define HLTSEEDING_CTPUNPACKINGTOOLBASE_H 1
+#define HLTSEEDING_CTPUNPACKINGTOOLBASE_H
 
 #include "HLTSeeding/ICTPUnpackingTool.h"
 
@@ -41,17 +41,13 @@ public:
 
 protected:
 
-  static constexpr int s_CTPIDForUndeededChains = -1;
-  typedef std::unordered_map<int, HLT::IDVec> IndexToIdentifiers;
-  IndexToIdentifiers       m_ctpToChain;
-
-  ///@{ @name Properties
+  static constexpr int s_CTPIDForUnseededChains = -1;
+  std::unordered_map<int, HLT::IDVec> m_ctpToChain;
 
   Gaudi::Property<bool> m_forceEnable{
     this, "ForceEnableAllChains", false, "Enables all chains in each event, testing mode"};
 
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
-  ///@}
 };
 
 #endif

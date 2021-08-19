@@ -2,17 +2,19 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
 #include "RoIsUnpackingToolBase.h"
 #include "TrigConfL1Data/TriggerItem.h"
+#include <iostream>
+
 
 RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
   : base_class(type, name, parent) {}
 
+
 StatusCode RoIsUnpackingToolBase::initialize() {
-  if ( !m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
+  if ( !m_monTool.empty() ) {ATH_CHECK( m_monTool.retrieve() );}
   ATH_CHECK( m_decisionsKey.initialize() );
   ATH_CHECK( m_decisionsKeyProbe.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_trigRoIsKey.initialize(SG::AllowEmpty) );
@@ -21,6 +23,7 @@ StatusCode RoIsUnpackingToolBase::initialize() {
 
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode RoIsUnpackingToolBase::getL1Thresholds(const TrigConf::L1Menu& l1Menu,
                                                   const std::string& thrType,
@@ -35,12 +38,13 @@ StatusCode RoIsUnpackingToolBase::getL1Thresholds(const TrigConf::L1Menu& l1Menu
   return StatusCode::SUCCESS;
 }
 
+
 std::string RoIsUnpackingToolBase::getProbeThresholdName(const std::string& thresholdName) {
   return "PROBE" + thresholdName;
 }
 
-StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
+StatusCode RoIsUnpackingToolBase::decodeMapping( std::function<bool(const std::string&)>&& filter ) {
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
   ATH_CHECK( hltMenuHandle.isValid() );
 
@@ -49,21 +53,22 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
     const std::vector<std::string> thresholds{ chain.l1thresholds() };
     const std::vector<size_t> legMultiplicities{ chain.legMultiplicities() };
     if (thresholds.size() != legMultiplicities.size()) {
-      ATH_MSG_ERROR("Encountered a chain " << chain.name() << " with " << legMultiplicities.size() << " legs but only " << 
-        thresholds.size() << " thresolds. These should be the same.");
+      ATH_MSG_ERROR("Encountered a chain " << chain.name() << " with " << legMultiplicities.size()
+                    << " legs but only " << thresholds.size() << " thresholds. These should be the same.");
       return StatusCode::FAILURE;
     }
     size_t counter = 0;
     for ( const std::string& th: thresholds ) {
       if ( filter(th) ) {
-        const HLT::Identifier thresholIdentifier(th);
-        m_thresholdToChainMapping[ thresholIdentifier ].push_back( chainIdentifier );
+        const HLT::Identifier thresholdIdentifier(th);
+        m_thresholdToChainMapping[ thresholdIdentifier ].push_back( chainIdentifier );
         ATH_MSG_DEBUG( "Associating " << chainIdentifier << " with threshold " << th );
         if ( thresholds.size() > 1 ) {
           HLT::Identifier legIdentifier = TrigCompositeUtils::createLegName(chainIdentifier, counter);
-          m_thresholdToChainMapping[ thresholIdentifier ].push_back( legIdentifier );
+          m_thresholdToChainMapping[ thresholdIdentifier ].push_back( legIdentifier );
           m_legToChainMapping.insert( std::make_pair( legIdentifier,  chainIdentifier ) );
-          ATH_MSG_INFO( "Associating additional chain leg " << legIdentifier << " with threshold " << thresholIdentifier );
+          ATH_MSG_INFO( "Associating additional chain leg " << legIdentifier
+                        << " with threshold " << thresholdIdentifier );
         }
       }
       ++counter;
@@ -71,6 +76,7 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
   }
   return StatusCode::SUCCESS;
 }
+
 
 void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
                                                  TrigCompositeUtils::Decision* d,
@@ -88,7 +94,8 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
       ATH_MSG_DEBUG( "Added " << chainId << " to the RoI/threshold decision " << thresholdId );
     } else {    // maybe it is a leg?
       auto legIterator = m_legToChainMapping.find( chainId );
-      if ( legIterator != m_legToChainMapping.end() ) { // this is a leg we care about, need to check if respective chain was active, and activate
+      if ( legIterator != m_legToChainMapping.end() ) {
+        // this is a leg we care about, need to check if respective chain was active, and activate
         if ( activeChains.find( legIterator->second ) != activeChains.end() ) {
           ids.insert( chainId.numeric() );
           ATH_MSG_DEBUG( "Added " << chainId << " to the RoI/threshold decision " << thresholdId );
@@ -97,5 +104,6 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
     }
   }
   TrigCompositeUtils::insertDecisionIDs(ids, d);
-  ATH_MSG_DEBUG( "Number of decisions in this RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
+  ATH_MSG_DEBUG( "Number of decisions in this RoI after adding chains using threshold " << thresholdId
+                 << " " << TrigCompositeUtils::decisionIDs( d ).size() );
 }

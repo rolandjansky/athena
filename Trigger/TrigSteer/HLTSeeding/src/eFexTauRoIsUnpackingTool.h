@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HLTSEEDING_EFEXTAUROISUNPACKINGTOOL_H
-#define HLTSEEDING_EFEXTAUROISUNPACKINGTOOL_H 1
+#define HLTSEEDING_EFEXTAUROISUNPACKINGTOOL_H
 
 #include "RoIsUnpackingToolBase.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"

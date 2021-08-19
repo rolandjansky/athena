@@ -4,21 +4,25 @@
 */
 
 #include "HLTSeeding.h"
-
-#include "StoreGate/WriteHandle.h"
-#include "GaudiKernel/EventContext.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfxAOD/IKeyWriterTool.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
+#include "StoreGate/WriteHandle.h"
+#include "GaudiKernel/EventContext.h"
+
+
 HLTSeeding::HLTSeeding(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
 
-StatusCode HLTSeeding::initialize() {
-  ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
 
-  if ( m_RoIBResultKey.empty() )
-    ATH_MSG_INFO( "RoIBResultKey empty: assume we're running with CTP emulation" );
+StatusCode HLTSeeding::initialize() {
+  ATH_MSG_INFO( "Reading RoIB information from: " << m_RoIBResultKey.objKey() << " : "
+                << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
+
+  if ( m_RoIBResultKey.empty() && m_l1TriggerResultKey.empty() ) {
+    ATH_MSG_INFO( "RoIBResult and L1TriggerResult keys both empty: assume we're running with CTP emulation" );
+  }
 
   ATH_CHECK( m_RoIBResultKey.initialize(!m_RoIBResultKey.empty()) );
   ATH_CHECK( m_l1TriggerResultKey.initialize(!m_l1TriggerResultKey.empty()) );
@@ -56,7 +60,7 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   if (decodeRoIB) {
     SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
     roib = roibH.cptr();
-    ATH_MSG_DEBUG( "Obtained ROIB result" );
+    ATH_MSG_DEBUG( "Obtained RoIBResult" );
   }
 
   const xAOD::TrigComposite* l1TriggerResult = nullptr;
@@ -84,15 +88,6 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_summaryKey, ctx );
   auto *chainsInfo = handle.ptr();
 
-  /*
-  auto chainsInfo = std::make_unique<DecisionContainer>();
-  auto chainsAux = std::make_unique<DecisionAuxContainer>();
-  chainsInfo->setStore(chainsAux.get());
-  ATH_MSG_DEBUG("Recording chains");
-  auto handle = SG::makeHandle( m_chainsKey, ctx );
-  ATH_CHECK( handle.record( std::move( chainsInfo ), std::move( chainsAux ) ) );
-  */
-
   HLT::IDVec l1SeededChains;
   if (decodeRoIB) {
     ATH_CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
@@ -104,15 +99,16 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   HLT::IDVec activeChains; // Chains which are activated to run in the first pass (seeded and pass prescale)
   HLT::IDVec prescaledChains; // Chains which are activated but do not run in the first pass (seeded but prescaled out)
 
-  std::set_difference( activeChains.begin(), activeChains.end(),
-		       l1SeededChains.begin(), l1SeededChains.end(),
-		       std::back_inserter(prescaledChains) );
+  std::set_difference(activeChains.begin(), activeChains.end(),
+                      l1SeededChains.begin(), l1SeededChains.end(),
+                      std::back_inserter(prescaledChains));
 
-  ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );    
+  ATH_CHECK( m_prescaler->prescaleChains( ctx, l1SeededChains, activeChains ) );
   ATH_CHECK( saveChainsInfo( l1SeededChains, chainsInfo, "l1seeded" ) );
   ATH_CHECK( saveChainsInfo( activeChains, chainsInfo, "unprescaled" ) );
   ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled" ) );
-  //Note: 'prescaled' can be deduced from 'l1seeded' and 'unprescaled'. This non-persistent collection is provided for convenience.
+  // Note: 'prescaled' can be deduced from 'l1seeded' and 'unprescaled'.
+  // This non-persistent collection is provided for convenience.
 
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_doCostMonitoring) {
@@ -144,18 +140,17 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
     ATH_CHECK( m_keyWriterTool->writeKeys(ctx) );
   }
 
-  return StatusCode::SUCCESS;  
-}
-
-StatusCode HLTSeeding::finalize() {
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode HLTSeeding::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type) const {
+StatusCode HLTSeeding::saveChainsInfo(const HLT::IDVec& chains,
+                                      xAOD::TrigCompositeContainer* storage,
+                                      const std::string& type) {
   using namespace TrigCompositeUtils;
   Decision* d = newDecisionIn( storage, type );
-  for ( auto c: chains)
+  for ( auto c: chains) {
     addDecisionID(c.numeric(), d);
+  }
   return StatusCode::SUCCESS;
 }

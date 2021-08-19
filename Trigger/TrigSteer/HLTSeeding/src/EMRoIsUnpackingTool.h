@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HLTSEEDING_EMROISUNPACKINGTOOL_H
-#define HLTSEEDING_EMROISUNPACKINGTOOL_H 1
+#define HLTSEEDING_EMROISUNPACKINGTOOL_H
 
 #include "RoIsUnpackingToolBase.h"
 
@@ -25,14 +25,12 @@ public:
   virtual StatusCode start() override;
   
 private: 
-  ///@{ @name Properties
   SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey{
     this, "OutputRecRoIs", "HLT_RecEMRoIs",
     "Name of the RoIs object produced by the unpacker"};
 
   Gaudi::Property<float> m_roIWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};
-  ///@}
 };
 
 #endif //> !HLTSEEDING_EMROISUNPACKINGTOOL_H
