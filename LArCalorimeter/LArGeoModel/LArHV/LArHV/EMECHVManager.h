@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMECHVMANAGER_H
@@ -8,7 +8,6 @@
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMECHVDescriptor.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -83,7 +82,7 @@ class EMECHVManager
   EMECHVManager::IOType getWheelIndex() const;
 
   // Get the database payload
-  EMECHVData getData ATLAS_NOT_THREAD_SAFE () const;
+  EMECHVData getData() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMECHVData getData (const LArHVIdMapping& hvIdMapping,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_FCALHVMANAGER_H
@@ -7,7 +7,6 @@
 
 #include "LArHV/FCALHVModule.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -71,7 +70,7 @@ class FCALHVManager
 				  , unsigned int iSampling) const;
 
   // Get the database payload
-  FCALHVData getData ATLAS_NOT_THREAD_SAFE () const;
+  FCALHVData getData() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   FCALHVData getData (const LArHVIdMapping& hvIdMapping,

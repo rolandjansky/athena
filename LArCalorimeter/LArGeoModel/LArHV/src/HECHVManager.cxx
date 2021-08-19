@@ -21,7 +21,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingSimTool.h"
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 #include "LArRecConditions/LArHVIdMapping.h"
@@ -33,20 +33,20 @@
 namespace {
 
 
-struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
+struct LegacyIdFunc
 {
   LegacyIdFunc();
   std::vector<HWIdentifier> operator()(HWIdentifier id)
   {
     return m_cablingTool->getLArElectrodeIDvec (id);
   }
-  LArHVCablingTool* m_cablingTool;
+  LArHVCablingSimTool* m_cablingTool;
 };
 
 
 LegacyIdFunc::LegacyIdFunc()
 {
-  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
+  ToolHandle<LArHVCablingSimTool> tool ("LArHVCablingSimTool");
   if (!tool.retrieve().isSuccess()) {
     std::abort();
   }
@@ -276,15 +276,16 @@ HECHVManager::getData (idfunc_t idfunc,
 
 
 HECHVManager::HECHVData
-HECHVManager::getData ATLAS_NOT_THREAD_SAFE () const
+HECHVManager::getData() const
 {
   std::vector<const CondAttrListCollection*> attrLists;
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
   const CondAttrListCollection* atrlistcol = nullptr;
+  // Not a typo --- this folder has a lower-case l in the database...
   if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
     attrLists.push_back (atrlistcol);
   }
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREL/I8").isSuccess()) {
     attrLists.push_back (atrlistcol);
   }
   return getData (LegacyIdFunc(), attrLists);

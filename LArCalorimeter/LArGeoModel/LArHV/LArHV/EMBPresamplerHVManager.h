@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMBPRESAMPLERHVMANAGER_H
@@ -7,7 +7,6 @@
 
 #include "LArHV/EMBPresamplerHVModule.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -74,9 +73,6 @@ class EMBPresamplerHVManager
   // Begin/end side index (0=negative and 1= positive)
   unsigned int beginSideIndex() const;
   unsigned int endSideIndex() const;
-
-  // Get the database payload
-  EMBPresamplerHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMBPresamplerHVData getData (const LArHVIdMapping& hvIdMapping,
