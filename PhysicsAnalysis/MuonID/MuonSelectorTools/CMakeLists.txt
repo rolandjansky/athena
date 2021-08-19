@@ -26,6 +26,7 @@ atlas_add_dictionary( MuonSelectorToolsDict
    MuonSelectorTools/selection.xml
    LINK_LIBRARIES MuonSelectorToolsLib )
 
+
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_executable( MuonSelectorToolsTester
@@ -33,16 +34,20 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MCTruthClassifierLib
       xAODTracking xAODCore MuonSelectorToolsLib PATCoreLib )
+else()
+   atlas_add_executable( MuonSelectorToolsTester
+      util/MuonSelectorToolsTester.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODRootAccess xAODEventInfo xAODMuon MCTruthClassifierLib
+      xAODTracking xAODCore MuonSelectorToolsLib PATCoreLib )
 endif()
 
 
 # Test(s) in the package: 
-if( XAOD_STANDALONE )
-   atlas_add_test( ut_MuonSelectorToolsTester_data
-      SCRIPT test/ut_MuonSelectorToolsTester_data.sh )
-   atlas_add_test( ut_MuonSelectorToolsTester_MC
-      SCRIPT test/ut_MuonSelectorToolsTester_MC.sh )
-endif()
+atlas_add_test( ut_MuonSelectorToolsTester_data
+   SCRIPT test/ut_MuonSelectorToolsTester_data.sh )
+atlas_add_test( ut_MuonSelectorToolsTester_MC
+   SCRIPT test/ut_MuonSelectorToolsTester_MC.sh )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
