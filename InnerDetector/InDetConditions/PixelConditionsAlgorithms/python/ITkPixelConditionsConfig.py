@@ -152,7 +152,13 @@ def ITkPixelDistortionAlgCfg(flags, name="ITkPixelDistortionAlg", **kwargs):
 def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured ITkPixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/ITkClusterError", "PIXEL_OFL", className="CondAttrListCollection"))
+
+    CoolDataBaseFolder = '/PIXEL/ITkClusterError'
+    DetDescrVersion = flags.GeoModel.AtlasVersion
+    ctag = 'PixelITkError_v4_' + DetDescrVersion
+    cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
+    acc.merge( addFoldersSplitOnline(flags,'PIXEL',[cfoldertag],[cfoldertag],splitMC=True) )
+
     kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
     kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")
     kwargs.setdefault("InputSource", 2)
