@@ -288,6 +288,7 @@ namespace top {
 
     // MET configuration
     m_METUncertaintiesConfigDir("SetMe"),
+    m_METMuonPFlowBugfix(true),
     
     // Ghost Track Configuration
     m_ghostTrackspT(500.),
@@ -1490,6 +1491,9 @@ namespace top {
 
     // MET Configuration
     this->METUncertaintiesConfigDir(settings->value("AdvancedUsage_METUncertaintiesConfigDir"));
+
+    // MET Muon-PFlow jet OR bugfix
+    this->METMuonPFlowBugfix(settings->value("METMuonPFlowBugfix") == "True");
 
     // for top mass analysis, per default set to 1.0!
     m_JSF = std::stof(settings->value("JSF"));

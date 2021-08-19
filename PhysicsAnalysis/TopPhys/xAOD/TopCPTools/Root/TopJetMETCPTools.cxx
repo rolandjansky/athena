@@ -662,6 +662,8 @@ namespace top {
       if (m_config->useParticleFlowJets()) {
         top::check(metMaker->setProperty("DoPFlow", true), "Failed to set METMaker DoPFlow to true");
       }
+      top::check(metMaker->setProperty("DoMuonPFlowBugfix", m_config->METMuonPFlowBugfix()),
+                                       "Falied to set METMaker DoMuonPFlowBugfix option");
      
       if (m_config->doForwardJVTinMET()) { 
         if (m_config->getfJVTWP() == "Medium") {
