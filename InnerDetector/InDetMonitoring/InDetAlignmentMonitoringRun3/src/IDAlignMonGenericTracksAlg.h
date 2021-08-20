@@ -93,7 +93,7 @@ private:
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelection; // baseline
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
-  PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
+  ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
      {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
   
   std::string m_Pixel_Manager;
