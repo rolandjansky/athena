@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -84,9 +84,10 @@ void VP1CollectionWidget::clear(bool deleteCollections,bool deleteGuiElements)
   m_d->clearGui(deleteGuiElements);
   m_d->widgetsFromCollections.clear();
 
-  if (deleteCollections)
+  if (deleteCollections) {
     foreach(VP1Collection*col, m_d->collections)
       delete col;
+  }
   m_d->collections.clear();
 
   //Fixme: update report-on-width
@@ -119,8 +120,8 @@ void VP1CollectionWidget::Imp::repopulateGUIFromCollections()
   QSet<QString> sections;
   foreach (VP1Collection* col,collections)
     sections.insert(col->section());
-  QList<QString> sectionsSorted = sections.toList();
-  qSort(sectionsSorted);
+  QList<QString> sectionsSorted = sections.values();
+  std::sort(sectionsSorted.begin(), sectionsSorted.end());
   theclass->sortSections(sectionsSorted);
 
   const bool nosectionlabels = sectionsSorted.count() == 1 && sectionsSorted.at(0).isEmpty();
@@ -313,8 +314,8 @@ QList<qint32> VP1CollectionWidget::Imp::visibleStdCollectionTypesFromVisStdCols(
   QSet<qint32> vt;
   foreach(VP1StdCollection* stdcol,l)
     vt.insert(stdcol->collTypeID());
-  QList<qint32> vistypes = vt.toList();
-  qSort(vistypes);
+  QList<qint32> vistypes = vt.values();
+  std::sort(vistypes.begin(), vistypes.end());
   return vistypes;
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -45,6 +45,7 @@
 #include <QTextStream>
 #include <QSlider>
 #include <QGLFormat>
+#include <QtCoreVersion>
 
 #include <iostream>
 
@@ -519,12 +520,14 @@ QImage VP1QtInventorUtils::renderToImage(VP1ExaminerViewer *ra, int pixels_x, in
 	SbViewportRegion myViewport;
 	myViewport.setWindowSize(SbVec2s(pixels_x,pixels_y));
 
-	// init the random number generator a get a random filename for the temp file
-	qsrand(QTime::currentTime().msecsTo(QTime(0,0)));
 	QString tmppath(QDir::tempPath());
 	if (!tmppath.endsWith(QDir::separator()))
 		tmppath+=QDir::separator();
-	QString tmpfile = tmppath+"vp1tmpfile" +QString::number(qrand())+QString::number(qrand())+".rgb";
+        tmppath += "vp1tmpfileXXXXXX.rgb";
+        std::string stmppath = tmppath.toStdString();
+        int tmpfd = mkstemps (stmppath.data(), 4);
+        FILE* tmpf = fdopen (tmpfd, "w");
+	QString tmpfile (stmppath.c_str());
 
 	// declare a new renderer with the viewport created above
 	SoOffscreenRenderer *myRenderer = new SoOffscreenRenderer(myViewport);
@@ -569,12 +572,15 @@ QImage VP1QtInventorUtils::renderToImage(VP1ExaminerViewer *ra, int pixels_x, in
 
 	// write the rendered image to the temp file
 	// if fails, remove the temp file and return an empty image
-	if (!myRenderer->writeToRGB(tmpfile.toStdString().c_str())) {
+	if (!myRenderer->writeToRGB(tmpf)) {
+                fclose (tmpf);
 		if (QFile::exists(tmpfile))
 			QFile(tmpfile).remove();
 		delete myRenderer;
 		return QImage();
 	}
+
+        fclose (tmpf);
 
 	// delete the renderer
 	delete myRenderer;
@@ -1432,7 +1438,11 @@ bool VP1QtInventorUtils::writeGraphToFile(SoNode*root, const QString& filename)
 	QFile data(filename);
 	if (data.open(QFile::WriteOnly | QFile::Truncate)) {
 		QTextStream out(&data);
+#if QTCORE_VERSION >= 0x050E00
+		out << s << Qt::endl;
+#else
 		out << s << endl;
+#endif
 		return true;
 	} else {
 		return false;

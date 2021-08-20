@@ -15,7 +15,7 @@
 
 
 /* This file is part of the KDE libraries
-  Copyright (C) 2003 Stephan Binner <binner@kde.org>
+  Copyright (C) 2003, 2021 Stephan Binner <binner@kde.org>
   Copyright (C) 2003 Zack Rusin <zack@kde.org>
 
   This library is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@
 #include <QDragMoveEvent>
 #include <QStyle>
 #include <QTextDocument>
+#include <QtGuiVersion>
 
 
 
@@ -274,7 +275,7 @@ int VP1TabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
   //TK-fixme. Just use elide here?
     //TK-fixme    newTitle = KStringHandler::rsqueeze( newTitle, maxLength ).leftJustified( m_d->m_minLength, ' ' );
 
-    int lw = fm.width( newTitle );
+    int lw = fm.horizontalAdvance( newTitle );
     int iw = 0;
     if ( !tabBar()->tabIcon( i ).isNull() ){
       iw = tabBar()->tabIcon( i ).pixmap( style()->pixelMetric( QStyle::PM_SmallIconSize ), QIcon::Normal ).width() + 4;
@@ -346,11 +347,12 @@ void VP1TabWidget::dropEvent( QDropEvent *event )
 #ifndef QT_NO_WHEELEVENT
 void VP1TabWidget::wheelEvent( QWheelEvent *event )
 {
-  if ( event->orientation() == Qt::Horizontal )
-    return;
-
+#if QTGUI_VERSION >= 0x050E00
+  if ( m_d->isEmptyTabbarSpace( event->position().toPoint() ) )
+#else
   if ( m_d->isEmptyTabbarSpace( event->pos() ) )
-    wheelDelta( event->delta() );
+#endif
+    wheelDelta( event->angleDelta().y() );
   else
     event->ignore();
 }
@@ -392,7 +394,7 @@ void VP1TabWidget::mousePressEvent( QMouseEvent *event )
       emit( contextMenu( mapToGlobal( event->pos() ) ) );
       return;
     }
-  } else if ( event->button() == Qt::MidButton ) {
+  } else if ( event->button() == Qt::MiddleButton ) {
     if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
       emit( mouseMiddleClick() );
       return;
