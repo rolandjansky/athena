@@ -424,11 +424,11 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection"))
     if flags.GeoModel.Run == "RUN1":
         kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
+        acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection"))
     kwargs.setdefault("WriteKey", "PixelDeadMapCondData")
     acc.addCondAlgo(CompFactory.PixelDeadMapCondAlg(name, **kwargs))
     return acc
