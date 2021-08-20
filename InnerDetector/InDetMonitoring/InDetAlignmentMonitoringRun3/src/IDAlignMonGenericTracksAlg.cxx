@@ -104,6 +104,8 @@ StatusCode IDAlignMonGenericTracksAlg::initialize()
   
   if (m_doIP) {
     ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
+  }else {
+    m_trackToVertexIPEstimator.disable();
   }
   
   if ( m_beamSpotKey.initialize().isFailure() ) {
