@@ -1079,23 +1079,25 @@ void Trk::TrackingVolume::createLayerAttemptsCalculator() {
   }
 }
 
-void Trk::TrackingVolume::interlinkLayers ATLAS_NOT_THREAD_SAFE() {
+void Trk::TrackingVolume::interlinkLayers
+ATLAS_NOT_THREAD_SAFE()
+{
   if (m_confinedLayers) {
     const std::vector<const Trk::Layer*>& layers =
-        m_confinedLayers->arrayObjects();
+      m_confinedLayers->arrayObjects();
     // forward loop
     const Trk::Layer* lastLayer = nullptr;
     std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
     for (; layerIter != layers.end(); ++layerIter) {
       if (*layerIter) {
         // register the layers
-        (**layerIter)
-            .setBinUtility(m_confinedLayers->binUtility()
-                               ? m_confinedLayers->binUtility()
-                               : nullptr);
-        (**layerIter).setPreviousLayer(lastLayer);
+        Trk::Layer& mutableLayer = const_cast<Trk::Layer&>(**layerIter);
+        mutableLayer.setBinUtility(m_confinedLayers->binUtility()
+                                     ? m_confinedLayers->binUtility()
+                                     : nullptr);
+        mutableLayer.setPreviousLayer(lastLayer);
         // register the volume
-        (**layerIter).encloseTrackingVolume(*this);
+        mutableLayer.encloseTrackingVolume(*this);
       }
       lastLayer = (*layerIter);
     }
@@ -1104,9 +1106,14 @@ void Trk::TrackingVolume::interlinkLayers ATLAS_NOT_THREAD_SAFE() {
     layerIter = layers.end();
     --layerIter;
     for (;; --layerIter) {
-      if (*layerIter) (**layerIter).setNextLayer(lastLayer);
+      if (*layerIter) {
+        Trk::Layer& mutableLayer = const_cast<Trk::Layer&>(**layerIter);
+        mutableLayer.setNextLayer(lastLayer);
+      }
       lastLayer = (*layerIter);
-      if (layerIter == layers.begin()) break;
+      if (layerIter == layers.begin()) {
+        break;
+      }
     }
   }
 }
