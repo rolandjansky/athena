@@ -132,17 +132,20 @@ def PFCfg(inputFlags,**kwargs):
 
     result.merge(getOfflinePFAlgorithm(inputFlags))
 
-    from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
-    result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
-    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
+    # old PFO algorithm, keep gated behind a joboption but expect this is deprecated.    
+    if(inputFlags.PF.useOldPFO):
+        from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
+        result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
+        result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
 
     from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
     result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
-    from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm,getEGamFlowElementAssocAlgorithm
-    result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
-    result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
+    if(inputFlags.PF.useElPhotMuLinks):
+        from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm,getEGamFlowElementAssocAlgorithm
+        result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+        result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
 
     return result
 
@@ -155,6 +158,8 @@ if __name__=="__main__":
 
     cfgFlags.Input.isMC=True
     cfgFlags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
+    cfgFlags.Output.AODFileName="output_AOD.root"
+    cfgFlags.Output.doWriteAOD=True
     cfgFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
