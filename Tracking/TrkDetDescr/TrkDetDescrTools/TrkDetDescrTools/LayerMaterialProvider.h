@@ -49,13 +49,13 @@ namespace Trk {
 
         /** Processor Action to work on TrackingGeometry& tgeo */
         virtual StatusCode process
-        ATLAS_NOT_THREAD_SAFE(const TrackingGeometry& tgeo) const;
+        ATLAS_NOT_THREAD_SAFE(const TrackingGeometry& tgeo) const override;
 
         /** Processor Action to work on TrackingVolumes - the level is for the
          * hierachy tree*/
         virtual StatusCode process
         ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
-                              size_t level = 0) const;
+                              size_t level = 0) const override;
 
         StatusCode process
         ATLAS_NOT_THREAD_SAFE(const TrackingVolume& lay,
@@ -64,7 +64,7 @@ namespace Trk {
 
         /** Processor Action to work on Layers */
         virtual StatusCode process
-        ATLAS_NOT_THREAD_SAFE(const Layer& lay, size_t level = 0) const;
+        ATLAS_NOT_THREAD_SAFE(const Layer& lay, size_t level = 0) const override;
 
         StatusCode process
         ATLAS_NOT_THREAD_SAFE(const Layer& lay,
