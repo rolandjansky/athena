@@ -198,14 +198,14 @@ namespace InDet {
     //@}
 
     MsgStream& dumpConditions(MsgStream& out) const;
-    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
+    static MsgStream& dumpEvent(EventData& data, MsgStream& out) ;
 
     void buildFrameWork();
 
-    SiSpacePointForSeed* newSpacePoint
-    (EventData& data, const Trk::SpacePoint*const&) const;
-    SiSpacePointForSeed* newSpacePoint
-    (EventData& data, const Trk::SpacePoint*const&, const float*) const;
+    static SiSpacePointForSeed* newSpacePoint
+    (EventData& data, const Trk::SpacePoint*const&) ;
+    static SiSpacePointForSeed* newSpacePoint
+    (EventData& data, const Trk::SpacePoint*const&, const float*) ;
     void newSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
@@ -215,8 +215,8 @@ namespace InDet {
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
      const Trk::SpacePoint*&,const float&) const;
     void fillLists(EventData& data) const;
-    void erase(EventData& data) const;
-    void production2Sp(EventData& data) const;
+    static void erase(EventData& data) ;
+    static void production2Sp(EventData& data) ;
     void production3Sp(const EventContext& ctx, EventData& data) const;
     void production3Sp
     (EventData& data,

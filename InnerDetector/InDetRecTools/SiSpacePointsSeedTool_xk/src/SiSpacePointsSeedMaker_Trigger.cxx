@@ -584,7 +584,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpConditions(EventData& data
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -833,7 +833,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildBeamFrameWork(EventData& data) 
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_Trigger::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp, float* r) const
+(EventData& data, const Trk::SpacePoint*const& sp, float* r) 
 { 
   r[0] = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   r[1] = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -903,7 +903,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_Trigger::erase(EventData& data) 
 {
   for (int i=0; i!=data.nr;    ++i) {
     int n = data.r_index[i];
@@ -1567,7 +1567,7 @@ bool InDet::SiSpacePointsSeedMaker_Trigger::isZCompatible
   return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
 }
 
-float InDet::SiSpacePointsSeedMaker_Trigger::dZVertexMin(EventData& data, float& Z) const
+float InDet::SiSpacePointsSeedMaker_Trigger::dZVertexMin(EventData& data, float& Z) 
 {
   if (data.l_vertex.empty()) return 0.;
 
@@ -1584,7 +1584,7 @@ float InDet::SiSpacePointsSeedMaker_Trigger::dZVertexMin(EventData& data, float&
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Trigger::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1610,7 +1610,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Trigger::newSpacePoint
 void InDet::SiSpacePointsSeedMaker_Trigger::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const float& z) const
+ const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1628,7 +1628,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::fillSeeds(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_Trigger::fillSeeds(EventData& data) 
 {
   std::multimap<float, InDet::SiSpacePointsSeed*>::iterator 
     l  = data.mapOneSeeds.begin(),

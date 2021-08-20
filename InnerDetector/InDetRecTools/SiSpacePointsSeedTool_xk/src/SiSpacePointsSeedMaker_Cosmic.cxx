@@ -464,7 +464,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions(MsgStream& out) 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -627,7 +627,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::erase(EventData& data) 
 {
   for (int i=0; i<data.nr; ++i) {
     int n = data.r_index[i];
@@ -659,7 +659,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::erase(EventData& data) const
 // 2 space points seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Cosmic::production2Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_Cosmic::production2Sp(EventData& data) 
 {
   data.endlist = true;
 }
@@ -1043,7 +1043,7 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Cosmic::next(const
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1068,7 +1068,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_Cosmic::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp,const float* sc) const
+(EventData& data, const Trk::SpacePoint*const& sp,const float* sc) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
