@@ -32,14 +32,10 @@ select_aux_items=True
 
 from AthenaCommon.JobProperties import jobproperties
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
-print('DEBUG IDTRKVALID stream = %s' % jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream)
-pix_from_InDetDxAOD = InDetDxAODFlags.DumpPixelInfo() and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
-sct_from_InDetDxAOD = InDetDxAODFlags.DumpSctInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
-trt_from_InDetDxAOD = InDetDxAODFlags.DumpTrtInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream
+pix_from_InDetDxAOD = InDetDxAODFlags.DumpPixelInfo() and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() is True
+sct_from_InDetDxAOD = InDetDxAODFlags.DumpSctInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() is True
+trt_from_InDetDxAOD = InDetDxAODFlags.DumpTrtInfo()   and jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() is True
 need_pix_ToTList = idDxAOD_doPix and ( InDetDxAODFlags.DumpPixelRdoInfo() or InDetDxAODFlags.DumpPixelNNInfo() )
-print('DEBUG IDTRKVALID dump pix: %s [rdo: %s nn: %s ->%s] sct: %s trt: %s  ' % (InDetDxAODFlags.DumpPixelInfo() ,InDetDxAODFlags.DumpPixelRdoInfo(), InDetDxAODFlags.DumpPixelNNInfo(), need_pix_ToTList,
-                                                                            InDetDxAODFlags.DumpSctInfo(),
-                                                                            InDetDxAODFlags.DumpTrtInfo()))
 
 # IsMonteCarlo=(globalflags.DataSource == 'geant4')
 
@@ -113,7 +109,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
-                                                          PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks() if  jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream else "",
+                                                          PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks() if  jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
@@ -396,24 +392,28 @@ IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 if not select_aux_items :
   IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
 else :
-  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux" \
-                        +'.IDTIDE1_biased_PVd0Sigma.IDTIDE1_biased_PVz0Sigma.IDTIDE1_biased_PVz0SigmaSinTheta.IDTIDE1_biased_d0.IDTIDE1_biased_d0Sigma.IDTIDE1_biased_z0.IDTIDE1_biased_z0Sigma' \
-                        + '.IDTIDE1_biased_z0SigmaSinTheta.IDTIDE1_biased_z0SinTheta.IDTIDE1_unbiased_PVd0Sigma.IDTIDE1_unbiased_PVz0Sigma.IDTIDE1_unbiased_PVz0SigmaSinTheta.IDTIDE1_unbiased_d0' \
-                        + '.IDTIDE1_unbiased_d0Sigma.IDTIDE1_unbiased_z0.IDTIDE1_unbiased_z0Sigma.IDTIDE1_unbiased_z0SigmaSinTheta.IDTIDE1_unbiased_z0SinTheta' \
-                        + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices_forReco.TTVA_AMVFWeights_forReco' \
-                        + '.TrkBLX.TrkBLY.TrkBLZ.TrkIBLX.TrkIBLY.TrkIBLZ.TrkL1X.TrkL1Y.TrkL1Z.TrkL2X.TrkL2Y.TrkL2Z' \
-                        + '.beamlineTiltX.beamlineTiltY.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty' \
-                        + '.chiSquared.d0.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.eProbabilityComb.eProbabilityHT.eProbabilityNN' \
-                        + '.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.hitPattern.identifierOfFirstHit.msosLink.nBC_meas.numberDoF.numberOfContribPixelLayers' \
-                        + '.numberOfDBMHits.numberOfGangedFlaggedFakes.numberOfGangedPixels.numberOfIBLOverflowsdEdx.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers' \
-                        + '.numberOfInnermostPixelLayerSharedHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers' \
-                        + '.numberOfNextToInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfOutliersOnTrack.numberOfPhiHoleLayers.numberOfPhiLayers' \
-                        + '.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfPixelOutliers.numberOfPixelSharedHits.numberOfPixelSplitHits.numberOfPixelSpoiltHits' \
-                        + '.numberOfPrecisionHoleLayers.numberOfPrecisionLayers.numberOfSCTDeadSensors.numberOfSCTDoubleHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTOutliers' \
-                        + '.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers' \
-                        + '.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers' \
-                        + '.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx' \
-                        + '.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties.truthMatchProbability.truthParticleLink.vx.vy.vz.z0')
+  tp_items = '.IDTIDE1_biased_PVd0Sigma.IDTIDE1_biased_PVz0Sigma.IDTIDE1_biased_PVz0SigmaSinTheta.IDTIDE1_biased_d0.IDTIDE1_biased_d0Sigma.IDTIDE1_biased_z0.IDTIDE1_biased_z0Sigma' \
+           + '.IDTIDE1_biased_z0SigmaSinTheta.IDTIDE1_biased_z0SinTheta.IDTIDE1_unbiased_PVd0Sigma.IDTIDE1_unbiased_PVz0Sigma.IDTIDE1_unbiased_PVz0SigmaSinTheta.IDTIDE1_unbiased_d0' \
+           + '.IDTIDE1_unbiased_d0Sigma.IDTIDE1_unbiased_z0.IDTIDE1_unbiased_z0Sigma.IDTIDE1_unbiased_z0SigmaSinTheta.IDTIDE1_unbiased_z0SinTheta' \
+           + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices_forReco.TTVA_AMVFWeights_forReco' \
+           + '.TrkBLX.TrkBLY.TrkBLZ.TrkIBLX.TrkIBLY.TrkIBLZ.TrkL1X.TrkL1Y.TrkL1Z.TrkL2X.TrkL2Y.TrkL2Z' \
+           + '.beamlineTiltX.beamlineTiltY.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty' \
+           + '.chiSquared.d0.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.eProbabilityComb.eProbabilityHT.eProbabilityNN' \
+           + '.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.hitPattern.identifierOfFirstHit.msosLink.nBC_meas.numberDoF.numberOfContribPixelLayers' \
+           + '.numberOfDBMHits.numberOfGangedFlaggedFakes.numberOfGangedPixels.numberOfIBLOverflowsdEdx.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers' \
+           + '.numberOfInnermostPixelLayerSharedHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers' \
+           + '.numberOfNextToInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfOutliersOnTrack.numberOfPhiHoleLayers.numberOfPhiLayers' \
+           + '.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfPixelOutliers.numberOfPixelSharedHits.numberOfPixelSplitHits.numberOfPixelSpoiltHits' \
+           + '.numberOfPrecisionHoleLayers.numberOfPrecisionLayers.numberOfSCTDeadSensors.numberOfSCTDoubleHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTOutliers' \
+           + '.numberOfSCTSharedHits.numberOfSCTSpoiltHits.numberOfTRTDeadStraws.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers' \
+           + '.numberOfTRTHits.numberOfTRTHoles.numberOfTRTOutliers.numberOfTRTSharedHits.numberOfTRTTubeHits.numberOfTRTXenonHits.numberOfTriggerEtaHoleLayers' \
+           + '.numberOfTriggerEtaLayers.numberOfUsedHitsdEdx' \
+           + '.particleHypothesis.patternRecoInfo.phi.pixeldEdx.qOverP.radiusOfFirstHit.standardDeviationOfChi2OS.theta.trackFitter.trackLink.trackProperties' \
+           + '.vx.vy.vz.z0'
+  if IsMonteCarlo :
+    tp_items +=  '.truthMatchProbability.truthParticleLink.truthOrigin.truthType'
+  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux" + tp_items)
+
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociations*")
 
@@ -427,12 +427,18 @@ keys = []
 if idDxAOD_doPix and not select_aux_items :
   keys += ['PixelClusters'] if idDxAOD_doPix else []
 elif idDxAOD_doPix :
-  keys += ['PixelClustersAux.' \
+  keys += ['PixelClustersAux' \
            +'.BiasVoltage.DCSState.DepletionVoltage.LVL1A.LorentzShift.NN_etaPixelIndexWeightedPosition.NN_localEtaPixelIndexWeightedPosition.NN_localPhiPixelIndexWeightedPosition' \
            + '.NN_matrixOfCharge.NN_matrixOfToT.NN_phiBS.NN_phiPixelIndexWeightedPosition.NN_sizeX.NN_sizeY.NN_thetaBS.NN_vectorOfPitchesY.Temperature.ToT.bec.broken.charge.detectorElementID' \
            + '.eta_module.eta_pixel_index.gangedPixel.globalX.globalY.globalZ.hasBSError.identifier.isFake.isSplit.layer.localX.localXError.localXYCorrelation.localY.localYError.nRDO.phi_module' \
            + '.phi_pixel_index.rdoIdentifierList.rdo_Aterm.rdo_Cterm.rdo_Eterm.rdo_charge.rdo_eta_pixel_index.rdo_phi_pixel_index.rdo_tot.sihit_barcode.sizePhi.sizeZ.splitProbability1' \
-           + '.splitProbability2.truth_barcode']
+           + '.splitProbability2.truth_barcode'
+           ]
+  if IsMonteCarlo :
+    keys[-1] += '.NN_barcode.NN_energyDep.NN_motherBarcode.NN_motherPdgid.NN_pathlengthX.NN_pathlengthY.NN_pathlengthZ.NN_pdgid.NN_phi.NN_positionsX.NN_positionsY' \
+      + '.NN_positions_indexX.NN_positions_indexY.NN_theta.NN_trueP.sdo_depositsBarcode.sdo_depositsEnergy.sdo_words.sihit_endPosX.sihit_endPosY.sihit_endPosZ.sihit_energyDeposit' \
+      + '.sihit_meanTime.sihit_pdgid.sihit_startPosX.sihit_startPosY.sihit_startPosZ'
+
 keys+= ['SCT_Clusters']     if idDxAOD_doSct else []
 keys+= ['TRT_DriftCircles'] if idDxAOD_doTrt else []
 print('DEBUG keys %s' % (keys))

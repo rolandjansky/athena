@@ -1,38 +1,40 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "PrescalingTool.h"
+
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
-#include "xAODEventInfo/EventInfo.h"
 
-const std::function< CLHEP::HepRandomEngine*(void) > PSTRanluxFactory = [](void)->CLHEP::HepRandomEngine*{
+
+const std::function< CLHEP::HepRandomEngine*(void) > PSTRanluxFactory = []()->CLHEP::HepRandomEngine*{
    return new CLHEP::Ranlux64Engine();
 };
 
-PrescalingTool::PrescalingTool( const std::string& type, 
-                                const std::string& name, 
+
+PrescalingTool::PrescalingTool( const std::string& type,
+                                const std::string& name,
                                 const IInterface* parent ) :
    base_class(type, name, parent),
-   m_RNGEngines( PSTRanluxFactory, SG::getNSlots() )
-{}
+   m_RNGEngines( PSTRanluxFactory, SG::getNSlots() ) {}
 
-PrescalingTool::~PrescalingTool()
-{}
 
-StatusCode
-PrescalingTool::initialize()
-{
+StatusCode PrescalingTool::initialize() {
    ATH_CHECK(m_hltPrescaleSetInputKey.initialize( ! m_hltPrescaleSetInputKey.key().empty() ));
    ATH_CHECK( m_HLTMenuKey.initialize() );
    ATH_CHECK( m_eventInfoKey.initialize() );
 
-   if ( !m_monTool.empty() ) ATH_CHECK(m_monTool.retrieve());
+   if ( !m_monTool.empty() ) {
+      ATH_CHECK(m_monTool.retrieve());
+   }
 
    if (m_keepUnknownChains.value()) {
-      ATH_MSG_WARNING(m_keepUnknownChains.name() << " is set to True. This is OK for testing but do not use this in production");
+      ATH_MSG_WARNING(m_keepUnknownChains.name() << " is set to True. "
+                      << "This is OK for testing but do not use this in production");
    }
    m_prescaleForUnknownChain = { m_keepUnknownChains.value(), (m_keepUnknownChains.value() ? 1.0 : -1.0) };
    m_costChainID = HLT::Identifier("HLT_noalg_CostMonDS_L1All");
@@ -55,14 +57,15 @@ StatusCode PrescalingTool::start() {
             isCPS++;
          }
       }
-      if ( isCPS ==0 )
+      if ( isCPS ==0 ) {
          m_nonCPSChains.insert( chainID );
-      if ( isCPS > 1 ) { 
+      }
+      if ( isCPS > 1 ) {
          ATH_MSG_ERROR("Chain " << chainID << " belongs to more than one CPS groups");
          return StatusCode::FAILURE;
       }
-
    }
+
    for ( auto [group, chains]: m_CPSGroups ) {
       if ( chains.size() == 1 ) {
          ATH_MSG_ERROR("Only one chain " << chains.front() << " in CPS group " << group << " that makes no sense");
@@ -72,7 +75,8 @@ StatusCode PrescalingTool::start() {
 
    for ( auto [group, l1SeedsSet]: l1SeedsCheckForCPS) {
       if ( l1SeedsSet.size() != 1 ) {
-         ATH_MSG_ERROR("Chains in CPS group " << group << " have several different L1 seeds " << std::vector<std::string>(l1SeedsSet.begin(), l1SeedsSet.end()));
+         ATH_MSG_ERROR("Chains in CPS group " << group << " have several different L1 seeds "
+                       << std::vector<std::string>(l1SeedsSet.begin(), l1SeedsSet.end()));
          return StatusCode::FAILURE;
       }
    }
@@ -80,18 +84,19 @@ StatusCode PrescalingTool::start() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,  
+
+StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
                                            const HLT::IDVec& initiallyActive,
-                                           HLT::IDVec& remainActive ) const
-{
-   if ( initiallyActive.empty() )
+                                           HLT::IDVec& remainActive ) const {
+   if ( initiallyActive.empty() ) {
       return StatusCode::SUCCESS;
+   }
 
    // clear the output just in case
    remainActive.clear();
 
    if ( m_hltPrescaleSetInputKey.key().empty() ) {
-      // if no prescaling key is configured, treat all prescales according to propery KeepUnknownChains
+      // if no prescaling key is configured, treat all prescales according to the property KeepUnknownChains
       if( m_keepUnknownChains ) {
          remainActive.reserve( initiallyActive.size() );
          for( const auto & ch : initiallyActive ) {
@@ -101,12 +106,8 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       return StatusCode::SUCCESS;
    }
 
-   SG::ReadCondHandle<TrigConf::HLTPrescalesSet> hltpssRH(m_hltPrescaleSetInputKey, ctx);
-   const TrigConf::HLTPrescalesSet* hltPrescaleSet{*hltpssRH};
-   if(hltPrescaleSet == nullptr) {
-      ATH_MSG_ERROR("Failed to retrieve HLTPrescalesSet " << hltPrescaleSet->name());
-      return StatusCode::FAILURE;
-   }
+   SG::ReadCondHandle<TrigConf::HLTPrescalesSet> hltPrescaleSet{m_hltPrescaleSetInputKey, ctx};
+   ATH_CHECK(hltPrescaleSet.isValid());
 
    // access to psk
    ATH_MSG_DEBUG("Using HLT PSK " << hltPrescaleSet->psk());
@@ -119,15 +120,14 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
 
    // create the seed from the event time
    /**
-       Note: the event time needs to be taken from the EventInfo instead EventContext.eventID, which is commonly done!
-       This is due to the special case when the trigger is run in a partition with preloaded data and the parameter @c
-       HLTEventLoopMgr.forceStartOfRunTime is set >0. In that case the @c EventContext.EventID is forced to the be the 
-       SOR time for each event. Using the @c EventContext.eventID would lead to a constant seed and a scewed prescaling.
+    * Note: the event time needs to be taken from the EventInfo instead EventContext.eventID, which is commonly done!
+    * This is due to the special case when the trigger is run in a partition with preloaded data and the parameter
+    * @c HltEventLoopMgr.forceStartOfRunTime is set >0. In that case the @c EventContext.EventID is forced to the be the
+    * SOR time for each event. Using the @c EventContext.eventID would lead to a constant seed and a skewed prescaling.
     */
    auto eventInfoHandle = SG::makeHandle( m_eventInfoKey, ctx );
    CHECK( eventInfoHandle.isValid() );
    size_t seed = eventInfoHandle->timeStamp() ^ eventInfoHandle->timeStampNSOffset();
-
 
    CLHEP::HepRandomEngine* engine = m_RNGEngines.getEngine( ctx );
    engine->setSeed( seed, 0 );
@@ -161,37 +161,43 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       TrigConf::HLTPrescalesSet::HLTPrescale ps;
       double relativePrescale{};
    };
-   
+
    ChainSet activeChainSet{ initiallyActive.begin(), initiallyActive.end() };
 
    for ( auto [groupName, chainIDs]: m_CPSGroups) {
-      if ( std::find(initiallyActive.begin(), initiallyActive.end(), chainIDs.front()) != initiallyActive.end() ) { // this group is seeded
+      if ( std::find(initiallyActive.begin(), initiallyActive.end(), chainIDs.front()) != initiallyActive.end() ) {
+         // this group is seeded
          std::vector<ChainAndPrescale> psValueSorted;
          for ( const HLT::Identifier& ch: chainIDs ) {
             psValueSorted.emplace_back( ChainAndPrescale({ch, getPrescale(ch)}) );
          }
 
-         std::sort(psValueSorted.begin(), psValueSorted.end(), [](const ChainAndPrescale& a, const ChainAndPrescale& b){ 
-            if ( a.ps.enabled  and b.ps.enabled ) return  a.ps.prescale < b.ps.prescale;
-            else if ( !a.ps.enabled  and b.ps.enabled ) return false;
-            else if ( a.ps.enabled  and !b.ps.enabled ) return true;
-            else /*( !a.prescale.enabled  and !b.prescale.enabled )*/ return a.ps.prescale < b.ps.prescale; // irrelevant but sorting needs consistent ordering
-            }
-         );
+         std::sort(psValueSorted.begin(), psValueSorted.end(), [](const ChainAndPrescale& a, const ChainAndPrescale& b){
+            if ( a.ps.enabled and b.ps.enabled ) {return a.ps.prescale < b.ps.prescale;}
+            if ( !a.ps.enabled and b.ps.enabled ) {return false;}
+            if ( a.ps.enabled and !b.ps.enabled ) {return true;}
+            // both not enabled - irrelevant but sorting needs consistent ordering
+            return a.ps.prescale < b.ps.prescale;
+         });
          // setup relative prescales
-         psValueSorted.front().relativePrescale = psValueSorted.front().ps.prescale; // the first chain (with the lowest PS is relative w.r.t the all events)
+         // the first chain (with the lowest PS is relative w.r.t the all events)
+         psValueSorted.front().relativePrescale = psValueSorted.front().ps.prescale;
          for ( auto i = psValueSorted.begin()+1; i < psValueSorted.end(); ++i ) {
             i->relativePrescale = i->ps.prescale / (i-1)->ps.prescale ;
-
          }
-         ATH_MSG_DEBUG("Chains in CPS group '"<< groupName <<"' sorted by PS : ");
-         for ( const ChainAndPrescale& ch: psValueSorted )
-            ATH_MSG_DEBUG("  "<< ch.id <<" " << (ch.ps.enabled  ? " prescale relative to the above " + std::to_string(ch.relativePrescale) : "disabled" ) );
+         if (msgLvl(MSG::DEBUG)) {
+            ATH_MSG_DEBUG("Chains in CPS group '"<< groupName <<"' sorted by PS : ");
+            for ( const ChainAndPrescale& ch: psValueSorted ) {
+               ATH_MSG_DEBUG("  " << ch.id << " " << (ch.ps.enabled ?
+                             "prescale relative to the above " + std::to_string(ch.relativePrescale) :
+                             "disabled"));
+            }
+         }
          // do actual prescaling
          for ( const ChainAndPrescale& ch: psValueSorted ) {
-            if ( not ch.ps.enabled ) break;
+            if ( not ch.ps.enabled ) {break;}
             const bool decision = decisionPerChain(ch.id, ch.relativePrescale);
-            if ( not decision ) break;
+            if ( not decision ) {break;}
             remainActive.push_back( ch.id );
          }
       }
@@ -203,16 +209,15 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
          auto prescale = getPrescale(ch);
          if ( prescale.enabled ) {
             const bool decision = decisionPerChain(ch, prescale.prescale);
-            if ( decision )
+            if ( decision ) {
                remainActive.push_back( ch );
+            }
             ATH_MSG_DEBUG("Prescaling decision for chain " << ch << " " << decision);
          } else {
             ATH_MSG_DEBUG("Chain " << ch << " is disabled, won't keep" );
          }
-      } 
+      }
    }
 
    return StatusCode::SUCCESS;
 }
-
-

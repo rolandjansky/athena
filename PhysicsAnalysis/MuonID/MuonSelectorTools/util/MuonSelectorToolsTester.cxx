@@ -19,10 +19,13 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#endif  // ROOTCORE
+#else
+#include "POOLRootAccess/TEvent.h"
+#include "StoreGate/StoreGateSvc.h"
+#endif
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -32,7 +35,6 @@
 
 // Local include(s):
 #include "MuonSelectorTools/MuonSelectionTool.h"
-#include "MuonSelectorTools/errorcheck.h"
 
 // Needed for Smart Slimming
 #include "xAODCore/tools/IOStats.h"
@@ -54,18 +56,31 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Initialise the application:
-    CHECK(xAOD::Init(APP_NAME));
+    // Create a TEvent object:
+#ifdef XAOD_STANDALONE
+    if ( xAOD::Init( APP_NAME ).isFailure() ) {
+      Error( APP_NAME, "Failed to do xAOD::Init!" );
+      return 1;
+    }
+    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+#else
+    POOL::TEvent event( POOL::TEvent::kClassAccess );
+#endif
 
     // Open the input file:
     const TString fileName = argv[1];
     Info(APP_NAME, "Opening file: %s", fileName.Data());
     std::unique_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
-    CHECK(ifile.get());
+    if ( !ifile.get() ) {
+      Error( APP_NAME, "Failed to open input file!" );
+      return 1;
+    }
 
-    // Create a TEvent object:
-    xAOD::TEvent event;
-    CHECK(event.readFrom(ifile.get(), xAOD::TEvent::kClassAccess));
+    //Read from input file with TEvent
+    if ( event.readFrom( ifile.get() ).isFailure() ) {
+      Error( APP_NAME, "Failed to read from input file!" );
+      return 1;
+    }
     Info(APP_NAME, "Number of events in the file: %i", static_cast<int>(event.getEntries()));
 
     // Decide how many events to run over:
@@ -75,8 +90,6 @@ int main(int argc, char* argv[]) {
         if (e < entries) { entries = e; }
     }
 
-    // Create a TStore object
-    xAOD::TStore store;
 
     // Create a set of selector tools configured for each of the available working points
 
@@ -91,19 +104,26 @@ int main(int argc, char* argv[]) {
         Info(APP_NAME, "Creating selector tool for working point: %s ...", WPnames[wp].c_str());
 
         CP::MuonSelectionTool* muonSelection = new CP::MuonSelectionTool("MuonSelection_" + WPnames[wp]);
-
         muonSelection->msg().setLevel(MSG::INFO);
-        CHECK(muonSelection->setProperty("MaxEta", 2.7));
+
+	bool failed = false;
+
+        failed = failed || muonSelection->setProperty("MaxEta", 2.7).isFailure();
 
 	if (WPnames[wp] == "LowPtMVA") {
-	  CHECK (muonSelection->setProperty( "MuQuality", 5));
-	  CHECK (muonSelection->setProperty( "UseMVALowPt", true));
+	  failed = failed || muonSelection->setProperty( "MuQuality", 5).isFailure();
+	  failed = failed || muonSelection->setProperty( "UseMVALowPt", true).isFailure();
 	}
 	else
-	  CHECK(muonSelection->setProperty("MuQuality", wp));
+	  failed = failed || muonSelection->setProperty("MuQuality", wp).isFailure();
 
-        CHECK(muonSelection->setProperty("TurnOffMomCorr", true));
-        CHECK(muonSelection->initialize());
+        failed = failed || muonSelection->setProperty("TurnOffMomCorr", true).isFailure();
+        failed = failed || muonSelection->initialize().isFailure();
+
+	if (failed) {
+	  Error( APP_NAME, "Failed to set up MuonSelectorTool for working point: %s !", WPnames[wp].c_str() );
+	  return 1;
+	}
 
         selectorTools.emplace_back(muonSelection);
     }
@@ -273,7 +293,10 @@ int main(int argc, char* argv[]) {
 
         // Print some event information for fun:
         const xAOD::EventInfo* ei = 0;
-        CHECK(event.retrieve(ei, "EventInfo"));
+	if ( event.retrieve( ei, "EventInfo" ).isFailure() ) {
+	  Error( APP_NAME, "Failed to read EventInfo!" );
+	  return 1;
+	}
         Info(APP_NAME,
              "===>>>  start processing event #%i, "
              "run #%i %i events processed so far  <<<===",
@@ -281,7 +304,10 @@ int main(int argc, char* argv[]) {
 
         // Get the Muons from the event:
         const xAOD::MuonContainer* muons = 0;
-        CHECK(event.retrieve(muons, "Muons"));
+	if ( event.retrieve( muons, "Muons" ).isFailure() ) {
+	  Error( APP_NAME, "Failed to read Muons container!" );
+	  return 1;
+	}
         Info(APP_NAME, "Number of muons: %i", static_cast<int>(muons->size()));
 
         xAOD::Muon::Quality my_quality;

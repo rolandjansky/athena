@@ -6,24 +6,25 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 
-FSRoIsUnpackingTool::FSRoIsUnpackingTool( const std::string& type,
-					    const std::string& name,
-					    const IInterface* parent )
+FSRoIsUnpackingTool::FSRoIsUnpackingTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent)
   : RoIsUnpackingToolBase(type, name, parent) {}
 
-StatusCode FSRoIsUnpackingTool::initialize()
-{
+
+StatusCode FSRoIsUnpackingTool::initialize() {
   ATH_CHECK(RoIsUnpackingToolBase::initialize());
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode FSRoIsUnpackingTool::start() {
-  ATH_CHECK( decodeMapping( [](const std::string& name ){ return
-	  name.find("FS") == 0 or
-	  name == ""; } ) );
+  ATH_CHECK(decodeMapping([](const std::string& name){
+    return name.find("FS") == 0 or name.empty();
+  }));
 
   m_allFSChains.clear();
-  
+
   for ( auto thresholdToChain: m_thresholdToChainMapping ) {
     m_allFSChains.insert( thresholdToChain.second.begin(), thresholdToChain.second.end() );
   }
@@ -36,25 +37,26 @@ StatusCode FSRoIsUnpackingTool::start() {
 }
 
 
-StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
-					const ROIB::RoIBResult& /*roib*/,
-					const HLT::IDSet& activeChains ) const {
+StatusCode FSRoIsUnpackingTool::unpack(const EventContext& ctx,
+                                       const ROIB::RoIBResult& /*roib*/,
+                                       const HLT::IDSet& activeChains) const {
   using namespace TrigCompositeUtils;
   SG::WriteHandle<DecisionContainer> handle = createAndStore(m_decisionsKey, ctx );
   auto *decisionOutput = handle.ptr();
 
-  HLT::IDSet activeFSchains;
+  HLT::IDSet activeFSChains;
   // see if any chain we care of is active
   std::set_intersection(activeChains.begin(), activeChains.end(),
-  			m_allFSChains.begin(), m_allFSChains.end(),
-			std::inserter(activeFSchains, activeFSchains.end() ) );
+                        m_allFSChains.begin(), m_allFSChains.end(),
+                        std::inserter(activeFSChains, activeFSChains.end()));
 
-  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() ); // This hltSeedingNodeName() denotes an initial node with no parents
+  // This hltSeedingNodeName() denotes an initial node with no parents
+  auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, hltSeedingNodeName() );
   addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
-  ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 
-      TrigCompositeUtils::DecisionIDContainer ids; 
-      TrigCompositeUtils::decisionIDs( decision, ids ); 
+  ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSChains.size() << " chains: " << [&](){
+      TrigCompositeUtils::DecisionIDContainer ids;
+      TrigCompositeUtils::decisionIDs( decision, ids );
       return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
 
   auto roiHandle = SG::makeHandle( m_trigRoIsKey, ctx );
@@ -62,7 +64,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
   roiHandle->push_back( std::make_unique<TrigRoiDescriptor>(true) ); // true == FS
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");
-  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), 0 ) );  
+  decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), 0 ) );
 
   return StatusCode::SUCCESS;
 }

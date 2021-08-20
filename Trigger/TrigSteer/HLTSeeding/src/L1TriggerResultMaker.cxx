@@ -14,7 +14,7 @@ namespace {
     target.typelessSetObjectLink(linkName,
                                  link.key(),
                                  ClassID_traits<T>::ID(),
-                                 /*index =*/ 0);
+                                 /*beginIndex =*/ 0);
   }
 }
 
@@ -53,7 +53,7 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
   ATH_MSG_DEBUG("Recorded L1TriggerResult with key " << m_l1TriggerResultWHKey.key());
 
   // Create new L1TriggerResult in the container
-  l1trHandle->push_back(new xAOD::TrigComposite);
+  l1trHandle->push_back(std::make_unique<xAOD::TrigComposite>());
 
   auto retrieveAndLink = [this, &eventContext, &l1trHandle](auto key) -> StatusCode {
     // Skip disabled inputs

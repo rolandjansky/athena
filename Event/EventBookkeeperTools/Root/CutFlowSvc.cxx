@@ -17,7 +17,7 @@
 #include <GaudiKernel/IIncidentSvc.h>
 
 // EDM includes
-#include <EventInfo/EventStreamInfo.h>
+#include <xAODMetaData/FileMetaData.h>
 
 
 CutFlowSvc::CutFlowSvc(const std::string& name,
@@ -234,28 +234,30 @@ void CutFlowSvc::handle( const Incident& inc )
 
   if ( inc.type() == IncidentType::BeginInputFile ) {
     // Check the stream name
-    const EventStreamInfo* esi;
-    if (m_inMetaDataStore->retrieve(esi).isFailure()) {
-      ATH_MSG_WARNING("No EventStreamInfo taking stream from property InputStream");
+    const xAOD::FileMetaData* fmd;
+    if (m_inMetaDataStore->retrieve(fmd).isFailure()) {
+      ATH_MSG_WARNING("No FileMetaData taking stream from property InputStream");
     }
     else {
       // ignore event-less files
-      if (esi->getProcessingTags().empty()) {
-        ATH_MSG_DEBUG("Ignoring input stream name of event-less file");
-        return;
-      }
-      std::string inputstream = *(esi->getProcessingTags().begin());
-      ATH_MSG_DEBUG("Input stream name: " << inputstream);
-      if (m_inputStream.empty()) {m_inputStream=inputstream;}
-      else if (m_inputStream!=inputstream) {
-        const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
-        if (m_inputStream != "N/A" && m_inputStream != "unknownStream") {
-          ATH_MSG_FATAL("File " << finc->fileName() 
-                                << " stream " << inputstream 
-                                << " does not match previous file " 
-                                << m_inputStream);
-          return;
+      std::string inputstream = m_inputStream;
+      if (fmd->value(xAOD::FileMetaData::dataType, inputstream)) {
+        ATH_MSG_DEBUG("Input stream name: " << inputstream);
+        if (m_inputStream.empty()) {
+          m_inputStream=inputstream;
+        } else if (m_inputStream!=inputstream) {
+          const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
+          if (m_inputStream != "N/A" && m_inputStream != "unknownStream") {
+            ATH_MSG_FATAL("File " << finc->fileName() 
+                                  << " stream " << inputstream 
+                                  << " does not match previous file " 
+                                  << m_inputStream);
+            return;
+          }
         }
+      } else {
+        ATH_MSG_WARNING("No dataType in FileMetaData taking stream from property InputStream");
+        return;
       }
     }
   }
