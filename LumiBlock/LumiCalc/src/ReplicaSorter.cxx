@@ -29,7 +29,7 @@ void ReplicaSorter::sort(std::vector<
     if (conn.find("sqlite_file")==std::string::npos) {
       // extract the server name (assuming URLs "techno://server/schema")
       std::string::size_type ipos1=conn.find("://");
-      std::string::size_type ipos2=conn.find("/",ipos1+3);
+      std::string::size_type ipos2=conn.find('/',ipos1+3);
       if (ipos1!=std::string::npos && ipos2!=std::string::npos) {
         const std::string server=conn.substr(ipos1+3,ipos2-ipos1-3);
         // check if this server is on list of replicas to use for domain
@@ -63,7 +63,7 @@ bool ReplicaSorter::readConfig() {
     const char* chost=getenv("HOSTNAME");
     if (chost) m_hostname=chost;
     // check if the returned host has a .
-    if (m_hostname.find(".")==std::string::npos) {
+    if (m_hostname.find('.')==std::string::npos) {
       m_hostname="unknown";
       system("hostname --fqdn > hostnamelookup.tmp");
       std::ifstream infile;
@@ -107,7 +107,7 @@ bool ReplicaSorter::readConfig() {
       std::vector<std::string> domains;
       std::vector<std::string> servers;
       while (iofs1<buf.size()) {
-        std::string::size_type iofs2=buf.find(" ",iofs1);
+        std::string::size_type iofs2=buf.find(' ',iofs1);
         // allow for trailing linefeed
         if (iofs2==std::string::npos) iofs2=buf.size()-1;
         std::string token=buf.substr(iofs1,iofs2-iofs1);
@@ -176,9 +176,9 @@ FILE* ReplicaSorter::findFile(const std::string& filename,
   len=pathvar.size();
   std::string name;
   while (!fptr && iofs1<len) {
-    iofs2=pathvar.find(":",iofs1);
+    iofs2=pathvar.find(':',iofs1);
     if (iofs2==std::string::npos) iofs2=len;
-    name=pathvar.substr(iofs1,iofs2-iofs1)+"/"+filename;
+    name=pathvar.substr(iofs1,iofs2-iofs1)+'/'+filename;
     fptr=fopen(name.c_str(),"r");
     iofs1=iofs2+1;
   }

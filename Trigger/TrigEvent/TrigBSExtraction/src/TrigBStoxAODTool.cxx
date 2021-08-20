@@ -715,16 +715,16 @@ StatusCode TrigBStoxAODTool::classLabel2CLIDLabel(const std::vector<std::string>
     std::string label_new;
     std::string type;
     
-    if ( it->find("#") != std::string::npos ) {
-	type = it->substr(0, it->find("#") );
-	label = it->substr(it->find("#")+1 );
+    if ( it->find('#') != std::string::npos ) {
+	type = it->substr(0, it->find('#') );
+	label = it->substr(it->find('#')+1 );
       } else {
 	type = *it;
 	label = "";
     }
     
-    if ( itNew->find("#") != std::string::npos ) {
-      label_new = itNew->substr(itNew->find("#")+1 );
+    if ( itNew->find('#') != std::string::npos ) {
+      label_new = itNew->substr(itNew->find('#')+1 );
     } else {
       label_new = "";
     }

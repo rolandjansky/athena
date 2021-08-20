@@ -480,21 +480,21 @@ double TrigL2MuonSA::ClusterPatFinder::calibR(std::string stationName, double R,
   double DeltaPhi, temp_phi;
   double calibPhi = std::acos(std::cos(Phi)); // 0 < Phi < 2PI
   
-  if(std::string::npos != stationName.rfind("L")){//For Large , SP
+  if(std::string::npos != stationName.rfind('L')){//For Large , SP
     DeltaPhi= 999; temp_phi=9999;
     for(int inum=0;inum < 8;inum++){
       temp_phi = std::abs((inum * M_PI/4.0 )- calibPhi);
       DeltaPhi = std::min(temp_phi, DeltaPhi);
     }
-  }else if(std::string::npos != stationName.rfind("S") ||
-	   std::string::npos != stationName.rfind("F") ||
-	   std::string::npos != stationName.rfind("G")   ){
+  }else if(std::string::npos != stationName.rfind('S') ||
+	   std::string::npos != stationName.rfind('F') ||
+	   std::string::npos != stationName.rfind('G')   ){
     DeltaPhi= 999; temp_phi=9999;
 
     for(int inum=0;inum < 8;inum++){
       temp_phi = std::abs(inum *(M_PI/4.0 )+(M_PI/8.0) - calibPhi);
       DeltaPhi = std::min(temp_phi, DeltaPhi);
-    }//for end                                                                                                                      
+    }//for end
   }else return R;
 
   return R *std::cos(DeltaPhi);

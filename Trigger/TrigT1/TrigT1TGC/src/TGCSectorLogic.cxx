@@ -57,8 +57,8 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
     m_sectorId += 3*m_octantId;
   }
 
-  m_nswSide   =   (tgcArgs()->NSWSideInfo().find("A")!=std::string::npos && m_sideId==0)
-               || (tgcArgs()->NSWSideInfo().find("C")!=std::string::npos && m_sideId==1);
+  m_nswSide   =   (tgcArgs()->NSWSideInfo().find('A')!=std::string::npos && m_sideId==0)
+               || (tgcArgs()->NSWSideInfo().find('C')!=std::string::npos && m_sideId==1);
 
   m_SSCController.setRegion(regionIn);
 

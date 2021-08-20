@@ -218,7 +218,7 @@ getAllDirs( DirMap_t& dirmap, TDirectory* dir, std::string dirName )
       std::string fName("");
       if( dirName != "" ) {
         fName += dirName;
-        fName += "/";
+        fName += '/';
       }
       fName += subdirName;
       getAllDirs( dirmap, subdir, fName );
@@ -243,7 +243,7 @@ createDir( DirMap_t& dirmap, TDirectory* dir, std::string parent, std::string pa
   std::string fName("");
   if( parent != "" ) {
     fName += parent;
-    fName += "/";
+    fName += '/';
   }
   
   if( i != std::string::npos ) {
@@ -554,7 +554,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
 	   //skip cases where regexp doesn't match object name, all directories are processed by default
 	   if(m_useRE){
 	     if(!boost::regex_search(keyName,*m_mergeMatchHistoRE)){
-	       //std::cerr<<" skipping   keyName=\""<<outputDirName+"/"+keyName<<"\""<<std::endl;
+	       //std::cerr<<" skipping   keyName=\""<<outputDirName+'/'+keyName<<"\""<<std::endl;
 	       continue; // not the histogram we want
 	     }
 	   }
@@ -1115,10 +1115,10 @@ getHanResults( std::string hanResultsDir, std::string input,
           if( tdir_minutes != 0 ) {
             std::string tdir_minutes_name( tdir_minutes->GetName() );
             if( tdir_minutes_name.find("lowStat") != std::string::npos ) {
-              lowStat_dirs.push_back( tdir_run_name + "/" + tdir_minutes_name );
+              lowStat_dirs.push_back( tdir_run_name + '/' + tdir_minutes_name );
             }
             else if( tdir_minutes_name.find("medStat") != std::string::npos ) {
-              medStat_dirs.push_back( tdir_run_name + "/" + tdir_minutes_name );
+              medStat_dirs.push_back( tdir_run_name + '/' + tdir_minutes_name );
             }
           }
           delete obj_minutes;
@@ -1139,7 +1139,7 @@ getHanResults( std::string hanResultsDir, std::string input,
   dirs_end = run_dirs.end();
   for( dir = run_dirs.begin(); dir != dirs_end; ++dir ) {
     const std::string& tdir_run_name = *dir;
-    std::string han_output_run = hanResultsDir+"/"+tdir_run_name+"_han.root";
+    std::string han_output_run = hanResultsDir+'/'+tdir_run_name+"_han.root";
     std::cout << "Calling han( " << hcfg << ", " << input << ", " << tdir_run_name
               << ", " << han_output_run << " ):\n" << std::flush;
 	  han.Analyze( hcfg, input, han_output_run, tdir_run_name );
@@ -1152,10 +1152,10 @@ getHanResults( std::string hanResultsDir, std::string input,
     const std::string& tdir_minutes_path = *dir;
     
     std::string tdir_minutes_underscore = tdir_minutes_path;
-    std::string::size_type tdir_minutes_i = tdir_minutes_underscore.find("/");
+    std::string::size_type tdir_minutes_i = tdir_minutes_underscore.find('/');
     tdir_minutes_underscore.replace( tdir_minutes_i, 1, "_" );
     
-    std::string han_output_lowStat = hanResultsDir+"/"+tdir_minutes_underscore+"_han.root";
+    std::string han_output_lowStat = hanResultsDir+'/'+tdir_minutes_underscore+"_han.root";
     std::cout << "Running han, writing to " << han_output_lowStat << ":\n" << std::flush;
 	  han.Analyze( hcfg_lowStat, input, han_output_lowStat, tdir_minutes_path );
     std::cout << "\n";
@@ -1169,10 +1169,10 @@ getHanResults( std::string hanResultsDir, std::string input,
     const std::string& tdir_minutes_path = *dir;
     
     std::string tdir_minutes_underscore = tdir_minutes_path;
-    std::string::size_type tdir_minutes_i = tdir_minutes_underscore.find("/");
+    std::string::size_type tdir_minutes_i = tdir_minutes_underscore.find('/');
     tdir_minutes_underscore.replace( tdir_minutes_i, 1, "_" );
     
-    std::string han_output_medStat = hanResultsDir+"/"+tdir_minutes_underscore+"_han.root";
+    std::string han_output_medStat = hanResultsDir+'/'+tdir_minutes_underscore+"_han.root";
     std::cout << "Running han, writing to " << han_output_medStat << ":\n" << std::flush;
 	  han.Analyze( hcfg_medStat, input, han_output_medStat, tdir_minutes_path );
     std::cout << "\n";
@@ -1230,7 +1230,7 @@ printHanConfig() const
       std::cout << indent << "  hist all_in_dir  { \n " << indent << " } \n";
     }
     else{
-      //find common part + number of common "/"
+      //find common part + number of common '/'
       std::string common = FindCommon(idirName,idirName_p);
       indent_c = getIndentation(common,"");
       int counter = (indent_p.size() - indent_c.size())/2;
@@ -1802,7 +1802,7 @@ int MonitoringFile::mergeLB_recursiveDirCopy(TDirectory *dir_top_out, TDirectory
          std::string p(gDirectory->GetPath());
          if( p_top.size() < p.size() ) {
             p = p.substr(p_top.size()+1, p.size()-p_top.size()-1); // strip off the top directory part
-            p = p + "/";
+            p = p + '/';
          }
          else p = "";
 
@@ -1832,7 +1832,7 @@ int MonitoringFile::mergeLB_recursiveDirCopy(TDirectory *dir_top_out, TDirectory
          }
          else {
             if( debugLevel >= DEBUG ) 
-               std::cout << name << ": " << dir_out->GetPath() << "/" << dir->GetName() << " exists already" << std::endl;
+               std::cout << name << ": " << dir_out->GetPath() << '/' << dir->GetName() << " exists already" << std::endl;
 
             dir_out_new = (TDirectory*) dir_out->Get(test_key->GetName()); 
             if( ! dir_out_new ) {
@@ -1873,7 +1873,7 @@ int MonitoringFile::mergeLB_createListOfHistos(TDirectory *dir_top, TDirectory *
          std::string p(cwd->GetPath());
          if( p_top.size() < p.size() ) {
             p = p.substr(p_top.size()+1, p.size()-p_top.size()-1); // strip off the top directory part
-            p = p + "/";
+            p = p + '/';
          }
          else p = "";
 
@@ -2050,7 +2050,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
 	     TKey *test_key = dir_out->FindKey(objThis->GetName());
 	     if( test_key ) {
 	       if( debugLevel >= DEBUG )
-		 std::cout << name << ": " << dir_out->GetPath() << "/" << objThis->GetName()
+		 std::cout << name << ": " << dir_out->GetPath() << '/' << objThis->GetName()
 			   << " exists already, not written" << std::endl;
 	       break;
 	     }
@@ -2100,7 +2100,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
          if( objMerged ) {
 	   objMerged->Write();
 	   if( debugLevel >= DEBUG )
-	     std::cout << name << ": wrote " << dir_out->GetPath() << "/" << objMerged->GetName() << std::endl;
+	     std::cout << name << ": wrote " << dir_out->GetPath() << '/' << objMerged->GetName() << std::endl;
 	   delete objMerged;
          }
       }

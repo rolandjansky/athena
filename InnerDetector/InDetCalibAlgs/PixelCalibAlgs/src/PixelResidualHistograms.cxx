@@ -193,9 +193,9 @@ TProfile* PixelResidualHistograms::GetProfile(const int binnumber, bool RMS, boo
 	float* xbins = new float[nProfileBins+1];
 	std::string Xvar_name = m_binnames[binnumber];
 	std::string Xvar_name_s = Xvar_name;
-	size_t found0 = Xvar_name_s.find("#");
+	size_t found0 = Xvar_name_s.find('#');
 	if(found0 != std::string::npos) Xvar_name_s = Xvar_name_s.substr(found0+1);
-	size_t found1 = Xvar_name_s.find("_");
+	size_t found1 = Xvar_name_s.find('_');
 	if(found1 != std::string::npos)	Xvar_name_s = Xvar_name_s.substr(0,found1);
 	for(int i = 0 ; i < nProfileBins+1 ; i++)
 		xbins[i] = (m_binnage[binnumber])[i];
