@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
 		      int runNumber,
 		      int eventNumber,
 		      int timeStamp,
-              std::string textLabel = "");
+                      const std::string& textLabel = "");
 
   // **** Check if file exists ****
   static bool fileExistsAndReadable(const std::string&);
