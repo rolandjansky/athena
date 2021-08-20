@@ -41,7 +41,7 @@ void
 SortingConnector::setAlgorithm(TCS::ConfigurableAlg* alg) {
    Connector::setAlgorithm(alg);
    m_sortingAlgorithm = dynamic_cast<SortingAlg*>(alg); // set a local copy
-   if( ! m_sortingAlgorithm ) {
+   if(m_sortingAlgorithm == nullptr && alg != nullptr) {
       TCS_EXCEPTION("Error: algorithm" << alg->name() << " is not a sorting alg");
    }
 }
