@@ -2,7 +2,7 @@
 # Package: TrigInDetAccelerationService
 ################################################################################
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 
@@ -17,7 +17,7 @@ atlas_add_library( TrigInDetAccelerationServiceLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetAccelerationService
 		   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel GaudiKernel AthenaBaseComps StoreGateLib InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry TrigAccelEvent ${TBB_LIBRARIES} rt dl)
+                   LINK_LIBRARIES AthenaKernel GaudiKernel AthenaBaseComps StoreGateLib InDetIdentifier PixelReadoutGeometryLib SCT_ReadoutGeometry TrigAccelEvent ${TBB_LIBRARIES} rt dl)
 
 atlas_add_component( TrigInDetAccelerationService
                      src/components/*.cxx

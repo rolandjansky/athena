@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,8 +21,7 @@
 // constructor
 ////////////////////////
 PixelRawContByteStreamTool::PixelRawContByteStreamTool(const std::string& type,const std::string& name,const IInterface* parent) : 
-  AthAlgTool(type,name,parent), 
-  m_pixelCabling("PixelCablingSvc", name)
+  AthAlgTool(type,name,parent)
 {
   declareInterface<PixelRawContByteStreamTool>(this);
   declareProperty("RodBlockVersion",m_RodBlockVersion=0); 
@@ -40,7 +39,7 @@ PixelRawContByteStreamTool::~PixelRawContByteStreamTool() {
 ////////////////////////
 StatusCode PixelRawContByteStreamTool::initialize() {
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
 
   ATH_CHECK(detStore()->retrieve(m_PixelID, "PixelID"));
 
@@ -148,7 +147,7 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
 
   // ordering of the elements of the RDOs vector by offlineId, n5
   if (rdo_it != rdo_it_end) {
-    OrderInitialRdos orderInitialRdos(m_pixelCabling, m_PixelID, pixCabling); 
+    OrderInitialRdos orderInitialRdos(m_pixelReadout, m_PixelID, pixCabling); 
     std::sort(rdo_it, rdo_it_end, orderInitialRdos); 
   }  
   // end of ordering of the elements of the RDOs vector by offlineId, n5 
@@ -188,10 +187,10 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
       int LVL1ID = rawdata->getLVL1ID();
       int LVL1A = rawdata->getLVL1A();
  
-      if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_3D) {
+      if (m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::IBL_PLANAR || m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::IBL_3D) {
         is_ibl_module = true;
       }
-      if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::DBM) {
+      if (m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::DBM) {
         is_dbm_module = true;
       }
 
@@ -254,9 +253,9 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         //--------------------------------------------------------------------------------------
         //- Write RawDataWord
         //--------------------------------------------------------------------------------------
-        FE = m_pixelCabling->getFE(&pixelId,offlineId);
-        uint32_t row = m_pixelCabling->getRow(&pixelId,offlineId);
-        uint32_t column = m_pixelCabling->getColumn(&pixelId,offlineId);
+        FE = m_pixelReadout->getFE(pixelId, offlineId);
+        uint32_t row = m_pixelReadout->getRow(pixelId, offlineId);
+        uint32_t column = m_pixelReadout->getColumn(pixelId, offlineId);
         v32rod.push_back(packRawDataWord(FE, row, column, TOT));
 
         // The following was used for running a validation scrip and making validation plots
@@ -287,7 +286,7 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         ATH_MSG_DEBUG("Inside the IBL/DBM case of the PixelRodEncoder");
 
         uint32_t linkNum = (onlineId>>24) & 0xFFFF;
-        unsigned int localFE = m_pixelCabling->getFE(&pixelId, m_PixelID->wafer_id(pixelId));
+        unsigned int localFE = m_pixelReadout->getFE(pixelId, m_PixelID->wafer_id(pixelId));
         FE = (linkNum>>(localFE*8)) & 0xF;
 
         sLink = onlineId & 0xF; // extract the LSB 4 bits from the onlineId
@@ -301,10 +300,10 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         if (!pixHitDiscCnfg) {
           pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> >(m_condHitDiscCnfgKey);
         }
-        if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::DBM) {
+        if (m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::IBL_PLANAR || m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::DBM) {
           hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
         }
-        else if (m_pixelCabling->getModuleType(offlineId)==IPixelCablingSvc::IBL_3D) {
+        else if (m_pixelReadout->getModuleType(offlineId) == InDetDD::PixelModuleType::IBL_3D) {
           hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
         }
 
@@ -364,15 +363,15 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         std::vector<const PixelRDORawData*> rdos_sameIBL_offlineId; // vector containing all the rdos with the same offlineId => belonging to the same IBL FE-I4 chip
 
         // This loop fills the rdo_sameIBL_offlineId vector with all the RDOs that have the same offlineId and same FEw.r.t.SLink => all RDOs coming from the same FE 
-        for (; (rdo_it!=rdo_it_end) && ((((m_pixelCabling->getModuleType((*rdo_it)->identify())==IPixelCablingSvc::IBL_PLANAR) 
-                                       || (m_pixelCabling->getModuleType((*rdo_it)->identify())==IPixelCablingSvc::IBL_3D)) && is_ibl_module) 
-                                       || (m_pixelCabling->getModuleType((*rdo_it)->identify())==IPixelCablingSvc::DBM && is_dbm_module)); ++rdo_it) {
+        for (; (rdo_it!=rdo_it_end) && ((((m_pixelReadout->getModuleType((*rdo_it)->identify())==InDetDD::PixelModuleType::IBL_PLANAR) 
+                                       || (m_pixelReadout->getModuleType((*rdo_it)->identify())==InDetDD::PixelModuleType::IBL_3D)) && is_ibl_module) 
+                                       || (m_pixelReadout->getModuleType((*rdo_it)->identify())==InDetDD::PixelModuleType::DBM && is_dbm_module)); ++rdo_it) {
 
           Identifier pixelId_probe = (*rdo_it)->identify();
           Identifier offlineId_probe = m_PixelID->wafer_id(pixelId_probe);
 
           uint32_t linkNum = (onlineId>>24) & 0xFFFF;
-          unsigned int localFE = m_pixelCabling->getFE(&pixelId_probe, offlineId_probe);
+          unsigned int localFE = m_pixelReadout->getFE(pixelId_probe, offlineId_probe);
           uint32_t fe_probe = (linkNum>>(localFE*8)) & 0xF;
 
 
@@ -395,8 +394,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         //check: list of all the rdos with same offlineId, listing also the column, the row and the Tot
         for (; rdo_same_it != rdo_same_it_end; ++rdo_same_it) {
           Identifier pixelId_probe = (*rdo_same_it)->identify();
-          uint32_t col = m_pixelCabling->getColumn(&pixelId_probe, offlineId); // offlineId of rdos in rdos_sameIBL_offlineId vector are, of course, all equal
-          uint32_t row = m_pixelCabling->getRow(&pixelId_probe, offlineId);
+          uint32_t col = m_pixelReadout->getColumn(pixelId_probe, offlineId); // offlineId of rdos in rdos_sameIBL_offlineId vector are, of course, all equal
+          uint32_t row = m_pixelReadout->getRow(pixelId_probe, offlineId);
           int tot = (*rdo_same_it)->getToT();
           ATH_MSG_DEBUG("col: " << col << " (0x" << std::hex << col << std::dec << ")\trow: "<< row << " (0x" << std::hex << row << std::dec << ")\ttot: " << tot << "(0x" <<std::hex << tot << std::dec << ")");
         }
@@ -406,7 +405,7 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
 #endif
 
         // Order the RDOs within the vector rdos_sameIBL_offlineId, following the ordering rules of orderRdos
-        OrderRdos orderRdos(offlineId,m_pixelCabling);
+        OrderRdos orderRdos(offlineId, m_pixelReadout);
         std::sort(rdo_same_it, rdo_same_it_end, orderRdos); 
 
         //check:
@@ -417,8 +416,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         ATH_MSG_DEBUG("Re-ordered RDOs with Same offlineId:");
         for (; rdo_same_it != rdo_same_it_end; ++rdo_same_it) {
           Identifier pixelId_probe = (*rdo_same_it)->identify();
-          uint32_t col = m_pixelCabling->getColumn(&pixelId_probe, offlineId);
-          uint32_t row = m_pixelCabling->getRow(&pixelId_probe, offlineId);
+          uint32_t col = m_pixelReadout->getColumn(pixelId_probe, offlineId);
+          uint32_t row = m_pixelReadout->getRow(pixelId_probe, offlineId);
           int tot = (*rdo_same_it)->getToT();
           int eta_i = m_PixelID->eta_index(pixelId_probe);
           int phi_i = m_PixelID->phi_index(pixelId_probe);
@@ -434,8 +433,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         rdo_same_it_end = rdos_sameIBL_offlineId.end();
         for (; rdo_same_it != rdo_same_it_end; ++rdo_same_it) {
           Identifier pixelId_probe = (*rdo_same_it)->identify();
-          uint32_t col = m_pixelCabling->getColumn(&pixelId_probe, offlineId);
-          uint32_t row = m_pixelCabling->getRow(&pixelId_probe, offlineId);
+          uint32_t col = m_pixelReadout->getColumn(pixelId_probe, offlineId);
+          uint32_t row = m_pixelReadout->getRow(pixelId_probe, offlineId);
           int tot = (*rdo_same_it)->getToT();
           int eta_i = m_PixelID->eta_index(pixelId_probe);
           int phi_i = m_PixelID->phi_index(pixelId_probe);
@@ -468,8 +467,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
         for (; rdo_same_it!=rdo_same_it_end; ++rdo_same_it) {
           doubleHit = false;
           Identifier pixelId_probe = (*rdo_same_it)->identify();
-          uint32_t col0 = m_pixelCabling->getColumn(&pixelId_probe, offlineId);
-          uint32_t row0 = m_pixelCabling->getRow(&pixelId_probe, offlineId);
+          uint32_t col0 = m_pixelReadout->getColumn(pixelId_probe, offlineId);
+          uint32_t row0 = m_pixelReadout->getRow(pixelId_probe, offlineId);
           int totInHitWord (0);
 #ifdef PLOTS
           std::cout << "[VAL] " << std::hex << pixelId_probe << " 0x" << robId << " 0x" << onlineId // << " " << offlineId 
@@ -484,8 +483,8 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
             if ((rdo_same_it+1)!=rdo_same_it_end) {
               rdo_test_it = rdo_same_it + 1;
               Identifier pixelId_probe = (*rdo_test_it)->identify();
-              uint32_t col1 = m_pixelCabling->getColumn(&pixelId_probe, offlineId);
-              uint32_t row1 = m_pixelCabling->getRow(&pixelId_probe, offlineId);
+              uint32_t col1 = m_pixelReadout->getColumn(pixelId_probe, offlineId);
+              uint32_t row1 = m_pixelReadout->getRow(pixelId_probe, offlineId);
 #ifdef PLOTS
               std::cout << "[VAL] " << std::hex << pixelId_probe << " 0x" << robId << " 0x" << onlineId // << " " << offlineId 
                 << std::dec << " " << m_PixelID->eta_module(pixelId_probe) << " " << m_PixelID->phi_module(pixelId_probe)
@@ -751,11 +750,11 @@ bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData*
   //  const uint32_t halfCols = 40; // this is the number of the FE-I4 columns / 2, because the two tokens in the FE-I4 run from the double column 0 to 19, and then from 39 to 20.
   // This corresponds to column 1 to 40, and 79-80, 77-78, ... to 41-42.
   Identifier pixelId0 = rdo0->identify();
-  uint32_t col0 = m_pixelCabling->getColumn(&pixelId0, m_offlineId);
-  uint32_t row0 = m_pixelCabling->getRow(&pixelId0, m_offlineId);
+  uint32_t col0 = m_pixelReadout->getColumn(pixelId0, m_offlineId);
+  uint32_t row0 = m_pixelReadout->getRow(pixelId0, m_offlineId);
   Identifier pixelId1 = rdo1->identify();
-  uint32_t col1 = m_pixelCabling->getColumn(&pixelId1, m_offlineId);
-  uint32_t row1 = m_pixelCabling->getRow(&pixelId1, m_offlineId);
+  uint32_t col1 = m_pixelReadout->getColumn(pixelId1, m_offlineId);
+  uint32_t row1 = m_pixelReadout->getRow(pixelId1, m_offlineId);
 
   // Decide if (col0, row0) should be inserted in front of (col1, row1):
 
@@ -792,25 +791,25 @@ bool OrderInitialRdos::operator() (const PixelRDORawData* rdo0, const PixelRDORa
     return true;
   }
   if (offlineId0 == offlineId1) {
-    if ( m_pixelCabling->getModuleType(pixelId0)==IPixelCablingSvc::IBL_PLANAR 
-      || m_pixelCabling->getModuleType(pixelId0)==IPixelCablingSvc::IBL_3D 
-      || m_pixelCabling->getModuleType(pixelId0)==IPixelCablingSvc::DBM) { // IBL and DBM
+    if ( m_pixelReadout->getModuleType(pixelId0) == InDetDD::PixelModuleType::IBL_PLANAR 
+      || m_pixelReadout->getModuleType(pixelId0) == InDetDD::PixelModuleType::IBL_3D 
+      || m_pixelReadout->getModuleType(pixelId0) == InDetDD::PixelModuleType::DBM) { // IBL and DBM
 
       uint64_t onlineId0 = m_pixCabling->find_entry_offon(offlineId0);
       uint32_t linkNum0 = (onlineId0>>24) & 0xFFFF;
-      unsigned int localFE0 = m_pixelCabling->getFE(&pixelId0, offlineId0);
+      unsigned int localFE0 = m_pixelReadout->getFE(pixelId0, offlineId0);
       uint32_t fe0= (linkNum0>>(localFE0*8)) & 0xF;
 
       uint64_t onlineId1 = m_pixCabling->find_entry_offon(offlineId1);
       uint32_t linkNum1 = (onlineId1>>24) & 0xFFFF;
-      unsigned int localFE1 = m_pixelCabling->getFE(&pixelId1, offlineId1);
+      unsigned int localFE1 = m_pixelReadout->getFE(pixelId1, offlineId1);
       uint32_t fe1= (linkNum1>>(localFE1*8)) & 0xF;
 
       return (fe0 < fe1);
     }
     else { // PixelCase
-      uint32_t fe0 = m_pixelCabling->getFE(&pixelId0, offlineId0);
-      uint32_t fe1 = m_pixelCabling->getFE(&pixelId1, offlineId1);
+      uint32_t fe0 = m_pixelReadout->getFE(pixelId0, offlineId0);
+      uint32_t fe1 = m_pixelReadout->getFE(pixelId1, offlineId1);
       return (fe0 < fe1);
 
       //      return false;

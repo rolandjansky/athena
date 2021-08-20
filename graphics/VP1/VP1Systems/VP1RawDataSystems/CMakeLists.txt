@@ -25,5 +25,5 @@ atlas_add_library( VP1RawDataSystems VP1RawDataSystems/*.h src/*.h src/*.cxx src
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
                    FILES LUCID_RawEvent/LUCID_Digit.h
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base GL
-                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
+                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib SCT_ReadoutGeometry TRT_ReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
 

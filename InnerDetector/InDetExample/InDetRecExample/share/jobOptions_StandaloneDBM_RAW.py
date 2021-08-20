@@ -169,4 +169,3 @@ InDetFlags.doParticleCreation = True
 include("InDetRecExample/InDetRec_all.py")
 include("RecExCommon/BSRead_config.py")
 include("IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py")
-include("PixelCabling/SelectPixelMap.py")

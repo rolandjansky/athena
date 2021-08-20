@@ -8,7 +8,7 @@
 #include "PixelAthMonitoringBase.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
-#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 
 class PixelID;
 
@@ -143,7 +143,9 @@ class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
 
  private:
 
-  ServiceHandle<IPixelCablingSvc> m_pixelCablingSvc; //FE info
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
+
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", 
 							    "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 

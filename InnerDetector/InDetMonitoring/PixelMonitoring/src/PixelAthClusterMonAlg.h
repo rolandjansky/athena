@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELATHCLUSTERMONTOOL_H
@@ -9,7 +9,7 @@
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 
@@ -52,7 +52,9 @@ class PixelAthClusterMonAlg : public PixelAthMonitoringBase {
   std::string findComponentString(int bec, int ld) const;
 
  private:
-  ServiceHandle<IPixelCablingSvc> m_pixelCablingSvc; //FE info
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
+
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};

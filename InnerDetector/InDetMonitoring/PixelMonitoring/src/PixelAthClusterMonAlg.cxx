@@ -6,7 +6,6 @@
 
 PixelAthClusterMonAlg::PixelAthClusterMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelCablingSvc("PixelCablingSvc", name),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
   m_atlasid(nullptr),
@@ -33,7 +32,7 @@ StatusCode PixelAthClusterMonAlg::initialize() {
   ATH_CHECK( detStore()->retrieve(m_atlasid, "AtlasID") );
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  ATH_CHECK( m_pixelCablingSvc.retrieve() );
+  ATH_CHECK( m_pixelReadout.retrieve() );
   if ( !m_holeSearchTool.empty() ) ATH_CHECK( m_holeSearchTool.retrieve() );
   if ( !m_trackSelTool.empty() ) ATH_CHECK( m_trackSelTool.retrieve() );
 
@@ -114,7 +113,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
     if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE=0; iFE<nFE; iFE++) {
-	Identifier pixelID = m_pixelCablingSvc->getPixelIdfromHash(id_hash, iFE, 1, 1);
+	Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
 	if (pixelID.is_valid()) {
 	  if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
 	    index = 0;  // active and good FE
@@ -425,7 +424,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       //
       Cluster_Occupancy.add(pixlayer, clusID, m_pixelid);
       if (m_doFEPlots) {
-	Cluster_FE_Occupancy.add(pixlayer, clusID, m_pixelid, m_pixelCablingSvc->getFE(&clusID, clusID), 1.0);
+	Cluster_FE_Occupancy.add(pixlayer, clusID, m_pixelid, m_pixelReadout->getFE(clusID, clusID), 1.0);
       }
       if (cluster.rdoList().size() > 1) Clus_Occ_SizeCut.add(pixlayer, clusID, m_pixelid);
       // end cluster occupancy
@@ -482,7 +481,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 	//
 	Cluster_Occupancy_OnTrack.add(pixlayer, clusID, m_pixelid);
 	if (m_doFEPlots) {
-	  Cluster_FE_Occupancy_OnTrack.add(pixlayer, clusID, m_pixelid, m_pixelCablingSvc->getFE(&clusID, clusID), 1.0);
+	  Cluster_FE_Occupancy_OnTrack.add(pixlayer, clusID, m_pixelid, m_pixelReadout->getFE(clusID, clusID), 1.0);
 	}
 	if (cluster.rdoList().size() > 1) Clus_Occ_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid);
 	// 

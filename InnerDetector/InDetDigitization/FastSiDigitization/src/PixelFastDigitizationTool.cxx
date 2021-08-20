@@ -148,7 +148,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_MSG_DEBUG ( "PixelDigitizationTool::initialize()" );
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
@@ -583,8 +583,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
 
       Identifier diodeID = hitId;
-      int circ = m_pixelCabling->getFE(&diodeID,moduleID);
-      int type = m_pixelCabling->getPixelType(diodeID);
+      int circ = m_pixelReadout->getFE(diodeID,moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
       double th0 = calibData->getAnalogThreshold((int)waferHash,circ,type)/m_ThrConverted;
 

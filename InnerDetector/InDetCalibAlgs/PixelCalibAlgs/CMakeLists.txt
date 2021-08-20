@@ -13,7 +13,7 @@ atlas_add_library( PixelCalibAlgsLib
    PUBLIC_HEADERS PixelCalibAlgs
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel InDetConditionsSummaryService
-   InDetPrepRawData InDetReadoutGeometry PixelCablingLib PixelConditionsData StoreGateLib
+   InDetPrepRawData InDetReadoutGeometry PixelReadoutGeometryLib PixelConditionsData StoreGateLib
    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities EventInfo InDetIdentifier InDetRawData PixelGeoModelLib )
 
 atlas_add_component( PixelCalibAlgs

@@ -522,10 +522,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Setup Cabling Svc #
     #####################
-    from PixelCabling.PixelCablingConf import PixelCablingSvc
-    PixelCablingSvc = PixelCablingSvc()
-    ServiceMgr += PixelCablingSvc
-    print ( PixelCablingSvc)
+    from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+    PixelReadoutManager = InDetDD__PixelReadoutManager()
+    ServiceMgr += PixelReadoutManager
+    print (PixelReadoutManager)
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     chargeTools = []
