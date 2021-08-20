@@ -65,11 +65,50 @@ StatusCode TTbarWToLeptonFilter::filterEvent() {
 				break;
 			      }
 
-			      if (std::abs(grandchild_pid) == 11 ||  std::abs(grandchild_pid) == 13 || abs(grandchild_pid) == 15) {
-				 if (grandchild_mcpart->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
-				 // W decay lepton is found. Break loop over the decay product particles
-				 break;
-			      }
+		  // use brute force to use only leptons that have not been found already 
+		  if (grandchild_pid == -11 && foundlepton[0] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[0]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_minus++;
+		    }
+		  }
+		  if (grandchild_pid == 11 && foundlepton[1] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[1]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_plus++;
+
+		    }
+		  }
+		  if (grandchild_pid == -13 && foundlepton[2] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[2]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_minus++;
+		    }
+		  }
+		  if (grandchild_pid == 13 && foundlepton[3] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[3]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_plus++;
+		    }
+		  }
+		  if (grandchild_pid == -15 && foundlepton[4] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[4]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_minus++;
+		    }
+		  }
+		  if (grandchild_pid == 15 && foundlepton[5] < count_found_leptons) {
+		    if (grandchild_mcpart->momentum().perp() >= m_Ptmin) { 
+		      foundlepton[5]++;
+		      N_pt_above_cut++;
+                      N_pt_above_cut_plus++;
+		    }
+		  }
                 }
                 // If investigation of W's next decay vertex is not required then finish looking for leptons
                 if (!useNextVertex) break;
