@@ -181,9 +181,6 @@ inline const LayerIndex &Layer::layerIndex() const { return m_index; }
 
 inline int Layer::layerType() const { return m_layerType; }
 inline void Layer::setLayerType(int id) { m_layerType = id; }
-inline void Layer::setLayerType ATLAS_NOT_THREAD_SAFE(int id) const {
-  const_cast<Layer *>(this)->setLayerType(id);
-}
 
 inline void Layer::assignMaterialProperties
 ATLAS_NOT_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,

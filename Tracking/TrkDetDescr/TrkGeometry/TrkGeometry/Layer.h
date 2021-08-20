@@ -221,9 +221,6 @@ class Layer {
   /** set the Layer coding */
   void setLayerType(int identifier);
 
-  /** set the Layer coding */
-  void setLayerType ATLAS_NOT_THREAD_SAFE(int identifier) const;
-
   /** boolean method to check if the layer needs a LayerMaterialProperties */
   bool needsMaterialProperties() const;
 

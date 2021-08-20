@@ -102,20 +102,20 @@ namespace Muon {
         };
 
         /** Private method to find z/phi span of detached volumes */
-        const Span* findVolumeSpan(const Trk::VolumeBounds* volBounds, Amg::Transform3D transf, double zTol, double phiTol,
+        const Span* findVolumeSpan(const Trk::VolumeBounds* volBounds, const Amg::Transform3D& transf, double zTol, double phiTol,
                                    LocalVariablesContainer& aLVC) const;
         const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* findVolumesSpan(
             const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> >* objs, double zTol, double phiTol,
             LocalVariablesContainer& aLVC) const;
         /** Private methods to define subvolumes and fill them with detached volumes */
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, std::string, LocalVariablesContainer& aLVC,
+        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, const std::string&, LocalVariablesContainer& aLVC,
                                                  bool hasStations) const;
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, std::string, LocalVariablesContainer& aLVC,
+        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC,
                                                  bool hasStations) const;
-        const Trk::TrackingVolume* processShield(const Trk::Volume*, int, std::string, LocalVariablesContainer& aLVC,
+        const Trk::TrackingVolume* processShield(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC,
                                                  bool hasStations) const;
         /** Private method to check volume properties */
-        void checkVolume(const Trk::TrackingVolume*) const;
+        static void checkVolume(const Trk::TrackingVolume*) ;
         /** Private method to find detached volumes */
         std::vector<const Trk::DetachedTrackingVolume*>* getDetachedObjects(const Trk::Volume*,
                                                                             std::vector<const Trk::DetachedTrackingVolume*>&,
