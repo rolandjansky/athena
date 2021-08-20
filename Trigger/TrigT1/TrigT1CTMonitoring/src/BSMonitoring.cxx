@@ -106,7 +106,7 @@ TrigT1CTMonitoring::BSMonitoring::bookHistograms()
          m_freqMeasurements.clear();
          m_beamMode.clear();
          const CTP_RIO* theCTP_RIO = SG::get(m_CTP_RIOKey);
-         if (! theCTP_RIO) {
+         if (theCTP_RIO!=nullptr) {
             getCoolData(theCTP_RIO->getRunNumber());
             ATH_MSG_DEBUG( m_lumiBlocks.size() << " lumi blocks found");
             for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
