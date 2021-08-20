@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -86,17 +86,17 @@ StatusCode CaloCellCorrection::execute (CaloCellContainer* cellCollection,
 //////////////////////////////////////////////////////////////
 
 
-void CaloCellCorrection::setenergy(CaloCell* theCell, float energy) const
+void CaloCellCorrection::setenergy(CaloCell* theCell, float energy) 
 {
   theCell->setEnergy( energy );
 }
 
-void CaloCellCorrection::addenergy(CaloCell* theCell, float energy) const
+void CaloCellCorrection::addenergy(CaloCell* theCell, float energy) 
 {
   theCell->addEnergy( energy );
 }
 
-void CaloCellCorrection::scaleenergy(CaloCell* theCell, float scale) const
+void CaloCellCorrection::scaleenergy(CaloCell* theCell, float scale) 
 {
   theCell->scaleEnergy( scale );
 }

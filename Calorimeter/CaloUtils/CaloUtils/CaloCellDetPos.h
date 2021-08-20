@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloCellDetPos_H
@@ -33,9 +33,9 @@ class CaloCellDetPos
    * @param  double etaDet   : estimated eta detector in nominal calo frame
    * @param  double phiDet   : estimated phi detector in nominal calo frame
    */
-  bool getDetPosition(const CaloDetDescrManager& mgr,
+  static bool getDetPosition(const CaloDetDescrManager& mgr,
                       CaloCell_ID::CaloSample sam, double etaAtlas,
-                      double phiAtlas, double& etaDet, double& phiDet) const;
+                      double phiAtlas, double& etaDet, double& phiDet) ;
 
   /**
    * @brief  get Atlas (aligned) level eta-phi position from detector level eta-phi positions
@@ -47,10 +47,10 @@ class CaloCellDetPos
    * @param  double phiAtlas : estimated phi detector in aligned Atlas frame
    */
 
-  bool getAtlasPosition(const CaloDetDescrManager& mgr,
+  static bool getAtlasPosition(const CaloDetDescrManager& mgr,
                         CaloCell_ID::CaloSample sam, double etaDet,
                         double phiDet, double& etaAtlas,
-                        double& phiAtlas) const;
+                        double& phiAtlas) ;
 
   /**
    * @brief  get Detector level eta-phi position from Atlas level (aligned) position
@@ -60,8 +60,8 @@ class CaloCellDetPos
    * @param  double etaDet   : estimated eta detector in nominal calo frame
    * @param  double phiDet   : estimated phi detector in nominal calo frame
    */
-  bool getDetPosition(CaloCell_ID::CaloSample sam , double etaAtlas, double phiAtlas, 
-                      double & etaDet, double & phiDet) const;
+  static bool getDetPosition(CaloCell_ID::CaloSample sam , double etaAtlas, double phiAtlas, 
+                      double & etaDet, double & phiDet) ;
 
 
   /**
@@ -73,8 +73,8 @@ class CaloCellDetPos
    * @param  double phiAtlas : estimated phi detector in aligned Atlas frame
    */
 
-  bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, 
-                        double & etaAtlas, double & phiAtlas) const;
+  static bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, 
+                        double & etaAtlas, double & phiAtlas) ;
 
 
 };

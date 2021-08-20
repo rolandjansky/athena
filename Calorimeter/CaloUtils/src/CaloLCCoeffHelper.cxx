@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // //-----------------------------------------------------------------------
@@ -40,7 +40,7 @@ CaloLCCoeffHelper::~CaloLCCoeffHelper()
 
 
 // get HadDMArea from area name
-const CaloLocalHadCoeff::LocalHadArea * CaloLCCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * coeff, const std::string& sname, int &indx) const
+const CaloLocalHadCoeff::LocalHadArea * CaloLCCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * coeff, const std::string& sname, int &indx) 
 {
   for(int i_area=0; i_area<coeff->getSizeAreaSet(); i_area++) {
     if(sname == coeff->getArea(i_area)->getTitle()) {
