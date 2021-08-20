@@ -28,8 +28,7 @@
 
 #include "TrigSteeringEvent/Lvl1Result.h"
 
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 
 // all Trigger EDM ()
@@ -39,7 +38,6 @@ using namespace TrigDec;
 
 TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
-    m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_nEvents(0),
     m_l1_error(0), m_l2_error(0), m_ef_error(0), 
     m_hlt_error(0),
@@ -51,7 +49,6 @@ TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcL
     m_l1_passed(0), m_l2_passed(0), m_ef_passed(0),
     m_hlt_passed(0)
 {
-  declareProperty("TrigConfigSvc", m_trigConfigSvc, "Trigger config service");
 }
 
 
@@ -94,8 +91,9 @@ StatusCode TrigDecisionMaker::initialize()
   ATH_MSG_DEBUG ( " TrigHLTResultKey= " << m_hltResultKey ) ;
 
   ATH_CHECK( m_lvl1Tool.retrieve() );
-  ATH_CHECK( m_trigConfigSvc.retrieve() );
 
+  ATH_CHECK( m_bgKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
   ATH_CHECK( m_trigDecisionKey.initialize() );
   ATH_CHECK( m_l1ResultKey.initialize(m_doL1) );
   ATH_CHECK( m_l1roibResultKey.initialize(m_doL1) );
@@ -196,7 +194,9 @@ StatusCode TrigDecisionMaker::execute(const EventContext& ctx) const
 
   std::unique_ptr<TrigDecision> trigDec = std::make_unique<TrigDecision>();
 
-  trigDec->m_configMasterKey = m_trigConfigSvc->masterKey();
+  SG::ReadHandle<TrigConf::HLTMenu> hltMenu(m_HLTMenuKey, ctx);
+  ATH_CHECK( hltMenu.isValid() );
+  trigDec->m_configMasterKey = hltMenu->smk();
 
   if (l1Result) trigDec->m_l1_result = *l1Result;
   if (l2Result) trigDec->m_l2_result = *l2Result;
@@ -204,15 +204,20 @@ StatusCode TrigDecisionMaker::execute(const EventContext& ctx) const
   if (hltResult){
     trigDec->m_ef_result = *hltResult;//store the merged result into ef_result to propagate with getEFResult
   }
-  //  std::cout << "Acc state: " << l2Result->isAccepted() << " " <<  trigDec->m_l2_result.isAccepted() << std::endl;
-
 
   // get the bunch crossing id
   ATH_MSG_DEBUG ( "Run " << ctx.eventID().run_number()
                   << "; Event " << ctx.eventID().event_number()
                   << "; BC-ID " << ctx.eventID().bunch_crossing_id() ) ;
-  char x = getBGByte(ctx.eventID().bunch_crossing_id());
-  trigDec->m_bgCode = x;
+
+  const TrigConf::L1BunchGroupSet* l1bgs = SG::get(m_bgKey, ctx);
+  if (l1bgs) {
+    // We currently only support 8 bits/bunchgroups (ATR-24030)
+    trigDec->m_bgCode = static_cast<char>(l1bgs->bgPattern(ctx.eventID().bunch_crossing_id()));
+  }
+  else {
+    ATH_MSG_WARNING("Could not read " << m_bgKey);
+  }
 
   SG::WriteHandle<TrigDecision> writeHandle{m_trigDecisionKey, ctx};
   if (writeHandle.record(std::move(trigDec)).isFailure()) {
@@ -292,28 +297,4 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTRe
   ATH_MSG_DEBUG ( "Got HLTResult from StoreGate with key " << key ) ;
 
   return OK;
-}
-
-
-char TrigDecisionMaker::getBGByte(int BCId) const {
-
-   const TrigConf::BunchGroupSet* bgs = m_trigConfigSvc->bunchGroupSet();
-   if(!bgs) {
-     ATH_MSG_WARNING ( " Could not get BunchGroupSet to calculate BGByte" ) ;
-      return 0;
-   }
-   
-   //   if(bgs->bunchGroups().size()!=8) {
-   //     (*m_log) << MSG::WARNING << " Did not find 8 bunchgroups in the set (actual number of BGs is " 
-   //              << bgs->bunchGroups().size()
-   //              << ")" << endmsg;
-   //     return 0;
-   //   }
-   
-   if((unsigned int)BCId>=bgs->bgPattern().size()) {
-     ATH_MSG_WARNING ( " Could not return BGCode for BCid " << BCId << ", since size of BGpattern is " <<  bgs->bgPattern().size() ) ;
-      return 0;
-   }
-
-   return bgs->bgPattern()[BCId];  
 }
