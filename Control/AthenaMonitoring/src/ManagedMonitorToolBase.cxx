@@ -1481,7 +1481,7 @@ regHist( TH1* h, const MonGroup& group )
        track of "proper" attribute for X_VS_LB
     */
     
-    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
       ATH_MSG_WARNING("HEY! You're attempting to register " << h->GetName() << " as a per-LB histogram, but you're not setting the merge algorithm! This is a SUPER-BAD idea! Use \"merge\", at least.");
     }
     
@@ -1659,7 +1659,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
     // MANAGED
     if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
         // warn about not using merge algorithms
-        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
             ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
         }
         // add the efficiency to rebooking vector
@@ -2115,9 +2115,9 @@ fill( const std::string& name,
    // this to the ROOT developers yet because I don't have time to develope a simple test case
    // for them (independent of Atlas software).
    // --M.G.Wilson, 7 July 2008
-   if( trigger == "" )
+   if( trigger.empty() )
       trigger = "<none>";
-   if( merge == "" )
+   if( merge.empty() )
       merge = "<default>";
 
    copyString( m_nameData, name );

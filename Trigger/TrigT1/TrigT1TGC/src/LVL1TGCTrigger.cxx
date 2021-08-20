@@ -1126,7 +1126,7 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
     std::string line=str;
     while(1) {
       if (line.empty()) break;
-      int i = line.find(" ");
+      int i = line.find(' ');
       if (i==(int)std::string::npos && !line.empty()) {
         v.push_back(atoi(line.c_str()));
         break;

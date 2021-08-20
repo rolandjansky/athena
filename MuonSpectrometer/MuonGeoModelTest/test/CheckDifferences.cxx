@@ -278,7 +278,7 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
                 if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
                 {
@@ -290,7 +290,7 @@ int MaterialMap::readMapRecord() {
                 }
                 
             }
-            if ((locapri = s.find("(",locchiudi)) != std::string::npos) 
+            if ((locapri = s.find('(',locchiudi)) != std::string::npos) 
             {
                 if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
                 {
@@ -322,7 +322,7 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
                 if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
                 {
@@ -353,7 +353,7 @@ int MaterialMap::readMapRecord() {
 
             std::string::size_type locapri;
             std::string::size_type locchiudi;
-            if ((locapri = s.find("(")) != std::string::npos) 
+            if ((locapri = s.find('(')) != std::string::npos) 
             {
                 if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
                 {
@@ -408,7 +408,7 @@ int MaterialMap::readMapRecord() {
             {
                 std::string::size_type locapri;
                 std::string::size_type locchiudi;
-                if ((locapri = s.find("(")) != std::string::npos) 
+                if ((locapri = s.find('(')) != std::string::npos) 
                 {
                     if ((locchiudi = s.find(")", locapri+1)) != std::string::npos) 
                     {

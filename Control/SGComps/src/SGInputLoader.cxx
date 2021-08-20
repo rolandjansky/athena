@@ -70,7 +70,7 @@ SGInputLoader::initialize()
     str << "Will explicitly preload the following DataObjects:";
     for (auto &e : m_load) {
       str << "\n    + " << e;
-      if (e.key() == "") {
+      if (e.key().empty()) {
         sc = StatusCode::FAILURE;
         str << "   ERROR: empty key is not allowed!";
       }

@@ -49,7 +49,7 @@ void DBline::BadExtraction(void) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void DBline::erase_comment() {
-    const size_t pos = m_data.find("#");
+    const size_t pos = m_data.find('#');
     if (pos != std::string::npos) m_data.erase(pos);
 }
 
