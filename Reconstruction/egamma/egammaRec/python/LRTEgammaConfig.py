@@ -83,8 +83,6 @@ LRTphotonSuperClusterBuilder = photonSuperClusterBuilder.copy(
 LRTEMClusterTool = EMClusterTool.copy(
     name='LRTEMClusterTool',
     OutputClusterContainerName="LRT"+egammaKeys.outputClusterKey(),
-    OutputTopoSeededClusterContainerName='LRT' +
-    egammaKeys.outputTopoSeededClusterKey(),
 )
 
 LRTtopoEgammaBuilder = topoEgammaBuilder.copy(
