@@ -21,7 +21,7 @@ from CaloIdentifier import SUBCALO
 # Egamma imports
 from egammaRec.Factories import ToolFactory, AlgFactory
 
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperClusterTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import egammaToolsConf, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
@@ -103,9 +103,6 @@ TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
 TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
         name = 'TrigEMClusterTool',
         OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
-        OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwSuperClusterTool,
-        doSuperCluster = True,
         MVACalibSvc = egammaMVASvc                             
         )
 from xAODPrimitives.xAODIso import xAODIso as isoPar
