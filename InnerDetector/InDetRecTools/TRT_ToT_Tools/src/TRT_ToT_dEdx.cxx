@@ -217,8 +217,11 @@ StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/)
 				current_array_values.push_back(first_channel->second["array_value"].data<float>());		
 			}
 			
-			result_dict[dict_names[current_channel]] = current_array_values;
-			
+			// protection for longer vectors present in newer DB tags
+			if (current_channel < dict_names.size()) {
+			  result_dict[dict_names[current_channel]] = current_array_values;
+			}
+
 			update_New(result_dict);
 			ATH_MSG_DEBUG ("update():: Reading new database is done!");
 
@@ -343,10 +346,10 @@ void TRT_ToT_dEdx::update_New(std::map<std::string,std::vector<float> > &result_
 	for (unsigned int ind=0; ind < 180; ++ind) {
 		Dedxcorrection::para_short_mimicToXe_MC[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_DATA[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_MC[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
 	}
 
@@ -421,10 +424,10 @@ void TRT_ToT_dEdx::update_New(std::map<std::string,std::vector<float> > &result_
 	for (unsigned int ind=0; ind < 180; ++ind) {
 		Dedxcorrection::para_short_mimicToXe_MC[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_DATA[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_MC[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
 	}
 
@@ -499,10 +502,10 @@ void TRT_ToT_dEdx::update_New(std::map<std::string,std::vector<float> > &result_
 	for (unsigned int ind=0; ind < 180; ++ind) {
 		Dedxcorrection::para_short_mimicToXe_MC[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_DATA[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
 	}
-	for (unsigned int ind=0; ind < 1800; ++ind) {
+	for (unsigned int ind=0; ind < 1080; ++ind) {
 		Dedxcorrection::para_long_mimicToXe_MC[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
 	}
 }
@@ -579,7 +582,7 @@ void TRT_ToT_dEdx::update_Old(std::map<std::string,std::vector<float> > &result_
 			Dedxcorrection::para_short_mimicToXe_DATA[gasType][ind] = 1.;
 		}
 
-		for (unsigned int ind=0; ind < 1800; ++ind) {
+		for (unsigned int ind=0; ind < 1080; ++ind) {
 			Dedxcorrection::para_long_mimicToXe_MC[gasType][ind]   = 1.;
 		  Dedxcorrection::para_long_mimicToXe_DATA[gasType][ind] = 1.;
 		}
