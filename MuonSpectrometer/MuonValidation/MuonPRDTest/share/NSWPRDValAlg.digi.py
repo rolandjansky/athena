@@ -47,7 +47,7 @@ NSWPRDValAlg.doCSCSDO= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCDigit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCRDO= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCPRD= MuonGeometryFlags.hasCSC()
-# CSC_Clusters
+
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------

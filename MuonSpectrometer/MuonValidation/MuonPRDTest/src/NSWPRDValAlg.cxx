@@ -27,33 +27,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     m_tgcCabling(nullptr),
     m_thistSvc(nullptr) {
   // Input properties: Container names
-  declareProperty("Truth_ContainerName",            m_Truth_ContainerName="TruthEvent");
-  declareProperty("MuonEntryLayer_ContainerName",   m_MuEntry_ContainerName="MuonEntryLayer");
-  declareProperty("NSWsTGC_ContainerName",          m_NSWsTGC_ContainerName="sTGCSensitiveDetector");
-  declareProperty("NSWsTGC_DigitContainerName",     m_NSWsTGC_DigitContainerName="sTGC_DIGITS");
-  declareProperty("NSWsTGC_SDOContainerName",       m_NSWsTGC_SDOContainerName="sTGC_SDO");
-  declareProperty("NSWsTGC_RDOContainerName",       m_NSWsTGC_RDOContainerName="sTGCRDO");
-  declareProperty("NSWsTGC_PRDContainerName",       m_NSWsTGC_PRDContainerName="STGC_Measurements");
-  declareProperty("NSWMM_ContainerName",            m_NSWMM_ContainerName="MicromegasSensitiveDetector");
-  declareProperty("NSWMM_DigitContainerName",       m_NSWMM_DigitContainerName="MM_DIGITS");
-  declareProperty("NSWMM_SDOContainerName",         m_NSWMM_SDOContainerName="MM_SDO");
-  declareProperty("NSWMM_RDOContainerName",         m_NSWMM_RDOContainerName="MMRDO");
-  declareProperty("NSWMM_PRDContainerName",         m_NSWMM_PRDContainerName="MM_Measurements");
-  declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
-  declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
-  declareProperty("CSC_RDOContainerName",           m_CSC_RDOContainerName="CSCRDO");
-  declareProperty("CSC_PRDContainerName",           m_CSC_PRDContainerName="CSCPRD");
-  declareProperty("MDT_SimContainerName",           m_MDT_SimContainerName="MDT_Hits");
-  declareProperty("MDT_SDOContainerName",           m_MDT_SDOContainerName="MDT_SDO");
-  declareProperty("MDT_DigitContainerName",         m_MDT_DigitContainerName="MDT_DIGITS");
-  declareProperty("RPC_SimContainerName",           m_RPC_SimContainerName="RPC_Hits");
-  declareProperty("RPC_SDOContainerName",           m_RPC_SDOContainerName="RPC_SDO");
-  declareProperty("RPC_DigitContainerName",         m_RPC_DigitContainerName="RPC_DIGITS");
-  declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
-  declareProperty("TGC_SDOContainerName",           m_TGC_SDOContainerName="TGC_SDO");
-  declareProperty("TGC_DigitContainerName",         m_TGC_DigitContainerName="TGC_DIGITS");
-  declareProperty("TGC_RDOContainerName",           m_TGC_RDOContainerName="TGCRDO");
-  declareProperty("TGC_PRDContainerName",           m_TGC_PRDContainerName="TGCPRD");
+  
  
  
 }

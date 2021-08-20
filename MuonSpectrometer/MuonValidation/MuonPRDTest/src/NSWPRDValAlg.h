@@ -111,33 +111,39 @@ class NSWPRDValAlg:public AthAlgorithm
   unsigned int m_runNumber{0};
   unsigned int m_eventNumber{0};
 
-  std::string m_Truth_ContainerName;
-  std::string m_MuEntry_ContainerName;
-  std::string m_NSWsTGC_ContainerName;
-  std::string m_NSWsTGC_SDOContainerName;
-  std::string m_NSWsTGC_DigitContainerName;
-  std::string m_NSWsTGC_RDOContainerName;
-  std::string m_NSWsTGC_PRDContainerName;
-  std::string m_NSWMM_ContainerName;
-  std::string m_NSWMM_SDOContainerName;
-  std::string m_NSWMM_DigitContainerName;
-  std::string m_NSWMM_RDOContainerName;
-  std::string m_NSWMM_PRDContainerName;
-  std::string m_CSC_SimContainerName;
-  std::string m_CSC_DigitContainerName;
-  std::string m_CSC_RDOContainerName;
-  std::string m_CSC_PRDContainerName;
-  std::string m_MDT_SimContainerName;
-  std::string m_MDT_SDOContainerName;
-  std::string m_MDT_DigitContainerName;
-  std::string m_RPC_SimContainerName;
-  std::string m_RPC_SDOContainerName;
-  std::string m_RPC_DigitContainerName;
-  std::string m_TGC_SimContainerName;
-  std::string m_TGC_SDOContainerName;
-  std::string m_TGC_DigitContainerName;
-  std::string m_TGC_RDOContainerName;
-  std::string m_TGC_PRDContainerName;
+  Gaudi::Property<std::string> m_Truth_ContainerName{this, "Truth_ContainerName", "TruthEvent"};
+  Gaudi::Property<std::string> m_MuEntry_ContainerName{this, "MuonEntryLayer_ContainerName", "MuonEntryLayer"};
+  
+  Gaudi::Property<std::string> m_NSWsTGC_ContainerName{this, "NSWsTGC_ContainerName", "sTGCSensitiveDetector" };
+  Gaudi::Property<std::string> m_NSWsTGC_SDOContainerName{this, "NSWsTGC_SDOContainerName","sTGC_SDO" };
+  Gaudi::Property<std::string> m_NSWsTGC_DigitContainerName{this,"NSWsTGC_DigitContainerName", "sTGC_DIGITS"};
+  Gaudi::Property<std::string> m_NSWsTGC_RDOContainerName{this, "NSWsTGC_RDOContainerName", "sTGCRDO" };
+  Gaudi::Property<std::string> m_NSWsTGC_PRDContainerName{this, "NSWsTGC_PRDContainerName","STGC_Measurements" };
+
+  Gaudi::Property<std::string> m_NSWMM_ContainerName{this, "NSWMM_ContainerName", "MicromegasSensitiveDetector" };
+  Gaudi::Property<std::string> m_NSWMM_SDOContainerName{this, "NSWMM_SDOContainerName", "MM_SDO"};
+  Gaudi::Property<std::string> m_NSWMM_DigitContainerName{this, "NSWMM_DigitContainerName","MM_DIGITS"} ;
+  Gaudi::Property<std::string> m_NSWMM_RDOContainerName{this, "NSWMM_RDOContainerName", "MMRDO"};
+  Gaudi::Property<std::string> m_NSWMM_PRDContainerName{this, "NSWMM_PRDContainerName", "MM_Measurements"};
+
+  Gaudi::Property<std::string> m_CSC_SimContainerName{this,"CSC_SimContainerName", "CSC_Hits"};
+  Gaudi::Property<std::string> m_CSC_DigitContainerName{this, "CSC_DigitContainerName", "CSC_DIGITS"};
+  Gaudi::Property<std::string> m_CSC_RDOContainerName{this,"CSC_RDOContainerName",  "CSCRDO"};
+  Gaudi::Property<std::string> m_CSC_PRDContainerName{this,"CSC_PRDContainerName", "CSC_Clusters"  };
+
+  Gaudi::Property<std::string> m_MDT_SimContainerName{this, "MDT_SimContainerName", "MDT_Hits" };
+  Gaudi::Property<std::string> m_MDT_SDOContainerName{this, "MDT_SDOContainerName", "MDT_SDO" };
+  Gaudi::Property<std::string> m_MDT_DigitContainerName{this, "MDT_DigitContainerName", "MDT_DIGITS"};
+ 
+  Gaudi::Property<std::string> m_RPC_SimContainerName{this, "RPC_SimContainerName", "RPC_Hits"};
+  Gaudi::Property<std::string> m_RPC_SDOContainerName{this, "RPC_SDOContainerName", "RPC_SDO"};
+  Gaudi::Property<std::string> m_RPC_DigitContainerName{this ,"RPC_DigitContainerName", "RPC_DIGITS"} ;
+ 
+  Gaudi::Property<std::string> m_TGC_SimContainerName{this, "TGC_SimContainerName", "TGC_Hits"};
+  Gaudi::Property<std::string> m_TGC_SDOContainerName{this, "TGC_SDOContainerName", "TGC_SDO" };
+  Gaudi::Property<std::string> m_TGC_DigitContainerName{this, "TGC_DigitContainerName","TGC_DIGITS"  };
+  Gaudi::Property<std::string> m_TGC_RDOContainerName{this,"TGC_RDOContainerName", "TGCRDO" };
+  Gaudi::Property<std::string> m_TGC_PRDContainerName{this, "TGC_PRDContainerName","TGCPRD" };
 
   // Matching algorithm
  
