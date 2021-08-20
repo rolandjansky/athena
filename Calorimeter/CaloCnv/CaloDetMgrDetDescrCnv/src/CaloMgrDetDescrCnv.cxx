@@ -234,10 +234,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	  if(r_max < embElement->r()+0.5*embElement->dr())
 	    r_max = embElement->r()+0.5*embElement->dr();
 
-	  if(z_min > fabs(embElement->z_raw())-0.5*embElement->dz())
-	    z_min = fabs(embElement->z_raw())-0.5*embElement->dz();
-	  if(z_max < fabs(embElement->z_raw())+0.5*embElement->dz())
-	    z_max = fabs(embElement->z_raw())+0.5*embElement->dz();
+	  if(z_min > std::abs(embElement->z_raw())-0.5*embElement->dz())
+	    z_min = std::abs(embElement->z_raw())-0.5*embElement->dz();
+	  if(z_max < std::abs(embElement->z_raw())+0.5*embElement->dz())
+	    z_max = std::abs(embElement->z_raw())+0.5*embElement->dz();
 
 	  if(reg_min > embElement->eta()-0.5*embElement->deta())
 	    reg_min = embElement->eta()-0.5*embElement->deta();
@@ -258,7 +258,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	: embRegion->getDescriptor()->getEtaBinning().getStart();
 
       double eta_max = (embRegion->getDescriptor()->getEtaBinning()).getEnd();
-      double phi_max = phi_min + std::fabs((embRegion->getDescriptor()->getPhiBinning()).getDelta())*embDescr->n_phi();
+      double phi_max = phi_min + std::abs((embRegion->getDescriptor()->getPhiBinning()).getDelta())*embDescr->n_phi();
 
       // 'ideal' values
       embDescr->setCaloEtaMin(eta_min);
@@ -391,10 +391,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	  if(r_max < emecElement->r()+0.5*emecElement->dr())
 	    r_max = emecElement->r()+0.5*emecElement->dr();
 
-	  if(z_min > fabs(emecElement->z_raw())-0.5*emecElement->dz())
-	    z_min = fabs(emecElement->z_raw())-0.5*emecElement->dz();
-	  if(z_max < fabs(emecElement->z_raw())+0.5*emecElement->dz())
-	    z_max = fabs(emecElement->z_raw())+0.5*emecElement->dz();
+	  if(z_min > std::abs(emecElement->z_raw())-0.5*emecElement->dz())
+	    z_min = std::abs(emecElement->z_raw())-0.5*emecElement->dz();
+	  if(z_max < std::abs(emecElement->z_raw())+0.5*emecElement->dz())
+	    z_max = std::abs(emecElement->z_raw())+0.5*emecElement->dz();
 
 	  if(reg_min > emecElement->eta()-0.5*emecElement->deta())
 	    reg_min = emecElement->eta()-0.5*emecElement->deta();
@@ -403,8 +403,8 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
 	  // depths
 	  if(iPhi==emecRegion->beginPhiIndex()) {
-	    depth_in.push_back(fabs(emecElement->z_raw())-emecElement->dz());
-	    depth_out.push_back(fabs(emecElement->z_raw())+emecElement->dz());
+	    depth_in.push_back(std::abs(emecElement->z_raw())-emecElement->dz());
+	    depth_out.push_back(std::abs(emecElement->z_raw())+emecElement->dz());
 	  }
 	} // Eta loop
       } // Phi loop
@@ -412,7 +412,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
       double eta_min = emecRegion->getDescriptor()->getEtaBinning().getStart();
       double eta_max = emecRegion->getDescriptor()->getEtaBinning().getEnd();
-      double phi_max = phi_min + std::fabs(emecRegion->getDescriptor()->getPhiBinning().getDelta())*emecDescr->n_phi();
+      double phi_max = phi_min + std::abs(emecRegion->getDescriptor()->getPhiBinning().getDelta())*emecDescr->n_phi();
 
       // 'ideal' values
       emecDescr->setCaloEtaMin(eta_min);
@@ -522,10 +522,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	    if(r_max < cellPtr->getRMaxLocalNominal(HECCell::FRONT))
 	      r_max = cellPtr->getRMaxLocalNominal(HECCell::FRONT);
 
-	    if(z_min > fabs(hecElement->z_raw())-hecElement->dz())
-	      z_min = fabs(hecElement->z_raw())-hecElement->dz();
-	    if(z_max < fabs(hecElement->z_raw())+hecElement->dz())
-	      z_max = fabs(hecElement->z_raw())+hecElement->dz();
+	    if(z_min > std::abs(hecElement->z_raw())-hecElement->dz())
+	      z_min = std::abs(hecElement->z_raw())-hecElement->dz();
+	    if(z_max < std::abs(hecElement->z_raw())+hecElement->dz())
+	      z_max = std::abs(hecElement->z_raw())+hecElement->dz();
 
 	    if(reg_min > hecElement->eta()-0.5*hecElement->deta())
 	      reg_min = hecElement->eta()-0.5*hecElement->deta();
@@ -533,8 +533,8 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	      reg_max = hecElement->eta()+0.5*hecElement->deta();
 
 	    if(iPhi==hecregion->beginPhiIndex() && iEta==hecregion->beginEtaIndex()) {
-	      depth_in.push_back(fabs(hecElement->z_raw())-hecElement->dz());
-	      depth_out.push_back(fabs(hecElement->z_raw())+hecElement->dz());
+	      depth_in.push_back(std::abs(hecElement->z_raw())-hecElement->dz());
+	      depth_out.push_back(std::abs(hecElement->z_raw())+hecElement->dz());
 	    }
 
 	  }
@@ -544,7 +544,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
       double eta_min = hecregion->getDescriptor()->getEtaBinning().getStart();
       double eta_max = hecregion->getDescriptor()->getEtaBinning().getEnd();
-      double phi_max = phi_min + std::fabs(hecregion->getDescriptor()->getPhiBinning().getDelta())*hecDescr->n_phi();
+      double phi_max = phi_min + std::abs(hecregion->getDescriptor()->getPhiBinning().getDelta())*hecDescr->n_phi();
 
       // 'ideal' values
       hecDescr->setCaloEtaMin(eta_min);
@@ -645,26 +645,26 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
 	caloMgr->add(fcalElement);
 
-	if(eta_min > std::fabs(fcalElement->eta_raw())-0.5*fcalElement->deta())
-	  eta_min = std::fabs(fcalElement->eta_raw())-0.5*fcalElement->deta();
-	if(eta_max < std::fabs(fcalElement->eta_raw())+0.5*fcalElement->deta())
-	  eta_max = std::fabs(fcalElement->eta_raw())+0.5*fcalElement->deta();
+	if(eta_min > std::abs(fcalElement->eta_raw())-0.5*fcalElement->deta())
+	  eta_min = std::abs(fcalElement->eta_raw())-0.5*fcalElement->deta();
+	if(eta_max < std::abs(fcalElement->eta_raw())+0.5*fcalElement->deta())
+	  eta_max = std::abs(fcalElement->eta_raw())+0.5*fcalElement->deta();
 	if(r_min > fcalElement->r() - 0.5*fcalElement->dr())
 	  r_min = fcalElement->r() - 0.5*fcalElement->dr();
 	if(r_max < fcalElement->r() + 0.5*fcalElement->dr())
 	  r_max = fcalElement->r() + 0.5*fcalElement->dr();
-	if(z_min > fabs(fcalElement->z_raw()) - 0.5*fcalElement->dz())
-	  z_min = fabs(fcalElement->z_raw()) - 0.5*fcalElement->dz();
-	if(z_max < fabs(fcalElement->z_raw()) + 0.5*fcalElement->dz())
-	  z_max = fabs(fcalElement->z_raw()) + 0.5*fcalElement->dz();
+	if(z_min > std::abs(fcalElement->z_raw()) - 0.5*fcalElement->dz())
+	  z_min = std::abs(fcalElement->z_raw()) - 0.5*fcalElement->dz();
+	if(z_max < std::abs(fcalElement->z_raw()) + 0.5*fcalElement->dz())
+	  z_max = std::abs(fcalElement->z_raw()) + 0.5*fcalElement->dz();
 	if(reg_min > fcalElement->eta()-0.5*fcalElement->deta())
 	  reg_min = fcalElement->eta()-0.5*fcalElement->deta();
 	if(reg_max < fcalElement->eta()+0.5*fcalElement->deta())
 	  reg_max = fcalElement->eta()+0.5*fcalElement->deta();
 
 	if(fcaltileIt==fcalmodule->beginTiles()) {
-	  depth_in.push_back(std::fabs(fcalElement->z_raw()) - fcalElement->dz());
-	  depth_out.push_back(std::fabs(fcalElement->z_raw()) + fcalElement->dz());
+	  depth_in.push_back(std::abs(fcalElement->z_raw()) - fcalElement->dz());
+	  depth_out.push_back(std::abs(fcalElement->z_raw()) + fcalElement->dz());
 	}
       }
 
