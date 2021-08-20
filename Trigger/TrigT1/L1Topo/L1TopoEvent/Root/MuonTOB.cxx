@@ -23,7 +23,7 @@ TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
-   , m_phi( sizeCheck(phi, nBitsPhi()) )
+   , m_phi( static_cast<int>(sizeCheck(phi, nBitsPhi())) )
 {}
 
 // copy constructor
