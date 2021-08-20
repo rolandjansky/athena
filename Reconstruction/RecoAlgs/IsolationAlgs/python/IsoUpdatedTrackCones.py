@@ -7,7 +7,7 @@ from AthenaCommon.BeamFlags import jobproperties
 log = logging.getLogger(__name__)
 
 
-def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "Muons"),WP="Tight"):
+def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "Muons"),WP="Nonprompt_All_MaxWeight"):
     """ Return a list of IsolationBuilder algorithms to calculate TTVA moments
 
     ---------
@@ -98,7 +98,7 @@ def iso_vars():
     iso_vars = []
     for track_pt in 500, 1000:
         for cone_str in "", "LooseCone":
-            name = f"TightTTVA{cone_str}_pt{track_pt}"
+            name = f"Nonprompt_All_MaxWeightTTVA{cone_str}_pt{track_pt}"
             iso_vars += ["ptconeCorrBitset_"+name, "ptconecoreTrackPtrCorrection_"+name]
             for cone_size in 20, 30, 40:
                 for var_str in "", "var":

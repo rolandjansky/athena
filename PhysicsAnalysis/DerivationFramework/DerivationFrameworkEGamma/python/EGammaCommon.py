@@ -532,5 +532,5 @@ def makeEGammaDFCommon():
     # =======================================
 
     import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-    if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight1000"):
+    if not hasattr(DerivationFrameworkJob, "IsolationBuilderNonprompt_All_MaxWeight1000"):
         DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
