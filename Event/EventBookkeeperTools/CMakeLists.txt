@@ -4,16 +4,16 @@
 atlas_subdir( EventBookkeeperTools )
 
 if( XAOD_STANDALONE )
-   set( extra_libs )
+   set( extra_libs xAODMetaData )
    set( xaod_access_lib xAODRootAccess )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 else()
-   set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel StoreGateLib )
+   set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel StoreGateLib xAODMetaData )
    set( xaod_access_lib xAODRootAccess POOLRootAccessLib )
 endif()
 
 if( NOT GENERATIONBASE )
-   set( extra_libs ${extra_libs} AnaAlgorithmLib xAODMetaData xAODTruth )
+   set( extra_libs ${extra_libs} AnaAlgorithmLib xAODTruth )
 endif()
 
 # Component(s) in the package:
