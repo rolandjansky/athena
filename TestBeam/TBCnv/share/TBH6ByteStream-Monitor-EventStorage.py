@@ -220,6 +220,9 @@ ToolSvc.pedmon0.adcCut        = 50
 ToolSvc.pedmon0.OutputLevel   = INFO
 
 #------------- LArDigitTBPhaseMonitoring -------------
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 LArMon1.AthenaMonTools += ["LArDigTBPhaseMonTool<LArDigitContainer>/LArDigitTBTDC0"]
 ToolSvc.LArDigitTBTDC0.histoPathBase = "/stat/LArDigitTBTDC0"
 ToolSvc.LArDigitTBTDC0.digitKey      = "FREE"

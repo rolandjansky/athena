@@ -12,6 +12,8 @@ include( "ByteStreamCnvSvc/TBEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 
 
+from LArCabling.LArCablingAccess import LArCalibIdMapping
+LArCablibIdMapping()
 
 theApp.Dlls +=["TBCnv", "DBDataModelAthenaPoolPoolCnv"]
 #StreamBS = Algorithm( "StreamBS" )
