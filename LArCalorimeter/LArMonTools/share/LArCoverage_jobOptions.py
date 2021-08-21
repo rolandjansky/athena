@@ -2,9 +2,11 @@
 if 'EventBlockSize' not in dir():
     EventBlockSize=0
 
-
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg(noisetype="electronicNoise")
+
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
 
 ###### LAr Coverage Tool Configuration ###############
 from LArMonTools.LArMonToolsConf import LArCoverage

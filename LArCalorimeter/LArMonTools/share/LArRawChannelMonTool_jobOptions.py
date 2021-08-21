@@ -5,6 +5,9 @@ from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg ('totalNoise')
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 
 # ---- Local Variables ----
 # ---specify trigger tool and trigger chain here

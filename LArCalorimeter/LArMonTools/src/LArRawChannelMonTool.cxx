@@ -99,7 +99,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   , m_n_lumi_blocks( 1500 )
   , m_lar_online_id_ptr ( nullptr )
   , m_calo_id_mgr_ptr( nullptr )
-  , m_cable_service_tool ( "LArCablingLegacyService" )
   , m_filterAtlasReady_tools (this)
   , m_atlas_ready( false )
   , m_lar_online_id_str_helper_ptr ( nullptr )
@@ -174,7 +173,6 @@ StatusCode LArRawChannelMonTool::initialize()
 
   ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
   ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
-  ATH_CHECK( m_cable_service_tool.retrieve() );
   ATH_CHECK( m_bcContKey.initialize());
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
@@ -182,6 +180,7 @@ StatusCode LArRawChannelMonTool::initialize()
   ATH_CHECK( m_filterAtlasReady_tools.retrieve() );
 
   ATH_CHECK( m_noiseKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   // ---
   // Get Michel's LArOnlineIDStrHelper: All names are Expert view
@@ -1366,8 +1365,10 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   SG::ReadCondHandle<CaloNoise> noiseH (m_noiseKey, ctx);
 
-  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl (m_bcContKey, ctx);
   const LArBadChannelCont* bcCont={*bcContHdl};
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
 
   // --- Loop over RawChannels ---
   for( const LArRawChannel &chan : *raw_channels ){
@@ -1393,7 +1394,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
     try {
 
-      offline_id = m_cable_service_tool->cnvToIdentifier( hardware_id );
+      offline_id = cabling->cnvToIdentifier( hardware_id );
       calo_element_ptr   = ddman->get_element( offline_id );
 
       // --- skip unconnected channels ---

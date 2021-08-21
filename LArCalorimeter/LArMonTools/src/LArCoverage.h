@@ -26,7 +26,7 @@
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -83,8 +83,6 @@ private:
 
   std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel tools */
   LArBadChannelMask m_bcMask;
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"}; 
@@ -94,9 +92,11 @@ private:
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   // To retrieve bad channel DB keywords 
-  int DBflag(HWIdentifier onID);
+  int DBflag(const EventContext& ctx, HWIdentifier onID);
 
   // To set histos Style
   static void SetHWCoverageStyle(TH2I_LW* h);
@@ -104,7 +104,8 @@ private:
   static void SetBadChannelZaxisLabels(TH2I_LW* h);
 
   // To keep track of known disabled FEBs
-  void FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr);
+  void FillKnownMissingFEBs(const EventContext& ctx,
+                            const CaloDetDescrManager* caloDetDescrMgr);
 
   // To fix empty bins in histos with variable bin size
   void FixEmptyBins();
