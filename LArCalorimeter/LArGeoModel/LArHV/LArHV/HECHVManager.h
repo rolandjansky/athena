@@ -72,8 +72,9 @@ class HECHVManager
 				 , unsigned int iPhi
 				 , unsigned int iSampling) const;
 
-  // Get the database payload
-  HECHVData getData() const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  HECHVData getDataSim() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   HECHVData getData (const LArHVIdMapping& hvIdMapping,
