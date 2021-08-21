@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArFCALCalculator
@@ -20,7 +20,6 @@
 #include "LArG4Code/LArCalculatorSvcImp.h"
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArHV/FCALHVManager.h"
-#include "CxxUtils/checker_macros.h"
 #include "globals.hh"
 #include <stdexcept>
 class LArG4BirksLaw;
@@ -31,7 +30,7 @@ class LArFCALCalculatorBase : public LArCalculatorSvcImp
  public:
   // constructor
   LArFCALCalculatorBase(const std::string& name, ISvcLocator *pSvcLocator);
-  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
+  virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
   /////////////////////////////////////////////

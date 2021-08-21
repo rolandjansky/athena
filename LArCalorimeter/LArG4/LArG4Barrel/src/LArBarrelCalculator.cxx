@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // The Cell Identifier for the EM Barrel readout cells
@@ -692,7 +692,7 @@ void LArBarrelCalculator::InitHV()
     const LArHVManager *manager = nullptr;
     if (pDetStore->retrieve(manager)==StatusCode::SUCCESS) {
       const EMBHVManager& hvManager=manager->getEMBHVManager();
-      const EMBHVManager::EMBHVData hvdata = hvManager.getData();
+      const EMBHVManager::EMBHVData hvdata = hvManager.getDataSim();
       ATH_MSG_INFO(" got HV Manager ");
       // loop over HV modules
       for (unsigned int iSide=0;iSide<2;iSide++) {
