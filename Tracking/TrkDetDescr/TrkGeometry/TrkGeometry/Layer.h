@@ -172,8 +172,6 @@ class Layer {
   const BinUtility* binUtility() const;
   /** set the BinUtility*/
   void setBinUtility(const BinUtility*);
-  /** set the BinUtility const not const thread safe*/
-  void setBinUtility ATLAS_NOT_THREAD_SAFE(const BinUtility*) const;
 
   /** Surface seen on approach - if not defined differently, it is the
    * surfaceRepresentation() */
