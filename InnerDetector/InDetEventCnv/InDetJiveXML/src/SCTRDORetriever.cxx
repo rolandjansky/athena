@@ -8,7 +8,6 @@
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
-//#include "TrkEventPrimitives/LocalPosition.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -63,7 +62,7 @@ namespace JiveXML {
     unsigned long NSCTRDO = 0;
     //Loop over SCTRDO containers 
     SCT_RDO_Container::const_iterator SCTRDOContItr = SCTRDOContainer->begin();
-    for ( ; SCTRDOContItr!=SCTRDOContainer->end(); SCTRDOContItr++)
+    for ( ; SCTRDOContItr!=SCTRDOContainer->end(); ++SCTRDOContItr)
        //and get number of SCTRDO in this collection
        NSCTRDO+=(*SCTRDOContItr)->size();
        
@@ -88,7 +87,7 @@ namespace JiveXML {
 
     //Now loop again over SCTRDO collections to retrieve the data
     SCTRDOContItr = SCTRDOContainer->begin();
-    for (; SCTRDOContItr!=SCTRDOContainer->end(); SCTRDOContItr++) {
+    for (; SCTRDOContItr!=SCTRDOContainer->end(); ++SCTRDOContItr) {
 
       //Get the collection of SCT raw hits
       const SCT_RDO_Collection* SCTRDORawCollection = (*SCTRDOContItr);
@@ -96,7 +95,7 @@ namespace JiveXML {
       
       //Loop over raw hit collection
       SCT_RDO_Collection::const_iterator SCTRDORawCollItr = SCTRDORawCollection->begin();
-      for ( ; SCTRDORawCollItr != SCTRDORawCollection->end(); SCTRDORawCollItr++) {
+      for ( ; SCTRDORawCollItr != SCTRDORawCollection->end(); ++SCTRDORawCollItr) {
 
         //Get the raw hit object
         const SCT_RDORawData *rdoData = (*SCTRDORawCollItr);
