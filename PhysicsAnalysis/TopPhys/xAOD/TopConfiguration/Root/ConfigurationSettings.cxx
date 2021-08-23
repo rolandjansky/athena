@@ -199,6 +199,8 @@ namespace top {
     registerParameter("AdvancedUsage_METUncertaintiesConfigDir",
                       "Path to directory containing MET uncertainties configs (including trailing /) \'Latest\' (default), or previous \'METUtilities/data17_13TeV/prerec_Jan16/\'",
                       "Latest");
+    registerParameter("METMuonPFlowBugfix", "Whether to run MET bugfix for muon-PFlow jet overlap removal.", "True",
+                      {"True", "False"});
 
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",

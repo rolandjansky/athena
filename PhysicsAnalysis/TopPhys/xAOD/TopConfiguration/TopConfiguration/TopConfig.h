@@ -1578,6 +1578,14 @@ namespace top {
     }
     inline virtual const std::string& METUncertaintiesConfigDir() const {return m_METUncertaintiesConfigDir;}
 
+    inline virtual void METMuonPFlowBugfix(bool doMETMuonPFlowBugfix) {
+      if (!m_configFixed) {
+        m_METMuonPFlowBugfix = doMETMuonPFlowBugfix;
+      }
+    }
+
+    inline virtual bool METMuonPFlowBugfix() const {return m_METMuonPFlowBugfix;}
+
     // Tau configuration setters
     inline virtual void tauPtcut(const float pt) {
       if (!m_configFixed) {
@@ -2519,6 +2527,8 @@ namespace top {
 
     // MET configuration
     std::string m_METUncertaintiesConfigDir; //Path prefix for directory with MET calibration configs
+
+    bool m_METMuonPFlowBugfix; // bugfix for muon-PFlow jet OR in MET
     
     //Ghost tracks quality
     float m_ghostTrackspT;
