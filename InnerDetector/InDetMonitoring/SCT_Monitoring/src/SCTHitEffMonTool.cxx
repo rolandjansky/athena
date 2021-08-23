@@ -111,6 +111,7 @@ namespace {// anonymous namespace for functions at file scope
 }// namespace end
 
 // Constructor with parameters:
+//cppcheck-suppress uninitMemberVar
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type, const string& name, const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent) {
   m_Eff_summaryHisto.fill(0);
@@ -894,7 +895,7 @@ SCTHitEffMonTool::procHistograms() {
 }
 
 StatusCode
-SCTHitEffMonTool::failCut(bool value, string name) const {
+SCTHitEffMonTool::failCut(bool value, const string & name) const {
   if (value) {
     ATH_MSG_VERBOSE("Passed " << name);
     return StatusCode::FAILURE;
