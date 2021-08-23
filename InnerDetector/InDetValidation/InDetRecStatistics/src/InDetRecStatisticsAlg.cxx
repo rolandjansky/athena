@@ -408,7 +408,7 @@ StatusCode InDet :: InDetRecStatisticsAlg :: finalize() {
 
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
        m_SignalCounters.begin(); collection !=  m_SignalCounters.end();
-       collection++) {
+       ++collection) {
     ATH_MSG_DEBUG(s_linestr2);
     delete (*collection);
   }
@@ -663,7 +663,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   bool first = true;
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
-       collection !=  m_SignalCounters.end(); collection++)
+       collection !=  m_SignalCounters.end(); ++collection)
     {
       if (first) {
       	first = false;
@@ -683,7 +683,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
              << "\t" << "TrackTruthCollections  : ";
       first = true;
       for (std::vector <class TrackStatHelper *>::const_iterator collection =  m_SignalCounters.begin();
-	   collection !=  m_SignalCounters.end(); collection++)
+	   collection !=  m_SignalCounters.end(); ++collection)
 	{
 	  if (first) {
 	    first = false;
@@ -741,7 +741,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   RestoreStream<MsgStream> restore(out);
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
-       collection !=  m_SignalCounters.end(); collection++) {
+       collection !=  m_SignalCounters.end(); ++collection) {
      if ((*collection)->key()=="CombinedInDetTracks"){
          out << "\n" << s_linestr2 << "\n";
          (*collection)->print(out);
@@ -796,7 +796,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
     outstr.str("");
     for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	   m_SignalCounters.begin();
-	 collection !=  m_SignalCounters.end(); collection++) {
+	 collection !=  m_SignalCounters.end(); ++collection) {
      if ((*collection)->key()=="CombinedInDetTracks"){
          out << "\n" << s_linestr2 << "\n";
          (*collection)->printSecondary(out);
@@ -817,7 +817,7 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   bool printed = false;
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
-       collection !=  m_SignalCounters.end(); collection++) {
+       collection !=  m_SignalCounters.end(); ++collection) {
      if ((*collection)->key()=="CombinedInDetTracks"){
          printed = (*collection)->printTrackSummaryRegion(out, TRACK_ALL, eta_reg) || printed;
      }
@@ -829,7 +829,7 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   printed = false;
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
-       collection !=  m_SignalCounters.end(); collection++) {
+       collection !=  m_SignalCounters.end(); ++collection) {
      if ((*collection)->key()=="CombinedInDetTracks"){
          printed = (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB, eta_reg) || printed;
      }
@@ -840,7 +840,7 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (MsgStream &out, enum et
   }
   for (std::vector <class TrackStatHelper *>::const_iterator collection =
 	 m_SignalCounters.begin();
-       collection !=  m_SignalCounters.end(); collection++) {
+       collection !=  m_SignalCounters.end(); ++collection) {
      if ((*collection)->key()=="CombinedInDetTracks"){
          (*collection)->printTrackSummaryRegion(out, TRACK_LOWTRUTHPROB2, eta_reg);
      }

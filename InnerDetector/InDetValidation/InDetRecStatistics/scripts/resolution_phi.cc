@@ -29,7 +29,7 @@ using std::endl;
 using std::string;
 
 void resolution_phi (TTree* tree[3], const char* name[3],
-                    const string plotfile= "",
+                    const string & plotfile= "",
 		    const int abseta = 1, const int pull = 0, const float etamax=2.5, // added by SCZ
                     const int ntrack_finders=3, const TCut data_cut="", double match=-1)
 {
@@ -56,6 +56,7 @@ void resolution_phi (TTree* tree[3], const char* name[3],
 
   // -------------- cuts ---------------------------
   TCut truth_cut ("track_truth_prob>"+TString::Format("%g",(match>=0?match:0.5)));
+  //cppcheck-suppress incorrectStringBooleanError
   TCut cut_track_preselection = data_cut && "abs(1/track_qoverpt)>1000" && truth_cut;
 
   // -------------- style --------------------------
