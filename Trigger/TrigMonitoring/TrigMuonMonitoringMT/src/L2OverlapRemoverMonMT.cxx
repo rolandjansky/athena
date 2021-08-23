@@ -21,7 +21,7 @@ StatusCode L2OverlapRemoverMonMT :: fillVariablesPerChain(const EventContext &, 
 }
 
 
-bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2) const {
+bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer>& muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer>& muEL2) const {
 
   const float ZERO_LIMIT = 0.00001;
 
@@ -39,8 +39,8 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
   double dRThres   = 9999.;
   double massThres = 9999.;
-  bool isBarrel1 = (*muEL1)->sAddress() != -1 ? true : false;
-  bool isBarrel2 = (*muEL2)->sAddress() != -1 ? true : false;
+  bool isBarrel1 = (*muEL1)->sAddress() != -1;
+  bool isBarrel2 = (*muEL2)->sAddress() != -1;
 
   if(  isBarrel1 && isBarrel2 ) { // BB
     dRThres  =m_dRSAThresBB;
@@ -62,17 +62,17 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
 
   // same sign cut
-  bool sameSign = ( mu1Pt*mu2Pt > 0) ? true : false;
+  bool sameSign = mu1Pt*mu2Pt > 0;
 
   // dR cut
   float deta = mu1Eta - mu2Eta;
   float dphi = xAOD::P4Helpers::deltaPhi(mu1Phi, mu2Phi);
   dR = sqrt(deta*deta + dphi*dphi);
-  bool dRisClose = ( dR < dRThres ) ? true : false;
+  bool dRisClose = dR < dRThres;
 
   // mass cut
   invMass = calcinvMass(0., mu1Pt, mu1Eta, mu1Phi, 0., mu2Pt, mu2Eta, mu2Phi);
-  bool massIsClose = ( invMass < massThres ) ? true : false;
+  bool massIsClose = invMass < massThres;
 
   // for monitorinng log10 plot
   const float monitor_limit = 1e-4;
@@ -81,7 +81,7 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
 
   // total judge
-  bool overlap = ( sameSign && dRisClose && massIsClose ) ? true : false;
+  bool overlap = sameSign && dRisClose && massIsClose;
   ATH_MSG_DEBUG( "   ...=> isOverlap=" << overlap );
 
   fill(m_group+"_"+chain, dR, invMass, dRLog10, invMassLog10);
@@ -90,7 +90,7 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 }
 
 
-bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer> muEL1, const ElementLink<xAOD::L2CombinedMuonContainer> muEL2) const {
+bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer>& muEL1, const ElementLink<xAOD::L2CombinedMuonContainer>& muEL2) const {
 
   const float ZERO_LIMIT = 0.00001;
 
@@ -117,19 +117,19 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
 
   // same sign cut
-  bool sameSign = ( mu1Pt*mu2Pt > 0) ? true : false;
+  bool sameSign = mu1Pt*mu2Pt > 0;
 
   // dR cut
   float deta = mu1Eta - mu2Eta;
   float dphi = xAOD::P4Helpers::deltaPhi(mu1Phi, mu2Phi);
   dR = sqrt(deta*deta + dphi*dphi);
-  bool dRisClose = ( dR < dRThres ) ? true : false;
+  bool dRisClose = dR < dRThres;
 
   // dR(by L2SA) cut
   bool dRbySAisClose = false;
   const xAOD::L2StandAloneMuon* muSA1 = (*muEL1)->muSATrack();
   const xAOD::L2StandAloneMuon* muSA2 = (*muEL2)->muSATrack();
-  if( muSA1 == 0 || muSA2 == 0 ) return false;
+  if( muSA1 == nullptr || muSA2 == nullptr ) return false;
   else {
     float deta = muSA1->etaMS() - muSA2->etaMS();
     float dphi = xAOD::P4Helpers::deltaPhi(muSA1->phiMS(), muSA2->phiMS());
@@ -139,7 +139,7 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
   // mass cut
   invMass = calcinvMass(0., mu1Pt, mu1Eta, mu1Phi, 0., mu2Pt, mu2Eta, mu2Phi);
-  bool massIsClose = ( invMass < massThres ) ? true : false;
+  bool massIsClose = invMass < massThres;
 
   // for monitorinng log10 plot
   const float monitor_limit = 1e-4;
@@ -148,7 +148,7 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 
 
   // total judge
-  bool overlap = ( sameSign && dRisClose && massIsClose && dRbySAisClose ) ? true : false;
+  bool overlap = sameSign && dRisClose && massIsClose && dRbySAisClose;
   ATH_MSG_DEBUG( "   ...=> isOverlap=" << overlap );
 
   fill(m_group+"_"+chain, dR, invMass, dRLog10, invMassLog10);
@@ -278,7 +278,7 @@ StatusCode L2OverlapRemoverMonMT::chooseBestMuon(const std::string &chain, std::
 
 
 float L2OverlapRemoverMonMT::calcinvMass(double m1, double pt1, double eta1, double phi1,
-                                         double m2, double pt2, double eta2, double phi2) const
+                                         double m2, double pt2, double eta2, double phi2) 
 {
   const double ZERO_LIMIT = 1e-12;
 
