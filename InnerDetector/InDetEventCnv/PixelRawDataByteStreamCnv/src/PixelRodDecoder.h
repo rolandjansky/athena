@@ -5,7 +5,7 @@
 #ifndef PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
 #define PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
 
-#include <atomic>
+
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -16,7 +16,7 @@
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
+#include <atomic>
 class PixelID;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
@@ -146,9 +146,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     bool checkDataWordsCorruption( uint32_t word ) const;
 
     //!< flags concerning the detector configuration; set at config time
-    bool m_is_ibl_present;
-    bool m_is_ibl_module;
-    bool m_is_dbm_module;
+    bool m_is_ibl_present{};
+    bool m_is_ibl_module{};
+    bool m_is_dbm_module{};
 
     //!< if the flag is set to true appropriate bits are set in event info
     StatusCode updateEventInfoIfEventCorrupted( bool isCorrupted ) const;

@@ -13,6 +13,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "PixelRawContByteStreamTool.h"
+#include "InDetIdentifier/PixelID.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+
 
 //#define PIXEL_DEBUG ;
 //#define PLOTS ;
