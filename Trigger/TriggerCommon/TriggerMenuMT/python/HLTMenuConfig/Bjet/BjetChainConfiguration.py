@@ -13,11 +13,11 @@ from .BjetMenuSequences import getBJetSequence
 #----------------------------------------------------------------
 class BjetChainConfiguration(ChainConfigurationBase):
 
-    def __init__(self, chainDict, jet):
+    def __init__(self, chainDict, jc_name):
         ChainConfigurationBase.__init__(self, chainDict)
 
         # TODO: figure out how to get the jet collection name
-        self.jc_name = ''
+        self.jc_name = jc_name
 
     # ----------------------
     # Assemble the chain depending on information from chainName

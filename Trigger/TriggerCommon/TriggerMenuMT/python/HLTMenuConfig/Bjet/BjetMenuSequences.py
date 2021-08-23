@@ -52,8 +52,8 @@ def getBJetSequence(jc_name):
 
     # Output container names as defined in TriggerEDMRun3
     jc_key = f'{jc_name}_'if jc_name else ''
-    InputMakerAlg.InViewJets = recordable( f'HLT_{jc_key}bJets' )
-    BTagName = recordable(f'HLT_{jc_key}BTagging')
+    InputMakerAlg.InViewJets = recordable( f'{jc_key}bJets' )
+    BTagName = recordable(f'{jc_key}BTagging')
 
     # Prepare data objects for view verifier
     viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % InputMakerAlg.InViewRoIs ),

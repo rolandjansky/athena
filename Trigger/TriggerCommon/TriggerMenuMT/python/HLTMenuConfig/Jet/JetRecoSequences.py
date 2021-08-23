@@ -41,7 +41,10 @@ def jetClusterSequence(configFlags, RoIs, clusterCalib):
 
 ###############################################################################################
 # Sequences that set up the concrete jet finding job
-jetNamePrefix = "HLT_"
+
+def getJetNamePrefix():
+    jetNamePrefix = "HLT_"
+    return jetNamePrefix
 
 # Need to do this hacky extraction to get around the inability
 # to hash dicts as input to RecoFragmentsPool.retrieve
@@ -110,9 +113,9 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
             PFHLTSequence,
             configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"], cellsin="CaloCellsFS")
         buildSeq += pfseq
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=jetNamePrefix)
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=getJetNamePrefix())
     else:
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix)
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey,prefix=getJetNamePrefix())
     
     # chosen jet collection
     jetsFullName = jetDef.fullname()
@@ -202,7 +205,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         # Add the event shape alg if needed for area subtraction
         # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
         
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix, voronoiRf = 1.0 )
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, getJetNamePrefix(), voronoiRf = 1.0 )
         recoSeq += conf2toConfigurable(eventShapeAlg)
         # Not currently written because impossible to merge
         # across event views, which is maybe a concern in
@@ -301,7 +304,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
                           OutputContainer=filteredJetsName,
                           PtMin=rcJetPtMin)
 
-    rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict, filteredJetsName, basicJetDef.inputdef.label, jetNamePrefix, '_'+jetRecoDict["jetCalib"])
+    rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict, filteredJetsName, basicJetDef.inputdef.label, getJetNamePrefix(), '_'+jetRecoDict["jetCalib"])
     rcModList = [] # Could set substructure mods
     rcJetDef.modifiers = rcModList
 
