@@ -732,6 +732,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       const xAOD::EmTauRoIContainer* l1Tau_cont = SG::get(m_emRoIKey);
       if ( !l1Tau_cont ){ // retrieve arguments: container type, container key
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting!");
+        return StatusCode::FAILURE;
       } else {
         ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
       }

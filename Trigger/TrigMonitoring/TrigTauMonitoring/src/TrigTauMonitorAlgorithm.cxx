@@ -641,8 +641,9 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
     }
 
     const xAOD::Jet *jetSeed = tau->jet();
-    if (!jetSeed) {
+    if (jetSeed==nullptr) {
       ATH_MSG_ERROR("Tau jet link is invalid.");
+      continue;
     } 
 
     if(!jetSeed->getConstituents().isValid()) {
@@ -654,7 +655,8 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
     for (const auto jc : jetSeed->getConstituents()) {
       auto cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
       if (!cl) {
-	ATH_MSG_ERROR("Calorimeter cluster is invalid.");
+        ATH_MSG_ERROR("Calorimeter cluster is invalid.");
+        continue;
       }
 
       const auto lc_p4 = tau->p4(xAOD::TauJetParameters::DetectorAxis);
