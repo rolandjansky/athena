@@ -24,7 +24,7 @@ namespace {
     static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > acc_link("truthParticleLink");
     //
     static const SG::AuxElement::Decorator<int> dec_origin("truthOrigin");
-    static const SG::AuxElement::Decorator<int> dec_type ("truthType=");
+    static const SG::AuxElement::Decorator<int> dec_type ("truthType");
     static const SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer> > dec_link("truthParticleLink");
     
 }  // namespace
