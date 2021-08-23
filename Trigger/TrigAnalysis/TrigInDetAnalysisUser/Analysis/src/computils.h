@@ -55,6 +55,7 @@ double Entries( TH1* h );
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
+bool contains( const std::string& s, char p) noexcept;
 
 /// does a string contain the substring at the beginning of the string
 bool fcontains( const std::string& s, const std::string& p);
@@ -1083,12 +1084,12 @@ private:
 
   void getextra() { 
     if ( contains( m_details[0], "-" ) ) { 
-      m_extra = m_details[0].substr( m_details[0].find("-"), m_details[0].size() );
-      m_details[0] = m_details[0].substr( 0, m_details[0].find("-") );
+      m_extra = m_details[0].substr( m_details[0].find('-'), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find('-') );
     }
     if ( contains( m_details[0], "+" ) ) { 
-      m_extra = m_details[0].substr( m_details[0].find("+"), m_details[0].size() );
-      m_details[0] = m_details[0].substr( 0, m_details[0].find("+") );
+      m_extra = m_details[0].substr( m_details[0].find('+'), m_details[0].size() );
+      m_details[0] = m_details[0].substr( 0, m_details[0].find('+') );
     }
   }
 

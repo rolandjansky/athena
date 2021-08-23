@@ -740,7 +740,7 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
          rhk = & m_iKeyGFexJets;
       } else if( confThr.name().find("jL") == 0 ) {
          rhk = & m_iKeyJFexLJets;
-      } else if( confThr.name().find("j") == 0 ) {
+      } else if( confThr.name().find('j') == 0 ) {
          rhk = & m_iKeyJFexJets;
       } else {
          ATH_MSG_ERROR( "Unexpected threshold name " << confThr.name() << ". Should start with j, jL, g, or J.");

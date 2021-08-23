@@ -161,11 +161,11 @@ float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
   if (isdines) trfunc2.SetParameters(0.21, 3.57, 17.0);
   else trfunc2.SetParameters(0.0, 0.0, 0.0);
   trfunc2.SetRange(0,2);
-  if (opt.find("3")==string::npos) trfunc2.FixParameter(3,0);
+  if (opt.find('3')==string::npos) trfunc2.FixParameter(3,0);
   trfunc2.SetLineColor(4) ;
   int result3 = trgr.Fit(&trfunc2,"QR"); // always fit the t-r relation
   trgr.SetTitle(trrelation.data());
-  if (opt.find("Q")==string::npos) trgr.Write();
+  if (opt.find('Q')==string::npos) trgr.Write();
   rtpars[0] = trfunc2.GetParameter(0);
   rtpars[1] = trfunc2.GetParameter(1);
   rtpars[2] = trfunc2.GetParameter(2);
@@ -174,7 +174,7 @@ float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
   // r-t relation
   TF1 rtfunc2("rtfunc2",rtrelation.data(),mintime,200);
   rtfunc2.SetRange(-0.1,60);
-  if (opt.find("3")==string::npos) rtfunc2.FixParameter(3,0);
+  if (opt.find('3')==string::npos) rtfunc2.FixParameter(3,0);
   rtfunc2.SetLineColor(4) ;
   if (isdines) rtfunc2.SetParameters(trfunc2.GetParameter(0),trfunc2.GetParameter(1),trfunc2.GetParameter(2),trfunc2.GetParameter(3));
   else {
