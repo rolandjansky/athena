@@ -464,7 +464,7 @@ class AthConfigFlags(object):
 
             try:
                 exec("type({})".format( value ) )
-            except NameError: #Can't determine type, assume we got an un-quoted string
+            except (NameError, SyntaxError): #Can't determine type, assume we got an un-quoted string
                 value="\"{}\"".format( value )
 
             #Arg looks good enough, just exec it:

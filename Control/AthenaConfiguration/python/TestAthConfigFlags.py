@@ -142,9 +142,10 @@ class flagsFromArgsTest(unittest.TestCase):
         self.flags.addFlag("Exec.DebugStage","")
         self.flags.addFlag('Input.Files',[])
         self.flags.addFlag('detA.flagB',0)
+        self.flags.addFlag("detA.flagC","")
 
     def runTest(self):
-        argline="-l VERBOSE --debug exec --evtMax=10 --skipEvents=3 --filesInput=bla1.data,bla2.data detA.flagB=7"
+        argline="-l VERBOSE --debug exec --evtMax=10 --skipEvents=3 --filesInput=bla1.data,bla2.data detA.flagB=7 detA.flagC=a.2"
         print ("Interpreting arguments:")
         print (argline)
         self.flags.fillFromArgs(argline.split())
@@ -154,6 +155,7 @@ class flagsFromArgsTest(unittest.TestCase):
         self.assertEqual(self.flags.Exec.DebugStage,"exec","Failed to set DebugStage from args")
         self.assertEqual(self.flags.Input.Files,["bla1.data","bla2.data"],"Failed to set FileInput from args")
         self.assertEqual(self.flags.detA.flagB,7,"Failed to set arbitrary from args")
+        self.assertEqual(self.flags.detA.flagC,"a.2","Failed to set arbitrary unquoted string from args")
 
 class TestHash(TestFlagsSetupDynamic):
     def runTest(self):
