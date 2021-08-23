@@ -518,7 +518,7 @@ StatusCode IDPerfMonEoverP::execute()
 
   // Loop over the Electrons
   ATH_MSG_DEBUG("Electron info. being stored");
-  for(; iter != iterEnd ; iter++) {
+  for(; iter != iterEnd ; ++iter) {
     if (m_electronCounter >= NOS_ELECTRONS) break;
     const xAOD::Electron *pThisElectron = (*iter);
     m_author[m_electronCounter] = pThisElectron->author(xAOD::EgammaParameters::AuthorElectron);
