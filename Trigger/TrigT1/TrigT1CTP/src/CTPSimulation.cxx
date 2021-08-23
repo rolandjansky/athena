@@ -745,7 +745,7 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
       } else {
          ATH_MSG_ERROR( "Unexpected threshold name " << confThr.name() << ". Should start with j, jL, g, or J.");
       }
-      if(!rhk->empty()) {
+      if(rhk!=nullptr && !rhk->empty()) {
          auto jets = SG::makeHandle( *rhk, context );
          if ( jets.isValid() ) {
             auto pt = confThr.getAttribute<unsigned int>("pt");
