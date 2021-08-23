@@ -156,7 +156,7 @@ namespace JiveXML {
         //Loop over associated truth tracks with same id
         typedef PRD_MultiTruthCollection::const_iterator iter;
         std::pair<iter,iter> equalIDRange = TRTMultiTruthMap->equal_range(id);
-        for ( iter TRTMultiTruthMapItr = equalIDRange.first; TRTMultiTruthMapItr != equalIDRange.second; TRTMultiTruthMapItr++){
+        for ( iter TRTMultiTruthMapItr = equalIDRange.first; TRTMultiTruthMapItr != equalIDRange.second; ++TRTMultiTruthMapItr){
           NBarcodes++;
           barcodes.push_back(DataType(TRTMultiTruthMapItr->second.barcode()));
         }
