@@ -109,9 +109,9 @@ fi
 # on build errors. To be able to see all failures at once.
 if [[ "${ATLAS_EXTRA_MAKE_ARGS[@]}" = "" ]]; then
    if [[ "${ATLAS_EXTRA_CMAKE_ARGS[@]}" =~ "Ninja" ]]; then
-      ATLAS_EXTRA_MAKE_ARGS+=(-- -k0)
+      ATLAS_EXTRA_MAKE_ARGS+=(-k0)
    else
-      ATLAS_EXTRA_MAKE_ARGS+=(-- -k)
+      ATLAS_EXTRA_MAKE_ARGS+=(-k)
    fi
 fi
 
@@ -176,7 +176,7 @@ if [ -n "${ATLAS_EXE_MAKE}" ]; then
       "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}/*/share/clid.db"
    # Build the project.
    { atlas_build_time PROJECT_BUILD cmake                                      \
-      --build "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}"                 \
+      --build "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}" --              \
       ${ATLAS_EXTRA_MAKE_ARGS[@]}; }                                           \
    2>&1 | tee "${ATLAS_BUILD_DIR}/build/${ATLAS_PROJECT_NAME}/cmake_build.log" \
    || ((ERROR_COUNT++))

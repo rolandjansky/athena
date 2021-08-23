@@ -107,7 +107,7 @@ rm -f $error_stamp
 # Build it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
- cmake --build "${BUILDDIR}" ${EXTRAMAKE[@]} || touch $error_stamp
+ cmake --build "${BUILDDIR}" -- ${EXTRAMAKE[@]} || touch $error_stamp
 } 2>&1 | tee "${BUILDDIR}/cmake_build.log"
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp
