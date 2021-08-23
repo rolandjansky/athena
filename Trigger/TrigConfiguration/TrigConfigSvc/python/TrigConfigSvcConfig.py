@@ -99,9 +99,7 @@ class SetupTrigConfigSvc(object):
                 ServiceMgr += ds
 
             self.mlog.info( "setup TrigConfigSvc and add instance to ServiceMgr" )
-            trigSvc = TrigConfigSvc("TrigConfigSvc")
-            trigSvc.PriorityList = self.states
-            ServiceMgr += trigSvc
+            ServiceMgr += TrigConfigSvc("TrigConfigSvc")
             from AthenaCommon.AppMgr import theApp
             theApp.CreateSvc += [ ServiceMgr.TrigConfigSvc.getFullName() ]
 
