@@ -63,7 +63,7 @@ def getTrigConfigFromFlag( flags ):
         lbNumber = flags.Input.LumiBlockNumber[0]
         if dbconn == "":
             dbconn = getTrigConfFromCool(runNumber, lbNumber)["DB"]
-        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
+        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
             d = getTrigConfFromCool(runNumber, lbNumber)            
             if smk is None:
                 smk = d["SMK"]
