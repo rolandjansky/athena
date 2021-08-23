@@ -162,7 +162,7 @@ private:
   bool m_skipDeltaPoverP;
 
   /// Flag to toggle the correction of deltaEta1 for the pear shape distortion of the LAr
-  bool m_correctDeltaEta;
+  bool m_correctDeltaEta = false;
 
   ///  read handle key to heavy ion container
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_HIESContKey{
