@@ -30,13 +30,15 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkParameters/TrackParameters.h"
 // we may save out some private stuff
-#include "TTree.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include <vector>
 
+
+class TTree;
 
 namespace Trk
 {
@@ -46,10 +48,7 @@ namespace Trk
  class ITrackLink;
  class IVertexSeedFinder;
  class IImpactPoint3dEstimator;
-// class IVertexTrackCompatibilityEstimator;
-// class ImpactPoint3dAtaPlaneFactory;
  class IVertexLinearizedTrackFactory;
-// class ITrkDistanceFinder;
  class IVxCandidateXAODVertex;
 }
 //
