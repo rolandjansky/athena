@@ -28,7 +28,7 @@ private:
       this, "TrackExtrapolationQuadraticTerm", -44.7818374,
       "The quadratic term in the track extrapolation"};
   Gaudi::Property<double> m_trackExtrapolationLinear{
-      this, "TrackExtrapolationQuarticTerm", 540.656643,
+      this, "TrackExtrapolationLinearTerm", 540.656643,
       "The linear term in the track extrapolation"};
 }; //> end class ApproximateTrackToLayerTool
 
