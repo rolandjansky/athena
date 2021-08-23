@@ -16,7 +16,7 @@ int main() {
   using namespace std;
   using TrigCompositeUtils::DecisionID;
 
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
     cerr << "ERROR This test can not be run" << endl;
     return 0;
@@ -24,7 +24,7 @@ int main() {
   assert(pSvcLoc);
   MsgStream log(Athena::getMessageSvc(), "void_record_test");
   
-  StoreGateSvc* pStore = 0;
+  StoreGateSvc* pStore{nullptr};
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
     log << MSG::INFO << "SG pointer: " << pStore << endmsg;
   } else {

@@ -63,7 +63,7 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
 int main() {
   CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   using namespace std;
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if( !Athena_test::initGaudi("test.txt",  pSvcLoc) ) {
     cerr << "ERROR This test can not be run" << endl;
     return -1;
@@ -77,7 +77,7 @@ int main() {
   IToolSvc * toolSvc = nullptr;
   VALUE( pSvcLoc->service("ToolSvc", toolSvc, true) ) EXPECTED ( StatusCode::SUCCESS );
   
-  IAlgTool* algTool;
+  IAlgTool* algTool{nullptr};
   VALUE( toolSvc->retrieveTool("TriggerEDMSerialiserTool/schemaTest", algTool) ) EXPECTED( StatusCode::SUCCESS );
   TriggerEDMSerialiserTool* ser = dynamic_cast< TriggerEDMSerialiserTool*>(algTool);
   VALUE( ser == nullptr ) EXPECTED ( false );

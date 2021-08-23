@@ -23,8 +23,8 @@ int main ATLAS_NOT_THREAD_SAFE () {
   errorcheck::ReportMessage::hideFunctionNames (true);
   
   // initialize Gaudi, SG
-  ISvcLocator* pSvcLoc;
-  Athena_test::initGaudi(pSvcLoc); 
+  ISvcLocator* pSvcLoc{nullptr};
+  assert( Athena_test::initGaudi(pSvcLoc) );
   StoreGateSvc* pSG(0);
   assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );
 
