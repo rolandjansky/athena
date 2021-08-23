@@ -1,48 +1,45 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef PIXELATHHITMONTOOL_H
 #define PIXELATHHITMONTOOL_H
 
 #include "PixelAthMonitoringBase.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-//#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetRawData/PixelRDO_Container.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "InDetRawData/InDetRawDataContainer.h"
-#include "InDetRawData/InDetTimeCollection.h"
-
 class PixelID;
-class PixelRDORawData;
 
-class PixelAthHitMonAlg : public PixelAthMonitoringBase {
-
- public:
-  
-  PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~PixelAthHitMonAlg();
+class PixelAthHitMonAlg: public PixelAthMonitoringBase {
+public:
+  PixelAthHitMonAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~PixelAthHitMonAlg() = default;
   virtual StatusCode initialize() override;
-  virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
+  virtual StatusCode fillHistograms(const EventContext& ctx) const override;
   std::string findComponentString(int bec, int ld) const;
-
- private:
-
+private:
   ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
-  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
+  {
+    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
+  };
 
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool {
+    this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
+  };
 
-  const PixelID* m_pixelid;
+  const PixelID* m_pixelid {};
 
-  SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOName{this, "RDOName", "PixelRDOs", "rdo data key"};
+  SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOName {
+    this, "RDOName", "PixelRDOs", "rdo data key"
+  };
 
-  bool m_doOnline;
-  bool m_doLumiBlock;
-  bool m_doLowOccupancy;
-  bool m_doHighOccupancy;
-  bool m_doHeavyIonMon;
-  bool m_doFEPlots;
+  bool m_doOnline {};
+  bool m_doLumiBlock {};
+  bool m_doLowOccupancy {};
+  bool m_doHighOccupancy {};
+  bool m_doHeavyIonMon {};
+  bool m_doFEPlots {};
 };
 #endif
