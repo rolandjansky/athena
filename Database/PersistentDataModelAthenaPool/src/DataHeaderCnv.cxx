@@ -126,7 +126,7 @@ StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObjec
    m_sharedWriterCachedDH = reinterpret_cast<DataHeader_p6*>( pObject );
    m_sharedWriterCachedDHToken = pAddress->par()[0];
    std::size_t tagBeg = pAddress->par()[1].find("[KEY=") + 5;
-   std::size_t tagSize = pAddress->par()[1].find("]", tagBeg) - tagBeg;
+   std::size_t tagSize = pAddress->par()[1].find(']', tagBeg) - tagBeg;
    m_sharedWriterCachedDHKey = pAddress->par()[1].substr( tagBeg, tagSize );
    return StatusCode::SUCCESS;
 }

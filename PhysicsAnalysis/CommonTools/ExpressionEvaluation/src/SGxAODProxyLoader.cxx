@@ -267,7 +267,7 @@ namespace ExpressionParsing {
         // or refers to  a method call
         auto set_ids = [&method_data_id,&container_data_id,&var_name,&container_name,verbose](const DataObjID *obj_data_id) -> bool {
                               std::string_view handle_key(obj_data_id->key());
-                              std::string::size_type pos=obj_data_id->key().find("+");
+                              std::string::size_type pos=obj_data_id->key().find('+');
                               pos =  (pos==std::string::npos  ?  0 : pos+1);
                               handle_key=handle_key.substr(pos,handle_key.size()-pos);
                               if (verbose && (handle_key == container_name || handle_key == var_name)) {

@@ -161,7 +161,7 @@ namespace JiveXML {
        }
 
        // I don't understand this bit
-       int i = (*itr).first.find(" ");
+       int i = (*itr).first.find(' ');
        if (i != int(std::string::npos))
          (*m_EventBuffer) << "\n</" << (*itr).first.substr(0,i) <<">\n";
        else

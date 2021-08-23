@@ -461,7 +461,7 @@ int main(int argc, char** argv) {
       std::string algname = tail(algorithms[algorithm], "/" );
       std::string dirname = tail( head(algorithms[algorithm], "/" ), "/" );
       std::string algpname = algorithms[algorithm];
-      replace( algpname, "/", "_" );
+      replace( algpname, '/', '_' );
 
       if ( algname.find("h_")==0 ) algname.erase(0, 2);
     
@@ -474,14 +474,14 @@ int main(int argc, char** argv) {
       
       std::string stub = directory;
 
-      size_t pos = stub.find("/");
-      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find("/"); }
+      size_t pos = stub.find('/');
+      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find('/'); }
 
       while ( plotname.find(stub)!=std::string::npos ) { 
 	plotname.erase( 0, plotname.find(stub)+stub.size() );
       }
 
-      while ( plotname.find("_")==0 ) plotname.erase( 0, 1 );
+      while ( plotname.find('_')==0 ) plotname.erase( 0, 1 );
 
       plotname = output_dir + plotname;
 

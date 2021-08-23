@@ -176,16 +176,16 @@ T* Get( TFile& f, const std::string& n, const std::string& dir="",
 
   std::string name;
 
-  size_t pos = n.find("+");
+  size_t pos = n.find('+');
   if ( pos!=std::string::npos ) name = n.substr( 0, pos );
   else                          name = n;
 
   T* h = (T*)f.Get( name.c_str() );
-  if ( h || dir=="" || name.find(dir)!=std::string::npos ) { 
+  if ( h || dir.empty() || name.find(dir)!=std::string::npos ) { 
     std::cout << "Get() name 0 " << name << " :: " << h << std::endl;
   }
   else { 
-    name = dir+"/"+name;
+    name = dir+'/'+name;
     h = (T*)f.Get( name.c_str() );
     std::cout << "Get() name 1 " << name << " :: " << h << std::endl;
   }
@@ -496,22 +496,22 @@ int main(int argc, char** argv) {
     std::string arg  = argv[i];
 
 
-    if ( arg.find("-")!=0 && addinglabels ) {
+    if ( arg.find('-')!=0 && addinglabels ) {
       std::string label = arg;
       fullreplace( label, "__", " " );
-      replace( label, "#", " " );
+      replace( label, '#', ' ' );
       usrlabels.push_back( label );
       continue;
     }
     else addinglabels = false;
 
-    if ( arg.find("-")!=0 && addingrefchains ) { 
+    if ( arg.find('-')!=0 && addingrefchains ) { 
       refchains.push_back( arg );
       continue;
     }
     else addingrefchains = false;
 
-    if ( arg.find("-")!=0 && addingtags ) { 
+    if ( arg.find('-')!=0 && addingtags ) { 
       taglabels.push_back( fullreplace( arg, "__", " " ) );
       std::cout << "\tadding tag label: " << taglabels.back() << std::endl;
       continue;
@@ -671,7 +671,7 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) xpattern=argv[i];
       else return usage(argv[0], -1, "no patterns provided");
     }
-    else if ( arg.find("-")==0 ) {
+    else if ( arg.find('-')==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
       return usage(argv[0], -4);
     }
@@ -689,8 +689,8 @@ int main(int argc, char** argv) {
 
 	std::string chain = arg;
 
-	replace ( chain, ":", "_" );
-	replace ( chain, ";", "_" );
+	replace ( chain, ':', '_' );
+	replace ( chain, ';', '_' );
 	chains.push_back(chain);
 
 	std::cout << "file: " << file << "\tchain: " << chain << std::endl;
@@ -699,7 +699,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if ( ftestname=="" )  { 
+  if ( ftestname.empty() )  { 
     std::cerr << "main(): test file not specified " << std::endl;
     return -1;
   }
@@ -729,7 +729,7 @@ int main(int argc, char** argv) {
 
 
   if ( noref==false ) { 
-    if ( frefname=="" )  { 
+    if ( frefname.empty() )  { 
       std::cerr << "main(): ref file not specified " << std::endl;
       Plotter::setplotref(false);
       noref = true;
@@ -879,12 +879,12 @@ int main(int argc, char** argv) {
   
 
   // Make output directory                                                                                                                           
-  if (dir != "") {
+  if (!dir.empty()) {
     
     gDirectory->pwd();
     
     std::cout << "trying to make directory" << std::endl;
-    dir += "/";
+    dir += '/';
     if ( !quiet && !noplots && !exists(dir) ) { 
       if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
       else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
@@ -905,21 +905,21 @@ int main(int argc, char** argv) {
 
   std::cout << "testrun: " << testrun << "\nrefrun:  " << refrun << std::endl;
 
-  if ( testrun != "" && refrun != testrun ) { 
-    if ( pattern == "" ) { 
+  if ( !testrun.empty() && refrun != testrun ) { 
+    if ( pattern.empty() ) { 
       pattern = testrun;
       regex   =  refrun;
     }
   }
   
-  if ( refrun != "" ) { 
+  if ( !refrun.empty() ) { 
 
     std::string newtag = "Reference: ";
 
     std::cout << "refrun: " << refrun << std::endl;
 
     size_t pos;
-    while ( (pos=refrun.find("_"))!=std::string::npos ) refrun.replace( pos, 1, " " );
+    while ( (pos=refrun.find('_'))!=std::string::npos ) refrun.replace( pos, 1, " " );
     newtag += refrun;
 
     std::string rawrun = refrun.erase( refrun.find("run"), 4 );
@@ -931,8 +931,8 @@ int main(int argc, char** argv) {
       release.erase( 0, release.find(rawrun) ); 
    
       if    ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
-      while ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
-      while ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      while ( contains(release,".") ) release.erase( release.find('.'), release.size() ); 
+      while ( contains(release,"-") ) release.erase( release.find('-'), release.size() ); 
       while ( contains(release,"_p") ) release.erase( release.find("_p"), release.size() ); 
       while ( contains(release,"_t") ) release.erase( release.find("_t"), release.size() ); 
 
@@ -981,9 +981,9 @@ int main(int argc, char** argv) {
 
   chainmap_t* chainmap = nullptr;
 
-  if ( mapfile == "" ) mapfile = configfile;
+  if ( mapfile.empty() ) mapfile = configfile;
 
-  if ( mapfile != "" ) {
+  if ( !mapfile.empty() ) {
 
     ReadCards m( mapfile );
 
@@ -1049,7 +1049,7 @@ int main(int argc, char** argv) {
 
 	std::cout << "name:         " << name << std::endl;
 
-	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(":") ) + " : ";
+	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(':') ) + " : ";
 	else                           chain_name[j] = name;
 
 	if  ( chain_name[j] == " : "  )  chain_name[j] = "";
@@ -1343,7 +1343,7 @@ int main(int argc, char** argv) {
       std::string xaxis = histo.xtitle();
       std::string yaxis = histo.ytitle();
       
-      if ( xregex!="" ) { 
+      if ( !xregex.empty() ) { 
       	size_t pos = xaxis.find(xregex);
 	if ( pos!=std::string::npos ) xaxis.replace( pos, xregex.size(), xpattern );  
 	pos = yaxis.find(xregex);
@@ -1991,7 +1991,7 @@ int main(int argc, char** argv) {
 
 	  /// replace the "/" in the filename so we don't try to 
 	  /// make plots in subdirectories by accident  
-	  replace(plotname, "/", "_"); 
+	  replace(plotname, '/', '_'); 
 
 	}
 
@@ -2518,7 +2518,7 @@ int main(int argc, char** argv) {
 	  plots_eff.Draw( legend_eff );
 	}
 
-	if ( noreflabel!="" ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
+	if ( !noreflabel.empty() ) DrawLabel(0.1, 0.06, noreflabel, kRed, 0.03 );
 
       } // no plots
     
@@ -2541,7 +2541,7 @@ int main(int argc, char** argv) {
 
         if ( panel.size()>1 ) {
 	  useplotname = panel.name();
-	  replace( useplotname, "/", "_" );
+	  replace( useplotname, '/', '_' );
 	}	
 	else { 
 	  useplotname = plotname;
