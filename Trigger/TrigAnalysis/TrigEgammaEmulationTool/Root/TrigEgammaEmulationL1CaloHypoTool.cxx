@@ -37,7 +37,7 @@ bool TrigEgammaEmulationL1CaloHypoTool::decide(  const Trig::TrigData &input ) c
 
   //for(const auto& l1 : *l1Cont){
   if (l1->roiType() != xAOD::EmTauRoI::EMRoIWord){
-    ATH_MSG_INFO("This roi is not EMRoIWord!");
+    ATH_MSG_DEBUG("This roi is not EMRoIWord!");
     return true;
   }
   float emE     = l1->emClus()/Gaudi::Units::GeV;   // Cluster energy
@@ -45,37 +45,37 @@ bool TrigEgammaEmulationL1CaloHypoTool::decide(  const Trig::TrigData &input ) c
   float hadCore = l1->hadCore()/Gaudi::Units::GeV;  // Hadronic core energy
   float emIsol  = l1->emIsol()/Gaudi::Units::GeV;   // EM Isolation energy
 
-  ATH_MSG_INFO("emE     = " << emE);
-  ATH_MSG_INFO("eta     = " << eta);
-  ATH_MSG_INFO("hadCore = " << hadCore);
-  ATH_MSG_INFO("emIsol  = " << emIsol);
+  ATH_MSG_DEBUG("emE     = " << emE);
+  ATH_MSG_DEBUG("eta     = " << eta);
+  ATH_MSG_DEBUG("hadCore = " << hadCore);
+  ATH_MSG_DEBUG("emIsol  = " << emIsol);
   
   if (boost::contains(l1item,"H")) {
-    ATH_MSG_INFO("L1 (H) CUT");
+    ATH_MSG_DEBUG("L1 (H) CUT");
     if (!isolationL1(m_hadCoreCutMin,m_hadCoreCutOff,m_hadCoreCutSlope,hadCore,emE)) {
-      ATH_MSG_INFO("rejected");
+      ATH_MSG_DEBUG("rejected");
       return false;
     }
-    ATH_MSG_INFO("accepted");
+    ATH_MSG_DEBUG("accepted");
   }
 
   if (boost::contains(l1item,"I")) {
-    ATH_MSG_INFO("L1 (I) CUT");
+    ATH_MSG_DEBUG("L1 (I) CUT");
     if (!isolationL1(m_emIsolCutMin,m_emIsolCutOff,m_emIsolCutSlope,emIsol,emE)) {
-      ATH_MSG_INFO("rejected");
+      ATH_MSG_DEBUG("rejected");
       return false;
     }
-    ATH_MSG_INFO("accepted");
+    ATH_MSG_DEBUG("accepted");
   }
 
-  ATH_MSG_INFO("Apply L1 Et cut " << m_l1threshold << " cluster emE " << emE << " eta " << eta);
+  ATH_MSG_DEBUG("Apply L1 Et cut " << m_l1threshold << " cluster emE " << emE << " eta " << eta);
   if (boost::contains(l1item,"V")) {
-    ATH_MSG_INFO("L1 (V) CUT");
+    ATH_MSG_DEBUG("L1 (V) CUT");
     if (!variableEtL1(l1item,emE,eta)) {
-      ATH_MSG_INFO("rejected");
+      ATH_MSG_DEBUG("rejected");
       return false;
     }
-    ATH_MSG_INFO("accepted");
+    ATH_MSG_DEBUG("accepted");
   }
   // add new method for this also
   else if (emE <= m_l1threshold) { // this cut is confirmed to be <=
@@ -92,7 +92,7 @@ bool TrigEgammaEmulationL1CaloHypoTool::decide(  const Trig::TrigData &input ) c
 bool TrigEgammaEmulationL1CaloHypoTool::isolationL1(float min, float offset, float slope, float energy, float emE) const
 {
   if (emE > m_isolMaxCut) {
-    ATH_MSG_INFO("L1 Isolation skipped, ET > Maximum isolation");
+    ATH_MSG_DEBUG("L1 Isolation skipped, ET > Maximum isolation");
     return true;
   }
   float isolation = offset + emE*slope;
@@ -104,7 +104,7 @@ bool TrigEgammaEmulationL1CaloHypoTool::isolationL1(float min, float offset, flo
   bool value = (energy <= isolation);
 
 
-  ATH_MSG_INFO("L1 Isolation ET = " << energy << " ISOLATION CUT " << isolation);
+  ATH_MSG_DEBUG("L1 Isolation ET = " << energy << " ISOLATION CUT " << isolation);
   return value;
 }
 

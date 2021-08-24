@@ -96,7 +96,8 @@ StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx 
       }
 
       auto accept = setAccept(dec, info);
-      auto emu_accept = m_emulatorTool->emulate( dec, info.trigger );
+      bool valid=false;
+      auto emu_accept = m_emulatorTool->emulate( dec, info.trigger, valid );
 
       ATH_MSG_DEBUG( "trigger : " << info.trigger << " (tdt/emu)");
       ATH_MSG_DEBUG( "L1Calo  : " << accept.getCutResult(0) << " / " << emu_accept.getCutResult(0));

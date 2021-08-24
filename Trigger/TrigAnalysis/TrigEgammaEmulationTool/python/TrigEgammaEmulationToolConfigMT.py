@@ -5,7 +5,6 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import single_electron_triggers, single_photon_triggers
 
-
 #
 # emulator config class
 #
@@ -14,9 +13,10 @@ class TrigEgammaEmulationToolConfig:
     #
     # Constructor
     #
-    def __init__(self, name, triggerList, OutputLevel = 0, 
-                                          ElectronTriggerList=single_electron_triggers, 
-                                          PhotonTriggerList=single_photon_triggers):
+    def __init__(self, name, triggerList         = [], 
+                             OutputLevel         = 0, 
+                             ElectronTriggerList = single_electron_triggers, 
+                             PhotonTriggerList   = single_photon_triggers):
 
         self.name = name
         self.__chains = []
@@ -25,13 +25,28 @@ class TrigEgammaEmulationToolConfig:
         self.ElectronTriggerList = ElectronTriggerList
         self.PhotonTriggerList = PhotonTriggerList
 
-        # configure everything
-        self.configure()
-    
+        # force cofnig file path
+        self.ElectronCBConfigFilePath = None
+        self.ElectronDNNConfigFilePath = None
+        self.ElectronLHConfigFilePath = None
+        self.FastCaloConfigFilePath = None
+        self.PhotonCBConfigFilePath = None
 
-    def __call__(self):
+        self.__configured_triggers = []
+
+
+    def core(self):
+        self.update()
         return self.__emulator
  
+
+    def update(self):
+        for trigger in self.TriggerList:
+            if trigger not in self.__configured_triggers:
+                hypo = self.setupChain(trigger)
+                self.__emulator.HypoTools += [hypo]
+                self.__configured_triggers += trigger
+
     #
     # Configure emulator tool
     #
@@ -44,21 +59,16 @@ class TrigEgammaEmulationToolConfig:
         from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
         from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
 
-        # setup all chains
-        for trigger in self.TriggerList:
-            self.setupChain(trigger)
-        
         # create the emulator tool
         self.__emulator = CompFactory.Trig.TrigEgammaEmulationToolMT( self.name, 
-                                                               HypoTools = self.__chains,
                                                                ElectronTriggerList = self.ElectronTriggerList,
                                                                PhotonTriggerList = self.PhotonTriggerList )
 
-        self.__emulator.RingerTools = createTrigEgammaFastCaloSelectors()
-        self.__emulator.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
-        self.__emulator.ElectronCBSelectorTools = createTrigEgammaPrecisionElectronCBSelectors()
-        self.__emulator.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
-        self.__emulator.PhotonCBSelectorTools = createTrigEgammaPrecisionPhotonSelectors()
+        self.__emulator.RingerTools              = createTrigEgammaFastCaloSelectors(ConfigFilePath = self.FastCaloConfigFilePath)
+        self.__emulator.ElectronLHSelectorTools  = createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath = self.ElectronLHConfigFilePath)
+        self.__emulator.ElectronCBSelectorTools  = createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath = self.ElectronCBConfigFilePath)
+        self.__emulator.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath = self.ElectronDNNConfigFilePath)
+        self.__emulator.PhotonCBSelectorTools    = createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath = self.PhotonCBConfigFilePath)
     
     
     #
@@ -69,13 +79,10 @@ class TrigEgammaEmulationToolConfig:
         import cppyy
         cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
-
         from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
         d = dictFromChainName(trigger)
 
         signature = d['signatures'][0]
-        from pprint import pprint
-        pprint(d)
 
         from TrigEgammaHypo.TrigEgammaFastCaloHypoTool          import TrigEgammaFastCaloHypoToolFromDict
         from TrigEgammaHypo.TrigEgammaFastElectronHypoTool      import TrigEgammaFastElectronHypoToolFromDict
@@ -110,7 +117,7 @@ class TrigEgammaEmulationToolConfig:
                                     OutputLevel             = self.OutputLevel
         )
 
-        self.__chains.append(chain)
+        return chain
 
 
 
@@ -179,10 +186,13 @@ def TrigEgammaEmulationToolTestConfig(inputFlags):
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
 
-    emulator = TrigEgammaEmulationToolConfig("EmulatorTool", triggerList)
-    acc.addPublicTool(emulator())
+    emulator = TrigEgammaEmulationToolConfig("EmulatorTool")
+    emulator.configure()
+
+    emulator.TriggerList += triggerList
+    acc.addPublicTool(emulator.core())   
     test.MatchTool = EgammaMatchTool
-    test.EmulatorTool = emulator()
+    test.EmulatorTool = emulator.core()
     test.ElectronTriggerList = [
                                 #"HLT_e5_etcut_L1EM3",
                                 "HLT_e17_lhvloose_L1EM15VHI",
@@ -199,8 +209,6 @@ def TrigEgammaEmulationToolTestConfig(inputFlags):
           xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
         monGroup.defineHistogram("emulations", type='TH1I', path='', title="Event Selection; Cut ; Count",
           xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
-
-
 
     return helper.result()
     
@@ -224,7 +232,7 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1664_r12711_tid25855898_00/AOD.25855898._000124.pool.root.1'
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/AOD_fixCalo.pool.root'
     ConfigFlags.Input.Files = [path]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
@@ -240,7 +248,7 @@ if __name__=='__main__':
   
     # If you want to turn on more detailed messages ...
     cfg.printConfig(withDetails=False) # set True for exhaustive info
-    cfg.run(20) #use cfg.run(20) to only run on first 20 events
+    cfg.run(-1) #use cfg.run(20) to only run on first 20 events
 
 
 
