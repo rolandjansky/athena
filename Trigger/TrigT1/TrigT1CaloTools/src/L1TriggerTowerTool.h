@@ -23,6 +23,7 @@
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrigConfData/L1Menu.h"
 
 class CaloIdManager;
 class CaloLVL1_ID;
@@ -34,7 +35,6 @@ class L1CaloDerivedRunParsContainer;
 class L1CaloRunParametersContainer;
 class L1CaloPprChanStrategyContainer;
 
-namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1
 {
@@ -155,9 +155,6 @@ namespace LVL1
       /// L1Calo conditions
       ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
 
-      /// Trig configurations
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-
       // one of L1CaloPprConditionsContainer{,Run2}*
       
       /// For Run2 strategy (LowMu, HighMu)
@@ -182,6 +179,8 @@ namespace LVL1
 
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
       { this, "EventInfoKey", "EventInfo", "" };
+      SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
+
 
       ///Parameters
       static const int s_saturationValue = 255;
