@@ -216,7 +216,7 @@ namespace CP {
     return isolation_ptcorrection;
   }
 
-  float IsolationCorrection::getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) const
+  float IsolationCorrection::getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) 
   {
     if (!tp) return 0;
     for (unsigned int i = 0; i < tp->numberOfParameters(); ++i)
@@ -495,12 +495,12 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
   }
 
   void IsolationCorrection::load2012Corr() {
-    TFile* file_ptleakagecorr = new TFile( m_corr_file.c_str(), "read" );
+    std::unique_ptr<TFile> file_ptleakagecorr(TFile::Open(m_corr_file.c_str(), "READ"));
     if(!file_ptleakagecorr){
     	ATH_MSG_WARNING("Correction file for 2012 data/mc not found, tool not initialized for 2012 corrections\n");
       m_corr_file = "";
+      return;
     }else{
-
       m_graph_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone40_photon_unconverted_etabin0_extrap") );
       m_graph_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone40_photon_unconverted_etabin1_extrap") );
       m_graph_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone40_photon_unconverted_etabin2_extrap") );
@@ -1169,7 +1169,7 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
   //-----------------------------------------------------------------------
   // Internal function
   // Used to retrieve the correct radius
-  int IsolationCorrection::GetRadius(float radius) const {
+  int IsolationCorrection::GetRadius(float radius) {
     int newrad = 0;
     // avoid roundoff errors by adding 0.1
     if(radius < 1)    newrad = (int)(radius * 100 + 0.1);
@@ -1238,7 +1238,7 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
   //-----------------------------------------------------------------------
   // Internal function
   // Does the final pt scaling
-  float IsolationCorrection::GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor) const {
+  float IsolationCorrection::GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor) {
     // apply the correction to et
     double etaForPt = ((fabs(etaPointing - etaCluster) < 0.15) ? etaPointing : etaCluster);
     double et = (fabs(etaForPt)<99.) ? energy/cosh(etaForPt) : 0.;
@@ -1304,7 +1304,7 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
   // Does the correction for REL18 from TGraph stored into isolation_ptcorrections.root file
   // Returns the correction value in MeV
 
-  int IsolationCorrection::GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) const{
+  int IsolationCorrection::GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) {
     // ph_convFlag==0
     if(conversion_flag == 0) return 0;
     // ((ph_convFlag==1)||(ph_convFlag==2&&ph_ptconv_ratio>0.3)||(ph_convFlag==2&&ph_ptconv_ratio<0.3&&ph_truth_Rconv>140.))
