@@ -80,7 +80,7 @@ if DetFlags.overlay.LVL1_on():
         if not hasattr(ServiceMgr, 'LVL1ConfigSvc'):
             log.info("Will setup LVL1ConfigSvc and add instance to ServiceMgr")
 
-            from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+            from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
             LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
 
             # If read from DB then set up the connection and pass keys
@@ -109,10 +109,7 @@ if DetFlags.overlay.LVL1_on():
 
             # Otherwise read from xml
             else:
-                log.info("LVL1ConfigSvc uses xml file %s ",
-                         TriggerFlags.inputLVL1configFile())
-                LVL1ConfigSvc.XMLFile = findFileInXMLPATH(
-                    TriggerFlags.inputLVL1configFile())
+                raise RuntimeError("LVL1ConfigSvc: XML trigger configuration is not supported anymore")
 
             ServiceMgr += LVL1ConfigSvc
         else:
