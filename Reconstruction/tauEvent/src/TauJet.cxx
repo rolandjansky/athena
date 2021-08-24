@@ -30,6 +30,7 @@
 #include "tauEvent/TauCommonDetails.h"
 #include "tauEvent/TauCommonExtraDetails.h"
 #include "tauEvent/TauDetailsContainer.h"
+#include <algorithm> //for remove_if
 
 
 
@@ -216,8 +217,7 @@ namespace Analysis
         }
 
         //Delete all existing details links
-        while(!m_tauDetails.empty())
-            m_tauDetails.erase(m_tauDetails.begin());
+        m_tauDetails.erase(m_tauDetails.begin(), m_tauDetails.end());
 
         //Add new details (if there is a container and a detail)
         if( (tauDetailsContainer!=0) && (tauCommonDetails!=0)) {
@@ -417,30 +417,27 @@ namespace Analysis
 
     void TauJet::CleanDetailsForAOD()
     {
-        ElementLinkVector<TauDetailsContainer>::iterator idetail
-            = m_tauDetails.begin();
-        while(idetail != m_tauDetails.end()) {
-            // counter
-            const unsigned int i = idetail - m_tauDetails.begin();
-
-            //Remove invalid details
-            if (!(*idetail).isValid()) 	{ 
-                m_tauDetails.erase(idetail);
-                continue;
-            }
-            const TauDetails* detail =* m_tauDetails[i];
-            //Remove 0 details
-            if (detail==0) {
-                m_tauDetails.erase(idetail);
-                continue;
-            }
-            //Remove any extra detail
-            if ( (dynamic_cast<const TauCommonExtraDetails*>(detail)!=0) ||
-                    (dynamic_cast<const TauRecExtraDetails*>(detail)!=0) ||
-                    (dynamic_cast<const Tau1P3PExtraDetails*>(detail)!=0) ) 
-                m_tauDetails.erase(idetail);
-            ++idetail;
-        }
+        //remove invalid details
+        //sroe:I couldn't work out the type here, so use an 'auto' argument
+        auto isInvalid = [](const auto t){return not t.isValid();};
+        auto validEnd = std::remove_if(m_tauDetails.begin(), m_tauDetails.end(), isInvalid);
+        m_tauDetails.erase(validEnd, m_tauDetails.end());
+        //
+        //remove nullptrs before next step
+        auto goodPointerEnd = std::remove(m_tauDetails.begin(), m_tauDetails.end(), nullptr);
+        m_tauDetails.erase(goodPointerEnd, m_tauDetails.end());
+        //remove pointers which cast to details
+        auto castsToDetail = [](const auto t){
+          const TauDetails* detail = * t;
+          auto isNull = (detail == nullptr);
+          auto castToCommon = dynamic_cast<const TauCommonExtraDetails*>(detail);
+          auto castToRec = dynamic_cast<const TauRecExtraDetails*>(detail);
+          auto castTo1P3P = dynamic_cast<const Tau1P3PExtraDetails*>(detail);
+          //rely on pointer to bool conversion
+          return (isNull or castToCommon or castToRec or castTo1P3P);
+        };
+        auto detailPointerEnd = std::remove_if(m_tauDetails.begin(), m_tauDetails.end(), castsToDetail);
+        m_tauDetails.erase(detailPointerEnd, m_tauDetails.end());
     }
 
     void TauJet::CopyToCommonDetails(
