@@ -281,19 +281,12 @@ StatusCode TrigFastTrackFinder::initialize() {
   }
 
   // UTT read/write handles
-  if( m_doHitDV ) {
-    ATH_CHECK(m_recJetRoiCollectionKey.initialize());
-    ATH_CHECK(m_hitDVTrkKey.initialize());
-    ATH_CHECK(m_hitDVSPKey.initialize());
-  }
-  if( m_dodEdxTrk ) {
-     ATH_CHECK(m_dEdxTrkKey.initialize());
-     ATH_CHECK(m_dEdxHitKey.initialize());
-  }
-  if( m_doDisappearingTrk ) {
-     ATH_MSG_INFO("Initializing disTrkCandKey = " << m_disTrkCandKey);
-     ATH_CHECK(m_disTrkCandKey.initialize());
-  }
+  ATH_CHECK( m_recJetRoiCollectionKey.initialize(m_doHitDV) );
+  ATH_CHECK( m_hitDVTrkKey.initialize(m_doHitDV) ) ;
+  ATH_CHECK( m_hitDVSPKey.initialize(m_doHitDV) );
+  ATH_CHECK( m_dEdxTrkKey.initialize(m_dodEdxTrk) );
+  ATH_CHECK( m_dEdxHitKey.initialize(m_dodEdxTrk) );
+  ATH_CHECK( m_disTrkCandKey.initialize(m_doDisappearingTrk) );
 
   //
   ATH_MSG_DEBUG("FTF : " << name()  );
@@ -475,6 +468,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   }
   else {
     ATH_MSG_DEBUG("No tracks found - too few hits in ROI to run " << mnt_roi_nSPs);
+    ATH_CHECK( createEmptyUTTEDMs(ctx) );
     return StatusCode::SUCCESS;
   }
 
@@ -525,6 +519,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       /// TODO: add vertices collection handling here,
       /// should not be 0 at this point unless fastZVseeding
       /// is enabled
+      ATH_CHECK( createEmptyUTTEDMs(ctx) );
       return StatusCode::SUCCESS;
     }
   }
@@ -626,13 +621,13 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
        tracksFail = tracksAll;
     }
     if( m_doDisappearingTrk ) {
-       ATH_MSG_DEBUG("UTT: size of tracks=" << tracks.size() << ", tracksFail=" << tracksFail.size() << ": resultCode=" << resultCode);
+       ATH_MSG_VERBOSE("size of tracks=" << tracks.size() << ", tracksFail=" << tracksFail.size() << ": resultCode=" << resultCode);
        for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
 	  if( ! (*t) ) continue;
 	  m_trackSummaryTool->updateTrack(**t);
 	  disTrk_n_disCombTrks++;
 	  if( (*t)->perigeeParameters()!=0 && isCleaningPassDisTrack(seed, (*t), false) ) {
-	     ATH_MSG_DEBUG("UTT: ... combTrk, cleaningPass");
+	     ATH_MSG_VERBOSE("... combTrk, cleaningPass");
 	     disTrk_n_disCombTrks_cleaning++;
 	     disCombTrks.push_back((*t));
 	     qualityDisCombTrks.emplace_back(std::make_tuple(true, -disTrackQuality((*t)), (*t)));
@@ -643,7 +638,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 	  m_trackSummaryTool->updateTrack(**t);
 	  disTrk_n_disFailTrks++;
 	  if( (*t)->perigeeParameters()!=0 && isCleaningPassDisTrack(seed, (*t), true) ) {
-	     ATH_MSG_DEBUG("UTT: ... failTrk, cleaningPass");
+	     ATH_MSG_VERBOSE("... failTrk, cleaningPass");
 	     disTrk_n_disFailTrks_cleaning++;
 	     disFailTrks.push_back((*t));
 	     qualityDisFailTrks.emplace_back(std::make_tuple(true, -disTrackQuality((*t)), (*t)));
@@ -678,8 +673,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   }
 
   if( m_doDisappearingTrk ) {
-     ATH_MSG_DEBUG("UTT: ===> nr of disFailTrks=" << disTrk_n_disFailTrks << " -> cleaning pass=" << disTrk_n_disFailTrks_cleaning);
-     ATH_MSG_DEBUG("UTT: ===> nr of disCombTrks=" << disTrk_n_disCombTrks << " -> cleaning pass=" << disTrk_n_disCombTrks_cleaning);
+     ATH_MSG_DEBUG("===> nr of disFailTrks=" << disTrk_n_disFailTrks << " -> cleaning pass=" << disTrk_n_disFailTrks_cleaning);
+     ATH_MSG_DEBUG("===> nr of disCombTrks=" << disTrk_n_disCombTrks << " -> cleaning pass=" << disTrk_n_disCombTrks_cleaning);
   }
 
   m_trackMaker->endEvent(trackEventData);
@@ -713,7 +708,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 	     break;
 	  }
        }
-       if( needed_for_disCombTrk) ATH_MSG_DEBUG("UTT: idx=" << idx << " ===> neded for disCombTrk");
+       if( needed_for_disCombTrk) ATH_MSG_VERBOSE("idx=" << idx << " ===> neded for disCombTrk");
     }
     if (std::get<0>(q)==true) {
       initialTracks.push_back(std::get<2>(q));
@@ -725,7 +720,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       }
       else {
 	 if( needed_for_disCombTrk ) {
-	    ATH_MSG_DEBUG("UTT: ... adding to extraDisCombTracks");
+	    ATH_MSG_VERBOSE("... adding to extraDisCombTracks");
 	    extraDisCombTracks.push_back(std::get<2>(q));
 	 }
 	 else {
@@ -757,7 +752,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
      // large dEdx finding
      mnt_timer_dEdxTrk.start();
      for(auto t=outputTrackswTP.begin(); t!=outputTrackswTP.end();t++) { m_trackSummaryTool->updateTrack(**t); }
-     ATH_CHECK(finddEdxTrk(ctx,outputTrackswTP));
+     ATH_CHECK( finddEdxTrk(ctx,outputTrackswTP) );
   }
 
   if( m_dodEdxTrk ) mnt_timer_dEdxTrk.stop(); // to include timing to destroy TrackCollection object
@@ -768,7 +763,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool do_recoverDisCombTrk = true;
   if( m_doDisappearingTrk && (initialTracks.size()!=outputTracks.size()) ) {
-     ATH_MSG_DEBUG("UTT: part of initialTracks fails in fitting. do not try to recover DisCombTracks");
+     ATH_MSG_DEBUG("part of initialTracks fails in fitting. do not try to recover DisCombTracks");
      do_recoverDisCombTrk = false;
   }
 
@@ -776,9 +771,9 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   fittedExtraDisCombTracks.reserve(extraDisCombTracks.size());
   TrackCollection fittedDisCombTrks(SG::VIEW_ELEMENTS);
   if( m_doDisappearingTrk ) {
-     ATH_MSG_DEBUG("UTT: nr of extraDisCombTracks=" << extraDisCombTracks.size());
+     ATH_MSG_VERBOSE("nr of extraDisCombTracks=" << extraDisCombTracks.size());
      if( extraDisCombTracks.size() > 0 ) {
-	ATH_MSG_DEBUG("UTT: fitting extraDisCombTracks ...");
+	ATH_MSG_VERBOSE("fitting extraDisCombTracks ...");
 	m_trigInDetTrackFitter->fit(extraDisCombTracks, fittedExtraDisCombTracks, ctx, m_particleHypothesis);
 	for (auto fittedTrack = fittedExtraDisCombTracks.begin(); fittedTrack!=fittedExtraDisCombTracks.end(); ++fittedTrack) {
 	   (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
@@ -843,7 +838,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
     if( m_doDisappearingTrk && do_recoverDisCombTrk ) {
        if( std::find(indexDisCombTrk.begin(),indexDisCombTrk.end(),idx)!=indexDisCombTrk.end() ) {
-	  ATH_MSG_DEBUG("UTT: fittedTrack idx=" << idx << ": recovers also for DisCombTrack");
+	  ATH_MSG_VERBOSE("fittedTrack idx=" << idx << ": recovers also for DisCombTrack");
 	  fittedDisCombTrks.push_back(*fittedTrack);
        }
     }
@@ -873,14 +868,14 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   // disappearing track reco
   if( m_doDisappearingTrk ) {
      mnt_timer_disTrk.start();
-     ATH_CHECK(findDisTracks(ctx,outputTracks,qualityDisFailTrks,qualityDisCombTrks,fittedDisCombTrks,disTrk_v_xVtx,disTrk_v_yVtx,disTrk_v_zVtx));
+     ATH_CHECK( findDisTracks(ctx,outputTracks,qualityDisFailTrks,qualityDisCombTrks,fittedDisCombTrks,disTrk_v_xVtx,disTrk_v_yVtx,disTrk_v_zVtx) );
      mnt_timer_disTrk.stop();
   }
 
-  // find L1 J seeded Hit-based displaced vertex
+  // find Hit-based displaced vertex
   if( m_doHitDV ) {
      mnt_timer_HitDV.start();
-     ATH_CHECK(findHitDV(ctx,convertedSpacePoints,outputTracks));
+     ATH_CHECK( findHitDV(ctx,convertedSpacePoints,outputTracks) );
      mnt_timer_HitDV.stop();
   }
 
@@ -1435,19 +1430,35 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
   delete dataBuffer;
 }
 
+StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) const
+{
+   if( m_doHitDV ) {
+      SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
+      ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   }
+   if( m_dodEdxTrk ) {
+      SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
+      ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
+      ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   }
+   if( m_doDisappearingTrk ) {
+      SG::WriteHandle<xAOD::TrigCompositeContainer> disTrkCandHandle(m_disTrkCandKey, ctx);
+      ATH_CHECK( disTrkCandHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   }
+   return StatusCode::SUCCESS;
+}
+
 StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
 					  const TrackCollection& outputTracks) const
 {
-   // Output containers & writeHandle
-   auto hitDVTrkContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto hitDVTrkContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   hitDVTrkContainer->setStore(hitDVTrkContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
+   ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto hitDVTrkContainer = hitDVTrkHandle.ptr();
 
-   auto hitDVSPContainer     = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto hitDVSPContainerAux  = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   hitDVSPContainer->setStore(hitDVSPContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
+   ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto hitDVSPContainer = hitDVSPHandle.ptr();
 
    // select good tracks
    const float  TRKCUT_PT               = 0.5;
@@ -1570,11 +1581,11 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       v_sp_isSct.push_back(isSct);
       v_sp_usedTrkId.push_back(usedTrack_id);
 
-      ATH_MSG_DEBUG("+++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
+      ATH_MSG_VERBOSE("+++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
 
    }
-   ATH_MSG_DEBUG("Nr of SPs = " << n_sp);
-   ATH_MSG_DEBUG("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
+   ATH_MSG_VERBOSE("Nr of SPs = " << n_sp);
+   ATH_MSG_VERBOSE("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
 
    // Seed
    std::vector<float> v_seeds_eta;
@@ -1584,7 +1595,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 
       // space-point based (unseeded mode)
       ATH_CHECK( findSPSeeds(v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
-      ATH_MSG_DEBUG("Nr of SP seeds = " << v_seeds_eta.size());
+      ATH_MSG_VERBOSE("Nr of SP seeds = " << v_seeds_eta.size());
 
       // add J1 J30 seeds
       const unsigned int L1JET_ET_CUT = 30;
@@ -1613,7 +1624,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 	 v_seeds_eta.push_back(recRoI->eta());
 	 v_seeds_phi.push_back(roiPhi);
       }
-      ATH_MSG_DEBUG("Nr of SP + L1_J30 seeds = " << v_seeds_eta.size());
+      ATH_MSG_VERBOSE("Nr of SP + L1_J30 seeds = " << v_seeds_eta.size());
    }
 
    // fill objects
@@ -1676,10 +1687,6 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       hitDVSP->setDetail<bool>   ("hitDVSP_isSct",     v_sp_isSct[iSp]);
       hitDVSP->setDetail<int16_t>("hitDVSP_usedTrkId", (int16_t)v_sp_usedTrkId[iSp]);
    }
-
-   // record
-   ATH_CHECK(hitDVTrkHandle.record(std::move(hitDVTrkContainer), std::move(hitDVTrkContainerAux)));
-   ATH_CHECK(hitDVSPHandle.record(std::move(hitDVSPContainer), std::move(hitDVSPContainerAux)));
 
    return StatusCode::SUCCESS;
 }
@@ -1746,7 +1753,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
       }
    }
 
-   ATH_MSG_DEBUG("looking for ly6/ly6 doublet seeds");
+   ATH_MSG_VERBOSE("looking for ly6/ly6 doublet seeds");
 
    // (idx, sort/weight, eta, phi)
    std::vector<std::tuple<int,float,float,float>> QT;
@@ -1790,7 +1797,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
    delete ly7_h2_nsp;
    delete ly6_h2_nsp_notrk;
    delete ly7_h2_nsp_notrk;
-   ATH_MSG_DEBUG("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
+   ATH_MSG_VERBOSE("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
 
    // sort
    std::sort(QT.begin(), QT.end(),
@@ -1855,7 +1862,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
       if( phi >  TMath::Pi() ) phi = -2*TMath::Pi() + phi;
       seeds_phi[i] = phi;
    }
-   ATH_MSG_DEBUG("after clustering, nr of seeds = " << seeds_eta.size());
+   ATH_MSG_VERBOSE("after clustering, nr of seeds = " << seeds_eta.size());
 
    // delete overlap (can happen at phi=-Pi/Pi bounadry)
    std::vector<unsigned int> idx_to_delete;
@@ -1871,7 +1878,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
 	 if( dr < CLUSTCUT_DIST ) idx_to_delete.push_back(j);
       }
    }
-   ATH_MSG_DEBUG("nr of duplicated seeds to be removed = " << idx_to_delete.size());
+   ATH_MSG_VERBOSE("nr of duplicated seeds to be removed = " << idx_to_delete.size());
    if( idx_to_delete.size() > 0 ) {
       std::sort(idx_to_delete.begin(),idx_to_delete.end());
       for(unsigned int j=idx_to_delete.size(); j>0; j--) {
@@ -1881,7 +1888,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
       }
    }
 
-   ATH_MSG_DEBUG("nr of ly6/ly7 seeds=" << seeds_eta.size());
+   ATH_MSG_VERBOSE("nr of ly6/ly7 seeds=" << seeds_eta.size());
 
    // return
    return StatusCode::SUCCESS;
@@ -1901,7 +1908,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
 
    // Pixel barrel or SCT barrel
    if( 0<=layer && layer <=7 ) {
-      ATH_MSG_DEBUG("layer=" << layer << ", eta=" << abseta);
+      ATH_MSG_VERBOSE("layer=" << layer << ", eta=" << abseta);
       return layer;
    }
 
@@ -1917,7 +1924,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // Pixel Endcap #1
    base = 8;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC1, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC1, eta=" << abseta);
       if( abseta > PixBR2limit ) return 2;
       return 3;
    }
@@ -1925,7 +1932,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // Pixel Endcap #2
    base = 9;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC2, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC2, eta=" << abseta);
       if( abseta > PixBR2limit ) return 2;
       return 3;
    }
@@ -1933,14 +1940,14 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // Pixel Endcap #3
    base = 10;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC3, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC3, eta=" << abseta);
       return 3;
    }
 
    // SCT Endcap #1
    base = 11;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC1, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC1, eta=" << abseta);
       if( abseta < PixBR6limit )      return 7;
       else if( abseta < PixBR5limit ) return 6;
       return 5;
@@ -1949,7 +1956,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #2
    base = 12;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC2, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC2, eta=" << abseta);
       if( abseta < PixBR5limit )      return 7;
       else if( abseta < PixBR4limit ) return 6;
       return 4;
@@ -1958,7 +1965,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #3
    base = 13;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC3, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC3, eta=" << abseta);
       if( abseta < PixBR4limit ) return 7;
       return 5;
    }
@@ -1966,7 +1973,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #4
    base = 14;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC4, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC4, eta=" << abseta);
       if( abseta < PixBR4limit ) return 6;
       else if( abseta < PixBR3limit ) return 6;
       return 4;
@@ -1975,7 +1982,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #5
    base = 15;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC5, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC5, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 5;
    }
@@ -1983,7 +1990,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #6
    base = 16;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC6, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC6, eta=" << abseta);
       if( abseta < PixBR3limit ) return 6;
       return 4;
    }
@@ -1991,7 +1998,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #7
    base = 17;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC7, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC7, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 5;
    }
@@ -1999,7 +2006,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #8
    base = 18;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC8, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC8, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 6;
    }
@@ -2007,7 +2014,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
    // SCT Endcap #9
    base = 19;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC9, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC9, eta=" << abseta);
       return 7;
    }
 
@@ -2016,15 +2023,13 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
 
 StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const TrackCollection& outputTracks) const
 {
-   auto dEdxTrkContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto dEdxTrkContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   dEdxTrkContainer->setStore(dEdxTrkContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
+   ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto dEdxTrkContainer = dEdxTrkHandle.ptr();
 
-   auto dEdxHitContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto dEdxHitContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   dEdxHitContainer->setStore(dEdxHitContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxHitHandle(m_dEdxHitKey, ctx);
+   ATH_CHECK( dEdxHitHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto dEdxHitContainer = dEdxHitHandle.ptr();
 
    std::vector<float> mnt_dedx;
    std::vector<int>   mnt_dedx_nusedhits;
@@ -2034,7 +2039,7 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 
    int i_track=0;
 
-   ATH_MSG_DEBUG("========== in finddEdxTrk ==========");
+   ATH_MSG_VERBOSE("========== in finddEdxTrk ==========");
 
    const float  TRKCUT_A0BEAM       = 2.5;
    const int    TRKCUT_N_HITS_INNER = 1;
@@ -2048,7 +2053,7 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
 
    for (auto track : outputTracks) {
 
-      ATH_MSG_DEBUG("+++++++ i_track: " << i_track << " +++++++");
+      ATH_MSG_VERBOSE("+++++++ i_track: " << i_track << " +++++++");
 
       i_track++;
       if ( ! track->perigeeParameters() ) continue;
@@ -2073,13 +2078,13 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       float a0beam = a0 + shift_x*sin(phi0)-shift_y*cos(phi0);
       if( std::abs(a0beam) > TRKCUT_A0BEAM ) continue;
 
-      ATH_MSG_DEBUG("calculate dEdx -->");
+      ATH_MSG_VERBOSE("calculate dEdx -->");
       int pixelhits=0; int n_usedhits=0;
       std::vector<float> v_pixhit_dedx; std::vector<float> v_pixhit_tot; std::vector<float> v_pixhit_trkchi2; std::vector<float> v_pixhit_trkndof;
       std::vector<int> v_pixhit_iblovfl; std::vector<int> v_pixhit_loc; std::vector<int> v_pixhit_layer;
       float dedx = dEdx(track,pixelhits,n_usedhits,v_pixhit_dedx,v_pixhit_tot,v_pixhit_trkchi2,v_pixhit_trkndof,
 			v_pixhit_iblovfl,v_pixhit_loc,v_pixhit_layer);
-      ATH_MSG_DEBUG("--> dedx = " << dedx);
+      ATH_MSG_VERBOSE("--> dedx = " << dedx);
 
       mnt_dedx.push_back(dedx);
       mnt_dedx_nusedhits.push_back(n_usedhits);
@@ -2119,8 +2124,6 @@ StatusCode TrigFastTrackFinder::finddEdxTrk(const EventContext& ctx, const Track
       }
    }
 
-   ATH_CHECK(dEdxTrkHandle.record(std::move(dEdxTrkContainer), std::move(dEdxTrkContainerAux)));
-   ATH_CHECK(dEdxHitHandle.record(std::move(dEdxHitContainer), std::move(dEdxHitContainerAux)));
    return StatusCode::SUCCESS;
 }
 
@@ -2174,38 +2177,38 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
       // Loop over track states on surfaces (i.e. generalized hits):
       for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
 
-	 ATH_MSG_DEBUG("-------- TSoS: " << i_tsos++  << " --------");
+	 ATH_MSG_VERBOSE("-------- TSoS: " << i_tsos++  << " --------");
 
 	 const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
 	 if ( measurement == nullptr ) {
-	    ATH_MSG_DEBUG("no measurement on this TSoS, skip it");
+	    ATH_MSG_VERBOSE("no measurement on this TSoS, skip it");
 	    continue;
 	 }
 	 const Trk::TrackParameters* tp = (*tsosIter)->trackParameters();
 	 if( tp == nullptr ) {
-	    ATH_MSG_DEBUG("no trackParameters() to this TSoS, skip it");
+	    ATH_MSG_VERBOSE("no trackParameters() to this TSoS, skip it");
 	    continue;
 	 }
 	 const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
 	 if ( pixclus == nullptr ) {
-	    ATH_MSG_DEBUG("this TSoS is not Pixel, skip it");
+	    ATH_MSG_VERBOSE("this TSoS is not Pixel, skip it");
 	    continue;
 	 }
 	 const InDet::PixelCluster* prd = pixclus->prepRawData();
 	 if( prd == nullptr ) {
-	    ATH_MSG_DEBUG("no PrepRawData(), skip it");
+	    ATH_MSG_VERBOSE("no PrepRawData(), skip it");
 	    continue;
 	 }
 
 	 float dotProd  = tp->momentum().dot(tp->associatedSurface().normal());
 	 float cosalpha = std::abs(dotProd/tp->momentum().mag());
-	 ATH_MSG_DEBUG("dotProd / cosalpha = " << dotProd  << " / " << cosalpha);
+	 ATH_MSG_VERBOSE("dotProd / cosalpha = " << dotProd  << " / " << cosalpha);
 	 if (std::abs(cosalpha)<.16) continue;
 
 	 const std::vector<int>& v_tots = prd->totList();
 	 float charge = prd->totalCharge();
 	 float tot    = prd->totalToT();
-	 ATH_MSG_DEBUG("charge / ToT = " << charge << " / " << tot);
+	 ATH_MSG_VERBOSE("charge / ToT = " << charge << " / " << tot);
 	 charge *= cosalpha; // path length correction
 
 	 double locx = pixclus->localParameters()[Trk::locX];
@@ -2234,7 +2237,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 		  break; //no need to check other hits of this cluster
 	       }
 	    }
-	    if(iblOverflow==1) ATH_MSG_DEBUG("IBL overflow");
+	    if(iblOverflow==1) ATH_MSG_VERBOSE("IBL overflow");
 
 	    if(((eta_module>=-10 && eta_module<=-7)||(eta_module>=6 && eta_module<=9)) && (std::abs(locy)<10. && (locx>-8.33 && locx <8.3)) ){ // IBL 3D
 	       thickness = IBL_3D_sensorthickness;
@@ -2245,7 +2248,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	       loc = PIXLOC_IBL_PL;
 	    }
 	    else {
-	       ATH_MSG_DEBUG("unknown IBL module");
+	       ATH_MSG_VERBOSE("unknown IBL module");
 	       loc = PIXLOC_IBL_UNKNOWN;
 	    }
 	 }
@@ -2258,7 +2261,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    loc = PIXLOC_PIX_EC;
 	 }
 	 else {
-	    ATH_MSG_DEBUG("unknown Pixel module");
+	    ATH_MSG_VERBOSE("unknown Pixel module");
 	    loc = PIXLOC_IBL_UNKNOWN;
 	 }
 
@@ -2269,7 +2272,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    pixelhits++;
 	    if(iblOverflow==1)n_usedIBLOverflowHits++;
 	 }
-	 ATH_MSG_DEBUG("dEdx=" << dEdxValue);
+	 ATH_MSG_VERBOSE("dEdx=" << dEdxValue);
 	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot); 
 	 v_pixhit_trkchi2.push_back(chi2); v_pixhit_trkndof.push_back(ndof);
 	 v_pixhit_iblovfl.push_back(iblOverflow); v_pixhit_loc.push_back(loc); v_pixhit_layer.push_back(layer);
@@ -2285,39 +2288,39 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
    int i_map=0;
 
    for (std::pair<float,int> itdEdx : dEdxMap) {
-      ATH_MSG_DEBUG("++++++++ i_map: " << i_map++  << " ++++++++");
+      ATH_MSG_VERBOSE("++++++++ i_map: " << i_map++  << " ++++++++");
       if(itdEdx.second==0){
-	 ATH_MSG_DEBUG("usedhits, dEdx=" << itdEdx.first);
+	 ATH_MSG_VERBOSE("usedhits, dEdx=" << itdEdx.first);
          averagedEdx += itdEdx.first;
          n_usedhits++;
       }
       if(itdEdx.second > 0){ 
-	 ATH_MSG_DEBUG("IBLOverflow");
+	 ATH_MSG_VERBOSE("IBLOverflow");
          IBLOverflow++;
       }
       // break, skipping last or the two last elements depending on total measurements
       if (((int)pixelhits >= 5) and ((int)n_usedhits >= (int)pixelhits-2)) {
-	 ATH_MSG_DEBUG("break, skipping last or two last elements");
+	 ATH_MSG_VERBOSE("break, skipping last or two last elements");
 	 break;
       }
 
       // break, IBL Overflow case pixelhits==3 and 4
       if((int)IBLOverflow>0 and ((int)pixelhits==3) and (int)n_usedhits==1) {
-	 ATH_MSG_DEBUG("break, IBL overflow case, pixel hits=3");
+	 ATH_MSG_VERBOSE("break, IBL overflow case, pixel hits=3");
 	 break;
       }
       if((int)IBLOverflow>0 and ((int)pixelhits==4) and (int)n_usedhits==2) {
-	 ATH_MSG_DEBUG("break, IBL overflow case, pixel hits=4");
+	 ATH_MSG_VERBOSE("break, IBL overflow case, pixel hits=4");
 	 break;
       }
 
       if (((int)pixelhits > 1) and ((int)n_usedhits >=(int)pixelhits-1)) {
-	 ATH_MSG_DEBUG("break, skipping last??");
+	 ATH_MSG_VERBOSE("break, skipping last??");
 	 break; 
       }
 
       if((int)IBLOverflow>0 and (int)pixelhits==1){ // only IBL in overflow
-	 ATH_MSG_DEBUG("break, only IBL in overflow");
+	 ATH_MSG_VERBOSE("break, only IBL in overflow");
          averagedEdx=itdEdx.first;
          break;
       }
@@ -2361,7 +2364,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
    float s3_z = seed.s3().z();
    const float PIXEL_BARREL_Z = 410.0;
    if( std::abs(s1_z) > PIXEL_BARREL_Z || std::abs(s2_z) > PIXEL_BARREL_Z || std::abs(s3_z) > PIXEL_BARREL_Z ) return false;
-   ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... barrel cut passed");
+   ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... barrel cut passed");
 
    // pt cut
    double theta  = trk->perigeeParameters()->parameters()[Trk::theta]; 
@@ -2369,7 +2372,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
    if ( qOverP < 1e-12 ) qOverP = 1e-12;
    double pt = sin(theta)/qOverP;
    if( pt/1000.0 < PT_CUT ) return false;
-   ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... pT cut passed");
+   ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... pT cut passed");
 
    // fail/comb dependent cuts
    if( isFail ) {
@@ -2377,7 +2380,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       double ndof = trk->fitQuality()->doubleNumberDoF();
       if( std::abs(ndof) < 1e-12 ) return false;
       if( chi2/ndof > FAIL_CHI2_OV_NDOF_CUT ) return false;
-      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (failTrk) Chi2 cut passed");
+      ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... (failTrk) Chi2 cut passed");
    }
    else {
 
@@ -2399,7 +2402,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       if( ndof_pixbr < 1 )  return false;
       double chi2_ov_ndof_pixbr = chi2_pixbr / ndof_pixbr;
       if( chi2_ov_ndof_pixbr > COMB_CHI2_OV_NDOF_PIX_BR_CUT ) return false;
-      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (combTrk) Pix cut passed");
+      ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... (combTrk) Pix cut passed");
       
       // SCT cuts
       int n_hits_sctbr_good = 0; 
@@ -2410,7 +2413,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       }
       if( n_hits_sctbr_good > COMB_N_GOOD_HITS_SCT_BR_CUT ) return false;
       if( n_doublehits_sctbr_good > COMB_N_GOOD_DOUBLEHITS_SCT_BR_CUT ) return false;
-      ATH_MSG_DEBUG("UTT: FTF::isCleaningPassDisTrack> ... (combTrk) SCT cut passed");
+      ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... (combTrk) SCT cut passed");
    }
 
    // cut passed
@@ -2631,7 +2634,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
 		[](const std::tuple<double,double,double,int>& lhs, const std::tuple<double,double,double,int>& rhs) {
 		   return std::get<0>(lhs) > std::get<0>(rhs); } );
    }
-   ATH_MSG_DEBUG("UTT: disTrkZVtertex> =====  looping zVtx size: " << zVtx.size());
+   ATH_MSG_VERBOSE("disTrkZVtertex> =====  looping zVtx size: " << zVtx.size());
    for(unsigned int i=0; i<zVtx.size(); i++) {
       double z    = std::get<1>(zVtx[i]);
       double zerr = std::get<2>(zVtx[i]);
@@ -2640,7 +2643,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
       v_zvtx.push_back(z);
       v_xvtx.push_back(xVTX - tiltXZ*z); //correction for tilt
       v_yvtx.push_back(yVTX - tiltYZ*z); //correction for tilt
-      ATH_MSG_DEBUG("UTT: disTrkZVtertex> Vertex cand i=" << i << ":  z = " << z << " +- " << zerr << ", sum n / pt = " << n << " / " << pt);
+      ATH_MSG_VERBOSE("disTrkZVtertex> Vertex cand i=" << i << ":  z = " << z << " +- " << zerr << ", sum n / pt = " << n << " / " << pt);
    }
 
    // monitoring
@@ -2753,11 +2756,9 @@ StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
 					      const std::vector<double>& v_yvtx,
 					      const std::vector<double>& v_zvtx) const
 {
-   // output EDM
-   auto disTrkCandContainer    = std::make_unique<xAOD::TrigCompositeContainer>();
-   auto disTrkCandContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-   disTrkCandContainer->setStore(disTrkCandContainerAux.get());
    SG::WriteHandle<xAOD::TrigCompositeContainer> disTrkCandHandle(m_disTrkCandKey, ctx);
+   ATH_CHECK( disTrkCandHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto disTrkCandContainer = disTrkCandHandle.ptr();
 
    // monitoring
    auto mnt_disFailTrk_n      = Monitored::Scalar<int>("disFailTrk_n",      0);
@@ -2789,28 +2790,25 @@ StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
 	 delete std::get<2>(q);
       }
    }
-   ATH_MSG_DEBUG("UTT: ===> nr of disFailTrk=" << qualityDisFailTrks.size() << " -> clone removal=" << initialDisFailTrks.size());
+   ATH_MSG_VERBOSE("===> nr of disFailTrk=" << qualityDisFailTrks.size() << " -> clone removal=" << initialDisFailTrks.size());
 
    TrackCollection fittedDisFailTrks;
    m_trigInDetTrackFitter->fit(initialDisFailTrks, fittedDisFailTrks, ctx, m_particleHypothesis);
-   int n_disFailTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisFailTrks, tracksForIso, disTrkCandContainer.get(), v_xvtx, v_yvtx, v_zvtx, true);
-   ATH_MSG_DEBUG("UTT: disFailTrk: nr of cands = " << n_disFailTrkCands);
+   int n_disFailTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisFailTrks, tracksForIso, disTrkCandContainer, v_xvtx, v_yvtx, v_zvtx, true);
+   ATH_MSG_VERBOSE("disFailTrk: nr of cands = " << n_disFailTrkCands);
 
    mnt_disFailTrk_n      = qualityDisFailTrks.size(); 
    mnt_disFailTrk_nclone = initialDisFailTrks.size();
    mnt_disFailTrk_ncand  = n_disFailTrkCands;
 
    // disCombTrk
-   ATH_MSG_DEBUG("UTT: ===> nr of disCombTrk=" << qualityDisCombTrks.size() << " -> clone removal=" << fittedDisCombTrks.size());
-   int n_disCombTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisCombTrks, tracksForIso, disTrkCandContainer.get(), v_xvtx, v_yvtx, v_zvtx, false);
-   ATH_MSG_DEBUG("UTT: disCombTrk: nr of cands = " << n_disCombTrkCands);
+   ATH_MSG_VERBOSE("===> nr of disCombTrk=" << qualityDisCombTrks.size() << " -> clone removal=" << fittedDisCombTrks.size());
+   int n_disCombTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisCombTrks, tracksForIso, disTrkCandContainer, v_xvtx, v_yvtx, v_zvtx, false);
+   ATH_MSG_VERBOSE("disCombTrk: nr of cands = " << n_disCombTrkCands);
 
    mnt_disCombTrk_n      = qualityDisCombTrks.size(); 
    mnt_disCombTrk_nclone = fittedDisCombTrks.size();
    mnt_disCombTrk_ncand  = n_disCombTrkCands;
-
-   // record 
-   ATH_CHECK(disTrkCandHandle.record(std::move(disTrkCandContainer), std::move(disTrkCandContainerAux)));
 
    return StatusCode::SUCCESS;
 }
@@ -3096,8 +3094,8 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
       if( vertexPerigee != nullptr ) {
 	 d0_wrtVtx = vertexPerigee->parameters()[Trk::d0]; 
 	 z0_wrtVtx = vertexPerigee->parameters()[Trk::z0]; 
-	 ATH_MSG_DEBUG("UTT: d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
-	 ATH_MSG_DEBUG("UTT: z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
+	 ATH_MSG_VERBOSE("d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
+	 ATH_MSG_VERBOSE("z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
       }
 
       // pre-selection
@@ -3129,15 +3127,15 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
       if( refit_trk != nullptr ) {
 	 refitVertexPerigee = extrapolateDisTrackToBS(refit_trk.get(),v_xvtx,v_yvtx,v_zvtx);
 	 if( refitVertexPerigee == nullptr ) {
-	    ATH_MSG_DEBUG("UTT: extrapote to BS fails for refit track");
+	    ATH_MSG_VERBOSE("extrapote to BS fails for refit track");
 	 }
 	 else {
 	    float d0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::d0];
 	    float z0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::z0];
 	    float d0_wrtVtx    = refitVertexPerigee->parameters()[Trk::d0]; 
 	    float z0_wrtVtx    = refitVertexPerigee->parameters()[Trk::z0]; 
-	    ATH_MSG_DEBUG("UTT: refit trk d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
-	    ATH_MSG_DEBUG("UTT: refit trk z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
+	    ATH_MSG_VERBOSE("refit trk d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
+	    ATH_MSG_VERBOSE("refit trk z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
 	 }
       }
       
@@ -3152,8 +3150,8 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
    }
 
    //
-   ATH_MSG_DEBUG("UTT: ========> filling trigcomposite for " << prefix << " end");
-   ATH_MSG_DEBUG("UTT: nr of " << prefix << " tracks / stored = " << tracks->size() << " / " << n_stored_tracks);
+   ATH_MSG_VERBOSE("========> filling trigcomposite for " << prefix << " end");
+   ATH_MSG_VERBOSE("nr of " << prefix << " tracks / stored = " << tracks->size() << " / " << n_stored_tracks);
 
    //
    return n_stored_tracks;
@@ -3166,12 +3164,12 @@ std::unique_ptr<Trk::Track> TrigFastTrackFinder::disTrk_refit(Trk::Track* t) con
    if( t == nullptr ) return newtrack;
    if( t->trackSummary() == nullptr ) m_trackSummaryTool->updateTrack(*t);
 
-   ATH_MSG_DEBUG("UTT: refitting - input track:");
+   ATH_MSG_VERBOSE("refitting - input track:");
    print_disTrk(t);
 
    const Trk::Perigee* origPerigee = t->perigeeParameters();
    if( origPerigee == nullptr ) return newtrack;
-   ATH_MSG_DEBUG("UTT: ... origPerigee is there");
+   ATH_MSG_VERBOSE("... origPerigee is there");
    
    // remove SCT hits
    std::vector<const Trk::MeasurementBase*> vec;
@@ -3196,16 +3194,16 @@ std::unique_ptr<Trk::Track> TrigFastTrackFinder::disTrk_refit(Trk::Track* t) con
 	 }
       }
    }
-   ATH_MSG_DEBUG("UTT: ... Nr of measurments / refit = " << n_measurements << " / " << n_measurements_refit);
+   ATH_MSG_VERBOSE("... Nr of measurments / refit = " << n_measurements << " / " << n_measurements_refit);
 
    // perform refit
    newtrack.reset( m_disTrkFitter->fit(vec, *origPerigee, false, m_particleHypothesis) ); // false to run outlier switch
-   ATH_MSG_DEBUG("UTT: ... ---> refit track:");
+   ATH_MSG_VERBOSE("... ---> refit track:");
    if( newtrack!=0 && newtrack.get() ) {
       print_disTrk(dynamic_cast<const Trk::Track*>(newtrack.get()));
    }
    else {
-      ATH_MSG_DEBUG("UTT: ... refit failed");
+      ATH_MSG_VERBOSE("... refit failed");
    }
 
    //
@@ -3227,6 +3225,6 @@ void TrigFastTrackFinder::print_disTrk(const Trk::Track* t) const
       float pt = sin(theta)/qOverP;
       pt /= 1000.0;
    }
-   ATH_MSG_DEBUG("UTT: ... pt / theta / phi / d0 / z0 = " << pt << " / " << theta << " / " << phi << " / " << d0 << " / " << z0);
-   ATH_MSG_DEBUG("UTT: ... chi2 / ndof = " << chi2 << " / " << ndof);
+   ATH_MSG_DEBUG("... pt / theta / phi / d0 / z0 = " << pt << " / " << theta << " / " << phi << " / " << d0 << " / " << z0);
+   ATH_MSG_DEBUG("... chi2 / ndof = " << chi2 << " / " << ndof);
 }
