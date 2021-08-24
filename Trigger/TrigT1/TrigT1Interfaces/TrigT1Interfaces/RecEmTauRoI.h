@@ -95,7 +95,7 @@ namespace LVL1 {
 
       /** returns TRUE if threshold number <em>threshold_number</em> has been
           passed by this ROI. */
-      bool passedThreshold( int threshold_number ) const;
+      bool passedThreshold( unsigned int threshold_number ) const;
 
       /** returns the CoordinateRange. This is worked out from the RoIWord's hardware coords
           (i.e. crate number, CPM number etc.) by the RoIDecoder class.  */

@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& os, const L1TopoRDO& rdo) {
   }
   os << "     Data words:\n";
   std::vector<uint32_t> data = rdo.getDataWords();
-  for(auto & word: data){
+  for(const uint32_t word: data){
     os << "     " << L1Topo::formatHex8(word) << " ";
     switch (L1Topo::blockType(word)){
     case L1Topo::BlockTypes::HEADER:
@@ -166,7 +166,7 @@ const std::string formatVecHex8(const std::vector<uint32_t>& vec)
     for (L1TopoRDOCollection::const_iterator pRDO = col.begin(); pRDO != col.end(); ++pRDO){
       const std::vector<uint32_t> data = (*pRDO)->getDataWords();
       //std::cout << "L1Topo::getDecisionAndOverflowBits: number of data words " << data.size() << std::endl;
-      for(auto & word: data){
+      for(const uint32_t word: data){
 	if (L1Topo::blockType(word) == L1Topo::BlockTypes::L1TOPO_TOB){
 	  L1Topo::L1TopoTOB c(word);
 	  const uint32_t triggerByte = c.trigger_bits();

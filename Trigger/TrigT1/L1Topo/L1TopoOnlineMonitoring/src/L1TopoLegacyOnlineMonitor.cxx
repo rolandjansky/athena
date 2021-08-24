@@ -374,7 +374,7 @@ StatusCode L1TopoLegacyOnlineMonitor::doCnvMon(xAOD::TrigComposite& errorFlags,
           break;
         }
         case L1Topo::BlockTypes::L1TOPO_TOB: {
-          block.daqTobs.emplace_back(static_cast<int32_t>(word)); // TODO: Fix L1TopoTOB ctor to take uint32_t word
+          block.daqTobs.emplace_back(word);
           if (block.header.bcn_offset() == 0) {
             daqTobsBC0.emplace_back(rdo->getSourceID(), block.daqTobs.back());
           }

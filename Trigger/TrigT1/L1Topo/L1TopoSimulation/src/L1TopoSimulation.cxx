@@ -290,7 +290,7 @@ L1TopoSimulation::retrieveHardwareDecision()
                 const std::vector<uint32_t> cDataWords = rdo->getDataWords();
                 // initialise header: set version 15, BCN -7, which is unlikely
                 L1Topo::Header header(0xf,0,0,0,0,1,0x7);
-                for (auto word : cDataWords){
+                for (const uint32_t word : cDataWords){
                     switch (L1Topo::blockType(word)){
                     case L1Topo::BlockTypes::HEADER: {
                         header = L1Topo::Header(word);
