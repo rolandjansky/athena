@@ -85,6 +85,9 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     Gaudi::Property<bool> m_useByteStreamFEI3
     {this, "UseByteStreamFEI3", false, "Switch of the ByteStream error for FEI3"};
 
+    Gaudi::Property<bool> m_useByteStreamRD53
+    {this, "UseByteStreamRD53", false, "Switch of the ByteStream error for RD53"};
+
     SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
     {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
 
