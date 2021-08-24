@@ -68,6 +68,8 @@
 class VP1ExaminerViewer::Imp {
 
 public:
+        Imp (const Imp&) = delete;
+        Imp& operator= (const Imp&) = delete;
 
 	Imp(VP1ExaminerViewer*tc,bool dvb)
 : theclass(tc),
@@ -150,7 +152,6 @@ public:
 		// theclass->setClearBeforeRender(FALSE, FALSE);
 		// theclass->setClearBeforeOverlayRender(FALSE);
 }
-
 
 	~Imp()
 	{
