@@ -378,8 +378,6 @@ std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_values(){
     return map_Etvalues;
 }
 
-
-
 std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_values(){
     
     // map for energies sent to the FPGA
@@ -515,7 +513,6 @@ std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values(){
        
     return map_Etvalues;
 }
-
 
 
 //Gets Eta of the TT
