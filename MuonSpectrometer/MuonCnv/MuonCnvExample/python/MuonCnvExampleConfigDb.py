@@ -2,6 +2,7 @@
 
 from AthenaCommon.CfgGetter import addTool, addService, addAlgorithm
 
+
 ################################################################################
 # Standard BS algorithms
 ################################################################################
@@ -21,6 +22,13 @@ addTool( "MuonCnvExample.MuonReadBSConfig.CscROD_Decoder",         "CscROD_Decod
 addTool( "MuonCnvExample.MuonReadBSConfig.CscRawDataProviderTool", "CscRawDataProviderTool" )
 addAlgorithm("Muon::CscRawDataProvider",                           "MuonCscRawDataProvider" )
 
+addTool( "MuonCnvExample.MuonReadBSConfig.MmROD_Decoder",          "MmROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.MmRawDataProviderTool",  "MmRawDataProviderTool" )
+addAlgorithm( "Muon::MM_RawDataProvider",                          "MuonMmRawDataProvider" )
+
+addTool( "MuonCnvExample.MuonReadBSConfig.sTgcROD_Decoder",         "sTgcROD_Decoder" )
+addTool( "MuonCnvExample.MuonReadBSConfig.sTgcRawDataProviderTool", "sTgcRawDataProviderTool" )
+addAlgorithm("Muon::sTgcRawDataProvider",                           "MuonsTgcRawDataProvider" )
 
 ################################################################################
 # Tools/algorithms/services from MuonCnvExample.MuonCalibConfig
