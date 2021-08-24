@@ -11,22 +11,25 @@ class MuonCacheNames(object):
     CscCache    = "CscRdoCache"
     RpcCache    = "RpcRdoCache"
     TgcCache    = "TgcRdoCache"
-
+    
 ## This configuration function creates the IdentifiableCaches for RDO
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
 def MuonCacheCfg():
+
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
     acc = ComponentAccumulator()
 
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    CscCacheKey    = (MuonCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
+
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
-
 
 ## This configuration function sets up everything for decoding RPC bytestream data into RDOs
 #
@@ -225,6 +228,100 @@ def CscBytestreamDecodeCfg(flags, name="CscRawDataProvider"):
 
     return acc
 
+def sTgcBytestreamDecodeCfg(flags, name="sTgcRawDataProvider"):
+
+    acc = ComponentAccumulator()
+
+    # We need the sTGC cabling to be setup
+    #from MuonConfig.MuonCablingConfig import STGCCablingConfigCfg
+    #acc.merge( STGCCablingConfigCfg(flags) )
+
+    # Make sure muon geometry is configured
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags)) 
+
+    # Setup the sTGC ROD decoder
+    Muon__STGC_ROD_Decoder=CompFactory.Muon.STGC_ROD_Decoder
+    STGCRodDecoder = Muon__STGC_ROD_Decoder(name = "sTgcROD_Decoder")
+
+    # RAW data provider tool needs ROB data provider service (should be another Config function?)
+    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
+    robDPSvc = ROBDataProviderSvc()
+    acc.addService( robDPSvc )
+
+    # Setup the RAW data provider tool
+    keyName = flags.Overlay.BkgPrefix + "sTGCRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "sTGCRDO"
+    Muon__STGC_RawDataProviderToolMT=CompFactory.Muon.STGC_RawDataProviderToolMT
+    MuonsTgcRawDataProviderTool = Muon__STGC_RawDataProviderToolMT(name    = "STGC_RawDataProviderToolMT",
+                                                                   Decoder = STGCRodDecoder,
+                                                                   RdoLocation = keyName )
+
+    #if flags.Muon.MuonTrigger:
+    #    MuonsTgcRawDataProviderTool.sTgcContainerCacheKey = MuonCacheNames.sTgcCache
+
+    acc.addPublicTool( MuonsTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+    
+    # Setup the RAW data provider algorithm
+    Muon__sTgcRawDataProvider=CompFactory.Muon.sTgcRawDataProvider
+    sTgcRawDataProvider = Muon__sTgcRawDataProvider(name       = name,
+                                                  ProviderTool = MuonsTgcRawDataProviderTool )
+    if flags.Muon.MuonTrigger:
+        sTgcRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
+        sTgcRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_STGC_Cfg( flags ) )
+
+
+    acc.addEventAlgo(sTgcRawDataProvider,primary=True)
+
+    return acc
+
+def MmBytestreamDecodeCfg(flags, name="MmRawDataProvider"):
+    acc = ComponentAccumulator()
+
+    # We need the MM cabling to be setup
+    #from MuonConfig.MuonCablingConfig import MM_CablingConfigCfg
+    #acc.merge( MM_CablingConfigCfg(flags) )
+
+    # Make sure muon geometry is configured
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    acc.merge(MuonGeoModelCfg(flags)) 
+
+    # Setup the MM ROD decoder
+    Muon__MmROD_Decoder=CompFactory.Muon.MM_ROD_Decoder
+    MMRodDecoder = Muon__MmROD_Decoder(name="MmROD_Decoder")
+
+    # RAW data provider tool needs ROB data provider service (should be another Config function?)
+    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
+    robDPSvc = ROBDataProviderSvc()
+    acc.addService( robDPSvc )
+
+    # Setup the RAW data provider tool
+    #keyName = flags.Overlay.BkgPrefix + "MMRDO" if flags.Detector.OverlayMM else "MMRDO"
+    keyName = flags.Overlay.BkgPrefix + "MMRDO" if flags.Common.ProductionStep == ProductionStep.Overlay else "MMRDO"
+    Muon_MM_RawDataProviderToolMT = CompFactory.Muon.MM_RawDataProviderToolMT
+    MuonMmRawDataProviderTool = Muon_MM_RawDataProviderToolMT(name  = "MM_RawDataProviderToolMT",
+                                                              Decoder = MMRodDecoder,
+                                                              RdoLocation = keyName)
+
+    #if flags.Muon.MuonTrigger:
+    #    MuonMmRawDataProviderTool.RawDataContainerCacheKey = MuonCacheNames.MicromegasCache
+
+    acc.addPublicTool( MuonMmRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
+
+    # Setup the RAW data provider algorithm
+    Muon__MmRawDataProvider = CompFactory.Muon.MM_RawDataProvider
+    MmRawDataProvider = Muon__MmRawDataProvider(name = name, ProviderTool = MuonMmRawDataProviderTool )
+    if flags.Muon.MuonTrigger:
+        MmRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
+        MmRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MM_Cfg( flags ) )
+
+    acc.addEventAlgo(MmRawDataProvider,primary=True)
+
+    return acc
+
 def MuonByteStreamDecodersCfg(flags):
     cfg=ComponentAccumulator()
     
@@ -241,14 +338,27 @@ def MuonByteStreamDecodersCfg(flags):
     cfg.merge( tgcdecodingAcc )
 
     # Schedule Mdt data decoding
-
     mdtdecodingAcc  = MdtBytestreamDecodeCfg( flags )
     cfg.merge( mdtdecodingAcc )
 
-    # Schedule Csc data decoding
-    cscdecodingAcc = CscBytestreamDecodeCfg( flags ) 
-    cfg.merge( cscdecodingAcc )
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
+    if MuonGeometryFlags.hasCSC():
+        # Schedule Csc data decoding
+        cscdecodingAcc = CscBytestreamDecodeCfg( flags ) 
+        cfg.merge( cscdecodingAcc )
+
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+        # Schedule MM data decoding
+        mmdecodingAcc  = MmBytestreamDecodeCfg( flags )
+        cfg.merge( mmdecodingAcc )
+
+        # Schedule sTGC data decoding
+        stgcdecodingAcc = sTgcBytestreamDecodeCfg( flags ) 
+        cfg.merge( stgcdecodingAcc )
+
     return cfg
+
 
 if __name__=="__main__":
     # To run this, do e.g. 
