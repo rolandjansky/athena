@@ -63,6 +63,7 @@ def ITkTruthClusterizationFactoryCfg(flags, name = 'ITkTruthClusterizationFactor
     acc = ComponentAccumulator()
     the_name = makeName(name, kwargs)
 
+    kwargs.setdefault("InputSDOMap", 'ITkPixelSDO_Map')
     ITkTruthClusterizationFactory = CompFactory.InDet.TruthClusterizationFactory( name = the_name, **kwargs )
     acc.setPrivateTools(ITkTruthClusterizationFactory)
     return acc
@@ -279,19 +280,10 @@ def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     acc.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name = the_name, **kwargs))
     return acc
 
-def ITkPixelToTPIDToolCfg(flags, name = "ITkPixelToTPIDTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    ITkPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name = the_name, **kwargs)
-    acc.setPrivateTools(ITkPixelToTPIDTool)
-    return acc
-
 def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kwargs):
     acc = ComponentAccumulator()
-    if 'PixelToTPIDTool' not in kwargs :
-        ITkPixelToTPIDTool = acc.popToolsAndMerge(ITkPixelToTPIDToolCfg(flags))
-        kwargs.setdefault("PixelToTPIDTool", ITkPixelToTPIDTool)
 
+    kwargs.setdefault("PixelToTPIDTool", None)
     kwargs.setdefault("TestBLayerTool", None)
     kwargs.setdefault("DoSharedHits", flags.ITk.doSharedHits)
 
@@ -313,10 +305,7 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
         ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
-    if 'PixelToTPIDTool' not in kwargs :
-        ITkPixelToTPIDTool = acc.popToolsAndMerge(ITkPixelToTPIDToolCfg(flags))
-        kwargs.setdefault( "PixelToTPIDTool", ITkPixelToTPIDTool)
-
+    kwargs.setdefault( "PixelToTPIDTool", None)
     kwargs.setdefault( "doSharedHits", flags.ITk.doSharedHits)
 
     ITkTrackSummaryTool = acc.popToolsAndMerge(ITkTrackSummaryToolCfg(flags, name, **kwargs))
