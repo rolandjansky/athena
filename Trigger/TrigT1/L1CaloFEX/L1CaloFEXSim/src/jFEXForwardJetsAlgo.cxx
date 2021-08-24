@@ -74,16 +74,15 @@ float LVL1::jFEXForwardJetsAlgo::globalEta(int nphi, int neta) {
   SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
   float eta = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[nphi][neta])->centreEta();
   return eta;
-
 }
 
 //Gets Phi of the TT
 unsigned int LVL1::jFEXForwardJetsAlgo::localPhi(int nphi, int neta) {
-
  SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
  unsigned int phi = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[nphi][neta])->phi();
  return phi;
 }
+
 //Gets Eta of the TT
 unsigned int LVL1::jFEXForwardJetsAlgo::localEta(int nphi, int neta) {
 
@@ -93,7 +92,7 @@ unsigned int LVL1::jFEXForwardJetsAlgo::localEta(int nphi, int neta) {
 }
 
 //Return ET of TT. Should be FCAL 0 + 1 + 2 //maybe check this
-int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
+unsigned int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
     unsigned int TTID = m_jFEXalgoTowerID[nphi][neta];
     if(TTID == 0) {
         return 0;
@@ -104,8 +103,7 @@ int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
     }
     
     //we shouldn't arrive here
-    return 0;
-    
+    return 0;    
 }
 
 std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists(){
@@ -119,17 +117,16 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
 
   std::vector<int> lower_centre_neta;  
   std::vector<int> upper_centre_neta;  
-  int lowerEM_eta = 0;
-  int upperEM_eta = 0;
+  m_lowerEM_eta = 0;
+  m_upperEM_eta = 0;
 
   //STEP 1: check if we are in module 0 or 5 and assign corrrect eta FEXAlgoSpace parameters
   if(m_jFEXalgoTowerID[31][0] == 0){
     //Module 0
     lower_centre_neta.assign({FEXAlgoSpaceDefs::jFEX_algoSpace_C_EMB_start_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_C_EMIE_start_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_C_FCAL_start_eta});
     upper_centre_neta.assign({FEXAlgoSpaceDefs::jFEX_algoSpace_C_EMB_end_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_C_EMIE_end_eta,FEXAlgoSpaceDefs::jFEX_algoSpace_C_FCAL_end_eta });
-
-    lowerEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_lowerEM_eta;
-    upperEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_upperEM_eta;
+    m_lowerEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_lowerEM_eta;
+    m_upperEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_upperEM_eta;
   }
 
   else{
@@ -137,14 +134,14 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
     lower_centre_neta.assign({FEXAlgoSpaceDefs::jFEX_algoSpace_A_EMB_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_A_EMIE_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_A_FCAL_start_eta});
     upper_centre_neta.assign({FEXAlgoSpaceDefs::jFEX_algoSpace_A_EMIE_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_A_FCAL_start_eta, FEXAlgoSpaceDefs::jFEX_algoSpace_A_FCAL_end_eta});
 
-    lowerEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_lowerEM_eta;
-    upperEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_upperEM_eta;
+    m_lowerEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_lowerEM_eta;
+    m_upperEM_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_upperEM_eta;
+
   } 
   
   //STEP 2: define phi FEXAlgoSpace parameters
   std::vector<int> lower_centre_nphi{FEXAlgoSpaceDefs::jFEX_algoSpace_EMB_start_phi, FEXAlgoSpaceDefs::jFEX_algoSpace_EMIE_start_phi,  FEXAlgoSpaceDefs::jFEX_algoSpace_FCAL_start_phi}; 
   std::vector<int> upper_centre_nphi{FEXAlgoSpaceDefs::jFEX_algoSpace_EMB_end_phi, FEXAlgoSpaceDefs::jFEX_algoSpace_EMIE_end_phi,  FEXAlgoSpaceDefs::jFEX_algoSpace_FCAL_end_phi};
-
 
   //STEP 3: loop over different EM/FCAL0 eta phi core fpga regions. These are potential central trigger towers for jets
   for(int myCounter = 0; myCounter<3; myCounter++){
@@ -168,14 +165,16 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
         float centreTT_eta = globalEta(centre_nphi, centre_neta);
         TriggerTowerInformation.setCentreTTPhi(centreTT_phi);
         TriggerTowerInformation.setCentreTTEta(centreTT_eta);
-
+        //TriggerTowerInformation.includeTTinSeed(m_jFEXalgoTowerID[centre_nphi][centre_neta]);
+        TriggerTowerInformation.addToSeedET(getTTowerET(centreTT_phi, centreTT_eta));
         //STEP 8: loop over all FCAL0 TTIDs and fill TT IDs for seed and calculate seed energy     
         for(int nphi = 0; nphi < 32; nphi++) {   
-          for(int neta = lowerEM_eta; neta < upperEM_eta; neta++) {
+          for(int neta = m_lowerEM_eta; neta < m_upperEM_eta; neta++) {
             if(((nphi == centre_nphi) && (neta == centre_neta)) ||(m_jFEXalgoTowerID[nphi][neta])==0 ){continue;}
             float TT_phi = globalPhi(nphi, neta);
             float TT_eta = globalEta(nphi, neta);
             float R = sqrt(pow((centreTT_eta - TT_eta),2) + pow((centreTT_phi - TT_phi),2));
+
             if((R > 0) && (R <( 2 * TT_Size))){
 	      //STEP 9: fill TTID in seed
               TriggerTowerInformation.includeTTinSeed(m_jFEXalgoTowerID[nphi][neta]);           
@@ -197,18 +196,21 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
 std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(){
   std::vector<int> localMaximas;
   std::map<int, jFEXForwardJetsInfo> localMaximaLists = FcalJetsTowerIDLists();
+
   size_t isLocalMaxima = 0;
   int totalLM = 0;
   for(std::map<int, jFEXForwardJetsInfo>::iterator it = localMaximaLists.begin(); it != (localMaximaLists.end()); ++it)
   {
     isLocalMaxima = 0;
     int myTTKey = it->first;
+
     jFEXForwardJetsInfo myFCALJetInfoClass = it ->second;
     //Local maxima check takes place here
     SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
     float centre_phi = myFCALJetInfoClass.getCentreTTPhi();
-    float centre_eta = myFCALJetInfoClass.getCentreTTPhi();
-    float centre_energy = myFCALJetInfoClass.getSeedET();
+    float centre_eta = myFCALJetInfoClass.getCentreTTEta();
+    int centre_energy = myFCALJetInfoClass.getSeedET();
+
     std::vector<int> TTinSeed = myFCALJetInfoClass.getTTinSeed();
     for (std::size_t i = 0, max = TTinSeed.size(); i != max; ++i){
       float seed_phi = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(TTinSeed[i])->centrePhi();
@@ -216,9 +218,34 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
 
       float delta_phi = seed_phi - centre_phi;
       float delta_eta = seed_eta - centre_eta;
-      float seed_energy = localMaximaLists[TTinSeed[i]].getSeedET(); 
+
+      static constexpr float TT_Size = M_PI/32;
+      int seed_energy = 0;
+      //here is where the extra values are being created.       
+      if(localMaximaLists.count(TTinSeed[i])==1 ){//&&  (localMaximaLists[TTinSeed[i]].getSeedET()==0)) {
+          seed_energy = localMaximaLists[TTinSeed[i]].getSeedET();
+      }
+ 
+      else if(localMaximaLists.count(TTinSeed[i])==0){
+       for(int nphi = 0; nphi < 32; nphi++) {
+          for(int neta = m_lowerEM_eta; neta < m_upperEM_eta; neta++) {
+            SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey);
+            float centre_seed_eta = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(TTinSeed[i])->centreEta();
+            float centre_seed_phi = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(TTinSeed[i])->centrePhi();
+
+            seed_energy += getTTowerET(centre_seed_phi, centre_seed_phi);
        
-      if( ((delta_eta + delta_phi) < 0) || ((delta_eta + delta_phi == 0) && (delta_eta < 0)) )
+            if((TTinSeed[i] == m_jFEXalgoTowerID[nphi][neta]) ||(m_jFEXalgoTowerID[nphi][neta])==0 ){continue;}
+            float TT_phi = globalPhi(nphi, neta);
+            float TT_eta = globalEta(nphi, neta);
+            float R = sqrt(pow((centre_seed_eta - TT_eta),2) + pow((centre_seed_phi - TT_phi),2));
+            if((R > 0) && (R <( 2 * TT_Size))){
+              seed_energy += getTTowerET(nphi, neta);
+            }
+          }
+        }
+     }
+     if( ((delta_eta + delta_phi) < 0) || ((delta_eta + delta_phi == 0) && (delta_eta < 0)) )
       {
         if(centre_energy >= seed_energy){isLocalMaxima++;}
       }
@@ -242,25 +269,22 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
       localMaximaLists.erase(it->first);
     }
   }
-
  return localMaximaLists;
 }
 
 std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs(){
   std::map<int, jFEXForwardJetsInfo> localMaximas = isSeedLocalMaxima();
   static constexpr float TT_Size = M_PI/32;
-
   //here we loop over all trigger towers, fcal 0 1 2 and calculate energy of TT which lays in the 0.4
   //and 0.8 radius to be stored. 
   for(std::map<int, jFEXForwardJetsInfo>::iterator it = localMaximas.begin(); it !=localMaximas.end(); ++it){
     int key = it->first;
     float centreTT_phi = localMaximas[key].getCentreTTPhi();
-    float centreTT_eta = localMaximas[key].getCentreTTEta();
-    
+    float centreTT_eta = localMaximas[key].getCentreTTEta();  
     for(int nphi = 0; nphi < FEXAlgoSpaceDefs::jFEX_algoSpace_height; nphi++) {
       for(int neta = 0; neta < FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width; neta++) {
 
-        if(m_jFEXalgoTowerID[nphi][neta] == (it->first)){continue;}
+        if((m_jFEXalgoTowerID[nphi][neta] == (it->first))){continue;}
         float TT_phi = globalPhi(nphi, neta);
         float TT_eta = globalEta(nphi, neta);
         float R = sqrt(pow((centreTT_eta - TT_eta),2) + pow((centreTT_phi - TT_phi),2));
@@ -280,6 +304,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs(){
   }
   return localMaximas;
 }
+
 
 void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;

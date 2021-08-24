@@ -136,7 +136,6 @@ StreamAOD.ItemList+=["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."]
 
 
 
-
 #######################################################
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")

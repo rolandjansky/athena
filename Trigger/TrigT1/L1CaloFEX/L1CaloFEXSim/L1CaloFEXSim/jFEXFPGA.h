@@ -30,10 +30,8 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
-#include <vector>
-
 #include "TrigConfData/L1Menu.h"
-
+#include <vector>
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -42,9 +40,7 @@
 #include "SGTools/TestStore.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
-
 #include "StoreGate/StoreGateSvc.h"
-
 
 namespace LVL1 {
   
@@ -126,13 +122,14 @@ namespace LVL1 {
 
     std::map<int, jFEXForwardJetsInfo> m_FCALJets; 
 
+    int m_SRJetET;
+    int m_LRJetET;
+
     CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXFPGA_jTowerContainerKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
-    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"};
-    
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"}; 
     SG::WriteHandleKey<LVL1::jFEXOutputCollection> m_jFEXFPGA_jFEXOutputCollectionKey {this, "jFEXOutputCollection", "jFEXOutputCollection", "Input container for jFEXOutputCollection"};
-
     ToolHandle<IjFEXSmallRJetAlgo> m_jFEXSmallRJetAlgoTool {this, "jFEXSmallRJetAlgoTool", "LVL1::jFEXSmallRJetAlgo", "Tool that runs the jFEX Small R Jet algorithm"};
     ToolHandle<IjFEXLargeRJetAlgo> m_jFEXLargeRJetAlgoTool {this, "jFEXLargeRJetAlgoTool", "LVL1::jFEXLargeRJetAlgo", "Tool that runs the jFEX Large R Jet algorithm"};
     ToolHandle<IjFEXtauAlgo> m_jFEXtauAlgoTool             {this, "jFEXtauAlgoTool"      , "LVL1::jFEXtauAlgo"      , "Tool that runs the jFEX tau algorithm"};
@@ -144,12 +141,10 @@ namespace LVL1 {
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);
-    
-    
   };
   
 } // end of namespace
 
-CLASS_DEF( LVL1::jFEXFPGA , 76081081 , 1 )
 
+CLASS_DEF( LVL1::jFEXFPGA , 76081081 , 1 )
 #endif
