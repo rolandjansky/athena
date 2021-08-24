@@ -56,6 +56,7 @@ typedef struct _triginfo
 } TrigInfo;
 
 class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
+
   public:
     
     
@@ -100,6 +101,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     
     /*! Do emulation */
     Gaudi::Property<bool> m_doEmulation{this, "DoEmulation", false };
+
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
