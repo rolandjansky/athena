@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,8 +19,10 @@
 
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class IInterface;
 class StatusCode;
@@ -60,6 +62,9 @@ namespace LVL1 {
     int towerIndex(const Identifier& ttId) const;
     int region(const int index) const;
     int etaBin(const int index) const;
+
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+      {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
     ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
     const CaloLVL1_ID* m_lvl1Helper;

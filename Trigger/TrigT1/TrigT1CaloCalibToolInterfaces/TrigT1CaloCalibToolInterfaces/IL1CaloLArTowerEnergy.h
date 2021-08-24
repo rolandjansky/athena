@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -10,8 +10,8 @@
 // Pure abstract base class interface to L1CaloLArTowerEnergy
 //
 
-#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H_
-#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H_
+#ifndef TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H
+#define TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H
 
 
 // Framework include(s):
@@ -21,6 +21,7 @@
 
 class CaloCellContainer;
 class Identifier;
+class LArOnOffIdMapping;
 
 namespace LVL1{
 
@@ -33,6 +34,8 @@ namespace LVL1{
       virtual bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection) = 0;
       virtual float EtLArg(const Identifier& TTid) const = 0;
       virtual bool hasMissingFEB(const Identifier& TTid) const = 0;
+      virtual bool hasMissingFEB(const LArOnOffIdMapping& cabling,
+                                 const Identifier& TTid) const = 0;
 
     protected:
       virtual void reset() = 0;

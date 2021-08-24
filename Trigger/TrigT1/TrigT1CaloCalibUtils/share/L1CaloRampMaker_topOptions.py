@@ -141,6 +141,9 @@ for l1calofolder in L1CaloFolderList:
         conddb.addFolder("", L1CaloDbConnection + l1calofolder + L1CaloDbTag)
 svcMgr.IOVDbSvc.overrideTags +=  ["<prefix>/CALO/Identifier/CaloTTOnOffIdMapAtlas</prefix> <tag>CALOIdentifierCaloTTOnOffIdMapAtlas-0002</tag>"]
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffMapping()
+
 # set up tools
 from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
 ServiceMgr += L1CaloCondSvc()
