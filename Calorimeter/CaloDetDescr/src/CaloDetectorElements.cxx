@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -81,8 +81,8 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
   const double phi_loc = (m_cell->getPhiLocalLower() + m_cell->getPhiLocalUpper())/2.;
 
   double x_loc, y_loc, z_loc, r_loc;
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   z_loc = (m_cell->getZMaxLocal(EMBCell::CENTER) + m_cell->getZMinLocal(EMBCell::CENTER))/2.;
   r_loc = m_cell->getRLocal(EMBCell::CENTER);
@@ -192,7 +192,7 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
   m_phi_raw = static_cast<float> ((m_cell->getPhiLocalLower() + m_cell->getPhiLocalUpper())/2.);
 
   double x_loc, y_loc, z_loc, r_loc;
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
 
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
@@ -205,7 +205,7 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,3689.5*Gaudi::Units::mm));
   }
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   z_loc = m_cell->getZLocal(EMECCell::CENTER);
   r_loc = (m_cell->getRMinLocal(EMECCell::CENTER) + m_cell->getRMaxLocal(EMECCell::CENTER))/2.;
@@ -329,7 +329,7 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
   z_loc = m_cell->getZLocal(HECCell::CENTER);
 
 
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
 
   // we need to apply the famous ZShift.
   Amg::Transform3D xfNominal;
@@ -342,7 +342,7 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4277.*Gaudi::Units::mm));
   }
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   x_loc = r_loc*cos(m_phi_raw);
   y_loc = r_loc*sin(m_phi_raw);
@@ -462,7 +462,7 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
   //  double z_loc = -m_module->getFullDepthZ(*m_tile)/2.;
   double z_loc = 0.;
 
-  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransform();
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
   if(m_module->getEndcapIndex()==FCALModule::POS)
@@ -481,7 +481,7 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
      }
   }
 
-  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransform();
 
   Amg::Vector3D globalDefCoords = xfNominal*Amg::Vector3D(x_loc,y_loc,z_loc);
   Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?

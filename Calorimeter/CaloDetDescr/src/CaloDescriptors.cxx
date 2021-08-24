@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDescriptors.h"
@@ -83,8 +83,8 @@ void EMBDescriptor::init_description()
   */
 
   // -- m_transform
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   m_transform = xfAbs*xfDef.inverse();
 }
@@ -156,7 +156,7 @@ void EMECDescriptor::init_description()
   m_calo_r_max = m_calo_z_min/sinh(eta_min);
   */
   // -- m_transform
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
   // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
   if(m_region->getEndcapIndex()==0)
@@ -164,7 +164,7 @@ void EMECDescriptor::init_description()
   else
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Positive EMEC
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   m_transform = xfAbs*xfNominal.inverse();
 }
@@ -237,7 +237,7 @@ void HECDescriptor::init_description()
   */
 
   // -- m_transform
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
   // we need to apply the famous ZShift
   Amg::Transform3D xfNominal;
   if(m_region->getEndcapIndex()==0)
@@ -245,7 +245,7 @@ void HECDescriptor::init_description()
   else
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_region->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Positive HEC
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
 
   m_transform = xfAbs*xfNominal.inverse();
 }
@@ -273,7 +273,7 @@ FCALDescriptor::~FCALDescriptor()
 void FCALDescriptor::init_description()
 {
   // -- m_transform
-  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransformAmg();
+  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransform();
   // we need to apply the famous ZShift.
   Amg::Transform3D xfNominal;
   if(m_module->getEndcapIndex()==FCALModule::POS)
@@ -281,7 +281,7 @@ void FCALDescriptor::init_description()
   else
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,-m_module->getProjectivityDisplacement()*Gaudi::Units::cm))*xfDef; // Positive FCAL
 
-  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransformAmg();
+  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransform();
 
   m_transform = xfAbs*xfNominal.inverse();
 }
