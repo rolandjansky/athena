@@ -199,7 +199,7 @@ void make_dd()
 
 int main()
 {
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("TrigInDetEventTPCnv_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;

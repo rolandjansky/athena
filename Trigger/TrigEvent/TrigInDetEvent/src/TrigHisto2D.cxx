@@ -32,9 +32,7 @@ TrigHisto2D::TrigHisto2D(unsigned int nbins_x,
   m_min_x = min_x;
   m_max_x = max_x;
   
-  unsigned int nbins;
-  
-  nbins = (nbins_x+2)*(nbins_y+2); // Two additional bins for under and overflow per 1d profile.
+  unsigned int nbins = (nbins_x+2)*(nbins_y+2); // Two additional bins for under and overflow per 1d profile.
 
   m_contents = contents;
   m_contents.resize(nbins, 0.); // Two additional bins for under and overflow per 1d profile.
@@ -170,12 +168,10 @@ TrigHisto2D& TrigHisto2D::operator=(TrigHisto2D&& trigHisto) {
 //---------------------------------------------------------------
 
 void TrigHisto2D::fill(float value_x, float value_y, float weight) {
-  unsigned int ibin_x, ibin_y, ibin;
+  const unsigned int ibin_x = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
+  const unsigned int ibin_y = findBin(m_nbins_y, m_min_y, m_max_y, m_binSize_y, value_y);
   
-  ibin_x = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
-  ibin_y = findBin(m_nbins_y, m_min_y, m_max_y, m_binSize_y, value_y);
-  
-  ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+  const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
 
   m_contents[ibin] += weight; // Append the weight to this bin
 }
@@ -183,18 +179,13 @@ void TrigHisto2D::fill(float value_x, float value_y, float weight) {
 //---------------------------------------------------------------
 
 double TrigHisto2D::sumEntries(float value_x, float value_y, int cutType) const {
-  unsigned int ibin, ibin_x, ibin_y, ibin_x_selected, ibin_y_selected;
-  double entries;
-
-
-  
   // Find the x bin index that the cut corresponds to.
-  ibin_x_selected = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
+  const unsigned int ibin_x_selected = findBin(m_nbins_x, m_min_x, m_max_x, m_binSize_x, value_x);
   
   // Find the y bin index that the cut corresponds to.
-  ibin_y_selected = findBin(m_nbins_y, m_min_y, m_max_y, m_binSize_y, value_y);
+  const unsigned int ibin_y_selected = findBin(m_nbins_y, m_min_y, m_max_y, m_binSize_y, value_y);
   
-  entries = 0.;
+  double entries = 0.;
   
   
   if( m_nbins_x==0 || m_nbins_y==0 ){
@@ -203,33 +194,33 @@ double TrigHisto2D::sumEntries(float value_x, float value_y, int cutType) const 
   else{
 
     if(cutType == BELOW_X_BELOW_Y) {
-      for(ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
-	for(ibin_y = m_underflowBin_y; ibin_y <= ibin_y_selected; ibin_y++) {
-	  ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+      for(unsigned int ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
+	for(unsigned int ibin_y = m_underflowBin_y; ibin_y <= ibin_y_selected; ibin_y++) {
+	  const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
 	  entries += m_contents[ibin];
 	}
       }
     }
     else if(cutType == ABOVE_X_BELOW_Y) {
-      for(ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
-	for(ibin_y = m_underflowBin_y; ibin_y <= ibin_y_selected; ibin_y++) {
-	  ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+      for(unsigned int ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
+	for(unsigned int ibin_y = m_underflowBin_y; ibin_y <= ibin_y_selected; ibin_y++) {
+	  const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
 	  entries += m_contents[ibin];
 	}
       }
     }
     else if(cutType == BELOW_X_ABOVE_Y) {
-      for(ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
-	for(ibin_y = ibin_y_selected; ibin_y <= m_overflowBin_y; ibin_y++) {
-	  ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+      for(unsigned int ibin_x = m_underflowBin_x; ibin_x <= ibin_x_selected; ibin_x++) {
+	for(unsigned int ibin_y = ibin_y_selected; ibin_y <= m_overflowBin_y; ibin_y++) {
+	  const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
 	  entries += m_contents[ibin];
 	}
       }
     }
     else if(cutType == ABOVE_X_ABOVE_Y) {   
-      for(ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
-	for(ibin_y = ibin_y_selected; ibin_y <= m_overflowBin_y; ibin_y++) {
-	  ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+      for(unsigned int ibin_x = ibin_x_selected; ibin_x <= m_overflowBin_x; ibin_x++) {
+	for(unsigned int ibin_y = ibin_y_selected; ibin_y <= m_overflowBin_y; ibin_y++) {
+	  const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
 	  entries += m_contents[ibin];
 	}
       }
@@ -265,15 +256,13 @@ TrigHisto1D TrigHisto2D::profileX(void) const {
 //---------------------------------------------------------------
 
 TrigHisto1D TrigHisto2D::profileY(void) const {
-  unsigned int ibin, ibin_x, ibin_y;
-
   // Define size carefully to avoid memory problems in for loop.
   std::vector<float> contents((m_overflowBin_y-m_underflowBin_y+1),0.);
 
   // Sum all x bins for each y bin.
-  for(ibin_y = m_underflowBin_y; ibin_y <= m_overflowBin_y; ibin_y++) {
-    for(ibin_x = m_underflowBin_x; ibin_x <= m_overflowBin_x; ibin_x++) {
-      ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
+  for(unsigned int ibin_y = m_underflowBin_y; ibin_y <= m_overflowBin_y; ibin_y++) {
+    for(unsigned int ibin_x = m_underflowBin_x; ibin_x <= m_overflowBin_x; ibin_x++) {
+      const unsigned int ibin = ibin_y*(m_nbins_x+2) + ibin_x; // Find position in 1d data array
       contents[ibin_y] += m_contents[ibin];
     }
   }

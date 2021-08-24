@@ -116,7 +116,7 @@ Navigation::classKey2CLIDKey(const std::vector<std::string>& property,
   // translate Class names into CLID numbers
 
   for ( const std::string& cname : property ) {
-    CLID clid;
+    CLID clid{0};
     std::string key;
     std::string type;
 
