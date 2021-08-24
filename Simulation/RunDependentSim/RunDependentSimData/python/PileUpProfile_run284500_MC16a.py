@@ -3,7 +3,7 @@
 # WARNING timestamps are derived ad hoc to put them outside run-1 or run-2 periods!
 # This is based on assumptions for beta*=60cm collisions.
 
-def setupProfile(scaleTaskLength=1):
+def setupProfile(flags, scaleTaskLength=1):
 
     def _evts(x):
         return int(scaleTaskLength * x)

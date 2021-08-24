@@ -40,15 +40,24 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
         kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
-        kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
+        if flags.Detector.EnableMBTS:
+            kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
+        else:
+            kwargs.setdefault('TileMBTSTTL1Container', '')
     elif flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1Cnt')
-        kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')
+        if flags.Detector.EnableMBTS:
+            kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')
+        else:
+            kwargs.setdefault('TileMBTSTTL1Container', '')
     else:
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
-        kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
+        if flags.Detector.EnableMBTS:
+            kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
+        else:
+            kwargs.setdefault('TileMBTSTTL1Container', '')
 
     TileHitToTTL1=CompFactory.TileHitToTTL1
     acc.addEventAlgo(TileHitToTTL1(**kwargs), primary = True)
@@ -66,7 +75,10 @@ def TileHitToTTL1CosmicsCfg(flags, **kwargs):
     kwargs.setdefault('name', 'TileHitToTTL1_Cosmics')
     kwargs.setdefault('TileTTL1Type', 'Cosmics')
     kwargs.setdefault('TileTTL1Container', 'TileTTL1CosmicsCnt')
-    kwargs.setdefault('TileMBTSTTL1Container', 'TileMBTSTTL1CosmicsContainer')
+    if flags.Detector.EnableMBTS:
+        kwargs.setdefault('TileMBTSTTL1Container', 'TileMBTSTTL1CosmicsContainer')
+    else:
+        kwargs.setdefault('TileMBTSTTL1Container', '')
 
     return TileHitToTTL1Cfg(flags, **kwargs)
 

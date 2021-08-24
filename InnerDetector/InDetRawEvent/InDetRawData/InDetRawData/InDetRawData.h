@@ -34,16 +34,22 @@ public:
   InDetRawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~InDetRawData();
+  virtual ~InDetRawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods:
   ///////////////////////////////////////////////////////////////////
 
-  virtual Identifier identify() const override final;
+  virtual Identifier identify() const override final
+  {
+      return m_rdoId;
+  }
 
 
-  virtual unsigned int getWord() const;
+  unsigned int getWord() const
+  {
+     return m_word;
+  }
 
   ///////////////////////////////////////////////////////////////////
   // Clients should not use default constructor, rather use the one
@@ -53,7 +59,11 @@ public:
 
   // OR the data word from OTHER into our data word.
   // Used by InDetOverlay.
-  void merge (const InDetRawData& other);
+  void merge (const InDetRawData& other)
+  {
+     m_word |= other.m_word;
+  }
+
 
   ///////////////////////////////////////////////////////////////////
   // Private data:

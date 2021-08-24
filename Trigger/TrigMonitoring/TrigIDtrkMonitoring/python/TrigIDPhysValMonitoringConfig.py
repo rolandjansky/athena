@@ -80,8 +80,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElectronLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
       ]
     else:
       chainnames = [
@@ -164,7 +164,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+        "HLT_tau.*idperf.*tracktwo.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
+        "HLT_tau.*idperf.*tracktwo.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT"
       ]
     else:
       chainnames = [

@@ -438,7 +438,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
   else {//endcap
     float maxB =m_settings.m_layerGeometry[layerJ].m_maxBound;
     float minB =m_settings.m_layerGeometry[layerJ].m_minBound;
-    if(maxB<rm) return false;// This currently rejects SP type doublets
+    if(maxB<=rm) return false;// This currently rejects SP type doublets
                               // Could correct this by retrieving if layers are pix or SCT, and not performing this check for SCt->pix doublets
     if(refCoordJ>0) {//positive EC
       //float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
@@ -470,7 +470,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	//}
       }
       else {//inner layer
-
+        if(minB == rm) return false;
 	float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
 	if( m_zMinus > zMax) return false;
 	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer
@@ -515,7 +515,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	//}
       }
       else {//inner layer
-
+        if(minB == rm) return false;
 	float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
 	if( m_zPlus < zMin) return false;
 	if (rm>maxB) {// otherwise, intersect of line from maxB through middle sp will be on the wrong side of the layer

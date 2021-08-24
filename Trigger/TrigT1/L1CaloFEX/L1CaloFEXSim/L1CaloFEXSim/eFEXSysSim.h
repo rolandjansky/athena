@@ -14,6 +14,7 @@
 #define eFEXSysSim_H
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1CaloFEXToolInterfaces/IeFEXSysSim.h"
+#include "L1CaloFEXToolInterfaces/IeFEXFillEDM.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "L1CaloFEXSim/eFEXSim.h"
 #include "L1CaloFEXSim/eTower.h"
@@ -25,6 +26,9 @@
 
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
+
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
 
 namespace LVL1 {
   
@@ -59,30 +63,35 @@ namespace LVL1 {
 
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
-    /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
-    virtual StatusCode fillEDM(uint8_t eFEXNumber, uint32_t tobWord) override ; 
-
 
     /** Internal data */
   private:
     std::unique_ptr< xAOD::eFexEMRoIContainer > m_eContainer;
     std::unique_ptr< xAOD::eFexEMRoIAuxContainer > m_eAuxContainer;
 
+    std::unique_ptr< xAOD::eFexTauRoIContainer > m_tauContainer;
+    std::unique_ptr< xAOD::eFexTauRoIAuxContainer > m_tauAuxContainer;
+
     std::vector<eFEXSim*>  m_eFEXCollection;
     
-    ToolHandle<IeFEXSim> m_eFEXSimTool       {this, "eFEXSimTool",    "LVL1::eFEXSim",    "Tool that creates the eFEX Simulation"};
+    ToolHandle<IeFEXSim> m_eFEXSimTool {this, "eFEXSimTool",    "LVL1::eFEXSim",    "Tool that creates the eFEX Simulation"};
+
+    ToolHandle<IeFEXFillEDM> m_eFEXFillEDMTool {this, "eFEXFillEDMTool", "LVL1::eFEXFillEDM", "Tool to fille eFEX EDMs"};
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerSGKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::eFexEMRoIContainer > m_eFexOutKey {this,"Key_eFexEMOutputContainer","L1_eEMRoI","Output eFexEM container"};
+    SG::WriteHandleKey< xAOD::eFexTauRoIContainer > m_eFexTauOutKey {this,"Key_eFexTauOutputContainer","L1_eTauRoI","Output eFexTau container"};
     ToolHandle<IeFEXFPGATowerIdProvider> m_eFEXFPGATowerIdProviderTool {this, "eFEXFPGATowerIdProviderTool", "LVL1::eFEXFPGATowerIdProvider", "Tool that provides tower-FPGA mapping"};
     ToolHandle<IeFEXFPGA> m_eFEXFPGATool {this, "eFEXFPGATool", "LVL1::eFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     //std::map<int,eTower> m_eTowersColl;
 
     std::map<int, std::vector<uint32_t> > m_allEmTobs;
-    
+
+    std::map<int, std::vector<uint32_t> > m_allTauTobs;
+
   };
   
 } // end of namespace

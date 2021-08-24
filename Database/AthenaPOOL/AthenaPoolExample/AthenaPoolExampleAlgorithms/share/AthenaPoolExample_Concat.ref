@@ -61,6 +61,11 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Setting run/LB/time from EventSelector override in initialize
+IOVDbSvc             INFO ../time set to [1,0 : 0]
+IOVDbSvc             INFO Initialised with 1 connections and 0 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 0  run: 1
@@ -287,6 +292,8 @@ SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:float
 SimplePoolFile1...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
+Stream1.FileMet...  DEBUG beam energy "" tag could not be converted to float
+Stream1.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
 Stream1.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream1.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream1.FileMet...  DEBUG Retrieved  'StreamName':'Stream1'
@@ -470,6 +477,8 @@ SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:float
 SimplePoolFile3...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
+Stream2.FileMet...  DEBUG beam energy "" tag could not be converted to float
+Stream2.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
 Stream2.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream2.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream2.FileMet...  DEBUG Retrieved  'StreamName':'Stream2'
@@ -1643,6 +1652,7 @@ Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+Stream1             DEBUG  Added object 1316383046,"/TagInfo"
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO xAOD::FileMetaDataAuxInfo_v1 [????]
@@ -1692,19 +1702,31 @@ SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile1...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO IOVMetaDataContainer_p1 [????]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+MetaData(IOVMet...  DEBUG Opening
+MetaData(IOVMet...  DEBUG    attributes# = 1
+MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
+MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Shape[13 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG ---->Class:IOVMetaDataContainer_p1
+SimplePoolFile1...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (18 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (19 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (19 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
@@ -1737,6 +1759,7 @@ Stream2             DEBUG addItemObjects(1316383046,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream2             DEBUG      Comp Attr 0 with 15 mantissa bits.
+Stream2             DEBUG  Added object 1316383046,"/TagInfo"
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
 MetaData(xAOD::...  DEBUG Opening
@@ -1778,19 +1801,29 @@ SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+MetaData(IOVMet...  DEBUG Opening
+MetaData(IOVMet...  DEBUG    attributes# = 1
+MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
+MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[13 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:IOVMetaDataContainer_p1
+SimplePoolFile3...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (18 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (19 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (19 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1

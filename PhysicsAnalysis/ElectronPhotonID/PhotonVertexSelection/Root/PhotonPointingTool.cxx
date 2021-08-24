@@ -10,6 +10,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/EgammaDefs.h"
+#include "xAODMetaData/FileMetaData.h"
 
 // Framework includes
 #include "IsolationCorrections/ShowerDepthTool.h"
@@ -26,7 +27,7 @@ namespace CP {
 
 //____________________________________________________________________________
 PhotonPointingTool::PhotonPointingTool(const std::string &name)
-  : asg::AsgTool(name)
+  : asg::AsgMetadataTool(name)
     , m_showerTool(nullptr)
     , m_zCorrection(nullptr)
 { 
@@ -46,7 +47,7 @@ PhotonPointingTool::~PhotonPointingTool()
 //____________________________________________________________________________
 StatusCode PhotonPointingTool::initialize()
 {
-  ATH_MSG_INFO("Initializing PhotonPointingTool...");
+  ATH_MSG_INFO("Initializing PhotonVertexSelectionTool..." << name());
 
   ATH_CHECK( m_evtInfo.initialize() );
 
@@ -72,18 +73,25 @@ StatusCode PhotonPointingTool::initialize()
 
   // Get the z-oscillation correction histogram
   // FIXME: The files need to go to calib area
-#if ( defined(XAOD_STANDALONE) )
-  {
-    // AnalysisRelease: determine if this is data or MC
-    // Cannot load the eventInfo before the first event in athena    
-    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtInfo);
-    if(!eventInfo.isValid()){
-      ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, failed to initialize.");
-      return StatusCode::FAILURE;
+
+
+  // Determine if this is MC or data
+  std::string dataType("");
+  m_isMC = true;
+  if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
+    const xAOD::FileMetaData* fmd = nullptr;
+    ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
+    std::string simType("");
+    const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
+    if (!s) {
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
+      m_isMC = false;
     }
-    m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  } else {
+    ATH_MSG_WARNING("Failed to retrieve FileMetaData : assuming to be MC");
   }
-#endif
+
+
   std::string filepath = PathResolverFindCalibFile(m_isMC ? m_zOscFileMC :
                                                    m_zOscFileData);
   TFile *file = TFile::Open(filepath.c_str(), "READ");
@@ -126,6 +134,10 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   // Loop over photons and add calo pointing auxdata
   std::pair<float, float> result;
   for (const auto *egamma: egammas) {
+    if(egamma==nullptr){
+      ATH_MSG_DEBUG("Passed Egamma was a nullptr  -- skipping");
+      continue;
+    }
     // Get calo pointing variables
     result = getCaloPointing(egamma);
 

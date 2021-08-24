@@ -7,9 +7,12 @@
 
 // Framework includes
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // EDM includes
+#include "xAODEventInfo/EventInfo.h" 
+#include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 
 // Local includes
@@ -45,32 +48,29 @@ namespace CP {
     std::string m_derivationPrefix;
 
     /// PhotonPointingTool
-    asg::AnaToolHandle<CP::IPhotonPointingTool> m_pointingTool;
+    ToolHandle<CP::IPhotonPointingTool> m_pointingTool {this, "PhotonPointingTool","CP::PhotonPointingTool/PhotonVertexSelection",""};
 
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer {this, "VertexContainer", "PrimaryVertices", "Vertex container name"};  
+   
     /// MVA readers
-    TMVA::Reader *m_mva1;
-    TMVA::Reader *m_mva2;
-
-    /// MVA attached discriminating variables
-    float m_sumPt2{};
-    float m_sumPt{};
-    float m_deltaPhi{};
-    float m_deltaZ{};
-    
-    /// Last case treated (see below)
-    int m_case;
-
-    /// Store results of MVA output
-    std::vector<std::pair<const xAOD::Vertex*, float> > m_vertexMLP;
+    // Ideally these would be const but the main method called, EvaluateMVA, is non const.
+    std::unique_ptr<TMVA::Reader> m_mva1;
+    std::unique_ptr<TMVA::Reader> m_mva2;
 
   private:
     /// Get combined 4-vector of photon container
-    TLorentzVector getEgammaVector(const xAOD::EgammaContainer *egammas) const;
+    TLorentzVector getEgammaVector(const xAOD::EgammaContainer *egammas, FailType& failType) const;
 
     /// Sort MLP results
     static bool sortMLP(const std::pair<const xAOD::Vertex*, float> &a, const std::pair<const xAOD::Vertex*, float> &b);
-    
 
+   
+    /// Given a list of photons, return the MLPs of all vertices in the event
+    StatusCode getVertexImp(const xAOD::EgammaContainer &egammas, const xAOD::Vertex* &vertex, bool ignoreConv, std::vector<std::pair<const xAOD::Vertex*, float> >&, yyVtxType& , FailType& ) const;
+    
+  
   public:
     PhotonVertexSelectionTool(const std::string &name);
     virtual ~PhotonVertexSelectionTool();
@@ -86,17 +86,18 @@ namespace CP {
     /// @name Function(s) implementing the IPhotonVertexSelectionTool interface
     /// @{
     
+    /// Given a list of photons, decorate vertex container with MVA variables
+    StatusCode decorateInputs(const xAOD::EgammaContainer &egammas, FailType* failType = nullptr) const;
+
     /// Given a list of photons, return the most likely vertex based on MVA likelihood
-    StatusCode getVertex(const xAOD::EgammaContainer &egammas, const xAOD::Vertex* &vertex, bool ignoreConv = false);
+    StatusCode getVertex(const xAOD::EgammaContainer &egammas, const xAOD::Vertex* &vertex, bool ignoreConv = false) const;
 
     /// Given a list of photons, return the MLPs of all vertices in the event
-    std::vector<std::pair<const xAOD::Vertex*, float> >& getVertex(const xAOD::EgammaContainer &egammas, bool ignoreConv = false);
+    std::vector<std::pair<const xAOD::Vertex*, float> > getVertex(const xAOD::EgammaContainer &egammas, bool ignoreConv = false, yyVtxType* vtxCase = nullptr, FailType* failType = nullptr) const;
     
     /// Return the last case treated:
-    /// 0=conv track associated to vertex,
-    /// 1=at least one conv track with Si hits, 
-    /// 2=no tracks with Si hits or conversions ignored
-    int getCase() const { return m_case; }
+    //  Deprecated no longer use this function
+    int getCase() const { return -1; }
     
     /// Get possible vertex directly associated with photon conversions
     const xAOD::Vertex* getPrimaryVertexFromConv(const xAOD::PhotonContainer *photons) const;

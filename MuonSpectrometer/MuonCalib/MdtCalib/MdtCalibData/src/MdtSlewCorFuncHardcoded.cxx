@@ -1,34 +1,36 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+  MDT Timeslew correction for AMT digitization chip.
+  Timeslew correction parmeterized as function of ADC:  timeslew = 109/q(ADC) [ns]
+   where q = integrated charge of MDT signal, derived from AMT parameters, see ATL-MUON-2002-003
+   constant 109 determined by empirical fit of data, see 
+   https://indico.cern.ch/event/115774/contributions/69612/attachments/2260534/3836764/110912_rauscher_timeslewing.pdf
+
+   Note: Timeslew correction should be updated for Run4 when AMT is replaced by a new MDT digitization chip
+   Author:  Felix Rauscher (2011)
+   Revision: Edward Diehl (2021)
+     1. Move initialization of LUT from correction function to an initialize function for AthenaMT compatibility.
+     2. Change to LUT from a map to vector which is more accurate and has lower access time.
 */
 
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
-#include "iostream"
-#include "cmath"
+#include <cmath>
+	
 
 namespace MuonCalib {
 
-std::map<short, float> MdtSlewCorFuncHardcoded::m_LUT=std::map<short, float>();
-
 double MdtSlewCorFuncHardcoded::correction(double /*t*/, double adc) const {
-  if(adc>500 || adc<0) return 0;
-  if(m_LUT.size()==0) {
-    float last_val(9e9);
-    for(short i=0;i<500; i++) {
-      float new_val=109/calibrated_p(i);
-      if(last_val - new_val > 0.2) {
-	last_val=new_val;
-	m_LUT[i]=new_val;
-      }
-      if (new_val<0.1) break;
-    }
-  }
-  return m_LUT.lower_bound(static_cast<short>(adc))->second;
-}
-
-double MdtSlewCorFuncHardcoded::calibrated_p(const double &adc) const {
-  double w = adc*25.0/32.0;
-  return std::exp(1.11925e+00 + 2.08708e-02*w);
+  // Timeslew correction is negligible (<0.05 ns) for ADC>400 so do not bother computing it.  
+  // In addition there are very few hits with ADC>400
+  // Constant 109 is from an optimization of the timeslew correction
+  // calibrated_p(i) is the integrated charge as a function of ADC
+  if( adc>  400. || adc<0. ) return 0.;
+  static const double A = 109. * std::exp(-1.11925e+00 );
+  constexpr double adc_chan_conversion = 25./32.;
+  constexpr double Lambda =  -2.08708e-02*adc_chan_conversion;  //ADC to ns
+  // Convert ADC to integrated charge for AMT chip, see ATL-MUON-2002-003
+  return A * std::exp( adc * Lambda);
 }
 
 }  //namespace MuonCalib

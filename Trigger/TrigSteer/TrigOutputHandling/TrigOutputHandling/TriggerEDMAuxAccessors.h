@@ -19,6 +19,11 @@ constexpr auto initAccessors(U... names) {
   return std::array<SG::AuxElement::Accessor<T>, sizeof...(names)>{(SG::AuxElement::Accessor<T>(names))...};
 }
 
+auto boolAccessors = initAccessors<bool>(
+  "hasGenericRoiError", "hasGenericDaqError", "hasCrcTobError", "hasCrcFibreError",
+  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference",
+  "hitDVSP_isPix","hitDVSP_isSct");
+
 auto charAccessors = initAccessors<char>(
   "IP2D_isDefaults", "IP3D_isDefaults", "SV1_isDefaults", "rnnip_isDefaults",
   "JetFitterSecondaryVertex_isDefaults", "JetFitter_isDefaults", "passPFTrackPresel",
@@ -29,13 +34,31 @@ auto intAccessors = initAccessors<int>(
   "totNumPixCL_1", "totNumPixCL_2", "totNumPixCLmin3", "totNumPixSP", "totNumSctSP", "ntrks",
   "IP2D_nTrks", "IP3D_nTrks", "JetFitterSecondaryVertex_nTracks", "JetFitter_N2Tpair",
   "JetFitter_nSingleTracks", "JetFitter_nTracksAtVtx", "JetFitter_nVTX", "JetFitter_ndof",
-  "SV1_N2Tpair", "SV1_NGTinSvx", "sp_isPix", "sp_isSct", "sp_layer", "sp_usedTrkId", "seed_et_small", "seed_et_large",
+  "SV1_N2Tpair", "SV1_NGTinSvx", "seed_et_small", "seed_et_large",
   "pixCL", "pixCL_1", "pixCL_2", "pixCLmin3", "pixCLBarrel", "pixCLEndcapA", "pixCLEndcapC",
   "nCells",
   "sctSP", "sctSPBarrel", "sctSPEndcapA", "sctSPEndcapC",
-  "hit_iblovfl", "hit_loc", "hit_trkid", "hit_layer", "trk_id", "trk_dedx_n_usedhits", "trk_n_hdedx_hits");
+  "zfinder_tool",
+  "hitDVTrk_id","hitDVTrk_n_hits_innermost","hitDVTrk_n_hits_pix","hitDVTrk_n_hits_sct",
+  "hitDV_seed_type","hitDV_n_track_qual",
+  "dEdxTrk_id","dEdxTrk_dedx_n_usedhits",
+  "dEdxTrk_n_hits_innermost","dEdxTrk_n_hits_inner","dEdxTrk_n_hits_pix","dEdxTrk_n_hits_sct",
+  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer",
+  "HPtdEdxTrk_dedx_n_usedhits","HPtdEdxTrk_n_hits_innermost",
+  "HPtdEdxTrk_n_hits_inner","HPtdEdxTrk_n_hits_pix","HPtdEdxTrk_n_hits_sct",
+  "disTrk_category","disTrk_is_fail","disTrk_n_hits_pix","disTrk_n_hits_sct","disTrk_n_hits_innermost",
+  "disTrkCand_category","disTrkCand_n_hits_innermost","disTrkCand_n_hits_inner","disTrkCand_n_hits_pix","disTrkCand_n_hits_sct",
+  "disTrkCand_n_brhits_ibl","disTrkCand_n_brhits_pix1","disTrkCand_n_brhits_pix2","disTrkCand_n_brhits_pix3",
+  "disTrkCand_n_brhits_sct1","disTrkCand_n_brhits_sct2","disTrkCand_n_brhits_sct3","disTrkCand_n_brhits_sct4",
+  "disTrkCand_n_brhits_good_ibl","disTrkCand_n_brhits_good_pix1","disTrkCand_n_brhits_good_pix2","disTrkCand_n_brhits_good_pix3",
+  "disTrkCand_n_brhits_good_sct1","disTrkCand_n_brhits_good_sct2","disTrkCand_n_brhits_good_sct3","disTrkCand_n_brhits_good_sct4",
+  "disTrkCand_refit_n_hits_innermost","disTrkCand_refit_n_hits_inner","disTrkCand_refit_n_hits_pix","disTrkCand_refit_n_hits_sct",
+  "disTrkCand_refit_n_brhits_ibl","disTrkCand_refit_n_brhits_pix1","disTrkCand_refit_n_brhits_pix2","disTrkCand_refit_n_brhits_pix3",
+  "disTrkCand_refit_n_brhits_sct1","disTrkCand_refit_n_brhits_sct2","disTrkCand_refit_n_brhits_sct3","disTrkCand_refit_n_brhits_sct4",
+  "disTrkCand_refit_n_brhits_good_ibl","disTrkCand_refit_n_brhits_good_pix1","disTrkCand_refit_n_brhits_good_pix2","disTrkCand_refit_n_brhits_good_pix3",
+  "disTrkCand_refit_n_brhits_good_sct1","disTrkCand_refit_n_brhits_good_sct2","disTrkCand_refit_n_brhits_good_sct3","disTrkCand_refit_n_brhits_good_sct4");
 
-auto int16Accessors = initAccessors<int16_t>("view");
+auto int16Accessors = initAccessors<int16_t>("view", "hitDVSP_layer", "hitDVSP_usedTrkId");
 
 auto int32Accessors = initAccessors<int32_t>("roi");
 
@@ -61,13 +84,50 @@ auto floatAccessors = initAccessors<float>(
   "JetFitter_chi2", "JetFitter_dRFlightDir", "JetFitter_deltaR", "JetFitter_deltaeta", "JetFitter_deltaphi",
   "JetFitter_energyFraction", "JetFitter_mass", "JetFitter_massUncorr", "JetFitter_significance3d",
   "SV1_L3d", "SV1_Lxy", "SV1_deltaR", "SV1_dstToMatLay", "SV1_efracsvx", "SV1_energyTrkInJet",
-  "SV1_masssvx", "SV1_normdist", "SV1_significance3d", "DetectorEta", "DetectorPhi",
-  "EMFrac", "HECFrac", "JVFCorr", "sp_eta", "sp_phi", "sp_r", "sp_z", "seed_eta", "seed_phi", "trk_a0beam",
-  "trk_eta", "trk_phi", "trk_pt", "trk_n_hits_inner", "trk_n_hits_innermost", "trk_n_hits_pix", "trk_n_hits_sct",
-  "hit_dedx", "hit_tot", "hit_trkchi2", "hit_trkndof", "trk_dedx",
+  "SV1_masssvx", "SV1_normdist", "SV1_significance3d",
+  "DL1d20210519r22_pb",
+  "DL1d20210519r22_pc",
+  "DL1d20210519r22_pu",
+  "DL1d20210528r22_pb",
+  "DL1d20210528r22_pc",
+  "DL1d20210528r22_pu",
+  "dips20210517_pb",
+  "dips20210517_pc",
+  "dips20210517_pu",
+  "dipsLoose20210517_pb",
+  "dipsLoose20210517_pc",
+  "dipsLoose20210517_pu",
+  "DetectorEta", "DetectorPhi",
+  "EMFrac", "HECFrac", "JVFCorr", "seed_eta", "seed_phi", "trk_a0beam",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
   "EOverP", "RErr", "etConeCore", "muonScore", "ptCone20", "trackIso", "trkPtFraction", 
-  "zfinder_vtx_z", "zfinder_vtx_weight");
+  "zfinder_vtx_z", "zfinder_vtx_weight", "caloIso", "calE", "calEta", "calPhi",
+  "hitDVTrk_pt","hitDVTrk_eta","hitDVTrk_phi","hitDVTrk_a0beam",
+  "hitDVSP_eta","hitDVSP_r","hitDVSP_phi",
+  "hitDV_seed_pt","hitDV_seed_eta","hitDV_seed_phi","hitDV_ly0_sp_frac","hitDV_ly1_sp_frac","hitDV_ly2_sp_frac",
+  "hitDV_ly3_sp_frac","hitDV_ly4_sp_frac","hitDV_ly5_sp_frac","hitDV_ly6_sp_frac","hitDV_ly7_sp_frac","hitDV_bdt_score",
+  "dEdxTrk_pt","dEdxTrk_eta","dEdxTrk_phi","dEdxTrk_dedx","dEdxTrk_a0beam",
+  "dEdxHit_dedx","dEdxHit_tot","dEdxHit_trkchi2","dEdxHit_trkndof",
+  "HPtdEdxTrk_pt","HPtdEdxTrk_eta","HPtdEdxTrk_phi","HPtdEdxTrk_dedx","HPtdEdxTrk_a0beam",
+  "disTrk_pt","disTrk_eta","disTrk_phi","disTrk_refit_pt","disTrk_d0_wrtVtx","disTrk_z0_wrtVtx",
+  "disTrk_chi2","disTrk_ndof","disTrk_iso3_dr01","disTrk_iso3_dr02","disTrk_refit_d0_wrtVtx","disTrk_refit_z0_wrtVtx",
+  "disTrk_refit_chi2","disTrk_refit_ndof","disTrk_chi2ndof_pix","disTrk_bdtscore",
+  "disTrkCand_pt","disTrkCand_eta","disTrkCand_phi","disTrkCand_d0","disTrkCand_z0",
+  "disTrkCand_chi2","disTrkCand_ndof","disTrkCand_pt_wrtVtx","disTrkCand_eta_wrtVtx",
+  "disTrkCand_phi_wrtVtx","disTrkCand_d0_wrtVtx","disTrkCand_z0_wrtVtx",
+  "disTrkCand_chi2sum_br_ibl","disTrkCand_chi2sum_br_pix1","disTrkCand_chi2sum_br_pix2","disTrkCand_chi2sum_br_pix3",
+  "disTrkCand_chi2sum_br_sct1","disTrkCand_chi2sum_br_sct2","disTrkCand_chi2sum_br_sct3","disTrkCand_chi2sum_br_sct4",
+  "disTrkCand_ndofsum_br_ibl","disTrkCand_ndofsum_br_pix1","disTrkCand_ndofsum_br_pix2","disTrkCand_ndofsum_br_pix3",
+  "disTrkCand_ndofsum_br_sct1","disTrkCand_ndofsum_br_sct2","disTrkCand_ndofsum_br_sct3","disTrkCand_ndofsum_br_sct4",
+  "disTrkCand_iso1_dr01","disTrkCand_iso1_dr02","disTrkCand_iso1_dr04","disTrkCand_iso2_dr01","disTrkCand_iso2_dr02",
+  "disTrkCand_iso2_dr04","disTrkCand_iso3_dr01","disTrkCand_iso3_dr02","disTrkCand_iso3_dr04",
+  "disTrkCand_refit_pt","disTrkCand_refit_eta","disTrkCand_refit_phi","disTrkCand_refit_d0","disTrkCand_refit_z0",
+  "disTrkCand_refit_chi2","disTrkCand_refit_ndof","disTrkCand_refit_pt_wrtVtx","disTrkCand_refit_eta_wrtVtx",
+  "disTrkCand_refit_phi_wrtVtx","disTrkCand_refit_d0_wrtVtx","disTrkCand_refit_z0_wrtVtx",
+  "disTrkCand_refit_chi2sum_br_ibl","disTrkCand_refit_chi2sum_br_pix1","disTrkCand_refit_chi2sum_br_pix2","disTrkCand_refit_chi2sum_br_pix3",
+  "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
+  "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
+  "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4");
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
 

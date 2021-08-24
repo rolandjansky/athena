@@ -16,6 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include <ostream>
+#include <sstream>
 
 // Set maximum charge for calibrated clusters
 // Needed as protection to avoid FPE in transient-to-persistent
@@ -211,28 +213,30 @@ namespace InDet{
     {
     }
     
+    bool 
+    PixelCluster::type(Trk::PrepRawDataType type) const{
+      return (type == Trk::PrepRawDataType::PixelCluster or type == Trk::PrepRawDataType::SiCluster);
+    }
+
+    
 
     MsgStream& PixelCluster::dump( MsgStream&    stream) const
     {
-        stream << "PixelCluster object" << std::endl;
-        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << std::endl;
-        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << std::endl;
-        stream << "split information: " << (isSplit() ? "split" : "not split" );
-        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << std::endl;
-        stream << "Base class (SiCluster):" << std::endl;
-        this->SiCluster::dump(stream);
-    
+        std::ostringstream out;
+        dump(out);
+        stream<<out.str();
         return stream;
     }
     
     std::ostream& PixelCluster::dump( std::ostream&    stream) const
     {
-        stream << "PixelCluster object"<<std::endl;
-        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << std::endl;
-        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << std::endl;
+        const std::string lf{"\n"};
+        stream << "PixelCluster object"<<lf;
+        stream << "omegax: " << m_omegax << "	omegay: " << m_omegay << lf;
+        stream << "total ToT: " << m_totalToT << ", calibrated charge =" << m_totalCharge << lf;
         stream << "split information: " << (isSplit() ? "split" : "not split" );
-        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << std::endl;
-        stream << "Base class (SiCluster):" << std::endl;
+        stream << ", probabilities " << splitProbability1() << ", " << splitProbability2() << lf;
+        stream << "Base class (SiCluster):" << lf;
         this->SiCluster::dump(stream);
     
         return stream;

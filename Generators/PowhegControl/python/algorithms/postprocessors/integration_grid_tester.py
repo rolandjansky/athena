@@ -40,8 +40,8 @@ def integration_grid_tester():
                 matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
                 matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
                 if len(matched_lines) > 0:
-                    positive_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "pos." in line], [])
-                    negative_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "|neg.|" in line], [])
+                    positive_weight_xs = sum([list(map(float, re.findall(regex_match_floats, line))) for line in matched_lines if "pos." in line],[])
+                    negative_weight_xs = sum([list(map(float, re.findall(regex_match_floats, line))) for line in matched_lines if "|neg.|" in line], [])
                     inclusive_xs += positive_weight_xs[0] + negative_weight_xs[0]
                     inclusive_xs_error += math.sqrt(positive_weight_xs[1]**2 + negative_weight_xs[1]**2)
             except Exception:  # catch all exceptions
@@ -52,9 +52,9 @@ def integration_grid_tester():
                 matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights|Remnant cross section)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
                 matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
                 if len(matched_lines) > 0:
-                    negative_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde |neg.|" in line][0]))[0]
-                    positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde pos." in line][0]))[0]
-                    positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "Remnant cross section" in line][0]))[0]
+                    negative_weights += list(map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde |neg.|" in line][0])))[0]
+                    positive_weights += list(map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde pos." in line][0])))[0]
+                    positive_weights += list(map(float, re.findall(regex_match_floats, [line for line in matched_lines if "Remnant cross section" in line][0])))[0]
             except Exception:  # catch all exceptions
                 pass
     # Open counter files
@@ -67,9 +67,9 @@ def integration_grid_tester():
                 matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde event|remnant event|upper bound failure)(.*)[0-9](.*)", line)]
                 matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
                 if len(matched_lines) > 0:
-                    n_events += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "event" in line]))
-                    n_upper_bound_failures_xs += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in inclusive" in line]))
-                    n_upper_bound_failures_radiation += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in generation" in line]))
+                    n_events += sum(list(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "event" in line])))
+                    n_upper_bound_failures_xs += sum(list(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in inclusive" in line])))
+                    n_upper_bound_failures_radiation += sum(list(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in generation" in line])))
             except Exception:  # catch all exceptions
                 pass
 

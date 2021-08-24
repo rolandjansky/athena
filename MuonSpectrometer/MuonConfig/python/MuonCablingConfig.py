@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# Heavily based on Trigger/TrigSteer/L1Decoder/python/L1MuonConfig.py
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -9,24 +7,35 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def RPCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
 
+    dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
+    dbRepo="MuonRPC_Cabling/ATLAS.data"
     rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
-
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
-
-    dbRepo="MuonRPC_Cabling/ATLAS.data"
-    if flags.Trigger.enableL1MuonPhase1:
-        dbRepo="MuonRPC_Cabling/RUN3_roads_4_6_8_10_12"
+    if flags.Trigger.doLVL1 and flags.Trigger.enableL1MuonPhase1:
+        # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
+        # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
+        rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if flags.Input.isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
+            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, [rpcCabMap,rpcCabMapCorr], dbName, className='CondAttrListCollection' ))
-    if not flags.Trigger.doLVL1 or flags.Input.isMC:
-        acc.merge(addFolders(flags, [rpcTrigEta,rpcTrigPhi], dbName, className='CondAttrListCollection' ))
+    if flags.Trigger.doLVL1 and not flags.Input.isMC:
+        # RPC trigger roads in the online database are not up-to-dated
+        # Use offline database for now
+        # Will switch to online database once online database has been updated (ATR-23465)
+        if flags.Trigger.enableL1MuonPhase1:
+            acc.merge(addFolders(flags, [rpcTrigEta,rpcTrigPhi], detDb='RPC_OFL', className='CondAttrListCollection', db='OFLP200'))
+        else:
+            conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
+            acc.merge(addFolders(flags, [rpcTrigEta,rpcTrigPhi], detDb='RPC_OFL', className='CondAttrListCollection', tag=conddbNameOffline, db='OFLP200' ))
     else:
-        # to be configured in TriggerJobOpts.Lvl1MuonSimulationConfigOldStyle
-        pass
+        acc.merge(addFolders(flags, [rpcTrigEta,rpcTrigPhi], dbName, className='CondAttrListCollection' ))
 
     RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
     RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg",DatabaseRepository=dbRepo)

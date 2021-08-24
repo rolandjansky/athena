@@ -404,18 +404,11 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelRadSimFluenceMapAlg
         condSeq += PixelRadSimFluenceMapAlg()
 
-    useNewChargeFormat  = False
-
     ############################################################################################
     # Set up Conditions DB
     ############################################################################################
     if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        # TODO: Once new global tag is updated, this line should be removed. (Current MC global tag is too old!!! (before RUN-2!!!))
-        if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-            conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
@@ -448,18 +441,19 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Calibration Setup #
     #####################
-    if not useNewChargeFormat:
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-    else:
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run()=="RUN3":
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+    else:
+        if not conddb.folderRequested("/PIXEL/PixCalib"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #####################
     # Cabling map Setup #
@@ -528,10 +522,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Setup Cabling Svc #
     #####################
-    from PixelCabling.PixelCablingConf import PixelCablingSvc
-    PixelCablingSvc = PixelCablingSvc()
-    ServiceMgr += PixelCablingSvc
-    print ( PixelCablingSvc)
+    from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+    PixelReadoutManager = InDetDD__PixelReadoutManager()
+    ServiceMgr += PixelReadoutManager
+    print (PixelReadoutManager)
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     chargeTools = []

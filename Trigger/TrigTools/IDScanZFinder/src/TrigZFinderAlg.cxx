@@ -23,10 +23,12 @@ TrigZFinderAlg::~TrigZFinderAlg()
 
 StatusCode TrigZFinderAlg::initialize()
 {
-  ATH_CHECK(m_zFinderTool.retrieve());
+  ATH_CHECK(m_zFinderTools.retrieve());
   ATH_CHECK(m_pixelSpKey.initialize());
   ATH_CHECK(m_pixelHelperKey.initialize());
-  ATH_CHECK(m_zFinderKey.initialize());
+  ATH_CHECK(m_vertexKey.initialize());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -54,55 +56,63 @@ StatusCode TrigZFinderAlg::execute(const EventContext& context) const
     const Identifier pixid = (pixSPointColl)->identify();
     int layerId = pixelHelper->layer_disk(pixid);
     // Set the resolution for r & z in barrel/end cap.
-    double dr, dz;
     if(pixelHelper->is_barrel(pixid)){
-      dr = 0.01;
-      dz = 0.13;
-    }
-    else{
-      dz=0.01;
-      dr=0.13;
-    }
+      const double dr = 0.01;
+      const double dz = 0.13;
       
-    for (const auto pSP : *pixSPointColl)
-    {
-      // Store SP into vector
-      spVec.push_back(TrigSiSpacePointBase(layerId, pSP->globalPosition().perp(), pSP->globalPosition().phi(), pSP->globalPosition().z(), 
-              dr, dz, pSP));
-    
+      for (const auto pSP : *pixSPointColl)
+      {
+        // Store SP into vector
+        spVec.push_back(TrigSiSpacePointBase(layerId, pSP->globalPosition().perp(), pSP->globalPosition().phi(), pSP->globalPosition().z(), 
+                                              dr, dz, pSP));    
+      }
     }
- 
   }
+  ATH_MSG_DEBUG("Size of spVec: " << spVec.size());
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   TrigRoiDescriptor fullscan_roi( true );
 
-  TrigVertexCollection* vertices = m_zFinderTool->findZ(spVec, TrigRoiDescriptor(true));
-  
-  ATH_MSG_DEBUG("Successfully retrieved size of number of vertices: " << vertices->size());
-  ATH_MSG_DEBUG("Size of spVec: " << spVec.size());
 
 
   // Recording Data
-  auto zFinderContainer = std::make_unique<xAOD::TrigCompositeContainer>();
-  auto zFinderContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-  zFinderContainer->setStore(zFinderContainerAux.get());
+  auto zVertexContainer = std::make_unique<xAOD::TrigCompositeContainer>();
+  auto zVertexContainerAux = std::make_unique<xAOD::TrigCompositeAuxContainer>();  
+  zVertexContainer->setStore(zVertexContainerAux.get());
 
-  for ( auto vertex: *vertices ) {
-    ATH_MSG_DEBUG("z of vertex: "<< vertex->z() );
-    ATH_MSG_DEBUG("weight vertex: "<< vertex->cov()[5] );
+  int toolIndex=0;
+  for ( auto& tool: m_zFinderTools ) {
+    TrigVertexCollection* vertices = tool->findZ(spVec, TrigRoiDescriptor(true));
+  
+    ATH_MSG_DEBUG("Successfully retrieved size of number of vertices: " << vertices->size());
 
-    xAOD::TrigComposite *zFinder = new xAOD::TrigComposite();
-    zFinderContainer->push_back(zFinder);
-    zFinder->setDetail<float>("zfinder_vtx_z", vertex->z() );
-    zFinder->setDetail<float>("zfinder_vtx_weight", vertex->cov()[5] );
+    for ( auto vertex: *vertices ) {
+      ATH_MSG_DEBUG("z of vertex: "<< vertex->z() );
+      ATH_MSG_DEBUG("weight vertex: "<< vertex->cov()[5] );
+
+      xAOD::TrigComposite *outputVertex = new xAOD::TrigComposite();
+      zVertexContainer->push_back(outputVertex);
+      outputVertex->setDetail<int>("zfinder_tool", toolIndex );
+      outputVertex->setDetail<float>("zfinder_vtx_z", vertex->z() );
+      outputVertex->setDetail<float>("zfinder_vtx_weight", vertex->cov()[5] );
+      // Adding monitoring histograms
+      auto ZVertex = Monitored::Scalar("ZVertex",vertex->z());
+      auto ZVertexWeight = Monitored::Scalar("ZVertexWeight",vertex->cov()[5]);
+    
+      auto mon = Monitored::Group(m_monTool, ZVertex, ZVertexWeight);
+    }
+    toolIndex++;
+    delete vertices;
+  }
+  if ( zVertexContainer->empty() ) {
+    xAOD::TrigComposite *emptyVertex = new xAOD::TrigComposite();
+    zVertexContainer->push_back(emptyVertex);
+    emptyVertex->setDetail<int>("zfinder_tool", -1 );
+    emptyVertex->setDetail<float>("zfinder_vtx_z", -1000.0 );
+    emptyVertex->setDetail<float>("zfinder_vtx_weight", -1.0 );
   }
 
-  SG::WriteHandle<xAOD::TrigCompositeContainer> zFinderHandle(m_zFinderKey, context);
-  ATH_CHECK(zFinderHandle.record(std::move(zFinderContainer), std::move(zFinderContainerAux)));
-  
-  delete vertices;
-
+  SG::WriteHandle<xAOD::TrigCompositeContainer> vertexHandle(m_vertexKey, context);
+  ATH_CHECK(vertexHandle.record(std::move(zVertexContainer), std::move(zVertexContainerAux)));
   return StatusCode::SUCCESS;
 }
-

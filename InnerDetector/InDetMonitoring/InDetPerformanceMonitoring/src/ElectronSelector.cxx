@@ -112,7 +112,7 @@ void ElectronSelector::PrepareElectronList(const xAOD::ElectronContainer* pxElec
   
   // Loop over the Electrons                                                                                                                                                       
   int electroncount = 0;
-  for(; iter != iterEnd ; iter++) {
+  for(; iter != iterEnd ; ++iter) {
     electroncount++;
     (*m_msgStream) << MSG::DEBUG  << " -- ElectronSelector::PrepareElectronList -- candiate electron " << electroncount 
 		   << " has author " << (*iter)->author(xAOD::EgammaParameters::AuthorElectron)

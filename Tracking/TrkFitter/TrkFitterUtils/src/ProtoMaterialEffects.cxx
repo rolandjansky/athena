@@ -269,8 +269,10 @@ void ProtoMaterialEffects::setSurface(const Surface *surf){
 }
 
 MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
-  ScatteringAngles *scatangles=nullptr;
-  if (m_sigmascattheta!=0) scatangles=new ScatteringAngles(m_scatphi,m_scattheta,m_sigmascatphi,m_sigmascattheta);
+  std::optional<ScatteringAngles> scatangles=std::nullopt;
+  if (m_sigmascattheta!=0) {
+    scatangles=ScatteringAngles(m_scatphi,m_scattheta,m_sigmascatphi,m_sigmascattheta);
+  }
   std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
   typePattern.set(MaterialEffectsBase::FittedMaterialEffects);
   const Trk::EnergyLoss *neweloss=nullptr;
@@ -284,7 +286,6 @@ MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
       if (!m_owneloss) neweloss=neweloss->clone();
     }
     else neweloss=new Trk::EnergyLoss(m_deltae,m_sigmadeltae,m_sigmadeltaeneg,m_sigmadeltaepos);
-    //std::cout << "deltae: " << neweloss->deltaE() << " sigde: " << neweloss->sigmaDeltaE() << " sigplus: " << neweloss->sigmaPlusDeltaE() << " sigminus: " << neweloss->sigmaMinusDeltaE() << std::endl;
   }
   MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,scatangles,neweloss,*m_surf,typePattern);
   const_cast<bool&>(m_owneloss)=false; //Non MT safe function

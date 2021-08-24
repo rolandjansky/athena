@@ -108,7 +108,7 @@ namespace Trk {
       }        
       //--- This creates Perigee in GLOBAL frame from input in realtive coordinates
       const Perigee* inpPer = 
-          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni, state);
+          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni, state).release();
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
 // ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)

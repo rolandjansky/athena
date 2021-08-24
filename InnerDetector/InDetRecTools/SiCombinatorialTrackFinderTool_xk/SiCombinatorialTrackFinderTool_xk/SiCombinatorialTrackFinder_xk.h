@@ -110,6 +110,11 @@ namespace InDet {
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
 	 bool, const EventContext& ctx) const override;
    
+      virtual double pTseed(SiCombinatorialTrackFinderData_xk& data,
+			    const Trk::TrackParameters&,
+			    const std::vector<const Trk::SpacePoint*>&,
+			    const EventContext&) const override;
+
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
@@ -167,6 +172,8 @@ namespace InDet {
       //@{
       BooleanProperty m_usePIX{this, "usePixel", true};
       BooleanProperty m_useSCT{this, "useSCT", true};
+      BooleanProperty m_ITkGeometry{this, "ITkGeometry", false};
+      BooleanProperty m_doFastTracking{this, "doFastTracking", false};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
       BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 
@@ -213,6 +220,11 @@ namespace InDet {
       static bool spacePointsToClusters
 	(const std::vector<const Trk::SpacePoint*>&,
 	 std::list<const InDet::SiCluster*> &) ; 
+
+      static bool spacePointsToClusters
+	(const std::vector<const Trk::SpacePoint*>&,
+	 std::list<const InDet::SiCluster*> &,
+	 std::list<const InDetDD::SiDetectorElement*>&) ;
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,

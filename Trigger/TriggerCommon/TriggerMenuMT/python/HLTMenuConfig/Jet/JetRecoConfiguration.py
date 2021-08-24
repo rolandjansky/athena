@@ -29,10 +29,11 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt']
 
 cleaningDict = {
-    'CLEANlb': 'LooseBad',
+    'CLEANlb':  'LooseBad',
+    'CLEANllp': 'LooseBadLLP',
 }
 
 def extractCleaningsFromPrefilters(prefilters_list):
@@ -58,8 +59,6 @@ def extractRecoDict(chainParts):
                         raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
-            elif k =='cleaning':
-                recoDict[k] = extractCleaningsFromPrefilters(p["prefilters"])
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -70,9 +69,9 @@ def extractRecoDict(chainParts):
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
-    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
+    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
     if jetRecoDict["trkopt"] != "notrk":
-        strtemp += "_{trkopt}_{trkpresel}"
+        strtemp += "_{trkopt}"
     return strtemp.format(**jetRecoDict)
 
 # Inverse of the above, essentially only for CF tests
@@ -84,13 +83,13 @@ def jetRecoDictFromString(jet_def_string):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts,JetChainParts_Default
     for key in recoKeys:
         keyFound = False
-        tmp_key = 'prefilters' if key == 'cleaning' else key
+        tmp_key =  key
         for part in jet_def_string.split('_'):
             if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
-            jetRecoDict[key] = 'noCleaning' if key =='cleaning' else JetChainParts_Default[key]
+            jetRecoDict[key] = JetChainParts_Default[key]
 
     # set proper jetCalib key in default case
     if jetRecoDict['jetCalib'] == "default":
@@ -162,6 +161,12 @@ def interpretRecoAlg(recoAlg):
     jetalg, jetradius, jetextra = re.split(r'(\d+)',recoAlg)    
     return jetalg, int(jetradius), jetextra
 
+# Check if jet definition needs tracks or if it should be agnostic of the tracking choice
+def jetDefNeedsTracks(jetRecoDict):
+  # For tc_a10, tc_a10t and tc_a10sd, we will be agnostic of tracking (no suffix will be added)
+  # For everything else (constitType=pf or dependence on small-R jets) we need to be aware of what tracking was used
+  return jetRecoDict["trkopt"]!="notrk" and (jetRecoDict["constitType"]!="tc" or jetRecoDict["recoAlg"] in ['a4','a10'])
+
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
@@ -174,7 +179,7 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
 
     suffix="_"+jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"] != "notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_{}".format(jetRecoDict["trkopt"])
     
 
@@ -190,7 +195,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     suffix = "_"+ jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"]!="notrk":
+    if jetDefNeedsTracks(jetRecoDict):
         suffix += "_"+jetRecoDict["trkopt"]
     
     groomDef = {
@@ -223,7 +228,6 @@ def getFilterCut(recoAlg):
 def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
     config = getInDetTrigConfig( 'jet' )
 
@@ -255,7 +259,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
+                pvname = config.vertex_jet
 
         elif jetRecoDict["constitType"] == "pf":
             gscDepth = "auto"
@@ -269,7 +273,7 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                   ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
                   ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-            pvname = config.vertex if flags.Trigger.Jet.doAMVFPriorityTTVA else config.vertex_jet
+            pvname = config.vertex_jet
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
             calibSeq += "_Insitu"

@@ -140,7 +140,7 @@ public:
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::list<SiHitCollection*> m_siHitCollList;
+  std::vector<SiHitCollection*> m_siHitCollList;
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};
 

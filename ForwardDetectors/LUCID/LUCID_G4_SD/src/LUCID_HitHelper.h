@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_HITIDHELPER
@@ -36,7 +36,7 @@ class LUCID_HitHelper: HitIdHelper {
   inline double GetWaveLength(double energy) const { return 2.*M_PI*CLHEP::hbarc/(CLHEP::eV*CLHEP::nm)/energy; }
   inline double GetEnergy    (double lambda) const { return 2.*M_PI*CLHEP::hbarc/(CLHEP::eV*CLHEP::nm)/lambda; }
 
-  int GetVolNumber(G4String) const;
+  static int GetVolNumber(const G4String&) ;
   int GetTubNumber(G4Step* ) const;
 };
 

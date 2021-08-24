@@ -75,14 +75,12 @@ StatusCode TriggerBitsMakerTool::preInsertCheck(const std::string& chain, const 
 
 StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRaw,
   boost::dynamic_bitset<uint32_t>& prescaled,
-  boost::dynamic_bitset<uint32_t>& rerun,
   const EventContext& ctx) const
 {
   using namespace TrigCompositeUtils;
 
   passRaw.clear();
   prescaled.clear();
-  rerun.clear();
 
   auto chainsHandle = SG::makeHandle(m_finalChainDecisions, ctx);
   if (!chainsHandle.isValid()) {
@@ -97,7 +95,6 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   passRaw.resize(m_largestBit + 1);
   prescaled.resize(m_largestBit + 1);
-  rerun.resize(m_largestBit + 1); // TODO: remove this fully in the future
 
   const Decision* HLTPassRaw = nullptr;
   const Decision* HLTPrescaled = nullptr;
@@ -107,7 +104,7 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   // Read the sets of chain IDs
   for (const Decision* decisionObject : *chainsHandle) {
-    // Collect all decisions (IDs of passed/prescaled/rerun chains) from named decisionObjects
+    // Collect all decisions (IDs of passed/prescaled chains) from named decisionObjects
     if (decisionObject->name() == TrigCompositeUtils::summaryPassNodeName()) {
       HLTPassRaw = decisionObject;
     } else if (decisionObject->name() == TrigCompositeUtils::summaryPrescaledNodeName()) {
@@ -141,13 +138,9 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill, const Eve
   {
     boost::dynamic_bitset<uint32_t> passRaw;
     boost::dynamic_bitset<uint32_t> prescaled;
-    boost::dynamic_bitset<uint32_t> rerun;
 
-    ATH_CHECK(getBits(passRaw, prescaled, rerun, ctx));
-
-    resultToFill.setHltPassRawBits(passRaw);
-    resultToFill.setHltPrescaledBits(prescaled);
-    resultToFill.setHltRerunBits(rerun);
+    ATH_CHECK(getBits(passRaw, prescaled, ctx));
+    resultToFill.setHltBits(passRaw, prescaled);
   }
 
   if ( msgLvl( MSG::DEBUG ) ) {
@@ -162,13 +155,9 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill, const Eve
     ATH_MSG_VERBOSE("HLT result now has " << bitsTemp.size() << " words with HLT prescale bits:");
     for (const auto& w : bitsTemp) ATH_MSG_VERBOSE("0x" << MSG::hex << w << MSG::dec);
     //
-    const boost::dynamic_bitset<uint32_t> rerunBits = resultToFill.getHltRerunBits();
-    boost::to_block_range(rerunBits, bitsTemp.begin());
-    ATH_MSG_VERBOSE("HLT result now has " << bitsTemp.size() << " words with HLT rerun bits:");
-    for (const auto& w : bitsTemp) ATH_MSG_VERBOSE("0x" << MSG::hex << w << MSG::dec);
-    //
-    ATH_MSG_DEBUG("HLT result now has " << resultToFill.getHltBitsAsWords().size() << " words with the final trigger bits:");
-    for (const auto& w : resultToFill.getHltBitsAsWords()) ATH_MSG_DEBUG("0x" << MSG::hex << w << MSG::dec);
+    const std::vector<uint32_t>& words = resultToFill.getHltBitsAsWords();
+    ATH_MSG_DEBUG("HLT result now has " << words.size() << " words with the final trigger bits:");
+    for (const uint32_t w : words) ATH_MSG_DEBUG("0x" << MSG::hex << w << MSG::dec);
   }
 
   return StatusCode::SUCCESS;

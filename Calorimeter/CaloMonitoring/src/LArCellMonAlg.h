@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // based on LArCellMonTool by W.Lampl (Spring 2017: Major re-design, early 2020: migration to AthenaMT)
 
@@ -101,8 +101,7 @@ private:
   enum TriggerType{RNDM,CALO,MINBIAS,MET,MISC,NOTA,MAXTRIGTYPE};
 
   BooleanProperty m_useTrigger{this, "useTrigger", true};
-  std::array<std::string,NOTA> m_triggerNames; 
-  std::array<const Trig::ChainGroup*, NOTA> m_chainGroups{{}};
+  StringProperty   m_triggerNames[NOTA];
 
   BooleanProperty m_ignoreKnownBadChannels{this, "MaskBadChannels", false, "Do not fill histograms with values from known bad channels"};
   BooleanProperty m_maskNoCondChannels{this, "MaskNoCondChannels", false, "Do not fill histograms with values from cells reco'ed w/o conditions database"};

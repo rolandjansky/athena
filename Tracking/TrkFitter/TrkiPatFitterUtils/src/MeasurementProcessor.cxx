@@ -434,11 +434,13 @@ MeasurementProcessor::fieldIntegralUncertainty (MsgStream& log, Amg::MatrixX& co
 {
     // check field integral stability if there is a large error on the start position/direction
     // but only meaningful when material taken into account
-    if (! m_parameters->numberScatterers()
-	|| !Amg::valid_cov(covariance)) return;
+    if (!m_parameters->numberScatterers() ||
+        !Amg::saneCovarianceDiagonal(covariance))
+      return;
 
-    if (covariance(0,0) + covariance(1,1)	< m_largeDeltaD0*m_largeDeltaD0
-	&& covariance(2,2)			< m_largeDeltaPhi0*m_largeDeltaPhi0) return;
+    if (covariance(0, 0) + covariance(1, 1) < m_largeDeltaD0 * m_largeDeltaD0 &&
+        covariance(2, 2) < m_largeDeltaPhi0 * m_largeDeltaPhi0)
+      return;
 
     // FIXME: must also account for asymmetry in case of large momentum error
     //        when momentum correlation terms can be significantly overestimated

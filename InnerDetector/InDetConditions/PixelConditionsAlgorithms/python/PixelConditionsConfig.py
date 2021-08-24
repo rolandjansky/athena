@@ -358,7 +358,7 @@ def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kw
     """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")
@@ -424,18 +424,11 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-
-    # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
-    # acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", className="CondAttrListCollection"))
-    if not flags.Input.isMC or flags.Overlay.DataOverlay:
-        acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-RUN2-DATA-UPD4-05", db="CONDBR2", className="CondAttrListCollection"))
-    else:
-        acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-SIM-MC16-000-03", db="OFLP200", className="CondAttrListCollection"))
-
     if flags.GeoModel.Run == "RUN1":
         kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
+        acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection"))
     kwargs.setdefault("WriteKey", "PixelDeadMapCondData")
     acc.addCondAlgo(CompFactory.PixelDeadMapCondAlg(name, **kwargs))
     return acc
@@ -444,9 +437,19 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
     """Return a ComponentAccumulator with configured PixelDetectorElementCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelAlignCondAlgCfg(flags))
+    
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
-    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))
+    def merge_lists(a, b):
+        a.extend([item for item in b if item not in a])
+        return a
+
+    alg=CompFactory.PixelDetectorElementCondAlg(name, **kwargs)
+    alg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
+    alg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
+    alg._descriptors['SCTAlignmentStore'].semantics.merge = merge_lists
+    acc.addCondAlgo(alg)    
+
     return acc
 
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):

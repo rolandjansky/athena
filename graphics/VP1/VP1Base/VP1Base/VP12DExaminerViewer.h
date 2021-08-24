@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -32,9 +32,9 @@ public:
   //The choice of constructor will determine whether this view is in single or multi view mode:
 
   //An examinerviewer with just one VP1GraphicsView:
-  VP12DExaminerViewer(QWidget * parent = 0, Qt::WindowFlags f = 0);
+  VP12DExaminerViewer(QWidget * parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
   //An examinerviewer with several VP1GraphicsView's. First argument is a list of view_id's and icon urls for the views:
-  VP12DExaminerViewer(const QList<QPair<QString,QString> >& views, QWidget * parent = 0, Qt::WindowFlags f = 0);
+  VP12DExaminerViewer(const QList<QPair<QString,QString> >& views, QWidget * parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
   virtual ~VP12DExaminerViewer();
 
   bool isSingleViewMode() const;

@@ -28,9 +28,12 @@ errorRegex = [
     r'illegal instruction',
     r'failure loading library',
     r'Cannot allocate memory',
+    r'Attempt to free invalid pointer',
     r'in state: CONTROLREADY$',
-    r'^\s*missing data: ',
-    r'^\s*can be produced by alg(s): ',
+    r'(^\s*|^\d\d:\d\d:\d\d\s*)missing data: ',
+    r'(^\s*|^\d\d:\d\d:\d\d\s*)missing conditions data: ',
+    r'(^\s*|^\d\d:\d\d:\d\d\s*)can be produced by alg\(s\): ',
+    r'(^\s*|^\d\d:\d\d:\d\d\s*)required by tool: ',
     r'pure virtual method called',
     r'Selected dynamic Aux atribute.*not found in the registry',
     r'FPEAuditor.*WARNING FPE',
@@ -48,9 +51,17 @@ traceback = [
     r'stack trace',
     r'^Algorithm stack',
     r'^#\d+\s*0x\w+ in ',
-    r'FPEAuditor.*INFO FPE stacktrace',
 ]
 errorRegex.extend(traceback)
+
+# FPEAuditor traceback keywords
+fpeTracebackStart = [r'FPEAuditor.*INFO FPE stacktrace']
+fpeTracebackCont = [
+    '  in function : ',
+    '  included from : ',
+    '  in library : ',
+]
+errorRegex.extend(fpeTracebackStart)
 
 # Warning keywords
 warningRegex = ['WARNING ']
@@ -124,6 +135,8 @@ def scanLogfile():
     global pattern
     pattern = []
     tPattern = re.compile('|'.join(traceback))
+    fpeStartPattern = re.compile('|'.join(fpeTracebackStart))
+    fpeContPattern = re.compile('|'.join(fpeTracebackCont))
     global msgLevels
     global logFileAddress
     if args.warnings is True:
@@ -135,17 +148,26 @@ def scanLogfile():
     logFileAddress = args.logfile
     with open(logFileAddress,'r', encoding='utf-8') as logFile:
         tracing = False
+        fpeTracing = False
         for line in logFile:
             #Tracing only makes sense for errors
             if args.errors is True and re.search(tPattern,line):
                 tracing = True
+            elif args.errors is True and re.search(fpeStartPattern,line):
+                fpeTracing = True
             elif line =='\n':
                 tracing = False
+                fpeTracing = False
             if re.search(msgLevels,line):
                 resultsA.append(line)
             elif tracing:
                 # This currently prints all lines after a traceback even if they don't belong to traceback
                 resultsA.append(line)
+            elif fpeTracing:
+                if re.search(fpeContPattern,line):
+                    resultsA.append(line)
+                else:
+                    fpeTracing = False
 
     if args.showexcludestats and not noConfig:
         separateIgnoreRegex = [re.compile(line) for line in ignorePattern]

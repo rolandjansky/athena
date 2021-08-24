@@ -925,7 +925,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   Amg::Vector3D Glo(P[0],P[1],P[2]);
   Amg::Vector3D Dir(P[3],P[4],P[5]);
   Trk::IntersectionSolution* Int = new Trk::IntersectionSolution();
-  Int->push_back(new Trk::TrackSurfaceIntersection(Glo,Dir,Step));
+  Int->push_back(std::make_unique<const Trk::TrackSurfaceIntersection>(Glo,Dir,Step));
   return Int;
 }
 

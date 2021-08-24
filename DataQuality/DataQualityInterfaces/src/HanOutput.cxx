@@ -226,7 +226,7 @@ flushResults()
 		  	if (*regex + "_" == name.substr(0, regexlen+1)) {
 		  		isRegex = true;
 		  		parname = *regex;
-				std::string::size_type atsign = regex->rfind("@");
+				std::string::size_type atsign = regex->rfind('@');
 				if (atsign != std::string::npos) {
 				  extra = regex->substr(atsign, std::string::npos);
 				}

@@ -9,33 +9,21 @@
 // Class header
 #include "HGTDSensorSDTool.h"
 
-// For the identifiers
-#include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
-#include "HGTD_Identifier/HGTD_ID.h"
-
-// G4 stuff
-#include "G4LogicalVolumeStore.hh"
-#include "G4SDManager.hh"
+// For the SD itself
+#include "HGTDSensorSD.h"
 
 // STL includes
 #include <exception>
 
 HGTDSensorSDTool::HGTDSensorSDTool(const std::string& type, const std::string& name, const IInterface* parent)
-    : SensitiveDetectorBase( type , name , parent )
+  : SensitiveDetectorBase( type , name , parent )
 {
-    declareInterface<ISensitiveDetector>(this);
-}
-
-StatusCode HGTDSensorSDTool::initialize()
-{
-
-    // initialize the sensor
-    m_hgtdSD = std::make_unique<HGTDSensorSD>(name());
-
-    return StatusCode::SUCCESS;
 }
 
 G4VSensitiveDetector* HGTDSensorSDTool::makeSD() const
 {
-    return m_hgtdSD.get();
+  // Make sure the job has been set up properly
+  ATH_MSG_DEBUG( "Initializing SD" );
+
+  return new HGTDSensorSD(name(), m_outputCollectionNames[0]);
 }

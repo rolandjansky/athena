@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +99,37 @@ namespace InDet {
     } summaryStatArraySizes;     
 
     /**
+     * enum to indicate fit result status (for disappearing track trigger that wants not only for successful tracks)
+     */
+    enum ResultCode {
+	Success          = 99,
+	Unrecoverable    =  0,
+	PixSeedDiffKFBwd =  3,
+	PixSeedDiffKFFwd =  4,
+	PixSeedNCluster  =  5,
+	MixSeedDiffKFBwd = -3,
+	MixSeedDiffKFFwd = -4,
+	MixSeedNCluster  = -5,
+	Quality  = 6,
+	Pt       = 7,
+	NCluster = 8,
+	HoleCut  = 9,
+    };
+    enum ResultCodeThreshold {
+       RecoverableForDisTrk = 4,
+    };
+
+    /**
+     * Setter for ResultCode (for disappearing track trigger)
+     */
+    void setResultCode(const ResultCode);
+
+    /**
+     * Setter for flagToReturnFailedTrack (for disappearing track trigger)
+     */
+    void setFlagToReturnFailedTrack(const bool);
+
+    /**
      * @name Getter methods using references
      */
     //@{
@@ -121,11 +152,17 @@ namespace InDet {
     int& nholesmax();
     int& dholesmax();
     bool& simpleTrack();
+    // flag to tell whether to return tracks even in case fit is un-successful (for disappearing track trigger)
+    bool  flagToReturnFailedTrack();
+    // code to tell the fit result (code includes non-succesful cases for disappearing track trigger)
+    SiCombinatorialTrackFinderData_xk::ResultCode resultCode();
     double& pTmin();
     double& pTminBrem();
     double& xi2max();
     double& xi2maxNoAdd();
     double& xi2maxlink();
+    bool& isITkGeometry();
+    bool& useFastTracking();
 
     /// Methods used to associate the hole search outcome to tracks without having to modify the EDM.
 
@@ -189,6 +226,10 @@ namespace InDet {
     int m_dholesmax{0};
     /// Simple track flag
     bool m_simpleTrack{false};
+    /// Flag whether to return non-successful tracks (for disappearing track trigger)
+    bool m_flagToReturnFailedTrack{false};
+    /// Result code (to indicate fit result for disappearing track trigger)
+    ResultCode m_resultCode{ResultCode::Success};
     /// min pT
     double m_pTmin{0.};
     /// min pT for brem noise model
@@ -199,6 +240,11 @@ namespace InDet {
     double m_xi2maxNoAdd{0.};
     /// max Xi2 for clusters
     double m_xi2maxlink{0.};
+    // Is ITk geometry
+    bool m_ITkGeometry{false};
+    // Do Fast Tracking setup
+    bool m_doFastTracking{false};
+
     /// A helper map to associate hole search outcomes to tracks
     std::map<Trk::Track*, InDet::PatternHoleSearchOutcome> m_holeSearchOutcomes; 
 

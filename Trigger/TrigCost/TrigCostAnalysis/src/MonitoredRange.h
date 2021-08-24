@@ -94,7 +94,7 @@ class MonitoredRange{
      * @param[in] data Access to event data
      * @param[in] weight Global event weight
      */
-    StatusCode newEvent(const CostData& data, const float weight = 1.);
+    StatusCode newEvent(const CostData& data, const float weight = 1., const bool skipMonitoringThisEvent = false);
 
   private:
 

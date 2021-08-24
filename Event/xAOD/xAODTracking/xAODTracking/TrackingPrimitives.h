@@ -290,8 +290,9 @@ namespace xAOD {
     // removed:   eProbabilityToT                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].    
     // removed:   eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+    TRTTrackOccupancy               = 67,  //!< TRT track occupancy. 
     // -- numbers...
-    numberOfTrackSummaryTypes       = 67
+    numberOfTrackSummaryTypes       = 68
   };
 
   /// Enumerates the different types of information stored in Summary. 

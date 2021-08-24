@@ -43,6 +43,7 @@ _all_streams = [
     StreamInfo('Standby', 'physics', True, True),
     StreamInfo('L1Calo', 'physics', True, True),
     StreamInfo('EnhancedBias', 'physics', True, True),
+    StreamInfo('Late', 'physics', True, True),
     # TLA/PEB/DATA SCOUTING (physics) STREAMS
     StreamInfo('JetDS','physics',True,False),
     StreamInfo('PhotonDS','physics',True,False),
@@ -62,6 +63,7 @@ _all_streams = [
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
     StreamInfo('LArPEB', 'calibration', False, False),
+    StreamInfo('L1TopoMismatches', 'calibration', False, True),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),

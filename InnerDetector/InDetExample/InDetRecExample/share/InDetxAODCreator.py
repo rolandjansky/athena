@@ -23,9 +23,9 @@ def getRecVertexNameIfInFile(coll_name) :
 from AthenaCommon.GlobalFlags import globalflags
 is_mc = (globalflags.DataSource == 'geant4')
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.runLRTReco() \
                    or InDetFlags.doLowPtLargeD0() )  and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0()\
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.runLRTReco()\
                     and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
 
 if doCreation:
@@ -223,7 +223,7 @@ if InDetFlags.doPseudoTracking():
                               topSequence)
 
 
-if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+if InDetFlags.runLRTReco() and InDetFlags.storeSeparateLargeD0Container():
     if doCreation :
         createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
 

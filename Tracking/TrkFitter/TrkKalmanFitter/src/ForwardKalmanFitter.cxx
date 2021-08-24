@@ -184,7 +184,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   // loop over all PreRawData objects in Set
   int itcounter=1;
   PrepRawDataSet::const_iterator it    = inputPRDColl.begin();
-  for(  ; it!=inputPRDColl.end(); it++) {
+  for(  ; it!=inputPRDColl.end(); ++it) {
     const Trk::TrackParameters* predPar =
       this->predict( updatedPar,
                      (*it)->detectorElement()->surface( (*it)->identify() ),
@@ -323,7 +323,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
 
   //////////////////////////////////////////////////////////////////////////////////////////
   // the regular filter loop after finding the correct initialisation
-  for( ; it!=trajectory.end(); it++) if (!it->isOutlier()) {
+  for( ; it!=trajectory.end(); ++it) if (!it->isOutlier()) {
 
     const Trk::TrackParameters* predPar =
       this->predict( updatedPar, it->measurement()->associatedSurface(),

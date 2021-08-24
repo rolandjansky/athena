@@ -2,7 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
-import AthenaCommon.SystemOfUnits               as   Units
 
 def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -16,10 +15,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
             or flags.InDet.Tracking.extension == "LowPtLargeD0" \
             or flags.InDet.Tracking.extension == "BeamGas" \
             or flags.InDet.Tracking.extension == "ForwardTracks" \
-            or flags.InDet.Tracking.extension == "ForwardSLHCTracks" \
-            or flags.InDet.Tracking.extension == "Disappearing" \
-            or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" \
-            or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
+            or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -42,8 +38,6 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_LowMomentum
     elif flags.InDet.Tracking.extension == "BeamGas":
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_BeamGas
-    elif flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" :
-        SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ITK
     else:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ATLxk
 
@@ -94,14 +88,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias):
         kwargs.setdefault("pTmax", flags.InDet.Tracking.maxPT)
         kwargs.setdefault("mindRadius", 4.0)
-    if flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "SLHCConversionFinding":
-        kwargs.setdefault("minRadius1", 0)
-        kwargs.setdefault("minRadius2", 0)
-        kwargs.setdefault("minRadius3", 0)
-        kwargs.setdefault("maxRadius1", 1000.*Units.mm)
-        kwargs.setdefault("maxRadius2", 1000.*Units.mm)
-        kwargs.setdefault("maxRadius3", 1000.*Units.mm)
-    if flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks":
+    if flags.InDet.Tracking.extension == "ForwardTracks":
         kwargs.setdefault("checkEta", True)
         kwargs.setdefault("etaMin", flags.InDet.Tracking.minEta)
         kwargs.setdefault("etaMax", flags.InDet.Tracking.maxEta)
@@ -141,8 +128,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", **kwargs) :
     #
     # --- SCT and Pixel detector elements road builder
     #
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel )
@@ -169,11 +155,8 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
     acc.addPublicTool(rot_creator_digital)
 
-    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
-    acc.addPublicTool(InDetPatternPropagator)
-
-    InDetPatternUpdator = TC.InDetPatternUpdatorCfg()
-    acc.addPublicTool(InDetPatternUpdator)
+    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
+    InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
 
     from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
     boundary_check_tool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
@@ -208,7 +191,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
     InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
     acc.addPublicTool(InDetSiDetElementsRoadMaker)
 
@@ -229,7 +212,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "ForwardSLHCTracks"  or flags.InDet.Tracking.extension == "Disappearing" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -240,7 +223,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("CombinatorialTrackFinder", track_finder)
     kwargs.setdefault("pTmin", flags.InDet.Tracking.minPT)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.minPTBrem)
-    kwargs.setdefault("pTminSSS", flags.InDet.pT_SSScut)
+    kwargs.setdefault("pTminSSS", flags.InDet.Tracking.pT_SSScut)
     kwargs.setdefault("nClustersMin", flags.InDet.Tracking.minClusters)
     kwargs.setdefault("nHolesMax", flags.InDet.Tracking.nHolesMax)
     kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.nHolesGapMax)
@@ -252,17 +235,14 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", flags.InDet.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.InDet.doBremRecovery and useBremMode) # only for NewTracking the brem is debugged !!!
-    kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem)
-    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.doHadCaloSeededSSS)
+    kwargs.setdefault("useBremModel", flags.InDet.doBremRecovery and useBremMode and flags.Detector.GeometryLAr) # only for NewTracking the brem is debugged !!!
+    kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem and flags.Detector.GeometryLAr)
+    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.doHadCaloSeededSSS and flags.Detector.GeometryTile)
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.etaWidthBrem)
     kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
     kwargs.setdefault("InputHadClusterContainerName", 'InDetHadCaloClusterROIs') # InDetKeys.HadCaloClusterROIContainer()
     kwargs.setdefault("UseAssociationTool", usePrdAssociationTool)
-
-    if flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" :
-        kwargs.setdefault("ITKGeometry", True)
 
     if flags.InDet.Tracking.extension == "DBM":
         kwargs.setdefault("MagneticFieldMode", "NoField")
@@ -293,15 +273,6 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     elif flags.InDet.Tracking.extension == "ForwardTracks":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ForwardTracks')
 
-    elif flags.InDet.Tracking.extension == "ForwardSLHCTracks":
-        kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ForwardSLHCTracks')
-
-    elif flags.InDet.Tracking.extension == "VeryForwardSLHCTracks":
-        kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks')
-
-    elif flags.InDet.Tracking.extension == "SLHCConversionFinding":
-        kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_SLHCConversionTracks')
-
     elif flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LargeD0')
 
@@ -328,7 +299,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "ForwardSLHCTracks"  or flags.InDet.Tracking.extension == "Disappearing" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -372,7 +343,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     kwargs.setdefault("ZvertexTool", InDetZvertexMaker)
     kwargs.setdefault("useMBTSTimeDiff", flags.InDet.useMBTSTimeDiff)
 
-    if flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks":
+    if flags.InDet.Tracking.extension == "ForwardTracks":
         kwargs.setdefault("useZvertexTool", flags.InDet.useZvertexTool)
         kwargs.setdefault("useNewStrategy", False)
         kwargs.setdefault("useZBoundFinding", False)
@@ -413,18 +384,18 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         prob2 = flags.InDet.pixelClusterSplitProb2_run1
         nhitsToAllowSplitting = 8
 
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         AmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool
     else:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
 
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCut)
+    if 'UseParameterization' in kwargs and kwargs.get('UseParameterization',False) :
+        InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+        kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool" , InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minHits"         , flags.InDet.Tracking.minClusters)
     kwargs.setdefault("minNotShared"    , flags.InDet.Tracking.minSiNotShared)
@@ -435,7 +406,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics')
     kwargs.setdefault("doPixelSplitting"    , flags.InDet.doPixelClusterSplitting and flags.InDet.Tracking.extension != "DBM")
     
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         kwargs.setdefault("sharedProbCut"             , prob1)
         kwargs.setdefault("sharedProbCut2"            , prob2)
         kwargs.setdefault("minSiHitsToAllowSplitting" , nhitsToAllowSplitting)
@@ -450,7 +421,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("phiWidth"                  , 0.1)     #Split cluster ROI size
         kwargs.setdefault("etaWidth"                  , 0.1)     #Split cluster ROI size
         kwargs.setdefault("InputEmClusterContainerName" , 'InDetCaloClusterROIs')
-        kwargs.setdefault("doEmCaloSeed"              , True)   #Only split in cluster in region of interest
+        kwargs.setdefault("doEmCaloSeed"              , flags.Detector.GeometryLAr)   #Only split in cluster in region of interest
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
@@ -480,9 +451,9 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
 
@@ -493,8 +464,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    PRDtoTrackMapTool = TC.PRDtoTrackMapToolCfg()
-    acc.addPublicTool(PRDtoTrackMapTool)
+    PRDtoTrackMapTool = acc.getPrimaryAndMerge(TC.PRDtoTrackMapToolCfg())
 
     prob1 = flags.InDet.pixelClusterSplitProb1
     prob2 = flags.InDet.pixelClusterSplitProb2
@@ -504,7 +474,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
         prob1 = flags.InDet.pixelClusterSplitProb1_run1
         prob2 = flags.InDet.pixelClusterSplitProb2_run1
 
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM") :
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM") :
         kwargs.setdefault("sharedProbCut", prob1)
         kwargs.setdefault("sharedProbCut2", prob2)
         if flags.InDet.Tracking.extension == "":
@@ -531,7 +501,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
 def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
 
-    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
     
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -540,9 +510,9 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
     use_low_pt_fitter =  True if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias) else False
@@ -624,7 +594,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
 
 def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "SLHC" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
     
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -633,15 +603,15 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
         # Set up NN config
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
-        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolCfg(flags))
+        InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
     acc.addPublicTool(InDetAmbiScoringTool)
 
     InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
     acc.addPublicTool(InDetTrackFitter)
 
-    InDetPRDtoTrackMapToolGangedPixels = TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)
+    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     ambi_track_summary_tool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg( flags,
@@ -695,7 +665,7 @@ def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackColle
     #
     InputTrackCollection = SiSPSeededTrackCollectionKey
 
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         InDetAmbiguityScoreProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
         acc.addPublicTool(InDetAmbiguityScoreProcessor)
     else:
@@ -716,7 +686,7 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     acc = ComponentAccumulator()
     SiTrackCollection = ResolvedTrackCollectionKey
 
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardSLHCTracks" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
     # DenseEnvironmentsAmbiguityProcessorTool
         InDetAmbiguityProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityProcessorToolCfg(  flags,
                                                                                                     ClusterSplitProbContainer=ClusterSplitProbContainer))
@@ -747,7 +717,7 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "ForwardSLHCTracks"  or flags.InDet.Tracking.extension == "Disappearing" or flags.InDet.Tracking.extension == "VeryForwardSLHCTracks" or flags.InDet.Tracking.extension == "SLHCConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False

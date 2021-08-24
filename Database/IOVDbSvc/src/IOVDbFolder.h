@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.h
@@ -49,7 +49,7 @@ public:
   // access methods to various internal information
   const std::string& folderName() const;
   const std::string& key() const;
-  IOVDbConn* conn() const;
+  IOVDbConn* conn();
   bool multiVersion() const;
   bool timeStamp() const;
   bool tagOverride() const;
@@ -290,7 +290,7 @@ private:
 inline const std::string& IOVDbFolder::folderName() const {return m_foldername;}
 inline const std::string& IOVDbFolder::key() const { return m_key;}
 
-inline IOVDbConn* IOVDbFolder::conn() const { return m_conn;}
+inline IOVDbConn* IOVDbFolder::conn() { return m_conn;}
 
 inline bool IOVDbFolder::multiVersion() const { return m_multiversion; }
 

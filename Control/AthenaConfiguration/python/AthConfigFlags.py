@@ -123,10 +123,11 @@ class AthConfigFlags(object):
         self._loaded    = set() # dynamic dlags that were loaded
         self._hash = None
 
-    def __hash__(self):
-        if not self._hash:
-            self._hash = self._calculateHash()
+    def athHash(self):
         return self._hash
+
+    def __hash__(self):
+        raise DeprecationWarning("__hash__ method in AthConfigFlags is deprecated. Probably called from function decorator, use AccumulatorCache decorator instead.")
 
     def _calculateHash(self):
         fromkeys = hash(str(self._flagdict.keys()))
@@ -254,7 +255,9 @@ class AthConfigFlags(object):
         return self._get(name)
 
     def lock(self):
-        self._locked=True
+        if(not self._locked):
+            self._locked = True
+            self._hash = self._calculateHash()
         return
 
     def locked(self):
@@ -461,7 +464,7 @@ class AthConfigFlags(object):
 
             try:
                 exec("type({})".format( value ) )
-            except NameError: #Can't determine type, assume we got an un-quoted string
+            except (NameError, SyntaxError): #Can't determine type, assume we got an un-quoted string
                 value="\"{}\"".format( value )
 
             #Arg looks good enough, just exec it:

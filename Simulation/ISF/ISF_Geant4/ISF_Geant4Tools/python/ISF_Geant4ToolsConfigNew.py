@@ -20,7 +20,7 @@ from ISF_Services.ISF_ServicesConfigNew import (
 )
 
 
-def G4RunManagerHelperCfg(flags, name="ISF_G4RunManagerHelper", **kwargs):
+def G4RunManagerHelperCfg(flags, name="G4RunManagerHelper", **kwargs):
     acc = ComponentAccumulator()
     acc.setPrivateTools(CompFactory.iGeant4.G4RunManagerHelper(name, **kwargs))
     return acc
@@ -62,11 +62,12 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault("PhysicsListSvc", acc.getService("PhysicsListSvc"))
 
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "G4FastCaloMT"]:
+    if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
-        acc.merge(G4RunManagerHelperCfg(flags))
-        kwargs.setdefault("G4RunManagerHelper", acc.getPublicTool("ISF_G4RunManagerHelper"))
+        tool = acc.popToolsAndMerge(G4RunManagerHelperCfg(flags))
+        acc.addPublicTool(tool)
+        kwargs.setdefault("G4RunManagerHelper", acc.getPublicTool(tool.name))
         acc.setPrivateTools(CompFactory.iGeant4.G4LegacyTransportTool(name, **kwargs))
     return acc
 

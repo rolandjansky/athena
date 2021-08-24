@@ -40,9 +40,9 @@ StatusCode PFTauFlowElementAssoc::initialize() {
   This algorithm:
   1) Accesses the relevant FlowElement and TauJet containers
   2) Loops over the neutral FEs and matches them to the corresponding TauJet clusters, creating the ElementLinks
-     and adding them to the JetETMissNeutralFlowElements container as a decoration
+     and adding them to the JetETMissNeutralParticleFlowObjects container as a decoration
   3) Loops over the charged FEs and matches them to the corresponding TauJet tracks, creating the ElementLinks
-     and adding them to the JetETMissChargedFlowElements container as a decoration
+     and adding them to the JetETMissChargedParticleFlowObjects container as a decoration
   4) Adds the decoration to the TauJet container containing a vector of ElementLinks to corresponding FEs
 **/
 
@@ -62,10 +62,15 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   std::vector<std::vector<FELink_t>> tauNeutralFEVec(tauJetReadHandle->size());
   std::vector<std::vector<FELink_t>> tauChargedFEVec(tauJetReadHandle->size());
 
+  static const SG::AuxElement::ConstAccessor<char> acc_passThinning("passThinning");
+
   ////////////////////////////////////////////
   // Loop over the neutral flow elements
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *neutralFETauWriteDecorHandle) {
+    // Check that the flow element cluster exists and is not null
+    if (FE->otherObjects().size() == 0) continue;
+    if (FE->otherObjects().at(0) == nullptr) continue;
     // Get the index of the flow element cluster
     size_t FEClusterIndex = FE->otherObjects().at(0)->index();
 
@@ -73,6 +78,8 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
 
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauNeutralFEWriteDecorHandle) {
+      // Skip taus that won't be written to AOD
+      if(!acc_passThinning(*tau)) continue;
       // Get tau vertex
       const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
       // Get the clusters associated to the tau
@@ -108,6 +115,10 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   // Loop over the charged flow elements
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *chargedFETauWriteDecorHandle) {
+    // Check that the flow element track exists and is not null
+    if (FE->chargedObjects().size() == 0) continue;
+    if (FE->chargedObjects().at(0) == nullptr) continue;
+
     // Get the index of the flow element track
     size_t FETrackIndex = FE->chargedObjects().at(0)->index();
 
@@ -115,6 +126,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
 
     // Loop over the taus
     for (const xAOD::TauJet* tau : *tauChargedFEWriteDecorHandle) {
+      if(!acc_passThinning(*tau)) continue;
       // Get tau tracks associated to the tau
       std::vector<const xAOD::TauTrack*> tauTracks = tau->tracks();
       for (const auto *tauTrack : tauTracks) {

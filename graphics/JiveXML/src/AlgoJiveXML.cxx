@@ -173,7 +173,7 @@ namespace JiveXML{
      */
     //The run and event number of the current event
     unsigned int runNo = 0, lumiBlock = 0;
-    long int eventNo=0;
+    uint64_t eventNo=0;
     //Date and time string of the current event
     char dateTime[32];
     //general event property, unused yet

@@ -20,6 +20,7 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TrkPrepRawData/PrepRawData.h"
+#include <iosfwd>
 
 class TRT_DriftCircleContainerCnv;
 class TRT_DriftCircleContainerCnv_p0;
@@ -67,7 +68,7 @@ public:
                   const unsigned int word);
 
   /** Destructor*/
-  virtual ~TRT_DriftCircle();
+  virtual ~TRT_DriftCircle() = default;
 
   // accesors
 
@@ -114,7 +115,7 @@ public:
     const override final;
 
   /** Interface method checking the type*/
-  virtual bool type(Trk::PrepRawDataType::Type type) const override final;
+  virtual bool type(Trk::PrepRawDataType type) const override final;
 
   // modifiers
 

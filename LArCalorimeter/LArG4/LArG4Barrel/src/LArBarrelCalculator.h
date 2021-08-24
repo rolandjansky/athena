@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArBarrelCalculator.hh
@@ -97,7 +97,7 @@ private:
   //   0->6 = eta region number (0.2 granularity) (1.2 to 1.475 in same eta bin)
   //   0,1 = below, above the electrode (according to phi in global Atlas frame)
 
-  double m_hv[2][1024][7][2];
+  double m_hv[2][1024][7][2]{};
 
   G4bool FiducialCuts(G4double,G4double,G4double) const;
 

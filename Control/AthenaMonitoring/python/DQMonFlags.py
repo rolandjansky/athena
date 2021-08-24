@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file DataQualityTools/python/DQMonFlags.py
@@ -33,6 +33,13 @@ class doMonitoring(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 list+=[doMonitoring]
+
+class doDataFlowMon(JobProperty):
+    """ Switch for data flow monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doDataFlowMon]
 
 class doGlobalMon(JobProperty):
     """ Switch for global combined monitoring """

@@ -96,8 +96,8 @@ namespace TCS {
        */
       void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
 
-      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax);
-      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax);
 
 
    protected:
@@ -117,7 +117,9 @@ namespace TCS {
 
       void fillHist2D(const std::string & histName, double x, double y);
       
-     
+      bool isocut(const std::string threshold, const unsigned int bit);
+      
+      bool isocut(const unsigned int threshold, const unsigned int bit);
    private:
 
       class ConfigurableAlgImpl;

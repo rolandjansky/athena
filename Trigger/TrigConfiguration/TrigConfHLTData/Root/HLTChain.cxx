@@ -103,7 +103,7 @@ TrigConf::HLTChain::~HLTChain() {
 
 bool
 TrigConf::HLTChain::hasMultipleLowerChains() const {
-   return m_lower_chain_name.find(",")!=std::string::npos;
+   return m_lower_chain_name.find(',')!=std::string::npos;
 }
 
 

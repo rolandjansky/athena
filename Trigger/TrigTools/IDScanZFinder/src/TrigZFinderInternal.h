@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,8 +87,8 @@ protected:  // data members
 
     // To be read in from jobOptions by IdScanMain
 
-    double m_invPhiSliceSize;     // the inverse size of the phi slices 
-    long   m_NumPhiSlices;        // the number of phi slices, given the width of the RoI 
+    double m_invPhiSliceSize = 0.0;     // the inverse size of the phi slices 
+    long   m_NumPhiSlices = 0L;        // the number of phi slices, given the width of the RoI 
 
     double m_phiBinSize;          // the size of the phi slices 
     double m_usedphiBinSize;      // the size of the phi slices 
@@ -123,7 +123,7 @@ protected:  // data members
 
     bool m_trustSPprovider; // Should we re-extract the RoI phi range from the phis of the SPs from the SPP
 
-    double m_returnval; // return value for algorithm
+    double m_returnval = 0.0; // return value for algorithm
 
     bool   m_fullScanMode;
 

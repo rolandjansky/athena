@@ -39,8 +39,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionsTool->affectingSystematics()));
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_tauHandle));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionsTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -52,24 +53,23 @@ namespace CP
   StatusCode TauEfficiencyCorrectionsAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
-
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
-        xAOD::TauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::TauJet *tau : *taus)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
+      const xAOD::TauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.retrieve (taus, sys));
+      for (const xAOD::TauJet *tau : *taus)
+      {
+        if (m_preselection.getBool (*tau))
         {
-          if (m_preselection.getBool (*tau))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
-            m_scaleFactorDecoration.set (*tau, sf, sys);
-          } else {
-            m_scaleFactorDecoration.set (*tau, invalidScaleFactor(), sys);
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
+          m_scaleFactorDecoration.set (*tau, sf, sys);
+        } else {
+          m_scaleFactorDecoration.set (*tau, invalidScaleFactor(), sys);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

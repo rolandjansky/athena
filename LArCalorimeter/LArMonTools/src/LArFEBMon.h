@@ -44,9 +44,9 @@ public:
   StatusCode fillHistograms();
   StatusCode procHistograms();
 
-  void AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
-  void AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
-  bool nbOfFebOK(float nfeb,TH1I_LW* h);
+  static void AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
+  static void AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
+  bool nbOfFebOK(float nfeb,TH1I_LW* h) const;
   
 private:
   
@@ -188,17 +188,17 @@ private:
   TH1I_LW* m_nbOfFebBlocksTotal;
   
   TH1F_LW* m_febInError[1524];
-  bool m_bfebIE[1524];
+  bool m_bfebIE[1524]{};
   bool m_anyfebIE;
   
   TTree* m_CorruptTree;
   
-  StatusCode bookNewPartitionSumm(summaryPartition& summ,std::string summName);
+  StatusCode bookNewPartitionSumm(summaryPartition& summ,const std::string& summName);
   void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
   void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,const std::string& summName);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);
-  int returnPartition(int be,int pn,int ft,int sl);
+  static int returnPartition(int be,int pn,int ft,int sl);
 };
 
 #endif // LArFEBMon_H

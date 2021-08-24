@@ -264,10 +264,11 @@ namespace ST {
     // Calibrate the jets - only insitu for data for now
     if (isData()) ATH_CHECK(m_jetFatCalibTool->applyCalibration(*copy));
 
+    // Truth Labeling (MC only)
+    if (!isData()) ATH_CHECK(m_jetTruthLabelingTool->decorate(*copy));
+
     for (const auto& jet : *copy) {
-      // Truth Labeling (MC only)
-      if (!isData()) ATH_CHECK(m_jetTruthLabelingTool->modifyJet(*jet));
-      //
+
       ATH_CHECK( this->FillJet(*jet, true, true, doLargeRdecorations) );
       //
       //  For OR, selected if it passed cuts

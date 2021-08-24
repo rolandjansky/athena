@@ -208,31 +208,31 @@ namespace InDet {
     //@}    
 
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
-    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
+    static MsgStream& dumpEvent(EventData& data, MsgStream& out) ;
 
     void buildFrameWork();
     void buildBeamFrameWork(EventData& data) const;
 
-    SiSpacePointForSeed* newSpacePoint
-    (EventData& data, const Trk::SpacePoint*const&) const;
-    void newSeed
+    static SiSpacePointForSeed* newSpacePoint
+    (EventData& data, const Trk::SpacePoint*const&) ;
+    static void newSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const float&) const;
-    void newSeed
+     const float&) ;
+    static void newSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-     const Trk::SpacePoint*&,const float&) const;
+     const Trk::SpacePoint*&,const float&) ;
 
     void newOneSeed
     (EventData& data,
      const Trk::SpacePoint*&,const Trk::SpacePoint*&,
      const Trk::SpacePoint*&,const float&,const float&) const;
-    void fillSeeds(EventData& data) const;
+    static void fillSeeds(EventData& data) ;
 
     void fillLists(EventData& data) const;
-    void erase(EventData& data) const;
-    void production2Sp(EventData& data) const;
+    static void erase(EventData& data) ;
+    static void production2Sp(EventData& data) ;
     void production3Sp(const EventContext& ctx, EventData& data) const;
     void production3Sp
     (EventData& data,
@@ -242,10 +242,10 @@ namespace InDet {
      std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&,float) const;
      
-    bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;
+    static bool newVertices(EventData& data, const std::list<Trk::Vertex>&) ;
     void findNext(const EventContext& ctx, EventData& data) const;
     bool isZCompatible(EventData& data, float&,float&,float&) const;
-    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) const;
+    static void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) ;
     bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;

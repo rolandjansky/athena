@@ -501,7 +501,14 @@ class ComponentAccumulator(object):
         else:
             raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n{}".format(self._inspect()))
 
-
+    def getPrimaryAndMerge(self, other):
+        """ Merging in the other accumulator and getting the primary component
+        """
+        if other is None:
+            raise RuntimeError("merge called on object of type None: did you forget to return a CA from a config function?")
+        comp = other.getPrimary()
+        self.merge(other)
+        return comp
 
 
     def __call__(self):
@@ -727,12 +734,9 @@ class ComponentAccumulator(object):
             bsh.setProperty(msp, k.encode(), v.encode())
 
         # Feed the jobO service with the remaining options
-        jos = app.getService("JobOptionsSvc")
         for comp, name, value in bshPropsToSet:
             self._msg.debug("Adding %s.%s = %s", comp, name, value)
-            bsh.addPropertyToCatalogue(
-                jos, comp.encode(), name.encode(), value.encode()
-            )
+            app.setOption(f"{comp}.{name}", value)
 
         sys.stdout.flush()
         return app
@@ -927,9 +931,9 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, indent=__indent( indent ), parent = sourceConf2Instance.getName() ) for tool in pvalue] )
-            _log.debug( "%sSet the private tools array %s of %s", indent, pname, destConfigurableInstance.name() )
+            _log.debug( "%sSetting private tool array property %s of %s", indent, pname, destConfigurableInstance.name() )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-            _log.debug( "%sSet the property %s that is private tool %s", indent,  pname, destConfigurableInstance.name() )
+            _log.debug( "%sSetting private tool property %s of %s", indent,  pname, destConfigurableInstance.name() )
             try: #sometimes it is not printable
                 _log.debug("%sTool: %s", indent, pvalue)
             except Exception:
@@ -965,7 +969,8 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
         return comp
 
     if isinstance( comp, str ):
-        _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
+        if comp:  # warning for non-empty string
+            _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
         return comp
 
     _log.debug( "%sConverting from GaudiConfig2 object %s type %s, parent %s", indent, compName(comp), comp.__class__.__name__ , parent)
@@ -1019,6 +1024,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
         if "<" in name:
             name=name.replace("<","_")
             name=name.replace(">","_")
+            name=name.replace(", ","_")
 
         from AthenaCommon import CfgMgr
         classObj = getattr( CfgMgr, name )
@@ -1071,7 +1077,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                 for oldC in oldCset & newCset:
                     __areSettingsSame( toolDict[oldC], newCdict[oldC], __indent(indent))
                 # And now just the new properties in conf2 (the stuff just in conf1 is already in the objec)
-                for newC in newCset-oldCset:
+                for newC in sorted(newCset-oldCset):
                     className = newCdict[newC].getFullJobOptName().split( "/" )[0]
                     _log.debug('%s %s not in oldconfig. Will try to create conf1 instance using this className: %s, and merge.',indent, newC, className)
                     configurableClass = __findConfigurableClass( className )
@@ -1084,6 +1090,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
                     __setProperties( instance, newCdict[newC], __indent( indent ) )
                     _log.debug('%s will now add %s to array.',indent, instance)
+                    existingConfigurableInstance += instance # Makes a copy with a correctly set parent and name
                     alreadySetProperties[pname].append(instance)
             elif "PublicToolHandleArray" in propType:
                 toolSet = {_.getName() for _ in alreadySetProperties[pname]}
@@ -1107,10 +1114,25 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                     _log.warning("%sThe handle %s of new-config component %s.%s is just a string %s, "
                                  "skipping deeper checks, configuration may be incorrect",
                                  indent, propType, newConf2Instance.name, pname, pvalue)
+                elif pvalue is None:
+                    _log.debug("%sThe property value for %s of %s is None. Skipping.", indent, pname, newConf2Instance.name )
+                    continue
+                elif str(existingVal) == "":
+                    className = pvalue.getFullJobOptName().split( "/" )[0]
+                    pvalueCompName = pvalue.getFullJobOptName().split( "/" )[1]
+                    _log.debug("%sThe existing value for %s of %s is an empty handle. "
+                               "Will try to create conf1 instance using this className: %s, and merge.",
+                               indent, pname, newConf2Instance.name, className )
+                    configurableClass = __findConfigurableClass( className )
+                    # Do not create with existing name, or it will try to get an existing public tool, if available
+                    # (and public tools cannot be added to a PrivateToolHandle)
+                    instance = configurableClass( pvalueCompName + className + str(len(indent)) )
+                    # Now give it the correct name, assign to the conf1 property, and merge
+                    instance._name = pvalueCompName
+                    setattr(existingConfigurableInstance, pname, instance)
+                    existingVal = getattr(existingConfigurableInstance, pname)
+                    __areSettingsSame( existingVal, pvalue, indent)
                 else:
-                    if pvalue is None:
-                        _log.debug("%sThe property value for %s of %s is None. Skipping.", indent, pname, newConf2Instance.name )
-                        continue
                     _log.debug( "%sSome kind of handle and, object type %s existing %s",
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
@@ -1123,7 +1145,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                     try:
                         setattr(existingConfigurableInstance, pname, pvalue)
                     except AttributeError:
-                        _log.info("%s Could not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
+                        _log.info("%sCould not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
                         raise
                 elif alreadySetProperties[pname] != pvalue:
                     # Old configuration writes some properties differently e.g. like ConditionStore+TileBadChannels instead of just TileBadChannels
@@ -1136,7 +1158,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                and pvalue.split('/')[-1] == alreadySetProperties[pname]):
                             # Okay. so they probably are actually the same. Can't check type. 
                             merge=False
-                            _log.warning( "%s Properties here are strings and not exactly the same. ASSUMING they match types but we cannot check. %s for %s", indent, pname, newConf2Instance.getName() )
+                            _log.warning( "%sProperties here are strings and not exactly the same. ASSUMING they match types but we cannot check. %s for %s", indent, pname, newConf2Instance.getName() )
 
                     try:
                         if ('+' in alreadySetProperties[pname].toStringProperty() \
@@ -1156,7 +1178,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                         setattr(clone, pname, alreadySetProperties[pname])
                         try:
                             updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
-                        except TypeError:
+                        except (TypeError, ValueError):
                             err_message = f"Failed merging new config value ({getattr(newConf2Instance, pname)}) and old config value ({getattr(clone, pname)}) for the ({pname}) property of {existingConfigurableInstance.getFullJobOptName() } ({newConf2Instance.getFullJobOptName()}) old (new)." 
                             _log.fatal( err_message )
                             raise ConfigurationError(err_message)
@@ -1165,7 +1187,7 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
                         setattr(existingConfigurableInstance, pname, updatedPropValue)
                         del clone
-                        _log.debug("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
+                        _log.debug("%sInvoked GaudiConf2 semantics to merge the %s and the %s to %s "
                                 "for property %s of %s",
                                 indent, alreadySetProperties[pname], pvalue, pname,
                                 updatedPropValue, existingConfigurable.getFullName())

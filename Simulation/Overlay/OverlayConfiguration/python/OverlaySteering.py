@@ -8,6 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
+from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
@@ -49,6 +50,10 @@ def OverlayMainCfg(configFlags):
     acc = OverlayMainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
+
+    # Handle metadata correctly
+    overlayMetadataCheck(configFlags)
+    acc.merge(overlayMetadataWrite(configFlags))
 
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))

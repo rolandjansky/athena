@@ -6,6 +6,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "ITrigTRTHTHhypoTool.h"
 
@@ -35,8 +36,10 @@ class TrigTRTHTHhypoTool : public extends<AthAlgTool, ITrigTRTHTHhypoTool> {
   Gaudi::Property< float > m_minHTratioRoad { this, "MinHTRatioRoad", 0.4 , "Bins of eta" };
   Gaudi::Property< unsigned int > m_minTRTHTHitsWedge { this, "MinTRTHTHitsWedge", 30 , "Bins of eta" };
   Gaudi::Property< float > m_minHTratioWedge { this, "MinHTRatioWedge", 0.5 , "Bins of eta" };
-  Gaudi::Property< unsigned int > m_doWedge { this, "DoWedge", true , "Bins of eta" };
-  Gaudi::Property< unsigned int > m_doRoad { this, "DoRoad", false , "Bins of eta" };
+  Gaudi::Property< bool > m_doWedge { this, "DoWedge", true , "Bins of eta" };
+  Gaudi::Property< bool > m_doRoad { this, "DoRoad", false , "Bins of eta" };
+
+  ToolHandle< GenericMonitoringTool >   m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
 };
 #endif

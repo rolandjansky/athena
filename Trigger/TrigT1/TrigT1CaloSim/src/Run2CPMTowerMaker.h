@@ -72,9 +72,6 @@ class Run2CPMTowerMaker : public AthAlgorithm
 
   StatusCode initialize() ;
   StatusCode execute() ;
-  StatusCode finalize() ;
-
-
 
  private:
 

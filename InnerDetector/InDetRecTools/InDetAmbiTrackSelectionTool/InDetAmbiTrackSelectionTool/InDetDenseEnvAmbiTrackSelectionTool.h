@@ -16,6 +16,7 @@
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -267,8 +268,8 @@ namespace InDet
         m_type.resize(m_nTSoS,OtherTsos);    
         m_detType.resize(m_nTSoS,-1.);
         m_hitIsShared.resize(m_nTSoS, 0 );
-        m_splitProb1.resize(m_nTSoS,-1.) ;
-        m_splitProb2.resize(m_nTSoS,-1.) ;
+        m_splitProb1.resize(m_nTSoS,-1.f) ;
+        m_splitProb2.resize(m_nTSoS,-1.f) ;
         m_RIO.resize(m_nTSoS,0);
       };
         
@@ -425,6 +426,9 @@ namespace InDet
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
+
+    /** ITk eta-dependet cuts*/
+    ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
       
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
@@ -478,6 +482,8 @@ namespace InDet
     FloatProperty m_minPairTrackPt{this, "minPairTrackPt", 1000., "In MeV"};
 
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
+
+    BooleanProperty m_doITk{this, "doITk", false};
 
   }; 
 } // end of namespace

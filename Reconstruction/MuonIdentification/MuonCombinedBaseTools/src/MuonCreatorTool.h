@@ -77,7 +77,10 @@ namespace MuonCombined {
         virtual xAOD::Muon* create(InDetCandidateTags& candidate, OutputData& outputData) const override final;
 
     private:
-        void addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag,
+        /// Decorated a bunch of dummy values to the muon to ensure data consistency in the xAOD
+        void decorateDummyValues(xAOD::Muon& muon, OutputData& outputData) const;
+
+        void addStatisticalCombination(xAOD::Muon& muon, const InDetCandidate* candidate, const StacoTag* tag,
                                        OutputData& outputData) const;
 
         void addCombinedFit(xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData) const;
@@ -86,7 +89,7 @@ namespace MuonCombined {
 
         void addMuGirlLowBeta(xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData) const;
 
-        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag) const;
+        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const;
         void addCaloTag(xAOD::Muon& muon, const CaloTag* tag) const;
 
         /** add muon candidate info to a muon, if an updateExtrapolatedTrack is
@@ -138,9 +141,9 @@ namespace MuonCombined {
                           std::vector<float>& rpcHitPositionY, std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const;
         void addRpcTiming(xAOD::Muon& muon) const;
         void addMSIDScatteringAngles(xAOD::Muon& muon) const;
-        void addMSIDScatteringAngles(const xAOD::TrackParticle& track) const;
+        void addMSIDScatteringAngles(const xAOD::TrackParticle* track) const;
         void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
-        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const;
+        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont)const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",

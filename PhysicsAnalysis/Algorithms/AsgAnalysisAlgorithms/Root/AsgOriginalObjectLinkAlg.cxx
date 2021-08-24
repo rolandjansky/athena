@@ -36,7 +36,7 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_particleHandle);
+    ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -46,7 +46,8 @@ namespace CP
   StatusCode AsgOriginalObjectLinkAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
       xAOD::IParticleContainer *particles = nullptr;
       ANA_CHECK (m_particleHandle.getCopy (particles, sys));
 
@@ -58,8 +59,8 @@ namespace CP
         ATH_MSG_ERROR ("Cannot set original object links for container named " << m_baseContainerName);
         return StatusCode::FAILURE;
       }
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

@@ -6,7 +6,7 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
     PFTrackSelectorFactory=CompFactory.PFTrackSelector
     PFTrackSelector=PFTrackSelectorFactory(algName)
 
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     Trk__ParticleCaloExtensionToolFactory=CompFactory.Trk.ParticleCaloExtensionTool
     result = AtlasExtrapolatorCfg(inputFlags)
     pcExtensionTool = Trk__ParticleCaloExtensionToolFactory(Extrapolator = result.popPrivateTools())
@@ -22,8 +22,8 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
     TrackSelectionTool = InDet__InDetTrackSelectionToolFactory("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0 
-    
+    TrackSelectionTool.minPt = 500.0
+
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
     result.addEventAlgo (PFTrackSelector, primary=True)
@@ -53,7 +53,7 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
 def getPFCellLevelSubtractionTool(inputFlags,toolName):
     PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
-    
+
     eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
 
@@ -68,8 +68,8 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
 
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")            
-    
+    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")
+
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags,toolName):
@@ -115,11 +115,11 @@ def getPFLCCalibTool(inputFlags):
     PFLCCalibTool.eflowRecClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool_LCCalib")
     PFLCCalibTool.UseLocalWeight = False
 
-    from CaloRec.CaloTopoClusterConfig import getTopoClusterLocalCalibTools    
+    from CaloRec.CaloTopoClusterConfig import getTopoClusterLocalCalibTools
     lcCalibToolList = getTopoClusterLocalCalibTools(inputFlags)
 
     PFLCCalibTool.CaloClusterLocalCalib=lcCalibToolList[0]
-    PFLCCalibTool.CaloClusterLocalCalibOOCC=lcCalibToolList[1]                                                            
+    PFLCCalibTool.CaloClusterLocalCalibOOCC=lcCalibToolList[1]
     PFLCCalibTool.CaloClusterLocalCalibOOCCPi0=lcCalibToolList[2]
     PFLCCalibTool.CaloClusterLocalCalibDM=lcCalibToolList[3]
 
@@ -147,19 +147,19 @@ def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsIn
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
     if eflowObjectsInputName is not None:
-        PFONeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName    
+        PFONeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName
 
     PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.PF.addClusterMoments
-        
+
     return PFONeutralCreatorAlgorithm
 
-def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):    
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):
     FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
     FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
     if chargedFlowElementOutputName:
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedFlowElements"
+        FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
 
     return FlowElementChargedCreatorAlgorithm
 
@@ -169,10 +169,209 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralFlowElements"
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
 
     return FlowElementNeutralCreatorAlgorithm
-            
+
+def getEGamFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False,doTCC=False):
+
+    PFEGamFlowElementLinkerAlgorithmFactory=CompFactory.PFEGamFlowElementAssoc
+    PFEGamFlowElementLinkerAlgorithm=PFEGamFlowElementLinkerAlgorithmFactory("PFEGamFlowElementAssoc")
+
+    #set an an alternate name if needed
+    #this uses some gaudi core magic, namely that you can change the name of the handle as it is a callable attribute, despite the attribute not being explicitly listed in the header
+    #for a key of type SG::WriteDecorHandle<xAOD::SomeCont>someKey{this,"SpecificContainerName","myContainerName","other-labels"}
+    #setting algorithm.SpecificContainerName="myNewContainerName" changes parameter "myContainerName"
+    #(also applies to ReadHandles)
+    if(neutral_FE_cont_name!=""):
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer=neutral_FE_cont_name
+
+    if(charged_FE_cont_name!=""):
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer=charged_FE_cont_name
+
+    # as per muon block, if run on AOD as a test (where the links are already defined), need to rename the output containers to be something new
+    if(AODTest):
+        # do electron container renaming first
+        EL_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey)
+
+        PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey=EL_NFE_Link.replace("FELinks","CustomFELinks")
+
+        EL_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey=EL_CFE_Link.replace("FELinks","CustomFELinks")
+
+        NFE_EL_Link=str(PFEGamFlowElementLinkerAlgorithm.NeutralFEElectronDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEElectronDecorKey=NFE_EL_Link.replace("FE","CustomFE")
+
+        CFE_EL_Link=str(PFEGamFlowElementLinkerAlgorithm.ChargedFEElectronDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEElectronDecorKey=CFE_EL_Link.replace("FE","CustomFE")
+
+
+        # now do same with photons
+        PH_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey=PH_NFE_Link.replace("FELinks","CustomFELinks")
+        PH_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey=PH_CFE_Link.replace("FELinks","CustomFELinks")
+
+        NFE_PH_Link=str(PFEGamFlowElementLinkerAlgorithm.NeutralFEPhotonDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEPhotonDecorKey=NFE_PH_Link.replace("FE","CustomFE")
+
+        CFE_PH_Link=str(PFEGamFlowElementLinkerAlgorithm.ChargedFEPhotonDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEPhotonDecorKey=CFE_PH_Link.replace("FE","CustomFE")
+
+    if(doTCC):
+        # ReadHandles to change
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer="TrackCaloClustersNeutral"
+        PFEGamFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer="TrackCaloClustersCharged"
+        
+        #Now to change the writeHandles
+        # first the Electron -> FE links
+        EL_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ElectronNeutralFEDecorKey=EL_NFE_Link.replace("FELinks","TCCLinks")
+        EL_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.ElectronChargedFEDecorKey=EL_CFE_Link.replace("FELinks","TCCLinks")
+        #then the converse case (FE -> Electron)
+        
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEElectronDecorKey="TrackCaloClustersCharged.TCC_ElectronLinks"
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEElectronDecorKey="TrackCaloClustersNeutral.TCC_ElectronLinks"
+        
+
+        # first the Photon -> FE links
+        PH_NFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonNeutralFEDecorKey=PH_NFE_Link.replace("FELinks","TCCLinks")
+        PH_CFE_Link=str(PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey)
+        PFEGamFlowElementLinkerAlgorithm.PhotonChargedFEDecorKey=PH_CFE_Link.replace("FELinks","TCCLinks")
+        #then the converse case (FE -> Photons)
+        
+        PFEGamFlowElementLinkerAlgorithm.ChargedFEPhotonDecorKey="TrackCaloClustersCharged.TCC_PhotonLinks"
+        PFEGamFlowElementLinkerAlgorithm.NeutralFEPhotonDecorKey="TrackCaloClustersNeutral.TCC_PhotonLinks"
+        
+        
+        
+        
+        
+    return PFEGamFlowElementLinkerAlgorithm
+
+def getMuonFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",LinkNeutralFEClusters=True,useMuonTopoClusters=False,AODTest=False,doTCC=False):
+    
+
+    PFMuonFlowElementLinkerAlgorithmFactory=CompFactory.PFMuonFlowElementAssoc
+    PFMuonFlowElementLinkerAlgorithm=PFMuonFlowElementLinkerAlgorithmFactory("PFMuonFlowElementAssoc")
+
+    #set an an alternate name if needed
+    #this uses some gaudi core magic, namely that you can change the name of the handle as it is a callable attribute, despite the attribute not being explicitly listed in the header as such
+    #for a key of type SG::WriteDecorHandle<xAOD::SomeCont>someKey{this,"SpecificContainerName","myContainerName","other-labels"}
+    #setting algorithm.SpecificContainerName="myNewContainerName" changes parameter "myContainerName" to "myNewContainerName"
+    if(neutral_FE_cont_name!=""):
+        #update the readhandle
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer=neutral_FE_cont_name
+        #update the write handle for the link
+        
+    if(charged_FE_cont_name!=""):
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer=charged_FE_cont_name
+
+    
+    PFMuonFlowElementLinkerAlgorithm.m_LinkNeutralFEClusters=LinkNeutralFEClusters
+    PFMuonFlowElementLinkerAlgorithm.m_UseMuonTopoClusters=useMuonTopoClusters
+
+    #prototype on AOD with the linkers already defined - so need to rename the output links to something besides their default name.
+
+    if(AODTest):
+        # use same Gaudi trick to rename the container input name.         
+        MuonFELink=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_chargedFELinks)
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_chargedFELinks=MuonFELink.replace("FELinks","CustomFELinks")
+        
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_neutralFELinks=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_neutralFELinks).replace("FELinks","CustomFELinks")
+                                                                                                                        
+        PFMuonFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer_FE_MuonLinks=str(PFMuonFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer_FE_MuonLinks).replace("MuonLinks","CustomMuonLinks")
+        PFMuonFlowElementLinkerAlgorithm.JetETMissChargedFlowElements_FE_MuonLinks=str(PFMuonFlowElementLinkerAlgorithm.JetETMissChargedFlowElements_FE_MuonLinks).replace("MuonLinks","CustomMuonLinks")
+        
+
+        # and because debug info is also written, need to rename each handle for this too.... - might want to change this in future/re-work it so that a rename -> no debug info saved by default.
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_FE_efrac_matched_muon=str(PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_FE_efrac_matched_muon).replace("FE","CustomFE")
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_muon_efrac_matched_FE=str(PFMuonFlowElementLinkerAlgorithm.MuonContainer_muon_efrac_matched_FE).replace("FE","CustomFE")
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_nMatchedMuons=str(PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_nMatchedMuons).replace("FE","CustomFE")
+
+    #Track Calo cluster (TCC) specific configuration. Input is differently named FE container, and in the AOD step specifically
+    if(doTCC):
+        #input containers are TrackCaloClustersCharged and TrackCaloClustersNeutral, so rename them
+        #service_key="StoreGateSvc+"
+        service_key=""
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissChargedFlowElementContainer=service_key+"TrackCaloClustersCharged"
+        PFMuonFlowElementLinkerAlgorithm.JetEtMissNeutralFlowElementContainer=service_key+"TrackCaloClustersNeutral"
+        
+        #Output
+        #rename the FE_MuonLinks as TCC_MuonLinks
+        #rename output containers
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_chargedFELinks=service_key+"Muons.chargedTCCLinks"
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_neutralFELinks=service_key+"Muons.neutralTCCLinks"
+        PFMuonFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer_FE_MuonLinks=service_key+"TrackCaloClustersNeutral.TCC_MuonLinks"
+        PFMuonFlowElementLinkerAlgorithm.JetETMissChargedFlowElements_FE_MuonLinks=service_key+"TrackCaloClustersCharged.TCC_MuonLinks"
+        # several variables relating to Neutral Flow Elements/TCCs to Muons for debug. perhaps at some point these should be removed by default 
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_nMatchedMuons="TrackCaloClustersNeutral.TCC_nMatchedMuons"
+        PFMuonFlowElementLinkerAlgorithm.FlowElementContainer_FE_efrac_matched_muon="TrackCaloClustersNeutral.TCC_efrac_matched_muon"
+        
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_muon_efrac_matched_FE="Muons.muon_efrac_matched_TCC"
+        # this is because the algorithm adds this debug container which we don't need 
+        PFMuonFlowElementLinkerAlgorithm.MuonContainer_ClusterInfo_deltaR="Muons.deltaR_muon_clus_TCCalg"
+    if(LinkNeutralFEClusters):
+        if (doTCC or AODTest):
+            # since the cells are deleted on AOD, if you try to run the link between NFE and Muon on AOD, it will crash. Terminate to catch this.
+            # This is a known bug to rectify soon
+            from AthenaCommon.Logging import logging
+            msg=logging.getLogger("PFCfg.py::getMuonFlowElementAssocAlgorithm")
+            msg.error("Neutral FE from AOD configured to be linked with Muon. This link will fail due to missing CaloCells in the AOD")
+            msg.info("Terminating job")
+            exit(0)
+        
+        
+
+    return PFMuonFlowElementLinkerAlgorithm
+
+
+
+def getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False,doTCC=False) :
+
+    PFTauFlowElementLinkerAlgorithmFactory=CompFactory.PFTauFlowElementAssoc
+    PFTauFlowElementLinkerAlgorithm=PFTauFlowElementLinkerAlgorithmFactory("PFTauFlowElementAssoc")
+
+    #set an an alternate name if needed
+    #this uses some gaudi core magic, namely that you can change the name of the handle as it is a callable attribute, despite the attribute not being explicitly listed in the header
+    #for a key of type SG::WriteDecorHandle<xAOD::SomeCont>someKey{this,"SpecificContainerName","myContainerName","other-labels"}
+    #setting algorithm.SpecificContainerName="myNewContainerName" changes parameter "myContainerName"
+    #(also applies to ReadHandles)
+    if(neutral_FE_cont_name!=""):
+        PFTauFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer=neutral_FE_cont_name
+
+    if(charged_FE_cont_name!=""):
+        PFTauFlowElementLinkerAlgorithm.JetETMissChargedFlowElementContainer=charged_FE_cont_name
+
+    if(AODTest):
+        TAU_NFE_Link=str(PFTauFlowElementLinkerAlgorithm.TauNeutralFEDecorKey)
+        PFTauFlowElementLinkerAlgorithm.TauNeutralFEDecorKey=TAU_NFE_Link.replace("FELinks","CustomFELinks")
+
+        TAU_CFE_Link=str(PFTauFlowElementLinkerAlgorithm.TauChargedFEDecorKey)
+        PFTauFlowElementLinkerAlgorithm.TauChargedFEDecorKey=TAU_CFE_Link.replace("FELinks","CustomFELinks")
+
+        NFE_TAU_Link=str(PFTauFlowElementLinkerAlgorithm.NeutralFETauDecorKey)
+        PFTauFlowElementLinkerAlgorithm.NeutralFETauDecorKey=NFE_TAU_Link.replace("FE","CustomFE")
+
+        CFE_TAU_Link=str(PFTauFlowElementLinkerAlgorithm.ChargedFETauDecorKey)
+        PFTauFlowElementLinkerAlgorithm.ChargedFETauDecorKey=CFE_TAU_Link.replace("FE","CustomFE")
+
+    if(doTCC):
+         PFTauFlowElementLinkerAlgorithm.JetETMissNeutralFlowElementContainer="TrackCaloClustersNeutral"
+         PFTauFlowElementLinkerAlgorithm.JetETMissChargedFlowElementContainer="TrackCaloClustersCharged"
+
+         PFTauFlowElementLinkerAlgorithm.TauNeutralFEDecorKey="TauJets.neutralTCCLinks"
+         PFTauFlowElementLinkerAlgorithm.TauChargedFEDecorKey="TauJets.chargedTCCLinks"
+         
+         PFTauFlowElementLinkerAlgorithm.NeutralFETauDecorKey="TrackCaloClustersNeutral.TCC_TauLinks"
+         PFTauFlowElementLinkerAlgorithm.ChargedFETauDecorKey="TrackCaloClustersCharged.TCC_TauLinks"
+
+    return PFTauFlowElementLinkerAlgorithm
+
+
+

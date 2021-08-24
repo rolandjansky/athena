@@ -378,6 +378,16 @@ class forceConditions(_modifier):
                 svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
 
 
+class forceAFPLinkNum(_modifier):
+    """
+    force AFP link number translator to use Run2 setup
+    """
+    def postSetup(self):
+        from AthenaCommon.AlgSequence import AthSequencer
+        from AthenaCommon.CFElements import findAlgorithm
+        AFPRecoSeq = AthSequencer("AFPRecoSeq")
+        AFP_RawDataProv = findAlgorithm(AFPRecoSeq, "AFP_RawDataProvider")
+        AFP_RawDataProv.ProviderTool.AFP_ByteStream2RawCnv.AFP_WordReadOut.AFP_LinkNumTranslator.ForceRunConfig = 2
 
 ###############################################################
 # Algorithm modifiers
@@ -662,7 +672,7 @@ class useDynamicAlignFolders(_modifier):
 class doRuntimeNaviVal(_modifier):
     """
     Checks the validity of each Decision Object produced by a HypoAlg, including all of its
-    parents all the way back to the L1 decoder. Potentially CPU expensive.
+    parents all the way back to the HLT Seeding. Potentially CPU expensive.
     """
     def preSetup(self):
         log.info("Enabling Runtime Trigger Navigation Validation")

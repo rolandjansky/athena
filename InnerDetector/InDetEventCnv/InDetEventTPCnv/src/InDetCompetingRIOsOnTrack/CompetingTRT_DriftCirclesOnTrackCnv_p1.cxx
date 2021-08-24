@@ -35,8 +35,8 @@ CompetingTRT_DriftCirclesOnTrackCnv_p1::persToTrans( const InDet::CompetingTRT_D
    *transObj = InDet::CompetingTRT_DriftCirclesOnTrack (associatedSurface,
                                                         containedChildRots,
                                                         nullptr,
-                                                        nullptr,
-                                                        nullptr,
+                                                        {},
+                                                        {},
                                                         0);
 
    fillTransFromPStore( &m_cRotCnv, persObj->m_competingROT, transObj, log );

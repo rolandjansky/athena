@@ -6,7 +6,8 @@
 #ifndef BTAG_MUON_AUGMENTER_H
 #define BTAG_MUON_AUGMENTER_H
 
-#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingFwd.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"

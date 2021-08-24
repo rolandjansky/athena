@@ -6,6 +6,10 @@
 // Segment.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+#include <memory>
+
+
+
 #include "TrkSegment/Segment.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
@@ -86,7 +90,7 @@ Trk::Segment::operator=(const Trk::Segment& seg)
 
     if (seg.m_containedMeasBases) {
       if (!m_containedMeasBases) {
-        m_containedMeasBases.reset(new DataVector<const Trk::MeasurementBase>);
+        m_containedMeasBases = std::make_unique<DataVector<const Trk::MeasurementBase>>();
       } else {
         m_containedMeasBases->clear();
       }
@@ -111,7 +115,7 @@ Trk::Segment::operator=(Trk::Segment&& seg) noexcept
     Trk::MeasurementBase::operator=(seg);
     m_fitQuality = std::move(seg.m_fitQuality);
     m_containedMeasBases = std::move(seg.m_containedMeasBases);
-    m_author = std::move(seg.m_author);
+    m_author = seg.m_author;
   }
   return (*this);
 }

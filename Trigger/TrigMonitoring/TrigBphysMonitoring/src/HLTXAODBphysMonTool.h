@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HLTXAODBPHYSMONTOOL_H
@@ -115,7 +115,7 @@ private:
     
     bool m_GenerateChainDictsFromDB;
 
-    std::string m_JpsiCandidatesKey; //! offline di-muon container name
+    SG::ReadHandleKey<xAOD::VertexContainer> m_JpsiCandidatesKey{this, "JpsiCandidates", "JpsiCandidates", "Offline di-muon candidates" }; //! offline di-muon container name
     
     
     std::string m_trigchain_denomID; //! denominator trigger for ID efficiencies

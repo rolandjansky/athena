@@ -5,6 +5,7 @@ import os
 import re
 from fnmatch import fnmatchcase
 from AthenaCommon.Logging import logging
+from ROOT import gSystem
 
 msg = logging.getLogger('MetaReader')
 
@@ -21,10 +22,11 @@ regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
 regex_BS_files = re.compile(r'^(\w+):.*((\.D?RAW\..*)|(\.data$))')
+regex_URI_scheme = re.compile(r'^([A-Za-z0-9\+\.\-]+)\:')
 
 
 def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, meta_key_filter = [],
-                  unique_tag_info_values = True):
+                  unique_tag_info_values = True, ignoreNonExistingLocalFiles=False):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
     :param filenames: the input file from which metadata needs to be extracted.
@@ -68,6 +70,11 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
         # Determine the file_type of the input and store this information into meta_dict
         if not file_type:
             if os.path.isfile(filename):
+                
+                if ignoreNonExistingLocalFiles and not regex_URI_scheme.match(filename) and gSystem.AccessPathName(filename): # Attention, bizarre convention of return value!! 
+                    msg.warn('Ignoring not accessible file: {}'.format(filename))
+                    continue
+                    
                 with open(filename, 'rb') as binary_file:
                     magic_file = binary_file.read(4)
 
@@ -99,6 +106,11 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
         # ----- retrieves metadata from POOL files ------------------------------------------------------------------#
         if current_file_type == 'POOL':
+            
+            if ignoreNonExistingLocalFiles and not regex_URI_scheme.match(filename) and gSystem.AccessPathName(filename): # Attention, bizarre convention of return value!! 
+                msg.warn('Ignoring not accessible file: {}'.format(filename))
+                continue
+                    
             import ROOT
             # open the file using ROOT.TFile
             current_file = ROOT.TFile.Open( _get_pfn(filename) )
@@ -297,6 +309,11 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
         # ----- retrieves metadata from bytestream (BS) files (RAW, DRAW) ------------------------------------------#
         elif current_file_type == 'BS':
+            
+            if ignoreNonExistingLocalFiles and not regex_URI_scheme.match(filename) and not os.path.isfile(filename): 
+                msg.warn('Ignoring not accessible file: {}'.format(filename))
+                continue
+            
             import eformat
 
             # store the number of entries
@@ -804,6 +821,7 @@ def make_peeker(meta_dict):
 
         if '/Simulation/Parameters' in file_content:
             keys_to_keep = [
+                'G4Version',
                 'TruthStrategy',
                 'SimBarcodeOffset',
                 'TRTRangeCut',

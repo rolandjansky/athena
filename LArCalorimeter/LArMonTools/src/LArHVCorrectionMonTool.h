@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,7 +28,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 
 #include <string>
@@ -82,13 +82,13 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
 
   std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingLegacyService> m_larCablingService;  
 
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
   { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
   { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
  private:
 
@@ -96,8 +96,8 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   int DBflag(HWIdentifier onID);
 
   // To set histos Style
-  void SetTH2Style(TH2F_LW* h);
-  void SetTH1Style(TH1I_LW* h);
+  static void SetTH2Style(TH2F_LW* h);
+  static void SetTH1Style(TH1I_LW* h);
 
   // Properties
   SG::ReadHandleKey<LArRawChannelContainer> m_channelKey{this, "LArRawChannelKey", "LArRawChannels"};
@@ -110,15 +110,15 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   int m_eventsCounter;
 
   // Non-nominal Maps 
-  TH2F_LW* m_hLArHVCorrectionEMB[2];
-  TH2F_LW* m_hLArHVCorrectionEMEC[2];
-  TH2F_LW* m_hLArHVCorrectionHEC[2];
-  TH2F_LW* m_hLArHVCorrectionFCAL[2];
+  TH2F_LW* m_hLArHVCorrectionEMB[2]{};
+  TH2F_LW* m_hLArHVCorrectionEMEC[2]{};
+  TH2F_LW* m_hLArHVCorrectionHEC[2]{};
+  TH2F_LW* m_hLArHVCorrectionFCAL[2]{};
 
-  TH1I_LW* m_hNDeviatingChannelsEMB[2];
-  TH1I_LW* m_hNDeviatingChannelsEMEC[2];
-  TH1I_LW* m_hNDeviatingChannelsHEC[2];
-  TH1I_LW* m_hNDeviatingChannelsFCAL[2];
+  TH1I_LW* m_hNDeviatingChannelsEMB[2]{};
+  TH1I_LW* m_hNDeviatingChannelsEMEC[2]{};
+  TH1I_LW* m_hNDeviatingChannelsHEC[2]{};
+  TH1I_LW* m_hNDeviatingChannelsFCAL[2]{};
 
 };
 

@@ -373,12 +373,18 @@ using Trk::distDepth;
     if (m_geoAlignStore){ 
       ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
       if (ptrXf) {
-	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel(); //need .linear()?
-	geotrf = (*ptrXf) * m_design->moduleShift();
-      }
+	     m_transformHit = (*ptrXf);
+         //the below can have an (optional) shift to acccount for transformations
+         //applied when constructing the DetectorElements from the GeoPhysVols
+         //(At the moment, only used for ITkStrip barrel when creating a DetElement per row)
+         geotrf = (*ptrXf) * m_design->moduleShift();
+        }
     }
     else{
-      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel()); //need .linear()?
+      m_transformHit  = getMaterialGeom()->getAbsoluteTransform();
+    //the below can have an (optional) shift to acccount for transformations
+    //applied when constructing the DetectorElements from the GeoPhysVols
+    //(At the moment, only used for ITkStrip barrel when creating a DetElement per row)
       geotrf = getMaterialGeom()->getAbsoluteTransform() * m_design->moduleShift();
     }
     
@@ -443,7 +449,7 @@ using Trk::distDepth;
 
 
         nominalEta(2) = 1.0;
-	m_barrelLike = true;
+	      m_barrelLike = true;
 
         if (std::abs(globalEtaAxis.dot(nominalEta)) < 0.5) { // Check that it is in roughly the right direction. Allowed not to be for ITK inclined/barrel ring modules
             m_barrelLike = false;
@@ -462,16 +468,16 @@ using Trk::distDepth;
         //
         // Depth axis.
         //
-        double depthDir = globalDepthAxis.dot(nominalNormal);
+        m_depthAngle = globalDepthAxis.dot(nominalNormal);
         m_depthDirection = true;
-        if (depthDir < 0) {
+        if (m_depthAngle < 0) {
             if (m_design->depthSymmetric()) {
             m_depthDirection = false;
             } else {
 	      ATH_MSG_DEBUG( "Unable to swap local depth axis.");
             }
         }
-        if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
+        if (std::abs(m_depthAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local depth axis does not follow correct convention.");
             m_depthDirection = true; // Don't swap.
         }
@@ -479,9 +485,9 @@ using Trk::distDepth;
         //
         // Phi axis
         //
-        double phiDir = globalPhiAxis.dot(nominalPhi);
+        m_phiAngle = globalPhiAxis.dot(nominalPhi);
         m_phiDirection = true;
-        if (phiDir < 0) {
+        if (m_phiAngle < 0) {
             if (m_design->phiSymmetric()) {
                 m_phiDirection = false;
             } else {
@@ -489,7 +495,7 @@ using Trk::distDepth;
             }
         }
 
-        if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
+        if (std::abs(m_phiAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xPhi axis does not follow correct convention.");
             m_phiDirection = true; // Don't swap.
         }
@@ -497,16 +503,16 @@ using Trk::distDepth;
         //
         // Eta axis
         //
-        double etaDir = globalEtaAxis.dot(nominalEta);
+        m_etaAngle = globalEtaAxis.dot(nominalEta);
         m_etaDirection = true;
-        if (etaDir < 0) {
+        if (m_etaAngle < 0) {
             if (m_design->etaSymmetric()) {
                 m_etaDirection = false;
             } else {
 	      ATH_MSG_DEBUG("Unable to swap local xEta axis.");
             }
         }
-        if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
+        if (std::abs(m_etaAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xEta axis does not follow correct convention.");
             m_etaDirection = true; // Don't swap
         }
@@ -680,7 +686,7 @@ using Trk::distDepth;
 
     phi = globalPoint.phi();
   }
-
+  //TODO: can we make this Amg??? Save some back/forth conversions elsewhere...
   const HepGeom::Transform3D
   SolidStateDetectorElementBase::recoToHitTransformImpl() const
   {

@@ -9,10 +9,16 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--doTracksInJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInBJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTruthOrigin", help='make plots by track origin', action='store_true', default=False)
+    IDPVMparser.add_argument("--doHitLevelPlots", help='make hit residual / eff plots', action='store_true', default=False)
+    IDPVMparser.add_argument("--doPerAuthor", help='make plots by track author', action='store_true', default=False)
     IDPVMparser.add_argument("--doExpertPlots", help='run additional expert-level plots', action='store_true', default=False)
+    IDPVMparser.add_argument("--doMuonMatchedTracks", help='run plots for tracks matched to true muons', action='store_true', default=False)
+    IDPVMparser.add_argument("--doElectronMatchedTracks", help='run plots for tracks matched to true electrons', action='store_true', default=False)
     IDPVMparser.add_argument("--doTruthToRecoNtuple", help='output track-to-truth ntuple', action='store_true', default=False)
+    IDPVMparser.add_argument("--hardScatterStrategy", help='Strategy to select the hard scatter. 0 = SumPt² 1 = SumPt', choices=["0","1"], default="0")
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
+    IDPVMparser.add_argument("--ancestorIDList", help='List of ancestor truth IDs to match.', default = [], nargs='+', type=int)
     return IDPVMparser.parse_args()
 
 # Parse the arguments 
@@ -28,6 +34,12 @@ InDetPhysValFlags.doValidateTracksInBJets.set_Value_and_Lock(MyArgs.doTracksInBJ
 InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(MyArgs.doTracksInJets)
 InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(MyArgs.doTightPrimary)
 InDetPhysValFlags.doTruthOriginPlots.set_Value_and_Lock(MyArgs.doTruthOrigin)
+InDetPhysValFlags.doValidateMuonMatchedTracks.set_Value_and_Lock(MyArgs.doMuonMatchedTracks)
+InDetPhysValFlags.doValidateElectronMatchedTracks.set_Value_and_Lock(MyArgs.doElectronMatchedTracks)
+InDetPhysValFlags.doPerAuthorPlots.set_Value_and_Lock(MyArgs.doPerAuthor)
+InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(MyArgs.doHitLevelPlots)
+InDetPhysValFlags.ancestorIDs.set_Value_and_Lock(MyArgs.ancestorIDList)
+InDetPhysValFlags.hardScatterStrategy.set_Value_and_Lock(int(MyArgs.hardScatterStrategy))
 
 # Print the configuration
 print(" ==== Final Phys Val flags to run === ")

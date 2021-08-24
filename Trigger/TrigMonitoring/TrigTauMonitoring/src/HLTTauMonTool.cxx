@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.cxx
@@ -238,6 +238,7 @@ StatusCode HLTTauMonTool::init() {
     ATH_CHECK(m_jetRoIKey.initialize());
     ATH_CHECK(m_pvKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
+    ATH_CHECK(m_ditauOfflineJetContainer.initialize(m_dijetFakeTausEff));
 
     return StatusCode::SUCCESS;
 }
@@ -665,7 +666,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-      size_t posit=trigItem.rfind("_");
+      size_t posit=trigItem.rfind('_');
       ATH_MSG_DEBUG("Size is: "<< posit);
       if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
@@ -801,7 +802,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-          size_t posit=trigItem.rfind("_");
+          size_t posit=trigItem.rfind('_');
           if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
@@ -978,7 +979,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-          size_t posit=trigItem.rfind("_");
+          size_t posit=trigItem.rfind('_');
           if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
@@ -1334,7 +1335,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -1982,7 +1983,7 @@ StatusCode HLTTauMonTool::fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -2098,7 +2099,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -2925,7 +2926,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-    size_t posit=trigItem.rfind("_");
+    size_t posit=trigItem.rfind('_');
     if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
@@ -3538,7 +3539,7 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
 
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
-      size_t posit=trigItem.rfind("_");
+      size_t posit=trigItem.rfind('_');
       if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
     

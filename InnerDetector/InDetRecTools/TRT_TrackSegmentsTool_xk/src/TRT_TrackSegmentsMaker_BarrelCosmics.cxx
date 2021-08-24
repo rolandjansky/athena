@@ -120,12 +120,12 @@ std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> InDet::TRT_TrackSegm
   std::unique_ptr<TRT_TrackSegmentsMaker_BarrelCosmics::EventData>
      event_data = std::make_unique<TRT_TrackSegmentsMaker_BarrelCosmics::EventData>(trtcontainer.cptr());
 
-  for(InDet::TRT_DriftCircleContainer::const_iterator it=trtcontainer->begin(); it!=trtcontainer->end(); it++) {
+  for(InDet::TRT_DriftCircleContainer::const_iterator it=trtcontainer->begin(); it!=trtcontainer->end(); ++it) {
 
     const InDet::TRT_DriftCircleCollection *colNext=&(**it);
     if (!colNext) { msg(MSG::WARNING) << "newEvent(): !colNext " << endmsg; continue; }
 
-    for (DataVector<InDet::TRT_DriftCircle>::const_iterator circleit=(*colNext).begin();circleit!=(*colNext).end();circleit++){
+    for (DataVector<InDet::TRT_DriftCircle>::const_iterator circleit=(*colNext).begin();circleit!=(*colNext).end();++circleit){
 
       if ( m_trtid->is_barrel((**circleit).identify()) ) { // TRT barrel
 
@@ -170,9 +170,9 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const EventContext& ctx, 
      event_data = std::make_unique<TRT_TrackSegmentsMaker_BarrelCosmics::EventData>(trtcontainer.cptr());
 
 
-  for( std::vector<IdentifierHash>::const_iterator d=vTRT.begin(); d!=vTRT.end(); d++ ) {
-    for ( InDet::TRT_DriftCircleContainer::const_iterator w = trtcontainer->indexFind((*d)); w!=trtcontainer->end(); w++ ) {
-	  for( InDet::TRT_DriftCircleCollection::const_iterator circleit=(*w)->begin(); circleit!=(*w)->end(); circleit++ ) {
+  for( std::vector<IdentifierHash>::const_iterator d=vTRT.begin(); d!=vTRT.end(); ++d ) {
+    for ( InDet::TRT_DriftCircleContainer::const_iterator w = trtcontainer->indexFind((*d)); w!=trtcontainer->end(); ++w ) {
+	  for( InDet::TRT_DriftCircleCollection::const_iterator circleit=(*w)->begin(); circleit!=(*w)->end(); ++circleit ) {
 
         if(std::abs(m_trtid->barrel_ec( (*circleit)->identify() ))!=1) continue;
 
@@ -275,7 +275,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx
 
       double a = (par[3]-it->x())*sinphi+(it->y()-par[4])*cosphi; 
 	  double b = (m_magneticField) ? 0.5 * (std::pow(it->x()-par[3], 2.) + std::pow(it->y()-par[4], 2.) - std::pow(a, 2)) : 0.;
-	  if ( std::abs(a+par[2]*b) > range ) { it++; continue; } 
+	  if ( std::abs(a+par[2]*b) > range ) { ++it; continue; } 
 	  
 	  if (m_magneticField && countMeas<200) { measx[countMeas] = it->x(); measy[countMeas] = it->y(); countMeas++; }
 	  
@@ -493,7 +493,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findSeedInverseR(double *par,
 
   double window = 10.; // parabola search window BE CAREFULL OF THIS RANGE!
 
-  for (std::vector< Amg::Vector3D >::iterator it = event_data.m_listHitCenter.begin(); it!=event_data.m_listHitCenter.end(); it++) {
+  for (std::vector< Amg::Vector3D >::iterator it = event_data.m_listHitCenter.begin(); it!=event_data.m_listHitCenter.end(); ++it) {
   
     double transformX = it->x() * sinphi - it->y() * cosphi; 
 	if ( std::abs(transformX-parTransformX) > 200. ) continue;  // search circles in a broad band
@@ -592,7 +592,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
     int previous = ( it == hits.begin() ) ? m_trtid->barrel_ec( (*(it+2))->identify() ) : m_trtid->barrel_ec( (*(it-1))->identify() );
     int next = ( it == hits.end()-1 ) ? m_trtid->barrel_ec( (*(it-2))->identify() ) : m_trtid->barrel_ec( (*(it+1))->identify() ); 
     if ( previous==next && side*next==-1 ) { it = hits.erase( it ); countOppositeSide++; }
-    else { it++; }
+    else { ++it; }
   }
   if (countOppositeSide>5) {
      ATH_MSG_DEBUG( "convert(): removed " << countOppositeSide << " hits from the other side, N remaining hits: " << hits.size() );
@@ -895,7 +895,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(TRT_TrackSegmentsMaker
 	
 	for (std::vector< Amg::Vector3D >::iterator it = event_data.m_listHitCenter.begin(); it!=event_data.m_listHitCenter.end(); ) {
 
-      if ( std::abs( (par[0]-it->x())*sinphi + it->y()*cosphi ) > 2. ) { it++; continue; }
+      if ( std::abs( (par[0]-it->x())*sinphi + it->y()*cosphi ) > 2. ) { ++it; continue; }
       countAssociatedHits[(it->y()>0)?0:1]++;
       it = event_data.m_listHitCenter.erase( it );
     } 

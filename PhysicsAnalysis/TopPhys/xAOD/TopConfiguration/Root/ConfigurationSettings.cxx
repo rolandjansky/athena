@@ -209,7 +209,15 @@ namespace top {
                       "None");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
-                      "Simple");
+                      "Full_PseudoData", {"All", "All_PseudoData", "Full", "Full_PseudoData", "Simple"});
+    registerParameter("JetJMSOption",
+		      "None (default),"
+                      "JMS_frozen (The shape and magnitude of the uncertainties at m/pT = 0.25 are also used for m/pT > 0.25),"
+                       "JMS_scaled (The magnitude of the uncertainties at m/pT = 0.25 was scaled linearly with increasing m/pT)",
+                      "None");
+    registerParameter("DoLargeRPseudodataJER",
+                      "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
+                      "True",{"True", "False"});
     registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
     registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
@@ -220,13 +228,18 @@ namespace top {
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
     registerParameter("LargeRJetMass", "LargeRJet min. mass cut for object selection (in MeV).", "0");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
-    registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
-    registerParameter("LargeRJetUncertainties_NPModel",
-                      "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
-                      "CategoryReduction");
+    registerParameter("LargeRJetSubstructureVariables",
+                      "List of substructure variables stored in the output separated by commas. By default no variable is added to output.",
+                      " ");
+    registerParameter("LargeRJetUncertainties_JESJERJMS_NPModel",
+                      "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
+                      "CategoryJES_FullJER_FullJMS");
+    registerParameter("LargeRJetUncertainties_JMR_NPModel",
+                      "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
-                      "rel21/Summer2019");
+                      "rel21/Winter2021");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
@@ -234,7 +247,6 @@ namespace top {
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
                       " By default, no tagger is used.",
                       " ");
-    registerParameter("BoostedJetTaggingUncertainties", "Whether to enable BoostedJetTaggers SF systematics. Temporary to test JetUncertainties in r22.", "False", {"True", "False"});
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5");
@@ -389,6 +401,8 @@ namespace top {
                       "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
     registerParameter("FilterNominalLooseBranches",
                       "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output", " ");
+    registerParameter("FilterNominalBranches",
+                      "Comma separated list of names of the nominal tree branches that will be removed from the output. If not provided, the branches from FilterBraches will be used", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 

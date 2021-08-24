@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFInvMassHypoTool.h"
@@ -31,7 +31,7 @@ if(m_acceptAll) {
  return StatusCode::SUCCESS;
 }
 
-bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination) const{
+bool TrigMuonEFInvMassHypoTool::executeAlg(const std::vector<Combo::LegDecision>& combination) const{
 
   //Monitored Variables
   std::vector<float> fexInvMass, fexInvMassSel;
@@ -40,8 +40,6 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
   auto monitorIt	= Monitored::Group(m_monTool, muonMassMon, muonMassSelMon); 
 
   bool result = false;
-  bool passLow = false;
-  bool passHigh = false;
 
   //for pass through mode
   if(m_acceptAll) {
@@ -57,8 +55,8 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
     auto muonLinks = TrigCompositeUtils::findLinks<xAOD::MuonContainer>( dec, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
     for(size_t i=0; i<muonLinks.size(); i++){
       if(muonLinks.at(i).isValid()){ 
-	const xAOD::Muon *mu = *(muonLinks.at(i).link);
-	if(mu->primaryTrackParticle()) selected_muons.push_back(mu);
+        const xAOD::Muon *mu = *(muonLinks.at(i).link);
+        if(mu->primaryTrackParticle()) selected_muons.push_back(mu);
       }
     }
   }
@@ -76,27 +74,31 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
       const xAOD::TrackParticle* tr1 = muon1->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
       const xAOD::TrackParticle* tr2 = muon2->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
       if (!tr1 || !tr2) {
-	ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+        ATH_MSG_DEBUG("No CombinedTrackParticle found.");
       } else {
-	ATH_MSG_DEBUG("Retrieved CombinedTrack tracks with abs pt "<< (*tr1).pt()/Gaudi::Units::GeV << " GeV and "<< (*tr2).pt()/Gaudi::Units::GeV << " GeV ");
+        ATH_MSG_DEBUG("Retrieved CombinedTrack tracks with abs pt "<< (*tr1).pt()/Gaudi::Units::GeV << " GeV and "<< (*tr2).pt()/Gaudi::Units::GeV << " GeV ");
 
-	float diMuMass = (tr1->p4()+tr2->p4()).M()/Gaudi::Units::GeV;
+        float diMuMass = (tr1->p4()+tr2->p4()).M()/Gaudi::Units::GeV;
 
-	//fill monitored variables
-	fexInvMass.push_back(diMuMass);
+        //fill monitored variables
+        fexInvMass.push_back(diMuMass);
 
-	ATH_MSG_DEBUG(" REGTEST diMuon mass is " << diMuMass << " GeV "
-		      << " and lowMassCut cut is " << m_invMassLow << " GeV"
-		      << " and highMassCut cut is " << m_invMassHigh << " GeV");
+        ATH_MSG_DEBUG(" REGTEST diMuon mass is " << diMuMass << " GeV "
+          << " and lowMassCut cut is " << m_invMassLow << " GeV"
+          << " and highMassCut cut is " << m_invMassHigh << " GeV");
 
-	//Apply hypo cuts. If any mass combination is true, then the overall result should be true.
-	if(m_invMassLow>0 && diMuMass>m_invMassLow) passLow=true;
-	if(m_invMassHigh>0 && diMuMass<m_invMassHigh) passHigh = true;
-	if(passLow && passHigh){
-	  result=true;
-	  //fill monitored variables
-	  fexInvMassSel.push_back(diMuMass);
-	}
+        //Apply hypo cuts. If any mass combination is true, then the overall result should be true.
+        if(m_invMassLow>0 && diMuMass>m_invMassLow && m_invMassHigh>0 && diMuMass<m_invMassHigh){
+          if(m_selOS){
+            if(muon1->charge()*muon2->charge()<0){
+              result=true;
+            }
+          } else {
+            result = true;
+          }
+          //fill monitored variables
+          fexInvMassSel.push_back(diMuMass);
+        }
       }
     }
   }

@@ -12,8 +12,8 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "EGSelectorConfigurationMapping.h"
+#include "EgammaAnalysisHelpers/AsgEGammaConfigHelper.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 #include "TElectronLikelihoodTool.h"
 // STL includes
@@ -41,8 +41,17 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   m_rootTool = new Root::TElectronLikelihoodTool(("T" + myname).c_str());
 
   // Declare the needed properties
+  // not having a config file results in
+  // a failure
   declareProperty("WorkingPoint", m_WorkingPoint = "", "The Working Point");
   declareProperty("ConfigFile", m_configFile = "", "The config file to use");
+ 
+  // pdf file name. If specified it overrides the one in the config file
+  declareProperty("inputPDFFileName",
+                  m_pdfFileName = "",
+                  "The input ROOT file name that holds the PDFs");
+  
+  //Addtional properties that are not part of the config files
   declareProperty(
     "usePVContainer", m_usePVCont = true, "Whether to use the PV container");
   declareProperty(
@@ -55,158 +64,17 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   declareProperty("skipDeltaPoverP",
                   m_skipDeltaPoverP = false,
                   "If true, it wil skip the check of deltaPoverP");
-  declareProperty("correctDeltaEta",
-                  m_correctDeltaEta = false,
-                  "If true, deltaEta1 will be corrected for the pear shape disortion of the LAr");
-  //
-  // Configurables in the root tool
-  //
-  // pdf file name. Managed in the Asg tool.
-  declareProperty("inputPDFFileName",
-                  m_pdfFileName = "",
-                  "The input ROOT file name that holds the PDFs");
-  // the variable names, if non-standard - nope, it's done above!
-  declareProperty("VariableNames",
-                  m_rootTool->m_variableNames,
-                  "Variable names input to the LH");
-  // The likelihood cut values
-  declareProperty("CutLikelihood",
-                  m_rootTool->m_cutLikelihood,
-                  "Cut on likelihood discriminant");
-  // The pileup-correction part of the likelihood cut values
-  declareProperty("CutLikelihoodPileupCorrection",
-                  m_rootTool->m_cutLikelihoodPileupCorrection,
-                  "Pileup correction for LH discriminant");
-  // The likelihood cut values - 4 GeV
-  declareProperty("CutLikelihood4GeV",
-                  m_rootTool->m_cutLikelihood4GeV,
-                  "Cut on likelihood discriminant, 4 GeV special bin");
-  // The pileup-correction part of the likelihood cut values - 4 GeV
-  declareProperty("CutLikelihoodPileupCorrection4GeV",
-                  m_rootTool->m_cutLikelihoodPileupCorrection4GeV,
-                  "Pileup correction for LH discriminant, 4 GeV special bin");
-  // do the ambiguity cut
-  declareProperty("CutAmbiguity",
-                  m_rootTool->m_cutAmbiguity,
-                  "Apply a cut on the ambiguity bit");
-  // cut on b-layer
-  declareProperty("CutBL", m_rootTool->m_cutBL, "Cut on b-layer");
-  // cut on pixel hits
-  declareProperty("CutPi", m_rootTool->m_cutPi, "Cut on pixel hits");
-  // cut on d0
-  declareProperty("CutA0", m_rootTool->m_cutA0, "Cut on d0");
-  // cut on deltaEta
-  declareProperty("CutDeltaEta", m_rootTool->m_cutDeltaEta, "Cut on deltaEta");
-  // cut on deltaPhiRes
-  declareProperty(
-    "CutDeltaPhiRes", m_rootTool->m_cutDeltaPhiRes, "Cut on deltaPhiRes");
-  // cut on precision hits
-  declareProperty("CutSi", m_rootTool->m_cutSi, "Cut on precision hits");
-  // turn off f3 at high Et
-  declareProperty("doRemoveF3AtHighEt",
-                  m_rootTool->m_doRemoveF3AtHighEt,
-                  "Turn off f3 at high Et");
-  // turn off TRTPID at high Et
-  declareProperty("doRemoveTRTPIDAtHighEt",
-                  m_rootTool->m_doRemoveTRTPIDAtHighEt,
-                  "Turn off TRTPID at high Et");
-  // use smooth interpolation between LH bins
-  declareProperty("doSmoothBinInterpolation",
-                  m_rootTool->m_doSmoothBinInterpolation,
-                  "use smooth interpolation between LH bins");
-  // use one extra bin for high ET LH
-  declareProperty("useOneExtraHighETLHBin",
-                  m_rootTool->m_useOneExtraHighETLHBin,
-                  "Use one extra bin for high ET LH");
-  // cut on Wstot above HighETBinThreshold
-  declareProperty("CutWstotAtHighET",
-                  m_rootTool->m_cutWstotAtHighET,
-                  "Cut on Wstot above HighETBinThreshold");
-  // cut on EoverP above HighETBinThreshold
-  declareProperty("CutEoverPAtHighET",
-                  m_rootTool->m_cutEoverPAtHighET,
-                  "Cut on EoverP above HighETBinThreshold");
-  // ET threshold for using high ET cuts and bin
-  declareProperty("HighETBinThreshold",
-                  m_rootTool->m_highETBinThreshold,
-                  "ET threshold for using high ET cuts and bin");
-  // do pileup-dependent transform on discriminant value
-  declareProperty("doPileupTransform",
-                  m_rootTool->m_doPileupTransform,
-                  "Do pileup-dependent transform on discriminant value");
-  // do centrality-dependent transform on discriminant value
-  declareProperty("doCentralityTransform",
-                  m_rootTool->m_doCentralityTransform,
-                  "Do centrality-dependent transform on discriminant value");
-  // reference disc for very hard cut; used by pileup transform
-  declareProperty("DiscHardCutForPileupTransform",
-                  m_rootTool->m_discHardCutForPileupTransform,
-                  "Reference disc for very hard cut; used by pileup transform");
-  // reference slope on disc for very hard cut; used by pileup transform
-  declareProperty(
-    "DiscHardCutSlopeForPileupTransform",
-    m_rootTool->m_discHardCutSlopeForPileupTransform,
-    "Reference slope on disc for very hard cut; used by pileup transform");
-  // reference quadratic par on disc for very hard cut; used by centrality
-  // transform
-  declareProperty("DiscHardCutQuadForPileupTransform",
-                  m_rootTool->m_discHardCutQuadForPileupTransform,
-                  "Reference quadratic par on disc for very hard cut; used by "
-                  "centrality transform");
-  // reference disc for a pileup independent loose menu; used by pileup
-  // transform
-  declareProperty("DiscLooseForPileupTransform",
-                  m_rootTool->m_discLooseForPileupTransform,
-                  "Reference disc for pileup indepdendent loose menu; used by "
-                  "pileup transform");
-  // reference disc for very hard cut; used by pileup transform - 4-7 GeV bin
-  declareProperty(
-    "DiscHardCutForPileupTransform4GeV",
-    m_rootTool->m_discHardCutForPileupTransform4GeV,
-    "Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
-  // reference slope on disc for very hard cut; used by pileup transform - 4-7
-  // GeV bin
-  declareProperty("DiscHardCutSlopeForPileupTransform4GeV",
-                  m_rootTool->m_discHardCutSlopeForPileupTransform4GeV,
-                  "Reference slope on disc for very hard cut; used by pileup "
-                  "transform. 4-7 GeV bin");
-  // reference quadratic par on disc for very hard cut; used by centrality
-  // transform in 4-7 GeV bin
-  declareProperty("DiscHardCutQuadForPileupTransform4GeV",
-                  m_rootTool->m_discHardCutQuadForPileupTransform4GeV,
-                  "Reference quadratic par on disc for very hard cut; used by "
-                  "centrality transform in 4-7 GeV bin");
-  // reference disc for a pileup independent loose menu; used by pileup
-  // transform - 4-7 GeV bin
-  declareProperty("DiscLooseForPileupTransform4GeV",
-                  m_rootTool->m_discLooseForPileupTransform4GeV,
-                  "Reference disc for pileup indepdendent loose menu; used by "
-                  "pileup transform. 4-7 GeV bin");
-  // max discriminant for which pileup transform is to be used
-  declareProperty("DiscMaxForPileupTransform",
-                  m_rootTool->m_discMaxForPileupTransform,
-                  "Max discriminant for which pileup transform is to be used");
-  // max nvtx or mu to be used in pileup transform
-  declareProperty("PileupMaxForPileupTransform",
-                  m_rootTool->m_pileupMaxForPileupTransform,
-                  "Max nvtx or mu to be used in pileup transform");
-  // Flag to tell the tool if it is a calo-only LH
+ // Flag to tell the tool if it is a calo-only LH
   declareProperty("caloOnly",
                   m_caloOnly = false,
                   "Flag to tell the tool if it is a calo-only LH");
 }
 
-//=============================================================================
-// Standard destructor
-//=============================================================================
 AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 {
   delete m_rootTool;
 }
 
-//=============================================================================
-// Asgena initialize method
-//=============================================================================
 StatusCode
 AsgElectronLikelihoodTool::initialize()
 {
@@ -214,7 +82,7 @@ AsgElectronLikelihoodTool::initialize()
   ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " "
                                   << m_configFile.size());
 
-  std::string PDFfilename(""); // Default
+  std::string configFile,PDFfilename, resolvedPDF; // Default
 
   if (!m_WorkingPoint.empty()) {
     m_configFile = AsgConfigHelper::findConfigFile(
@@ -223,16 +91,24 @@ AsgElectronLikelihoodTool::initialize()
   }
 
   if (!m_configFile.empty()) {
-    std::string configFile = PathResolverFindCalibFile(m_configFile);
+    configFile = PathResolverFindCalibFile(m_configFile);
     if (configFile.empty()) {
-      ATH_MSG_ERROR("Could not locate " << m_configFile);
+      ATH_MSG_ERROR("Could not locate config " << m_configFile);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
-    TEnv env(configFile.c_str());
 
-    // Get the input PDFs in the tool.
+    TEnv env;
+    if (env.ReadFile(configFile.c_str(), kEnvLocal)) {
+      ATH_MSG_ERROR("Could not open config " << configFile);
+      return StatusCode::FAILURE;
+    }
+
+    // Get the input PDFs for the tool.
+    // We need to see if the user had provided
+    // an override, if not needs to be in the input
+    // config file
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
 
     if (!m_pdfFileName
@@ -240,28 +116,36 @@ AsgElectronLikelihoodTool::initialize()
       ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
       PDFfilename = m_pdfFileName;
     } else {
-      if (m_configFile.find("dev/") != std::string::npos) {
-
-        std::string PDFdevval = env.GetValue(
-          "inputPDFFileName",
-          "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-        PDFfilename = ("dev/" + PDFdevval);
-        ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
-      } else {
-        PDFfilename = env.GetValue(
-          "inputPDFFileName",
-          "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
-        ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
+      if (!env.Defined("inputPDFFileName")) {
+        ATH_MSG_WARNING("will use default PDF filename "
+                        "since none is specified in the config "
+                        << m_configFile);
       }
+      PDFfilename = env.GetValue(
+        "inputPDFFileName",
+        "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+      if (PDFfilename.empty()) {
+        ATH_MSG_ERROR("empty inputPDFFilename in " << configFile);
+        return StatusCode::FAILURE;
+      }
+      if (m_configFile.find("dev/") != std::string::npos) {
+        PDFfilename.insert(0, "dev/");
+      }
+      ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
     }
-    std::string filename = PathResolverFindCalibFile(PDFfilename);
-    if (!filename.empty()) {
-      m_rootTool->setPDFFileName(filename.c_str());
+
+    resolvedPDF = PathResolverFindCalibFile(PDFfilename);
+    if (!resolvedPDF.empty()) {
+      m_rootTool->setPDFFileName(resolvedPDF.c_str());
     } else {
-      ATH_MSG_ERROR("Could not find PDF file");
+      ATH_MSG_ERROR("Couldn't resolve PDF filename from "
+                    << PDFfilename << ", config file = " << configFile);
       return StatusCode::FAILURE;
     }
 
+    ///-----------Begin of  text config---------------------------- 
+    // The following are all taken from the config
+    // file
     m_rootTool->m_variableNames = env.GetValue("VariableNames", "");
     m_rootTool->m_cutLikelihood =
       AsgConfigHelper::HelperDouble("CutLikelihood", env);
@@ -334,11 +218,9 @@ AsgElectronLikelihoodTool::initialize()
       env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->m_pileupMaxForPileupTransform =
       env.GetValue("PileupMaxForPileupTransform", 50);
-
-    // if true, deltaEta1 will be corrected for the pear shape disortion of the LAr
-    m_correctDeltaEta =
-      env.GetValue("doCorrectDeltaEta", false);
-
+    // if true, deltaEta1 will be corrected for the pear shape distortion of the
+    // LAr
+    m_correctDeltaEta = env.GetValue("doCorrectDeltaEta", false);
   } else { // Error if it cant find the conf
     ATH_MSG_ERROR("Could not find configuration file");
     return StatusCode::FAILURE;
@@ -362,7 +244,13 @@ AsgElectronLikelihoodTool::initialize()
 
   // We need to initialize the underlying ROOT TSelectorTool
   if (m_rootTool->initialize().isFailure()) {
-    ATH_MSG_ERROR("ERROR! Could not initialize the TElectronLikelihoodTool!");
+    ATH_MSG_ERROR("Could not initialize the TElectronLikelihoodTool! "
+                  "Configuration details: "
+                  << "working point = \"" << m_WorkingPoint
+                  << "\", config file = \"" << m_configFile
+                  << "\", resolved file  = \"" << configFile
+                  << "\", PDF file = \"" << PDFfilename
+                  << "\", resolved file = \"" << resolvedPDF);
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -463,24 +351,25 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
       ATH_MSG_ERROR("Failed, no track particle. et= " << et << "eta= " << eta);
       return m_rootTool->accept();
     }
-    
+
     if (!el->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1)) {
       allFound = false;
       notFoundList += "deltaEta1 ";
     }
     // correction of deltaEta1 for pear shape distortion
-    else if ( m_correctDeltaEta ) {
-      const static SG::AuxElement::Accessor<float> acc("deltaEta1PearDistortion");
-      if ( acc.isAvailable(*el) ) {
-	deltaEta -= acc(*el);
+    else if (m_correctDeltaEta) {
+      const static SG::AuxElement::Accessor<float> acc(
+        "deltaEta1PearDistortion");
+      if (acc.isAvailable(*el)) {
+        deltaEta -= acc(*el);
       } else {
-	allFound = false;
-	notFoundList += "deltaEta1PearDistortion ";
+        allFound = false;
+        notFoundList += "deltaEta1PearDistortion ";
       }
     }
 
     if (!el->trackCaloMatchValue(deltaPhiRescaled2,
-				 xAOD::EgammaParameters::deltaPhiRescaled2)) {
+                                 xAOD::EgammaParameters::deltaPhiRescaled2)) {
       allFound = false;
       notFoundList += "deltaPhiRescaled2 ";
     }
@@ -819,13 +708,14 @@ AsgElectronLikelihoodTool::calculate(const EventContext& ctx,
       notFoundList += "deltaEta1 ";
     }
     // correction of deltaEta1 for pear shape distortion
-    else if ( m_correctDeltaEta ) {
-      const static SG::AuxElement::Accessor<float> acc("deltaEta1PearDistortion");
-      if ( acc.isAvailable(*el) ) {
-	deltaEta -= acc(*el);
+    else if (m_correctDeltaEta) {
+      const static SG::AuxElement::Accessor<float> acc(
+        "deltaEta1PearDistortion");
+      if (acc.isAvailable(*el)) {
+        deltaEta -= acc(*el);
       } else {
-	allFound = false;
-	notFoundList += "deltaEta1PearDistortion ";
+        allFound = false;
+        notFoundList += "deltaEta1PearDistortion ";
       }
     }
 
@@ -1140,7 +1030,7 @@ AsgElectronLikelihoodTool::getFcalEt(const EventContext& ctx) const
   SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont(m_HIESContKey, ctx);
   xAOD::HIEventShapeContainer::const_iterator es_itr = HIESCont->begin();
   xAOD::HIEventShapeContainer::const_iterator es_end = HIESCont->end();
-  for (; es_itr != es_end; es_itr++) {
+  for (; es_itr != es_end; ++es_itr) {
     double et = (*es_itr)->et();
     const std::string name = (*es_itr)->auxdataConst<std::string>("Summary");
     if (name == "FCal")

@@ -4,6 +4,7 @@
 # art-description: Trigger athenaHLT test of the PhysicsP1_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -25,7 +26,10 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
+ex.threads = 4
+ex.concurrent_events = 4
 ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';doL1Sim=True;"'
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'grid'

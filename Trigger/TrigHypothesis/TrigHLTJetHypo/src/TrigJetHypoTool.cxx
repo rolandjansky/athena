@@ -26,6 +26,10 @@
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::isLegId;
+using TrigCompositeUtils::getIDFromLeg;
+using TrigCompositeUtils::createLegName;
+
 
 TrigJetHypoTool::TrigJetHypoTool(const std::string& type,
                                                  const std::string& name,
@@ -41,36 +45,38 @@ TrigJetHypoTool::~TrigJetHypoTool(){
 
 StatusCode TrigJetHypoTool::initialize(){
 
-
   if (!(m_endLabelIndex > 0)){
-    ATH_MSG_ERROR("endLabelIndex must be > 0, is " +
-		  std::to_string(m_endLabelIndex));
+    ATH_MSG_ERROR("endLabelIndex must be > 0, is " + std::to_string(m_endLabelIndex));
     return StatusCode::FAILURE;
   }
   
   if (m_endLabelIndex == 1u) {
+
+    // This is a single-leg jet chain.
     m_decisionIDs.push_back(m_decisionID);
+  
   } else {
 
-    if(TrigCompositeUtils::isLegId(m_decisionID)){
-        HLT::Identifier noLegNameDecisionID = TrigCompositeUtils::getIDFromLeg(m_decisionID);
-        for (std::size_t i = m_startLabelIndex; i != m_endLabelIndex; ++i){
-          m_decisionIDs.push_back(TrigCompositeUtils::createLegName(noLegNameDecisionID,
-								i));
-		}
-    } else {
-        for (std::size_t i = m_startLabelIndex; i != m_endLabelIndex; ++i){
-          m_decisionIDs.push_back(TrigCompositeUtils::createLegName(m_decisionID,
-								i));
-		}
+    // This is a multi-leg chain with (m_endLabelIndex - m_startLabelIndex) jet legs contained within
+
+    if(not isLegId(m_decisionID)){
+      ATH_MSG_ERROR(name() << " is being configured to do jet selection for a multi-leg chain, from leg " << m_startLabelIndex <<
+        " to " << m_endLabelIndex << ", the HypoTool's name must therefore start with legXXX_ rather than HLT_");
+      return StatusCode::FAILURE;
     }
+
+    HLT::Identifier noLegNameDecisionID = getIDFromLeg(m_decisionID);
+    for (std::size_t i = m_startLabelIndex; i != m_endLabelIndex; ++i){
+      m_decisionIDs.push_back(createLegName(noLegNameDecisionID, i));
+      ATH_MSG_DEBUG("Adding jet-leg " << m_decisionIDs.size()-1 << " for " << noLegNameDecisionID << ", this is leg " << i << " in the chain:" << m_decisionIDs.back());
+    }
+
   }
   
   if (m_visitDebug){
     DebugInfoCollector collector(name() + "_init");
     CHECK(m_helper->getDescription(collector));
     auto s = collector.toString();
-    
     
     for(const auto& l : lineSplitter(s)){
       ATH_MSG_INFO(l);
@@ -88,13 +94,13 @@ StatusCode TrigJetHypoTool::finalize(){
 
 StatusCode
 TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
-                          const TrigCompositeUtils::DecisionIDContainer& previousDecisionIDs,
-                          std::vector<JetDecision>& jetHypoInputs) const {
+                        const TrigCompositeUtils::DecisionIDContainer& previousDecisionIDs,
+                        std::vector<JetDecision>& jetHypoInputs) const {
 
   // need only check against the decision ID corresponding to the name
   // of this hypo. Leg indices are irrelevant at this point.
   if (not TrigCompositeUtils::passed(m_decisionID.numeric(),
-				     previousDecisionIDs)) {
+             previousDecisionIDs)) {
     return StatusCode::SUCCESS;
   }
 
@@ -141,9 +147,9 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
     if (infocollector){
         
       std::string msg =
-	"hypo testing done: no of input jets " + std::to_string(jets->size())
-	+ " no of participating jets " + std::to_string(jetCollector.size())
-	+  " pass: false ";
+        "hypo testing done: no of input jets " + std::to_string(jets->size())
+        + " no of participating jets " + std::to_string(jetCollector.size())
+        +  " pass: false ";
       
       infocollector->collect("TrigJetHypoTool", msg);
     }
@@ -189,12 +195,12 @@ const HLT::Identifier& TrigJetHypoTool::getID(std::size_t i) const{
 
 StatusCode
 TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
-				    const std::unique_ptr<ITrigJetHypoInfoCollector>& infocollector) const {
+                                  const std::unique_ptr<ITrigJetHypoInfoCollector>& infocollector) const {
   
   if (jetCollector.empty()) {
     ATH_MSG_ERROR("HypoTool passed the event for " <<
-		  m_chainName << " ev " << m_eventSN->m_id <<
-		  ", but did not specify which jets participated");
+      m_chainName << " ev " << m_eventSN->m_id <<
+      ", but did not specify which jets participated");
     return StatusCode::FAILURE;
   }
 
@@ -202,6 +208,12 @@ TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
   if (!(legIndices.size() == (m_endLabelIndex - m_startLabelIndex))) {
     ATH_MSG_ERROR("inconsistent number of leg indices");
     return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG("check passing jets? does it work?");
+  ATH_MSG_DEBUG("There are some indices: " << legIndices.size());
+  for(size_t i = 0; i < legIndices.size(); i ++){
+    ATH_MSG_DEBUG(" -- leg " << i << " has index " << legIndices.at(i));
   }
   
   // jet hypo inputs:
@@ -211,7 +223,7 @@ TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
   if (infocollector) {
     infocollector->
       collect(name(),
-	      "no of xAODJets " + std::to_string(participating_jets.size()));
+      "no of xAODJets " + std::to_string(participating_jets.size()));
     
     auto legInds = jetCollector.legInds();
     std::stringstream ss;
@@ -220,7 +232,7 @@ TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
       auto jets = jetCollector.xAODJets(label);
       ss << label << " [\n";
       for(const auto& j : jets){
-	ss << static_cast<const void*>(j) << '\n';
+        ss << static_cast<const void*>(j) << '\n';
       }
       ss << "]\n";
     }
@@ -232,7 +244,7 @@ TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
 
 StatusCode
 TrigJetHypoTool::reportPassingJets(const xAODJetCollector& jetCollector,
-				     const std::vector<JetDecision>& jetHypoInputs) const {
+                                   const std::vector<JetDecision>& jetHypoInputs) const {
 
   auto legIndices = jetCollector.legInds();
   for(const auto& legInd : legIndices){
@@ -245,8 +257,8 @@ TrigJetHypoTool::reportPassingJets(const xAODJetCollector& jetCollector,
 
 StatusCode
 TrigJetHypoTool::reportLeg(const std::vector<const xAOD::Jet*>& jets,
-			     const std::vector<JetDecision>& jetHypoInputs,
-			     int legInd) const {
+                           const std::vector<JetDecision>& jetHypoInputs,
+                           int legInd) const {
 
   // check if input jet is a participating jet. If so , add
   // its Decision object.
@@ -257,15 +269,10 @@ TrigJetHypoTool::reportLeg(const std::vector<const xAOD::Jet*>& jets,
 
     // Add the Leg DecisionID.
     // Required by any downstream Steps which need to consume jets which
-    // are satisfying this leg's jet cuts
+    // are satisfying this leg's jet cuts and by the following ComboHypo
+    // Note that if the chain is single-leg, then the ID will be the chain-ID
+    // rathe than a leg-specific ID
     passingIDs.insert(getID(legInd).numeric());
-
-    // Also add the Chain DecisionID. 
-    // If this is a single-leg chain, then getID(legInd) == m_decisionID
-    // DecisionIDContainer is a set, so will avoid any duplication
-    // We always include the Chain DecisionID such that this leg may
-    // pass the event at this point, if there are no further Steps.
-    passingIDs.insert(m_decisionID.numeric());
 
     // Copy these passingIDs into the Decision Object
     // This call also performs de-duplication
@@ -278,8 +285,7 @@ TrigJetHypoTool::reportLeg(const std::vector<const xAOD::Jet*>& jets,
 
 bool
 TrigJetHypoTool::inputJetParticipates(const std::vector<const xAOD::Jet*>& jets,
-					const JetDecision& pair) const  {
+                                      const JetDecision& pair) const  {
   
   return std::find(jets.begin(), jets.end(), pair.first) != jets.end();
-
 }

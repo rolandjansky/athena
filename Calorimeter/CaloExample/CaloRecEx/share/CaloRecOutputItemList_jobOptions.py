@@ -16,12 +16,16 @@ CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
 CaloClusterItemList=[]
 CaloClusterKeys=[]
 
+from RecExConfig.AutoConfiguration import IsInInputFile
+
+storedFwdTowersInESD = IsInInputFile("xAOD::CaloClusterContainer","CaloCalFwdTopoTowers")
+
 CaloClusterKeys+=["CaloCalTopoClusters"]
 if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
     CaloClusterKeys+=["CaloCalTopoTowers"]
 if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
     CaloClusterKeys+=["CaloCalTopoSignals"]
-if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value() or storedFwdTowersInESD:
     CaloClusterKeys+=["CaloCalFwdTopoTowers"]
 
 CaloClusterKeys+=["CombinedCluster"]
@@ -87,9 +91,7 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 
 #List of AOD moments: (copied from CaloClusterTopoGetter)
 
-AODMoments=[#"LATERAL"
-            #,"LONGITUDINAL"
-            "SECOND_R" 
+AODMoments=[ "SECOND_R" 
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
             ,"CENTER_LAMBDA"
@@ -99,18 +101,12 @@ AODMoments=[#"LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
-            #,"ENG_BAD_HV_CELLS"
-            #,"N_BAD_HV_CELLS"
             ,"ENG_POS"
             ,"SIGNIFICANCE"
-            #,"CELL_SIGNIFICANCE"
-            #,"CELL_SIG_SAMPLING"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
-            #,"PTD"
             ,"BadChannelList"
-            #,"LATERAL"
             ,"SECOND_TIME"
             ,"NCELL_SAMPLING" 
             ]
@@ -118,14 +114,14 @@ AODMoments=[#"LATERAL"
 if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
     AODMoments += ["LATERAL"
                    ,"LONGITUDINAL"
-                   ,"ENG_BAD_HV_CELLS"
-                   ,"N_BAD_HV_CELLS"
-                   #,"SIGNIFICANCE"
                    ,"CELL_SIGNIFICANCE"
-                   ,"CELL_SIG_SAMPLING"
                    ,"PTD"
                    ,"MASS"
                    ]
+
+    if jobproperties.Rec.doHeavyIon() or jobproperties.Rec.doHIP():
+        AODMoments += ["CELL_SIG_SAMPLING"]
+
 try:
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doDigiTruth():
@@ -144,13 +140,12 @@ try:
                 ,"PHI_DigiHSTruth"
                 ]
       if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
-            AODMoments+=["ENG_BAD_HV_CELLS_Truth"
-                         ,"N_BAD_HV_CELLS_Truth"
-                         ,"SIGNIFICANCE_Truth"
+            AODMoments+=[ "SIGNIFICANCE_Truth"
                          ,"CELL_SIGNIFICANCE_Truth"
-                         ,"CELL_SIG_SAMPLING_Truth"
                          ,"PTD_Truth"
                  ]
+            if jobproperties.Rec.doHeavyIon() or jobproperties.Rec.doHIP():
+                AODMoments += ["CELL_SIG_SAMPLING"]
 
 except:
     log = logging.getLogger('CaloRecOutputItemList')
@@ -201,7 +196,7 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 CaloClusterItemList += ["CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
 
 #CaloCalFwdTopoClusters are also clusters but with a dedicated sliming:
-if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value():
+if jobproperties.CaloRecFlags.doCaloFwdTopoTower.get_Value() or storedFwdTowersInESD:
     theKey="CaloCalFwdTopoTowers"
     CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
     AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"

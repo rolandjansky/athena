@@ -56,7 +56,7 @@ class PEtaSampler(PG.MomSampler):
         v4.SetPtEtaPhiM(pt, self.eta(), self.phi(), self.mass())
         return v4
 
-a_particle = int(runArgs.jobConfig[0].split('_')[-1].split('.py')[0].replace('m','-'))
+a_particle = int(jofile.split('_')[-1].split('.py')[0].replace('m','-'))
 
 pg = PG.ParticleGun()
 pg.sampler.pid = int(a_particle) #PID

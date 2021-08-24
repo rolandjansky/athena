@@ -106,7 +106,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr : *readCdo) {
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        const std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
 
         if (atr.size() == 1) {
@@ -121,7 +121,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
             MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
 
             if (tokens[0] != "ON" && tokens[0] != "STANDBY" && tokens[0] != "UNKNOWN") {
-                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                int multilayer = atoi((tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
                 if (ChamberId.is_valid()) {
@@ -133,7 +133,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
                 }
             }
             if (tokens[0] == "STANDBY") {
-                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+                int multilayer = atoi((tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
                 if (ChamberId.is_valid()) {
@@ -183,7 +183,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr_v0 : *readCdo_v0) {
         const unsigned int chanNum = itr_v0.first;
         const coral::AttributeList& atr_v0 = itr_v0.second;
-        std::string setPointsV0_payload = readCdo_v0->chanName(chanNum);
+        const std::string& setPointsV0_payload = readCdo_v0->chanName(chanNum);
         float setPointsV0_name{0.};
 
         if (atr_v0.size() == 1) {
@@ -192,7 +192,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
             std::vector<std::string> tokens2;
             MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload, tokens2, delimiter2);
 
-            int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+            int multilayer = atoi(tokens2[3].c_str());
             std::string chamber_name = tokens2[2];
             std::string thename = chamber_name + "_" + tokens2[3];
             Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
@@ -207,7 +207,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr_v1 : *readCdo_v1) {
         const unsigned int chanNum = itr_v1.first;
         const coral::AttributeList& atr_v1 = itr_v1.second;
-        const std::string setPointsV1_payload = readCdo_v1->chanName(chanNum);
+        const std::string& setPointsV1_payload = readCdo_v1->chanName(chanNum);
         float setPointsV1_name{0.};
 
         if (atr_v1.size() == 1) {
@@ -217,7 +217,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
             std::vector<std::string> tokens2;
             MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload, tokens2, delimiter2);
 
-            int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
+            int multilayer = atoi(tokens2[3].c_str());
             std::string chamber_name = tokens2[2];
             std::string thename = chamber_name + "_" + tokens2[3];
             Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
@@ -261,7 +261,7 @@ StatusCode MdtCondDbAlg::loadDataPsLv(writeHandle_t& wh, MdtCondDbData* writeCdo
     for (const readOutPair& itr : *readCdo) {
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name;
 
         if (!atr.size()) { continue; }
@@ -301,7 +301,7 @@ StatusCode MdtCondDbAlg::loadDataHv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         const unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
 
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
         std::string hv_name_ml1, hv_name_ml2;
         float hv_v0_ml1{0.}, hv_v0_ml2{0.}, hv_v1_ml1{0.}, hv_v1_ml2{0.};
 
@@ -398,7 +398,7 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
         std::string hv_name;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
 
         if (!atr.size()) { continue; }
         hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
@@ -485,9 +485,9 @@ StatusCode MdtCondDbAlg::loadMcDeadElements(writeHandle_t& wh, MdtCondDbData* wr
 
         for (unsigned int i = 0; i < tokens.size(); i++) {
             if (tokens[i] != "0") {
-                int ml = atoi(const_cast<char*>((tokens[i].substr(0, 1)).c_str()));
-                int layer = atoi(const_cast<char*>((tokens[i].substr(1, 2)).c_str()));
-                int tube = atoi(const_cast<char*>((tokens[i].substr(2)).c_str()));
+                int ml = atoi((tokens[i].substr(0, 1)).c_str());
+                int layer = atoi((tokens[i].substr(1, 2)).c_str());
+                int tube = atoi((tokens[i].substr(2)).c_str());
                 Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, tube);
                 thename = chamber_name + "_" + tokens[i];
                 writeCdo->setDeadTube(thename, ChannelId);
@@ -497,7 +497,7 @@ StatusCode MdtCondDbAlg::loadMcDeadElements(writeHandle_t& wh, MdtCondDbData* wr
 
         for (unsigned int i = 0; i < tokens_mlayer.size(); i++) {
             if (tokens_mlayer[i] != "0") {
-                int ml = atoi(const_cast<char*>((tokens_mlayer[i].substr(0)).c_str()));
+                int ml = atoi((tokens_mlayer[i].substr(0)).c_str());
                 Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, 1, 1);
                 thename = chamber_name + "_" + tokens[i];
                 writeCdo->setDeadMultilayer(thename, ChannelId);
@@ -507,8 +507,8 @@ StatusCode MdtCondDbAlg::loadMcDeadElements(writeHandle_t& wh, MdtCondDbData* wr
 
         for (unsigned int i = 0; i < tokens_layer.size(); i++) {
             if (tokens_layer[i] != "0") {
-                int ml = atoi(const_cast<char*>((tokens_layer[i].substr(0, 1)).c_str()));
-                int layer = atoi(const_cast<char*>((tokens_layer[i].substr(1)).c_str()));
+                int ml = atoi((tokens_layer[i].substr(0, 1)).c_str());
+                int layer = atoi((tokens_layer[i].substr(1)).c_str());
                 Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, 1);
                 thename = chamber_name + "_" + tokens[i];
                 writeCdo->setDeadLayer(thename, ChannelId);
@@ -549,9 +549,9 @@ StatusCode MdtCondDbAlg::loadMcDeadTubes(writeHandle_t& wh, MdtCondDbData* write
         Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
 
         for (unsigned int i = 0; i < tokens.size(); i++) {
-            int ml = atoi(const_cast<char*>((tokens[i].substr(0, 1)).c_str()));
-            int layer = atoi(const_cast<char*>((tokens[i].substr(1, 2)).c_str()));
-            int tube = atoi(const_cast<char*>((tokens[i].substr(2)).c_str()));
+            int ml = atoi((tokens[i].substr(0, 1)).c_str());
+            int layer = atoi((tokens[i].substr(1, 2)).c_str());
+            int tube = atoi((tokens[i].substr(2)).c_str());
             thename = chamber_name + "_" + tokens[i];
             tube_list = tokens[i] + ".";
             Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, tube);
@@ -579,7 +579,7 @@ StatusCode MdtCondDbAlg::loadMcNoisyChannels(writeHandle_t& wh, MdtCondDbData* w
     for (const auto& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         std::string hv_name;
-        std::string hv_payload = readCdo->chanName(chanNum);
+        const std::string& hv_payload = readCdo->chanName(chanNum);
 
         const coral::AttributeList& atr = itr.second;
 

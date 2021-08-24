@@ -7,7 +7,7 @@ from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
 Analysis__JetSecVtxFindingAlg=CompFactory.Analysis.JetSecVtxFindingAlg
 
-def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
+def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", TracksToTag="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -17,8 +17,6 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     output: The tool."""
 
     acc = ComponentAccumulator()
-
-    jetcol = JetCollection
 
     if SVFinder == 'JetFitter':
         secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
@@ -32,10 +30,10 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     options = {}
     options.setdefault('SecVtxFinder', secVtxFinder)
     options.setdefault('vxPrimaryCollectionName', PrimaryVertexCollectionName)
-    options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-    options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
+    options['JetCollectionName'] = JetCollection.replace('Track', 'PV0Track') + 'Jets'
+    options['TracksToTag'] = TracksToTag
     options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo_' + JetCollection
-    options['name'] = (jetcol + '_' + SVFinder + '_secvtxfinding').lower()
+    options['name'] = (JetCollection + '_' + SVFinder + '_secvtxfinding').lower()
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__JetSecVtxFindingAlg(**options))

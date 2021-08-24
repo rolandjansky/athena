@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file InDetPrepRawDataToxAOD/PixelPrepDataToxAOD.h
@@ -31,10 +31,10 @@
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
@@ -95,8 +95,9 @@ private:
                          const unsigned int SizeX, 
                          const unsigned int SizeY ) const;
 
-  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd, 
-                         const InDet::PixelCluster* pixelCluster) const;
+  void  addRdoInformation( xAOD::TrackMeasurementValidation* xprd,
+                           const InDet::PixelCluster* pixelCluster,
+                           const PixelChargeCalibCondData *calibData) const;
 
 
 
@@ -105,16 +106,6 @@ private:
                                                  int *rrowMax = 0,
                                                  int *rcolMin = 0,
                                                  int *rcolMax = 0 ) const;
-
-  const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
-     if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
-
-     SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer);
-     if (!splitProbContainer.isValid()) {
-        ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
-     }
-     return splitProbContainer->splitProbability(pix);
-  }
 
   const PixelID *m_PixelHelper;
 
@@ -125,8 +116,8 @@ private:
   bool  m_writeRDOinformation;
   bool m_useSiHitsGeometryMatching;
 
-  ServiceHandle<IPixelCablingSvc> m_pixelCabling
-  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};

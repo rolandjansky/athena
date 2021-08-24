@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_CurvedAtACylinder.h"
@@ -57,11 +57,11 @@ void MuonHoughTransformer_CurvedAtACylinder::fillHit(MuonHoughHit* hit, double w
     {
       // not a too large curve for endcap hits (generates peaks in houghtransform)
       const double ratio = hit->getMagneticTrackRatio()*m_invcurvature[i];
-      if (isbarrel == false && std::abs(ratio) > 0.5) break; 
+      if (!isbarrel && std::abs(ratio) > 0.5) break; 
       
       // positive curvature (for positive i):
       double thetas[2];
-      m_muonhoughmathutils.thetasForCurvedHit(ratio,hit,thetas[0],thetas[1]);
+      MuonHoughMathUtils::thetasForCurvedHit(ratio,hit,thetas[0],thetas[1]);
 
       const double weight_curvature = weight * 1./ (1.+m_eventsize_weightfactor*(thetas[0]-hit->getTheta()));    //* m_weightcurvature[i]; // m_eventsize_weightfactor is defined in MuonHoughTransformer::fill(event)      
 
@@ -163,7 +163,7 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
   double invcurvature = 0.;
   double curvature = 0.;
   if (m_nbins <40) {
-    curvature = m_muonhoughmathutils.sgn(coordsmaximum.first) / (coordsmaximum.first * coordsmaximum.first);
+    curvature = MuonHoughMathUtils::sgn(coordsmaximum.first) / (coordsmaximum.first * coordsmaximum.first);
      invcurvature = 1./curvature;
   }
   else {
@@ -173,7 +173,7 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
       index = m_nbins/2-1;
       if (printlevel >= 4 || log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "warning overflow maximum found" << endmsg;
     }
-    invcurvature = m_muonhoughmathutils.sgn(coordsmaximum.first)*m_invcurvature[index];
+    invcurvature = MuonHoughMathUtils::sgn(coordsmaximum.first)*m_invcurvature[index];
     curvature = 1./invcurvature;
   }
 
@@ -204,7 +204,7 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
 	  double hity = event->getHity(i);
 	  double hitz = event->getHitz(i);
 	  double z0 = 0.; //offset from IP on z-axis
-          const double sdis = m_muonhoughmathutils.signedDistanceCurvedToHit(z0,theta,invcurvature, hitx, hity , hitz );
+          const double sdis = MuonHoughMathUtils::signedDistanceCurvedToHit(z0,theta,invcurvature, hitx, hity , hitz );
 	  
 	  double radius3d = std::sqrt(hitx*hitx+hity*hity+hitz*hitz); 
           if (radius3d < 5000.) radius3d = 5000.;
@@ -225,12 +225,12 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
 	      sin_phi += scphi.sn;
 	      cos_phi += scphi.cs;
 	      
-              const double theta =  m_muonhoughmathutils.thetaForCurvedHit(invcurvature,event->getHit(i));
+              const double theta =  MuonHoughMathUtils::thetaForCurvedHit(invcurvature,event->getHit(i));
               if ( theta > 0 && theta < M_PI) {
 		if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 		  {
 		    log << MSG::VERBOSE << "MuonHoughTransformer_CurvedAtACylinder::hit added to houghpattern! Sector number: " << sectorhit << endmsg;
-		    if (event->getHit(i)->getAssociated()==true) log << MSG::VERBOSE << " hit already earlier associated to pattern!" << endmsg;
+		    if (event->getHit(i)->getAssociated()) log << MSG::VERBOSE << " hit already earlier associated to pattern!" << endmsg;
 		  }
 		houghpattern->addHit(event->getHit(i));
 		event->getHit(i)->setAssociated(true);
@@ -252,7 +252,7 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
 
   if (printlevel>=4 || log.level()<=MSG::VERBOSE) {
     log << MSG::VERBOSE << " number of hits added to pattern: " << houghpattern->size() << endmsg;}
-  if (houghpattern->size()==0 && (printlevel>=1 || log.level()<=MSG::WARNING))
+  if (houghpattern->empty() && (printlevel>=1 || log.level()<=MSG::WARNING))
     {
       log << MSG::WARNING << "MuonHoughTransformer_CurvedAtACylinder::WARNING : no hits found on pattern" << endmsg;
     }

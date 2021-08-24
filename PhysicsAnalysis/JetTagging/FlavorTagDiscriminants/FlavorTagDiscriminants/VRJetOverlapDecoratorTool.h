@@ -8,6 +8,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetDecorator.h"
+#include "xAODJet/JetContainerFwd.h"
 
 class VRJetOverlapDecorator;
 

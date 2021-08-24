@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -13,20 +13,20 @@ def writeEmulationFiles(data):
                 f.write(event)
                 f.write("\n")
 
-# Testing menu used in the L1 decoders
+# Testing menu used in the HLT seeding
 class MenuTest(object):
     pass
 
 
 
-from L1Decoder.L1DecoderConf import L1Decoder
+from HLTSeeding.HLTSeedingConf import HLTSeeding
 # L1 emulation for RDO
-class L1EmulationTest(L1Decoder):
+class L1EmulationTest(HLTSeeding):
     def __init__(self, name='L1EmulationTest', *args, **kwargs):
         super(L1EmulationTest, self).__init__(name, *args, **kwargs)
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
+        from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 
         self.RoIBResult = ""
 
@@ -47,7 +47,7 @@ class L1EmulationTest(L1Decoder):
         self.ctpUnpacker = ctpUnpacker
         self += ctpUnpacker
 
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
@@ -67,7 +67,7 @@ class L1EmulationTest(L1Decoder):
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
             self.RoIBRoIUnpackers += [muUnpacker]
 
-        self.L1DecoderSummaryKey = "L1DecoderSummary"
+        self.HLTSeedingSummaryKey = "HLTSeedingSummary"
 
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 class makeChainStep(object):

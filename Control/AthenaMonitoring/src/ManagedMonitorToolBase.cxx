@@ -976,7 +976,7 @@ fillHists()
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
      ATH_MSG_DEBUG("Passed trigger, presumably");
       m_d->benchPreFillHistograms();
-      StatusCode sc3 = fillHistograms();
+      fillHistograms().ignore();
       m_haveClearedLastEventBlock = true;
       m_d->benchPostFillHistograms();
       ++m_nEvents;
@@ -1012,7 +1012,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
   if( m_environment != AthenaMonManager::online ) {
     TTree* metadata(0);
     std::string mdStreamName( streamName );
-    size_t found=mdStreamName.rfind("/");
+    size_t found=mdStreamName.rfind('/');
     
     if ( found != std::string::npos )
       mdStreamName.replace( found, mdStreamName.length(), "/metadata" );
@@ -1481,7 +1481,7 @@ regHist( TH1* h, const MonGroup& group )
        track of "proper" attribute for X_VS_LB
     */
     
-    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
       ATH_MSG_WARNING("HEY! You're attempting to register " << h->GetName() << " as a per-LB histogram, but you're not setting the merge algorithm! This is a SUPER-BAD idea! Use \"merge\", at least.");
     }
     
@@ -1495,7 +1495,7 @@ regHist( TH1* h, const MonGroup& group )
     std::string hName = h->GetName();
     MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
     std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, hName, false );
-    StatusCode smd = registerMetadata(streamName, hName, group);
+    registerMetadata(streamName, hName, group).ignore();
     return m_THistSvc->regHist( streamName, h );
   }
   
@@ -1574,7 +1574,7 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 
     std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
     LWHistAthMonWrapper::setStreamName(h,streamName);
-    StatusCode smd = registerMetadata(streamName, hName, group);
+    registerMetadata(streamName, hName, group).ignore();
 
     //Delay registration with THistSvc (unless root backend):
     //m_lwhistMap.insert(std::pair<LWHist*,std::string>(h,streamName));
@@ -1659,7 +1659,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
     // MANAGED
     if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
         // warn about not using merge algorithms
-        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge().empty()) {
             ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
         }
         // add the efficiency to rebooking vector
@@ -1672,7 +1672,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
 
         MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
         std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-        StatusCode smd = registerMetadata(streamName, name, group);
+        registerMetadata(streamName, name, group).ignore();
         return m_THistSvc->regGraph( streamName, g );
     } else {
     // UNMANAGED
@@ -1725,7 +1725,7 @@ regGraph( TGraph* g, const MonGroup& group )
 
        std::string name = g->GetName();
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regGraph( streamName, g );
        //return m_THistSvc->regGraph( streamName );
    } 
@@ -1780,7 +1780,7 @@ regTree( TTree* t, const MonGroup& group )
        std::string name = t->GetName();
        std::string genericName = NoOutputStream().getStreamName( this, group_unmanaged, name );
        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
-       StatusCode smd = registerMetadata(streamName, name, group);
+       registerMetadata(streamName, name, group).ignore();
        return m_THistSvc->regTree( streamName, t );
    }
 
@@ -2115,9 +2115,9 @@ fill( const std::string& name,
    // this to the ROOT developers yet because I don't have time to develope a simple test case
    // for them (independent of Atlas software).
    // --M.G.Wilson, 7 July 2008
-   if( trigger == "" )
+   if( trigger.empty() )
       trigger = "<none>";
-   if( merge == "" )
+   if( merge.empty() )
       merge = "<default>";
 
    copyString( m_nameData, name );
@@ -2163,7 +2163,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2313,7 +2313,7 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     parseString(streamName, root, rem);
     // Remove object name at the end
     // to obtain directory path
-    rem.erase(rem.rfind("/"), rem.length()); 
+    rem.erase(rem.rfind('/'), rem.length()); 
     return rem;
 }
 
@@ -2418,7 +2418,7 @@ getNewStreamNameFcn() const
 void
 ManagedMonitorToolBase::StreamNameFcn::
 parseString(const std::string& streamName, std::string& root, std::string& rem) {
-  std::string::size_type pos = streamName.find("/");
+  std::string::size_type pos = streamName.find('/');
 
   if (pos == std::string::npos) {
     root = "";

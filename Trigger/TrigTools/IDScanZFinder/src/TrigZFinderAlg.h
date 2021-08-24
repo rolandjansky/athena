@@ -22,6 +22,10 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigComposite.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+//New athenaMT monitoring
+#include "AthenaMonitoringKernel/Monitored.h"
+
 // Tiny wrapper algorithm to call ZFinder tool.
 /**
  * @class TrigZFinderAlg
@@ -37,10 +41,11 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  ToolHandle<TrigZFinder> m_zFinderTool{this, "ZFinderTool", "TrigZFinder/TrigZFinder"};
+  ToolHandleArray<TrigZFinder> m_zFinderTools{this, "ZFinderTools", {"TrigZFinder/TrigZFinder"}};
   SG::ReadHandleKey<SpacePointContainer> m_pixelSpKey{this, "PixelSpKey", "PixelTrigSpacePoints", " "};
   SG::ReadHandleKey<PixelID> m_pixelHelperKey{this, "pixelHelperKey", "DetectorStore+PixelID", " "};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_zFinderKey{this, "zFinderKey", "Undefined", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_vertexKey{this, "vertexKey", "Undefined", ""};
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   
 };
 

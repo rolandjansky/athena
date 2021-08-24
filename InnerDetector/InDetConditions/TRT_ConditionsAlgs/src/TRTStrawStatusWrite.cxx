@@ -16,16 +16,16 @@
 
 
 #include "TRT_ConditionsAlgs/TRTStrawStatusWrite.h"
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <stdio.h>
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
-#include "StoreGate/ReadCondHandle.h"
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 
 TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *pSvcLocator)  :  
@@ -37,7 +37,7 @@ TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *
   m_par_stattextfile(""), 
   m_par_stattextfilepermanent(""),
   m_par_stattextfileHT(""),
-  m_trtid(0),
+  m_trtid(nullptr),
   m_par_statstream("AthenaOutputStreamTool/CondStream1"),
   m_condSvc("CondSvc",name),
   m_statReadKey("/TRT/Cond/Status"),
@@ -109,19 +109,19 @@ StatusCode TRTStrawStatusWrite::execute()
 
   ATH_MSG_INFO("TRTStrawStatusWrite::execute write DB tag for files "
 	       << m_par_stattextfile << " " << m_par_stattextfilepermanent << " " << m_par_stattextfileHT );
-  if (m_par_stattextfile	  !="")  	sc=readStatFromTextFile(m_par_stattextfile);
+  if (!m_par_stattextfile.empty())  	sc=readStatFromTextFile(m_par_stattextfile);
   if(sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR(" Could not read TRT StrawStatus objects ");
     return StatusCode::FAILURE;
   }
 
-  if (m_par_stattextfilepermanent !="") 	sc=readStatPermFromTextFile(m_par_stattextfilepermanent);
+  if (!m_par_stattextfilepermanent.empty()) 	sc=readStatPermFromTextFile(m_par_stattextfilepermanent);
   if(sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR(" Could not read TRT StrawStatus permanent objects ");
     return StatusCode::FAILURE;
   }
 
-  if (m_par_stattextfileHT        !="")         sc=readStatHTFromTextFile(m_par_stattextfileHT);
+  if (!m_par_stattextfileHT.empty())         sc=readStatHTFromTextFile(m_par_stattextfileHT);
    if(sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR(" Could not read TRT StrawStatus HT objects ");
     return StatusCode::FAILURE;
@@ -322,7 +322,7 @@ StatusCode TRTStrawStatusWrite::readStatFromTextFile(const std::string& filename
 
      Identifier ID = m_trtid->straw_id(bec,sector,layer,strawlayer,straw);
 	
-     set_status_temp(strawstatus, ID,status==1?true:false);
+     set_status_temp(strawstatus, ID,status==1);
 
    }
   ATH_MSG_INFO( "Recording StrawStatusContainer. Number of dead straws  " << line << " straws"  );
@@ -461,7 +461,7 @@ StatusCode TRTStrawStatusWrite::readStatPermFromTextFile(const std::string& file
 	
 	Identifier ID = m_trtid->straw_id(bec,sector,layer,strawlayer,straw);
 	
-	set_status_permanent(strawstatuspermanent, ID,status==1?true:false);
+	set_status_permanent(strawstatuspermanent, ID,status==1);
 
       }
       ATH_MSG_INFO( " Record Permanent Straw Status. Number permanent dead:  " << line << " straws " );

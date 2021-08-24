@@ -4,6 +4,7 @@
    ========================================================
  -->
 
+
 <h id="nInnerMostPixelHits" type="TH1F" title="InnerMost Pixel Hits">
   <x title="# InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
   <y title="Entries"/>
@@ -16,6 +17,15 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nInnerMostPixelHits_vs_etaphi" type="TProfile2D" title="InnerMost Pixel Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nInnerMostPixelHits_vs_mu" type="TProfile" title="InnerMost Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nNextToInnerMostPixelHits" type="TH1F" title="Next To InnerMost Pixel Hits">
   <x title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -25,8 +35,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nNextToInnerMostPixelHits_vs_etaphi" type="TProfile2D" title="Next To InnerMost Pixel Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nNextToInnerMostPixelHits_vs_phi" type="TProfile" title="Next To InnerMost Pixel Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nNextToInnerMostPixelHits_vs_mu" type="TProfile" title="Next To InnerMost Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -38,8 +57,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelHits_vs_etaphi" type="TProfile2D" title="Pixel Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nPixelHits_vs_phi" type="TProfile" title="Pixel Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelHits_vs_mu" type="TProfile" title="Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -51,8 +79,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTHits_vs_etaphi" type="TProfile" title="SCT Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 <h id="nSCTHits_vs_phi" type="TProfile" title="SCT Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+<h id="nSCTHits_vs_mu" type="TProfile" title="SCT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
@@ -68,6 +105,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
+<h id="nTRTHits_vs_mu" type="TProfile" title="TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
 
 <h id="nPixelHoles" type="TH1F" title="Pixel Holes">
   <x title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -77,8 +118,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelHoles_vs_etaphi" type="TProfile2D" title="Pixel Holes vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nPixelHoles_vs_phi" type="TProfile" title="Pixel Holes vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelHoles_vs_mu" type="TProfile" title="Pixel Holes vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -90,8 +140,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTHoles_vs_etaphi" type="TProfile2D" title="SCT Holes vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 <h id="nSCTHoles_vs_phi" type="TProfile" title="SCT Holes vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+<h id="nSCTHoles_vs_mu" type="TProfile" title="SCT Holes vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
@@ -105,6 +164,10 @@
 </h>
 <h id="nTRTHighThresholdHits_vs_phi" type="TProfile" title="High Threshold TRT Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTHighThresholdHits_vs_mu" type="TProfile" title="High Threshold TRT Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# High Tr TRT Hits" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
@@ -121,6 +184,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# InnerMost Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nInnerMostPixelOutliers_vs_mu" type="TProfile" title="InnerMost Pixel Outliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# InnerMost Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nInnerMostPixelSharedHits" type="TH1F" title="InnerMost Pixel SharedHits">
   <x title="# InnerMost Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -132,6 +199,10 @@
 </h>
 <h id="nInnerMostPixelSharedHits_vs_phi" type="TProfile" title="InnerMost Pixel SharedHits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# InnerMost Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nInnerMostPixelSharedHits_vs_mu" type="TProfile" title="InnerMost Pixel SharedHits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# InnerMost Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -147,6 +218,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# InnerMost Pixel SplitHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nInnerMostPixelSplitHits_vs_mu" type="TProfile" title="InnerMost Pixel SplitHits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# InnerMost Pixel SplitHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nExpectedInnerMostPixelHits" type="TH1F" title="Expected InnerMost Pixel Hits">
   <x title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -156,8 +231,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nExpectedInnerMostPixelHits_vs_etaphi" type="TProfile2D" title="Expected InnerMost Pixel Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nExpectedInnerMostPixelHits_vs_phi" type="TProfile" title="Expected InnerMost Pixel Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nExpectedInnerMostPixelHits_vs_mu" type="TProfile" title="Expected InnerMost Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -169,8 +253,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Expected Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nExpectedNextToInnerMostPixelHits_vs_etaphi" type="TProfile2D" title="Expected Next To InnerMost Pixel Hits vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Expected Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nExpectedNextToInnerMostPixelHits_vs_phi" type="TProfile" title="Expected Next To InnerMost Pixel Hits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Expected Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nExpectedNextToInnerMostPixelHits_vs_mu" type="TProfile" title="Expected Next To InnerMost Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Expected Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -186,6 +279,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# Pixel Split Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelSplitHits_vs_mu" type="TProfile" title="Pixel Hits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# Pixel Split Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nPixelOutliers" type="TH1F" title="Pixel Outliers">
   <x title="# Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -197,6 +294,10 @@
 </h>
 <h id="nPixelOutliers_vs_phi" type="TProfile" title="Pixel Outliers vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelOutliers_vs_mu" type="TProfile" title="Pixel Outliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -212,6 +313,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# Pixel ContribLayers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelContribLayers_vs_mu" type="TProfile" title="Pixel ContribLayers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# Pixel ContribLayers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nPixelSharedHits" type="TH1F" title="Pixel SharedHits">
   <x title="# Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -223,6 +328,10 @@
 </h>
 <h id="nPixelSharedHits_vs_phi" type="TProfile" title="Pixel SharedHits vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelSharedHits_vs_mu" type="TProfile" title="Pixel SharedHits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -238,6 +347,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# Pixel GangedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelGangedHits_vs_mu" type="TProfile" title="Pixel GangedHits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# Pixel GangedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 
 <h id="nPixelGangedHitsFlaggedFakes" type="TH1F" title="Pixel GangedHitsFlaggedFakes">
   <x title="# Pixel GangedHitsFlaggedFakes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -249,6 +362,10 @@
 </h>
 <h id="nPixelGangedHitsFlaggedFakes_vs_phi" type="TProfile" title="Pixel GangedHitsFlaggedFakes vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel GangedHitsFlaggedFakes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelGangedHitsFlaggedFakes_vs_mu" type="TProfile" title="Pixel GangedHitsFlaggedFakes vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel GangedHitsFlaggedFakes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -264,6 +381,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# SCT Outliers" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTOutliers_vs_mu" type="TProfile" title="SCT Outliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# SCT Outliers" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 
 <h id="nSCTDoubleHoles" type="TH1F" title="SCT DoubleHoles">
   <x title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
@@ -273,8 +394,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTDoubleHoles_vs_etaphi" type="TProfile2D" title="SCT DoubleHoles vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 <h id="nSCTDoubleHoles_vs_phi" type="TProfile" title="SCT DoubleHoles vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+<h id="nSCTDoubleHoles_vs_mu" type="TProfile" title="SCT DoubleHoles vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
@@ -290,6 +420,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# SCT SharedHits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTSharedHits_vs_mu" type="TProfile" title="SCT SharedHits vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# SCT SharedHits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 
 <h id="nTRTOutliers" type="TH1F" title="TRT Outliers">
   <x title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
@@ -301,6 +435,10 @@
 </h>
 <h id="nTRTOutliers_vs_phi" type="TProfile" title="TRT Outliers vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
+<h id="nTRTOutliers_vs_mu" type="TProfile" title="TRT Outliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# TRT Outliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
 
@@ -316,6 +454,10 @@
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
   <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
 </h>
+<h id="nTRTHighThresholdOutliers_vs_mu" type="TProfile" title="TRT HighThresholdOutliers vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
+  <y title="# TRT HighThresholdOutliers" n="&TRTHIT;" lo="0." hi="&TRTHIT;"/>
+</h>
 
 <h id="nPixelDeadSensors" type="TH1F" title="Pixel DeadSensors">
   <x title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
@@ -325,8 +467,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
+<h id="nPixelDeadSensors_vs_etaphi" type="TProfile2D" title="Pixel DeadSensors vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
 <h id="nPixelDeadSensors_vs_phi" type="TProfile" title="Pixel DeadSensors vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+<h id="nPixelDeadSensors_vs_mu" type="TProfile" title="Pixel DeadSensors vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
 
@@ -338,8 +489,17 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
+<h id="nSCTDeadSensors_vs_etaphi" type="TProfile2D" title="SCT DeadSensors vs Eta and Phi">
+  <x title="#eta" n="&ETABINS2D;" lo="-2.5" hi="2.5"/>
+  <y title="#phi" n="&PHIBINS2D;" lo="-3.2" hi="3.2"/>
+  <z title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
 <h id="nSCTDeadSensors_vs_phi" type="TProfile" title="SCT DeadSensors vs Phi">
   <x title="#phi" n="80" lo="-3.2" hi="3.2"/>
+  <y title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+<h id="nSCTDeadSensors_vs_mu" type="TProfile" title="SCT DeadSensors vs Mu">
+  <x title="#mu" n="100" lo="-0.5" hi="99.5"/>
   <y title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 

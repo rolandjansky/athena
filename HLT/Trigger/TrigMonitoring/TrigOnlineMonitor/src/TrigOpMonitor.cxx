@@ -41,7 +41,7 @@ namespace {
     std::string line;
     while (getline(f, line)) {
       // Format: name:value
-      std::string::size_type loc = line.find(":");
+      std::string::size_type loc = line.find(':');
       if (loc == std::string::npos || loc == 0) continue;
       result[line.substr(0, loc)] = line.substr(loc + 1);
     }

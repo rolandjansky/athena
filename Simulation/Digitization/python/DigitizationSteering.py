@@ -6,6 +6,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
@@ -15,8 +16,11 @@ from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from MuonConfig.MDT_DigitizationConfig import MDT_DigitizationDigitToRDOCfg
+from MuonConfig.MM_DigitizationConfig import MM_DigitizationDigitToRDOCfg
 from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
 from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
+from MuonConfig.sTGC_DigitizationConfig import sTGC_DigitizationDigitToRDOCfg
+from PixelDigitization.ITkPixelDigitizationConfig import ITkPixelDigitizationCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
@@ -43,14 +47,22 @@ def DigitizationMainServicesCfg(flags):
     acc.merge(PoolReadCfg(flags))
     acc.merge(PoolWriteCfg(flags))
 
-    acc.merge(writeDigitizationMetadata(flags))
-
     return acc
 
 
 def DigitizationMainCfg(flags):
     # Construct main services
     acc = DigitizationMainServicesCfg(flags)
+
+    acc.merge(DigitizationMainContentCfg(flags))
+
+    return acc
+
+def DigitizationMainContentCfg(flags):
+
+    acc = ComponentAccumulator()
+
+    acc.merge(writeDigitizationMetadata(flags))
 
     if not flags.Digitization.PileUp:
         # Old EventInfo conversion
@@ -74,8 +86,8 @@ def DigitizationMainCfg(flags):
             MergeMuonEntryLayerCfg,
             MergeCalibHitsCfg,
         )
-
-        acc.merge(SignalOnlyMcEventCollCfg(flags))
+        if flags.Common.ProductionStep!=ProductionStep.FastChain:
+            acc.merge(SignalOnlyMcEventCollCfg(flags))
         puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
         if "AntiKt4TruthJets" in puCollections:
             acc.merge(MergeAntiKt4TruthJetsCfg(flags))
@@ -89,6 +101,11 @@ def DigitizationMainCfg(flags):
         from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
         acc.merge(TruthDigitizationOutputCfg(flags))
 
+    # Beam spot reweighting
+    if flags.Common.ProductionStep != ProductionStep.PileUpPresampling and flags.Digitization.InputBeamSigmaZ > 0:
+        from BeamEffects.BeamEffectsAlgConfig import BeamSpotReweightingAlgCfg
+        acc.merge(BeamSpotReweightingAlgCfg(flags))
+
     # Inner Detector
     if flags.Detector.EnableBCM:
         acc.merge(BCM_DigitizationCfg(flags))
@@ -96,10 +113,14 @@ def DigitizationMainCfg(flags):
         acc.merge(PixelDigitizationCfg(flags))
     if flags.Detector.EnableSCT:
         acc.merge(SCT_DigitizationCfg(flags))
-    if flags.Detector.EnableITkStrip:
-        acc.merge(ITkStripDigitizationCfg(flags))
     if flags.Detector.EnableTRT:
         acc.merge(TRT_DigitizationCfg(flags))
+
+    # ITk
+    if flags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelDigitizationCfg(flags))
+    if flags.Detector.EnableITkStrip:
+        acc.merge(ITkStripDigitizationCfg(flags))
 
     # Calorimeter
     if flags.Detector.EnableLAr:
@@ -117,6 +138,10 @@ def DigitizationMainCfg(flags):
         acc.merge(RPC_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnableCSC:
         acc.merge(CSC_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnableMM:
+        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnablesTGC:
+        acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
 
     # Timing
     acc.merge(MergeRecoTimingObjCfg(flags))
@@ -142,19 +167,3 @@ def DigitizationTestingPostInclude(flags, acc):
     # dump pickle
     with open(f"{configName}.pkl", "wb") as f:
         acc.store(f)
-
-
-def setupDigitizationFlags(flags):
-    """Setup common digitization flags."""
-    # autoconfigure pile-up
-    if flags.Digitization.PU.NumberOfLowPtMinBias > 0 \
-        or flags.Digitization.PU.NumberOfHighPtMinBias > 0 \
-        or flags.Digitization.PU.NumberOfBeamHalo > 0 \
-        or flags.Digitization.PU.NumberOfBeamGas > 0 \
-        or flags.Digitization.PU.NumberOfCavern > 0:
-        flags.Digitization.PileUp = True
-
-    if flags.Digitization.PileUp:
-        flags.Input.OverrideRunNumber = True
-        # keep this one True by default in CA-based config
-        flags.Digitization.DoXingByXingPileUp = True

@@ -27,7 +27,6 @@ StatusCode Run2ToRun3TrigNavConverter::initialize()
 
 
   ATH_CHECK(m_trigNavWriteKey.initialize());
-  ATH_CHECK(m_trigSummaryWriteKey.initialize());
   ATH_CHECK(m_configSvc.retrieve());
   ATH_CHECK(m_clidSvc.retrieve());
   ATH_CHECK( m_tdt.empty() != m_trigNavKey.key().empty() ); //either of the two has to be enabled but not both
@@ -96,9 +95,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
 
   SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputNavigation = TrigCompositeUtils::createAndStore(m_trigNavWriteKey, context);
   auto decisionOutput = outputNavigation.ptr();
-  SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputSummary = TrigCompositeUtils::createAndStore(m_trigSummaryWriteKey, context);
-  auto decisionSummary = outputSummary.ptr();
-  TrigCompositeUtils::Decision *passRawOutput = TrigCompositeUtils::newDecisionIn(decisionSummary, "HLTPassRaw");
+  TrigCompositeUtils::Decision *passRawOutput = TrigCompositeUtils::newDecisionIn(decisionOutput, "HLTPassRaw");
 
   if (m_doPrint)
   {
@@ -164,7 +161,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
     kIn = 1;
 
     auto d1 = TrigCompositeUtils::newDecisionIn(dOutput);
-    d1->setName(TrigCompositeUtils::l1DecoderNodeName());
+    d1->setName(TrigCompositeUtils::hltSeedingNodeName());
     return d1;
   };
 
@@ -315,7 +312,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
               if (s_iter == first_s_iter)
               {
                 l1_decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
-                l1_decision->setName(TrigCompositeUtils::l1DecoderNodeName());
+                l1_decision->setName(TrigCompositeUtils::hltSeedingNodeName());
                 TrigCompositeUtils::addDecisionID(chainId, l1_decision);
                 TrigCompositeUtils::linkToPrevious(decision, l1_decision, context);
               }

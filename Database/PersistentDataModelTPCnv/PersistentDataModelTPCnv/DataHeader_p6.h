@@ -56,9 +56,9 @@ public: // Constructor and Destructor
    unsigned int getDbTech(unsigned int index) const;
 
    unsigned int insertObj(const ObjRecord& rec,
-	   const std::set<std::string>& alias = std::set<std::string>(),
-	   const std::set<unsigned int>& symLinks = std::set<unsigned int>(),
-	   const std::vector<unsigned int>& hashes = std::vector<unsigned int>());
+           const std::set<std::string>& alias = std::set<std::string>(),  bool doAliasFiletering = true,
+           const std::set<unsigned int>& symLinks = std::set<unsigned int>(),
+           const std::vector<unsigned int>& hashes = std::vector<unsigned int>());
    std::size_t sizeObj() const;
    std::string getObjContainer(unsigned int index) const;
    std::string getObjKey(unsigned int index) const;
@@ -128,8 +128,3 @@ private:
 };
 
 #endif
-
-
-
-
-

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TBCnv )
@@ -13,7 +13,7 @@ atlas_add_library( TBCnvLib
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps
    ByteStreamData EventInfo GaudiKernel LArIdentifier TBEvent
-   ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib LArCablingLib
+   ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib LArCablingLib LArRecConditions
    PRIVATE_LINK_LIBRARIES Identifier LArRawEvent StoreGateLib )
 
 atlas_add_component( TBCnv

@@ -4,12 +4,12 @@
 
 thread_local TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
 
-TCS::MuonTOB::MuonTOB(uint32_t roiWord, std::string tobName) :
+TCS::MuonTOB::MuonTOB(uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values (int phi, legacy)
-TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, std::string tobName) :
+TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
@@ -18,12 +18,12 @@ TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi,
 {}
 
 // constructor with initial values (unsigned int phi, phase-1)
-TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord, std::string tobName) :
+TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
-   , m_phi( sizeCheck(phi, nBitsPhi()) )
+   , m_phi( static_cast<int>(sizeCheck(phi, nBitsPhi())) )
 {}
 
 // copy constructor

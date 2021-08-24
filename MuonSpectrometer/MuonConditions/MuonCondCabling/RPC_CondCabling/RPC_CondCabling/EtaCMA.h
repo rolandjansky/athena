@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ETACMA_H
@@ -11,7 +11,7 @@
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/RPCchamber.h"
 
-class IMessageSvc;
+class MsgStream;
 
 namespace RPC_CondCabling {
 
@@ -25,7 +25,7 @@ namespace RPC_CondCabling {
         RPClink m_lowPt_RPCs;
         RPClink m_highPt_RPCs;
 
-        bool m_inversion;
+        bool m_inversion{false};
 
         bool cable_CMA_channels(HalfType);
         bool connect(SectorLogicSetup&);
@@ -33,15 +33,11 @@ namespace RPC_CondCabling {
         bool got_confirm_cabling(SectorLogicSetup&, int);
         bool end_at_RPC_Z_boundary(void) const;
         bool begin_at_RPC_Z_boundary(void) const;
-        bool m_debug;
-        bool m_verbose;
-        IMessageSvc* m_msgSvc;
 
     public:
-        EtaCMA(int, int, int, CMAcoverage, int, int, int, int, int, int, int, int, int, int, int);
-        EtaCMA(int, int, int, int, int, int, int, int, int, int, int);
+        EtaCMA(parseParams parse);
         EtaCMA(const EtaCMA&);
-        ~EtaCMA();
+        virtual ~EtaCMA();
 
         EtaCMA& operator=(const EtaCMA&);
 
@@ -51,7 +47,7 @@ namespace RPC_CondCabling {
 
         bool inversion(void) const { return m_inversion; }
 
-        bool setup(SectorLogicSetup&);
+        bool setup(SectorLogicSetup&, MsgStream&);
     };
 
 }  // namespace RPC_CondCabling

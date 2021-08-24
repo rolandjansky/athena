@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ZdcAnalysis/ZDCDataAnalyzer.h>
 #include <ZdcAnalysis/ZDCPulseAnalyzer.h>
 
 #include <sstream>
+#include <utility>
+
 
 ZDCDataAnalyzer::ZDCDataAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, int nSample, float deltaTSample, size_t preSampleIdx, std::string fitFunction,
                                  const ZDCModuleFloatArray& peak2ndDerivMinSamples,
@@ -14,7 +16,7 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, int nSamp
                                  bool forceLG) :
   m_msgFunc_p(msgFunc_p),
   m_nSample(nSample), m_deltaTSample(deltaTSample), m_preSampleIdx(preSampleIdx),
-  m_fitFunction(fitFunction),
+  m_fitFunction(std::move(fitFunction)),
   m_forceLG(forceLG),
   m_repassEnabled(false),
   m_eventCount(0),

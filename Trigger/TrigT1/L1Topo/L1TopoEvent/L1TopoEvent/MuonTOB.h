@@ -15,13 +15,13 @@ namespace TCS {
    public:
       
       // default constructor
-      MuonTOB(uint32_t roiWord = 0, std::string tobName = "MuonTOB");
+      MuonTOB(uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
       
       // constructor with individual values (int phi, legacy)
-      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, std::string tobName = "MuonTOB");
+      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
 
       // constructor with individual values (unsigned int phi, phase-1)
-      MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord = 0, std::string tobName = "MuonTOB");
+      MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
 
       // constructor with initial values
       MuonTOB(const MuonTOB & muon);

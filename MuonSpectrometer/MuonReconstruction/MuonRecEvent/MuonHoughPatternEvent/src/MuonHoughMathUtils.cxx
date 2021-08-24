@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
@@ -15,7 +15,7 @@ MuonHoughMathUtils::MuonHoughMathUtils()
 {
 }
 
-int MuonHoughMathUtils::sgn(double d)const
+int MuonHoughMathUtils::sgn(double d)
 {
   if (d<0) {return -1;}
   //  if (d==0) {return 0;} //i know, its the definition, but we dont want it
@@ -23,7 +23,7 @@ int MuonHoughMathUtils::sgn(double d)const
   return 666;
 }
 
-int MuonHoughMathUtils::step(double d, double x0)const
+int MuonHoughMathUtils::step(double d, double x0)
 {
   MsgStream log(Athena::getMessageSvc(),"MuonHoughMathUtils::step");
   if (d==x0) {if (log.level()<=MSG::WARNING) log << MSG::WARNING << "WARNING: Possible mistake in Step function" << endmsg;}
@@ -32,19 +32,19 @@ int MuonHoughMathUtils::step(double d, double x0)const
   return -1;
 }
 
-double MuonHoughMathUtils::signedDistanceToLine(double x0, double y0, double r0, double phi)const //distance from (x0,y0) to the line (r0,phi) , phi in [-Pi,Pi] ,different phi than in calculateangle() (==angle(2))
+double MuonHoughMathUtils::signedDistanceToLine(double x0, double y0, double r0, double phi) //distance from (x0,y0) to the line (r0,phi) , phi in [-Pi,Pi] ,different phi than in calculateangle() (==angle(2))
 {
   CxxUtils::sincos scphi(phi);
   double distance = scphi.apply(x0,-y0) - r0;
   return distance;
 }
 
-double MuonHoughMathUtils::distanceToLine(double x0,  double y0, double r0, double phi)const
+double MuonHoughMathUtils::distanceToLine(double x0,  double y0, double r0, double phi)
 {
   return std::abs(signedDistanceToLine(x0,y0,r0,phi));
 }
 
-double MuonHoughMathUtils::incrementTillAbove0(double x, double inc, double zero)const
+double MuonHoughMathUtils::incrementTillAbove0(double x, double inc, double zero)
 {
   while(x > inc + zero ) 
     {x-=inc;}
@@ -53,27 +53,27 @@ double MuonHoughMathUtils::incrementTillAbove0(double x, double inc, double zero
   return x;
 }
 
-double MuonHoughMathUtils::angleFrom0To360(double angle)const
+double MuonHoughMathUtils::angleFrom0To360(double angle)
 {
   return incrementTillAbove0(angle,360.);
 }
 
-double MuonHoughMathUtils::angleFrom0To180(double angle)const
+double MuonHoughMathUtils::angleFrom0To180(double angle)
 {
   return incrementTillAbove0(angle,180.);
 }
 
-double MuonHoughMathUtils::angleFrom0ToPi(double angle)const
+double MuonHoughMathUtils::angleFrom0ToPi(double angle)
 {
   return incrementTillAbove0(angle,M_PI);
 }
 
-double MuonHoughMathUtils::angleFromMinusPiToPi(double angle)const
+double MuonHoughMathUtils::angleFromMinusPiToPi(double angle)
 {
   return incrementTillAbove0(angle,2*M_PI,-M_PI);
 }
 
-std::string MuonHoughMathUtils::intToString(int i)const
+std::string MuonHoughMathUtils::intToString(int i)
 {
   std::string s;
   std::stringstream ss;
@@ -83,13 +83,13 @@ std::string MuonHoughMathUtils::intToString(int i)const
   return s;
 }
 
-const char * MuonHoughMathUtils::stringToChar(std::string& string)const
+const char * MuonHoughMathUtils::stringToChar(std::string& string)
 {
   const char * constcharstar = string.data();
   return constcharstar;
 }
 
-const char * MuonHoughMathUtils::intToChar(int i)const
+const char * MuonHoughMathUtils::intToChar(int i)
 {
   std::string string = intToString(i);
   const char * constcharstar = stringToChar(string);
@@ -120,7 +120,7 @@ double MuonHoughMathUtils::distanceToLine2D(double x0, double y0, double r0, dou
   return distance;
 }
 
-double MuonHoughMathUtils::distanceToLine3D(double x0,double y0,double z0, double x, double y, double z, double phi, double theta)const // from wolfram: http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+double MuonHoughMathUtils::distanceToLine3D(double x0,double y0,double z0, double x, double y, double z, double phi, double theta) // from wolfram: http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 {
   std::vector <double> x1(3); // x1-x0
   std::vector <double> x3(3); // x2-x1 = e_r
@@ -147,18 +147,18 @@ double MuonHoughMathUtils::distanceToLine3D(double x0,double y0,double z0, doubl
   return distance;
 }
 
-double MuonHoughMathUtils::distanceOfLineToOrigin2D(double a, double b)const
+double MuonHoughMathUtils::distanceOfLineToOrigin2D(double a, double b)
 {
   return std::abs(b/(std::sqrt(a*a+1)));
 }
 
-double MuonHoughMathUtils::signedDistanceOfLineToOrigin2D(double x, double y, double phi)const
+double MuonHoughMathUtils::signedDistanceOfLineToOrigin2D(double x, double y, double phi)
 {
   CxxUtils::sincos scphi(phi);
   return scphi.apply(x,-y);
 }
 
-std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin3D(double x, double y, double z, double phi, double theta)const // actually this is the 3d-point closest to origin in xy-plane
+std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin3D(double x, double y, double z, double phi, double theta) // actually this is the 3d-point closest to origin in xy-plane
 {
   std::vector <double> p(3);
 
@@ -185,7 +185,7 @@ std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin3D(double x, 
   return p;
 }
 
-std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin(double x, double y, double z, double phi, double theta)const // from wolfram: http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin(double x, double y, double z, double phi, double theta) // from wolfram: http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 {
   // origin: 
   std::vector <double> x0(3);
@@ -222,7 +222,7 @@ std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin(double x, do
   return p;
 }
 
-bool MuonHoughMathUtils::lineThroughCylinder(double x_0, double y_0, double z_0, double phi, double theta, double r_cyl, double z_cyl)const
+bool MuonHoughMathUtils::lineThroughCylinder(double x_0, double y_0, double z_0, double phi, double theta, double r_cyl, double z_cyl)
 {
    // if there is one, then track will be split
   assert(r_cyl>=0);
@@ -265,13 +265,11 @@ bool MuonHoughMathUtils::lineThroughCylinder(double x_0, double y_0, double z_0,
   x_2 = s_1 - s_2;
   double z_2 = z_0 + (x_2-x_0) * inv_angle;
 
-  if (std::abs(z_2) < z_cyl) return true; 
-
-  return false;
+  return std::abs(z_2) < z_cyl;
 
 }
 
-std::vector<double> MuonHoughMathUtils::crossProduct(std::vector <double> x, std::vector<double> y)const
+std::vector<double> MuonHoughMathUtils::crossProduct(std::vector <double> x, std::vector<double> y)
 {
   std::vector<double> z(3);
   z[0]=y[1]*x[2]-y[2]*x[1];
@@ -281,14 +279,14 @@ std::vector<double> MuonHoughMathUtils::crossProduct(std::vector <double> x, std
   return z;
 }
 
-double MuonHoughMathUtils::dotProduct(std::vector <double> x, std::vector<double> y) const
+double MuonHoughMathUtils::dotProduct(std::vector <double> x, std::vector<double> y) 
 {
   double z;
   z = y[0]*x[0] + y[1]*x[1] + y[2]*x[2];
 
   return z;
 }
-double MuonHoughMathUtils::signedDistanceCurvedToHit(double z0, double theta, double invcurvature, double hitx, double hity , double hitz ) const
+double MuonHoughMathUtils::signedDistanceCurvedToHit(double z0, double theta, double invcurvature, double hitx, double hity , double hitz ) 
 {
   double hitr = std::sqrt(hitx*hitx+hity*hity);
 
@@ -327,14 +325,14 @@ double MuonHoughMathUtils::signedDistanceCurvedToHit(double z0, double theta, do
   return sdistance;
 }
 
-double MuonHoughMathUtils::thetaForCurvedHit(double invcurvature, MuonHoughHit* hit) const
+double MuonHoughMathUtils::thetaForCurvedHit(double invcurvature, MuonHoughHit* hit) 
 {
   double ratio = hit->getMagneticTrackRatio()*invcurvature;
   if (std::abs(ratio) < 1.) return hit->getTheta() + std::asin (ratio); 
   else return -1;
 }
 
-void MuonHoughMathUtils::thetasForCurvedHit(double ratio, MuonHoughHit* hit, double& theta1, double& theta2)const
+void MuonHoughMathUtils::thetasForCurvedHit(double ratio, MuonHoughHit* hit, double& theta1, double& theta2)
 {
   /** returns angle for positive and negative curvature (positive first) */
 
@@ -345,7 +343,7 @@ void MuonHoughMathUtils::thetasForCurvedHit(double ratio, MuonHoughHit* hit, dou
   }
 }
 
-void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, const Amg::Vector3D& roadmom,  const Amg::Vector3D& pos, Amg::Vector3D& roadpose , Amg::Vector3D& roaddire)const
+void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, const Amg::Vector3D& roadmom,  const Amg::Vector3D& pos, Amg::Vector3D& roadpose , Amg::Vector3D& roaddire)
 {
   /** Extrapolate pattern given by a roadpos and roadmom (should be perigee)
       to a position in space pos

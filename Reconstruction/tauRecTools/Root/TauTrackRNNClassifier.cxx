@@ -129,11 +129,8 @@ TrackRNN::TrackRNN(const std::string& name)
   : TauRecToolBase(name)
   , m_inputWeightsPath("")
 {
-  // for conversion compatibility cast nTracks 
-  int nMaxNtracks = 0;
-  declareProperty( "InputWeightsPath", m_inputWeightsPath );
-  declareProperty( "MaxNtracks",  nMaxNtracks);
-  m_nMaxNtracks = (unsigned int)nMaxNtracks;
+  declareProperty("InputWeightsPath", m_inputWeightsPath = "");
+  declareProperty("MaxNtracks", m_nMaxNtracks = 0);
 }
 
 //______________________________________________________________________________
@@ -259,8 +256,8 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
   }
 
   valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
-  valueMap["log(tauPtIntermediateAxis)"] = std::vector<double>(n_timeSteps);
-  valueMap["(trackPt/tauPtIntermediateAxis[0])"] = std::vector<double>(n_timeSteps);
+  valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
+  valueMap["trackPt/tauPtIntermediateAxis"] = std::vector<double>(n_timeSteps);
   valueMap["trackEta"] = std::vector<double>(n_timeSteps);
   valueMap["z0sinthetaTJVA"] = std::vector<double>(n_timeSteps);
   valueMap["z0sinthetaSigTJVA"] = std::vector<double>(n_timeSteps);
@@ -275,7 +272,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
   valueMap["numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
   valueMap["numberOfSCTSharedHits"] = std::vector<double>(n_timeSteps);
   valueMap["numberOfTRTHits"] = std::vector<double>(n_timeSteps);
-  valueMap["eProbabilityNNorHT"] = std::vector<double>(n_timeSteps);
+  valueMap["eProbabilityHT"] = std::vector<double>(n_timeSteps);
   valueMap["nPixHits"] = std::vector<double>(n_timeSteps);
   valueMap["nSCTHits"] = std::vector<double>(n_timeSteps);
   valueMap["dz0_TV_PV0"] = std::vector<double>(n_timeSteps);
@@ -286,7 +283,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
   valueMap["charge"] = std::vector<double>(n_timeSteps);
 
   // tau variable
-  double log_ptIntermediateAxis = std::log( xTau.ptIntermediateAxis() );
+  double log_ptJetSeed = std::log( xTau.ptJetSeed() );
 
   // vertex variables
   double dz0_TV_PV0 = 0., sumpt_TV = 0., sumpt2_TV = 0., sumpt_PV0 = 0., sumpt2_PV0 = 0.;
@@ -310,7 +307,6 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
 
   // track variables
   unsigned int i = 0;
-  static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
 
   for(xAOD::TauTrack* xTrack : vTracks)
     {
@@ -324,15 +320,11 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
       uint8_t nSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTSharedHits, xAOD::numberOfSCTSharedHits) );
       uint8_t nSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
       uint8_t nTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHits, xAOD::numberOfTRTHits) );
-      // currently not used, to be considered for future trainings
-      //uint8_t nTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue(nTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
       float eProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( eProbabilityHT, xAOD::eProbabilityHT) );
-      float eProbabilityNN = acc_eProbabilityNN(*xTrackParticle);
-      float eProbabilityNNorHT = (xTrackParticle->pt()>2000.) ? eProbabilityNN : eProbabilityHT;
 
       valueMap["log(trackPt)"][i] = std::log( xTrackParticle->pt() );
-      valueMap["log(tauPtIntermediateAxis)"][i] = log_ptIntermediateAxis;
-      valueMap["(trackPt/tauPtIntermediateAxis[0])"][i] = xTrackParticle->pt()/xTau.ptIntermediateAxis();
+      valueMap["log(jetSeedPt)"][i] = log_ptJetSeed;
+      valueMap["trackPt/tauPtIntermediateAxis"][i] = xTrackParticle->pt()/xTau.ptIntermediateAxis();
       valueMap["trackEta"][i] = xTrackParticle->eta();
       valueMap["z0sinthetaTJVA"][i] = xTrack->z0sinthetaTJVA();
       valueMap["z0sinthetaSigTJVA"][i] = xTrack->z0sinthetaSigTJVA();
@@ -347,7 +339,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
       valueMap["numberOfPixelSharedHits"][i] = (double) nPixelSharedHits;
       valueMap["numberOfSCTSharedHits"][i] = (double) nSCTSharedHits;
       valueMap["numberOfTRTHits"][i] = (double) nTRTHits;
-      valueMap["eProbabilityNNorHT"][i] = eProbabilityNNorHT;
+      valueMap["eProbabilityHT"][i] = eProbabilityHT;
       valueMap["nPixHits"][i] = (double) (nPixelHits + nPixelDeadSensors);
       valueMap["nSCTHits"][i] = (double) (nSCTHits + nSCTDeadSensors);
       valueMap["dz0_TV_PV0"][i] = dz0_TV_PV0;

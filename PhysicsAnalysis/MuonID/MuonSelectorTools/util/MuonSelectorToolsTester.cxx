@@ -19,10 +19,13 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#endif  // ROOTCORE
+#else
+#include "POOLRootAccess/TEvent.h"
+#include "StoreGate/StoreGateSvc.h"
+#endif
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -32,14 +35,12 @@
 
 // Local include(s):
 #include "MuonSelectorTools/MuonSelectionTool.h"
-#include "MuonSelectorTools/errorcheck.h"
 
 // Needed for Smart Slimming
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 
 // Truth classification
-#include "MCTruthClassifier/MCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
 /// Example of how to run the MuonSelectorTools package to obtain information from muons
@@ -55,18 +56,31 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Initialise the application:
-    CHECK(xAOD::Init(APP_NAME));
+    // Create a TEvent object:
+#ifdef XAOD_STANDALONE
+    if ( xAOD::Init( APP_NAME ).isFailure() ) {
+      Error( APP_NAME, "Failed to do xAOD::Init!" );
+      return 1;
+    }
+    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+#else
+    POOL::TEvent event( POOL::TEvent::kClassAccess );
+#endif
 
     // Open the input file:
     const TString fileName = argv[1];
     Info(APP_NAME, "Opening file: %s", fileName.Data());
     std::unique_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
-    CHECK(ifile.get());
+    if ( !ifile.get() ) {
+      Error( APP_NAME, "Failed to open input file!" );
+      return 1;
+    }
 
-    // Create a TEvent object:
-    xAOD::TEvent event;
-    CHECK(event.readFrom(ifile.get(), xAOD::TEvent::kClassAccess));
+    //Read from input file with TEvent
+    if ( event.readFrom( ifile.get() ).isFailure() ) {
+      Error( APP_NAME, "Failed to read from input file!" );
+      return 1;
+    }
     Info(APP_NAME, "Number of events in the file: %i", static_cast<int>(event.getEntries()));
 
     // Decide how many events to run over:
@@ -76,28 +90,40 @@ int main(int argc, char* argv[]) {
         if (e < entries) { entries = e; }
     }
 
-    // Create a TStore object
-    xAOD::TStore store;
 
     // Create a set of selector tools configured for each of the available working points
 
     std::vector<std::unique_ptr<CP::MuonSelectionTool> > selectorTools;
     selectorTools.clear();
 
-    const int Nwp = 6;  // number of working points (tool instances)
+    const int Nwp = 7;  // number of working points (tool instances)
 
-    std::vector<std::string> WPnames = {"Tight", "Medium", "Loose", "VeryLoose", "HighPt", "LowPt"};
+    std::vector<std::string> WPnames = {"Tight", "Medium", "Loose", "VeryLoose", "HighPt", "LowPt", "LowPtMVA"};
 
     for (int wp = 0; wp < Nwp; wp++) {
         Info(APP_NAME, "Creating selector tool for working point: %s ...", WPnames[wp].c_str());
 
         CP::MuonSelectionTool* muonSelection = new CP::MuonSelectionTool("MuonSelection_" + WPnames[wp]);
-
         muonSelection->msg().setLevel(MSG::INFO);
-        CHECK(muonSelection->setProperty("MaxEta", 2.7));
-        CHECK(muonSelection->setProperty("MuQuality", wp));
-        CHECK(muonSelection->setProperty("TurnOffMomCorr", true));
-        CHECK(muonSelection->initialize());
+
+	bool failed = false;
+
+        failed = failed || muonSelection->setProperty("MaxEta", 2.7).isFailure();
+
+	if (WPnames[wp] == "LowPtMVA") {
+	  failed = failed || muonSelection->setProperty( "MuQuality", 5).isFailure();
+	  failed = failed || muonSelection->setProperty( "UseMVALowPt", true).isFailure();
+	}
+	else
+	  failed = failed || muonSelection->setProperty("MuQuality", wp).isFailure();
+
+        failed = failed || muonSelection->setProperty("TurnOffMomCorr", true).isFailure();
+        failed = failed || muonSelection->initialize().isFailure();
+
+	if (failed) {
+	  Error( APP_NAME, "Failed to set up MuonSelectorTool for working point: %s !", WPnames[wp].c_str() );
+	  return 1;
+	}
 
         selectorTools.emplace_back(muonSelection);
     }
@@ -167,6 +193,52 @@ int main(int argc, char* argv[]) {
     for (int type = 0; type < Ntype; type++)
         for (int wp = 0; wp < Nwp; wp++) selectedMuonsTypeNotBad[type][wp] = 0;
 
+
+    // Obtain summary information also split by primary author
+    const int Nauthor = xAOD::Muon::NumberOfMuonAuthors;
+
+    std::string authorNames[Nauthor];
+    for (int author = 0; author < Nauthor; author++) {
+        if (author == xAOD::Muon::MuidCo)
+            authorNames[author] = "MuidCo";
+        else if (author == xAOD::Muon::STACO)
+            authorNames[author] = "STACO";
+        else if (author == xAOD::Muon::MuTag)
+            authorNames[author] = "MuTag";
+        else if (author == xAOD::Muon::MuTagIMO)
+            authorNames[author] = "MuTagIMO";
+        else if (author == xAOD::Muon::MuidSA)
+            authorNames[author] = "MuidSA";
+        else if (author == xAOD::Muon::MuGirl)
+            authorNames[author] = "MuGirl";
+        else if (author == xAOD::Muon::MuGirlLowBeta)
+            authorNames[author] = "MuGirlLowBeta";
+        else if (author == xAOD::Muon::CaloTag)
+            authorNames[author] = "CaloTag";
+        else if (author == xAOD::Muon::CaloLikelihood)
+            authorNames[author] = "CaloLikelihood";
+        else if (author == xAOD::Muon::CaloScore)
+            authorNames[author] = "CaloScore";
+        else if (author == xAOD::Muon::ExtrapolateMuonToIP)
+            authorNames[author] = "ExtrapolateMuonToIP";
+        else
+            authorNames[author] = "unknown";
+    }
+
+    // Muon counters for each author
+    int allMuonsAuthor[Nauthor];
+    for (int author = 0; author < Nauthor; author++) allMuonsAuthor[author] = 0;
+
+    // Muon counters for muons of each author passing each working point
+    int selectedMuonsAuthor[Nauthor][Nwp];
+    for (int author = 0; author < Nauthor; author++)
+        for (int wp = 0; wp < Nwp; wp++) selectedMuonsAuthor[author][wp] = 0;
+
+    int selectedMuonsAuthorNotBad[Nauthor][Nwp];
+    for (int author = 0; author < Nauthor; author++)
+        for (int wp = 0; wp < Nwp; wp++) selectedMuonsAuthorNotBad[author][wp] = 0;
+
+
     // Obtain summary information also split by muon |eta|
     const int Neta = 4;
     double etaCuts[Neta - 1] = {1.0, 2.0, 2.5};
@@ -204,10 +276,8 @@ int main(int argc, char* argv[]) {
     for (int truthType = 0; truthType < NtruthType; truthType++)
         for (int wp = 0; wp < Nwp; wp++) selectedMuonsTruthTypeNotBad[truthType][wp] = 0;
 
-    // Truth classifier
+    //To determine whether to print truth classification table
     bool isMC = false;
-    MCTruthClassifier truthClassifier("truthClassifier");
-    CHECK(truthClassifier.initialize());
 
     // Loop over the events:
     for (Long64_t entry = 0; entry < entries; ++entry) {
@@ -223,7 +293,10 @@ int main(int argc, char* argv[]) {
 
         // Print some event information for fun:
         const xAOD::EventInfo* ei = 0;
-        CHECK(event.retrieve(ei, "EventInfo"));
+	if ( event.retrieve( ei, "EventInfo" ).isFailure() ) {
+	  Error( APP_NAME, "Failed to read EventInfo!" );
+	  return 1;
+	}
         Info(APP_NAME,
              "===>>>  start processing event #%i, "
              "run #%i %i events processed so far  <<<===",
@@ -231,7 +304,10 @@ int main(int argc, char* argv[]) {
 
         // Get the Muons from the event:
         const xAOD::MuonContainer* muons = 0;
-        CHECK(event.retrieve(muons, "Muons"));
+	if ( event.retrieve( muons, "Muons" ).isFailure() ) {
+	  Error( APP_NAME, "Failed to read Muons container!" );
+	  return 1;
+	}
         Info(APP_NAME, "Number of muons: %i", static_cast<int>(muons->size()));
 
         xAOD::Muon::Quality my_quality;
@@ -253,6 +329,7 @@ int main(int argc, char* argv[]) {
 
             allMuons++;
             allMuonsType[(*mu_itr)->muonType()]++;
+            allMuonsAuthor[(*mu_itr)->author()]++;
             allMuonsEta[etaIndex]++;
             muCounter++;
 
@@ -260,17 +337,16 @@ int main(int argc, char* argv[]) {
 
             // Check truth origin
             isMC = ei->eventType(xAOD::EventInfo::IS_SIMULATION);
-            std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> truthClassification =
-                truthClassifier.particleTruthClassifier(*mu_itr);
+	    int truthClass = isMC ? (*mu_itr)->auxdata<int>("truthType") : -999;
 
             int truthType;
-            if (truthClassification.first == MCTruthPartClassifier::IsoMuon)
+            if (truthClass == MCTruthPartClassifier::IsoMuon)
                 truthType = 0;
-            else if (truthClassification.first == MCTruthPartClassifier::NonIsoMuon)
+            else if (truthClass == MCTruthPartClassifier::NonIsoMuon)
                 truthType = 1;
-            else if (truthClassification.first == MCTruthPartClassifier::Hadron)
+            else if (truthClass == MCTruthPartClassifier::Hadron)
                 truthType = 2;
-            else if (truthClassification.first == MCTruthPartClassifier::BkgMuon)
+            else if (truthClass == MCTruthPartClassifier::BkgMuon)
                 truthType = 3;
             else
                 truthType = 4;
@@ -287,10 +363,11 @@ int main(int argc, char* argv[]) {
             my_quality = selectorTools[0]->getQuality(**mu_itr);
 
             // Print some general information about the muon
-            if (isMC) Info(APP_NAME, "Muon truthType:       %d (%s)", truthClassification.first, truthTypeNames[truthType].c_str());
+            if (isMC) Info(APP_NAME, "Muon truthType:       %d (%s)", truthClass, truthTypeNames[truthType].c_str());
             Info(APP_NAME, "Muon pT [GeV]:        %g ", std::abs((*mu_itr)->pt()) / 1000.);
             Info(APP_NAME, "Muon eta, phi:        %g, %g ", (*mu_itr)->eta(), (*mu_itr)->phi());
             Info(APP_NAME, "Muon muonType:        %d (%s)", (*mu_itr)->muonType(), typeNames[(*mu_itr)->muonType()].c_str());
+            Info(APP_NAME, "Muon primary author:  %d (%s)", (*mu_itr)->author(), authorNames[(*mu_itr)->author()].c_str());
 
             Info(APP_NAME, "Muon quality (from tool, from xAOD):      %d, %d", my_quality, (*mu_itr)->quality());
             Info(APP_NAME, "Muon passes cuts (ID hits, preselection): %d, %d", passesIDRequirements, passesPreselectionCuts);
@@ -334,6 +411,7 @@ int main(int argc, char* argv[]) {
                     selectedMuons[wp]++;
                     selectedMuonsEvent[wp]++;
                     selectedMuonsType[(*mu_itr)->muonType()][wp]++;
+                    selectedMuonsAuthor[(*mu_itr)->author()][wp]++;
                     selectedMuonsTruthType[truthType][wp]++;
                     selectedMuonsEta[etaIndex][wp]++;
                     selectionResults += "pass     ";
@@ -342,6 +420,7 @@ int main(int argc, char* argv[]) {
                         selectedMuonsNotBad[wp]++;
                         selectedMuonsEventNotBad[wp]++;
                         selectedMuonsTypeNotBad[(*mu_itr)->muonType()][wp]++;
+                        selectedMuonsAuthorNotBad[(*mu_itr)->author()][wp]++;
                         selectedMuonsTruthTypeNotBad[truthType][wp]++;
                         selectedMuonsEtaNotBad[etaIndex][wp]++;
                     }
@@ -427,6 +506,54 @@ int main(int argc, char* argv[]) {
         Info(APP_NAME, "%s", line.c_str());
     }
     Info(APP_NAME, "---------------------------------------------------------------------------------------");
+
+
+    // Make table of selected muons by author and working point
+    Info(APP_NAME, "Selected muons by primary author and working point (numbers in parenthesis include bad muon veto):");
+    Info(APP_NAME, "---------------------------------------------------------------------------------------");
+    for (int l = 0; l < Nwp + 2; l++) {
+        std::string line = "";
+        if (l == 0) {  // line with author names
+            line += "               ";
+	    for (int author = 0; author < Nauthor; author++) {
+
+	      //Do not print unrepresented authors, since the table can be quite wide
+	      if (allMuonsAuthor[author] == 0) continue;
+
+	      std::stringstream ss;
+	      ss << std::left << std::setw(16);
+	      ss << authorNames[author];
+	      line += ss.str();
+            }
+        } else if (l == 1) {  // line for all muons inclusive
+            line += "All muons:      ";
+            for (int author = 0; author < Nauthor; author++) {
+
+	      if (allMuonsAuthor[author] == 0) continue;
+
+	      std::stringstream ss;
+	      ss << std::left << std::setw(16);
+	      ss << std::to_string(allMuonsAuthor[author]);
+	      line += ss.str();
+            }
+        } else {  // lines for each of the working points
+            int wp = l - 2;
+            line += WPnames[wp] + ":" + padding[wp] + "     ";
+            for (int author = 0; author < Nauthor; author++) {
+
+	      if (allMuonsAuthor[author] == 0) continue;
+
+	      std::stringstream ss;
+	      ss << std::left << std::setw(16);
+	      ss << (std::to_string(selectedMuonsAuthor[author][wp]) + " (" + std::to_string(selectedMuonsAuthorNotBad[author][wp]) + ")");
+	      line += ss.str();
+            }
+        }
+
+        Info(APP_NAME, "%s", line.c_str());
+    }
+    Info(APP_NAME, "---------------------------------------------------------------------------------------");
+
 
     // Make table of selected muons by |eta| and working point
     Info(APP_NAME, "Selected muons by |eta| and working point (numbers in parenthesis include bad muon veto):");

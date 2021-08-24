@@ -145,7 +145,7 @@ namespace HLT
       for (const xAOD::CaloCluster *iclus : *clusters)
       {
         double eta = iclus->eta();
-        if (iclus->e() ||
+        if (iclus->e() < 0.0 ||
             eta - m_clusterMatchDR > maxTrkEta ||
             eta + m_clusterMatchDR < minTrkEta)
         {

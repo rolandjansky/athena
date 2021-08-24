@@ -10,29 +10,24 @@
 
 DigiOutFileName="mc16a_ttbar.RDO.pool.root"
 
+InputHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
 
 
 Digi_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---conditionsTag default:OFLCOND-MC16-SDR-16 \
+--inputHITSFile ${InputHitsFile} \
+--conditionsTag default:OFLCOND-MC16-SDR-25-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents 25 \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.116075313 \
---numberOfLowPtMinBias 44.3839246425 \
 --outputRDOFile ${DigiOutFileName} \
 --digiSteeringConf "StandardSignalOnlyTruth" \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:condSeq.LArAutoCorrTotalCondAlg.deltaBunch=1' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---pileupFinalBunch 6 \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(True);' \
---preInclude 'all:LArConfiguration/LArConfigRun2Old.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc16a.py' \
+--preInclude 'all:Campaigns/MC16a.py' 'HITtoRDO:Campaigns/PileUpMC16a.py' \
 --skipEvents 0
 
 rc=$?

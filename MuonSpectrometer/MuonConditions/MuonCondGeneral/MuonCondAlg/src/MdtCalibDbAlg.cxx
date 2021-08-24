@@ -350,7 +350,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
     else {
         CondAttrListCollection::const_iterator itr;
         for (itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
-            coral::AttributeList atr = const_cast<coral::AttributeList &>(itr->second);
+            coral::AttributeList atr = (itr->second);
             dataPerChannel.push_back(atr);
         }
     }
@@ -370,7 +370,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
             }
             ATH_CHECK(extractString(istr, header, "\n"));
             ATH_CHECK(extractString(istr, payload, "\n"));
-            if (istr.size()) ATH_CHECK(extractString(istr, trailer, "\n"));
+            if (!istr.empty()) ATH_CHECK(extractString(istr, trailer, "\n"));
         } else {  // else CLOB data
             std::string data;
             data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
@@ -379,7 +379,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
             std::string istr(data.c_str());
             ATH_CHECK(extractString(istr, header, " "));
             ATH_CHECK(extractString(istr, payload, " "));
-            if (istr.size()) ATH_CHECK(extractString(istr, trailer, " "));
+            if (!istr.empty()) ATH_CHECK(extractString(istr, trailer, " "));
         }
         ATH_MSG_VERBOSE("Read header:" << header << " payload:" << payload << " trailer:" << trailer);
 
@@ -389,7 +389,8 @@ StatusCode MdtCalibDbAlg::loadRt() {
         parameters[header.size()] = '\0';
         unsigned int regionId, npoints(0);
         Identifier athenaId;
-        char *pch = strtok(parameters.get(), " _,");
+        char *saveptr;
+        char *pch = strtok_r(parameters.get(), " _,",&saveptr);
         regionId = atoi(pch);
         // Long ago the hash was put in the RT file header, but now (2016)
         // the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
@@ -449,7 +450,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
             continue;
         }
         // extract npoints in RT function
-        pch = strtok(nullptr, "_,");
+        pch = strtok_r(nullptr, "_,",&saveptr);
         npoints = atoi(pch);
         MuonCalib::CalibFunc::ParVec rtPars;
         MuonCalib::CalibFunc::ParVec resoPars;
@@ -477,10 +478,11 @@ StatusCode MdtCalibDbAlg::loadRt() {
         strncpy(RTPar.get(), payload.c_str(), payload.size() + 1);
         RTPar[payload.size()] =
             '\0';  // terminate string (not sure this is really needed because payload.c_str() should be terminated in \0)
-        char *pch1 = strtok(RTPar.get(), ",");
+        char *saveptr1;
+        char *pch1 = strtok_r(RTPar.get(), ",",&saveptr1);
         unsigned int n = 0;
         // loop over RT function payload (triplets of radius,time,sigma(=resolution) )
-        for (int k = 1; pch1 != nullptr && n <= npoints; pch1 = strtok(nullptr, ", "), k++) {
+        for (int k = 1; pch1 != nullptr && n <= npoints; pch1 = strtok_r(nullptr, ", ",&saveptr1), k++) {
             if (k == 1) {  // radius point
                 float radius = atof(pch1);
                 if (m_rtShift != 0.) {
@@ -619,7 +621,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
 
     // finally record writeCdo
 
-    if (writeCdoRt->size() == 0) {
+    if (writeCdoRt->empty()) {
         ATH_MSG_WARNING("writeCdoRt->size()==0");
         return StatusCode::FAILURE;
     }
@@ -629,7 +631,7 @@ StatusCode MdtCalibDbAlg::loadRt() {
     }
     ATH_MSG_INFO("recorded new " << writeHandleRt.key() << " with range " << rangeRt << " into Conditions Store");
 
-    if (writeCdoCor->size() == 0) {
+    if (writeCdoCor->empty()) {
         ATH_MSG_WARNING("writeCdoCor->size()==0");
         return StatusCode::FAILURE;
     }
@@ -662,7 +664,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
     MdtIdHelper::const_id_iterator it = m_idHelperSvc->mdtIdHelper().module_begin();
     MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
     for (; it != it_end; ++it) {
-        MuonCalib::MdtTubeCalibContainer *tubes = 0;
+        MuonCalib::MdtTubeCalibContainer *tubes = nullptr;
         // create an MdtTubeContainer
         tubes = buildMdtTubeCalibContainer(*it);
 
@@ -794,7 +796,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
     else {
         CondAttrListCollection::const_iterator itr;
         for (itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
-            coral::AttributeList atr = const_cast<coral::AttributeList &>(itr->second);
+            coral::AttributeList atr = (itr->second);
             dataPerChannel.push_back(atr);
         }
     }
@@ -819,7 +821,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
             }
             ATH_CHECK(extractString(istr, header, "\n"));
             ATH_CHECK(extractString(istr, payload, "\n"));
-            if (istr.size()) ATH_CHECK(extractString(istr, trailer, "\n"));
+            if (!istr.empty()) ATH_CHECK(extractString(istr, trailer, "\n"));
         } else {  // else is uncompressed CLOB (no longer used)
             std::string data;
             data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
@@ -829,7 +831,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
             std::string istr(data.c_str());
             ATH_CHECK(extractString(istr, header, "\n"));
             ATH_CHECK(extractString(istr, payload, "\n"));
-            if (istr.size()) ATH_CHECK(extractString(istr, trailer, "\n"));
+            if (!istr.empty()) ATH_CHECK(extractString(istr, trailer, "\n"));
         }
         ATH_MSG_VERBOSE("Read header:" << header << " payload:" << payload << " trailer:" << trailer);
 
@@ -842,12 +844,12 @@ StatusCode MdtCalibDbAlg::loadTube() {
         std::unique_ptr<char[]> parameters{new char[header.size() + 1]};
         strncpy(parameters.get(), header.c_str(), header.size() + 1);
         parameters[header.size()] = '\0';             // terminate string
-        char *pch = strtok(parameters.get(), " _,");  // split using delimiters "_" and ","
+        char *saveptr;
+        char *pch = strtok_r(parameters.get(), " _," , &saveptr);  // split using delimiters "_" and ","
         std::string name(pch, 2, 3);                  // extract 3-character station to "name" (e.g. BIL)
-
         // Split header line and extract phi, eta, region, ntubes
-        pch = strtok(nullptr, "_,");
-        for (int i = 1; pch != nullptr; pch = strtok(nullptr, "_,"), i++) {
+        pch = strtok_r(nullptr, "_,",&saveptr);
+        for (int i = 1; pch != nullptr; pch = strtok_r(nullptr, "_,",&saveptr), i++) {
             std::istringstream is(pch);
             if (i == 1) {
                 is >> iphi;
@@ -937,9 +939,10 @@ StatusCode MdtCalibDbAlg::loadTube() {
         TubePar[payload.size()] = '\0';
 
         // Loop over payload
-        char *pch1 = strtok(TubePar.get(), ",");
+        char *saveptr1;
+        char *pch1 = strtok_r(TubePar.get(), ",", &saveptr1);
         int ml = 1, l = 1, t = 1;
-        for (int k = 1; pch1 != nullptr; pch1 = strtok(nullptr, ", "), k++) {
+        for (int k = 1; pch1 != nullptr; pch1 = strtok_r(nullptr, ", ", &saveptr1), ++k) {
             if (k == 1) {
                 double tzero = atof(pch1);
                 if (m_t0Shift != 0.) {
@@ -978,7 +981,7 @@ StatusCode MdtCalibDbAlg::loadTube() {
 
     // finally record writeCdo
 
-    if (writeCdoTube->size() == 0) {
+    if (writeCdoTube->empty()) {
         ATH_MSG_WARNING("writeCdoTube->size()==0");
         return StatusCode::FAILURE;
     }
@@ -1070,18 +1073,19 @@ inline MuonCalib::RtResolutionLookUp *MdtCalibDbAlg::getRtResolutionInterpolatio
     res_param[0] = x[0];
     res_param[1] = bin_width;
     for (unsigned int k = 0; k < nb_points; k++) {
-        Double_t xx = x[0] + k * bin_width;
-        res_param[k + 2] = sp.Eval(xx);
-        if (std::isnan(res_param[k + 2])) {
-            TFile outf("kacke.root", "RECREATE");
-            sp.Write("kacke");
-            exit(99);
-        }
+      Double_t xx = x[0] + k * bin_width;
+      res_param[k + 2] = sp.Eval(xx);
+      if (std::isnan(res_param[k + 2])) {
+        TFile outf("kacke.root", "RECREATE");
+        sp.Write("kacke");
+        throw std::runtime_error("MdtCalibDbAlg::getRtResolutionInterpolation "
+                                 "encountered nan element");
+      }
     }
     return new MuonCalib::RtResolutionLookUp(res_param);
 }
 
-inline StatusCode MdtCalibDbAlg::extractString(std::string &input, std::string &output, std::string separator) {
+inline StatusCode MdtCalibDbAlg::extractString(std::string &input, std::string &output, const std::string& separator) {
     unsigned long int pos = 0;
     std::string::size_type start = input.find_first_not_of(separator.c_str(), pos);
     if (start == std::string::npos) {

@@ -52,17 +52,6 @@ GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, 
     m_TileGap3MaxEtaBin(16), m_punchThroughMinPt(50)
 { }
 
-GlobalSequentialCorrection::~GlobalSequentialCorrection() {
-  for(TH2F* hist : m_respFactorsEM3            ){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorsnTrk           ){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorstrackWIDTH     ){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorsTile0          ){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorsPunchThrough   ){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorsChargedFraction){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorsN90Constituents){if(hist) delete hist;}
-  for(TH2F* hist : m_respFactorscaloWIDTH      ){if(hist) delete hist;}
-}
-
 StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
   ATH_MSG_INFO("Initializing the Global Sequential Calibration tool");
@@ -108,7 +97,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   }
   else{GSCFile.Insert(14,m_calibAreaTag);}
   TString fileName = PathResolverFindCalibFile(GSCFile.Data());
-  TFile *inputFile = TFile::Open(fileName);
+  std::unique_ptr<TFile> inputFile(TFile::Open(fileName));
   if (!inputFile){
     ATH_MSG_FATAL("Cannot open GSC factors file" << fileName);
     return StatusCode::FAILURE;
@@ -190,23 +179,23 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     if ( !histoNames[ihisto].Contains( m_jetAlgo.Data() ) ) continue;
     else if ( ihisto>0 && histoNames[ihisto].Contains( histoNames[ihisto-1].Data() ) ) continue;
     else if ( histoNames[ihisto].Contains("EM3") && m_respFactorsEM3.size() < m_EM3MaxEtaBin) 
-      m_respFactorsEM3.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsEM3.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("nTrk") && m_respFactorsnTrk.size() < m_nTrkMaxEtaBin) 
-      m_respFactorsnTrk.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsnTrk.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("Tile0") && m_respFactorsTile0.size() < m_Tile0MaxEtaBin) 
-      m_respFactorsTile0.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsTile0.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("chargedFraction") && m_respFactorsChargedFraction.size() < m_chargedFractionMaxEtaBin)
-      m_respFactorsChargedFraction.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsChargedFraction.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("trackWIDTH") && m_respFactorstrackWIDTH.size() < m_trackWIDTHMaxEtaBin) 
-      m_respFactorstrackWIDTH.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorstrackWIDTH.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("PunchThrough") ) 
-      m_respFactorsPunchThrough.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsPunchThrough.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("N90Constituents") && m_respFactorsN90Constituents.size() < m_N90ConstituentsMaxEtaBin)
-      m_respFactorsN90Constituents.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsN90Constituents.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("caloWIDTH") && m_respFactorscaloWIDTH.size() < m_caloWIDTHMaxEtaBin)
-      m_respFactorscaloWIDTH.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorscaloWIDTH.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("TileGap3") && m_respFactorsTileGap3.size() < m_TileGap3MaxEtaBin )
-      m_respFactorsTileGap3.emplace_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+      m_respFactorsTileGap3.push_back( JetCalibUtils::GetHisto2(*inputFile,histoNames[ihisto]) );
   }
 
   //Make sure we put something in the vectors of TH2Fs
@@ -288,20 +277,20 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
 }
 
-double GlobalSequentialCorrection::readPtJetPropertyHisto(double pT, double jetProperty, TH2F *respFactors) const {
- int pTbin = respFactors->GetXaxis()->FindBin(pT);
- int pTMinbin = respFactors->GetXaxis()->GetFirst();
- int pTMaxbin = respFactors->GetXaxis()->GetLast();
- int jetPropbin = respFactors->GetYaxis()->FindBin(jetProperty);
- int jetPropMinbin = respFactors->GetYaxis()->GetFirst();
- int jetPropMaxbin = respFactors->GetYaxis()->GetLast();
+double GlobalSequentialCorrection::readPtJetPropertyHisto(double pT, double jetProperty, const TH2& respFactors) const {
+ int pTbin = respFactors.GetXaxis()->FindBin(pT);
+ int pTMinbin = respFactors.GetXaxis()->GetFirst();
+ int pTMaxbin = respFactors.GetXaxis()->GetLast();
+ int jetPropbin = respFactors.GetYaxis()->FindBin(jetProperty);
+ int jetPropMinbin = respFactors.GetYaxis()->GetFirst();
+ int jetPropMaxbin = respFactors.GetYaxis()->GetLast();
  //Protection against input values that are outside the histogram range, which would cause TH2::Interpolate to throw an error
- if (pTbin < pTMinbin) pT = respFactors->GetXaxis()->GetBinLowEdge(pTMinbin)+1e-6;
- else if (pTbin > pTMaxbin) pT = respFactors->GetXaxis()->GetBinUpEdge(pTMaxbin)-1e-6;
- if (jetPropbin < jetPropMinbin) jetProperty = respFactors->GetYaxis()->GetBinLowEdge(jetPropMinbin)+1e-6;
- else if (jetPropbin > jetPropMaxbin) jetProperty = respFactors->GetYaxis()->GetBinUpEdge(jetPropMaxbin)-1e-6;
+ if (pTbin < pTMinbin) pT = respFactors.GetXaxis()->GetBinLowEdge(pTMinbin)+1e-6;
+ else if (pTbin > pTMaxbin) pT = respFactors.GetXaxis()->GetBinUpEdge(pTMaxbin)-1e-6;
+ if (jetPropbin < jetPropMinbin) jetProperty = respFactors.GetYaxis()->GetBinLowEdge(jetPropMinbin)+1e-6;
+ else if (jetPropbin > jetPropMaxbin) jetProperty = respFactors.GetYaxis()->GetBinUpEdge(jetPropMaxbin)-1e-6;
  //TH2::Interpolate is a bilinear interpolation from the bin centers.
- return respFactors->Interpolate(pT, jetProperty);
+ return respFactors.Interpolate(pT, jetProperty);
 }
 
 double GlobalSequentialCorrection::getTrackWIDTHResponse(double pT, uint etabin, double trackWIDTH) const {
@@ -311,7 +300,7 @@ double GlobalSequentialCorrection::getTrackWIDTHResponse(double pT, uint etabin,
   double trackWIDTHResponse;
   if(m_turnOffTrackCorrections){
     if(pT>=m_turnOffStartingpT && pT<=m_turnOffEndpT){
-      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, trackWIDTH, m_respFactorstrackWIDTH[etabin]);
+      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, trackWIDTH, *m_respFactorstrackWIDTH[etabin]);
       trackWIDTHResponse = (1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT);
       trackWIDTHResponse *= pT;
       trackWIDTHResponse += 1 - (m_turnOffEndpT*(1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT));
@@ -319,7 +308,7 @@ double GlobalSequentialCorrection::getTrackWIDTHResponse(double pT, uint etabin,
     }
     else if(pT>m_turnOffEndpT) return 1;
   }
-  trackWIDTHResponse = readPtJetPropertyHisto(pT, trackWIDTH, m_respFactorstrackWIDTH[etabin]);
+  trackWIDTHResponse = readPtJetPropertyHisto(pT, trackWIDTH, *m_respFactorstrackWIDTH[etabin]);
   return trackWIDTHResponse;
 }
 
@@ -329,7 +318,7 @@ double GlobalSequentialCorrection::getNTrkResponse(double pT, uint etabin, doubl
   double nTrkResponse;
   if(m_turnOffTrackCorrections){
     if(pT>=m_turnOffStartingpT && pT<=m_turnOffEndpT){
-      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, nTrk, m_respFactorsnTrk[etabin]);
+      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, nTrk, *m_respFactorsnTrk[etabin]);
       nTrkResponse = (1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT);
       nTrkResponse *= pT;
       nTrkResponse += 1 - (m_turnOffEndpT*(1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT));
@@ -337,28 +326,28 @@ double GlobalSequentialCorrection::getNTrkResponse(double pT, uint etabin, doubl
     }
     else if(pT>m_turnOffEndpT) return 1;
   }
-  nTrkResponse = readPtJetPropertyHisto(pT, nTrk, m_respFactorsnTrk[etabin]);
+  nTrkResponse = readPtJetPropertyHisto(pT, nTrk, *m_respFactorsnTrk[etabin]);
   return nTrkResponse;
 }
 
 double GlobalSequentialCorrection::getTile0Response(double pT, uint etabin, double Tile0) const {
   if (Tile0<0) return 1; //Tile0 < 0 is unphysical, so we return 1
   if ( etabin >= m_respFactorsTile0.size() ) return 1.;
-  double Tile0Response = readPtJetPropertyHisto(pT, Tile0, m_respFactorsTile0[etabin]);
+  double Tile0Response = readPtJetPropertyHisto(pT, Tile0, *m_respFactorsTile0[etabin]);
   return Tile0Response;
 }
 
 double GlobalSequentialCorrection::getEM3Response(double pT, uint etabin, double EM3) const {
   if (EM3<=0) return 1; //EM3 < 0 is unphysical, EM3 = 0 is a special case, so we return 1 for EM3 <= 0
   if ( etabin >= m_respFactorsEM3.size() ) return 1.;
-  double EM3Response = readPtJetPropertyHisto(pT, EM3, m_respFactorsEM3[etabin]);
+  double EM3Response = readPtJetPropertyHisto(pT, EM3, *m_respFactorsEM3[etabin]);
   return EM3Response;
 }
 
 double GlobalSequentialCorrection::getChargedFractionResponse(double pT, uint etabin, double ChargedFraction) const {
   if (ChargedFraction<=0) return 1; //ChargedFraction < 0 is unphysical, ChargedFraction = 0 is a special case, so we return 1 for ChargedFraction <= 0
   if ( etabin >= m_respFactorsChargedFraction.size() ) return 1.;
-  double ChargedFractionResponse = readPtJetPropertyHisto(pT, ChargedFraction, m_respFactorsChargedFraction[etabin]);
+  double ChargedFractionResponse = readPtJetPropertyHisto(pT, ChargedFraction, *m_respFactorsChargedFraction[etabin]);
   return ChargedFractionResponse;
 }
 
@@ -376,7 +365,7 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
     //this could probably be improved, but to avoid a seg fault...
     return 1;
   }
-  double PunchThroughResponse = readPtJetPropertyHisto(E,Nsegments,m_respFactorsPunchThrough[etabin]);
+  double PunchThroughResponse = readPtJetPropertyHisto(E,Nsegments,*m_respFactorsPunchThrough[etabin]);
   if(!m_pTResponseRequirementOff && PunchThroughResponse>1) return 1;
   return PunchThroughResponse;
 }
@@ -384,21 +373,21 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
 double GlobalSequentialCorrection::getCaloWIDTHResponse(double pT, uint etabin, double caloWIDTH) const {
   if (caloWIDTH<=0) return 1;
   if ( etabin >= m_respFactorscaloWIDTH.size() ) return 1.;
-  double caloWIDTHResponse = readPtJetPropertyHisto(pT, caloWIDTH, m_respFactorscaloWIDTH[etabin]);
+  double caloWIDTHResponse = readPtJetPropertyHisto(pT, caloWIDTH, *m_respFactorscaloWIDTH[etabin]);
   return caloWIDTHResponse;
 }
 
 double GlobalSequentialCorrection::getN90ConstituentsResponse(double pT, uint etabin, double N90Constituents) const {
   if (N90Constituents<=0) return 1; // N90Constituents < 0 is unphysical, N90Constituents = 0 is a special case, so return 1 for N90Constituents <= 0
   if ( etabin >= m_respFactorsN90Constituents.size() ) return 1.;
-  double N90ConstituentsResponse = readPtJetPropertyHisto(pT, N90Constituents, m_respFactorsN90Constituents[etabin]);
+  double N90ConstituentsResponse = readPtJetPropertyHisto(pT, N90Constituents, *m_respFactorsN90Constituents[etabin]);
   return N90ConstituentsResponse;
 }
 
 double GlobalSequentialCorrection::getTileGap3Response(double pT, uint etabin, double TileGap3 ) const {
   if (TileGap3<0) return 1; //TileGap3 < 0 is unphysical, so we return 1
   if ( etabin >= m_respFactorsTileGap3.size() ) return 1.;
-  double TileGap3Response = readPtJetPropertyHisto(pT, TileGap3, &(*m_respFactorsTileGap3[etabin]));
+  double TileGap3Response = readPtJetPropertyHisto(pT, TileGap3, *m_respFactorsTileGap3[etabin]);
   return TileGap3Response;
 }
 

@@ -1,90 +1,47 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/WiredOR.h"
 
-#include <iomanip>
-
+#include "AthenaKernel/errorcheck.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
+
+#include <iomanip>
 
 using namespace RPC_CondCabling;
 
-WiredOR::WiredOR(int num, int stat, int type, int start, int stop) :
-    CablingObject(num, stat, type, "WOR"), m_side(Phi), m_start(start), m_stop(stop) {
-    m_even_read_mul.clear();
-    m_odd_read_mul.clear();
-}
+WiredOR::WiredOR(parseParams pars) : CablingObject{pars, "WOR"}, m_params{pars} {}
 
-WiredOR::WiredOR(const WiredOR& Wor) : CablingObject(Wor.number(), Wor.station(), Wor.sector_type(), Wor.name()) {
-    m_side = Wor.side();
-    m_start = Wor.start();
-    m_stop = Wor.stop();
-    m_RPCread = Wor.RPCread();
-    m_readoutCMAs = Wor.readoutCMAs();
-    m_even_read_mul = Wor.even_read_mul();
-    m_odd_read_mul = Wor.odd_read_mul();
-}
-
-WiredOR& WiredOR::operator=(const WiredOR& Wor) {
-    if (this != &Wor) {
-        m_side = Wor.side();
-        m_start = Wor.start();
-        m_stop = Wor.stop();
-        m_RPCread.clear();
-        m_RPCread = Wor.RPCread();
-        m_readoutCMAs.clear();
-        m_readoutCMAs = Wor.readoutCMAs();
-        m_even_read_mul.clear();
-        m_even_read_mul = Wor.even_read_mul();
-        m_odd_read_mul.clear();
-        m_odd_read_mul = Wor.odd_read_mul();
-    }
-    return *this;
-}
-
-WiredOR::~WiredOR() {
-    m_even_read_mul.clear();
-    m_odd_read_mul.clear();
-    m_RPCread.clear();
-    m_readoutCMAs.clear();
-}
+WiredOR::~WiredOR() = default;
 
 bool WiredOR::connect(SectorLogicSetup& setup) {
     // Check if RPC chambers exist
-    for (int i = m_start; i <= m_stop; ++i) {
-        RPCchamber* rpc = setup.find_chamber(this->station(), i);
+    for (int i = m_params.start; i <= m_params.stop; ++i) {
+        RPCchamber* rpc = setup.find_chamber(station(), i);
 
         if (rpc) {
             rpc->add_wor(this);
             m_RPCread.insert(RPClink::value_type(i, rpc));
         } else {
-            this->no_connection_error("RPC", i);
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") << no_connection_error("RPC", i);
             return false;
         }
     }
     return true;
 }
 
-int WiredOR::give_max_phi_strips(void) const {
-    if (m_side != Phi) return 0;
-    RPClink::const_iterator it = m_RPCread.begin();
-    int max = 0;
-    while (it != m_RPCread.end()) {
-        if (max < (*it).second->phi_strips()) max = (*it).second->phi_strips();
-        ++it;
-    }
+int WiredOR::give_max_phi_strips() const {
+    if (m_params.side != ViewType::Phi) return 0;
+    int max{0};
+    for (const auto& it : m_RPCread) { max = std::max(it.second->phi_strips(), max); }
     return max;
 }
 
-int WiredOR::give_max_eta_strips(void) const {
-    if (m_side != Eta) return 0;
-    RPClink::const_iterator it = m_RPCread.begin();
-    int max = 0;
-    while (it != m_RPCread.end()) {
-        if (max < (*it).second->eta_strips()) max = (*it).second->eta_strips();
-        ++it;
-    }
+int WiredOR::give_max_eta_strips() const {
+    if (m_params.side != ViewType::Eta) return 0;
+    int max{0};
+    for (const auto& it : m_RPCread) { max = std::max(max, it.second->eta_strips()); }
     return max;
 }
 
@@ -95,7 +52,7 @@ const RPCchamber* WiredOR::connected_rpc(int ord) const {
         --ord;
         ++rpcs;
     }
-    return 0;
+    return nullptr;
 }
 
 void WiredOR::add_cma(const CMAparameters* cma) { m_readoutCMAs.push_back(cma); }
@@ -110,16 +67,14 @@ void WiredOR::add_odd_read_mul(ReadoutCh& mul) {
 
 bool WiredOR::setup(SectorLogicSetup& setup) {
     WiredOR* prev = setup.previousWOR(*this);
-    if (prev) {
-        if (!(this->start() == prev->stop() + 1)) {
-            this->two_obj_error_message("boundary inconsistence", prev);
-            return false;
-        }
+    if (prev && !(start() == prev->stop() + 1)) {
+        REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") << two_obj_error_message("boundary inconsistence", prev);
+        return false;
     }
 
-    if (!this->connect(setup)) return false;
+    if (!connect(setup)) return false;
 
-    int ch = (m_side == Eta) ? give_max_eta_strips() : give_max_phi_strips();
+    int ch = (m_params.side == Eta) ? give_max_eta_strips() : give_max_phi_strips();
     m_even_read_mul.resize(ch);
     m_odd_read_mul.resize(ch);
     for (int i = 0; i < ch; ++i) { m_even_read_mul.push_back(0); }
@@ -127,34 +82,40 @@ bool WiredOR::setup(SectorLogicSetup& setup) {
     return true;
 }
 
-bool WiredOR::check(void) {
+bool WiredOR::check() {
     WiredOR::CMAlist::const_iterator cma = m_readoutCMAs.begin();
-    const CMAinput IO = (*cma)->whichCMAinput(this->station());
+    const CMAinput IO = (*cma)->whichCMAinput(station());
 
-    int ch = (m_side == Eta) ? give_max_eta_strips() : give_max_phi_strips();
+    int ch = (m_params.side == ViewType::Eta) ? give_max_eta_strips() : give_max_phi_strips();
     for (int i = 0; i < ch; ++i) {
         if (!m_even_read_mul[i]) {
-            error("==> No readout coverage for the full set of even PHI strip!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> No readout coverage for the full set of even PHI strip!");
             return false;
         }
         if (!m_odd_read_mul[i]) {
-            error("==> No readout coverage for the full set of odd PHI strip!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> No readout coverage for the full set of odd PHI strip!");
             return false;
         }
         if (m_even_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Pivot plane even PHI strips must be read only once!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> Pivot plane even PHI strips must be read only once!");
             return false;
         }
         if (m_odd_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Pivot plane odd PHI strips must be read only once!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR")
+                << error("==> Pivot plane odd PHI strips must be read only once!");
             return false;
         }
         if (m_even_read_mul[i] > 2) {
-            error("==> Confirm plane even PHI strips can be read only 3 times!");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") <<
+                error("==> Confirm plane even PHI strips can be read only 3 times!");
             return false;
         }
         if (m_odd_read_mul[i] > 1 && IO == Pivot) {
-            error("==> Confirm plane odd PHI strips can be read only 3 times");
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "WiredOR") <<
+                error("==> Confirm plane odd PHI strips can be read only 3 times");
             return false;
         }
     }
@@ -202,17 +163,24 @@ void WiredOR::Print(std::ostream& stream, bool detail) const {
     }
 }
 
-void WiredOR::two_obj_error_message(std::string msg, WiredOR* wor) {
-    this->error_header();
-
-    DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << wor->name() << " n. " << wor->number() << std::endl
+std::string WiredOR::two_obj_error_message(const std::string& msg, WiredOR* wor) {
+    std::ostringstream disp;
+    disp << error_header()
+         << "  " << msg << " between " << name() << " n. " << number() << " and " << wor->name() << " n. " << wor->number() << std::endl
          << *this << *wor;
-    DISP_ERROR;
+    return disp.str();
 }
 
-void WiredOR::error(std::string msg) {
-    this->error_header();
-
-    DISP << msg << std::endl << *this;
-    DISP_ERROR;
+std::string WiredOR::error(const std::string& msg) {
+    std::ostringstream disp;
+    disp << error_header() << msg << std::endl << *this;
+    return disp.str();
 }
+
+ViewType WiredOR::side() const { return m_params.side; }
+int WiredOR::start() const { return m_params.start; }
+int WiredOR::stop() const { return m_params.stop; }
+const WiredOR::ReadoutCh& WiredOR::even_read_mul() const { return m_even_read_mul; }
+const WiredOR::ReadoutCh& WiredOR::odd_read_mul() const { return m_odd_read_mul; }
+const WiredOR::RPClink& WiredOR::RPCread() const { return m_RPCread; }
+const WiredOR::CMAlist& WiredOR::readoutCMAs() const { return m_readoutCMAs; }

@@ -380,13 +380,13 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
                       energyLg[slice], energySm[slice]);
     LVL1::RecJetRoI roi(tobRoi.roiWord(), &thresholds);
 
-    int numThresholdsHalf = 5;
-    int numBitsPerCounter = 3;
+    unsigned int numThresholdsHalf = 5;
+    unsigned int numBitsPerCounter = 3;
 
-    for (int i = 0; i < numThresholdsHalf * 2; ++i) {
+    for (unsigned int i = 0; i < numThresholdsHalf * 2; ++i) {
       if (roi.passedThreshold(i)) {
         HitsVector &hit = i < numThresholdsHalf ? hit10 : hit11;
-        int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
+        unsigned int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
         hit[slice] |= (1 << (ibit * numBitsPerCounter));
       }
     }
@@ -394,10 +394,10 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
     numThresholdsHalf = 8;
     numBitsPerCounter = 2;
 
-    for (int i = 0; i < numThresholdsHalf * 2; ++i) {
+    for (unsigned int i = 0; i < numThresholdsHalf * 2; ++i) {
       if (roi.passedThreshold(10 + i)) {
         HitsVector &hit = i < numThresholdsHalf ? hit20 : hit21;
-        int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
+        unsigned int ibit = i < numThresholdsHalf ? i : i - numThresholdsHalf;
         hit[slice] |= (1 << (ibit * numBitsPerCounter));
       }
     }

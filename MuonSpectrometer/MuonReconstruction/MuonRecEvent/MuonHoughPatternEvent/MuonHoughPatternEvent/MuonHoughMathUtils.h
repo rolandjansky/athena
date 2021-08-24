@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHMATHUTILS_H
@@ -44,52 +44,52 @@ class MuonHoughMathUtils
   virtual ~MuonHoughMathUtils() = default;
 
   /** sign (-1 or 1) of a double */
-  int sgn(double d)const;
+  static int sgn(double d);
   /** step function at place x0 */
-  int step (double d,double x0=0)const;
+  static int step (double d,double x0=0);
 
   /** distance from (x0,y0) to the line (r0,phi), phi in rad */
-  double signedDistanceToLine(double x0, double y0, double r0, double phi)const; 
+  static double signedDistanceToLine(double x0, double y0, double r0, double phi); 
   /** distance from (x0,y0) to the line (r0,phi), phi in rad */
-  double distanceToLine(double x0, double y0, double r0, double phi)const; 
+  static double distanceToLine(double x0, double y0, double r0, double phi); 
   /** increments x with inc till above x */
-  double incrementTillAbove0 (double x, double inc,double zero=0)const; 
+  static double incrementTillAbove0 (double x, double inc,double zero=0); 
   /** computes angle in degrees between 0 and 360 */ 
-  double angleFrom0To360(double angle)const; 
+  static double angleFrom0To360(double angle); 
   /** computes angle in degrees between 0 and 180 */ 
-  double angleFrom0To180(double angle)const; 
+  static double angleFrom0To180(double angle); 
   /** computes angle in rad between 0 and Pi */ 
-  double angleFrom0ToPi(double angle)const; 
+  static double angleFrom0ToPi(double angle); 
   /** computes angle in rad between -Pi and Pi */ 
-  double angleFromMinusPiToPi(double angle)const; 
+  static double angleFromMinusPiToPi(double angle); 
   /** converts angle in rad to degrees */ 
   double angleFromRadialToGrad (double angle)const; 
   /** converts angle in degrees to rad */ 
   double angleFromGradToRadial (double angle)const; 
 
   /** converts integer to string */
-  std::string intToString(int i)const;
+  static std::string intToString(int i);
   /** converts string to char* */
-  const char* stringToChar(std::string& s)const;
+  static const char* stringToChar(std::string& s);
   /** converts integer to char* */
-  const char* intToChar(int i)const;
+  static const char* intToChar(int i);
 
   /** distance from (x0,y0) to line (r,phi) */
   double distanceToLine2D(double x0, double y0, double r, double phi)const; 
   /** distance from (x0,y0,z0) to line (x,y,z,phi,theta) */
-  double distanceToLine3D(double x0,double y0,double z0, double x, double y, double z, double phi, double theta)const; 
+  static double distanceToLine3D(double x0,double y0,double z0, double x, double y, double z, double phi, double theta); 
 
   /** distance of line y = ax + b to origin */
-  double distanceOfLineToOrigin2D(double a, double b)const;
+  static double distanceOfLineToOrigin2D(double a, double b);
   /** signed distance of line with point (x,y) and angle phi to origin */
-  double signedDistanceOfLineToOrigin2D(double x, double y, double phi)const;
+  static double signedDistanceOfLineToOrigin2D(double x, double y, double phi);
 
   /** calculates theta at (x,y,z) for curved track model */
-  double thetaForCurvedHit(double invcurvature, MuonHoughHit* hit) const;
+  static double thetaForCurvedHit(double invcurvature, MuonHoughHit* hit) ;
   /** calculates theta at (x,y,z) for curved track model, for positive and negative curvature */
-  void thetasForCurvedHit(double ratio,MuonHoughHit* hit, double& theta1, double& theta2) const;
+  static void thetasForCurvedHit(double ratio,MuonHoughHit* hit, double& theta1, double& theta2) ;
   /** calculates distance of point (x,y,z) to curved track with z0, theta and invcurvature for curved track model */
-  double signedDistanceCurvedToHit(double z0, double theta, double invcurvature, double hitx, double hity , double hitz ) const;
+  static double signedDistanceCurvedToHit(double z0, double theta, double invcurvature, double hitx, double hity , double hitz ) ;
 
   /** 
    * @brief extrapolates road to global position 
@@ -100,21 +100,21 @@ class MuonHoughMathUtils
    * @param[out] roadpose The nearest to pos, estimated road direction
    */
 
-  void extrapolateCurvedRoad(const Amg::Vector3D& roadpos, const Amg::Vector3D& roadmom,  const Amg::Vector3D& pos, Amg::Vector3D& roadpose , Amg::Vector3D& roaddire)const;
+  static void extrapolateCurvedRoad(const Amg::Vector3D& roadpos, const Amg::Vector3D& roadmom,  const Amg::Vector3D& pos, Amg::Vector3D& roadpose , Amg::Vector3D& roaddire);
 
   /** calculates the 3d-point closest to origin in xy-plane */
-  std::vector <double> shortestPointOfLineToOrigin3D(double x, double y, double z, double phi, double theta)const; 
+  static std::vector <double> shortestPointOfLineToOrigin3D(double x, double y, double z, double phi, double theta); 
 
   /** calculates the 3d-point closest to origin */
-  std::vector<double> shortestPointOfLineToOrigin(double x, double y, double z, double phi, double theta)const;
+  static std::vector<double> shortestPointOfLineToOrigin(double x, double y, double z, double phi, double theta);
 
   /** calculates if line (x,y,z,phi,theta) crosses cylinder (r_0,z_0) around origin */
-  bool lineThroughCylinder(double x, double y, double z, double phi, double theta, double r_0, double z_0)const;
+  static bool lineThroughCylinder(double x, double y, double z, double phi, double theta, double r_0, double z_0);
 
   /** cross product between 2 3-vectors */
-  std::vector<double> crossProduct(std::vector <double> x, std::vector<double> y)const; 
+  static std::vector<double> crossProduct(std::vector <double> x, std::vector<double> y); 
   /** dot product between 2 3-vectors */
-  double dotProduct(std::vector <double> x, std::vector<double> y)const;
+  static double dotProduct(std::vector <double> x, std::vector<double> y);
   /** absolute value of 3-vector */
   double abs(std::vector <double> p)const; 
 

@@ -1,5 +1,4 @@
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
-from string import split,join
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
@@ -53,8 +52,8 @@ if not "DBTag" in dir():
      DBTag="LARCALIB-RUN2-00"
 
 if not "TagSuffix" in dir():
-   if SuperCells: # no linking to global tag yet
-      TagSuffix="-000"
+  if SuperCells: # no linking to global tag yet
+    TagSuffix="-000"
 
 def doObj(objName):
   for o in Objects:
@@ -64,7 +63,7 @@ def doObj(objName):
 
 def getDBFolderAndTag(folder):
   if ("TagSuffix" in globals()) and (TagSuffix != ""):
-    tag="<tag>"+join(split(folder, '/'),'') + TagSuffix+"</tag>"
+    tag="<tag>"+"".join(folder.split('/')) + TagSuffix+"</tag>"
   else:
     tag=""
   return "<db>"+InputDB+"</db>"+folder+tag
@@ -97,12 +96,16 @@ from AtlasGeoModel import GeoModelInit
 svcMgr.IOVDbSvc.GlobalTag=DBTag
 if IsMC:
    include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
-   conddb.addFolder("LAR_OFL","/LAR/BadChannels/BadChannels<tag>LArBadChannelsBadChannels-IOVDEP-06</tag>")
-   conddb.addFolder("LAR_OFL","/LAR/BadChannels/MissingFEBs<tag>LArBadChannelsMissingFEBs-IOVDEP-04</tag>")
+   conddb.addFolder("LAR_OFL","/LAR/BadChannels/BadChannels<tag>LArBadChannelsBadChannels-IOVDEP-06</tag>",className="CondAttrListCollection")
 else:
    include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
-   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>")
-   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>")
+   conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>",className="CondAttrListCollection")
+
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg()
+theLArBadChannelCondAlg.ReadKey="/LAR/BadChannels/BadChannels"
+condSeq+=theLArBadChannelCondAlg
 
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = RunNumber

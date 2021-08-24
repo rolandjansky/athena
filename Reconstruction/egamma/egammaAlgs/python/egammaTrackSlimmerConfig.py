@@ -25,8 +25,6 @@ def egammaTrackSlimmerCfg(
                       flags.Egamma.Keys.Output.GSFTrackParticles)
     kwargs.setdefault("VertexContainerName",
                       flags.Egamma.Keys.Output.ConversionVertices)
-    kwargs.setdefault("InDetTrackParticleContainerName",
-                      flags.Egamma.Keys.Input.TrackParticles)
 
     egtrkslimmerAlg = egammaTrackSlimmer(name, **kwargs)
 

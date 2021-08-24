@@ -24,95 +24,140 @@
 class InDetPerfPlot_Hits: public InDetPlotBase {
 public:
   InDetPerfPlot_Hits(InDetPlotBase* pParent, const std::string& dirName);
-  void fill(const xAOD::TrackParticle& track, float weight);
+  void fill(const xAOD::TrackParticle& track, float mu, float weight);
 private:
   //
   //1D
   //
-  TH1* m_nInnerMostPixelHits;
-  TH1* m_nNextToInnerMostPixelHits;
-  TH1* m_nPixelHits;
-  TH1* m_nSCTHits;
-  TH1* m_nTRTHits;
-  TH1* m_nPixelHoles;
-  TH1* m_nSCTHoles;
-  TH1* m_nTRTHighThresholdHits;
-  TH1* m_nInnerMostPixelOutliers;
-  TH1* m_nInnerMostPixelSharedHits;
-  TH1* m_nInnerMostPixelSplitHits;
-  TH1* m_nExpectedInnerMostPixelHits;
-  TH1* m_nExpectedNextToInnerMostPixelHits;
-  TH1* m_nPixelOutliers;
-  TH1* m_nPixelContribLayers;
-  TH1* m_nPixelSharedHits;
-  TH1* m_nPixelSplitHits;
-  TH1* m_nPixelGangedHits;
-  TH1* m_nPixelGangedHitsFlaggedFakes;
-  TH1* m_nSCTOutliers;
-  TH1* m_nSCTDoubleHoles;
-  TH1* m_nSCTSharedHits;
-  TH1* m_nTRTOutliers;
-  TH1* m_nTRTHighThresholdOutliers;
-  TH1* m_nPixelDeadSensors;
-  TH1* m_nSCTDeadSensors;
+  TH1* m_nInnerMostPixelHits{nullptr};
+  TH1* m_nNextToInnerMostPixelHits{nullptr};
+  TH1* m_nPixelHits{nullptr};
+  TH1* m_nSCTHits{nullptr};
+  TH1* m_nTRTHits{nullptr};
+  TH1* m_nPixelHoles{nullptr};
+  TH1* m_nSCTHoles{nullptr};
+  TH1* m_nTRTHighThresholdHits{nullptr};
+  TH1* m_nInnerMostPixelOutliers{nullptr};
+  TH1* m_nInnerMostPixelSharedHits{nullptr};
+  TH1* m_nInnerMostPixelSplitHits{nullptr};
+  TH1* m_nExpectedInnerMostPixelHits{nullptr};
+  TH1* m_nExpectedNextToInnerMostPixelHits{nullptr};
+  TH1* m_nPixelOutliers{nullptr};
+  TH1* m_nPixelContribLayers{nullptr};
+  TH1* m_nPixelSharedHits{nullptr};
+  TH1* m_nPixelSplitHits{nullptr};
+  TH1* m_nPixelGangedHits{nullptr};
+  TH1* m_nPixelGangedHitsFlaggedFakes{nullptr};
+  TH1* m_nSCTOutliers{nullptr};
+  TH1* m_nSCTDoubleHoles{nullptr};
+  TH1* m_nSCTSharedHits{nullptr};
+  TH1* m_nTRTOutliers{nullptr};
+  TH1* m_nTRTHighThresholdOutliers{nullptr};
+  TH1* m_nPixelDeadSensors{nullptr};
+  TH1* m_nSCTDeadSensors{nullptr};
   //
   //TProfiles versus eta
   //
-  TProfile* m_nInnerMostPixelHits_vs_eta;
-  TProfile* m_nNextToInnerMostPixelHits_vs_eta;
-  TProfile* m_nPixelHits_vs_eta;
-  TProfile* m_nSCTHits_vs_eta;
-  TProfile* m_nTRTHits_vs_eta;
-  TProfile* m_nPixelHoles_vs_eta;
-  TProfile* m_nSCTHoles_vs_eta;
-  TProfile* m_nTRTHighThresholdHits_vs_eta;
-  TProfile* m_nInnerMostPixelOutliers_vs_eta;
-  TProfile* m_nInnerMostPixelSharedHits_vs_eta;
-  TProfile* m_nInnerMostPixelSplitHits_vs_eta;
-  TProfile* m_nExpectedInnerMostPixelHits_vs_eta;
-  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_eta;
-  TProfile* m_nPixelOutliers_vs_eta;
-  TProfile* m_nPixelContribLayers_vs_eta;
-  TProfile* m_nPixelSharedHits_vs_eta;
-  TProfile* m_nPixelSplitHits_vs_eta;
-  TProfile* m_nPixelGangedHits_vs_eta;
-  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_eta;
-  TProfile* m_nSCTOutliers_vs_eta;
-  TProfile* m_nSCTDoubleHoles_vs_eta;
-  TProfile* m_nSCTSharedHits_vs_eta;
-  TProfile* m_nTRTOutliers_vs_eta;
-  TProfile* m_nTRTHighThresholdOutliers_vs_eta;
-  TProfile* m_nPixelDeadSensors_vs_eta;
-  TProfile* m_nSCTDeadSensors_vs_eta;
+  TProfile* m_nInnerMostPixelHits_vs_eta{nullptr};
+  TProfile* m_nNextToInnerMostPixelHits_vs_eta{nullptr};
+  TProfile* m_nPixelHits_vs_eta{nullptr};
+  TProfile* m_nSCTHits_vs_eta{nullptr};
+  TProfile* m_nTRTHits_vs_eta{nullptr};
+  TProfile* m_nPixelHoles_vs_eta{nullptr};
+  TProfile* m_nSCTHoles_vs_eta{nullptr};
+  TProfile* m_nTRTHighThresholdHits_vs_eta{nullptr};
+  TProfile* m_nInnerMostPixelOutliers_vs_eta{nullptr};
+  TProfile* m_nInnerMostPixelSharedHits_vs_eta{nullptr};
+  TProfile* m_nInnerMostPixelSplitHits_vs_eta{nullptr};
+  TProfile* m_nExpectedInnerMostPixelHits_vs_eta{nullptr};
+  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_eta{nullptr};
+  TProfile* m_nPixelOutliers_vs_eta{nullptr};
+  TProfile* m_nPixelContribLayers_vs_eta{nullptr};
+  TProfile* m_nPixelSharedHits_vs_eta{nullptr};
+  TProfile* m_nPixelSplitHits_vs_eta{nullptr};
+  TProfile* m_nPixelGangedHits_vs_eta{nullptr};
+  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_eta{nullptr};
+  TProfile* m_nSCTOutliers_vs_eta{nullptr};
+  TProfile* m_nSCTDoubleHoles_vs_eta{nullptr};
+  TProfile* m_nSCTSharedHits_vs_eta{nullptr};
+  TProfile* m_nTRTOutliers_vs_eta{nullptr};
+  TProfile* m_nTRTHighThresholdOutliers_vs_eta{nullptr};
+  TProfile* m_nPixelDeadSensors_vs_eta{nullptr};
+  TProfile* m_nSCTDeadSensors_vs_eta{nullptr};
   //
   //TProfiles versus phi
   //
-  TProfile* m_nInnerMostPixelHits_vs_phi;
-  TProfile* m_nNextToInnerMostPixelHits_vs_phi;
-  TProfile* m_nPixelHits_vs_phi;
-  TProfile* m_nSCTHits_vs_phi;
-  TProfile* m_nTRTHits_vs_phi;
-  TProfile* m_nPixelHoles_vs_phi;
-  TProfile* m_nSCTHoles_vs_phi;
-  TProfile* m_nTRTHighThresholdHits_vs_phi;
-  TProfile* m_nInnerMostPixelOutliers_vs_phi;
-  TProfile* m_nInnerMostPixelSharedHits_vs_phi;
-  TProfile* m_nInnerMostPixelSplitHits_vs_phi;
-  TProfile* m_nExpectedInnerMostPixelHits_vs_phi;
-  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_phi;
-  TProfile* m_nPixelOutliers_vs_phi;
-  TProfile* m_nPixelContribLayers_vs_phi;
-  TProfile* m_nPixelSharedHits_vs_phi;
-  TProfile* m_nPixelSplitHits_vs_phi;
-  TProfile* m_nPixelGangedHits_vs_phi;
-  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_phi;
-  TProfile* m_nSCTOutliers_vs_phi;
-  TProfile* m_nSCTDoubleHoles_vs_phi;
-  TProfile* m_nSCTSharedHits_vs_phi;
-  TProfile* m_nTRTOutliers_vs_phi;
-  TProfile* m_nTRTHighThresholdOutliers_vs_phi;
-  TProfile* m_nPixelDeadSensors_vs_phi;
-  TProfile* m_nSCTDeadSensors_vs_phi;
+  TProfile* m_nInnerMostPixelHits_vs_phi{nullptr};
+  TProfile* m_nNextToInnerMostPixelHits_vs_phi{nullptr};
+  TProfile* m_nPixelHits_vs_phi{nullptr};
+  TProfile* m_nSCTHits_vs_phi{nullptr};
+  TProfile* m_nTRTHits_vs_phi{nullptr};
+  TProfile* m_nPixelHoles_vs_phi{nullptr};
+  TProfile* m_nSCTHoles_vs_phi{nullptr};
+  TProfile* m_nTRTHighThresholdHits_vs_phi{nullptr};
+  TProfile* m_nInnerMostPixelOutliers_vs_phi{nullptr};
+  TProfile* m_nInnerMostPixelSharedHits_vs_phi{nullptr};
+  TProfile* m_nInnerMostPixelSplitHits_vs_phi{nullptr};
+  TProfile* m_nExpectedInnerMostPixelHits_vs_phi{nullptr};
+  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_phi{nullptr};
+  TProfile* m_nPixelOutliers_vs_phi{nullptr};
+  TProfile* m_nPixelContribLayers_vs_phi{nullptr};
+  TProfile* m_nPixelSharedHits_vs_phi{nullptr};
+  TProfile* m_nPixelSplitHits_vs_phi{nullptr};
+  TProfile* m_nPixelGangedHits_vs_phi{nullptr};
+  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_phi{nullptr};
+  TProfile* m_nSCTOutliers_vs_phi{nullptr};
+  TProfile* m_nSCTDoubleHoles_vs_phi{nullptr};
+  TProfile* m_nSCTSharedHits_vs_phi{nullptr};
+  TProfile* m_nTRTOutliers_vs_phi{nullptr};
+  TProfile* m_nTRTHighThresholdOutliers_vs_phi{nullptr};
+  TProfile* m_nPixelDeadSensors_vs_phi{nullptr};
+  TProfile* m_nSCTDeadSensors_vs_phi{nullptr};
+
+  //
+  // 2D profile content 
+  //
+  TProfile2D* m_nInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nExpectedInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nNextToInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nExpectedNextToInnerMostPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelHits_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelHoles_vs_etaphi{nullptr};
+  TProfile2D* m_nPixelDeadSensors_vs_etaphi{nullptr};
+
+  TProfile2D* m_nSCTHits_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTHoles_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTDeadSensors_vs_etaphi{nullptr};
+  TProfile2D* m_nSCTDoubleHoles_vs_etaphi{nullptr};
+  //
+  //TProfiles versus mu
+  //
+  TProfile* m_nInnerMostPixelHits_vs_mu{nullptr};
+  TProfile* m_nNextToInnerMostPixelHits_vs_mu{nullptr};
+  TProfile* m_nPixelHits_vs_mu{nullptr};
+  TProfile* m_nSCTHits_vs_mu{nullptr};
+  TProfile* m_nTRTHits_vs_mu{nullptr};
+  TProfile* m_nPixelHoles_vs_mu{nullptr};
+  TProfile* m_nSCTHoles_vs_mu{nullptr};
+  TProfile* m_nTRTHighThresholdHits_vs_mu{nullptr};
+  TProfile* m_nInnerMostPixelOutliers_vs_mu{nullptr};
+  TProfile* m_nInnerMostPixelSharedHits_vs_mu{nullptr};
+  TProfile* m_nInnerMostPixelSplitHits_vs_mu{nullptr};
+  TProfile* m_nExpectedInnerMostPixelHits_vs_mu{nullptr};
+  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_mu{nullptr};
+  TProfile* m_nPixelOutliers_vs_mu{nullptr};
+  TProfile* m_nPixelContribLayers_vs_mu{nullptr};
+  TProfile* m_nPixelSharedHits_vs_mu{nullptr};
+  TProfile* m_nPixelSplitHits_vs_mu{nullptr};
+  TProfile* m_nPixelGangedHits_vs_mu{nullptr};
+  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_mu{nullptr};
+  TProfile* m_nSCTOutliers_vs_mu{nullptr};
+  TProfile* m_nSCTDoubleHoles_vs_mu{nullptr};
+  TProfile* m_nSCTSharedHits_vs_mu{nullptr};
+  TProfile* m_nTRTOutliers_vs_mu{nullptr};
+  TProfile* m_nTRTHighThresholdOutliers_vs_mu{nullptr};
+  TProfile* m_nPixelDeadSensors_vs_mu{nullptr};
+  TProfile* m_nSCTDeadSensors_vs_mu{nullptr};
 
 
   // plot base has nop default implementation of this; we use it to book the histos

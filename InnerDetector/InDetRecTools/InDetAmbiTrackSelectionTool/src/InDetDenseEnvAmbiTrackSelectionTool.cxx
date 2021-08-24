@@ -46,10 +46,12 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
 {
   ATH_CHECK(AlgTool::initialize());
 
-  if (m_IBLParameterSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
-  } else {
-    m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
+  if(!m_doITk){
+    if (m_IBLParameterSvc.retrieve().isFailure()) {
+      ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+    } else {
+      m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
+    }
   }
 
   // Get segment selector tool
@@ -61,6 +63,8 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_detID, "SiliconID"));
  
+  if(!m_etaDependentCutsSvc.name().empty()) ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+
   ATH_CHECK(m_assoTool.retrieve());
 
   ATH_CHECK(m_inputHadClusterContainerName.initialize(m_useHClusSeed));
@@ -98,7 +102,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     for ( const Trk::CaloClusterROI* ccROI : *calo) {
-      if ( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){
+      if ( ccROI->energy() * std::sin(ccROI->globalPosition().theta()) < m_minPtEm){
         continue;
       }
       ent->m_emF.push_back( ccROI->globalPosition().phi() );
@@ -131,9 +135,14 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   // compute the number of shared hits from the number of max shared modules
   // reset every track as could be changed for tracks within an ROI
   // ROI matching is done within decideWhichHitsToKeep. Note mulitple ROI types
-  ent->m_maxSharedModules = 2*m_maxSharedModules+1; // see header for meaning
-  ent->m_minNotShared = m_minNotSharedHits;
-  ent->m_minSiHits = m_minSiHitsToAllowSplitting;
+  double trackEta = ptrTrack->trackParameters()->front()->eta();
+  int maxSharedModules = m_etaDependentCutsSvc.name().empty() ?
+    int(m_maxSharedModules) : m_etaDependentCutsSvc->getMaxSharedAtEta(trackEta);
+  ent->m_maxSharedModules = 2*maxSharedModules+1; // see header for meaning
+  ent->m_minNotShared = m_etaDependentCutsSvc.name().empty() ?
+    int(m_minNotSharedHits) : m_etaDependentCutsSvc->getMinSiNotSharedAtEta(trackEta);
+  ent->m_minSiHits = m_etaDependentCutsSvc.name().empty() ?
+    int(m_minSiHitsToAllowSplitting) : m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
 
   // cut on TRT hits, might use eta dependent cuts here
   int  nCutTRT = m_minTRT_Hits;
@@ -413,8 +422,8 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(TSoS_D
       bool isSplitPixel(false);
       if (m_detID->is_pixel(prdToCheck->identify())) {
         isPixel = true;
-        const InDet::PixelCluster* constPixelCluster = dynamic_cast<const InDet::PixelCluster*> ( prdToCheck  );    
-        if (constPixelCluster){    
+        if (prdToCheck->type(Trk::PrepRawDataType::PixelCluster)){
+          const InDet::PixelCluster* constPixelCluster = static_cast<const InDet::PixelCluster*> ( prdToCheck  );
           const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(constPixelCluster);
           if ( splitProb.isSplit() )  {
             isSplitPixel = true;
@@ -533,11 +542,10 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     }
 
     // ok, let try to get the ROT then
-    const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (meas);
-    if (!rot) {
+    
+    if (not meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
       // could be a Pseudo-Measurement ?
-      const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast <const Trk::PseudoMeasurementOnTrack*> (meas);
-      if (pseudo){
+      if (meas->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)){
         ATH_MSG_VERBOSE ( Form("---> Pseudo measurement, %2d",index) );
         ++trackHitDetails.m_numPseudo; // increase counter
       } else {
@@ -546,7 +554,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
       tsosDetails.m_type[index] = OtherTsos;
       continue;
     }
-    
+    const Trk::RIO_OnTrack* rot = static_cast <const Trk::RIO_OnTrack*> (meas);
     //Store RIO into vector for later use
     tsosDetails.m_RIO[index] = rot;
 
@@ -571,13 +579,13 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 
     // Add splitting information about the cluster
     if (isPixel) {
-      // get pixel cluster
-      const InDet::PixelCluster* clus = dynamic_cast <const InDet::PixelCluster*> (rot->prepRawData());
-      if ( !clus ) {
-        ATH_MSG_WARNING ("---> Cast to Pixel cluster failed, should not happen !");
+      if ( not rot->prepRawData()->type(Trk::PrepRawDataType::PixelCluster) ) {
+        ATH_MSG_WARNING ("---> Cluster is not from pixels; should not happen !");
         tsosDetails.m_type[index] = RejectedHit;
         continue; 
       } else {
+        // get pixel cluster
+        const InDet::PixelCluster* clus = static_cast <const InDet::PixelCluster*> (rot->prepRawData());
         const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(clus);
         if ( !splitProb.isTooBigToBeSplit() )  {
           tsosDetails.m_splitProb1[index] = splitProb.splitProbability1();
@@ -585,8 +593,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
         } else { 
           // cluster too big to split are default to 3 particle cluster
           // rigorously checked?
-          tsosDetails.m_splitProb1[index] = m_sharedProbCut - 0.01;
-          tsosDetails.m_splitProb2[index] = m_sharedProbCut2 + 0.01;
+          tsosDetails.m_splitProb1[index] = m_sharedProbCut - 0.01f;
+          tsosDetails.m_splitProb2[index] = m_sharedProbCut2 + 0.01f;
         }
       }
     } // isPixel
@@ -1352,12 +1360,12 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
     return nullptr;
   }
 
-  auto vecTsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* iTsos : tsos) {
     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*iTsos);
-    vecTsos->push_back(newTsos);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;
@@ -1384,8 +1392,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::setPixelClusterSplitInformation
 
     // And the hit is a pixel hit
     if (tsosDetails.m_detType[index]%10 == 1){
-      const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*> ( tsosDetails.m_RIO[index]->prepRawData()  );
-      if (pixelCluster){
+      if (const auto * pThisPrd(tsosDetails.m_RIO[index]->prepRawData());pThisPrd->type(Trk::PrepRawDataType::PixelCluster)){
+        const InDet::PixelCluster* pixelCluster = static_cast<const InDet::PixelCluster*> ( pThisPrd  );
         Trk::ClusterSplitProbabilityContainer::ProbabilityInfo *splitProb = splitProbContainer.getSplitProbability(pixelCluster);
         if (!splitProb) {
            splitProb = &(splitProbContainer.setSplitInformation(pixelCluster,0.f,0.f));
@@ -1510,12 +1518,12 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
     return returnPair;
   }
   
-  const auto *firstRot = dynamic_cast <const Trk::RIO_OnTrack*> (firstMeas);
-  if (!firstRot) {
+  if (not firstMeas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
     ATH_MSG_DEBUG("This measurement is not a ROT");
     return returnPair;
   }
-
+  
+  const auto *firstRot = static_cast <const Trk::RIO_OnTrack*> (firstMeas);
   if ( !prd_to_track_map.isUsed(*(firstRot->prepRawData()))){
     ATH_MSG_ERROR("This hist is not shared");
     return returnPair;
@@ -1546,11 +1554,11 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
       continue;
     }
     
-    const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (meas);
-    if (!rot) {
+    
+    if (not meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
       continue;
     }
-    
+    const Trk::RIO_OnTrack* rot = static_cast <const Trk::RIO_OnTrack*> (meas);
     if (rot->prepRawData() != firstRot->prepRawData()){
       ++measurementsBeforeShared;
       continue;

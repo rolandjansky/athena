@@ -99,8 +99,8 @@ T_AthenaPoolExtendingCnv< TRANS, PERS >::writeObject(const std::string& key, con
 	 throw std::runtime_error("Component persistent object write failed");
       }
       getTopLevelTPCnv()->clearTLPersObject();
-      std::size_t cpos = output.find(":");
-      std::size_t bpos = output.find("[");
+      std::size_t cpos = output.find(':');
+      std::size_t bpos = output.find('[');
       if (cpos == std::string::npos) {
          cpos = 0;
       } else {

@@ -32,6 +32,7 @@
 
 #include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/AnnulusBounds.h"
+#include "TrkSurfaces/AnnulusBoundsPC.h"
 
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "CLHEP/Geometry/Transform3D.h"
@@ -59,7 +60,23 @@ public:
                    const std::vector<double> &stripStart,
                    const std::vector<double> &stripEnd,
                    const double &stereoAngle,
-                   const double &centreR);
+                   const double &centreR,
+                   const bool &usePC);
+
+StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
+                   const SiDetectorDesign::Axis &thicknessDirection,
+                   const double &thickness,
+                   const int &readoutSide,
+                   const InDetDD::CarrierType &carrier,
+                   const int &nRows,
+                   const std::vector<int> &nStrips,
+                   const std::vector<double> &pitch,
+                   const std::vector<double> &stripStart,
+                   const std::vector<double> &stripEnd,
+                   const double &stereoAngle,
+                   const double &centreR,//this is the centre radius for e.g. the local/global position
+                   const double &waferCentreR,//this is the centre radius needed for calculating the bounds, It is common to all elements on the same wafer/module/sensor (i.e. with a common MotherDesign)
+                   const bool &usePC);
 
     ~StripStereoAnnulusDesign() = default;
 
@@ -68,7 +85,7 @@ public:
     // Copy constructor and assignment:
     StripStereoAnnulusDesign(const StripStereoAnnulusDesign &design);
     StripStereoAnnulusDesign &operator = (const StripStereoAnnulusDesign &design);
-    void getStripRow(SiCellId cellId, int *strip, int *row) const final;
+    std::pair<int,int> getStripRow(SiCellId cellId) const final;
     int strip1Dim(int strip, int row) const;
     SiLocalPosition stripPosAtR(int strip, int row, double r) const;
     int diodesInRow(const int row) const;
@@ -141,6 +158,14 @@ public:
     // member
     SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const;
 
+    //Returns the wafer centre Radius (needed for annulus shape)
+    double waferCentreR() const;
+
+    //Returns the "element" centre radius - the same as above for elements
+    //representing a full wafer with multiple rows,
+    //different for elements where each row is its own element
+    double centreR() const;
+
     // ---------------------------------------------------------------------------------------
     // DEPRECATED at least for Strips
     HepGeom::Vector3D<double> phiMeasureSegment(const SiLocalPosition &position) const;
@@ -169,9 +194,6 @@ public:
     /** Shape of element */
     virtual DetectorShape shape() const;
 
-   // Transform from SiHit to GeoModel frame
-   const Amg::Transform3D SiHitToGeoModel() const;
-
    double sinStripAngleReco(double phiCoord, double etaCoord) const;
 
     // ------------------------------------------------------------------------------------------
@@ -195,13 +217,15 @@ private:
     const std::vector<double> m_stripEndRadius;
     const double m_stereo;
     const double m_R;
+    const double m_waferCentreR;
     const double m_lengthBF;
-    Trk::AnnulusBounds m_bounds;  
+    std::unique_ptr<Trk::SurfaceBounds> m_bounds;
     //members to avoid repeating cos/sin calculations
     const double m_sinStereo;
     const double m_cosStereo;
     const double m_sinNegStereo;
     const double m_cosNegStereo;
+    const bool m_usePC;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -298,6 +322,14 @@ inline int StripStereoAnnulusDesign::strip(int stripId1Dim) const {
                      m_firstStrip[rowNum + 1] << "\n";
     }
     return strip2D;
+}
+
+inline double StripStereoAnnulusDesign::waferCentreR() const {
+    return m_waferCentreR;
+}
+
+inline double StripStereoAnnulusDesign::centreR() const {
+    return m_R;
 }
 
 /// DEPRECATED for StripStereoAnnulusDesign; no dead area

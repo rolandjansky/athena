@@ -551,12 +551,12 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
     return nullptr;
   }
 
-  auto vecTsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* tsosIt : tsos) {
     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*tsosIt);
-    vecTsos->push_back(newTsos);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;

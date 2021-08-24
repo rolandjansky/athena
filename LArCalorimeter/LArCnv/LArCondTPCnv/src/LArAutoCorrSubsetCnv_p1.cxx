@@ -10,9 +10,13 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
                                   LArAutoCorrTransType* transObj, 
                                   MsgStream & log)
 {
+  // Copy basic metadata
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   unsigned int nAutoCorrs       = persObj->m_vAutoCorrSize;
   unsigned int autocorrIndex    = 0;
 
@@ -34,7 +38,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
     }
             
     // Loop over channels in feb - only some channels are filled
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
       bool copyChannel = true;
       if (hasSparseData) {
@@ -106,9 +110,6 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
   }
   transObj->insertCorrections (std::move (corrs));
 
-  // Copy the rest
-  transObj->setChannel       (persObj->m_subset.m_channel);
-  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 
@@ -155,6 +156,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
     unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nchans           = 0;
     unsigned int nAutoCorrs       = 0;
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     bool foundNAutoCorrs          = false;
     std::vector<unsigned int> febsWithSparseData;
 
@@ -167,7 +169,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
     {
         unsigned int nfebChans = subsetIt->second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArAutoCorrSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;

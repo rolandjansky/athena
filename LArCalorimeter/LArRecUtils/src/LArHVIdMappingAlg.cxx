@@ -82,7 +82,7 @@ StatusCode LArHVIdMappingAlg::execute() {
     std::ostringstream attrStr1;
     coral::AttributeList::const_iterator itr=attr->begin();
     itr->toOutputStream(attrStr1);
-    std::string::size_type pos = attrStr1.str().find(":");
+    std::string::size_type pos = attrStr1.str().find(':');
     if (pos == std::string::npos)
       pos = 0;
     else

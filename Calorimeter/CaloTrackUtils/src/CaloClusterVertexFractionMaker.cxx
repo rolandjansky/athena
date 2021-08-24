@@ -106,10 +106,10 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
 
   // loop over vertices, extrapolate tracks to calo, remember num tracks per vertex (for cluster vertex fraction calculation later)
   m_numTracksPerVertex->resize(primcontainer->size()-1, 0);
-  for (unsigned int v = 0 ; v < primcontainer->size()-1; v++)
+  for (unsigned int v = 0 ; v < primcontainer->size()-1; ++v)
   {
     const std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = primcontainer->at(v)->vxTrackAtVertex();
-    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator vxTrkItr = vxTrackAtVertex->begin(); vxTrkItr != vxTrackAtVertex->end(); vxTrkItr++)
+    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator vxTrkItr = vxTrackAtVertex->begin(); vxTrkItr != vxTrackAtVertex->end(); ++vxTrkItr)
     {
       /** usual complicated procedure to get from the vertex to the track(particle) */
       Trk::ITrackLink*              trklink             = (*vxTrkItr)->trackOrParticleLink();
@@ -163,7 +163,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
   double dR2(9999.);
   std::vector<float>* sumPtOfMatchedTracksPerVertex = new std::vector<float>(m_numTracksPerVertex->size(), 0.);
 
-  for (xAOD::CaloClusterContainer::iterator clItr = caloClusterContainer->begin(); clItr != caloClusterContainer->end(); clItr++)
+  for (xAOD::CaloClusterContainer::iterator clItr = caloClusterContainer->begin(); clItr != caloClusterContainer->end(); ++clItr)
   {
      xAOD::CaloCluster* theCluster = (*clItr);
 //     double cl_theta = 2.*atan(exp(-theCluster->eta()));
@@ -175,10 +175,10 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
       std::vector<unsigned int>::iterator numTrksPerVertexItrE = m_numTracksPerVertex->end();
       unsigned int vertexCounter(0);
       unsigned int totalTrackCounter(0);
-      for ( ; numTrksPerVertexItr != numTrksPerVertexItrE ; numTrksPerVertexItr++, vertexCounter++)
+      for ( ; numTrksPerVertexItr != numTrksPerVertexItrE ; ++numTrksPerVertexItr, vertexCounter++)
       {
         sumPtOfMatchedTracksPerVertex->at(vertexCounter) = 0.;
-        for (unsigned int track = 0; track < (*numTrksPerVertexItr); track++, totalTrackCounter++)
+        for (unsigned int track = 0; track < (*numTrksPerVertexItr); ++track, totalTrackCounter++)
         {
           if (m_trkParticleEta_atCaloEntrance->at(totalTrackCounter) < 900.) // no need to check phi as well (not extrapolated eta is set to 999.)
           {
@@ -192,7 +192,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
         }
       }
       double totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex(0.);
-      for (unsigned int mTpV = 0; mTpV < sumPtOfMatchedTracksPerVertex->size(); mTpV++) {
+      for (unsigned int mTpV = 0; mTpV < sumPtOfMatchedTracksPerVertex->size(); ++mTpV) {
         totalSumPtOfMatchedTracksWhichWereAlsoUsedInAVertex += sumPtOfMatchedTracksPerVertex->at(mTpV);
         //std::cout << "CaloClusterVertexFractionMakerAOD: " << mTpV << "\t" << sumPtOfMatchedTracksPerVertex->at(mTpV) << std::endl;
       }

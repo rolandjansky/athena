@@ -244,7 +244,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
 
   if(m_activateFT){
     std::string name = "LAr::Endcap::SignalFT::";
-    log << MSG::INFO << "creating " << name << " volumes" << endmsg;
+    log << MSG::DEBUG << "creating " << name << " volumes" << endmsg;
 
     const GeoMaterial* iron = materialManager->getMaterial("std::Iron");
 

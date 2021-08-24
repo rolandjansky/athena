@@ -22,10 +22,10 @@ namespace Trk {
   just implement the delete on the objects
 */
 
-class ApproachSurfaces : public std::vector<const Surface*> {
+class ApproachSurfaces : public std::vector<Surface*> {
  public:
   // Default constructor
-  ApproachSurfaces() : std::vector<const Surface*>() {}
+  ApproachSurfaces() : std::vector<Surface*>() {}
 
   // Desctructur with cleanup
   ~ApproachSurfaces() {
@@ -112,7 +112,7 @@ inline void IApproachDescriptor::registerLayer(const Layer& lay) {
 
 inline void IApproachDescriptor::registerLayerToSurfaces(
     const Layer& lay, const ApproachSurfaces& aSurfaces) {
-  for (auto& aSurface : aSurfaces) {
+  for (Trk::Surface* aSurface : aSurfaces) {
     aSurface->associateLayer(lay);
     aSurface->setOwner(Trk::TGOwn);
   }

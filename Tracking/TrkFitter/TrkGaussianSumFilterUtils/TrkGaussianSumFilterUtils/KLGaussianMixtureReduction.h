@@ -23,7 +23,7 @@
  * (mean1-mean2) * ((1/variance1)+(1/variance2))(mean1-mean2)
  *
  * We use doubles for the intermediate calculations
- * but we store the final distances to short in an array
+ * but we store the final distances in an array
  * of floats.
  *
  *
@@ -103,9 +103,9 @@ struct Component1D
  */
 struct Component1DArray
 {
-  alignas(GSFConstants::alignment) std::array<
-    Component1D,
-    GSFConstants::maxComponentsAfterConvolution> components{};
+  alignas(GSFConstants::alignment)
+    std::array<Component1D,
+               GSFConstants::maxComponentsAfterConvolution> components{};
   int32_t numComponents = 0;
 };
 

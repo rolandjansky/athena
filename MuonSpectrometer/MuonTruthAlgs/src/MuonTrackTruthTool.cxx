@@ -630,7 +630,7 @@ namespace Muon {
             const Trk::PrepRawData* prd = rot->prepRawData();
             if (prd) {
                 // check if an identifier from the list of RDOs is matched to that in the SDO collection
-                const std::vector<Identifier> rdoList = prd->rdoList();
+                const std::vector<Identifier> &rdoList = prd->rdoList();
                 std::vector<Identifier>::const_iterator rit = rdoList.begin();
                 std::vector<Identifier>::const_iterator rit_end = rdoList.end();
                 for (; rit != rit_end; ++rit) {

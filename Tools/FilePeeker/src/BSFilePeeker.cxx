@@ -37,7 +37,7 @@ private:
 
 bool BSFilePeeker::extractValue(const std::string& source, const std::string& key, std::string& value) {
 
-  const size_t sep=source.find(":");
+  const size_t sep=source.find(':');
   if (sep==std::string::npos || source.compare(0,sep,key)!=0) {
     return false;
   }

@@ -7,21 +7,23 @@
 
 #include "CounterAlgorithm.h"
 
-CounterAlgorithm::CounterAlgorithm(const std::string& name, const MonitorBase* parent) 
+CounterAlgorithm::CounterAlgorithm(const std::string& name, const MonitorBase* parent, const bool skipHistograms) 
   : CounterBase(name, parent)
 {
-  regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
-  regHistogram("FirstTime_perEvent", "First Call CPU Time;Time [ms];Events", VariableType::kPerCall);
-  regHistogram("Time_perEvent", "CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
-  regHistogram("Time_perEventFractional", "CPU Time/Event CPU Time;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
-  regHistogram("AlgCalls_perEvent", "Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 4999.5, 500);
-  regHistogram("InEventView_perCall", "In Event View;Yes or No;Calls", VariableType::kPerCall, kLinear, -0.5, 1.5, 2);
-  regHistogram("RoIID_perCall", "RoI ID;RoI ID;Calls", VariableType::kPerCall, kLinear, -1.5, 20.5, 22);
-  regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
-  regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
-  regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
-  regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
-  regHistogram("RequestTime_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
+  if (!skipHistograms){
+    regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
+    regHistogram("FirstTime_perEvent", "First Call CPU Time;Time [ms];Events", VariableType::kPerCall);
+    regHistogram("Time_perEvent", "CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
+    regHistogram("Time_perEventFractional", "CPU Time/Event CPU Time;Fractional Time;Events", VariableType::kPerEvent, kLinear, 0., 1.);
+    regHistogram("AlgCalls_perEvent", "Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5, 500);
+    regHistogram("InEventView_perCall", "In Event View;Yes or No;Calls", VariableType::kPerCall, kLinear, -0.5, 1.5, 2);
+    regHistogram("RoIID_perCall", "RoI ID;RoI ID;Calls", VariableType::kPerCall, kLinear, -1.5, 20.5, 22);
+    regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
+    regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
+    regHistogram("CachedROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+    regHistogram("NetworkROBSize_perEvent", "Total ROB Size/Event;ROB size;Events", VariableType::kPerEvent, LogType::kLinear, 0, 1024, 50);
+    regHistogram("RequestTime_perEvent", "ROB Elapsed Time/Event;Elapsed Time [ms];Events", VariableType::kPerEvent);
+  }
 }
 
 

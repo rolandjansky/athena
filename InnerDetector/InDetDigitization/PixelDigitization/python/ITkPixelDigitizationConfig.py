@@ -4,17 +4,18 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from PixelCabling.PixelCablingConfigNew import ITkPixelCablingSvcCfg
 from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
     ITkPixelConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
 from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
 from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
 from SiPropertiesTool.ITkPixelSiPropertiesConfig import ITkPixelSiPropertiesCfg
 
@@ -50,12 +51,12 @@ def ITkEnergyDepositionToolCfg(flags, name="ITkEnergyDepositionTool", **kwargs):
 
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
-    acc = ITkPixelCablingSvcCfg(flags)
+    acc = ITkPixelReadoutManagerCfg(flags)
     acc.merge(ITkPixelConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
@@ -66,12 +67,12 @@ def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
 
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
-    acc = ITkPixelCablingSvcCfg(flags)
+    acc = ITkPixelReadoutManagerCfg(flags)
     acc.merge(ITkPixelConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
@@ -143,6 +144,12 @@ def ITkPixelDigitizationToolCfg(flags, name="ITkPixelDigitizationTool", **kwargs
     rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "ITkPixelRDOs")
+        kwargs.setdefault("SDOCollName", flags.Overlay.BkgPrefix + "ITkPixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "ITkPixelRDOs")
+        kwargs.setdefault("SDOCollName", "ITkPixelSDO_Map")
     tool = acc.popToolsAndMerge(ITkPixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc

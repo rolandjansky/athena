@@ -70,10 +70,15 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
+    TP_excludedAuxData='.-caloExtension'
+    if not rec.doPhysicsValidationAugmentation() :
+        # when not doing PhysVal exclude decorations meant for extra outputs
+        TP_excludedAuxData += '.-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'
+
     McTruthAODList=["xAOD::TruthEventContainer#TruthEvents",
                     "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                     "xAOD::TruthParticleContainer#TruthParticles",
-                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux"+TP_excludedAuxData,
                     "xAOD::TruthParticleContainer#TruthPileupParticles",
                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                     "xAOD::TruthVertexContainer#TruthVertices", 
@@ -318,6 +323,15 @@ if rec.doCaloRinger():
     except Exception:
         treatException("Could not load CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
 
+# remove decorations that might be created by monitoring
+if rec.doMonitoring():
+    monitoringItems = []
+    from JetRec.JetRecFlags import jetFlags
+    if jetFlags.writeJetsToAOD():
+        monitoringItems.append("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad")
+    fullAODList += CfgItemList( "MonitoringAod", 
+                                items = monitoringItems
+                              )
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore
 # (more and more will be taken from ObjKeyStore)

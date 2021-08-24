@@ -3,7 +3,6 @@
 #from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 from CaloRec.CaloRecConf import CaloTopoTowerFromClusterMaker
-from CaloRec.CaloRecConf import CaloTowerGeometrySvc
 
 from   AthenaCommon.Logging import logging
 import AthenaCommon.Constants as Lvl
@@ -14,7 +13,6 @@ import AthenaCommon.Constants as Lvl
 ####################################
 
 def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
-                           towerGeometrySvc         = CaloTowerGeometrySvc('CaloTowerGeometrySvc'),
                            cellContainerKey         = 'AllCalo',
                            buildTopoTowers          = True,
                            topoClusterContainerKey  = 'CaloTopoCluster',
@@ -29,7 +27,6 @@ def TowersFromClustersDict(clusterBuilderName       = 'TowerFromClusterTool',
     ''' Configuration dictionary for tower-to-cluster converter 
     '''
     configDict = { 'ClusterBuilderName'          : clusterBuilderName,         ### name of the tower builder tool
-                   'CaloTowerGeometrySvc'        : towerGeometrySvc,           ### tower geometry provider
                    'CaloCellContainerKey'        : cellContainerKey,           ### (input)   cell container key
                    'CaloTopoClusterContainerKey' : topoClusterContainerKey,    ### (input)   topo-cluster container key
                    'BuildTopoTowers'             : buildTopoTowers,            ### (control) form topo-towers
@@ -219,7 +216,6 @@ def MakeTowersFromClusters(towerMakerName      = 'CaloTowerBuilderAlg',        #
 ##    toolname       = configDict['ClusterBuilderName']     ### name of the tower builder tool
 ##    cellkey        = configDict['CaloCellContainerKey']   ### cell container key
 ##    buildtopotower = configDict['BuildTopoTowers']        ### controls if topo-towers or inclusive towers are built
-##    towergeosvc    = configDict['CaloTowerGeometrySvc']   ### tower geometry provider 
 ##    if ( buildtopotower ):
 ##        topoclusterkey = configDict['CaloTopoClusterContainerKey']
 ##    else:

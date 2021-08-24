@@ -44,12 +44,19 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
 #endif // XAOD_STANDALONE
 
 template<class CONTAINER>
+std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::FeatureRequestDescriptor& featureRequest) const {
+  return features<CONTAINER>(featureRequest.chainGroup(), featureRequest.condition(), featureRequest.SGKey(), 
+    featureRequest.featureCollectionMode(), featureRequest.linkName(), featureRequest.restrictRequestToLeg());
+}
+
+template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::features(const Trig::ChainGroup* group,
                                                                   const unsigned int condition,
                                                                   const std::string& containerSGKey,
                                                                   const unsigned int featureCollectionMode,
-                                                                  const std::string& navElementLinkKey) const {
-  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey);
+                                                                  const std::string& navElementLinkKey,
+                                                                  const int          restrictToLegIndex) const {
+  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
 }
 
 template<class CONTAINER>
@@ -57,9 +64,10 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::fea
                                                                   const unsigned int condition,
                                                                   const std::string& containerSGKey,
                                                                   const unsigned int featureCollectionMode,
-                                                                  const std::string& navElementLinkKey) const {
+                                                                  const std::string& navElementLinkKey,
+                                                                  const int          restrictToLegIndex) const {
   const Trig::ChainGroup *g = cgm()->createChainGroup(Trig::convertStringToVector(chainName));
-  return features<CONTAINER>(g, condition, containerSGKey, featureCollectionMode, navElementLinkKey);
+  return features<CONTAINER>(g, condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
 }
 
 template<class CONTAINER, class FEATURE_CONTAINER>

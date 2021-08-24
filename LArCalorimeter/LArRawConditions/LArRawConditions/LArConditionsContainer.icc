@@ -1145,6 +1145,11 @@ LArConditionsContainer<T>::initialize()
 	      m_groupType = ExtendedSubDetGrouping;
 	      
 	    }
+	    else if (subset->groupingType() == SuperCells) {
+	      m_groupType = SuperCells;
+	    }
+		     
+
 	    // Setup group mapping
 	    StatusCode sc = initializeBase();
 	    if (sc != StatusCode::SUCCESS) return (sc);

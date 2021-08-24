@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Qjets.h"
@@ -35,7 +35,7 @@ bool Qjets::JetsUnmerged(const jet_distance& jd) const{
 jet_distance Qjets::GetNextDistance(){
   vector< pair<jet_distance, double> > popped_distances;
   double norm(0.);
-  jet_distance ret;
+  jet_distance ret{};
   ret.j1 = -1;
   ret.j2 = -1;
   ret.dij = -1.;
@@ -145,7 +145,7 @@ void Qjets::ComputeAllDistances(const vector<fastjet::PseudoJet>& inp){
   for(unsigned int i = 0 ; i < inp.size()-1; i++){
     // jet-jet distances
     for(unsigned int j = i+1 ; j < inp.size(); j++){
-      jet_distance jd;
+      jet_distance jd{};
       jd.j1 = i;
       jd.j2 = j;
       if(jd.j1 != jd.j2){
@@ -160,7 +160,7 @@ void Qjets::ComputeNewDistanceMeasures(fastjet::ClusterSequence & cs, int new_je
   // jet-jet distances
   for(unsigned int i = 0; i < cs.jets().size(); i++)
     if(JetUnmerged(i) && ((int)i) != new_jet){
-      jet_distance jd;
+      jet_distance jd{};
       jd.j1 = new_jet;
       jd.j2 = i;
       jd.dij = d_ij(cs.jets()[jd.j1], cs.jets()[jd.j2]);

@@ -322,7 +322,7 @@ argumentsOK(const int numArgs, const char **/**argv[]**/){
 std::string 
 transConn(const std::string& inconn) {
   std::string result(inconn);
-  if (inconn.find("/")==std::string::npos) {
+  if (inconn.find('/')==std::string::npos) {
     result= "sqlite://X;schema=/tmp/sroe/mycool.db;dbname="+inconn;
   } 
   return result;

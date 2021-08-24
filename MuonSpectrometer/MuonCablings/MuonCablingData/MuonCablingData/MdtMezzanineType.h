@@ -17,8 +17,6 @@
  **/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 
 #include <vector>
@@ -38,7 +36,7 @@ class MdtMezzanineType {
   ~MdtMezzanineType();
 
   /** add a layer type */
-  bool addLayer(uint8_t layerNumber, MdtLayer layer);
+  bool addLayer(uint8_t layerNumber, MdtLayer layer, MsgStream &log);
 
   /** return the mezzanine type */
   uint8_t type() const {return m_type;}
@@ -67,12 +65,8 @@ class MdtMezzanineType {
   uint8_t m_nOfLayers;
 
   /** Array with the layers (maximum 4) */
-  MdtLayer m_layers[5];
+  std::array<MdtLayer, 5> m_layers;
 
-  /** Output level and message service */
-  bool m_debug;
-  MsgStream* m_log;
-  
 };
 
 #endif // MUONMDT_CABLING_MDTMEZZANINETYPE_H

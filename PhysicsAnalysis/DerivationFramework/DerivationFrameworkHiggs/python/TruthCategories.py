@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,DerivationFrameworkJob
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon import CfgMgr
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+from AthenaCommon.GlobalFlags import globalflags
 
-if DerivationFrameworkIsMonteCarlo:
+if globalflags.DataSource()=='geant4': 
+    from AthenaCommon.AppMgr import ToolSvc
+    import AthenaCommon.CfgMgr as CfgMgr
 
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
     DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
+    ToolSvc += DFHTXSdecorator
 
     ToolSvc += DFHTXSdecorator
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TruthCategoriesCommonKernel",

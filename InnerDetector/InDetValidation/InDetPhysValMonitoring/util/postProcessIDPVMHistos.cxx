@@ -44,7 +44,7 @@ std::pair<std::string, std::string> getObservableAndReso(const TObject* resHelpe
     const std::string keyWord {"Helper_"}; 
     const size_t offset = keyWord.size();
     auto start = name.find(keyWord)+offset;
-    auto sep = name.find("_",start);
+    auto sep = name.find('_',start);
     return {name.substr(start, sep-start), name.substr(sep+1)}; 
 
 }

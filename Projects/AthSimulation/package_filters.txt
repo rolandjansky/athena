@@ -169,6 +169,11 @@
 + Generators/HepMCWeightSvc
 + Generators/McEventSelector
 + Generators/TruthUtils
++ HighGranularityTimingDetector/HGTD_DetDescr/HGTD_GeoModel
++ HighGranularityTimingDetector/HGTD_DetDescr/HGTD_Identifier
++ HighGranularityTimingDetector/HGTD_DetDescr/HGTD_ReadoutGeometry
++ HighGranularityTimingDetector/HGTD_DetDescrCnv/HGTD_IdCnv
++ HighGranularityTimingDetector/HGTD_G4/HGTD_G4_SD
 + InnerDetector/InDetConditions/BeamSpotConditions
 + InnerDetector/InDetConditions/BeamSpotConditionsData
 + InnerDetector/InDetConditions/InDetCondFolders
@@ -186,6 +191,7 @@
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
 + InnerDetector/InDetDetDescr/InDetIdentifier
 + InnerDetector/InDetDetDescr/InDetReadoutGeometry
++ InnerDetector/InDetDetDescr/PixelReadoutDefinitions
 + InnerDetector/InDetDetDescr/PixelReadoutGeometry
 + InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
 + InnerDetector/InDetDetDescr/TRT_ReadoutGeometry

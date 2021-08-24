@@ -99,6 +99,9 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( CaloClusterContainer );
   INIT_XAOD( TrigT2MbtsBitsContainer );
   INIT_XAOD( HIEventShapeContainer );
+  INIT_XAOD( TrigRNNOutputContainer );
+  INIT_XAOD( AFPTrackContainer );
+
 #undef INIT
 #undef INIT_XAOD
 
@@ -271,6 +274,11 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
+    // Special case. The slimmed navigation container is exceptionally created _after_ the HLTEDMCreator as it reads remapped navigation data.
+    if (writeHandleKey.key() == "HLTNav_Summary_OnlineSlimmed") {
+      continue;
+    }
+
     if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
@@ -369,6 +377,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
   CREATE_XAOD( TrigT2MbtsBitsContainer, TrigT2MbtsBitsAuxContainer );
   CREATE_XAOD( HIEventShapeContainer, HIEventShapeAuxContainer );
+  CREATE_XAOD( TrigRNNOutputContainer, TrigRNNOutputAuxContainer );
+  CREATE_XAOD( AFPTrackContainer, AFPTrackAuxContainer );
 
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );

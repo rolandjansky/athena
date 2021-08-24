@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetBeamSpotFinder )
@@ -14,7 +14,7 @@ atlas_add_library( InDetBeamSpotFinderLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} BeamSpotConditionsData GaudiKernel TrigAnalysisInterfaces TrkFitterUtils xAODTracking
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} BeamSpotConditionsData LumiBlockData GaudiKernel TrkFitterUtils xAODTracking
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils EventInfo xAODEventInfo TrkEventPrimitives VxVertex AtlasDetDescr Identifier StoreGateLib TrkFitterInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexFitterInterfaces )
 
 atlas_add_component( InDetBeamSpotFinder

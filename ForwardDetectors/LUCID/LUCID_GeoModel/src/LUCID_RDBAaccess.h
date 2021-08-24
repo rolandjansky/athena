@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_RDBAaccess_h
@@ -17,37 +17,37 @@ class LUCID_RDBAccess {
   
   void ReadDB(); 
   void SetParameters(); 
-  void Print();
-  void CloseDB(); 
+  void Print() const;
+  static void CloseDB(); 
   
-  double distanceToIP;  
+  double distanceToIP{};  
 
-  double VJdistanceToIP;
-  double VJconelength;
-  double VJconeRadiusFront;
-  double VJconeRadiusBack;
-  double VJconeThickness;
-  double VJconeFrontRingThickness;
-  double VJconeFrontRingLength;
-  double VJconeFrontRingOverlap;
+  double VJdistanceToIP{};
+  double VJconelength{};
+  double VJconeRadiusFront{};
+  double VJconeRadiusBack{};
+  double VJconeThickness{};
+  double VJconeFrontRingThickness{};
+  double VJconeFrontRingLength{};
+  double VJconeFrontRingOverlap{};
 
-  double cylinderLength;  
-  double cylinderRadius;  
-  double cylinderThickness;  
-  double pmtPosition;  
-  double pmtRadius;  
-  double pmtThickness;  
+  double cylinderLength{};  
+  double cylinderRadius{};  
+  double cylinderThickness{};  
+  double pmtPosition{};  
+  double pmtRadius{};  
+  double pmtThickness{};  
 
-  double quartzDensity; 
+  double quartzDensity{}; 
 
-  double waveLengthStep;  
-  double waveLengthMin;  
-  double waveLengthMax;  
+  double waveLengthStep{};  
+  double waveLengthMin{};  
+  double waveLengthMax{};  
 
  private: 
   
   IRDBRecordset_ptr m_lucidParams; 
-  ISvcLocator* m_svcLocator; 
+  ISvcLocator* m_svcLocator{}; 
 }; 
 
 #endif

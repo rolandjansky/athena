@@ -66,7 +66,6 @@ InDetGlobalTrackMonAlg::~InDetGlobalTrackMonAlg() {}
 
 
 StatusCode InDetGlobalTrackMonAlg::initialize() {
-  
   ATH_CHECK( detStore()->retrieve(m_atlasid, "AtlasID") );
   
   m_pixelID = nullptr;
@@ -114,6 +113,7 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
   //*******************************************************************************
   //************************** Begin of filling Track Histograms ******************
   //*******************************************************************************
+
   ATH_MSG_DEBUG("Filling InDetGlobalTrackMonAlg");
   
   // For histogram naming

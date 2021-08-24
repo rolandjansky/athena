@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloMgrDetDescrCnv.h"
@@ -9,6 +9,9 @@
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -41,7 +44,12 @@
 
 #include "TileDetDescr/TileDetDescrManager.h"
 
-#include <GaudiKernel/ThreadLocalContext.h>
+
+CaloMgrDetDescrCnv::CaloMgrDetDescrCnv(ISvcLocator* svcloc)
+  : DetDescrConverter(ClassID_traits<CaloDetDescrManager>::ID(), svcloc)
+  , AthMessaging(Athena::getMessageSvc(), "CaloMgrDetDescrCnv")
+{
+}
 
 long int CaloMgrDetDescrCnv::repSvcType() const
 {
@@ -50,24 +58,14 @@ long int CaloMgrDetDescrCnv::repSvcType() const
 
 StatusCode CaloMgrDetDescrCnv::initialize()
 {
-  StatusCode sc = DetDescrConverter::initialize();
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in initialize" << endmsg;
-
-  if (sc.isFailure())
-  {
-    log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG("in initialize");
+  ATH_CHECK(DetDescrConverter::initialize());
   return StatusCode::SUCCESS;
 }
 
 StatusCode CaloMgrDetDescrCnv::finalize()
 {
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in finalize" << endmsg;
-
+  ATH_MSG_DEBUG("in finalize");
   return StatusCode::SUCCESS;
 }
 
@@ -75,64 +73,36 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 {
   // Ensure that this object is created inside the event loop
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
   if (!ctx.valid()) {
-    log << MSG::WARNING
-        << "Attempting to create a Calo Detector Manager object outside of the "
-           "event loop. Geometry may not be aligned."
-        << endmsg;
+    ATH_MSG_WARNING("Attempting to create a Calo Detector Manager object outside of the event loop. Geometry may not be aligned.");
   }
-  log << MSG::INFO
-      << "in createObj: creating a Calo Detector Manager object in the "
-         "detector store"
-      << endmsg;
+  ATH_MSG_INFO("in createObj: creating a Calo Detector Manager object in the detector store");
 
-  bool debug = log.level()<=MSG::DEBUG;
-
-  DetDescrAddress* ddAddr;
-  ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
+  DetDescrAddress* ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
   if(!ddAddr) {
-    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+    ATH_MSG_FATAL("Could not cast to DetDescrAddress.");
     return StatusCode::FAILURE;
   }
 
   std::string mgrKey  = *(ddAddr->par());
-  if (debug)
-  {
-  if ("" == mgrKey)
-    log << MSG::DEBUG << "No Manager key " << endmsg;
-  else
-    log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
+  if(mgrKey.empty()) {
+    ATH_MSG_DEBUG("No Manager key ");
+  }
+  else {
+    ATH_MSG_DEBUG("Manager key is " << mgrKey);
   }
 
   // --- --- Get CaloCell_ID and CaloIdManager helpers --- ---
-  StoreGateSvc * detStore;
-  StatusCode status = serviceLocator()->service("DetectorStore", detStore);
-  if (status.isFailure())
-  {
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  StoreGateSvc* detStore{nullptr};
+  ATH_CHECK(serviceLocator()->service("DetectorStore", detStore));
 
-  const CaloCell_ID* cell_id;
-  status = detStore->retrieve(cell_id, "CaloCell_ID");
-  if (status.isFailure())
-  {
-    log << MSG::FATAL << "Could not get CaloCell_ID helper !" << endmsg;
-    return status;
-  }
-  else
-    log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endmsg;
+  const CaloCell_ID* cell_id{nullptr};
+  ATH_CHECK(detStore->retrieve(cell_id, "CaloCell_ID"));
+  ATH_MSG_DEBUG(" Found the CaloCell_ID helper. ");
 
-  const CaloIdManager* caloId_mgr;
-  status = detStore->retrieve(caloId_mgr, "CaloIdManager");
-  if (status.isFailure())
-  {
-    log << MSG::ERROR << "Could not get CaloIdManager helper !" << endmsg;
-    return status;
-  }
-  else
-    if (debug) log << MSG::DEBUG << " Found the CaloIdManager helper. " << endmsg;
+  const CaloIdManager* caloId_mgr{nullptr};
+  ATH_CHECK(detStore->retrieve(caloId_mgr, "CaloIdManager"));
+  ATH_MSG_DEBUG(" Found the CaloIdManager helper. ");
   // --- --- Get CaloCell_ID and CaloIdManager helpers --- ---
 
   // --- --- Create CaloDetDescrManager object --- ---
@@ -164,31 +134,30 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
   // Check whether we are working with Test Beam geometry
   bool isTestBeam = false;
-  const LArDetectorManager* larMgr = 0;
-  status = detStore->retrieve(larMgr);
-  if(status.isFailure() || larMgr==0)
-    log << MSG::WARNING << "Could not get LArDetectorManager. Assuming TestBeam=false" << endmsg;
-  else
+  const LArDetectorManager* larMgr{nullptr};
+  StatusCode status = detStore->retrieve(larMgr);
+  if(status.isFailure()) {
+    ATH_MSG_WARNING("Could not get LArDetectorManager. Assuming TestBeam=false");
+  }
+  else {
     isTestBeam = larMgr->isTestBeam();
+  }
 
   // ****************************************************************
   // **                   --- --- EMB --- ---                      **
   // ****************************************************************
 
   // --- Retrieve Emec Detector Manager
-  const EMBDetectorManager* embManager = 0;
+  const EMBDetectorManager* embManager{nullptr};
   status = detStore->retrieve(embManager);
-  if(status.isFailure())
-  {
-    log << MSG::WARNING << "Could not get the EMBDetectorManager. No Calo Elements will be built for EMB" << endmsg;
+  if(status.isFailure()) {
+    ATH_MSG_WARNING("Could not get the EMBDetectorManager. No Calo Elements will be built for EMB");
   }
-  else
-  {
+  else {
     //         --- --- Iterate over EMB regions and cells --- ---
     EMBDetectorManager::DetectorRegionConstIterator embregIt;
 
-    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); embregIt++)
-    {
+    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); embregIt++) {
       const EMBDetectorRegion *embRegion = *embregIt;
 
       // *** ***  Create descriptor for this region *** ***
@@ -196,28 +165,21 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       // Do some mapping between LArReadoutGeometry and CaloID
 
       int barrel_ec = 0;
-      switch(embRegion->getEndcapIndex())
-      {
+      switch(embRegion->getEndcapIndex()) {
       case EMBDetectorRegion::NEG:
-	{
-	  barrel_ec = -1; // negative side
-	  break;
-	}
+	barrel_ec = -1; // negative side
+	break;
       case EMBDetectorRegion::POS:
-	{
-	  barrel_ec = 1;  // positive side
-	  break;
-	}
+	barrel_ec = 1;  // positive side
+	break;
       default:
-	{
-	  log << MSG::ERROR << "Wrong Side Index for EMB region " << embRegion->getEndcapIndex() << endmsg;
-	  return StatusCode::FAILURE;
-	}
+	ATH_MSG_ERROR("Wrong Side Index for EMB region " << embRegion->getEndcapIndex());
+	return StatusCode::FAILURE;
       }
 
-      Identifier regId = em_id->region_id(barrel_ec,
-					  embRegion->getSamplingIndex(),
-					  embRegion->getRegionIndex());
+      Identifier regId = em_id->region_id(barrel_ec
+					  , embRegion->getSamplingIndex()
+					  , embRegion->getRegionIndex());
 
       EMBDescriptor* embDescr = new EMBDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,embRegion);
       caloMgr->add(embDescr);
@@ -239,27 +201,28 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       //
       //            *** *** *** Iterate over cells *** *** ***
       //
-      for (unsigned int iPhi=embRegion->beginPhiIndex();iPhi<embRegion->endPhiIndex();iPhi++)
-      {
-	for (unsigned int iEta=embRegion->beginEtaIndex();iEta<embRegion->endEtaIndex();iEta++)
-	{
+      for (unsigned int iPhi=embRegion->beginPhiIndex();iPhi<embRegion->endPhiIndex();iPhi++) {
+	for (unsigned int iEta=embRegion->beginEtaIndex();iEta<embRegion->endEtaIndex();iEta++) {
 	  EMBCellConstLink cellPtr = embRegion->getEMBCell(iEta,iPhi);
 
 	  // build hash identifier for this cell
-	  Identifier chanId = em_id->channel_id(barrel_ec,
-						cellPtr->getSamplingIndex(),
-						cellPtr->getRegionIndex(),
-						iEta,iPhi);
+	  Identifier chanId = em_id->channel_id(barrel_ec
+						, cellPtr->getSamplingIndex()
+						, cellPtr->getRegionIndex()
+						, iEta
+						, iPhi);
 
 	  // Create the element and store it
-	  EMBDetectorElement* embElement = new EMBDetectorElement(em_id->channel_hash(chanId),
-								  0,0,
-								  embDescr,
-								  cellPtr,
-								  embRegion,
-								  isTestBeam);
-	  if(iPhi==embRegion->beginPhiIndex())
+	  EMBDetectorElement* embElement = new EMBDetectorElement(em_id->channel_hash(chanId)
+								  , 0
+								  , 0
+								  , embDescr
+								  , cellPtr
+								  , embRegion
+								  , isTestBeam);
+	  if(iPhi==embRegion->beginPhiIndex()) {
 	    phi_min = embElement->phi() - 0.5*embElement->dphi();
+	  }
 
 	  // cell volume
 	  embElement->set_volume(cellVol.CellVolume(chanId));
@@ -271,10 +234,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	  if(r_max < embElement->r()+0.5*embElement->dr())
 	    r_max = embElement->r()+0.5*embElement->dr();
 
-	  if(z_min > fabs(embElement->z_raw())-0.5*embElement->dz())
-	    z_min = fabs(embElement->z_raw())-0.5*embElement->dz();
-	  if(z_max < fabs(embElement->z_raw())+0.5*embElement->dz())
-	    z_max = fabs(embElement->z_raw())+0.5*embElement->dz();
+	  if(z_min > std::abs(embElement->z_raw())-0.5*embElement->dz())
+	    z_min = std::abs(embElement->z_raw())-0.5*embElement->dz();
+	  if(z_max < std::abs(embElement->z_raw())+0.5*embElement->dz())
+	    z_max = std::abs(embElement->z_raw())+0.5*embElement->dz();
 
 	  if(reg_min > embElement->eta()-0.5*embElement->deta())
 	    reg_min = embElement->eta()-0.5*embElement->deta();
@@ -282,8 +245,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	    reg_max = embElement->eta()+0.5*embElement->deta();
 
 	  // deal with depth
-	  if(iPhi==embRegion->beginPhiIndex())
-	  {
+	  if(iPhi==embRegion->beginPhiIndex()) {
 	    depth_in.push_back(cellPtr->getRLocal(EMBCell::FRONT));
 	    depth_out.push_back(cellPtr->getRLocal(EMBCell::BACK));
 	  }
@@ -291,18 +253,12 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       } // Phi loop
       //            *** *** *** Iterate over cells *** *** ***
 
-      double eta_min;
-      if(embRegion->getSamplingIndex()==1 && embRegion->getRegionIndex()==0)
-      {
-	// special case for this region: strip 0 is missing
-	eta_min = (embRegion->getDescriptor()->getEtaBinning()).getStart() -
-				(embRegion->getDescriptor()->getEtaBinning()).getDelta();
-      }
-      else
-	eta_min = (embRegion->getDescriptor()->getEtaBinning()).getStart();
+      double eta_min = (embRegion->getSamplingIndex()==1 && embRegion->getRegionIndex()==0)
+	? embRegion->getDescriptor()->getEtaBinning().getStart() - embRegion->getDescriptor()->getEtaBinning().getDelta()
+	: embRegion->getDescriptor()->getEtaBinning().getStart();
 
       double eta_max = (embRegion->getDescriptor()->getEtaBinning()).getEnd();
-      double phi_max = phi_min + fabs((embRegion->getDescriptor()->getPhiBinning()).getDelta())*embDescr->n_phi();
+      double phi_max = phi_min + std::abs((embRegion->getDescriptor()->getPhiBinning()).getDelta())*embDescr->n_phi();
 
       // 'ideal' values
       embDescr->setCaloEtaMin(eta_min);
@@ -337,19 +293,16 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
 
   // --- Retrieve Emec Detector Manager
-  const EMECDetectorManager* emecManager = 0;
+  const EMECDetectorManager* emecManager{nullptr};
   status = detStore->retrieve(emecManager);
-  if(status.isFailure())
-  {
-    log << MSG::WARNING << "Could not get the EMECDetectorManager. No Calo Elements will be built for EMEC" << endmsg;
+  if(status.isFailure()) {
+    ATH_MSG_WARNING("Could not get the EMECDetectorManager. No Calo Elements will be built for EMEC");
   }
-  else
-  {
+  else {
     //         --- --- Iterate over EMEC regions and cells --- ---
     EMECDetectorManager::DetectorRegionConstIterator emecregIt;
 
-    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); emecregIt++)
-    {
+    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); emecregIt++) {
       const EMECDetectorRegion *emecRegion = *emecregIt;
 
       // *** ***  Create descriptor for this region *** ***
@@ -360,47 +313,33 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       unsigned int radialInd = emecRegion->getRadialIndex();
       int barrel_ec;
 
-      switch(endcapInd)
-      {
+      switch(endcapInd) {
       case EMECDetectorRegion::NEG:
-	{
-	  barrel_ec = -1; // negative side
-	  break;
-	}
+	barrel_ec = -1; // negative side
+	break;
       case EMECDetectorRegion::POS:
-	{
-	  barrel_ec = 1;  // positive side
-	  break;
-	}
+	barrel_ec = 1;  // positive side
+	break;
       default:
-	{
-	  log << MSG::ERROR << "Wrong Endcap Index for EMEC region " << endcapInd << endmsg;
-	  return StatusCode::FAILURE;
-	}
+	ATH_MSG_ERROR("Wrong Endcap Index for EMEC region " << endcapInd);
+	return StatusCode::FAILURE;
       }// switch(endcapInd)
 
-      switch(radialInd)
-      {
+      switch(radialInd) {
       case 0:
-	{
-	  barrel_ec *= 2; // outer wheel
-	  break;
-	}
+	barrel_ec *= 2; // outer wheel
+	break;
       case 1:
-	{
-	  barrel_ec *= 3;  // inner wheel
-	  break;
-	}
+	barrel_ec *= 3;  // inner wheel
+	break;
       default:
-	{
-	  log << MSG::ERROR << "Wrong Radial Index for  EMEC region " << radialInd << endmsg;
-	  return StatusCode::FAILURE;
-	}
+	ATH_MSG_ERROR("Wrong Radial Index for  EMEC region " << radialInd);
+	return StatusCode::FAILURE;
       }// switch(radialInd)
 
-      Identifier regId = em_id->region_id(barrel_ec,
-					  emecRegion->getSamplingIndex(),
-					  emecRegion->getRegionIndex());
+      Identifier regId = em_id->region_id(barrel_ec
+					  , emecRegion->getSamplingIndex()
+					  , emecRegion->getRegionIndex());
 
       EMECDescriptor* emecDescr = new EMECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,emecRegion);
       caloMgr->add(emecDescr);
@@ -421,26 +360,27 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       //
       //            *** *** *** Iterate over cells *** *** ***
       //
-      for (unsigned int iPhi=emecRegion->beginPhiIndex();iPhi<emecRegion->endPhiIndex();iPhi++)
-      {
-	for (unsigned int iEta=emecRegion->beginEtaIndex();iEta<emecRegion->endEtaIndex();iEta++)
-	{
+      for (unsigned int iPhi=emecRegion->beginPhiIndex();iPhi<emecRegion->endPhiIndex();iPhi++) {
+	for (unsigned int iEta=emecRegion->beginEtaIndex();iEta<emecRegion->endEtaIndex();iEta++) {
 	  EMECCellConstLink cellPtr = emecRegion->getEMECCell(iEta,iPhi);
 
-	  Identifier chanId = em_id->channel_id(barrel_ec,
-						cellPtr->getSamplingIndex(),
-						cellPtr->getRegionIndex(),
-						iEta,iPhi);
+	  Identifier chanId = em_id->channel_id(barrel_ec
+						, cellPtr->getSamplingIndex()
+						, cellPtr->getRegionIndex()
+						, iEta
+						, iPhi);
 
 	  // Create the element and store it
-	  EMECDetectorElement* emecElement = new EMECDetectorElement(em_id->channel_hash(chanId),
-								     0,0,
-								     emecDescr,
-								     cellPtr,
-								     emecRegion,
-								     isTestBeam);
-	  if(iPhi==emecRegion->beginPhiIndex())
+	  EMECDetectorElement* emecElement = new EMECDetectorElement(em_id->channel_hash(chanId)
+								     , 0
+								     , 0
+								     , emecDescr
+								     , cellPtr
+								     , emecRegion
+								     , isTestBeam);
+	  if(iPhi==emecRegion->beginPhiIndex()) {
 	    phi_min = emecElement->phi() - 0.5*emecElement->dphi();
+	  }
 
 	  // cell volume
 	  emecElement->set_volume(cellVol.CellVolume(chanId));
@@ -451,10 +391,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	  if(r_max < emecElement->r()+0.5*emecElement->dr())
 	    r_max = emecElement->r()+0.5*emecElement->dr();
 
-	  if(z_min > fabs(emecElement->z_raw())-0.5*emecElement->dz())
-	    z_min = fabs(emecElement->z_raw())-0.5*emecElement->dz();
-	  if(z_max < fabs(emecElement->z_raw())+0.5*emecElement->dz())
-	    z_max = fabs(emecElement->z_raw())+0.5*emecElement->dz();
+	  if(z_min > std::abs(emecElement->z_raw())-0.5*emecElement->dz())
+	    z_min = std::abs(emecElement->z_raw())-0.5*emecElement->dz();
+	  if(z_max < std::abs(emecElement->z_raw())+0.5*emecElement->dz())
+	    z_max = std::abs(emecElement->z_raw())+0.5*emecElement->dz();
 
 	  if(reg_min > emecElement->eta()-0.5*emecElement->deta())
 	    reg_min = emecElement->eta()-0.5*emecElement->deta();
@@ -462,18 +402,17 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	    reg_max = emecElement->eta()+0.5*emecElement->deta();
 
 	  // depths
-	  if(iPhi==emecRegion->beginPhiIndex())
-	  {
-	    depth_in.push_back(fabs(emecElement->z_raw())-emecElement->dz());
-	    depth_out.push_back(fabs(emecElement->z_raw())+emecElement->dz());
+	  if(iPhi==emecRegion->beginPhiIndex()) {
+	    depth_in.push_back(std::abs(emecElement->z_raw())-emecElement->dz());
+	    depth_out.push_back(std::abs(emecElement->z_raw())+emecElement->dz());
 	  }
 	} // Eta loop
       } // Phi loop
       //            *** *** *** Iterate over cells *** *** ***
 
-      double eta_min = (emecRegion->getDescriptor()->getEtaBinning()).getStart();
-      double eta_max = (emecRegion->getDescriptor()->getEtaBinning()).getEnd();
-      double phi_max = phi_min + fabs((emecRegion->getDescriptor()->getPhiBinning()).getDelta())*emecDescr->n_phi();
+      double eta_min = emecRegion->getDescriptor()->getEtaBinning().getStart();
+      double eta_max = emecRegion->getDescriptor()->getEtaBinning().getEnd();
+      double phi_max = phi_min + std::abs(emecRegion->getDescriptor()->getPhiBinning().getDelta())*emecDescr->n_phi();
 
       // 'ideal' values
       emecDescr->setCaloEtaMin(eta_min);
@@ -508,19 +447,16 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
 
   // --- Retrieve Hec Detector Manager
-  const HECDetectorManager* hecManager = 0;
+  const HECDetectorManager* hecManager{nullptr};
   status = detStore->retrieve(hecManager);
-  if(status.isFailure())
-  {
-    log << MSG::WARNING << "Could not get the HECDetectorManager. No Calo Elements will be built for HEC" << endmsg;
+  if(status.isFailure()) {
+    ATH_MSG_WARNING("Could not get the HECDetectorManager. No Calo Elements will be built for HEC");
   }
-  else
-  {
+  else {
     //         --- --- Iterate over HEC regions and cells --- ---
     HECDetectorManager::DetectorRegionConstIterator hecregIt;
 
-    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); hecregIt++)
-    {
+    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); hecregIt++) {
       const HECDetectorRegion *hecregion = *hecregIt;
 
       // *** ***  Create descriptor for this region *** ***
@@ -529,16 +465,16 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       HECDetectorRegion::DetectorSide endcapInd = hecregion->getEndcapIndex();
       int pos_neg = endcapInd==HECDetectorRegion::NEG ? -2 : 2;
 
-      Identifier regId = hec_id->region_id(pos_neg,
-					   hecregion->getSamplingIndex(),
-					   hecregion->getRegionIndex());
+      Identifier regId = hec_id->region_id(pos_neg
+					   , hecregion->getSamplingIndex()
+					   , hecregion->getRegionIndex());
 
       HECDescriptor* hecDescr = new HECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,hecregion);
       caloMgr->add(hecDescr);
 
       double phi_min = 0.;
-      double z_min = 10000.;
-      double z_max = -10000.;
+      float z_min = 10000.f;
+      float z_max = -10000.f;
       double r_min = 10000.;
       double r_max = -10000.;
 
@@ -551,30 +487,30 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       //
       //            *** *** *** Iterate over cells *** *** ***
       //
-      for (unsigned int iPhi=hecregion->beginPhiIndex();iPhi<hecregion->endPhiIndex();iPhi++)
-      {
-	for (unsigned int iEta=hecregion->beginEtaIndex();iEta<hecregion->endEtaIndex();iEta++)
-	{
+      for (unsigned int iPhi=hecregion->beginPhiIndex();iPhi<hecregion->endPhiIndex();iPhi++) {
+	for (unsigned int iEta=hecregion->beginEtaIndex();iEta<hecregion->endEtaIndex();iEta++)	{
 	  HECCellConstLink cellPtr = hecregion->getHECCell(iEta,iPhi);
 	  // build hash identifier for this cell
 	  // Do some mapping between LArReadoutGeometry and CaloID
 
-	  if(cellPtr)
-	  {
-	    Identifier chanId = hec_id->channel_id(pos_neg,
-						   cellPtr->getSamplingIndex(),
-						   cellPtr->getRegionIndex(),
-						   iEta,iPhi);
+	  if(cellPtr) {
+	    Identifier chanId = hec_id->channel_id(pos_neg
+						   , cellPtr->getSamplingIndex()
+						   , cellPtr->getRegionIndex()
+						   , iEta
+						   , iPhi);
 
 	    // Create the element and store it
-	    HECDetectorElement* hecElement = new HECDetectorElement(hec_id->channel_hash(chanId),
-								    0,0,
-								    hecDescr,
-								    cellPtr,
-								    hecregion,
-								    isTestBeam);
-	    if(iPhi==hecregion->beginPhiIndex())
+	    HECDetectorElement* hecElement = new HECDetectorElement(hec_id->channel_hash(chanId)
+								    , 0
+								    , 0
+								    , hecDescr
+								    , cellPtr
+								    , hecregion
+								    , isTestBeam);
+	    if(iPhi==hecregion->beginPhiIndex()) {
 	      phi_min = hecElement->phi() - 0.5*hecElement->dphi();
+	    }
 
 	    // cell volume
 	    hecElement->set_volume(cellVol.CellVolume(chanId));
@@ -586,20 +522,19 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	    if(r_max < cellPtr->getRMaxLocalNominal(HECCell::FRONT))
 	      r_max = cellPtr->getRMaxLocalNominal(HECCell::FRONT);
 
-	    if(z_min > fabs(hecElement->z_raw())-hecElement->dz())
-	      z_min = fabs(hecElement->z_raw())-hecElement->dz();
-	    if(z_max < fabs(hecElement->z_raw())+hecElement->dz())
-	      z_max = fabs(hecElement->z_raw())+hecElement->dz();
+	    if(z_min > std::abs(hecElement->z_raw())-hecElement->dz())
+	      z_min = std::abs(hecElement->z_raw())-hecElement->dz();
+	    if(z_max < std::abs(hecElement->z_raw())+hecElement->dz())
+	      z_max = std::abs(hecElement->z_raw())+hecElement->dz();
 
 	    if(reg_min > hecElement->eta()-0.5*hecElement->deta())
 	      reg_min = hecElement->eta()-0.5*hecElement->deta();
 	    if(reg_max < hecElement->eta()+0.5*hecElement->deta())
 	      reg_max = hecElement->eta()+0.5*hecElement->deta();
 
-	    if(iPhi==hecregion->beginPhiIndex() && iEta==hecregion->beginEtaIndex())
-	    {
-	      depth_in.push_back(fabs(hecElement->z_raw())-hecElement->dz());
-	      depth_out.push_back(fabs(hecElement->z_raw())+hecElement->dz());
+	    if(iPhi==hecregion->beginPhiIndex() && iEta==hecregion->beginEtaIndex()) {
+	      depth_in.push_back(std::abs(hecElement->z_raw())-hecElement->dz());
+	      depth_out.push_back(std::abs(hecElement->z_raw())+hecElement->dz());
 	    }
 
 	  }
@@ -607,9 +542,9 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       } // Phi loop
       //            *** *** *** Iterate over cells *** *** ***
 
-      double eta_min = (hecregion->getDescriptor()->getEtaBinning()).getStart();
-      double eta_max = (hecregion->getDescriptor()->getEtaBinning()).getEnd();
-      double phi_max = phi_min + fabs((hecregion->getDescriptor()->getPhiBinning()).getDelta())*hecDescr->n_phi();
+      double eta_min = hecregion->getDescriptor()->getEtaBinning().getStart();
+      double eta_max = hecregion->getDescriptor()->getEtaBinning().getEnd();
+      double phi_max = phi_min + std::abs(hecregion->getDescriptor()->getPhiBinning().getDelta())*hecDescr->n_phi();
 
       // 'ideal' values
       hecDescr->setCaloEtaMin(eta_min);
@@ -644,19 +579,16 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
 
   // --- Retrieve Fcal Detector Manager
-  const FCALDetectorManager* fcalManager = 0;
+  const FCALDetectorManager* fcalManager{nullptr};
   status = detStore->retrieve(fcalManager);
-  if(status.isFailure())
-  {
-    log << MSG::WARNING << "Could not get the FCALDetectorManager. No Calo Elements will be built for FCAL" << endmsg;
+  if(status.isFailure()) {
+    ATH_MSG_WARNING("Could not get the FCALDetectorManager. No Calo Elements will be built for FCAL");
   }
-  else
-  {
+  else {
     //         --- --- Iterate over FCAL modules and tiles --- ---
     FCALDetectorManager::ConstIterator fcalmodIt;
 
-    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); fcalmodIt++)
-    {
+    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); fcalmodIt++) {
       const FCALModule* fcalmodule = *fcalmodIt;
 
       // *** ***  Create descriptor for this module *** ***
@@ -667,10 +599,12 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
       int pos_neg = endcapInd==FCALModule::NEG ? -2 : 2;
 
-      Identifier regId = fcal_id->module_id(pos_neg,
-					    (int)fcalmodule->getModuleIndex());
+      Identifier regId = fcal_id->module_id(pos_neg,(int)fcalmodule->getModuleIndex());
 
-      FCALDescriptor* fcalDescr = new FCALDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,fcalmodule);
+      FCALDescriptor* fcalDescr = new FCALDescriptor(regId
+						     ,(AtlasDetectorID *)cell_id
+						     ,cell_id
+						     ,fcalmodule);
       caloMgr->add(fcalDescr);
 
       double eta_min = 10000.;
@@ -690,19 +624,19 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       //            *** *** *** Iterate over cells *** *** ***
       //
       FCALModule::ConstIterator fcaltileIt;
-      for (fcaltileIt=fcalmodule->beginTiles();fcaltileIt!=fcalmodule->endTiles();fcaltileIt++)
-      {
-	Identifier chanId = fcal_id->channel_id(pos_neg,
-						(int)fcalmodule->getModuleIndex(),
-						fcaltileIt->getIndexJ(),   // eta
-						fcaltileIt->getIndexI());  // phi
+      for (fcaltileIt=fcalmodule->beginTiles();fcaltileIt!=fcalmodule->endTiles();fcaltileIt++) {
+	Identifier chanId = fcal_id->channel_id(pos_neg
+						, (int)fcalmodule->getModuleIndex()
+						, fcaltileIt->getIndexJ()   // eta
+						, fcaltileIt->getIndexI());  // phi
 
-	FCALDetectorElement* fcalElement = new FCALDetectorElement(fcal_id->channel_hash(chanId),
-								   0,0,
-								   fcalDescr,
-								   &(*fcaltileIt),
-								   fcalmodule,
-								   isTestBeam);
+	FCALDetectorElement* fcalElement = new FCALDetectorElement(fcal_id->channel_hash(chanId)
+								   , 0
+								   , 0
+								   , fcalDescr
+								   , &(*fcaltileIt)
+								   , fcalmodule
+								   , isTestBeam);
 	// calculate cell volume
 	double tubeSpacing = cellVol.getFcalTubeSpacing((int)fcalmodule->getModuleIndex());
 	unsigned int numTubes = fcaltileIt->getNumTubes();
@@ -711,27 +645,26 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
 	caloMgr->add(fcalElement);
 
-	if(eta_min > std::fabs(fcalElement->eta_raw())-0.5*fcalElement->deta())
-	  eta_min = std::fabs(fcalElement->eta_raw())-0.5*fcalElement->deta();
-	if(eta_max < std::fabs(fcalElement->eta_raw())+0.5*fcalElement->deta())
-	  eta_max = std::fabs(fcalElement->eta_raw())+0.5*fcalElement->deta();
+	if(eta_min > std::abs(fcalElement->eta_raw())-0.5*fcalElement->deta())
+	  eta_min = std::abs(fcalElement->eta_raw())-0.5*fcalElement->deta();
+	if(eta_max < std::abs(fcalElement->eta_raw())+0.5*fcalElement->deta())
+	  eta_max = std::abs(fcalElement->eta_raw())+0.5*fcalElement->deta();
 	if(r_min > fcalElement->r() - 0.5*fcalElement->dr())
 	  r_min = fcalElement->r() - 0.5*fcalElement->dr();
 	if(r_max < fcalElement->r() + 0.5*fcalElement->dr())
 	  r_max = fcalElement->r() + 0.5*fcalElement->dr();
-	if(z_min > fabs(fcalElement->z_raw()) - 0.5*fcalElement->dz())
-	  z_min = fabs(fcalElement->z_raw()) - 0.5*fcalElement->dz();
-	if(z_max < fabs(fcalElement->z_raw()) + 0.5*fcalElement->dz())
-	  z_max = fabs(fcalElement->z_raw()) + 0.5*fcalElement->dz();
+	if(z_min > std::abs(fcalElement->z_raw()) - 0.5*fcalElement->dz())
+	  z_min = std::abs(fcalElement->z_raw()) - 0.5*fcalElement->dz();
+	if(z_max < std::abs(fcalElement->z_raw()) + 0.5*fcalElement->dz())
+	  z_max = std::abs(fcalElement->z_raw()) + 0.5*fcalElement->dz();
 	if(reg_min > fcalElement->eta()-0.5*fcalElement->deta())
 	  reg_min = fcalElement->eta()-0.5*fcalElement->deta();
 	if(reg_max < fcalElement->eta()+0.5*fcalElement->deta())
 	  reg_max = fcalElement->eta()+0.5*fcalElement->deta();
 
-	if(fcaltileIt==fcalmodule->beginTiles())
-	{
-	  depth_in.push_back(fabs(fcalElement->z_raw()) - fcalElement->dz());
-	  depth_out.push_back(fabs(fcalElement->z_raw()) + fcalElement->dz());
+	if(fcaltileIt==fcalmodule->beginTiles()) {
+	  depth_in.push_back(std::abs(fcalElement->z_raw()) - fcalElement->dz());
+	  depth_out.push_back(std::abs(fcalElement->z_raw()) + fcalElement->dz());
 	}
       }
 
@@ -755,11 +688,12 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
       fcalDescr->set_depth_in(depth_in);
       fcalDescr->set_depth_out(depth_out);
 
-      if(fcalmodule->getEndcapIndex()==FCALModule::NEG)
+      if(fcalmodule->getEndcapIndex()==FCALModule::NEG) {
 	fcalDescr->setLArEtaMin(-reg_max);
-      else
+      }
+      else {
 	fcalDescr->setLArEtaMin(reg_min);
-
+      }
     }// Module loop
   }// if FCAL manager has been retrieved
 
@@ -771,27 +705,27 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
   // **                   --- --- Tile --- ---                      **
   // ****************************************************************
-  const TileDetDescrManager* tile_mgr;
-
+  const TileDetDescrManager* tile_mgr{nullptr};
   status = detStore->retrieve(tile_mgr);
-  if (status.isFailure())
-  {
-    log << MSG::WARNING << "Could not get the TileDetectorManager. No Calo Elements will be built for Tile" << endmsg;
+  if (status.isFailure()) {
+    ATH_MSG_WARNING("Could not get the TileDetectorManager. No Calo Elements will be built for Tile");
   }
-  else
-  {
-    if (debug) log << MSG::DEBUG << " Found the TileDetDescrManager " << endmsg;
+  else {
+    ATH_MSG_DEBUG(" Found the TileDetDescrManager ");
     cell_id->calo_cell_hash_range((int)CaloCell_ID::TILE,min,max);
-    for(unsigned int idhash=0; idhash < max-min; idhash++)
-    {
+    for(unsigned int idhash=0; idhash < max-min; idhash++) {
       CaloDetDescrElement* newelt = tile_mgr->get_cell_element(idhash);
-      if(newelt) caloMgr->add(newelt);
+      if(newelt) {
+	caloMgr->add(newelt);
+      }
     }
 
     std::vector<CaloDetDescriptor*>::const_iterator itr = tile_mgr->calo_descriptors_begin();
     std::vector<CaloDetDescriptor*>::const_iterator end = tile_mgr->calo_descriptors_end();
 
-    for(; itr != end; ++itr) caloMgr->add_tile(*itr);
+    for(; itr != end; ++itr) {
+      caloMgr->add_tile(*itr);
+    }
   }
   // ****************************************************************
   // **                   --- --- Tile --- ---                     **
@@ -800,11 +734,10 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   // ****************************************************************
   // **                 --- Additional elements  ---               **
   // ****************************************************************
-  if(isTestBeam)
-  {
+  if(isTestBeam) {
     CaloDetDescrElementContainer *cDDEvec;
-    if(detStore->retrieve(cDDEvec) == StatusCode::SUCCESS)
-    { // We have additional elements
+    if(detStore->retrieve(cDDEvec) == StatusCode::SUCCESS) {
+      // We have additional elements
       for (CaloDetDescrElement* elt : *cDDEvec) {
 	caloMgr->add (elt);
       }
@@ -816,20 +749,13 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 
 //--------------------------------------------------------------------
 
-long
-CaloMgrDetDescrCnv::storageType()
+long CaloMgrDetDescrCnv::storageType()
 {
-    return DetDescr_StorageType;
+  return DetDescr_StorageType;
 }
 
 //--------------------------------------------------------------------
-const CLID&
-CaloMgrDetDescrCnv::classID() {
-    return ClassID_traits<CaloDetDescrManager>::ID();
+const CLID& CaloMgrDetDescrCnv::classID() 
+{
+  return ClassID_traits<CaloDetDescrManager>::ID();
 }
-
-//--------------------------------------------------------------------
-CaloMgrDetDescrCnv::CaloMgrDetDescrCnv(ISvcLocator* svcloc)
-    :
-    DetDescrConverter(ClassID_traits<CaloDetDescrManager>::ID(), svcloc)
-{}

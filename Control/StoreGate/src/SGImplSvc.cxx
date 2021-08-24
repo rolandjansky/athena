@@ -1470,12 +1470,12 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
 
   std::string idname;
   StatusCode sc = m_pCLIDSvc->getTypeNameOfID(id, idname);
-  if (sc.isFailure() || idname == "" ) { 
+  if (sc.isFailure() || idname.empty() ) { 
     std::ostringstream ost;
     ost << id;
     idname = ost.str();
   }
-  idname = idname + "/" + key;
+  idname = idname + '/' + key;
 
   DataObject* obj = SG::asStorable(dho);
   

@@ -149,14 +149,14 @@ bool HiveMgrSvc::exists( const DataObjID& id) {
   // this should only get called in error situations, so we
   // don't care if it's slow
   std::string key = id.key();
-  key.erase(0,key.find("+")+1);
+  key.erase(0,key.find('+')+1);
 
   if (id.clid() == 0) {
     // this is an ugly hack in case the DataObjID gets munged
     // upstream, and we have to re-separate it into (class,key)
     // from "class/key"
     std::string cl = id.fullKey();
-    cl.erase(cl.find("/"),cl.length());
+    cl.erase(cl.find('/'),cl.length());
 
     DataObjID d2(cl,key);
     return m_hiveStore->transientContains(d2.clid(), key);

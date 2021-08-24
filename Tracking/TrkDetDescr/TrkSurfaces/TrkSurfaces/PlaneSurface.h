@@ -54,6 +54,8 @@ class ParametersT;
  @image html PlaneSurface.gif
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class PlaneSurface : public Surface
@@ -154,6 +156,9 @@ public:
 
   /**Virtual constructor*/
   virtual PlaneSurface* clone() const override;
+  
+   /** NVI uniqueClone method */
+  std::unique_ptr<PlaneSurface>uniqueClone() const;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;

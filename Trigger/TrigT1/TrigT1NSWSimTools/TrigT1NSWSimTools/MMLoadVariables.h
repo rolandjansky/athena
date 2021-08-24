@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMLOADVARIABLES_H
@@ -30,7 +30,7 @@ namespace MuonGM {
 
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par);
 
-    void getMMDigitsInfo(std::vector<digitWrapper>& entries, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time, std::map<int,evInf_entry>& Event_Info);
+    StatusCode getMMDigitsInfo(std::vector<digitWrapper>& entries, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time, std::map<int,evInf_entry>& Event_Info);
     //Import_Athena..._.m stuff
     double phi_shift(double athena_phi,const std::string& wedgeType, int stationPhi) const;
     int Get_VMM_chip(int strip) const;  //*** Not Finished... Rough

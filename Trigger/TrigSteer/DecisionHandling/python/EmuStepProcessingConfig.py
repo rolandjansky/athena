@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
-from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
+from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, HLTSeeding
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
@@ -19,15 +19,15 @@ def thresholdToChains( chains ):
     return ret
 
 ###########################################################################    
-def generateL1DecoderAndChainsManually(topSequence):
+def generateHLTSeedingAndChainsManually(topSequence):
     generateEmuEvents()
     from AthenaCommon.CFElements import seqOR,parOR
     hltTop = seqOR("HLTTop")
     hltBeginSeq = parOR("HLTBeginSeq")
     hltTop += hltBeginSeq
     topSequence += hltTop
-    l1Decoder = generateL1Decoder()
-    hltBeginSeq += l1Decoder
+    hltSeeding = generateHLTSeeding()
+    hltBeginSeq += hltSeeding
     generateChainsManually()
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -35,16 +35,16 @@ def generateL1DecoderAndChainsManually(topSequence):
     
 
 ###########################################################################    
-def generateL1DecoderAndChainsByMenu(topSequence):
+def generateHLTSeedingAndChainsByMenu(topSequence):
     generateEmuEvents()
     from AthenaCommon.CFElements import seqOR,parOR
     hltTop = seqOR("HLTTop")
     hltBeginSeq = parOR("HLTBeginSeq")
     hltTop += hltBeginSeq
     topSequence += hltTop
-    l1Decoder = generateL1Decoder()
-    hltBeginSeq += l1Decoder
-    l1Decoder = generateL1Decoder()
+    hltSeeding = generateHLTSeeding()
+    hltBeginSeq += hltSeeding
+    hltSeeding = generateHLTSeeding()
     generateEmuMenu()
 
 
@@ -330,49 +330,39 @@ def generateChainsManually():
                  makeChainStep("Step1_2muAs_empty", multiplicity=[]),
                  makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
             ]
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
-        from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
-        # test change of  multiplicity 
-        chainName = 'HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3'
-        cd = dictFromChainName(chainName )
-        cdicts = splitChainDictInLegs(cd)
-        CombChains += [  makeChain(name = chainName, L1Thresholds = ["EM3", "EM3"], ChainSteps=[
-                makeChainStep("Step1_em1merged", [el11], multiplicity = [1], chainDicts = [cdicts[0]] ),
-                makeChainStep("Step2_em1merged", [el21, el22], multiplicity = [1,1], chainDicts = cdicts)
-                ]) 
-            ]
-
+            # Note: There used to be a test here of change of multiplicity signature, e.g. from multiplicity = [1]
+            # in Step1 to multiplicity = [1,1] in Step2. This is no longer supported.
 
         HLTChains += CombChains
 
 
 
 ########################## L1 #################################################        
-def generateL1Decoder():
+def generateHLTSeeding():
 
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
-    l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
-    l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
+    hltSeeding = HLTSeeding( RoIBResult="", L1TriggerResult="" )
+    hltSeeding.HLTSeedingSummaryKey = "HLTSeedingSummary"
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
-    l1Decoder.ctpUnpacker = ctpUnpacker
+    hltSeeding.ctpUnpacker = ctpUnpacker
 
     ## hack to solve the PS crash:
-    from L1Decoder.L1DecoderConf import PrescalingEmulationTool
+    from HLTSeeding.HLTSeedingConf import PrescalingEmulationTool
     psEmulation = PrescalingEmulationTool()
-    l1Decoder.prescaler = psEmulation
+    hltSeeding.prescaler = psEmulation
 
-    from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
+    from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
     emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM"), ThresholdPrefix="EM" )
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
 
-    l1Decoder.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
+    hltSeeding.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
-    L1UnpackingSeq += l1Decoder
+    L1UnpackingSeq += hltSeeding
     log.debug(L1UnpackingSeq)
 
-    return l1Decoder
+    return hltSeeding
 
 

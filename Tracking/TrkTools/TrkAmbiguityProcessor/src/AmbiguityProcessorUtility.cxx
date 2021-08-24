@@ -34,13 +34,13 @@ namespace AmbiguityProcessor{
     double reXi2 = 0.; 
     int nDF = 0;
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track.trackStateOnSurfaces();
-    auto vecTsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end(); 
     for ( ; iTsos != iTsosEnd ; ++iTsos) {
       const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-      vecTsos->push_back(newTsos);
+      vecTsos.push_back(newTsos);
       if((*iTsos)->type(Trk::TrackStateOnSurface::Measurement)){  //Get the chi2 and number of hits
         if ((*iTsos)->fitQualityOnSurface()) {
           reXi2 += (*iTsos)->fitQualityOnSurface()->chiSquared();

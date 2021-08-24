@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALDETECTORMANAGER_H
@@ -106,7 +106,7 @@ class FCALDetectorManager : public GeoVDetectorManager
        * @brief This is the array in which three modules in two sides
        *	are kept. This is for random access to the modules.
        */
-      ModulePtr m_Module[2][3];
+      ModulePtr m_Module[2][3]{};
       
       /**
        * @brief Vector of FCAL Modules.  This is for iterative access to

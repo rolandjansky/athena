@@ -47,7 +47,7 @@ namespace Trk {
     int IterationNumber;
     double IterationPrecision;
  
-    void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double  *vrt, double  *vrte) noexcept;
+    void prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, double  *vrt, double  *vrte) noexcept;
 
     void vksetIterationNum(long int Iter) noexcept;
     void vksetIterationPrec(double Prec) noexcept;
@@ -60,24 +60,9 @@ namespace Trk {
     void vksetUseAprioriVrt() noexcept { useAprioriVrt = 1;}
     void vksetUsePointingCnst(int iType = 1 ) noexcept { usePointingCnst = iType<2 ? 1 : 2 ;}
     void vksetUsePassNear(int iType = 1 )  noexcept { usePassNear = iType<2 ? 1 : 2 ;}
-    void setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst) noexcept;
+    void setmasscnst_(long int ncnsttrk, long int *indextrk, double  wmcnst) noexcept;
 
-    ForCFT() noexcept{
-      nmcnst=0;
-      useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
-      useAprioriVrt=0; usePassNear=0;
-      Ap=Bp=Dp=Cp=0.;
-      IterationNumber = 50;
-      IterationPrecision=1.e-3;
-      RobustScale = 1.; irob=0;
-      for (int ic=0; ic<vkalMaxNMassCnst; ++ic) wmfit[ic] = -10000.;
-      for (int it=0; it<vkalNTrkM; ++it) {
-         wm[it] = 139.57018;
-         for(int ic=0; ic<vkalMaxNMassCnst; ic++) indtrkmc[ic][it]=0;
-      }
-      localbmag=1.997;   // Safety: standard magnetic field in ID 
-    };
-
+    ForCFT() noexcept;//Body is in PrCFit.cxx
     ~ForCFT() = default;
 
   };

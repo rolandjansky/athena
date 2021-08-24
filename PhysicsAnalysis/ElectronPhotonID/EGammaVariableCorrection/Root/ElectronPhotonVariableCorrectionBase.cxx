@@ -64,7 +64,8 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     }
 
     // retrieve properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
@@ -800,7 +801,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, 
     //the -1 is because the parameter numbering in a vector starts at 0
     if (return_bin == -1)
     {
-        return_bin = m_binValues.size()-1;
+        return_bin = binning.size()-1;
     }
 
     // everythin went fine, so

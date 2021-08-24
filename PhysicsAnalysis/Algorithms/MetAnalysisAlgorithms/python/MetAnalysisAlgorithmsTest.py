@@ -1,15 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import addPrivateTool, createAlgorithm
+from AnaAlgorithm.DualUseConfig import addPrivateTool, createAlgorithm, createService
 
 def makeSequence (dataType) :
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
@@ -46,10 +45,7 @@ def makeSequence (dataType) :
     metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
                                          'muons'     : 'Muons',
                                          'electrons' : 'METElectrons_%SYS%' },
-                           outputName = 'AnalysisMET_%SYS%',
-                           affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
-                                                    'muons'     : '(^$)',
-                                                    'electrons' : '(^$)' } )
+                           outputName = 'AnalysisMET_%SYS%' )
 
     # Add the sequence to the job:
     algSeq += metSequence
@@ -66,7 +62,6 @@ def makeSequence (dataType) :
                              'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
                              'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
                              'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'met'

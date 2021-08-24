@@ -160,16 +160,17 @@ def Lvl1MuRdo2Digit(flags):
                                                                  mmRdoDecoderTool="",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
                                                                  TgcDigitContainer = "TGC_DIGITS_L1")
-    MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
+    MuonRdoToMuonDigitTool.cscCalibTool = ""
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
                                                 MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool)
     return rdo2digit
     
 def TGCTriggerConfig(flags):
     tmdbInput = "rerunTileMuRcvCnt"
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
-                                                     MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
+                                                     MaskFileName12      = "" if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM() else "TrigT1TGCMaskedChannel._12.db",
                                                      useRun3Config = flags.Trigger.enableL1MuonPhase1,
                                                      TileMuRcv_Input = tmdbInput )
     from IOVDbSvc.CondDB import conddb
@@ -235,17 +236,7 @@ def Lvl1BarrelMuonSequence(flags):
                                 RPCDigitContainer = "RPC_DIGITS_L1",
                                 useRun3Config = flags.Trigger.enableL1MuonPhase1 )
 
-    from IOVDbSvc.CondDB import conddb
-    if flags.Trigger.doLVL1 and not flags.Input.isMC:
-        conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
-        conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
-        conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
-        conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")
-        conddb.addFolderWithTag("RPC_OFL","/RPC/TRIGGER/CM_THR_ETA",conddbNameOffline,forceMC=True,force=True,className="CondAttrListCollection")
-        conddb.addFolderWithTag("RPC_OFL","/RPC/TRIGGER/CM_THR_PHI",conddbNameOffline,forceMC=True,force=True,className="CondAttrListCollection")
-    else:
-        # to be configured in either MuonCnvExample.MuonCablingConfig or MuonConfig.MuonCablingConfig
-        pass
+    # trigger roads setting is configured in either MuonCnvExample.MuonCablingConfig or MuonConfig.MuonCablingConfig
 
     from AthenaCommon.CFElements import seqAND
     l1MuBarrelSim = seqAND("L1MuonBarrelSim", [rpc] )

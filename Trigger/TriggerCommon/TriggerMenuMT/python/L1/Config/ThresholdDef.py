@@ -8,8 +8,8 @@ class ThresholdDef:
 
     eEMVar = {
         1 : {
-            "eta_bin_boundaries": [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.7, 2.5], # 8 bins => 9 boundaries
-            "shift": [ 2, 1, 0, 0,  -1, -3, -1, 1]
+            "eta_bin_boundaries": [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.8, 2.5], # 8 bins => 9 boundaries
+            "shift": [ 1, 1, -1, -2,  -2, -3, -1, 0]
         }
     }
 
@@ -85,101 +85,32 @@ class ThresholdDef:
         for thrV in [3, 7, 8, 10, 15, 20, 22]:
             EMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
 
-        # VH section
+        # L section (used to be VH in Run2)
+        ThresholdDef.addVaryingThrValues( EMThreshold(  'eEM8L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=8,  shift_set = 1 ) 
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM10L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=10, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM15L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=15, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM20L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=20, shift_set = 1 )
 
-        EMThreshold( 'eEM8VH', 'eEM').setIsolation( rhad = "Tight" )\
-            .addThrValue(9, priority=1)\
-            .addThrValue(9, -8, 8, priority=2)\
-            .addThrValue(7, -11, -9, priority=2).addThrValue(7, 9, 11, priority=2)\
-            .addThrValue(6, -14, -12, priority=2).addThrValue(6, 12, 14, priority=2)\
-            .addThrValue(5, -15, -15, priority=2).addThrValue(5, 15, 15, priority=2)\
-            .addThrValue(7, -18, -16, priority=2).addThrValue(7, 16, 18, priority=2)\
-            .addThrValue(8, -25, -19, priority=2).addThrValue(8, 19, 25, priority=2)
-        
-        EMThreshold( 'eEM10VH', 'eEM' ).setIsolation( rhad = "Medium" )\
-            .addThrValue(11, priority=1)\
-            .addThrValue(11, -8, 8, priority=2)\
-            .addThrValue(9, -11, -9, priority=2).addThrValue(9, 9, 11, priority=2)\
-            .addThrValue(8, -14, -12, priority=2).addThrValue(8, 12, 14, priority=2)\
-            .addThrValue(7, -15, -15, priority=2).addThrValue(7, 15, 15, priority=2)\
-            .addThrValue(9, -18, -16, priority=2).addThrValue(9, 16, 18, priority=2)\
-            .addThrValue(10, -25, -19, priority=2).addThrValue(10, 19, 25, priority=2)
+        # M section (used to be VHI in Run2)
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM15M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=15, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM18M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=18, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM20M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=20, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=22, shift_set = 1 )
 
-        EMThreshold( 'eEM15VH', 'eEM').setIsolation( rhad = "Loose" )\
-            .addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
-            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
-            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
-            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
-            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
-            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)  
-      
-        EMThreshold( 'eEM20VH', 'eEM').setIsolation( rhad = "Loose" )\
-            .addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
-            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
-            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
-            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
-            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
-            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
-            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)       
-
-        # (V)HI section
-
-        EMThreshold( 'eEM15VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
-            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
-            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
-            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
-            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
-            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)
-
-        EMThreshold( 'eEM18VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(20, priority=1)\
-            .addThrValue(20, -7, 7, priority=2)\
-            .addThrValue(19, -8, -8, priority=2).addThrValue(19, 8, 8, priority=2)\
-            .addThrValue(18, -11, -9, priority=2).addThrValue(18, 9, 11, priority=2)\
-            .addThrValue(17, -13, -12, priority=2).addThrValue(17, 12, 13, priority=2)\
-            .addThrValue(16, -14, -14, priority=2).addThrValue(16, 14, 14, priority=2)\
-            .addThrValue(15, -15, -15, priority=2).addThrValue(15, 15, 15, priority=2)\
-            .addThrValue(17, -17, -16, priority=2).addThrValue(17, 16, 17, priority=2)\
-            .addThrValue(19, -25, -18, priority=2).addThrValue(19, 18, 25, priority=2)
-
-        EMThreshold( 'eEM20VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
-            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
-            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
-            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
-            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
-            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
-            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)
-
-        ThresholdDef.addVaryingThrValues(EMThreshold('eEM22VHI', 'eEM').setIsolation(reta="Loose", wstot="Medium"), pt=22, shift_set=1)
-        # EMThreshold( 'eEM22VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-        #     .addThrValue(24, priority=1)\
-        #     .addThrValue(24, -7, 7, priority=2)\
-        #     .addThrValue(23, -8, -8, priority=2).addThrValue(23, 8, 8, priority=2)\
-        #     .addThrValue(22, -11, -9, priority=2).addThrValue(22, 9, 11, priority=2)\
-        #     .addThrValue(21, -13, -12, priority=2).addThrValue(21, 12, 13, priority=2)\
-        #     .addThrValue(20, -14, -14, priority=2).addThrValue(20, 14, 14, priority=2)\
-        #     .addThrValue(19, -15, -15, priority=2).addThrValue(19, 15, 15, priority=2)\
-        #     .addThrValue(21, -17, -16, priority=2).addThrValue(21, 16, 17, priority=2)\
-        #     .addThrValue(23, -25, -18, priority=2).addThrValue(23, 18, 25, priority=2)
-        
+        # T section (used to be VHIM in Run2)
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22T',  'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt=22, shift_set = 1 )
 
 
         # TAU
-        for et in [12, 20, 40, 60, 100]:
+        for et in [8, 12, 20, 25, 40, 60, 100]:
             TauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
+        # TODO: missing isolation thresholds
         for et in [12,20, 25]:
-            TauThreshold('eTAU%iIM' % et, 'eTAU').setEt(et)
+            TauThreshold('eTAU%iM' % et, 'eTAU').setEt(et)
+        # TODO: missing hadronic isolation
+        for et in [30]:
+            TauThreshold('eTAU%iH' % et, 'eTAU').setEt(et)
 
         # JET
         for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:

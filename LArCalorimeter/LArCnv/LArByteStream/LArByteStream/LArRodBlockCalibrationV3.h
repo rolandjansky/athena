@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKCALIBRATIONV3_H
@@ -116,12 +116,12 @@ private:
   // One raw data block per gain to start with
   std::vector<uint32_t> m_RawDataBlock;
   //Counter for channels inside of a FEB
-  int m_Result1Counter;
-  int m_Result1Index;
-  int m_Result2Counter;
-  int m_Result2Index;
-  int m_RawDataCounter;
-  int m_RawDataIndex;
+  int m_Result1Counter = 0;
+  int m_Result1Index = 0;
+  int m_Result2Counter = 0;
+  int m_Result2Index = 0;
+  int m_RawDataCounter = 0;
+  int m_RawDataIndex = 0;
   //For fixed gain mode
   unsigned m_fixedGain;
   //FIXME, very ugly hack! See explanation in LArRodDecoder.h 

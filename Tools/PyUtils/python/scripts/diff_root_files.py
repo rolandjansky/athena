@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
@@ -50,7 +50,7 @@ def _is_exit_early():
                   help='set of regex matching names of branches to compare; assumes all if none specified.')
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
-                  default=('Token', 'index_ref',),
+                  default=('Token', 'index_ref', r'(.*)_timings\.(.*)', r'(.*)_mems\.(.*)', r'(.*)TrigCostContainer(.*)'),
                   help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (accepts regex)')
 @acmdlib.argument('--enforce-leaves',
                   nargs='*',
@@ -199,8 +199,8 @@ def main(args):
         # Sort the dictionary by event numbers
         dict_out = OrderedDict(sorted(dict_in.items(), key=operator.itemgetter(1), reverse = reverse_order))
 
-        # Write out the ordered index list
-        return [idx for idx in dict_out]
+        # Write out the ordered index and event number pairs
+        return [(idx, ival) for idx, ival in dict_out.items()]
 
     def diff_tree(fold, fnew, args):
         infos = {
@@ -271,16 +271,50 @@ def main(args):
         import collections
         summary = collections.defaultdict(int)
 
+        def get_event_range(entry):
+            smin, smax = 0, None
+            # Parse user input
+            if isinstance(entry, str):
+                # We support three main cases in this format: 5:10 (5th to 10th),
+                # 5: (5th to the end), and :5 (from the start to 5th)
+                if ':' in entry:
+                    vals = entry.split(':')
+                    smin = int(vals[0]) if len(vals) > 0 and vals[0].isdigit() else 0
+                    smax = int(vals[1]) if len(vals) > 1 and vals[1].isdigit() else None
+                # This is the case where the user inputs the total number of events
+                elif entry.isdigit():
+                    smin = 0
+                    smax = int(entry) if int(entry) > 0 else None
+            # Handle the case where the input is a number (i.e. default)
+            elif isinstance(entry, int):
+                smin = 0
+                smax = entry if entry > 0 else None
+            # If we come across an unhandled case, bail out
+            else:
+                msg.warning(f"Unknown entries argument {entry}, will compare all events...")
+            msg.debug(f"Event slice is parsed as [{smin},{smax}]")
+            return smin, smax
+
         if args.order_trees:
-            slice_max = int(itr_entries) if int(itr_entries) > 0 else None
-            itr_entries_old = ordered_indices(fold.tree)[0:slice_max]
-            itr_entries_new = ordered_indices(fnew.tree)[0:slice_max]
-            msg.debug('List of old indices {}'.format(itr_entries_old))
-            msg.debug('List of new indices {}'.format(itr_entries_new))
+            smin, smax = get_event_range(itr_entries)
+            idx_old = ordered_indices(fold.tree)[smin:smax]
+            idx_new = ordered_indices(fnew.tree)[smin:smax]
+            itr_entries_old, event_numbers_old = list(map(list,zip(*idx_old)))
+            itr_entries_new, event_numbers_new = list(map(list,zip(*idx_new)))
+            msg.debug(f"List of old indices {itr_entries_old}")
+            msg.debug(f"List of new indices {itr_entries_new}")
+            msg.debug(f"List of old events {event_numbers_old}")
+            msg.debug(f"List of new events {event_numbers_new}")
+            if event_numbers_old != event_numbers_new:
+                msg.error('Events differ, quitting!')
+                msg.error(f"List of old events {event_numbers_old}")
+                msg.error(f"List of new events {event_numbers_new}")
+                return 1
         else:
             itr_entries_old = itr_entries
             itr_entries_new = itr_entries
 
+        branches = sorted(branches)
         old_dump_iter = fold.dump(args.tree_name, itr_entries_old, branches)
         new_dump_iter = fnew.dump(args.tree_name, itr_entries_new, branches)
 
@@ -290,6 +324,12 @@ def main(args):
             else:
                 return '.'.join([s for s in entry[2] if not s.isdigit()])
         
+        def elindices_fromdump(entry):
+            if entry is None:
+                return None
+            else:
+                return [int(s) for s in entry[2] if s.isdigit()]
+
         @memoize
         def skip_leaf(name_from_dump, skip_leaves):
             """ Here decide if the current leaf should be skipped.
@@ -335,10 +375,8 @@ def main(args):
         
         while True:
             if read_old:
-                prev_d_old = d_old
                 d_old = reach_next(old_dump_iter, skip_leaves, args.leaves_prefix)
             if read_new:
-                prev_d_new = d_new
                 d_new = reach_next(new_dump_iter, skip_leaves, args.leaves_prefix)
                 
             if not d_new and not d_old:
@@ -347,14 +385,14 @@ def main(args):
             read_old = True
             read_new = True
 
-            if (args.order_trees and d_old and d_new and d_old[-1] == d_new[-1]) or d_old == d_new:
+            if (args.order_trees and d_old and d_new and d_old[2:] == d_new[2:]) or d_old == d_new:
                 n_good += 1
                 continue
             
             if d_old:    
-                tree_name, ientry, name, iold = d_old
+                tree_name, ientry, iname, iold = d_old
             if d_new:
-                tree_name, jentry, name, inew = d_new
+                tree_name, jentry, jname, inew = d_new
 
             # for regression testing we should have NAN == NAN
             if args.nan_equal:
@@ -363,91 +401,98 @@ def main(args):
                     continue
 
             # FIXME: that's a plain (temporary?) hack
-            if name[-1] in args.known_hacks:
+            if iname[-1] in args.known_hacks or jname[-1] in args.known_hacks:
                 continue
             
             n_bad += 1
 
+            # Identifiers are event numbers if we're ordering the trees, otherwise tree indices
+            if args.order_trees:
+                id_old = dict(idx_old)[ientry]
+                id_new = dict(idx_new)[jentry]
+            else:
+                id_old = ientry
+                id_new = jentry
+
             if not args.order_trees:
                 in_synch = d_old and d_new and d_old[:-1] == d_new[:-1]
             else:
-                in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
+                in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2] and id_old == id_new
             if not in_synch:
                 if _is_detailed():
                     if d_old:
-                        print('::sync-old %s' %'.'.join(["%03i"%ientry]+list(map(str,
-                                                                             d_old[2]))))
+                        msg.info('::sync-old %s','.'.join(["%03i"%ientry]+list(map(str, d_old[2]))))
                     else:
-                        print('::sync-old ABSENT')
+                        msg.info('::sync-old ABSENT')
                     if d_new:
-                        print('::sync-new %s' %'.'.join(["%03i"%jentry]+list(map(str,
-                                                                             d_new[2]))))
+                        msg.info('::sync-new %s','.'.join(["%03i"%jentry]+list(map(str, d_new[2]))))
                     else:
-                        print('::sync-new ABSENT')
+                        msg.info('::sync-new ABSENT')
                     pass
                 # remember for later
                 if not d_old:
                     fold.allgood = False
-                    summary[d_new[2][0]] += 1
+                    summary[leafname_fromdump(d_new)] += 1
                 elif not d_new:
                     fnew.allgood = False
-                    summary[d_old[2][0]] += 1
+                    summary[leafname_fromdump(d_old)] += 1
                 else:
-                    branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
-                    branch_new = '.'.join(["%03i"%jentry, d_new[2][0]])
-                    if branch_old < branch_new: 
-                        if _is_detailed():
-                            print('::sync-old skipping entry')
-                        summary[d_old[2][0]] += 1
-                        fnew.allgood = False
-                        read_new = False
-                    elif branch_old > branch_new:
-                        if _is_detailed():
-                            print('::sync-new skipping entry')
-                        summary[d_new[2][0]] += 1
-                        fold.allgood = False
+                    branch_old = f"{id_old}.{d_old[2][0]}"
+                    branch_new = f"{id_new}.{d_new[2][0]}"
+                    leaf_old = leafname_fromdump(d_old)
+                    leaf_new = leafname_fromdump(d_new)
+                    indices_old = elindices_fromdump(d_old)
+                    indices_new = elindices_fromdump(d_new)
+                    # Branches/Leaves are alphabetically ordered
+                    # If we're out-of-sync, we try to figure out
+                    # if we should advance the old or the new branch
+                    # For same branches, we look at the full leaf name
+                    # If that fails we look at the indices
+                    if branch_old > branch_new:
                         read_old = False
+                    elif branch_old < branch_new:
+                        read_new = False
                     else:
-                        # MN: difference in the leaves
-                        prev_leaf_old = leafname_fromdump(prev_d_old)
-                        prev_leaf_new = leafname_fromdump(prev_d_new)
-                        leaf_old = leafname_fromdump(d_old)
-                        leaf_new = leafname_fromdump(d_new)
-                        if prev_leaf_old == prev_leaf_new:
-                            # array size difference?
-                            if leaf_old == leaf_new and leaf_old == prev_leaf_old:
-                                # could be a size difference in >1 dim arrays
-                                # hard to sync, skipping both
-                                pass
-                            elif leaf_old == prev_leaf_old:
-                                # old has bigger array, skip old entry
-                                read_new = False
-                                if _is_detailed():
-                                    print('::sync-old skipping entry')
-                                summary[leaf_old] += 1
-                            elif leaf_new == prev_leaf_new:
-                                # new has bigger array, skip new entry
+                        if leaf_old > leaf_new:
+                            read_old = False
+                        elif leaf_old < leaf_new:
+                            read_new = False
+                        elif indices_old and indices_new and len(indices_old) == len(indices_new):
+                            if indices_old > indices_new:
                                 read_old = False
-                                if _is_detailed():
-                                    print('::sync-new skipping entry')
-                                summary[leaf_new] += 1
-                                                            
-                        if read_old and read_new:
-                            summary[d_new[2][0]] += 1
-                            if _is_detailed():
-                                print('::sync-old+new skipping both entries')
+                            elif indices_old < indices_new:
+                                read_new = False
+                    # Let's see if we can reconcile
+                    # If not, just bail out to avoid false positivies
+                    if read_old and not read_new:
+                        if _is_detailed():
+                            msg.info('::sync-old skipping entry')
+                        fold.allgood = False
+                        summary[leaf_old] += 1
+                    elif read_new and not read_old:
+                        if _is_detailed():
+                            msg.info('::sync-new skipping entry')
+                        fnew.allgood = False
+                        summary[leaf_new] += 1
+                    else:
+                        msg.error('::sync attempt failed, bailing out...')
+                        msg.error(f"::sync-old Leaf vs Index : {leaf_old} vs {indices_old}")
+                        msg.error(f"::sync-new Leaf vs Index : {leaf_new} vs {indices_new}")
                         fold.allgood = False
                         fnew.allgood = False
+                        summary[leaf_old] += 1
+                        summary[leaf_new] += 1
+                        break
  
                 if _is_exit_early():
-                    print('*** exit on first error ***')
+                    msg.info('*** exit on first error ***')
                     break
                 continue
             
             if not args.order_trees:
-                n = '.'.join(list(map(str, ["%03i"%ientry]+name)))
+                n = '.'.join(list(map(str, ["%03i"%ientry]+iname)))
             else:
-                n = '.'.join(list(map(str, ["%03i.%03i"%(ientry,jentry)]+name)))
+                n = '.'.join(list(map(str, ["%03i"%ientry]+iname+["%03i"%jentry]+jname)))
             diff_value = 'N/A'
             try:
                 diff_value = 50.*(iold-inew)/(iold+inew)
@@ -455,11 +500,11 @@ def main(args):
             except Exception:
                 pass
             if _is_detailed():
-                print('%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value))
+                msg.info('%s %r -> %r => diff= [%s]', n, iold, inew, diff_value)
                 pass
             summary[leafname_fromdump(d_old)] += 1
 
-            if name[0] in args.enforce_leaves:
+            if iname[0] in args.enforce_leaves or jname[0] in args.enforce_leaves:
                 msg.info("don't compare further")
                 break
             pass # loop over events/branches
@@ -476,7 +521,7 @@ def main(args):
             pass
         
         if (not fold.allgood) or (not fnew.allgood):
-            msg.info('NOTE: there were errors during the dump')
+            msg.error('NOTE: there were errors during the dump')
             msg.info('fold.allgood: %s' , fold.allgood)
             msg.info('fnew.allgood: %s' , fnew.allgood)
             n_bad += 0.5
@@ -484,7 +529,7 @@ def main(args):
     
     ndiff = diff_tree(fold, fnew, args)
     if ndiff != 0:
-        msg.info('files differ!')
+        msg.error('files differ!')
         return 2
     msg.info('all good.')
     return 0

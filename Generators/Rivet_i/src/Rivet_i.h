@@ -9,6 +9,8 @@
 
 #include "Rivet/AnalysisHandler.hh"
 
+#include "AtlasHepMC/GenEvent.h"
+
 #include <vector>
 #include <string>
 

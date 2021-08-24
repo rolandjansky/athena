@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _MUON_VMM_CHANNEL_H_
 #define _MUON_VMM_CHANNEL_H_
 
 #include "MuonNSWCommonDecode/NSWResourceId.h"
+#include "MuonNSWCommonDecode/NSWElink.h"
 
 namespace Muon
 {
   namespace nsw
   {
-    class NSWElink;
-
     enum channel_type
     {
       OFFLINE_CHANNEL_TYPE_PAD = 0,
@@ -84,42 +83,16 @@ namespace Muon
   }
 }
 
-inline uint8_t  Muon::nsw::VMMChannel::channel_type ()
+inline uint8_t Muon::nsw::VMMChannel::channel_type ()
 {
   uint8_t det_id = m_elink->elinkId ()->detId ();
   uint8_t channel_type = Muon::nsw::OFFLINE_CHANNEL_TYPE_STRIP;
 
-  if (det_id == eformat::MUON_STGC_ENDCAP_A_SIDE || det_id == eformat::MUON_STGC_ENDCAP_A_SIDE)
+  if (det_id == eformat::MUON_STGC_ENDCAP_A_SIDE || det_id == eformat::MUON_STGC_ENDCAP_C_SIDE)
     if (m_elink->elinkId ()->resourceType () == Muon::nsw::NSW_RESOURCE_PAD)
       channel_type = m_vmm == 0 ? Muon::nsw::OFFLINE_CHANNEL_TYPE_WIRE : Muon::nsw::OFFLINE_CHANNEL_TYPE_PAD;
 
   return channel_type;
-}
-
-inline uint16_t Muon::nsw::VMMChannel::channel_number ()
-{
-  uint8_t  det_id = m_elink->elinkId ()->detId ();
-  uint8_t  position = m_elink->elinkId ()->radius ();
-  uint16_t channel_number;
-
-  if (det_id == eformat::MUON_MMEGA_ENDCAP_A_SIDE || det_id == eformat::MUON_MMEGA_ENDCAP_C_SIDE)
-  {
-    // Layers with ID (0, 2, 4, 6) have odd MMFE8 on the left side, even on the right
-    // Layers with ID (1, 3, 5, 7) have even MMFE8 on the left side, odd on the right
-
-    uint32_t word     = ((m_elink->elinkId ()->layer () % 2) + (position % 2)) == 1 ? this->fix_outward (m_vmm_word) : m_vmm_word;
-    uint8_t outw_chan = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskVmmHitCHANNEL, Muon::nsw::bitPosVmmHitCHANNEL);
-    uint8_t outw_vmm  = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskVmmHitVMMID, Muon::nsw::bitPosVmmHitVMMID);
-
-    channel_number = ((position < 10 ? position : position - 10) * Muon::nsw::s_VMM_per_MMFE8 + outw_vmm)
-                   * Muon::nsw::s_VMM_channels + outw_chan;
-  }
-  else
-  {
-    channel_number = 0;
-  }
-
-  return channel_number;
 }
 
 inline uint32_t Muon::nsw::VMMChannel::fix_outward (uint32_t hit_word)

@@ -89,7 +89,7 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
    if InDetFlags.doxAOD(): 
       excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco" 
       # remove track decorations used internally by FTAG software
-      excludedAuxData += ".-TrackCompatibility.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+      excludedAuxData += ".-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
 
       InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
       InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
@@ -179,8 +179,6 @@ if InDetFlags.doxAOD():
   if InDetFlags.doConversions():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
     InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
-
-  #Save separate LRT container all the time as it does not crash even LRT was not turned on 
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLargeD0TrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsPixel():

@@ -4,6 +4,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
+
 
 def TileMuonReceiverDecisionCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver decision algorithm
@@ -26,7 +28,7 @@ def TileMuonReceiverDecisionCfg(flags, **kwargs):
                                                 MuonReceiverEneThreshCellD6andD5High = 600)
 
 
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         muRcvDecisionAlg.TileMuonReceiverContainer = flags.Overlay.BkgPrefix + 'TileMuRcvCnt'
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg

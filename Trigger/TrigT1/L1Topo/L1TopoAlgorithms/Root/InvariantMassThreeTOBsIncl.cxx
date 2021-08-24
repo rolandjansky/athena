@@ -193,7 +193,7 @@ TCS::InvariantMassThreeTOBsIncl::process( const std::vector<TCS::TOBArray const 
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading1;
                  ++tob2) {
 
-	      TCS::TOBArray::const_iterator tob3 = tob2; tob3++;
+	      TCS::TOBArray::const_iterator tob3 = tob2; ++tob3;
 	      for( ;
 		   tob3 != input[0]->end() && distance( input[0]->begin(), tob3) < p_NumberLeading1;
 		   ++tob3) {

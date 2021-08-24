@@ -113,16 +113,14 @@ namespace Rec {
                                                                                  const Trk::TrackParameters* /*outerParameters*/) const {
         ATH_MSG_VERBOSE("indetExtension fit::");
 
-        auto trajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+        auto trajectory = DataVector<const Trk::TrackStateOnSurface>();
 
         for (int i = 0; i < (int)spectrometerMeas.size(); i++) {
             std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typeM;
             typeM.set(Trk::TrackStateOnSurface::Measurement);
 
-            //  Only measurements so not needed
-            //  if(spectrometerMeas[i]->alignmentEffectsOnTrack()) continue;
-            Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(spectrometerMeas[i]->clone(), nullptr, nullptr, nullptr, typeM);
-            trajectory->push_back(tsos);
+            Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(spectrometerMeas[i]->uniqueClone(), nullptr, nullptr, nullptr, typeM);
+            trajectory.push_back(tsos);
         }
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);
@@ -147,7 +145,7 @@ namespace Rec {
         double vertex3DSigmaRPhi = 6.0;
         double vertex3DSigmaZ = 60.0;
 
-        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
 
         bool addVertexRegion = true;
         Amg::Vector3D origin(bs_x, bs_y, bs_z);
@@ -174,17 +172,17 @@ namespace Rec {
 
                 if (pars) {
                     const Trk::TrackStateOnSurface* TSOS = (**t).clone();
-                    trackStateOnSurfaces->push_back(TSOS);
+                    trackStateOnSurfaces.push_back(TSOS);
 
                     // including vertex region pseudoMeas
                     if (addVertexRegion) {
-                        const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(pars, vertex);
+                        auto vertexInFit = vertexOnTrack(pars, vertex);
 
                         if (vertexInFit) {
                             std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
                             type.set(Trk::TrackStateOnSurface::Measurement);
-                            trackStateOnSurfaces->push_back(
-                                new const Trk::TrackStateOnSurface(vertexInFit, nullptr, nullptr, nullptr, type));
+                            trackStateOnSurfaces.push_back(
+                                new const Trk::TrackStateOnSurface(std::move(vertexInFit), nullptr, nullptr, nullptr, type));
                             ATH_MSG_DEBUG(" found Perigee and added vertex " << itsos);
                         }
                     }
@@ -227,7 +225,7 @@ namespace Rec {
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(
                                 energyLoss->deltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE());
 
-                            const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -235,18 +233,23 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
-                            const Trk::MaterialEffectsOnTrack* meotNew =
-                                new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+                            auto meotNew =
+                              std::make_unique<Trk::MaterialEffectsOnTrack>(X0,
+                                                              std::move(scatNew),
+                                                              energyLossNew,
+                                                              surfNew,
+                                                              meotPattern);
 
-                            const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+
+                            auto parsNew = ((**t).trackParameters())->uniqueClone();
 
                             std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
                             typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 
                             const Trk::TrackStateOnSurface* newTSOS =
-                                new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
+                                new Trk::TrackStateOnSurface(nullptr, std::move(parsNew), nullptr, std::move(meotNew), typePatternScat);
 
-                            trackStateOnSurfaces->push_back(newTSOS);
+                            trackStateOnSurfaces.push_back(newTSOS);
                         }
                     }
                 }
@@ -263,16 +266,14 @@ namespace Rec {
             if ((**t).alignmentEffectsOnTrack()) continue;
 
             const Trk::TrackStateOnSurface* TSOS = (**t).clone();
-            trackStateOnSurfaces->push_back(TSOS);
+            trackStateOnSurfaces.push_back(TSOS);
         }
 
-        ATH_MSG_DEBUG(" trackStateOnSurfaces found " << trackStateOnSurfaces->size() << " from total " << itsos);
+        ATH_MSG_DEBUG(" trackStateOnSurfaces found " << trackStateOnSurfaces.size() << " from total " << itsos);
 
         std::unique_ptr<Trk::Track> standaloneTrack =
-          std::make_unique<Trk::Track>(
-            combinedTrack.info(), std::move(trackStateOnSurfaces), nullptr);
-        standaloneTrack->info().setPatternRecognitionInfo(
-          Trk::TrackInfo::MuidStandaloneRefit);
+            std::make_unique<Trk::Track>(combinedTrack.info(), std::move(trackStateOnSurfaces), nullptr);
+        standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandaloneRefit);
 
         std::unique_ptr<Trk::Track> refittedTrack = fit(*standaloneTrack, ctx, false, Trk::muon);
 
@@ -537,8 +538,8 @@ namespace Rec {
         sigmaDeltaPhiIDMS2 *= sigmaDeltaPhiIDMS2;
         sigmaDeltaThetaIDMS2 *= sigmaDeltaThetaIDMS2;
 
-        auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        trackStateOnSurfaces->reserve(track->trackStateOnSurfaces()->size());
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(track->trackStateOnSurfaces()->size());
 
         t = track->trackStateOnSurfaces()->begin();
         itsos = 0;
@@ -566,7 +567,7 @@ namespace Rec {
 
                             const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
 
-                            const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+                            auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                             const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -574,18 +575,22 @@ namespace Rec {
                             meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
                             meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
-                            const Trk::MaterialEffectsOnTrack* meotNew =
-                                new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+                            auto meotNew =
+                              std::make_unique<Trk::MaterialEffectsOnTrack>(X0,
+                                                              std::move(scatNew),
+                                                              energyLossNew,
+                                                              surfNew,
+                                                              meotPattern);
 
-                            const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
+                            auto parsNew = ((**t).trackParameters())->uniqueClone();
 
                             std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
                             typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 
                             const Trk::TrackStateOnSurface* newTSOS =
-                                new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
+                                new Trk::TrackStateOnSurface(nullptr, std::move(parsNew), nullptr, std::move(meotNew), typePatternScat);
 
-                            trackStateOnSurfaces->push_back(newTSOS);
+                            trackStateOnSurfaces.push_back(newTSOS);
 
                             ATH_MSG_DEBUG(" old Calo scatterer had sigmaDeltaPhi mrad      "
                                           << scat->sigmaDeltaPhi() * 1000 << " sigmaDeltaTheta mrad " << scat->sigmaDeltaTheta() * 1000
@@ -607,18 +612,19 @@ namespace Rec {
                 }
             } else {
                 const Trk::TrackStateOnSurface* TSOS = (**t).clone();
-                trackStateOnSurfaces->push_back(TSOS);
+                trackStateOnSurfaces.push_back(TSOS);
             }
         }
         ATH_MSG_DEBUG(" trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size() << " trackStateOnSurfaces found "
-                                                              << trackStateOnSurfaces->size());
+                                                              << trackStateOnSurfaces.size());
 
         Trk::Track* newTrack = new Trk::Track(track->info(), std::move(trackStateOnSurfaces), nullptr);
         return newTrack;
     }
 
-    Trk::PseudoMeasurementOnTrack* OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters* parameters,
-                                                                                   const Trk::RecVertex& vertex) {
+    std::unique_ptr<Trk::PseudoMeasurementOnTrack>
+    OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters* parameters,
+                                                    const Trk::RecVertex& vertex) {
         // create the corresponding PerigeeSurface, localParameters and
         // covarianceMatrix
         const Trk::PerigeeSurface surface(vertex.position());
@@ -644,6 +650,6 @@ namespace Rec {
         const Amg::MatrixX& cov = vertex.covariancePosition();
         covarianceMatrix = cov.similarity(jacobian);
 
-        return new Trk::PseudoMeasurementOnTrack(localParameters, covarianceMatrix, surface);
+        return std::make_unique<Trk::PseudoMeasurementOnTrack>(localParameters, covarianceMatrix, surface);
     }
 }  // namespace Rec

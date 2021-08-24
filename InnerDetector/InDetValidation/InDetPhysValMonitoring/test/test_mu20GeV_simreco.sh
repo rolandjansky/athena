@@ -58,7 +58,7 @@ lastref_dir=last_results
     --physicsList     FTFP_BERT_ATL_VALIDATION \
     --truthStrategy   MC15aPlus \
     --simulator       FullG4 \
-    --conditionsTag   'default:OFLCOND-MC16-SDR-14' \
+    --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \
                       EVNTtoHITS:'simFlags.TRTRangeCut=30.0; simFlags.TightMuonStepping=True' \
@@ -92,6 +92,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    --inputHITSFile   "$hits" \
    --outputAODFile   physval.AOD.root \
    --outputNTUP_PHYSVALFile ${dcubemon_rec} \
+   --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
    --steering        doRAWtoALL \
    --checkEventCount False \
    --ignoreErrors    True \

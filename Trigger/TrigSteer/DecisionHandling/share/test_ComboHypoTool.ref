@@ -1,0 +1,1001 @@
+
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ComboHypoToolTest    INFO Context: s: 0  e: 0
+ComboHypoToolTest    INFO Creating HypoTool for HLT_e25
+HLT_e25             DEBUG ComboHypoTool for HLT_e25 ID#3480115263 will require multiplicity 1 on leg 0
+ComboHypoToolTest    INFO Creating HypoTool for HLT_e25_mu35
+HLT_e25_mu35        DEBUG ComboHypoTool for HLT_e25_mu35 ID#373038112 will require multiplicity 1 on leg 0
+HLT_e25_mu35        DEBUG ComboHypoTool for HLT_e25_mu35 ID#373038112 will require multiplicity 1 on leg 1
+ComboHypoToolTest    INFO Creating HypoTool for HLT_e35_e35
+HLT_e35_e35         DEBUG ComboHypoTool for HLT_e35_e35 ID#3161969949 will require multiplicity 1 on leg 0
+HLT_e35_e35         DEBUG ComboHypoTool for HLT_e35_e35 ID#3161969949 will require multiplicity 1 on leg 1
+ComboHypoToolTest    INFO Creating HypoTool for HLT_2mu15
+HLT_2mu15           DEBUG ComboHypoTool for HLT_2mu15 ID#1058481211 will require multiplicity 2 on leg 0
+ComboHypoToolTest    INFO Creating HypoTool for HLT_5mu5
+HLT_5mu5            DEBUG ComboHypoTool for HLT_5mu5 ID#1405614769 will require multiplicity 5 on leg 0
+ComboHypoToolTest    INFO Creating HypoTool for HLT_6mu5
+HLT_6mu5            DEBUG ComboHypoTool for HLT_6mu5 ID#1931696944 will require multiplicity 6 on leg 0
+ComboHypoToolTest    INFO Creating HypoTool for HLT_2e25_3mu15
+HLT_2e25_3mu15      DEBUG ComboHypoTool for HLT_2e25_3mu15 ID#270470543 will require multiplicity 2 on leg 0
+HLT_2e25_3mu15      DEBUG ComboHypoTool for HLT_2e25_3mu15 ID#270470543 will require multiplicity 3 on leg 1
+ComboHypoToolTest    INFO Creating HypoTool for HLT_e35_2mu25_4j5
+HLT_e35_2mu25_4j5   DEBUG ComboHypoTool for HLT_e35_2mu25_4j5 ID#1056038866 will require multiplicity 1 on leg 0
+HLT_e35_2mu25_4j5   DEBUG ComboHypoTool for HLT_e35_2mu25_4j5 ID#1056038866 will require multiplicity 2 on leg 1
+HLT_e35_2mu25_4j5   DEBUG ComboHypoTool for HLT_e35_2mu25_4j5 ID#1056038866 will require multiplicity 4 on leg 2
+ComboHypoToolTest    INFO Creating HypoTool for HLT_e35_2mu15_g25
+HLT_e35_2mu15_g25   DEBUG ComboHypoTool for HLT_e35_2mu15_g25 ID#3655961355 will require multiplicity 1 on leg 0
+HLT_e35_2mu15_g25   DEBUG ComboHypoTool for HLT_e35_2mu15_g25 ID#3655961355 will require multiplicity 2 on leg 1
+HLT_e35_2mu15_g25   DEBUG ComboHypoTool for HLT_e35_2mu15_g25 ID#3655961355 will require multiplicity 1 on leg 2
+ComboHypoToolTest    INFO Creating HypoTool for HLT_2e35_e45_3mu15_mu35_j25
+HLT_2e35_e45_3m...  DEBUG ComboHypoTool for HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 will require multiplicity 2 on leg 0
+HLT_2e35_e45_3m...  DEBUG ComboHypoTool for HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 will require multiplicity 1 on leg 1
+HLT_2e35_e45_3m...  DEBUG ComboHypoTool for HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 will require multiplicity 3 on leg 2
+HLT_2e35_e45_3m...  DEBUG ComboHypoTool for HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 will require multiplicity 1 on leg 3
+HLT_2e35_e45_3m...  DEBUG ComboHypoTool for HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 will require multiplicity 1 on leg 4
+ComboHypoToolTest    INFO Running the HypoTools
+HLT_e25             DEBUG Looking for legs from HLT_e25 ID#3480115263 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_e25             DEBUG Getting 1 legs to combine, for ID: HLT_e25 ID#3480115263
+HLT_e25             DEBUG Leg 0 --
+HLT_e25             DEBUG -- HLT_e25 ID#3480115263 container:HLTNav_Elec, index:0
+HLT_e25             DEBUG -- HLT_e25 ID#3480115263 container:HLTNav_Elec, index:1
+HLT_e25             DEBUG -- HLT_e25 ID#3480115263 container:HLTNav_Elec, index:2
+HLT_e25             DEBUG For leg 0 we will be choosing any 1 Decision Objects out of 3
+HLT_e25           SUCCESS Next Combination:
+HLT_e25           SUCCESS -- HLT_e25 ID#3480115263 f:My_ELEC_Container i:0 pT:50
+HLT_e25             DEBUG Combination 0 decided to be passing
+HLT_e25           SUCCESS Next Combination:
+HLT_e25           SUCCESS -- HLT_e25 ID#3480115263 f:My_ELEC_Container i:1 pT:40
+HLT_e25           SUCCESS Next Combination:
+HLT_e25           SUCCESS -- HLT_e25 ID#3480115263 f:My_ELEC_Container i:2 pT:30
+HLT_e25             DEBUG Passing 1 combinations out of 3, HLT_e25 ID#3480115263 **ACCEPTS** this event based on OR logic.
+HLT_e25             DEBUG -- Passing combination 0 of 1
+HLT_e25             DEBUG -- -- HLT_e25 ID#3480115263 container:HLTNav_Elec, index:0
+HLT_e25             DEBUG ComboHypoToolBase: End of HLT_e25 ID#3480115263, passing elements are: 
+HLT_e25             DEBUG -- HLT_e25 ID#3480115263 with 1 elements
+HLT_e25             DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_e25_mu35        DEBUG Looking for legs from HLT_e25_mu35 ID#373038112 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_e25_mu35        DEBUG Getting 2 legs to combine, for ID: HLT_e25_mu35 ID#373038112
+HLT_e25_mu35        DEBUG Leg 0 --
+HLT_e25_mu35        DEBUG -- leg000_HLT_e25_mu35 ID#2563460054 container:HLTNav_Elec, index:0
+HLT_e25_mu35        DEBUG -- leg000_HLT_e25_mu35 ID#2563460054 container:HLTNav_Elec, index:1
+HLT_e25_mu35        DEBUG -- leg000_HLT_e25_mu35 ID#2563460054 container:HLTNav_Elec, index:2
+HLT_e25_mu35        DEBUG Leg 1 --
+HLT_e25_mu35        DEBUG -- leg001_HLT_e25_mu35 ID#4271136129 container:HLTNav_Muon, index:0
+HLT_e25_mu35        DEBUG -- leg001_HLT_e25_mu35 ID#4271136129 container:HLTNav_Muon, index:1
+HLT_e25_mu35        DEBUG For leg 0 we will be choosing any 1 Decision Objects out of 3
+HLT_e25_mu35        DEBUG For leg 1 we will be choosing any 1 Decision Objects out of 2
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:0 pT:50
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:0 pT:50
+HLT_e25_mu35        DEBUG Combination 0 decided to be passing
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:1 pT:40
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:0 pT:50
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:2 pT:30
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:0 pT:50
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:0 pT:50
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:1 pT:40
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:1 pT:40
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:1 pT:40
+HLT_e25_mu35      SUCCESS Next Combination:
+HLT_e25_mu35      SUCCESS -- leg000_HLT_e25_mu35 ID#2563460054 f:My_ELEC_Container i:2 pT:30
+HLT_e25_mu35      SUCCESS -- leg001_HLT_e25_mu35 ID#4271136129 f:My_MUON_Container i:1 pT:40
+HLT_e25_mu35        DEBUG Passing 1 combinations out of 6, HLT_e25_mu35 ID#373038112 **ACCEPTS** this event based on OR logic.
+HLT_e25_mu35        DEBUG -- Passing combination 0 of 1
+HLT_e25_mu35        DEBUG -- -- leg000_HLT_e25_mu35 ID#2563460054 container:HLTNav_Elec, index:0
+HLT_e25_mu35        DEBUG -- -- leg001_HLT_e25_mu35 ID#4271136129 container:HLTNav_Muon, index:0
+HLT_e25_mu35        DEBUG ComboHypoToolBase: End of HLT_e25_mu35 ID#373038112, passing elements are: 
+HLT_e25_mu35        DEBUG -- leg000_HLT_e25_mu35 ID#2563460054 with 1 elements
+HLT_e25_mu35        DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_e25_mu35        DEBUG -- leg001_HLT_e25_mu35 ID#4271136129 with 1 elements
+HLT_e25_mu35        DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_e35_e35         DEBUG Looking for legs from HLT_e35_e35 ID#3161969949 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_e35_e35         DEBUG Getting 2 legs to combine, for ID: HLT_e35_e35 ID#3161969949
+HLT_e35_e35         DEBUG Leg 0 --
+HLT_e35_e35         DEBUG -- leg000_HLT_e35_e35 ID#3620307964 container:HLTNav_Elec, index:0
+HLT_e35_e35         DEBUG -- leg000_HLT_e35_e35 ID#3620307964 container:HLTNav_Elec, index:1
+HLT_e35_e35         DEBUG Leg 1 --
+HLT_e35_e35         DEBUG -- leg001_HLT_e35_e35 ID#3593781442 container:HLTNav_Elec, index:0
+HLT_e35_e35         DEBUG -- leg001_HLT_e35_e35 ID#3593781442 container:HLTNav_Elec, index:1
+HLT_e35_e35         DEBUG For leg 0 we will be choosing any 1 Decision Objects out of 2
+HLT_e35_e35         DEBUG For leg 1 we will be choosing any 1 Decision Objects out of 2
+HLT_e35_e35       SUCCESS Next Combination:
+HLT_e35_e35       SUCCESS -- leg000_HLT_e35_e35 ID#3620307964 f:My_ELEC_Container i:0 pT:50
+HLT_e35_e35       SUCCESS -- leg001_HLT_e35_e35 ID#3593781442 f:My_ELEC_Container i:0 pT:50
+HLT_e35_e35         DEBUG Combination 0 decided to be passing
+HLT_e35_e35       SUCCESS Next Combination:
+HLT_e35_e35       SUCCESS -- leg000_HLT_e35_e35 ID#3620307964 f:My_ELEC_Container i:1 pT:40
+HLT_e35_e35       SUCCESS -- leg001_HLT_e35_e35 ID#3593781442 f:My_ELEC_Container i:0 pT:50
+HLT_e35_e35       SUCCESS Next Combination:
+HLT_e35_e35       SUCCESS -- leg000_HLT_e35_e35 ID#3620307964 f:My_ELEC_Container i:0 pT:50
+HLT_e35_e35       SUCCESS -- leg001_HLT_e35_e35 ID#3593781442 f:My_ELEC_Container i:1 pT:40
+HLT_e35_e35       SUCCESS Next Combination:
+HLT_e35_e35       SUCCESS -- leg000_HLT_e35_e35 ID#3620307964 f:My_ELEC_Container i:1 pT:40
+HLT_e35_e35       SUCCESS -- leg001_HLT_e35_e35 ID#3593781442 f:My_ELEC_Container i:1 pT:40
+HLT_e35_e35         DEBUG Passing 1 combinations out of 4, HLT_e35_e35 ID#3161969949 **ACCEPTS** this event based on OR logic.
+HLT_e35_e35         DEBUG -- Passing combination 0 of 1
+HLT_e35_e35         DEBUG -- -- leg000_HLT_e35_e35 ID#3620307964 container:HLTNav_Elec, index:0
+HLT_e35_e35         DEBUG -- -- leg001_HLT_e35_e35 ID#3593781442 container:HLTNav_Elec, index:0
+HLT_e35_e35         DEBUG ComboHypoToolBase: End of HLT_e35_e35 ID#3161969949, passing elements are: 
+HLT_e35_e35         DEBUG -- leg001_HLT_e35_e35 ID#3593781442 with 1 elements
+HLT_e35_e35         DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_e35_e35         DEBUG -- leg000_HLT_e35_e35 ID#3620307964 with 1 elements
+HLT_e35_e35         DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_2mu15           DEBUG Looking for legs from HLT_2mu15 ID#1058481211 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_2mu15           DEBUG Getting 1 legs to combine, for ID: HLT_2mu15 ID#1058481211
+HLT_2mu15           DEBUG Leg 0 --
+HLT_2mu15           DEBUG -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:0
+HLT_2mu15           DEBUG -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:1
+HLT_2mu15           DEBUG -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:2
+HLT_2mu15           DEBUG -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:3
+HLT_2mu15           DEBUG For leg 0 we will be choosing any 2 Decision Objects out of 4
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:0 pT:50
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:1 pT:40
+HLT_2mu15           DEBUG Combination 0 decided to be passing
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:0 pT:50
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:2 pT:30
+HLT_2mu15           DEBUG Combination 1 decided to be passing
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:0 pT:50
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:3 pT:20
+HLT_2mu15           DEBUG Combination 2 decided to be passing
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:1 pT:40
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:2 pT:30
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:1 pT:40
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:3 pT:20
+HLT_2mu15         SUCCESS Next Combination:
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:2 pT:30
+HLT_2mu15         SUCCESS -- HLT_2mu15 ID#1058481211 f:My_MUON_Container i:3 pT:20
+HLT_2mu15           DEBUG Passing 3 combinations out of 6, HLT_2mu15 ID#1058481211 **ACCEPTS** this event based on OR logic.
+HLT_2mu15           DEBUG -- Passing combination 0 of 3
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:0
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:1
+HLT_2mu15           DEBUG -- Passing combination 1 of 3
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:0
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:2
+HLT_2mu15           DEBUG -- Passing combination 2 of 3
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:0
+HLT_2mu15           DEBUG -- -- HLT_2mu15 ID#1058481211 container:HLTNav_Muon, index:3
+HLT_2mu15           DEBUG ComboHypoToolBase: End of HLT_2mu15 ID#1058481211, passing elements are: 
+HLT_2mu15           DEBUG -- HLT_2mu15 ID#1058481211 with 4 elements
+HLT_2mu15           DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_2mu15           DEBUG -- -- container:HLTNav_Muon, index:1
+HLT_2mu15           DEBUG -- -- container:HLTNav_Muon, index:2
+HLT_2mu15           DEBUG -- -- container:HLTNav_Muon, index:3
+HLT_5mu5            DEBUG Looking for legs from HLT_5mu5 ID#1405614769 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_5mu5            DEBUG Getting 1 legs to combine, for ID: HLT_5mu5 ID#1405614769
+HLT_5mu5            DEBUG Leg 0 --
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:0
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:1
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:2
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:3
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:4
+HLT_5mu5            DEBUG For leg 0 we will be choosing any 5 Decision Objects out of 5
+HLT_5mu5          SUCCESS Next Combination:
+HLT_5mu5          SUCCESS -- HLT_5mu5 ID#1405614769 f:My_MUON_Container i:0 pT:50
+HLT_5mu5          SUCCESS -- HLT_5mu5 ID#1405614769 f:My_MUON_Container i:1 pT:40
+HLT_5mu5          SUCCESS -- HLT_5mu5 ID#1405614769 f:My_MUON_Container i:2 pT:30
+HLT_5mu5          SUCCESS -- HLT_5mu5 ID#1405614769 f:My_MUON_Container i:3 pT:20
+HLT_5mu5          SUCCESS -- HLT_5mu5 ID#1405614769 f:My_MUON_Container i:4 pT:10
+HLT_5mu5            DEBUG Combination 0 decided to be passing
+HLT_5mu5            DEBUG Passing 1 combinations out of 1, HLT_5mu5 ID#1405614769 **ACCEPTS** this event based on OR logic.
+HLT_5mu5            DEBUG -- Passing combination 0 of 1
+HLT_5mu5            DEBUG -- -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:0
+HLT_5mu5            DEBUG -- -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:1
+HLT_5mu5            DEBUG -- -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:2
+HLT_5mu5            DEBUG -- -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:3
+HLT_5mu5            DEBUG -- -- HLT_5mu5 ID#1405614769 container:HLTNav_Muon, index:4
+HLT_5mu5            DEBUG ComboHypoToolBase: End of HLT_5mu5 ID#1405614769, passing elements are: 
+HLT_5mu5            DEBUG -- HLT_5mu5 ID#1405614769 with 5 elements
+HLT_5mu5            DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_5mu5            DEBUG -- -- container:HLTNav_Muon, index:1
+HLT_5mu5            DEBUG -- -- container:HLTNav_Muon, index:2
+HLT_5mu5            DEBUG -- -- container:HLTNav_Muon, index:3
+HLT_5mu5            DEBUG -- -- container:HLTNav_Muon, index:4
+HLT_6mu5            DEBUG Looking for legs from HLT_6mu5 ID#1931696944 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_6mu5            DEBUG Getting 1 legs to combine, for ID: HLT_6mu5 ID#1931696944
+HLT_6mu5            DEBUG Leg 0 --
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 container:HLTNav_Muon, index:0
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 container:HLTNav_Muon, index:1
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 container:HLTNav_Muon, index:2
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 container:HLTNav_Muon, index:3
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 container:HLTNav_Muon, index:4
+HLT_6mu5            DEBUG Too few features are found for HLT_6mu5 ID#1931696944 on leg 0, require:6 have:5
+HLT_6mu5            DEBUG This ComboHypoTool cannot run in this event, this chain **REJECTS** this event.
+HLT_6mu5            DEBUG ComboHypoToolBase: End of HLT_6mu5 ID#1931696944, passing elements are: 
+HLT_6mu5            DEBUG -- HLT_6mu5 ID#1931696944 with 0 elements
+HLT_2e25_3mu15      DEBUG Looking for legs from HLT_2e25_3mu15 ID#270470543 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_2e25_3mu15      DEBUG Getting 2 legs to combine, for ID: HLT_2e25_3mu15 ID#270470543
+HLT_2e25_3mu15      DEBUG Leg 0 --
+HLT_2e25_3mu15      DEBUG -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:1
+HLT_2e25_3mu15      DEBUG -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:2
+HLT_2e25_3mu15      DEBUG Leg 1 --
+HLT_2e25_3mu15      DEBUG -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:3
+HLT_2e25_3mu15      DEBUG For leg 0 we will be choosing any 2 Decision Objects out of 3
+HLT_2e25_3mu15      DEBUG For leg 1 we will be choosing any 3 Decision Objects out of 4
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15      DEBUG Combination 0 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15      DEBUG Combination 1 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15      DEBUG Combination 3 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15      DEBUG Combination 4 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15      DEBUG Combination 6 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15      DEBUG Combination 7 decided to be passing
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:0 pT:50
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15    SUCCESS Next Combination:
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg000_HLT_2e25_3mu15 ID#3088384102 f:My_ELEC_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:1 pT:40
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:2 pT:30
+HLT_2e25_3mu15    SUCCESS -- leg001_HLT_2e25_3mu15 ID#4138555611 f:My_MUON_Container i:3 pT:20
+HLT_2e25_3mu15      DEBUG Passing 6 combinations out of 12, HLT_2e25_3mu15 ID#270470543 **ACCEPTS** this event based on OR logic.
+HLT_2e25_3mu15      DEBUG -- Passing combination 0 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- Passing combination 1 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:2
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- Passing combination 2 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:3
+HLT_2e25_3mu15      DEBUG -- Passing combination 3 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:2
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:3
+HLT_2e25_3mu15      DEBUG -- Passing combination 4 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:1
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:3
+HLT_2e25_3mu15      DEBUG -- Passing combination 5 of 6
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg000_HLT_2e25_3mu15 ID#3088384102 container:HLTNav_Elec, index:2
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- -- leg001_HLT_2e25_3mu15 ID#4138555611 container:HLTNav_Muon, index:3
+HLT_2e25_3mu15      DEBUG ComboHypoToolBase: End of HLT_2e25_3mu15 ID#270470543, passing elements are: 
+HLT_2e25_3mu15      DEBUG -- leg000_HLT_2e25_3mu15 ID#3088384102 with 3 elements
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Elec, index:1
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Elec, index:2
+HLT_2e25_3mu15      DEBUG -- leg001_HLT_2e25_3mu15 ID#4138555611 with 4 elements
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Muon, index:1
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Muon, index:2
+HLT_2e25_3mu15      DEBUG -- -- container:HLTNav_Muon, index:3
+HLT_e35_2mu25_4j5   DEBUG Looking for legs from HLT_e35_2mu25_4j5 ID#1056038866 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_e35_2mu25_4j5   DEBUG Getting 3 legs to combine, for ID: HLT_e35_2mu25_4j5 ID#1056038866
+HLT_e35_2mu25_4j5   DEBUG Leg 0 --
+HLT_e35_2mu25_4j5   DEBUG -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:1
+HLT_e35_2mu25_4j5   DEBUG Leg 1 --
+HLT_e35_2mu25_4j5   DEBUG -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:2
+HLT_e35_2mu25_4j5   DEBUG Leg 2 --
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG For leg 0 we will be choosing any 1 Decision Objects out of 2
+HLT_e35_2mu25_4j5   DEBUG For leg 1 we will be choosing any 2 Decision Objects out of 3
+HLT_e35_2mu25_4j5   DEBUG For leg 2 we will be choosing any 4 Decision Objects out of 5
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5   DEBUG Combination 0 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5   DEBUG Combination 2 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 6 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 8 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 12 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 14 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 18 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Combination 20 decided to be passing
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:0 pT:50
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5 SUCCESS Next Combination:
+HLT_e35_2mu25_4j5 SUCCESS -- leg000_HLT_e35_2mu25_4j5 ID#572077314 f:My_ELEC_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 f:My_MUON_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:1 pT:40
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:2 pT:30
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:3 pT:20
+HLT_e35_2mu25_4j5 SUCCESS -- leg002_HLT_e35_2mu25_4j5 ID#862137673 f:My_JETS_Container i:4 pT:10
+HLT_e35_2mu25_4j5   DEBUG Passing 8 combinations out of 30, HLT_e35_2mu25_4j5 ID#1056038866 **ACCEPTS** this event based on OR logic.
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 0 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 1 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 2 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 3 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 4 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 5 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 6 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- Passing combination 7 of 8
+HLT_e35_2mu25_4j5   DEBUG -- -- leg000_HLT_e35_2mu25_4j5 ID#572077314 container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 container:HLTNav_Muon, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- -- leg002_HLT_e35_2mu25_4j5 ID#862137673 container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG ComboHypoToolBase: End of HLT_e35_2mu25_4j5 ID#1056038866, passing elements are: 
+HLT_e35_2mu25_4j5   DEBUG -- leg000_HLT_e35_2mu25_4j5 ID#572077314 with 1 elements
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_e35_2mu25_4j5   DEBUG -- leg002_HLT_e35_2mu25_4j5 ID#862137673 with 5 elements
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Jets, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Jets, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Jets, index:2
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Jets, index:3
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Jets, index:4
+HLT_e35_2mu25_4j5   DEBUG -- leg001_HLT_e35_2mu25_4j5 ID#1863374539 with 3 elements
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Muon, index:1
+HLT_e35_2mu25_4j5   DEBUG -- -- container:HLTNav_Muon, index:2
+HLT_e35_2mu15_g25   DEBUG Looking for legs from HLT_e35_2mu15_g25 ID#3655961355 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_e35_2mu15_g25   DEBUG Getting 3 legs to combine, for ID: HLT_e35_2mu15_g25 ID#3655961355
+HLT_e35_2mu15_g25   DEBUG Leg 0 --
+HLT_e35_2mu15_g25   DEBUG -- leg000_HLT_e35_2mu15_g25 ID#1262997272 container:HLTNav_Elec, index:0
+HLT_e35_2mu15_g25   DEBUG -- leg000_HLT_e35_2mu15_g25 ID#1262997272 container:HLTNav_Elec, index:1
+HLT_e35_2mu15_g25   DEBUG Leg 1 --
+HLT_e35_2mu15_g25   DEBUG -- leg001_HLT_e35_2mu15_g25 ID#1775991769 container:HLTNav_Muon, index:0
+HLT_e35_2mu15_g25   DEBUG -- leg001_HLT_e35_2mu15_g25 ID#1775991769 container:HLTNav_Muon, index:1
+HLT_e35_2mu15_g25   DEBUG -- leg001_HLT_e35_2mu15_g25 ID#1775991769 container:HLTNav_Muon, index:2
+HLT_e35_2mu15_g25   DEBUG -- leg001_HLT_e35_2mu15_g25 ID#1775991769 container:HLTNav_Muon, index:3
+HLT_e35_2mu15_g25   DEBUG Leg 2 --
+HLT_e35_2mu15_g25   DEBUG Too few features are found for HLT_e35_2mu15_g25 ID#3655961355 on leg 2, require:1 have:0
+HLT_e35_2mu15_g25   DEBUG This ComboHypoTool cannot run in this event, this chain **REJECTS** this event.
+HLT_e35_2mu15_g25   DEBUG ComboHypoToolBase: End of HLT_e35_2mu15_g25 ID#3655961355, passing elements are: 
+HLT_e35_2mu15_g25   DEBUG -- leg000_HLT_e35_2mu15_g25 ID#1262997272 with 0 elements
+HLT_e35_2mu15_g25   DEBUG -- leg001_HLT_e35_2mu15_g25 ID#1775991769 with 0 elements
+HLT_2e35_e45_3m...  DEBUG Looking for legs from HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 in the map. Map contains features for 20 legs, which may be data for many chains.
+HLT_2e35_e45_3m...  DEBUG Getting 5 legs to combine, for ID: HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787
+HLT_2e35_e45_3m...  DEBUG Leg 0 --
+HLT_2e35_e45_3m...  DEBUG -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:1
+HLT_2e35_e45_3m...  DEBUG Leg 1 --
+HLT_2e35_e45_3m...  DEBUG -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG Leg 2 --
+HLT_2e35_e45_3m...  DEBUG -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:1
+HLT_2e35_e45_3m...  DEBUG -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:2
+HLT_2e35_e45_3m...  DEBUG -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:3
+HLT_2e35_e45_3m...  DEBUG Leg 3 --
+HLT_2e35_e45_3m...  DEBUG -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 container:HLTNav_Muon, index:1
+HLT_2e35_e45_3m...  DEBUG Leg 4 --
+HLT_2e35_e45_3m...  DEBUG -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:1
+HLT_2e35_e45_3m...  DEBUG -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:2
+HLT_2e35_e45_3m...  DEBUG For leg 0 we will be choosing any 2 Decision Objects out of 2
+HLT_2e35_e45_3m...  DEBUG For leg 1 we will be choosing any 1 Decision Objects out of 1
+HLT_2e35_e45_3m...  DEBUG For leg 2 we will be choosing any 3 Decision Objects out of 4
+HLT_2e35_e45_3m...  DEBUG For leg 3 we will be choosing any 1 Decision Objects out of 2
+HLT_2e35_e45_3m...  DEBUG For leg 4 we will be choosing any 1 Decision Objects out of 3
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...  DEBUG Combination 0 decided to be passing
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...  DEBUG Combination 1 decided to be passing
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...  DEBUG Combination 2 decided to be passing
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS Next Combination:
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 f:My_ELEC_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 f:My_ELEC_Container i:0 pT:50
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:2 pT:30
+HLT_2e35_e45_3m...SUCCESS -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 f:My_MUON_Container i:3 pT:20
+HLT_2e35_e45_3m...SUCCESS -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 f:My_MUON_Container i:1 pT:40
+HLT_2e35_e45_3m...SUCCESS -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 f:My_JETS_Container i:2 pT:30
+HLT_2e35_e45_3m...  DEBUG Passing 3 combinations out of 24, HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787 **ACCEPTS** this event based on OR logic.
+HLT_2e35_e45_3m...  DEBUG -- Passing combination 0 of 3
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:2
+HLT_2e35_e45_3m...  DEBUG -- -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:0
+HLT_2e35_e45_3m...  DEBUG -- Passing combination 1 of 3
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:3
+HLT_2e35_e45_3m...  DEBUG -- -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:0
+HLT_2e35_e45_3m...  DEBUG -- Passing combination 2 of 3
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 container:HLTNav_Elec, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:2
+HLT_2e35_e45_3m...  DEBUG -- -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 container:HLTNav_Muon, index:3
+HLT_2e35_e45_3m...  DEBUG -- -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 container:HLTNav_Jets, index:0
+HLT_2e35_e45_3m...  DEBUG ComboHypoToolBase: End of HLT_2e35_e45_3mu15_mu35_j25 ID#1413975787, passing elements are: 
+HLT_2e35_e45_3m...  DEBUG -- leg001_HLT_2e35_e45_3mu15_mu35_j25 ID#818937230 with 1 elements
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg002_HLT_2e35_e45_3mu15_mu35_j25 ID#873905799 with 4 elements
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Muon, index:1
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Muon, index:2
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Muon, index:3
+HLT_2e35_e45_3m...  DEBUG -- leg000_HLT_2e35_e45_3mu15_mu35_j25 ID#1296237030 with 2 elements
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Elec, index:0
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Elec, index:1
+HLT_2e35_e45_3m...  DEBUG -- leg003_HLT_2e35_e45_3mu15_mu35_j25 ID#1315781797 with 1 elements
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Muon, index:0
+HLT_2e35_e45_3m...  DEBUG -- leg004_HLT_2e35_e45_3mu15_mu35_j25 ID#4003323228 with 1 elements
+HLT_2e35_e45_3m...  DEBUG -- -- container:HLTNav_Jets, index:0

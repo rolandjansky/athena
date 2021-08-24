@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoSectionBuilder.h"
@@ -1509,9 +1509,11 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   const GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
   const GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
   const GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
-  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
+  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("std::Rubber")!=nullptr
+    ? m_theMaterialManager->getMaterial("std::Rubber")
+    : m_theMaterialManager->getMaterial("sct::Rubber");
 
-  // InDetServices
+  // m_matLArServices
   if (m_matLArServices == 0)
    { m_matLArServices = new GeoMaterial("LArServices", 2.5*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
      m_matLArServices->add(shieldSteel, 0.20);

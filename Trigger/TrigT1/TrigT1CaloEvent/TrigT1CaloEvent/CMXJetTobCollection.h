@@ -9,7 +9,6 @@
 
 /** Container class for CMXJetTob objects */
 
-using namespace LVL1;
-typedef DataVector<CMXJetTob> CMXJetTobCollection;
+typedef DataVector<LVL1::CMXJetTob> CMXJetTobCollection;
 
 #endif

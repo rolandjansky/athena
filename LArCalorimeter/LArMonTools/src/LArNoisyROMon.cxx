@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMon.h"
@@ -24,7 +24,7 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent):
   ManagedMonitorToolBase(type, name, parent), 
-  m_NoiseTimeTree(NULL), m_CandidateMNBTree(NULL), m_eventCounter(0), m_LArOnlineIDHelper(NULL), m_strHelper(NULL), m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"), m_EF_NoiseBurst_Triggers(), m_L1_NoiseBurst_Triggers()
+  m_NoiseTimeTree(nullptr), m_CandidateMNBTree(nullptr), m_eventCounter(0), m_LArOnlineIDHelper(nullptr), m_strHelper(nullptr), m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"), m_EF_NoiseBurst_Triggers(), m_L1_NoiseBurst_Triggers()
 {
   declareProperty("IsOnline",       m_IsOnline=false);
   declareProperty("NoisyFEBDefStr", m_NoisyFEBDefStr="(unknown)");
@@ -52,8 +52,8 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
   m_CandidateMNB.v_candidate_MNBTight_PsVetoFEB = new std::vector<int>;
   m_CandidateMNB.v_candidate_MNBLooseFEB = new std::vector<int>;
 
-  m_h_NoisyFEB			= NULL;
-  m_h_LBN				= NULL;
+  m_h_NoisyFEB			= nullptr;
+  m_h_LBN				= nullptr;
 }
 
 LArNoisyROMon::~LArNoisyROMon()
@@ -208,7 +208,7 @@ StatusCode LArNoisyROMon::fillHistograms()
       m_CandidateMNB.v_candidate_MNBLooseFEB->push_back(mnblooseFEB.at(iFeb).get_identifier32().get_compact());
   }
 
-  if(m_CandidateMNB.v_candidate_MNBLooseFEB->size() > 0 || m_CandidateMNB.v_candidate_MNBTightFEB->size() > 0)
+  if(!m_CandidateMNB.v_candidate_MNBLooseFEB->empty() || !m_CandidateMNB.v_candidate_MNBTightFEB->empty())
     m_CandidateMNBTree->Fill();
 
   // Fill the noise bursts timestamp ttree

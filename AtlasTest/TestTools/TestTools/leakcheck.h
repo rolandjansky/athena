@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file TestTools/leakcheck.h
  * @author scott snyder <snyder@bnl.gov>
@@ -26,6 +25,22 @@
 #pragma ATLAS no_check_thread_safety
 #endif
 
+// gcc11 can emit Wmismatched-new-delete for our new/delete
+// overloads. This is sensitive to optimisations and
+// particulary inlining.
+// Specifically, it can inline the delete and not
+// the new. So it ends up seeing a new matched
+// with a free.
+//
+// We try to disable the diagnostic
+// and also we try to avoid inlining the functions.
+//
+#if __GNUC__ == 11 
+# pragma GCC diagnostic ignored "-Wmismatched-new-delete"
+#endif
+
+
+
 #include <malloc.h>
 #include <unordered_set>
 #include <iostream>
@@ -44,33 +59,43 @@ struct LeakCheckDisable
 };
 } // namespace Athena_test
 
-
-void* operator new(std::size_t size)
+#if __GNUC__ == 11
+[[gnu::noinline]]
+#endif
+void* newImpl(std::size_t size)
 {
   void* ptr = malloc(size);
   if (Athena_test::allocs) {
     Athena_test::LeakCheckDisable disable;
-    disable.insert (ptr);
+    disable.insert(ptr);
   }
   return ptr;
 }
-void operator delete (void* ptr) noexcept
-{
-  if (Athena_test::allocs) {
-    Athena_test::LeakCheckDisable disable;
-    disable.erase (ptr);
-  }
-  free(ptr);
+
+void* operator new(std::size_t size){
+  return newImpl(size);
 }
-void operator delete (void* ptr, size_t) noexcept
+#if __GNUC__ == 11
+[[gnu::noinline]]
+#endif
+void deleteImpl (void* ptr) noexcept
 {
   if (Athena_test::allocs) {
     Athena_test::LeakCheckDisable disable;
-    disable.erase (ptr);
+    disable.erase(ptr);
   }
   free(ptr);
 }
 
+void operator delete (void* ptr) noexcept
+{
+  deleteImpl(ptr);
+}
+
+void operator delete (void* ptr, size_t) noexcept
+{
+  deleteImpl(ptr);
+}
 
 namespace Athena_test {
 

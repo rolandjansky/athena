@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMBHVMANAGER_H
@@ -8,7 +8,6 @@
 #include "LArHV/EMBHVModule.h"
 #include "LArHV/EMBHVDescriptor.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -79,8 +78,9 @@ class EMBHVManager
   unsigned int beginSideIndex() const;
   unsigned int endSideIndex() const;
 
-  // Get the database payload
-  EMBHVData getData ATLAS_NOT_THREAD_SAFE () const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  EMBHVData getDataSim() const;
   
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMBHVData getData (const LArHVIdMapping& hvIdMapping,

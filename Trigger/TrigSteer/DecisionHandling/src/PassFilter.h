@@ -17,13 +17,7 @@
 class PassFilter : public AthReentrantAlgorithm {
 public:
   PassFilter(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~PassFilter() override;
-
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
-
-private:
+  virtual StatusCode execute(const EventContext& context) const override final;
 
 };
 

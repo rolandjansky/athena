@@ -31,6 +31,15 @@ if DQMonFlags.doMonitoring():
          from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
          TrigLiveFractionCondAlgDefault()
 
+      if DQMonFlags.monManEnvironment() == 'AOD':
+         from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+         BunchCrossingCondAlgDefault()
+
+         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+         from AthenaMonitoring.AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
+         ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringAODRecoCfg, ConfigFlags)
+
    def doOldStylePostSetup(addlSequences=[]):
       #------------------------#
       # Trigger chain steering #
@@ -145,7 +154,7 @@ if DQMonFlags.doMonitoring():
       #----------------------------#
       # Global combined monitoring #
       #----------------------------#
-      if DQMonFlags.doGlobalMon():
+      if DQMonFlags.doDataFlowMon() or DQMonFlags.doGlobalMon():
          try:
             include("DataQualityTools/DataQualityMon_jobOptions.py")
          except Exception:
@@ -335,53 +344,7 @@ if DQMonFlags.doMonitoring():
       doOldStylePostSetup()
 
    else:
-      local_logger.info("DQ: setting up ConfigFlags")
-      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-      ConfigFlags = getNewConfigFlags()
       from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-      ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
-      ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
-
-      ConfigFlags.Output.HISTFileName=DQMonFlags.histogramFile()
-      ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
-      ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
-      ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
-      ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
-      ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
-      ConfigFlags.DQ.isReallyOldStyle=False
-
-      from AthenaConfiguration import ComponentAccumulator
-      from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
-      from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
-      from AthenaMonitoring import AthenaMonitoringConf
-
-      Steering = ConfigFlags.DQ.Steering
-      Steering.doGlobalMon=DQMonFlags.doGlobalMon()
-      # do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
-      mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
-      Steering.doHLTMon=DQMonFlags.doHLTMon() and not mixedModeFlag
-      Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon() and not mixedModeFlag
-      Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
-      Steering.doPixelMon=DQMonFlags.doPixelMon()
-      Steering.doSCTMon=DQMonFlags.doSCTMon()
-      Steering.doTRTMon=DQMonFlags.doTRTMon()
-      Steering.doInDetMon=DQMonFlags.doInDetGlobalMon()
-      Steering.doLArMon=DQMonFlags.doLArMon()
-      Steering.doTileMon=DQMonFlags.doTileMon()
-      Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
-      Steering.Muon.doRawMon=DQMonFlags.doMuonRawMon()
-      Steering.Muon.doTrackMon=DQMonFlags.doMuonTrackMon()
-      Steering.doMuonMon=(Steering.Muon.doRawMon or Steering.Muon.doTrackMon)
-      Steering.doLucidMon=DQMonFlags.doLucidMon()
-      Steering.doAFPMon=DQMonFlags.doAFPMon()
-      Steering.doHIMon=DQMonFlags.doHIMon()
-      Steering.doEgammaMon=DQMonFlags.doEgammaMon()
-      Steering.doJetMon=DQMonFlags.doJetMon()
-      Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
-      Steering.doTauMon=DQMonFlags.doTauMon()
-      Steering.doJetTagMon=DQMonFlags.doJetTagMon()
 
       # schedule legacy HLT and L1 monitoring if Run 2 EDM
       if mixedModeFlag and (DQMonFlags.doHLTMon()

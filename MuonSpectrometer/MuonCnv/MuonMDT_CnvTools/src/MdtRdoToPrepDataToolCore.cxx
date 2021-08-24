@@ -128,7 +128,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode(const std::vector<uint32_t>& r
         ATH_MSG_ERROR("nullptr to the read conditions object");
         return StatusCode::FAILURE;
     }
-    const std::vector<IdentifierHash>& chamberHashInRobs = readCdo->getChamberHashVec(robIds);
+    const std::vector<IdentifierHash>& chamberHashInRobs = readCdo->getChamberHashVec(robIds, msgStream());
     return decode(chamberHashInRobs);
 }
 

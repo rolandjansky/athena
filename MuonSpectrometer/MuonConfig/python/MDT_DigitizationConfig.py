@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
@@ -47,7 +48,7 @@ def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     acc = ComponentAccumulator()
-    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
+    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
     acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))
@@ -83,7 +84,7 @@ def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     rangetool = acc.popToolsAndMerge(MDT_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")

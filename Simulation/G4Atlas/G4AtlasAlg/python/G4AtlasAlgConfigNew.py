@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
-from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, InputConverterCfg
+from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg, InputConverterCfg
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
@@ -47,9 +47,10 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     kwargs.setdefault("MultiThreading", is_hive)
 
 
-    accMCTruth = MC15aPlusTruthServiceCfg(ConfigFlags)
+    accMCTruth = TruthServiceCfg(ConfigFlags)
+    truthSvcName = accMCTruth.getPrimary().getName()
     result.merge(accMCTruth)
-    kwargs.setdefault("TruthRecordService", result.getService("ISF_MC15aPlusTruthService"))
+    kwargs.setdefault("TruthRecordService", result.getService(truthSvcName))
     #kwargs.setdefault("TruthRecordService", ConfigFlags.Sim.TruthStrategy) # TODO need to have manual override (simFlags.TruthStrategy.TruthServiceName())
 
     accGeoID = GeoIDSvcCfg(ConfigFlags)

@@ -19,24 +19,33 @@ TauCombinedTES::TauCombinedTES(const std::string& name) :
 
 
 StatusCode TauCombinedTES::initialize() {
-  // It would be better to retrieve the function from calibration file
-  m_nSigmaCompatibility=std::make_unique<TF1>("nSigmaCompatibility", "pol1", 0, 500000);
-  m_nSigmaCompatibility->SetParameter(0, 3.809); // derived from fit
-  m_nSigmaCompatibility->SetParameter(1, -9.58/1000000.); // derived from fit
 
   std::string calFilePath = find_file(m_calFileName);
   std::unique_ptr<TFile> calFile(TFile::Open(calFilePath.c_str(), "READ"));
+  ATH_MSG_INFO("Using calibration file: " << calFilePath);
 
   // 1D array with decay mode as index
   TH1F* hist = nullptr;
+  TF1* tf1 = nullptr;
   std::string histName = "";
   for (size_t decayModeIndex = 0; decayModeIndex < DecayModeBinning; ++ decayModeIndex) {
-    histName="CorrelationCoeff_tauRec_" + m_decayModeNames[decayModeIndex];
+    histName = "CorrelationCoeff_tauRec_" + m_decayModeNames[decayModeIndex];
     hist = dynamic_cast<TH1F*> (calFile->Get(histName.c_str()));
-    if(hist){
+    if(hist) {
       hist->SetDirectory(nullptr);
       m_correlationHists[decayModeIndex] = std::unique_ptr<TH1F>(hist);
       ATH_MSG_DEBUG("Adding corr hist: " << histName);
+    }
+    else {
+      ATH_MSG_FATAL("Failed to get an object with name " << histName);
+      return StatusCode::FAILURE;
+    }
+
+    histName = "nSigmaCompatibility_" + m_decayModeNames[decayModeIndex];
+    tf1 = dynamic_cast<TF1*> (calFile->Get(histName.c_str()));
+    if(tf1) {
+      m_nSigmaCompatibility[decayModeIndex] = std::unique_ptr<TF1>(tf1);
+      ATH_MSG_DEBUG("Adding compatibility TF1: " << histName);
     }
     else {
       ATH_MSG_FATAL("Failed to get an object with name " << histName);
@@ -194,7 +203,8 @@ int TauCombinedTES::getEtaIndex(const float& eta) const {
   if (std::abs(eta) < 1.6) {
     return 3;
   }
-  if (std::abs(eta) < 2.5) {
+  // slightly extend the tau eta range, as |eta|<2.5 applies to the seed jet
+  if (std::abs(eta) < 2.6) {
     return 4;
   }
 
@@ -317,8 +327,10 @@ double TauCombinedTES::getWeight(const double& caloSigma,
   double cov = correlation * caloSigma * panTauSigma;
   double caloWeight = std::pow(panTauSigma, 2) - cov;
   double panTauWeight = std::pow(caloSigma, 2) - cov;
-
-  return caloWeight/(caloWeight + panTauWeight);
+  
+  double weight = (caloWeight + panTauWeight !=0.) ? caloWeight/(caloWeight + panTauWeight) : 0.;
+  // enforce that the weight is within [0,1]
+  return std::clamp(weight, 0., 1.);
 }
 
 
@@ -345,8 +357,8 @@ double TauCombinedTES::getCompatibilitySigma(const double& caloSigma,
 
 
 
-double TauCombinedTES::getNsigmaCompatibility(const double& et) const {
-  double nsigma = m_nSigmaCompatibility->Eval(et);
+double TauCombinedTES::getNsigmaCompatibility(const double& et, const int& decayModeIndex) const {
+  double nsigma = m_nSigmaCompatibility.at(decayModeIndex)->Eval(et);
 
   if (nsigma < 0.) return 0.;
 
@@ -404,7 +416,7 @@ double TauCombinedTES::getCombinedEt(const double& caloEt,
   // may not be reliable
   // FIXME: A more consistent way would be calculating the NsigmaCompatibility use caloCalEt
   double deltaEt = caloCalEt - panTauCalEt;
-  if (std::abs(deltaEt) > getNsigmaCompatibility(caloEt) * compatibilitySigma) {
+  if (std::abs(deltaEt) > getNsigmaCompatibility(caloEt, decayModeIndex) * compatibilitySigma) {
     // FIXME: Why not use caloCalEt here ?
     weightedEt = caloEt;
   }

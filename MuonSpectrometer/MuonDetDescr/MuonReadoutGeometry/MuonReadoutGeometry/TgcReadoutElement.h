@@ -73,7 +73,7 @@ namespace MuonGM {
 
     /** strip number corresponding to local position.
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    virtual inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override final;
 
     /** strip position
 	If the strip number is outside the range of valid strips, the function will return false */

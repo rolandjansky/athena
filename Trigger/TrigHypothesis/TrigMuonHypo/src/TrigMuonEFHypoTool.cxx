@@ -83,6 +83,8 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
     return false;
   }
 
+  if(m_checkOvlp && input.isOverlapping) return false;
+
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(m_type);
     if (!tr) {

@@ -23,23 +23,18 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
-#include <map>
-#include <vector>
-#include <utility>
+
 #include "TrkSurfaces/PlaneSurface.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include <TMath.h>
 
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
-//#include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-//#include "DataModel/DataVector.h"
 #include "AthContainers/DataVector.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 
@@ -55,11 +50,14 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include <map>
+#include <utility>
 
 // we may save out some private stuff
 #ifdef MONITORTUNES
   #include "GaudiKernel/ITHistSvc.h"
   #include "TFile.h"
+  #include "TTree.h"
 #endif
 
 namespace InDet
@@ -253,15 +251,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
 
 }
 
-// The working horse ...
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVtxFinderTool::findVertex( 
-         const std::vector<Trk::ITrackLink*> & trackVector) 
+// The workhorse ...
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
+InDetIterativeSecVtxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) 
 {
   
   //two things need to be added
   //1) the seeding mechanism
   //2) the iterative removal of tracks
-  
   std::vector<Trk::ITrackLink*> origTracks=trackVector;
   std::vector<Trk::ITrackLink*> seedTracks=trackVector;
 // in the iteration from the below do { ... } while () loop, 
@@ -272,18 +269,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
   xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
   theVertexContainer->setStore( theVertexAuxContainer );
+  const auto invalidResponse = std::make_pair(theVertexContainer, theVertexAuxContainer);
 
   //bail out early with only Dummy vertex if multiplicity cut is applied and exceeded
   if (m_doMaxTracksCut && (trackVector.size() > m_maxTracks)){ 
     ATH_MSG_WARNING( trackVector.size() << " tracks - exceeds maximum (" << m_maxTracks << "), skipping vertexing and returning only dummy..." ); 
-/**
-    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
-    theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
-    dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
-    dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
-    dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
-    dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
-**/
     return std::make_pair(theVertexContainer, theVertexAuxContainer);
   } 
  
@@ -392,10 +382,6 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       m_seedZdist->push_back( cZ ) ;
 #endif
 
-/**
-      ATH_MSG_DEBUG( " Check perigeesAtSeed " );
-      ncandi = info->perigeesAtSeed( *m_seedperigees, perigeeList ) ;
-**/
 
       Amg::MatrixX looseConstraintCovariance(3,3);
       looseConstraintCovariance.setIdentity();
@@ -692,10 +678,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       for (xAOD::VertexContainer::iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
       {
           //  A vertex should not rob tracks from itself
-//        if ( *myxAODVertex == dynamic_cast<xAOD::Vertex>( *(*vxIter) ) ) continue ;
 #ifdef MONITORTUNES
         if ( (*vxIter)->vertexType() ==  xAOD::VxType::NoVtx ) continue ;
-//        if ( (*vxIter)->vertexType() ==  xAOD::VxType::KinkVtx ) continue ;
 #endif
         std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx=(&(*vxIter)->vxTrackAtVertex());
           
@@ -730,7 +714,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
                         
           if (trackPerigee==nullptr)
           {
-            ATH_MSG_ERROR( " Cast to perigee gives 0 pointer " );
+            ATH_MSG_ERROR( " Cast to perigee gives 0 pointer, cannot continue " );
+            return invalidResponse;
+;
           }
             
           double chi2_newvtx=compatibility(*trackPerigee, covariance, position );
@@ -1177,7 +1163,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
     ++ vxIter ; 
    
 
-    if ( QxAODVertex ) delete QxAODVertex ;
+    delete QxAODVertex ;
   }
 
   // update vertices, while fix the TrackParticles linked to the vertex
@@ -1191,19 +1177,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 		   << " vxType = " << (*vxIter)->vertexType() ) ;
 
     std::vector<float> trkWght ;
-/**
-#ifdef MONITORTUNES
-    if (   (*vxIter)->vertexType() == xAOD::VxType::NoVtx  )
-    {
-      mDecor_trkDOE( *(*vxIter) ) = trkWght ;
-      mDecor_trkWght( *(*vxIter)  ) = trkWght ;
-// The mass and HitsFilter have been calculated, keep then UN-overwriten
-      mDecor_sumPt2( *(*vxIter)  ) = -99.9 ;
-      mDecor_nrobbed( *(*vxIter)  ) = 0 ;
-      continue ;
-    }
-#endif
-**/
+
    std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx = &((*vxIter)->vxTrackAtVertex());
 
     if ( ! myVxTracksAtVtx ) 
@@ -1840,7 +1814,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   using TrackDataVecIter = DataVector<Trk::Track>::const_iterator;
 
   bool selectionPassed;
-  for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
+  for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr,&beamposition));
       if ( selectionPassed ) selectionPassed=static_cast<bool>(m_SVtrkFilter->accept(**itr,&beamposition));
@@ -1885,8 +1859,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   using TrackParticleDataVecIter = DataVector<Trk::TrackParticleBase>::const_iterator;
 
   bool selectionPassed;
-  for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-//    const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*itr));
+  for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed=static_cast<bool>(m_trkFilter->accept( *((*itr)->originalTrack()), &beamposition));
       if ( selectionPassed ) selectionPassed 
@@ -2114,23 +2087,14 @@ float InDetIterativeSecVtxFinderTool::removeTracksInBadSeed( xAOD::Vertex * myxA
 
     ATH_MSG_DEBUG( " found and will delete from perigeesToFit !" );
 
-    for (std::vector<const Trk::TrackParameters*>::iterator perigeesToFitIter=perigeesToFitBegin;
-         perigeesToFitIter!=perigeesToFitEnd;++perigeesToFitIter)
-    {
-      if (*perigeesToFitIter==measPerigee)
-      {
-//#ifndef MONITORTUNES
-        perigeesToFit.erase(perigeesToFitIter);
+    auto found=std::find(perigeesToFitBegin,perigeesToFitEnd,measPerigee);
+    if(found!=perigeesToFitEnd){
+        perigees_deleted.push_back(*found);
+        perigeesToFit.erase(found);
         perigeesToFitBegin=perigeesToFit.begin();
         perigeesToFitEnd=perigeesToFit.end();
-//#endif
         pt_hf += pt ;
-        perigees_deleted.push_back( *perigeesToFitIter ) ;
- 
-        removed ++ ;
-
-        break ;
-      }
+        removed++;
     }
   }
 
@@ -2312,6 +2276,8 @@ void InDetIterativeSecVtxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAO
     if (myPerigee==nullptr)
     {
       ATH_MSG_ERROR( " Cast to perigee gives 0 pointer " );
+      return;
+      
     }
     
     double chi2=compatibility(*myPerigee, covariance, position );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
@@ -145,7 +145,7 @@ namespace Muon{
     Identifier firstIdml1;
 
     m_detElMl0 = m_detMgr->getMdtReadoutElement( firstIdml0 );
-    m_detElMl1 = 0;
+    m_detElMl1 = nullptr;
     
     if( !m_detElMl0 ) {
       (*msg)<<MSG::WARNING<<"MdtIntersectGeometry::init() - failed to get readout element for ML0"<<endmsg;
@@ -177,12 +177,12 @@ namespace Muon{
     int firstMlIndex = 1;
     if( goodMl0 && !goodMl1 ){
       nml = 1;
-      m_detElMl1 = 0;
+      m_detElMl1 = nullptr;
     }else if( !goodMl0 && goodMl1 ){
       nml = 1;
       // swap detEl1 and detEl0
       m_detElMl0 = m_detElMl1;
-      m_detElMl1 = 0;
+      m_detElMl1 = nullptr;
       firstIdml0 = firstIdml1;
       firstMlIndex = 2;
     }else if( !goodMl0 && !goodMl1 ) {

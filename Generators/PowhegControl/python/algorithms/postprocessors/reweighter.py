@@ -119,6 +119,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
         if not default_weight_exists_already(powheg_LHE_output) and not any([weight.group == "nominal" for weight in weight_list]):
             weight_list = [WeightTuple(ID=0, name="nominal", group="nominal", parallel_xml_compatible=True, parameter_settings=[], keywords=None, combine=None)] + weight_list
 
+        FileParser("powheg.input").text_replace("pdfreweight .*", "pdfreweight 0")
         # Construct xml output
         xml_lines, serial_xml_weight_list, current_weightgroup = [], [], None
         for weight in weight_list:
@@ -203,13 +204,15 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             logger.info("Fixing comment lines from lhe file - these lines can be simply removed using the 'remove_oldStyle_rwt_comments=True' argument in generate()")
             for pattern in comment_patterns: # no whitespace needed in patterns here
                 repair_comment_lines(powheg_LHE_output, pattern) # the last pattern starts with a space
-           
+
+    replacelist = []    
     # Rename all weights
     for weight in weight_list:
-        FileParser(powheg_LHE_output).text_replace(".* id='{}' .*".format(weight.ID), "<weight id='{weight_id}'>{weight_name}</weight>".format(weight_id=weight.ID, weight_name=weight.name))
+        replacelist += [[".* id='{}' .*".format(weight.ID), "<weight id='{weight_id}'>{weight_name}</weight>".format(weight_id=weight.ID, weight_name=weight.name), 1]]
 
     # Correct LHE version identification; otherwise Pythia will treat all files as v1
-    FileParser(powheg_LHE_output).text_replace('LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"')
+    replacelist += [['LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"', 1]]
+    FileParser(powheg_LHE_output).text_replace_multi(replacelist)
 
     # Restore generation statistics and initial runcard
     shutil.move("powheg_nominal.input", "powheg.input")
@@ -236,6 +239,7 @@ def add_single_weight(process, weight, idx_weight, n_total, use_XML):
             FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
             FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
             FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
+            FileParser("powheg.input").text_replace("pdfreweight .*", "pdfreweight 0")
         else:
             # As the nominal process has already been run, turn on compute_rwgt
             FileParser("powheg.input").text_replace("compute_rwgt 0", "compute_rwgt 1")
@@ -296,7 +300,7 @@ def repair_comment_lines(lheFile, pattern):
     if not os.path.isfile("{}.before_reweighting".format(lheFile)):
         logger.error("Impossible to find file {}.before_reweighting".format(lheFile))
         raise IOError
-        
+    
     # in case anything turns bad, will give up fixing
     impossible_to_fix = False
     # initialise counters to 0

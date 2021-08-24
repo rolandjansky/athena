@@ -49,7 +49,8 @@ namespace LVL1 {
     virtual void buildBarrelSumET()  override;
     virtual void buildFWDSumET()  override;
     virtual int getETlowerEta(uint bin)  override;
-    virtual int getETupperEta(uint bin)  override;    
+    virtual int getETupperEta(uint bin)  override;   
+    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
     
     virtual std::unique_ptr<jFEXsumETTOB> getsumETTOBs() override;
     
@@ -63,6 +64,9 @@ protected:
         std::vector<int> m_SumET;
         int m_SumlowEta =0;
         int m_SumhighEta=0;
+        
+        std::map<int,std::vector<int> > m_map_Etvalues;
+        
         
   };
 

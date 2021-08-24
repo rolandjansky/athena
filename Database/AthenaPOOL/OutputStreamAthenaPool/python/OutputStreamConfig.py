@@ -2,7 +2,9 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import logging
+
 
 def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
                     disableEventTag=False, trigNavThinningSvc=None):
@@ -10,6 +12,10 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    AthenaOutputStream=CompFactory.AthenaOutputStream
    AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
    StoreGateSvc=CompFactory.StoreGateSvc
+
+   eventInfoKey = "EventInfo"
+   if configFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+      eventInfoKey = configFlags.Overlay.BkgPrefix + "EventInfo"
 
    msg = logging.getLogger("OutputStreamCfg")
    flagName="Output.%sFileName" % streamName
@@ -32,7 +38,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
-      ItemList    = [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."  ]+ItemList, 
+      ItemList    = [ f"xAOD::EventInfo#{eventInfoKey}", f"xAOD::EventAuxInfo#{eventInfoKey}Aux."  ] + ItemList, 
       MetadataItemList = MetadataItemList,
       OutputFile = fileName,
       )
@@ -46,6 +52,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    streamInfoTool = MakeEventStreamInfo( f"Stream{streamName}_MakeEventStreamInfo" )
    streamInfoTool.Key = f"Stream{streamName}"
+   streamInfoTool.EventInfoKey = eventInfoKey
    outputStream.HelperTools.append(streamInfoTool)
 
    # Make EventFormat object
@@ -97,7 +104,8 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       # build eventinfo attribute list
       EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
       tagBuilder = EventInfoTagBuilder(AttributeList=key,
-                                       Tool=EventInfoAttListTool())
+                                       Tool=EventInfoAttListTool(),
+                                       EventInfoKey=eventInfoKey)
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output

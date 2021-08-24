@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _MUON_NSW_COMMON_DECODER_H_
 #define _MUON_NSW_COMMON_DECODER_H_
@@ -8,8 +8,6 @@
 #include <vector>
 
 #include "eformat/eformat.h"
-//#include "MuonNSWCommonDecode/NSWElink.h"
-//#include "MuonNSWCommonDecode/VMMChannel.h"
 
 namespace Muon
 {

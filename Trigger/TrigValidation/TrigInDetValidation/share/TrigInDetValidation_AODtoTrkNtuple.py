@@ -165,7 +165,7 @@ if ( True ) :
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
-    "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu24_LRT_idperf_L1MU20:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
@@ -181,10 +181,19 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_GSF",
 
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
-    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElectronLRT_FTF:HLT_Roi_FastElectron_LRT",
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElectronLRT_IDTrig:HLT_Roi_FastElectron_LRT",
-    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElectronLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+    "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+
+    # double electron chains for tag and probe analysis
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=-1",
+
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=-1",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
@@ -210,13 +219,18 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
-
-
+    
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF",
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig"
+    
     ]
 
   from AthenaCommon.AppMgr import release_metadata

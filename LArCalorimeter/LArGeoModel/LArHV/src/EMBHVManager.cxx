@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBHVManager.h"
@@ -21,7 +21,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingSimTool.h"
 
 #ifndef SIMULATIONBASE
 #ifndef GENERATIONBASE
@@ -37,20 +37,20 @@
 namespace {
 
 
-struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
+struct SimIdFunc
 {
-  LegacyIdFunc();
+  SimIdFunc();
   std::vector<HWIdentifier> operator()(HWIdentifier id)
   {
     return m_cablingTool->getLArElectrodeIDvec (id);
   }
-  LArHVCablingTool* m_cablingTool;
+  LArHVCablingSimTool* m_cablingTool;
 };
 
 
-LegacyIdFunc::LegacyIdFunc()
+SimIdFunc::SimIdFunc()
 {
-  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
+  ToolHandle<LArHVCablingSimTool> tool ("LArHVCablingSimTool");
   if (!tool.retrieve().isSuccess()) {
     std::abort();
   }
@@ -88,8 +88,8 @@ public:
   }
   EMBHVDescriptor       descriptor{CellBinning(0.0, 1.4, 7, 1),CellBinning(0.0, 2*M_PI, 16)};
   std::unique_ptr<const EMBHVModule>    moduleArray[2][8][16][2];
-  const LArElectrodeID* elecId;
-  const LArHVLineID* hvId;
+  const LArElectrodeID* elecId = nullptr;
+  const LArHVLineID* hvId = nullptr;
 };
 
 
@@ -327,18 +327,19 @@ EMBHVManager::getData (idfunc_t idfunc,
 
 
 EMBHVManager::EMBHVData
-EMBHVManager::getData ATLAS_NOT_THREAD_SAFE () const
+EMBHVManager::getDataSim() const
 {
   std::vector<const CondAttrListCollection*> attrLists;
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
   const CondAttrListCollection* atrlistcol = nullptr;
+  // Not a typo --- this folder has a lower-case l in the database...
   if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
     attrLists.push_back (atrlistcol);
   }
-  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREL/I8").isSuccess()) {
     attrLists.push_back (atrlistcol);
   }
-  return getData (LegacyIdFunc(), attrLists);
+  return getData (SimIdFunc(), attrLists);
 }
 
 

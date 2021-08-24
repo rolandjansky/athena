@@ -165,19 +165,18 @@ namespace DerivationFramework {
        names[kTRTusedHits_noHT_divByLDecor]="ToT_usedHits_noHT_divByL";
        createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackTRTFloatDecorKeys);
     }
-    ATH_CHECK( m_trtPhaseKey.initialize() );
-    ATH_CHECK( m_containerName.initialize() );
-    ATH_CHECK( m_pixelMapName.initialize() );
-    ATH_CHECK( m_sctMapName.initialize() );
-    ATH_CHECK( m_trtMapName.initialize() );
+    ATH_CHECK( m_trtPhaseKey.initialize(m_addExtraEventInfo) );
+    ATH_CHECK( m_pixelMapName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctMapName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtMapName.initialize(m_storeTRT && m_addPRD) );
 
-    ATH_CHECK( m_pixelClustersName.initialize() );
-    ATH_CHECK( m_sctClustersName.initialize() );
-    ATH_CHECK( m_trtDCName.initialize() );
+    ATH_CHECK( m_pixelClustersName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctClustersName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtDCName.initialize(m_storeTRT && m_addPRD) );
 
-    ATH_CHECK( m_pixelMsosName.initialize() );
-    ATH_CHECK( m_sctMsosName.initialize() );
-    ATH_CHECK( m_trtMsosName.initialize() );
+    ATH_CHECK( m_pixelMsosName.initialize(m_storePixel && m_addPRD) );
+    ATH_CHECK( m_sctMsosName.initialize(m_storeSCT && m_addPRD) );
+    ATH_CHECK( m_trtMsosName.initialize(m_storeTRT && m_addPRD) );
 
     {
        std::vector<std::string> names;
@@ -342,7 +341,7 @@ namespace DerivationFramework {
 
       if ( m_storeTRT && m_TRTdEdxTool.isEnabled() ) {
 	// for dEdx studies
-        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack);
+        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack,true);
         trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits(trkTrack);
         trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx(trkTrack, false);
         trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits(trkTrack, false);

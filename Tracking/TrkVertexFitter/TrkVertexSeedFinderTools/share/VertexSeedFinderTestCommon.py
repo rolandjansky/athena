@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TrkVertexSeedFinderTools/share/VertexSeedFinderTestCommon.py
 # Author: scott snyder <snyder@bnl.gov>
@@ -46,6 +46,11 @@ from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 eialg = xAODMaker__EventInfoCnvAlg ()
 topSequence += eialg
 
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+= TrkGeoCondAlg
 
 
 # Suppress useless GeoModelSvc messages.

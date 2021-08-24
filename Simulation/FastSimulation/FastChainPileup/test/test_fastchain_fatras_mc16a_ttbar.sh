@@ -16,6 +16,9 @@ dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_fatras.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 dcubeXmlID="${inputXmlDir}/dcube_physval_fatras.xml"
 dcubeRefID="${inputRefDir}/physval_fatras.root"
+rdoFile="RDO.pool.root"
+aodFile="AOD.pool.root"
+ntupFile="physval_fatras.root"
 
 
 FastChain_tf.py \
@@ -25,7 +28,7 @@ FastChain_tf.py \
     --randomSeed 123 \
     --enableLooperKiller True \
     --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1 \
-    --outputRDOFile RDO.pool.root \
+    --outputRDOFile ${rdoFile} \
     --maxEvents 25 \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -45,47 +48,54 @@ FastChain_tf.py \
 rc=$?
 echo  "art-result: $rc EVNTtoRDO"
 
-rc2=-9999
+rc1=999
+rc2=999
+rc3=999
+rc4=999
+rc5=999
 if [ ${rc} -eq 0 ]
 then
     # Histogram comparison with DCube
     $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
     -p -x dcube-rdo-truth \
     -c ${dcubeXmlRDO} -r ${dcubeRefRDO} RDO_truth.root
-    rc2=$?
+    rc1=$?
+
+    Reco_tf.py --inputRDOFile ${rdoFile} --maxEvents '-1' \
+               --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
+               --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+               --outputAODFile ${aodFile} \
+               --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)' \
+               --imf False
+     rc2=$?
+     if [ ${rc2} -eq 0 ]
+     then
+         # NTUP prod.
+         Reco_tf.py --inputAODFile ${aodFile} --maxEvents '-1' \
+                    --outputNTUP_PHYSVALFile ${ntupFile} \
+                    --ignoreErrors True \
+                    --validationFlags 'doInDet' \
+                    --valid 'True'
+         rc3=$?
+
+         # Regression test
+         ArtPackage=$1
+         ArtJobName=$2
+         art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+         rc4=$?
+
+         if [ ${rc3} -eq 0 ]
+         then
+             # Histogram comparison with DCube
+             $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+             -p -x dcube-id \
+             -c ${dcubeXmlID} -r ${dcubeRefID} ${ntupFile}
+             rc5=$?
+         fi
+     fi
 fi
-echo  "art-result: ${rc2} dcubeRDO"
-
-
-# Reco step (for now switch off trigger)
-rc3=-9999
-Reco_tf.py --inputRDOFile 'RDO.pool.root' --maxEvents '-1' \
-           --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
-           --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
-           --outputAODFile 'AOD.pool.root' \
-           --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)' \
-           --outputNTUP_PHYSVALFile 'physval_fatras.root' \
-           --validationFlags 'doInDet' \
-           --valid 'True'
-rc3=$?
-echo  "art-result: ${rc3} RDOtoAOD"
-
-rc4=-9999
-rc5=-9999
-if [ ${rc3} -eq 0 ]
-then
-    # Regression test
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc4=$?
-
-    # Histogram comparison with DCube
-    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-    -p -x dcube-id \
-    -c ${dcubeXmlID} -r ${dcubeRefID} physval_fatras.root
-    rc5=$?
-
-fi
+echo  "art-result: ${rc1} dcubeRDO"
+echo  "art-result: ${rc2} RDOtoAOD"
+echo  "art-result: ${rc3} AODtoNTUP"
 echo  "art-result: ${rc4} regression"
 echo  "art-result: ${rc5} dcubeID"

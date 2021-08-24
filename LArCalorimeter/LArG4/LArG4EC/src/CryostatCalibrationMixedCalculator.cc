@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::EndcapCryostat::CalibrationMixedCalculator
@@ -23,6 +23,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -75,12 +76,16 @@ namespace LArG4 {
       if (status != StatusCode::SUCCESS) {
         throw std::runtime_error ("Cannot locate GeoModelSvc!!");
       }
-
+      IGeoDbTagSvc *geoDbTagSvc(nullptr);
+      status = svcLocator->service("GeoDbTagSvc",geoDbTagSvc);
+      if (status != StatusCode::SUCCESS) {
+	throw std::runtime_error ("Cannot locate GeoDbTagSvc");
+      }
       // Access the geometry database:
       IRDBAccessSvc *pAccessSvc;
-      status=svcLocator->service("RDBAccessSvc",pAccessSvc);
+      status=svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc);
       if (status != StatusCode::SUCCESS) {
-        throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
+        throw std::runtime_error ("Cannot locate " + geoDbTagSvc->getParamSvcName());
       }
 
       // Obtain the geometry version information:

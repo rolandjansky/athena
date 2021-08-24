@@ -36,7 +36,7 @@ def ActsMaterialMappingCfg(configFlags, name = "ActsMaterialMapping", **kwargs):
 
   ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "material-maps.json",
                                                             processSensitives = False,
-                                                            processnonmaterial = False)
+                                                            processNonMaterial = False)
                                                             
   kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()   
   result.merge(ActsMaterialJsonWriterTool)

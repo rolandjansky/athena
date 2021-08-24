@@ -18,7 +18,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 
 # config only
 Digi_tf.py \
---conditionsTag default:OFLCOND-MC16-SDR-20 \
+--conditionsTag default:OFLCOND-MC16-SDR-25-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -27,21 +27,15 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents ${Events} \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.2099789464 \
---numberOfLowPtMinBias 80.290021063135 \
 --outputRDOFile ${DigiOutFileNameCG} \
---pileupFinalBunch 6 \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_run300000_mc16d.py' \
+--preInclude 'all:Campaigns/MC16d.py' 'HITtoRDO:Campaigns/PileUpMC16d.py' \
 --skipEvents 0 \
 --athenaopts '"--config-only=DigiPUConfigCG.pkl"'
 
 # full run
 Digi_tf.py \
---conditionsTag default:OFLCOND-MC16-SDR-20 \
+--conditionsTag default:OFLCOND-MC16-SDR-25-02 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -50,15 +44,10 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 1 \
 --maxEvents ${Events} \
---numberOfCavernBkg 0 \
---numberOfHighPtMinBias 0.2099789464 \
---numberOfLowPtMinBias 80.290021063135 \
 --outputRDOFile ${DigiOutFileNameCG} \
---pileupFinalBunch 6 \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
+--postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_run300000_mc16d.py' \
+--preInclude 'all:Campaigns/MC16d.py' 'HITtoRDO:Campaigns/PileUpMC16d.py' \
 --skipEvents 0
 
 rc=$?
@@ -72,7 +61,7 @@ if [ $rc -eq 0 ]
 then
     Digi_tf.py \
     --CA \
-    --conditionsTag default:OFLCOND-MC16-SDR-20 \
+    --conditionsTag default:OFLCOND-MC16-SDR-25-02 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -81,11 +70,7 @@ then
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
     --jobNumber 1 \
     --maxEvents ${Events} \
-    --numberOfCavernBkg 0 \
-    --numberOfHighPtMinBias 0.2099789464 \
-    --numberOfLowPtMinBias 80.290021063135 \
     --outputRDOFile ${DigiOutFileNameCA} \
-    --pileupFinalBunch 6 \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
     --preInclude 'HITtoRDO:Campaigns.MC16d' \
     --skipEvents 0

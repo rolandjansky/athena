@@ -176,9 +176,9 @@ private:
   double m_Ec_e{6034.20429};
   double m_vs_h{8761659.83530}; //<! hole mobility at 273.15K
   double m_Ec_h{15366.52650};
-  double m_beta_e;
-  double m_beta_h;
-  double m_driftMobility;
+  double m_beta_e{};
+  double m_beta_h{};
+  double m_driftMobility{};
 
   //------TK arrays of FEM analysis -----------------------------------
   double m_PotentialValue[81][115]{{0.}};

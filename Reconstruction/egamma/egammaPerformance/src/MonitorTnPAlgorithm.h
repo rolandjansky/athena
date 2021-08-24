@@ -10,6 +10,7 @@
 #define MonitorTnPAlgorithm_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "StoreGate/ReadDecorHandleKeyArray.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "xAODEgamma/Electron.h"
@@ -30,6 +31,7 @@ public:
 private:
 
   SG::ReadHandleKey<xAOD::ElectronContainer> m_ParticleContainerKey {this, "ParticleContainerName", "Electrons", "Name of electron container" };
+  SG::ReadDecorHandleKeyArray<xAOD::ElectronContainer> m_ElectronIsolationKey {this, "ElectronIsolationKey", {"Electrons.ptcone20", "Electrons.topoetcone40"} };
   Gaudi::Property<std::string> m_ParticlePrefix {this,"ParticlePrefix","electron","Name of the particle prefix to be used to define hists"};
   Gaudi::Property<std::string> m_RecoName {this,"RecoName","LHLoose","Name of particle flavor in egamma reco"};
   Gaudi::Property<std::string> m_TnPType {this,"TnPType","Z","Variable to describe what is the TnP resonance name"};

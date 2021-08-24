@@ -38,28 +38,30 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
                           'icalotight'  : 0.
                         }
 
-  def __init__(self, name, threshold, sel, isoinfo):
+  def __init__(self, name, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionPhotonHypoTool')
     self.__name       = name
-    self.__threshold  = float(threshold) 
-    self.__sel        = sel
-    self.__isoinfo    = isoinfo
+    self.__threshold  = float(cpart['threshold']) 
+    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__isoinfo    = cpart['isoInfo']
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
-    tool = TrigEgammaPrecisionPhotonHypoTool( name ) 
+    if not tool:
+      from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
+      tool = TrigEgammaPrecisionPhotonHypoTool( name )
+     
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
-    tool.ETthr          = same( float(threshold) , tool)
+    tool.ETthr          = same( self.__threshold*GeV , tool)
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
     tool.PidName        = ""
 
     self.__tool = tool
-    self.__log.debug( 'Chain     :%s', name )
-    self.__log.debug( 'Threshold :%s', threshold )
-    self.__log.debug( 'Pidname   :%s', sel )
-    self.__log.debug( 'isoinfo   :%s', isoinfo )
+    self.__log.debug( 'Chain     :%s', self.__name )
+    self.__log.debug( 'Threshold :%s', self.__threshold )
+    self.__log.debug( 'Pidname   :%s', self.__sel )
+    self.__log.debug( 'isoinfo   :%s', self.__isoinfo )
 
 
   def chain(self):
@@ -90,7 +92,7 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
   # Isolation and nominal cut
   #
   def isoCut(self):
-    self.tool().RelEtConeCut = self.__caloIsolationCut[self.isoInfo()]
+    self.tool().RelTopoEtConeCut = self.__caloIsolationCut[self.isoInfo()]
     self.nominal()
  
 
@@ -118,7 +120,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
     else:
       self.nominal()
 
-    self.addMonitoring()
+    if hasattr(self.tool(), "MonTool"):
+      self.addMonitoring()
 
 
   #
@@ -145,29 +148,17 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
 
 
 
-def _IncTool( name, threshold, sel, iso ):
-    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, threshold, sel, iso)
+def _IncTool( name, cpart, tool=None ):
+    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, cpart, tool=tool)
     config.compile()
     return config.tool()
 
  
 
-def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
+def TrigEgammaPrecisionPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
-
-    def __th(cpart):
-        return cpart['threshold']
-    
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
-   
-    def __iso(cpart):
-        return cpart['isoInfo']
-
-    
-    name = d['chainName']
-        
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso( cparts[0])  )
+    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))] 
+    name = d['chainName'] 
+    return _IncTool( name, cparts[0], tool=tool )
                    
     

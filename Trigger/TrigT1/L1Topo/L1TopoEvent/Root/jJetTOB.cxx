@@ -6,12 +6,12 @@ thread_local TCS::Heap<TCS::jJetTOB> TCS::jJetTOB::fg_heap("Jet");
 
 // constructors
 // default constructor
-TCS::jJetTOB::jJetTOB(uint32_t roiWord, std::string tobName) :
+TCS::jJetTOB::jJetTOB(uint32_t roiWord, const std::string& tobName) :
    BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values
-TCS::jJetTOB::jJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, std::string tobName) :
+TCS::jJetTOB::jJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, const std::string& tobName) :
    BaseTOB( roiWord,tobName )
    , m_Et(Et)
    , m_eta(eta)

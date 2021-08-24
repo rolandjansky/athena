@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1BunchGroupSet.h"
@@ -21,11 +21,6 @@ TrigConf::L1BunchGroup::L1BunchGroup( const boost::property_tree::ptree & data )
 TrigConf::L1BunchGroup::~L1BunchGroup()
 {}
 
-std::string
-TrigConf::L1BunchGroup::className() const {
-   return "L1BunchGroup";
-}
-
 void
 TrigConf::L1BunchGroup::load()
 {
@@ -42,22 +37,12 @@ TrigConf::L1BunchGroup::load()
 }
 
 size_t
-TrigConf::L1BunchGroup::id() const {
-   return m_id;
-}
-
-size_t
 TrigConf::L1BunchGroup::size() const {
    size_t nb = 0;
    for ( const auto & train : m_bunchdef ) {
       nb += train.second;
    }
    return nb;
-}
-
-size_t
-TrigConf::L1BunchGroup::nGroups() const {
-   return m_bunchdef.size();
 }
 
 bool
@@ -86,18 +71,17 @@ TrigConf::L1BunchGroup::bunches() const
    return bunches;
 }
 
-const std::vector<std::pair<size_t,size_t>>& 
-TrigConf::L1BunchGroup::trains() const {
-   return m_bunchdef;
-}
 
 /*****************************************
 
   L1BunchGroupSet
 
 *****************************************/
+
+
 TrigConf::L1BunchGroupSet::L1BunchGroupSet()
-{}
+{
+}
 
 TrigConf::L1BunchGroupSet::L1BunchGroupSet( const boost::property_tree::ptree & data ) 
    : DataStructure(data)
@@ -108,11 +92,6 @@ TrigConf::L1BunchGroupSet::L1BunchGroupSet( const boost::property_tree::ptree & 
 TrigConf::L1BunchGroupSet::~L1BunchGroupSet()
 {}
 
-std::string
-TrigConf::L1BunchGroupSet::className() const {
-   return "L1BunchGroupSet";
-}
-
 void
 TrigConf::L1BunchGroupSet::load()
 {
@@ -120,7 +99,7 @@ TrigConf::L1BunchGroupSet::load()
       return;
    }
    m_name = getAttribute("name", true, m_name);
-   m_bunchGroups.resize(L1BunchGroup::s_maxBunchGroups, std::shared_ptr<L1BunchGroup>(nullptr)); // 16 bunchgroups are fix in the hardware
+   m_bunchGroups.resize(s_maxBunchGroups, std::shared_ptr<L1BunchGroup>(nullptr));
    for( auto & bg : data().get_child("bunchGroups") ) {
       auto bg_sptr = std::make_shared<L1BunchGroup>(bg.second);
       m_bunchGroupsByName.emplace( std::piecewise_construct,
@@ -148,17 +127,6 @@ TrigConf::L1BunchGroupSet::getBunchGroup(size_t id) const {
    return m_bunchGroups[id];
 }
 
-unsigned int
-TrigConf::L1BunchGroupSet::bgsk() const {
-   return m_bgsk;
-}
-
-void
-TrigConf::L1BunchGroupSet::setBGSK(unsigned int bgsk) {
-   m_bgsk = bgsk;
-}
-
-
 std::size_t
 TrigConf::L1BunchGroupSet::size() const {
    return std::count_if(m_bunchGroups.begin(), m_bunchGroups.end(), [](const auto &bg){return bg!=nullptr;});
@@ -167,6 +135,18 @@ TrigConf::L1BunchGroupSet::size() const {
 std::size_t
 TrigConf::L1BunchGroupSet::sizeNonEmpty() const {
    return std::count_if(m_bunchGroups.begin(), m_bunchGroups.end(), [](const auto &bg){return bg->size()!=0;});
+}
+
+TrigConf::L1BunchGroupSet::bgPattern_t
+TrigConf::L1BunchGroupSet::bgPattern(size_t bcid) const {
+   // sanity check that we have enough bits in bgPattern_t for all bunchgroups
+   static_assert(sizeof(bgPattern_t)*8 >= s_maxBunchGroups);
+
+   bgPattern_t p{0};
+   for (size_t i = 0; i < s_maxBunchGroups; ++i) {
+      if (m_bunchGroups[i]->contains(bcid)) p += (1 << i);
+   }
+   return p;
 }
 
 void

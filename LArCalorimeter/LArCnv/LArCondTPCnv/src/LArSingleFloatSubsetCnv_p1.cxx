@@ -12,15 +12,21 @@ LArSingleFloatSubsetCnv_p1::persToTrans(const SingleFloatPersType* persObj,
 					SingleFloatTransType* transObj, 
 					MsgStream & /*log*/)
 {
+
+  // Copy basic metadata
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   unsigned index                =0;
 
   auto subsetIt = transObj->subsetBegin();
   for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
     // Loop over channels in feb 
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       const float& data=persObj->m_values[index];
       if (data<=1.0+LArElecCalib::ERRORCODE) 
 	subsetIt->second[j].m_data=LArElecCalib::ERRORCODE;
@@ -44,12 +50,7 @@ LArSingleFloatSubsetCnv_p1::persToTrans(const SingleFloatPersType* persObj,
       corrs[i].second.m_data=data;
     ++index;
   }
-  transObj->insertCorrections (std::move (corrs));
-
-  // Copy the rest
-  transObj->setChannel       (persObj->m_subset.m_channel);
-  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
-  
+  transObj->insertCorrections (std::move (corrs));  
   return;
 }
 
@@ -65,6 +66,7 @@ LArSingleFloatSubsetCnv_p1::transToPers(const SingleFloatTransType* transObj,
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
   unsigned int ncorrs           = transObj->correctionVecSize();
   unsigned int nsubsetsNotEmpty = 0;
+  const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
  
   const auto subsetEnd = transObj->subsetEnd();
   for (auto subsetIt = transObj->subsetBegin();
@@ -72,7 +74,7 @@ LArSingleFloatSubsetCnv_p1::transToPers(const SingleFloatTransType* transObj,
        ++subsetIt)
   {
     unsigned int nfebChans = subsetIt->second.size();
-    if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+    if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
       log << MSG::ERROR 
 	  << "LArSingleFloatSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
 	  << endmsg;
@@ -84,7 +86,7 @@ LArSingleFloatSubsetCnv_p1::transToPers(const SingleFloatTransType* transObj,
   // Reserve space in vectors
   persObj->m_subset.m_febIds.reserve(nsubsetsNotEmpty);
   persObj->m_subset.m_corrChannels.reserve(ncorrs);
-  persObj->m_values.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
+  persObj->m_values.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
     
    //Copy subsets
   for (auto subsetIt = transObj->subsetBegin();

@@ -5,40 +5,136 @@
 # Migrated from r21 STDM2 format
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGAM10ExtraContent import *
-
-# read common DFEGamma settings from egammaDFFlags
-from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
-jobproperties.egammaDFFlags.print_JobProperties("full")
-
-from AthenaCommon.GlobalFlags import globalflags
 
 
 #====================================================================
-# SET UP STREAM   
+# read common DFEGamma settings from egammaDFFlags
+#====================================================================
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
+
+#====================================================================
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM10Sequence = CfgMgr.AthSequencer("EGAM10Sequence")
+DerivationFrameworkJob += EGAM10Sequence
+
+
+#====================================================================
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM10Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM10Stream )
 EGAM10Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM10Stream.AcceptAlgs(["EGAM10Kernel"])
 
+
+### Thinning and augmentation tools lists
+augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+EGAM10_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "EGAM10_MaxCellDecoratorTool",
+                                                                     SGKey_electrons = "Electrons",
+                                                                     SGKey_photons   = "Photons")
+ToolSvc += EGAM10_MaxCellDecoratorTool
+augmentationTools += [EGAM10_MaxCellDecoratorTool]
+
+
+#====================================================================
+# PhotonVertexSelectionWrapper decoration tool - needs PhotonPointing tool
+#====================================================================
+from PhotonVertexSelection.PhotonVertexSelectionConf import CP__PhotonPointingTool
+from RecExConfig.RecFlags  import rec
+
+EGAM10_PhotonPointingTool = CP__PhotonPointingTool(name = "EGAM10_PhotonPointingTool",
+                                                   isSimulation = DerivationFrameworkIsMonteCarlo)
+ToolSvc += EGAM10_PhotonPointingTool
+
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__PhotonVertexSelectionWrapper
+EGAM10_PhotonVertexSelectionWrapper = DerivationFramework__PhotonVertexSelectionWrapper(name = "EGAM10_PhotonVertexSelectionWrapper",
+                                                                                        PhotonPointingTool = EGAM10_PhotonPointingTool,
+                                                                                        DecorationPrefix = "EGAM10",
+                                                                                        PhotonContainer = "Photons",
+                                                                                        VertexContainer = "PrimaryVertices")
+ToolSvc += EGAM10_PhotonVertexSelectionWrapper
+augmentationTools += [EGAM10_PhotonVertexSelectionWrapper]
+
+
+#====================================================================
+# SET UP THINNING
+#====================================================================
+
+electronRequirements = '(Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHLoose)'
+photonRequirements = '(DFCommonPhotons_et >= 15*GeV) && (abs(DFCommonPhotons_eta) < 2.5)' # && (Photons.DFCommonPhotonsLoose)'
+
+# All Track within a cone DeltaR=0.6 around Electrons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EGAM10_ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_ElectronTPThinningTool",
+                                                                                StreamName              = streamName,
+                                                                                SGKey                  = "Electrons",
+                                                                                GSFTrackParticlesKey   = "GSFTrackParticles",
+                                                                                InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                SelectionString        = electronRequirements,
+                                                                                BestMatchOnly          = True,
+                                                                                ConeSize               = 0.6)
+ToolSvc += EGAM10_ElectronTPThinningTool
+thinningTools.append(EGAM10_ElectronTPThinningTool)
+
+# Track associated to all Electrons for ambiguity resolver tool
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EGAM10_ElectronTPThinningToolAR = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_ElectronTPThinningToolAR",
+                                                                                   StreamName              = streamName,
+                                                                                   SGKey                  = "Electrons",
+                                                                                   GSFTrackParticlesKey   = "GSFTrackParticles",
+                                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                   BestMatchOnly          = True)
+ToolSvc += EGAM10_ElectronTPThinningToolAR
+thinningTools.append(EGAM10_ElectronTPThinningToolAR)
+
+# Tracks associated with Photons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EGAM10_PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_PhotonTPThinningTool",
+                                                                               StreamName              = streamName,
+                                                                               SGKey                  = "Photons",
+                                                                               GSFTrackParticlesKey   = "GSFTrackParticles",
+                                                                               InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                               SelectionString        = photonRequirements,
+                                                                               BestMatchOnly          = False,
+                                                                               ConeSize               = 0.6)
+ToolSvc += EGAM10_PhotonTPThinningTool
+thinningTools.append(EGAM10_PhotonTPThinningTool)
+
+# Possibility to thin CaloCalTopoClusters (UE/PU iso corrections not recomputable then)
+# see https://indico.cern.ch/event/532191/contributions/2167754/attachments/1273075/1887639/ArthurLesage_ASGMeeting_20160513.pdf, S6-7
+
+
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
 
 #====================================================================
 # SKIMMING TOOL - OFFLINE
 #====================================================================
-photonRequirements = '(DFCommonPhotons_et >= 15*GeV) && (abs(DFCommonPhotons_eta) < 2.5)' # && (Photons.DFCommonPhotonsLoose)'
-electronRequirements = '(Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.5) && (Electrons.DFCommonElectronsLHLoose)'
 photonSelection = '(count(' + photonRequirements + ') >= 1)'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -284,112 +380,18 @@ for trig in allTriggers: print(trig)
 ToolSvc += EGAM10_TriggerSkimmingTool
 print("EGAM10 trigger skimming tool:", EGAM10_TriggerSkimmingTool)
 
-
+#
+# Make AND of trigger-based and offline-based selections
+#
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 EGAM10_SkimmingTool = DerivationFramework__FilterCombinationAND(name="EGAM10_SkimmingTool", FilterList=[EGAM10_OfflineSkimmingTool,EGAM10_TriggerSkimmingTool] )
 ToolSvc+=EGAM10_SkimmingTool
 
 
-
-#====================================================================
-# SET UP AUGMENTATIONS
-#====================================================================
-
-augmentationTools = []
-
-
-#====================================================================
-# Max Cell sum decoration tool
-#====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
-EGAM10_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "EGAM10_MaxCellDecoratorTool",
-                                                                     SGKey_electrons = "Electrons",
-                                                                     SGKey_photons   = "Photons"
-                                                                    )
-ToolSvc += EGAM10_MaxCellDecoratorTool
-augmentationTools += [EGAM10_MaxCellDecoratorTool]
-
-
-#====================================================================
-# PhotonVertexSelectionWrapper decoration tool - needs PhotonPointing tool
-#====================================================================
-from PhotonVertexSelection.PhotonVertexSelectionConf import CP__PhotonPointingTool
-from RecExConfig.RecFlags  import rec
-
-EGAM10_PhotonPointingTool = CP__PhotonPointingTool(name = "EGAM10_PhotonPointingTool",
-                                                   isSimulation = DerivationFrameworkIsMonteCarlo)
-ToolSvc += EGAM10_PhotonPointingTool
-
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__PhotonVertexSelectionWrapper
-EGAM10_PhotonVertexSelectionWrapper = DerivationFramework__PhotonVertexSelectionWrapper(name = "EGAM10_PhotonVertexSelectionWrapper",
-                                                                                        PhotonPointingTool = EGAM10_PhotonPointingTool,
-                                                                                        DecorationPrefix = "EGAM10",
-                                                                                        PhotonContainer = "Photons",
-                                                                                        VertexContainer = "PrimaryVertices")
-ToolSvc += EGAM10_PhotonVertexSelectionWrapper
-augmentationTools += [EGAM10_PhotonVertexSelectionWrapper]
-
-
-#====================================================================
-# SET UP THINNING
-#====================================================================
-
-thinningTools=[]
-
-# All Track within a cone DeltaR=0.6 around Electrons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EGAM10_ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_ElectronTPThinningTool",
-                                                                                StreamName              = streamName,
-                                                                                SGKey                  = "Electrons",
-                                                                                GSFTrackParticlesKey   = "GSFTrackParticles",
-                                                                                InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                SelectionString        = electronRequirements,
-                                                                                BestMatchOnly          = True,
-                                                                                ConeSize               = 0.6)
-ToolSvc += EGAM10_ElectronTPThinningTool
-thinningTools.append(EGAM10_ElectronTPThinningTool)
-
-# Track associated to all Electrons for ambiguity resolver tool
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EGAM10_ElectronTPThinningToolAR = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_ElectronTPThinningToolAR",
-                                                                                   StreamName              = streamName,
-                                                                                   SGKey                  = "Electrons",
-                                                                                   GSFTrackParticlesKey   = "GSFTrackParticles",
-                                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                   BestMatchOnly          = True)
-ToolSvc += EGAM10_ElectronTPThinningToolAR
-thinningTools.append(EGAM10_ElectronTPThinningToolAR)
-
-# Tracks associated with Photons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EGAM10_PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "EGAM10_PhotonTPThinningTool",
-                                                                               StreamName              = streamName,
-                                                                               SGKey                  = "Photons",
-                                                                               GSFTrackParticlesKey   = "GSFTrackParticles",
-                                                                               InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                               SelectionString        = photonRequirements,
-                                                                               BestMatchOnly          = False,
-                                                                               ConeSize               = 0.6)
-ToolSvc += EGAM10_PhotonTPThinningTool
-thinningTools.append(EGAM10_PhotonTPThinningTool)
-
-# Possibility to thin CaloCalTopoClusters (UE/PU iso corrections not recomputable then)
-# see https://indico.cern.ch/event/532191/contributions/2167754/attachments/1273075/1887639/ArthurLesage_ASGMeeting_20160513.pdf, S6-7
-
-
-
 #=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM10Sequence = CfgMgr.AthSequencer("EGAM10Sequence")
-DerivationFrameworkJob += EGAM10Sequence
-
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
 print("EGAM10 skimming tools: ", [EGAM10_SkimmingTool])
 print("EGAM10 thinning tools: ", thinningTools)
 print("EGAM10 augmentation tools: ", augmentationTools)
@@ -403,25 +405,15 @@ EGAM10Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM10Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-
-# re-add the jet collections removed in the AOD size reduction
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4PV0TrackJets"]
-if (DerivationFrameworkIsMonteCarlo):
-    reducedJetList.append("AntiKt4TruthJets")
-    reducedJetList.append("AntiKt4TruthWZJets")
-replaceAODReducedJets(reducedJetList,EGAM10Sequence,"EGAM10")
-
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM10Sequence)
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4PV0TrackJets, addAntiKt4TruthJets, addAntiKt4TruthWZJets
+addAntiKt4PV0TrackJets(EGAM10Sequence,"EGAM10")
+addAntiKt4TruthJets(EGAM10Sequence,"EGAM10")
+addAntiKt4TruthWZJets(EGAM10Sequence,"EGAM10")
 
 
 #========================================
 # ENERGY DENSITY
+#========================================
 if (DerivationFrameworkIsMonteCarlo):
     # Schedule the two energy density tools for running after the pseudojets are created.
     for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
@@ -432,20 +424,9 @@ if (DerivationFrameworkIsMonteCarlo):
         
         
 #====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM10Stream.AcceptAlgs(["EGAM10Kernel"])
-
-
-#====================================================================
 # SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-
 EGAM10SlimmingHelper = SlimmingHelper("EGAM10SlimmingHelper")
 EGAM10SlimmingHelper.SmartCollections = ["Electrons",
                                          "Photons",
@@ -460,18 +441,25 @@ EGAM10SlimmingHelper.ExtraVariables = ExtraContentElectrons + ExtraContentPhoton
 
 EGAM10SlimmingHelper.AllVariables += ExtraContainers
 
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM10SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM10SlimmingHelper.AllVariables += ["EventInfo"]
+
 # add detailed photon shower shape variables
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM10SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # add new TTVA isolation variables
-EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500"]
+EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500"]
 
+# additional truth-level variables
 if DerivationFrameworkIsMonteCarlo:
     EGAM10SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth
     EGAM10SlimmingHelper.AllVariables   += ExtraContainersTruth+ExtraContainersTruthPhotons
     EGAM10SlimmingHelper.AllVariables   += ["TruthIsoCentralEventShape", "TruthIsoForwardEventShape"]
     EGAM10SlimmingHelper.AppendToDictionary = ExtraDictionary
 
-
+# This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM10SlimmingHelper.AppendContentToStream(EGAM10Stream)

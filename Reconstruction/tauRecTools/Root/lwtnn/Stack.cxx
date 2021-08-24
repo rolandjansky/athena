@@ -359,7 +359,7 @@ namespace lwtDev {
     else
       throw NNConfigurationException("Bidirectional forward layer type not supported");
 
-    IRecurrentLayer* forward_layer = m_layers.back();
+    std::unique_ptr<IRecurrentLayer> forward_layer(m_layers.back());
     m_layers.pop_back();
 
     if(backward_layer_conf.architecture == Architecture::LSTM)
@@ -369,12 +369,12 @@ namespace lwtDev {
     else
         throw NNConfigurationException("Bidirectional backward layer type not supported");
 
-    IRecurrentLayer* backward_layer = m_layers.back();
+    std::unique_ptr<IRecurrentLayer> backward_layer(m_layers.back());
     backward_layer->m_go_backwards = (!forward_layer->m_go_backwards);
     m_layers.pop_back();
 
-    m_layers.push_back(new BidirectionalLayer(forward_layer, 
-                                              backward_layer, 
+    m_layers.push_back(new BidirectionalLayer(std::move(forward_layer), 
+                                              std::move(backward_layer), 
                                               layer.merge_mode, 
                                               layer.return_sequence));
     return n_backward;
@@ -608,15 +608,16 @@ namespace lwtDev {
 
   /// bidirectional layer ///
 
-  BidirectionalLayer::BidirectionalLayer(IRecurrentLayer* forward_layer,
-                                         IRecurrentLayer* backward_layer,
+  BidirectionalLayer::BidirectionalLayer(std::unique_ptr<IRecurrentLayer> forward_layer,
+                                         std::unique_ptr<IRecurrentLayer> backward_layer,
                                          std::string merge_mode,
                                          bool return_sequence):
-  m_merge_mode(merge_mode)
+  m_forward_layer(std::move(forward_layer)),
+  m_backward_layer(std::move(backward_layer))
   {
-    m_forward_layer = forward_layer;
-    m_backward_layer = backward_layer;
-    m_return_sequence = return_sequence;
+    m_merge_mode=merge_mode;
+    //baseclass variable
+    m_return_sequence=return_sequence;
   }
 
   MatrixXd BidirectionalLayer::scan( const MatrixXd& x) const{

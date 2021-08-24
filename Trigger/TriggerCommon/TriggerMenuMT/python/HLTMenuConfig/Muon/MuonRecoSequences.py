@@ -644,10 +644,12 @@ def muEFSARecoSequence( RoIs, name ):
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
+      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
+                                                    sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
+                                                    MMPrepDataContainer = ("MM_Measurements" if MuonGeometryFlags.hasMM() else ""))
       efAlgs.append(theMuonLayerHough)
 
-      theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
+      theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
   else:
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
@@ -680,7 +682,7 @@ def muEFSARecoSequence( RoIs, name ):
   for efAlg in efAlgs:
       if "RoIs" in efAlg.properties():
         if name == "FS":
-          from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
+          from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection 
           efAlg.RoIs = mapThresholdToL1RoICollection("FS")
         else:
           efAlg.RoIs = RoIs
@@ -927,8 +929,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #Need PRD containers for inside-out reco
     ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
     ViewVerifyInsideOut.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+                                       ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' )]
+    if not isCosmic(): ViewVerifyInsideOut.DataObjects += [( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
     if MuonGeometryFlags.hasCSC():
       ViewVerifyInsideOut.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 

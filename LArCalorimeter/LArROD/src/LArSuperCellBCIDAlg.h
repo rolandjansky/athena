@@ -58,7 +58,7 @@ private:
     {this,"CablingKey","LArOnOffIdMapSC","SG Key of LArOnOffIdMapping object"};
 
   //Identifier helper
-  const LArOnline_SuperCellID* m_laronline_id;
+  const LArOnline_SuperCellID* m_laronline_id = nullptr;
 
 };
 

@@ -123,7 +123,8 @@ namespace SG {
     ///< Check the validity of the Transient Address.
     /// If forceUpdate is true, then call @c updateAddress
     /// even if we already have an address.
-    bool isValid (IProxyDict* store, bool forceUpdate = false);
+    /// If ctx is nullptr, we don't try to update the address.
+    bool isValid (const EventContext* ctx, bool forceUpdate = false);
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
@@ -137,16 +138,7 @@ namespace SG {
                      bool clearAddress,
                      bool consultProvider);
 
-    /**
-     * @brief Retrieve the EventContext saved in store STORE.
-     * @param store The store from which to retrieve the context, or nullptr.
-     *
-     * If there is no context recorded in the store, return a default-initialized
-     * context.
-     */
-    const EventContext& contextFromStore (IProxyDict* store) const;
 
-    
     // PLEASE NOTE: The data members of this class are ordered so that
     // the most frequently accessed members are grouped together, within
     // the first cache line, when it is embedded in DataProxy.  See the layout

@@ -38,9 +38,6 @@ l1seeds = { 'low'  : \
                 'L1_J40p0ETA25_2J15p31ETA49',\
                 'L1_J50',\
                 'L1_J50_DETA20-J50J',\
-                'L1_JPSI-1M5-eEM12',\
-                'L1_LFV-eEM15I',\
-                'L1_LFV-eEM8I',\
                 'L1_LFV-MU6',\
                 'L1_MU10_TAU12IM',\
                 'L1_MU6_J20',\
@@ -95,7 +92,7 @@ class EnhancedBiasChainConfiguration(ChainConfigurationBase):
         ChainConfigurationBase.__init__(self, chainDict)
 
 
-    def assembleChain(self):
+    def assembleChainImpl(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 

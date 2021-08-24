@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetAlignGeomTools )
@@ -18,5 +18,5 @@ atlas_add_library( InDetAlignGeomToolsLib
 atlas_add_component( InDetAlignGeomTools
    src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthContainers GeoModelInterfaces GeoModelUtilities InDetAlignGeomToolsLib
-   InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry RDBAccessSvcLib SCT_ReadoutGeometry
+   InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib RDBAccessSvcLib SCT_ReadoutGeometry
    TRT_ReadoutGeometry TrkAlignEvent TrkAlignInterfaces TrkRIO_OnTrack )

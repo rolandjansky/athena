@@ -5,6 +5,7 @@ from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 import json
 
 log = logging.getLogger('TrigConfigSvcCfg')
@@ -62,7 +63,7 @@ def getTrigConfigFromFlag( flags ):
         lbNumber = flags.Input.LumiBlockNumber[0]
         if dbconn == "":
             dbconn = getTrigConfFromCool(runNumber, lbNumber)["DB"]
-        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
+        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
             d = getTrigConfFromCool(runNumber, lbNumber)            
             if smk is None:
                 smk = d["SMK"]
@@ -181,7 +182,7 @@ def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
 
 
 # configuration of L1ConfigSvc
-@memoize
+@AccumulatorCache
 def getL1ConfigSvc( flags ):
     # generate menu file (this only happens if we read from FILE)
     generatedFile, generatedBgsFile = generateL1Menu( flags )
@@ -219,13 +220,11 @@ def getL1ConfigSvc( flags ):
         l1ConfigSvc.BGSK = cfg["BGSK"]
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d, and BGSK %d", cfg['SMK'], cfg['BGSK']  )
 
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
 
 # configuration of HLTConfigSvc
-@memoize
+@AccumulatorCache
 def getHLTConfigSvc( flags ):
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure HLTConfigSvc" )
@@ -251,22 +250,21 @@ def getHLTConfigSvc( flags ):
         hltConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured HLTConfigSvc with InputType='DB' and SMK %d", cfg['SMK'] )
 
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
     return hltConfigSvc
 
 
 # provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ) )
+    l1ConfigSvc = getL1ConfigSvc( flags )
+    acc.addService( l1ConfigSvc, create=True )
     return acc
 
 # provide HLT config service in new JO
 def HLTConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getHLTConfigSvc( flags ) )
+    acc.addService( getHLTConfigSvc( flags ), create=True )
     return acc
 
 # provide both services in new JO

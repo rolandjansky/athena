@@ -7,7 +7,6 @@
 
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/ForVrtClose.h"
-#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/CommonPars.h"
 #include <vector>
 #include <iostream>

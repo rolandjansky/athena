@@ -47,13 +47,6 @@ def getMMRange(name="MMRange", **kwargs):
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 
-def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
-    mmRndm = kwargs.setdefault("RndmEngine", "MMResponse")
-    jobproperties.Digitization.rndmSeedList.addSeed(mmRndm, 49261510,105132394 )
-    return CfgMgr.MM_Response_DigitTool(name,**kwargs)
-
-
 def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():

@@ -6,7 +6,7 @@ panel_columns = { eff_panel, 3 };
 
 eff_panel = { 
       "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Reference track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]",       
-      "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",  "Reference track p_{T} [GeV]",    "yaxis:lin:90:102",  "Efficiency [%]",       
+      "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",  "Reference track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]",       
       "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Reference track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]",       
       "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",     "Reference track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]",       
       "z0_eff",       "Efficiency z0",    "xaxis:lin:autosym",     "Reference track z_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]",       

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # List of containers that are made on-the-fly by basically all DAOD types and
 # can therefore be reasonably added to the NameAndTypes dictionary centrally
@@ -58,18 +58,18 @@ ContainersOnTheFly = [
                         ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt2LCTopoJets","xAOD::JetContainer"],
                         ["AntiKt2LCTopoJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt4EMTopoJets","xAOD::JetContainer"],
+                        ["AntiKt4EMTopoJetsAux","xAOD::JetContainerAux"],
+                        ["AntiKt4LCTopoJets","xAOD::JetContainer"],
+                        ["AntiKt4LCTopoJetsAux","xAOD::JetContainerAux"],
+                        ["AntiKt4EMPFlowJets","xAOD::JetContainer"],
+                        ["AntiKt4EMPFlowJetsAux","xAOD::JetContainerAux"],
                         ["AntiKt4EMTopoCSSKJets","xAOD::JetContainer"],
                         ["AntiKt4EMTopoCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4EMPFlowCSSKJets","xAOD::JetContainer"],
                         ["AntiKt4EMPFlowCSSKJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt4EMPFlowFEJets","xAOD::JetContainer"],
-                        ["AntiKt4EMPFlowFEJetsAux","xAOD::JetContainerAux"],
-                        ["AntiKt4EMTopoJets_BTagging201810","xAOD::JetContainer"],
-                        ["AntiKt4EMTopoJets_BTagging201810Aux","xAOD::ShallowAuxContainer"],
-                        ["AntiKt4EMPFlowJets_BTagging201903","xAOD::JetContainer"],
-                        ["AntiKt4EMPFlowJets_BTagging201903Aux","xAOD::ShallowAuxContainer"],
-                        ["AntiKt4EMPFlowJets_BTagging201810","xAOD::JetContainer"],
-                        ["AntiKt4EMPFlowJets_BTagging201810Aux","xAOD::ShallowAuxContainer"],
+                        
+                        
                         ["AntiKt10LCTopoJets","xAOD::JetContainer"],
                         ["AntiKt10LCTopoJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10TrackCaloClusterJets","xAOD::JetContainer"],
@@ -80,6 +80,11 @@ ContainersOnTheFly = [
                         ["AntiKt10LCTopoCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10UFOCSSKJets","xAOD::JetContainer"],
                         ["AntiKt10UFOCSSKJetsAux","xAOD::JetAuxContainer"],
+
+                        ["Kt4EMPFlowEventShape","xAOD::EventShape"],
+                        ["Kt4EMPFlowEventShapeAux","xAOD::EventShapeAuxInfo"],
+                        ["Kt4EMTopoOriginEventShape","xAOD::EventShape"],
+                        ["Kt4EMTopoOriginEventShapeAux","xAOD::EventShapeAuxInfo"],
 
                         ["TrackCaloClustersCombinedAndNeutral","xAOD::TrackCaloClusterContainer"],
                         ["TrackCaloClustersCombinedAndNeutralAux","xAOD::TrackCaloClusterAuxContainer"],
@@ -117,4 +122,16 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt4EMPFlow_201903Aux","xAOD::BTaggingAuxContainer"],
                         ["DiTauJetsLowPt","xAOD::DiTauJetContainer"],
                         ["DiTauJetsLowPtAux","xAOD::DiTauJetAuxContainer"],
+                        ["MET_Reference_AntiKt4EMTopo",'xAOD::MissingETContainer'],
+                        ["MET_Reference_AntiKt4EMTopoAux",'xAOD::MissingETAuxContainer'],
+                        ["MET_Core_AntiKt4EMTopo",'xAOD::MissingETContainer'],
+                        ["MET_Core_AntiKt4EMTopoAux",'xAOD::MissingETAuxContainer'],
+                        ["METAssoc_AntiKt4EMTopo",'xAOD::MissingETAssociationMap'],
+                        ["METAssoc_AntiKt4EMTopoAux",'xAOD::MissingETAuxAssociationMap'],
+                        ["MET_Reference_AntiKt4EMPFlow",'xAOD::MissingETContainer'],
+                        ["MET_Reference_AntiKt4EMPFlowAux",'xAOD::MissingETAuxContainer'],
+                        ["MET_Core_AntiKt4EMPFlow",'xAOD::MissingETContainer'],
+                        ["MET_Core_AntiKt4EMPFlowAux",'xAOD::MissingETAuxContainer'],
+                        ["METAssoc_AntiKt4EMPFlow",'xAOD::MissingETAssociationMap'],
+                        ["METAssoc_AntiKt4EMPFlowAux",'xAOD::MissingETAuxAssociationMap'],
 ]

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "FEI3SimTool.h"
@@ -27,7 +27,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   const InDetDD::PixelModuleDesign* p_design =
     static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
 
-  if (p_design->getReadoutTechnology() != InDetDD::PixelModuleDesign::FEI3) {
+  if (p_design->getReadoutTechnology() != InDetDD::PixelReadoutTechnology::FEI3) {
     return;
   }
 
@@ -99,8 +99,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     Identifier diodeID = chargedDiodes.getId(diode.diode());
     double charge = diode.charge();
 
-    int circ = m_pixelCabling->getFE(&diodeID, moduleID);
-    int type = m_pixelCabling->getPixelType(diodeID);
+    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analog threshold, timing simulation
     double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);

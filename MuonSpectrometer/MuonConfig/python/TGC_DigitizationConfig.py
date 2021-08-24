@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import TgcDigitToTgcRDOCfg
@@ -41,11 +42,11 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("FirstXing", TGC_FirstXing())
         kwargs.setdefault("LastXing", TGC_LastXing())
     kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
-    if flags.Digitization.PileUpPresampling:
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
-        TgcDigitizationTool = CompFactory.TgcDigitizationTool
+    TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 

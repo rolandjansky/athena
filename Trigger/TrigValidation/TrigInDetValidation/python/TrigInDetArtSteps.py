@@ -24,7 +24,7 @@ class TrigInDetReco(ExecStep):
 
     def __init__(self, name='TrigInDetReco', postinclude_file='', preinclude_file='' ):
         ExecStep.__init__(self, name)
-##        super(TrigInDetReco, self).__init__(name)
+##      super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
         self.max_events=-1
         self.required = True
@@ -77,7 +77,7 @@ class TrigInDetReco(ExecStep):
         flags = ''
         for i in self.slices:
             if (i=='L2muonLRT') :
-                chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                chains += "'HLT_mu24_LRT_idperf_L1MU20',"
                 chains += "'HLT_mu6_LRT_idperf_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 flags += 'doMuonSlice=True;'
@@ -96,18 +96,21 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH'," 
-                chains += "'HLT_e26_lhtight_gsf_L1EM22VHI',"
+                chains += "'HLT_e26_gsf_lhtight_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
                 chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
                 chains += "'HLT_e5_idperf_loose_L1EM3',"
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
+                flags += 'doEgammaSlice=True;'
+            if (i=='electron-tnp') :
+                chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
-#                chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
+#               chains += "'HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 chains += "'HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
@@ -122,6 +125,10 @@ class TrigInDetReco(ExecStep):
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU4'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
+            if (i=='bphys') :
+                chains += "'HLT_mu6_idperf_L1MU6',"
+                chains += "'HLT_2mu4_bBmumux_BsmumuPhi_L12MU4',"
+                flags += 'doMuonSlice=True;doBphysicsSlice=True;'
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
 
@@ -130,6 +137,8 @@ class TrigInDetReco(ExecStep):
 
         
         AVERSION = ""
+        # temporary hack until we get to the bottom of why the tests are really failing
+        self.release = 'current'
         if (self.release != 'current'):
             # get the current atlas base release, and the previous base release
             import os
@@ -207,37 +216,42 @@ class TrigInDetRdictStep(Step):
     '''
     Execute TIDArdict for TrkNtuple files.
     '''
-    def __init__(self, name='TrigInDetdict', args=None, testbin='Test_bin.dat'):
+    def __init__(self, name='TrigInDetdict', args=None, testbin='Test_bin.dat', config=False ):
         super(TrigInDetRdictStep, self).__init__(name)
         self.args=args + "  -b " + testbin + " "
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDArdict'
         self.timeout = 10*60
+        self.config = config
 
     def configure(self, test):
-        os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
-        os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-vtxtrack.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
-        os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
+        if not self.config :
+            os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+            os.system( 'get_files -data Test_bin_lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-rzMatcher.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-vtxtrack.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-TnP.dat &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)
 
 

@@ -7,6 +7,8 @@
 //-------------------------------------------------
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include  "xAODTracking/Vertex.h"
+#include <cmath>
+#include <vector>
 
 namespace InDet{  
 
@@ -43,9 +45,8 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
-    if( Signif!=Signif ) Signif = 0.;
-    return sqrt(distx*distx+disty*disty+distz*distz);
+    Signif=(Signif<0) ? 0.:std::sqrt(Signif);
+    return std::sqrt(distx*distx+disty*disty+distz*distz);
   }
 
 
@@ -53,12 +54,11 @@ namespace InDet{
   double InDetSVWithMuonTool::ConeDist(const AmgVector(5) & VectPerig, const TLorentzVector & Dir)
   const
   {
-  
-  	  double  etaTr = -log(tan(VectPerig[3]/2.));
+  	double  etaTr = -std::log(std::tan(VectPerig[3]*0.5));
 	  double  etaJet = Dir.PseudoRapidity();
-	  double  adphi = fabs(Dir.Phi()-VectPerig[2]);
+	  double  adphi = std::abs(Dir.Phi()-VectPerig[2]);
 	  while(adphi> M_PI)adphi-=2.*M_PI;
- 	  return  sqrt(adphi*adphi + (etaJet-etaTr)*(etaJet-etaTr));
+ 	  return  std::sqrt(adphi*adphi + (etaJet-etaTr)*(etaJet-etaTr));
   }
 
 
@@ -83,18 +83,22 @@ namespace InDet{
   double InDetSVWithMuonTool::pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& InpTrk) 
   const
   {
-     double Norm=sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
-     double sx=Dir.x()/Norm; double sy=Dir.y()/Norm; double sz=Dir.z()/Norm;
+     double Norm=std::sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
+     double sx=Dir.x()/Norm; 
+     double sy=Dir.y()/Norm; 
+     double sz=Dir.z()/Norm;
 
-     double px=0.,py=0.,pz=0.; double scale;
-     px = cos ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     py = sin ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     pz =                    cos(InpTrk[1])/fabs(InpTrk[2]);
-       scale = px*sx + py*sy + pz*sz;
+     double px=0.,py=0.,pz=0.; 
+     double scale{};
+     const auto invDenom{1./std::abs(InpTrk[2])};
+     px = std::cos ( InpTrk[0]) * std::sin(InpTrk[1])*invDenom;
+     py = std::sin ( InpTrk[0]) * std::sin(InpTrk[1])*invDenom;
+     pz = std::cos(InpTrk[1])*invDenom;
+     scale = px*sx + py*sy + pz*sz;
      px -= sx*scale;
      py -= sy*scale; 
      pz -= sz*scale;
-     return sqrt( px*px +py*py + pz*pz );
+     return std::sqrt( px*px +py*py + pz*pz );
    }
 
 

@@ -30,9 +30,6 @@ def get_parser():
     parser.add_argument('--l1',
                         action='store_true', default=False,
                         help='L1 trigger bits (from event header)')
-    parser.add_argument('--l2',
-                        action='store_true', default=False,
-                        help='L2 trigger bits (from event header)')
     parser.add_argument('--ef', '--hlt',
                         action='store_true', default=False,
                         help='EF/HLT trigger bits (from event header)')
@@ -54,11 +51,17 @@ def get_parser():
     return parser
 
 
-def decodeTriggerBits(words, base=32):
-    bit_indices = []
-    for iw in range(len(words)):
-        bit_indices.extend([base*iw+i for i in range(base) if words[iw] & (1 << i)])
-    return bit_indices
+def decodeTriggerBits(words, num_sets, base=32):
+    assert len(words) % num_sets == 0
+    n_words_per_set = len(words) // num_sets
+    result = []
+    for iset in range(num_sets):
+        words_in_set = words[iset*n_words_per_set:(iset+1)*n_words_per_set]
+        bit_indices = []
+        for iw in range(len(words_in_set)):
+            bit_indices.extend([base*iw+i for i in range(base) if words_in_set[iw] & (1 << i)])
+        result.append(bit_indices)
+    return result
 
 
 def header_info(event):
@@ -78,21 +81,25 @@ def lvl1_bits(event):
     '''Return a string with information about LVL1 bits (IDs of items passed at TBP, TAP, TAV)'''
 
     info = event.lvl1_trigger_info()
-    nwords = len(info)//3  # TBP, TAP, TAV
-    lvl1_bits = [decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
+    lvl1_bits = decodeTriggerBits(info, 3)  # TBP, TAP, TAV
     info_str = 'L1 CTP IDs - TBP: {:s}\n'.format(str(lvl1_bits[0]))
     info_str += 'L1 CTP IDs - TAP: {:s}\n'.format(str(lvl1_bits[1]))
     info_str += 'L1 CTP IDs - TAV: {:s}'.format(str(lvl1_bits[2]))
     return info_str
 
 
-def hlt_bits(event, l2=False):
-    '''Return a string with information about passed chain IDs at L2/EF/HLT'''
+def hlt_bits(event, version=(1,1)):
+    '''Return a string with information about passed chain IDs at HLT'''
 
-    info = event.lvl2_trigger_info() if l2 else event.event_filter_info()
-    hlt_bits = decodeTriggerBits(info)
-    info_str = 'L2' if l2 else 'EF'
-    info_str += ' passed chain IDs: {:s}'.format(str(hlt_bits))
+    # Version 1.0 has {passed, prescaled, rerun}, 1.1 and later only {passed, prescaled}
+    num_sets = 3 if version[0] < 1 or version==(1,0) else 2
+
+    info = event.event_filter_info()
+    hlt_bits = decodeTriggerBits(info, num_sets)
+    info_str = 'HLT passed chain IDs: {:s}'.format(str(hlt_bits[0]))
+    info_str += '\nHLT prescaled chain IDs: {:s}'.format(str(hlt_bits[1]))
+    if num_sets==3:
+        info_str += '\nHLT rerun chain IDs: {:s}'.format(str(hlt_bits[2]))
     return info_str
 
 
@@ -111,6 +118,20 @@ def stream_tags(event):
     return info_str
 
 
+def hlt_rod_minor_version(rob):
+    version = rob.rod_version()
+    minor_version = version.minor_version()
+    minor_version_M = (minor_version & 0xff00) >> 8
+    minor_version_L = minor_version & 0xff
+    return (minor_version_M, minor_version_L)
+
+
+def hlt_rod_minor_version_from_event(event):
+    for rob in event.children():
+        if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_HLT:
+            return hlt_rod_minor_version(rob)
+
+
 def hlt_result(event, print_sizes=False, conf_keys=False):
     num_hlt_robs = 0
     info_str = ""
@@ -118,12 +139,16 @@ def hlt_result(event, print_sizes=False, conf_keys=False):
         if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
             continue
         num_hlt_robs += 1
-        info_str += '\n-- {:s} SourceID: {:s}, Size: {:d} bytes'.format(
+        version = hlt_rod_minor_version(rob)
+        info_str += '\n-- {:s} SourceID: {:s}, Version: {:s}, Size: {:d} bytes'.format(
             rob.__class__.__name__,
             rob.source_id().human(),
+            f'{version[0]:d}.{version[1]:d}',
             rob.fragment_size_word()*4
         )
         if print_sizes or conf_keys:
+            if version[0] < 1:
+                raise RuntimeError('Cannot decode data from before Run 3, HLT ROD minor version needs to be >= 1.0')
             raw_data = tuple(rob.rod_data())
             skip_payload = not conf_keys
             collections = hltResultMT.get_collections(raw_data, skip_payload=skip_payload)
@@ -165,6 +190,9 @@ def size_summary(events):
         for rob in event.children():
             if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
                 continue
+            version = hlt_rod_minor_version(rob)
+            if version[0] < 1:
+                raise RuntimeError('Cannot decode data from before Run 3, HLT ROD minor version needs to be >= 1.0')
             module = rob.source_id().module_id()
             if module not in data.keys():
                 data[module] = {'total': 0}
@@ -203,6 +231,7 @@ def dump_info(bsfile, args):
     max_events = min(args.events, len(input)) if args.events else len(input)
     event_count = 0
     events = []
+    version = None
 
     # Loop over events
     for event in input:
@@ -213,6 +242,9 @@ def dump_info(bsfile, args):
             break
         events.append(event)
 
+        if version is None:
+            version = hlt_rod_minor_version_from_event(event)
+
         # Print header info
         print('{sep:s} Event: {:{width}d}, {:s} {sep:s}'.format(
               event_count, header_info(event),
@@ -221,10 +253,8 @@ def dump_info(bsfile, args):
         # Print L1/L2/HLT bits
         if args.l1:
             print(lvl1_bits(event))
-        if args.l2:
-            print(hlt_bits(event, l2=True))
         if args.ef:
-            print(hlt_bits(event))
+            print(hlt_bits(event, version))
 
         # Print Stream Tags
         if args.stag:

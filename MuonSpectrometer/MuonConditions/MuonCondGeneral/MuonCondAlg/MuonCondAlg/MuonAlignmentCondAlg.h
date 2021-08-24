@@ -64,7 +64,7 @@ private:
                                                                      "Key of output muon alignment MDT/AsBuilt condition data"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
+    const MuonGM::MuonDetectorManager* m_muonDetMgrDS{};
     ServiceHandle<ICondSvc> m_condSvc;
     std::string m_geometryVersion;
 
@@ -83,12 +83,12 @@ private:
 
     StatusCode loadParameters();
     StatusCode loadAlignABLines();
-    StatusCode loadAlignABLines(std::string folderName, ALineMapContainer* writeALineCdo, BLineMapContainer* writeBLineCdo,
+    StatusCode loadAlignABLines(const std::string& folderName, ALineMapContainer* writeALineCdo, BLineMapContainer* writeBLineCdo,
                                 EventIDRange& rangeALineW, EventIDRange& rangeBLineW);
-    StatusCode loadAlignABLinesData(std::string folderName, std::string data, nlohmann::json& json, bool);
-    StatusCode loadAlignILines(std::string folderName);
-    StatusCode loadAlignILinesData(std::string folderName, std::string data, nlohmann::json& json);
-    StatusCode loadAlignAsBuilt(std::string folderName);
+    StatusCode loadAlignABLinesData(const std::string& folderName, const std::string& data, nlohmann::json& json, bool);
+    StatusCode loadAlignILines(const std::string& folderName);
+    StatusCode loadAlignILinesData(const std::string& folderName, const std::string& data, nlohmann::json& json);
+    StatusCode loadAlignAsBuilt(const std::string& folderName);
 
     void setALinesFromAscii(ALineMapContainer* writeALineCdo) const;
     void setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo) const;

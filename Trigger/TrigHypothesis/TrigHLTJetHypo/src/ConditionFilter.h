@@ -17,17 +17,15 @@ class ConditionFilter: public IHypoJetVectorFilter  {
   ConditionFilter(ConditionPtrs&&);
 
   // find the subset of jets which satisfy a sequence of conditions
-  virtual std::pair<HypoJetCIter, HypoJetCIter>
-  filter (const HypoJetCIter& b,
-	  const HypoJetCIter& e,
+  virtual HypoJetVector
+  filter (const HypoJetVector& jv,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>&
-	  ) override;
+	  ) const override;
 
   virtual std::string toString() const override;  
  private:
 
   ConditionPtrs m_conditions;
-  HypoJetVector m_filtered;  
 };
 
 std::ostream& operator<<(std::ostream&, const ConditionFilter&);

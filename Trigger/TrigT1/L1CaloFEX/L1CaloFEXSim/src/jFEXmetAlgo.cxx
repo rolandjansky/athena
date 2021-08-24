@@ -112,8 +112,7 @@ void LVL1::jFEXmetAlgo::buildBarrelmet()
     
     for(uint iphi=0;iphi<m_FPGA.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][ieta]);
-            m_met[iphi]+=tmpTower->getTotalET();
+            m_met[iphi]+=getTTowerET(m_FPGA[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][0]);
         m_met_angle[iphi]=tmpTower->phi();
@@ -141,8 +140,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
     
     for(uint iphi=0;iphi<m_FPGA.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][ieta]);
-            m_met[iphi]+=tmpTower->getTotalET();
+            m_met[iphi]+=getTTowerET(m_FPGA[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][0]);
         m_met_angle[iphi]=tmpTower->phi();
@@ -158,8 +156,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
     
     for(uint iphi=0;iphi<m_FPGA_phi02.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA_phi02[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_phi02[iphi][ieta]);
-            m_met[iphi]+=tmpTower->getTotalET();
+            m_met[iphi]+=getTTowerET(m_FPGA_phi02[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_phi02[iphi][0]);
         m_met_angle[iphi]=tmpTower->phi();
@@ -175,8 +172,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
     
     for(uint iphi=0;iphi<m_FPGA_fcal.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA_fcal[iphi].size();ieta++){
-            const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_fcal[iphi][ieta]);
-            m_met[iphi]+=tmpTower->getTotalET();
+            m_met[iphi]+=getTTowerET(m_FPGA_fcal[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_fcal[iphi][0]);
         m_met_angle[iphi]=tmpTower->phi();
@@ -251,6 +247,23 @@ std::unique_ptr<jFEXmetTOB> LVL1::jFEXmetAlgo::getmetTOBs(){
   return tob;
 }
 
+//Gets the ET for the TT. This ET is EM + HAD
+int LVL1::jFEXmetAlgo::getTTowerET(unsigned int TTID ) {
+    if(TTID == 0) {
+        return 0;
+    } 
+    
+    if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
+        return m_map_Etvalues[TTID][1];
+    }
+    
+    //we shouldn't arrive here
+    return 0;
+    
+}
 
 
+void LVL1::jFEXmetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+    m_map_Etvalues=et_map;
+}
 }// end of namespace LVL1

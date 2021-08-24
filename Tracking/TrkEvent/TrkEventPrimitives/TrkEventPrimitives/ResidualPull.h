@@ -61,8 +61,8 @@ public:
   /**  default constructor */
   ResidualPull() = default;
   /**  explicit constructor */
-  ResidualPull(const std::vector<double> residual,
-               const std::vector<double> pull,
+  ResidualPull(std::vector<double> residual,
+               std::vector<double> pull,
                bool pullValid,
                ResidualType residualType,
                int parameterKey,

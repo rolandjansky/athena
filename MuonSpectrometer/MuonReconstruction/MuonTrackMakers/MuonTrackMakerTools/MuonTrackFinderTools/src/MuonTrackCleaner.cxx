@@ -186,8 +186,8 @@ namespace Muon {
 
         ATH_MSG_DEBUG(" Clean comp rots " << state.numberOfCleanedCompROTs);
 
-        auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        tsos->reserve(state.measInfo.size());
+        auto tsos = DataVector<const Trk::TrackStateOnSurface>();
+        tsos.reserve(state.measInfo.size());
 
         unsigned int nmeas = 0;
         // loop over hits
@@ -198,7 +198,7 @@ namespace Muon {
             if (!hit->useInFit) {
                 ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 if (hit->inBounds)
-                    tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
+                    tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
                                                                         Trk::TrackStateOnSurface::Outlier));
 
                 continue;
@@ -206,11 +206,11 @@ namespace Muon {
                 if (hit->meas) ++nmeas;
 
                 if (hit->cleanedCompROT) {
-                    tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
+                    tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
                                                                         Trk::TrackStateOnSurface::Measurement));
                     ATH_MSG_DEBUG("   replacing CompROT " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 } else {
-                    tsos->push_back(hit->originalState->clone());
+                    tsos.push_back(hit->originalState->clone());
                 }
             }
         }
@@ -249,8 +249,8 @@ namespace Muon {
 
         ATH_MSG_DEBUG(" Trying to flip MDT signs: total number of hits with wrong sign " << state.numberOfFlippedMdts);
 
-        auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        tsos->reserve(state.measInfo.size());
+        auto tsos = DataVector<const Trk::TrackStateOnSurface>();
+        tsos.reserve(state.measInfo.size());
 
         unsigned int nmeas = 0;
         // loop over hits
@@ -261,7 +261,7 @@ namespace Muon {
             if (!hit->useInFit) {
                 ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 if (hit->inBounds)
-                    tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
+                    tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
                                                                         Trk::TrackStateOnSurface::Outlier));
 
                 continue;
@@ -269,11 +269,11 @@ namespace Muon {
                 if (hit->meas) ++nmeas;
 
                 if (hit->flippedMdt) {
-                    tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->flippedMdt, *hit->pars,
+                    tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->flippedMdt, *hit->pars,
                                                                         Trk::TrackStateOnSurface::Measurement));
                     ATH_MSG_DEBUG("   flipping sign hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                 } else {
-                    tsos->push_back(hit->originalState->clone());
+                    tsos.push_back(hit->originalState->clone());
                 }
             }
         }
@@ -322,8 +322,8 @@ namespace Muon {
 
             ATH_MSG_VERBOSE(" outlier removal cycle " << n);
 
-            auto  tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-            tsos->reserve(state.measInfo.size());
+            auto  tsos = DataVector<const Trk::TrackStateOnSurface>();
+            tsos.reserve(state.measInfo.size());
             ATH_MSG_VERBOSE("cleaning track with " << state.measInfo.size() << " hits");
 
             unsigned int nmeas = 0;
@@ -352,10 +352,10 @@ namespace Muon {
                     }
                     if (hit->inBounds) {
                         if (hit->cleanedCompROT) {
-                            tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
+                            tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->cleanedCompROT, *hit->pars,
                                                                                 Trk::TrackStateOnSurface::Outlier));
                         } else {
-                            tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
+                            tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
                                                                                 Trk::TrackStateOnSurface::Outlier));
                         }
                     }
@@ -392,7 +392,7 @@ namespace Muon {
                         }
                     }
                     if (!hit->originalState) ATH_MSG_DEBUG("no original state!");
-                    tsos->push_back(hit->originalState->clone());
+                    tsos.push_back(hit->originalState->clone());
                 }
             }
             // loop over sl map and count the overlaps
@@ -600,8 +600,8 @@ namespace Muon {
             return result;
         }
 
-        auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        tsos->reserve(state.measInfo.size());
+        auto tsos = DataVector<const Trk::TrackStateOnSurface>();
+        tsos.reserve(state.measInfo.size());
 
         unsigned int nmeas = 0;
         // loop over hits
@@ -616,7 +616,7 @@ namespace Muon {
                     ATH_MSG_DEBUG("   removing hit " << m_idHelperSvc->toString(hit->id) << " pull " << hit->resPull->pull().front());
                     // add as outlier
                     if (hit->inBounds)
-                        tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
+                        tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit->originalState, *hit->meas, *hit->pars,
                                                                             Trk::TrackStateOnSurface::Outlier));
 
                     // if removed, add hit to vector of hits
@@ -627,7 +627,7 @@ namespace Muon {
                 }
             }
             if (hit->meas) ++nmeas;
-            tsos->push_back(hit->originalState->clone());
+            tsos.push_back(hit->originalState->clone());
         }
 
         if (nmeas < 6) {
@@ -702,8 +702,8 @@ namespace Muon {
         bool addedHits = false;
         unsigned int removedOutOfBoundsHits(0);
 
-        auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        tsos->reserve(state.measInfo.size());
+        auto tsos = DataVector<const Trk::TrackStateOnSurface>();
+        tsos.reserve(state.measInfo.size());
 
         // loop over hits
         for (auto& hit : state.measInfo) {
@@ -736,26 +736,26 @@ namespace Muon {
                             addedHits = true;
                             const Trk::MeasurementBase* newMeas = hit.flippedMdt ? hit.flippedMdt.get() : hit.meas;
 
-                            tsos->push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit.originalState, *newMeas, *hit.pars,
+                            tsos.push_back(MuonTSOSHelper::cloneTSOSWithUpdate(*hit.originalState, *newMeas, *hit.pars,
                                                                                 Trk::TrackStateOnSurface::Measurement));
                         } else {
-                            tsos->push_back(hit.originalState->clone());
+                            tsos.push_back(hit.originalState->clone());
                         }
                     }
                     // layer not recoverable, drop the outliers: but if RPC, TGC, or CSC, expect track to go through all layers, so add a
                     // hole instead
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
                 } else {
                     ++removedOutOfBoundsHits;
                     // if RPC, TGC, or CSC, expect track to go through all layers: add a hole to replace lost outlier
                     if (m_idHelperSvc->isRpc(hit.id) || m_idHelperSvc->isTgc(hit.id) || m_idHelperSvc->isCsc(hit.id))
-                        tsos->push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
+                        tsos.push_back(MuonTSOSHelper::createHoleTSOS(hit.pars->clone()));
                     ATH_MSG_DEBUG("   removing out of bounds outlier " << m_idHelperSvc->toString(hit.id) << " pull " << std::setw(7)
                                                                        << hit.pull);
                 }
             } else {
-                tsos->push_back(hit.originalState->clone());
+                tsos.push_back(hit.originalState->clone());
             }
         }
 
@@ -764,7 +764,7 @@ namespace Muon {
             return track;
         }
 
-        if (tsos->size() < 6) {
+        if (tsos.size() < 6) {
             ATH_MSG_WARNING(" too few hits, cannot add hits. This should not happen ");
             return nullptr;
         }

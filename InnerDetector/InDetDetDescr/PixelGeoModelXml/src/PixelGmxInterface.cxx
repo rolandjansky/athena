@@ -75,12 +75,12 @@ void PixelGmxInterface::addSensorType(std::string clas,
                                       std::string typeName,
                                       std::map<std::string, std::string> parameters)
 {
-  ATH_MSG_DEBUG("addModuleType called for class " << clas << ", typeName " << typeName);
+  ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
-  if (clas == "QuadChip_RD53") {
+  if (clas == "SingleChip_RD53" || clas == "QuadChip_RD53") {
     makePixelModule(typeName, parameters);
   } else {
-    ATH_MSG_ERROR("addModuleType: unrecognised module class: " << clas);
+    ATH_MSG_ERROR("addSensorType: unrecognised module class: " << clas);
     ATH_MSG_ERROR("No module design created");
   }
 }
@@ -114,6 +114,7 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
   getParameter(typeName, parameters, "circuitsPerEta", circuitsPerEta);
   getParameter(typeName, parameters, "circuitsPerPhi", circuitsPerPhi);
   getParameter(typeName, parameters, "thickness", thickness);
+  getParameter(typeName, parameters, "is3D", is3D);
   getParameter(typeName, parameters, "rows", rowsPerChip);
   getParameter(typeName, parameters, "columns", columnsPerChip);
   getParameter(typeName, parameters, "pitchEta", pitchEta);
@@ -151,15 +152,25 @@ void PixelGmxInterface::makePixelModule(const std::string &typeName,
                                         << columnsPerChip << " " << rowsPerChip << " "
                                         << carrier << " " << readoutSide);
 
-  auto design = std::make_unique<InDetDD::PixelModuleDesign>(thickness,
-                                                             circuitsPerPhi, circuitsPerEta,
-                                                             columnsPerChip, rowsPerChip,
-                                                             columnsPerChip, rowsPerChip,
-                                                             fullMatrix,
-                                                             carrier,
-                                                             readoutSide, is3D);
+  //For optionally setting PixelBarrel,PixelEndcap,PixelInclined
+  //(so far) primarily useful for the latter to avoid orientation warnings
+  InDetDD::DetectorType detectorType{InDetDD::PixelBarrel};  // TODO: we should probably fail and not default to barrel here.
+  int detectorTypeEnum = 0;
+  if (checkParameter(typeName, parameters, "detectorType", detectorTypeEnum)) {
+    if (detectorTypeEnum == 1) detectorType = InDetDD::PixelBarrel;
+    else if (detectorTypeEnum == 2) detectorType = InDetDD::PixelEndcap;
+    else if (detectorTypeEnum == 3) detectorType = InDetDD::PixelInclined;
+  }
 
-  ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << "    " <<design->rows() << " " << design->columns());
+  auto design = std::make_unique<InDetDD::PixelModuleDesign>(thickness,
+                                                            circuitsPerPhi, circuitsPerEta,
+                                                            columnsPerChip, rowsPerChip,
+                                                            columnsPerChip, rowsPerChip,
+                                                            fullMatrix, carrier,
+                                                            readoutSide, is3D, detectorType);
+  
+
+  ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
 
   m_detectorManager->addDesign(std::move(design));
 

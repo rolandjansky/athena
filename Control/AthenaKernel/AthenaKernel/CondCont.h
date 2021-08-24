@@ -325,18 +325,21 @@ public:
 
   /**
    * @brief Remove unused entries from the front of the list.
-   * @param keys List of keys that may still be in use.
+   * @param runLbnKeys List of Run-Lumi keys that may still be in use.
+   *             (Must be sorted.)
+   * @param TSKeys List of time-stamp keys that may still be in use.
    *             (Must be sorted.)
    *
    * We examine the objects in the container, starting with the earliest one.
    * If none of the keys in @c keys match the range for this object, then
    * it is removed from the container.  We stop when we either find
    * an object with a range matching a key in @c keys or when there
-   * is only one object left.
+   * is only one object left. Mixed containers are trimmed recursivly. 
    *
-   * The list @c keys should contain keys as computed by keyFromRunLBN
-   * or keyFromTimestamp, as appropriate for the container's key type
-   * (as returned from keyType()).  The list must be sorted.
+   * The list @c runLBnKeys should contain keys as computed by keyFromRunLBN,
+   * the @c list TSKey should contain keys from keyFromTimestamp. Depending 
+   * on the type (RUNLUMI, TIMESTAMP, MIXED) only one of the lists or both 
+   * are used. The list must be sorted.
    *
    * Removed objects are queued for deletion once all slots have been
    * marked as quiescent.
@@ -344,7 +347,7 @@ public:
    * Returns the number of objects that were removed.
    */
   virtual
-  size_t trim (const std::vector<key_type>& keys);
+  size_t trim (const std::vector<key_type>& runLbnKeys, const std::vector<key_type>& TSKeys);
 
 
   /**

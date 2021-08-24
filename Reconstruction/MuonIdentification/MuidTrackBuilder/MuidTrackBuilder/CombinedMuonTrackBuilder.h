@@ -134,10 +134,10 @@ namespace Rec {
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                                     DataVector<const Trk::TrackStateOnSurface>::const_iterator end, unsigned size) const;
 
-        const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
+        std::unique_ptr<Trk::TrackStateOnSurface> createPhiPseudoMeasurement(const Trk::Track& track, const EventContext& ctx) const;
 
-        std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> createSpectrometerTSOS(
-            const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> createSpectrometerTSOS(const Trk::Track& spectrometerTrack,
+                                                                                            const EventContext& ctx) const;
 
         const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters, const EventContext& ctx) const;
 
@@ -148,16 +148,16 @@ namespace Rec {
 
         void finalTrackBuild(std::unique_ptr<Trk::Track>& track, const EventContext& ctx) const;
 
-        void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false, double deltaPhi = 0.,
-                            double deltaTheta = 0.) const;
+        void momentumUpdate(std::unique_ptr<const Trk::TrackParameters>& parameters, double updatedP, bool directionUpdate = false,
+                            double deltaPhi = 0., double deltaTheta = 0.) const;
 
         double normalizedChi2(const Trk::Track& track) const;
         std::unique_ptr<Trk::Track> reallocateMaterial(const Trk::Track& spectrometerTrack, const EventContext& ctx) const;
         void replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
         void removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
-        static Trk::PseudoMeasurementOnTrack* vertexOnTrack(const Trk::TrackParameters& parameters, const Trk::RecVertex* vertex,
-                                                     const Trk::RecVertex* mbeamAxis) ;
+        static std::unique_ptr<Trk::PseudoMeasurementOnTrack> vertexOnTrack(const Trk::TrackParameters& parameters,
+                                                                            const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis);
 
         void dumpCaloEloss(const Trk::Track* track, const std::string& txt) const;
         int countAEOTs(const Trk::Track* track, const std::string& txt) const;
@@ -212,12 +212,12 @@ namespace Rec {
         ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
             this,
             "MuonErrorOptimizer",
-            "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
+            "",
         };
         ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
             this,
             "MuonHoleRecovery",
-            "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
+            "",
         };
         ToolHandle<Trk::IPropagator> m_propagator{
             this,
@@ -330,6 +330,10 @@ namespace Rec {
         const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
         const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;
         bool loadMagneticField(const EventContext& ctx, MagField::AtlasFieldCache& field_cache) const;
+        /// Helper method to retrieve the CaloTSO from the Material provider
+        /// in a memory safe way
+        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> getCaloTSOSfromMatProvider(const Trk::TrackParameters& track_params,
+                                                                                                const Trk::Track& me_track) const;
 
     };  // end of class CombinedMuonTrackBuilder
 

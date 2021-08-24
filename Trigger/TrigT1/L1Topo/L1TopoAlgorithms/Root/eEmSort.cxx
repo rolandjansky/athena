@@ -23,10 +23,11 @@ TCS::eEmSort::eEmSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for FW
    defineParameter( "InputWidth1stStage", 30 ); // for FW
    defineParameter( "OutputWidth", 6);
-   defineParameter( "IsoMask", 0);
+   defineParameter( "REtaMin", 0);
+   defineParameter( "RHadMin", 0);
+   defineParameter( "WsTotMin", 0);
    defineParameter( "MinEta", 0);
    defineParameter( "MaxEta", 63);
-   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -37,10 +38,11 @@ TCS::eEmSort::~eEmSort() {}
 TCS::StatusCode
 TCS::eEmSort::initialize() {
    m_numberOfeEms = parameter("OutputWidth").value();
-   m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doIsoCut = parameter( "DoIsoCut").value();
+   m_minREta = parameter("REtaMin").value();
+   m_minRHad = parameter("RHadMin").value();
+   m_minWsTot = parameter("WsTotMin").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -56,11 +58,11 @@ TCS::eEmSort::sort(const InputTOBArray & input, TOBArray & output) {
 
       if (parType_t(std::abs((*eem)-> eta())) < m_minEta) continue; 
       if (parType_t(std::abs((*eem)-> eta())) > m_maxEta) continue;
+
       // isolation cut
-      if (m_iso != 0 ) {
-          unsigned int isobit(0x1 << (m_iso-1));
-          if(m_doIsoCut && ((parType_t((*eem)->isolation()) & isobit) != isobit)) continue;
-      }
+      if ( !isocut(m_minREta, gtob.Reta()) ) {continue;}
+      if ( !isocut(m_minRHad, gtob.Rhad()) ) {continue;}
+      if ( !isocut(m_minWsTot, gtob.Wstot()) ) {continue;}
       
       output.push_back( gtob );
    }

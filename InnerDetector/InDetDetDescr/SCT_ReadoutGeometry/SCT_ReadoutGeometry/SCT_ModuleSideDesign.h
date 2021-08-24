@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -83,34 +83,34 @@ public:
     /** readout id -> id of connected diodes
         Not particularly useful for the SCT but implemented to keep a uniform interface.
            */
-    virtual int numberOfConnectedCells(const SiReadoutCellId &readoutId) const;
-    virtual SiCellId connectedCell(const SiReadoutCellId &readoutId, int number) const;
+    virtual int numberOfConnectedCells(const SiReadoutCellId &readoutId) const override;
+    virtual SiCellId connectedCell(const SiReadoutCellId &readoutId, int number) const override;
 
     /** If cell is ganged return the other cell, otherwise return an invalid id.
         Not particularly useful for the SCT but implemented to keep a uniform interface.
         For SCT always returns an invalid id. */
-    virtual SiCellId gangedCell(const SiCellId &cellId) const;
+    virtual SiCellId gangedCell(const SiCellId &cellId) const override;
 
     /** diode id -> readout id */
-    virtual SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const;
+    virtual SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const override;
 
     /** position -> id */
-    virtual SiReadoutCellId readoutIdOfPosition(const SiLocalPosition &localPos) const;
+    virtual SiReadoutCellId readoutIdOfPosition(const SiLocalPosition &localPos) const override;
 
     /** id -> position */
-    virtual SiLocalPosition localPositionOfCell(const SiCellId &cellId) const = 0;
+    virtual SiLocalPosition localPositionOfCell(const SiCellId &cellId) const override = 0;
     virtual SiLocalPosition localPositionOfCluster(const SiCellId &cellId,
                                                    int cluserSize) const = 0;
 
     /** Check if cell is in range. Returns the original cellId if it is in range,
       otherwise it returns an invalid id. */
-    virtual SiCellId cellIdInRange(const SiCellId &cellId) const;
+    virtual SiCellId cellIdInRange(const SiCellId &cellId) const override;
 
     /** Get the neighbouring diodes of a given diode:
         Cell for which the neighbours must be found
          List of cells which are neighbours of the given one */
     virtual void neighboursOfCell(const SiCellId &cellId,
-                                  std::vector<SiCellId> &neighbours) const;
+                                  std::vector<SiCellId> &neighbours) const override;
 
     /** check if the position is in active area */
     virtual bool inActiveArea(const SiLocalPosition &chargePos, bool checkBondGap =
@@ -130,7 +130,7 @@ public:
 
     /** give the ends of strips */
     virtual std::pair<SiLocalPosition, SiLocalPosition>
-    endsOfStrip(const SiLocalPosition &position) const = 0;
+    endsOfStrip(const SiLocalPosition &position) const override = 0;
 
     /** gives position of strip center
        ALTERNATIVE/PREFERED way is to use localPositionOfCell(const SiCellId & cellId) or
@@ -161,18 +161,24 @@ public:
     int shift() const;
 
     /** Return true if hit local direction is the same as readout direction. */
-    virtual bool swapHitPhiReadoutDirection() const;
-    virtual bool swapHitEtaReadoutDirection() const;
+    virtual bool swapHitPhiReadoutDirection() const override;
+    virtual bool swapHitEtaReadoutDirection() const override;
 
     virtual int row(int stripId1Dim) const;    // For SCT, is 0; otherwise takes a 1-dim strip ID and returns its row
     virtual int strip(int stripId1Dim) const;  // For SCT, returns stripId1Dim; otherwise returns strip within row.
-    virtual int strip1Dim(int strip, int row) const;   // For SCT, returns strip. Else inverse of above two.
+    virtual int strip1Dim(int strip, int row) const override;   // For SCT, returns strip. Else inverse of above two.
 
     void setMother(SCT_ModuleSideDesign* mother);
     const SCT_ModuleSideDesign * getMother() const;
     std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
     void addChildDesign(int index, const SCT_ModuleSideDesign * element);
-    virtual void getStripRow(SiCellId id, int *strip, int *row) const; //this might be better as reference than pointer? keep for now for consistency
+    virtual std::pair<int,int> getStripRow(SiCellId id) const;
+    /** Test if point is in the active part of the detector with specified tolerances */
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol) const override;
+    /** Test if point is in the active part of the detector with specified tolerances  - allows forcing of most stringent check*/
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol, double etaTol, bool forceStringentCheck) const override;
+
+
 
 private:
     SCT_ModuleSideDesign();

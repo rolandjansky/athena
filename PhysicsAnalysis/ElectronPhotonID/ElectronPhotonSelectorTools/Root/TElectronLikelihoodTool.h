@@ -31,7 +31,7 @@ June 2011
 class TFile;
 
 namespace {
-const unsigned int IP_BINS = 1;
+constexpr unsigned int IP_BINS = 1;
 }
 namespace LikeEnum {
 
@@ -142,7 +142,9 @@ public:
   }
 
   /// Load the variable histograms from the pdf file.
-  int loadVarHistograms(const std::string& vstr, unsigned int varIndex);
+  int loadVarHistograms(const std::string& vstr,
+                        TFile* pdfFile,
+                        unsigned int varIndex);
 
   /// Define the binning
   inline void setBinning(const std::string& val) { m_ipBinning = val; }
@@ -262,10 +264,10 @@ private:
                                    double eta) const;
 
   /// Eta binning for pdfs and discriminant cuts.
-  unsigned int getLikelihoodEtaBin(double eta) const;
+  static unsigned int getLikelihoodEtaBin(double eta) ;
 
   /// Coarse Et binning. Used for the likelihood pdfs.
-  unsigned int getLikelihoodEtHistBin(double eT) const;
+  static unsigned int getLikelihoodEtHistBin(double eT) ;
 
   /// Fine Et binning. Used for the likelihood discriminant cuts.
   unsigned int getLikelihoodEtDiscBin(double eT, const bool isLHbinning) const;
@@ -284,9 +286,6 @@ private:
 
   /// Deprecated.
   std::string m_ipBinning;
-
-  /// Pointer to the opened TFile that holds the PDFs
-  TFile* m_pdfFile;
 
   /// The position of the kinematic cut bit in the AcceptInfo return object
   int m_cutPosition_kinematic;
@@ -323,29 +322,30 @@ private:
   /// object
   int m_cutPositionEoverPAtHighET;
 
-  static const double fIpBounds[IP_BINS + 1];
+  static constexpr double s_fIpBounds[IP_BINS + 1] = { 0., 500. };
+
   // number of hists stored for original LH, including 4GeV bin (for backwards
   // compatibility)
-  static const unsigned int s_fnEtBinsHist = 7;
+  static constexpr unsigned int s_fnEtBinsHist = 7;
   // number of discs stored for original LH, excluding 4GeV bin (for
   // backwards compatibility)
-  static const unsigned int s_fnDiscEtBins = 9;
+  static constexpr unsigned int s_fnDiscEtBins = 9;
   // number of discs stored for original LH plus one for
   // HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
-  static const unsigned int s_fnDiscEtBinsOneExtra = 10;
-  static const unsigned int s_fnEtaBins = 10;
-  static const unsigned int s_fnVariables = 13;
+  static constexpr unsigned int s_fnDiscEtBinsOneExtra = 10;
+  static constexpr unsigned int s_fnEtaBins = 10;
+  static constexpr unsigned int s_fnVariables = 13;
   // 5D array of ptr to SafeTH1  // [sig(0)/bkg(1)][ip][et][eta][variable]
   EGSelectors::SafeTH1* fPDFbins[2][IP_BINS][s_fnEtBinsHist][s_fnEtaBins]
                                 [s_fnVariables]{};
-  static const std::string fVariables[s_fnVariables];
+  static const std::string s_fVariables[s_fnVariables];
 
-  unsigned int getIpBin(double ip) const;
-  void getBinName(char* buffer,
+  static unsigned int getIpBin(double ip) ;
+  static void getBinName(char* buffer,
                   int etbin,
                   int etabin,
                   int ipbin,
-                  const std::string& iptype) const;
+                  const std::string& iptype) ;
 };
 
 } // End: namespace Root

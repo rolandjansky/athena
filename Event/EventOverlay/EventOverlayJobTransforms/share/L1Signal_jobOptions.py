@@ -82,64 +82,6 @@ if DetFlags.overlay.LVL1_on():
           from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
           #ACH job += L1Muctpi("newL1Muctpi")
           #ACH job.newL1Muctpi.StoreGateSvc = "BkgEvent_0_SG"
-
-       #-------------------------------------------------------
-       # TrigT1CaloSim Algos
-       #-------------------------------------------------------
-       if DetFlags.simulateLVL1.Calo_on():
-           # TODO: we used to remove some containers here which is no longer possible
-
-          if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
-             from TrigT1CaloSim.TrigT1CaloSimConfig import TriggerTowerMaker_TTL1_Rel13
-             newTriggerTowerMaker = TriggerTowerMaker_TTL1_Rel13( 'newTriggerTowerMaker' )
-             job += [newTriggerTowerMaker]
-             job.newTriggerTowerMaker.EventStore = "BkgEvent_0_SG"   
-             job.newTriggerTowerMaker.DoOverlay = False
-             job.newTriggerTowerMaker.OverlayPedestal = 40.
-             job.newTriggerTowerMaker.DoNotCalibrate=job.TriggerTowerMaker.DoNotCalibrate
-             job.newTriggerTowerMaker.MatchFIR=job.TriggerTowerMaker.MatchFIR
-             job.newTriggerTowerMaker.EmBFilterCoeffs=job.TriggerTowerMaker.EmBFilterCoeffs
-             job.newTriggerTowerMaker.EmECFilterCoeffs=job.TriggerTowerMaker.EmECFilterCoeffs
-             job.newTriggerTowerMaker.FcalEFilterCoeffs=job.TriggerTowerMaker.FcalEFilterCoeffs
-             job.newTriggerTowerMaker.TileFilterCoeffs=job.TriggerTowerMaker.TileFilterCoeffs
-             job.newTriggerTowerMaker.HecFilterCoeffs=job.TriggerTowerMaker.HecFilterCoeffs
-             job.newTriggerTowerMaker.FcalHFilterCoeffs=job.TriggerTowerMaker.FcalHFilterCoeffs
-             job.newTriggerTowerMaker.EmBThresh=job.TriggerTowerMaker.EmBThresh
-             job.newTriggerTowerMaker.EmECThresh=job.TriggerTowerMaker.EmECThresh
-             job.newTriggerTowerMaker.FcalEThresh=job.TriggerTowerMaker.FcalEThresh
-             job.newTriggerTowerMaker.TileThresh=job.TriggerTowerMaker.TileThresh
-             job.newTriggerTowerMaker.HecThresh=job.TriggerTowerMaker.HecThresh
-             job.newTriggerTowerMaker.FcalHThresh=job.TriggerTowerMaker.FcalHThresh
-
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMTowerMaker
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetElementMaker
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EmTauTrigger
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetTrigger
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyTrigger
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPCMMMaker
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEPCMMMaker
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__ROD
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
-             from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__DumpTriggerObjects
-
-             job += LVL1__CPMTowerMaker( 'newCPMTowerMaker' )
-             job.newCPMTowerMaker.EventStore = "BkgEvent_0_SG"
-             job += LVL1__JetElementMaker( 'newJetElementMaker' )
-             job.newJetElementMaker.EventStore = "BkgEvent_0_SG"
-             job += LVL1__EmTauTrigger( 'newEmTauTrigger' )
-             job.newEmTauTrigger.EventStore = "BkgEvent_0_SG"
-             job += LVL1__JetTrigger( 'newJetTrigger' )
-             job.newJetTrigger.EventStore = "BkgEvent_0_SG"
-             job += LVL1__EnergyTrigger( 'newEnergyTrigger' )
-             job.newEnergyTrigger.EventStore = "BkgEvent_0_SG"
-             job += LVL1__ROD( 'newROD' )
-             job.newROD.EventStore = "BkgEvent_0_SG"
-             job += LVL1__CPCMMMaker( 'newCPCMMMaker' )
-             job.newCPCMMMaker.EventStore = "BkgEvent_0_SG"
-             job += LVL1__JEPCMMMaker( 'newJEPCMMMaker' )
-             job.newJEPCMMMaker.EventStore = "BkgEvent_0_SG" 
-
        #-------------------------------------------------------
        # TrigT1MBTS Alg
        #-------------------------------------------------------
@@ -156,14 +98,6 @@ if DetFlags.overlay.LVL1_on():
           job += LVL1__TrigT1BCM("newTrigT1BCM")
           job.newTrigT1BCM.EvtStore = "BkgEvent_0_SG"
 
-       #-------------------------------------------------------
-       # TrigT1LUCID Alg
-       #-------------------------------------------------------
-       if DetFlags.simulateLVL1.Lucid_on():
-          from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
-          job += LVL1__TrigT1Lucid("newTrigT1Lucid")
-          job.newTrigT1Lucid.EvtStore = "BkgEvent_0_SG"
-    
        #-------------------------------------------------------
        # TrigT1CTP Algos
        #-------------------------------------------------------

@@ -16,7 +16,7 @@ atlas_add_component( InDetAlignmentMonitoring
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
    GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AthContainers
    AtlasDetDescr Identifier EventPrimitives xAODEventInfo xAODTracking
-   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry
+   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib SCT_ReadoutGeometry
    InDetPrepRawData InDetRIO_OnTrack Particle LWHists TrkGeometry TrkSurfaces
    TrkEventPrimitives TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack
    TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces

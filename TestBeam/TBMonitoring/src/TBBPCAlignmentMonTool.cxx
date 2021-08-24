@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -32,7 +32,6 @@ TBBPCAlignmentMonTool::TBBPCAlignmentMonTool(const std::string & type,
   : MonitorToolBase(type, name, parent),
     m_runnumber(0),
     m_bpcnum(0),
-    m_isBooked(false),
     m_chi2x(0),
     m_chi2y(0),
     m_Qx(0),
@@ -67,9 +66,6 @@ StatusCode TBBPCAlignmentMonTool:: initialize()
 {
   ATH_MSG_DEBUG ( "in initialize()" );
   
-  // this flag is set to true within bookHists() 
-  m_isBooked = false;
-
   return StatusCode::SUCCESS;
 }
 
@@ -124,7 +120,7 @@ StatusCode TBBPCAlignmentMonTool::bookHists()
     htitle = "Qy";
     m_histo_Qy[0] = ToolHistoSvc()->book(hname,htitle,10000,0,1);
     
-    m_isBooked = true;
+    SetBookStatus (true);
      
   } 
 
@@ -164,7 +160,7 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
 
 
 
-  if(m_isBooked){
+  if(!histsNotBooked()) {
   
     // fill BPC alignment histograms
     // first retrieve TBBPC container from StoreGate
@@ -189,14 +185,9 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
 
        // loop over the BPCs in the container
        
-       TBBPCCont::const_iterator it_bpc   = bpcCont->begin();
-       TBBPCCont::const_iterator last_bpc   = bpcCont->end();
-   
-       for(;it_bpc != last_bpc; it_bpc++){
+       for (const TBBPC* bpc : *bpcCont) {
        
          // discover which BPC is pointed to
-	 
-	 const TBBPC * bpc = (*it_bpc);	 
 	 int i = 0;
 	 
 	 while( i < m_bpcnum ){
@@ -262,7 +253,7 @@ StatusCode TBBPCAlignmentMonTool::finalHists()
 {
   ATH_MSG_DEBUG  ( "in finalHists()" );
 
-  if (m_isBooked){
+  if (!histsNotBooked()) {
   
     xmean.resize(m_bpcnum);
     xrms.resize(m_bpcnum);

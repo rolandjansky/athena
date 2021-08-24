@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //======================================================
@@ -262,7 +262,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           fittedTrack.reset();
         }
         else {
-          auto trajectory = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+          auto trajectory = DataVector<const Trk::TrackStateOnSurface>();
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {
@@ -275,35 +275,35 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
               else if ((**itSet).type(Trk::TrackStateOnSurface::Outlier)) typePattern.set(Trk::TrackStateOnSurface::Outlier);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Scatterer)) typePattern.set(Trk::TrackStateOnSurface::Scatterer);
               else if ((**itSet).type(Trk::TrackStateOnSurface::BremPoint)) typePattern.set(Trk::TrackStateOnSurface::BremPoint);
-              trajectory->push_back(new Trk::TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern));
+              trajectory.push_back(new Trk::TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern));
 
             }
           }
           bool peradded=false;
-          itSet = trajectory->begin()+1;
-          itSetEnd = trajectory->end();
-	  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
-	  typePattern.set(Trk::TrackStateOnSurface::Perigee);
+          itSet = trajectory.begin()+1;
+          itSetEnd = trajectory.end();
+          std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
+          typePattern.set(Trk::TrackStateOnSurface::Perigee);
           const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,myper,nullptr,nullptr,typePattern);
 
-	  int index=1;
+          int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
             double inprod1=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            itSet--;
+            --itSet;
             double inprod2=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            itSet++;
+            ++itSet;
             if (inprod1>0 && inprod2<0) {
-              trajectory->insert(trajectory->begin()+index,pertsos);
+              trajectory.insert(trajectory.begin()+index,pertsos);
               peradded=true;
               break;
             }
-	    index++;
+            index++;
           }
           if (!peradded){
-            itSet = trajectory->begin();
+            itSet = trajectory.begin();
             double inprod=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
-            if (inprod>0) trajectory->insert(trajectory->begin(),pertsos);
-            else trajectory->push_back(pertsos);
+            if (inprod>0) trajectory.insert(trajectory.begin(),pertsos);
+            else trajectory.push_back(pertsos);
           }
           std::unique_ptr<Trk::Track> track =
             std::make_unique<Trk::Track>(fittedTrack->info(),
@@ -379,7 +379,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         ATH_MSG_INFO("PRD to track map input " << m_inputAssoMapName.key()  );
      }
      for (const std::unique_ptr<Trk::Track> &track : output_track_collection) {
-        StatusCode sc = m_assoTool->addPRDs(*prd_to_track_map, *track);
+       ATH_CHECK( m_assoTool->addPRDs(*prd_to_track_map, *track) );
      }
   }
   // @TODO sort output track collection ? 
@@ -418,7 +418,7 @@ int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* drif
 
   if(!truthCollectionTRT.isValid()) return 0;
   std::pair<iter,iter> range = truthCollectionTRT->equal_range(driftcircle->identify());
-  for(iter i = range.first; i != range.second; i++){
+  for(iter i = range.first; i != range.second; ++i){
     numBarcodes++;
   }
   return numBarcodes;

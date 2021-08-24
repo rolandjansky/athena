@@ -17,7 +17,10 @@ void TrackCnv_p12::persToTrans( const Trk::Track_p12 *persObj, Trk::Track *trans
     auto fitQuality = std::make_unique<Trk::FitQuality>();
     fitQualityCnv.persToTrans(&persObj->m_fitQuality,  fitQuality.get(), log);
     transObj->m_fitQuality = std::move(fitQuality);
-    transObj->m_trackStateVector.reset(m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log ));
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
+      m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
+    // move copy
+    transObj->m_trackStateVector = std::move(*sink);
     
 //forwarding the TrackInfo from old to new version
     Trk::TrackInfo::TrackFitter  fitter = Trk::TrackInfo::Unknown;

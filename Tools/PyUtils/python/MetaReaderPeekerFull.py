@@ -34,7 +34,7 @@ def _setup():
             msg.warning("No input files specified yet! Cannot do anything.")
             return
 
-        metadata_all_files = read_metadata(inFiles, mode='full')
+        metadata_all_files = read_metadata(inFiles, mode='full', ignoreNonExistingLocalFiles=True)
 
         first_filename = inFiles[-1]  # take only the last input file from the infiles
 

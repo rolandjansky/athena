@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_HECHVMANAGER_H
@@ -8,7 +8,6 @@
 #include "LArHV/HECHVDescriptor.h"
 #include "LArHV/HECHVModule.h"
 #include "Identifier/HWIdentifier.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <functional>
 
@@ -73,8 +72,9 @@ class HECHVManager
 				 , unsigned int iPhi
 				 , unsigned int iSampling) const;
 
-  // Get the database payload
-  HECHVData getData ATLAS_NOT_THREAD_SAFE () const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  HECHVData getDataSim() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   HECHVData getData (const LArHVIdMapping& hvIdMapping,

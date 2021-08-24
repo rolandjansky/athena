@@ -17,11 +17,11 @@ namespace L1Topo {
   class L1TopoTOB {
   public:
     //! Construct from contents and encode word
-    L1TopoTOB(const int32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits, uint32_t error_bits);
+    L1TopoTOB(const uint32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits, uint32_t error_bits);
     //! Construct from contents and encode word, without CRC error bits (they will be 0 by default)
-    L1TopoTOB(const int32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits);
+    L1TopoTOB(const uint32_t ctp_signal, uint32_t overflow_bits, uint32_t trigger_bits);
     //! Construct with word and decode contents
-    L1TopoTOB(const int32_t word);
+    L1TopoTOB(const uint32_t word);
     //! access method for ctp signal bits
     uint32_t ctp_signal() const;
     //! accessor method for overflow bits

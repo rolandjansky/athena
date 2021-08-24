@@ -160,8 +160,8 @@ class chi0chi1(PowhegV2):
         """! Validate weakinos."""
         self.expose()  # convenience call to simplify syntax
         # Neutralino
-        list(self.check_decay_mode(self.parameters_by_name("neutralino"))[0].value, [x for x in self.allowed_weakinos.keys() if x[-1] == "0"])
+        self.check_decay_mode(list(self.parameters_by_name("neutralino"))[0].value, [x for x in self.allowed_weakinos.keys() if x[-1] == "0"])
         list(self.parameters_by_name("neutralino"))[0].value = self.allowed_weakinos[list(self.parameters_by_name("neutralino"))[0].value]
         # Chargino
-        list(self.check_decay_mode(self.parameters_by_name("chargino"))[0].value, [x for x in self.allowed_weakinos.keys() if x[-1] != "0"])
+        self.check_decay_mode(list(self.parameters_by_name("chargino"))[0].value, [x for x in self.allowed_weakinos.keys() if x[-1] != "0"])
         list(self.parameters_by_name("chargino"))[0].value = self.allowed_weakinos[list(self.parameters_by_name("chargino"))[0].value]

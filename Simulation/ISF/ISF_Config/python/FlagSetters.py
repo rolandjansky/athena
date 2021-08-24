@@ -124,6 +124,7 @@ def configureFlagsMC12G4_IDCalo():
 
 def configureFlagsATLFASTII():
     from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
@@ -151,40 +152,57 @@ def configureFlagsATLFASTII_PileUp():
 
 ## methods for simulators which use G4 + FastCaloSim V2
 
+def configureFlagsATLFAST3():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
+    simFlags.SimulationFlavour = "ATLFAST3"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
+    return
+
+def configureFlagsATLFAST3_QS():
+    configureFlagsATLFAST3()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3_QS"
+    return
+
+def configureFlagsATLFAST3MT():
+    configureFlagsATLFAST3()
+    ISF_Flags.ParticleBroker = ""
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3MT"
+
+def configureFlagsATLFAST3MT_QS():
+    configureFlagsATLFAST3()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3MT_QS"
+    return
+
+def configureFlagsATLFAST3MTEnergyOrdered():
+    configureFlagsATLFAST3()
+    ISF_Flags.ParticleBroker = ""
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3MT"
+    return
+
 def configureFlagsG4FastCalo():
-    configureFlagsATLFASTII()
+    configureFlagsATLFAST3()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "G4FastCalo"
     return
 
-def configureFlagsG4FastCaloEnergyOrdered():
-    configureFlagsATLFASTII()
+def configureFlagsATLFAST3EnergyOrdered():
+    configureFlagsATLFAST3()
     ISF_Flags.ParticleBroker = "ISF_AFIIEnergyOrderedParticleBrokerSvc"
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "G4FastCalo"
     return
 
-def configureFlagsG4FastCaloMT():
-    configureFlagsATLFASTII()
-    ISF_Flags.ParticleBroker = ""
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "G4FastCaloMT"
-
-def configureFlagsG4FastCalo_QS():
-    configureFlagsATLFASTII()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "G4FastCalo_QS"
-    return
-
-def configureFlagsG4FastCaloMTEnergyOrdered():
-    configureFlagsATLFASTII()
-    ISF_Flags.ParticleBroker = ""
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "G4FastCaloMT"
-    return
-
 def configureFlagsG4FastCaloTest():
-    configureFlagsATLFASTII()
+    configureFlagsATLFAST3()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "G4FastCaloTest"
     return
@@ -204,6 +222,7 @@ def configureFlagsATLFASTIIF():
     # been simulated (see ISF_Example/python/ISF_Output.py)
     DetFlags.geometry.BCM_setOff()
     from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
     simFlags.SimulationFlavour = "ATLFASTIIF"
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21

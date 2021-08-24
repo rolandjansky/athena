@@ -12,6 +12,7 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
 {
   declareProperty( "MatchTool" , m_matchTool );
+  declareProperty( "EmulationTool" , m_emulatorTool );
 }
 
 
@@ -22,13 +23,14 @@ TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}
 
 StatusCode TrigEgammaMonitorBaseAlgorithm::initialize() 
 {
-    
+
+  ATH_MSG_INFO("TrigEgammaMonitorBaseAlgorithm::initialize()...");
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_trigdec.retrieve());
   ATH_CHECK(m_photonIsEMTool.retrieve());
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
-
+  ATH_CHECK(m_electronDNNTool.retrieve());
 
   m_trigdec->ExperimentalAndExpertMethods()->enable();
 
@@ -48,9 +50,9 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidname) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string& pidname) const
 {
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
@@ -72,6 +74,15 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
     else if (pidname == "lhvloose"){
         return (bool) this->m_electronLHTool[3]->accept(ctx,eg);
     }
+    else if (pidname == "dnntight"){
+        return (bool) this->m_electronDNNTool[0]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnmedium"){
+        return (bool) this->m_electronDNNTool[1]->accept(ctx,eg);
+    }
+    else if (pidname == "dnnloose"){
+        return (bool) this->m_electronDNNTool[2]->accept(ctx,eg);
+    }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
     return false;
 }
@@ -81,9 +92,9 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
 // ************************************************************************************************
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidname) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string& pidname) const
 {
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "tight"){
         return (bool) this->m_photonIsEMTool[0]->accept(ctx,eg);
     }
@@ -102,7 +113,7 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, con
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const std::string isolation) const {
+bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const std::string& isolation) const {
   ATH_MSG_DEBUG("Apply Isolation " << isolation);
   float ptcone20;
   eg->isolationValue(ptcone20, xAOD::Iso::ptcone20);
@@ -130,7 +141,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isIsolated(const xAOD::Electron *eg, const 
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) const {
+bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string& trigger) const {
 
     bool efprescale=false;
     bool l1prescale=false;
@@ -163,7 +174,7 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 
 
 
-asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
+asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo& info) const {
     
     ATH_MSG_DEBUG("setAccept");
 
@@ -563,7 +574,7 @@ float TrigEgammaMonitorBaseAlgorithm::getE0Eaccordion(const xAOD::Egamma *eg) co
 
 
 
-TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string trigger) const{ 
+TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string& trigger) const{ 
   return m_trigInfo.at(trigger); 
 }
 
@@ -571,7 +582,7 @@ TrigInfo TrigEgammaMonitorBaseAlgorithm::getTrigInfo(const std::string trigger) 
 
 // This is not const function and can not be used in execute mode (not thread safe)
 // adds entry in TrigInfo map to retrieve later via trigger name
-void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
+void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
 
     /********************************************
       std::string trigName; //Trigger Name
@@ -624,7 +635,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string trigger){
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::splitTriggerName(const std::string trigger, 
+bool TrigEgammaMonitorBaseAlgorithm::splitTriggerName(const std::string& trigger, 
                                                   std::string &p1trigger, 
                                                   std::string &p2trigger) const {
 
@@ -677,8 +688,8 @@ bool TrigEgammaMonitorBaseAlgorithm::splitTriggerName(const std::string trigger,
 
 
 
-void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger, 
-                                                  std::string defaultPid,
+void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string& trigger, 
+                                                  const std::string& defaultPid,
                                                   bool &isL1,
                                                   std::string &type,
                                                   float &threshold, 
@@ -768,15 +779,15 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string trigger,
 
 
 
-std::string TrigEgammaMonitorBaseAlgorithm::getProbePid(const std::string pidtype) const {
+std::string TrigEgammaMonitorBaseAlgorithm::getProbePid(const std::string& pidtype) const {
     // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
     return m_pidMap.at(pidtype);
 }
 
 
 
-std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(std::string trigger) const{
-    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(const std::string& trigger) const{
+    const auto *trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");
@@ -808,7 +819,10 @@ const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMa
                                                                                       {"lhvloose" , "lhvloose" },
                                                                                       {"lhloose"  , "lhloose" },
                                                                                       {"lhmedium" , "lhmedium"},
-                                                                                      {"lhtight"  , "lhtight" } };
+                                                                                      {"lhtight"  , "lhtight" },
+                                                                                      {"dnnloose"  , "dnnloose" },
+                                                                                      {"dnnmedium" , "dnnmedium"},
+                                                                                      {"dnntight"  , "dnntight" } };
 
 
 

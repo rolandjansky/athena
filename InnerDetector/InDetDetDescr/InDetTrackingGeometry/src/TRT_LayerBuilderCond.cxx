@@ -26,9 +26,13 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // InDetDD
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetIdentifier/TRT_ID.h"
+// Athena
+#include "AthenaKernel/IOVInfiniteRange.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -71,8 +75,6 @@ namespace {
 // constructor
 InDet::TRT_LayerBuilderCond::TRT_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_trtMgr(nullptr),
-  m_trtMgrLocation("TRT"),
   m_layerStrawRadius(2.0*Gaudi::Units::mm),
   m_layerThickness(0.1*Gaudi::Units::mm),
   m_modelGeometry(true),
@@ -89,7 +91,6 @@ InDet::TRT_LayerBuilderCond::TRT_LayerBuilderCond(const std::string& t, const st
 {
   declareInterface<Trk::ILayerBuilderCond>(this);
   // properties from outside
-  declareProperty("TRT_DetManagerLocation",       m_trtMgrLocation);
   declareProperty("LayerThickness",               m_layerThickness);
   // material binning
   declareProperty("BarrelLayerBinsZ"            , m_barrelLayerBinsZ);
@@ -116,29 +117,35 @@ InDet::TRT_LayerBuilderCond::~TRT_LayerBuilderCond()
 StatusCode InDet::TRT_LayerBuilderCond::initialize()
 {
    ATH_MSG_DEBUG( "initialize()" );
-   // get TRT Detector Description Manager
-   if ((detStore()->retrieve(m_trtMgr, m_trtMgrLocation)).isFailure())
-     ATH_MSG_ERROR( "Could not get TRT_DetectorManager, no layers for TRT Detector will be built. " );
+   // get TRT Detector Description
+   ATH_CHECK(m_readKeyTRTContainer.initialize());
 
    return StatusCode::SUCCESS;
 }
 
 
 /** LayerBuilderCond interface method - returning Barrel-like layers */
-//FIXME: context object is unused, elements are retrieved from m_trtMgr instead of CondSvc
-std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext&) const
+std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
 {
 
-  //create dummy infinite range
-  EventIDRange range;
-  if (!m_trtMgr) return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
 
   ATH_MSG_DEBUG( "Building cylindrical layers for the TRT " );
 
   PtrVectorWrapper<Trk::CylinderLayer> barrelLayers;
 
+
+  //create dummy infinite range
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
+
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> readHandleTRTContainer{m_readKeyTRTContainer,ctx};
+  const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
+  if(trtContainer == nullptr){
+    ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
+    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+  }
+  
   // get Numerology and Id HElper
-  const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
+  const InDetDD::TRT_Numerology* trtNums = trtContainer->getTRTNumerology();
 
   // get the TRT ID Helper
   const TRT_ID* trtIdHelper = nullptr;
@@ -171,7 +178,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        {
          for (int iposneg=0; iposneg<2; ++iposneg){
             // get the element
-            const InDetDD::TRT_BarrelElement* trtbar = m_trtMgr->getBarrelElement(iposneg, ring, phisec, layer);
+            const InDetDD::TRT_BarrelElement* trtbar = trtContainer->getBarrelDetElement(iposneg, ring, phisec, layer);
 
             // get overall dimensions only one time
             const Trk::PlaneSurface*    elementSurface = dynamic_cast<const Trk::PlaneSurface*>(&(trtbar->surface()));
@@ -255,10 +262,13 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        delete layerMaterial;
      }
   } else {
-    // (B) complex geometry section
 
-    int nMaterialLayerStep  = int(nTotalBarrelLayers/m_modelBarrelLayers+1);
-    int cMaterialLayerCount = 0;
+    // (B) complex geometry section
+    float nMaterialLayerStep  = 1.*nTotalBarrelLayers/m_modelBarrelLayers;
+    // complex geo should build same # of mat. layers as model geo; counter to check this: 
+    unsigned int cMaterialLayerCount = 0;
+    // inclusive layer counter over all rings, used to determine mat. layer position
+    unsigned int cLayer=0;
 
     // loop over rings
     ATH_MSG_VERBOSE("TRT Barrel has " << nBarrelRings << " rings.");
@@ -272,7 +282,9 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
              // ----------------------------------------------------------------------------------
               ATH_MSG_VERBOSE("--> Layer " << layer << " is being built with " << nBarrelPhiSectors << " secors in phi.");
-              ++cMaterialLayerCount;
+
+              // increase inclusive layer counter for next material layer  
+              ++cLayer;
 
               // set layer dimensions radius
               double layerRadius         =  0.;
@@ -304,7 +316,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                  // positive and negative sector
                  for (int posneg=0; posneg<2; ++posneg){
                      // sort the elements
-                     const InDetDD::TRT_BarrelElement* currentElement = m_trtMgr->getBarrelElement(posneg, ring, phisec, layer);
+                     const InDetDD::TRT_BarrelElement* currentElement = trtContainer->getBarrelDetElement(posneg, ring, phisec, layer);
                      // get overall dimensions only one time
                      const Trk::PlaneSurface*    elementSurface = dynamic_cast<const Trk::PlaneSurface*>(&(currentElement->surface()));
                      if (!elementSurface) {
@@ -391,10 +403,10 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               layerRadius = 0.5*(layerRadiusMin+layerRadiusMax)+0.5*m_layerStrawRadius;
 
               bool assignMaterial = false;
-              if (cMaterialLayerCount == nMaterialLayerStep) {
-                  assignMaterial      = true;
-                  cMaterialLayerCount = 0;
-                  ATH_MSG_VERBOSE( "--> Creating a material+straw layer at radius  : " << layerRadius );
+              if (cLayer==(unsigned)int((cMaterialLayerCount+1)*nMaterialLayerStep)) {
+                assignMaterial      = true;
+                ++cMaterialLayerCount;
+                ATH_MSG_VERBOSE( "--> Creating a material+straw layer at radius  : " << layerRadius );
               } else
                   ATH_MSG_VERBOSE( "--> Creating a straw          layer at radius  : " << layerRadius );
 
@@ -467,21 +479,37 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               ++ilay;
         } // loop over layers
      } // loop over rings
-   }
+
+    ATH_MSG_VERBOSE(" Built number of TRT barrel material layers: " << cMaterialLayerCount);
+    // In Complex geo # of material layers should match the expected # of layers,
+    // else a mis-match in layer and material map index occurs.
+    // This mis-match will results layers getting incorrect material properties.
+    if (cMaterialLayerCount!=m_modelBarrelLayers) {
+      ATH_MSG_WARNING(" Complex geo built incorrect # of TRT barrel material layers: "
+                      << cMaterialLayerCount <<  " / " <<  m_modelBarrelLayers);
+    }
+  }// complex geometry 
 
   // return what you have
+  range = readHandleTRTContainer.getRange();
   return std::make_pair(range,barrelLayers.release());
 }
 
-//TODO: context object is unused, elements are retrieved from m_trtMgr instead of CondSvc
-std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext&) const
+std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "Building disc-like layers for the TRT " );
 
   //create dummy infinite range
-  EventIDRange range;
+  EventIDRange range=IOVInfiniteRange::infiniteMixed();
 
-  const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> readHandleTRTContainer{m_readKeyTRTContainer, ctx};
+  const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
+  if(trtContainer == nullptr){
+    ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
+    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+  }
+
+  const InDetDD::TRT_Numerology* trtNums = trtContainer->getTRTNumerology();
   // get the TRT ID Helper
   const TRT_ID* trtIdHelper = nullptr;
   if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure()) {
@@ -506,7 +534,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
        unsigned int nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
        numTotalLayers += nEndcapLayers;
        for (unsigned int ilayer = 0; ilayer<nEndcapLayers; ++ilayer){
-         const InDetDD::TRT_EndcapElement* sectorDiscElement = m_trtMgr->getEndcapElement(0, iwheel, ilayer, 0);
+         const InDetDD::TRT_EndcapElement* sectorDiscElement = trtContainer->getEndcapDetElement(0, iwheel, ilayer, 0);
 
          // get a reference element for dimensions
          if (!sectorDiscBounds){
@@ -594,27 +622,29 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
    } else {
       // (b) complex geometry
-      int nMaterialLayerStep  = int(numTotalLayers/m_modelEndcapLayers+1);
-      int cMaterialLayerCount = 0;
+     float nMaterialLayerStep  = 1.*numTotalLayers/m_modelEndcapLayers;
+     // inclusive layer counter over all wheels  
+     unsigned int cLayer = 0;
+     // complex geo should build same # of mat. layers as model geo; counter to check this: 
+     unsigned int  cMaterialLayerCount = 0;
 
       // complex geometry - needs a little bit of joggling
-      int    currentLayerCounter = 0;
       for (unsigned int iwheel=0; iwheel<nEndcapWheels; ++iwheel)
       {
         // do the loop per side
         unsigned int nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
         for (unsigned int ilayer = 0; ilayer < nEndcapLayers; ++ilayer){
-         // increase the layerCounter for material layer decission
-         ++currentLayerCounter;
-         ++cMaterialLayerCount;
 
+         // increase inclusive layer counter for next material layer  
+         ++cLayer;
+          
          // count the straws;
          int numberOfStraws = 0;
 
          // check if dynamic cast worked
          if (fullDiscBounds){
           // get a reference element for dimensions
-           const InDetDD::TRT_EndcapElement* sectorDiscElement = m_trtMgr->getEndcapElement(iposneg, iwheel, ilayer, 0);
+           const InDetDD::TRT_EndcapElement* sectorDiscElement = trtContainer->getEndcapDetElement(iposneg, iwheel, ilayer, 0);
 
            // take the position, but not the rotation (the rotation has to be standard)
            Amg::Vector3D fullDiscPosition(sectorDiscElement->surface().transform().translation());
@@ -622,10 +652,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
            // check if we need to build a straw layer or not
            bool assignMaterial = false;
-           if (cMaterialLayerCount == nMaterialLayerStep) {
-               assignMaterial      = true;
-               cMaterialLayerCount = 0;
-               ATH_MSG_VERBOSE( "--> Creating a material+straw layer at z-pos   : " << discZ );
+           if (cLayer == (unsigned)int((cMaterialLayerCount+1)*nMaterialLayerStep)) {
+             assignMaterial      = true;
+             ++cMaterialLayerCount;
+             ATH_MSG_VERBOSE( "--> Creating a material+straw layer at z-pos   : " << discZ );
            } else {
                ATH_MSG_VERBOSE( "--> Creating a straw          layer at z-pos   : " << discZ );
            }
@@ -639,7 +669,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
 
            for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec){
                ATH_MSG_VERBOSE("Building sector " << iphisec << " of endcap wheel " << iwheel );
-                const InDetDD::TRT_EndcapElement* currentElement = m_trtMgr->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
+                const InDetDD::TRT_EndcapElement* currentElement = trtContainer->getEndcapDetElement(iposneg, iwheel, ilayer, iphisec);
                 unsigned int nstraws = currentElement->nStraws();
                 for (unsigned int istraw=0; istraw<nstraws; istraw++){
                     Identifier strawId = trtIdHelper->straw_id(currentElement->identify(), istraw);
@@ -711,12 +741,23 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
        } // end of sectorDiscBounds if
       } // end of layer loop
      } // end of wheel loop
+
+      ATH_MSG_VERBOSE(" Built # of TRT material layers: " << cMaterialLayerCount << "in ispos: " << iposneg << "ring");
+      // # of material layers should match the expected # of layers,
+      // else a mis-match in layer and material map index occurs.
+      // This mis-match will results layers getting incorrect material properties.
+      if (cMaterialLayerCount != m_modelEndcapLayers) {
+        ATH_MSG_WARNING(" Built incorrect # of TRT material layers: "
+                        << cMaterialLayerCount <<  " / " << m_modelEndcapLayers <<  "in ispos" << iposneg << "ring" );
+      }
+
     } // model/real geometry
   } // end of posneg loop
 
   delete layerMaterial; layerMaterial = nullptr;
   delete fullDiscBounds; fullDiscBounds = nullptr;
 
+  range = readHandleTRTContainer.getRange();
   return std::make_pair(range,endcapLayers.release());
 }
 

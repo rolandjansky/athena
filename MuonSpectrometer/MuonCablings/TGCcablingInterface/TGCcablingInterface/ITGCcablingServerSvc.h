@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITGCCABLINGGETTERSVC_H
 #define ITGCCABLINGGETTERSVC_H
-
-#ifndef LVL1_STANDALONE
-
 
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
@@ -27,6 +24,4 @@ class ITGCcablingServerSvc : virtual public IInterface
   virtual bool isAtlas(void) const=0;
 };
  
-#endif
-
 #endif  //ITGCCABLINGSVC_H

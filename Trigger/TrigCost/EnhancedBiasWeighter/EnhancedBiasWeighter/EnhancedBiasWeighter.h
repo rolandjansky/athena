@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ENHANCEDBIASWEIGHTER_ENHANCEDBIASWEIGHTER_H
@@ -122,7 +122,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
 
   /**
    * @return How far into the current train this BCID is.
-   * Retrieved from the database using the BunchCrossingTool or fetched from TRIG1 dAOD
+   * Retrieved from the database using the BunchCrossingCondData or fetched from TRIG1 dAOD
    */
    virtual StatusCode getDistanceIntoTrain(const xAOD::EventInfo* eventInfo, uint32_t& distance) const override;
 
@@ -161,6 +161,11 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    */
    virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const override;
 
+  /**
+   * @return The number of BCIDs in each bunch group
+   */
+   virtual const std::vector<int32_t>& getBunchGroups() const override { return m_bunches; }
+
  private: 
     StatusCode loadWeights(); //!< Read into memory from XML event weights for this EnhancedBias run.
     StatusCode loadLumi(); //!< Read into memory this EnhancedBias run's XML
@@ -179,7 +184,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     Gaudi::Property<bool> m_errorOnMissingEBWeights{this, "ErrorOnMissingEBWeights", false, "If true, Throws error if EB weights are missing."};
     Gaudi::Property<bool> m_calculateWeightingData{this, "CalculateWeightingData", true, "If true, read from COOL, CONDBR2 and XMLs. If false, read directly from decorated TRIG1 dAOD."};
     Gaudi::Property<bool> m_enforceEBGRL{this, "EnforceEBGRL", true, "Each Enhanced Bias run has a 'good run list' style veto on some LB. If this flag is true, events in these LB get weight 0"};
-    Gaudi::Property<bool> m_useBunchCrossingTool{this, "UseBunchCrossingTool", true, "BunchCrossing tool requires CONDBR2 access. Can be disabled here if this is a problem."};
+    Gaudi::Property<bool> m_useBunchCrossingData{this, "UseBunchCrossingData", true, "BunchCrossing data requires CONDBR2 access. Can be disabled here if this is a problem."};
     Gaudi::Property<bool> m_isMC{this, "IsMC", false,  "MC mode? If so we need a cross section and filter efficiency"};
     Gaudi::Property<double> m_mcCrossSection{this, "MCCrossSection", 0.0, "If running over MC. The process cross section in nb (AMI gives thins in nb)"};
     Gaudi::Property<double> m_mcFilterEfficiency{this, "MCFilterEfficiency", 1.0, "If running over MC. The process filter efficiency (0.0-1.0)"}; 
@@ -204,6 +209,8 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     std::unordered_map<uint32_t, uint32_t> m_eventsPerLB; //!< Map of how many EnhancedBias events were recorded per LB 
     std::unordered_map<uint32_t, double>   m_lumiPerLB; //!< Map of instantaneous luminosity per LB 
     std::unordered_map<uint32_t, uint8_t>  m_goodLB;  //!< Like a Good Run List flag for EnhancedBias runs.
+
+    std::vector<int32_t> m_bunches; //!< Number of BCIDs in each bunch group
 
     ReadLumiBlock m_readLumiBlock; //!< Cache lumi block lengths. Get this from COOL.
 }; 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H
-#define DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H 1
+#define DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H
  
 #include <string>
 #include <vector>
@@ -24,10 +24,12 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-
+class IAsgElectronIsEMSelector;
 
 namespace DerivationFramework {
 
@@ -35,7 +37,13 @@ namespace DerivationFramework {
       @author jsaxon@cern.ch 
       @author magdac@cern.ch
      */
+ 
+  
+ 
+ 
   class SkimmingToolHIGG1 : public AthAlgTool, public ISkimmingTool {
+   
+
 
     public: 
       /** Constructor with parameters */
@@ -57,22 +65,23 @@ namespace DerivationFramework {
       ///// TOOLS 
 
       ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+      
 
-      ///////////////
-      ///// SETTINGS
-
-      std::string m_photonSGKey;
-      std::string m_electronSGKey;
-      std::string m_muonSGKey;
 
       // CUTS TO APPLY OR NOT
       bool m_reqGRL;
       bool m_reqLArError;
       bool m_reqTrigger;
       bool m_reqPreselection;
+      bool m_incMergedElectron;
       bool m_incSingleElectron;
       bool m_incDoubleElectron;
       bool m_incSingleMuon;
+      bool m_incDoubleMuon;          
+      bool m_incDoubleElectronPhoton;
+      bool m_incMergedElectronPhoton;
+      bool m_incHighPtElectronPhoton;
+      bool m_incTwoPhotons;
       bool m_reqKinematic;
       bool m_reqQuality;
       bool m_reqIsolation;
@@ -85,6 +94,7 @@ namespace DerivationFramework {
 
       std::string m_defaultTrigger;
       std::vector<std::string> m_triggers;
+      std::vector<std::string> m_mergedtriggers;
 
       mutable bool m_isMC;
 
@@ -100,13 +110,16 @@ namespace DerivationFramework {
       double m_maxInvariantMass;
 
       double m_minElectronPt;
+      double m_minMergedElectronPt;
       double m_minMuonPt;
       double m_maxMuonEta;
+     
 
       ////////////////
       ///// FUNCTIONS
 
       // Cuts
+      bool   SubcutOneMergedElectron() const;
       bool   SubcutGoodRunList() const;
       bool   SubcutLArError() const;
       bool   SubcutTrigger() const;
@@ -114,6 +127,11 @@ namespace DerivationFramework {
       bool   SubcutOnePhotonOneElectron() const;
       bool   SubcutTwoElectrons() const;
       bool   SubcutOnePhotonOneMuon() const;
+      bool   SubcutOnePhotonTwoElectrons() const;
+      bool   SubcutOnePhotonTwoMuons() const;
+      bool   SubcutOnePhotonMergedElectrons() const;
+      bool   SubcutHighPtOnePhotonOneElectron() const;
+
       bool   SubcutKinematic() const;
       bool   SubcutQuality() const;
       bool   SubcutIsolation() const;
@@ -122,12 +140,14 @@ namespace DerivationFramework {
       // Calculators
       bool   PhotonPreselect(const xAOD::Photon *ph) const;
       bool   ElectronPreselect(const xAOD::Electron *el) const;
+      bool   MergedElectronPreselect(const xAOD::Electron *el) const;
       bool   MuonPreselect(const xAOD::Muon *mu) const;
       void   CalculateInvariantMass() const;
       void   GetDiphotonVertex() const;
       double CorrectedEnergy(const xAOD::Photon *ph) const;
       double CorrectedEta(const xAOD::Photon *ph) const;
       double ReturnRZ_1stSampling_cscopt2(double eta1) const;
+    
 
       ///////////////
       ///// COUNTERS
@@ -140,6 +160,11 @@ namespace DerivationFramework {
       mutable unsigned int m_n_passSingleElectronPreselect;
       mutable unsigned int m_n_passDoubleElectronPreselect;
       mutable unsigned int m_n_passSingleMuonPreselect;
+      mutable unsigned int m_n_passSinglePhotonDoubleMuonPreselect;
+      mutable unsigned int m_n_passSinglePhotonDoubleElectronPreselect;
+      mutable unsigned int m_n_passSinglePhotonMergedElectronPreselect;
+      mutable unsigned int m_n_passHighPtPhotonMergedElectronPreselect;
+      mutable unsigned int m_n_passSingleMergedElectronPreselect;
       mutable unsigned int m_n_passKinematic;
       mutable unsigned int m_n_passQuality;
       mutable unsigned int m_n_passIsolation;
@@ -152,8 +177,6 @@ namespace DerivationFramework {
 
       mutable std::vector<const xAOD::Photon*> m_e_leadingPhotons;
 
-      mutable TLorentzVector m_leadPhotonLV;
-      mutable TLorentzVector m_sublPhotonLV;
 
       mutable bool m_e_passGRL;
       mutable bool m_e_passLArError;
@@ -180,6 +203,23 @@ namespace DerivationFramework {
       ///// FUNCTIONS
 
       static const double s_MZ;
+
+      ////////////////////////////
+      ///// TOOLS
+
+      ToolHandle<IAsgElectronIsEMSelector> m_mergedCutTools;
+
+      SG::ReadHandleKey<xAOD::EventInfo> 
+        m_eventInfoKey { this, "EventInfoKey", "EventInfo", "" };
+
+      SG::ReadHandleKey<xAOD::PhotonContainer >
+        m_photonKey { this, "PhotonKey", "Photons", "" };
+
+      SG::ReadHandleKey<xAOD::ElectronContainer >
+        m_electronKey { this, "ElectronKey", "Electrons", "" };
+
+      SG::ReadHandleKey<xAOD::MuonContainer >
+        m_muonKey { this, "MuonKey", "Muons", "" };
 
   }; 
 

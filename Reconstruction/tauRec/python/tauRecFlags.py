@@ -83,6 +83,18 @@ class removeDuplicateCoreTracks(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class useGhostTracks(JobProperty):
+    """ use ghost-matched tracks in TauTrackFinder """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class ghostTrackDR(JobProperty):
+    """ dR(tau,track) value beyond which tracks must be ghost-matched in TauTrackFinder """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=0.25
+
 class tauRecRNNTrackClassification(JobProperty):
     """Run the RNN Track Classifier
     """
@@ -95,7 +107,7 @@ class tauRecRNNTrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue="RNNTrackClassifier.2021-04-20_14-16-37_90_35_50.json"
+    StoredValue="RNNTrackClassifier_2021-07-19_14-25-14_90_25_30.json"
 
 class tauRecDecayModeNNClassifierConfig(JobProperty):
     """Config file for TauDecayModeNNClassifier
@@ -109,49 +121,56 @@ class tauRecCalibrateLCConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='CaloTES_R22_v1.root'
+    StoredValue='CaloTES_R22_Round2.5.root'
 
 class tauRecMvaTESConfig(JobProperty):
-    """Config file for MvaTESEvaluator
+    """Config file for >=1p taus for MvaTESEvaluator
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='MvaTES_Round2_v1.root'
+    StoredValue='MvaTES_R22_Round2.5.root'
+
+class tauRec0pMvaTESConfig(JobProperty):
+    """Config file for 0p taus for MvaTESEvaluator
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue='MvaTES_0p_R22_Round2.5_v2.root'
 
 class tauRecCombinedTESConfig(JobProperty):
     """Config file for TauCombinedTES
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='CalibLoopResult_v04-04.root'
+    StoredValue='CombinedTES_R22_Round2.5.root'
 
 class tauRecTauJetRNNConfig(JobProperty):
     """Config files for TauJetRNNEvaluator jet ID
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnnid_mc16d_config_1p.json', 'rnnid_mc16d_config_3p.json' ]
+    StoredValue=[ 'tauid_rnn_1p_R22_v1.json', 'tauid_rnn_2p_R22_v1.json', 'tauid_rnn_3p_R22_v1.json' ]
 
 class tauRecTauJetRNNWPConfig(JobProperty):
     """Config files for TauWPDecorator for RNN jet ID
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnnid_mc16d_flat_1p.root', 'rnnid_mc16d_flat_3p.root' ]
+    StoredValue=[ 'tauid_rnnWP_1p_R22_v0.root', 'tauid_rnnWP_2p_R22_v0.root', 'tauid_rnnWP_3p_R22_v0.root' ]
 
 class tauRecTauEleRNNConfig(JobProperty):
     """Config files for TauJetRNNEvaluator eVeto
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnneveto_mc16d_config_1p.json', 'rnneveto_mc16d_config_3p.json' ]
+    StoredValue=[ 'taueveto_rnn_config_1P_r22.json', 'taueveto_rnn_config_3P_r22.json' ]
 
 class tauRecTauEleRNNWPConfig(JobProperty):
     """Config files for TauWPDecorator for RNN eVeto
     """
     statusOn=True
     allowedTypes=[['string']]
-    StoredValue=[ 'rnneveto_mc16d_flat_1p.root', 'rnneveto_mc16d_flat_3p.root' ]
+    StoredValue=[ 'taueveto_rnn_flat_1P_r22.root', 'taueveto_rnn_flat_3P_r22.root' ]
 
 class tauRecPi0ScoreConfig(JobProperty):
     """Config file for TauPi0ScoreCalculator
@@ -175,11 +194,18 @@ class tauRecSeedMaxEta(JobProperty):
     StoredValue=2.5
 
 class tauRecMinPt(JobProperty):
-    """ minimum tau pt (MVA TES calibration)
+    """ minimum tau pt for >=1p taus (MVA TES calibration)
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=10.*Units.GeV
+    StoredValue=7.*Units.GeV
+
+class tauRec0pMinPt(JobProperty):
+    """ minimum tau pt for 0p taus (MVA TES calibration)
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=9*Units.GeV
 
 class tauRecMaxNTracks(JobProperty):
     """ maximum number of classifiedCharged tracks for a tau candidate
@@ -273,7 +299,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,useGhostTracks,ghostTrackDR,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRec0pMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRec0pMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

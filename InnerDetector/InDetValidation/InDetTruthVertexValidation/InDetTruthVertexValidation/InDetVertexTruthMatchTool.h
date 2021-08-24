@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetVertexTruthMatchTool_h
@@ -28,15 +28,16 @@ class InDetVertexTruthMatchTool : public virtual IInDetVertexTruthMatchTool,
  public:
 
   InDetVertexTruthMatchTool( const std::string & name );
-  
+
   virtual StatusCode initialize() override final;
-  
+  virtual StatusCode finalize() override;
+
   //take const collection of vertices, match them, and decorate with matching info
-  virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer ) override;
-  
+  virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer ) const override;
+
  private:
-  
-  const xAOD::TrackParticleContainer* findTrackParticleContainer( const xAOD::VertexContainer& vxContainer );
+
+  const xAOD::TrackParticleContainer* findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) const;
 
   //required MC match probability to consider track a good match
   float m_trkMatchProb;
@@ -44,11 +45,16 @@ class InDetVertexTruthMatchTool : public virtual IInDetVertexTruthMatchTool,
   float m_vxMatchWeight;
   //pt cut to use on tracks
   float m_trkPtCut;
-  
+
+  mutable std::atomic<unsigned int> m_nVtx {};
+  mutable std::atomic<unsigned int> m_nVtxWithBadLinks {};
+  mutable std::atomic<unsigned int> m_nBadLinks {};
+  mutable std::atomic<unsigned int> m_nLinks {};
+
   //private methods to check if particles are good to use
   bool pass( const xAOD::TruthParticle & truthPart ) const;
   bool pass( const xAOD::TrackParticle & trackPart ) const;
-  
+
 };
 
 #endif

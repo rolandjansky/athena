@@ -3,7 +3,7 @@
 */
 
 #include <dirent.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <cmath>
 #include <iostream>
@@ -1004,7 +1004,9 @@ void setBranchAddresses(TTree* tree) {
 void getHistograms(bool histsDone) {
     string histname = outputdir + "/inputHists";
     string detStr = (DOCSC) ? "CSC" : "MDT";
-
+    
+    //the following conjunction is always false (cppcheck warning)
+    //cppcheck-suppress incorrectLogicOperator
     if (!DOCSC && DOBEE) detStr = "BEE";
 
     if (DOCSC)

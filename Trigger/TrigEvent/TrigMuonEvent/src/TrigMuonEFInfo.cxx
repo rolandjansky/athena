@@ -276,11 +276,10 @@ void TrigMuonEFInfo::addTrack(TrigMuonEFInfoTrack* theTrack){
 
 void TrigMuonEFInfo::setSpectrometerTrack( TrigMuonEFTrack* theTrack )
 {
-	TrigMuonEFInfoTrack *track;
 	if (!hasTrack()) {
 		addTrack( new TrigMuonEFInfoTrack());
 	}
-	track =  (*(m_trackContainer->begin()));
+	TrigMuonEFInfoTrack *track = (*(m_trackContainer->begin()));
 	track->setSpectrometerTrack(theTrack);
 	return;
 }
@@ -299,11 +298,10 @@ TrigMuonEFTrack* TrigMuonEFInfo::SpectrometerTrack()
 
 void TrigMuonEFInfo::setExtrapolatedTrack( TrigMuonEFTrack* theTrack )
 {
-	TrigMuonEFInfoTrack *track;
 	if (!hasTrack()) {
 		addTrack( new TrigMuonEFInfoTrack());
 	}
-	track =  (*(m_trackContainer->begin()));
+	TrigMuonEFInfoTrack *track = (*(m_trackContainer->begin()));
 	track->setExtrapolatedTrack(theTrack);
 	return;
 }
@@ -323,11 +321,10 @@ TrigMuonEFTrack* TrigMuonEFInfo::ExtrapolatedTrack()
 
 void TrigMuonEFInfo::setCombinedTrack( TrigMuonEFCbTrack* theTrack )
 {
-	TrigMuonEFInfoTrack *track;
 	if (!hasTrack()) {
 		addTrack( new TrigMuonEFInfoTrack());
 	}
-	track =  (*(m_trackContainer->begin()));
+	TrigMuonEFInfoTrack *track = (*(m_trackContainer->begin()));
 	track->setCombinedTrack(theTrack);
 	return;
 }

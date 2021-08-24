@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "InDetTrackScoringTools/ROIInfoVec.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
@@ -118,6 +119,13 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
 
   SG::ReadHandleKey<InDet::ROIInfoVec> m_caloROIInfoKey
      {this,"CaloROIInfoName", "ROIInfoVec","Name of the calo cluster ROI vector."};
+
+  /** use the ITk scoring tuned to Ambiguity processing or not */
+  bool m_useITkAmbigFcn;
+
+  /** ITk eta-dependent cuts*/
+  ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
+
 };
 
 

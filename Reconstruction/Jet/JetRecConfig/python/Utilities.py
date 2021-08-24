@@ -61,8 +61,13 @@ def make_alias( prop  ):
     return property(_getter, _setter)
 
 def listClassLProperties(cls):
-    lprops = [k for (k,v) in cls.__dict__.items() if isinstance(v,lproperty) ]
+    # # if cls has a predefined _allowedattributes, use it, else start with []
+    lprops = getattr(cls, '_allowedattributes', [])
+    # allow all lproperty attached to cls
+    lprops += [k for (k,v) in cls.__dict__.items() if isinstance(v,lproperty) ]
+    # and the corresponding internal _xyz members
     lprops +=[ '_'+k for k in lprops]
+    # also allow all what is allowed from the base classes
     for base in cls.__bases__:
         lprops += listClassLProperties(base)
     return lprops

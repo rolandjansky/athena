@@ -85,6 +85,8 @@ class MenuComp:
         THR = namedtuple("THR", "conn, firstbit, nbits, thrtype, mapping, name")
         ctpinThresholdsXML = []
         for thr in self.r22_l1_xml.find("TriggerThresholdList").iterfind("TriggerThreshold"):
+            if "AFP" in thr.attrib["name"]:
+                continue # AFP thresholds have been already updated for Run3
             if thr.attrib['input'] != 'ctpin':
                 continue
             cable = thr.find("Cable")
@@ -105,6 +107,8 @@ class MenuComp:
                     thr2typeMap[thr] = thrType
             for tl in connDef['triggerlines']:
                 thrName = tl['name']
+                if "AFP" in thrName:
+                    continue  # AFP thresholds have been already updated for Run3
                 thr = allThresholds[thrName]
                 ctpinThresholdsJSON += [  THR( name = thrName, thrtype = thr2typeMap[thrName], mapping = thr["mapping"],
                                                conn = connName, firstbit = tl['startbit'], nbits = tl['nbits']) ]
@@ -148,9 +152,12 @@ class MenuComp:
         ids_xml = dict([ (x.attrib['name'],int(x.attrib['ctpid'])) for x in l1items_xml])
         ids_json = dict([ (x['name'],x['ctpid']) for x in l1items_json.values()])
 
-
         # CHECK 1: All items migrated
-        itemsOnlyInXML =  list( set(itemNames_xml) - set(itemNames_json) )
+        itemNamesNoTopo_xml = []
+        for x in itemNames_xml:
+            if "-" not in x:
+                itemNamesNoTopo_xml += [x]  # no need to check legacy L1Topo
+        itemsOnlyInXML =  list( set(itemNamesNoTopo_xml) - set(itemNames_json) )
         cc = len(self.check)
         self.check += [ len(itemsOnlyInXML)==0 ]
         log.info("CHECK %i: All items from r22 xml must be migrated: %s", cc, boolStr(self.check[cc]) )
@@ -161,7 +168,11 @@ class MenuComp:
 
         # CHECK 2: No new legacy items
         legacyItemNames_json = [x['name'] for x in l1items_json.values() if 'legacy' in x  ]
-        legacyItemsOnlyInJson =  list( set(legacyItemNames_json) - set(itemNames_xml) )
+        legacyItemNamesNoTopo_json = []
+        for x in legacyItemNames_json:
+            if "-" not in x and "AFP" not in x:
+                legacyItemNamesNoTopo_json += [x] # no need to check legacy L1Topo and AFP 
+        legacyItemsOnlyInJson =  list( set(legacyItemNamesNoTopo_json) - set(itemNamesNoTopo_xml) )
         cc = len(self.check)
         self.check += [ len(legacyItemsOnlyInJson)==0 ]
         log.info("CHECK %i: There should be no extra legacy items in json that are not in xml: %s", cc, boolStr(self.check[cc]) )
@@ -174,6 +185,8 @@ class MenuComp:
         inboth = set(itemNames_json).intersection(set(itemNames_xml))
         noMatchId = []
         for name in sorted(inboth):
+            if "-" in name:
+                continue # No need to check IDs for L1Topo items
             if ids_xml[name] != ids_json[name]:
                 noMatchId += [(name, ids_xml[name], ids_json[name])]
         cc = len(self.check)
@@ -625,7 +638,8 @@ def main():
 
     mc.compareL1TopoMenusRun2Legacy()
     
-    mc.compareL1TopoMenusRun3()
+    # not needed any more
+    #mc.compareL1TopoMenusRun3()
 
     return 0
     

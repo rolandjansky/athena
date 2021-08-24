@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "RD53SimTool.h"
@@ -34,7 +34,7 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   const InDetDD::PixelModuleDesign* p_design =
     static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
 
-  if (p_design->getReadoutTechnology() != InDetDD::PixelModuleDesign::RD53) {
+  if (p_design->getReadoutTechnology() != InDetDD::PixelReadoutTechnology::RD53) {
     return;
   }
 
@@ -58,9 +58,9 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   //int nSmallHitsRD53 = 0; unused
   std::vector<int> row, col;
-  const int maxRow = p_design->rowsPerCircuit();
-  const int maxCol = p_design->columnsPerCircuit();
-  std::vector<std::vector<int> > RD53Map(maxRow + 16, std::vector<int>(maxCol + 16));
+  // const int maxRow = p_design->rowsPerCircuit();
+  // const int maxCol = p_design->columnsPerCircuit();
+  // std::vector<std::vector<int> > RD53Map(maxRow + 16, std::vector<int>(maxCol + 16));
 
   // Add cross-talk
   CrossTalk(moduleData->getCrossTalk(barrel_ec, layerIndex), chargedDiodes);
@@ -81,8 +81,8 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    int circ = m_pixelCabling->getFE(&diodeID, moduleID);
-    int type = m_pixelCabling->getPixelType(diodeID);
+    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analogu threshold, timing simulation
     double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);
@@ -151,18 +151,18 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     InDetDD::SiReadoutCellId cellId = (*i_chargedDiode).second.getReadoutCell();
     const Identifier id_readout = chargedDiodes.element()->identifierFromCellId(cellId);
 
-    int iirow = cellId.phiIndex();
-    int iicol = cellId.etaIndex();
-    if (iicol >= maxCol) {
-      iicol = iicol - maxCol;
-    } // RD53 copy mechanism works per FE.
+    // int iirow = cellId.phiIndex();
+    // int iicol = cellId.etaIndex();
+    // if (iicol >= maxCol) {
+    //   iicol = iicol - maxCol;
+    // } // RD53 copy mechanism works per FE.
 
     // Front-End simulation
     if (bunch >= 0 && bunch < moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
       Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch, 0, bunch);
       //see commented code below for clarification why this is always executed
       rdoCollection.push_back(p_rdo);
-      RD53Map[iirow][iicol] = 2; //Flag for "big hits"
+      // RD53Map[iirow][iicol] = 2; //Flag for "big hits"
       //
       //
       /**

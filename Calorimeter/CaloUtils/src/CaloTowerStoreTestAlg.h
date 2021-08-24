@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -40,12 +40,12 @@ public:
 
   typedef std::vector<std::pair<unsigned, double> > test_tow_t;
   typedef std::vector<test_tow_t> test_tows_t;
-  void dump_tows (const test_tows_t& t);
+  static void dump_tows (const test_tows_t& t);
 
 private:
-  void iterate_full (const CaloTowerStore& store,
+  static void iterate_full (const CaloTowerStore& store,
                      test_tows_t& tows);
-  void iterate_subseg (const CaloTowerStore& store,
+  static void iterate_subseg (const CaloTowerStore& store,
                        const CaloTowerSeg::SubSeg& subseg,
                        test_tows_t& tows);
 

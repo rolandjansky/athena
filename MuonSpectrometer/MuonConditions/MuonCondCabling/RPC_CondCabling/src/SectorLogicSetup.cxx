@@ -1,109 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/SectorLogicSetup.h"
+
+#include "AthenaKernel/errorcheck.h"
 
 #include <iomanip>
 
 using namespace RPC_CondCabling;
 const std::map<std::string, std::string>* RPC_CondCabling::SectorLogicSetup::s_trigroads = nullptr;
-SectorLogicSetup::SectorLogicSetup() :
-    BaseObject(Logic, "Sector Logic Map"),
-    m_positive_sector(""),
-    m_negative_sector(""),
-    m_sector_type(0),
-    m_online_database(""),
-    m_layout(""),
-    m_cosmic(false) {}
 
-SectorLogicSetup::SectorLogicSetup(int type, std::string database, std::string layout, bool conf) :
+SectorLogicSetup::SectorLogicSetup(int type, const std::string& database, const std::string& layout, bool conf) :
     BaseObject(Logic, "Sector Logic Map"), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
     m_online_database = database;
     m_layout = layout;
     m_cosmic = conf;
 }
 
-SectorLogicSetup::SectorLogicSetup(const SectorLogicSetup& sec) : BaseObject(Logic, "Sector Logic Map") {
-    m_positive_sector = sec.positive_sector();
-    m_negative_sector = sec.negative_sector();
-    m_sector_type = sec.sector_type();
-
-    m_stations.clear();
-    m_stations = sec.giveStations();
-
-    m_sectors.clear();
-    m_sectors = sec.sectors();
-
-    m_RPCs.clear();
-    m_RPCs = sec.giveRPC();
-    m_WORs.clear();
-    m_WORs = sec.giveWOR();
-
-    m_etaCMAs.clear();
-    m_etaCMAs = sec.giveEtaCMA();
-    m_evenphiCMAs.clear();
-    m_evenphiCMAs = sec.giveEvenPhiCMA();
-    m_oddphiCMAs.clear();
-    m_oddphiCMAs = sec.giveOddPhiCMA();
-
-    m_online_database = sec.online_database();
-    m_layout = sec.layout();
-    m_cosmic = sec.cosmic();
-}
-
-SectorLogicSetup& SectorLogicSetup::operator=(const SectorLogicSetup& sec) {
-    if (this != &sec) {
-        m_positive_sector = sec.positive_sector();
-        m_negative_sector = sec.negative_sector();
-        m_sector_type = sec.sector_type();
-
-        m_stations.clear();
-        m_stations = sec.giveStations();
-
-        m_sectors.clear();
-        m_sectors = sec.sectors();
-
-        m_RPCs.clear();
-        m_RPCs = sec.giveRPC();
-        m_WORs.clear();
-        m_WORs = sec.giveWOR();
-
-        m_etaCMAs.clear();
-        m_etaCMAs = sec.giveEtaCMA();
-        m_evenphiCMAs.clear();
-        m_evenphiCMAs = sec.giveEvenPhiCMA();
-        m_oddphiCMAs.clear();
-        m_oddphiCMAs = sec.giveOddPhiCMA();
-
-        m_online_database = sec.online_database();
-        m_layout = sec.layout();
-        m_cosmic = sec.cosmic();
-    }
-
-    return *this;
-}
-
-SectorLogicSetup::~SectorLogicSetup() {
-    m_stations.clear();
-    m_sectors.clear();
-    m_RPCs.clear();
-    m_WORs.clear();
-    m_etaCMAs.clear();
-    m_evenphiCMAs.clear();
-    m_oddphiCMAs.clear();
-}
-
-void SectorLogicSetup::no_elements(std::string tech, int stat) {
-    __osstream disp;
-
+std::string SectorLogicSetup::no_elements(const std::string& tech, int stat) {
+    std::ostringstream disp;
     disp << "No " << tech << " elements for Sector Type " << m_sector_type;
-    if (stat)
-        disp << ", station " << stat << "!" << std::endl;
-    else
-        disp << "!" << std::endl;
-
-    display_error(disp);
+    if (stat) disp << ", station " << stat;
+    disp << "!" << std::endl;
+    return disp.str();
 }
 
 void SectorLogicSetup::get_station(CMAinput type, int station) {
@@ -116,8 +36,8 @@ void SectorLogicSetup::get_station(CMAinput type, int station) {
     m_stations.insert(StationMap::value_type(type, station));
 }
 
-bool SectorLogicSetup::setup(void) {
-    typedef StationMap::const_iterator sIter;
+bool SectorLogicSetup::setup(MsgStream& log) {
+    using sIter = StationMap::const_iterator;
 
     bool RPCsetup = true;
     ////////////////////////////////////////// <-------------- RPCs setup
@@ -129,7 +49,7 @@ bool SectorLogicSetup::setup(void) {
         if (size) {
             for (RPCmap::iterator rpc = lower; rpc != upper; ++rpc) RPCsetup &= (*rpc).second.setup(*this);
         } else {
-            no_elements("RPC", (*it).second);
+            log << MSG::ERROR << no_elements("RPC", (*it).second) << endmsg;
             RPCsetup = false;
         }
     }
@@ -143,7 +63,7 @@ bool SectorLogicSetup::setup(void) {
         if (size) {
             for (WORmap::iterator wor = lower; wor != upper; ++wor) WORsetup &= (*wor).second.setup(*this);
         } else {
-            no_elements("WOR", (*it).second);
+            log << MSG::ERROR << no_elements("WOR", (*it).second) << endmsg;
             WORsetup = false;
         }
     }
@@ -152,32 +72,32 @@ bool SectorLogicSetup::setup(void) {
     bool EvenPhiCMAsetup = true;
     bool OddPhiCMAsetup = true;
     ////////////////////////////////////////// <-------------- CMAs setup
-    if (m_etaCMAs.size()) {
+    if (!m_etaCMAs.empty()) {
         SectorLogicSetup::EtaCMAmap::iterator it;
-        for (it = m_etaCMAs.begin(); it != m_etaCMAs.end(); ++it) { EtaCMAsetup &= (*it).second.setup(*this); }
+        for (it = m_etaCMAs.begin(); it != m_etaCMAs.end(); ++it) { EtaCMAsetup &= (*it).second.setup(*this, log); }
 
     } else {
-        no_elements("EtaCMA", 0);
+        log << MSG::ERROR << no_elements("EtaCMA", 0) << endmsg;
         EtaCMAsetup = false;
     }
 
-    if (m_evenphiCMAs.size()) {
+    if (!m_evenphiCMAs.empty()) {
         SectorLogicSetup::EvenPhiCMAmap::iterator it;
-        for (it = m_evenphiCMAs.begin(); it != m_evenphiCMAs.end(); ++it) EvenPhiCMAsetup &= (*it).second.setup(*this);
+        for (it = m_evenphiCMAs.begin(); it != m_evenphiCMAs.end(); ++it) EvenPhiCMAsetup &= (*it).second.setup(*this, log);
     }
 
-    if (m_oddphiCMAs.size()) {
+    if (!m_oddphiCMAs.empty()) {
         SectorLogicSetup::OddPhiCMAmap::iterator it;
-        for (it = m_oddphiCMAs.begin(); it != m_oddphiCMAs.end(); ++it) OddPhiCMAsetup &= (*it).second.setup(*this);
+        for (it = m_oddphiCMAs.begin(); it != m_oddphiCMAs.end(); ++it) OddPhiCMAsetup &= (*it).second.setup(*this, log);
     }
 
     return RPCsetup & WORsetup & EtaCMAsetup & EvenPhiCMAsetup & OddPhiCMAsetup;
 }
 
 bool SectorLogicSetup::check(void) {
-    typedef StationMap::const_iterator sIter;
-    typedef RPCmap::iterator rIter;
-    typedef WORmap::iterator wIter;
+    using sIter = StationMap::const_iterator;
+    using rIter = RPCmap::iterator;
+    using wIter = WORmap::iterator;
     std::pair<sIter, sIter> pivot = m_stations.equal_range(Pivot);
 
     bool RPCcheck = true;
@@ -204,7 +124,7 @@ RPCchamber* SectorLogicSetup::find_chamber(int stat, int num) {
     if (result != m_RPCs.end())
         return &(*result).second;
     else
-        return 0;
+        return nullptr;
 }
 
 const RPCchamber* SectorLogicSetup::find_chamber(int stat, int num) const {
@@ -212,7 +132,7 @@ const RPCchamber* SectorLogicSetup::find_chamber(int stat, int num) const {
     if (result != m_RPCs.end())
         return &(*result).second;
     else
-        return 0;
+        return nullptr;
 }
 
 WiredOR* SectorLogicSetup::find_wor(int stat, int num) {
@@ -220,34 +140,34 @@ WiredOR* SectorLogicSetup::find_wor(int stat, int num) {
     if (result != m_WORs.end())
         return &(*result).second;
     else
-        return 0;
+        return nullptr;
 }
 
 WiredOR* SectorLogicSetup::previousWOR(const WiredOR& wor) {
     WORmap::iterator result = m_WORs.find(wor.station() * 100 + wor.number());
     WORmap::iterator begin = m_WORs.lower_bound(wor.station() * 100);
-    if (result == m_WORs.end() || result == begin) return 0;
+    if (result == m_WORs.end() || result == begin) return nullptr;
     --result;
     return &(*result).second;
 }
 
 EtaCMA* SectorLogicSetup::previousCMA(const EtaCMA& cma) {
     EtaCMAmap::iterator result = m_etaCMAs.find(cma.id());
-    if (result == m_etaCMAs.end() || result == m_etaCMAs.begin()) return 0;
+    if (result == m_etaCMAs.end() || result == m_etaCMAs.begin()) return nullptr;
     --result;
     return &(*result).second;
 }
 
 EvenPhiCMA* SectorLogicSetup::previousCMA(const EvenPhiCMA& cma) {
     EvenPhiCMAmap::iterator result = m_evenphiCMAs.find(cma.id());
-    if (result == m_evenphiCMAs.end() || result == m_evenphiCMAs.begin()) return 0;
+    if (result == m_evenphiCMAs.end() || result == m_evenphiCMAs.begin()) return nullptr;
     --result;
     return &(*result).second;
 }
 
 OddPhiCMA* SectorLogicSetup::previousCMA(const OddPhiCMA& cma) {
     OddPhiCMAmap::iterator result = m_oddphiCMAs.find(cma.id());
-    if (result == m_oddphiCMAs.end() || result == m_oddphiCMAs.begin()) return 0;
+    if (result == m_oddphiCMAs.end() || result == m_oddphiCMAs.begin()) return nullptr;
     --result;
     return &(*result).second;
 }
@@ -424,9 +344,7 @@ bool SectorLogicSetup::give_RoI_borders(CMAidentity ETA, CMAidentity PHI, unsign
     } else
         return false;
 
-    if (firstEtaCode == lastEtaCode) return false;
-
-    return true;
+    return firstEtaCode != lastEtaCode;
 }
 
 bool SectorLogicSetup::give_LowPt_borders(CMAidentity ETA, CMAidentity PHI, unsigned int& firstEtaCode, unsigned int& lastEtaCode,
@@ -523,8 +441,7 @@ bool SectorLogicSetup::give_LowPt_layout(CMAidentity ID, unsigned short int& sta
         }
     }
 
-    if (start_confirm_ch == 999 || stop_confirm_ch == 999) return false;
-    return true;
+    return !(start_confirm_ch == 999 || stop_confirm_ch == 999);
 }
 
 bool SectorLogicSetup::give_HighPt_layout(CMAidentity ID, unsigned short int& start_pivot_ch, unsigned int& start_pivot_code,
@@ -573,27 +490,26 @@ bool SectorLogicSetup::give_HighPt_layout(CMAidentity ID, unsigned short int& st
         }
     }
 
-    if (start_confirm_ch == 999 || stop_confirm_ch == 999) return false;
-    return true;
+    return !(start_confirm_ch == 999 || stop_confirm_ch == 999);
 }
 
 const CMAparameters* SectorLogicSetup::give_CMA(CMAidentity CMA) const {
     if (CMA.type() == Eta) {
         EtaCMAmap::const_iterator etaCMA = find_etaCMA(CMA.PAD_index(), CMA.Ixx_index());
-        return (etaCMA != m_etaCMAs.end()) ? &((*etaCMA).second) : 0;
+        return (etaCMA != m_etaCMAs.end()) ? &((*etaCMA).second) : nullptr;
     }
     if (CMA.type() == Phi) {
         if (CMA.coverage() == EvenSectors) {
             EvenPhiCMAmap::const_iterator phiCMA = find_evenphiCMA(CMA.PAD_index(), CMA.Ixx_index());
-            return (phiCMA != m_evenphiCMAs.end()) ? &((*phiCMA).second) : 0;
+            return (phiCMA != m_evenphiCMAs.end()) ? &((*phiCMA).second) : nullptr;
         }
         if (CMA.coverage() == OddSectors) {
             OddPhiCMAmap::const_iterator phiCMA = find_oddphiCMA(CMA.PAD_index(), CMA.Ixx_index());
-            return (phiCMA != m_oddphiCMAs.end()) ? &((*phiCMA)).second : 0;
+            return (phiCMA != m_oddphiCMAs.end()) ? &((*phiCMA)).second : nullptr;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool SectorLogicSetup::correct(CMAidentity CMA, L1RPCcabCorrection type, CMAinput it, unsigned int ly, unsigned short int Channel1,
@@ -644,7 +560,7 @@ std::list<unsigned int> SectorLogicSetup::give_strip_code(CMAidentity CMA, int l
 SectorLogicSetup& SectorLogicSetup::operator<<(int sector) {
     m_sectors.push_back(sector);
 
-    __osstream str;
+    std::ostringstream str;
     if (sector < 32) {
         str << std::setw(3) << sector << std::ends;
         m_negative_sector += str.str();
@@ -656,20 +572,20 @@ SectorLogicSetup& SectorLogicSetup::operator<<(int sector) {
     return *this;
 }
 
-void SectorLogicSetup::PrintElement(std::ostream& stream, int station, std::string ele, int obj, bool detail) const {
+void SectorLogicSetup::PrintElement(std::ostream& stream, int station, const std::string& ele, int obj, bool detail) const {
     int klw = station * 100;
     int khg = station * 100 + 99;
 
     if (station == 0) khg = 10 * 100 + 99;
 
-    bool all = (ele == name() || ele == "") ? true : false;
+    bool all = ele == name() || ele.empty();
     bool printed = false;
 
-    bool nRPC = m_RPCs.size();
-    bool nWOR = m_WORs.size();
-    bool nEtaCMA = m_etaCMAs.size();
-    bool nEvenPhiCMA = m_evenphiCMAs.size();
-    bool nOddPhiCMA = m_oddphiCMAs.size();
+    bool nRPC = !m_RPCs.empty();
+    bool nWOR = !m_WORs.empty();
+    bool nEtaCMA = !m_etaCMAs.empty();
+    bool nEvenPhiCMA = !m_evenphiCMAs.empty();
+    bool nOddPhiCMA = !m_oddphiCMAs.empty();
 
     stream << name() << " type n. " << sector_type() << std::endl;
     stream << "It applies to negative logic sector n. ";
@@ -793,7 +709,7 @@ std::ostream& operator<<(std::ostream& stream, const SectorLogicSetup& setup) {
 }
 
 bool SectorLogicSetup::operator+=(RPCchamberdata& data) {
-    while (RPCchamber* cham = data.give_rpc()) {
+    while (std::unique_ptr<RPCchamber> cham = data.give_rpc()) {
         int key = data.station() * 100;
         std::pair<RPCmap::iterator, bool> ins = m_RPCs.insert(RPCmap::value_type(key + cham->number(), *cham));
 
@@ -816,13 +732,12 @@ bool SectorLogicSetup::operator+=(RPCchamberdata& data) {
                 }
             }
         } else {
-            DISP << "Error in inserting chamber:" << std::endl << *cham << std::endl << "in ";
+            std::ostringstream display;
             PrintElement(display, data.station(), "RPC", 0, false);
-            DISP_ERROR;
-            delete cham;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting chamber:"
+                << std::endl << *cham << std::endl << "in " << display.str() << endmsg;
             return ins.second;
         }
-        delete cham;
     }
     return true;
 }
@@ -833,9 +748,10 @@ bool SectorLogicSetup::operator+=(WiredORdata& data) {
         std::pair<WORmap::iterator, bool> ins = m_WORs.insert(WORmap::value_type(key + Wor->number(), *Wor));
 
         if (!ins.second) {
-            DISP << "Error in inserting WOR:" << std::endl << *Wor << std::endl << "in ";
+            std::ostringstream display;
             PrintElement(display, data.station(), "WOR", 0, false);
-            DISP_ERROR;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting WOR:"
+                << std::endl << *Wor << std::endl << "in " << display.str() << endmsg;
             return ins.second;
         }
     }
@@ -851,9 +767,10 @@ bool SectorLogicSetup::operator+=(CMApivotdata& data) {
             int cma_start = CMA->pivot_start_ch();
             int ins_start = (*inserted).second.pivot_start_ch();
             if (cma_start * ins_start > 0) {
-                DISP << "Error in inserting Eta CMA:" << std::endl << *CMA << std::endl << "in ";
+                std::ostringstream display;
                 PrintElement(display, 0, CMA->name(), 0, false);
-                DISP_ERROR;
+                REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting Eta CMA:"
+                    << std::endl << *CMA << std::endl << "in " << display.str() << endmsg;
                 return ins.second;
             }
             (*inserted).second += *CMA;
@@ -867,9 +784,10 @@ bool SectorLogicSetup::operator+=(CMApivotdata& data) {
     while (std::unique_ptr<EvenPhiCMA> CMA{data.give_evenphi_cma()}) {
         std::pair<EvenPhiCMAmap::iterator, bool> ins = m_evenphiCMAs.insert(EvenPhiCMAmap::value_type(CMA->id(), *CMA));
         if (!ins.second) {
-            DISP << "Error in inserting even Phi CMA:" << std::endl << *CMA << std::endl << "in ";
+            std::ostringstream display;
             PrintElement(display, 0, CMA->name(), 0, false);
-            DISP_ERROR;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting even Phi CMA:"
+                << std::endl << *CMA << std::endl << "in " << display.str() << endmsg;
             return ins.second;
         }
     }
@@ -877,9 +795,10 @@ bool SectorLogicSetup::operator+=(CMApivotdata& data) {
     while (std::unique_ptr<OddPhiCMA> CMA{data.give_oddphi_cma()}) {
         std::pair<OddPhiCMAmap::iterator, bool> ins = m_oddphiCMAs.insert(OddPhiCMAmap::value_type(CMA->id(), *CMA));
         if (!ins.second) {
-            DISP << "Error in inserting odd Phi CMA:" << std::endl << *CMA << std::endl << "in ";
+            std::ostringstream display;
             PrintElement(display, 0, CMA->name(), 0, false);
-            DISP_ERROR;
+            REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting odd Phi CMA:"
+                << std::endl << *CMA << std::endl << "in " << display.str() << endmsg;
             return ins.second;
         }
     }
@@ -896,9 +815,10 @@ bool SectorLogicSetup::operator+=(CMAcablingdata& data) {
             int cma_start = CMA->pivot_start_ch();
             int ins_start = (*inserted).second.pivot_start_ch();
             if (cma_start * ins_start > 0) {
-                DISP << "Error in inserting Eta CMA:" << std::endl << *CMA << std::endl << "in ";
+                std::ostringstream display;
                 PrintElement(display, 0, "CMA", 0, false);
-                DISP_ERROR;
+                REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "SectorLogicSetup") << "Error in inserting Eta CMA:"
+                    << std::endl << *CMA << std::endl << "in " << display.str() << endmsg;
                 return ins.second;
             }
             (*inserted).second += *CMA;
@@ -908,8 +828,8 @@ bool SectorLogicSetup::operator+=(CMAcablingdata& data) {
 }
 
 HalfType SectorLogicSetup::side() const {
-    if (m_negative_sector != "" && m_positive_sector == "") return Negative;
-    if (m_negative_sector == "" && m_positive_sector != "") return Positive;
+    if (!m_negative_sector.empty() && m_positive_sector.empty()) return Negative;
+    if (m_negative_sector.empty() && !m_positive_sector.empty()) return Positive;
     return NoHalf;
 }
 

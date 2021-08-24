@@ -19,8 +19,8 @@
 
 StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_inputKey("SCT_RDOs")
-  , m_inputTruthKey("SCT_SDO_Map")
+  , m_inputKey("ITkStripRDOs")
+  , m_inputTruthKey("ITkStripSDO_Map")
   , m_sctID(nullptr)
   , m_rdoID(nullptr)
   , m_rdoWord(nullptr)
@@ -105,9 +105,9 @@ StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_h_TruthMatchedRDOs(nullptr)
   , m_tree(nullptr)
   , m_ntupleFileName("/ntuples/file1")
-  , m_ntupleDirName("/SCT_RDOAnalysis/")
-  , m_ntupleTreeName("SCT_RDOAna")
-  , m_path("/SCT_RDOAnalysis/")
+  , m_ntupleDirName("/ITkStrip_RDOAnalysis/")
+  , m_ntupleTreeName("ITkStrip_RDOAnalysis")
+  , m_path("/ITkStrip_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
   , m_doPos(true)
 {
@@ -135,11 +135,11 @@ StatusCode StripRDOAnalysis::initialize() {
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 
-  m_tree = new TTree(TString(m_ntupleTreeName), "StripRDOAna");
+  m_tree = new TTree(TString(m_ntupleTreeName), "ITkStripRDOAnalysis");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
   ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
-    // SCT RDO
+    // ITk Strip RDO
     m_tree->Branch("rdoID", &m_rdoID);
     m_tree->Branch("rdoWord", &m_rdoWord);
     m_tree->Branch("barrelEndcap", &m_barrelEndcap);
@@ -162,7 +162,7 @@ StatusCode StripRDOAnalysis::initialize() {
       m_tree->Branch("localY", &m_localY);
       m_tree->Branch("localZ", &m_localZ);
     }
-    // SCT SDO deposits
+    // ITk Strip SDO deposits
     m_tree->Branch("sdoID", &m_sdoID);
     m_tree->Branch("sdoWord", &m_sdoWord);
     m_tree->Branch("barrelEndcap_sdo", &m_barrelEndcap_sdo);
@@ -377,7 +377,7 @@ StatusCode StripRDOAnalysis::initialize() {
   m_h_globalZ = new TH1F("m_h_globalZ","m_h_globalZ; z [mm]",750,-3000.,3000.);
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZ->GetName(), m_h_globalZ));
 
-  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedSCTRDOs", "h_TruthMatchedSCTRDOs", 4, 1, 5);
+  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedITkStripRDOs", "h_TruthMatchedITkStripRDOs", 4, 1, 5);
   TString truthMatchBinLables[4] = { "All RDOs", "Truth Matched", "HS Matched", "Unmatched" };
   for(unsigned int ibin = 1; ibin < 5; ibin++) {
     m_h_TruthMatchedRDOs->GetXaxis()->SetBinLabel(ibin, truthMatchBinLables[ibin-1]);

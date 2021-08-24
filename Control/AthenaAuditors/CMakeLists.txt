@@ -12,6 +12,7 @@ find_package( libunwind )
 # Component(s) in the package:
 atlas_add_component( AthenaAuditors
    src/*.h src/*.cxx src/components/*.cxx
+   DEFINITIONS PACKAGE=AthenaAuditors
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${GDB_INCLUDE_DIRS} ${LIBUNWIND_INCLUDE_DIRS} ${GPERFTOOLS_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${GDB_LIBRARIES} ${LIBUNWIND_LIBRARIES} ${CMAKE_DL_LIBS}
    AthenaBaseComps AthenaKernel CxxUtils GaudiKernel )

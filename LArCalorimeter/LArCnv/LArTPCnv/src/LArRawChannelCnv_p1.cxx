@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -19,7 +19,7 @@ void LArRawChannelCnv_p1::persToTrans(const LArRawChannel_p1* pers, LArRawChanne
   union {
     int  m_quality ; 
     uint16_t m_qualProv[2];
-  } qprov;
+  } qprov{};
 
   // FIXME: persistent data is machine-dependent!
   int q              = pers->m_qualityandgain & 0xFFFF;

@@ -57,7 +57,7 @@ class W_SMEFT(PowhegV2):
         # The value given to the parameter here doesn't matter, it just needs to be present in
         # the powheg.input file. The reweighter postprocessor will replace the value with 1
         # anyway.
-        # self.add_keyword("clobberlhe")
+        self.add_keyword("clobberlhe")
         self.add_keyword("cmass_lhe")
         self.add_keyword("colltest")
         self.add_keyword("compute_rwgt")
@@ -99,6 +99,7 @@ class W_SMEFT(PowhegV2):
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
+        self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
@@ -111,6 +112,7 @@ class W_SMEFT(PowhegV2):
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
+        self.add_keyword("rwl_group_events")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
         self.add_keyword("sthw2")

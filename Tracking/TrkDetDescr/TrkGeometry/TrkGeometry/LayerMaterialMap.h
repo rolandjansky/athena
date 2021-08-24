@@ -96,7 +96,7 @@ inline void LayerMaterialMap::synchronizeElementTable() {
 }  // namespace Trk
 
 CLASS_DEF(Trk::LayerMaterialMap, 142190734, 1)
-
-// 142190734 Trk::LayerMaterialMap None
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( Trk::LayerMaterialMap, 139083292 );
 
 #endif

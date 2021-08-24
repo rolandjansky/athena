@@ -317,7 +317,7 @@ namespace InDet {
     //@}
 
     MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
-    MsgStream& dumpEvent     (EventData& data, MsgStream& out) const;
+    static MsgStream& dumpEvent     (EventData& data, MsgStream& out) ;
 
     /// prepare several data members with cached cut values,
     /// conversion factors, binnings, etc 
@@ -341,7 +341,7 @@ namespace InDet {
      *  @param[in] Rmin: starting radius for trajectory displacement
      *  @param[in] Rmax: end radius for trajectory displacement
      **/
-    float azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const; 
+    static float azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) ; 
 
     /** Create a SiSpacePointForSeed from the space point. 
     * This will also add the point to the data object's
@@ -355,7 +355,7 @@ namespace InDet {
     **/
     SiSpacePointForSeed* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
 
-    void newSeed(EventData& data, SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2, float z) const;
+    static void newSeed(EventData& data, SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2, float z) ;
 
     /** This inserts a seed into the set of saved seeds. 
     * It internally respects the user-configured max number of seeds per central 
@@ -395,7 +395,7 @@ namespace InDet {
     * @param[in,out] data: Event data which will be updated. 
     **/ 
     void fillLists(EventData& data) const;
-    void erase(EventData& data) const;
+    static void erase(EventData& data) ;
     void production2Sp(EventData& data) const;
 
 
@@ -470,7 +470,7 @@ namespace InDet {
     * @param[in] sp: Space point to take the global position from 
     * @param[out] r: 3-array, will be populated with the relative coordinates 
     **/
-    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, std::array<float,3> & r) const;
+    static void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, std::array<float,3> & r) ;
 
     bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 

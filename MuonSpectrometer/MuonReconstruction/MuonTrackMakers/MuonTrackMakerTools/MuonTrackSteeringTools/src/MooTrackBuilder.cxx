@@ -12,8 +12,8 @@
 #include "MuPatPrimitives/MuPatTrack.h"
 #include "MuPatPrimitives/SortMuPatHits.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
@@ -739,18 +739,16 @@ namespace Muon {
         ATH_MSG_DEBUG(" original track had " << states->size() << " TSOS, adding " << newStates.size() - states->size() << " new TSOS ");
 
         // states were added, create a new track
-        auto  trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-        trackStateOnSurfaces->reserve(newStates.size());
+        auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+        trackStateOnSurfaces.reserve(newStates.size());
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit = newStates.begin();
         std::vector<std::pair<bool, const Trk::TrackStateOnSurface*> >::iterator nit_end = newStates.end();
         for (; nit != nit_end; ++nit) {
             // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
-            trackStateOnSurfaces->push_back(nit->first ? nit->second : nit->second->clone());
+            trackStateOnSurfaces.push_back(nit->first ? nit->second : nit->second->clone());
         }
-        return std::make_unique<Trk::Track>(
-          track.info(),
-          std::move(trackStateOnSurfaces),
-          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        return std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     }
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator MooTrackBuilder::insertClustersWithCompetingRotCreation(
@@ -1323,11 +1321,11 @@ namespace Muon {
                             // for MM, perform the bound check from the detector element to take into account edge passivation
                             const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
                             if (mmClusterOnTrack) {
-                              inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
+                                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
                             } else {
-                              inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+                                inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
                             }
-                            
+
                             if (msgLvl(MSG::VERBOSE)) {
                                 if (inBounds)
                                     msg(MSG::VERBOSE) << " inBounds ";

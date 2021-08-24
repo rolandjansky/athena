@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,7 +42,7 @@ public:
   ///< contains the drift time, x2 the corresponding radius;
   ///< the method takes the minimum and maximum x1 values in the set of
   ///< sample points a lower and upper limits in RtChebyshev
-  RtChebyshev getRtChebyshev(const std::vector<SamplePoint> & sample_points,
+  static RtChebyshev getRtChebyshev(const std::vector<SamplePoint> & sample_points,
 			     const unsigned int & order);
 
   ///< get an RtRelationLookUp resembling the r(t) function as 
@@ -51,11 +51,11 @@ public:
   ///< x2 the corresponding radius; the method takes the minimum and
   ///< maximum x1 values in the set of sample points a lower and upper
   ///< limits in RtRelationLookUp
-  RtRelationLookUp getRtRelationLookUp(const std::vector<SamplePoint> & sample_points);
+  static RtRelationLookUp getRtRelationLookUp(const std::vector<SamplePoint> & sample_points);
 
  private:
   // get the minimimum and maximum x1 coordinate of the given sample points
-  void get_min_max(const std::vector<SamplePoint> & sample_points,
+  static void get_min_max(const std::vector<SamplePoint> & sample_points,
 		   double & x_min, double & x_max);
 
 };

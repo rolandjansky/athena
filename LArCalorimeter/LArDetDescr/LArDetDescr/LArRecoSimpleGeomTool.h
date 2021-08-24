@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -80,14 +80,14 @@ private:
   // mapping between ALIGNVOL and strings (need to retrieve StoredPV-s)
   std::string map_av(CaloSubdetNames::ALIGNVOL alvol) const;
 
-  const CaloCell_ID*        m_calo_id;
+  const CaloCell_ID*        m_calo_id = nullptr;
   CaloPhiRange             m_phi_range;
 
   // Access to DDDb :
   std::string m_geometry;
 
-  IRDBAccessSvc* m_iAccessSvc;
-  const IGeoModelSvc* m_geoModelSvc;
+  IRDBAccessSvc* m_iAccessSvc = nullptr;
+  const IGeoModelSvc* m_geoModelSvc = nullptr;
 
   IRDBRecordset_ptr m_recCryoCyl;
   IRDBRecordset_ptr m_recPresGeo;

@@ -281,6 +281,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // Initialise JetTruthLabelingTool: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR#AnalysisBase_21_2_114_and_newer
     if (!m_jetTruthLabelingTool.isUserConfigured()) {
       m_jetTruthLabelingTool.setTypeAndName("JetTruthLabelingTool/JetTruthLabelingTool");
+      ATH_CHECK( m_jetTruthLabelingTool.setProperty("RecoJetContainer", fatjetcoll) );
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthLabelName", "R10TruthLabel_R21Consolidated") );
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("UseTRUTH3", m_useTRUTH3) );                 // Set this to false only if you have the FULL !TruthParticles container in your input file
       ATH_CHECK( m_jetTruthLabelingTool.setProperty("TruthParticleContainerName", "TruthParticles") );
@@ -1846,7 +1847,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise Isolation Tool
     if (!m_isoTool.isUserConfigured()) {
       m_isoTool.setTypeAndName("CP::IsolationSelectionTool/IsoTool");
-      ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP.empty()    ? "FCLoose" : m_eleIso_WP) );
+      ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP.empty()    ? "Loose_VarRad" : m_eleIso_WP) );
       ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP.empty()     ? "Loose_VarRad" : m_muIso_WP) );
       ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP.empty() ? "FixedCutTight" : m_photonIso_WP ) );
       ATH_CHECK( m_isoTool.setProperty("OutputLevel", this->msg().level()) );
@@ -1862,7 +1863,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
     if (!m_isoBaselineTool.isUserConfigured()) {
       m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
-      ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "FCLoose" : m_eleBaselineIso_WP    ) );
+      ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "Loose_VarRad" : m_eleBaselineIso_WP    ) );
       ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "Loose_VarRad" : m_muBaselineIso_WP     ) );
       ATH_CHECK( m_isoBaselineTool.setProperty("PhotonWP",   m_photonBaselineIso_WP.empty() ? "FixedCutTight" : m_photonBaselineIso_WP ) );
       ATH_CHECK( m_isoBaselineTool.setProperty("OutputLevel", this->msg().level()) );
@@ -1872,7 +1873,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
     if (!m_isoHighPtTool.isUserConfigured()) {
       m_isoHighPtTool.setTypeAndName("CP::IsolationSelectionTool/IsoHighPtTool");
-      ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP.empty() ? "FCLoose" : m_eleIsoHighPt_WP) );
+      ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP.empty() ? "Loose_VarRad" : m_eleIsoHighPt_WP) );
       ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP.empty()  ? "Loose_VarRad" : m_muIsoHighPt_WP ) );
       ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP.empty()    ? "FixedCutTight" : m_photonIso_WP ) );
       ATH_CHECK( m_isoHighPtTool.setProperty("OutputLevel", this->msg().level()) );

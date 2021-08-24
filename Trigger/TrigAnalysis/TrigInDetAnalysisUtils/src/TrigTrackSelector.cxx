@@ -1184,6 +1184,12 @@ void TrigTrackSelector::selectTracks( xAOD::TrackParticleContainer::const_iterat
 }
 
 
+void TrigTrackSelector::selectTracks( TrackParticleLinks_t tracks, void* ) {
+	for( const auto& track : tracks ) {
+	  const xAOD::TrackParticle* trkp = *track;
+    selectTrack( trkp );
+  }
+}
 
 
 #endif

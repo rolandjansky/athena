@@ -4,6 +4,7 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
@@ -14,15 +15,23 @@ from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import getTrigThresholdDecision
 
 def RoIBResultByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.RoIBResultByteStreamTool(name)
-  if flags.Trigger.enableL1MuonPhase1:
+
+  if not flags.Trigger.L1.doCTP:
+    # disable CTP ByteStream decoding/encoding as part of RoIBResult
+    tool.CTPModuleId = 0xFF
+
+  if flags.Trigger.enableL1MuonPhase1 or not flags.Trigger.L1.doMuon:
     # disable legacy MUCTPI ByteStream decoding/encoding as part of RoIBResult
     tool.MUCTPIModuleId = 0xFF
-  if not flags.Trigger.enableL1CaloLegacy:
+
+  if not flags.Trigger.enableL1CaloLegacy or not flags.Trigger.L1.doCalo:
     # disable legacy L1Calo ByteStream decoding/encoding as part of RoIBResult
     tool.JetModuleIds = []
     tool.EMModuleIds = []
 
-  # TODO: add switches for CTP and L1Topo parts once they can be dropped in some configs
+  if flags.Trigger.EDMVersion == 1 or not flags.Trigger.L1.doTopo:
+    # disable legacy L1Topo ByteStream decoding/encoding as part of RoIBResult
+    tool.L1TopoModuleIds = []
 
   if writeBS:
     # write BS == read RDO
@@ -36,7 +45,6 @@ def RoIBResultByteStreamToolCfg(name, flags, writeBS=False):
 
 def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
-  from libpyeformat_helper import SourceIdentifier,SubDetector
   muctpi_moduleid = 1
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
@@ -52,9 +60,9 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   return tool
 
 def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
-  tool = CompFactory.MuonRoIByteStreamTool(name)
-  from libpyeformat_helper import SourceIdentifier,SubDetector
-  muctpi_moduleid = 1
+  tool_name = name if flags.Trigger.doHLT else name+"DAQ"
+  tool = CompFactory.MuonRoIByteStreamTool(tool_name)
+  muctpi_moduleid = 1 if flags.Trigger.doHLT else 0  # RoIB ROB for HLT, DAQ ROB for offline
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
@@ -65,7 +73,7 @@ def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
   else:
     # read BS == write xAOD
     tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKey = "LVL1MuonRoIs" if flags.Trigger.doHLT else "LVL1MuonRoIsDAQ"
 
   tool.UseRun3Config = flags.Trigger.enableL1MuonPhase1
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
@@ -74,26 +82,77 @@ def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
 
   return tool
 
+def doRoIBResult(flags):
+  '''
+  Helper function returning a logic combination of flags deciding
+  whether the RoIBResult decoding/encoding is required in the job
+  '''
+  if flags.Trigger.L1.doCalo and flags.Trigger.enableL1CaloLegacy:
+    # Only needed for legacy (Run-2) L1Calo system
+    return True
+  if flags.Trigger.L1.doMuon and not flags.Trigger.enableL1MuonPhase1:
+    # Only needed for legacy (Run-2) MUCTPI data
+    return True
+  if flags.Trigger.L1.doTopo:
+    # Currently only RoIBResult path implemented for L1Topo
+    return True
+  if flags.Trigger.L1.doCTP:
+    # Currently only RoIBResult path implemented for CTP
+    return True
+  # Otherwise don't need RoIBResult
+  return False
+
 def L1TriggerByteStreamDecoderCfg(flags):
   from AthenaCommon.Configurable import Configurable
   cb = Configurable.configurableRun3Behavior
   Configurable.configurableRun3Behavior += 1
 
   decoderTools = []
+  maybeMissingRobs = []
+
+  # Current status of L1 ByteStream decoding as of July 2021:
+  # L1Muon - possible to run legacy path via RoIBResult or Run-3 path depending on flags
+  # L1Calo - possible to run legacy system decoding via RoIBResult, Run-3 system decoding not yet implemented
+  # L1Topo - possible to run legacy system decoding via RoIBResult, Run-3 system decoding not yet implemented
+  # CTP - only decoding via RoIBResult implemented, xAOD EDM and decoding not yet implemented
+
+  # Legacy decoding via RoIBResult
   if not flags.Trigger.doLVL1: #if we rerun L1, don't decode the original RoIBResult
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
+    if doRoIBResult(flags):
       roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", flags=flags, writeBS=False)
       decoderTools += [roibResultTool]
+      if flags.Trigger.EDMVersion == 2:
+        # L1Topo may be missing in some runs of Run 2 when it was under commissioning
+        for module_id in roibResultTool.L1TopoModuleIds:
+          maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, module_id)))
 
+  # Run-3 L1Muon decoding
   if flags.Trigger.enableL1MuonPhase1:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool", flags=flags, writeBS=False)
     decoderTools += [muonRoiTool]
 
+  # TODO: Run-3 L1Calo, L1Topo, CTP
+
   decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
-                                                         DecoderTools=decoderTools)
+                                                         DecoderTools=decoderTools,
+                                                         MaybeMissingROBs=maybeMissingRobs)
 
   acc = ComponentAccumulator()
   acc.addEventAlgo(decoderAlg, primary=True)
+
+  # The decoderAlg needs to load ByteStreamMetadata for the detector mask
+  #
+  # FIXME: BS metadata is unavailable in start() in offline athenaMT,
+  # but it works in athenaHLT (online) and in offline serial athena
+  # - keep the detector mask check only for online until an offline solution is found
+  if flags.Trigger.Online.isPartition:
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+    readBSAcc = ByteStreamReadCfg(flags)
+    readBSAcc.getEventAlgo('SGInputLoader').Load += [
+      ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+    acc.merge(readBSAcc)
+  else:
+    decoderAlg.ByteStreamMetadataRHKey = ""
 
   Configurable.configurableRun3Behavior = cb
   return acc
@@ -101,7 +160,8 @@ def L1TriggerByteStreamDecoderCfg(flags):
 def L1TriggerByteStreamEncoderCfg(flags):
   acc = ComponentAccumulator()
 
-  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
+  # Legacy encoding via RoIBResult
+  if doRoIBResult(flags):
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", flags=flags, writeBS=True)
     acc.addPublicTool(roibResultTool)
     # Special - in BS->BS job without L1Sim, need to decode extra data from input
@@ -110,9 +170,12 @@ def L1TriggerByteStreamEncoderCfg(flags):
       from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
       acc.merge(ByteStreamReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
 
-  if flags.Trigger.enableL1MuonPhase1:
+  # Run-3 L1Muon encoding
+  if flags.Trigger.L1.doMuon and flags.Trigger.enableL1MuonPhase1:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool", flags=flags, writeBS=True)
     acc.addPublicTool(muonRoiTool)
+
+  # TODO: Run-3 L1Calo, L1Topo, CTP
 
   return acc
 

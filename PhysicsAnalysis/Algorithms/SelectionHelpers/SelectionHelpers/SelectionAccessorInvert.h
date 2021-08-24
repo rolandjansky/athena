@@ -31,7 +31,7 @@ namespace CP
     getBits (const SG::AuxElement& element) const override;
 
   public:
-    virtual void setBits (SG::AuxElement& element,
+    virtual void setBits (const SG::AuxElement& element,
                           SelectionType selection) const override;
 
   public:
@@ -39,7 +39,7 @@ namespace CP
     getBool (const SG::AuxElement& element) const override;
 
   public:
-    virtual void setBool (SG::AuxElement& element,
+    virtual void setBool (const SG::AuxElement& element,
                           bool selection) const override;
 
   public:

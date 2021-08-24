@@ -3,16 +3,22 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-def retrieveAODList():
+def retrieveAODList(enableOutputOverride = False):
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
+    #We always want to write pileup truth jets to AOD, irrespective of whether we write jets to AOD in general
+    #This is because we cannot rebuild jets from pileup truth particles from the AOD
     jetPileUpTruthList = []
     if rec.doTruth():
       jetPileUpTruthList += [
-        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
-        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
+        'xAOD::JetContainer#InTimeAntiKt4TruthJets',            'xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
+        'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',         'xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights',
       ]
+
+    #If we don't want to write jets to AOD then we just return the above list of pileup truth jets
+    if (not enableOutputOverride) and (not jetFlags.writeJetsToAOD()):
+        return jetPileUpTruthList
 
     if rec.doWriteESD():
         jetAODList = jetFlags.jetAODList()
@@ -38,9 +44,6 @@ def retrieveAODList():
         'xAOD::EventShape#TopoClusterIsoCentralEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.',
         'xAOD::EventShape#TopoClusterIsoForwardEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-        'xAOD::PFOContainer#CHSChargedParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.',
-        'xAOD::PFOContainer#CHSNeutralParticleFlowObjects',         'xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux.',
-
         'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
         'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
@@ -49,7 +52,9 @@ def retrieveAODList():
     if rec.doTruth():
       l += jetPileUpTruthList
 
-    if jetFlags.detailLevel()>=JetContentDetail.Full:
+    if jetFlags.detailLevel()==JetContentDetail.Trigger:
+        l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
+    elif jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
             'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',

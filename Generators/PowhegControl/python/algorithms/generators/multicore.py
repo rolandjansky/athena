@@ -136,7 +136,10 @@ def multicore_untimed(process):
     """
     if not os.path.isfile(process.executable):
         raise OSError("Powheg executable {} not found!".format(process.executable))
-    threads = [SingleProcessThread(process.executable, seed_index=idx) for idx in range(1, process.cores + 1)]
+    threads = [SingleProcessThread(process.executable, seed_index=idx,
+                                   warning_output=(process.warning_output if hasattr(process,"warning_output") else None),
+                                   info_output=(process.info_output if hasattr(process,"info_output") else None),
+                                   error_output=(process.error_output if hasattr(process,"error_output") else None)) for idx in range(1, process.cores + 1)]
     manager = ProcessManager(threads)
     while manager.monitor():
         pass

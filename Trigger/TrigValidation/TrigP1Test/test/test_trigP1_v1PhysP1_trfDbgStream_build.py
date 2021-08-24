@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: perform debug recovery from PU crash, using v1PhysP1 menule
+# art-description: perform debug recovery from PU crash using PhysicsP1 menu
 # art-type: build
 # art-include: master/Athena
 
@@ -33,17 +33,17 @@ test.check_steps = CheckSteps.default_check_steps(test)
 
 from TrigValTools.TrigValSteering.CheckSteps import LogMergeStep
 
-# Rename Trig_reco_tf.BSRDOtoRAW.log to athena.log to fill athena status
+# Rename Trig_reco_tf.log to athena.log for linking in ART Monitor
 logmerge = LogMergeStep()
 logmerge.merged_name = 'athena.log'
-logmerge.log_files = ['Trig_reco_tf.BSRDOtoRAW.log']
+logmerge.log_files = ['Trig_reco_tf.log']
 test.check_steps.append(logmerge)
 
 # Overwrite default MessageCount settings
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-   'INFO': 300,
-   'WARNING': 3, # LBAvInstLumi is zero or negative in updatePerBunchLumi() - the file is from TR so lumi = 0
+   'INFO': 320,
+   'WARNING': 40, # ATR-22815
    'other': 10
 }
 

@@ -165,7 +165,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
                    FQ.chiSquared() <<"/"<<FQ.numberDoF());
 
   // loop over all meas'ts and do outlier cuts
-  for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
+  for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it) {
     if (it->measurement() && !it->isOutlier()) {
 
       // first check: track should be inside active sensor boundaries + tolerance

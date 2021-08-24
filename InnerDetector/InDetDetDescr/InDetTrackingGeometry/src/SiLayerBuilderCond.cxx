@@ -41,6 +41,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/SmartDataPtr.h"
+// Athena 
+#include "AthenaKernel/IOVInfiniteRange.h"
 // STL
 #include <map>
 
@@ -189,7 +191,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   if (!m_pixIdHelper && !m_sctIdHelper){
     ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
   }
 
@@ -237,7 +239,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   // iterate over the detector elements for layer dimension, etc.   
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
@@ -319,7 +321,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
        // fill the Surface vector
        Amg::Vector3D orderPosition((*sidetIter)->center());
        double currentPhi = orderPosition.phi();
-	   takeSmaller( layerMinPhi[currentlayer], currentPhi);
+	     takeSmaller( layerMinPhi[currentlayer], currentPhi);
        takeBigger( layerMaxPhi[currentlayer], currentPhi);
        
        // decide which one to register on the Radius: always the one with smaller radius
@@ -459,7 +461,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       layerThickness[layerCounter] = layerRmax[layerCounter] - layerRmin[layerCounter];
 
       // create the material
-      const Trk::LayerMaterialProperties* layerMaterial = barrelLayerMaterial(layerRadius[layerCounter], currentLayerExtend);
+      const Trk::LayerMaterialProperties& layerMaterial = barrelLayerMaterial(layerRadius[layerCounter], currentLayerExtend);
       double currentLayerThickness = layerThickness[layerCounter]+m_barrelEnvelope;
       
       // screen output
@@ -494,11 +496,9 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       // construct the layer (finally)
       activeLayer = new Trk::CylinderLayer(new Trk::CylinderBounds(layerRadius[layerCounter],currentLayerExtend),
                                            currentBinnedArray,
-                                           *layerMaterial,
+                                           layerMaterial,
                                            layerThickness[layerCounter],
                                            olDescriptor);
-      // cleanup of the layer material --------------------------------------------------------------
-      delete layerMaterial; 
       // register the layer to the surfaces
       const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
       registerSurfacesToLayer(layerSurfaces,*activeLayer);
@@ -506,7 +506,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       // (3) register the layers --- either in the split vector or in the return vector 
       if (splitDone) {
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
-          readHandle.range(s_splitIOVRange);
+          s_splitIOVRange = readHandle.getRange();
           s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
           if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
@@ -535,8 +535,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
      ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius determined as : " << s_splitRadius );
 
   ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
-  EventIDRange range;
-  readHandle.range(range);
+  EventIDRange range = readHandle.getRange();
   std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
   return cylinderLayersPair;
 } 
@@ -557,7 +556,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*> InDet::SiLaye
   if (!m_pixIdHelper && !m_sctIdHelper){
        ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
     //create dummy infinite range
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);
   } 
 
@@ -585,7 +584,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   // get general layout
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
   if(*readHandle == nullptr){
-    EventIDRange range;
+    EventIDRange range = IOVInfiniteRange::infiniteMixed();
     return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
   }
   const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
@@ -915,7 +914,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
         ATH_MSG_DEBUG( "  -> With Rmin/Rmax (corr) :  " << minRmin << " / " << maxRmax );
        
        // get the layer material from the helper method
-        const Trk::LayerMaterialProperties* layerMaterial = endcapLayerMaterial(rMin,rMax);
+        const Trk::LayerMaterialProperties& layerMaterial = endcapLayerMaterial(rMin,rMax);
 
         // position & bounds of the active Layer
         Amg::Transform3D activeLayerTransform ;
@@ -945,26 +944,23 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
         Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
                                                          activeLayerBounds,
                                                          currentBinnedArray,
-                                                         *layerMaterial,
+                                                         layerMaterial,
                                                          thickness,
                                                          olDescriptor);
-        // cleanup
-        delete layerMaterial;
         // register the layer to the surfaces --- if necessary to the other sie as well
         const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
         registerSurfacesToLayer(layerSurfaces,*activeLayer);
         if (m_splitMode){
             ATH_MSG_DEBUG( "[ Split mode ] Checking if this layer needs to be cached." );
+            s_splitIOVRange = readHandle.getRange();
             if (m_splitMode < 0 && rMin > s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is negative and rMin > splitRadius (" << rMin  << " > " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
             else if (m_splitMode > 0 && rMax < s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is positive and rMax < splitRadius (" << rMax  << " < " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
         } else 
@@ -1032,12 +1028,12 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
                 ATH_MSG_DEBUG(
                   "Building an additional DiscLayer w/o sensitive modules at");
                 // create the material and the passive layer
-                const Trk::LayerMaterialProperties* passiveLayerMaterial =
+                const Trk::LayerMaterialProperties& passiveLayerMaterial =
                   endcapLayerMaterial(rMin, rMax);
                 passiveLayer =
                   new Trk::DiscLayer(passiveDiscTransf,
                                      new Trk::DiscBounds(rMin, rMax),
-                                     *passiveLayerMaterial,
+                                     passiveLayerMaterial,
                                      1. * Gaudi::Units::mm);
               } else
                 passiveLayer = new Trk::DiscLayer(
@@ -1057,8 +1053,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
     std::sort(sortIter, sortEnd, zSorter);
   }
  
-  EventIDRange range;
-  readHandle.range(range);
+  EventIDRange range = readHandle.getRange();
   return std::make_pair(range, discLayers);
 }
 
@@ -1093,14 +1088,12 @@ std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilderCond::dressCylind
               if ( (*addLayerTypeIter) ) {
                     ATH_MSG_DEBUG("[- M -] Building an additional CylinderLayer w/o sensitive modules");
                     // the material for the passive layer
-                    const Trk::LayerMaterialProperties* passiveLayerMaterial = barrelLayerMaterial(*addLayerIter,cylLayerExtend);
+                    const Trk::LayerMaterialProperties& passiveLayerMaterial = barrelLayerMaterial(*addLayerIter,cylLayerExtend);
                     // create the passive layer
                     cylinderLayers->push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(*addLayerIter,cylLayerExtend),
-                                                                     *passiveLayerMaterial,
+                                                                     passiveLayerMaterial,
                                                                      1.*Gaudi::Units::mm,
                                                                      nullptr,0));
-                    // cleanup of the layer material --------------------------------------------------------------
-                    delete passiveLayerMaterial;                                                       
               } else {
                   ATH_MSG_DEBUG("[- N -] Building an additional NavigationLayer for volume dimension control");
                   // create the passive layer
@@ -1125,42 +1118,37 @@ std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilderCond::dressCylind
     return cylinderLayers;
 }
 
-const Trk::LayerMaterialProperties* InDet::SiLayerBuilderCond::barrelLayerMaterial(double r, double hz) const
+const Trk::BinnedLayerMaterial 
+InDet::SiLayerBuilderCond::barrelLayerMaterial(double r, double hz) const
 {
-  Trk::LayerMaterialProperties* layerMaterial = nullptr;
   // --------------- material estimation ----------------------------------------------------------------
   // -- material with 1D binning
   Trk::BinUtility layerBinUtilityZ(m_barrelLayerBinsZ, -hz, hz, Trk::open, Trk::binZ);
-  if (m_barrelLayerBinsPhi==1){
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityZ);
-  } else  { // -- material with 2D binning
+  auto & layerBinUtility(layerBinUtilityZ);
+  if (m_barrelLayerBinsPhi!=1){ // -- material with 2D binning
       Trk::BinUtility layerBinUtilityRPhiZ(m_barrelLayerBinsPhi,
                                                  -r*M_PI, r*M_PI,
                                                  Trk::closed,
                                                  Trk::binRPhi);
-      layerBinUtilityRPhiZ += layerBinUtilityZ;                                                       
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityRPhiZ);
+      layerBinUtilityRPhiZ += layerBinUtilityZ; 
+      layerBinUtility =  layerBinUtilityRPhiZ;                                                
   }
   // --------------- material estimation ----------------------------------------------------------------
-  return layerMaterial;    
+  return Trk::BinnedLayerMaterial(layerBinUtility);  
 }
 
-const Trk::LayerMaterialProperties* InDet::SiLayerBuilderCond::endcapLayerMaterial(double rMin, double rMax) const
+const Trk::BinnedLayerMaterial 
+InDet::SiLayerBuilderCond::endcapLayerMaterial(double rMin, double rMax) const
 {
-  Trk::LayerMaterialProperties* layerMaterial = nullptr;
   // --------------- material estimation ----------------------------------------------------------------
-
   Trk::BinUtility layerBinUtilityR(m_endcapLayerBinsR,rMin,rMax,Trk::open, Trk::binR);
-  // -- material with 1D binning
-  if (m_endcapLayerBinsPhi==1){
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityR);
-  } else { // -- material with 2D binning
+  if (m_endcapLayerBinsPhi!=1){ // -- material with 2D binning
       Trk::BinUtility layerBinUtilityPhi(m_endcapLayerBinsPhi,-M_PI,M_PI,Trk::closed,Trk::binPhi);
       layerBinUtilityR += layerBinUtilityPhi;
-      layerMaterial     = new Trk::BinnedLayerMaterial(layerBinUtilityR);
   }
+  //const auto layerMaterial = Trk::BinnedLayerMaterial(layerBinUtilityR);
   // --------------- material estimation ----------------------------------------------------------------
-  return layerMaterial;    
+  return Trk::BinnedLayerMaterial(layerBinUtilityR);    
 }     
 
 void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
@@ -1173,14 +1161,18 @@ void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const 
     for (; laySurfIter != laySurfIterEnd; ++laySurfIter){
         if (*laySurfIter) { 
             // register the current surface --------------------------------------------------------
-            Trk::ILayerBuilderCond::associateLayer(lay, **laySurfIter);
+            // Needs care for Athena MT 
+            Trk::ILayerBuilderCond::associateLayer(lay, const_cast<Trk::Surface&>(**laySurfIter));
             const InDetDD::SiDetectorElement* detElement 
                 = dynamic_cast<const InDetDD::SiDetectorElement*>((*laySurfIter)->associatedDetectorElement());             
             // register the backise if necessary ---------------------------------------------------
             const InDetDD::SiDetectorElement* otherSideElement = detElement ?  detElement->otherSide() : nullptr;                 
             const Trk::Surface* otherSideSurface = otherSideElement ? &(otherSideElement->surface()) : nullptr;
-            if (otherSideSurface) Trk::ILayerBuilderCond::associateLayer(lay, *otherSideSurface);
+            if (otherSideSurface) {
+              // Needs care for Athena MT 
+              Trk::ILayerBuilderCond::associateLayer(lay, const_cast<Trk::Surface&>(*otherSideSurface));
             }
+        }
     }   
     
     return;

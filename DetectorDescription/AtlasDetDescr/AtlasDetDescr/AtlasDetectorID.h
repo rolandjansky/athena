@@ -384,8 +384,7 @@ private:
     int                 m_LUCID_ID;
     int                 m_ZDC_ID;
 
-    /// Flag for slhc layout:
-    bool                m_isSLHC;
+    bool                m_isHighLuminosityLHC{};
 
     Range::field        m_lvl1_field;
     Range::field        m_lvl1_onl_field;

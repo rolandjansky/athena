@@ -25,12 +25,10 @@
 #include <string>
 //Root 
 #include "TH1F.h"
-#include "TMath.h"
 #include <cmath>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-using namespace TMath;
 
 InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
     const std::string & type, 
@@ -39,36 +37,36 @@ InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
     :InDetGlobalMotherMonTool(type, name, parent),
      m_detector("ID"),
      m_tracks_top(nullptr), m_tracks_bottom(nullptr),
-     m_nTopTrks(0),
-     m_nBottomTrks(0),
-     m_top_d0(0), 
-     m_top_z0(0),
-     m_top_phi(0), 
-     m_top_eta(0),
-     m_top_chi2(0),
-     m_bottom_d0(0), 
-     m_bottom_z0(0),
-     m_bottom_phi(0),
-     m_bottom_eta(0),
-     m_bottom_chi2(0),
-     m_top_d0_1trk(0), 
-     m_top_z0_1trk(0),
-     m_top_phi_1trk(0), 
-     m_top_eta_1trk(0),
-     m_top_chi2_1trk(0),
-     m_bottom_d0_1trk(0), 
-     m_bottom_z0_1trk(0),
-     m_bottom_phi_1trk(0),
-     m_bottom_eta_1trk(0),
-     m_bottom_chi2_1trk(0),
-     m_top_bottom_dd0(0), 
-     m_top_bottom_dz0(0),
-     m_top_bottom_dphi(0), 
-     m_top_bottom_deta(0),
-     m_top_bottom_d0_pull(0), 
-     m_top_bottom_z0_pull(0),
-     m_top_bottom_phi_pull(0), 
-     m_top_bottom_eta_pull(0),
+     m_nTopTrks(nullptr),
+     m_nBottomTrks(nullptr),
+     m_top_d0(nullptr), 
+     m_top_z0(nullptr),
+     m_top_phi(nullptr), 
+     m_top_eta(nullptr),
+     m_top_chi2(nullptr),
+     m_bottom_d0(nullptr), 
+     m_bottom_z0(nullptr),
+     m_bottom_phi(nullptr),
+     m_bottom_eta(nullptr),
+     m_bottom_chi2(nullptr),
+     m_top_d0_1trk(nullptr), 
+     m_top_z0_1trk(nullptr),
+     m_top_phi_1trk(nullptr), 
+     m_top_eta_1trk(nullptr),
+     m_top_chi2_1trk(nullptr),
+     m_bottom_d0_1trk(nullptr), 
+     m_bottom_z0_1trk(nullptr),
+     m_bottom_phi_1trk(nullptr),
+     m_bottom_eta_1trk(nullptr),
+     m_bottom_chi2_1trk(nullptr),
+     m_top_bottom_dd0(nullptr), 
+     m_top_bottom_dz0(nullptr),
+     m_top_bottom_dphi(nullptr), 
+     m_top_bottom_deta(nullptr),
+     m_top_bottom_d0_pull(nullptr), 
+     m_top_bottom_z0_pull(nullptr),
+     m_top_bottom_phi_pull(nullptr), 
+     m_top_bottom_eta_pull(nullptr),
      m_Top_eta(),
      m_Top_phi(),
      m_Top_d0(),
@@ -365,8 +363,8 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
     ATH_MSG_DEBUG("found combined segments in StoreGate " <<
 		  m_combinedTracksLowKey.key() << " " << combinedTracksLow->size());
   }
-  m_tracks_top = 0; 
-  m_tracks_bottom = 0; 
+  m_tracks_top = nullptr; 
+  m_tracks_bottom = nullptr; 
   }
   
     //------------ Loop over bottom segments ------------------
@@ -378,7 +376,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 	    ibottom != m_tracks_bottom->end(); ++ibottom) {
 	    const Trk::Track *track_bottom=(*ibottom);
 
-	    if (track_bottom == 0) { 
+	    if (track_bottom == nullptr) { 
 		msg(MSG::WARNING)
 		      << "no pointer to bottom track!!!" << endmsg;
 		continue;
@@ -432,7 +430,7 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 	for(TrackCollection::const_iterator itop = m_tracks_top->begin();
 	    itop != m_tracks_top->end(); ++itop) {
 	    const Trk::Track *track_top=(*itop);
-	    if (track_top == 0){ 
+	    if (track_top == nullptr){ 
 		msg(MSG::WARNING) 
 		      << "no pointer to top track!!!" << endmsg;
 		continue;

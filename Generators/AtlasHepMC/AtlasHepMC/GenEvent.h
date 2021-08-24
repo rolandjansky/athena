@@ -27,6 +27,15 @@ using Print=HepMC3::Print;
 using GenHeavyIon=HepMC3::GenHeavyIon;
 using GenEvent=HepMC3::GenEvent;
 
+inline bool set_ll_event_number(HepMC3::GenEvent* e, long long int num){
+  e->add_attribute("long_long_event_number", std::make_shared<HepMC3::LongLongAttribute>(num));
+  return true;
+}
+inline long long int get_ll_event_number(const HepMC3::GenEvent* e){
+  auto at = e->attribute<HepMC3::LongLongAttribute>("long_long_event_number");
+  return at?at->value():e->event_number();
+}
+
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  begin(HepMC3::GenEvent& e) { return e.particles().begin(); }
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  end(HepMC3::GenEvent& e) { return e.particles().end(); }
 inline std::vector<HepMC3::ConstGenParticlePtr>::const_iterator  begin(const HepMC3::GenEvent& e) { return e.particles().begin(); }
@@ -150,6 +159,14 @@ inline bool valid_beam_particles(const GenEvent* e) { if (!e) return false; if  
 #include "HepMC/GenVertex.h"
 #include "AtlasHepMC/GenVertex.h"
 namespace HepMC {
+inline bool set_ll_event_number(HepMC::GenEvent* e, long long int num){
+  if (num > std::numeric_limits<int>::max()) return false;
+  e->set_event_number((int)num);
+  return true;
+}
+inline long long int get_ll_event_number(const HepMC::GenEvent* e){
+  return e->event_number();
+}
 inline GenEvent::particle_iterator  begin(HepMC::GenEvent& e) { return e.particles_begin(); }
 inline GenEvent::particle_iterator  end(HepMC::GenEvent& e) { return e.particles_end(); }
 inline GenEvent::particle_const_iterator  begin(const HepMC::GenEvent& e) { return e.particles_begin(); }

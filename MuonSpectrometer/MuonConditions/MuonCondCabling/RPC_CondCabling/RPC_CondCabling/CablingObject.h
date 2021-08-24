@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LVL1LOGICOBJECT_H
@@ -9,24 +9,34 @@
 
 class CablingObject : public BaseObject {
 private:
-    int m_number;
-    int m_station;
-    int m_sector_type;
+    int m_number{0};
+    int m_station{0};
+    int m_sector_type{0};
 
 public:
-    CablingObject(int, int, int, std::string);
-    CablingObject(int, int, int, const char*);
-    CablingObject(const CablingObject&);
-    ~CablingObject() {}
+    struct cablingParameters {
+        cablingParameters() = default;
+        cablingParameters(const cablingParameters&) = default;
+        cablingParameters& operator=(const cablingParameters&) = default;
+        cablingParameters(cablingParameters&&) = default;
 
-    CablingObject& operator=(const CablingObject&);
+        int number{0};
+        int station{0};
+        int sectorType{0};
+    };
 
-    int number(void) const { return m_number; }
-    int station(void) const { return m_station; }
-    int sector_type(void) const { return m_sector_type; }
+    CablingObject(const cablingParameters&, const std::string&);
+    CablingObject(const CablingObject&) = default;
+    virtual ~CablingObject() = default;
 
-    void error_header(void) const;
-    void no_connection_error(std::string, int);
+    CablingObject& operator=(const CablingObject&) = default;
+
+    int number() const;
+    int station() const;
+    int sector_type() const;
+
+    [[nodiscard]] std::string error_header() const;
+    [[nodiscard]] std::string no_connection_error(const std::string&, int) const;
 
     friend std::ostream& operator<<(std::ostream& stream, const CablingObject& obj);
 };

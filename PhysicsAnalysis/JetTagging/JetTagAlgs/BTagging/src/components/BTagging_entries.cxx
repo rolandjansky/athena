@@ -4,10 +4,8 @@
 #include "BTagging/BTagLightSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
 #include "BTagging/JetBTaggerTool.h"
-#include "BTagging/JetBTaggerAlg.h"
 #include "BTagging/JetBTaggingAlg.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
-#include "BTagging/JetParticleAssociationAlg.h"
 #include "BTagging/JetSecVertexingAlg.h"
 #include "BTagging/JetSecVtxFindingAlg.h"
 #include "BTagging/BTagTrackAugmenterAlg.h"
@@ -23,9 +21,7 @@ DECLARE_COMPONENT( JetSecVtxFindingAlg )
 DECLARE_COMPONENT( BTagJetPtScaling )
 DECLARE_COMPONENT( BTagTool )
 DECLARE_COMPONENT( JetBTaggerTool )
-DECLARE_COMPONENT( JetBTaggerAlg )
 DECLARE_COMPONENT( JetBTaggingAlg )
-DECLARE_COMPONENT( JetParticleAssociationAlg )
 DECLARE_COMPONENT( BTagTrackAugmenterAlg )
 /** factory entries need to have the name of the package */
 

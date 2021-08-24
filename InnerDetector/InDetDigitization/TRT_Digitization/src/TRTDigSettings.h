@@ -373,51 +373,53 @@ private:
   //Now follows infrastructure for handling all the parameters in a robust way:
 
   /** Define new double variable */
-  void defineNewVariable(std::string name,
+  void defineNewVariable(const std::string & name,
                          double * datamember,
-                         std::string description,
-                         std::string unitname,
+                         const std::string & description,
+                         const std::string & unitname,
                          double unitval,
                          double lowrange,
                          double highrange);
 
   /** Define new unsigned int variable */
-  void defineNewUIntVariable(std::string name,
+  void defineNewUIntVariable(const std::string & name,
                              unsigned int * datamember,
-                             std::string description,
+                             const std::string & description,
                              unsigned int lowrange,
                              unsigned int highrange);
 
   /** Define new int variable */
-  void defineNewIntVariable(std::string name,
+  void defineNewIntVariable(const std::string & name,
                             int * datamember,
-                            std::string description,
+                            const std::string & description,
                             int lowrange,
                             int highrange);
 
   /** Define new bool variable */
-  void defineNewBoolVariable(std::string name,
+  void defineNewBoolVariable(const std::string & name,
                              bool * datamember,
-                             std::string description);
+                             const std::string & description);
 
   /** Settable parameter, double */
   struct doubleparameter {
     std::string description;
-    double * directvaraddress;
-    std::string unitname;  double unit;
-    double okrange_low; double okrange_high;
-    double valueSetByUser;
+    double * directvaraddress{};
+    std::string unitname;  
+    double unit{};
+    double okrange_low{}; 
+    double okrange_high{};
+    double valueSetByUser{};
   };
 
   /** Settable parameter, int and bool */
   struct intboolparameter {
     std::string description;
     //Two of these are put to null to indicate type:
-    int * directvaraddress_int;
-    unsigned int * directvaraddress_uint;
-    bool * directvaraddress_bool;
-    int okrange_low; int okrange_high;
-    int valueSetByUser;
+    int * directvaraddress_int{};
+    unsigned int * directvaraddress_uint{};
+    bool * directvaraddress_bool{};
+    int okrange_low{}; int okrange_high{};
+    int valueSetByUser{};
   };
 
   /** Map of settable parameters (double) */
@@ -425,8 +427,8 @@ private:
   /** Map of settable parameters (int & bool) */
   std::map <std::string,intboolparameter> m_intboolparMap;
 
-  double m_propertyNotSetMagicNumber;
-  int m_propertyNotSetMagicNumber_int;
+  double m_propertyNotSetMagicNumber{};
+  int m_propertyNotSetMagicNumber_int{};
 
   mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 

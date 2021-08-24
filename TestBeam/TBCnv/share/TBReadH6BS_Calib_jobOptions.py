@@ -18,6 +18,9 @@ theApp.Dlls +=["TBCnv", "DBDataModelAthenaPoolPoolCnv"]
 #StreamBS.ItemList += ["TBLArDigitContainer#*"]
 #StreamBS.ItemList += ["TBLArCalibDigitContainer#*"]
 
+from LArCabling.LArCablingAccess import LArCalibIdMapping
+LArCablibIdMapping()
+
 from TBCnv.TBCnvConf import  TBByteStreamCnvTool
 ToolSvc += TBByteStreamCnvTool()
 ToolSvc.TBByteStreamCnvTool.ForceHchoice = TRUE

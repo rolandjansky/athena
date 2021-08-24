@@ -36,26 +36,30 @@ bool contains( const std::string& s, const std::string& regx ) {
   return s.find( regx )!=std::string::npos;
 }
 
+bool contains( const std::string& s, char c ) { 
+  return s.find( c )!=std::string::npos;
+}
+
+
 bool contains_end( const std::string& s, const std::string& regx ) { 
-  return std::regex_match( s, std::regex(regx+"$") ); 
+  return std::regex_match( s, std::regex(regx+'$') ); 
 }
 
 
 std::vector<std::string> split( std::string& line ) { 
   std::vector<std::string> strings;
- 
-  while ( contains( line, "/" ) )  line.replace( line.find("/"), 1, "   " );
-  while ( contains( line, "\t" ) ) line.replace( line.find("\t"), 1, " " );
+  while ( contains( line, '/' ) )  line.replace( line.find('/'), 1, "   " );
+  std::replace(line.begin(), line.end(), '\t', ' ');
 
-  while ( contains( line, " " ) ) { 
+  while ( contains( line, ' ' ) ) { 
     std::string _s = chop( line, " " );
     std::string  s = chop( _s, "\t" );
-    if ( contains( s, "\t" ) ) { 
-      line.replace( s.find("\t"), 1, " " );
+    if ( contains( s, '\t' ) ) { 
+      line.replace( s.find('\t'), 1, " " );
       continue;
     }
-    while ( contains( s, " " ) ) line.replace( s.find(" "), 1, "" );
-    if ( s != "" ) strings.push_back( s );
+    while ( contains( s, ' ' ) ) line.replace( s.find(' '), 1, "" );
+    if ( !s.empty() ) strings.push_back( s );
   }
 
   strings.push_back( line );
@@ -218,7 +222,7 @@ int main( int argc, char** argv ) {
 
   if ( aslice=="" ) return usage( argc, argv, 9 ); 
 
-  std::string slice = "/" + aslice + "/";
+  std::string slice = "/" + aslice + '/';
 
   std::string rawslice = aslice;
 
@@ -309,10 +313,10 @@ int main( int argc, char** argv ) {
 
 	std::string tmp = expl[expected_size-2];
 
-        if ( tag != "" ) { 
+        if ( !tag.empty() ) { 
           if ( contains( tmp, tag ) ) tmp.replace( tmp.find(tag), tag.size(), "" ); 
 
-          size_t pos = tmp.find("_");
+          size_t pos = tmp.find('_');
           if ( pos!=std::string::npos ) tmp.replace( pos, tmp.size()-pos, "" );
         }
 
@@ -343,7 +347,7 @@ int main( int argc, char** argv ) {
 
 	    threshold t( thresh_var, it++, expl[expected_size-2], expl[expected_size-1], counts_var );
 
-	    if ( verbose && fullpath=="" ) for ( unsigned ip=0 ; ip<expected_size-2 ; ip++ )  fullpath += expl[ip]+"/";
+	    if ( verbose && fullpath=="" ) for ( unsigned ip=0 ; ip<expected_size-2 ; ip++ )  fullpath += expl[ip]+'/';
 	    
 	    //    std::cout << "\tfullpath " << fullpath << std::endl;
 	    //	  std::cout << "\t" << t << "\t" << contains( expl[4], "_track_" ) << std::endl;

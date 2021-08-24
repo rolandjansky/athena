@@ -175,26 +175,23 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->phi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
        
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->phi()/10.;
-    double eta = jFexRoI->eta()/10.;
-    //Need to understand inputs
-    //Change range from [0,4.9] to [-2.5,2.5]
-    eta -= 2.5;
-    
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
+   
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);
     // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
     unsigned uphi = round(phi*20.0);
 
-    // Avoid the events with 0 Et (Leaving this comment to be aware there are events with 0 Et)
-    //if (Et==0) continue;
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
 
     TCS::jTauTOB tau( Et, ieta, uphi );
     tau.setEtaDouble(eta);
@@ -211,26 +208,23 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->phi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
     
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->phi()/10.;
-    double eta = jFexRoI->eta()/10.;
-    //Need to understand inputs
-    //Change range from [0,4.9] to [-2.5,2.5]
-    eta -= 2.5;
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
     
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);
     // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
     unsigned uphi = round(phi*20.0);
 
-    // Avoid the events with 0 Et (Leaving this comment to be aware there are events with 0 Et)
-    //if (Et==0) continue;
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
 
     TCS::jLargeRJetTOB jet( Et, ieta, uphi );
     jet.setEtaDouble(eta);
@@ -247,26 +241,23 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
 		   << " eta: "
-		   << jFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << jFexRoI->phi() // returns a floating point global phi
+		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
 
     unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
-    double phi = jFexRoI->phi()/10.;
-    double eta = jFexRoI->eta()/10.;
-    //Need to understand inputs
-    //Change range from [0,4.9] to [-2.5,2.5]
-    eta -= 2.5;
+    double phi = jFexRoI->globalPhi()/10.;
+    double eta = jFexRoI->globalEta()/10.;
     
     // The 1/0.025 conversion necessary for take correct value from LUT. (0.025 is the finest granularity in phase1 l1muon input)
     int ieta = round(eta*40.0);
     // The 1/0.05 conversion necessary for take correct value from LUT. (0.05 is the finest granularity in phase1 l1muon input)
     unsigned uphi = round(phi*20.0);
 
-    // Avoid the events with 0 Et (Leaving this comment to be aware there are events with 0 Et)
-    //if (Et==0) continue;
+    // Avoid the events with 0 Et (events below threshold)
+    if (Et==0) continue;
 
     TCS::jJetTOB jet( Et, ieta, uphi );
     jet.setEtaDouble(eta);

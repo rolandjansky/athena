@@ -86,46 +86,14 @@ if rec.doTrigger():
             ToolSvc += RecMuCTPIByteStreamTool("RecMuCTPIByteStreamTool")
         ToolSvc.RecMuCTPIByteStreamTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-
-        # need thresholds so should be called just if the info is there in COOL
-        from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToAOD
-        a2 = RoIBResultToAOD("RoIBResultToAOD")
-        a2.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1JEMJetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-        a2.L1CPMTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
-        a4 = LVL1__TriggerTowerMaker("TriggerTowerMaker")
-        a4.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        if not hasattr(ToolSvc,'L1EtTools'):
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EtTools
-            ToolSvc +=LVL1__L1EtTools("L1EtTools")
-        ToolSvc.L1EtTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        if not hasattr(ToolSvc,'L1JEPEtSumsTools'):
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPEtSumsTools
-            ToolSvc += LVL1__L1JEPEtSumsTools("L1JEPEtSumsTools")
-        ToolSvc.L1JEPEtSumsTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        if not hasattr(ToolSvc,'L1JEPHitsTools'):
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
-            ToolSvc += LVL1__L1JEPHitsTools("L1JEPHitsTools")
-        ToolSvc.L1JEPHitsTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
         import TrigT1CaloTools.TrigT1CaloToolsConf as calotools  # noqa: F401
-
         for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
-                         'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
+                         'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools']:
             if not hasattr(ToolSvc, toolName ):
                 ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
             theTool = getattr(ToolSvc, toolName)
-            theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-            if 'UseNewConfig' in theTool.getProperties():
-                _log.info("Setting ToolSvc.%s.UseNewConfig to %s", theTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
-                theTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
-
-
+            if 'LVL1ConfigSvc' in theTool.getProperties():
+                theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #---------------------------------------------------------------------------
     try:

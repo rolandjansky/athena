@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -20,18 +19,15 @@
 #include <algorithm>
 #include <cmath>
 
-egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator):
-  AthReentrantAlgorithm(name, pSvcLocator)
-{
-}
+egammaForwardBuilder::egammaForwardBuilder(const std::string& name,
+                                           ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
+{}
 
-
-// ================================================================
 egammaForwardBuilder::~egammaForwardBuilder()
 {
 }
 
-// =================================================================
 StatusCode egammaForwardBuilder::initialize()
 {
   // the data handle keys
@@ -57,8 +53,10 @@ StatusCode egammaForwardBuilder::initialize()
 
   ATH_CHECK(m_forwardElectronIsEMSelectors.retrieve());
 
-  if (m_forwardElectronIsEMSelectors.size() != m_forwardElectronIsEMSelectorResultNames.size()) {
-    ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");
+  if (m_forwardElectronIsEMSelectors.size() !=
+      m_forwardElectronIsEMSelectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given "
+                  "fwd-electron selector names");
     return StatusCode::FAILURE;
   }
 
@@ -78,72 +76,90 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   // create an egamma container and register it
   SG::WriteHandle<xAOD::ElectronContainer> xaodFrwd(m_electronOutputKey, ctx);
   ATH_CHECK(xaodFrwd.record(std::make_unique<xAOD::ElectronContainer>(),
-			    std::make_unique<xAOD::ElectronAuxContainer>()));
+                            std::make_unique<xAOD::ElectronAuxContainer>()));
 
+  // Create the relevant cluster output and register it
+  SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(
+    m_outClusterContainerKey, ctx);
+  ATH_CHECK(outClusterContainer.record(
+    std::make_unique<xAOD::CaloClusterContainer>(),
+    std::make_unique<xAOD::CaloClusterAuxContainer>()));
 
-  //cluster
-  SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(m_outClusterContainerKey, ctx);
-  ATH_CHECK(outClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
-					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
-  SG::WriteHandle<CaloClusterCellLinkContainer> outClusterContainerCellLink(m_outClusterContainerCellLinkKey, ctx);
-  ATH_CHECK(outClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
+  SG::WriteHandle<CaloClusterCellLinkContainer> outClusterContainerCellLink(
+    m_outClusterContainerCellLinkKey, ctx);
+  ATH_CHECK(outClusterContainerCellLink.record(
+    std::make_unique<CaloClusterCellLinkContainer>()));
 
-  //Topo cluster Container
-  SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey, ctx);
+  // Topo cluster Container
+  SG::ReadHandle<xAOD::CaloClusterContainer> inputClusters(m_topoClusterKey, ctx);
 
   // check is only used for serial running; remove when MT scheduler used
-  // --used to be a warning with SUCCESS, but that won't work in MT
-  if(!cluster.isValid()) {
+  if(!inputClusters.isValid()) {
     ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container");
     return StatusCode::FAILURE;
   }
+  //retrieve CaloDetDescr 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
 
-  //loop over cluster container
-  xAOD::CaloClusterContainer::const_iterator  clus_begin = cluster->begin();
-  xAOD::CaloClusterContainer::const_iterator  clus_end   = cluster->end();
-
-  for (; clus_begin!=clus_end; ++clus_begin) {
-
+  // loop over input cluster container and create fwd electrons
+  xAOD::CaloClusterContainer::const_iterator clus_begin =
+    inputClusters->begin();
+  xAOD::CaloClusterContainer::const_iterator clus_end = inputClusters->end();
+  static const SG::AuxElement::Accessor<
+    std::vector<ElementLink<xAOD::CaloClusterContainer>>>
+    caloClusterLinks("constituentClusterLinks");
+  
+  size_t origClusterIndex = 0;
+  for (; clus_begin!=clus_end; ++clus_begin,++origClusterIndex) {
+ 
     //Preselectcion cuts
     if((*clus_begin)->et() < m_ETcut||
-       fabs((*clus_begin)->eta())<m_etacut)
+       std::abs((*clus_begin)->eta())<m_etacut){
       continue;
+    }
 
-    //Save it in the electroncontainer
+    //Create a new electron
     xAOD::Electron* el = new xAOD::Electron();
     xaodFrwd->push_back(el);
-
     el->setAuthor( xAOD::EgammaParameters::AuthorFwdElectron );
 
-    xAOD::CaloCluster *newcluster = new xAOD::CaloCluster(**clus_begin);
-    outClusterContainer->push_back(newcluster);
+    //Deep copy of topo cluster as might want to own modify it 
+    xAOD::CaloCluster *newCluster = new xAOD::CaloCluster(**clus_begin);
+    outClusterContainer->push_back(newCluster);  
 
+    //set links back to the original caloCalTopoCluster we copied from
+    std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
+    constituentLinks.emplace_back(*inputClusters, origClusterIndex, ctx);
+    caloClusterLinks(*newCluster) = constituentLinks;
+
+    //Now attach the copied cluster to the electron
     int index = outClusterContainer->size() - 1;
-
     ElementLink<xAOD::CaloClusterContainer> newclusterElementLink(
       *outClusterContainer, index, ctx);
-
     std::vector< ElementLink< xAOD::CaloClusterContainer > > linksToClusters;
     linksToClusters.push_back(newclusterElementLink);
     el->setCaloClusterLinks(linksToClusters);
 
-    //do  Four Momentum
+    // do  Four Momentum
     ATH_CHECK(m_fourMomBuilder->execute(ctx, el));
 
     // do object quality
-    ATH_CHECK( ExecObjectQualityTool(ctx, el) );
+    ATH_CHECK(ExecObjectQualityTool(ctx, calodetdescrmgr, el));
 
-
-    // FwdSelectors:
+    // Apply the Forward Electron selectors
     size_t size = m_forwardElectronIsEMSelectors.size();
 
-    for (size_t i = 0; i<size;++i) {
-      asg::AcceptData accept = m_forwardElectronIsEMSelectors[i]->accept(ctx, el);
-      //save the bool result
-      el->setPassSelection(static_cast<bool>(accept), m_forwardElectronIsEMSelectorResultNames[i]);
-      //save the isem
-      el->setSelectionisEM(accept.getCutResultInverted(), "isEM"+m_forwardElectronIsEMSelectorResultNames[i]);
-
+    for (size_t i = 0; i < size; ++i) {
+      asg::AcceptData accept =
+        m_forwardElectronIsEMSelectors[i]->accept(ctx, el);
+      // save the bool result
+      el->setPassSelection(static_cast<bool>(accept),
+                           m_forwardElectronIsEMSelectorResultNames[i]);
+      // save the isem
+      el->setSelectionisEM(accept.getCutResultInverted(),
+                           "isEM" +
+                             m_forwardElectronIsEMSelectorResultNames[i]);
     }
   }
 
@@ -155,20 +171,18 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-// ===========================================================
-StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, xAOD::Egamma *eg) const
+StatusCode
+egammaForwardBuilder::ExecObjectQualityTool(
+  const EventContext& ctx,
+  const CaloDetDescrManager* calodetdescrmgr,
+  xAOD::Egamma* eg) const
 {
   //
   // execution of the object quality tools
   //
   // protection in case tool is not available
-  // return success as algorithm may be able to run without it
-  // in degraded mode
+  // return success as algorithm can run without it
   if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
-
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
-
   // execute the tool
   return m_objectQualityTool->execute(ctx, *calodetdescrmgr,*eg);
 }

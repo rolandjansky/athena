@@ -17,11 +17,11 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 
 #include "SiDigitization/SiHelper.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "ReadoutGeometryBase/SiCellId.h"
 
@@ -44,7 +44,7 @@ public:
 
   virtual StatusCode initialize() {
     ATH_CHECK(m_pixelConditionsTool.retrieve());
-    ATH_CHECK(m_pixelCabling.retrieve());
+    ATH_CHECK(m_pixelReadout.retrieve());
     ATH_CHECK(m_moduleDataKey.initialize());
     ATH_CHECK(m_chargeDataKey.initialize());
     return StatusCode::SUCCESS;
@@ -120,7 +120,7 @@ public:
       int circuit = CLHEP::RandFlat::shootInt(rndmEngine, p_design->numberOfCircuits());
       int column = CLHEP::RandFlat::shootInt(rndmEngine, p_design->columnsPerCircuit());
       int row = CLHEP::RandFlat::shootInt(rndmEngine, p_design->rowsPerCircuit());
-      if (row > 159 && p_design->getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI3) {
+      if (row > 159 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI3) {
         row += 8;
       } // jump over ganged pixels - rowsPerCircuit == 320 above
 
@@ -142,7 +142,7 @@ public:
         double noiseToTm = bin + 1.5;
         double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.);
 
-        int type = m_pixelCabling->getPixelType(noisyID);
+        InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(noisyID);
         double chargeShape = calibData->getCharge((int) moduleHash, circuit, type, noiseToT);
 
         chargedDiodes.add(diodeNoise, SiCharge(chargeShape, 0, SiCharge::noise));
@@ -173,9 +173,9 @@ protected:
     this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
   };
 
-  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
   {
-    this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"
+    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
   };
 
   SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey

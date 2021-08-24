@@ -76,9 +76,9 @@ private:
 	int m_evtLumiBlock;
 	int m_good_bcid;
 	int m_nTotalTracks;
-	int m_nTracksB[2];
-	int m_nTracksEC[2];
-	int m_nTracksEC_B[2];
+	int m_nTracksB[2]{};
+	int m_nTracksEC[2]{};
+	int m_nTracksEC_B[2]{};
 	std::vector<unsigned int> m_rodMap;
 	bool m_passEventBurst;
 	bool m_ArgonXenonSplitter;
@@ -103,20 +103,20 @@ private:
 	                                const xAOD::EventInfo& eventInfo);
 	StatusCode checkTRTReadoutIntegrity(const xAOD::EventInfo& eventInfo);
 
-	int strawLayerNumber(int strawLayerNumber, int LayerNumber);
+	static int strawLayerNumber(int strawLayerNumber, int LayerNumber);
 
 
 	// Returns the straw number (0-1641) given the layerNumber, strawlayerNumber, and strawNumber, all gotten from Athena IDHelper
 	int strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber);
 	// Returns Barrel Board Number
-	int chipToBoard(int chip);
+	static int chipToBoard(int chip);
 	// Returns EndCap Board Number
-	int chipToBoard_EndCap(int chip);
+	static int chipToBoard_EndCap(int chip);
 
 	// Returns Degrees, converted from radians (Athena Standard units)
-	float radToDegrees(float radValue);
-	int strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber);
-	int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber);
+	static float radToDegrees(float radValue);
+	static int strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber);
+	static int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber);
 
 	TH1F_LW* bookTH1F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
 	TH2F_LW* bookTH2F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
@@ -176,11 +176,11 @@ private:
 	std::string m_mapPath;
 
 	TH1F_LW* m_hSummary;
-	TProfile* m_hChipBSErrorsVsLB[2][2];
-	TProfile* m_hRobBSErrorsVsLB[2][2];
+	TProfile* m_hChipBSErrorsVsLB[2][2]{};
+	TProfile* m_hRobBSErrorsVsLB[2][2]{};
 
-	TProfile_LW* m_hAvgHLOcc_side[2][2];
-	TProfile_LW* m_hAvgLLOcc_side[2][2];
+	TProfile_LW* m_hAvgHLOcc_side[2][2]{};
+	TProfile_LW* m_hAvgLLOcc_side[2][2]{};
 
 	TH1F_LW* m_hNumTrksDetPhi_B;//hNTrksvsPhi
 	TProfile_LW* m_hNumHoTDetPhi_B;//hNumHoTPhi
@@ -216,90 +216,90 @@ private:
 	TH1F_LW* m_hTimeResidual_B_Ar;
 	TH2F_LW* m_hrtRelation_B_Ar;//hrt
 
-	TH1F_LW* m_hNumTrksDetPhi_E[2];//hNTrksvsPhi
-	TProfile_LW* m_hNumHoTDetPhi_E[2];//hNumHoTPhi
-	TProfile_LW* m_hAvgTroTDetPhi_E[2];//hAvgTrEdgeonTrack
-	TProfile_LW* m_hAvgTroTDetPhi_E_Ar[2];
-	TH1F_LW* m_hNumSwLLWoT_E[2];//hLLHitsonTrk
-	TProfile_LW* m_hStrawEffDetPhi_E[2];//hStrawEffDetPhi
-	TH1F_LW* m_hHitWMap_E[2];
-	TH1F_LW* m_hHitWonTMap_E[2];
+	TH1F_LW* m_hNumTrksDetPhi_E[2]{};//hNTrksvsPhi
+	TProfile_LW* m_hNumHoTDetPhi_E[2]{};//hNumHoTPhi
+	TProfile_LW* m_hAvgTroTDetPhi_E[2]{};//hAvgTrEdgeonTrack
+	TProfile_LW* m_hAvgTroTDetPhi_E_Ar[2]{};
+	TH1F_LW* m_hNumSwLLWoT_E[2]{};//hLLHitsonTrk
+	TProfile_LW* m_hStrawEffDetPhi_E[2]{};//hStrawEffDetPhi
+	TH1F_LW* m_hHitWMap_E[2]{};
+	TH1F_LW* m_hHitWonTMap_E[2]{};
 	TH1F_LW* m_Pull_Biased_EndCap;
-	TH1F_LW* m_hResidual_E[2];//hHitToTrkDistance
-	TH1F_LW* m_hResidual_E_20GeV[2];//hHitToTrkDistance
-	TH1F_LW* m_hTimeResidual_E[2];//hHitToTrkDistance
-	TH1F_LW* m_hDriftTimeonTrkDist_E[2];//hDriftTimeonTrk
-	TH1F_LW* m_hTronTDist_E[2];//hTronT
-	TH2F_LW* m_hrtRelation_E[2];//hrt
-	TH1F_LW* m_hHLhitOnTrack_E[2];
-	TH1F_LW* m_hHtoLRatioOnTrack_E[2];
-	TH1F_LW* m_hHtoLRatioOnTrack_E_Ar[2];
-	TH1F_LW* m_hHtoLRatioOnTrack_E_Xe[2];
-	TH1F_LW* m_hWireToTrkPosition_E[2];//hWiretoTrkPosition
-	TH1F_LW* m_hWireToTrkPosition_E_Ar[2];
-	TH1F_LW* m_hResVsDetPhi_E[2];
-	TProfile* m_hNHitsperLB_E[2];
-	TProfile* m_hNTrksperLB_E[2];
-	TProfile* m_hNHLHitsperLB_E[2];
+	TH1F_LW* m_hResidual_E[2]{};//hHitToTrkDistance
+	TH1F_LW* m_hResidual_E_20GeV[2]{};//hHitToTrkDistance
+	TH1F_LW* m_hTimeResidual_E[2]{};//hHitToTrkDistance
+	TH1F_LW* m_hDriftTimeonTrkDist_E[2]{};//hDriftTimeonTrk
+	TH1F_LW* m_hTronTDist_E[2]{};//hTronT
+	TH2F_LW* m_hrtRelation_E[2]{};//hrt
+	TH1F_LW* m_hHLhitOnTrack_E[2]{};
+	TH1F_LW* m_hHtoLRatioOnTrack_E[2]{};
+	TH1F_LW* m_hHtoLRatioOnTrack_E_Ar[2]{};
+	TH1F_LW* m_hHtoLRatioOnTrack_E_Xe[2]{};
+	TH1F_LW* m_hWireToTrkPosition_E[2]{};//hWiretoTrkPosition
+	TH1F_LW* m_hWireToTrkPosition_E_Ar[2]{};
+	TH1F_LW* m_hResVsDetPhi_E[2]{};
+	TProfile* m_hNHitsperLB_E[2]{};
+	TProfile* m_hNTrksperLB_E[2]{};
+	TProfile* m_hNHLHitsperLB_E[2]{};
 
-	TH1F_LW* m_hTronTDist_E_Ar[2];//hTronT
-	TH1F_LW* m_hDriftTimeonTrkDist_E_Ar[2];//hDriftTimeonTrk
-	TH1F_LW* m_hHitWMap_E_Ar[2];
-	TH1F_LW* m_hResidual_E_Ar[2];
-	TH1F_LW* m_hResidual_E_Ar_20GeV[2];
-	TH1F_LW* m_hTimeResidual_E_Ar[2];
-	TH2F_LW* m_hrtRelation_E_Ar[2];//hrt
+	TH1F_LW* m_hTronTDist_E_Ar[2]{};//hTronT
+	TH1F_LW* m_hDriftTimeonTrkDist_E_Ar[2]{};//hDriftTimeonTrk
+	TH1F_LW* m_hHitWMap_E_Ar[2]{};
+	TH1F_LW* m_hResidual_E_Ar[2]{};
+	TH1F_LW* m_hResidual_E_Ar_20GeV[2]{};
+	TH1F_LW* m_hTimeResidual_E_Ar[2]{};
+	TH2F_LW* m_hrtRelation_E_Ar[2]{};//hrt
 
-	TProfile_LW* m_hStrawsEff[2][64];
+	TProfile_LW* m_hStrawsEff[2][64]{};
 
 	TProfile_LW* m_hEvtPhaseDetPhi_B;
-	TProfile_LW* m_hEvtPhaseDetPhi_E[2];
+	TProfile_LW* m_hEvtPhaseDetPhi_E[2]{};
 	TH1F_LW* m_hEvtPhase;
 	TH2F_LW* m_hEvtPhaseVsTrig;// evt phase vs trig item
-	TProfile_LW* m_hChipsEff[2][64];
+	TProfile_LW* m_hChipsEff[2][64]{};
 
-	TH1F_LW* m_hHitOnTrackVsAllS[2][64];
-	TH1F_LW* m_hHitOnTrackVsAllC[2][64];
+	TH1F_LW* m_hHitOnTrackVsAllS[2][64]{};
+	TH1F_LW* m_hHitOnTrackVsAllC[2][64]{};
 
 	/** Leading Edge in time Window: Straws.
 	 * Any hit where the leading edge (driftTimeBin()) is less than 24.
 	 * In Time window means ((driftTimeBin<24) && !lastBinHigh && !firstBinHigh)
 	 * This is an RDO level histogram.
 	 */
-	TH1F_LW* m_hHitWMapS[2][64];
+	TH1F_LW* m_hHitWMapS[2][64]{};
 
 	/** TE in Time Window: Straws.
 	 * If hit trailing edge is in time window.
 	 * In Time window means ((trailingEdge<23)&& !lastBinHigh && !firstBinHigh)
 	 * m_hHitTrWMapS[m_phi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125));
 	 */
-	TProfile_LW* m_hHitTrWMapS[2][64];
+	TProfile_LW* m_hHitTrWMapS[2][64]{};
 
 	/** Mean TE: Straws.
 	 * Average of Trailing Edge bin where the trailing edge (trailingEdge()) is less than 23.
 	 * This an RDO level histogram.
 	 */
-	TProfile_LW* m_hHitTrMapS[2][64];
+	TProfile_LW* m_hHitTrMapS[2][64]{};
 
 	/** Any LL bit on: Straws
 	 * if any low threshold bit was set.
 	 * if leading edge is > 0, or if trailing edge < 23, or if first bin is high, or if last bin is high
 	 * This is an RDO level histogram.
 	 */
-	TH1F_LW* m_hHitAMapS[2][64];
+	TH1F_LW* m_hHitAMapS[2][64]{};
 
 	/** LL in time window: Straws
 	 * Any low level hit in time window by straw.
 	 * ((m_driftTimeBin>0 || m_trailingEdge<23)&& !m_firstBinHigh && !m_lastBinHigh)
 	 * This is an RDO level histogram.
 	 */
-	TH1F_LW* m_hHitAWMapS[2][64];
+	TH1F_LW* m_hHitAWMapS[2][64]{};
 
 	/** HL/LL: Straws
 	 * The ratio of High Level hits to Low Level hits per straw.
 	 * This is an RDO level histogram.
 	 */
-	TH1F_LW* m_hHtoLMapS[2][64]; // not filled
+	TH1F_LW* m_hHtoLMapS[2][64]{}; // not filled
 
 	/** Mean ToT (ns): Straws.
 	 * Average Time over Threshold (ToT) in nano seconds per straw.
@@ -307,7 +307,7 @@ private:
 	 * m_timeOverThreshold = (p_lolum)->timeOverThreshold();
 	 * This is an RDO level histogram.
 	 */
-	TProfile_LW* m_hHitToTMapS[2][64];
+	TProfile_LW* m_hHitToTMapS[2][64]{};
 
 	/** Mean ToT (ns) for straws with ToT > LongToTCut: Straws.
 	 * Average Time over Threshold (ToT) in nano seconds per straw for straws with ToT > LongToTCut.
@@ -315,7 +315,7 @@ private:
 	 * m_timeOverThreshold = (p_lolum)->timeOverThreshold();
 	 * This is an RDO level histogram.
 	 */
-	TProfile_LW* m_hHitToTLongMapS[2][64];
+	TProfile_LW* m_hHitToTLongMapS[2][64]{};
 
 	/** Mean Trailing Edge (ns) for straws with ToT > LongToTCut: Straws.
 	 * Average Trailing Edge (Tr) in nano seconds per straw for straws with ToT > LongToTCut.
@@ -323,149 +323,149 @@ private:
 	 * m_trailingEdge = (p_lolum)->trailingEgde();
 	 * This is an RDO level histogram.
 	 */
-	TProfile_LW* m_hHitToTLongTrMapS[2][64];
+	TProfile_LW* m_hHitToTLongTrMapS[2][64]{};
 
 	/** High Level: Straws
 	 * If a hit has any of the high threshold time bins up.
 	 * m_hHitHMapS[m_phi_module]->Fill(m_strawNumber);
 	 * This is an RDO level histogram
 	 */
-	TH1F_LW* m_hHitHMapS[2][64];
+	TH1F_LW* m_hHitHMapS[2][64]{};
 
 	/** HL in time window: Straws
 	 * If a hit has any of the high threshold time bins up, and is in the time window. ((m_driftTimeBin<24) && !m_firstBinHight && !m_lastBinHight)
 	 * This is an RDO level histogram
 	 */
-	TH1F_LW* m_hHitHWMapS[2][64];
+	TH1F_LW* m_hHitHWMapS[2][64]{};
 
 	/** LE in time window on track: Straws.
 	 * Leading Edge (LE) is within first 23 time bins of read out from a hit associated with a track.
 	 * This is track level histogram.
 	 */
-	TH1F_LW* m_hHitWonTMapS[2][64];
+	TH1F_LW* m_hHitWonTMapS[2][64]{};
 
 	/** Mean TE on track: Straws
 	 * Average Trailing Edge(TE) from a hit associated with a track.
 	 * This is a track level histogram.
 	 */
-	TProfile_LW* m_hHitTronTMapS[2][64];
+	TProfile_LW* m_hHitTronTMapS[2][64]{};
 
 	/** Any LL bit on track: Straws
 	 * Any low level bit is set from hit associated with a track.
 	 * This is a track level hit
 	 */
-	TH1F_LW* m_hHitAonTMapS[2][64];
+	TH1F_LW* m_hHitAonTMapS[2][64]{};
 
 	/** Any LL bit in time window on track: Straws
 	 * Any low level (LL) bit set and is in time window from hits associated with tracks
 	 * This is a track level histogram.
 	 */
-	TH1F_LW* m_hHitAWonTMapS[2][64];
+	TH1F_LW* m_hHitAWonTMapS[2][64]{};
 
 	/** Any HL hit on track: Straws
 	 * Any straw with a High Threshold (HL) hit associated with a track.
 	 * This is a track level histogram
 	 */
-	TH1F_LW* m_hHitHWonTMapS[2][64];
+	TH1F_LW* m_hHitHWonTMapS[2][64]{};
 	//
 
-	TH1F_LW* m_hHitHonTMapS[2][64];
+	TH1F_LW* m_hHitHonTMapS[2][64]{};
 
 	/** HL in time window on track: Straws
 	 * Straws with a High Threshold hit associated with a track and the hit is in the time window.
 	 * This is a track level histogram.
 	 */
-	TH1F_LW* m_hHtoLonTMapS[2][64]; //not filled
+	TH1F_LW* m_hHtoLonTMapS[2][64]{}; //not filled
 
 	//
-	TH1F_LW* m_hHtoLWonTMapS[2][64]; //not filled
+	TH1F_LW* m_hHtoLWonTMapS[2][64]{}; //not filled
 
 	/** Mean ToT (ns) on Track: Straws
 	 * Average Time over Threshold (ToT) from a straw hit associated with a track.
 	 * This is a track level histogram.
 	 */
-	TProfile_LW* m_hHitToTonTMapS[2][64];
+	TProfile_LW* m_hHitToTonTMapS[2][64]{};
 
 	/** Mean TE on track (with Event Phase correction): Straws.
 	 * Average trailing edge(TE) on track after correcting for event phase from a hit associated with a track.
 	 * This is a track level histogram.
 	 */
-	TProfile_LW* m_hHitTronTwEPCMapS[2][64];
+	TProfile_LW* m_hHitTronTwEPCMapS[2][64]{};
 
 	/** Valid Raw Drift Time on Track.
 	 * Staws with hits that have valid drift times and are associated with a track.
 	 * This is a track level histogram.
 	 */
-	TProfile_LW* m_hValidRawDriftTimeonTrk[2][64];
-	TProfile_LW* m_hValidRawDriftTimeonTrkC[2][64];
-	TH1F_LW* m_hHitWMapC[2][64];
-	TProfile_LW* m_hHitTrMapC[2][64];
-	TProfile_LW* m_hHitTrWMapC[2][64];
-	TH1F_LW* m_hHitAMapC[2][64];
-	TH1F_LW* m_hHitAWMapC[2][64];
-	TH1F_LW* m_hHtoLMapC[2][64]; // not filled
+	TProfile_LW* m_hValidRawDriftTimeonTrk[2][64]{};
+	TProfile_LW* m_hValidRawDriftTimeonTrkC[2][64]{};
+	TH1F_LW* m_hHitWMapC[2][64]{};
+	TProfile_LW* m_hHitTrMapC[2][64]{};
+	TProfile_LW* m_hHitTrWMapC[2][64]{};
+	TH1F_LW* m_hHitAMapC[2][64]{};
+	TH1F_LW* m_hHitAWMapC[2][64]{};
+	TH1F_LW* m_hHtoLMapC[2][64]{}; // not filled
 
-	TH2F_LW* m_hHtoBCMapC[2][64];
-	TH2F_LW* m_hHtoBCMapB[2][64];
-	TProfile_LW* m_hHitToTMapC[2][64];
-	TH1F_LW* m_hHitHMapC[2][64];
-	TH1F_LW* m_hHitHWMapC[2][64];
+	TH2F_LW* m_hHtoBCMapC[2][64]{};
+	TH2F_LW* m_hHtoBCMapB[2][64]{};
+	TProfile_LW* m_hHitToTMapC[2][64]{};
+	TH1F_LW* m_hHitHMapC[2][64]{};
+	TH1F_LW* m_hHitHWMapC[2][64]{};
 
 	/** LE in time window on track: Chips.
 	 * Leading Edge (LE) from a hit associated with a track is within first 23 time bins.
 	 * Plotted as a function of DTMROC.
 	 * This is a track level histogram.
 	 */
-	TH1F_LW* m_hHitWonTMapC[2][64];
-	TProfile_LW* m_hHitTronTMapC[2][64];
-	TH1F_LW* m_hHitAonTMapC[2][64];
-	TH1F_LW* m_hHitAWonTMapC[2][64];
-	TH1F_LW* m_hHitHonTMapC[2][64];
-	TH1F_LW* m_hHitHWonTMapC[2][64];
-	TH1F_LW* m_hHtoLonTMapC[2][64]; // not filled
-	TH1F_LW* m_hHtoLWonTMapC[2][64]; //
-	TProfile_LW* m_hHitToTonTMapC[2][64];
-	TProfile_LW* m_hHitTronTwEPCMapC[2][64];
+	TH1F_LW* m_hHitWonTMapC[2][64]{};
+	TProfile_LW* m_hHitTronTMapC[2][64]{};
+	TH1F_LW* m_hHitAonTMapC[2][64]{};
+	TH1F_LW* m_hHitAWonTMapC[2][64]{};
+	TH1F_LW* m_hHitHonTMapC[2][64]{};
+	TH1F_LW* m_hHitHWonTMapC[2][64]{};
+	TH1F_LW* m_hHtoLonTMapC[2][64]{}; // not filled
+	TH1F_LW* m_hHtoLWonTMapC[2][64]{}; //
+	TProfile_LW* m_hHitToTonTMapC[2][64]{};
+	TProfile_LW* m_hHitTronTwEPCMapC[2][64]{};
 
-	TProfile_LW* m_hHitToTrkDistanceMapS_E[64];
+	TProfile_LW* m_hHitToTrkDistanceMapS_E[64]{};
 
 	/** Avg. Occupancy: Modules (Side A&C)
 	 * Average Occupancy per Phi Module on Side A(&C).
 	 * This is an RDO level Histogram.
 	 */
-	TProfile_LW* m_hAvgLLOccMod_side[2][2];
-	TProfile_LW* m_hAvgHLOccMod_side[2][2];
-	TProfile_LW* m_hBCIDvsOcc[2];
+	TProfile_LW* m_hAvgLLOccMod_side[2][2]{};
+	TProfile_LW* m_hAvgHLOccMod_side[2][2]{};
+	TProfile_LW* m_hBCIDvsOcc[2]{};
 
 	/** Avg. Occupancy: Modules (Side A and C)
 	 * Average Occupancy per Phi Module on Side A and C.
 	 * This is an RDO level Histogram.
 	 */
-	TH1F_LW* m_hChipOcc[2][64];
-	TH1F_LW* m_hStrawOcc[2][64];
+	TH1F_LW* m_hChipOcc[2][64]{};
+	TH1F_LW* m_hStrawOcc[2][64]{};
 
 	/** Anatoli's "Scatter histograms" **
 	 ** Monitor quantities as a function of lumi block. Fill per every stack
 	 */
-	TH2F_LW* m_hHitsOnTrack_Scatter[2];
-	TH2F_LW* m_hLLOcc_Scatter[2];
-	TH2F_LW* m_hHightoLowRatioOnTrack_Scatter[2];
+	TH2F_LW* m_hHitsOnTrack_Scatter[2]{};
+	TH2F_LW* m_hLLOcc_Scatter[2]{};
+	TH2F_LW* m_hHightoLowRatioOnTrack_Scatter[2]{};
 	TH1F_LW* m_hOccAll;
 	//Vector for normalizing probabilities of hHitWmap histograms (Leading Edge in Time Window probability per straw number)
 	std::vector<float>  m_scale_hHitWMap_B;
 	std::vector<float>  m_scale_hHitWMap_B_Ar;
 	/* Helpers for the scatter histograms - 32 stacks (do same for both side for now) */
-	float m_LLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
+	float m_LLOcc[2][64]{}; // easy to keep occupancy separately for sides A&C, so let's do that
 
 	/**Initialize Aging plots**
 	 **HT, All, Barrel, EC, In/A, Out/C, etc...
 	 */
 
-	TH1F_LW* m_trackz_All[5][2];//({L1 Long, L2, L3, L1 short Pos, L2 Short Neg},{A,C})
-	TH1F_LW* m_trackz_HT[5][2];
+	TH1F_LW* m_trackz_All[5][2]{};//({L1 Long, L2, L3, L1 short Pos, L2 Short Neg},{A,C})
+	TH1F_LW* m_trackz_HT[5][2]{};
 
-	TH1F_LW* m_trackr_All[4][2]; // ({In_A,In_B,Out_A,Out_B},{A,C})
-	TH1F_LW* m_trackr_HT[4][2];
+	TH1F_LW* m_trackr_All[4][2]{}; // ({In_A,In_B,Out_A,Out_B},{A,C})
+	TH1F_LW* m_trackr_HT[4][2]{};
 	TH1F_LW* m_IntLum;
 	TH1F_LW* m_LBvsLum;
 	TH1F_LW* m_LBvsTime;
@@ -516,10 +516,10 @@ private:
 	float m_EventPhaseScale;
 
 
-	unsigned char m_mat_chip_B[64][1642];
+	unsigned char m_mat_chip_B[64][1642]{};
 	int m_nStrawHits_B[1642];
 
-	unsigned char m_mat_chip_E[64][3840];
+	unsigned char m_mat_chip_E[64][3840]{};
 	int m_nStrawHits_E[2][3840];
 
 	float m_DriftTimeonTrkDistScale_B;
@@ -556,13 +556,13 @@ private:
 	float m_ResidualScale_E_20GeV[2];
 	float m_TimeResidualScale_E[2];
 	float m_DriftTimeonTrkDistScale_E_Ar[2];
-	float m_TronTDistScale_E_Ar[2];
+	float m_TronTDistScale_E_Ar[2]{};
 	float m_ResidualScale_E_Ar[2];
 	float m_ResidualScale_E_Ar_20GeV[2];
 	float m_TimeResidualScale_E_Ar[2];
-	int m_nTrksperLB_E[2];
-	int m_nHitsperLB_E[2];
-	int m_nHLHitsperLB_E[2];
+	int m_nTrksperLB_E[2]{};
+	int m_nHitsperLB_E[2]{};
+	int m_nHLHitsperLB_E[2]{};
 
 	/*
 	  ToolHandle<Trk::IPropagator> m_propagatorTool;
@@ -575,7 +575,7 @@ private:
 	bool m_trt_only_trks;
 	bool m_zero_field;
 	bool m_DEBUG;//obsolete
-	bool m_printEventInfo;//obsolete
+	bool m_printEventInfo = false;//obsolete
 	float m_longToTCut;
 	int m_nphi_bins;
 	int m_EventBurstCut;
@@ -583,11 +583,11 @@ private:
 	bool m_isCosmics;
 	int m_minTRThits;
 	float m_minP;
-	void scale_LWHist(LWHist1D* hist, float scale);
+	static void scale_LWHist(LWHist1D* hist, float scale);
 	void scale_LWHistWithScaleVector(LWHist1D* hist, const std::vector<float>& scale);
 	int initScaleVectors();
 	int m_flagforscale;
-	void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
+	static void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
 
 	///// Additional stuff for efficiency measurements, online only for now
 	std::string m_track_collection_hole_finder;
@@ -619,14 +619,14 @@ private:
 	TProfile_LW* m_hefficiency_z0;
 	TProfile_LW* m_hefficiencyBarrel_locR;
 	TProfile_LW* m_hefficiencyBarrel_locR_Ar;
-	TProfile_LW* m_hefficiencyEndCap_locR[2];
-	TProfile_LW* m_hefficiencyEndCap_locR_Ar[2];
+	TProfile_LW* m_hefficiencyEndCap_locR[2]{};
+	TProfile_LW* m_hefficiencyEndCap_locR_Ar[2]{};
 
-	TProfile_LW* m_hefficiencyMap[2]; // 0-barrel, 1-endcap
-	TProfile_LW* m_hefficiencyS[2][64]; // 0-barrel, 1-endcap
-	TProfile_LW* m_hefficiencyC[2][64]; // 0-barrel, 1-endcap
-	TH1F_LW* m_hefficiency[2][2];
-	TH1F_LW* m_hefficiencyIntegral[2][2];
+	TProfile_LW* m_hefficiencyMap[2]{}; // 0-barrel, 1-endcap
+	TProfile_LW* m_hefficiencyS[2][64]{}; // 0-barrel, 1-endcap
+	TProfile_LW* m_hefficiencyC[2][64]{}; // 0-barrel, 1-endcap
+	TH1F_LW* m_hefficiency[2][2]{};
+	TH1F_LW* m_hefficiencyIntegral[2][2]{};
 
 	int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side);
 	/////////

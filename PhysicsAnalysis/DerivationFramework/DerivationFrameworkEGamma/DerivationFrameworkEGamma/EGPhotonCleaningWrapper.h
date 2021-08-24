@@ -49,9 +49,10 @@ private:
                                                             "Input" };
 
   // Write decoration handle keys
-  // these are not really configuarable
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPass{};
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_decoratorPassDelayed{};
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer>
+    m_decoratorPass{ this, "decoratorPass", "", "" };
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer>
+    m_decoratorPassDelayed{ this, "decoratorPassDelayed", "", "" };
   std::string m_sgName;
 };
 }

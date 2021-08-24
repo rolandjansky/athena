@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
@@ -64,16 +63,25 @@ def precisionTrackingSequenceCfg_lrt( flags, is_probe_leg=False ):
     return precisionTrackingMenuSequence_LRT('Electron', is_probe_leg=is_probe_leg)
 
 def precisionElectronSequenceCfg( flags, is_probe_leg=False ):
-    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg)
+    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, do_idperf = False)
+
+def precisionElectronSequenceCfg_idperf( flags, is_probe_leg=False ):
+    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, do_idperf = True)
 
 def precisionElectronSequenceCfg_ion( flags, is_probe_leg=False ):
-    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=True)
+    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=True, do_idperf = False)
 
-def precisionGSFElectronSequenceCfg( flags, is_probe_leg=False ):
-    return precisionElectronMenuSequence_GSF(is_probe_leg=is_probe_leg)
+def precisionGSFElectronSequenceCfg( flags, is_probe_leg=False):
+    return precisionElectronMenuSequence_GSF(is_probe_leg=is_probe_leg, do_idperf = False)
 
-def precisionElectronSequenceCfg_lrt( flags, is_probe_leg=False ):
-    return precisionElectronMenuSequence_LRT(is_probe_leg=is_probe_leg)
+def precisionGSFElectronSequenceCfg_idperf( flags, is_probe_leg=False):
+    return precisionElectronMenuSequence_GSF(is_probe_leg=is_probe_leg, do_idperf = True)
+
+def precisionElectronSequenceCfg_lrt( flags, is_probe_leg=False):
+    return precisionElectronMenuSequence_LRT(is_probe_leg=is_probe_leg, do_idperf = False)
+
+def precisionElectronSequenceCfg_lrt_idperf( flags, is_probe_leg=False ):
+    return precisionElectronMenuSequence_LRT(is_probe_leg=is_probe_leg, do_idperf = True)
 
 # this must be moved to the HypoTool file:
 
@@ -120,96 +128,52 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-  
+        self.chainDict = chainDict
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):
+    def assembleChainImpl(self):
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
-
         stepDictionary = {
                 'etcut1step': ['getFastCalo'],
-                'vlooseidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'looseidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'mediumidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'tightidperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'idperfetcut'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'loose'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'medium'    : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'mergedtight' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'etcutnoringer'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-                'lhloosenoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhvloosenoringer'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhmediumnoringer'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtightnoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhlooseivarloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhlooseivarmedium' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhlooseivartight'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhmediumivarloose' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhmediumivarmedium': ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhmediumivartight' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtightivarloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtightivarmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtightivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'lhtightivarloosenoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                
-                # gsf sequences. For now just setting up as normal non-gsf chains
-                'lhloosegsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhvloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhmediumgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhtightgsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhlooseivarloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhlooseivarmediumgsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhlooseivartightgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhmediumivarloosegsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhmediumivarmediumgsf': ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhmediumivartightgsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhtightivarloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhtightivarmediumgsf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                'lhtightivartightgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
-                
-                # lrt chains
-                'lhlooselrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
-                'lhmediumlrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
-                'lhtightlrtloose'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
-                'lhmediumlrtmedium'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
-                'lhtightlrttight'   : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],
           
-                # dnn chains
-                'dnnloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'dnnmedium'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-                'dnntight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-
-                # lrt-idperf chains
-                'looseidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
-                'mediumidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
-                'tightidperflrtloose'    : ['getFastCalo', 'getFastElectron_lrt_idperf', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
+                'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 
+                # nominal and nominal-idperf
+                'nominal'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
+                
+                # gsf and gsf-idperf
+                'nominalgsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionGSFElectron'],
+                
+                # lrt and lrt-idperf
+                'nominallrt'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],  
+
                 # fwd sequences
                 'etcutfwd' : ['getFastCalo_fwd', 'getPrecisionCaloElectron_fwd']
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
-        key = self.chainPart['IDinfo'] + self.chainPart['isoInfo'] + self.chainPart['trkInfo'] + self.chainPart['lrtInfo']
+        key = "nominal"
 
-        for addInfo in self.chainPart['addInfo']:
-            key+=addInfo
         
-        for L2IDAlg in self.chainPart['L2IDAlg']:
-            key+=L2IDAlg
+        if self.chainPart['addInfo']:
+            if "etcut1step" in self.chainPart['addInfo']:
+                key = "etcut1step"
+            elif "etcut" in self.chainPart['addInfo'] and "fwd" in self.chainPart['addInfo']:
+                key = "etcutfwd"
+            else:
+                key = "etcut"
+        
+        if "gsf" in self.chainPart['gsfInfo']:
+            key = "nominalgsf"
 
-        for topo in self.chainPart['topo']:
-            key+=topo
+        if self.chainPart['lrtInfo']:  
+            key = "nominallrt"
 
         log.debug('electron key = %s', key)
         if key in stepDictionary:
@@ -237,24 +201,23 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(1,stepName,[ fastCaloCfg], is_probe_leg=is_probe_leg)
 
     def getFastElectron(self,is_probe_leg=False):
-        if "bBeeM6000" in self.chainName:
+        if "bBeeM6000" in self.chainDict['topo']:
             stepName = "fast_electron_bBee"
-            return self.getStep(5,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerDiElecFastComboHypoCfg)
+            return self.getStep(2,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerDiElecFastComboHypoCfg)
+        elif 'idperf' in self.chainPart['idperfInfo']:
+            stepName = "fast_electron_idperf"
+            return self.getStep(2,stepName,[ fastElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
         else:
             stepName = "fast_electron"
             return self.getStep(2,stepName,[ fastElectronSequenceCfg],is_probe_leg=is_probe_leg)
 
     def getFastElectron_lrt(self,is_probe_leg=False):
-        stepName = "fast_electron_lrt"
-        return self.getStep(2,stepName,[ fastElectronSequenceCfg_lrt],is_probe_leg=is_probe_leg)
-
-    def getFastElectron_lrt_idperf(self,is_probe_leg=False):
-        stepName = "fast_electron_lrt_idperf"
-        return self.getStep(2,stepName,[ fastElectronSequenceCfg_lrt_idperf],is_probe_leg=is_probe_leg)
-   
-    def getFastElectron_idperf(self,is_probe_leg=False):
-        stepName = "fast_electron_idperf"
-        return self.getStep(2,stepName,[ fastElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
+        if 'idperf' in self.chainPart['idperfInfo']:
+            stepName = "fast_electron_lrt_idperf"
+            return self.getStep(2,stepName,[ fastElectronSequenceCfg_lrt_idperf],is_probe_leg=is_probe_leg)
+        else:
+            stepName = "fast_electron_lrt"
+            return self.getStep(2,stepName,[ fastElectronSequenceCfg_lrt],is_probe_leg=is_probe_leg)
 
     def getPrecisionCaloElectron(self,is_probe_leg=False):
         if self.chainPart['extra'] == 'ion':
@@ -266,7 +229,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     
     def getPrecisionCaloElectron_lrt(self,is_probe_leg=False):
         stepName = "precisionCalo_electron_lrt"
-        return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt],is_probe_leg=False)
+        return self.getStep(3,stepName,[ precisionCaloSequenceCfg_lrt],is_probe_leg=is_probe_leg)
 
     def getPrecisionTracking(self,is_probe_leg=False):
         if self.chainPart['extra'] == 'ion':
@@ -284,37 +247,43 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         isocut = self.chainPart['isoInfo']
         log.debug(' isolation cut = %s', isocut)
-    
-        if "Zee" in self.chainName:
+         
+        if "Zee" in self.chainDict['topo']:
             stepName = "precision_electron_Zee"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
-        elif "Jpsiee" in self.chainName:
+        elif "Jpsiee" in self.chainDict['topo']:
             stepName = "precision_topoelectron_Jpsiee"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
-        elif "Heg" in self.chainName:
+        elif "Heg" in  self.chainDict['topo']:
             stepName = "precision_electron_Heg"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diEgammaHegMassComboHypoToolFromDict])
-        elif "bBeeM6000" in self.chainName:
+        elif "bBeeM6000" in  self.chainDict['topo']:
             stepName = "precision_electron_bBee"+isocut
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
         elif self.chainPart['extra'] == 'ion':
             stepName = "precision_ion_electron" + str(isocut)
             return self.getStep(5,stepName,[precisionElectronSequenceCfg_ion], is_probe_leg=is_probe_leg)
+        elif "idperf" in self.chainPart['idperfInfo']:
+            stepName = "precision_electron_idperf"+str(isocut)
+            return self.getStep(5,stepName,[ precisionElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
         else:
-            stepName = "precision_electron"+str(isocut)
-            return self.getStep(5,stepName,[ precisionElectronSequenceCfg], is_probe_leg=is_probe_leg)     
+            stepName = "precision_electron_nominal"+str(isocut)
+            return self.getStep(5,stepName,[ precisionElectronSequenceCfg ], is_probe_leg=is_probe_leg)     
 
     def getPrecisionGSFElectron(self,is_probe_leg=False):
 
         isocut = self.chainPart['isoInfo']
         log.debug(' isolation cut = ' + str(isocut))
        
-        if "Zee" in self.chainName:
+        if "Zee" in  self.chainDict['topo']:
             stepName = "precision_topoelectron_Zee_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
-        elif "Jpsiee" in self.chainName:
+        elif "Jpsiee" in  self.chainDict['topo']:
             stepName = "precision_topoelectron_Jpsiee_GSF"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
+        elif "idperf" in self.chainPart['idperfInfo']:
+            stepName = "precision_electron_GSF_idperf"+str(isocut)
+            return self.getStep(5,stepName,[ precisionGSFElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
         else:
             stepName = "precision_electron_GSF"+str(isocut)
             return self.getStep(5,stepName,[ precisionGSFElectronSequenceCfg], is_probe_leg=is_probe_leg)
@@ -324,8 +293,12 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         isocut = self.chainPart['isoInfo']
         log.debug(' isolation cut = ' + str(isocut))
 
-        stepName = "precision_electron_lrt"+str(isocut)
-        return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt],is_probe_leg=is_probe_leg)
+        if 'idperf' in self.chainPart['idperfInfo']:
+            stepName = "precision_electron_lrt_idperf"+str(isocut)
+            return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt_idperf],is_probe_leg=is_probe_leg)
+        else:
+            stepName = "precision_electron_lrt"+str(isocut)
+            return self.getStep(5,stepName,[ precisionElectronSequenceCfg_lrt],is_probe_leg=is_probe_leg)
 
     def getFastCalo_fwd(self,is_probe_leg=False):
         stepName       = "FastCalo_FWD_electron"

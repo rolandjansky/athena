@@ -11,5 +11,7 @@ def createPFConfigFlags():
     pfConfigFlags.addFlag("PF.useCalibHitTruthClusterMoments",False) #This defines whether we calculate the calibration hit moments - only possible on if running from special calibraiton hit ESD samples.
     pfConfigFlags.addFlag("PF.recoverIsolatedTracks",False) #Defines whether we should apply the split shower recovery algorithm on isolated tracks
     pfConfigFlags.addFlag("PF.useUpdated2015ChargedShowerSubtraction",True) #Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  
+    pfConfigFlags.addFlag("PF.useElPhotMuLinks",True)
+    pfConfigFlags.addFlag("PF.useOldPFO",False)
     
     return pfConfigFlags

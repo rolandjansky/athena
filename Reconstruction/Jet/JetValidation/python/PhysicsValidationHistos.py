@@ -48,7 +48,6 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
         selectionAndHistos("40000<pt<50000",["pt"]),
-        jhm.Width,
 
         # distances between 2 leading jets.
         jhm.leadingjetrel,
@@ -56,7 +55,9 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
 
     if ( ("Topo" in container or "PFlow" in container) and "Trimmed" not in container) and "SoftDrop" not in container:
         filler.HistoTools += [
-         
+
+            jhm.Width,
+
             # jet states
             jhm.basickinematics_emscale,
             #track variables
@@ -181,6 +182,14 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
               jhm.Charge,
                 ]
 
+    if 'PV0Track' in container:
+        filler.HistoTools += [
+            jhm.HadronConeExclTruthLabelID,
+            jhm.HadronConeExclExtendedTruthLabelID,
+            jhm.HadronGhostTruthLabelID,
+            jhm.HadronGhostExtendedTruthLabelID,
+        ]
+
     #filler.OutputLevel =2 
     return containerfiller
 
@@ -197,17 +206,13 @@ globalSelection = ""
 athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-    #commonPhysValTool( "AntiKt10LCTopoJets" ),
+    commonPhysValTool( "AntiKt4EMPFlowJets", akt4refContainer ,globalSelection = globalSelection ),
+    commonPhysValTool( "AntiKt4TruthJets" ),
     commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
     commonPhysValTool( "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets" ),
-    commonPhysValTool( "AntiKt10TruthSoftDropBeta100Zcut10Jets" ),
-    #commonPhysValTool( "AntiKt10PV0TracksJets" ),
-    #commonPhysValTool( "AntiKt10TruthJets" ),
     commonPhysValTool( "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ),
-    commonPhysValTool( "AntiKt4EMPFlowJets" ),    
-    commonPhysValTool( "AntiKt4TruthJets" ),    
-    #commonPhysValTool( "AntiKt10TruthWZJets" ),
+    commonPhysValTool( "AntiKt10TruthSoftDropBeta100Zcut10Jets" ),
+    commonPhysValTool( "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
 ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
@@ -215,11 +220,10 @@ if not isMC:
     athenaMonTool = JetMonitoringTool(HistoTools = [
         commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
         commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-        #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
-        commonPhysValTool( "AntiKt10LCTopoJets" ),
-        commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-        #    commonPhysValTool( "AntiKt2PV0TrackJets" ),
         commonPhysValTool( "AntiKt4EMPFlowJets" ),
+        commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+        commonPhysValTool( "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets" ),
+        commonPhysValTool( "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
     ], IntervalType=8) # 8 == HistoGroupBase::all
     
 #ToolSvc += athenaMonTool

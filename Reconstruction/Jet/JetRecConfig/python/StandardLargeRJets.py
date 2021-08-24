@@ -51,7 +51,11 @@ AntiKt10LCTopo = JetDefinition("AntiKt",1.0,cst.LCTopoOrigin,
                                lock = True
 )
 
-
+AntiKt10LCTopo_withmoms = AntiKt10LCTopo.clone(
+    modifiers = ("Sort", "Filter:50000", "Width", "TrackMoments", "TrackSumMoments","JetDeltaRLabel:5000")+clustermods+truthmods,
+    # NOT all moments from old AntiKt10LCTopo config here yet. 
+                                               
+)
 AntiKt10LCTopoTrimmed = JetTrimming(AntiKt10LCTopo,
                                     modifiers = standardrecomods+substrmods,
                                     PtFrac = 0.05, RClus = 0.2,                                    

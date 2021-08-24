@@ -1,18 +1,20 @@
 #********************************************************************
-# EGAM8.py: Z->ee, one forward e
+# EGAM8.py
+# Z->ee reduction for forward e T&P
 # reductionConf flag EGAM8 in Reco_tf.py
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM8ExtraContent import *
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
@@ -20,7 +22,10 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+
+#====================================================================
 # check if we run on data or MC (DataSource = geant4)
+#====================================================================
 from AthenaCommon.GlobalFlags import globalflags
 print("EGAM8 globalflags.DataSource(): ", globalflags.DataSource())
 if globalflags.DataSource()!='geant4':
@@ -28,24 +33,43 @@ if globalflags.DataSource()!='geant4':
 
 
 #====================================================================
-# SET UP STREAM (to be done early in the game to set up thinning Svc
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM8Sequence = CfgMgr.AthSequencer("EGAM8Sequence")
+DerivationFrameworkJob += EGAM8Sequence
+
+
+#====================================================================
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_EGAM8Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM8Stream )
 EGAM8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM8Stream.AcceptAlgs(["EGAM8Kernel"])
+
+
+### Thinning and augmentation tools lists
+augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
-# SET UP SKIMMING
+# SET UP AUGMENTATIONS
 #====================================================================
 
-# SELECTION FOR T&P
 
 #====================================================================
-# Z->ee selection based on single e trigger, for reco (central) and ID SF(central+fwd)
-# 1 medium e, central, pT>25 GeV
-# 1 forward e, pT>20 GeV
-# OS+SS, mee>50 GeV
+# 1. di-electron invariant mass for events passing the Z->ee
+#    selection based on single e trigger, for reco (central) and ID
+#    SF(central+fwd)
+#
+#    1 medium e, central, pT>25 GeV
+#    1 forward e, pT>20 GeV
+#    OS+SS, mee>50 GeV
 #====================================================================
 
 if RecomputeElectronSelectors :
@@ -66,17 +90,20 @@ EGAM8_ZEEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZEEM
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM8_ZEEMassTool
+augmentationTools += [EGAM8_ZEEMassTool]
 print(EGAM8_ZEEMassTool)
 
 
 #====================================================================
-# Z->mue selection based on single muon trigger, for ID SF(central+fwd) background studies
-# 1 medium muon, central, pT>25 GeV
-# 1 forward e, pT>20 GeV
-# OS+SS, mmue>50 GeV
+# 2. mue invariant amss for events passing the Z->mue selection based
+#    on single muon trigger, for ID SF(central+fwd) background studies
+#
+#    1 medium muon, central, pT>25 GeV
+#    1 forward e, pT>20 GeV
+#    OS+SS, mmue>50 GeV
 #====================================================================
 
-requirement_tag_muon = 'Muons.pt>24.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
+requirement_tag_muon = 'Muons.pt>24.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonPassPreselection'
 #requirement_probe = 'ForwardElectrons.pt > 19.5*GeV'
 EGAM8_ZMuEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZMuEMassTool",
                                                                Object1Requirements = requirement_tag_muon,
@@ -90,22 +117,19 @@ EGAM8_ZMuEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZMu
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM8_ZMuEMassTool
+augmentationTools += [EGAM8_ZMuEMassTool]
 print(EGAM8_ZMuEMassTool)
 
 
-# Skimming criteria
-expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1 || count(EGAM8_MuonElectronMass > 50.0*GeV)>=1'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM8_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8_SkimmingTool",
-                                                                   expression = expression)
-ToolSvc += EGAM8_SkimmingTool
-print("EGAM8 skimming tool:", EGAM8_SkimmingTool)
-
-
-
 #====================================================================
-# SET UP AUGMENTATIONS
+# Max Cell sum decoration tool
 #====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+EGAM8_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM8_MaxCellDecoratorTool",
+                                                                    SGKey_electrons         = "Electrons",
+                                                                    SGKey_photons           = "Photons")
+ToolSvc += EGAM8_MaxCellDecoratorTool
+augmentationTools += [EGAM8_MaxCellDecoratorTool]
 
 
 #====================================================================
@@ -114,21 +138,11 @@ print("EGAM8 skimming tool:", EGAM8_SkimmingTool)
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM8_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM8_GainDecoratorTool
+augmentationTools += [EGAM8_GainDecoratorTool]
 
 cluster_sizes = (3,7), (5,5), (7,11)
 EGAM8_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
-
-
-#====================================================================                                                                              
-# Max Cell sum decoration tool
-#====================================================================                                                        
-
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
-EGAM8_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM8_MaxCellDecoratorTool",
-                                                                    SGKey_electrons         = "Electrons",
-                                                                    SGKey_photons           = "Photons",
-                                                                    )
-ToolSvc += EGAM8_MaxCellDecoratorTool
+augmentationTools += EGAM8_ClusterEnergyPerLayerDecorators
 
 
 #====================================================================
@@ -141,9 +155,6 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 #EGAM8ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
 #EGAM8ThinningHelper.AppendToStream( EGAM8Stream, ExtraContainersTrigger )
 
-thinningTools=[]
-
-
 # Track thinning
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
@@ -153,27 +164,6 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     TrackThinningKeepMuonTracks = True
     TrackThinningKeepTauTracks = False
     TrackThinningKeepPVTracks = False
-
-    # Tracks associated with Jets
-    if (TrackThinningKeepJetTracks) : 
-        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-        EGAM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM8JetTPThinningTool",
-                                                                                StreamName              = streamName,
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-        ToolSvc += EGAM8JetTPThinningTool
-        print(EGAM8JetTPThinningTool)
-        thinningTools.append(EGAM8JetTPThinningTool)
-    
-    # Tracks associated with Muons
-    if (TrackThinningKeepMuonTracks) :
-        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-        EGAM8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM8MuonTPThinningTool",
-                                                                                  StreamName              = streamName,
-                                                                                  MuonKey                 = "Muons",
-                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-        ToolSvc += EGAM8MuonTPThinningTool
-        print(EGAM8MuonTPThinningTool)
-        thinningTools.append(EGAM8MuonTPThinningTool)
 
     # Tracks associated with Electrons
     if (TrackThinningKeepElectronTracks) : 
@@ -206,6 +196,28 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         print(EGAM8PhotonTPThinningTool)
         thinningTools.append(EGAM8PhotonTPThinningTool)
         
+    # Tracks associated with Jets
+    if (TrackThinningKeepJetTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+        EGAM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM8JetTPThinningTool",
+                                                                                StreamName              = streamName,
+                                                                                JetKey                  = "AntiKt4EMPFlowJets",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM8JetTPThinningTool
+        print(EGAM8JetTPThinningTool)
+        thinningTools.append(EGAM8JetTPThinningTool)
+
+    # Tracks associated with Muons
+    if (TrackThinningKeepMuonTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+        EGAM8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM8MuonTPThinningTool",
+                                                                                  StreamName              = streamName,
+                                                                                  MuonKey                 = "Muons",
+                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM8MuonTPThinningTool
+        print(EGAM8MuonTPThinningTool)
+        thinningTools.append(EGAM8MuonTPThinningTool)
+
     # Tracks associated with Taus
     if (TrackThinningKeepTauTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
@@ -219,11 +231,12 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         thinningTools.append(EGAM8TauTPThinningTool)
 
     # Tracks from primary vertex
+    thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM8TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM8TPThinningTool",
                                                                           StreamName              = streamName,
-                                                                          SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
+                                                                          SelectionString         = thinning_expression,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM8TPThinningTool
         print(EGAM8TPThinningTool)
@@ -251,41 +264,37 @@ if globalflags.DataSource()=='geant4':
     ToolSvc += EGAM8TruthThinningTool
     thinningTools.append(EGAM8TruthThinningTool)
 
-print("EGAM8 thinningTools: ", thinningTools)
 
-
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-EGAM8Sequence = CfgMgr.AthSequencer("EGAM8Sequence")
-DerivationFrameworkJob += EGAM8Sequence
-
+#====================================================================
+# Setup the skimming criteria
+#====================================================================
+expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1 || count(EGAM8_MuonElectronMass > 50.0*GeV)>=1'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM8_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8_SkimmingTool",
+																  expression = expression)
+ToolSvc += EGAM8_SkimmingTool
+print("EGAM8 skimming tool:", EGAM8_SkimmingTool)
 
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+print("EGAM8 skimming tools: ", [EGAM8_SkimmingTool])
+print("EGAM8 thinning tools: ", thinningTools)
+print("EGAM8 augmentation tools: ", augmentationTools)
 EGAM8Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
-                                                         AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_ZMuEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool] + EGAM8_ClusterEnergyPerLayerDecorators,
-                                                         SkimmingTools = [EGAM8_SkimmingTool],
-                                                         ThinningTools = thinningTools
-                                                         )
+                                                              AugmentationTools = augmentationTools,
+                                                              SkimmingTools = [EGAM8_SkimmingTool],
+                                                              ThinningTools = thinningTools
+                                                              )
 
 
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,EGAM8Sequence,"EGAM8")
-
-
-#====================================================================
-# FLAVOUR TAGGING   
-#====================================================================
-from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',EGAM8Sequence)
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4TruthJets(EGAM8Sequence,"EGAM8")
 
 
 #========================================
@@ -301,23 +310,12 @@ if (DerivationFrameworkIsMonteCarlo):
 
 
 #====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM8Stream.AcceptAlgs(["EGAM8Kernel"])
-
-
-#====================================================================
 # SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM8SlimmingHelper = SlimmingHelper("EGAM8SlimmingHelper")
 
-EGAM8SlimmingHelper.SmartCollections = [
-                                        "Electrons",
+EGAM8SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
@@ -325,8 +323,7 @@ EGAM8SlimmingHelper.SmartCollections = [
                                         "AntiKt4EMPFlowJets",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices"
-                                        ]
+                                        "PrimaryVertices" ]
 
 # Add egamma trigger objects
 EGAM8SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -346,6 +343,12 @@ else:
 
 for tool in EGAM8_ClusterEnergyPerLayerDecorators:
     EGAM8SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+# Add event info
+if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
+    EGAM8SlimmingHelper.SmartCollections.append("EventInfo")
+else:
+    EGAM8SlimmingHelper.AllVariables += ["EventInfo"]
 
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *

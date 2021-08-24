@@ -21,7 +21,7 @@ from CaloIdentifier import SUBCALO
 # Egamma imports
 from egammaRec.Factories import ToolFactory, AlgFactory
 
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwSuperClusterTool, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import egammaToolsConf, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
@@ -65,7 +65,7 @@ tit_lrt.TrackParticleLocation = TrigEgammaKeys_LRT.TrigElectronTracksCollectionN
 tit_lrt.VertexLocation = ''
 tit_lrt.TracksInConeTool	  = tpict_lrt
 
-
+    
 """Configuring EMTrackMatchBuilder Tool """
 TrigEMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
                       TrackParticlesName = TrigEgammaKeys.TrigElectronTracksCollectionName,
@@ -103,9 +103,6 @@ TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
 TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
         name = 'TrigEMClusterTool',
         OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
-        OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwSuperClusterTool,
-        doSuperCluster = True,
         MVACalibSvc = egammaMVASvc                             
         )
 from xAODPrimitives.xAODIso import xAODIso as isoPar
@@ -120,11 +117,8 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool,
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra       = [[]],
                                     ElIsoTypes            = [[isoPar.ptcone20]],
-                                    ElCorTypes            = [[]],
+                                    ElCorTypes            = [[isoPar.coreTrackPtr]],
                                     ElCorTypesExtra       = [[]],
                                      )
     return TrigElectronIsolationBuilder()
@@ -138,12 +132,9 @@ def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool_LRT,
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra	  = [[]],
                                     ElIsoTypes            = [[isoPar.ptcone20]],
-                                    ElCorTypes            = [[]],
-                                    ElCorTypesExtra	  = [[]],
+                                    ElCorTypes            = [[isoPar.coreTrackPtr]],
+                                    ElCorTypesExtra	      = [[]],
                                      )
     return TrigElectronIsolationBuilder()
 
@@ -169,7 +160,7 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsol
                                 postInit                        = [],
                                 CaloFillRectangularClusterTool  = cfrc,
                                 ClustersInConeTool              = TrigCaloClustersInConeTool,
-                                PFlowObjectsInConeTool          = None,
+                                FlowElementsInConeTool          = None,
                                 ParticleCaloExtensionTool       = None,
                                 IsoLeakCorrectionTool           = None,
                                 ParticleCaloCellAssociationTool = None,
@@ -194,14 +185,8 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     CaloTopoIsolationTool = TrigCaloIsolationTool,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = None, 
-                                    ElIsoTypes            = [[]],
-                                    ElCorTypes            = [[]],
-                                    ElCorTypesExtra       = [[]],
-                                    FeIsoTypes            = [[]],
-                                    FeCorTypes            = [[]],
-                                    FeCorTypesExtra       = [[]],
-                                    PhIsoTypes            = [[isoPar.topoetcone20]],
-                                    PhCorTypes            = [[],[isoPar.core57cells],[]],
+                                    PhIsoTypes            = [[isoPar.topoetcone20, isoPar.topoetcone40]],
+                                    PhCorTypes            = [[isoPar.core57cells]],
                                     PhCorTypesExtra       = [[]],
                                     )
                 

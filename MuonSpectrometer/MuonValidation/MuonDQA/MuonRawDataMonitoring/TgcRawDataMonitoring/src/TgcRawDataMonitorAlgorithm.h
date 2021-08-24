@@ -17,6 +17,9 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include <memory>
+#include <vector>
+#include <set>
+
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
   TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
@@ -25,17 +28,17 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   
   struct MyMuon{
-    const xAOD::Muon* muon;
+    const xAOD::Muon* muon{};
     std::vector<double> extPosZ;
     std::vector<TVector3> extPos;
     std::vector<TVector3> extVec;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
-    bool matchedL1Charge;
-    bool passBW3Coin;
-    bool passInnerCoin;
-    bool passGoodMF;
-    bool passIsMoreCandInRoI;
+    bool matchedL1Charge{};
+    bool passBW3Coin{};
+    bool passInnerCoin{};
+    bool passGoodMF{};
+    bool passIsMoreCandInRoI{};
     void clear(){
       extPosZ.clear();
       extPos.clear();
@@ -45,82 +48,82 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     }
   };
   struct TgcHit{
-    float x;
-    float y;
-    float z;
-    float shortWidth;
-    float longWidth;
-    float length;
-    int isStrip;
-    int gasGap;
-    int channel;
-    int eta;
-    int phi;
-    int station;
-    int bunch;
-    int sector;
-    int f;
-    int E;
-    int M;
-    int iphi;
-    int ieta;
-    int L;
+    float x{};
+    float y{};
+    float z{};
+    float shortWidth{};
+    float longWidth{};
+    float length{};
+    int isStrip{};
+    int gasGap{};
+    int channel{};
+    int eta{};
+    int phi{};
+    int station{};
+    int bunch{};
+    int sector{};
+    int f{};
+    int E{};
+    int M{};
+    int iphi{};
+    int ieta{};
+    int L{};
     TString name;
-    int istation;
-    int igasGap;
-    int iside;
+    int istation{};
+    int igasGap{};
+    int iside{};
     TString side;
   };
   struct TgcTrig{
-    int lb;
-    float x_In;
-    float y_In;
-    float z_In;
-    float x_Out;
-    float y_Out;
-    float z_Out;
-    float eta;
-    float phi;
-    float etain;
-    float etaout;
-    float width_In;
-    float width_Out;
-    float width_R;
-    float width_Phi;
-    int isAside;
-    int isForward;
-    int isStrip;
-    int isInner;
-    int isPositiveDeltaR;
-    int type;
-    int trackletId;
-    int trackletIdStrip;
-    int sector;
-    int roi;
-    int pt;
-    int delta;
-    int sub;
-    int veto;
-    int bunch;
-    int inner;
+    int lb{};
+    float x_In{};
+    float y_In{};
+    float z_In{};
+    float x_Out{};
+    float y_Out{};
+    float z_Out{};
+    float eta{};
+    float phi{};
+    float etain{};
+    float etaout{};
+    float width_In{};
+    float width_Out{};
+    float width_R{};
+    float width_Phi{};
+    int isAside{};
+    int isForward{};
+    int isStrip{};
+    int isInner{};
+    int isPositiveDeltaR{};
+    int type{};
+    int trackletId{};
+    int trackletIdStrip{};
+    int sector{};
+    int roi{};
+    int pt{};
+    int delta{};
+    int sub{};
+    int veto{};
+    int bunch{};
+    int inner{};
   };
   struct CtpDecMonObj{
     TString trigItem;
     TString title;
-    long unsigned int multiplicity;
-    int rpcThr;
-    int tgcThr;
-    int sys;//system: 1 for barrel, 2 for endcap, 3 for forward
-    int threshold;
-    int charge;
-    bool tgcF; // full-station flag
-    bool tgcC; // inner-coincidence flag
-    bool tgcH; // hot roi mask flag
-    bool rpcR; // masking feet trigger
-    bool rpcM; // isMoreCand
-    double eta;
-    double phi;
-    unsigned int roiWord;
+    long unsigned int multiplicity{};
+    int rpcThr{};
+    int tgcThr{};
+    int sys{};//system: 1 for barrel, 2 for endcap, 3 for forward
+    int threshold{};
+    int charge{};
+    bool tgcF{}; // full-station flag
+    bool tgcC{}; // inner-coincidence flag
+    bool tgcH{}; // hot roi mask flag
+    bool rpcR{}; // masking feet trigger
+    bool rpcM{}; // isMoreCand
+    double eta{};
+    double phi{};
+    unsigned int roiWord{};
   };
   
  private:
@@ -136,6 +139,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
   StringProperty m_ctpDecMonList{this,"CtpDecisionMoniorList","Tit:L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;","list of L1MU items to be monitored for before/after CTP decision"};
+  BooleanProperty m_monitorTriggerMultiplicity{this,"MonitorTriggerMultiplicity",false,"start monitoring tirgger multiplicity performance"};
   BooleanProperty m_printAvailableMuonTriggers{this,"PrintAvailableMuonTriggers",false,"debugging purpose. print out all available muon triggers in the event"};
   BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
@@ -167,7 +171,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   std::vector<CtpDecMonObj> m_CtpDecMonObj;
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
-  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string ) const;
+  void fillTgcCoin(const std::vector<TgcTrig>&, const std::string& ) const;
 
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };

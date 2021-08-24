@@ -45,7 +45,6 @@ class RpcDigitVariables : public ValAlgVariables
 
   int m_RPC_nDigits;
   std::vector<std::string> m_RPC_dig_stationName;
-  std::vector<int> m_RPC_dig_stationIndex; // stationIndex = 1 for BIS
   std::vector<double> m_RPC_dig_time;
   std::vector<int> m_RPC_dig_stationEta;
   std::vector<int> m_RPC_dig_stationPhi;
@@ -54,8 +53,8 @@ class RpcDigitVariables : public ValAlgVariables
   std::vector<int> m_RPC_dig_doubletZ;
   std::vector<int> m_RPC_dig_doubletPhi;
   std::vector<int> m_RPC_dig_strip; 
+  std::vector<int> m_RPC_dig_channel;
   std::vector<int> m_RPC_dig_stripNumber;
-  std::vector<bool> m_RPC_dig_stripPosition;
   std::vector<bool> m_RPC_dig_measuresPhi;
   
   std::vector< double > m_RPC_dig_localPosX;

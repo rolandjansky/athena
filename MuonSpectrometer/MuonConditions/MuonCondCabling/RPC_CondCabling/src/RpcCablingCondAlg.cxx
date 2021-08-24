@@ -4,8 +4,6 @@
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
 
-#include <TString.h>  // for Form
-
 #include <sstream>
 
 #include "PathResolver/PathResolver.h"
@@ -173,19 +171,19 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
 
         // Set the maxType variable and the type of SectorMap objects
         if (stop == 63 || stop == 8) {
-            for (int i = 0; i < 64; ++i)
-                if (sectorMap[i] > maxType) maxType = sectorMap[i];
-            sectorType.resize(maxType);
+            for (int i = 0; i < 64; ++i) { maxType = std::max(sectorMap[i], maxType); }
+            sectorType.clear();
+            //sectorType.reserve(maxType); // this would require a copy-constructor
             ATH_MSG_DEBUG("setup() - Loop over " << maxType << " sector-types");
 
             for (int i = 1; i <= maxType; ++i) {
-                sectorType[i - 1] = RPC_CondCabling::SectorLogicSetup(i, dataName, layout, m_cosmic_configuration);
-                RPC_CondCabling::SectorLogicSetup* sec = &(sectorType[i - 1]);
-                sectorType[i - 1].SetPtoTrigRoads(&trigroads);
+                sectorType.emplace_back(i, dataName, layout, m_cosmic_configuration);
+                RPC_CondCabling::SectorLogicSetup& sec = sectorType[i - 1];
+                sec.SetPtoTrigRoads(&trigroads);
                 for (int j = 0; j < 64; ++j) {
                     if (sectorMap[j] == i) {
-                        *sec << j;
-                        sectorLogic.insert(SLmap_t::value_type(j, sec));
+                        sec << j;
+                        sectorLogic.insert(SLmap_t::value_type(j, &sec));
                         ATH_MSG_DEBUG("setup() - filling sectorLogicSetup Map for type " << i << " sector  " << j);
                     }
                 }
@@ -220,11 +218,11 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     ATH_MSG_INFO("setup() - version is " << version << " " << setup << " " << layout << " (cosmic=" << (int)m_cosmic_configuration << ")");
 
     for (int i = 1; i <= maxType; ++i) {
-        if (!sectorType[i - 1].setup()) return StatusCode::FAILURE;
+        if (!sectorType[i - 1].setup(msg())) return StatusCode::FAILURE;
         if (!sectorType[i - 1].check()) return StatusCode::FAILURE;
         if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("calling get_cabling for i=" << i);
-            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap CMAs = sectorType[i - 1].giveEtaCMA();
+            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap& CMAs = sectorType[i - 1].giveEtaCMA();
             for (const auto& cma : CMAs) {
                 unsigned int cabling = UINT_MAX;
                 if (cma.second.get_cabling(CMAinput::Pivot, 0, 0, 0, cabling)) {
@@ -245,10 +243,10 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
 
         if (sectorMap[sector]) {
             // get the Sector Logic Setup
-            RPC_CondCabling::SectorLogicSetup Sector = sectorType[sectorMap[sector] - 1];
+            const RPC_CondCabling::SectorLogicSetup& Sector = sectorType[sectorMap[sector] - 1];
 
             // get the Eta CMA map from the Sector Logic Setup
-            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap CMAs = Sector.giveEtaCMA();
+            const RPC_CondCabling::SectorLogicSetup::EtaCMAmap& CMAs = Sector.giveEtaCMA();
             RPC_CondCabling::SectorLogicSetup::EtaCMAmap::const_iterator it = CMAs.begin();
 
             bool isFirst = false;
@@ -258,10 +256,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                 // get the set of parameters for idenfying the first RPC strip
                 unsigned int ID = (*it).second.id().Ixx_index();
                 bool inversion = (*it).second.inversion();
-                if ((ID == 1 && inversion) || (ID == 0 && !inversion))
-                    isFirst = true;
-                else
-                    isFirst = false;
+                isFirst = (ID == 1 && inversion) || (ID == 0 && !inversion);
                 unsigned int PADid = (*it).first.PAD_index();
                 unsigned int cabling = UINT_MAX;
                 if ((*it).second.get_cabling(CMAinput::Pivot, 0, 0, 0, cabling)) {
@@ -271,7 +266,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                     unsigned int RPC_station = (*it).second.whichCMAstation(CMAinput::Pivot);
                     unsigned int lvl1_sector = sector;
 
-                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    const RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side) ? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector == 31) ? 1 : (logic_sector + 1) / 4 + 1;
@@ -324,7 +319,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                         RPC_station = (*it).second.whichCMAstation(CMAinput::HighPt);
                     unsigned int lvl1_sector = sector;
 
-                    RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
+                    const RPC_CondCabling::RPCchamber* rpc = Sector.find_chamber(RPC_station, RPC_chamber);
                     std::string name = rpc->stationName();
                     int sEta = (side) ? rpc->stationEta() : -rpc->stationEta();
                     int sPhi = (logic_sector == 31) ? 1 : (logic_sector + 1) / 4 + 1;
@@ -363,8 +358,6 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     }
 
     DBline data_corr(MAP_corr);
-    // switch to new DBline I/O format
-    data_corr.setdbfmtflag(0);
     nlines = 0;
     while (++data_corr) {
         ++nlines;
@@ -430,9 +423,6 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
         }
     }
     ATH_MSG_DEBUG("setup() - corrected map n. of lines read is " << nlines);
-    // switch back to previous DBline I/O format
-    data_corr.setdbfmtflag(1);
-
     ATH_MSG_DEBUG("setup() - " << m_readKey_map_schema_corr.key() << " maps have been parsed");
 
     for (int side = 0; side < 2; ++side) {
@@ -651,7 +641,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
     ATH_MSG_DEBUG("Number of valid RPC Pad IDs " << writeCdo->m_int2id.size());
 
     for (int i = 0; i < 64; i++) writeCdo->m_SectorMap[i] = sectorMap[i];
-    writeCdo->m_SectorType.assign(sectorType.begin(), sectorType.end());
+    writeCdo->m_SectorType = std::move(sectorType);
     writeCdo->m_MaxType = maxType;
 
     if (msgLvl(MSG::DEBUG)) {
@@ -713,7 +703,7 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
     ep = (ep == 1) ? 0 : 1;
 
     // retrieve the Sector Logic setup
-    const RPC_CondCabling::SectorLogicSetup s = sType[smap[logic_sector] - 1];
+    const RPC_CondCabling::SectorLogicSetup& s = sType[smap[logic_sector] - 1];
 
     // retrieve the CMAparameters associated to the identifiers
     if (ep) {
@@ -730,8 +720,8 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
     while (it != CodeList.end()) {
         RPCdecoder decode(*it);
         if (!decode)
-            throw std::runtime_error(
-                Form("File: %s, Line: %d\nRpcCablingCondAlg::give_strip_id() - cannot decode LVL1 Id", __FILE__, __LINE__));
+            throw std::runtime_error("RpcCablingCondAlg::give_strip_id() - cannot decode LVL1 Id at " +
+                                     std::string(__FILE__) + ":" + std::to_string(__LINE__));
         RPCofflineId rpcId;
 
         int RPC_strip = decode.strip_number();
@@ -773,7 +763,7 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(const unsigned short int 
 bool RpcCablingCondAlg::correct(const unsigned short int SubsystemId, const unsigned short int SectorId, const unsigned short int PADId,
                                 const unsigned short int CMAId, const CMAinput it, const unsigned int layer,
                                 const unsigned short int Channel1, const unsigned short int Channel2, const short int number,
-                                const L1RPCcabCorrection type, const sectorMap_t& smap, const RpcCablingCondData::STvec& sType) const {
+                                const L1RPCcabCorrection type, const sectorMap_t& smap, const RpcCablingCondData::STvec& sType) {
     int logic_sector = (SubsystemId == 0x65) ? SectorId + 32 : SectorId;
     unsigned short int Ixx = CMAId & 1;
     unsigned short int ep = (CMAId >> 1) & 1;
@@ -800,7 +790,7 @@ bool RpcCablingCondAlg::BoardParamCheck(const unsigned short int SubId, const un
                                         const unsigned int type, const unsigned short int Channel1, const unsigned short int Channel2,
                                         const short int Number) const {
     if (SubId != 0x65 && SubId != 0x66) {
-        ATH_MSG_ERROR("Subsystem Id out of range [0x65,0x66].");
+        ATH_MSG_ERROR("Subsystem Id out of range: " << SubId << " not in [0x65,0x66].");
         return false;
     }
     if (SecId > 31) {

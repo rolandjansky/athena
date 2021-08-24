@@ -17,7 +17,7 @@ def setMinimalCaloSetup() :
 
 def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClusters', RoIMode=True) :
    if not inputEDM:
-      from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+      from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
       inputEDM = mapThresholdToL1RoICollection("FSNOSEED")
    setMinimalCaloSetup()
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -27,6 +27,7 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    algo.RoIs=inputEDM
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
    algo.CellsName=outputEDM
+   algo.ExtraInputs+=[  ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
    return algo
 
 def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', outputEDM='HIEventShape'):
@@ -73,7 +74,7 @@ def _algoHLTTopoClusterLC(inputEDM="CellsClusters", algSuffix="") :
 def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClusters", RingerKey="HLT_FastCaloRinger", doForward=False, doAllEm=False, doAll=False):
     
     if not inputEDM:
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         # using jet seeds for testing. we should use EM as soon as we have EM seeds into the L1
         inputEDM = mapThresholdToL1RoICollection("EM")
     setMinimalCaloSetup()
@@ -94,6 +95,7 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_All
             algo=T2CaloEgamma_All("L2CaloLayersFex")
             algo.RoIs=inputEDM
+    algo.ExtraInputs+=[ ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable(ClustersName)
     return algo

@@ -253,6 +253,7 @@ ecTool.EtaCut          = 2.4
 ecTool.JvtDecorator    = "passJvt"
 ecTool.OrDecorator     = "passOR"
 ecTool.CleaningLevel   = cleaning.CutLevel
+ecTool.JetContainer    = jetContainer
 ToolSvc += ecTool
 
 from TileMonitoring.TileMonitoringConf import TileJetMonTool

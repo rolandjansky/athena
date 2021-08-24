@@ -273,7 +273,7 @@ class ItemDef(object):
         LVL1MenuItem('L1_EM7_MU15'   ).setLogic( d.EM7        & d.MU15     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM7_MU20'   ).setLogic( d.EM7        & d.MU20     & physcond).setTriggerType(TT.muon)   
         LVL1MenuItem('L1_EM8VH_MU15' ).setLogic( d.EM8VH      & d.MU15     & physcond).setTriggerType(TT.muon)
-        LVL1MenuItem('L1_EM20VH_MU20').setLogic( d.EM20VH     & d.MU20     & physcond).setTriggerType(TT.muon)   
+        LVL1MenuItem('L1_EM20VH_MU20').setLogic( d.EM20VH     & d.MU20     & physcond).setTriggerType(TT.muon) 
         LVL1MenuItem('L1_EM8_MU10'   ).setLogic( d.EM8        & d.MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM15VH_MU10').setLogic( d.EM15VH     & d.MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM3_MU20'   ).setLogic( d.EM3        & d.MU20     & physcond).setTriggerType(TT.muon)
@@ -321,8 +321,8 @@ class ItemDef(object):
         LVL1MenuItem('L1_TAU12_UNPAIRED_NONISO').setLogic( d.HA12  & unpaired_nonisocond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12_EMPTY'          ).setLogic( d.HA12  & cosmiccond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU12_FIRSTEMPTY'     ).setLogic( d.HA12  & firstempty ).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_TAU30_EMPTY'          ).setLogic( d.HA30  & cosmiccond ).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_TAU30_UNPAIRED_ISO'   ).setLogic( d.HA30  & unpaired_isocond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU40_EMPTY'          ).setLogic( d.HA40  & cosmiccond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU40_UNPAIRED_ISO'   ).setLogic( d.HA40  & unpaired_isocond ).setTriggerType( TT.calo )
 
 
         # 3xTAU

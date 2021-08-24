@@ -376,7 +376,7 @@ protected:
     const xAOD::EventInfo* pEventInfo;
 #endif
     unsigned           run_number        = 0;
-    unsigned long long event_number      = 0;
+    uint64_t           event_number      = 0;
     unsigned           lumi_block        = 0;
     unsigned           bunch_crossing_id = 0;
     unsigned           time_stamp        = 0;
@@ -624,8 +624,9 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
-      const std::string&  roi_name = m_chainNames[ichain].roi();
-      const std::string&   te_name = m_chainNames[ichain].element();
+      //no currently used but retained in case
+      //const std::string&  roi_name = m_chainNames[ichain].roi();
+      //const std::string&   te_name = m_chainNames[ichain].element();
 
       m_pTthreshold = 0;  /// why does this need to be a class variable ???
 

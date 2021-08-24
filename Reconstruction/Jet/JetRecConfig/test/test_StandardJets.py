@@ -18,7 +18,7 @@ parser.add_argument("-n", "--nEvents",  default=10, type=int, help="The number o
 #
 parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
 parser.add_argument("-D", "--dumpSG",   default=False, action="store_true", help="Toggle StoreGate dump on each event")
-parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk"},
+parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk", "VR"},
                     help="the type of jet definitions to test")
 
 #
@@ -91,13 +91,17 @@ elif args.jetType=='cssk':
     AntiKt4EMPFlowCSSK = AntiKt4EMPFlow.clone(inputdef = cst.EMPFlowCSSK, modifiers=nocalibL )
     jetdefs = [AntiKt4LCTopoCSSK,AntiKt4EMPFlowCSSK]
     alljetdefs = jetdefs
+elif args.jetType=='VR':
+    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0TrackJets
+    jetdefs = [AntiKtVR30Rmax4Rmin02PV0TrackJets]
+    alljetdefs = jetdefs
 
 # ***********************************************
 if args.nEvents == 0:
     # Don't run over events --> just run the jet config.
     # Add the components from our jet reconstruction job
     for jetdef in jetdefs:
-        cfg.merge( JetRecCfg(jetdef,ConfigFlags) )        
+        cfg.merge( JetRecCfg(ConfigFlags,jetdef) )        
     import sys
     tlog.info("Performed jet config. Exiting now")
     sys.exit(0)
@@ -106,6 +110,8 @@ if args.nEvents == 0:
     
 # ***********************************************
 # else setup a full job
+
+
 
 # Add the components for reading in pool files
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -121,10 +127,19 @@ muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="Lumino
 cfg.addEventAlgo(muWriter,"AthAlgSeq")
 
 
+
+# =======================
+# If running on ESD the CHSXYZParticleFlowObjects container pre-exist and can get in the way. Just rename them manually here :
+if 'CHSChargedParticleFlowObjects' in ConfigFlags.Input.Collections:
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+    cfg.merge( InputRenameCfg("xAOD::PFOContainer", "CHSNeutralParticleFlowObjects" , "CHSNeutralParticleFlowObjects_original") )
+    cfg.merge( InputRenameCfg("xAOD::PFOContainer", "CHSChargedParticleFlowObjects" , "CHSChargedParticleFlowObjects_original") )
+
+
     
 # Add the components from our jet reconstruction job
 for jetdef in jetdefs:
-    cfg.merge( JetRecCfg(jetdef,ConfigFlags) )        
+    cfg.merge( JetRecCfg(ConfigFlags,jetdef) )        
 
 
 # Now get the output stream components

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_RtCalibrationCurvedH
@@ -258,7 +258,7 @@ namespace MuonCalib {
 
         // correction functions //
         std::unique_ptr<BaseFunction> m_base_function;  // pointer to the base function u
-        Legendre_polynomial *m_Legendre;                // pointer to the Legendre polynomial
+        const Legendre_polynomial *m_Legendre;          // pointer to the Legendre polynomial
                                                         // describing the curved line
 
         // control histograms //

@@ -1,4 +1,4 @@
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -207,11 +207,13 @@ def createTrackingFlags():
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
     icf.addFlag("minTRTonlyPt", minTRTonlyPt_ranges ) #Pt cut for TRT only
+    icf.addFlag("pT_SSScut", -1. * Units.GeV) # off
 
     # --- first set kinematic defaults
     icf.addFlag("maxPT", lambda pcf : 1000.0 * Units.TeV) # off!
     icf.addFlag("minEta", -1) # off!
     icf.addFlag("maxEta", 2.7)
+
 
     # --- cluster cuts
     icf.addFlag("minClusters", lambda pcf:
@@ -269,6 +271,8 @@ def createTrackingFlags():
     icf.addFlag("maxTracksPerSharedPRD", 0)  ## is 0 ok for default??
     icf.addFlag("maxdImpactPPSSeeds", 2)
     icf.addFlag("maxdImpactSSSSeeds", maxdImpactSSSSeeds_ranges )
+    icf.addFlag("maxZSpacePointsPPPSeeds", 2700.0 * Units.mm )
+    icf.addFlag("maxZSpacePointsSSSSeeds", 2700.0 * Units.mm )
     icf.addFlag("maxSeedsPerSP_Pixels", maxSeedsPerSP_Pixels_ranges )
     icf.addFlag("maxSeedsPerSP_Strips", maxSeedsPerSP_Strips_ranges )
     icf.addFlag("keepAllConfirmedPixelSeeds", keepAllConfirmedPixelSeeds_ranges )
@@ -343,6 +347,10 @@ def createTrackingFlags():
     icf.addFlag("useSCT"        		  , lambda pcf : pcf.Detector.EnableSCT )
     icf.addFlag("useSCTSeeding"        	  	  , True )
 
+    icf.addFlag("useITkPixel"       		  , lambda pcf : pcf.Detector.EnableITkPixel )
+    icf.addFlag("useITkStrip"        		  , lambda pcf : pcf.Detector.EnableITkStrip )
+    icf.addFlag("useITkStripSeeding"        	  , True )
+
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
@@ -353,27 +361,143 @@ def createTrackingFlags():
     icf.addFlag("useTRTonlyParamCuts"       , True)
     icf.addFlag("useTRTonlyOldLogic"        , False)
 
+    # --- ITk flags
+    icf.addFlag("useEtaDepCuts"             , False)
+    icf.addFlag("etaBins"                   , [-1.0, 4.0])
+    icf.addFlag("minPTSeed"                 , 0.9 * Units.GeV)
+    icf.addFlag("maxPrimaryImpactSeed"      , 2.0 * Units.mm)
+    icf.addFlag("maxZImpactSeed"            , 200.0 * Units.mm)
 
     return icf
 
 
-### SLHC mode ####################
-def createSLHCTrackingFlags():
+### ITk mode ####################
+def createITkTrackingFlags():
     icf = createTrackingFlags()   
-    icf.extension               = "SLHC"
-    icf.minPT                   = 0.9 * Units.GeV
-    icf.maxPT                   = 999 * Units.TeV
-    icf.maxPrimaryImpact        = 2.0 * Units.mm # highlumi
-    icf.maxZImpact              = 250.0 * Units.mm
+    icf.extension               = "ITk"
+
+    icf.useEtaDepCuts           = True
+    icf.etaBins                 = [-1.0, 2.0, 2.6, 4.0]
+    icf.minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
 
     # --- cluster cuts
-    icf.minClusters             = 9
-    icf.minSiNotShared          = 8
-    # --- also tighten pattern cuts
-    icf.radMax                  = 1000. * Units.mm
-    
+    icf.minClusters             = [9, 8, 7]
+    icf.minSiNotShared          = [7, 6, 5]
+    icf.maxShared               = [2]
+    icf.minPixel                = [1]
+    icf.maxHoles                = [2]
+    icf.maxPixelHoles           = [2]
+    icf.maxSctHoles             = [2]
+    icf.maxDoubleHoles          = [1]
+    icf.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
+    icf.maxZImpact              = [200.0 * Units.mm]
+    icf.minPTSeed               = 0.9 * Units.GeV
+    icf.maxPrimaryImpactSeed    = 2.0 * Units.mm
+    icf.maxZImpactSeed          = 200.0 * Units.mm
+
+    # --- general pattern cuts for NewTracking
+    icf.nHolesMax               = icf.maxHoles
+    icf.nHolesGapMax            = icf.maxHoles
+
+    icf.Xi2max                  = [9.0]
+    icf.Xi2maxNoAdd             = [25.0]
+    icf.nWeightedClustersMin    = [6]
+
+    # --- seeding
+    icf.maxdImpactSSSSeeds      = [20.0 * Units.mm]
+    icf.radMax                  = 1100. * Units.mm
+
+    # --- min pt cut for brem
+    icf.minPTBrem               = [1000.0 * Units.mm]
+    icf.phiWidthBrem            = [0.3]
+    icf.etaWidthBrem            = [0.2]
+
     return icf
 
+
+def createITkFastTrackingFlags():
+
+    icf = createITkTrackingFlags()
+
+    icf.minPT                 = [1.0 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
+    icf.maxZImpact            = [150.0 * Units.mm]
+    icf.minPixel              = [3]
+    icf.nHolesMax             = [1]
+    icf.nHolesGapMax          = [1]
+    icf.minPTSeed             = 1.0 * Units.GeV
+    icf.maxZImpactSeed        = 150.0 * Units.mm
+
+    return icf
+
+### ITk LRT mode ####################
+def createITkLargeD0TrackingFlags():
+
+    icf = createTrackingFlags()
+    icf.extension               = "ITkLargeD0"
+
+    icf.useEtaDepCuts      = True
+    icf.maxPT              = [1.0 * Units.TeV]
+    icf.minPT              = [1000 * Units.MeV]
+    icf.maxEta             = 4.0
+    icf.etaBins            = [-1.0, 4.0]
+    icf.maxPrimaryImpact   = [300 * Units.mm]
+    icf.maxZImpact         = [500 * Units.mm]
+    icf.maxSecondaryImpact = [300.0 * Units.mm]
+    icf.minSecondaryPt     = [1000 * Units.MeV]
+    icf.minClusters        = [8]
+    icf.minSiNotShared     = [6]
+    icf.maxShared          = [2]
+    icf.minPixel           = [0]
+    icf.maxHoles           = [1]
+    icf.maxPixelHoles      = [1]
+    icf.maxSctHoles        = [1]
+    icf.maxDoubleHoles     = [0]
+    icf.maxZImpactSeed     = 500.0 * Units.mm
+    icf.maxPrimaryImpactSeed = 300.0 * Units.mm
+    icf.minPTSeed          = 1000 * Units.MeV
+    icf.radMax             = 1100. * Units.mm
+    icf.nHolesMax          = icf.maxHoles
+    icf.nHolesGapMax       = icf.maxHoles
+    icf.seedFilterLevel    = 1
+    icf.maxTracksPerSharedPRD = 2
+
+    icf.roadWidth          = 5
+    icf.doZBoundary        = True
+
+    # --- seeding
+    icf.maxdImpactSSSSeeds       = [300.0 * Units.mm]
+    icf.maxZSpacePointsPPPSeeds  = 500 * Units.mm
+
+    # --- min pt cut for brem
+    icf.minPTBrem                = [1000.0 * Units.mm]
+    icf.phiWidthBrem             = [0.3]
+    icf.etaWidthBrem             = [0.2]
+
+    icf.Xi2max                  = [9.0]
+    icf.Xi2maxNoAdd             = [25.0]
+    icf.nWeightedClustersMin    = [6]
+
+    return icf
+
+def createITkLargeD0FastTrackingFlags():
+
+    icf = createITkLargeD0TrackingFlags()
+
+    icf.maxEta             = 2.4
+    icf.etaBins            = [-1.0, 2.4]
+    icf.minSecondaryPt     = [5.0 * Units.GeV]
+    icf.minPT              = [5.0 * Units.GeV]
+    icf.minPTSeed          = 5.0 * Units.GeV
+    icf.nWeightedClustersMin = [8]
+    icf.maxPrimaryImpact   = [150 * Units.mm]
+    icf.maxSecondaryImpact = [150 * Units.mm]
+    icf.maxPrimaryImpactSeed = 150. * Units.mm
+    icf.maxdImpactSSSSeeds = [150.0 * Units.mm]
+    icf.maxZImpact         = [200 * Units.mm]
+    icf.maxZImpactSeed     = 200. * Units.mm
+    icf.radMax             = 400. * Units.mm
+
+    return icf
 
 ### IBL mode ####################
 def createIBLTrackingFlags():
@@ -526,16 +650,21 @@ def createLowPtTrackingFlags():
     
     return icf
 
-## SLHCConversionFinding mode ########################
-def createSLHCConversionFindingTrackingFlags():
+## ITkConversionFinding mode ########################
+def createITkConversionFindingTrackingFlags(): #To be updated
     icf = createTrackingFlags()
-    icf.extension               = "SLHCConversionFinding"
-    icf.minPT                   = 0.9 * Units.GeV
-    icf.maxPrimaryImpact        = 10.0 * Units.mm
-    icf.maxZImpact              = 150.0 * Units.mm
-    icf.minClusters             = 6
-    icf.minSiNotShared          = 4
-    icf.maxHoles                = 0
+    icf.extension               = "ITkConversionFinding"
+
+    icf.useEtaDepCuts           = True
+    icf.etaBins                 = [-1.0,4.0]
+    icf.minPT                   = [0.9 * Units.GeV]
+    icf.maxPrimaryImpact        = [10.0 * Units.mm]
+    icf.maxZImpact              = [150.0 * Units.mm]
+    icf.minClusters             = [6]
+    icf.minSiNotShared          = [6]
+    icf.maxShared               = [0]
+    icf.maxHoles                = [0]
+    icf.nWeightedClustersMin    = [6]
     # --- also tighten pattern cuts
     icf.radMax                  = 1000. * Units.mm
     # --- turn on Z Boundary seeding
@@ -577,50 +706,6 @@ def createForwardTracksTrackingFlags():
     icf.maxHoles         = 1
     icf.maxPixelHoles    = 1
     icf.maxSctHoles      = 1
-    icf.maxDoubleHoles   = 0
-    icf.nHolesMax        = icf.maxHoles
-    icf.nHolesGapMax     = icf.maxHoles
-    icf.radMax           = 600. * Units.mm
-    icf.useTRT           = False # no TRT for forward tracks
-
-    return icf
-
-## ForwardSLHCTracks mode ########################
-def createForwardSLHCTracksTrackingFlags():
-    icf = createTrackingFlags()
-    icf.extension        = "ForwardSLHCTracks"
-    icf.minEta           = 2.4 # restrict to minimal eta
-    icf.maxEta           = 3.0
-    icf.minPT            = 0.9 * Units.GeV
-    icf.minClusters      = 5
-    icf.minSiNotShared   = 3
-    icf.maxShared        = 1
-    icf.minPixel         = 3
-    icf.maxHoles         = 1
-    icf.maxPixelHoles    = 1
-    icf.maxSctHoles      = 1
-    icf.maxDoubleHoles   = 0
-    icf.nHolesMax        = 1
-    icf.nHolesGapMax     = 1
-    icf.radMax           = 600. * Units.mm
-    icf.useTRT           = False # no TRT for forward tracks
-
-    return icf
-
-## VeryForwardSLHCTracks mode ########################
-def createVeryForwardSLHCTracksTrackingFlags():
-    icf = createTrackingFlags()
-    icf.extension        = "VeryForwardSLHCTracks"
-    icf.minEta           = 2.4 # restrict to minimal eta
-    icf.maxEta           = 4.0
-    icf.minPT            = 0.9 * Units.GeV
-    icf.minClusters      = 5
-    icf.minSiNotShared   = 3
-    icf.maxShared        = 1
-    icf.minPixel         = 3
-    icf.maxHoles         = 1
-    icf.maxPixelHoles    = 1
-    icf.maxSctHoles      = 0
     icf.maxDoubleHoles   = 0
     icf.nHolesMax        = icf.maxHoles
     icf.nHolesGapMax     = icf.maxHoles

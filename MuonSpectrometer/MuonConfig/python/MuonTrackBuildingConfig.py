@@ -87,7 +87,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     Muon__MooTrackBuilder=CompFactory.Muon.MooTrackBuilder
     Trk__STEP_Propagator=CompFactory.Trk.STEP_Propagator
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg, MuonTrackExtrapolationToolCfg
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     
     # Based on this: https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L221
@@ -154,8 +154,10 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
 
+    kwargs.setdefault('Extrapolator', result.popToolsAndMerge( MuonTrackExtrapolationToolCfg(flags) ) )
+
     # FIXME - remove ErrorOptimisationTool from cxx?
-    # declareProperty("ErrorOptimisationTool","" );
+    # declareProperty("ErrorOptimisationTool","" );Extrapolator
 
     acc=MuPatCandidateToolCfg(flags)
     cand_tool = acc.getPrimary()

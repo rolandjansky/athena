@@ -32,9 +32,11 @@ flags.Detector.GeometryRPC = True
 
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
+flags.Trigger.EDMVersion = 3
 flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
+flags.Trigger.doHLT = True
 flags.Trigger.CostMonitoring.doCostMonitoring = True
 flags.Trigger.doRuntimeNaviVal = True
 flags.Scheduler.CheckDependencies = True
@@ -42,15 +44,23 @@ flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
 flags.Scheduler.EnableVerboseViews = True
+from CaloClusterCorrection.constants \
+     import CALOCORR_JO, CALOCORR_POOL
+flags.Calo.ClusterCorrection.defaultSource = [CALOCORR_POOL, CALOCORR_JO] # temporary, until a complete support for cool is present
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
-flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25' if f.Input.isMC else "CONDBR2-HLTP-2018-01"
+flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-02"
 flags.Common.isOnline = lambda f: not f.Input.isMC
+flags.Common.MsgSourceLength=70
+flags.Trigger.doLVL1=True # run L1 sim also on data
 flags.Concurrency.NumThreads = 1
 
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
+
+# Calo is currently the only client of Transient BS
+flags.Trigger.doTransientByteStream = lambda f: f.Input.Format == 'POOL' and f.Trigger.doCalo
 
 # command line handling
 # options that are defined in: AthConfigFlags are handled here
@@ -91,16 +101,16 @@ menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
 
-#TODO this is not exactly correct, we need an independent flag for it
-if flags.Input.isMC:
-    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
-    acc.merge(triggerTransBSCfg(flags), sequenceName="HLTBeginSeq")
-    if flags.Trigger.doMuon:
-        loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ), ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
+if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
+    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
+    acc.merge(triggerTransBSCfg_Calo(flags), sequenceName="HLTBeginSeq")
+
+if flags.Input.isMC and flags.Trigger.doMuon:
+    loadFromSG += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ), ( 'TgcRdoContainer' , 'StoreGateSvc+TGCRDO' )]
 
 if flags.Trigger.doLVL1:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationMCCfg
-    acc.merge(Lvl1SimulationMCCfg(flags), sequenceName="HLTBeginSeq")
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    acc.merge(Lvl1SimulationCfg(flags), sequenceName="HLTBeginSeq")
 
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
@@ -110,19 +120,18 @@ createL1PrescalesFileFromMenu(flags)
 
 
 acc.getEventAlgo("TrigSignatureMoni").OutputLevel = INFO
-acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = not flags.Input.isMC # test setup on data
 
 
 logging.getLogger('forcomps').setLevel(DEBUG)
-acc.foreach_component("*/L1Decoder").OutputLevel = INFO
-acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
+acc.foreach_component("*/HLTSeeding").OutputLevel = INFO
+acc.foreach_component("*/HLTSeeding/*Tool").OutputLevel = INFO # tools
 acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = INFO # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
 acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = INFO # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silence mon tools (addressing by type)
 
 if log.getEffectiveLevel() <= logging.DEBUG:

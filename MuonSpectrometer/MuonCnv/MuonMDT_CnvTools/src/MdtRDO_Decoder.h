@@ -60,8 +60,9 @@ inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return NULL;
     }
+    MsgStream& msg(msgStream() );
     bool cab = readCdo->getOfflineId((uint8_t)subdetId, (uint8_t)mrodId, (uint8_t)csmId, (uint8_t)tdc, (uint8_t)chan, stationName,
-                                     stationEta, stationPhi, multiLayer, tubeLayer, tube);
+                                     stationEta, stationPhi, multiLayer, tubeLayer, tube, msg);
 
     if (!cab) return NULL;
 
@@ -96,7 +97,7 @@ inline Identifier Muon::MdtRDO_Decoder::getOfflineData(const MdtAmtHit* amtHit, 
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return chanIdDefault;
     }
-    bool cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, chan, stationName, stationEta, stationPhi, multiLayer, tubeLayer, tube);
+    bool cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, chan, stationName, stationEta, stationPhi, multiLayer, tubeLayer, tube, msgStream() );
 
     if (!cab) {}
 

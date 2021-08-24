@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/FCALHVModule.h"
@@ -33,7 +33,7 @@ public:
   unsigned int iSide;
   unsigned int iSector;
   unsigned int iSampling;
-  const FCALHVLine* hvLine[4];
+  const FCALHVLine* hvLine[4]{};
 };
 
 FCALHVModule::FCALHVModule(const FCALHVManager* manager

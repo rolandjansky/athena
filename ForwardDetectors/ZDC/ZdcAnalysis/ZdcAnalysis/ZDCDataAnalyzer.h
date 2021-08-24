@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCDataAnalyzer_h
@@ -36,8 +36,8 @@ private:
 
   int m_eventCount;
 
-  ZDCModuleFloatArray m_HGGains;
-  ZDCModuleFloatArray m_pedestals;
+  ZDCModuleFloatArray m_HGGains{};
+  ZDCModuleFloatArray m_pedestals{};
 
   bool m_haveECalib;
   std::array<std::array<std::unique_ptr<TSpline>, 4>, 2> m_LBDepEcalibSplines;
@@ -49,18 +49,18 @@ private:
   // Transient data that is updated each LB or each event
   //
   int m_currentLB;
-  ZDCModuleFloatArray m_currentECalibCoeff;
-  ZDCModuleFloatArray m_currentT0OffsetsHG;
-  ZDCModuleFloatArray m_currentT0OffsetsLG;
+  ZDCModuleFloatArray m_currentECalibCoeff{};
+  ZDCModuleFloatArray m_currentT0OffsetsHG{};
+  ZDCModuleFloatArray m_currentT0OffsetsLG{};
 
-  std::array<std::array<bool, 4>, 2> m_dataLoaded;
+  std::array<std::array<bool, 4>, 2> m_dataLoaded{};
   // std::array<std::array<bool, 4>, 2> _moduleFail;
 
   unsigned int m_moduleMask;
 
-  std::array<std::array<unsigned int, 4>, 2> m_moduleStatus;
-  std::array<std::array<float, 4>, 2> m_calibAmplitude;
-  std::array<std::array<float, 4>, 2> m_calibTime;
+  std::array<std::array<unsigned int, 4>, 2> m_moduleStatus{};
+  std::array<std::array<float, 4>, 2> m_calibAmplitude{};
+  std::array<std::array<float, 4>, 2> m_calibTime{};
 
   std::array<float, 2> m_moduleSum;
   std::array<float, 2> m_moduleSumErrSq;

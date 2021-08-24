@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,10 +24,10 @@ class ZdcSignalSinc {
 
   int    process(double *,double gain=1., double ped=0.,
 		 double frac=1., bool corr=true);
-  int    getError();
-  int    getWarning();
-  double getTime();
-  double getAmp();
+  int    getError() const;
+  int    getWarning() const;
+  double getTime() const;
+  double getAmp() const;
 
  private:
   const   int    m_n_Slices;
@@ -50,7 +50,7 @@ class ZdcSignalSinc {
   double  findpeak();
   double  fraction(double,double);
 
-  double  m_tim[3],m_wfm[3],m_dt;
+  double  m_tim[3]{},m_wfm[3]{},m_dt;
   int m_AAAA;
 
 

@@ -5,6 +5,7 @@
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
 Simulation__GenEventValidityChecker=CompFactory.Simulation.GenEventValidityChecker
@@ -103,15 +104,18 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
 
     # Set default properties
     alg.ISFRun = ConfigFlags.Sim.ISFRun
-    alg.InputMcEventCollection = "GEN_EVENT"
+    if ConfigFlags.Sim.DoFullChain and ConfigFlags.Digitization.PileUp:
+        alg.InputMcEventCollection = "OriginalEvent_SG+GEN_EVENT"
+    else:
+        alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
-    toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
-
-     # Set (todo) the appropriate manipulator tools
+    # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
-    manipulators.append(toolVertexPositioner) 
+    if not ConfigFlags.Beam.Type == 'cosmics':
+        toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
+        manipulators.append(toolVertexPositioner)
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
     # manipulators.append(makeVertexPositionFromFile()) # todo
     # manipulators.append(makeCrabKissingVertexPositioner()) # todo Callback registration failed
@@ -139,7 +143,7 @@ def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
 
     kwargs.setdefault('InputKey', 'Input_EventInfo')
 
-    if ConfigFlags.Digitization.PileUpPresampling:
+    if ConfigFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
     else:
         kwargs.setdefault('OutputKey', 'EventInfo')
@@ -153,8 +157,7 @@ def BeamSpotReweightingAlgCfg(ConfigFlags, **kwargs):
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     acc = BeamSpotCondAlgCfg(ConfigFlags)
 
-    from Digitization.DigitizationFlags import digitizationFlags
-    kwargs.setdefault('Input_beam_sigma_z', digitizationFlags.OldBeamSpotZSize())
+    kwargs.setdefault('Input_beam_sigma_z', ConfigFlags.Digitization.InputBeamSigmaZ)
 
     alg = CompFactory.Simulation.BeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs)
     acc.addEventAlgo(alg)

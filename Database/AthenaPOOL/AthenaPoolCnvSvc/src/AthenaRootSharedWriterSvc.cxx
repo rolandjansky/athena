@@ -175,7 +175,7 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
          if (propertyServer->getProperty(&streamPortStringProp).isFailure()) {
             ATH_MSG_INFO("Conversion service does not have StreamPortString property, using default: " << streamPort);
          } else {
-            streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(":") + 1).c_str());
+            streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(':') + 1).c_str());
          }
          m_rootServerSocket = new TServerSocket(streamPort, (streamPort == 0 ? false : true), 100);
          if (m_rootServerSocket == nullptr || !m_rootServerSocket->IsValid()) {
@@ -183,7 +183,7 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
             return StatusCode::FAILURE;
          }
          streamPort = m_rootServerSocket->GetLocalPort();
-         const std::string newStreamPortString{streamPortStringProp.value().substr(0,streamPortStringProp.value().find(":")+1) + std::to_string(streamPort)};
+         const std::string newStreamPortString{streamPortStringProp.value().substr(0,streamPortStringProp.value().find(':')+1) + std::to_string(streamPort)};
          if(propertyServer->setProperty(propertyName,newStreamPortString).isFailure()) {
             ATH_MSG_FATAL("Could not set Conversion Service property " << propertyName << " from " << streamPortString << " to " << newStreamPortString);
             return StatusCode::FAILURE;
@@ -203,7 +203,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
    int workerCounter = 0;
    std::set<int> rootClientSet;
    std::map<TString, int> workerCount;
-   while (m_rootClientCount > 0 || (workerCounter < (numClients - 1) && (sc.isSuccess() || sc.isRecoverable()))) {
+   while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {

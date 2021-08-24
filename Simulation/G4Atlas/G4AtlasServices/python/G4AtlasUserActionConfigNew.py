@@ -13,10 +13,10 @@ from CaloG4Sim.CaloG4SimConfigNew import CalibrationDefaultProcessingToolCfg
 from ISF_Tools.ISF_ToolsConfigNew import StoppedParticleFilterToolCfg
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, ParticleBrokerSvcCfg, 
+    TruthServiceCfg, ParticleBrokerSvcCfg, AFIIParticleBrokerSvcCfg
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
-
+from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
@@ -67,8 +67,11 @@ def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProces
 
 def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "G4FastCaloMT"]:
+    if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         kwargs.setdefault("ParticleBroker", "")
+    if flags.Sim.ISF.Simulator in ["ATLFASTII","ATLFASTIIF_G4MS"]:
+        result.merge(AFIIParticleBrokerSvcCfg(flags))
+        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
     result.merge(AFIIGeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     kwargs.setdefault("PassBackEkinThreshold", 0.05*MeV)
@@ -96,11 +99,11 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG:
+    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG == "Off":
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
     if ConfigFlags.Beam.Type == "cosmics" and not ConfigFlags.Sim.ISFRun:
-        actions += [CompFactory.G4UA.G4CosmicFilterTool()]
+        actions += [result.popToolsAndMerge(CosmicFilterToolCfg(ConfigFlags))]
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),
                     result.popToolsAndMerge(StoppedParticleActionToolCfg(ConfigFlags))]

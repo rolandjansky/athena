@@ -264,7 +264,7 @@ def make_fastreduction_configurers(chain_dict):
             # We only allow threshold != 0 for the simple scenario.
             assert scenario_chainpart['threshold'] == '0'
         
-            scenario = scenario_chainparts[0]['hypoScenario']
+            scenario = scenario_chainpart['hypoScenario']
             # find the chain part index for a non-simple scenario.
             # assume simple is processed before non-simple, and that
             # there is at most one non-simple chainpart.
@@ -344,6 +344,7 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
     toolclass, name =  toolfactory('hypo_tool')
     
     startLabelIndex, endLabelIndex = getLabelIndices(chain_dict)
+    
     args = {'name': chain_dict['chainName'],
             # for reporting passing jets:
             'visit_debug': visit_debug,

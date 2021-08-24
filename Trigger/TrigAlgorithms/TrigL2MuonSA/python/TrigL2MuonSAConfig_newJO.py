@@ -314,7 +314,7 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
     acc = ComponentAccumulator()
 
     if not roisKey:
-        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         roisKey = mapThresholdToL1RoICollection("MU")
 
     # Get Reco alg of muFast step

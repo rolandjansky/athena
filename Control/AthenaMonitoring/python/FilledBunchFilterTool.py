@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the filled bunch filter tool
 def GetFilledBunchFilterTool():
    from AthenaCommon.Logging import logging
-
    fbft_local_logger = logging.getLogger('FilledBunchFilterTool')
    fbft_local_logger.verbose('Configuring monFilledBunchFilterTool')
 
@@ -18,11 +17,7 @@ def GetFilledBunchFilterTool():
       fbft_local_logger.verbose('Filled bunch filter being configured to always return true')
       from AthenaMonitoring.AthenaMonitoringConf import DQDummyFilterTool
       return DQDummyFilterTool()
-
-   from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
-   from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-   monFilledBunchFilterTool = DQFilledBunchFilterTool()
-   monFilledBunchFilterTool.bunchCrossingTool = BunchCrossingTool()
-
-   return monFilledBunchFilterTool
-
+   else:
+      fbft_local_logger.verbose('Filled bunch filter being configured')
+      from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
+      return DQFilledBunchFilterTool()

@@ -17,8 +17,6 @@
 #include "TrigT1Result/Header.h"
 #include "TrigT1Result/Trailer.h"
 
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfData/L1Menu.h"
 
 using namespace LVL1;
@@ -33,28 +31,17 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
 
 StatusCode
 MuonInputProvider::initialize() {
-   ATH_MSG_DEBUG("Retrieving LVL1ConfigSvc " << m_configSvc);
-   CHECK( m_configSvc.retrieve() );
 
    // Get the RPC and TGC RecRoI tool
    ATH_CHECK( m_recRPCRoiTool.retrieve() );
    ATH_CHECK( m_recTGCRoiTool.retrieve() );
-   
-   ATH_MSG_INFO("UseNewConfig set to " <<  (m_useNewConfig ? "True" : "False"));
-   if(! m_useNewConfig) {
-      m_MuonThresholds = m_configSvc->ctpConfig()->menu().thresholdConfig().getThresholdVector(TrigConf::L1DataDef::MUON);
-   }
+
    CHECK(m_histSvc.retrieve());
 
    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "MuonInputProvider");
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
-
-   // get MuctpiTool handle
-   ATH_MSG_DEBUG("Retrieving MuctpiToolHandle " << m_MuctpiSimTool);
-   CHECK( m_MuctpiSimTool.retrieve() );
-
 
    //This is a bit ugly but I've done it so the job options can be used to determine 
    //use of storegate
@@ -159,12 +146,7 @@ MuonInputProvider::handle(const Incident& incident) {
 TCS::MuonTOB
 MuonInputProvider::createMuonTOB(uint32_t roiword, const TrigConf::L1Menu * l1menu) const {
 
-   LVL1::RecMuonRoI roi;
-   if(m_useNewConfig) {
-      roi.construct( roiword, m_recRPCRoiTool.get(), m_recTGCRoiTool.operator->(), l1menu );
-   } else {
-      roi.construct( roiword, m_recRPCRoiTool.operator->(), m_recTGCRoiTool.operator->(), &m_MuonThresholds );
-   }
+   LVL1::RecMuonRoI roi( roiword, m_recRPCRoiTool.get(), m_recTGCRoiTool.operator->(), l1menu );
 
    ATH_MSG_DEBUG("Muon ROI: thrvalue = " << roi.getThresholdValue() << " eta = " << roi.eta() << " phi = " << roi.phi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.roiWord() << MSG::dec);
          
@@ -304,9 +286,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       if( roibResult ) {
 
          const TrigConf::L1Menu * l1menu = nullptr;
-         if( m_useNewConfig ) {
-            ATH_CHECK( detStore()->retrieve(l1menu) );
-         }
+         ATH_CHECK( detStore()->retrieve(l1menu) );
 
          const std::vector< ROIB::MuCTPIRoI >& rois = roibResult->muCTPIResult().roIVec();
 
@@ -325,9 +305,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       } else if( muctpi_slink ) {
 
          const TrigConf::L1Menu * l1menu = nullptr;
-         if( m_useNewConfig ) {
-            ATH_CHECK( detStore()->retrieve(l1menu) );
-         }
+         ATH_CHECK( detStore()->retrieve(l1menu) );
 
          ATH_MSG_DEBUG("Filling the input event. Number of Muon ROIs: " << muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Header::wordsPerHeader - ROIB::Trailer::wordsPerTrailer - 1);
       
@@ -354,8 +332,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    } else {  // reduced granularity encoding
       ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs.");
 
-      // first see if L1Muctpi simulation already ran and object is in storegate, if not
-      // call tool version of the L1MuctpiSimulation and create it on the fly
+      // first see if L1Muctpi simulation already ran and object is in storegate, if not throw an error
 
       const LVL1::MuCTPIL1Topo* l1topo  {nullptr};
 
@@ -376,16 +353,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
             }
          }
       } else {
-         ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: calculate from ROIs sent to RoIB");
-         LVL1::MuCTPIL1Topo l1topo;
-         CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topo));
-         for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
-            inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
-            if(cand.moreThan2CandidatesOverflow()){
-               inputEvent.setOverflowFromMuonInput(true);
-               ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
-            }
-         }
+ 	 ATH_MSG_ERROR("Couldn't retrieve L1Topo inputs from StoreGate");
+	 return StatusCode::FAILURE;
       }
 
       //BC+1 ... this can only come from simulation, in data taking this is collected by the L1Topo at its input

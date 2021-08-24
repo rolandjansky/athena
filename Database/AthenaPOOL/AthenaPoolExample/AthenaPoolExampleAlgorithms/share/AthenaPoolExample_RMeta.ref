@@ -45,7 +45,9 @@ SimplePoolFile5...  DEBUG --->Reading Shape[11 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --->Reading Shape[12 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+SimplePoolFile5...  DEBUG --->Reading Shape[13 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
+##Shapes            DEBUG No objects passing selection criteria... Container has 14 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -96,11 +98,13 @@ SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [202]  (18 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (19 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(IOVMetaDataContainer_p1//TagInfo) [202]  (19 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (1a , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (1a , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 25 Entries in total.
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (1b , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 26 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -121,6 +125,11 @@ MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
+SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+MetaData(IOVMet...  DEBUG Opening
+MetaData(IOVMet...  DEBUG    attributes# = 1
+MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
+MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
 MetaDataSvc         DEBUG Registering all Tools in ToolHandleArray MetaDataTools
 MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
 MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.AthPoolEx::ReadMeta (AthPoolEx::ReadMeta)

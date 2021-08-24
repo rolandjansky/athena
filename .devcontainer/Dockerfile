@@ -31,6 +31,7 @@ RUN scl enable sclo-git25 'pip install git+https://:@gitlab.cern.ch:8443/atlas/a
 # Switch to the ATLAS account.
 USER atlas
 WORKDIR /home/atlas
+RUN echo "cat /etc/motd" >> /home/atlas/.bashrc
 
 # Set up the command to run when starting the image.
-CMD cat /etc/motd && /bin/bash
+CMD /bin/bash

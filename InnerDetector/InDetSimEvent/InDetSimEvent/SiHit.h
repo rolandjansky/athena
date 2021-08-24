@@ -16,7 +16,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-class SiHit  {
+class SiHit final {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -67,7 +67,7 @@ public:
   SiHit();
 
   // Destructor:
-  virtual ~SiHit(); //temporary make it virtual for Pool!
+  ~SiHit() = default;
   
   //move assignment defaulted
   SiHit & operator = (SiHit &&) = default;
@@ -102,9 +102,10 @@ public:
   // link to the particle generating the hit
   const HepMcParticleLink& particleLink() const;
 
-  // Pixel or SCT
+  // Pixel, SCT, or HGTD
   bool isPixel() const;
   bool isSCT() const;
+  bool isHGTD() const;
 
   // Barrel or Endcap
   int getBarrelEndcap() const;

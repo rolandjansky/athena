@@ -37,7 +37,10 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_particleHandle);
+    ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorInputDecoration.initialize (m_systematicsList, m_particleHandle));
+    ANA_CHECK (m_scaleFactorOutputDecoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -49,18 +52,16 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorInputDecoration.preExecute (m_systematicsList));
-    ANA_CHECK (m_scaleFactorOutputDecoration.preExecute (m_systematicsList));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::EventInfo *eventInfo = nullptr;
+      ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
 
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-      xAOD::EventInfo *eventInfo = nullptr;
-      ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
-
-      xAOD::IParticleContainer *particles = nullptr;
-      ANA_CHECK (m_particleHandle.getCopy (particles, sys));
+      const xAOD::IParticleContainer *particles = nullptr;
+      ANA_CHECK (m_particleHandle.retrieve (particles, sys));
 
       float scaleFactor = 1;
-      for (xAOD::IParticle *particle : *particles)
+      for (const xAOD::IParticle *particle : *particles)
       {
         if (m_preselection.getBool (*particle))
         {
@@ -69,8 +70,8 @@ namespace CP
       }
 
       m_scaleFactorOutputDecoration.set (*eventInfo, scaleFactor, sys);
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
 }

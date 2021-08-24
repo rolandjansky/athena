@@ -44,10 +44,10 @@ namespace LVL1
 
     for (const std::shared_ptr<TrigConf::L1Threshold>& thrBase : menuThresholds.value().get()) {
       std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(thrBase);
-      std::string tgcFlags = thr->tgcFlags();
 
       //parse the tgc flags and buffer them
-      parseTGCFlags(tgcFlags);
+      std::string tgcFlags = getShapedFlags( thr->tgcFlags() );
+      parseFlags(tgcFlags);
 
       //loop over all 3-bit flag combinations
       for (unsigned flags=0;flags<8;flags++)
@@ -56,6 +56,17 @@ namespace LVL1
 	bool C=flags&0b010;
 	bool H=flags&0b001;
 	makeTGCDecision(tgcFlags, F, C, H);
+      }
+
+      //parse the rpc flags and buffer them
+      std::string rpcFlags = getShapedFlags( thr->rpcFlags() );
+      parseFlags(rpcFlags);
+
+      //loop over all 2-bit flag combinations
+      for (unsigned flags=0;flags<2;flags++)
+      {
+	bool M=flags&0b1;
+	makeRPCDecision(rpcFlags, M);
       }
     }
 
@@ -96,9 +107,13 @@ namespace LVL1
     }
     const TrigConf::L1ThrExtraInfo_MU& muThrExtraInfo = dynamic_cast<const TrigConf::L1ThrExtraInfo_MU&>(menuExtraInfo);
 
-    //buffer (notional) TGC flags
-    bool F=false, C=false, H=false;
-    if (system != LVL1::ITrigT1MuonRecRoiTool::Barrel)
+    //buffer (notional) TGC/RPC flags
+    bool F=false, C=false, H=false, M=false;
+    if (system == LVL1::ITrigT1MuonRecRoiTool::Barrel)
+    {
+      M  = dataWord & roiTool->OverflowPerRoIMask();
+    }
+    else
     {
       F = dataWord & roiTool->BW2Or3Mask();
       C = dataWord & roiTool->InnerCoinMask();
@@ -123,6 +138,8 @@ namespace LVL1
           // mark this threshold as passed
           passed = true;
         }
+
+        passed &= getRPCDecision(getShapedFlags(thr->rpcFlags()), M);
       }
       else { // Endcap or Forward
         if (system == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem()) { // Endcap
@@ -146,7 +163,7 @@ namespace LVL1
           }
         }
 
-        passed &= getTGCDecision(thr->tgcFlags(), F, C, H);
+        passed &= getTGCDecision(getShapedFlags(thr->tgcFlags()), F, C, H);
       } // end Endcap or Forward
 
       if (passed) {
@@ -265,7 +282,7 @@ namespace LVL1
       //check the quality based on the flags.
       //loop over outer layer of "ors" and 'or' the results
       bool passedFlags = false;
-      const std::vector<std::vector<std::string> >* vec_flags = &m_parsed_tgcFlags[tgcFlags];
+      const std::vector<std::vector<std::string> >* vec_flags = &m_parsed_flags[tgcFlags];
       for (auto or_itr = vec_flags->begin();or_itr!=vec_flags->end();or_itr++)
       {
 	//loop over the inner layer of "ands" and 'and' the results
@@ -284,19 +301,64 @@ namespace LVL1
     }	  
   }
 
-  void TrigThresholdDecisionTool::parseTGCFlags(const std::string& tgcFlags)
+  bool TrigThresholdDecisionTool::getRPCDecision(const std::string& rpcFlags, const bool M) const
+  {
+    //check if the word has been checked before for this string of flags (it should always, as we've buffered them in 'start')
+    RPCFlagDecision decision(M);
+    auto previous_decisions = m_rpcFlag_decisions.find(rpcFlags);
+    if (previous_decisions == m_rpcFlag_decisions.end()) return false;
+
+    auto previous_decision_itr = previous_decisions->second.find(decision);
+    if (previous_decision_itr != previous_decisions->second.end()) return previous_decision_itr->pass;
+    return false;
+  }
+
+  void TrigThresholdDecisionTool::makeRPCDecision(const std::string& rpcFlags, const bool M)
+  {
+    //check if the word has been checked before for this string of flags
+    RPCFlagDecision decision(M);
+    auto previous_decisions = &m_rpcFlag_decisions[rpcFlags];
+    auto previous_decision_itr = previous_decisions->find(decision);
+    if (previous_decision_itr != previous_decisions->end()) return;
+    else if (rpcFlags == "") {
+      decision.pass=true;
+      previous_decisions->insert(decision);
+    }
+    else { // make the decision
+      
+      //check the quality based on the flags.
+      //loop over outer layer of "ors" and 'or' the results
+      bool passedFlags = false;
+      const std::vector<std::vector<std::string> >* vec_flags = &m_parsed_flags[rpcFlags];
+      for (auto or_itr = vec_flags->begin();or_itr!=vec_flags->end();or_itr++)
+      {
+	//loop over the inner layer of "ands" and 'and' the results
+	bool passedAnd = true;
+	for (auto and_itr = or_itr->begin();and_itr!=or_itr->end();and_itr++)
+	{
+	  if (*and_itr == "M") passedAnd = passedAnd && M;
+	}
+	passedFlags = passedFlags || passedAnd;
+      }
+      //buffer the decision
+      decision.pass = passedFlags;
+      previous_decisions->insert(decision);
+    }	  
+  }
+
+  void TrigThresholdDecisionTool::parseFlags(const std::string& flags)
   {
     //parse the logic of the quality flag into a 2D vector, where outer layer contains the logic |'s and inner layer contains the logical &'s.
     //save the 2D vector in a map so we don't have to parse it each time we want to check the flags.
-    if (m_parsed_tgcFlags.find(tgcFlags) == m_parsed_tgcFlags.end())
+    if (m_parsed_flags.find(flags) == m_parsed_flags.end())
     {
-      std::vector<std::string> vec_ors = parseString(tgcFlags, "|");
+      std::vector<std::string> vec_ors = parseString(flags, "|");
       std::vector<std::vector<std::string> > vec_flags;
       for (unsigned ior=0;ior<vec_ors.size();ior++)
       {
 	vec_flags.push_back(parseString(vec_ors[ior],"&"));
       }
-      m_parsed_tgcFlags[tgcFlags] = vec_flags;
+      m_parsed_flags[flags] = vec_flags;
     }
   }
 
@@ -325,5 +387,33 @@ namespace LVL1
       first = false;
     }
     return parsed;
+  }
+  std::string TrigThresholdDecisionTool::getShapedFlags(const std::string& flags) const
+  {
+    std::string shapedFlags = flags;
+    shapedFlags.erase(std::remove_if(shapedFlags.begin(),shapedFlags.end(),::isspace),shapedFlags.end()); // remove spaces
+    std::vector<std::string> vec_ors = parseString(shapedFlags,"|");
+    std::set<std::string> set_ors;
+    for(const auto& ors : vec_ors){
+      std::vector<std::string> vec_ands = parseString(ors,"&");
+      std::set<std::string> set_ands;
+      for(const auto& ands : vec_ands){
+	set_ands.insert(ands);
+      }
+      std::string aa = "";
+      for(const auto& ands : set_ands){
+	aa += ands;
+	aa += "&";
+      }
+      std::string bb = aa.substr(0,aa.size()-1); // remove the last "&"
+      set_ors.insert(bb);
+    }
+    std::string aa = "";
+    for(const auto& ors : set_ors){
+      aa += ors;
+      aa += "|";
+    }
+    std::string bb = aa.substr(0,aa.size()-1); // remove the last "|"
+    return bb;
   }
 }

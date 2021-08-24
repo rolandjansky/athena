@@ -43,7 +43,7 @@
   - xAOD::EgammaParameters::convMatchDeltaEta1,
    xAOD::EgammaParameters::convMatchDeltaPhi1
 
-  Several tool are then applied to the particle:
+  Several tools are then applied to the particle:
   - Shower shapes are computed thanks to the tool configured by
   EMShowerTool property, implementing the interface IEMShowerBuilder,
   by default EMShowerBuilder.
@@ -76,6 +76,7 @@
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaUtils/electronPearShapeAlignmentCorrection.h"
+#include <memory>
 
 class egammaRec;
 
@@ -103,9 +104,9 @@ private:
             const unsigned int author, uint8_t type) const;
 
     /** @brief Do the final ambiguity **/
-    StatusCode doAmbiguityLinks(const EventContext& ctx,
+    static StatusCode doAmbiguityLinks(const EventContext& ctx,
                                 xAOD::ElectronContainer* electronContainer,
-                                xAOD::PhotonContainer* photonContainer) const;
+                                xAOD::PhotonContainer* photonContainer) ;
 
     /** @brief Call a tool using contExecute and electrons, photon containers if
      * given **/
@@ -170,15 +171,21 @@ private:
         "PhotonSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
 
+    /** @brief Name of the dummy electron output collection*/
+    SG::WriteHandleKey<xAOD::ElectronContainer> m_dummyElectronOutputKey {this,
+        "DummyElectronOutputName", "",
+        "Name of Dummy Electron Container to be created"};
+
     //
     // Other properties.
     /** @brief Option to do truth*/
     Gaudi::Property<bool> m_isTruth {this, "isTruth", false, "is truth"};
     Gaudi::Property<bool> m_doPhotons {this, "doPhotons", true, "Run the Photon reconstruction"};
     Gaudi::Property<bool> m_doElectrons {this, "doElectrons", true, "Run the Electron reconstruction"};
-    electronPearShapeAlignmentCorrection m_deltaEta1Pear;
+    std::unique_ptr<electronPearShapeAlignmentCorrection> m_deltaEta1Pear;
     bool m_doAmbiguity{};
     bool m_doOQ{};
+    bool m_doDummyElectrons = false;
 };
 
 #endif

@@ -14,7 +14,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 // Tool/service include(s):
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
@@ -74,11 +73,6 @@ private:
 
    /// @name Services
    /// @{
-
-   /// The trigger configuration service
-   ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc {
-      this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",
-      "Service providing the LVL1 trigger configuration" };
 
    /// The RPC RoI reconstruction tool
    ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool { this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
@@ -150,9 +144,6 @@ private:
 
    /// @name Other properties
    /// @{
-   /// Use new-style menu
-   Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
-
    /// Use inputs from the Calo system
    Gaudi::Property< bool > m_doCalo {
       this, "DoCalo", true, "Use inputs from the Calo system" };

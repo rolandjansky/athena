@@ -8,26 +8,13 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
     __slots__ = []
     def __init__(self, name = "TrigDecMaker"):
         super( TrigDecisionMaker, self ).__init__( name )
-        log = logging.getLogger( 'TrigDecisionMaker' )
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s (based off of ConfigFlags.Trigger.doConfigVersionConversion)", ConfigFlags.Trigger.doConfigVersionConversion)
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.doConfigVersionConversion
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 configuration from the TriggerDB
-            self.Lvl1ResultAccessTool.LVL1ConfigSvc = "TrigConfigSvc"
-
 
 
 class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
     __slots__ = []
     def __init__(self, name = "TrigDecMakerMT"):
         super( TrigDecisionMakerMT, self ).__init__( name )
-        log = logging.getLogger( 'TrigDecisionMakerMT' )
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        log.info("Setting UseNewConfig to %s", ConfigFlags.Trigger.readLVL1FromJSON)
-        self.UseNewConfigL1 = ConfigFlags.Trigger.readLVL1FromJSON
-        self.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
         # Schedule also the prescale conditions algs
         from AthenaCommon.Configurable import Configurable
         Configurable.configurableRun3Behavior += 1
@@ -143,7 +130,6 @@ class WriteTrigDecisionToStream ( object ) :
 
 class WritexAODTrigDecision ( object ) :
     def __init__(self):
-        from AthenaCommon.Logging import logging
         from AthenaCommon.AlgSequence import AlgSequence
         from xAODTriggerCnv.xAODTriggerCnvConf import (xAODMaker__TrigDecisionCnvAlg,
                                                        xAODMaker__TrigDecisionCnvTool,
@@ -164,10 +150,11 @@ class WritexAODTrigDecision ( object ) :
         log.info('TrigDecisionTool setup to use old decision')
 
         # Setup the TrigDecision and Navigation converters:
+
         TopAlg += xAODMaker__TrigDecisionCnvAlg(
             xAODKey = "xTrigDecision",
             CnvTool = xAODMaker__TrigDecisionCnvTool(
-                TrigConfigSvc = svcMgr.HLTConfigSvcRun3)  # setup in TriggerConfigGetter
+                TrigConfigSvc = svcMgr.xAODConfigSvc)  # setup in TriggerConfigGetter
             )
         TopAlg += xAODMaker__TrigNavigationCnvAlg('TrigNavigationCnvAlg')
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CABLINGDATA_H
@@ -21,41 +21,24 @@ namespace RPC_CondCabling {
     private:
         typedef std::list<EtaCMA> ETAlist;
 
-        bool m_fail;
+        bool m_fail{true};
 
-        int m_number;
-        int m_station;
-        int m_type;
-
-        int m_eta_index;
-        int m_phi_index;
-
-        int m_lowPt_start_co;
-        int m_lowPt_stop_co;
-        int m_lowPt_number_co;
-
-        int m_highPt_start_co;
-        int m_highPt_stop_co;
-        int m_highPt_number_co;
-
-        ViewType m_view;
-        CMAcoverage m_coverage;
-        std::string m_covtag;
+        ViewType m_view{ViewType::Eta};
+        std::string m_covtag{};
 
         ETAlist m_etaCMA;
 
         void reset_data(void);
-        bool get_data(DBline&);
-        bool confirm_data(ViewType);
+        bool get_data(DBline&, CMAparameters::parseParams& params);
+        bool confirm_data(ViewType, const CMAparameters::parseParams& parser);
 
     public:
-        CMAcablingdata();
         CMAcablingdata(DBline&, int);
-        ~CMAcablingdata();
+        virtual ~CMAcablingdata() = default;
 
-        std::unique_ptr<EtaCMA> give_eta_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma();
 
-        void Print(std::ostream&, bool) const;
+        virtual void Print(std::ostream&, bool) const override;
     };
 
     template <class X> X& operator<<(X& stream, CMAcablingdata& data) {

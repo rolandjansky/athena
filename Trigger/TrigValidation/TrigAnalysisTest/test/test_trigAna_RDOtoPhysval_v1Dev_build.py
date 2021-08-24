@@ -15,12 +15,18 @@ preExec = ';'.join([
   'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
 
+preExecESDtoAOD = ';'.join(['from JetRec.JetRecFlags import jetFlags',
+                            'jetFlags.writeJetsToAOD.set_Value_and_Lock(True)',
+                            'jetFlags.detailLevel.set_Value_and_Lock(4)',
+                            'from METReconstruction.METRecoFlags import metFlags',
+                            'metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True)'])
+
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.threads = 1
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
-rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
+rdo2aod.args += ' --preExec="all:{:s};" "ESDtoAOD:{:s}"'.format(preExec, preExecESDtoAOD)
 
 physval = ExecStep.ExecStep('PhysVal')
 physval.type = 'Reco_tf'
@@ -30,7 +36,7 @@ physval.args = '--inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSV
 physval.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 validationFlags = 'doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet'
-validationPreExec = 'from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
+validationPreExec = 'from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames(); '
 physval.args += ' --validationFlags="{:s}" --preExec="{:s}"'.format(validationFlags, validationPreExec)
 
 test = Test.Test()

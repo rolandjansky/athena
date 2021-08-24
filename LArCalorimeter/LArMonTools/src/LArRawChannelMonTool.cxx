@@ -66,14 +66,14 @@ using boost::shared_ptr;
 using namespace boost::assign;
 
 typedef std::map<RawChHisto,boost::shared_ptr<IHistoProxyBase> > map_str_th2;
-typedef std::map<IdentifierHash,map_str_th2> map_idhash_str_th2;
-typedef std::map<Detector,map_idhash_str_th2> map_det_idhash_str_th2;
+using map_idhash_str_th2 = std::map<IdentifierHash, map_str_th2>;
+using map_det_idhash_str_th2 = std::map<Detector, map_idhash_str_th2>;
 
-typedef std::vector<HWIdentifier>::const_iterator citer_vect_hwid;
+using citer_vect_hwid = std::vector<HWIdentifier>::const_iterator;
 
 //typedef std::pair<Detector,TH2*> pair_det_th2ptr;
-typedef std::map<Detector,boost::shared_ptr<IHistoProxyBase> > map_det_th2ptr;
-typedef map_det_th2ptr::const_iterator citer_det_th2ptr;
+using map_det_th2ptr = std::map<Detector, boost::shared_ptr<IHistoProxyBase> >;
+using citer_det_th2ptr = map_det_th2ptr::const_iterator;
 
 //typedef std::map<Detector, std::map<Sampling, std::deque<Region> > > det_region_map_t;
 //typedef std::map<Sampling, std::deque<Region> > sam_region_map_t;
@@ -97,12 +97,11 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
   , m_noise_burst_percent_thresholds( 8, 1. )
   , m_noise_burst_nChannel_thresholds( 8, 10 )
   , m_n_lumi_blocks( 1500 )
-  , m_lar_online_id_ptr ( 0 )
-  , m_calo_id_mgr_ptr( 0 )
-  , m_cable_service_tool ( "LArCablingLegacyService" )
+  , m_lar_online_id_ptr ( nullptr )
+  , m_calo_id_mgr_ptr( nullptr )
   , m_filterAtlasReady_tools (this)
   , m_atlas_ready( false )
-  , m_lar_online_id_str_helper_ptr ( 0 )
+  , m_lar_online_id_str_helper_ptr ( nullptr )
   , m_has_lar_raw_channels( false )
     //  , _global_bcid_occupancy(0)
 					  //  , _global_lar_eta_phi_acc( 0 )
@@ -174,7 +173,6 @@ StatusCode LArRawChannelMonTool::initialize()
 
   ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
   ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
-  ATH_CHECK( m_cable_service_tool.retrieve() );
   ATH_CHECK( m_bcContKey.initialize());
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
@@ -182,6 +180,7 @@ StatusCode LArRawChannelMonTool::initialize()
   ATH_CHECK( m_filterAtlasReady_tools.retrieve() );
 
   ATH_CHECK( m_noiseKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   // ---
   // Get Michel's LArOnlineIDStrHelper: All names are Expert view
@@ -289,7 +288,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG( "Number of channels in detectors: " );
-    typedef std::map<Detector,unsigned int> det_int_map_t;
+    using det_int_map_t = std::map<Detector, unsigned int>;
     for( det_int_map_t::value_type i : m_det_to_nchannels){
       ATH_MSG_DEBUG( detector_str( i.first ) << " has " << i.second << "channels " );
     }
@@ -1255,7 +1254,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
 
 
-    if (m_noise_streams_set.size() == 0) m_is_noise_event=true;
+    if (m_noise_streams_set.empty()) m_is_noise_event=true;
     const std::vector<xAOD::EventInfo::StreamTag>& event_stream_tags=event_info->streamTags();
     for (const xAOD::EventInfo::StreamTag& stream_tag: event_stream_tags) {
       if (m_noise_streams_set.find(stream_tag.name())!=m_noise_streams_set.end()) {
@@ -1366,8 +1365,10 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   SG::ReadCondHandle<CaloNoise> noiseH (m_noiseKey, ctx);
 
-  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl (m_bcContKey, ctx);
   const LArBadChannelCont* bcCont={*bcContHdl};
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
 
   // --- Loop over RawChannels ---
   for( const LArRawChannel &chan : *raw_channels ){
@@ -1393,7 +1394,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
     try {
 
-      offline_id = m_cable_service_tool->cnvToIdentifier( hardware_id );
+      offline_id = cabling->cnvToIdentifier( hardware_id );
       calo_element_ptr   = ddman->get_element( offline_id );
 
       // --- skip unconnected channels ---
@@ -1422,7 +1423,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	//times. Thus the following is a way to cut down on the cpu
 	//usage due to map lookups (even better would of course be to stop
 	//using maps!).	
-	shared_ptr<IHistoProxyBase> hnull((IHistoProxyBase*)(0));
+	shared_ptr<IHistoProxyBase> hnull((IHistoProxyBase*)nullptr);
 	std::map<Detector,shared_ptr<IHistoProxyBase> >::iterator it;
 	it = per_det_occu.find(det); perdethist_occu = ((it==per_det_occu.end())?hnull:it->second);
 	it = per_det_sign.find(det); perdethist_sign = (it==per_det_sign.end()?hnull:it->second);
@@ -1804,8 +1805,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   if ( m_monitor_time ) {
     double t = event_mean_time.result();
-    typedef std::map<HWIdentifier, MeanCalculator> element_mean_calculator;
-    typedef std::map<Detector,element_mean_calculator > det_element_mean_calculator;
+    using element_mean_calculator = std::map<HWIdentifier, MeanCalculator>;
+    using det_element_mean_calculator = std::map<Detector, element_mean_calculator>;
     for( const det_element_mean_calculator::value_type & a : mean_feb_times ) {
       const Detector & detector = a.first;
       for( const element_mean_calculator::value_type & b : a.second ) {

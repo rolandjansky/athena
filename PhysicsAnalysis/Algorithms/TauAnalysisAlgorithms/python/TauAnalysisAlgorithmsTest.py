@@ -3,16 +3,15 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createService
 
 def makeSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the tau analysis algorithm sequence:
     from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence

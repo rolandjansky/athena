@@ -59,8 +59,8 @@ class PixelClusterErrorData {
     int getNumberOfBarrelBins(){ return m_barrelphierror.size(); }
     int getNumberOfEndcapBins(){ return m_endcapphierror.size(); }
 
-    void Print(std::string file) const;
-    void Load(std::string file);
+    void Print(const std::string& file) const;
+    void Load(const std::string& file);
 
   private: 
      void Initialize();

@@ -28,7 +28,7 @@
 #include <stdio.h>
 
 #include "utils.h"
-
+#include <algorithm>
 // chop tokens off the end of a string, leave string unchanged
 // return choped string
 std::string choptoken(std::string& s1, const std::string& s2)
@@ -67,7 +67,7 @@ std::string chopfirst(std::string& s1, const std::string& s2)
   }
   else {
     s3 = s1;
-    s1 = "";
+    s1.clear();
   } 
   return s3;
 } 
@@ -100,12 +100,12 @@ std::string chop(std::string& s1, const std::string& s2)
   std::string::size_type pos = s1.find(s2);
   std::string s3;
   if ( pos == std::string::npos ) {
-    s3 = s1;
-    s1.erase(0, s1.size());
+    s3 = std::move(s1);
+    s1.clear();
   }
   else {
     s3 = s1.substr(0, pos); 
-    s1.erase(0, pos+s2.size());
+    s1.clear();
   }
   return s3;
 } 
@@ -117,8 +117,8 @@ std::string chomp(std::string& s1, const std::string& s2)
   std::string::size_type pos = s1.find(s2);
   std::string s3;
   if ( pos == std::string::npos ) {
-    s3 = s1;
-    s1.erase(0,s1.size());    
+    s3 = std::move(s1);
+    s1.clear();
   }
   else {
     s3 = s1.substr(pos+s2.size(),s1.size());
@@ -149,12 +149,15 @@ void replace(std::string& s, const std::string& s2, const std::string& s3)
   }
 } 
 
+void replace(std::string& s, char c1, char c2) noexcept {
+   std::replace(s.begin(), s.end(), c1, c2);
+}
 
 // remove colons from a string
 void depunctuate(std::string& s) 
 {
   std::string::size_type pos;
-  while ( (pos = s.find(":"))!=std::string::npos ) {
+  while ( (pos = s.find(':'))!=std::string::npos ) {
     s.erase(pos, 1);
   }
 } 
@@ -195,17 +198,17 @@ std::string number(const int& i, const std::string& s) {
 
 
 std::string dirname( std::string name ) { 
-  std::string::size_type pos = name.find_last_of( "/" );
+  std::string::size_type pos = name.find_last_of( '/' );
   if ( pos!=std::string::npos ) name = name.substr( 0, pos );
   return name;
 }
 
 
 std::string basename( std::string name ) { 
-  std::string::size_type  pos = name.find( "/" );
+  std::string::size_type  pos = name.find( '/' );
   while ( pos!=std::string::npos ) {
     name = name.substr( pos+1, name.size()-pos-1 );
-    pos  = name.find( "/" );
+    pos  = name.find( '/' );
   } 
   return name;
 }

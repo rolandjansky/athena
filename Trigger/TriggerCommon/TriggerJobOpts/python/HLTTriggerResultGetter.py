@@ -62,7 +62,7 @@ class ByteStreamUnpackGetter(Configured):
         from AthenaCommon.CFElements import seqAND
         decoder = HLTResultMTByteStreamDecoderAlg()
         deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_Summary')]
+        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_Summary_OnlineSlimmed')]
         decodingSeq = seqAND("HLTDecodingSeq")
         decodingSeq += decoder  # BS -> HLTResultMT
         decodingSeq += deserialiser  # HLTResultMT -> xAOD
@@ -92,6 +92,8 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         extr = TrigBSExtraction()
 
         # Add fictional output to ensure data dependency in AthenaMT
+        # Keeping the run 2 workflow, we run this after we have put the full serialised navigation into xAOD
+        extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
         extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
         
         if hasHLT:
@@ -320,22 +322,6 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addStreamAOD("JetKeyDescriptor","JetKeyMap")
             objKeyStore.addStreamAOD("JetMomentMap","TrigJetRecMomentMap")
                     
-        # ID truth
-        if not rec.readESD() and (not rec.readAOD()) and TriggerFlags.doID() \
-                and rec.doTruth():
-            try:
-                from TrigInDetTruthAlgs.TrigInDetTruthAlgsConfig import \
-                    TrigIDTruthMaker
-                topSequence += TrigIDTruthMaker()
-            except Exception:
-                log.warning( "Couldn't set up the trigger ID truth maker" )
-                pass
-
-        if rec.doESD() or rec.doAOD():
-            from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
-            objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
-            objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
-
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
@@ -390,7 +376,7 @@ class HLTTriggerResultGetter(Configured):
             log.info("AOD list is subset of ESD list - good.")
 
 
-        def _addSlimming(stream, edm):
+        def _addSlimmingRun2(stream, edm):
             from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
@@ -407,13 +393,30 @@ class HLTTriggerResultGetter(Configured):
             del edmlist
 
 
-        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
-            _addSlimming('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
-            log.info("configured navigation slimming for AOD output")
-            
-        if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
-            _addSlimming('StreamESD', _TriggerESDList )                
-            log.info("configured navigation slimming for ESD output")
+        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
+
+            # Run 1, 2 slimming
+            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
+                _addSlimmingRun2('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
+                log.info("configured navigation slimming for AOD output")
+                
+            if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
+                _addSlimmingRun2('StreamESD', _TriggerESDList )                
+                log.info("configured navigation slimming for ESD output")
+
+        if ConfigFlags.Trigger.EDMVersion >= 3:
+            # Change in the future to 'if EDMVersion >= 3 or doEDMVersionConversion:'
+
+            # Run 3 slimming
+            if ConfigFlags.Trigger.doNavigationSlimming: 
+                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTConfig
+                from AthenaCommon.Configurable import Configurable
+                Configurable.configurableRun3Behavior += 1
+                from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+                appendCAtoAthena( getTrigNavSlimmingMTConfig(ConfigFlags) )
+                Configurable.configurableRun3Behavior -= 1
+            else:
+                log.info("doNavigationSlimming is False, won't schedule run 3 navigation slimming")
 
         objKeyStore.addManyTypesStreamESD( _TriggerESDList )
         objKeyStore.addManyTypesStreamAOD( _TriggerAODList )        

@@ -13,21 +13,24 @@ from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg,
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+
 GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
 from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
+from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
 
-CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,SmartlessnessTool,G4AtlasDetectorConstructionTool=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","SmartlessnessTool","G4AtlasDetectorConstructionTool",)
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,SmartlessnessTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","SmartlessnessTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
-#ToDo - finish migrating this (dnoel)
-#to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
+#ToDo - finish migrating this
 #from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
 
 
@@ -86,6 +89,17 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
     result=ITkGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+
+def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
+    #set up geometry
+    result=HGTD_GeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -222,7 +236,11 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 32.15*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    kwargs.setdefault("dZ", 347.5*cm)
+    if ConfigFlags.Detector.GeometryHGTD:
+        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("dZ", 354.5*cm)
+    else:
+        kwargs.setdefault("dZ", 347.5*cm)
 
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryITkPixel:
@@ -268,18 +286,15 @@ def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
 def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6735.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6747.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
+    if ConfigFlags.Detector.GeometryHGTD:
+        # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
+    else:
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryLAr:
         toolLArMgr = result.popToolsAndMerge(LArMgrGeoDetectorToolCfg(ConfigFlags))
@@ -323,18 +338,11 @@ def ForwardRegionEnvelopeCfg(ConfigFlags, name='ForwardRegion', **kwargs):
 def MUONEnvelopeCfg(ConfigFlags, name="MUONQ02", **kwargs): #FIXME rename to MUON when safe (IS IT SAFE?))
     result = ComponentAccumulator()
 
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
-    calolim = 6736.
-    try:
-        if LArDetectorToolNV.ActivateFeedThrougs:
-            calolim = 6748.
-    except AttributeError:
-        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6748.,-6748.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6748.,6748.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryMuon:
         toolMuon = result.popToolsAndMerge(MuonGeoDetectorToolCfg(ConfigFlags))
@@ -360,7 +368,7 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
@@ -374,6 +382,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryITk:
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
+    if ConfigFlags.Detector.GeometryHGTD:
+        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [ toolHGTD ]
     if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
@@ -412,8 +423,9 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
-       (ConfigFlags.Sim.CavernBG != 'Signal'):
+    # if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
+    #    (ConfigFlags.Sim.CavernBG != 'Signal'):
+    if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
         if not ConfigFlags.Detector.GeometryCalo:
@@ -489,7 +501,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
 
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if ConfigFlags.Detector.GeometryID:
@@ -709,8 +721,10 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
     result.merge(geoConfAcc)
     kwargs.setdefault("GeometryConfigurationTools", listOfGeoConfTools)
 
-    # Getting this tool by name works, but not if you use getSensitiveDetectorMasterTool()
-    kwargs.setdefault('SenDetMasterTool', "SensitiveDetectorMasterTool" )
+    if "SenDetMasterTool" not in kwargs:
+        tool = result.popToolsAndMerge(SensitiveDetectorMasterToolCfg(ConfigFlags))
+        result.addPublicTool(tool)
+        kwargs.setdefault("SenDetMasterTool", result.getPublicTool(tool.name))
 
     #if hasattr(simFlags,"Eta"): #FIXME ugly hack
     if False:
@@ -723,12 +737,10 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        #if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
-        if False:
-            kwargs.setdefault("World", 'Cavern')
+        if ConfigFlags.Beam.Type == 'cosmics' or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
+            kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
         else:
-            toolGeo = result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
-            kwargs.setdefault("World", toolGeo)
+            kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
@@ -736,4 +748,58 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
             fieldMgrList = result.popToolsAndMerge(acc)
             kwargs.setdefault("FieldManagers", fieldMgrList)
     result.setPrivateTools(G4AtlasDetectorConstructionTool(name, **kwargs))
+    return result
+
+
+def CavernInfraGeoDetectorToolCfg(ConfigFlags, name='CavernInfra', **kwargs):
+    result = CavernGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "CavernInfra")
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("DetectorName", "World")
+    bedrockDX = 302700
+    bedrockDZ = 301000
+    if ConfigFlags.Sim.CavernBG == 'Off':
+        ## Be ready to resize bedrock if the cosmic generator needs more space
+        if ConfigFlags.Sim.ISFRun:
+            # for ISF cosmics simulation, set world volume to biggest possible case
+            bedrockDX = 1000.*3000 # 3 km
+            bedrockDZ = 1000.*3000 # 3 km
+        else:
+            bedrockDX = 1000.*3000 # 3 km
+            bedrockDZ = 1000.*3000 # 3 km
+            # from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator #todo migrate this...
+            # theCavernProperties = CavernPropertyCalculator()
+            # if theCavernProperties.BedrockDX() > bedrockDX:
+            #     bedrockDX = theCavernProperties.BedrockDX()
+            # if theCavernProperties.BedrockDZ() > bedrockDZ:
+            #     bedrockDZ = theCavernProperties.BedrockDZ()
+            
+            #Use these values from old style before migrating above
+            bedrockDX = 600000.0
+            bedrockDZ = 600000.0
+    
+    kwargs.setdefault("dX", bedrockDX) #FIXME Units?
+    kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
+    kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?
+    # Subtraction Solid - has to be a better way to do this!!
+    kwargs.setdefault("NumberOfHoles", 1)
+    kwargs.setdefault("HoleNames", ['BelowCavern'])
+    kwargs.setdefault("Hole_dX",   [bedrockDX]) 
+    kwargs.setdefault("Hole_dY",   [41000]) 
+    kwargs.setdefault("Hole_dZ",   [bedrockDZ])
+
+    kwargs.setdefault("HolePosX",  [0])
+    kwargs.setdefault("HolePosY",  [-58300])
+    kwargs.setdefault("HolePosZ",  [0])
+
+    SubDetectorList = []
+    SubDetectorList += [ result.popToolsAndMerge(CavernInfraGeoDetectorToolCfg(ConfigFlags))]
+    SubDetectorList += [ result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))]
+    
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    result.setPrivateTools(BoxEnvelope(name, **kwargs))
     return result

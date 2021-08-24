@@ -46,6 +46,7 @@ char* snip (char* buf, char* p, char fill = '\0')
 
 void filter (char* buf)
 {
+  char* buf0 = buf;
   char* sl = 0;
   while (*buf) {
     if (buf[0] == '0' && buf[1] == 'x') {
@@ -65,9 +66,22 @@ void filter (char* buf)
       ++buf;
     }
 
+    else if (buf[0] == ' ' && buf > buf0 && buf[-1] == ' ') {
+      char* p = buf;
+      while (*p == ' ') ++p;
+      buf = snip (buf, p);
+      sl = 0;
+    }
+
     else if (buf[0] == ' ') {
       ++buf;
       sl = 0;
+    }
+
+    else if (buf[0] == '?') {
+      char* p = buf+1;
+      while (*p == '?') ++p;
+      buf = snip (buf, p);
     }
 
     else if (buf[0] == '[') {
@@ -90,14 +104,20 @@ void filter (char* buf)
 
     // Get rid of file/line number.
     // Unfortunate, but we don't get these for opt builds.
-    else if (buf[0] == ':' && sl) {
+    else if (buf[0] == ':' && isdigit (buf[1])) {
+      char* p = buf;
       ++buf;
       while (isdigit (*buf))
         ++buf;
       if (*buf == ' ')
         ++buf;
-      buf = snip (sl, buf);
-      sl = 0;
+      if (sl) {
+        buf = snip (sl, buf);
+        sl = 0;
+      }
+      else {
+        buf = snip (p, buf);
+      }
     }
 
     else
@@ -378,7 +398,6 @@ void testbad()
 int main()
 {
   initpointers();
-  Athena::DebugAids::setStackTraceAddr2Line ("/usr/bin/addr2line");
   fromhere();
 #ifdef HAVE_LINUX_UNWIND_BACKTRACE
   testbad();

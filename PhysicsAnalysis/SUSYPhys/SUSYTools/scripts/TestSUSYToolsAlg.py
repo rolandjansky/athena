@@ -17,14 +17,14 @@ parser.add_option('-d', '--daod', dest = 'daod', type = 'int', default = 0, help
 parser.add_option('-f', '--flav', dest = 'flav', default = 'PHYS', help = 'input DAOD flavour. Do not specify for PHYSVAL input' )
 parser.add_option('-m', '--maxEvts', dest = 'maxEvts', type = 'int', default = 500, help = 'Max events (-1 is all)' )
 parser.add_option('-M', '--maxEvtsManual', dest = 'maxEvtsManual', type = 'int')
-parser.add_option('-p', '--ptag', dest = 'ptag', default = 'p4441', help = 'ptag' )
+parser.add_option('-p', '--ptag', dest = 'ptag', default = 'p4631', help = 'ptag' )
 parser.add_option('--grl', dest = 'grl')
 parser.add_option('--inputDir', dest = 'inputDir')
 parser.add_option('--inputFile', dest = 'inputFile')
 parser.add_option('--overwrite', dest = 'overwrite', default = False, action = 'store_true' )
 ( options, args ) = parser.parse_args()
 print("Configured input data ptag: %s"%(options.ptag))
-ptageqdata = {'p4016':'p4017','p4095':'p4096','p4237':'p4238','p4441':'p4441'}
+ptageqdata = {'p4016':'p4017','p4095':'p4096','p4237':'p4238','p4441':'p4441','p4631':'p4441'}
 if 'data' in options.type and options.ptag in ptageqdata: 
    options.ptag = ptageqdata[options.ptag]
    print("Overriding ptag to equivalent data ptag: -> %s"%(options.ptag))

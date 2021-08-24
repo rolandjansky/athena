@@ -3,6 +3,7 @@
 # art-description: Reco_tf.py q431 RAWtoALL in MT mode with 11k data18 input
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 timeout 64800 Reco_tf.py \
@@ -11,11 +12,12 @@ timeout 64800 Reco_tf.py \
   --outputHISTFile=myHIST.root \
   --outputDESDM_MCPFile=myDESDM_MCP.pool.root \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
+  --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --multithreaded='True' \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=20' \
   --autoConfiguration='everything' \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-03' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
+  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
 echo "art-result: $? Reco_tf_data18_11K_mt"

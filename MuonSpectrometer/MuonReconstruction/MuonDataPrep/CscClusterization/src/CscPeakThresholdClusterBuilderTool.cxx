@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscPeakThresholdClusterBuilderTool.h"
@@ -126,7 +126,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(std::vector<Identifie
     // clear output vector of selected data collections containing data
     decodedIds.clear();
 
-    if (givenIDs.size() != 0) {
+    if (!givenIDs.empty()) {
         for (unsigned int i = 0; i < givenIDs.size(); ++i) {
             if (getClusters(givenIDs[i], decodedIds, object).isFailure()) {
                 ATH_MSG_ERROR("Unable to decode CSC RDO " << i << "th into CSC PrepRawData");
@@ -553,7 +553,7 @@ int CscPeakThresholdClusterBuilderTool::make_clusters(bool measphi, const vector
                                                  cluster_hash,
                                                  plpos,
                                                  prd_digit_ids_submit,
-                                                 std::move(cov),
+                                                 cov,
                                                  pro,
                                                  int(cluster_charge + 0.5),
                                                  cluster_time,

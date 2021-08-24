@@ -115,7 +115,8 @@ AsgForwardElectronIsEMSelector::initialize()
       return sc;
     }
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
-    TEnv env(filename.c_str());
+    TEnv env;
+    env.ReadFile(filename.c_str(), kEnvLocal);
 
     ///------- Read in the TEnv config ------///
 
@@ -319,8 +320,6 @@ AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   // trigETthr : threshold in ET to apply the cuts at trigger level
   // iflag: the starting isEM
   //
-
-  // std::cout<<" NVTX "<<nvtx<<" eta2 "<<eta2<<" eta "<<eta2<<std::endl;
   const xAOD::CaloCluster* cluster2 = eg->caloCluster();
   double secondLambda(0);
   double lateral(0);

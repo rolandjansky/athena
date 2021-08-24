@@ -577,6 +577,9 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
+                                    useGhostTracks = tauFlags.useGhostTracks(),
+                                    ghostTrackDR = tauFlags.ghostTrackDR(),
+                                    Key_jetContainer = tauFlags.tauRecSeedJetCollection() if tauFlags.useGhostTracks() else "",
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
                                     Key_LargeD0TrackInputContainer = _DefaultLargeD0TrackContainer if tauFlags.associateLRT() else "",
                                     TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
@@ -628,7 +631,8 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = tauFlags.tauRecMvaTESConfig())
+                                      WeightFileName = tauFlags.tauRecMvaTESConfig(),
+                                      WeightFileName0p = tauFlags.tauRec0pMvaTESConfig())
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -683,7 +687,8 @@ def getTauJetRNNEvaluator():
     myTauJetRNNEvaluator = TauJetRNNEvaluator(name = _name,
                                               NetworkFile0P = "",
                                               NetworkFile1P = tauFlags.tauRecTauJetRNNConfig()[0],
-                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              NetworkFile2P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[2],
                                               OutputVarname = "RNNJetScore",
                                               MaxTracks = 10,
                                               MaxClusters = 6,
@@ -709,11 +714,13 @@ def getTauWPDecoratorJetRNN():
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
                                        flatteningFile1Prong = tauFlags.tauRecTauJetRNNWPConfig()[0],
-                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
+                                       flatteningFile2Prong = tauFlags.tauRecTauJetRNNWPConfig()[1],
+                                       flatteningFile3Prong = tauFlags.tauRecTauJetRNNWPConfig()[2],
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                        SigEff1P = [0.95, 0.85, 0.75, 0.60],
+                                       SigEff2P = [0.95, 0.75, 0.60, 0.45],
                                        SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "RNNJetScore",
                                        NewScoreName = "RNNJetScoreSigTrans",
@@ -830,3 +837,13 @@ def getTVATool():
 
     cached_instances[_name] = TVATool
     return TVATool
+
+def getTauAODSelector():
+    _name = sPrefix + 'TauAODSelector'
+    from tauRecTools.tauRecToolsConf import TauAODSelector
+
+    myTauAODSelector = TauAODSelector(name=_name,
+                                      Min0pTauPt = tauFlags.tauRec0pMinPt(),
+                                      MinTauPt = tauFlags.tauRecMinPt())
+    cached_instances[_name] = myTauAODSelector
+    return myTauAODSelector

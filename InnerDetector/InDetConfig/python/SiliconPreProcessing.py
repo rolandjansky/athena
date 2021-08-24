@@ -1,10 +1,15 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, name="InDetSiElementPropertiesTableCondAlg", **kwargs):
     acc = ComponentAccumulator()
+
+    # For SCT DetectorElementCollection used
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    acc.merge(SCT_GeometryCfg(flags))
+
     acc.addCondAlgo(CompFactory.InDet.SiElementPropertiesTableCondAlg(name = name, **kwargs))
     return acc
 
@@ -13,9 +18,6 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     #
     # --- SiSpacePointMakerTool (public)
     #
-
-    if flags.InDet.doSLHC:
-        kwargs.setdefault("SCTGapParameter", 0.0015)
 
     if flags.Beam.Type == "cosmics" or flags.InDet.doBeamHalo:
         kwargs.setdefault("StripLengthTolerance", 0.05)
@@ -30,6 +32,10 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     #
     # SiTrackerSpacePointFinder algorithm
     #
+
+    # For SCT DetectorElementCollection used
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    acc.merge(SCT_GeometryCfg(flags))
 
     InDetSiSpacePointMakerTool = acc.popToolsAndMerge(SiSpacePointMakerToolCfg(flags))
     acc.addPublicTool(InDetSiSpacePointMakerTool) ## I decided to merge it
@@ -61,6 +67,13 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
 
 def InDetPRD_MultiTruthMakerSiCfg(flags, name="InDetPRD_MultiTruthMakerSi", **kwargs):
     acc = ComponentAccumulator()
+
+    # For pixel + SCT DetectorElementCollection used
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    acc.merge(PixelGeometryCfg( flags ))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    acc.merge(SCT_GeometryCfg( flags ))
+
     if flags.InDet.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'PixelClusters') # InDetKeys.PixelClusters()
         kwargs.setdefault("SCTClusterContainerName", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
@@ -87,6 +100,13 @@ def InDetPRD_MultiTruthMakerSiCfg(flags, name="InDetPRD_MultiTruthMakerSi", **kw
 
 def InDetPRD_MultiTruthMakerSiPUCfg(flags, name="InDetPRD_MultiTruthMakerSiPU", **kwargs):
     acc = ComponentAccumulator()
+
+    # For pixel + SCT DetectorElementCollection used
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    acc.merge(PixelGeometryCfg( flags ))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    acc.merge(SCT_GeometryCfg( flags ))
+
     if flags.InDet.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'PixelPUClusters') # InDetKeys.PixelPUClusters()
         kwargs.setdefault("SCTClusterContainerName", 'SCT_PU_Clusters') # InDetKeys.SCT_PU_Clusters()
@@ -118,8 +138,7 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
     MultiplicityContent = [1 , 1 , 1]
 
     from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
-    NnClusterizationFactory = NnClusterizationFactoryCfg(flags)
-    acc.addPublicTool(NnClusterizationFactory)
+    NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
 
     useBeamConstraint = flags.InDet.useBeamConstraint
 
@@ -127,10 +146,7 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
     kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
 
-    if flags.InDet.doSLHC:
-        NnPixelClusterSplitProbTool = CompFactory.InDet.TruthPixelClusterSplitProbTool(name=name,**kwargs)
-    else:
-        NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
+    NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
 
     acc.setPrivateTools(NnPixelClusterSplitProbTool)
     return acc
@@ -139,8 +155,7 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     acc = ComponentAccumulator()
 
     from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
-    NnClusterizationFactory = NnClusterizationFactoryCfg(flags)
-    acc.addPublicTool(NnClusterizationFactory)
+    NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
 
     useBeamConstraint = flags.InDet.useBeamConstraint
 
@@ -150,10 +165,7 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     kwargs.setdefault("SplitOnlyOnBLayer", False)
     kwargs.setdefault("useBeamSpotInfo", useBeamConstraint)
     # --- new NN splitter
-    if flags.InDet.doSLHC:
-        NnPixelClusterSplitter = CompFactory.InDet.TruthPixelClusterSplitter(name=name,**kwargs)
-    else:
-        NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
+    NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
 
     acc.setPrivateTools(NnPixelClusterSplitter)
     return acc
@@ -182,10 +194,9 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
             #
             # --- SiLorentzAngleTool
             #
-            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-            PixelLorentzAngleTool = PixelLorentzAngleTool(flags)
+            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+            PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
             acc.addPublicTool(PixelLorentzAngleTool)
-            acc.addPublicTool(acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
 
             from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
             SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    

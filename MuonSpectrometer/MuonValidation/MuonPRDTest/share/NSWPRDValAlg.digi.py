@@ -38,10 +38,15 @@ NSWPRDValAlg.doMDTSDO = True
 NSWPRDValAlg.doMDTDigit = True
 
 NSWPRDValAlg.doTGCHit= True
+NSWPRDValAlg.doTGCSDO = True
 NSWPRDValAlg.doTGCDigit= True
+NSWPRDValAlg.doTGCRDO = True
 
 NSWPRDValAlg.doCSCHit= MuonGeometryFlags.hasCSC()
+NSWPRDValAlg.doCSCSDO= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCDigit= MuonGeometryFlags.hasCSC()
+NSWPRDValAlg.doCSCRDO= MuonGeometryFlags.hasCSC()
+NSWPRDValAlg.doCSCPRD= MuonGeometryFlags.hasCSC()
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple

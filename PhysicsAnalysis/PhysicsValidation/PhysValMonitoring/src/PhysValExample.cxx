@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValExample.cxx 
@@ -47,14 +47,14 @@ namespace PhysVal {
 				  const std::string& name, 
 				  const IInterface* parent ) : 
     ManagedMonitorToolBase( type, name, parent ),
-    m_jetPlots(0, "Summary/Jet/", "Jet"),
-    m_elecPlots(0, "Summary/Electron/", "Electron"),
-    m_photonPlots(0, "Summary/Photon/", "Photon"),
-    m_muonPlots(0, "Summary/Muon/", "Muon"),
-    m_tauPlots(0, "Summary/Tau/", "Tau"),
-    m_trkvtxPlots(0, "Summary/TrackAndVertex/"),
-    m_metPlots(0, "Summary/MET/", "RefFinal"),
-    m_btagPlots(0, "Summary/BTag/", "IP3D")
+    m_jetPlots(nullptr, "Summary/Jet/", "Jet"),
+    m_elecPlots(nullptr, "Summary/Electron/", "Electron"),
+    m_photonPlots(nullptr, "Summary/Photon/", "Photon"),
+    m_muonPlots(nullptr, "Summary/Muon/", "Muon"),
+    m_tauPlots(nullptr, "Summary/Tau/", "Tau"),
+    m_trkvtxPlots(nullptr, "Summary/TrackAndVertex/"),
+    m_metPlots(nullptr, "Summary/MET/", "RefFinal"),
+    m_btagPlots(nullptr, "Summary/BTag/", "IP3D")
   {
     
     declareProperty( "JetContainerName", m_jetName = "AntiKt4EMTopoJets" );
@@ -65,6 +65,9 @@ namespace PhysVal {
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );  
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );  
     declareProperty( "METContainerName", m_metName = "MET_RefFinal" ); 
+    declareProperty( "DoExMET", m_doExMET = true ); 
+    declareProperty( "DoExJet", m_doExJet = true ); 
+    declareProperty( "DoExBtag", m_doExBtag = true ); 
   }
   
   // Destructor
@@ -78,7 +81,7 @@ namespace PhysVal {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");    
     ATH_CHECK(ManagedMonitorToolBase::initialize());
-    
+
     return StatusCode::SUCCESS;
   }
   
@@ -109,7 +112,7 @@ namespace PhysVal {
  	ATH_CHECK(book(m_metPlots));
       }
 
-      for (auto name : m_timingNames) {
+      for (const auto& name : m_timingNames) {
 	if (name == "EVNTtoHITS") {
 	  m_timingPlots.push_back(new TH1F(("Timing" + name).c_str(), ("Timing" + name).c_str(), 10000, 0, 10000));
 	} else {
@@ -128,72 +131,80 @@ namespace PhysVal {
     if (m_detailLevel < 10) return StatusCode::SUCCESS;
 
     // event Info
-    const xAOD::EventInfo* event(0);
+    const xAOD::EventInfo* event(nullptr);
     ATH_CHECK(evtStore()->retrieve(event, "EventInfo"));
     
     // Jets
     int nbtag(0);
-    m_jetPlots.initializeEvent();
-    const xAOD::JetContainer* jets(0);
-    ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
-    for (auto jet : *jets) {
-      m_jetPlots.fill(jet,event);
-      const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
-      if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+    if (m_doExJet){
+      m_jetPlots.initializeEvent();
+      const xAOD::JetContainer* jets(nullptr);
+      ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
+      for (auto jet : *jets) {
+	m_jetPlots.fill(jet,event);
+	if (m_doExBtag){
+	  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
+	  if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
+	}
+      }
+      m_jetPlots.fill(event);
     }
-    m_jetPlots.fill(event);
     m_btagPlots.fill(nbtag,event);
-
+      
     // Electrons
     m_elecPlots.initializeEvent();
-    const xAOD::ElectronContainer* electrons(0);
+    const xAOD::ElectronContainer* electrons(nullptr);
     ATH_CHECK(evtStore()->retrieve(electrons, m_elecName));
     for (auto elec : *electrons) m_elecPlots.fill(elec,event);
     m_elecPlots.fill(event);
 
     // Photons
     m_photonPlots.initializeEvent();
-    const xAOD::PhotonContainer* photons(0);
+    const xAOD::PhotonContainer* photons(nullptr);
     ATH_CHECK(evtStore()->retrieve(photons, m_photonName));
     for (auto photon : *photons) m_photonPlots.fill(photon,event);
     m_photonPlots.fill(event);
 
     // Muons
     m_muonPlots.initializeEvent();
-    const xAOD::MuonContainer* muons(0);
+    const xAOD::MuonContainer* muons(nullptr);
     ATH_CHECK(evtStore()->retrieve(muons, m_muonName));
     for (auto muon : *muons) m_muonPlots.fill(muon,event);
     m_muonPlots.fill(event);
 
     // Taus
     m_tauPlots.initializeEvent();
-    const xAOD::TauJetContainer* taus(0);
+    const xAOD::TauJetContainer* taus(nullptr);
     ATH_CHECK(evtStore()->retrieve(taus, m_tauName));
     for (auto tau : *taus) m_tauPlots.fill(tau,event);
     m_tauPlots.fill(event);
 
     // Tracks/Vertices
-    const xAOD::TrackParticleContainer* trks(0);
+    const xAOD::TrackParticleContainer* trks(nullptr);
     ATH_CHECK(evtStore()->retrieve(trks, m_trackName));
 
-    const xAOD::VertexContainer* vtxs(0);
+    const xAOD::VertexContainer* vtxs(nullptr);
     ATH_CHECK(evtStore()->retrieve(vtxs, m_vertexName));
     for (auto vtx : *vtxs) m_trkvtxPlots.fill(vtx,event);
 
 
     m_trkvtxPlots.fill(trks->size(), vtxs->size(), event->averageInteractionsPerCrossing(),event);
 
-    const xAOD::MissingETContainer* met_container (0);
-    ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
-    const xAOD::MissingET* met = (*met_container)["FinalClus"];
-    if (!met) {
-      ATH_MSG_ERROR ("Couldn't retrieve MET Final");
-      return StatusCode::SUCCESS;
+
+
+    if (m_doExMET){
+      const xAOD::MissingETContainer* met_container (nullptr);
+      ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
+      
+      const xAOD::MissingET* met = (*met_container)["FinalClus"];
+      if (!met) {
+	ATH_MSG_WARNING ("Couldn't retrieve MET Final");
+	return StatusCode::SUCCESS;
+      }
+      m_metPlots.fill(met,event);
     }
-    m_metPlots.fill(met,event);
-    
     int i(0);
-    for (auto name : m_timingNames) {
+    for (const auto& name : m_timingNames) {
       float time;
       if (getTiming(name, time).isSuccess()) {
 	m_timingPlots[i]->Fill(time,event->beamSpotWeight());
@@ -222,11 +233,11 @@ namespace PhysVal {
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-  StatusCode PhysValExample::getTiming(std::string name, float& recoTime) {
+  StatusCode PhysValExample::getTiming(const std::string& name, float& recoTime) {
     // Code form
     // m_recoInclPers
     
-    const RecoTimingObj* recTiming(0);
+    const RecoTimingObj* recTiming(nullptr);
     recoTime = 0;
     if (evtStore()->contains<RecoTimingObj>(name + "_timings")) {
       if (evtStore()->retrieve( recTiming, name + "_timings" ).isFailure()) {
@@ -236,7 +247,7 @@ namespace PhysVal {
       
       bool recoInclPers(true);
       if (recoInclPers) {
-	if ((*recTiming).size() > 0) 
+	if (!(*recTiming).empty()) 
 	  recoTime=*((*recTiming).rbegin());
       } else {
 	if ((*recTiming).size() > 1)

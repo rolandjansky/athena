@@ -248,13 +248,13 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
     //int run=eventInfo->event_ID()->run_number();
-    int eventNumber = eventInfo->event_ID()->event_number();
-    modEvent->set_event_number(eventNumber);
+    uint64_t eventNumber = eventInfo->event_ID()->event_number();
+    modEvent->set_event_number((int)eventNumber);
   }
 
   // weight-name cleaning
 #ifdef HEPMC3
-  std::vector<std::string>  w_wnames = event->weight_names();
+  std::vector<std::string>  w_names = event->weight_names();
   if (w_names.size()) {
     std::vector<std::pair<std::string,std::string> > w_subs = {
       {" nominal ",""},
@@ -328,6 +328,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
   //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
   modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  return modEvent;
 #else
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {

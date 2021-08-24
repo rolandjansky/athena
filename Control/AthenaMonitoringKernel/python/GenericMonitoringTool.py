@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -236,6 +236,7 @@ def _options(opt):
         'kVecUO': False,                # same as above, but use 0th(last) element for underflow(overflow)
         'kCumulative': False,           # fill bin of monitored object's value, and every bin below it
         'kLive': 0,                     # plot only the last N lumiblocks on y_vs_LB plots
+        'kAlwaysCreate': False          # create the histogram, even if it is empty
     }
     if opt is None:
         # If no options are provided, skip any further checks.
@@ -326,7 +327,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+    if athenaCommonFlags.isOnline() and type in ['TTree']:
         log.warning('Object %s of type %s is not supported for online running and '
                     'will not be added.', varname, type)
         return ''

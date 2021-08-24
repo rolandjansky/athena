@@ -31,12 +31,12 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_overlapTool.retrieve());
-    if (m_electronsHandle) m_systematicsList.addHandle (m_electronsHandle);
-    if (m_muonsHandle) m_systematicsList.addHandle (m_muonsHandle);
-    if (m_jetsHandle) m_systematicsList.addHandle (m_jetsHandle);
-    if (m_tausHandle) m_systematicsList.addHandle (m_tausHandle);
-    if (m_photonsHandle) m_systematicsList.addHandle (m_photonsHandle);
-    if (m_fatJetsHandle) m_systematicsList.addHandle (m_fatJetsHandle);
+    ANA_CHECK (m_electronsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_muonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_jetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_tausHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_photonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
+    ANA_CHECK (m_fatJetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -46,30 +46,31 @@ namespace CP
   StatusCode OverlapRemovalAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::ElectronContainer *electrons {nullptr};
-        if (m_electronsHandle)
-          ANA_CHECK (m_electronsHandle.getCopy (electrons, sys));
-        xAOD::MuonContainer *muons {nullptr};
-        if (m_muonsHandle)
-          ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
-        xAOD::JetContainer *jets {nullptr};
-        if (m_jetsHandle)
-          ANA_CHECK (m_jetsHandle.getCopy (jets, sys));
-        xAOD::TauJetContainer *taus {nullptr};
-        if (m_tausHandle)
-          ANA_CHECK (m_tausHandle.getCopy (taus, sys));
-        xAOD::PhotonContainer *photons {nullptr};
-        if (m_photonsHandle)
-          ANA_CHECK (m_photonsHandle.getCopy (photons, sys));
-        xAOD::JetContainer *fatJets {nullptr};
-        if (m_fatJetsHandle)
-          ANA_CHECK (m_fatJetsHandle.getCopy (fatJets, sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::ElectronContainer *electrons {nullptr};
+      if (m_electronsHandle)
+        ANA_CHECK (m_electronsHandle.getCopy (electrons, sys));
+      xAOD::MuonContainer *muons {nullptr};
+      if (m_muonsHandle)
+        ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
+      xAOD::JetContainer *jets {nullptr};
+      if (m_jetsHandle)
+        ANA_CHECK (m_jetsHandle.getCopy (jets, sys));
+      xAOD::TauJetContainer *taus {nullptr};
+      if (m_tausHandle)
+        ANA_CHECK (m_tausHandle.getCopy (taus, sys));
+      xAOD::PhotonContainer *photons {nullptr};
+      if (m_photonsHandle)
+        ANA_CHECK (m_photonsHandle.getCopy (photons, sys));
+      xAOD::JetContainer *fatJets {nullptr};
+      if (m_fatJetsHandle)
+        ANA_CHECK (m_fatJetsHandle.getCopy (fatJets, sys));
 
-        ATH_CHECK (m_overlapTool->removeOverlaps (electrons, muons, jets, taus,
-                                                  photons, fatJets));
+      ATH_CHECK (m_overlapTool->removeOverlaps (electrons, muons, jets, taus,
+                                                photons, fatJets));
+    }
 
-        return StatusCode::SUCCESS;
-      });
+    return StatusCode::SUCCESS;
   }
 }

@@ -50,6 +50,11 @@ void LVL1::eFEXOutputCollection::fill_tau()
   m_values_tem_tau.clear();
 }
 
+int LVL1::eFEXOutputCollection::tau_size()
+{
+  return m_allvalues_tau.size();
+}
+
 int LVL1::eFEXOutputCollection::size()
 {
   return m_allvalues_eg.size();

@@ -13,7 +13,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"

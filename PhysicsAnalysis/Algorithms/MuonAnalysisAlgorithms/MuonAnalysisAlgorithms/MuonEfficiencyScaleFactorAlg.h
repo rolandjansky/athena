@@ -12,8 +12,8 @@
 #include <MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -49,7 +49,7 @@ namespace CP
 
     /// \brief the muon collection we run on
   private:
-    SysCopyHandle<xAOD::MuonContainer> m_muonHandle {
+    SysReadHandle<xAOD::MuonContainer> m_muonHandle {
       this, "muons", "Muons", "the muon collection to run on"};
 
     /// \brief the EventInfo collection we use
@@ -68,17 +68,17 @@ namespace CP
 
     /// \brief the decoration for the muon scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
       this, "scaleFactorDecoration", "", "the decoration for the muon efficiency scale factor"};
 
     /// \brief the decoration for the muon mc efficiency
   private:
-    SysDecorationHandle<float> m_mcEfficiencyDecoration {
+    SysWriteDecorHandle<float> m_mcEfficiencyDecoration {
       this, "mcEfficiencyDecoration", "", "the decoration for the muon MC efficiency"};
 
     /// \brief the decoration for the muon data efficiency
   private:
-    SysDecorationHandle<float> m_dataEfficiencyDecoration {
+    SysWriteDecorHandle<float> m_dataEfficiencyDecoration {
       this, "dataEfficiencyDecoration", "", "the decoration for the muon data efficiency"};
   };
 }

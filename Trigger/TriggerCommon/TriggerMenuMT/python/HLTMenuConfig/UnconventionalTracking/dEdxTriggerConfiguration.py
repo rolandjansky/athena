@@ -14,6 +14,9 @@ def dEdxTriggerHypoSequence():
         # Setup the hypothesis algorithm
         thedEdxTrackTriggerHypo = TrigdEdxTrackTriggerHypoAlg("dEdxTrack")
 
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+        thedEdxTrackTriggerHypo.HPtdEdxTrk = recordable("HLT_HPtdEdxTrk")
+
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.ComponentFactory import CompFactory
         DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_dEdxTrack_HypoOnlyStep" ))

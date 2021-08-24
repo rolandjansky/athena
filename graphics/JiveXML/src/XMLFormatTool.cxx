@@ -47,9 +47,7 @@ namespace JiveXML {
     //Store this as release string
     m_release = tag.second;
     //Format properly
-    while(m_release.find("/") != std::string::npos)
-      m_release.replace(m_release.find("/"),1,"_");
-    
+    std::replace(m_release.begin(), m_release.end(), '/', '_');
     return StatusCode::SUCCESS; 
   }
 
@@ -163,7 +161,7 @@ namespace JiveXML {
        }
 
        // I don't understand this bit
-       int i = (*itr).first.find(" ");
+       int i = (*itr).first.find(' ');
        if (i != int(std::string::npos))
          (*m_EventBuffer) << "\n</" << (*itr).first.substr(0,i) <<">\n";
        else

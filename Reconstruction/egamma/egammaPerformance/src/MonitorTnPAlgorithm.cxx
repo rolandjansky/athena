@@ -18,7 +18,7 @@ StatusCode MonitorTnPAlgorithm::initialize() {
   using namespace Monitored;
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_ParticleContainerKey.initialize());
-  ATH_MSG_INFO ("call AthMonitorAlgorithm::initialize()");
+  ATH_CHECK(m_ElectronIsolationKey.initialize());
   return StatusCode::SUCCESS;
 }
 

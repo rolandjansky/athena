@@ -2,11 +2,35 @@ from AthenaCommon.CfgGetter import getPublicTool
 getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")
-from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
-addUsedInFitDecoratorForReco(add2Seq = algseq)
-from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
-if not hasattr(algseq,"IsolationBuilderTight500"):
-    algseq += GetUpdatedIsoTrackCones()
+
+from PyUtils.MetaReader import read_metadata
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+try:
+    input_file = svcMgr.EventSelector.InputCollections[0]
+except AttributeError:
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    input_file = athenaCommonFlags.FilesInput()[0]
+metadata = read_metadata(input_file)
+metadata = metadata[input_file]  # promote all keys one level up
+
+isDAOD_PHYSVAL=False
+for class_name, name in metadata['metadata_items'].items():
+    if name == 'EventStreamInfo':
+        if "DAOD_PHYSVAL" in class_name :
+            print ("Running on DAOD_PHYSVAL - will not add TTVA decorations.")
+            isDAOD_PHYSVAL=True
+    
+if not isDAOD_PHYSVAL:
+    from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+    if not hasattr(algseq,"IsolationBuilderNonprompt_All_MaxWeight500"):
+        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = algseq.name()+"_InDetUsedInFitDecoratorTool_forIso",
+                                                                    AMVFVerticesDecoName    = 'TTVA_AMVFVertices',
+                                                                    AMVFWeightsDecoName     = 'TTVA_AMVFWeights',
+                                                                    TrackContainer          = 'InDetTrackParticles',
+                                                                    VertexContainer         = 'PrimaryVertices' )
+        algseq += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = algseq.name()+"_InDetUsedInFitDecorator_forIso",
+                                                                   UsedInFitDecoratorTool  = getattr(ToolSvc, algseq.name()+"_InDetUsedInFitDecoratorTool_forIso") )
+        algseq += GetUpdatedIsoTrackCones()
 
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags

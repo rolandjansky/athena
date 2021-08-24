@@ -56,7 +56,7 @@ void SCT_RawDataContainerCnv_p4::transToPers(const SCT_RDO_Container* transCont,
   /** we're going to store all the strip errors from each RDO 
    * in vectors in the collection */
 
-  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
     /** Add in new collection */
     const SCT_RDO_Collection& collection = (**it_Coll);
     chanBegin  = chanEnd;

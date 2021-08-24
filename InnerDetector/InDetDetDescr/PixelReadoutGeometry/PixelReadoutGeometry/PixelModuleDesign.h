@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 // Data member classes
 #include "ReadoutGeometryBase/PixelDiodeMap.h"
 #include "ReadoutGeometryBase/PixelReadoutScheme.h"
+#include "PixelReadoutDefinitions/PixelReadoutDefinitions.h"
 
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"
@@ -68,16 +69,17 @@ namespace InDetDD {
            number of diode rows connected to one circuit */
       
       PixelModuleDesign(const double thickness,
-			const int circuitsPerColumn,
-			const int circuitsPerRow,
-			const int cellColumnsPerCircuit,
-			const int cellRowsPerCircuit,
-			const int diodeColumnsPerCircuit,
-			const int diodeRowsPerCircuit,
-			std::shared_ptr<const PixelDiodeMatrix> matrix,
-			InDetDD::CarrierType carrierType,
-			int readoutSide = -1,
-			bool is3D=false);
+                        const int circuitsPerColumn,
+                        const int circuitsPerRow,
+                        const int cellColumnsPerCircuit,
+                        const int cellRowsPerCircuit,
+                        const int diodeColumnsPerCircuit,
+                        const int diodeRowsPerCircuit,
+                        std::shared_ptr<const PixelDiodeMatrix> matrix,
+                        InDetDD::CarrierType carrierType,
+                        int readoutSide = -1,
+                        bool is3D=false,
+                        InDetDD::DetectorType detectorType = InDetDD::Undefined);
     
       // Destructor:
       virtual ~PixelModuleDesign() = default;
@@ -148,7 +150,13 @@ namespace InDetDD {
     
       /** Total number of circuits:*/
       int numberOfCircuits() const;
+
+      /** Number of circuits per column: */
+      int numberOfCircuitsPerColumn() const;
     
+      /** Number of circuits per row: */
+      int numberOfCircuitsPerRow() const;
+
       /** Number of cell columns per circuit:*/
       int columnsPerCircuit() const;
     
@@ -200,10 +208,10 @@ namespace InDetDD {
       virtual const Trk::SurfaceBounds & bounds() const; 
     
       virtual bool is3D() const;
-     
-      enum ReadoutTechnology{FEI3,FEI4,RD53};
-      ReadoutTechnology getReadoutTechnology() const;
 
+      PixelReadoutTechnology getReadoutTechnology() const;
+
+      virtual DetectorType type() const final;
 
       ///////////////////////////////////////////////////////////////////
       // Non-const methods:
@@ -220,7 +228,11 @@ namespace InDetDD {
       /** Indicate that it is a more complex layout where cells are not 
          lined up with each other. Eg bricking. Probably never will be needed. */
       void setGeneralLayout();
-    
+
+      /** Debug string representation */
+      std::string debugStringRepr() const;
+
+
       ///////////////////////////////////////////////////////////////////
       // Private methods:
       ///////////////////////////////////////////////////////////////////
@@ -243,6 +255,7 @@ namespace InDetDD {
       PixelReadoutScheme m_readoutScheme;
       CxxUtils::CachedUniquePtr<Trk::RectangleBounds> m_bounds;
       bool m_is3D;
+      InDetDD::DetectorType m_detectorType;
     
     };
     
@@ -285,7 +298,17 @@ namespace InDetDD {
     {
       return m_readoutScheme.numberOfCircuits();
     }
-    
+
+    inline int PixelModuleDesign::numberOfCircuitsPerColumn() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerColumn();
+    }
+
+    inline int PixelModuleDesign::numberOfCircuitsPerRow() const
+    {
+      return m_readoutScheme.numberOfCircuitsPerRow();
+    }
+
     inline int PixelModuleDesign::columnsPerCircuit() const
     {
       return m_readoutScheme.columnsPerCircuit();
@@ -342,11 +365,23 @@ namespace InDetDD {
       return m_is3D; 
     } 
 
-    inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+    inline PixelReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
+      if (m_detectorType == InDetDD::DetectorType::PixelBarrel
+          || m_detectorType == InDetDD::DetectorType::PixelEndcap
+          || m_detectorType == InDetDD::DetectorType::PixelInclined)
+      {
+        return PixelReadoutTechnology::RD53;
+      }
+
       const int maxRow = m_readoutScheme.rowsPerCircuit();
       const int maxCol = m_readoutScheme.columnsPerCircuit();
-      if (maxRow*maxCol>26000) { return FEI4; }
-      else                     { return FEI3; }
+      if (maxRow*maxCol>26000) { return PixelReadoutTechnology::FEI4; }
+      else                     { return PixelReadoutTechnology::FEI3; }
+    }
+
+    inline std::string PixelModuleDesign::debugStringRepr() const
+    {
+      return m_diodeMap.debugStringRepr();
     }
 
 } // namespace InDetDD

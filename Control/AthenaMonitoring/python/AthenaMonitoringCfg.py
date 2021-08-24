@@ -1,12 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from .AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
 
 def AthenaMonitoringCfg(flags):
     import logging
     local_logger = logging.getLogger('AthenaMonitoringCfg')
     info = local_logger.info
+    debug = local_logger.debug
+    error = local_logger.error
     result = ComponentAccumulator()
+
+    result.merge(AthenaMonitoringAODRecoCfg(flags))
 
     if flags.DQ.Steering.doPixelMon:
         info('Set up Pixel monitoring')
@@ -24,9 +29,14 @@ def AthenaMonitoringCfg(flags):
         result.merge(TRTMonitoringRun3Cfg(flags))
     
     if flags.DQ.Steering.doInDetMon:
-        info('Set up InDet Global monitoring')
-        from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
-        result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doGlobalMon:
+            info('Set up InDet Global monitoring')
+            from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
+            result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
+        if flags.DQ.Steering.InDet.doAlignMon:  
+            info('Set up Alignment monitoring')
+            from InDetAlignmentMonitoringRun3.InDetAlignmentMonitoringRun3Config import InDetAlignmentMonitoringRun3Config
+            result.merge(InDetAlignmentMonitoringRun3Config(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')
@@ -92,5 +102,22 @@ def AthenaMonitoringCfg(flags):
         info('Set up LVL1Calo monitoring')
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
+
+    # Check for potentially duplicated histogram definitions
+    definedhists = {}
+    for algo in result.getEventAlgos():
+        import os.path, json
+        if hasattr(algo, 'GMTools'):
+            for t in algo.GMTools:
+                for h in t.Histograms:
+                    ho = json.loads(h)
+                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    if fullpath in definedhists:
+                        previous = definedhists[fullpath]
+                        error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')
+                        raise ValueError()
+                    definedhists[fullpath] = (algo.getName(), t.getName(), ho)
+
+    debug('Passed histogram duplication check')
         
     return result

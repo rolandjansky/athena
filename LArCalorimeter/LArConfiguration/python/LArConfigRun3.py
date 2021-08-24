@@ -1,28 +1,22 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-def LArConfigRun3Pileup(flags):
-   flags.LAr.ROD.DoOFCPileupOptimization = True # default
-   flags.LAr.ROD.useHighestGainAutoCorr = True # default
+def LArConfigRun3PileUp(flags):
+   flags.LAr.ROD.DoOFCPileupOptimization = True
+   flags.LAr.ROD.UseHighestGainAutoCorr = True
    flags.LAr.ROD.FirstSample = 0  # default
    flags.LAr.ROD.nSamples = 4     # default
-   flags.LAr.ROD.NumberOfCollisions = 60 # Run-3 default
+   flags.LAr.ROD.NumberOfCollisions = 60  # Run-3 default
    
-   flags.Digitization.HighGainEMECIW = False  # default
-   flags.Digitization.HighGainFCal = False    # default
+   flags.Digitization.HighGainEMECIW = False
+   flags.Digitization.HighGainFCal = False
 
-def LArConfigRun3NoPileup(flags):
-   flags.LAr.ROD.DoOFCPileupOptimization = False # no pileup optimisation for OFC
-   flags.LAr.ROD.useHighestGainAutoCorr = False
+
+def LArConfigRun3NoPileUp(flags):
+   flags.LAr.ROD.DoOFCPileupOptimization = False
+   flags.LAr.ROD.UseHighestGainAutoCorr = False
    flags.LAr.ROD.FirstSample = 0  # default
    flags.LAr.ROD.nSamples = 4     # default
-   flags.LAr.ROD.NumberOfCollisions = 0 #  no pileup
+   flags.LAr.ROD.NumberOfCollisions = 0
    
-   flags.Digitization.HighGainEMECIW = True  # use high gain in EMEC IW
-   flags.Digitization.HighGainFCal = True    # use high gain in Fcal
-
-def LArConfigRun3(flags):
-   if flags.Digitization.PileUp:
-     LArConfigRun3Pileup(flags)
-   else:
-     LArConfigRun3NoPileup(flags)
-
+   flags.Digitization.HighGainEMECIW = True
+   flags.Digitization.HighGainFCal = True

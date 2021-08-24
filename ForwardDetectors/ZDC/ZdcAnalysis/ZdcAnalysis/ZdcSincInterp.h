@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDC_SINC_INTERP_H
@@ -7,6 +7,6 @@
 
 namespace ZDC
 {
-double sincInterp(double* xvec, double* pvec);
+double SincInterp(const double* xvec, const double* pvec);   
 }
 #endif

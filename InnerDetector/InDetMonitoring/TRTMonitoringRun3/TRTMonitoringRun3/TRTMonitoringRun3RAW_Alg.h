@@ -67,6 +67,7 @@ private:
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
     
     static const int s_Straw_max[2];
+    static const int s_iChip_max[2];
     
     static const int s_numberOfBarrelStacks;
 	static const int s_numberOfEndCapStacks;
@@ -82,6 +83,7 @@ private:
     bool m_useHoleFinder;
     bool m_doHitsMon;
     float m_DistToStraw;
+    float m_usedEvents;
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
@@ -111,11 +113,14 @@ private:
     int chipToBoard(int chip) const;
     int chipToBoard_EndCap(int chip) const;
     StatusCode checkTRTReadoutIntegrity(const xAOD::EventInfo& eventInfo) const;
+    std::vector<std::vector<std::vector<int>>>  initScaleVectors() const;
     bool checkEventBurst(const TRT_RDO_Container& rdoContainer) const;
     int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const;
     int strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const;
     int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;
     float radToDegrees(float radValue) const;
+    int strawNumber_reverse(int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber) const;
+	int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber) const;
 
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;

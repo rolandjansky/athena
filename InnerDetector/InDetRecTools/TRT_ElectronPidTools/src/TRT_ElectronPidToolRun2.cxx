@@ -470,10 +470,21 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
                                      << "  pHTpi_prod: " << pHTpi_prod
                                      << "  probEl: " << PIDvalues[Trk::eProbabilityHT]);
 
-  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(ctx,&track); // default dEdx using all hits
-  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = m_TRTdEdxTool->usedHits(ctx,&track);
-  double dEdx_noHTHits = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
-  double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
+  PIDvalues[Trk::TRTdEdx] = m_TRTdEdxTool->dEdx(
+    ctx,
+    &track,
+    true, //be expicit as optional below can be converted to bool
+    PIDvalues[Trk::TRTTrackOccupancy]); // default dEdx using all hits
+
+  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] =
+    m_TRTdEdxTool->usedHits(ctx, &track);
+  double dEdx_noHTHits = m_TRTdEdxTool->dEdx(
+    ctx,
+    &track,
+    false,//be expicit as optional below can be converted to bool 
+    PIDvalues[Trk::TRTTrackOccupancy]); // Divide by L, exclude HT hits
+
+  double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx, &track, false);
   PIDvalues[Trk::eProbabilityToT] = m_TRTdEdxTool->getTest(
     ctx, dEdx_noHTHits, pTrk, Trk::electron, Trk::pion, dEdx_usedHits_noHTHits);
 

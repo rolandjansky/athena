@@ -35,6 +35,7 @@
 #include "computils.h"
 
 #include "AtlasStyle.h"
+#include "AtlasLabels.h"
 
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
@@ -46,16 +47,18 @@ int usage(const std::string& name, int status) {
   s << "    -t,  --tag       value   \t appends tag 'value' to the end of output plot names, \n";
   s << "    -k,  --key       value   \t prepends key 'value' to the front of output plot names, \n\n";
   s << "    -a,  --auto              \t process all histograms that are in the file, \n";
+  s << "    -r,  --replace   patt rep\t replace patt wiht rep in the file name\n"; 
   s << "    -d,  --directory value   \t if auto is set, search only in specifed directory, \n";
   s << "         --nodir             \t do not print the directory name on the plot,\n";
-  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n";
-  s << "    -f,  --frac              \t explicitly include the fractional plots\n\n";
-  s << "    -nr, --noref             \t do not use a reference file, \n\n";
-  s << "    -x,  --xoffset   value   \t offset the key by value \n\n";
-  s << "         --logx               \t force logx \n\n";
+  s << "    -p,  --pattern   value   \t if auto is set, search for histograms containing this string, \n\n";
+  s << "    -f,  --frac              \t explicitly include the fractional plots\n";
+  s << "    -nr, --noref             \t do not use the reference file, \n\n";
+  s << "    -x,  --xoffset   value   \t offset the key by value \n";
+  s << "         --logx               \t force logx \n";
+  s << "    -w,  --binwidth          \t normalise by bin width\n";
   s << "    -as, --atlasstyle        \t use the ATLAS style \n\n";
-  s << "    -w,  --binwidth          \t normalise by bin width\n\n";
-  s << "    -v,  --verbose           \t verbose output\n";
+  s << "    -al, --atlaslabel        \t show the ATLAS label \n\n";
+  s << "    -v,  --verbose           \t verbose output\n\n";
   s << "    -h,  --help              \t this help\n";
   s << std::endl;
   return status;
@@ -105,6 +108,7 @@ int main(int argc, char** argv) {
   TFile* fref  = 0;
 
   bool atlasstyle = false;
+  bool atlaslabel = false;
   bool ylog = true;
   bool nopng = false;
 
@@ -137,6 +141,8 @@ int main(int argc, char** argv) {
 
   bool withfractional = false;
 
+  std::vector<std::string> replace_list;
+
   // Parse the arguments
   std::vector<std::string> algorithms;
   for(int argnum = 1; argnum < argc; argnum++){
@@ -159,6 +165,12 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-k" || arg == "--key") {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
+      else { return usage(argv[0], -1); }
+    }
+    else if (arg == "-r" || arg == "--replace") {
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
+      else { return usage(argv[0], -1); }
+      if (++argnum < argc) replace_list.push_back( argv[argnum] );
       else { return usage(argv[0], -1); }
     }
     else if ( arg == "--logx") {
@@ -190,6 +202,9 @@ int main(int argc, char** argv) {
     }
     else if (arg == "-as" || arg == "--atlasstyle") {
       atlasstyle = true;
+    }
+    else if (arg == "-al" || arg == "--atlaslabel") {
+      atlaslabel = true;
     }
     else if (arg == "-ap" || arg == "--autopattern") {
       if (++argnum < argc) autopattern = argv[argnum];
@@ -387,11 +402,43 @@ int main(int argc, char** argv) {
 
       //      std::cout << "\n\nfound histname " << histname << std::endl;
 
-      TH1F* refhist = (TH1F*)fref->Get(histname.c_str());
-  
+      std::string refhistname = histname;
+
+
+      TH1F* refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+
+      /// if we cannot find the reference histogram, try replacing all patterns 
+      /// that are requested in the reference hist name 
+
+      if ( refhist==0 && replace_list.size()>=2 ) { 
+
+	for ( size_t ir=0 ; ir<replace_list.size()-1 ; ir+=2 ) {
+	  
+	  size_t pos = refhistname.find(replace_list[ir]);
+	  if ( pos != std::string::npos ) { 
+	    
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, replace_list[ir].size(), "XXXX" );
+	      pos = refhistname.find(replace_list[ir]);
+	    }
+	    
+	    pos = refhistname.find("XXXX");
+	    while( pos!=std::string::npos ) { 
+	      refhistname.replace( pos, 4, replace_list[ir+1] );
+	      pos = refhistname.find("XXXX");
+	    }
+	  }
+	  
+	}
+
+	refhist = (TH1F*)fref->Get(refhistname.c_str());
+
+      }
+     
       if (refhist == 0 ) {
-        std::cerr << "main(): can not find hist " << histname << " in ref file" << std::endl;
-        continue;
+        std::cerr << "main(): can not find hist " << refhistname << " in ref file" << std::endl;
+	continue;
       }
 
       if ( norm_width ) binwidth( refhist );
@@ -414,7 +461,7 @@ int main(int argc, char** argv) {
       std::string algname = tail(algorithms[algorithm], "/" );
       std::string dirname = tail( head(algorithms[algorithm], "/" ), "/" );
       std::string algpname = algorithms[algorithm];
-      replace( algpname, "/", "_" );
+      replace( algpname, '/', '_' );
 
       if ( algname.find("h_")==0 ) algname.erase(0, 2);
     
@@ -427,14 +474,14 @@ int main(int argc, char** argv) {
       
       std::string stub = directory;
 
-      size_t pos = stub.find("/");
-      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find("/"); }
+      size_t pos = stub.find('/');
+      while ( pos!=std::string::npos ) { stub.erase( pos, 1 ); pos = stub.find('/'); }
 
       while ( plotname.find(stub)!=std::string::npos ) { 
 	plotname.erase( 0, plotname.find(stub)+stub.size() );
       }
 
-      while ( plotname.find("_")==0 ) plotname.erase( 0, 1 );
+      while ( plotname.find('_')==0 ) plotname.erase( 0, 1 );
 
       plotname = output_dir + plotname;
 
@@ -505,6 +552,8 @@ int main(int argc, char** argv) {
       if ( dirtitle.find("HLT_")==0 && dirtitle.find("__")!=std::string::npos ) dirtitle.erase( dirtitle.find("__"), dirtitle.size() ); 
 
       if ( show_directory ) DrawLabel( x1+0.02, y2+0.02, dirtitle, kBlack, legend.TextSize(), legend.TextFont() );
+
+      if ( atlasstyle && atlaslabel ) ATLASLabel(0.68, 0.88, "Internal");
 
       /// could simply run gPad->SetLogyx( logx );
       /// but that would interfere with the individual plot 

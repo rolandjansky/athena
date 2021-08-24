@@ -7,10 +7,10 @@
 
 #include "CoralBase/Blob.h"
 
-#include <map>
-#include <stdint.h>
-#include <string>
+#include <cstdint>
 #include <istream>
+#include <map>
+#include <string>
 
 PixelHitDiscCnfgAlg::PixelHitDiscCnfgAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)

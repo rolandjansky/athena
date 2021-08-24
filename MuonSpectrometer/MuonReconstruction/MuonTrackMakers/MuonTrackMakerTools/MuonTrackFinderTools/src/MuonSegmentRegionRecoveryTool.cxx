@@ -4,7 +4,6 @@
 
 #include "MuonSegmentRegionRecoveryTool.h"
 
-#include <map>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
@@ -42,6 +41,7 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include <ostream>
 
 namespace Muon {
 
@@ -75,14 +75,22 @@ namespace Muon {
         }
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_hitSummaryTool.retrieve());
+        /// Old chamber technologies
         ATH_CHECK(m_regsel_mdt.retrieve());
-        if (!m_regsel_csc.empty()) ATH_CHECK(m_regsel_csc.retrieve());
         ATH_CHECK(m_regsel_rpc.retrieve());
         ATH_CHECK(m_regsel_tgc.retrieve());
-        if (!m_regsel_stgc.empty()) ATH_CHECK(m_regsel_stgc.retrieve());
-        if (!m_regsel_mm.empty()) ATH_CHECK(m_regsel_mm.retrieve());
-        ATH_CHECK(m_trackSummaryTool.retrieve());
-
+        
+        if (m_idHelperSvc->recoCSC()){
+            ATH_CHECK(m_regsel_csc.retrieve());
+        } else m_regsel_csc.disable();
+        if (m_idHelperSvc->recosTgc()){
+            ATH_CHECK(m_regsel_stgc.retrieve());
+        } else m_regsel_stgc.disable();
+        if (m_idHelperSvc->recoMM()){
+            ATH_CHECK(m_regsel_mm.retrieve());
+        } else {
+            m_regsel_mm.disable();
+        }
         if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
         return StatusCode::SUCCESS;
@@ -222,7 +230,7 @@ namespace Muon {
                                                                MuonSegmentRegionRecoveryTool::MuonData& data) const {
         ATH_MSG_VERBOSE(" Collecting all crossed chambers");
 
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
             return;
@@ -231,8 +239,8 @@ namespace Muon {
         std::set<MuonStationIndex::StIndex> stations;
         double etamin{1e9}, etamax{-1e9}, phimin{1e9}, phimax{-1e9};
         // loop over TSOSs
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+        Trk::TrackStates::const_iterator tsit = states->begin();
+        Trk::TrackStates::const_iterator tsit_end = states->end();
 
         for (; tsit != tsit_end; ++tsit) {
             const Trk::TrackParameters* pars = (*tsit)->trackParameters();
@@ -290,9 +298,9 @@ namespace Muon {
         if (m_idHelperSvc->hasMDT() && (m_idHelperSvc->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
         if (m_idHelperSvc->hasRPC() && (m_idHelperSvc->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
         if (m_idHelperSvc->hasTGC() && (m_idHelperSvc->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
-        if (m_idHelperSvc->hasCSC() && (m_idHelperSvc->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
-        if (m_idHelperSvc->hasSTgc() && (m_idHelperSvc->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
-        if (m_idHelperSvc->hasMM() && (m_idHelperSvc->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
+        if (m_idHelperSvc->recoCSC()) addHashes(CSC, roi, data.csc, data.cscTrack);
+        if (m_idHelperSvc->recosTgc()) addHashes(STGC, roi, data.stgc, data.stgcTrack);
+        if (m_idHelperSvc->recoMM()) addHashes(MM, roi, data.mm, data.mmTrack);
 
         std::set<IdentifierHash>::iterator hsit = data.mdt.begin();
         std::set<IdentifierHash>::iterator hsit_end = data.mdt.end();
@@ -320,7 +328,7 @@ namespace Muon {
         ATH_MSG_VERBOSE(" making set of already-on-track chambers");
 
         // Collect track PRD's
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
             return;
@@ -329,8 +337,8 @@ namespace Muon {
         std::set<MuonStationIndex::StIndex> stations;
 
         // loop over TSOSs
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+        Trk::TrackStates::const_iterator tsit = states->begin();
+        Trk::TrackStates::const_iterator tsit_end = states->end();
         for (; tsit != tsit_end; ++tsit) {
             const Trk::TrackParameters* pars = (*tsit)->trackParameters();
             if (!pars) continue;
@@ -391,7 +399,7 @@ namespace Muon {
 
     std::unique_ptr<Trk::Track> MuonSegmentRegionRecoveryTool::findHoles(const EventContext& ctx, const Trk::Track& track,
                                                                          MuonData& data) const {
-        const DataVector<const Trk::TrackStateOnSurface>* oldStates = track.trackStateOnSurfaces();
+        const Trk::TrackStates* oldStates = track.trackStateOnSurfaces();
         if (!oldStates) {
             ATH_MSG_WARNING(" track without states, cannot perform mdt hole search ");
             return nullptr;
@@ -466,10 +474,14 @@ namespace Muon {
                 int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                 double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
                 double distEdge = std::abs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
-                double pullEdge = tubePars->covariance() && Amg::valid_cov(*tubePars->covariance())
-                                      ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ)
-                                      : distEdge / 20.;
-                std::optional<Amg::Vector2D> locPos = surf.Trk::Surface::globalToLocal(tubePars->position());
+                double pullEdge =
+                  tubePars->covariance() &&
+                      Amg::saneCovarianceDiagonal(*tubePars->covariance())
+                    ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ)
+                    : distEdge / 20.;
+                std::optional<Amg::Vector2D> locPos =
+                  surf.Trk::Surface::globalToLocal(tubePars->position());
+             
                 bool inBounds = false;
                 if (locPos) {
                     // perform bound check do not count holes with 100. mm of bound edge
@@ -483,7 +495,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                                              << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
                 ++nholes;
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(tubePars.release());
+                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(std::move(tubePars));
                 states.emplace_back(tsos);
             }
             if (!nholes) ATH_MSG_DEBUG("found holes " << nholes);
@@ -674,8 +686,8 @@ namespace Muon {
         }
         if (!states.empty()) {
             // states were added, create a new track
-            auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-            trackStateOnSurfaces->reserve(oldStates->size() + states.size());
+            auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+            trackStateOnSurfaces.reserve(oldStates->size() + states.size());
 
             std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> toBeSorted;
             toBeSorted.reserve(oldStates->size() + states.size());
@@ -687,7 +699,7 @@ namespace Muon {
             std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
 
             for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : toBeSorted) {
-                trackStateOnSurfaces->push_back(sorted.release());
+                trackStateOnSurfaces.push_back(sorted.release());
             }
             std::unique_ptr<Trk::Track> trackWithHoles =
               std::make_unique<Trk::Track>(
@@ -797,7 +809,7 @@ namespace Muon {
                                     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                                     typePattern.set(Trk::TrackStateOnSurface::Measurement);
                                     Trk::TrackStateOnSurface* tsos =
-                                        new Trk::TrackStateOnSurface(hit->clone(), hitPars.release(), nullptr, nullptr, typePattern);
+                                        new Trk::TrackStateOnSurface(hit->uniqueClone(), std::move(hitPars), nullptr, nullptr, typePattern);
                                     states.emplace_back(tsos);
                                     const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(hit);
                                     if (mdt) newMdtHashes.insert(mdt->collectionHash());
@@ -913,7 +925,7 @@ namespace Muon {
         if (!states.empty()) {
             ATH_MSG_DEBUG("Collected new states: " << states.size());
 
-            const DataVector<const Trk::TrackStateOnSurface>* oldStates = track.trackStateOnSurfaces();
+            const Trk::TrackStates* oldStates = track.trackStateOnSurfaces();
             if (!oldStates) {
                 ATH_MSG_WARNING(" track without states, cannot perform cleaning ");
                 return nullptr;
@@ -924,9 +936,9 @@ namespace Muon {
 
             std::stable_sort(states.begin(), states.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
             ATH_MSG_DEBUG("Filling DataVector with TSOSs " << states.size());
-            auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
-            trackStateOnSurfaces->reserve(states.size());
-            for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : states) { trackStateOnSurfaces->push_back(sorted.release()); }
+            auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
+            trackStateOnSurfaces.reserve(states.size());
+            for (std::unique_ptr<const Trk::TrackStateOnSurface>& sorted : states) { trackStateOnSurfaces.push_back(sorted.release()); }
             ATH_MSG_DEBUG("Creating new Track " << states.size());
             std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
               track.info(),
@@ -960,7 +972,7 @@ namespace Muon {
                                                                                               bool smallerBounds) const {
         ATH_MSG_VERBOSE("reachableDetEl() " << m_idHelperSvc->toStringDetEl(detEl.identify()) << " at " << detEl.center());
         std::unique_ptr<const Trk::TrackParameters> exPars;
-        std::unique_ptr<Trk::TrackParameters> closest{MuonGetClosestParameters::closestParameters(track, detEl.surface(), true)};
+        std::unique_ptr<const Trk::TrackParameters> closest{MuonGetClosestParameters::closestParameters(track, detEl.surface(), true)};
         if (closest) {
             ATH_MSG_VERBOSE("Extrapolating from closest point:\n" << m_printer->print(*closest));
             exPars.reset(m_extrapolator->extrapolateDirectly(ctx, *closest, detEl.surface(), Trk::anyDirection, false, Trk::muon));

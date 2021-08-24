@@ -50,9 +50,6 @@ if nThreads >=1 :
 
 theApp.EvtMax = 20
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
-
 #---------------------------------------------------------------------------------#
 # NEW Conditions access infrastructure
 #
@@ -71,7 +68,7 @@ svcMgr += CondSvc()
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
 # Input file
-dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.ESD.e3601_s3170_r12399_r12253_r12399/ESD.24234157._000069.pool.root.1"
+dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile]
@@ -83,6 +80,13 @@ import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
+
+#If old style ESD with old EventInfo, we will convert it
+if (objKeyStore.isInInput("EventInfo") and not objKeyStore.isInInput( "xAOD::EventInfo")):
+   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+   topSequence+=xAODMaker__EventInfoCnvAlg()
+
+import EventInfoMgt.EventInfoMgtInit
 
 from PyUtils.MetaReaderPeeker import convert_itemList
 objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
@@ -113,8 +117,6 @@ ServiceMgr.GeoModelSvc.DetectorTools += [ LArDetectorToolNV(ApplyAlignments = Tr
                                           TileDetectorTool(GeometryConfig = "RECO")
                                           ]
 
-
-from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
 
 include( "TileConditions/TileConditions_jobOptions.py" )
 
@@ -170,7 +172,8 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
 from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+#Second True disables EventInfoTagBuilder
+StreamESD=createOutputStream("StreamESD","myESD.pool.root",True,True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")

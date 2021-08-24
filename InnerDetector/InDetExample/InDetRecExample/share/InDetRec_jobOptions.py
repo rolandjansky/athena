@@ -433,7 +433,7 @@ else:
     #
     # ------------------------------------------------------------
     ClusterSplitProbContainerLargeD0=''
-    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.runLRTReco() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -445,7 +445,7 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
-        elif InDetFlags.doR3LargeD0():
+        elif InDetFlags.runLRTReco():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
@@ -569,9 +569,17 @@ else:
 
       include ("InDetRecExample/ConfiguredTRTStandalone.py")
       import copy
+
+      # --- load cuts for TRT Standalone tracks
+      if ('InDetNewTrackingCutsTRTStandalone' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRTStandalone not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsTRTStandalone = ConfiguredNewTrackingCuts("TRTStandalone")
+        InDetNewTrackingCutsTRTStandalone.printInfo()
+
       InDetRecTRTStandalone = ConfiguredTRTStandalone ("",
                                                        copy.copy(InputCombinedInDetTracks),
-                                                       InDetNewTrackingCuts,
+                                                       InDetNewTrackingCutsTRTStandalone,
                                                        InDetKeys.TRT_Segments(),
                                                   #     InDetKeys.TRT_Segments_EC(),
                                                        TrackCollectionKeys,
@@ -625,7 +633,7 @@ else:
       # Add tracks that are not saved to the InputCombinedInDetTracks
       InputForwardInDetTracks = []
       InputForwardInDetTracks += InputCombinedInDetTracks
-      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+      if InDetFlags.runLRTReco() and InDetFlags.storeSeparateLargeD0Container():
         ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
         InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
@@ -740,7 +748,7 @@ else:
       # Add tracks that are not saved to the InputCombinedInDetTracks
       if InDetFlags.doForwardTracks():
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
-      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+      if InDetFlags.runLRTReco() and InDetFlags.storeSeparateLargeD0Container():
         InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):

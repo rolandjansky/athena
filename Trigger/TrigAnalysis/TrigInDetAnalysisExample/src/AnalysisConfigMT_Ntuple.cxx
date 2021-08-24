@@ -3,13 +3,15 @@
  **
  **     @author  mark sutton
  **
- **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include "TrigInDetAnalysisExample/AnalysisConfigMT_Ntuple.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
+
+#include "TrigDecisionTool/FeatureRequestDescriptor.h"
 
 #include "TrigInDetAnalysis/Filter_AcceptAll.h"
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
@@ -18,6 +20,7 @@
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysisUtils/TIDARoiDescriptorBuilder.h"
+
 
 std::string date();
 
@@ -471,6 +474,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 	std::vector<TIDA::Vertex> vertices;
 
+	// store offline vertex track ids along with vertices                                                                                                                                      
+
+    std::vector<TrackTrigObject> offVertexTracks;
+
 	//	std::vector<TIDA::Vertex> vertices;
 	
 	m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
@@ -493,18 +500,35 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    //	    std::cout << "SUTT  xAOD::Vertex::type() " << (*vtxitr)->type() << "\tvtxtype " << (*vtxitr)->vertexType() << "\tntrax " << (*vtxitr)->nTrackParticles() << std::endl; 
 
 	    if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
-              vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-						(*vtxitr)->y(),
-						(*vtxitr)->z(),
-						/// variances                                                                                          
-						(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-						(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-						(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-						(*vtxitr)->nTrackParticles(),
-						/// quality                                                                                            
-						(*vtxitr)->chiSquared(),
-						(*vtxitr)->numberDoF() ) );
-            }
+			vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
+					(*vtxitr)->y(),
+					(*vtxitr)->z(),
+					/// variances                                                                                          
+					(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+					(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+					(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+					(*vtxitr)->nTrackParticles(),
+					/// quality                                                                                            
+					(*vtxitr)->chiSquared(),
+					(*vtxitr)->numberDoF() ) );
+
+
+			// get tracks associated to vertex
+			const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
+
+			// convert from xAOD into TIDA::Track
+			TrigTrackSelector selector( &filter_etaPT ); // not sure about the filter, copied line 147
+			selector.selectTracks( tracks );
+			const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
+
+			// Store ids of tracks belonging to vertex in TrackTrigObject
+			TrackTrigObject vertexTracks = TrackTrigObject();
+			for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
+				vertexTracks.addChild( (*trkitr)->id() );
+			}
+			offVertexTracks.push_back( vertexTracks );
+
+        }
 
 	  }
 	}
@@ -549,6 +573,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->addChain( "Vertex" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addVertices( vertices );
+	  m_event->back().back().addObjects( offVertexTracks );
 	}	 
 
 
@@ -968,17 +993,19 @@ void AnalysisConfigMT_Ntuple::loop() {
 
 		if ( roi_key!="" ) feature_type = TrigDefs::allFeaturesOfType;
 
+		int leg = -1;
+
+		if ( m_chainNames[ichain].element()!="" ) { 
+		  leg = std::atoi(m_chainNames[ichain].element().c_str());
+		}
+
 		std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
-		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainName, 
-									    decisiontype, 
-									    roi_key, 
-									    //   TrigDefs::lastFeatureOfType, 
-									    //   TrigDefs::allFeaturesOfType,
-									    feature_type,
-									    "roi" );
-		 
-		/// leave this here for the moment until we know everything is working ...
-		// const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;
+		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( Trig::FeatureRequestDescriptor( chainName,  
+													    decisiontype, 
+													    roi_key, 
+													    feature_type,
+													    "roi", 
+													    leg ) );
 		
 		int iroi = 0; /// count of how many rois processed so far
 
@@ -993,7 +1020,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		TIDA::Chain& chain = m_event->back();
 
 
-		for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roi_info : rois ) {
+		for ( const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>& roi_info : rois ) {
 		    
 		  iroi++;
 
@@ -1044,6 +1071,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  /// fetch vertices if available ...
 		  
 		  std::vector<TIDA::Vertex> tidavertices;	
+
+		  // store trigger vertex track ids along with vertices                                                                                                                                      
+
+		  std::vector<TrackTrigObject> tidaVertexTracks;
 		  
 		  if ( vtx_name!="" ) { 
 		    
@@ -1064,7 +1095,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      
 		      xAOD::VertexContainer::const_iterator vtxitr = vtx_itrpair.first; 
 		      
-		      for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
+		for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
 			
 			/// leave this code commented so that we have a record of the change - as soon as we can 
 			/// fix the missing track multiplicity from the vertex this will need to go back  
@@ -1081,12 +1112,29 @@ void AnalysisConfigMT_Ntuple::loop() {
 								/// quality
 								(*vtxitr)->chiSquared(),
 								(*vtxitr)->numberDoF() ) );
+
+
+				// get tracks associated to vertex
+				const std::vector< ElementLink< xAOD::TrackParticleContainer > >& tracks = (*vtxitr)->trackParticleLinks();
+
+				// covert from xAOD into TIDA::Track
+				TrigTrackSelector selector( &filter ); // not sure about the filter, copied line 148
+				selector.selectTracks( tracks );
+				const std::vector<TIDA::Track*>& tidatracks = selector.tracks();
+
+				// Store ids of tracks belonging to vertex in TrackTrigObject
+				TrackTrigObject vertexTracks = TrackTrigObject();
+				for ( auto trkitr = tidatracks.begin(); trkitr != tidatracks.end(); ++trkitr ) {
+					vertexTracks.addChild( (*trkitr)->id() );
+				}
+				tidaVertexTracks.push_back( vertexTracks );
+
 			}
-		      }
+		}
 		      
-		    }
+	}
 		    
-		  }
+}
 
 #if 0 
 		  //// not yet ready to get the jet yet - this can come once everything else is working 
@@ -1113,10 +1161,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  }
 		  
 		  
-		  
 		  chain.addRoi( *roi_tmp );
 		  chain.back().addTracks(testTracks);
 		  chain.back().addVertices(tidavertices);
+		  chain.back().addObjects(tidaVertexTracks);
 		  
 #if 0
 		  /// jets can't be added yet

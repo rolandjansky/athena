@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <type_traits>
@@ -67,6 +67,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
   double Xc  = m_xi2maxlink;     
   double bestX2  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
 
   /// holder for best cluster seen not pasing cuts
   const InDet::SiCluster* cl = nullptr;
@@ -121,18 +122,20 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
       /// left with a link to the worst chi² one  
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
       /// Now our link points not the the cluster we just processed but the worst
-      /// so far 
-      /// If we have less  than 10 saved, save it in the next slot
-      if(nLinksFound<10){
+      /// so far
+
+      /// If we have less than nm saved, save it in the next slot
+      if(nLinksFound<nm){
          L[nLinksFound++]=l;
-       } else {
+      } else {
          /// otherwise, don't add it, and update the chi2 cut to 
          /// the worst one in our list, to get rid of further 
          /// candidates early on. 
-         Xm=L[9].xi2();
-       }
-       /// finally, update the chi2 cut - don't bother with anything worse 
-       /// than the current candidate by 6 units in chi2
+         Xm=L[nm-1].xi2();
+      }
+
+      /// finally, update the chi2 cut - don't bother with anything worse
+      /// than the current candidate by 6 units in chi2
       Xc = Xm+6.;
     } /// done with branch if we satisfy the chi2 criterion
     /// if we have no links yet and this is the best chi2 so far 
@@ -175,6 +178,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
   /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
 
   /// best cluster seen
   const InDet::SiCluster* cl = nullptr;
@@ -200,12 +204,12 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     r12 = r1*r1;
 
     /// sum cov on X - using 1/sqrt(12) update of hit cov
-    double v0  = .08333*(MV0*MV0)+PV0; 
+    double v0  = s_oneOverTwelve*(MV0*MV0)+PV0;
     /// bail out if X alone sufficient to fail chi2 
     if(r02 >(Xc*v0)) continue;
 
     /// sum cov on Y - using 1/sqrt(12) update of hit cov
-    double v2  = .08333*(MV2*MV2)+PV2; 
+    double v2  = s_oneOverTwelve*(MV2*MV2)+PV2;
     /// bail out if Y alone sufficient to fail chi2 
     if(r12 >(Xc*v2)) continue;
     double v1  =                  PV1;
@@ -229,9 +233,9 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
       /// and place the worst link (remember that l is now a different link, see above)!
       /// If within capacity, increment counter and add
-      if(nLinksFound<10) L[nLinksFound++]=l; 
+      if(nLinksFound<nm) L[nLinksFound++]=l;
       /// otherwise increment cut to avoid bothering with lower qualities in the future
-      else Xm=L[9].xi2();
+      else Xm=L[nm-1].xi2();
       /// update looser chi2 cut to match the tighter one - we found at least one good cluster
       Xc = Xm;
     }
@@ -269,6 +273,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
   /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
   /// best cluster seen 
   const InDet::SiCluster* cl = nullptr;
 
@@ -284,7 +289,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     /// estimate covariance by pitch 
     double MV0 = c->width().phiR()   ;
     /// include 1/sqrt(12) factor and add to contribution from pred 
-    double v0  = .08333*(MV0*MV0)+PV0;   
+    double v0  = s_oneOverTwelve*(MV0*MV0)+PV0;
     /// get residual in X 
     double r0  = M[0]-P0;
     /// one over cov
@@ -299,8 +304,15 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 
     /// if residual beyond half-length: assume hit is on very end of strip and 
     /// re-evaluate chi2 with a penalty term on the Y coordinate
-    if(fabs(dP1) > m_halflength) {
-      double r1 = (dP1 > m_halflength ?m_halflength-P1 : -(m_halflength+P1));
+    if(std::abs(dP1) > m_halflength) {
+      double r1 = M[1]-P1;
+      if(m_tools->isITkGeometry()){
+         if(dP1 > m_halflength) r1 += m_halflength;
+         else r1 -= m_halflength;
+      }
+      else{
+         r1 = (dP1 > m_halflength ?m_halflength-P1 : -(m_halflength+P1));
+      }
       double v1 = PV1;
       double v2 = PV2;  
       /// determinant of 2D covariance (only contribution from hit on X,X) 
@@ -322,9 +334,9 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
       /// left with a link to the worst chi² one  
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
       /// and place the worst link so far at the end if space. 
-      if(nLinksFound<10) L[nLinksFound++]=l; 
+      if(nLinksFound<nm) L[nLinksFound++]=l;
       /// otherwise, update chi2 cut to not bother with worse clusters anymore
-      else Xm=L[9].xi2();
+      else Xm=L[nm-1].xi2();
       /// update looser chi2 to match the tighter one - we have at least one good link now
       Xc = Xm;
     }
@@ -361,6 +373,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   double Xc  = m_xi2maxlink;
   double Xl  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
 
   const InDet::SiCluster* cl = nullptr;
 
@@ -403,8 +416,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
       /// it replaces in ascending chi², and we will be 
       /// left with a link to the worst chi² one  
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
-      if(nLinksFound<10) L[nLinksFound++]=l;
-      else Xm=L[9].xi2();
+      if(nLinksFound<nm) L[nLinksFound++]=l;
+      else Xm=L[nm-1].xi2();
       Xc = Xm+6.;
     }
     else if(!nLinksFound && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
@@ -433,6 +446,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
 
   const InDet::SiCluster* cl = nullptr;
 
@@ -451,8 +465,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     double r0  = M[0]-P0, r02 = r0*r0; 
     double r1  = M[1]-P1, r12 = r1*r1;
 
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
+    double v0  = s_oneOverTwelve*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
+    double v2  = s_oneOverTwelve*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
     double v1  =                  PV1;
     double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
     double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
@@ -466,7 +480,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
       /// it replaces in ascending chi², and we will be 
       /// left with a link to the worst chi² one  
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
-      if(nLinksFound<10) L[nLinksFound++]=l; else Xm=L[9].xi2();
+      if(nLinksFound<nm) L[nLinksFound++]=l; else Xm=L[nm-1].xi2();
       Xc = Xm;
     }
     else if(!nLinksFound) {Xc = x; cl = c;}
@@ -495,6 +509,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
   double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
+  int    nm  = m_tools->isITkGeometry() ? m_tools->maxclusters() : 10;
 
   const InDet::SiCluster* cl = nullptr;
 
@@ -508,7 +523,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     const Amg::Vector2D& M = c->localPosition();
 
     double MV0 = c->width().phiR()   ;
-    double v0  = .08333*(MV0*MV0)+PV0;   
+    double v0  = s_oneOverTwelve*(MV0*MV0)+PV0;
     double r0  = M[0]-P0;
     double d   = 1./v0;
     double x   = (r0*r0)*d;
@@ -519,8 +534,14 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 
     if(fabs(dP1) > m_halflength) {
 
-      double r1; 
-      dP1 > m_halflength ? r1 = m_halflength-P1 : r1 = -(m_halflength+P1);
+      double r1 = M[1]-P1;
+      if(m_tools->isITkGeometry()){
+         if(dP1 > m_halflength) r1 += m_halflength;
+         else r1 -= m_halflength;
+      }
+      else{
+         r1 = (dP1 > m_halflength ?m_halflength-P1 : -(m_halflength+P1));
+      }
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -536,7 +557,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
       /// it replaces in ascending chi², and we will be 
       /// left with a link to the worst chi² one  
       for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
-      if(nLinksFound<10) L[nLinksFound++]=l; else Xm=L[9].xi2();
+      if(nLinksFound<nm) L[nLinksFound++]=l; else Xm=L[nm-1].xi2();
       Xc = Xm;
     }
     else if(!nLinksFound) {Xc = x; cl = c;}
@@ -553,7 +574,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 //     InDet::PixelClusterCollection::const_iterator or
 //     InDet::SCT_ClusterCollection::const_iterator
 template <typename T>
-void InDet::SiTrajectoryElement_xk::set
+bool InDet::SiTrajectoryElement_xk::set
 (int st,
  const InDet::SiDetElementBoundaryLink_xk*& dl,
  const T& sb, 
@@ -584,7 +605,7 @@ void InDet::SiTrajectoryElement_xk::set
   m_ntsos              = 0                       ;
   m_detelement         = dl->detElement()        ;
   m_detlink            = dl                      ;
-  m_surface            = &m_detelement->surface();
+  m_surface            = &m_detelement->surface(); if(!m_surface && m_tools->isITkGeometry()) return false;
   m_sibegin            = sb                      ;
   m_siend              = se                      ; 
   m_cluster            = si                      ;
@@ -620,9 +641,10 @@ void InDet::SiTrajectoryElement_xk::set
   const Amg::Transform3D& tr = m_surface->transform();
   //Initialise material corrections
   m_radlength = 0.03; 
+  if(m_tools->isITkGeometry()) m_radlength = 0.04;
   /// add material for the forward pixels
   if(m_ndf == 2 && std::abs(tr(2,2)) >= 1.) m_radlength = .07;
-  
+  if(m_tools->isITkGeometry()) m_radlengthN=m_radlength;
 
   m_localTransform[ 0] = tr(0,0); m_localTransform[ 1]=tr(1,0); m_localTransform[ 2]=tr(2,0);
   m_localTransform[ 3] = tr(0,1); m_localTransform[ 4]=tr(1,1); m_localTransform[ 5]=tr(2,1);
@@ -632,7 +654,7 @@ void InDet::SiTrajectoryElement_xk::set
   m_localDir[0] = 1.; 
   m_localDir[1] = 0.; 
   m_localDir[2] = 0.;
-  return;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////

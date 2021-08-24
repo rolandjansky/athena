@@ -20,6 +20,7 @@
 #include "monitors/MonitorROS.h"
 #include "monitors/MonitorChain.h"
 #include "monitors/MonitorChainAlgorithm.h"
+#include "monitors/MonitorSequence.h"
 
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
@@ -80,12 +81,10 @@ StatusCode TrigCostAnalysis::start() {
     ATH_MSG_VERBOSE("Found Sequencer:" << sequencer.first);
     for (const auto& alg : sequencer.second) {
       // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
-      size_t breakPoint = alg.second.data().find("/");
+      size_t breakPoint = alg.second.data().find('/');
       std::string algType = alg.second.data().substr(0, breakPoint);
       const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
-      while(algType.find(":") != std::string::npos) {
-        algType.replace(algType.find(":"), 1, "_");
-      }
+      std::replace(algType.begin(), algType.end(), ':', '_');
       m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
       ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
@@ -113,14 +112,12 @@ StatusCode TrigCostAnalysis::start() {
   // Save identifiers and classes for additional HLTJobOptions map
   if (not m_additionalHashList.empty()){
     for (const std::string& entry : m_additionalHashList){
-      size_t breakPoint = entry.find("/");
+      size_t breakPoint = entry.find('/');
       if (breakPoint != std::string::npos){
         std::string algType = entry.substr(0, breakPoint);
         const std::string algName = entry.substr(breakPoint+1, entry.size());
-        while(algType.find(":") != std::string::npos) {
-          algType.replace(algType.find(":"), 1, "_");
-        }
-        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
+        std::replace(algType.begin(), algType.end(), ':', '_');
+        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = std::move(algType);
       } else {
         TrigConf::HLTUtils::string2hash(entry, "ALG");
       }
@@ -202,8 +199,14 @@ StatusCode TrigCostAnalysis::execute() {
 
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
+  std::map<std::string, std::set<size_t>> seqToAlgIdx;
   std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
+
+  // Retrieve active sequences and algorithms
+  std::map<std::string, std::string> algToSeq;
+  ATH_CHECK(m_algToChainTool->getAllActiveSequences(context, algToSeq));
+
   for (const xAOD::TrigComposite* tc : *costDataHandle) {
     const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
     const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
@@ -211,15 +214,20 @@ StatusCode TrigCostAnalysis::execute() {
     for (const TrigConf::Chain& chain : algToChain[name]){
       chainToAlgIdx[chain.name()].insert(tc->index());
     }
+
+    if (algToSeq.count(name)){
+      seqToAlgIdx[algToSeq[name]].insert(tc->index());
+    }
   }
 
   const std::set<TrigCompositeUtils::DecisionID> seededChains = m_algToChainTool->retrieveActiveChains(context, "HLTNav_L1");
   std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo> seededChainsInfo;
 
   // Skip empty events, where only cost chain was active
+  bool skipMonitoringThisEvent = false;
   if ((seededChains.size() == 1 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")))
     || (seededChains.size() == 2 && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_CostMonDS_L1All")) && seededChains.count(TrigConf::HLTUtils::string2hash("HLT_noalg_L1All"))) ){
-    return StatusCode::SUCCESS;
+    skipMonitoringThisEvent = true;
   }
 
   for (auto id : seededChains){
@@ -233,6 +241,7 @@ StatusCode TrigCostAnalysis::execute() {
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
   costData.setRosToRobMap(m_rosToRob);
   costData.setChainToAlgMap(chainToAlgIdx);
+  costData.setSequencersMap(seqToAlgIdx);
   costData.setSeededChains(seededChainsInfo);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
@@ -246,7 +255,7 @@ StatusCode TrigCostAnalysis::execute() {
     costData.setLivetime( liveTime, liveTimeIsPerEvent );
   }
 
-  ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
+  ATH_CHECK( range->newEvent( costData, getWeight(context), skipMonitoringThisEvent ) );
 
   if (checkDoFullEventDump(context, costData)) {
     ATH_CHECK( dumpEvent(context) );
@@ -293,9 +302,14 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
     ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
-  }if (m_doMonitorChainAlgorithm) {
+  }
+  if (m_doMonitorChainAlgorithm) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
     ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorSequence) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorSequence>("Sequence_HLT", range)) );
+    ATH_MSG_INFO("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;

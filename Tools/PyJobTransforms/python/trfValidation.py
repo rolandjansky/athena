@@ -910,10 +910,8 @@ class eventMatch(object):
         #  is applied, so the result is rounded down. i.e., 1 * 0.5 -> 0.
         simEventEff = 0.995
         self._eventCountConf = {}
-        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_CAVERN": simEventEff, "EVNT_Stopped": simEventEff, "EVNT_TR": "filter", "DAOD_TRUTH*" : "match"}
-        self._eventCountConf['EVNT_CAVERN'] = {'HITS': simEventEff}
-        self._eventCountConf['EVNT_COSMICS'] = {'HITS': simEventEff}
-        self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
+        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_TR": "filter", "DAOD_TRUTH*" : "match"}
+        self._eventCountConf['EVNT_TR'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter"}
         self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter"}

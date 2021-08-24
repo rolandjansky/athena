@@ -11,12 +11,17 @@ from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # for backward compatability
-def FtagJetCollection(jetcol, seq, OutputLevel=WARNING):
-    FtagJetCollections([jetcol], seq, OutputLevel)
+def FtagJetCollection(jetcol, seq, pvCol='PrimaryVertices', OutputLevel=WARNING):
+    FtagJetCollections([jetcol], seq, [pvCol], OutputLevel)
 
 # this should be able to tag a few collections
-def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
+def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
 
+    if len(pvCols) != len(jetcols):
+        if pvCols:
+            print( 'FtagJetCollections:  PV collection length is not the same as Jets using PrimaryVertices for all' )
+        pvCols=['PrimaryVertices']*len(jetcols)
+    
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
@@ -29,8 +34,8 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
     if 'AntiKt4EMTopoJets' in jetcols:
         acc.merge(RenameInputContainerEmTopoHacksCfg('oldAODVersion'))
 
-    for jetcol in jetcols:
-        acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel))
+    for jetcol,pvCol in zip(jetcols, pvCols):
+        acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol, OutputLevel))
 
     Configurable.configurableRun3Behavior=0
     algs = findAllAlgorithms(acc.getSequence("AthAlgSeq"))
@@ -43,7 +48,7 @@ def FtagJetCollections(jetcols, seq, OutputLevel=WARNING):
 
 # this returns a component accumulator, which is merged across jet
 # collections in FtagJetCollections above
-def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
+def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', OutputLevel=WARNING):
 
     from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
     from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
@@ -56,31 +61,34 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
     jetcol_name_without_Jets = jetcol.replace('Jets','')
     BTaggingCollection = cfgFlags.BTagging.OutputFiles.Prefix + jetcol_name_without_Jets
 
-    kwargs = {}
-    kwargs['Release'] = '22'
     track_collection = 'InDetTrackParticles'
+    muon_collection = 'Muons'
 
     cfgFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
 
     acc = ComponentAccumulator()
 
-    acc.merge(JetParticleAssociationAlgCfg(
-        cfgFlags,
-        jetcol_name_without_Jets,
-        track_collection,
-        'BTagTrackToJetAssociator',
-        **kwargs
-    ))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, track_collection, "TracksForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, muon_collection, "MuonsForBTagging"))
 
-    SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
-    for k, v in SecVertexingAndAssociators.items():
+    SecVertexers = [ 'JetFitter' , 'SV1' ]
 
-        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, "PrimaryVertices", k, v))
-
-        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, "PrimaryVertices", k, v))
+    for sv in SecVertexers:
+        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, sv, "TracksForBTagging"))
+        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, "InDetTrackParticles", pvCol, sv))
 
 
-    acc.merge( JetBTaggingAlgCfg(cfgFlags, BTaggingCollection = BTaggingCollection, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
+    acc.merge(JetBTaggingAlgCfg( \
+        cfgFlags
+      , BTaggingCollection = BTaggingCollection
+      , JetCollection = jetcol_name_without_Jets
+      , PrimaryVertexCollectionName=pvCol
+      , TaggerList = taggerlist
+      , SecVertexers = SecVertexers
+      , Tracks = "TracksForBTagging"
+      , Muons = "MuonsForBTagging"
+      )
+    )
 
 
     postTagDL2JetToTrainingMap={
@@ -92,6 +100,11 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
             'BTagging/20210517/dips/antikt4empflow/network.json',
             'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
             'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+        ],
+        'AntiKt4PFlowCustomVtx': [
+            'BTagging/201903/rnnip/antikt4empflow/network.json',
+            'BTagging/201903/dl1r/antikt4empflow/network.json',
+            'BTagging/201903/dl1/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
             'BTagging/201903/rnnip/antikt4empflow/network.json',
@@ -113,7 +126,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
         ]
     }
 
-    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags))
+    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags,  PrimaryVertexCollectionName = pvCol))
 
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         cfgFlags,
@@ -131,25 +144,26 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, OutputLevel=WARNING):
 # this probably only has to happen once
 def setupCondDb(cfgFlags, taggerlist):
     from AthenaCommon.AppMgr import athCondSeq
-    CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
-    grades= cfgFlags.BTagging.Grades
-    RNNIPConfig = {'rnnip':''}
+    if not hasattr(athCondSeq,"JetTagCalibCondAlg"):
+        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
+        grades= cfgFlags.BTagging.Grades
+        RNNIPConfig = {'rnnip':''}
 
-    JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
-    jettagcalibcondalg = "JetTagCalibCondAlg"
-    readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-    connSchema = "GLOBAL_OFL"
-    if not cfgFlags.Input.isMC:
-        readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
-        connSchema = "GLOBAL"
-    histoskey = "JetTagCalibHistosKey"
-    from IOVDbSvc.CondDB import conddb
+        JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
+        jettagcalibcondalg = "JetTagCalibCondAlg"
+        readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+        connSchema = "GLOBAL_OFL"
+        if not cfgFlags.Input.isMC:
+            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+            connSchema = "GLOBAL"
+        histoskey = "JetTagCalibHistosKey"
+        from IOVDbSvc.CondDB import conddb
 
-    conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
-    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = taggerlist,
-        channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
+        conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = taggerlist,
+            channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
 
-    athCondSeq+=conf2toConfigurable( JetTagCalib, indent="  " )
+        athCondSeq+=conf2toConfigurable( JetTagCalib, indent="  " )
 
 
 

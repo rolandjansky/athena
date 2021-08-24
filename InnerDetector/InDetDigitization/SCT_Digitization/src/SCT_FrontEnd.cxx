@@ -109,9 +109,10 @@ StatusCode SCT_FrontEnd::finalize() {
 // Init the class variable  vectors
 // ----------------------------------------------------------------------
 StatusCode SCT_FrontEnd::initVectors(int strips, SCT_FrontEndData& data) const {
-  data.m_Offset.assign(strips, 0.0);
-  data.m_GainFactor.assign(strips, 0.0);
-  data.m_NoiseFactor.assign(strips, 0.0);
+  //previously, these were all zero'd as well here
+  //however, this takes up a lot of CPU (especially for ITk)
+  //and doesn't seem necessary
+  data.m_GainFactor.reserve(strips);
 
   if (m_data_readout_mode == Condensed) {
     data.m_Analogue[0].reserve(strips);
@@ -132,16 +133,16 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   // now we need to generate gain and offset channel by channel: some algebra
   // for generation of partially correlated random numbers
   float W = m_OGcorr * m_GainRMS * m_Ospread / (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread);
-  float A = 4 * W * W + 1.0;
-  float x1 = (A - sqrt(A)) / (2.0 * A);
+  float A = 4.0f * W * W + 1.0f;
+  float x1 = (A - sqrt(A)) / (2.0f * A);
   float sinfi = sqrt(x1);
   float cosfi = sqrt(1.0 - x1);
 
   sinfi = sinfi * m_OGcorr / std::abs(m_OGcorr);
   float S = m_GainRMS * m_GainRMS + m_Ospread * m_Ospread;
   float D = (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread) / (cosfi * cosfi - sinfi * sinfi);
-  float S1 = sqrt((S + D) * 0.5);
-  float S2 = sqrt((S - D) * 0.5);
+  float S1 = sqrt((S + D) * 0.5f);
+  float S2 = sqrt((S - D) * 0.5f);
   float Noise = 0;
   int mode = 1;
 
@@ -203,18 +204,20 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
             float g = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S1);
             float o = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S2);
 
-            data.m_GainFactor[i] = 1.0 + (cosfi * g + sinfi * o);
-            data.m_Offset[i] = (cosfi * o - sinfi * g);
-            data.m_NoiseFactor[i] = Noise * mode;
+            data.m_GainFactor[i] = 1.0f + (cosfi * g + sinfi * o);
+            //offset per channel
+            float offset_val = (cosfi * o - sinfi * g);
+            //noise factor per channel (from calib data noise per chip)
+            float noise_val = Noise * mode;
 
             // Fill the noise and offset values into the Analogue
             if (m_data_readout_mode == Condensed) {
-              data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[0][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[1][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else { // Expanded
-              data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[2][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[0][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[1][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[2][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             }
           }
         }
@@ -279,22 +282,22 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
       gainRMS = gainRMSByChipVect[i] / gainMeanValue;
       offsetRMS = offsetRMSByChipVect[i] / m_Threshold;
     } else {
-      gain[i] = 55.0 / gainMeanValue;
-      offset[i] = 42.0 / m_Threshold;
-      gainRMS = 1.3 / gainMeanValue;
-      offsetRMS = 2.0 / m_Threshold;
+      gain[i] = 55.0f / gainMeanValue;
+      offset[i] = 42.0f / m_Threshold;
+      gainRMS = 1.3f / gainMeanValue;
+      offsetRMS = 2.0f / m_Threshold;
     }
 
     float W = m_OGcorr * gainRMS * offsetRMS / (gainRMS * gainRMS - offsetRMS * offsetRMS);
-    float A = 4 * W * W + 1.0;
-    float x1 = (A - sqrt(A)) / (2.0 * A);
+    float A = 4.0f * W * W + 1.0f;
+    float x1 = (A - sqrt(A)) / (2.0f * A);
     sinfi[i] = sqrt(x1);
-    cosfi[i] = sqrt(1.0 - x1);
+    cosfi[i] = sqrt(1.0f - x1);
     sinfi[i] = sinfi[i] * m_OGcorr / std::abs(m_OGcorr);
     float S = gainRMS * gainRMS + offsetRMS * offsetRMS;
     float D = (gainRMS * gainRMS - offsetRMS * offsetRMS) / (cosfi[i] * cosfi[i] - sinfi[i] * sinfi[i]);
-    S1[i] = sqrt((S + D) / 2.0);
-    S2[i] = sqrt((S - D) / 2.0);
+    S1[i] = sqrt((S + D) / 2.0f);
+    S2[i] = sqrt((S - D) / 2.0f);
   }
 
   // Loop over collection and setup gain/offset/noise for the hit and neighbouring strips
@@ -324,17 +327,19 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
             float o = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0.0, S2[chip]);
 
             data.m_GainFactor[i] = gain[chip] + (cosfi[chip] * g + sinfi[chip] * o);
-            data.m_Offset[i] = offset[chip]   + (cosfi[chip] * o - sinfi[chip] * g);
-            data.m_NoiseFactor[i] = noiseByChipVect[chip];
+            //offset per channel
+            float offset_val = offset[chip]   + (cosfi[chip] * o - sinfi[chip] * g);
+            //noise factor per channel (from calib data noise per chip)
+            float noise_val = noiseByChipVect[chip];
 
             // Fill the noise and offset values into the Analogue
             if (m_data_readout_mode == Condensed) {
-              data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[0][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[1][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             } else { // Expanded
-              data.m_Analogue[0][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[1][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-              data.m_Analogue[2][i] = data.m_Offset[i] + data.m_NoiseFactor[i] * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[0][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[1][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+              data.m_Analogue[2][i] = offset_val + noise_val * CLHEP::RandGaussZiggurat::shoot(rndmEngine);
             }
           }
         }

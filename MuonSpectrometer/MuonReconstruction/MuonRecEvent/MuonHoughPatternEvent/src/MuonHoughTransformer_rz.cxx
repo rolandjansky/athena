@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rz.h"
@@ -17,7 +17,7 @@ void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 {
   const double hitz = hit->getHitz();
 
-  if (m_ip_setting == true) // niels and peter alg, butterfly to be added, and to be looked into the method
+  if (m_ip_setting) // niels and peter alg, butterfly to be added, and to be looked into the method
     {
       const int sectorhit = sector(hit);
       const double perp = hit->getRadius();
@@ -127,7 +127,7 @@ int MuonHoughTransformer_rz::fillHisto(double rz0, double theta_in_grad, double 
   return filled_binnumber;
 }
 
-double MuonHoughTransformer_rz::calculateAngle(double hitx, double hity, double hitz, double z0)const 
+double MuonHoughTransformer_rz::calculateAngle(double hitx, double hity, double hitz, double z0)
 {
 
   // z0 is cartesian coordinate where track goes through z axis
@@ -179,7 +179,7 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 
 	  if (dotprod>=0)
 	    {
-	      double residu_distance_mm = m_muonhoughmathutils.signedDistanceToLine(hitz,radius,rz0,coordsmaximumsecondinrad);
+	      double residu_distance_mm = MuonHoughMathUtils::signedDistanceToLine(hitz,radius,rz0,coordsmaximumsecondinrad);
 	      
 // Use this code for rz scan and theta 
 //
@@ -262,7 +262,7 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
   houghpattern->setERTheta(eradius);
   houghpattern->setECurvature(1.);
   
-  if (houghpattern->size()==0)
+  if (houghpattern->empty())
     {
       if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughTransformer_rz::WARNING : no hits found on pattern" << endmsg;}
     }
@@ -283,20 +283,20 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 
 float MuonHoughTransformer_rz::weightHoughTransform (double r0) const
 { 
-  if (m_add_weight_radius==true)
+  if (m_add_weight_radius)
     {return 1./(std::abs(r0/(m_weight_constant_radius+1.)));}
   else {return 1;} // weight function, to give more importance to patterns close to origin
 }
 
 float MuonHoughTransformer_rz::weightHoughTransform (double r0,double theta) const // theta in grad
 { 
-  if (m_add_weight_angle==false)
+  if (!m_add_weight_angle)
     {
       return weightHoughTransform(r0);
     }
   else 
     {
-      if (m_add_weight_radius==true)
+      if (m_add_weight_radius)
 	{
 	  double theta_rad = m_muonhoughmathutils.angleFromGradToRadial(theta);
 

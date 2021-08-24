@@ -23,6 +23,7 @@
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/JetElementContainer.h"
 #include "xAODTrigL1Calo/JetElementAuxContainer.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 //LVL1 Calo trigger includes
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -71,17 +72,13 @@ class Run2JetElementMaker : public AthAlgorithm
 
   StatusCode initialize() ;
   StatusCode execute() ;
-  StatusCode finalize() ;
-
 
  private:
 
    ToolHandle<LVL1::IL1JetElementTools> m_JetElementTool;
 
-  /** location of TriggerTowers in TES */
-  std::string m_triggerTowerLocation;
-  /** locations within the TES to store collections of JEs*/
-  std::string   m_jetElementLocation ;
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerKey{this, "TriggerTowerLocation", TrigT1CaloDefs::xAODTriggerTowerLocation};
+  SG::WriteHandleKey<JECollection>             m_jetElementKey{this, "JetElementLocation", TrigT1CaloDefs::JetElementLocation};
   
 };
 

@@ -41,7 +41,6 @@ class opt:
     endJobAfterGenerate = False       # Finish job after menu generation
     strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-#    enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
@@ -149,8 +148,10 @@ if len(athenaCommonFlags.FilesInput())>0:
     if opt.setDetDescr is None:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
     if opt.setGlobalTag is None:
-        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
-            (ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
+        if globalflags.DataSource=='data':
+            opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
+        else:
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
     TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
 
 else:   # athenaHLT
@@ -202,9 +203,19 @@ if 'doL1Sim' not in globals():
     opt.doL1Sim = ConfigFlags.Input.isMC
     log.info('Setting default doL1Sim=%s because ConfigFlags.Input.isMC=%s', opt.doL1Sim, ConfigFlags.Input.isMC)
 
+# Set default enableL1CaloPhase1 option to True if running L1Sim on data (ATR-23703)
+if 'enableL1CaloPhase1' not in globals():
+    opt.enableL1CaloPhase1 = opt.doL1Sim and ConfigFlags.Input.Format == 'BS'
+    log.info('Setting default enableL1CaloPhase1=%s because doL1Sim=%s and ConfigFlags.Input.Format=%s',
+             opt.enableL1CaloPhase1, opt.doL1Sim, ConfigFlags.Input.Format)
+
+# Set default enableL1MuonPhase1 option to True if running L1Sim (ATR-23973)
+if 'enableL1MuonPhase1' not in globals():
+    opt.enableL1MuonPhase1 = opt.doL1Sim
+    log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
+
 # Translate opts to flags for LVL1
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
-#ConfigFlags.Trigger.enableL1Phase1 = opt.enableL1Phase1
 ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
@@ -214,8 +225,8 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
 
-# To turn off HLT for athena running
-TriggerFlags.doHLT = bool(opt.doHLT)
+# Pass on the option enabling HLT selection algorithms
+ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
 
 # To extract the Trigger configuration
 TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
@@ -382,7 +393,10 @@ if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
     if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True # enable transient BS if TrigCaloDataAccessSvc is used with pool data
+        # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
+        ConfigFlags.Trigger.doTransientByteStream = True
+        from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
+        CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -455,24 +469,16 @@ if opt.doL1Sim:
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
 # ---------------------------------------------------------------
-# Add L1Decoder providing inputs to HLT
+# Add HLTSeeding providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
-        ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
-        from L1Decoder.L1DecoderConfig import L1DecoderCfg
-        CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
+        ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
+        from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
+        CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-# ---------------------------------------------------------------
-# Transient ByteStream
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doTransientByteStream:
-    log.info("Configuring transient ByteStream")
-    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
-    CAtoGlobalWrapper(triggerTransBSCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -494,12 +500,12 @@ if not opt.createHLTMenuExternally:
         menu.selectChainsForTesting = opt.selectChains
 
     # generating the HLT structure requires
-    # the L1Decoder to be defined in the topSequence
+    # the HLTSeeding to be defined in the topSequence
     menu.generateMT()
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,
-    #   depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    #   depending on the property HLTSeeding.PrescalingTool.KeepUnknownChains being True or False
 
 
     if opt.endJobAfterGenerate:
@@ -516,6 +522,7 @@ svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
+        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 
@@ -533,10 +540,10 @@ if hasattr(svcMgr.THistSvc, "Output"):
 # Conditions overrides
 #-------------------------------------------------------------
 if len(opt.condOverride)>0:
-    for folder,tag in opt.condOverride.iteritems():
+    for folder,tag in iter(opt.condOverride.items()):
         log.warning('Overriding folder %s with tag %s', folder, tag)
         from IOVDbSvc.IOVDbSvcConfig import addOverride
-        addOverride(ConfigFlags,folder,tag)
+        CAtoGlobalWrapper(addOverride, ConfigFlags,folder=folder,tag=tag)
 
 if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
@@ -589,15 +596,15 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
-    l1decoder = findAlgorithm(topSequence, "L1Decoder")
+    hltSeeding = findAlgorithm(topSequence, "HLTSeeding")
 
-    if l1decoder and summaryMakerAlg:
-        decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
+    if hltSeeding and summaryMakerAlg:
+        decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryMakerAlg )
         decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
         log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
         log.debug(decObj)
     else:
-        log.error("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
+        log.error("Failed to find HLTSeeding or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
 
@@ -612,10 +619,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
-CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
-# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
-TrigCostMonitorMTPostSetup()
+from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg, TrigCostMonitorPostSetup
+CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorPostSetup be component-accumulator-ised?
+TrigCostMonitorPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

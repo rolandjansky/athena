@@ -446,20 +446,20 @@ TRTTrackHoleSearchTool::addHolesToTrack(
   */
 
   // get states from track
-  auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto tsos = DataVector<const Trk::TrackStateOnSurface>();
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it =
          track.trackStateOnSurfaces()->begin();
        it != track.trackStateOnSurfaces()->end();
        ++it) {
     // veto old holes
     if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) {
-      tsos->push_back(new Trk::TrackStateOnSurface(**it));
+      tsos.push_back(new Trk::TrackStateOnSurface(**it));
     }
   }
 
   // if we have no holes on the old track and no holes found by search, then we
   // just copy the track
-  if (track.trackStateOnSurfaces()->size() == tsos->size() && holes->empty()) {
+  if (track.trackStateOnSurfaces()->size() == tsos.size() && holes->empty()) {
     // create copy of track
     const Trk::Track* new_track = new Trk::Track(
       track.info(),
@@ -469,7 +469,7 @@ TRTTrackHoleSearchTool::addHolesToTrack(
   }
 
   // add new holes
-  tsos->insert(tsos->end(), holes->begin(), holes->end());
+  tsos.insert(tsos.end(), holes->begin(), holes->end());
 
   // sort
   const Trk::TrackParameters* perigee = track.perigeeParameters();
@@ -485,9 +485,9 @@ TRTTrackHoleSearchTool::addHolesToTrack(
       if (msgLvl(MSG::DEBUG)) {
         msg() << "sorting vector with stable_sort" << endmsg;
       }
-      std::stable_sort(tsos->begin(), tsos->end(), CompFunc);
+      std::stable_sort(tsos.begin(), tsos.end(), CompFunc);
     } else {
-      tsos->sort(CompFunc); // respects DV object ownership
+      tsos.sort(CompFunc); // respects DV object ownership
     }
   }
 

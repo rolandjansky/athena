@@ -152,7 +152,7 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output) {
    Placement placement;
    // Override streaming parameters from StreamTool if requested.
-   std::string::size_type pos1 = output.find("[");
+   std::string::size_type pos1 = output.find('[');
    std::string outputConnectionSpec = output.substr(0, pos1);
    int tech = 0;
    m_athenaPoolCnvSvc->decodeOutputSpec(outputConnectionSpec, tech).ignore();
@@ -175,16 +175,16 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
       std::string containerPrefix = containerPrefixProp.value();
       std::string dhContainerPrefix = "POOLContainer";
       // Get Technology from containerPrefix
-      std::size_t colonPos = containerPrefix.find(":");
+      std::size_t colonPos = containerPrefix.find(':');
       if (colonPos != std::string::npos) {
          dhContainerPrefix = containerPrefix.substr(0, colonPos + 1) + dhContainerPrefix;
       }
       std::string containerNameHint = containerNameHintProp.value();
       std::string branchNameHint = branchNameHintProp.value();
       while (pos1 != std::string::npos) {
-         const std::string::size_type pos2 = output.find("=", pos1);
+         const std::string::size_type pos2 = output.find('=', pos1);
          const std::string key = output.substr(pos1 + 1, pos2 - pos1 - 1);
-         const std::string::size_type pos3 = output.find("]", pos2);
+         const std::string::size_type pos3 = output.find(']', pos2);
          const std::string value = output.substr(pos2 + 1, pos3 - pos2 - 1);
          if (key == "OutputCollection") {
             dhContainerPrefix = value;
@@ -195,7 +195,7 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
          } else if (key == "SubLevelBranchName") {
             branchNameHint = value;
          }
-         pos1 = output.find("[", pos3);
+         pos1 = output.find('[', pos3);
       }
       if (tname.substr(0, 14) == "DataHeaderForm") {
          containerName = dhContainerPrefix + "Form" + "(" + tname + ")";

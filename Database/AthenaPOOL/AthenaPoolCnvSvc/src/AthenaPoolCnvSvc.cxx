@@ -108,6 +108,14 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL domain attributes.");
    }
    m_doChronoStat = m_skipFirstChronoCommit.value() ? false : true;
+
+   // Load these dictionaries now, so we don't need to try to do so
+   // while multiple threads are running.
+   TClass::GetClass ("TLeafI");
+   TClass::GetClass ("TLeafL");
+   TClass::GetClass ("TLeafD");
+   TClass::GetClass ("TLeafF");
+
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -279,7 +287,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSpec) {
 // This is called before DataObjects are being converted.
-   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
+   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find('['));
    // Extract the technology
    int tech = m_dbType.type();
    if (!decodeOutputSpec(outputConnection, tech).isSuccess()) {
@@ -345,10 +353,10 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          std::string& data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         std::size_t equal = cont.find("="); // Used to remove leading "TTree="
+         std::size_t equal = cont.find('='); // Used to remove leading "TTree="
          if (equal == std::string::npos) equal = 0;
          else equal++;
-         std::size_t colon = m_containerPrefixProp.value().find(":");
+         std::size_t colon = m_containerPrefixProp.value().find(':');
          if (colon == std::string::npos) colon = 0; // Used to remove leading technology
          else colon++;
          if (merge != std::string::npos && opt == "TREE_AUTO_FLUSH" && file == outputConnection.substr(0, merge) && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
@@ -379,7 +387,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpec, bool doCommit) {
 // This is called after all DataObjects are converted.
-   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
+   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find('['));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
       auto it = std::find (m_streamClientFiles.begin(),
@@ -667,7 +675,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
 
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectionSpec) {
-   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find("["));
+   std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find('['));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
       return(StatusCode::SUCCESS);
@@ -1043,8 +1051,8 @@ StatusCode AthenaPoolCnvSvc::registerCleanUp(IAthenaPoolCleanUp* cnv) {
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::cleanUp(const std::string& connection) {
    bool retError = false;
-   std::size_t cpos = connection.find(":");
-   std::size_t bpos = connection.find("[");
+   std::size_t cpos = connection.find(':');
+   std::size_t bpos = connection.find('[');
    if (cpos == std::string::npos) {
       cpos = 0;
    } else {
@@ -1153,7 +1161,6 @@ StatusCode AthenaPoolCnvSvc::readData() {
       buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
       while (sc.isRecoverable()) {
-         usleep(100);
          sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
       }
       delete [] static_cast<char*>(buffer); buffer = nullptr;
@@ -1325,7 +1332,7 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
          std::string data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         if (!fileName.empty() && (file == fileName.substr(0, fileName.find("?"))
+         if (!fileName.empty() && (file == fileName.substr(0, fileName.find('?'))
 	         || (file.substr(0, 1) == "*" && file.find("," + fileName + ",") == std::string::npos))) {
             if (data == "int" || data == "DbLonglong" || data == "double" || data == "string") {
                if (doGet) {

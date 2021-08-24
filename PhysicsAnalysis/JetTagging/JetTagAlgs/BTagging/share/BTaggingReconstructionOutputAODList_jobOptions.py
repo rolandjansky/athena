@@ -1,3 +1,4 @@
+include.block('BTagging/BTaggingReconstructionOutputAODList_jobOptions.py')
 #**************   AOD list  ************************************************
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingAODList =  BTaggingFlags.btaggingAODList
@@ -19,7 +20,8 @@ if len(BTaggingAODList) == 0:
     BTagConf = getConfiguration()
     for coll in JetCollectionList:
       BTagConf.RegisterOutputContainersForJetCollection(coll[:-4])
-    BTaggingAODList = BTaggingFlags.btaggingAODList
+    BTaggingAODList = BTaggingFlags.btaggingAODList if jetFlags.writeJetsToAOD() else []
+    BTaggingESDList = BTaggingFlags.btaggingAODList
 
 #    BTaggingAODList += ["xAOD::BTaggingAuxContainer#*"]
 #    BTaggingAODList += ["xAOD::BTaggingContainer#*"]
@@ -27,5 +29,12 @@ if len(BTaggingAODList) == 0:
 #    BTaggingAODList += ["xAOD::BTagVertexAuxContainer#*"]
 #    BTaggingAODList += ["xAOD::VertexContainer#BTagging*"]
 #    BTaggingAODList += ["xAOD::VertexAuxContainer#BTagging*"]
+
+if BTaggingFlags.DoJetHitAssociation:
+    BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
+                        'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
+    BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
+                        'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
     
+printfunc ("#BTAG# ESD output container list: " + str(BTaggingESDList))
 printfunc ("#BTAG# AOD output container list: " + str(BTaggingAODList))

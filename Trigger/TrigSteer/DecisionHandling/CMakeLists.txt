@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DecisionHandling )
@@ -6,12 +6,13 @@ atlas_subdir( DecisionHandling )
 atlas_add_library( DecisionHandlingLib
                    src/ComboHypo.cxx
                    src/ComboHypoToolBase.cxx
+                   src/DebugComboHypoTool.cxx
                    src/DumpDecisions.cxx
                    src/HypoBase.cxx
                    src/InputMakerBase.cxx
 		           src/ITestHypoTool.cxx
                    PUBLIC_HEADERS DecisionHandling
-                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorLib TrigSteeringEvent TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
 
 # Component(s) in the package:
@@ -32,18 +33,16 @@ atlas_add_component( DecisionHandling
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref)
-
 atlas_install_scripts( test/test_emu_step_menu_processing.sh )
 
-
-
+# Tests
 foreach(test emu_step_processing emu_step_menu_processing)
-    set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${test} )
-    file( REMOVE_RECURSE ${rundir} )
-    file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${test}
         SCRIPT test/test_${test}.sh
         LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-    PROPERTIES WORKING_DIRECTORY ${rundir}
-        )
+        PRIVATE_WORKING_DIRECTORY )
 endforeach()
+
+atlas_add_test( test_ComboHypoTool
+    SOURCES test/test_ComboHypoTool.cxx
+    LINK_LIBRARIES TestTools TrigCompositeUtilsLib DecisionHandlingLib )

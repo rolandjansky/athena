@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -115,8 +115,8 @@ private:
                                       {"DC2_rt_default.dat"},
                                       "single input ascii file for default RT to be applied in absence of DB information"};  // temporary!!!
 
-    inline MuonCalib::RtResolutionLookUp* getRtResolutionInterpolation(const std::vector<MuonCalib::SamplePoint>& sample_points);
-    inline StatusCode extractString(std::string& input, std::string& output, std::string separator);
+    static inline MuonCalib::RtResolutionLookUp* getRtResolutionInterpolation(const std::vector<MuonCalib::SamplePoint>& sample_points);
+    inline StatusCode extractString(std::string& input, std::string& output, const std::string& separator);
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyRt{this, "ReadKeyRt", "/MDT/RTBLOB", "DB folder containing the RT calibrations"};
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyTube{this, "ReadKeyTube", "/MDT/T0BLOB",

@@ -18,50 +18,56 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
     result.merge(AtlasGeometryCfg(inputFlags))
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(inputFlags) )
-    else:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge(TrackingGeometrySvcCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
-    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(inputFlags))
+
+    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg', TrackExtrapolator = extrapolator)
+
+
+    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
+    if use_tracking_geometry_cond_alg:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
+    else:
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        result.merge(TrackingGeometrySvcCfg(inputFlags))
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
-    tgcRawDataMonAlg.CtpDecisionMoniorList  = "Tit:Run2_L1_MU4,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU6,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU10,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:5,TGC:5;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU4,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU6,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_2MU10,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_3MU4,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run2_L1_3MU6,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.MonitorTriggerMultiplicity = True
+    tgcRawDataMonAlg.CtpDecisionMoniorList  = "Tit:L1_MU4_Run2,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU6_Run2,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10_Run2,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU20_Run2,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:5,TGC:5;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU4_Run2,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU6_Run2,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU10_Run2,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU4_Run2,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU6_Run2,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:2;"
 
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU4,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU6,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:3F;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU10,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:6F;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:6,TGC:12FCH;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU4,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU6,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:3F;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_2MU10,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:6F;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_3MU4,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:Run3_L1_3MU6,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU4_Run3,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU6_Run3,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10_Run3,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU20_Run3,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:6,TGC:12FCH;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU4_Run3,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU6_Run3,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU10_Run3,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU4_Run3,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU6_Run3,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:3F;"
 
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU4,Mul:1,HLT:HLT_mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU6,Mul:1,HLT:HLT_mu6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU10,Mul:1,HLT:HLT_mu10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_MU20,Mul:1,HLT:HLT_mu26_ivarmedium,RPC:5,TGC:5;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU4,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU6,Mul:2,HLT:HLT_2mu6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_2MU10,Mul:2,HLT:HLT_2mu14,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_3MU4,Mul:3,HLT:HLT_3mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:Run2Legacy_L1_3MU6,Mul:3,HLT:HLT_3mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU4_Run2Legacy,Mul:1,HLT:HLT_mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU6_Run2Legacy,Mul:1,HLT:HLT_mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU10_Run2Legacy,Mul:1,HLT:HLT_mu10,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU20_Run2Legacy,Mul:1,HLT:HLT_mu26_ivarmedium,RPC:5,TGC:5;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU4_Run2Legacy,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU6_Run2Legacy,Mul:2,HLT:HLT_2mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU10_Run2Legacy,Mul:2,HLT:HLT_2mu14,RPC:3,TGC:3;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_3MU4_Run2Legacy,Mul:3,HLT:HLT_3mu4,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_3MU6_Run2Legacy,Mul:3,HLT:HLT_3mu6,RPC:2,TGC:2;"
 
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
@@ -83,20 +89,134 @@ def TgcRawDataMonitoringConfig(inputFlags):
     for monTrig in tgcRawDataMonAlg.CtpDecisionMoniorList.split(';'):
         tmp = monTrig.split(',')[0]
         objname = tmp.replace('Tit:','')
-        myGroup.defineHistogram('ctpMultiplicity_'+objname+';ctpMultiplicity_'+objname,title='ctpMultiplicity '+objname+';Ctp Output Multiplicity;Number of events',
+
+        myGroup.defineHistogram(objname+'_ctpMultiplicity;'+objname+'_ctpMultiplicity',title=objname+' ctpMultiplicity;Ctp Output Multiplicity;Number of events',
                                 path=trigMultiPath,xbins=11,xmin=-0.5,xmax=10.5)
-        myGroup.defineHistogram('rawMultiplicity_'+objname+';rawMultiplicity_'+objname,title='rawMultiplicity '+objname+';Raw Input Multiplicity;Number of events',
+        myGroup.defineHistogram(objname+'_rawMultiplicity;'+objname+'_rawMultiplicity',title=objname+' rawMultiplicity;Raw Input Multiplicity;Number of events',
                                 path=trigMultiPath,xbins=11,xmin=-0.5,xmax=10.5)
-        myGroup.defineHistogram('countDiff_'+objname+';L1CountDiff_'+objname,title='L1CountDiff '+objname+';Event-by-event N(CTP out)-N(CTP in);Number of events',
+        myGroup.defineHistogram(objname+'_countDiff;'+objname+'_L1CountDiff',title=objname+' L1CountDiff;Event-by-event N(CTP out)-N(CTP in);Number of events',
                                 path=trigMultiPath,xbins=11,xmin=-5.5,xmax=5.5)
-        myGroup.defineHistogram('roiEta_inOk_outOk_'+objname+',roiPhi_inOk_outOk_'+objname+';L1Count_inOk_outOk_EtaVsPhi_'+objname,title='L1Count_inOk_outOk_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
-                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-        myGroup.defineHistogram('roiEta_inNg_outOk_'+objname+',roiPhi_inNg_outOk_'+objname+';L1Count_inNg_outOk_EtaVsPhi_'+objname,title='L1Count_inNg_outOk_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
-                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-        myGroup.defineHistogram('roiEta_inOk_outNg_'+objname+',roiPhi_inOk_outNg_'+objname+';L1Count_inOk_outNg_EtaVsPhi_'+objname,title='L1Count_inOk_outNg_EtaVsPhi_'+objname+';MuonRoI Eta;MuonRoI Phi',
-                                path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-        myGroup.defineHistogram('roiMatching_CTPin_'+objname+',roiMatching_CTPout_'+objname+';RoiMatching_'+objname,title='RoiMatching_'+objname+';Input;Output',
+
+        myGroup.defineHistogram(objname+'_roiMatching_CTPin,'+objname+'_roiMatching_CTPout;'+objname+'_RoiMatching',title=objname+'_RoiMatching;Input;Output',
                                 path=trigMultiPath,type='TH2F',xbins=2,xmin=-0.5,xmax=1.5,ybins=2,ymin=-0.5,ymax=1.5,xlabels=['NotExist','Exist'],ylabels=['NotExist','Exist'])
+
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_Phi;'+objname+'_L1Count_EtaVsPhi_inOk_outOk',title=objname+'_L1Count_EtaVsPhi_inOk_outOk;MuonRoI Eta;MuonRoI Phi',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_dRmin;'+objname+'_L1Count_EtaVsdRmin_inOk_outOk',title=objname+'_L1Count_EtaVsdRmin_inOk_outOk;MuonRoI Eta;Closest dR between Muon RoIs',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=11,ymin=-0.1,ymax=1.0)
+        myGroup.defineHistogram(objname+'_roi_dRmin;'+objname+'_roi_dRmin_inOk_outOk',title=objname+'_roi_dRmin_inOk_outOk;Closest dR between Muon RoIs;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=11,xmin=-0.1,xmax=1.0)
+        myGroup.defineHistogram(objname+'_roi_ThrNum;'+objname+'_roi_ThrNum_inOk_outOk',title=objname+'_roi_ThrNum_inOk_outOk;Threshold number (positive for barrel, negative for endcap);Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=22,xmin=-15.5,xmax=6.5)
+        myGroup.defineHistogram(objname+'_roi_Charge;'+objname+'_roi_Charge_inOk_outOk',title=objname+'_roi_Charge_inOk_outOk;Muon charge;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_BW3Coin;'+objname+'_roi_BW3Coin_inOk_outOk',title=objname+'_roi_BW3Coin_inOk_outOk;TGC BW3Coin flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_InnCoin;'+objname+'_roi_InnCoin_inOk_outOk',title=objname+'_roi_InnCoin_inOk_outOk;TGC InnCoin flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_GoodMF;'+objname+'_roi_GoodMF_inOk_outOk',title=objname+'_roi_GoodMF_inOk_outOk;TGC GoodMF flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_IsMoreCandInRoI;'+objname+'_roi_IsMoreCandInRoI_inOk_outOk',title=objname+'_roi_IsMoreCandInRoI_inOk_outOk;RPC IsMoreCandInRoI flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_PhiOverlap;'+objname+'_roi_PhiOverlap_inOk_outOk',title=objname+'_roi_PhiOverlap_inOk_outOk;PhiOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_EtaOverlap;'+objname+'_roi_EtaOverlap_inOk_outOk',title=objname+'_roi_EtaOverlap_inOk_outOk;EtaOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_PhiOverlap;'+objname+'_roi_dRminVsPhiOverlap_inOk_outOk',
+                                title=objname+'_roi_dRminVsPhiOverlap_inOk_outOk;Closest dR between Muon RoIs;PhiOverlap flag',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=3,ymin=-1.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_isVetoed;'+objname+'_roi_isVetoed_inOk_outOk',title=objname+'_roi_isVetoed_inOk_outOk;isVetoed flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_isVetoed;'+objname+'_roi_dRminVsisVetoed_inOk_outOk',
+                                title=objname+'_roi_dRminVsisVetoed_inOk_outOk;Closest dR between Muon RoIs;isVetoed flag',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inOk_outOk',
+                                title=objname+'_roi_EtaVsisVetoed_inOk_outOk;MuonRoI Eta;isVetoed flag',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inOk_outOk',title=objname+'_L1Count_EtaVspTdiff_inOk_outOk;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inOk_outOk',title=objname+'_roi_pTdiff_inOk_outOk;pT difference;Number of events',
+                                cutmask=objname+'_roi_inOk_outOk',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
+
+
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_Phi;'+objname+'_L1Count_EtaVsPhi_inOk_outNg',title=objname+'_L1Count_EtaVsPhi_inOk_outNg;MuonRoI Eta;MuonRoI Phi',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_dRmin;'+objname+'_L1Count_EtaVsdRmin_inOk_outNg',title=objname+'_L1Count_EtaVsdRmin_inOk_outNg;MuonRoI Eta;Closest dR between Muon RoIs',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=11,ymin=-0.1,ymax=1.0)
+        myGroup.defineHistogram(objname+'_roi_dRmin;'+objname+'_roi_dRmin_inOk_outNg',title=objname+'_roi_dRmin_inOk_outNg;Closest dR between Muon RoIs;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=11,xmin=-0.1,xmax=1.0)
+        myGroup.defineHistogram(objname+'_roi_ThrNum;'+objname+'_roi_ThrNum_inOk_outNg',title=objname+'_roi_ThrNum_inOk_outNg;Threshold number (positive for barrel, negative for endcap);Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=22,xmin=-15.5,xmax=6.5)
+        myGroup.defineHistogram(objname+'_roi_Charge;'+objname+'_roi_Charge_inOk_outNg',title=objname+'_roi_Charge_inOk_outNg;Muon charge;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_BW3Coin;'+objname+'_roi_BW3Coin_inOk_outNg',title=objname+'_roi_BW3Coin_inOk_outNg;TGC BW3Coin flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_InnCoin;'+objname+'_roi_InnCoin_inOk_outNg',title=objname+'_roi_InnCoin_inOk_outNg;TGC InnCoin flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_GoodMF;'+objname+'_roi_GoodMF_inOk_outNg',title=objname+'_roi_GoodMF_inOk_outNg;TGC GoodMF flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_IsMoreCandInRoI;'+objname+'_roi_IsMoreCandInRoI_inOk_outNg',title=objname+'_roi_IsMoreCandInRoI_inOk_outNg;RPC IsMoreCandInRoI flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_PhiOverlap;'+objname+'_roi_PhiOverlap_inOk_outNg',title=objname+'_roi_PhiOverlap_inOk_outNg;PhiOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_EtaOverlap;'+objname+'_roi_EtaOverlap_inOk_outNg',title=objname+'_roi_EtaOverlap_inOk_outNg;EtaOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_PhiOverlap;'+objname+'_roi_dRminVsPhiOverlap_inOk_outNg',
+                                title=objname+'_roi_dRminVsPhiOverlap_inOk_outNg;Closest dR between Muon RoIs;PhiOverlap flag',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=3,ymin=-1.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_isVetoed;'+objname+'_roi_isVetoed_inOk_outNg',title=objname+'_roi_isVetoed_inOk_outNg;isVetoed flag;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_isVetoed;'+objname+'_roi_dRminVsisVetoed_inOk_outNg',
+                                title=objname+'_roi_dRminVsisVetoed_inOk_outNg;Closest dR between Muon RoIs;isVetoed flag',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inOk_outNg',
+                                title=objname+'_roi_EtaVsisVetoed_inOk_outNg;MuonRoI Eta;isVetoed flag',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inOk_outNg',title=objname+'_L1Count_EtaVspTdiff_inOk_outNg;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inOk_outNg',title=objname+'_roi_pTdiff_inOk_outNg;pT difference;Number of events',
+                                cutmask=objname+'_roi_inOk_outNg',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
+
+
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_Phi;'+objname+'_L1Count_EtaVsPhi_inNg_outOk',title=objname+'_L1Count_EtaVsPhi_inNg_outOk;MuonRoI Eta;MuonRoI Phi',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_dRmin;'+objname+'_L1Count_EtaVsdRmin_inNg_outOk',title=objname+'_L1Count_EtaVsdRmin_inNg_outOk;MuonRoI Eta;Closest dR between Muon RoIs',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=11,ymin=-0.1,ymax=1.0)
+        myGroup.defineHistogram(objname+'_roi_dRmin;'+objname+'_roi_dRmin_inNg_outOk',title=objname+'_roi_dRmin_inNg_outOk;Closest dR between Muon RoIs;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=11,xmin=-0.1,xmax=1.0)
+        myGroup.defineHistogram(objname+'_roi_ThrNum;'+objname+'_roi_ThrNum_inNg_outOk',title=objname+'_roi_ThrNum_inNg_outOk;Threshold number (positive for barrel, negative for endcap);Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=22,xmin=-15.5,xmax=6.5)
+        myGroup.defineHistogram(objname+'_roi_Charge;'+objname+'_roi_Charge_inNg_outOk',title=objname+'_roi_Charge_inNg_outOk;Muon charge;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_BW3Coin;'+objname+'_roi_BW3Coin_inNg_outOk',title=objname+'_roi_BW3Coin_inNg_outOk;TGC BW3Coin flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_InnCoin;'+objname+'_roi_InnCoin_inNg_outOk',title=objname+'_roi_InnCoin_inNg_outOk;TGC InnCoin flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_GoodMF;'+objname+'_roi_GoodMF_inNg_outOk',title=objname+'_roi_GoodMF_inNg_outOk;TGC GoodMF flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_IsMoreCandInRoI;'+objname+'_roi_IsMoreCandInRoI_inNg_outOk',title=objname+'_roi_IsMoreCandInRoI_inNg_outOk;RPC IsMoreCandInRoI flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_PhiOverlap;'+objname+'_roi_PhiOverlap_inNg_outOk',title=objname+'_roi_PhiOverlap_inNg_outOk;PhiOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=3,xmin=-1.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_EtaOverlap;'+objname+'_roi_EtaOverlap_inNg_outOk',title=objname+'_roi_EtaOverlap_inNg_outOk;EtaOverlap flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_PhiOverlap;'+objname+'_roi_dRminVsPhiOverlap_inNg_outOk',
+                                title=objname+'_roi_dRminVsPhiOverlap_inNg_outOk;Closest dR between Muon RoIs;PhiOverlap flag',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=3,ymin=-1.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_isVetoed;'+objname+'_roi_isVetoed_inNg_outOk',title=objname+'_roi_isVetoed_inNg_outOk;isVetoed flag;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=2,xmin=-0.5,xmax=1.5)
+        myGroup.defineHistogram(objname+'_roi_dRmin,'+objname+'_roi_isVetoed;'+objname+'_roi_dRminVsisVetoed_inNg_outOk',
+                                title=objname+'_roi_dRminVsisVetoed_inNg_outOk;Closest dR between Muon RoIs;isVetoed flag',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=11,xmin=-0.1,xmax=1.0,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_isVetoed;'+objname+'_roi_EtaVsisVetoed_inNg_outOk',
+                                title=objname+'_roi_EtaVsisVetoed_inNg_outOk;MuonRoI Eta;isVetoed flag',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=2,ymin=-0.5,ymax=1.5)
+        myGroup.defineHistogram(objname+'_roi_Eta,'+objname+'_roi_pTdiff;'+objname+'_L1Count_EtaVspTdiff_inNg_outOk',title=objname+'_L1Count_EtaVspTdiff_inNg_outOk;MuonRoI Eta;pT difference',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=31,ymin=-15.5,ymax=15.5)
+        myGroup.defineHistogram(objname+'_roi_pTdiff;'+objname+'_roi_pTdiff_inNg_outOk',title=objname+'_roi_pTdiff_inNg_outOk;pT difference;Number of events',
+                                cutmask=objname+'_roi_inNg_outOk',path=trigMultiPath,type='TH1F',xbins=31,xmin=-15.5,xmax=15.5)
+
+
 
     trigPath = 'Trig/'
 
@@ -531,15 +651,21 @@ if __name__=='__main__':
     log.setLevel(INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    import glob
 
-    inputs = glob.glob('/data02/data/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3334_r9857/*')
-
-    ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
-
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
+
+    import glob
+    import sys
+    if len(sys.argv) == 3:
+        inputs = sys.argv[1].split(',')
+        ConfigFlags.Input.Files = inputs
+        ConfigFlags.Output.HISTFileName = sys.argv[2]
+    else:
+
+        inputs = glob.glob('/data04/data/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3334_r9857/ESD.*.pool.root.1')
+        ConfigFlags.Input.Files = inputs
+        ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -563,6 +689,6 @@ if __name__=='__main__':
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
-    cfg.printConfig(withDetails=True, summariseProps = True)
+    cfg.printConfig(withDetails=False, summariseProps = False)
 
     cfg.run()

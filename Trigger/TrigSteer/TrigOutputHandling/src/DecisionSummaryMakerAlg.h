@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 #define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
@@ -7,7 +7,7 @@
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigCostMonitor/ITrigCostSvc.h"
 
 
 /**
@@ -38,10 +38,10 @@ private:
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_rosWriteHandleKey { this, "ROSWriteHandleKey", "HLT_TrigCostROSContainer",
     "TrigComposite collections summarising the ROS requests" };
 
-  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_hltSeedingSummaryKey { this, "HLTSeedingSummaryKey", "HLTSeedingSummary",
     "Chains status after L1 and prescaling" };
 
-  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc",
+  ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle { this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
 
   Gaudi::Property< std::map< std::string, std::vector<std::string> > > m_lastStepForChain{ this, "FinalStepDecisions", {},

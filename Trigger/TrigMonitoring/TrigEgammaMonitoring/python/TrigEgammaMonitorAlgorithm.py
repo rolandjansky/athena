@@ -15,16 +15,21 @@ log_trigeg = logging.getLogger( 'TrigEgammaMonitorAlgorithm' )
 
 
 
-def TrigEgammaMonConfig(inputFlags):
+def TrigEgammaMonConfig(inputFlags, emulator=None):
     '''Function to configures some algorithms in the monitoring system.'''
 
  
     # The following class will make a sequence, configure algorithms, and link
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
+
+    if emulator: # add emulator as public
+        acc = helper.resobj
+        acc.addPublicTool(emulator.core())
+
     # configure alg and ana tools
     from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonAlgBuilder
-    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistograms=False ) # Using 2018 e/g tunings
+    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistograms=False, emulator=emulator ) # Using 2018 e/g tunings
     # build monitor and book histograms
     monAlgCfg.configure()
 
@@ -44,6 +49,11 @@ def TrigEgammaMonConfig(inputFlags):
 
 
 if __name__=='__main__':
+
+    # ATR-11839 to fix the egammaPid import
+    from PyUtils.Helpers import ROOT6Setup
+    ROOT6Setup()
+
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
@@ -56,9 +66,10 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/AOD.20745922._000041.pool.root.1'
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1606_r12262_tid23444302_00/AOD.23444302._000098.pool.root.1'
+
     ConfigFlags.Input.Files = [path]
-    ConfigFlags.Input.isMC = False
+    ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
     
     ConfigFlags.lock()

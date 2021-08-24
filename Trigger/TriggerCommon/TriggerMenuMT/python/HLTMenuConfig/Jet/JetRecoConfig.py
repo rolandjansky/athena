@@ -27,9 +27,12 @@ import copy
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from GaudiKernel import SystemOfUnits
 
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+
 _jetNamePrefix = "HLT_"
 
 
+@AccumulatorCache
 def JetRecoCfg(flags, clustersKey, trkcolls=None, **jetRecoDict):
     """The top-level sequence
 
@@ -54,6 +57,7 @@ def JetRecoCfg(flags, clustersKey, trkcolls=None, **jetRecoDict):
         )
 
 
+@AccumulatorCache
 def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Standard jet reconstruction, no reclustering or grooming 
     
@@ -157,6 +161,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     return acc, jetsOut, jetDef
 
 
+@AccumulatorCache
 def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Full reconstruction for 'simple' (ungroomed, not reclustered) jets
 
@@ -181,7 +186,8 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
 
     if "sub" in jetRecoDict["jetCalib"]:
         # Add the event shape alg for area subtraction
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg(jetDef, _jetNamePrefix)
+        # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg(jetDef, _jetNamePrefix,voronoiRf = 1.0 )
         acc.addEventAlgo(eventShapeAlg)
         rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
     else:
@@ -199,22 +205,10 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     if use_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
-    
-    if jetRecoDict["cleaning"] != "noCleaning":
-        # Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
-        if is_pflow:
-            raise RuntimeError(
-                "Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets."
-            )
-        if jetRecoDict["recoAlg"] != "a4":
-            raise RuntimeError(
-                "Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets."
-            )
-
-        jetDef.modifiers += [
-            "CaloQuality",
-            f"Cleaning:{jetRecoDict['cleaning']}",
-        ]
+    if not is_pflow and jetRecoDict["recoAlg"] == "a4":
+        jetDef.modifiers += ["CaloQuality"]
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import cleaningDict
+        jetDef.modifiers += [f'Cleaning:{clean_wp}' for _,clean_wp in cleaningDict.items()]
 
     # make sure all modifiers info is ready before passing jetDef to JetRecConfig helpers
     jetDef = solveDependencies(jetDef) 
@@ -247,6 +241,7 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     return acc, jetsOut, jetDef
 
 
+@AccumulatorCache
 def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Create the groomed jets
 
@@ -288,6 +283,7 @@ def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDi
     return acc, jetsOut, groomDef
 
 
+@AccumulatorCache
 def ReclusteredJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDict):
     """ Create the reclustered jets
 

@@ -25,6 +25,8 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 #include "LArRawConditions/LArMCSym.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -76,6 +78,10 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
   SG::ReadCondHandleKey<LArMCSym> m_mcsymKey 
    {this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object"} ;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey
+   {this, "CablingKey", "LArOnOffIdMap", "SG Key for LArOnOffIdMapping"} ;
+  SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
+   {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)

@@ -26,10 +26,10 @@ StatusCode MdtCalibFormatAlgTest::execute(const EventContext& ctx) const {
     ATH_MSG_INFO("Calling execute");
 
     // setup parameters
-    std::chrono::duration<double> retrieving_RT_old;
-    std::chrono::duration<double> retrieving_RT_new;
-    std::chrono::duration<double> retrieving_T0_old;
-    std::chrono::duration<double> retrieving_T0_new;
+    std::chrono::duration<double> retrieving_RT_old{};
+    std::chrono::duration<double> retrieving_RT_new{};
+    std::chrono::duration<double> retrieving_T0_old{};
+    std::chrono::duration<double> retrieving_T0_new{};
 
     // retrieve all folders
     if (!retrieve(ctx, "RT", "old", retrieving_RT_old).isSuccess()) return StatusCode::FAILURE;
@@ -58,7 +58,7 @@ StatusCode MdtCalibFormatAlgTest::finalize() {
 }
 
 // retrieve
-StatusCode MdtCalibFormatAlgTest::retrieve(const EventContext& ctx, std::string folder, std::string setup,
+StatusCode MdtCalibFormatAlgTest::retrieve(const EventContext& ctx, const std::string& folder, const std::string& setup,
                                            std::chrono::duration<double>& timer) const {
     ATH_MSG_INFO("Starting with " << folder << " and " << setup << " at " << timestamp());
 
@@ -75,7 +75,7 @@ StatusCode MdtCalibFormatAlgTest::retrieve(const EventContext& ctx, std::string 
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
     const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo == 0) {
+    if (readCdo == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -120,7 +120,7 @@ StatusCode MdtCalibFormatAlgTest::retrieve(const EventContext& ctx, std::string 
 }
 
 // processBlob
-StatusCode MdtCalibFormatAlgTest::processBlob(std::string folder, std::string setup, std::string data) const {
+StatusCode MdtCalibFormatAlgTest::processBlob(const std::string& folder, const std::string& setup, const std::string& data) const {
     // ATH_CHECK( extractString(istr, header, "\n") );
     // ATH_CHECK( extractString(istr, payload, "\n") );
     // if( istr.size() ) ATH_CHECK( extractString(istr, trailer, "\n") );
@@ -129,7 +129,7 @@ StatusCode MdtCalibFormatAlgTest::processBlob(std::string folder, std::string se
 }
 
 // extractString
-StatusCode MdtCalibFormatAlgTest::extractString(std::string& input, std::string& output, std::string separator) const {
+StatusCode MdtCalibFormatAlgTest::extractString(std::string& input, std::string& output, const std::string& separator) const {
     /* stolen from here: MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbCoolStrTool/src/MdtCalibDbCoolStrTool.cxx */
     unsigned long int pos = 0;
     std::string::size_type start = input.find_first_not_of(separator.c_str(), pos);
@@ -145,7 +145,7 @@ StatusCode MdtCalibFormatAlgTest::extractString(std::string& input, std::string&
     return StatusCode::SUCCESS;
 }
 
-std::string MdtCalibFormatAlgTest::timestamp() const {
+std::string MdtCalibFormatAlgTest::timestamp() {
     const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
     const boost::posix_time::time_duration td = now.time_of_day();
     const long hours = td.hours();

@@ -22,8 +22,6 @@
 #include "AthenaKernel/ILoggedMessageSvc.h"
 #include "CxxUtils/checker_macros.h"
 
-#include <boost/array.hpp>
-
 // Forward declarations
 class ISvcLocator;
 
@@ -51,96 +49,93 @@ public:
   virtual ~LoggedMessageSvc();
 
   // Implementation of IService::reinitialize()
-  virtual StatusCode reinitialize();
+  virtual StatusCode reinitialize() override;
   // Implementation of IService::initialize()
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   // Implementation of IService::finalize()
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const Message& message );
+  virtual void reportMessage( const Message& message ) override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const Message& msg, int outputLevel );
+  virtual void reportMessage( const Message& msg, int outputLevel ) override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const StatusCode& code, const std::string& source = "");
+  virtual void reportMessage( const StatusCode& code, std::string_view source = "") override;
 
   // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const char* source, int type, const char* message);
-
-  // Implementation of IMessageSvc::reportMessage()
-  virtual void reportMessage( const std::string& source, int type, const std::string& message);
+  virtual void reportMessage( std::string source, int type, std::string message) override;
 
   // Implementation of IMessageSvc::insertMessage()
-  virtual void insertMessage( const StatusCode& code, const Message& message );
+  virtual void insertMessage( const StatusCode& code, Message message ) override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage();
+  virtual void eraseMessage() override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage( const StatusCode& code ) ;
+  virtual void eraseMessage( const StatusCode& code ) override;
 
   // Implementation of IMessageSvc::eraseMessage()
-  virtual void eraseMessage( const StatusCode& code, const Message& message );
+  virtual void eraseMessage( const StatusCode& code, const Message& message ) override;
 
   // Implementation of IMessageSvc::insertStream()
-  virtual void insertStream( int message_type, std::string name, std::ostream* stream );
+  virtual void insertStream( int message_type, std::string name, std::ostream* stream ) override;
 
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream();
+  virtual void eraseStream() override;
 
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( int message_type );
+  virtual void eraseStream( int message_type ) override;
 
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( int message_type, std::ostream* stream );
+  virtual void eraseStream( int message_type, std::ostream* stream ) override;
 
   // Implementation of IMessageSvc::eraseStream()
-  virtual void eraseStream( std::ostream* stream );
+  virtual void eraseStream( std::ostream* stream ) override;
 
   // Implementation of IMessageSvc::defaultStream()
-  virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE () const {
+  virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE () const override {
     return m_defaultStream;
   }
 
   // Implementation of IMessageSvc::setDefaultStream()
-  virtual void setDefaultStream( std::ostream* stream ) {
+  virtual void setDefaultStream( std::ostream* stream ) override {
     std::lock_guard<std::mutex> lock(m_reportMutex);
     m_defaultStream = stream;
   }
 
   // Implementation of IMessageSvc::ouputLevel()
-  virtual int outputLevel()   const;
+  virtual int outputLevel() const override;
 
   // Implementation of IMessageSvc::ouputLevel()
-  virtual int outputLevel(std::string_view source)   const;
+  virtual int outputLevel(std::string_view source) const override;
 
   // Implementation of IMessageSvc::setOuputLevel()
-  virtual void setOutputLevel(int new_level);
+  virtual void setOutputLevel(int new_level) override;
 
   // Implementation of IMessageSvc::setOuputLevel()
-  virtual void setOutputLevel(std::string_view source, int new_level);
+  virtual void setOutputLevel(std::string_view source, int new_level) override;
 
   // Implementation of IInterface::queryInterface()
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvUnknown);
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvUnknown) override;
 
   // Implementation of IMessageSvc::useColor()
-  virtual bool useColor() const { return m_color; }
+  virtual bool useColor() const override { return m_color; }
 
   // Implementation of IMessageSvc::getLogColor()
-  virtual std::string getLogColor(int logLevel) const;
+  virtual std::string getLogColor(int logLevel) const override;
 
   // Implementation of IMessageSvc::messageCount()
-  virtual int messageCount( MSG::Level logLevel ) const;
+  virtual int messageCount( MSG::Level logLevel ) const override;
 
   // Implementation of IInactiveMessageCounter::incrInactiveCount()
   virtual void incrInactiveCount( MSG::Level level,
-				  const std::string& src );
+                                  std::string_view src ) override;
 
-  virtual const std::vector< std::pair<std::string, std::string> >& getMessages( MSG::Level level) const;
+  virtual const std::vector< std::pair<std::string, std::string> >& getMessages( MSG::Level level) const override;
 
-  virtual const std::vector< LoggedMessage >& getKeyMessages() const { return m_msgKeyLog; }
+  virtual const std::vector< LoggedMessage >& getKeyMessages() const override { return m_msgKeyLog; }
 
 private:
   std::ostream* m_defaultStream;      ///< Pointer to the output stream.
@@ -162,22 +157,14 @@ private:
   std::string m_logColorCodes[MSG::NUM_LEVELS];
 
   /// Private helper class to keep the count of messages of a type (MSG::LEVEL).
-  struct MsgAry {
-    /// Simple typedef for readability.
-    typedef boost::array<int,MSG::NUM_LEVELS> ArrayType;
+  struct MsgAry final {
     /// Internal array of counters.
-    ArrayType msg;
+    std::array<int, MSG::NUM_LEVELS> msg = {{0}};
     /// Default constructor.
-    MsgAry() {
-      // This is a special hack to have a fast initialization of the array
-      // because we cannot use initializer lists in the constructor (should be
-      // possible in C++0X).
-      static const ArrayType zero = {{0}};
-      msg = zero;
-    }
+    MsgAry() = default;
   };
 
-  std::map<std::string,MsgAry> m_sourceMap, m_inactiveMap;
+  std::map<std::string, MsgAry, std::less<>> m_sourceMap, m_inactiveMap;
   BooleanProperty m_suppress, m_inactCount;
 
   std::string colTrans(std::string, int);

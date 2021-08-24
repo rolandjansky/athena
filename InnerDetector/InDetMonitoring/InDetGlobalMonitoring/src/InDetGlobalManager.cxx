@@ -50,21 +50,21 @@ StatusCode InDetGlobalManager::initialize()
 
     StatusCode  sc;
 
-    const TRT_ID *trtID = 0;
+    const TRT_ID *trtID = nullptr;
     if (detStore()->retrieve(trtID, "TRT_ID").isFailure()) {
       msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
 
 
-    const SCT_ID *sctID = 0;
+    const SCT_ID *sctID = nullptr;
     if (detStore()->retrieve(sctID, "SCT_ID").isFailure()) {
       msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
 
 
-    const PixelID *pixelID = 0;
+    const PixelID *pixelID = nullptr;
     if (detStore()->retrieve(pixelID, "PixelID").isFailure()) {
       msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
@@ -86,7 +86,7 @@ StatusCode InDetGlobalManager::initialize()
       IMonitorToolBase* mon = tool.operator->();
       InDetGlobalMotherMonTool* managed = 
 	dynamic_cast<InDetGlobalMotherMonTool*>( mon );	
-      if( managed != 0 ) {
+      if( managed != nullptr ) {
 	managed->fillDetectorManagers(trtID, sctID, pixelID ); 
 	managed->retrieveTools();
       }
@@ -145,7 +145,7 @@ StatusCode InDetGlobalManager::execute()
   }
   
   else{
-    int_BCM_RDOs = NULL; 
+    int_BCM_RDOs = nullptr; 
   }
   
   
@@ -188,15 +188,15 @@ StatusCode InDetGlobalManager::execute()
     }
     }
     else{
-      int_Pixel_LVL1ID = NULL;
-      int_Pixel_BCID = NULL; 
+      int_Pixel_LVL1ID = nullptr;
+      int_Pixel_BCID = nullptr; 
     }
   }
   
   else{
-    int_Pixel_RDOs = NULL;
-    int_Pixel_LVL1ID = NULL;
-    int_Pixel_BCID = NULL;
+    int_Pixel_RDOs = nullptr;
+    int_Pixel_LVL1ID = nullptr;
+    int_Pixel_BCID = nullptr;
   }
   
   
@@ -240,15 +240,15 @@ StatusCode InDetGlobalManager::execute()
     }
     }
     else{
-     int_SCT_LVL1ID= NULL;
-    int_SCT_BCID = NULL;  
+     int_SCT_LVL1ID= nullptr;
+    int_SCT_BCID = nullptr;  
     }
   }
   
   else{
-    int_SCT_RDOs = NULL;
-    int_SCT_LVL1ID= NULL;
-    int_SCT_BCID = NULL;
+    int_SCT_RDOs = nullptr;
+    int_SCT_LVL1ID= nullptr;
+    int_SCT_BCID = nullptr;
   }
   
   
@@ -294,8 +294,8 @@ StatusCode InDetGlobalManager::execute()
     }
     }
     else{
-      int_TRT_LVL1ID = NULL;
-       int_TRT_BCID = NULL;
+      int_TRT_LVL1ID = nullptr;
+       int_TRT_BCID = nullptr;
     }
 
     if(m_doTRTPhase){
@@ -311,14 +311,14 @@ StatusCode InDetGlobalManager::execute()
       return StatusCode::FAILURE;
     }
     }
-    else int_TRT_Phase = NULL;
+    else int_TRT_Phase = nullptr;
 }
   
   else{
-    int_DriftCircles = NULL;
-    int_TRT_LVL1ID = NULL;
-    int_TRT_BCID = NULL;
-    int_TRT_Phase = NULL;
+    int_DriftCircles = nullptr;
+    int_TRT_LVL1ID = nullptr;
+    int_TRT_BCID = nullptr;
+    int_TRT_Phase = nullptr;
   }
   
   //------------------------------------------------------------------
@@ -332,7 +332,7 @@ StatusCode InDetGlobalManager::execute()
     InDetGlobalMotherMonTool* managed = 
       dynamic_cast<InDetGlobalMotherMonTool*>( mon );
     
-    if( managed != 0 ) {
+    if( managed != nullptr ) {
       if ( msgLvl(MSG::DEBUG) )    msg(MSG::DEBUG) 
 				     <<"Loop over InDetGlobalMonTool " <<managed << endmsg;
       managed->fillTracks(combined_tracks.cptr());

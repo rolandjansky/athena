@@ -69,17 +69,17 @@ class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {
 
   // PMF header Position and values
   // The word header occupies the 4 highest bits of each TDC data word 
-  static const uint16_t s_headerPos  = 28;  // from bit 28 to 31
-  static const uint16_t s_headerBits = 0xf;
+  static constexpr uint16_t s_headerPos  = 28;  // from bit 28 to 31
+  static constexpr uint16_t s_headerBits = 0xf;
 
   // Beginning of TDC 
-  static const uint16_t s_BOTvalue  = 0xa;
+  static constexpr uint16_t s_BOTvalue  = 0xa;
     
   // End of TDC
-  static const uint16_t s_EOTvalue   = 0xc;
+  static constexpr uint16_t s_EOTvalue   = 0xc;
   
   // TDC single measurement charge
-  static const uint16_t s_TSMvalue_charge   = 0x4;
+  static constexpr uint16_t s_TSMvalue_charge   = 0x4;
   
   
  public:
@@ -95,31 +95,31 @@ class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return (m_wordHeader == s_BOTvalue);};
+  bool is_BOT() const {return (m_wordHeader == s_BOTvalue);};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == s_EOTvalue);};
+  bool is_EOT() const {return (m_wordHeader == s_EOTvalue);};
   // TDC single measurement
-  bool is_TDCch() {return (m_wordHeader == s_TSMvalue_charge);};
+  bool is_TDCch()  const{return (m_wordHeader == s_TSMvalue_charge);};
    
   
   // Methods to retrieve the decoded word content (Get)
   
-  uint16_t SlotId() {return m_SlotId;}
-  uint16_t LsbTdcId() {return m_LsbTdcId;}
-  uint16_t ecnt_BOT()  {return m_ecnt_BOT;}
-  uint16_t ecnt_EOT()  {return m_ecnt_EOT;}
-  uint16_t bcId()  {return m_bcId;}
+  uint16_t SlotId() const {return m_SlotId;}
+  uint16_t LsbTdcId() const {return m_LsbTdcId;}
+  uint16_t ecnt_BOT() const {return m_ecnt_BOT;}
+  uint16_t ecnt_EOT()const  {return m_ecnt_EOT;}
+  uint16_t bcId() const {return m_bcId;}
 
 
-  uint16_t MBId()        {return m_MBId;}
-  uint16_t PMFId()        {return m_PMFId;}
-  uint16_t ChannelNumId()   {return m_ChannelNumId;}
-  uint16_t ChargeChanId()    {return m_ChargeChanId;}
-  uint16_t FiberFirmwareId() {return m_FiberFirmwareId;};
-  bool     bit12()   {return m_bit12;}
+  uint16_t MBId()   const     {return m_MBId;}
+  uint16_t PMFId()   const     {return m_PMFId;}
+  uint16_t ChannelNumId() const  {return m_ChannelNumId;}
+  uint16_t ChargeChanId() const   {return m_ChargeChanId;}
+  uint16_t FiberFirmwareId() const {return m_FiberFirmwareId;};
+  bool     bit12()  const {return m_bit12;}
  
-  uint16_t     bit27_24()   {return m_bit27_24;}
-  uint16_t     bit24_27()   {return m_bit24_27;}		
+  uint16_t     bit27_24() const  {return m_bit27_24;}
+  uint16_t     bit24_27() const  {return m_bit24_27;}		
 
 
  private:

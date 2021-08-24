@@ -47,7 +47,10 @@ private:
   std::vector<int> m_smallRJetTOB_phi;
   std::vector<int> m_smallRJetTOB_ET;
   std::vector<int> m_smallRJetTOB_sat;
-  
+  std::vector<int> m_smallRJetTOB_word;
+  std::vector<int> m_smallRJetTOB_jfexID;
+  std::vector<int> m_smallRJetTOB_fpgaID;
+
   std::vector<int> m_largeRJet_eta;
   std::vector<int> m_largeRJet_phi;  
   std::vector<int> m_largeRJet_ET;
@@ -57,6 +60,9 @@ private:
   std::vector<int> m_largeRJetTOB_eta;
   std::vector<int> m_largeRJetTOB_phi;
   std::vector<int> m_largeRJetTOB_sat;
+  std::vector<int> m_largeRJetTOB_word;
+  std::vector<int> m_largeRJetTOB_jfexID;
+  std::vector<int> m_largeRJetTOB_fpgaID;
 
   std::vector<int> m_tau_isLocalMax;
   std::vector<int> m_tau_TT_ID;
@@ -75,6 +81,16 @@ private:
   std::vector<int> m_tau_TOB_phi;
   std::vector<int> m_tau_TOB_ISO;
   std::vector<int> m_tau_TOB_Sat;
+  
+  //Pile-up
+  std::vector<int> m_pileup_FPGAid;
+  std::vector<int> m_pileup_jFEXid;
+  std::vector<int> m_pileup_rho_EM;
+  std::vector<int> m_pileup_rho_HAD1;
+  std::vector<int> m_pileup_rho_HAD2;
+  std::vector<int> m_pileup_rho_HAD3;
+  std::vector<int> m_pileup_rho_FCAL;
+
 
 //std::string m_jet_container_name = "AntiKt10TruthJets";
 
@@ -83,6 +99,7 @@ private:
   StatusCode loadsmallRJetAlgoVariables();
   StatusCode loadlargeRJetAlgoVariables();
   StatusCode loadtauAlgoVariables();
+  StatusCode loadPileupVariables();
 };
 }
 #endif

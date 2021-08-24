@@ -9,6 +9,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <vector>
 #include <list>
@@ -32,7 +33,6 @@ SCFillerTool::SCFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<CaloCellContainer> (type, name, parent), 
-        m_larCablingSvc("LArCablingLegacyService"),
 	m_tableFilled(false),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),
@@ -124,6 +124,8 @@ StatusCode SCFillerTool::initialize() {
     }
     m_caloLayerSelection = true;
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
 
   ATH_MSG_INFO( " *** SCFillerTool: completed" );
   return StatusCode::SUCCESS;
@@ -302,6 +304,8 @@ void SCFillerTool::fillHashTables( const CaloCellContainer& p ) {
   int sc_side, sc_calo, sc_region, sc_layer, sc_ieta, sc_jphi;
   //float sc_feta, sc_fphi;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+
   for( ; f_cell != l_cell; ++f_cell ) {
       const CaloCell* cell = ( *f_cell ); 
       Identifier id = cell->ID();
@@ -380,7 +384,7 @@ void SCFillerTool::fillHashTables( const CaloCellContainer& p ) {
 	sc_jphi = jphi;
 	sc_region = 0;
       } else if (m_fcalid->is_lar_fcal(id)) {
-	HWIdentifier hwid = m_larCablingSvc->createSignalChannelID( id );
+	HWIdentifier hwid = cabling->createSignalChannelID( id );
 	sc_calo = 5;
 	const int lay = m_fcalid->module(id);
 	const int s = m_onlineHelper->slot(hwid);

@@ -88,6 +88,8 @@ namespace top {
     // Photon SFs
     PHOTON_IDSF_UP, PHOTON_IDSF_DOWN,
     PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
+    PHOTON_EFF_TRIGGER_UNCERTAINTY_UP,
+    PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN,
     // B-tagging SFs
     BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
     BTAG_SF_EIGEN_LIGHT,
@@ -465,15 +467,19 @@ namespace top {
 
     // List of triggers to 'or' together for each event.
     // If any one passes, the event passes
-    std::vector<std::string> m_electronTriggers_Tight;
-    std::vector<std::string> m_muonTriggers_Tight;
-    std::vector<std::string> m_electronTriggers_Loose;
-    std::vector<std::string> m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Loose;
     // Do we need to add tau triggers?
 
     // Configuration
     std::shared_ptr<top::TopConfig> m_config;
     bool m_preferGlobalTriggerSF;
+
+    static size_t s_warn_counter; // print WARNING messages limited times to prevent excessive log spam
   };
 }  // namespace top
 

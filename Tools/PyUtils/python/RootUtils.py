@@ -333,7 +333,7 @@ class RootFileDumper(object):
                             ))
                         self.allgood = False
                         print (err)
-                    for o in vals:
+                    for o in sorted(vals, key = lambda x: '.'.join(s for s in x[0] if isinstance(s, str))):
                         n = list(map(str, o[0]))
                         v = o[1]
                         yield tree_name, ientry, n, v

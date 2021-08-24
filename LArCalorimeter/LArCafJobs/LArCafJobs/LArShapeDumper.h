@@ -30,7 +30,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "LArCafJobs/ILArShapeDumperTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
@@ -113,8 +112,6 @@ class LArShapeDumper : public AthAlgorithm
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;  // for tests...
-
   SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey {this, "BunchCrossingCondDataKey", "BunchCrossingData" ,"SG Key of BunchCrossing CDO"};
 
 
@@ -128,7 +125,7 @@ class LArShapeDumper : public AthAlgorithm
   bool m_doStream, m_doTrigger, m_doOFCIter, 
 	m_doAllEvents, m_doRoIs, m_doAllLvl1, m_dumpChannelInfos;
   bool m_doEM, m_doHEC, m_doFCAL;
-  bool m_gains[CaloGain::LARNGAIN];
+  bool m_gains[CaloGain::LARNGAIN]{};
 
   bool m_onlyEmptyBC;
 

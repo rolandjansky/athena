@@ -56,16 +56,16 @@ class ITRT_DCS_ConditionsSvc : virtual public IService {
   /// Returns the value for a given folder/channel name.
   /** Get the value for a given folder/channel name.
    */
-  virtual StatusCode getValue( const std::string, const std::string,
+  virtual StatusCode getValue( const std::string & folderName, const std::string & channelName,
 			       InDet::TRT_DCS_ValueType& ) = 0;
 
   /// Returns the value for a given folder and COOL channel number.
   /** Get the value for a given folder and COOL channel number.
    */
-  virtual StatusCode getValue( const std::string, const int,
+  virtual StatusCode getValue( const std::string & folderName, const int chanNum,
 			       InDet::TRT_DCS_ValueType& ) = 0;
 
-  virtual const CondAttrListCollection* getCollection( const std::string) =0;
+  virtual const CondAttrListCollection* getCollection( const std::string & collName) =0;
 
   virtual void monitorBarrel() = 0;
   virtual void monitorEndcapA() = 0;

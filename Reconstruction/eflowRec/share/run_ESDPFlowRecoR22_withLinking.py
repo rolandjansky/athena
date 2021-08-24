@@ -1,7 +1,10 @@
-#This file is to run topocluster + pflow reconstruction on an ESD file produced in the release 22 mc16 campaign
+#This file is to run topocluster + pflow reconstruction on an ESD file produced in the release 22 mc20e campaign
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]
+athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-RUN2-08")
 
 doDumpProperties=True
 
@@ -21,11 +24,12 @@ jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(True)
 
-#Disable reco of trigger, egamma, muons
+#Disable reco of trigger
 from RecExConfig.RecFlags import rec
 rec.doTrigger.set_Value_and_Lock(False)
-rec.doEgamma.set_Value_and_Lock(False)
-rec.doMuon.set_Value_and_Lock(False)
+# enable egamma and muon reco
+rec.doEgamma.set_Value_and_Lock(True)
+rec.doMuon.set_Value_and_Lock(True)
 
 #Disable linking of FE to taus - we run tau reco via UserAlgs and so will have to also run the linking there directly
 from eflowRec.eflowRecFlags import jobproperties
@@ -47,7 +51,7 @@ rec.doCaloRinger.set_Value_and_Lock(False)
 
 #Disable VertexCnvAlg
 from InDetRecExample.InDetJobProperties import jobproperties
-jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
+jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(True)
 #Disable AllExecutedEvents
 rec.doFileMetaData.set_Value_and_Lock(False)
 

@@ -115,11 +115,13 @@ def set_flags(flags, options=default_options):
     flags.Input.isMC = False
     flags.IOVDb.DatabaseInstance = 'CONDBR2'
     flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
+    flags.Trigger.doHLT = True
+    flags.Trigger.EDMVersion = 3
     flags.Trigger.triggerMenuSetup = 'LS2_v1'
     flags.Trigger.enableL1MuonPhase1 = options.EnableL1MuonPhase1
     flags.Trigger.enableL1CaloPhase1 = options.EnableL1CaloPhase1
     flags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
-    flags.Trigger.L1Decoder.forceEnableAllChains = True
+    flags.Trigger.HLTSeeding.forceEnableAllChains = True
     # Disable signature-specific detector configuration parts
     flags.Trigger.doID = False
     flags.Trigger.doCalo = False
@@ -127,9 +129,9 @@ def set_flags(flags, options=default_options):
 
 
 def l1_seq_cfg(flags, options=default_options):
-    from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    acc = L1DecoderCfg(flags, seqName='l1Seq')
-    l1_decoder_alg = acc.getEventAlgo('L1Decoder')
+    from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
+    acc = HLTSeedingCfg(flags, seqName='l1Seq')
+    l1_decoder_alg = acc.getEventAlgo('HLTSeeding')
     l1_decoder_alg.prescaler = CompFactory.PrescalingEmulationTool()
 
     # Need to set HLT menu file name here to avoid conflict when merging with HLT sequence CA
@@ -140,7 +142,7 @@ def l1_seq_cfg(flags, options=default_options):
 
 def make_hypo_alg(name):
     hypo = CompFactory.MTCalibPebHypoAlg(name)
-    hypo.HypoInputDecisions = 'L1DecoderSummary'
+    hypo.HypoInputDecisions = 'HLTSeedingSummary'
     hypo.HypoOutputDecisions = 'MTCalibPebDecisions_'+name
     return hypo
 
@@ -287,7 +289,7 @@ def hlt_result_cfg(flags, hypo_algs):
 
 def make_summary_algs(hypo_algs):
     summary = CompFactory.TriggerSummaryAlg('TriggerSummaryAlg')
-    summary.InputDecision = 'L1DecoderSummary'
+    summary.InputDecision = 'HLTSeedingSummary'
     summary.FinalDecisions = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
 
     summMaker = CompFactory.DecisionSummaryMakerAlg()

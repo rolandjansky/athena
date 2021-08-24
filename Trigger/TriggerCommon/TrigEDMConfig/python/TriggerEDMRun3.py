@@ -89,7 +89,20 @@ BTagOutput_JetFitter = [
     'JetFitterSecondaryVertex_averageAllJetTrackRelativeEta',
     'JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
 BTagOutput_rnnip = ['rnnip_isDefaults','rnnip_pu','rnnip_pc','rnnip_pb','rnnip_ptau',]
-BTagOutput_highLevelTaggers = ['MV2c10_discriminant','DL1_pu','DL1_pc','DL1_pb','DL1r_pu','DL1r_pc','DL1r_pb',]
+
+# we don't plan to keep all these, they are just for comparisons while tuning
+three_output_taggers = [
+    'DL1',
+    'DL1r',
+    'dipsLoose20210517',
+    'dips20210517',
+    'DL1d20210519r22',          # uses dipsLoose
+    'DL1d20210528r22',          # uses IP3D track selection dips
+]
+BTagOutput_highLevelTaggers = [
+    'MV2c10_discriminant',
+    *[f'{t}_p{x}' for x in 'cub' for t in three_output_taggers],
+]
 
 BTagOutput += BTagOutput_IP2D + BTagOutput_IP3D + BTagOutput_SV1 + BTagOutput_JetFitter + BTagOutput_rnnip + BTagOutput_highLevelTaggers
 BTagVars = '.'.join(BTagOutput)
@@ -97,14 +110,66 @@ BTagVars = '.'.join(BTagOutput)
 BTagJetOutput = ['btaggingLink', 'Jvt', 'JVFCorr', 'SumPtTrkPt500']
 BTagJetVars  ='.'.join(BTagJetOutput)
 
-dEdxTrkToKeep = ['trk_id','trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
+hitDVTrkToKeepBase = ['id','pt','eta','phi','n_hits_innermost','n_hits_pix','n_hits_sct','a0beam']
+hitDVTrkToKeep = []
+for var in hitDVTrkToKeepBase:
+    hitDVTrkToKeep.append('hitDVTrk_'+var)
+hitDVTrkVars = '.'.join(hitDVTrkToKeep)
+
+hitDVSPToKeepBase = ['eta','r','phi','layer','isPix','isSct','usedTrkId']
+hitDVSPToKeep = []
+for var in hitDVSPToKeepBase:
+    hitDVSPToKeep.append('hitDVSP_'+var)
+hitDVSPVars = '.'.join(hitDVSPToKeep)
+
+hitDVToKeepBase = ['seed_eta','seed_phi','seed_type','n_track_qual','ly0_sp_frac','ly1_sp_frac','ly2_sp_frac','ly3_sp_frac','ly4_sp_frac','ly5_sp_frac','ly6_sp_frac','ly7_sp_frac','bdt_score']
+hitDVToKeep = []
+for var in hitDVToKeepBase:
+    hitDVToKeep.append('hitDV_'+var)
+hitDVVars = '.'.join(hitDVToKeep)
+
+dEdxTrkToKeepBase = ['id','pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
+dEdxTrkToKeep = []
+for var in dEdxTrkToKeepBase:
+    dEdxTrkToKeep.append('dEdxTrk_'+var)
 dEdxTrkVars = '.'.join(dEdxTrkToKeep)
 
-dEdxHitToKeep = ['hit_trkid','hit_dedx','hit_tot','hit_trkchi2','hit_trkndof','hit_iblovfl','hit_loc','hit_layer']
+dEdxHitToKeepBase = ['trkid','dedx','tot','trkchi2','trkndof','iblovfl','loc','layer']
+dEdxHitToKeep = []
+for var in dEdxHitToKeepBase:
+    dEdxHitToKeep.append('dEdxHit_'+var)
 dEdxHitVars = '.'.join(dEdxHitToKeep)
 
-HPtdEdxTrkToKeep = ['trk_pt','trk_eta','trk_phi','trk_dedx','trk_dedx_n_usedhits','trk_a0beam','trk_n_hits_innermost','trk_n_hits_inner','trk_n_hits_pix','trk_n_hits_sct']
+HPtdEdxTrkToKeepBase = ['pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
+HPtdEdxTrkToKeep = []
+for var in HPtdEdxTrkToKeepBase:
+    HPtdEdxTrkToKeep.append('HPtdEdxTrk_'+var)
 HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
+
+DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
+                     'pt_wrtVtx','eta_wrtVtx','phi_wrtVtx','d0_wrtVtx','z0_wrtVtx',
+                     'n_brhits_ibl','n_brhits_pix1','n_brhits_pix2','n_brhits_pix3','n_brhits_sct1','n_brhits_sct2','n_brhits_sct3','n_brhits_sct4',
+                     'chi2sum_br_ibl','chi2sum_br_pix1','chi2sum_br_pix2','chi2sum_br_pix3','chi2sum_br_sct1','chi2sum_br_sct2','chi2sum_br_sct3','chi2sum_br_sct4',
+                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4',
+                     'n_brhits_good_ibl','n_brhits_good_pix1','n_brhits_good_pix2','n_brhits_good_pix3',
+                     'n_brhits_good_sct1','n_brhits_good_sct2','n_brhits_good_sct3','n_brhits_good_sct4']
+DisTrkToKeepIso = ['iso1_dr01','iso1_dr02','iso1_dr04','iso2_dr01','iso2_dr02','iso2_dr04','iso3_dr01','iso3_dr02','iso3_dr04']
+DisTrkVars = []
+for var in DisTrkToKeepNoIso:
+    DisTrkVars.append('disTrkCand_'+var)
+    DisTrkVars.append('disTrkCand_refit_'+var)
+for var in DisTrkToKeepIso:
+    DisTrkVars.append('disTrkCand_'+var)
+DisTrkCandVars = '.'.join(DisTrkVars)
+
+DisTrkBDTSelToKeepBase = ['category','pt','eta','phi','refit_pt','is_fail','d0_wrtVtx','z0_wrtVtx','chi2','ndof','n_hits_pix','n_hits_sct','n_hits_innermost','iso3_dr01','iso3_dr02','refit_d0_wrtVtx','refit_z0_wrtVtx','refit_chi2','refit_ndof','chi2ndof_pix','bdtscore']
+DisTrkBDTSelToKeep = []
+for var in DisTrkBDTSelToKeepBase:
+    DisTrkBDTSelToKeep.append('disTrk_'+var)
+DisTrkBDTSelVars = '.'.join(DisTrkBDTSelToKeep)
+
+L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
+                                'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
 
 TriggerHLTListRun3 = [
 
@@ -116,22 +181,33 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_EBWeightAux.EBWeight.EBUnbiased', 'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
 
-    ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eEMRoIs',                  'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_eTAURoIs',                 'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_jTAURoIs',                 'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_EMRoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_METRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_JETRoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_TAURoI',                   'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
+
+    # xAOD::TrigCompositeContainer#HLTNav_Summary is now transient-only
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_OnlineSlimmed', 'BS ESD AODFULL AODSLIM', 'Steer'), # TODO: set to BS-only after slimmed versions are validated
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_OnlineSlimmedAux.', 'BS ESD AODFULL AODSLIM', 'Steer'), # TODO: set to BS-only after slimmed versions are validated
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_ESDSlimmed', 'ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_ESDSlimmedAux.', 'ESD', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary_AODSlimmed', 'AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_Summary_AODSlimmedAux.', 'AODFULL AODSLIM', 'Steer'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.thash.slot.roi.start.stop', 'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeContainer#HLT_TrigCostROSContainer',   'CostMonDS ESD', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostROSContainerAux.alg_idx.lvl1ID.robs_id.robs_size.robs_history.robs_status.start.stop', 'CostMonDS ESD', 'Steer'),
 
+    # PEB RoIs for full-scan chains
+    ('TrigRoiDescriptorCollection#HLT_Roi_LArPEBHLT',            'BS ESD AODFULL AODSLIM',  'Steer'),
+
     # Run-2 L1 (temporary)
-    ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
-    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EmTauRoIContainer#LVL1EmTauRoIs' ,               'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux.' ,        'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::JetRoIContainer#LVL1JetRoIs' ,                   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -147,10 +223,15 @@ TriggerHLTListRun3 = [
 
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIContainer#LVL1MuonRoIsDAQ',                       'ESD AODFULL', 'L1'),
+    ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsDAQAux.',                'ESD AODFULL', 'L1'),
 
-    # Uncomment eFexEMRoIContainer when its T/P converter is implemented
-    # ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                           'BS ESD AODFULL', 'L1'),
-    # ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',   'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                              'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIContainer#L1_eTauRoI',                            'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIAuxContainer#L1_eTauRoIAux.thresholdPatterns',    'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexTauRoIContainer#L1_jFexTauRoI',                         'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexTauRoIAuxContainer#L1_jFexTauRoIAux.thresholdPatterns', 'BS ESD AODFULL', 'L1'),
 
     ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -172,6 +253,9 @@ TriggerHLTListRun3 = [
 
     ('xAOD::EmTauRoIContainer#eTausPerf',                   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EmTauRoIAuxContainer#eTausPerfAux.',            'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
+
+    ('xAOD::TrigCompositeContainer#L1TopoErrorFlags_Legacy', 'BS ESD AODFULL', 'L1'),
+    ('xAOD::TrigCompositeAuxContainer#L1TopoErrorFlags_LegacyAux.'+L1TopoErrorFlagVars, 'BS ESD AODFULL', 'L1'),
 
     # LArPS
     ('xAOD::TrigEMClusterContainer#HLT_LArPS_AllCaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:LArPS_AllEM_Views'),
@@ -202,14 +286,14 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElectronLRT_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews_LRT'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElectronLRT_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElecLRT_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews_LRT'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElecLRT_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionEtcutViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElectronLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackViews_LRT'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElectronLRT_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElecLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackViews_LRT'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElecLRT_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.',           'BS ESD AODFULL', 'Egamma'),
@@ -269,6 +353,14 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_FastElectron',            'BS ESD AODFULL', 'Egamma'),
     ('TrigRoiDescriptorCollection#HLT_Roi_FastElectron_LRT',            'BS ESD AODFULL', 'Egamma'),
     ('TrigRoiDescriptorCollection#HLT_Roi_FastPhoton',              'BS ESD AODFULL', 'Egamma'),
+
+    # hipTRT
+    ('xAOD::TrigRNNOutputContainer#HLT_TrigTRTHTCounts',            'BS ESD AODFULL', 'Egamma', 'inViews:TRTHitGeneratorViews'),
+    ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'), 
+
+    # CaloCluster object written by EMClusterTool
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionElectronViews_LRT,precisionElectronViews_GSF,precisionPhotonViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClustersAux.',     'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 
@@ -667,8 +759,14 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigT2MbtsBitsContainer#HLT_MbtsBitsContainer',                 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::TrigT2MbtsBitsAuxContainer#HLT_MbtsBitsContainerAux.',          'BS ESD AODFULL', 'MinBias'),
 
-    ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias', 'inViews:SPView'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.pixCL.pixCL_1.pixCL_2.pixCLmin3.pixCLBarrel.pixCLEndcapA.pixCLEndcapC.sctSP.sctSPBarrel.sctSPEndcapA.sctSPEndcapC',     'BS ESD AODFULL AODSLIM', 'MinBias'),
+
+    ('xAOD::TrigCompositeContainer#HLT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'MinBias'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
+
+    ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias' ,'inViews:ZVertFinderView'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight.zfinder_tool', 'BS ESD AODFULL', 'MinBias'),
 
     ('xAOD::AFPTrackContainer#HLT_AFPTrackContainer', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackAuxContainer#HLT_AFPTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
@@ -687,35 +785,36 @@ TriggerHLTListRun3 = [
 
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'),
 
-    ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias', 'inViews:SPView'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.pixCL.pixCL_1.pixCL_2.pixCLmin3.pixCLBarrel.pixCLEndcapA.pixCLEndcapC.sctSP.sctSPBarrel.sctSPEndcapA.sctSPEndcapC',     'BS ESD AODFULL AODSLIM', 'MinBias'),
-
-    ('xAOD::TrigCompositeContainer#HLT_TrackCount',                                             'BS ESD AODFULL AODSLIM', 'MinBias'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
-
     # UTT
-    ('xAOD::TrigCompositeContainer#HLT_HitDVSeed',           'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSeedAux.seed_eta.seed_phi.seed_et_small.seed_et_large',  'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HitDVTrk',            'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.trk_id.trk_pt.trk_eta.trk_phi.trk_n_hits_innermost.trk_n_hits_inner.trk_n_hits_pix.trk_n_hits_sct.trk_a0beam',     'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HitDVSP',             'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.sp_eta.sp_r.sp_phi.sp_z.sp_layer.sp_isPix.sp_isSct.sp_usedTrkId',      'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                          'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,       'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_dEdxHit',                          'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,       'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                       'BS ESD AODFULL AODSLIM', 'ID'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars, 'BS ESD AODFULL AODSLIM', 'ID'),
+    # hit-based displaced vertex
+    # commented out temporarly due to HLT truncation issue (ATR-23958)
+    #('xAOD::TrigCompositeContainer#HLT_HitDVTrk',                          'BS ESD', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.'+hitDVTrkVars,      'BS ESD', 'ID'),
+    #('xAOD::TrigCompositeContainer#HLT_HitDVSP',                           'BS ESD AODFULL', 'ID'),
+    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.'+hitDVSPVars,        'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_HitDV',                             'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.'+hitDVVars,            'BS ESD AODFULL AODSLIM', 'ID'),
+
+    # dE/dx
+    ('xAOD::TrigCompositeContainer#HLT_dEdxTrk',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxTrkAux.'+dEdxTrkVars,        'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_dEdxHit',                           'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_dEdxHitAux.'+dEdxHitVars,        'BS ESD', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_HPtdEdxTrk',                        'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_HPtdEdxTrkAux.'+HPtdEdxTrkVars,  'BS ESD AODFULL AODSLIM', 'ID'),
+
+    # disappearing track
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkCand',                           'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkCandAux.'+DisTrkCandVars,     'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrigCompositeContainer#HLT_DisTrkBDTSel',                         'BS ESD AODFULL AODSLIM', 'ID'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_DisTrkBDTSelAux.'+DisTrkBDTSelVars, 'BS ESD AODFULL AODSLIM', 'ID'),
 
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3SummaryAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3Aux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
 ]
 
-# HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
-HLTNavEDMTargets = 'BS ESD AODFULL AODSLIM'
+
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
@@ -762,6 +861,16 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
     """
     Extend TriggerHLTListRun3 with HLT Navigation objects
     """
+
+    # HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
+    HLTNavEDMTargets = ''
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if not ConfigFlags.Trigger.doOnlineNavigationCompactification:
+        # If we are not compacting the online EDM, then we must write out all of the individual collections
+        # ESD is added for MC support
+        HLTNavEDMTargets = 'BS ESD'
+
     for decisionCollection in allDecisions:
         dynamic = '.-' # Exclude dynamic
         if decisionCollection in hypoDecisions:

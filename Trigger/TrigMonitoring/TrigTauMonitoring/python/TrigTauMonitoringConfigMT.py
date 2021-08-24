@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -164,17 +164,12 @@ class TrigTauMonAlgBuilder:
     # tau0
     'HLT_tau0_ptonly_L1TAU8',
     'HLT_tau0_ptonly_L1TAU60',
-    'HLT_tau0_ptonly_L1TAU100',
     # tau25
     'HLT_tau25_ptonly_L1TAU12IM',
-    'HLT_tau25_idperf_track_L1TAU12IM',
     'HLT_tau25_idperf_tracktwo_L1TAU12IM',
-    'HLT_tau25_idperf_tracktwoEF_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_perf_track_L1TAU12IM',
     'HLT_tau25_perf_tracktwo_L1TAU12IM',
-    'HLT_tau25_perf_tracktwoEF_L1TAU12IM',
     'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
@@ -183,57 +178,53 @@ class TrigTauMonAlgBuilder:
     'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_medium1_track_L1TAU12IM',
     'HLT_tau25_medium1_tracktwo_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwoEF_L1TAU12IM',
     # tau35
-    'HLT_tau35_ptonly_L1TAU12IM',
-    'HLT_tau35_idperf_track_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwo_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoEF_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_perf_track_L1TAU12IM',
-    'HLT_tau35_perf_tracktwo_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoEF_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_perf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau35_ptonly_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwo_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_perf_tracktwo_L1TAU20IM',
+    'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
+    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
+    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
     # tau80
     'HLT_tau80_medium1_tracktwo_L1TAU60',
     # tau160
     'HLT_tau160_ptonly_L1TAU100',
-    'HLT_tau160_idperf_track_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
-    'HLT_tau160_idperf_tracktwoEF_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
     'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_perf_track_L1TAU100',
     'HLT_tau160_perf_tracktwo_L1TAU100',
-    'HLT_tau160_perf_tracktwoEF_L1TAU100',
     'HLT_tau160_perf_tracktwoMVA_L1TAU100',
     'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_medium1_track_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
-    'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    # tau180
+    'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
     # tau200
     'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_medium1_track_L1TAU100',
     'HLT_tau200_medium1_tracktwo_L1TAU100',
-    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
+    'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
     # ditau
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
-    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
+    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40'
     ]
 
     self.tauList = monitoring_tau
@@ -428,7 +419,7 @@ class TrigTauMonAlgBuilder:
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
-                              
+
     monGroup.defineHistogram('cluster_et_log',title='cluster_et_log; cluster_et_log;Events',xbins=30,xmin=0,xmax=6)
     monGroup.defineHistogram('cluster_pt_jetseed_log',title='cluster_pt_jetseed_log; cluster_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
     monGroup.defineHistogram('cluster_dEta',title='cluster_dEta; cluster_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5)
@@ -466,16 +457,12 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
-                               path=monGroupPath,
+    monGroup.defineHistogram('hEFEta,hEFPhi', type='TH2F', title='Eta vs Phi; #eta ; #phi',
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
-    monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
-                               path=monGroupPath,
-                               xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
-   
-    monGroup.defineHistogram('hEFEta;hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
-                               path=monGroupPath,
-                               xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
+    monGroup.defineHistogram('hEFEt,hEFPhi', type='TH2F',  title='Et vs Phi; E_{T} [GeV]; #phi',
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=16,ymin=-3.2,ymax=3.2) 
+    monGroup.defineHistogram('hEFEt,hEFEta', type='TH2F',  title='Et vs Eta; E_{T} [GeV]; #eta',
+                               xbins=50,xmin=etmin,xmax=etmax,ybins=26,ymin=-2.6,ymax=2.6)
    
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
@@ -493,7 +480,7 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
 
-    monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
+    monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=-1,xmax=1)
     monGroup.defineHistogram('BDTJetScoreSigTrans', title='Flattened BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
 
 
@@ -507,16 +494,15 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('CentFrac', title='Centrality Fraction ('+nProng+') non-corrected; centFrac; Candidates',xbins=50,xmin=-0.05,xmax=1.2)
     monGroup.defineHistogram('ChPiEMEOverCaloEME', title='ChPiEMEOverCaloEME ('+nProng+') non-corrected; ChPiEMEOverCaloEME; Candidates',xbins=51,xmin=-20,xmax=20)
     monGroup.defineHistogram('EMPOverTrkSys', title='EMPOverTrkSys ('+nProng+') non-corrected; EMPOverTrkSys; Candidates',xbins=41,xmin=0,xmax=40)
-    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=51,xmin=-0.1,xmax=25)
-    monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.5)
+    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=50,xmin=-2.5,xmax=2.5)
+    monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.2)
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+') non-corrected; ptRatioEflowApprox; Candidates',xbins=50,xmin=0,xmax=2)
-    monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
     if nProng=='1P':
       monGroup.defineHistogram('SumPtTrkFrac', title='SumPtTrkFrac ('+nProng+') non-corrected; SumPtTrkFrac; Candidates',xbins=50,xmin=-0.5,xmax=1.1)
 
     if nProng=='MP':
       monGroup.defineHistogram('dRmax', title='dRmax ('+nProng+') non-corrected; dRmax; Candidates',xbins=50,xmin=-0.1,xmax=0.3)
-      monGroup.defineHistogram('massTrkSys', title='massTrkSys ('+nProng+') non-corrected; massTrkSys; Candidates',xbins=50,xmin=-0.1,xmax=15)
-      monGroup.defineHistogram('mEflowApprox', title='mEflowApprox ('+nProng+') non-corrected; mEflowApprox; Candidates',xbins=61,xmin=-0.2,xmax=60.2)
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys ('+nProng+') non-corrected; massTrkSys; Candidates',xbins=50,xmin=2.0,xmax=6.)
+      monGroup.defineHistogram('mEflowApprox', title='mEflowApprox ('+nProng+') non-corrected; mEflowApprox; Candidates',xbins=50,xmin=0.0,xmax=10.)
       monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+') non-corrected; trFlightPathSig; Candidates',xbins=50,xmin=-20,xmax=20)

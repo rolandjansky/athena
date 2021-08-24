@@ -36,6 +36,11 @@ StatusCode PixelDetectorElementCondAlg::initialize()
   // We need the detector manager
   ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
+  // used only if they exist
+  ATH_CHECK(m_trtDetElContKey.initialize());
+  ATH_CHECK(m_muonManagerKey.initialize());
+  ATH_CHECK(m_SCT_readKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -62,7 +67,6 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // ____________ Construct new Write Cond Object ____________
   std::unique_ptr<InDetDD::SiDetectorElementCollection> writeCdo{std::make_unique<InDetDD::SiDetectorElementCollection>()};
-  EventIDRange rangeW;
 
   // ____________ Get Read Cond Object ____________
   SG::ReadCondHandle<GeoAlignmentStore> readHandle{m_readKey, ctx};
@@ -72,10 +76,32 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
-  // Define validity of the output cond object and record it
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
+  // Add dependency for IOV range
+  writeHandle.addDependency(readHandle);
+  // Additional dependencies for IOV range to limit lifetime to TrackingGeometry lifetime
+  for (const SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> &key :m_muonManagerKey ) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDependency{key, ctx};
+    if (*muonDependency != nullptr){
+       writeHandle.addDependency(muonDependency);
+    } else {
+       ATH_MSG_WARNING("MuonManager not found, ignoring Muons for PixelDetElement lifetime");
+    }
+  }
+  for (const SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> &key :m_trtDetElContKey ) {
+    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDependency{key, ctx};
+    if (*trtDependency != nullptr){
+      writeHandle.addDependency(trtDependency);
+    } else {
+      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for PixelDetElement lifetime");
+    }
+  }
+  for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_SCT_readKey ) {
+    SG::ReadCondHandle<GeoAlignmentStore> sctDependency{key, ctx};
+    if (*sctDependency != nullptr){
+      writeHandle.addDependency(sctDependency);
+    } else {
+      ATH_MSG_WARNING("SCT AlignmentStore not found, ignoring SCT for PixelDetElement lifetime");
+    }
   }
 
   // ____________ Update writeCdo using readCdo ____________
@@ -90,7 +116,7 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
                                             oldEl->getCommonItems(),
                                             readCdo);
     oldToNewMap[oldEl] = *newEl;
-    newEl++;
+    ++newEl;
   }
 
   // Set neighbours and other side
@@ -110,7 +136,7 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
     if (layer) {
       newEl->surface().associateLayer(*layer);
     }
-    oldIt++;
+    ++oldIt;
   }
 
   // Apply alignment using readCdo passed to SiDetectorElement
@@ -120,15 +146,14 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // Record WriteCondHandle
   const std::size_t size{writeCdo->size()};
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW 
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " <<  writeHandle.getRange()
       << " with size of " << size << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
-

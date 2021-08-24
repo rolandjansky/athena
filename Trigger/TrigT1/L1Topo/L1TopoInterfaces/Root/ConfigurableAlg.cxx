@@ -258,7 +258,7 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax) {
   std::string xmin_str = ToString(xmin);
   std::string xmax_str = ToString(xmax);
   std::string newTitle = xmin_str+title+xmax_str;
@@ -296,7 +296,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
   auto usPos = title.find(" vs ");
   std::string xName = title.substr(0,usPos);
   std::string yName = title.substr(usPos+4);
@@ -376,6 +376,27 @@ std::string ConfigurableAlg::ToString(const int val)
   std::ostringstream temp;
   temp << val_int;
   return temp.str();
+}
+
+bool
+ConfigurableAlg::isocut(const std::string threshold, const unsigned int bit) {
+  unsigned int value = 0;
+  if (threshold == "None") {value = 0;}
+  else if (threshold == "Loose") {value = 1;}
+  else if (threshold == "Medium") {value = 2;}
+  else if (threshold == "Tight") {value = 3;}
+  else {
+    TRG_MSG_WARNING("No isolation defined as " << threshold);
+  }
+  
+  if (bit >= value) {return true;}
+  else {return false;}
+}
+
+bool
+ConfigurableAlg::isocut(const unsigned int threshold, const unsigned int bit) {
+  if (bit >= threshold) {return true;}
+  else {return false;}
 }
 
 namespace TCS {

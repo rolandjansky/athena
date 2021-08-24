@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LARCELLEMMISCALIB_H
@@ -55,8 +55,8 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   void smearingPerRegion();
 
   const LArEM_ID*   m_larem_id;
-  const CaloIdManager* m_caloIdMgr;
-  const CaloDetDescrManager* m_calodetdescrmgr;
+  const CaloIdManager* m_caloIdMgr = nullptr;
+  const CaloDetDescrManager* m_calodetdescrmgr = nullptr;
 
   IAtRndmGenSvc* m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* m_engine;

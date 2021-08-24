@@ -15,11 +15,16 @@ def getNewConfigFlags():
     elif jobproperties.Global.InputFormat() == 'pool':
         ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput.get_Value()
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
-    ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing
-
+    ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
     # Geometry - General
     ConfigFlags.GeoModel.AtlasVersion = jobproperties.Global.DetDescrVersion()
     ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
+
+    # Concurrency
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+    ConfigFlags.Concurrency.NumProcs = jp.ConcurrencyFlags.NumProcs()
+    ConfigFlags.Concurrency.NumThreads = jp.ConcurrencyFlags.NumThreads()
+
 
     # Let's build a map whose key is new flagname, and whose value is old flagname.
     geom_flag_map = {}

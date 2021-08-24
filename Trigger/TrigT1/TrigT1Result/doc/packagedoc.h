@@ -20,7 +20,6 @@ Usually they are written to RDO or BS files.
   Result classes:
 
   - ROIB::RoIBResult
-  - ROIB::RecRoIBResult
   - ROIB::CTPResult
   - ROIB::MuCTPIResult
   - ROIB::EMTauResult
@@ -44,7 +43,7 @@ Usually they are written to RDO or BS files.
   - ROIB::Header
   - ROIB::Trailer
 
-  For all classes, except ROIB::RecRoIBResult, a dictionary exist. 
+  For all classes a dictionary exists.
   See @link TrigT1ResultDict.h @endlink and @link selection.xml @endlink for more details.
 
 @section TrigT1Result_TrigT1Result Extra Pages

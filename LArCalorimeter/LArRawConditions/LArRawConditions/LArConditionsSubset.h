@@ -51,7 +51,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include "LArRawConditions/LArConditionsContainerBase.h"
 
 /**
  * @brief Traits class giving the types to use for the objects
@@ -243,10 +243,6 @@ public:
     void                    fillMap(); 
 
 private:
-    /// Size of channel vector
-    enum Subset_size {
-	NCHANNELPERFEB = 128
-    };
 
     class PairSort 
     {
@@ -331,7 +327,7 @@ LArConditionsSubset<T>::LArConditionsSubset(const std::vector<FebId>&  ids,
 	// NOTE: we move the resize of the channel vector for each feb
 	// to the non-const find method below. This allows to keep the
 	// overall subset size to a minimum for non-full subsets..
-	//m_subset[i].second.resize(NCHANNELPERFEB);
+	//m_subset[i].second.resize(channelVectorSize());
     }
     // Fill map for future lookups
     fillMap();
@@ -385,7 +381,7 @@ LArConditionsSubset<T>::findChannelVector(FebId  febID)
 	if (index < m_subset.size()) {
 	    // check that channel vector has been resized already
 	    if (m_subset[index].second.size() == 0) {
-		m_subset[index].second.resize(NCHANNELPERFEB);
+		m_subset[index].second.resize(channelVectorSize());
 	    }
 	    return (m_subset.begin() + index);
 	}
@@ -541,7 +537,7 @@ LArConditionsSubset<T>::initialize (const std::vector<FebId>&  ids, unsigned int
     // Loop over fed id list, insert id and resize channel vector
     for (unsigned int i = 0; i < ids.size(); ++i) {
 	m_subset[i].first = ids[i];
-	m_subset[i].second.resize(NCHANNELPERFEB);
+	m_subset[i].second.resize(channelVectorSize());
     }
 
     // Fill map for future lookups
@@ -611,7 +607,8 @@ inline
 unsigned
 LArConditionsSubset<T>::channelVectorSize() const
 {
-  return NCHANNELPERFEB;
+ //SuperCells have 312 channels per FEB, the regular readout has 128.
+  return m_groupingType == LArConditionsContainerBase::SuperCells ? 312 : 128;
 }
 
 

@@ -72,7 +72,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if 'truthpartdressedwz' not in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartdressedwz", OutputName="JetInputTruthParticlesDressedWZ",
                                           MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                          IncludePromptLeptons=False,IncludePromptPhotons=False,
+                                          IncludePromptLeptons=False,IncludePromptPhotons=True,
                                           IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
                                           FSRPhotonCone=-1., DressingDecorationName=decorationDressing
                                          )

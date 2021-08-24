@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnhancedBiasWeighter includes
@@ -64,7 +64,7 @@ StatusCode EnhancedBiasWeighter::initialize()
 
     } // end isData
 
-    if (m_useBunchCrossingTool) ATH_CHECK( m_bunchCrossingKey.initialize() );
+    if (m_useBunchCrossingData) ATH_CHECK( m_bunchCrossingKey.initialize() );
 
   } else {
     ATH_MSG_INFO ("calculateWeightingData is FALSE. This job must be running over an EnhancedBias TRIG1 dAOD which has already been decorated with weighting data.");
@@ -220,6 +220,7 @@ StatusCode EnhancedBiasWeighter::loadLumi()
 
       XMLNodePointer_t node = xml->GetChild( listNode );
       while( node != 0) { 
+        m_bunches.push_back( std::atoi( xml->GetNodeContent(node) ) );
         if ( xml->GetNodeName(node) == std::string("bunchgroup") && xml->HasAttr(node, "name") &&
             (std::string(xml->GetAttr(node, "name")) == "Paired" || std::string(xml->GetAttr(node, "name")) == "Filled")) {
           m_pairedBunches = std::atoi( xml->GetNodeContent(node) );
@@ -781,7 +782,7 @@ StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eve
 {
   if (m_calculateWeightingData) {
 
-    if (!m_useBunchCrossingTool) return StatusCode::SUCCESS;
+    if (!m_useBunchCrossingData) return StatusCode::SUCCESS;
 
     const EventContext& context = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<BunchCrossingCondData> bunchCrossingTool (m_bunchCrossingKey, context);

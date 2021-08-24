@@ -123,7 +123,7 @@ void eSuperCellTowerMapper::reset(){
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID
     int region = idHelper->region(ID);
-    float et = (cell)->energy();
+    float et = (cell)->energy()/cosh((cell)->eta());
     int pos_neg = idHelper->pos_neg(ID);
     //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
     if(abs(pos_neg) == 3){ continue; }

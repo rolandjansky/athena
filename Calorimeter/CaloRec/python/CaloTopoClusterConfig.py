@@ -298,12 +298,23 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
     result.setPrivateTools(TopoSplitter)
     return result
 
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopoClusters",doLCCalib=None):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname=None,doLCCalib=None):
     """
     Configures topo clustering
 
     If output writing is enabled (ESD,AOD) the topo clusters are added to them
     """
+
+    if doLCCalib is None:
+        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+        
+    if clustersname is None:
+        clustersname="CaloCalTopoClusters" if doLCCalib else "CaloTopoClusters"
+
+
+    if clustersname=="CaloTopoClusters" and doLCCalib is True: 
+        raise RuntimeError("Inconistent arguments: Name must not be 'CaloTopoClusters' if doLCCalib is True")
+
     result=ComponentAccumulator()
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -319,11 +330,6 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
     result.merge(LArGMCfg(configFlags))
 
     result.merge(TileGMCfg(configFlags))
-
-    if not doLCCalib:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
-    else:
-        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname,SetCrossLinks=True)
 
     TopoMaker = result.popToolsAndMerge( CaloTopoClusterToolCfg(configFlags, cellsname=cellsname))
     TopoSplitter = result.popToolsAndMerge( CaloTopoClusterSplitterToolCfg(configFlags) )
@@ -348,13 +354,12 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="CaloCalTopo
 
     momentsMaker=result.popToolsAndMerge(getTopoMoments(configFlags))
     CaloTopoCluster.ClusterCorrectionTools += [momentsMaker]
-
-    if doLCCalib is None:
-        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+    CaloTopoCluster.ClustersOutputName=clustersname
+    
     if doLCCalib:
+        theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoClusters",SetCrossLinks=True)        
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
         #if not clustersname:
-        CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         CaloTopoCluster.ClusterCorrectionTools += getTopoClusterLocalCalibTools(configFlags)
 
         from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
@@ -379,7 +384,7 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]  
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]  
     ConfigFlags.Output.ESDFileName="esdOut.pool.root"
 
     ConfigFlags.lock()
@@ -412,6 +417,9 @@ if __name__=="__main__":
         StreamName = 'StreamAOD'
     )
     cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
+
+    
+    cfg.addEventAlgo(CompFactory.ClusterDumper("TopoDumper",ContainerName=theKey,FileName="NewTopoClusters.txt"))
 
 #    cfg.getService("StoreGateSvc").Dump=True
 

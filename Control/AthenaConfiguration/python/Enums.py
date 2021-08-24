@@ -6,4 +6,6 @@ class ProductionStep(Enum):
     # steps should be added when needed
     Default = 'Default'
     Simulation = 'Simulation'
+    PileUpPresampling = 'PileUpPresampling'
     Overlay = 'Overlay'
+    FastChain = 'FastChain'

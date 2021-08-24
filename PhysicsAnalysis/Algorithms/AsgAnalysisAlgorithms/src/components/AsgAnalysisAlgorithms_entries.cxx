@@ -23,7 +23,6 @@
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/PMGTruthWeightAlg.h>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
-#include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>
 
@@ -46,6 +45,5 @@ DECLARE_COMPONENT (CP::OverlapRemovalAlg)
 DECLARE_COMPONENT (CP::PileupReweightingAlg)
 DECLARE_COMPONENT (CP::PMGTruthWeightAlg)
 DECLARE_COMPONENT (CP::SysListDumperAlg)
-DECLARE_COMPONENT (CP::SysListLoaderAlg)
 DECLARE_COMPONENT (CP::TreeFillerAlg)
 DECLARE_COMPONENT (CP::TreeMakerAlg)

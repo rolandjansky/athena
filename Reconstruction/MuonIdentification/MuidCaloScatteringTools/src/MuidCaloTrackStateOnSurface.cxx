@@ -268,19 +268,8 @@ namespace Rec {
         if (caloTSOS.empty()) { ++m_countCompleteFailure; }
         return caloTSOS;
     }
-    std::vector<const Trk::TrackStateOnSurface*>* MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) const {
-        std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> tsos = caloTSOS(Gaudi::Hive::currentContext(), parameters);
-        if (tsos.empty()) return nullptr;
-        std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = new std::vector<const Trk::TrackStateOnSurface*>;
-        caloTSOS->reserve(3);
-        for (auto& ele : tsos) caloTSOS->push_back(ele.release());
-        return caloTSOS;
-    }
-    const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::innerTSOS(const Trk::TrackParameters& parameters) const {
-        return innerTSOS(Gaudi::Hive::currentContext(), parameters).release();
-    }
     std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::innerTSOS(const EventContext& ctx,
-                                                                                     const Trk::TrackParameters& parameters) const {
+                                                                                           const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Inner);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" innerTSOS:  extrapolation fails ");
@@ -288,12 +277,8 @@ namespace Rec {
         }
         return m_caloMaterialParam->trackStateOnSurface(*extrapolation);
     }
-    const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::outerTSOS(const Trk::TrackParameters& parameters) const {
-        return outerTSOS(Gaudi::Hive::currentContext(), parameters).release();
-    }
-
     std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::outerTSOS(const EventContext& ctx,
-                                                                                     const Trk::TrackParameters& parameters) const {
+                                                                                           const Trk::TrackParameters& parameters) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, parameters, SurfaceLayer::Outer);
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {
             ATH_MSG_DEBUG(" outerTSOS:  extrapolation fails ");
@@ -301,16 +286,10 @@ namespace Rec {
         }
         return m_caloMaterialParam->trackStateOnSurface(*extrapolation);
     }
-
-    const Trk::TrackStateOnSurface* MuidCaloTrackStateOnSurface::middleTSOS(const Trk::TrackParameters& middleParams,
-                                                                            const Trk::TrackParameters* innerParams,
-                                                                            const Trk::TrackParameters* outerParams) const {
-        return middleTSOS(Gaudi::Hive::currentContext(), middleParams, innerParams, outerParams).release();
-    }
     std::unique_ptr<Trk::TrackStateOnSurface> MuidCaloTrackStateOnSurface::middleTSOS(const EventContext& ctx,
-                                                                                      const Trk::TrackParameters& middleParams,
-                                                                                      const Trk::TrackParameters* innerParams,
-                                                                                      const Trk::TrackParameters* outerParams) const {
+                                                                                            const Trk::TrackParameters& middleParams,
+                                                                                            const Trk::TrackParameters* innerParams,
+                                                                                            const Trk::TrackParameters* outerParams) const {
         std::unique_ptr<const Trk::TrackParameters> extrapolation = getExtrapolatedParameters(ctx, middleParams, SurfaceLayer::Middle);
 
         if (!extrapolation || extrapolation->position().perp() < m_minCaloRadius) {

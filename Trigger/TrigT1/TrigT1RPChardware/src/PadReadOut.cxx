@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<fstream>
@@ -15,22 +15,13 @@ PadReadOut::PadReadOut(ubit16 padID, MatrixReadOut* MROlist[8])
                       : BaseObject(Hardware,"PadReadOut") {
 m_padID=padID;
 //
-DISP<<" WELCOME in PadReadOut: PadID= " << m_padID;
-DISP_DEBUG;
-//
 // copy MROlist pointers to m_MROlist
 //
 for(ubit16 i=0; i<8; i++) {m_MROlist[i]=MROlist[i];}
 reset();
 makeFragment();
-DISP<<" After makeFragment number of Words in PAD body ="
-    <<m_numberOfWordsInFragment;
-DISP_DEBUG;
+//cout<<" After makeFragment number of Words in PadID" << padID << " body =" << m_numberOfWordsInFragment<<endl;
 topPADBody();
-for(ubit16 i=0; i<m_numberOfWordsInFragment; i++) {
- DISP<<" output is "<<hex<<readPADWord()<<dec;
- DISP_DEBUG;
-}
 decodeBytestream();
 //
 }//end-of-PadReadOut::PadReadOut
@@ -72,8 +63,7 @@ headerval[1] = m_padID;
 headerval[2] = 0; // Status bits (to be defined yet)
 m_Header = m_PROS.makeHeader(headerval);
 m_numberOfWordsInFragment+=1;
-DISP<<" Header: "<<hex<<m_Header<<dec<<endl;
-DISP_DEBUG;
+//cout<<" Header: "<<hex<<m_Header<<dec<<endl;
 }//end-of-PadReadOut::makeHeader()
 //----------------------------------------------------------------------------//
 void PadReadOut::makeFooter() {
@@ -83,37 +73,30 @@ m_Footer = m_PROS.makeFooter(errorCodes);
 m_numberOfWordsInFragment+=1;
 }//end-of-PadReadOut::makeFooter()
 //----------------------------------------------------------------------------//
-void PadReadOut::makeBody() {
+void PadReadOut::makeBody(bool debugPrint) {
 MatrixReadOut *CMAFragment[8]={0};
 MatrixReadOutStructure MROS;
 ubit16 numberOfCMBodyWords=0;
 ubit16 i;
-DISP<<" makeBody "<<endl;
-DISP_DEBUG;
+if (debugPrint) cout <<" makeBody "<<endl;
 
 for(i=0; i<8; i++) {
  if(m_MROlist[i]) {
-  DISP<<m_MROlist[i]<<endl;
-  DISP_DEBUG;
+  if (debugPrint) cout<<m_MROlist[i]<<endl;
   MROS = m_MROlist[i]->getHeader();
   numberOfCMBodyWords=m_MROlist[i]->numberOfBodyWords();
   ubit16 cmid = MROS.cmid();
-  DISP<<" Identificatore di questa Matrice e': "<<cmid<<endl
-      <<"                    il numnero di Body words = "<<numberOfCMBodyWords;
-  DISP_DEBUG;
+  if (debugPrint) cout<<" Identificatore di questa Matrice e': "<<cmid<<endl
+      <<"                    il numnero di Body words = "<<numberOfCMBodyWords<<endl;
   if(cmid<8 ) {
    if(!CMAFragment[cmid]) {
     CMAFragment[cmid] = m_MROlist[i];
    } else {
-    DISP<<" PadReadOut::makeBody: more than one CMA with address "
-        <<cmid;
-    DISP_DEBUG;
+    if (debugPrint) cout<<" PadReadOut::makeBody: more than one CMA with address "<<cmid<<endl;
    }
-   DISP<<" Matrix: "<<hex<<m_MROlist[i]->readHeader()<<dec<<endl;
-   DISP_DEBUG;
+   if (debugPrint) cout<<" Matrix: "<<hex<<m_MROlist[i]->readHeader()<<dec<<endl;
   } else {
-   DISP<<" PadReadOut::makeBody: cmid address "<<cmid<<" is bad ";
-   DISP_DEBUG;
+   if (debugPrint) cout<<" PadReadOut::makeBody: cmid address "<<cmid<<" is bad "<<endl;
   }//end-of-if(cmid<8  
  }//end-of-if(m_MROlist
 }//end-of-while
@@ -124,16 +107,14 @@ ubit16 j=0;
 for(i=0; i<8; i++) {
  if(CMAFragment[i]) {
   m_CMAFragment[j]=CMAFragment[i];
-  DISP<<" makeBody; number of CM WOrds="
-      <<m_CMAFragment[j]->numberOfFragmentWords();
-  DISP_DEBUG;
+  if (debugPrint) cout<<" makeBody; number of CM WOrds="
+      <<m_CMAFragment[j]->numberOfFragmentWords()<<endl;
   m_numberOfWordsInFragment+=m_CMAFragment[j]->numberOfFragmentWords();
   j++;
  }//end-of-if(
 }//end-of-for(i
 m_numberOfCMFragments=j;
-DISP<<" Number of CMA Fragments= "<<m_numberOfCMFragments;
-DISP_DEBUG;
+if (debugPrint) cout<<" Number of CMA Fragments= "<<m_numberOfCMFragments<<endl;
 }//end-of-PadReadOut::makeBody
 //----------------------------------------------------------------------------//
 ubit16 PadReadOut::readHeader() {
@@ -147,12 +128,11 @@ ubit16 PadReadOut::readFooter() {
 ubit16 PadReadOut::readBody() {
 ubit16 output=0xffff;
 
-//DISP<<" m_newCMIndex "<<m_newCMIndex
+//cout<<" m_newCMIndex "<<m_newCMIndex
 //    <<" m_newCMRO "<<m_newCMRO
 //    <<" m_numberOfWordsInCMRO "<<m_numberOfWordsInCMRO
 //    <<" m_numberOfWordsRead "<<m_numberOfWordsRead
 //    <<" m_endOfCMFragments "<<m_endOfCMFragments<<endl;
-//DISP_DEBUG;
 
  if(m_newCMRO) {
  
@@ -206,15 +186,13 @@ ubit16 padHeaderfound=0;
 topPADBody();
 for(ubit16 i=0; i<m_numberOfWordsInFragment; i++) {
  inputData = readPADWord();
- DISP<<" bytestream: current word is "<<hex<<inputData<<dec;
- DISP_DEBUG;
- 
+ //cout<<" bytestream: current word is "<<hex<<inputData<<dec<<endl;
+
  if(!padHeaderfound) {
   PROS.decodeFragment(inputData,field);
   if(PROS.isHeader()) {
    padHeaderfound+=1;
-   DISP<<" decodeBytestream: PAD Header Found ";
-   DISP_DEBUG;
+   //cout<<" decodeBytestream: PAD Header Found"<<endl;
   }
  } else {
  }

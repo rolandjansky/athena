@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOUTILS_CALOLCCOEFFHELPER_H
@@ -19,15 +19,15 @@ class CaloLCCoeffHelper {
     CaloLCCoeffHelper();
     virtual ~CaloLCCoeffHelper();
 
-    CaloLocalHadCoeff *InitDataFromFile(const char *fname);
-    void PrintData(CaloLocalHadCoeff *m_data, std::ostream &fout);
-    void PrintData(CaloLocalHadCoeff *m_data, const char *fname);
+    static CaloLocalHadCoeff *InitDataFromFile(const char *fname);
+    static void PrintData(CaloLocalHadCoeff *m_data, std::ostream &fout);
+    static void PrintData(CaloLocalHadCoeff *m_data, const char *fname);
 
-    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * m_coeff, const std::string& sname, int &m_indx) const;
+    static const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * m_coeff, const std::string& sname, int &m_indx) ;
 
     // Interpolate m_data, n_area in phase space point x, over dimensions dim (all if 0)
     // return in pars
-    bool Interpolate(const CaloLocalHadCoeff *m_data, const unsigned int n_area, std::vector<float> &x, 
+    static bool Interpolate(const CaloLocalHadCoeff *m_data, const unsigned int n_area, std::vector<float> &x, 
                      CaloLocalHadCoeff::LocalHadCoeff &pars, const std::vector<int> &dim, double xfit=0.);
 
     static CaloLocalHadDefs::LocalHadDimensionId getDimensionId(const std::string&  dimensionName)
@@ -87,7 +87,7 @@ class CaloLCCoeffHelper {
     }
 
   private:
-    CaloLocalHadCoeff::LocalHadDimension *parse_dim(std::string &sLine);
+    static CaloLocalHadCoeff::LocalHadDimension *parse_dim(std::string &sLine);
 
 };
 

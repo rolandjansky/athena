@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCPulseAnalyzer_h
@@ -86,18 +86,18 @@ private:
 
   // Default fit values and cuts that can be set via modifier methods
   //
-  int m_HGOverflowADC;
-  int m_HGUnderflowADC;
-  int m_LGOverflowADC;
+  int m_HGOverflowADC{};
+  int m_HGUnderflowADC{};
+  int m_LGOverflowADC{};
 
-  float m_nominalT0HG;
-  float m_nominalT0LG;
+  float m_nominalT0HG{};
+  float m_nominalT0LG{};
 
-  float m_nominalTau1;
-  float m_nominalTau2;
+  float m_nominalTau1{};
+  float m_nominalTau2{};
 
-  bool m_fixTau1;
-  bool m_fixTau2;
+  bool m_fixTau1{};
+  bool m_fixTau2{};
 
   float m_defaultFitTMax;   // user-provided upper limit on samples to be included in fit
   float m_defaultFitTMin;   // user-provided upper limit on samples to be included in fit
@@ -105,11 +105,11 @@ private:
   float m_chisqDivAmpCutLG; // maximum good LG chisq / amplitude
   float m_chisqDivAmpCutHG; // maximum good HG chisq / amplitude
 
-  float m_T0CutLowLG;  // minimum good corrected time for LG fits
-  float m_T0CutHighLG; // maximum good corrected time for LG fits
+  float m_T0CutLowLG{};  // minimum good corrected time for LG fits
+  float m_T0CutHighLG{}; // maximum good corrected time for LG fits
 
-  float m_T0CutLowHG;  // minimum good corrected time for HG fits
-  float m_T0CutHighHG; // maximum good corrected time for HG fits
+  float m_T0CutLowHG{};  // minimum good corrected time for HG fits
+  float m_T0CutHighHG{}; // maximum good corrected time for HG fits
 
   float m_defaultT0Max;   // Upper limit on pulse t0
   float m_defaultT0Min;   // Lower limit on pulse t0

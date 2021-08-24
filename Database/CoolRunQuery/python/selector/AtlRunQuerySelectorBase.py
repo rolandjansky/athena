@@ -121,29 +121,27 @@ class DataKey(object):
 
 
 class Selector(object):
-    __conddb = None
+    _conddb = None
     condtag = ""
 
     @staticmethod
     def setCondDBMC():
-        Selector.__conddb = 'OFLP200'
+        Selector._conddb = 'OFLP200'
 
     @staticmethod
     def condDB(run_number = None ):
         if not run_number:
-            if Selector.__conddb:
-                return Selector.__conddb
+            if Selector._conddb:
+                return Selector._conddb
             raise RuntimeError("CondDB not yet set")
 
-        Selector.__conddb = "CONDBR2" if run_number > 236100 else "COMP200"
-        print ("Determinded %s, based on run number %i" % (Selector.__conddb, run_number))
-        return Selector.__conddb
+        Selector._conddb = "CONDBR2" if run_number > 236100 else "COMP200"
+        print ("Determinded %s, based on run number %i" % (Selector._conddb, run_number))
+        return Selector._conddb
 
     @staticmethod
     def isRun2(run_number = None ):
         return Selector.condDB(run_number)=="CONDBR2"
-
-
 
     def __init__(self, name):
         self.name = name
@@ -161,7 +159,6 @@ class Selector(object):
         pass
 
 
-
 class Condition(Selector):
     def __init__(self, name, dbfolderkey, channelKeys):
         super(Condition,self).__init__(name)
@@ -175,7 +172,6 @@ class Condition(Selector):
         self.folder, self.tagname = (foldertag.split('#')+[''])[0:2]
         if self.tagname=="":
             self.tagname = self.condtag
-        
         
     def setChannelKeys(self,channelKeys,ssr=None):
         self.data_keys = [DataKey(x) for x in channelKeys]
@@ -228,8 +224,6 @@ class Condition(Selector):
             self._doSelectShowRetrieve += [ 1 ] 
         self._channeldesc = self.data_keys
 
-        
-
     def ResultKey(self):
         return self._resultKey
 
@@ -275,7 +269,7 @@ class RunLBBasedCondition(Condition):
                 chansel = cool.ChannelSelection(ch1,ch2,cool.ChannelSelection.sinceBeforeChannel)
             else:
                 chansel.addRange(ch1,ch2)
-        print (self.name,"browsing objects with tag",self.tagname)
+        #print (self.name,"browsing objects with tag",self.tagname)
         return coolgen(f.browseObjects( iovmin, iovmax, chansel, self.tagname))
 
     def findPayload(self, runNr, iovpllist):
@@ -319,7 +313,7 @@ class RunLBBasedCondition(Condition):
             # truncate first IOV to a single run
             iovplbyrun[0][0].truncateToSingleRun(runnr)
 
-            # sometimes and IOV has [RunLB1 - RunLB2), where RunLB2 has LB==1
+            # sometimes an IOV has [RunLB1 - RunLB2), where RunLB2 has LB==1
             # -> that gets truncated to [RunLB2 - RunLB2), which is obviously not valid
             # -> so we slice that right out
             if iovplbyrun[0][0].startTime == iovplbyrun[0][0].endTime:
@@ -349,8 +343,6 @@ class RunLBBasedCondition(Condition):
 
         return pld
 
-
-
     def readCondData(self, runranges, f, sortedRanges):
         # get the data from cool
         condData = defaultdict(list)
@@ -378,9 +370,6 @@ class RunLBBasedCondition(Condition):
                     condData[internalKey].append( (IOVRange(obj.iovrange), payload) )
 
         return condData
-
-
-
 
     def select(self, runlist):
         print (self, end='')
@@ -558,12 +547,7 @@ class TimeBasedCondition(Condition):
 
 
     def select(self, runlist):
-        runlistNo = []
-        for run in runlist:
-           runlistNo.append(run.runNr)
-        print('runlistNo: ', runlistNo)
-        print (self, end='')
-        sys.stdout.flush()
+        runlistNo = [run.runNr for run in runlist]
         start = time()
         newrunlist = []
         f = coolDbConn.GetDBConn(schema=self.schema, db=Selector.condDB()).getFolder(self.folder)

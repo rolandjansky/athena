@@ -10,16 +10,14 @@ atlas_add_library( BTaggingLib
                    src/BTagSecVertexing.cxx
                    src/BTagLightSecVertexing.cxx
                    src/JetBTaggerTool.cxx
-                   src/JetBTaggerAlg.cxx
                    src/JetBTaggingAlg.cxx
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
-                   src/JetParticleAssociationAlg.cxx
                    src/JetSecVertexingAlg.cxx
                    src/JetSecVtxFindingAlg.cxx
                    src/BTagTrackAugmenterAlg.cxx
                    PUBLIC_HEADERS BTagging
-                   LINK_LIBRARIES AsgTools AthContainers AthenaBaseComps CxxUtils FlavorTagDiscriminants GaudiKernel GeoPrimitives JetInterface MagFieldConditions ParticleJetToolsLib StoreGateLib TrkExInterfaces TrkVertexFitterInterfaces VxSecVertex VxVertex xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking
+                   LINK_LIBRARIES AsgTools AthContainers AthenaBaseComps CxxUtils FlavorTagDiscriminants GaudiKernel GeoPrimitives JetInterface JetRecLib MagFieldConditions ParticleJetToolsLib StoreGateLib TrkExInterfaces TrkVertexFitterInterfaces VxSecVertex VxVertex xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking
                    PRIVATE_LINK_LIBRARIES InDetRecToolInterfaces JetTagEvent JetTagToolsLib Particle TrkLinks TrkSurfaces VxJetVertex xAODBase xAODCore )
 
 atlas_add_component( BTagging

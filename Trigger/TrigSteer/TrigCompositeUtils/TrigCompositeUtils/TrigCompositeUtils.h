@@ -287,9 +287,12 @@ namespace TrigCompositeUtils {
    * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
    * @param[in] eventStore Pointer to event store within current event context
    * @param[in] ids IDs of chain (if multi-leg chain, include all legs) to located failed decision nodes for. Passing an empty set returns all decision nodes which failed at least one chain.
+   * @param[in] keysToIgnore Set of SG keys of containers which should not be explored by getRejectedDecisionNodes.
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids = {});
+  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, 
+    const DecisionIDContainer ids = {},
+    const std::set<std::string>& keysToIgnore = std::set<std::string>());
 
 
   /**
@@ -355,7 +358,7 @@ namespace TrigCompositeUtils {
   const std::string& featureString();
   const std::string& seedString();
 
-  const std::string& l1DecoderNodeName();
+  const std::string& hltSeedingNodeName();
   const std::string& filterNodeName();
   const std::string& inputMakerNodeName();
   const std::string& hypoAlgNodeName();
@@ -368,7 +371,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Removes ElementLinks from the supplied vector if they do not come from the specified collection (sub-string match).
    * @param[in] containerSGKey The StoreGate key of the collection to match against. Performs sub-string matching. Passing "" performs no filtering.
-   * @param[in,out] vector Mutible vector of ElementLinks on which to filter.
+   * @param[in,out] vector Mutable vector of ElementLinks on which to filter.
    **/
   template<class CONTAINER>
   void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
@@ -427,7 +430,7 @@ namespace TrigCompositeUtils {
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
    * @param[inout] links Reference to vector, this will be populated with the found links. 
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @param[inout] fullyExploredFrom Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
@@ -445,7 +448,7 @@ namespace TrigCompositeUtils {
    * @param[in] start the Decision Object from where recursive search should begin
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @return Vector with the found links. 
    */
@@ -464,6 +467,7 @@ namespace TrigCompositeUtils {
    * @param[out] key The storegate key (hash) of the located link's collection
    * @param[out] clid The class ID of the link's collection
    * @param[out] index The link's index inside its collection.
+   * @param[out] source The link's originating Decision object.
    * @param[in] suppressMultipleLinksWarning findLink will print a warning if more than one ElementLink is found, this can be silenced here.
    * @return True if a link was located
    */
@@ -472,6 +476,19 @@ namespace TrigCompositeUtils {
     uint32_t& key,
     uint32_t& clid,
     uint16_t& index,
+    const Decision*& source,
+    const bool suppressMultipleLinksWarning = false);
+
+  /**
+   * @brief Version of typelessFindLink which operates on a sub-graph (described by the NavGraph), rather than the whole navigation graph.
+   * If the supplied NavGraph has more than one entry point, then all will be explored.
+   */
+  bool typelessFindLink(const NavGraph& subGraph, 
+    const std::string& linkName,
+    uint32_t& key,
+    uint32_t& clid,
+    uint16_t& index,
+    const Decision*& source,
     const bool suppressMultipleLinksWarning = false);
 
   /**
@@ -480,21 +497,46 @@ namespace TrigCompositeUtils {
    * Populates provided vectors with all located links of the corresponding linkName. 
    * @param[in] start the Decision Object from where recursive search should begin
    * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
-   * @param[inout] key The return vector of the storegate key (hash) of the located link's collection
-   * @param[inout] clid The return vector of the class ID of the link's collection
-   * @param[inout] index The return vector of the link's index inside its collection.
+   * @param[inout] keyVec The return vector of the storegate key (hash) of the located link's collection
+   * @param[inout] clidVec The return vector of the class ID of the link's collection
+   * @param[inout] indexVec The return vector of the link's index inside its collection.
+   * @param[inout] sourceVec The return vector of the link's originating Decision object.
    * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
-                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          way back to the HLTSeeding, or TrigDefs::lastFeatureOfType to exit early from each
                           branch once a link has been located and collected. 
    * @param[inout] fullyExploredFrom Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
   bool typelessFindLinks(const Decision* start, 
     const std::string& linkName,
+    std::vector<uint32_t>& keyVec,
+    std::vector<uint32_t>& clidVec,
+    std::vector<uint16_t>& indexVec,
+    std::vector<const Decision*>& sourceVec,
+    const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
+    std::set<const Decision*>* fullyExploredFrom = nullptr);
+
+  /**
+   * @brief Version of typelessFindLinks which operates on a sub-graph (entered via the supplied NavGraphNode), rather than the whole navigation graph.
+   */
+  bool typelessFindLinks(const NavGraphNode* start, 
+    const std::string& linkName,
     std::vector<uint32_t>& key,
     std::vector<uint32_t>& clid,
     std::vector<uint16_t>& index,
+    std::vector<const Decision*>& sourceVec,
     const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
-    std::set<const xAOD::TrigComposite*>* fullyExploredFrom = nullptr);
+    std::set<const Decision*>* fullyExploredFrom = nullptr);
+
+  /**
+   * @brief Common functionality shared by both typelessFindLinks interfaces
+   * Returns true if at least one link was collected.
+   */
+  bool typelessFindLinksCommonLinkCollection(const Decision* start,
+    const std::string& linkName,
+    std::vector<uint32_t>& keyVec, 
+    std::vector<uint32_t>& clidVec,
+    std::vector<uint16_t>& indexVec, 
+    std::vector<const Decision*>& sourceVec);
 
   /**
    * @brief Produce the combinations for a set of features

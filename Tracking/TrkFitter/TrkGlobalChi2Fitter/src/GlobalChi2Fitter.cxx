@@ -245,12 +245,14 @@ namespace Trk {
     }
 
 #ifdef LEGACY_TRKGEOM
-    if (!m_trackingGeometrySvc.empty()) {
+    if (m_trackingGeometryReadKey.key().empty()) {
       ATH_CHECK(m_trackingGeometrySvc.retrieve());
       ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     }
 #endif
-    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
+    if (!m_trackingGeometryReadKey.key().empty()){
+      ATH_CHECK( m_trackingGeometryReadKey.initialize());
+    }
     if (m_useCaloTG) {
       ATH_CHECK(m_caloMaterialProvider.retrieve());
       ATH_MSG_INFO(m_caloMaterialProvider << " retrieved ");
@@ -645,7 +647,7 @@ namespace Trk {
 
     if ((tp_closestmuon != nullptr) && (cache.m_msEntrance != nullptr)) {
       tmppar.reset(
-        m_extrapolator->extrapolateToVolume(
+        m_extrapolator->extrapolateToVolume(ctx,
           *tp_closestmuon,
           *cache.m_msEntrance,
           propdir,
@@ -693,6 +695,7 @@ namespace Trk {
       
       if (muonsurf != nullptr) {
         matvec.reset(m_extrapolator->extrapolateM(
+          ctx,
           *tp_closestmuon, 
           *muonsurf, 
           propdir,
@@ -2632,7 +2635,7 @@ namespace Trk {
           Trk::muon)
         );
         
-        std::unique_ptr<Trk::ScatteringAngles> newsa = std::make_unique<Trk::ScatteringAngles>(
+        auto newsa = Trk::ScatteringAngles(
           0, 
           0,
           sigmascat / std::sin(tsos->trackParameters()->parameters()[Trk::theta]), 
@@ -2641,7 +2644,7 @@ namespace Trk {
         
         Trk::MaterialEffectsOnTrack newmeot(
           meff->thicknessInX0(), 
-          newsa.release(), 
+          newsa, 
           nullptr,
           tsos->surface()
         );
@@ -7260,7 +7263,7 @@ namespace Trk {
     ParticleHypothesis matEffects
   ) const {
     // Convert internal trajectory into track
-    std::unique_ptr<DataVector<const TrackStateOnSurface>> trajectory = std::make_unique<DataVector<const TrackStateOnSurface>>();
+    auto  trajectory = DataVector<const TrackStateOnSurface>();
     
     if (m_fillderivmatrix) {
       makeTrackFillDerivativeMatrix(cache, oldtrajectory);
@@ -7288,7 +7291,7 @@ namespace Trk {
       }
       
       std::unique_ptr<const TrackStateOnSurface> trackState = makeTSOS(*hit);
-      trajectory->push_back(trackState.release());
+      trajectory.push_back(trackState.release());
     }
 
     std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(tmptrajectory.chi2(), tmptrajectory.nDOF());

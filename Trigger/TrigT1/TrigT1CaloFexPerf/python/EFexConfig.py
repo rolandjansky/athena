@@ -1,10 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 def enableEfexAlgorithms( algSequence, SuperCellContainer='SCell', 
-                          doEle=True, doTau=True, logLevel = logging.INFO):
+                          doEle=True, doTau=True):
 
     log = logging.getLogger( 'TrigT1CaloFexPerf.EFexConfig' )
-    log.setLevel(logLevel)
 
     from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as perfFlags
 

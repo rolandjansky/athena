@@ -247,11 +247,10 @@ L1TopoSimulation::execute() {
      }    
 
      // set optical connectors
-      
      for( auto connOpt : l1menu->board("Topo1").connectorNames() ) {
-      topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
+       topoOutput2CTP->setOptCableWord( connOpt, globalOutput.count_field(connOpt) );
      }
-      
+     
      CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
      CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
    }
@@ -291,7 +290,7 @@ L1TopoSimulation::retrieveHardwareDecision()
                 const std::vector<uint32_t> cDataWords = rdo->getDataWords();
                 // initialise header: set version 15, BCN -7, which is unlikely
                 L1Topo::Header header(0xf,0,0,0,0,1,0x7);
-                for (auto word : cDataWords){
+                for (const uint32_t word : cDataWords){
                     switch (L1Topo::blockType(word)){
                     case L1Topo::BlockTypes::HEADER: {
                         header = L1Topo::Header(word);

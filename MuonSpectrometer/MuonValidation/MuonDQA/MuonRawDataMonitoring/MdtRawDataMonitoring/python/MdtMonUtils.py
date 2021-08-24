@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 import MdtRawDataMonitoring.MdtRawMonLabels as labels
-from ROOT import TBox, kGray, TLine
+from ROOT import TBox, kGray, TLine, TMath , TF1, kBlue, kRed
 from MdtRawDataMonitoring.MdtRawMonLabels import * # noqa
 
 def getMDTLabel(x,y):
@@ -209,3 +209,119 @@ def getTubeLength( name ):
         tubeLength = tubeLenght_dict[name04+name56]
 
     return tubeLength 
+
+
+def MDT2DHWName(name):
+   statphi_s = name[5:7]
+   eta_s = name[3:4]
+   #ME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BME4[AC]13 in histogram position
+   if(name[0:3]=="BME"):
+      eta_s = "4"
+      statphi_s = "13"
+
+   statphi_c = statphi_s+" 1"
+   statphi_c2 = statphi_s+" 2"
+   if(name[0:3]=="BIR" or name[0:3]=="BIM") :
+      statphi_c = statphi_c +" "+name[2:3]
+      statphi_c2 = statphi_c2 +" "+name[2:3]
+
+   #BML[45][AC]13-->BML[56][AC]13
+   if(name[0:3] == "BML" and int(name[3:4])>=4 and name[5:7] == "13"):
+      eta_s = str(int(name[3:4])+1)
+
+   #BMF1,2,3 corresponds to eta stations 1,3,5
+   if( name[0:3] == "BMF"):
+      eta_s=str(int(name[3:4])*2-1)
+
+   stateta_c = name[0:2]
+   stateta_c += name[4:5]
+   stateta_c += eta_s
+   
+   return (stateta_c, statphi_c, statphi_c2)
+
+
+def MDTTubeEff(name,hi_num,hi_den):
+   nBinsNum = hi_num.GetNbinsX()
+   BinsML1 = nBinsNum/2
+   if(name[0:4]=="BIS8" or name[0:2]=="BE"):
+      BinsML1=nBinsNum
+   if(nBinsNum!=hi_den.GetNbinsX()):
+      return
+   countsML1=0
+   countsML2=0
+   entriesML1=0
+   entriesML2=0
+   for ibin in range(nBinsNum):
+      entries    = hi_den.GetBinContent(ibin)
+      counts     = hi_num.GetBinContent(ibin)
+      if(ibin<BinsML1 or BinsML1==nBinsNum) :
+         countsML1+=counts
+         entriesML1+=entries
+      else:
+         countsML2+=counts
+         entriesML2+=entries
+
+   return (countsML1, countsML2, entriesML1, entriesML2)
+
+
+def fittzero(x, par):
+   fitvaltzero = par[0] + ( par[3] / ( 1 + ( TMath.Exp((-x[0]+par[1])/par[2]) ) ) )
+   return fitvaltzero
+
+
+def fittmax(x, par):
+   fitvaltmax = par[0] + ( par[3] / ( 1 + ( TMath.Exp((x[0]-par[1])/par[2]) ) ) )
+   return fitvaltmax
+
+def MDTFitTDC(h):
+   t0 = 0
+   tmax = 0
+   t0err = 0
+   tmaxerr = 0
+   up = h.GetBinCenter(h.GetMaximumBin()+1)
+   if( up > 200 ):
+      up = 200
+   down = up + 650
+   if( up < 50 ):
+      up = 50
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = up
+   parESD2 = 20
+   parESD3 = h.GetBinContent(h.GetMaximumBin()) - h.GetBinContent(h.GetMinimumBin())
+   func1 = TF1("func1", fittzero, 0., up, 4)
+   func1.SetParameters(parESD0, parESD1, parESD2, parESD3)
+   func1.SetLineColor(kBlue+2)
+   if(h.GetEntries()>100):
+      h.Fit("func1","RQN")
+      t0 = func1.GetParameter(1)
+      t0err = func1.GetParError(1)
+      binAtT0 = h.GetBinContent(h.FindBin(t0))
+      if(binAtT0<1):
+         binAtT0 = 1
+      # // to additionally account for bad fits                                                                                                                                                         
+      if(func1.GetNumberFitPoints()!=0):
+         t0err += 10.0 * func1.GetChisquare() / (0.01*binAtT0*binAtT0*func1.GetNumberFitPoints())
+
+   parESD0 = h.GetBinContent(h.GetMinimumBin())
+   parESD1 = down
+   parESD2 = 50
+   parESD3 = (h.GetBinContent(h.GetMaximumBin())-h.GetBinContent(h.GetMinimumBin()))/10.
+   func2 = TF1("func2", fittmax, (down-135), (down+135), 4)
+   func2.SetParameters(parESD0,parESD1,parESD2,parESD3)
+   func2.SetLineColor(kRed+1)
+   if(h.GetEntries()>100):
+      func2.SetParLimits(0, parESD0, 2.0*parESD0+1)
+      func2.SetParLimits(2, 5, 90)
+      func2.SetParLimits(3, 0.2*parESD3, 7*parESD3)
+      h.Fit("func2","WWRQN+")
+      tmax = func2.GetParameter(1)
+      tmaxerr = func2.GetParError(1)
+      binAtTmax = h.GetBinContent(h.FindBin(tmax))
+      if(binAtTmax<1):
+         binAtTmax = 1
+      # to additionally account for bad fits                                                                                                                                                            
+      tmaxerr += 10.0 * func2.GetChisquare() / (0.01*binAtTmax*binAtTmax*func2.GetNumberFitPoints())
+
+   return [t0, t0err, tmax, tmaxerr]
+
+

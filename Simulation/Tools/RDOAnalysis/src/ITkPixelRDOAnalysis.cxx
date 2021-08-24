@@ -19,8 +19,8 @@
 
 ITkPixelRDOAnalysis::ITkPixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_inputKey("PixelRDOs")
-  , m_inputTruthKey("PixelSDO_Map")
+  , m_inputKey("ITkPixelRDOs")
+  , m_inputTruthKey("ITkPixelSDO_Map")
   , m_pixelID(nullptr)
   , m_pixelManager(nullptr)
   , m_rdoID(nullptr)
@@ -124,9 +124,9 @@ ITkPixelRDOAnalysis::ITkPixelRDOAnalysis(const std::string& name, ISvcLocator *p
   , m_h_TruthMatchedRDOs(nullptr)
   , m_tree(nullptr)
   , m_ntupleFileName("/ntuples/file1")
-  , m_ntupleDirName("/PixelRDOAnalysis/")
-  , m_ntupleTreeName("PixelRDOAna")
-  , m_path("/PixelRDOAnalysis/")
+  , m_ntupleDirName("/ITkPixelRDOAnalysis/")
+  , m_ntupleTreeName("ITkPixelRDOAnalysis")
+  , m_path("/ITkPixelRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
   , m_doPos(true)
 {
@@ -154,7 +154,7 @@ StatusCode ITkPixelRDOAnalysis::initialize() {
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 
-  m_tree = new TTree(TString(m_ntupleTreeName), "ITkPixelRDOAna");
+  m_tree = new TTree(TString(m_ntupleTreeName), "ITkPixelRDOAnalysis");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
   ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {

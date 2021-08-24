@@ -37,6 +37,7 @@
  #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
  #include "TrigT1Interfaces/TrigT1CaloDefs.h"
  #include "TrigConfL1Data/L1DataDef.h"
+ #include "TrigConfData/L1Menu.h"
 
 
  namespace LVL1 {
@@ -72,10 +73,8 @@
    virtual StatusCode start() override;
    virtual StatusCode execute(const EventContext& ctx) const override;
 
-private: // Private attributes
+private:
   /* Service and tool handles */
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
-    this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
   ToolHandle<LVL1::IL1EtTools> m_EtTool {
     this, "L1EtTools", "LVL1::L1EtTools/L1EtTools", "Tool performing the simulation"};
 
@@ -98,13 +97,11 @@ private: // Private attributes
     this, "CMXRoILocation", TrigT1CaloDefs::CMXRoILocation,
     "Write handle key for CMXRoI"};
 
-  TrigConf::L1DataDef m_def;
-      
-private: // Private methods
-  
-  /** find Trigger Menu set by CTP, and set internal TM values from it*/
-  void setupTriggerMenuFromCTP();
+   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
+      
+private:
+  
   /** form CTP objects and store them in SG. */
   StatusCode saveCTPObjects(const SystemEnergy& resultsFull,
                             const SystemEnergy& resultsTrunc,

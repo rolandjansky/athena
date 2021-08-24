@@ -1,19 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-# def get_flag_item(chainName, L1itemsChainParts, groups):
-#     PhysicsStream = 'Main'
-
-#     if L1itemsChainParts == []:
-#         L1item = 'L1_'+chainName.split('_L1')[-1]
-#         L1thresholds = L1item.split('_')[1:]
-#         L1itemsChainParts = [L1item, L1thresholds ]
-#     elif L1itemsChainParts[0] is None:
-#         L1item = 'L1_'+chainName.split('_L1')[-1]
-#         L1itemsChainParts[0] = L1item
-
-        #return [chainName, L1itemsChainParts, [PhysicsStream], groups, -1]
-
 def setupMenu():
     """
     Assign chains for LS2_v1
@@ -61,7 +48,8 @@ def setupMenu():
 # this chain does not work yet
    #     ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
+        ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e7_lhvloose_L1EM7', groups=SingleElectronGroup)
     ]
 
     chains["photon"] = [
@@ -70,9 +58,9 @@ def setupMenu():
     ]
 
     chains["jet"] = [
-        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
-        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-        ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
+        ChainProp(name='HLT_j45_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup),
+        ChainProp(name='HLT_2j35_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup)
     ]
 
     chains["bjet"] = [
@@ -81,18 +69,19 @@ def setupMenu():
 
     chains["tau"] = [
         ChainProp(name='HLT_tau0_perf_ptonly_L1TAU8', groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_medium1_track_L1TAU12IM", groups=SingleTauGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM', groups=SingleTauGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM', groups=SingleTauGroup),
     ]
     chains["met"] = [
-        ChainProp(name='HLT_xe30_tcpufit_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_trkmht_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_pfopufit_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_cell_L1XE30', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_tcpufit_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_trkmht_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_cssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_vssk_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfopufit_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_cell_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup),
     ]
 
     chains["minbias"] = [

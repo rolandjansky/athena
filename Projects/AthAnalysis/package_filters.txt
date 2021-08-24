@@ -211,5 +211,11 @@
 + DetectorDescription/Identifier
 + DetectorDescription/GeoModel/GeoModelInterfaces
 
+#
+### Onnxruntime Service
+#
+
++ Control/AthOnnxruntimeService
+
 # Don't build anything else:
 - .*

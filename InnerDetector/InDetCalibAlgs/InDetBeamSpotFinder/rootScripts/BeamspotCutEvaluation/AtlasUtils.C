@@ -29,7 +29,7 @@ TGraphErrors* myTGraphErrorsDivide(TGraphErrors* g1,TGraphErrors* g2) {
 
   if (!g1) printf("**myTGraphErrorsDivide: g1 does not exist !  \n"); 
   if (!g2) printf("**myTGraphErrorsDivide: g2 does not exist !  \n"); 
-
+  if (!g1 or !g2) return nullptr;
 
   Int_t n1=g1->GetN();
   Int_t n2=g2->GetN();
@@ -246,7 +246,11 @@ void myAddtoBand(TGraphErrors* g1, TGraphAsymmErrors* g2) {
 TGraphErrors* TH1TOTGraph(TH1 *h1){
 
 
-  if (!h1) std::cout << "TH1TOTGraph: histogram not found !" << std::endl;
+  if (!h1) {
+    std::cout << "TH1TOTGraph: histogram not found !" << std::endl;
+    return nullptr;
+  }
+  
 
  TGraphErrors* g1= new TGraphErrors();
 

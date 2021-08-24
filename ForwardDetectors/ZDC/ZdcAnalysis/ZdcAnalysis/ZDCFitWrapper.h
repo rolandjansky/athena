@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _ZDCFitWrapper_h
@@ -10,7 +10,7 @@
 #include <TF1.h>
 #include <memory>
 
-double ZDCFermiExpFit(double* xvec, double* pvec);
+double ZDCFermiExpFit(const double* xvec, const double* pvec);
 
 class ZDCFitWrapper
 {
@@ -128,7 +128,7 @@ private:
 
 public:
 
-  ZDCFitExpFermiVariableTaus(std::string tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2);
+  ZDCFitExpFermiVariableTaus(const std::string& tag, float tmin, float tmax, bool fixTau1, bool fixTau2, float tau1, float tau2);
 
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
@@ -191,7 +191,7 @@ private:
 
 public:
 
-  ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
+  ZDCFitExpFermiFixedTaus(const std::string& tag, float tmin, float tmax, float tau1, float tau2);
 
   ~ZDCFitExpFermiFixedTaus() {}
 

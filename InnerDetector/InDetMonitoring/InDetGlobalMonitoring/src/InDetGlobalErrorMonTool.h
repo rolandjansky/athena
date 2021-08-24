@@ -48,7 +48,7 @@ private:
     bool SyncDisabledSCT();
     bool SyncErrorSCT();
 
-    void FillModule( moduleGeo_t module, TH2F * histo );
+    void FillModule( moduleGeo_t module, TH2F * histo ) const;
     
     const PixelID * m_pixID;
     const SCT_ID * m_sctID;

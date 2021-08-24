@@ -38,6 +38,7 @@ jetContextDic = ldict(
 )
 
 jetContextDic[""] = jetContextDic["default"]
+jetContextDic["notrk"] = jetContextDic["default"] # used in trigger
 
 
 def propFromContext(propName):
@@ -52,3 +53,12 @@ def propFromContext(propName):
             context = spec or context
         return jetContextDic[context][propName]
     return getProp
+
+def inputsFromContext(inputKey):
+    """Some prerequisites might depend on the context for which jets are configured.
+    This function returns a helper function which gives a list of input prerequisites according to 'inputKey' in the current jetdef.context.
+    
+    """
+    def getPrereqs(jetdef):
+        return ["input:"+jetContextDic[jetdef.context][inputKey] ]
+    return getPrereqs

@@ -665,7 +665,6 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("InitiatorsEtaRange"      , [       -2.7,     2.7 ]                               )
     kwargs.setdefault("PunchThroughParticles"   , [    2212,     211,      22,      11,      13 ]    )
     kwargs.setdefault("DoAntiParticles"         , [   False,    True,   False,    True,    True ]    )
-    #kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
     kwargs.setdefault("CorrelatedParticle"      , []    )
     kwargs.setdefault("FullCorrelationEnergy"   , [ 100000., 100000., 100000., 100000.,      0. ]    )
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
@@ -889,6 +888,7 @@ def getFastCaloToolBase(name="ISF_FastCaloToolBase", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
+    kwargs.setdefault("ParticleTruthSvc"                 , simFlags.TruthStrategy.TruthServiceName() )
     return CfgMgr.ISF__FastCaloTool(name, **kwargs)
 
 def getFastCaloTool(name="ISF_FastCaloTool", **kwargs):
@@ -919,6 +919,7 @@ def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
-    kwargs.setdefault("PunchThroughTool"                 , '') #ISF_PunchThroughTool
+    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool')
+    kwargs.setdefault("ParticleTruthSvc"                 , simFlags.TruthStrategy.TruthServiceName() )
 
     return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )

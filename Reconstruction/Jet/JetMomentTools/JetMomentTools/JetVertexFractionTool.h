@@ -88,6 +88,7 @@ private:  // data
   Gaudi::Property<std::string> m_assocTracksName{this, "AssociatedTracks", "", "Name of associated track container"};
   Gaudi::Property<float> m_kcorrJVF{this, "K_JVFCorrScale", 0.01, "Value of k for JVFCorr calculation"};
   Gaudi::Property<float> m_PUtrkptcut{this, "PUTrkPtCut", 30000., "Pileup track pt cut (MeV)"};
+  Gaudi::Property<bool> m_suppressInputDeps{this, "SuppressInputDependence", false, "Will SumPtTrk be created in the same algorithm that uses this tool?"};
 
   ToolHandle<IJetTrackSelector> m_htsel{this, "TrackSelector", "", "Track selector tool"};
 

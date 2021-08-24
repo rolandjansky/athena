@@ -798,7 +798,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   std::string tag;
   // remove storename from key
   std::string sgKey = id.key();
-  auto sep = sgKey.find("+");
+  auto sep = sgKey.find('+');
   if (sep != std::string::npos) {
     sgKey.erase(0,sep+1);
   }

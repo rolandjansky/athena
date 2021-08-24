@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 ufolog = Logging.logging.getLogger('TCCorUFO')
 
-from AthenaConfiguration import UnifyProperties
+#from AthenaConfiguration import UnifyProperties
 
 
 
@@ -18,7 +18,7 @@ def _unifyPV0onlyTrkClustAssoc( vxContName1, vxContName2):
 # in the same job. The function below will be used in the de-duplication and implies all tracks (not only PV0)
 # have associated clusters only if TCC is scheduled.
 #  !! Doesn't seem to work yet ??!!
-UnifyProperties.setUnificationFunction( "TrackParticleClusterAssociationAlg.VertexContainerName", _unifyPV0onlyTrkClustAssoc)
+#UnifyProperties.setUnificationFunction( "TrackParticleClusterAssociationAlg.VertexContainerName", _unifyPV0onlyTrkClustAssoc)
     
 
 
@@ -26,7 +26,8 @@ UnifyProperties.setUnificationFunction( "TrackParticleClusterAssociationAlg.Vert
 def setupTrackVertexAssocTool():
     #from AthenaCommon import CfgMgr
     # do as in jet config :
-    return CompFactory.getComp("CP::TrackVertexAssociationTool")("jetLooseTVAtool", WorkingPoint='Loose')
+    return CompFactory.getComp("CP::TrackVertexAssociationTool")("jetLooseTVAtool", WorkingPoint='Loose',)
+
 
 
 def tmpSetupTrackServices(inputFlags):
@@ -48,16 +49,17 @@ def tmpSetupTrackServices(inputFlags):
     PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
     result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
  
-    PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
-    result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
+    result.merge(PixelDetectorElementCondAlgCfg(inputFlags))
  
     #Setup SCT conditions
     SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
     result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
  
-    SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
-    result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
- 
+    
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
+    result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
+    
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
@@ -118,27 +120,24 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
 
     components.merge( tmpSetupTrackServices(configFlags) )
 
-    from TrackToCalo.CaloExtensionBuilderAlgCfg import getCaloExtenstionBuilderAlgorithm 
-    caloExtAlg =getCaloExtenstionBuilderAlgorithm( configFlags )
-    caloExtAlg.LastCaloExtentionTool.ExtrapolationDetectorID = 3
-    #caloExtAlg.LastCaloExtentionTool.ParticleType = "pion"
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+    caloExtAlg =CaloExtensionBuilderAlgCfg( configFlags )
     caloExtAlg.TrkPartContainerName = trackParticleName
-    caloExtAlg.LastCaloExtentionTool.OutputLevel = 3
-    caloExtAlg.LastCaloExtentionTool.Extrapolator.OutputLevel = 3
-    components.addEventAlgo(  caloExtAlg  )
+
+    components.merge(caloExtAlg)
     
-    
+
     trackParticleClusterAssociation = CompFactory.TrackParticleClusterAssociationAlg(
         "TrackClusterAssociationAlg"+assocPostfix,
-        #ParticleCaloClusterAssociationTool = particleCaloClusterAssociation,
         TrackParticleContainerName = trackParticleName,
         PtCut = 400.,
-        CaloExtensionName = caloExtAlg.ParticleCache,
+        CaloExtensionName = "ParticleCaloExtension",
         CaloClusterLocation = caloClusterName,
         TrackVertexAssoTool=setupTrackVertexAssocTool(), # will associate trks from PV0 only
         VertexContainerName = "PrimaryVertices" if onlyPV0Tracks else "",
         AssociatedClusterDecorKey = decorKey("AssoClusters"),
-        OutputLevel=2)
+#        OutputLevel=2
+    )
 
 
     components.addEventAlgo( trackParticleClusterAssociation )
@@ -146,7 +145,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
 
     
 def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
-                         assocPostfix="TCC", doCombined=True, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
+                         assocPostfix="TCC", doCombined=False, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
     """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
     Depending on options, the collection contains combined, neutral and/or charged TCC.
     This functions schedules 2 TCC spécific algs : 
@@ -187,10 +186,16 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     # Create the TCC creator alg. TrackCaloClusterAlg makes use of the TrackCaloClusterInfo object
     # and a list of tools to build the various TCC types.
     tccTools = []
-    commonArgs = dict( TrackVertexAssoTool = setupTrackVertexAssocTool(),
-                       AssoClustersDecor = decorKey("AssoClusters") )
+    
+    from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
+    commonArgs=dict(
+        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"jetLooseTVAtool",WorkingPoint="Loose")),
+        AssoClustersDecor=decorKey("AssoClusters"),        
+    )
+    
     if doCombined:
         tccCombined = CompFactory.TCCCombinedTool("TCCcombined", **commonArgs)
+        
         tccTools.append(tccCombined)
     if doCharged:
         tccCharged = CompFactory.TCCChargedTool("TCCCharged", **commonArgs )
@@ -199,15 +204,41 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
         tccNeutral = CompFactory.TCCNeutralTool("TCCNeutral", **commonArgs )        
         tccTools.append(tccNeutral)
 
-    tccAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlg",
-                                             OutputTCCName = outputTCCName,
-                                             TCCInfo = "TCCInfo",
-                                             TCCTools = tccTools,
-                                             OutputLevel = 2,
-                                             
-                                 )
+    
+    FEContainerName=""
+    if(doNeutral):
+        FEContainerName="JetETMissNeutralParticleFlowObjects"
+        neutraloutputTCCName=outputTCCName+"Neutral"
+        neutraltccAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlg_neutral",
+                                                        OutputTCCName = neutraloutputTCCName,
+                                                        TCCInfo = "TCCInfo",
+                                                        TCCTools = tccTools,
+                                                        #OutputLevel
+                                                        AppendToTCCName = FEContainerName
+                                                        
+                                                    )
+        components.addEventAlgo(neutraltccAlg)
 
-    components.addEventAlgo( tccAlg)
+    if(doCharged):
+        FEContainerName="JetETMissChargedParticleFlowObjects"
+        chargedoutputTCCName=outputTCCName+"Charged"
+        chargedtccAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlg_charged",
+                                                        OutputTCCName = chargedoutputTCCName,
+                                                        TCCInfo = "TCCInfo",
+                                                        TCCTools = tccTools,
+                                                        #OutputLevel = 2,
+                                                        AppendToTCCName = FEContainerName                                                        
+                                                    )
+        components.addEventAlgo(chargedtccAlg)
+
+    if(doCombined or (doCharged and doNeutral)):
+        print("TCC: Combined mode not setup - exiting gracefully")
+        exit(0)
+    if((not doCombined) and (not doCharged) and (not doNeutral)):
+        print("runTCCReco: no mode set for input, this is an unexpected state")
+        exit(0)
+
+    
     return components
 
 

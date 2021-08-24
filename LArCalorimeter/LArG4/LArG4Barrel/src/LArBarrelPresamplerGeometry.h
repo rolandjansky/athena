@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArBarrelPresamplerGeometry.hh
@@ -56,7 +56,7 @@ namespace LArG4 {
 #include "PresParameterDef.h"
 
       // end z of the various modules
-      G4double m_end_module[8];
+      G4double m_end_module[8]{};
       G4double m_zminPS{3.00*Athena::Units::mm};   // FIXME this should come from the database;
       G4double m_zpres{1549.*Athena::Units::mm}; // position of mother volume inside nominal Atlas frame
       G4double m_cat_th{};

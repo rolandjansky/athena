@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -97,8 +97,7 @@ namespace LVL1{
       virtual float                                      hadLArTowerEnergy(const TriggerTower* tt) const = 0;
       virtual float                                      tileCellEnergy(const TriggerTower* tt,IdTTL1CellMapType& map) const = 0;
 
-      //  Bad Calo, High Voltage Information
-      virtual int                                        emBadCalo(const TriggerTower* tt) const = 0;
+      //  High Voltage Information
       virtual float                                      emCaloQuality(const TriggerTower* tt) const = 0;
       virtual float                                      emNCellsNonNominal(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emNCellsNonNominalByLayer(const TriggerTower* tt) const = 0;
@@ -108,7 +107,6 @@ namespace LVL1{
       virtual std::vector<float>                         emNonNominalMeanScaleByReceiver(const TriggerTower* tt) const = 0;
       virtual std::vector<std::vector<float> >           emNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const = 0;
 
-      virtual int                                        hadBadCalo(const TriggerTower* tt,IdTTL1CellMapType& map) const = 0;
       virtual float                                      hadCaloQuality(const TriggerTower* tt) const = 0;
       virtual float                                      hadNCellsNonNominal(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         hadNCellsNonNominalByLayer(const TriggerTower* tt) const = 0;

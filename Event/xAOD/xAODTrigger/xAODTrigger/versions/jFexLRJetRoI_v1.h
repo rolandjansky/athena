@@ -26,21 +26,23 @@ namespace xAOD {
       jFexLRJetRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0 );
+      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord );
 
       /// The "raw" 32-bit word describing the object candidate
-      uint32_t word0() const;
-      uint8_t jFexNumber() const;
-      uint8_t fpgaNumber() const;
-      uint16_t tobEt() const;
-      uint8_t iEta() const;
-      uint8_t iPhi() const; 
-      uint8_t satFlag() const;
-      int8_t globalEta() const;
-      uint8_t globalPhi() const;
+      uint32_t  tobWord()       const;
+      uint8_t   jFexNumber()    const;
+      uint8_t   fpgaNumber()    const;
+      uint16_t  tobEt()         const;
+      uint8_t   tobLocalEta()   const;
+      uint8_t   tobLocalPhi()   const; 
+      uint8_t   tobSat()        const;
+      int       globalEta()     const;
+      uint      globalPhi()     const;
+      float     eta()           const;
+      float     phi()           const;
 
       /// Set the "raw" 32-bit words describing the object candidate
-      void setWord0( uint32_t word0 );
+      void setTobWord( uint32_t tobWord );
       void setjFexNumber( uint8_t jFexNumber);
       void setfpgaNumber(uint8_t fpgaNumber);
 
@@ -51,24 +53,24 @@ namespace xAOD {
 
       ///Eta coordinates
       unsigned int unpackEtaIndex() const;
-      void setEta(uint8_t value);
-      unsigned int eta() const;
+      void setTobLocalEta(uint8_t value);
 
       ///Phi coordinates
       unsigned int unpackPhiIndex() const;
-      void setPhi(uint8_t value);
-      unsigned int phi() const;
+      void setTobLocalPhi(uint8_t value);
   
       //Saturation flag
       unsigned int unpackSaturationIndex() const;
-      void setSatFlag(uint8_t value);
+      void setTobSat(uint8_t value);
 
       //Global coords
-      int8_t getGlobalEta() const;
-      void setGlobalEta(int8_t value);
+      int unpackGlobalEta() const;
+      void setGlobalEta(int value);
+      void setEta(float value);
       
-      uint8_t getGlobalPhi() const;
-      void setGlobalPhi(uint8_t value);      
+      uint unpackGlobalPhi() const;
+      void setGlobalPhi(uint value);      
+      void setPhi(float value);      
 
 
    private:
@@ -77,8 +79,8 @@ namespace xAOD {
       static const float s_tobEtScale;
       static const float s_towerEtaWidth;
       static const float s_towerPhiWidth;
-      static const float s_minEta;
-
+      static const std::vector<int> s_FCAL_EtaPosition;
+      static const std::vector<int> s_FWD_EtaPosition;
       // Data locations within word
       static const int s_satBit  = 0;  
       //static const int s_ResBit = 1; 
@@ -88,10 +90,13 @@ namespace xAOD {
 
       //Data masks
       static const int s_etaMask  = 0x1f;
-      static const int s_phiMask  = 0x7;
+      static const int s_phiMask  = 0xf;
       static const int s_etMask   = 0x1fff;   
       //static const int s_resMask  = 0x7ff; 
       static const int s_satMask  = 0x1; 
+
+      float unpackTTweightEta(); 
+      float unpackTTweightPhi(); 
 
    }; // class jFexLRJetRoI_v1
 

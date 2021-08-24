@@ -19,10 +19,6 @@ class CTPSimulationOnData(CTPSimulation):
 
         self.IsData = True
         self.ForceBunchGroupPattern = False # on data we will take the bunchgroups from COOL
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if hasattr(svcMgr,'DSConfigSvc'):
-            # this case is still needed for reading Run 2 data configuration from the TriggerDB
-            self.TrigConfigSvc = "TrigConfigSvc"
 
 
 class CTPSimulationInReco(CTPSimulation):

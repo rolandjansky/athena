@@ -67,8 +67,6 @@ class PixelConditionsServicesSetup:
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-    useNewChargeFormat  = False
-
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
@@ -124,13 +122,9 @@ class PixelConditionsServicesSetup:
     # Deadmap Setup (RUN-3) #
     #########################
     if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
-      # TODO: Once global tag is updated, this line should be removed.
       if not athenaCommonFlags.isOnline():
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if (globalflags.DataSource=='data'):
-          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
-        else:
-          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
       alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
@@ -213,18 +207,18 @@ class PixelConditionsServicesSetup:
     #####################
     # Calibration Setup #
     #####################
-    if not useNewChargeFormat:
-      if not conddb.folderRequested("/PIXEL/PixCalib"):
-        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-      if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-    else:
+    if commonGeoFlags.Run()=="RUN3":
       if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
       if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
         condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+    else:
+      if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+      if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     #####################
     # Cabling map Setup #

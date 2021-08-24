@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -80,8 +80,8 @@ protected:
 private:
   
   /**correlation histograms*/
-  int m_Nchan; 
-  double m_chan_low,m_chan_up;
+  int m_Nchan = 0; 
+  double m_chan_low = 0.0,m_chan_up = 0.0;
   std::string  m_hist_name;
   std::string  m_hist_summary_name1;
   std::string  m_hist_summary_name2;
@@ -92,23 +92,23 @@ private:
   std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > m_histos;  //for handling histograms
 
   /** Summary plot*/
-  TH2F_LW * m_h_summary_plot1_EMBA;
-  TH2F_LW * m_h_summary_plot1_EMBC;
-  TH2F_LW * m_h_summary_plot1_EMECA;
-  TH2F_LW * m_h_summary_plot1_EMECC;
-  TH2F_LW * m_h_summary_plot1_HECA;
-  TH2F_LW * m_h_summary_plot1_HECC;
-  TH2F_LW * m_h_summary_plot1_FCALA;
-  TH2F_LW * m_h_summary_plot1_FCALC;
+  TH2F_LW * m_h_summary_plot1_EMBA = nullptr;
+  TH2F_LW * m_h_summary_plot1_EMBC = nullptr;
+  TH2F_LW * m_h_summary_plot1_EMECA = nullptr;
+  TH2F_LW * m_h_summary_plot1_EMECC = nullptr;
+  TH2F_LW * m_h_summary_plot1_HECA = nullptr;
+  TH2F_LW * m_h_summary_plot1_HECC = nullptr;
+  TH2F_LW * m_h_summary_plot1_FCALA = nullptr;
+  TH2F_LW * m_h_summary_plot1_FCALC = nullptr;
 
-  TH2F_LW * m_h_summary_plot2_EMBA;
-  TH2F_LW * m_h_summary_plot2_EMBC;
-  TH2F_LW * m_h_summary_plot2_EMECA;
-  TH2F_LW * m_h_summary_plot2_EMECC;
-  TH2F_LW * m_h_summary_plot2_HECA;
-  TH2F_LW * m_h_summary_plot2_HECC;
-  TH2F_LW * m_h_summary_plot2_FCALA;
-  TH2F_LW * m_h_summary_plot2_FCALC;
+  TH2F_LW * m_h_summary_plot2_EMBA = nullptr;
+  TH2F_LW * m_h_summary_plot2_EMBC = nullptr;
+  TH2F_LW * m_h_summary_plot2_EMECA = nullptr;
+  TH2F_LW * m_h_summary_plot2_EMECC = nullptr;
+  TH2F_LW * m_h_summary_plot2_HECA = nullptr;
+  TH2F_LW * m_h_summary_plot2_HECC = nullptr;
+  TH2F_LW * m_h_summary_plot2_FCALA = nullptr;
+  TH2F_LW * m_h_summary_plot2_FCALC = nullptr;
 
 
   /** list of FEBs to monitor. FEB names are expected to be of the type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h  e.g. 'BarrelCFT00Slot02'  */
@@ -125,7 +125,7 @@ private:
   
   /**declare identifier*/
   HWIdentifier m_febID;
-  int m_ch1,m_ch2;  
+  int m_ch1 = 0,m_ch2 = 0;  
 
   /**other variables used in joboptions*/
   bool m_IsOnline; 
@@ -135,9 +135,9 @@ private:
   std::string m_LArDigitContainerKey;
   
   /** Private members*/
-  int m_evtId;
+  int m_evtId = 0;
   std::vector<std::string> m_triggers;
-  int m_evtCounter;
+  int m_evtCounter = 0;
   
   /** Declare methods used*/
   bool isGoodChannel(const HWIdentifier id,const float ped,const LArOnOffIdMapping *cabling, const LArBadChannelCont* bcCont) const;

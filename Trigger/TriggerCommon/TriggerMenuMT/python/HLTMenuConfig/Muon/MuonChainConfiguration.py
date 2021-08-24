@@ -18,55 +18,55 @@ from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 #--------------------------------------------------------
-def muFastSequenceCfg(flags):
-    return muFastSequence()
+def muFastSequenceCfg(flags,is_probe_leg=False):
+    return muFastSequence(is_probe_leg=is_probe_leg)
 
-def muFastOvlpRmSequenceCfg(flags):
-    return muFastOvlpRmSequence()
+def muFastOvlpRmSequenceCfg(flags,is_probe_leg=False):
+    return muFastOvlpRmSequence(is_probe_leg=is_probe_leg)
 
-def mul2mtSAOvlpRmSequenceCfg(flags):
-    return mul2mtSAOvlpRmSequence()
+def mul2mtSAOvlpRmSequenceCfg(flags,is_probe_leg=False):
+    return mul2mtSAOvlpRmSequence(is_probe_leg=is_probe_leg)
 
-def muCombSequenceCfg(flags):
-    return muCombSequence()
+def muCombSequenceCfg(flags,is_probe_leg=False):
+    return muCombSequence(is_probe_leg=is_probe_leg)
 
-def muCombLRTSequenceCfg(flags):
-    return muCombLRTSequence()
+def muCombLRTSequenceCfg(flags,is_probe_leg=False):
+    return muCombLRTSequence(is_probe_leg=is_probe_leg)
 
-def muCombOvlpRmSequenceCfg(flags):
-    return muCombOvlpRmSequence()
+def muCombOvlpRmSequenceCfg(flags,is_probe_leg=False):
+    return muCombOvlpRmSequence(is_probe_leg=is_probe_leg)
 
-def mul2IOOvlpRmSequenceCfg(flags):
-    return mul2IOOvlpRmSequence()
+def mul2IOOvlpRmSequenceCfg(flags,is_probe_leg=False):
+    return mul2IOOvlpRmSequence(is_probe_leg=is_probe_leg)
 
-def mul2mtCBOvlpRmSequenceCfg(flags):
-    return mul2mtCBOvlpRmSequence()
+def mul2mtCBOvlpRmSequenceCfg(flags,is_probe_leg=False):
+    return mul2mtCBOvlpRmSequence(is_probe_leg=is_probe_leg)
 
-def muEFSASequenceCfg(flags):
-    return muEFSASequence()
+def muEFSASequenceCfg(flags,is_probe_leg=False):
+    return muEFSASequence(is_probe_leg=is_probe_leg)
 
-def muEFCBSequenceCfg(flags):
-    return muEFCBSequence()
+def muEFCBSequenceCfg(flags,is_probe_leg=False):
+    return muEFCBSequence(is_probe_leg=is_probe_leg)
 
-def muEFCBLRTSequenceCfg(flags):
-    return muEFCBLRTSequence()
+def muEFCBLRTSequenceCfg(flags,is_probe_leg=False):
+    return muEFCBLRTSequence(is_probe_leg=is_probe_leg)
 
-def FSmuEFSASequenceCfg(flags):
-    return muEFSAFSSequence()
+def FSmuEFSASequenceCfg(flags,is_probe_leg=False):
+    return muEFSAFSSequence(is_probe_leg=is_probe_leg)
 
-def FSmuEFCBSequenceCfg(flags):
-    return muEFCBFSSequence()
+def FSmuEFCBSequenceCfg(flags,is_probe_leg=False):
+    return muEFCBFSSequence(is_probe_leg=is_probe_leg)
 
-def muEFIsoSequenceCfg(flags):
-    return muEFIsoSequence()
+def muEFIsoSequenceCfg(flags,is_probe_leg=False):
+    return muEFIsoSequence(is_probe_leg=is_probe_leg)
 
-def muEFMSIsoSequenceCfg(flags):
-    return muEFMSIsoSequence()
+def muEFMSIsoSequenceCfg(flags,is_probe_leg=False):
+    return muEFMSIsoSequence(is_probe_leg=is_probe_leg)
 
-def muEFLateRoISequenceCfg(flags):
+def muEFLateRoISequenceCfg(flags,is_probe_leg=False):
     return efLateMuRoISequence()
 
-def muEFLateSequenceCfg(flags):
+def muEFLateSequenceCfg(flags,is_probe_leg=False):
     return efLateMuSequence()
 
 
@@ -82,7 +82,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChainImpl(self):                            
         chainSteps = []
 
         stepDictionary = self.getStepDictionary()
@@ -90,14 +90,14 @@ class MuonChainConfiguration(ChainConfigurationBase):
         iso = ""
         if self.chainPart['isoInfo']:
             iso = 'iso'
-        key = self.chainPart['extra']+iso
-
+        is_probe_leg = self.chainPart['extra']=="probe"
+        key = self.chainPart['extra']+iso if not is_probe_leg else iso
 
         steps=stepDictionary[key]
 
         for step_level in steps:
             for step in step_level:
-                chainstep = getattr(self, step)()
+                chainstep = getattr(self, step)(is_probe_leg=is_probe_leg)
                 chainSteps+=[chainstep]
     
         myChain = self.buildChain(chainSteps)
@@ -132,7 +132,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
   
         
     # --------------------
-    def getmuFast(self):
+    def getmuFast(self,is_probe_leg=False):
         doOvlpRm = False
         if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau', 'l2io']):
            doOvlpRm = False
@@ -144,16 +144,16 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = False
 
         if doOvlpRm:
-           return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg] )
+           return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         else:
-           return self.getStep(1,"mufast", [muFastSequenceCfg] )
+           return self.getStep(1,"mufast", [muFastSequenceCfg], is_probe_leg=is_probe_leg )
          
     # --------------------
-    def getmuFastl2mt(self):
-        return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg] )
+    def getmuFastl2mt(self,is_probe_leg=False):
+        return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
          
     # --------------------
-    def getmuComb(self):
+    def getmuComb(self,is_probe_leg=False):
 
         doOvlpRm = False
         if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']):
@@ -167,71 +167,74 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
 
         if doOvlpRm:
-           return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
+           return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         elif "LRT" in self.chainPart['addInfo']:
-           return self.getStep(2, 'muCombLRT', [muCombLRTSequenceCfg] )
+           return self.getStep(2, 'muCombLRT', [muCombLRTSequenceCfg], is_probe_leg=is_probe_leg )
         else:
-           return self.getStep(2, 'muComb', [muCombSequenceCfg] )
+           return self.getStep(2, 'muComb', [muCombSequenceCfg], is_probe_leg=is_probe_leg )
 
     # --------------------
-    def getmuCombIO(self):
-        return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg] )
+    def getmuCombIO(self,is_probe_leg=False):
+        return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
 
     # --------------------
-    def getmuCombl2mt(self):
-          return self.getStep(2,"muCombl2mt", [mul2mtCBOvlpRmSequenceCfg] )
+    def getmuCombl2mt(self,is_probe_leg=False):
+          return self.getStep(2,"muCombl2mt", [mul2mtCBOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
 
     # --------------------
-    def getmuEFSA(self):
-        return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
+    def getmuEFSA(self,is_probe_leg=False):
+        return self.getStep(3,'muEFSA',[ muEFSASequenceCfg], is_probe_leg=is_probe_leg)
 
     # --------------------
-    def getmuEFCB(self):
+    def getmuEFCB(self,is_probe_leg=False):
 
-        if 'invm' in self.chainPart['invMassInfo']:
+        if 'invm' in self.chainPart['invMassInfo']: # No T&P support, add if needed
             return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict])
         elif "LRT" in self.chainPart['addInfo']:
-            return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg])
+            return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg], is_probe_leg=is_probe_leg)
         else:
-            return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
+            return self.getStep(4,'EFCB', [muEFCBSequenceCfg], is_probe_leg=is_probe_leg)
  
     # --------------------
-    def getFSmuEFSA(self):
-        return self.getStep(5,'FSmuEFSA', [FSmuEFSASequenceCfg])
+    def getFSmuEFSA(self,is_probe_leg=False):
+        return self.getStep(5,'FSmuEFSA', [FSmuEFSASequenceCfg], is_probe_leg=is_probe_leg)
 
     # --------------------
-    def getFSmuEFCB(self):
-        return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+    def getFSmuEFCB(self,is_probe_leg=False):
+        if 'invm' in self.chainPart['invMassInfo']:
+            return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg],comboTools=[TrigMuonEFInvMassHypoToolFromDict], is_probe_leg=is_probe_leg)
+        else:
+            return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg], is_probe_leg=is_probe_leg)
 
     #---------------------
-    def getmuEFIso(self):
-        return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg])
+    def getmuEFIso(self,is_probe_leg=False):
+        return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg], is_probe_leg=is_probe_leg)
 
     #---------------------
-    def getmuEFMSIso(self):
-        return self.getStep(5,'muEFMSIso',[ muEFMSIsoSequenceCfg])
+    def getmuEFMSIso(self,is_probe_leg=False):
+        return self.getStep(5,'muEFMSIso',[ muEFMSIsoSequenceCfg], is_probe_leg=is_probe_leg)
 
     #--------------------
-    def getmuMSEmptyAll(self, stepID):
+    def getmuMSEmptyAll(self,stepID): # No T&P info needed for empty step?
         return self.getEmptyStep(stepID,'muMS_empty')
 
     #--------------------
-    def getmuMSEmpty(self):
+    def getmuMSEmpty(self,is_probe_leg=False): # No T&P info needed for empty step?
         return self.getmuMSEmptyAll(2)
 
     #--------------------
-    def getmuFastEmpty(self):
+    def getmuFastEmpty(self,is_probe_leg=False): # No T&P info needed for empty step?
         return self.getEmptyStep(1,'muFast_empty')
 
     #--------------------
-    def getEFCBEmpty(self):
+    def getEFCBEmpty(self,is_probe_leg=False): # No T&P info needed for empty step?
         return self.getEmptyStep(4,'muefCB_Empty')
     
     #--------------------
-    def getLateMuRoI(self):
+    def getLateMuRoI(self,is_probe_leg=False): # No T&P support, add if needed
         return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg])
 
     #--------------------
-    def getLateMu(self):
+    def getLateMu(self,is_probe_leg=False): # No T&P support, add if needed
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 

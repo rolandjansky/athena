@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,8 +10,8 @@ LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) :
   m_RodBlockVersion      (0),
   m_BCs_per_LVL1ID       (1)
 {
-  m_ByteStreamEventAccess = 0;
-  m_StoreGate             = 0;
+  m_ByteStreamEventAccess = nullptr;
+  m_StoreGate             = nullptr;
 }
 
 StatusCode LUCID_DigitByteStreamCnv::initialize() {
@@ -45,7 +45,7 @@ StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_DigitByteStreamCnv::createRep" << endmsg;
 
    RawEventWrite*        re = m_ByteStreamEventAccess->getRawEvent();
-   LUCID_DigitContainer* RDO_container = 0;
+   LUCID_DigitContainer* RDO_container = nullptr;
 
 // dynmanic cast of the pObj to RDO_container based in clid of pObj
    StoreGateSvc::fromStorable(pObj, RDO_container);
@@ -93,7 +93,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
 
   for( ; it_cont != it_cont_end; ++it_cont) {
     
-    if ((*it_cont) != NULL) {
+    if ((*it_cont) != nullptr) {
 
       uint32_t rodId = getSourceID();
       

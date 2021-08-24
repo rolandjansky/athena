@@ -1,3 +1,4 @@
+
 //Dear emacs, this is -*- c++ -*-
 
 /*
@@ -111,6 +112,8 @@ private:
   bool                     m_timeShift;
   int                      m_timeShiftByIndex ;
 
+
+  LArCaliWaveContainer*    m_waveCnt_nc=nullptr;
 
   unsigned int             m_nSamples;
   unsigned int             m_nPhases;

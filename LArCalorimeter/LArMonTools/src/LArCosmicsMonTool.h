@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,7 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
@@ -92,8 +92,6 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
 
   //LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;
-  /** Handle to LArCablingService */
-  ToolHandle<LArCablingLegacyService> m_larCablingService;  
   /** Handle to bad-channel mask */
   LArBadChannelMask m_bcMask;
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
@@ -108,6 +106,8 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   std::string m_LArDigitContainerKey;
   SG::ReadCondHandleKey<ILArPedestal> m_larPedestalKey
   { this, "LArPedestalKey", "Pedestal", "" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   std::string m_channelKey;
   float m_muonADCthreshold_EM_barrel;
   float m_muonADCthreshold_EM_endcap;
@@ -117,19 +117,19 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   // utilities
   int channelInSlotMax(HWIdentifier hardwareID);
   int feedthroughSlotMax(HWIdentifier id);
-  std::string gain_str(CaloGain::CaloGain gain);
-  std::string sampling_str(int sampling);
+  static std::string gain_str(CaloGain::CaloGain gain);
+  static std::string sampling_str(int sampling);
 
   // To get physical coordinates
-  StatusCode returnEtaPhiCoord(const CaloDetDescrManager* ddmgr,
+  static StatusCode returnEtaPhiCoord(const CaloDetDescrManager* ddmgr,
                                Identifier offlineID,float& eta,float& phi);
 
   // Muon Seeds with Digits
   TH2F* m_hMuonMapEMDig; TH2F* m_hMuonMapHECDig; TH2F* m_hMuonMapFCALDig;
-  TH1F* m_hMuonTimeEMDig[4]; TH1F* m_hMuonTimeHECDig[2]; TH1F* m_hMuonTimeFCALDig[2];
-  TH1F* m_hMuonEnergyEMDig[4]; TH1F* m_hMuonEnergyHECDig[2]; TH1F* m_hMuonEnergyFCALDig[2];
-  TH2F* m_hMuonEvsTimeEMDig[4]; TH2F* m_hMuonEvsTimeHECDig[2]; TH2F* m_hMuonEvsTimeFCALDig[2];
-  TProfile* m_hMuonShapeEMDig[4]; TProfile* m_hMuonShapeHECDig[2]; TProfile* m_hMuonShapeFCALDig[2];
+  TH1F* m_hMuonTimeEMDig[4]{}; TH1F* m_hMuonTimeHECDig[2]{}; TH1F* m_hMuonTimeFCALDig[2]{};
+  TH1F* m_hMuonEnergyEMDig[4]{}; TH1F* m_hMuonEnergyHECDig[2]{}; TH1F* m_hMuonEnergyFCALDig[2]{};
+  TH2F* m_hMuonEvsTimeEMDig[4]{}; TH2F* m_hMuonEvsTimeHECDig[2]{}; TH2F* m_hMuonEvsTimeFCALDig[2]{};
+  TProfile* m_hMuonShapeEMDig[4]{}; TProfile* m_hMuonShapeHECDig[2]{}; TProfile* m_hMuonShapeFCALDig[2]{};
 
   // Counters
   int m_eventsCounter;

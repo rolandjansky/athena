@@ -75,7 +75,8 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     thesequence += TrigTopoEgammaAlgo
     TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
-
+    TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
+    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
     ## TrigElectronIsoBuilderCfg_noGSF ##
     isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
     thesequence += isoBuilder
@@ -84,6 +85,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
     PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg()
     PrecisionElectronRecoMonAlgo.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
+    PrecisionElectronRecoMonAlgo.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName]
     thesequence += PrecisionElectronRecoMonAlgo
 
     #online monitoring for TrigElectronSuperClusterBuilder
@@ -91,5 +93,5 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
     PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo
-    return (thesequence, collectionOut)
+    return (thesequence, collectionOut, collectionOut_dummy)
 

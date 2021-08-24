@@ -220,6 +220,9 @@ bool contains( const std::string& s, const std::string& p) {
   return (s.find(p)!=std::string::npos);
 }
 
+bool contains( const std::string& s, char p) noexcept { 
+  return (s.find(p)!=std::string::npos);
+}
 
 /// contains a string at the *beginning* of the string
 bool fcontains( const std::string& s, const std::string& p) { 

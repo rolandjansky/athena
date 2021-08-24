@@ -20,13 +20,9 @@
 
 using HepGeom::Transform3D;
 
-MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator) {
-}
+MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
 
-StatusCode
-MuonSegmentFinderAlg::initialize()
-{
+StatusCode MuonSegmentFinderAlg::initialize() {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_patternCalibration.retrieve());
@@ -34,7 +30,7 @@ MuonSegmentFinderAlg::initialize()
     ATH_CHECK(m_segmentOverlapRemovalTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_clusterSegMaker.retrieve());
-  
+
     ATH_CHECK(m_clusterCreator.retrieve());
     ATH_CHECK(m_mmClusterCreator.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
@@ -61,18 +57,15 @@ MuonSegmentFinderAlg::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-MuonSegmentFinderAlg::execute(const EventContext& ctx) const
-{
-
+StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     // vector to hold segments
-  SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
+    SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
     ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
 
     SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);
-    const Muon::TgcPrepDataContainer*          tgcPrdCont = tgcPrds.cptr();
+    const Muon::TgcPrepDataContainer* tgcPrdCont = tgcPrds.cptr();
     SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey, ctx);
-    const Muon::RpcPrepDataContainer*          rpcPrdCont = rpcPrds.cptr();
+    const Muon::RpcPrepDataContainer* rpcPrdCont = rpcPrds.cptr();
 
     SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey, ctx);
     if (!patternColl.isValid()) {
@@ -82,8 +75,7 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
     if (patternColl.isPresent()) {  // pretty sure this is always the case, but can't hurt to check
         ATH_MSG_DEBUG("Processing the pattern collections with  " << patternColl->size() << " Collections ");
 
-        for (MuonPatternCombinationCollection::const_iterator patt = patternColl->begin(); patt != patternColl->end();
-             ++patt) {
+        for (MuonPatternCombinationCollection::const_iterator patt = patternColl->begin(); patt != patternColl->end(); ++patt) {
             ATH_MSG_DEBUG("Working on pattern combination " << m_printer->print(**patt));
             // check the technology & call the corresponding segment finder
             std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
@@ -106,34 +98,31 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
 
     // do cluster based segment finding
     if (m_doTGCClust || m_doRPCClust) {
-      SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey, ctx);
-        const PRD_MultiTruthCollection*            tgcTruthColl = 0;
-        const PRD_MultiTruthCollection*            rpcTruthColl = 0;
+        SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey, ctx);
+        const PRD_MultiTruthCollection* tgcTruthColl = 0;
+        const PRD_MultiTruthCollection* rpcTruthColl = 0;
         if (m_doClusterTruth) {
-	  SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
-	  SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
+            SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
+            SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
-        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : 0,
-                                              m_doTGCClust ? tgcPrdCont : 0, tgcTruthColl, rpcTruthColl, handle.ptr());
+        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : 0, m_doTGCClust ? tgcPrdCont : 0, tgcTruthColl,
+                                              rpcTruthColl, handle.ptr());
     }
 
     ATH_MSG_DEBUG("segments before overlap removal: " << handle->size());
-    m_segmentOverlapRemovalTool->removeDuplicates(handle.ptr());
-
+    m_segmentOverlapRemovalTool->removeDuplicates(*handle);
 
     ATH_MSG_DEBUG(" Segments after overlap removal: " << handle->size());
 
     if (!m_csc2dSegmentFinder.empty() && !m_csc4dSegmentFinder.empty()) {
-
         std::vector<const Muon::CscPrepDataCollection*> cscCols;
 
         SG::ReadHandle<Muon::CscPrepDataContainer> cscPrds(m_cscPrdsKey, ctx);
 
         if (cscPrds.isValid()) {
-
-            Muon::CscPrepDataContainer::const_iterator it     = cscPrds->begin();
+            Muon::CscPrepDataContainer::const_iterator it = cscPrds->begin();
             Muon::CscPrepDataContainer::const_iterator it_end = cscPrds->end();
             for (; it != it_end; ++it) {
                 // skip empty collections
@@ -142,35 +131,32 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
             }
             ATH_MSG_DEBUG("Retrieved CscPrepDataContainer " << cscCols.size());
             // reconstruct segments in the CSC eta and phi plane
-            std::unique_ptr<MuonSegmentCombinationCollection> csc2dSegmentCombinations =
-	      m_csc2dSegmentFinder->find(cscCols, ctx);
+            std::unique_ptr<MuonSegmentCombinationCollection> csc2dSegmentCombinations = m_csc2dSegmentFinder->find(cscCols, ctx);
             // combine CSC segments in eta and phi plane if any were found
             if (csc2dSegmentCombinations) {
                 std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations =
-		  m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
+                    m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
                 if (csc4dSegmentCombinations) {
-
                     // now copy the segments into the collection, not optimal as unneeded copy
-                    MuonSegmentCombinationCollection::const_iterator cit     = csc4dSegmentCombinations->begin();
+                    MuonSegmentCombinationCollection::const_iterator cit = csc4dSegmentCombinations->begin();
                     MuonSegmentCombinationCollection::const_iterator cit_end = csc4dSegmentCombinations->end();
                     for (; cit != cit_end; ++cit) {
                         if (!*cit) {
                             ATH_MSG_INFO(" empty MuonSegmentCombination!!! ");
                             continue;
                         }
-                        const Muon::MuonSegmentCombination& combi     = **cit;
-                        unsigned int                        nstations = combi.numberOfStations();
+                        const Muon::MuonSegmentCombination& combi = **cit;
+                        unsigned int nstations = combi.numberOfStations();
 
                         // loop over chambers in combi and extract segments
                         for (unsigned int i = 0; i < nstations; ++i) {
-
                             // loop over segments in station
                             Muon::MuonSegmentCombination::SegmentVec* segments = combi.stationSegments(i);
 
                             // check if not empty
                             if (!segments || segments->empty()) continue;
                             // loop over new segments, copy them into collection
-                            Muon::MuonSegmentCombination::SegmentVec::iterator sit     = segments->begin();
+                            Muon::MuonSegmentCombination::SegmentVec::iterator sit = segments->begin();
                             Muon::MuonSegmentCombination::SegmentVec::iterator sit_end = segments->end();
                             for (; sit != sit_end; ++sit)
                                 handle->push_back((*sit).release());  // releasing so the handle can take ownership
@@ -189,30 +175,23 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
     return StatusCode::SUCCESS;
 }  // execute
 
-
-void
-MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,
-                                                 Trk::SegmentCollection*             segments) const
-{
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
     // turn the PRD into MuonCluster
-    std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >   clustersPerSector;
+    std::map<int, std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
     std::vector<Muon::MuonPatternChamberIntersect>::const_iterator it = patt->chamberData().begin();
     for (; it != patt->chamberData().end(); ++it) {
         if ((*it).prepRawDataVec().empty()) continue;
         const Identifier& id = (*it).prepRawDataVec().front()->identify();
         if (!m_idHelperSvc->isMM(id) && !m_idHelperSvc->issTgc(id)) continue;
-        for (std::vector<const Trk::PrepRawData*>::const_iterator pit = (*it).prepRawDataVec().begin();
-             pit != (*it).prepRawDataVec().end(); ++pit)
-        {
-
+        for (std::vector<const Trk::PrepRawData*>::const_iterator pit = (*it).prepRawDataVec().begin(); pit != (*it).prepRawDataVec().end();
+             ++pit) {
             const Muon::MuonCluster* cl = dynamic_cast<const Muon::MuonCluster*>(*pit);
             if (!cl) continue;
-            int                                           sector   = m_idHelperSvc->sector(id);
+            int sector = m_idHelperSvc->sector(id);
             std::vector<const Muon::MuonClusterOnTrack*>& clusters = clustersPerSector[sector];
 
             if (m_idHelperSvc->isMM((*pit)->identify())) {
-                const Muon::MuonClusterOnTrack* clust =
-                    m_mmClusterCreator->createRIO_OnTrack(*cl, cl->globalPosition());
+                const Muon::MuonClusterOnTrack* clust = m_mmClusterCreator->createRIO_OnTrack(*cl, cl->globalPosition());
                 clusters.push_back(clust);
             } else {  //  must be an sTGC prd
                 const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack(*cl, cl->globalPosition());
@@ -221,54 +200,43 @@ MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombinat
         }
     }
 
-    std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit     = clustersPerSector.begin();
+    std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit = clustersPerSector.begin();
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit_end = clustersPerSector.end();
     for (; sit != sit_end; ++sit) {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
-        std::vector<Muon::MuonSegment*>               segVec;
+        std::vector<Muon::MuonSegment*> segVec;
         m_clusterSegMakerNSW->find(clusters, segVec, segments);
 
         // cleanup the memory
-        for (std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit != clusters.end();
-             ++cit) {
-            delete *cit;
-        }
+        for (std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit != clusters.end(); ++cit) { delete *cit; }
     }
 }
 
-
-void
-MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
-                                             const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const
-{
-
+void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
+                                                  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
+                                                  const std::vector<const Muon::TgcPrepDataCollection*> tgcCols,
+                                                  const EventContext& ctx) const {
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
-
         // break the pattern combination into regions and calibrate the PRDs
-        std::set<int>                                                  calibratedRegions;
+        std::set<int> calibratedRegions;
         std::vector<Muon::MuonPatternChamberIntersect>::const_iterator it = patcomb->chamberData().begin();
         for (; it != patcomb->chamberData().end(); ++it) {
-
             if ((*it).prepRawDataVec().empty()) continue;
             Identifier id = (*it).prepRawDataVec().front()->identify();
             if (m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)) continue;
-
 
             int regionID = m_patternCalibration->getRegionId(id);
 
             // check the chamber is not part of a region already calibrated
             std::pair<std::set<int>::iterator, bool> val = calibratedRegions.insert(regionID);
             if (!val.second) continue;
-            ATH_MSG_VERBOSE(" Region " << regionID << " adding chamber " << m_idHelperSvc->toStringChamber(id)
-                                       << " size " << (*it).prepRawDataVec().size());
+            ATH_MSG_VERBOSE(" Region " << regionID << " adding chamber " << m_idHelperSvc->toStringChamber(id) << " size "
+                                       << (*it).prepRawDataVec().size());
 
             std::vector<Muon::MuonPatternChamberIntersect> chambers;
             chambers.push_back(*it);
-            for (std::vector<Muon::MuonPatternChamberIntersect>::const_iterator rit = (it + 1);
-                 rit != patcomb->chamberData().end(); ++rit)
-            {
-
+            for (std::vector<Muon::MuonPatternChamberIntersect>::const_iterator rit = (it + 1); rit != patcomb->chamberData().end();
+                 ++rit) {
                 if ((*rit).prepRawDataVec().empty()) continue;
                 Identifier id2 = (*rit).prepRawDataVec().front()->identify();
                 if (m_idHelperSvc->isMM(id2) || m_idHelperSvc->issTgc(id2)) continue;
@@ -295,11 +263,10 @@ MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination*
                 std::vector<std::vector<const Muon::MdtDriftCircleOnTrack*> >::iterator mdtit = rotit->mdts.begin();
                 for (; mdtit != rotit->mdts.end(); ++mdtit) {
                     if (mdtit->empty()) continue;
-                    ATH_MSG_VERBOSE("Calling segment finding for sector "
-                                    << m_idHelperSvc->toString(mdtit->front()->identify()));
+                    ATH_MSG_VERBOSE("Calling segment finding for sector " << m_idHelperSvc->toString(mdtit->front()->identify()));
                     // fit the segments
-                    m_segmentMaker->find(rotit->regionPos, rotit->regionDir, *mdtit, rotit->clusters,
-                                         hasPhiMeasurements, segs, rotit->regionDir.mag());
+                    m_segmentMaker->find(rotit->regionPos, rotit->regionDir, *mdtit, rotit->clusters, hasPhiMeasurements, segs,
+                                         rotit->regionDir.mag());
 
                 }  // end loop on hits per region
 

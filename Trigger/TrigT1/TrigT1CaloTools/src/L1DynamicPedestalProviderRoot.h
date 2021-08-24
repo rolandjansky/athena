@@ -1,6 +1,6 @@
 /** -*- C++ -*- */
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file L1DynamicPedestalProviderRoot.h
@@ -40,10 +40,10 @@ namespace LVL1
     virtual ~L1DynamicPedestalProviderRoot();
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** retrieve the bcidCorrection value */
-    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu);
+    virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu) const override;
     
   private:
     std::string m_firRefFileName;

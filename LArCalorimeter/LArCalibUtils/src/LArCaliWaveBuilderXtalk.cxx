@@ -193,10 +193,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
     if( m_calibPattern.find("StripSingle",0) != std::string::npos ){
       HWIdentifier theConsidChannel;
       int pulsedSlot = 2;
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,1);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,1);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
       
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
@@ -212,14 +212,14 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
     if( m_calibPattern.find("MiddleSingle",0) != std::string::npos ){
       HWIdentifier theConsidChannel;
       int pulsedSlot = 11;
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,7);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
-      if (m_calibPattern.find("5",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,67);
-      if (m_calibPattern.find("6",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,66);
-      if (m_calibPattern.find("7",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,71);
-      if (m_calibPattern.find("8",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,70);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,7);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
+      if (m_calibPattern.find('5',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,67);
+      if (m_calibPattern.find('6',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,66);
+      if (m_calibPattern.find('7',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,71);
+      if (m_calibPattern.find('8',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,70);
       
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
@@ -233,10 +233,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
     if ( m_calibPattern.find("BackSingle",0) != std::string::npos){
       HWIdentifier theConsidChannel;
       int pulsedSlot = 9;
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,7);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,7);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
       
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
@@ -264,10 +264,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
       int pulsedSlot = 2;			// EMEC outer wheel standard crates
       if (m_isSpecialCrate) pulsedSlot = 5;	// EMEC outer wheel special crates
       
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,1);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,1);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,3);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,4);
 
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
@@ -296,10 +296,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
 	pulsedCell4 = 3;
       }
 
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell1);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell1);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
       
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       
@@ -335,10 +335,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling(const LArOnOffIdMapping* c
         pulsedCell4 = 18;
       }
 
-      if (m_calibPattern.find("1",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell1);
-      if (m_calibPattern.find("2",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell2);
-      if (m_calibPattern.find("3",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
-      if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
+      if (m_calibPattern.find('1',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell1);
+      if (m_calibPattern.find('2',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell2);
+      if (m_calibPattern.find('3',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell3);
+      if (m_calibPattern.find('4',0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
       
       const std::vector<HWIdentifier>& calibLine = clCont->calibSlotLine(theConsidChannel);
       ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );

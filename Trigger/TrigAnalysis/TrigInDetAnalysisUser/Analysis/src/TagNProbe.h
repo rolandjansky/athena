@@ -1,20 +1,16 @@
-/* emacs: this is -*- c++ -*- */
 /**
- **   @file    TagNProbe.h        
- **                   
- **   @author  maparo
- **   @date    Wed 22 May 2019 21:22:50 BST
+ **     @file    TagNProbe.h
  **
- **   $Id: TagNProbe.h, v0.0   Wed 22 May 2019 21:22:50 BST maparo $
+ **     @author  marco aparo
+ **     @date    Fri 02 Jul 2021 13:30:00 CET 
  **
- **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
+#ifndef TIDA_TAGNPROBE_H
+#define TIDA_TAGNPROBE_H
 
-#ifndef  TIDA_TAGNPROBE_H
-#define  TIDA_TAGNPROBE_H
-
-#include <cstdlib>
+#include <stdlib.h>
 
 #include "TLorentzVector.h"
 
@@ -23,8 +19,10 @@
 #include "TrigInDetAnalysisUtils/Filters.h" 
 #include "TrigInDetAnalysisUtils/Filter_Offline2017.h" 
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h" 
-
 #include "RoiFilter.h"
+#include "utils.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
+#include "TH1D.h"
 
 #include <iostream> 
 #include <vector> 
@@ -37,7 +35,6 @@
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h" 
 #include "TrigInDetAnalysisExample/ChainString.h"
 
-
 class TagNProbe {
 
 public:
@@ -45,6 +42,44 @@ public:
   TagNProbe() { }
 
   virtual ~TagNProbe() { }
+
+
+  /// configuration methods
+
+  void SetEventConfiguration( 
+          NtupleTrackSelector * refTracks,    // reference tracks
+          TrackFilter* refFilter,             // reference filter
+          std::string refName,                // reference objects name
+          TrigObjectMatcher* tom,             // trigger object matcher 
+          double ZmassMin,                    // ZmassMin
+          double ZmassMax,                    // ZmassMax
+          bool unique_flag=true ) {           // unique flag (default=true)
+    m_refTracks = refTracks;
+    m_refFilter = refFilter;
+    m_particleType = refName;
+    m_tom = tom;
+    m_ZmassMin = ZmassMin;
+    m_ZmassMax = ZmassMax;
+    m_unique = unique_flag;
+  }
+
+  void ResetEventConfiguration() { 
+    m_refTracks = 0;
+    m_refFilter = 0;
+    m_particleType = "";
+    m_tom = 0;
+    m_ZmassMin = 0.;
+    m_ZmassMax = 999.;
+    m_unique = false;
+  }
+    
+  void SetUniqueFlag( bool flag ) { m_unique = flag; }
+ 
+  void SetParticleType( std::string type ) { m_particleType = type; }
+ 
+  void SetZmassWindow( double ZmassMin, double ZmassMax ) { m_ZmassMin = ZmassMin; m_ZmassMax = ZmassMax; }
+
+  void SetObjMatcher( TrigObjectMatcher* tom ) { m_tom = tom; }
 
   void SetOfflineTracks( NtupleTrackSelector * refTracks, TrackFilter* refFilter ) {
     m_refTracks = refTracks;
@@ -56,7 +91,13 @@ public:
     m_chain_tnp = chain_tnp;
   }
 
+
+  /// probe searching method
+
   bool FindProbes();
+
+
+  /// getter methods
 
   std::vector<TIDA::Roi*> GetProbes() { return m_probes; }
 
@@ -64,11 +105,40 @@ public:
 
   std::vector<double> GetInvMasses( unsigned int probe_index=0 ) { return m_masses[ probe_index ]; }
 
-  double selection( TIDA::Roi & troi, TIDA::Roi & proi );
+  std::vector<double> GetInvMasses_obj( unsigned int probe_index=0 ) { return m_masses_obj[ probe_index ]; }
 
-  double computeZ( TIDA::Track* t1, TIDA::Track* t2, double mass=0 );
+  std::vector<TIDA::Roi*> GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains );
 
-  void SetUniqueFlag( bool flag ) { m_unique = flag; }
+
+  /// utility methods
+  
+  void FillMap( std::vector<std::string>& tnpChains );
+  
+  std::vector<std::string> GetProbeChainNames() { return m_probe_chain_names; }
+
+  bool isTnP() { return m_tnp_map.size()>0; }
+
+  TIDA::Chain* GetTagChain( std::string probe_name, std::vector<TIDA::Chain>& chains );
+
+  void BookMinvHisto( std::string chain_name );
+
+  void FillMinvHisto( std::string chain_name, unsigned int probe_index );
+
+  void WriteMinvHisto( TDirectory* foutdir );
+
+
+  /// internal methods for computation (protected)
+
+protected:
+
+  std::pair<double,double> selection( TIDA::Roi & troi, TIDA::Roi & proi );
+
+  double computeZ( TIDA::Track* t1, TIDA::Track* t2 );
+
+  double computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 );
+
+
+  /// internally used variables
 
 private:
 
@@ -80,9 +150,25 @@ private:
 
   std::vector<TIDA::Roi*> m_probes;
   std::vector< std::vector<double> > m_masses;
+  std::vector< std::vector<double> > m_masses_obj;
   std::vector< std::vector<TIDA::Roi*> > m_tags;
 
   bool m_unique;
+
+  std::string m_particleType;
+
+  double m_ZmassMin, m_ZmassMax;
+
+  TrigObjectMatcher* m_tom;
+
+
+  /// supporting variables for utility methods
+
+  std::map<std::string,std::string> m_tnp_map;
+  std::vector<std::string> m_probe_chain_names;
+
+  std::map<std::string,TH1D*> m_hMinv_map;
+  std::map<std::string,TH1D*> m_hMinv_obj_map;
 
 };
 

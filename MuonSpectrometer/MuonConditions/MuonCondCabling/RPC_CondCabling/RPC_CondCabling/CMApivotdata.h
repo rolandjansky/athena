@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIVOTDATA_H
@@ -23,46 +23,30 @@ namespace RPC_CondCabling {
         typedef std::list<EvenPhiCMA> EvenPHIlist;
         typedef std::list<OddPhiCMA> OddPHIlist;
 
-        bool m_fail;
+        bool m_fail{true};
 
-        int m_number;
-        int m_station;
-        int m_type;
         std::string m_layout;
 
-        int m_eta_index;
-        int m_phi_index;
-        int m_PAD_index;
-        int m_Ixx_index;
-        int m_start_ch;
-        int m_start_st;
-        int m_stop_ch;
-        int m_stop_st;
-        int m_pivot_station;
-        int m_lowPt_station;
-        int m_highPt_station;
-        ViewType m_view;
-        CMAcoverage m_coverage;
-        std::string m_covtag;
+        ViewType m_view{ViewType::NoView};
+        std::string m_covtag{};
 
         ETAlist m_etaCMA;
         EvenPHIlist m_evenphiCMA;
         OddPHIlist m_oddphiCMA;
 
         void reset_data(void);
-        bool get_data(DBline&);
-        bool confirm_data(ViewType);
+        bool get_data(DBline&, CMAparameters::parseParams& parser);
+        bool confirm_data(ViewType, CMAparameters::parseParams& parser);
 
     public:
-        CMApivotdata();
-        CMApivotdata(DBline&, int, std::string);
-        ~CMApivotdata();
+        CMApivotdata(DBline&, int, const std::string&);
+        virtual ~CMApivotdata() = default;
 
-        std::unique_ptr<EtaCMA> give_eta_cma(void);
-        std::unique_ptr<EvenPhiCMA> give_evenphi_cma(void);
-        std::unique_ptr<OddPhiCMA> give_oddphi_cma(void);
+        std::unique_ptr<EtaCMA> give_eta_cma();
+        std::unique_ptr<EvenPhiCMA> give_evenphi_cma();
+        std::unique_ptr<OddPhiCMA> give_oddphi_cma();
 
-        void Print(std::ostream&, bool) const;
+        virtual void Print(std::ostream&, bool) const override;
     };
 
     template <class X> X& operator<<(X& stream, CMApivotdata& data) {

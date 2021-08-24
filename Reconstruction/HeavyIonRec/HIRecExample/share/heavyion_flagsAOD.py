@@ -3,9 +3,12 @@
 include.block ('HIRecExample/heavyion_flagsAOD.py')
 
 from HIRecExample.HIRecExampleFlags import jobproperties
+from RecExConfig.RecFlags import rec
 
 if not jobproperties.HIRecExampleFlags.ppMode:
   print ("Applying HI AOD flags mods")
+
+  rec.doTau = False
 
   # AO (standard JetRec turned off)
   from JetRec.JetRecFlags import jetFlags
@@ -39,3 +42,8 @@ if not jobproperties.HIRecExampleFlags.ppMode:
   AODFlags.FastSimulation = False
   AODFlags.MissingEtTruth = False
   AODFlags.FastTrackParticle = False
+
+  AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False); 
+  AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False); 
+  AODFlags.AddEgammaMuonTracksInAOD.set_Value_and_Lock(False);
+  AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False);

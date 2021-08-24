@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CMAparameters.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <iomanip>
 #include <vector>
@@ -18,146 +18,68 @@ void CMAparameters::setLayerToShow(int Layer) {
     if (Layer < 0 || Layer > 1) return;
     s_Layer = Layer;
 }
+bool CMAparameters::isAtlas() const { return m_conf_type == Atlas; }
 
-CMAparameters::CMAparameters(int num, int stat, int type, CMAcoverage coverage, int eta, int phi, int PAD, int Ixx, int pivot_station,
-                             int lowPt_station, int highPt_station, int start_ch, int start_st, int stop_ch, int stop_st, ViewType proj) :
-    CablingObject(num, stat, type, (CMAidentity::name(proj, coverage)).c_str()) {
-    m_pivot_start_ch = start_ch;
-    m_pivot_start_st = start_st;
-    m_pivot_stop_ch = stop_ch;
-    m_pivot_stop_st = stop_st;
+const CMAidentity& CMAparameters::id() const { return *m_id; }
+const CMAprogram* CMAparameters::lowPt_program() const { return m_lowPt_program.get(); }
+const CMAprogram* CMAparameters::highPt_program() const { return m_highPt_program.get(); }
 
-    m_id = std::make_unique<CMAidentity>(proj, coverage, num, eta, phi, PAD, Ixx);
+int CMAparameters::pivot_start_ch() const { return m_params.pivotStartChan; }
+int CMAparameters::pivot_start_st() const { return m_params.pivotStartStation; }
+int CMAparameters::pivot_stop_ch() const { return m_params.pivotStopChan; }
+int CMAparameters::pivot_stop_st() const { return m_params.pivotStopStation; }
 
-    m_lowPt_program = nullptr;
-    m_highPt_program = nullptr;
+int CMAparameters::lowPt_start_co() const { return m_params.lowPtStartCo; }
+int CMAparameters::lowPt_stop_co() const { return m_params.lowPtStopCo; }
+int CMAparameters::lowPt_number_co() const { return m_params.lowPtNumCo; }
 
-    m_lowPt_start_co = -1;
-    m_lowPt_stop_co = -1;
-    m_lowPt_number_co = -1;
+int CMAparameters::highPt_start_co() const { return m_params.highPtStartCo; }
+int CMAparameters::highPt_stop_co() const { return m_params.highPtStopCo; }
+int CMAparameters::highPt_number_co() const { return m_params.highPtNumCo; }
 
-    m_highPt_start_co = -1;
-    m_highPt_stop_co = -1;
-    m_highPt_number_co = -1;
+int CMAparameters::lowPt_start_st() const { return m_lowPt_start_st; }
+int CMAparameters::lowPt_start_ch() const { return m_lowPt_start_ch; }
+int CMAparameters::lowPt_stop_st() const { return m_lowPt_stop_st; }
+int CMAparameters::lowPt_stop_ch() const { return m_lowPt_stop_ch; }
 
-    m_lowPt_start_st = -1;
-    m_lowPt_start_ch = -1;
-    m_lowPt_stop_st = -1;
-    m_lowPt_stop_ch = -1;
+int CMAparameters::highPt_start_st() const { return m_highPt_start_st; }
+int CMAparameters::highPt_start_ch() const { return m_highPt_start_ch; }
+int CMAparameters::highPt_stop_st() const { return m_highPt_stop_st; }
+int CMAparameters::highPt_stop_ch() const { return m_highPt_stop_ch; }
 
-    m_highPt_start_st = -1;
-    m_highPt_start_ch = -1;
-    m_highPt_stop_st = -1;
-    m_highPt_stop_ch = -1;
+int CMAparameters::active_pivot_chs() const { return m_active_pivot_chs; }
+int CMAparameters::active_lowPt_chs() const { return m_active_lowPt_chs; }
+int CMAparameters::active_highPt_chs() const { return m_active_highPt_chs; }
 
-    m_active_pivot_chs = 0;
-    m_active_lowPt_chs = 0;
-    m_active_highPt_chs = 0;
+int CMAparameters::pivot_station() const { return m_params.pivotStation; }
+int CMAparameters::lowPt_station() const { return m_params.lowPtStation; }
+int CMAparameters::highPt_station() const { return m_params.highPtStation; }
 
-    m_lowPt_station = lowPt_station;
-    m_pivot_station = pivot_station;
-    m_highPt_station = highPt_station;
+int CMAparameters::pivot_rpc_read() const { return m_pivot_rpc_read; }
+int CMAparameters::lowPt_rpc_read() const { return m_lowPt_rpc_read; }
+int CMAparameters::highPt_rpc_read() const { return m_highPt_rpc_read; }
 
-    m_pivot_rpc_read = 0;
-    m_lowPt_rpc_read = 0;
-    m_highPt_rpc_read = 0;
+unsigned int CMAparameters::first_pivot_code() const { return m_first_pivot_code; }
+unsigned int CMAparameters::last_pivot_code() const { return m_last_pivot_code; }
+unsigned int CMAparameters::first_lowPt_code() const { return m_first_lowPt_code; }
+unsigned int CMAparameters::last_lowPt_code() const { return m_last_lowPt_code; }
+unsigned int CMAparameters::first_highPt_code() const { return m_first_highPt_code; }
+unsigned int CMAparameters::last_highPt_code() const { return m_last_highPt_code; }
 
-    m_first_pivot_code = 0;
-    m_last_pivot_code = 0;
-    m_first_lowPt_code = 0;
-    m_last_lowPt_code = 0;
-    m_first_highPt_code = 0;
-    m_last_highPt_code = 0;
+CMAparameters::CMAconfiguration CMAparameters::conf_type() const { return m_conf_type; }
 
-    m_pivot = 0;
-    m_lowPt = 0;
-    m_highPt = 0;
-
-    m_conf_type = CMAparameters::Atlas;
+CMAparameters::CMAparameters(CMAparameters::parseParams parse) :
+    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage)), m_params{parse} {
+    m_id = std::make_unique<CMAidentity>(parse);
 }
 
-CMAparameters::CMAparameters(int num, int stat, int type, int eta, int phi, int lowPt_start_co, int lowPt_stop_co, int lowPt_number_co,
-                             int highPt_start_co, int highPt_stop_co, int highPt_number_co) :
-    CablingObject(num, stat, type, CMAidentity::name(Eta, AllSectors)) {
-    m_pivot_start_ch = -1;
-    m_pivot_start_st = -1;
-    m_pivot_stop_ch = -1;
-    m_pivot_stop_st = -1;
-    CMAidentity::Offline_indexes identity(eta, phi);
-
-    m_id = std::make_unique<CMAidentity>(Eta, AllSectors, identity);
-
-    m_lowPt_program = nullptr;
-    m_highPt_program = nullptr;
-
-    m_lowPt_start_co = lowPt_start_co;
-    m_lowPt_stop_co = lowPt_stop_co;
-    m_lowPt_number_co = lowPt_number_co;
-
-    m_highPt_start_co = highPt_start_co;
-    m_highPt_stop_co = highPt_stop_co;
-    m_highPt_number_co = highPt_number_co;
-
-    m_lowPt_start_st = -1;
-    m_lowPt_start_ch = -1;
-    m_lowPt_stop_st = -1;
-    m_lowPt_stop_ch = -1;
-
-    m_highPt_start_st = -1;
-    m_highPt_start_ch = -1;
-    m_highPt_stop_st = -1;
-    m_highPt_stop_ch = -1;
-
-    m_active_pivot_chs = 0;
-    m_active_lowPt_chs = 0;
-    m_active_highPt_chs = 0;
-
-    m_pivot_rpc_read = 0;
-    m_lowPt_rpc_read = 0;
-    m_highPt_rpc_read = 0;
-
-    m_lowPt_station = 0;
-    m_pivot_station = 0;
-    m_highPt_station = 0;
-
-    m_first_pivot_code = 0;
-    m_last_pivot_code = 0;
-    m_first_lowPt_code = 0;
-    m_last_lowPt_code = 0;
-    m_first_highPt_code = 0;
-    m_last_highPt_code = 0;
-
-    m_pivot = 0;
-    m_lowPt = 0;
-    m_highPt = 0;
-
-    m_conf_type = CMAparameters::Atlas;
-}
-
-CMAparameters::CMAparameters(const CMAparameters& cma) : CablingObject(cma.number(), cma.station(), cma.sector_type(), cma.name()) {
-    m_pivot_start_ch = cma.pivot_start_ch();
-    m_pivot_start_st = cma.pivot_start_st();
-    m_pivot_stop_ch = cma.pivot_stop_ch();
-    m_pivot_stop_st = cma.pivot_stop_st();
+CMAparameters::CMAparameters(const CMAparameters& cma) : CablingObject(cma), m_params{cma.m_params} {
     m_id = std::make_unique<CMAidentity>(cma.id());
 
     const CMAprogram* proglow = cma.lowPt_program();
     const CMAprogram* proghigh = cma.highPt_program();
-    m_lowPt_program = (proglow) ? new CMAprogram(*proglow) : 0;
-    m_highPt_program = (proghigh) ? new CMAprogram(*proghigh) : 0;
-
-    m_lowPt_start_co = cma.lowPt_start_co();
-    m_lowPt_stop_co = cma.lowPt_stop_co();
-    m_lowPt_number_co = cma.lowPt_number_co();
-
-    m_highPt_start_co = cma.highPt_start_co();
-    m_highPt_stop_co = cma.highPt_stop_co();
-    m_highPt_number_co = cma.highPt_number_co();
-
-    m_lowPt_start_st = cma.lowPt_start_st();
-    m_lowPt_start_ch = cma.lowPt_start_ch();
-    m_lowPt_stop_st = cma.lowPt_stop_st();
-    m_lowPt_stop_ch = cma.lowPt_stop_ch();
+    if (proglow) { m_lowPt_program = std ::make_unique<CMAprogram>(*proglow); }
+    if (proghigh) { m_highPt_program = std::make_unique<CMAprogram>(*proghigh); }
 
     m_highPt_start_st = cma.highPt_start_st();
     m_highPt_start_ch = cma.highPt_start_ch();
@@ -167,10 +89,6 @@ CMAparameters::CMAparameters(const CMAparameters& cma) : CablingObject(cma.numbe
     m_active_pivot_chs = cma.active_pivot_chs();
     m_active_lowPt_chs = cma.active_lowPt_chs();
     m_active_highPt_chs = cma.active_highPt_chs();
-
-    m_pivot_station = cma.pivot_station();
-    m_lowPt_station = cma.lowPt_station();
-    m_highPt_station = cma.highPt_station();
 
     m_pivot = nullptr;
     m_lowPt = nullptr;
@@ -217,32 +135,24 @@ CMAparameters::~CMAparameters() {
     if (m_pivot) delete[] m_pivot;
     if (m_lowPt) delete[] m_lowPt;
     if (m_highPt) delete[] m_highPt;
-    if (m_lowPt_program) delete m_lowPt_program;
-    if (m_highPt_program) delete m_highPt_program;
 }
 
 CMAparameters& CMAparameters::operator=(const CMAparameters& cma) {
     if (this != &cma) {
-        m_pivot_start_ch = cma.pivot_start_ch();
-        m_pivot_start_st = cma.pivot_start_st();
-        m_pivot_stop_ch = cma.pivot_stop_ch();
-        m_pivot_stop_st = cma.pivot_stop_st();
+        CablingObject::operator=(cma);
+        m_params = cma.m_params;
         m_id = std::make_unique<CMAidentity>(cma.id());
 
-        if (m_lowPt_program) delete m_lowPt_program;
-        if (m_highPt_program) delete m_highPt_program;
         const CMAprogram* proglow = cma.lowPt_program();
         const CMAprogram* proghigh = cma.highPt_program();
-        m_lowPt_program = (proglow) ? new CMAprogram(*proglow) : 0;
-        m_highPt_program = (proghigh) ? new CMAprogram(*proghigh) : 0;
-
-        m_lowPt_start_co = cma.lowPt_start_co();
-        m_lowPt_stop_co = cma.lowPt_stop_co();
-        m_lowPt_number_co = cma.lowPt_number_co();
-
-        m_highPt_start_co = cma.highPt_start_co();
-        m_highPt_stop_co = cma.highPt_stop_co();
-        m_highPt_number_co = cma.highPt_number_co();
+        if (proglow) {
+            m_lowPt_program = std::make_unique<CMAprogram>(*proglow);
+        } else
+            m_lowPt_program.reset();
+        if (proghigh) {
+            m_highPt_program = std::make_unique<CMAprogram>(*proghigh);
+        } else
+            m_highPt_program.reset();
 
         m_lowPt_start_st = cma.lowPt_start_st();
         m_lowPt_start_ch = cma.lowPt_start_ch();
@@ -257,10 +167,6 @@ CMAparameters& CMAparameters::operator=(const CMAparameters& cma) {
         m_active_pivot_chs = cma.active_pivot_chs();
         m_active_lowPt_chs = cma.active_lowPt_chs();
         m_active_highPt_chs = cma.active_highPt_chs();
-
-        m_pivot_station = cma.pivot_station();
-        m_lowPt_station = cma.lowPt_station();
-        m_highPt_station = cma.highPt_station();
 
         reset_pivot_cabling();
         reset_lowPt_cabling();
@@ -302,22 +208,22 @@ CMAparameters& CMAparameters::operator=(const CMAparameters& cma) {
     return *this;
 }
 
-void CMAparameters::reset_pivot_cabling(void) {
+void CMAparameters::reset_pivot_cabling() {
     m_pivot_rpc_read = 0;
     if (m_pivot) delete[] m_pivot;
-    m_pivot = 0;
+    m_pivot = nullptr;
 }
 
-void CMAparameters::reset_lowPt_cabling(void) {
+void CMAparameters::reset_lowPt_cabling() {
     m_lowPt_rpc_read = 0;
     if (m_lowPt) delete[] m_lowPt;
-    m_lowPt = 0;
+    m_lowPt = nullptr;
 }
 
-void CMAparameters::reset_highPt_cabling(void) {
+void CMAparameters::reset_highPt_cabling() {
     m_highPt_rpc_read = 0;
     if (m_highPt) delete[] m_highPt;
-    m_highPt = 0;
+    m_highPt = nullptr;
 }
 
 void CMAparameters::create_pivot_map(int rpc_to_read) {
@@ -348,32 +254,30 @@ void CMAparameters::create_highPt_map(int rpc_to_read) {
 }
 
 bool CMAparameters::operator==(const CMAparameters& cma) const {
-    if (this->id() == cma.id()) return true;
-    return false;
+    return this->id() == cma.id();
 }
 
 bool CMAparameters::operator==(const CMAidentity& id) const {
-    if (this->id() == id) return true;
-    return false;
+    return this->id() == id;
 }
 
 CMAparameters& CMAparameters::operator+=(const CMAparameters& cma) {
-    if (m_pivot_start_ch == -1) m_pivot_start_ch = cma.pivot_start_ch();
-    if (m_pivot_start_st == -1) m_pivot_start_st = cma.pivot_start_st();
-    if (m_pivot_stop_ch == -1) m_pivot_stop_ch = cma.pivot_stop_ch();
-    if (m_pivot_stop_st == -1) m_pivot_stop_st = cma.pivot_stop_st();
+    if (m_params.pivotStartChan == -1) m_params.pivotStartChan = cma.pivot_start_ch();
+    if (m_params.pivotStartStation == -1) m_params.pivotStartStation = cma.pivot_start_st();
+    if (m_params.pivotStopChan == -1) m_params.pivotStopChan = cma.pivot_stop_ch();
+    if (m_params.pivotStopStation == -1) m_params.pivotStopStation = cma.pivot_stop_st();
 
-    if (m_lowPt_start_co == -1) m_lowPt_start_co = cma.lowPt_start_co();
-    if (m_lowPt_stop_co == -1) m_lowPt_stop_co = cma.lowPt_stop_co();
-    if (m_lowPt_number_co == -1) m_lowPt_number_co = cma.lowPt_number_co();
+    if (m_params.lowPtStartCo == -1) m_params.lowPtStartCo = cma.lowPt_start_co();
+    if (m_params.lowPtStopCo == -1) m_params.lowPtStopCo = cma.lowPt_stop_co();
+    if (m_params.lowPtNumCo == -1) m_params.lowPtNumCo = cma.lowPt_number_co();
 
-    if (m_highPt_start_co == -1) m_highPt_start_co = cma.highPt_start_co();
-    if (m_highPt_stop_co == -1) m_highPt_stop_co = cma.highPt_stop_co();
-    if (m_highPt_number_co == -1) m_highPt_number_co = cma.highPt_number_co();
+    if (m_params.highPtStartCo == -1) m_params.highPtStartCo = cma.highPt_start_co();
+    if (m_params.highPtStopCo == -1) m_params.highPtStopCo = cma.highPt_stop_co();
+    if (m_params.highPtNumCo == -1) m_params.highPtNumCo = cma.highPt_number_co();
 
-    if (m_lowPt_station == 0) m_lowPt_station = cma.lowPt_station();
-    if (m_pivot_station == 0) m_pivot_station = cma.pivot_station();
-    if (m_highPt_station == 0) m_highPt_station = cma.highPt_station();
+    if (m_params.lowPtStation == 0) m_params.lowPtStation = cma.lowPt_station();
+    if (m_params.pivotStation == 0) m_params.pivotStation = cma.pivot_station();
+    if (m_params.highPtStation == 0) m_params.highPtStation = cma.highPt_station();
 
     if (m_lowPt_start_st == -1) m_lowPt_start_st = cma.lowPt_start_st();
     if (m_lowPt_start_ch == -1) m_lowPt_start_ch = cma.lowPt_start_ch();
@@ -449,15 +353,15 @@ void CMAparameters::showMt(char display[][90], int ln, TrigType type) const {
     down = 45;
 
     // Set input for the display
-    __osstream** disp = new __osstream*[ln];
+    std::ostringstream** disp = new std::ostringstream*[ln];
 
-    for (int i = 0; i < ln; ++i) disp[i] = new __osstream;
+    for (int i = 0; i < ln; ++i) disp[i] = new std::ostringstream;
 
     int pivot_loop = (m_pivot_rpc_read < 4) ? m_pivot_rpc_read : 3;
     int conf_loop = 0;
-    int(*conf)[2][confirm_channels] = 0;
+    int(*conf)[2][confirm_channels] = nullptr;
 
-    const CMAprogram* program = 0;
+    const CMAprogram* program = nullptr;
 
     if (type == Low) {
         conf_loop = m_lowPt_rpc_read;
@@ -547,8 +451,8 @@ void CMAparameters::showMt(char display[][90], int ln, TrigType type) const {
 void CMAparameters::Print(std::ostream& stream, bool detail) const {
     stream << id();
 
-    stream << "  I/O " << m_pivot_station << ",";
-    stream << m_lowPt_station << "," << m_highPt_station << "  pivot ";
+    stream << "  I/O " << m_params.pivotStation << ",";
+    stream << m_params.lowPtStation << "," << m_params.highPtStation << "  pivot ";
     stream.fill(48);
     stream << "<" << std::setw(2) << pivot_start_ch();
     stream << ":" << std::setw(2) << pivot_start_st();
@@ -570,20 +474,21 @@ void CMAparameters::Print(std::ostream& stream, bool detail) const {
     if (detail) showDt(stream);
 }
 
-void CMAparameters::noMoreChannels(const std::string stat) {
+std::string CMAparameters::noMoreChannels(const std::string& stat) {
     int max_channels = 0;
     if (stat == "Pivot")
         max_channels = pivot_channels;
     else
         max_channels = confirm_channels;
 
-    DISP << "Error in Sector Type " << this->sector_type() << ":" << std::endl
-         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side" << std::endl;
-    DISP_ERROR;
+    std::ostringstream disp;
+    disp << "Error in Sector Type " << this->sector_type() << ":" << std::endl
+         << this->id() << "  attempted to receive more than " << max_channels << " channels for " << stat << " side";
+    return disp.str();
 }
 
 const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
 
     if (input == Pivot && m_pivot) {
@@ -596,86 +501,83 @@ const CMAparameters* CMAparameters::test(CMAinput input, int cabling_code) const
         nstrips = confirm_channels * m_highPt_rpc_read * 2;
         strips = reinterpret_cast<int*>(m_highPt);
     } else
-        return 0;
+        return nullptr;
 
     for (int i = 0; i < nstrips; ++i)
         if (strips[i] == cabling_code) return this;
 
-    return 0;
+    return nullptr;
 }
 
-void CMAparameters::two_obj_error_message(std::string msg, CMAparameters* cma) {
-    this->error_header();
-
-    DISP << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
+std::string CMAparameters::two_obj_error_message(const std::string& msg, CMAparameters* cma) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << "  " << msg << " between " << name() << " n. " << number() << " and " << cma->name() << " n. " << cma->number() << std::endl
          << *this << *cma;
-    DISP_ERROR;
+    return disp.str();
 }
 
-void CMAparameters::no_confirm_error(int stat) {
-    this->error_header();
+std::string CMAparameters::no_confirm_error(int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
     if (stat == lowPt_station()) {
-        DISP << "Low Pt cabling inconsistence (cabling from connector " << m_lowPt_start_co << " to connector " << m_lowPt_stop_co
+        disp << "Low Pt cabling inconsistence (cabling from connector " << m_params.lowPtStartCo << " to connector " << m_params.lowPtStopCo
              << ") for" << std::endl
              << *this;
-        DISP_ERROR;
     } else if (stat == highPt_station()) {
-        DISP << "High Pt cabling inconsistence (cabling from connector " << m_highPt_start_co << " to connector " << m_highPt_stop_co
-             << ") for" << std::endl
+        disp << "High Pt cabling inconsistence (cabling from connector " << m_params.highPtStartCo << " to connector "
+             << m_params.highPtStopCo << ") for" << std::endl
              << *this;
-        DISP_ERROR;
-    } else
-        return;
+    }
+    return disp.str();
 }
 
-void CMAparameters::no_wor_readout(int num, int stat) {
-    this->error_header();
+std::string CMAparameters::no_wor_readout(int num, int stat) {
+    std::ostringstream disp;
+    disp << this->error_header();
 
-    DISP << this->id() << "   receives input from" << std::endl
-         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!" << std::endl;
-    DISP_ERROR;
+    disp << this->id() << "   receives input from" << std::endl
+         << "  RPC chamber n. " << num << " of station " << stat << " which has no Wired OR readout!";
+    return disp.str();
 }
 
-void CMAparameters::error(std::string str) {
-    this->error_header();
-
-    DISP << this->id() << str << std::endl;
-    DISP_ERROR;
+std::string CMAparameters::error(const std::string& str) {
+    std::ostringstream disp;
+    disp << this->error_header()
+         << this->id() << str;
+    return disp.str();
 }
 
 CMAinput CMAparameters::whichCMAinput(int stat) const {
-    if (stat == m_pivot_station)
+    if (stat == m_params.pivotStation)
         return Pivot;
-    else if (stat == m_lowPt_station)
+    else if (stat == m_params.lowPtStation)
         return LowPt;
-    else if (stat == m_highPt_station)
+    else if (stat == m_params.highPtStation)
         return HighPt;
     else
         return NoInput;
 }
 
 int CMAparameters::whichCMAstation(CMAinput input) const {
-    if (input == Pivot)
-        return m_pivot_station;
-    else if (input == LowPt)
-        return m_lowPt_station;
-    else if (input == HighPt)
-        return m_highPt_station;
+    if (input == CMAinput::Pivot)
+        return m_params.pivotStation;
+    else if (input == CMAinput::LowPt)
+        return m_params.lowPtStation;
+    else if (input == CMAinput::HighPt)
+        return m_params.highPtStation;
     else
         return 0;
 }
 
 bool CMAparameters::give_connection(int station, int cab_code, CMAinput& IO, int& ly, int& ch) const {
     IO = whichCMAinput(station);
-    if (get_channel(IO, cab_code, ly, ch))
-        return true;
-    else
-        return false;
+    return get_channel(IO, cab_code, ly, ch);
 }
 
 bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int nstrips = 0;
     int channels = 0;
 
@@ -706,7 +608,7 @@ bool CMAparameters::get_channel(CMAinput IO, int cab_code, int& ly, int& ch) con
 }
 
 bool CMAparameters::get_cabling(CMAinput IO, int WOR, int ly, int ch, unsigned int& code) const {
-    int* strips = 0;
+    int* strips = nullptr;
     int channels = 0;
 
     if (ly >= 2) return false;
@@ -743,7 +645,7 @@ bool CMAparameters::correct(L1RPCcabCorrection type, CMAinput it, unsigned int l
 
     int worlo = 0;
     int maxch = 0;
-    int* map = 0;
+    int* map = nullptr;
 
     switch (it) {
         case Pivot:
@@ -945,7 +847,7 @@ void CMAparameters::give_strip_code(unsigned int logic_sector, unsigned short in
     }
 }
 
-unsigned int CMAparameters::first_pivot_channel(void) const {
+unsigned int CMAparameters::first_pivot_channel() const {
     for (int ch = 0; ch < pivot_channels; ++ch) {
         for (int i = 0; i < m_pivot_rpc_read; ++i) {
             int CabCode = m_pivot[i][0][ch];
@@ -955,7 +857,7 @@ unsigned int CMAparameters::first_pivot_channel(void) const {
     return 999;
 }
 
-unsigned int CMAparameters::last_pivot_channel(void) const {
+unsigned int CMAparameters::last_pivot_channel() const {
     for (int ch = pivot_channels - 1; ch >= 0; --ch) {
         for (int i = 0; i < m_pivot_rpc_read; ++i) {
             int CabCode = m_pivot[i][0][ch];
@@ -965,7 +867,7 @@ unsigned int CMAparameters::last_pivot_channel(void) const {
     return 999;
 }
 
-unsigned int CMAparameters::first_lowPt_channel(void) const {
+unsigned int CMAparameters::first_lowPt_channel() const {
     for (int ch = 0; ch < confirm_channels; ++ch) {
         for (int i = 0; i < m_lowPt_rpc_read; ++i) {
             int CabCode = m_lowPt[i][0][ch];
@@ -975,7 +877,7 @@ unsigned int CMAparameters::first_lowPt_channel(void) const {
     return 999;
 }
 
-unsigned int CMAparameters::last_lowPt_channel(void) const {
+unsigned int CMAparameters::last_lowPt_channel() const {
     for (int ch = confirm_channels - 1; ch >= 0; --ch) {
         for (int i = 0; i < m_lowPt_rpc_read; ++i) {
             int CabCode = m_lowPt[i][0][ch];
@@ -985,7 +887,7 @@ unsigned int CMAparameters::last_lowPt_channel(void) const {
     return 999;
 }
 
-unsigned int CMAparameters::first_highPt_channel(void) const {
+unsigned int CMAparameters::first_highPt_channel() const {
     for (int ch = 0; ch < confirm_channels; ++ch) {
         for (int i = 0; i < m_highPt_rpc_read; ++i) {
             int CabCode = m_highPt[i][0][ch];
@@ -995,7 +897,7 @@ unsigned int CMAparameters::first_highPt_channel(void) const {
     return 999;
 }
 
-unsigned int CMAparameters::last_highPt_channel(void) const {
+unsigned int CMAparameters::last_highPt_channel() const {
     for (int ch = confirm_channels - 1; ch >= 0; --ch) {
         for (int i = 0; i < m_highPt_rpc_read; ++i) {
             int CabCode = m_highPt[i][0][ch];

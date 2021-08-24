@@ -34,7 +34,7 @@ public:
   TRT_RDORawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~TRT_RDORawData();
+  virtual ~TRT_RDORawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 

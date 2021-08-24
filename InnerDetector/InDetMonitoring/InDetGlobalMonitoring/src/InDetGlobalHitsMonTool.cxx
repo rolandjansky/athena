@@ -64,46 +64,46 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
       m_ID_hitmap_z_r(nullptr),
       m_ID_holes(nullptr),
       m_Trk_nSihits_nTRThits(nullptr),m_Trk_nPIXhits_nSCThits(nullptr),m_Trk_nSCThits_nTRThits(nullptr),
-      m_Trk_nPIXhits(0),
-      m_Trk_nPIXhits_EA(0),
-      m_Trk_nPIXhits_TA(0),
-      m_Trk_nPIXhits_B(0),
-      m_Trk_nPIXhits_TC(0),
-      m_Trk_nPIXhits_EC(0),
-      m_Trk_nPIXhits_eta(0),
-      m_Trk_nPIXhits_phi(0),
-      m_Trk_nPIXhits_eta_phi(0),
+      m_Trk_nPIXhits(nullptr),
+      m_Trk_nPIXhits_EA(nullptr),
+      m_Trk_nPIXhits_TA(nullptr),
+      m_Trk_nPIXhits_B(nullptr),
+      m_Trk_nPIXhits_TC(nullptr),
+      m_Trk_nPIXhits_EC(nullptr),
+      m_Trk_nPIXhits_eta(nullptr),
+      m_Trk_nPIXhits_phi(nullptr),
+      m_Trk_nPIXhits_eta_phi(nullptr),
       m_Trk_nPixhits_SCTTRTPixFid(nullptr), 
-      m_Trk_nPIXhits_fidusial(0),
-      m_Trk_nPIXhits_1trk(0),
-      m_Trk_nSCThits_1trk(0),
-      m_Trk_nSCThits(0),
-      m_Trk_nSCThits_EA(0),
-      m_Trk_nSCThits_TA(0),
-      m_Trk_nSCThits_B(0),
-      m_Trk_nSCThits_TC(0),
-      m_Trk_nSCThits_EC(0),
-      m_Trk_nSCThits_eta(0),
-      m_Trk_nSCThits_phi(0),
-      m_Trk_nSCThits_eta_phi(0),
-      m_Trk_nSCThits_pt(0),
-      m_Trk_nSCThits_PixTRT(0),
-      m_Trk_nSCThits_withPix(0),
-      m_Trk_nTRThits(0),
-      m_Trk_nTRThits_EA(0),
-      m_Trk_nTRThits_TA(0),
-      m_Trk_nTRThits_B(0),
-      m_Trk_nTRThits_TC(0),
-      m_Trk_nTRThits_EC(0),
-      m_Trk_nTRThits_eta(0),
-      m_Trk_nTRThits_phi(0),
-      m_Trk_nTRThits_eta_phi(0),
+      m_Trk_nPIXhits_fidusial(nullptr),
+      m_Trk_nPIXhits_1trk(nullptr),
+      m_Trk_nSCThits_1trk(nullptr),
+      m_Trk_nSCThits(nullptr),
+      m_Trk_nSCThits_EA(nullptr),
+      m_Trk_nSCThits_TA(nullptr),
+      m_Trk_nSCThits_B(nullptr),
+      m_Trk_nSCThits_TC(nullptr),
+      m_Trk_nSCThits_EC(nullptr),
+      m_Trk_nSCThits_eta(nullptr),
+      m_Trk_nSCThits_phi(nullptr),
+      m_Trk_nSCThits_eta_phi(nullptr),
+      m_Trk_nSCThits_pt(nullptr),
+      m_Trk_nSCThits_PixTRT(nullptr),
+      m_Trk_nSCThits_withPix(nullptr),
+      m_Trk_nTRThits(nullptr),
+      m_Trk_nTRThits_EA(nullptr),
+      m_Trk_nTRThits_TA(nullptr),
+      m_Trk_nTRThits_B(nullptr),
+      m_Trk_nTRThits_TC(nullptr),
+      m_Trk_nTRThits_EC(nullptr),
+      m_Trk_nTRThits_eta(nullptr),
+      m_Trk_nTRThits_phi(nullptr),
+      m_Trk_nTRThits_eta_phi(nullptr),
       m_Trk_nTRThits_PixSCT(nullptr),
-      m_Trk_nTRTHLhits(0),
-      m_Trk_nTRTLLhits(0),
-      m_Trk_nTRThits_withSi(0),
-      m_Trk_nTRTHLhits_1trk(0),
-      m_Trk_nTRTLLhits_1trk(0),
+      m_Trk_nTRTHLhits(nullptr),
+      m_Trk_nTRTLLhits(nullptr),
+      m_Trk_nTRThits_withSi(nullptr),
+      m_Trk_nTRTHLhits_1trk(nullptr),
+      m_Trk_nTRTLLhits_1trk(nullptr),
       m_TRT_LL(0),
       m_TRT_HL(0),
       m_SCThits(0),
@@ -276,7 +276,7 @@ StatusCode InDetGlobalHitsMonTool::fillHistograms()
       
       // Get track
       const Trk::Track *track=(*itrack);
-      if (track == 0){
+      if (track == nullptr){
 	if ( msgLvl(MSG::WARNING) ) {
           msg(MSG::WARNING) << "no pointer to track!!!" << endmsg;
         }
@@ -287,7 +287,7 @@ StatusCode InDetGlobalHitsMonTool::fillHistograms()
 
       const DataVector<const Trk::TrackStateOnSurface>* 
 	trackStates=track->trackStateOnSurfaces(); 
-      if (trackStates == 0) {
+      if (trackStates == nullptr) {
 	if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) 
 	  << "for current track is TrackStateOnSurfaces == Null " 
 	  << endmsg;
@@ -401,7 +401,7 @@ StatusCode InDetGlobalHitsMonTool::procHistograms()
 
 StatusCode InDetGlobalHitsMonTool::processHit( const Trk::Track *track, const Trk::TrackStateOnSurface* trackState )
 {
-    if (trackState == 0) {
+    if (trackState == nullptr) {
 	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endmsg;
 	return StatusCode::FAILURE;
     }
@@ -411,7 +411,7 @@ StatusCode InDetGlobalHitsMonTool::processHit( const Trk::Track *track, const Tr
     
     //TRT
     const InDet::TRT_DriftCircleOnTrack *trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trackState->measurementOnTrack());
-    if (trtcircle!=0) {
+    if (trtcircle!=nullptr) {
 	//m_ID_hitmap_x_y->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
 	if ( trtcircle->globalPosition()[2] < -800 ) 
 	    m_ID_hitmap_x_y_ecc->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
@@ -449,7 +449,7 @@ StatusCode InDetGlobalHitsMonTool::processHit( const Trk::Track *track, const Tr
 	m_ID_hitmap_z_x->Fill( clus->globalPosition()[2], clus->globalPosition()[0] );
 	m_ID_hitmap_z_r->Fill( clus->globalPosition()[2], sqrt( pow( clus->globalPosition()[0], 2) + pow( clus->globalPosition()[1], 2) ) );
 	const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
-	if (RawDataClus==0) {
+	if (RawDataClus==nullptr) {
 	    if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING)
 		<< "SiCluster WITHOUT prepRawData!!!!"
 	    << endmsg;

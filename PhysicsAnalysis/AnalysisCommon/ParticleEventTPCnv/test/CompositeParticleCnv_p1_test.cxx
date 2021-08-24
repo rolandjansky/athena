@@ -87,7 +87,11 @@ void test1()
   AthenaBarCodeImpl dumbc; // Get services created.
   dumbc.getVersion();
   ElementLink<VxContainer> origlink ("orig", 10);
-  INav4MomLink dum ("part", 19);
+  {
+    CompositeParticle tdum;
+    tdum.navigableBase().insertElement (INav4MomLink ("part", 12));
+    *tdum.navigableBase().begin();
+  }
   Athena_test::Leakcheck check;
 
   CompositeParticle trans1;

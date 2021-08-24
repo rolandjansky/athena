@@ -13,6 +13,7 @@
 #include "TMath.h"
 #include "TObjString.h"
 #include "TTree.h"
+#include "TClass.h"
 
 #include <cmath>
 
@@ -77,6 +78,11 @@ StatusCode egammaMVACalibTool::initialize()
     ATH_MSG_FATAL("Particle type not set properly: " << m_particleType);
     return StatusCode::FAILURE;
   }
+
+  // Load these dictionaries now, so we don't need to try to do so
+  // while multiple threads are running.
+  TClass::GetClass ("TH2Poly");
+  TClass::GetClass ("TMultiGraph");
 
   return StatusCode::SUCCESS;
 }

@@ -39,7 +39,7 @@ class LUCID_DigitizationToolBox {
 			    std::vector<double> npeThreshold,
 			    bool   fillRootTree);
   
-  StatusCode recordContainers(ServiceHandle<StoreGateSvc>, std::string);
+  StatusCode recordContainers(const ServiceHandle<StoreGateSvc>&, const std::string&);
   
   StatusCode fillDigitContainer(TimedHitCollection<LUCID_SimHit>&, CLHEP::HepRandomEngine*);
   StatusCode fillDigitContainer(LUCID_SimHitCollection*          , CLHEP::HepRandomEngine*);
@@ -50,12 +50,12 @@ class LUCID_DigitizationToolBox {
 
   TTree* getDebugTree(){ return m_tubeInfo; }  
   
-  unsigned int roundoff(double x);
+  static unsigned int roundoff(double x);
   
   StatusCode createAndStoreDigit(unsigned short tubeID, CLHEP::HepRandomEngine* rndEngine);
 
-  double DynodeChainSimulation(double npe, CLHEP::HepRandomEngine* rndEngine);
-  double DynodeGainSmearing   (double npe, CLHEP::HepRandomEngine* rndEngine);
+  double DynodeChainSimulation(double npe, CLHEP::HepRandomEngine* rndEngine) const;
+  static double DynodeGainSmearing   (double npe, CLHEP::HepRandomEngine* rndEngine);
   
   LUCID_DigitContainer* m_digitContainer;
 

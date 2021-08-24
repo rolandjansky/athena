@@ -36,6 +36,14 @@ StatusCode JetVertexFractionTool::initialize() {
   m_jvfCorrKey = m_jetContainerName + "." + m_jvfCorrKey.key();
   m_maxJvfVtxKey = m_jetContainerName + "." + m_maxJvfVtxKey.key();
 
+#ifndef XAOD_STANDALONE
+  if(m_suppressInputDeps){
+    // The user has promised that this will be produced by the same alg running JVF.
+    // Tell the scheduler to ignore it to avoid circular dependencies.
+    renounce(m_sumPtTrkKey);
+  }
+#endif
+
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_tva_key.initialize());
   ATH_CHECK(m_tracksCont_key.initialize());

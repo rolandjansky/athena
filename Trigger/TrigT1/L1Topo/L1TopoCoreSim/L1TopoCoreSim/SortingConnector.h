@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoCoreSim_SortingConnector
 #define L1TopoCoreSim_SortingConnector
@@ -24,9 +24,9 @@ namespace TCS {
    class SortingConnector : public Connector {
    public:
       
-      SortingConnector(const std::string & output,
-                       const std::string & algorithms,
-                       const std::string & input);
+      SortingConnector(const std::string & input,
+                       const std::string & algorithm,
+                       const std::string & output);
 
       virtual ~SortingConnector();
 

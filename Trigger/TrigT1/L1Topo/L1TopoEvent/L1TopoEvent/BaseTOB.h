@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #ifndef TopoCore_BaseTOB
 #define TopoCore_BaseTOB
@@ -10,7 +10,7 @@ namespace TCS {
    
    class BaseTOB {
    public:
-      BaseTOB(uint32_t roiWord, std::string tobType);
+      BaseTOB(uint32_t roiWord, const std::string& tobType);
       virtual ~BaseTOB();
 
       virtual void print(std::ostream&) const = 0;
@@ -18,6 +18,8 @@ namespace TCS {
       virtual inputTOBType_t tobType() const = 0;
       
       uint32_t roiWord() const { return m_roiWord; }
+
+      const std::string& tobName() const { return m_tobName; }
 
       static size_t instances() { return 0; }
 

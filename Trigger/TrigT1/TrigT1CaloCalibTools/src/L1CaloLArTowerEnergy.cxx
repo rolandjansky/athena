@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloLArTowerEnergy.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "StoreGate/ReadCondHandle.h"
 
 namespace LVL1{
 
@@ -16,7 +17,6 @@ namespace LVL1{
     m_ttService(nullptr),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_badFebMasker("LArBadFebMasker"),
-    m_larCablingSvc("LArCablingLegacyService"),
     m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
   {
   }
@@ -48,9 +48,6 @@ namespace LVL1{
 
     ATH_CHECK(m_badFebMasker.retrieve());
 
-    ATH_CHECK(m_larCablingSvc.retrieve());
-
-
     //Retrieve cabling & tt services
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
     IToolSvc* toolSvc;
@@ -61,6 +58,8 @@ namespace LVL1{
       if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve CaloTriggerTowerService Tool");return sc;}
 
     }
+
+    ATH_CHECK( m_cablingKey.initialize() );
 
     return sc;
   }
@@ -76,6 +75,8 @@ namespace LVL1{
   StatusCode sc;
 
     this->reset();
+
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
 
     // access database - each event conditions may have changed ...
     sc = m_ttTool->retrieveConditions();
@@ -110,7 +111,7 @@ namespace LVL1{
       TTid = m_ttTool->identifier(tt->eta(), tt->phi(), 0);
       coolId = m_ttTool->channelID(TTid).id();
 
-      if(!this->hasMissingFEB(TTid) && !m_ttTool->disabledChannel(coolId)) {
+      if(!this->hasMissingFEB(**cabling, TTid) && !m_ttTool->disabledChannel(coolId)) {
 
         sinTheta = 1. / std::cosh(tt->eta());
         caloEnergy = 1e-3 * m_cells2tt->energy(TTid) * sinTheta;
@@ -143,7 +144,7 @@ namespace LVL1{
 
       bool bIsTile   = m_lvl1Helper->is_tile(TTid);
       if(bIsTile) continue;
-      if(hasMissingFEB(TTid)) continue;
+      if(hasMissingFEB(**cabling, TTid)) continue;
 
       it_map = m_map_sumEtcells_phi_had.find(tt->eta());
       if(it_map == m_map_sumEtcells_phi_had.end()) {
@@ -162,6 +163,8 @@ namespace LVL1{
 
   float L1CaloLArTowerEnergy::EtLArg(const Identifier& TTid) const {
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+
     float energy = 0;
 
     mapTT::const_iterator it_mapTT;
@@ -172,7 +175,7 @@ namespace LVL1{
 
     //electromagnetic sampling
     if(sampling==0) {
-      if(this->hasMissingFEB(TTid)) {
+      if(this->hasMissingFEB(**cabling, TTid)) {
         it_mapSum = m_map_sumEtcells_phi_em.find(eta);
         std::pair<double,int> Et = (*it_mapSum).second;
         energy =  Et.first/Et.second;
@@ -192,7 +195,7 @@ namespace LVL1{
     energy = (*it_mapTT).second;
         }
       else {
-        if(this->hasMissingFEB(TTid)) {
+        if(this->hasMissingFEB(**cabling, TTid)) {
     it_mapSum = m_map_sumEtcells_phi_had.find(eta);
     std::pair<double,int> Et = (*it_mapSum).second;
     energy =  Et.first/Et.second;
@@ -226,8 +229,14 @@ namespace LVL1{
   }
 
 
-  bool L1CaloLArTowerEnergy::hasMissingFEB(const Identifier& TTid) const {
-
+  bool L1CaloLArTowerEnergy::hasMissingFEB(const Identifier& TTid) const
+  {
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+    return hasMissingFEB (**cabling, TTid);
+  }
+  bool L1CaloLArTowerEnergy::hasMissingFEB(const LArOnOffIdMapping& cabling,
+                                           const Identifier& TTid) const
+  {
     bool result = false;
 
     std::vector<Identifier> TT_cells_vec = m_ttService->createCellIDvecTT(TTid) ;
@@ -239,7 +248,7 @@ namespace LVL1{
 
         for (; it!=it_e; ++it)
     {
-      HWIdentifier chid = m_larCablingSvc->createSignalChannelID(*it);
+      HWIdentifier chid = cabling.createSignalChannelID(*it);
       HWIdentifier febId = m_LArOnlineHelper->feb_Id(chid);
       LArBadFeb febstatus = m_badFebMasker->febStatus(febId);
       bool deadReadout = febstatus.deadReadout();

@@ -4264,21 +4264,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "  node [shape=rectangle]" << std::endl;
   ss << "  rankdir = BT" << std::endl;
 
-  const std::vector<std::string> vetoList = { // Patterns to ignore when dumping all
-    "HLT_TrigCostContainer",
-    "L1DecoderSummary"
-    };
-
   // Now process them
   for (const std::string& key : keys) {
-    bool veto = false;
-    for (const std::string& vetoStr : vetoList) {
-      if (m_doDumpAllTrigComposite && key.find(vetoStr) != std::string::npos) {
-        veto = true;
-        break;
-      }
+    if (m_doDumpAllTrigComposite && key.find("HLTNav_") != 0) { // Nav containers should always start with HLTNav_
+      continue;
     }
-    if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
     bool writtenHeader = false;
@@ -4301,7 +4291,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           }
         }
         // Check my seeds
-        if (!doDump and isHypoAlgNode) {
+        if (!doDump and isHypoAlgNode and not m_excludeFailedHypoNodes) {
           for (const ElementLink<DecisionContainer> s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
             for (DecisionID id : seedDecisions) {
@@ -4419,7 +4409,10 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << key << "_" << index << "\" ";
           ss << "[colorscheme="<<extScheme<<",color="<<linkColour<<",fontcolor="<<linkColour<<",arrowhead=empty,label=\"" << link << "\"]" << std::endl; 
 
-          if (converted.count(key + index) == 0) {
+          // Check if we are linking to self (e.g. a dummy-feature), don't output a new box for this
+          const bool linkToSelf = (selfKey == key and selfIndex == index);
+
+          if (converted.count(key + index) == 0 and not linkToSelf) {
             ss << "    \"" << key << "_" << index << "\" [colorscheme="<<extScheme<<",style=filled,fillcolor="<<linkBackground<<",label=<<B>Container</B>=" << tnameEscape << "<BR/><B>Key</B>=";
             if (keyStr != nullptr) ss << *keyStr;
             else ss << "[<I>KEY "<< key <<" NOT IN STORE</I>] "; 

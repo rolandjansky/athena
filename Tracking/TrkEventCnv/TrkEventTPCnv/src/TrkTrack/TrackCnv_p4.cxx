@@ -43,8 +43,12 @@ void TrackCnv_p4::persToTrans( const Trk::Track_p4 *persObj,
    
    // Should always be a FQ so let's just go ahead and make it...
   transObj->m_fitQuality   = std::make_unique<FitQuality>(persObj->m_chiSquared, persObj->m_numberDoF);
-  
-  transObj->m_trackStateVector.reset(m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log ));
+
+  //ensure we delete the ptr
+  std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
+    m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
+  //move copy
+  transObj->m_trackStateVector = std::move(*sink);
 }
 
 //-----------------------------------------------------------------------------
@@ -78,31 +82,34 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
     log<<MSG::WARNING<<"No FitQuality on track at ["<<transObj<<"]"<<" with info="<<transObj->info().dumpInfo()<<endmsg;
   }
 
-  if (transObj->m_trackStateVector) {
-  unsigned int n_elms=0;
-  {
-    for (const Trk::TrackStateOnSurface *tsos: *(transObj->m_trackStateVector) ) {
-      if (keepTSOS(tsos)) ++n_elms;
-    }
-  }
-
-  if (n_elms != transObj->m_trackStateVector->size()) {
-    DataVector<const Trk::TrackStateOnSurface> pers_tsos(SG::VIEW_ELEMENTS);
-    pers_tsos.reserve(n_elms);
+  if (!transObj->m_trackStateVector.empty()) {
+    unsigned int n_elms = 0;
     {
-      for (const Trk::TrackStateOnSurface *tsos: *(transObj->m_trackStateVector) ) {
-        if (keepTSOS(tsos)) {
-          pers_tsos.push_back( const_cast<Trk::TrackStateOnSurface *>(tsos) );
-        }
+      for (const Trk::TrackStateOnSurface* tsos :
+           (transObj->m_trackStateVector)) {
+        if (keepTSOS(tsos))
+          ++n_elms;
       }
     }
-    m_trackStateVectorCnv.transToPers( &pers_tsos, &persObj->m_trackState, log );
-  }
-  else {
-    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector.get(), &persObj->m_trackState, log );
-  }
-  }
-  else {
-    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVector.get(), &persObj->m_trackState, log );
+
+    if (n_elms != transObj->m_trackStateVector.size()) {
+      DataVector<const Trk::TrackStateOnSurface> pers_tsos(SG::VIEW_ELEMENTS);
+      pers_tsos.reserve(n_elms);
+      {
+        for (const Trk::TrackStateOnSurface* tsos :
+             (transObj->m_trackStateVector)) {
+          if (keepTSOS(tsos)) {
+            pers_tsos.push_back(const_cast<Trk::TrackStateOnSurface*>(tsos));
+          }
+        }
+      }
+      m_trackStateVectorCnv.transToPers(
+        &pers_tsos, &persObj->m_trackState, log);
+    } else {
+      m_trackStateVectorCnv.transToPers(
+        &transObj->m_trackStateVector, &persObj->m_trackState, log);
+    }
+  } else {
+    m_trackStateVectorCnv.transToPers( &transObj->m_trackStateVector, &persObj->m_trackState, log );
   }
 }

@@ -186,7 +186,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, std::string data, nlohmann::json& json, bool hasBLine) {
+StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderName, const std::string& data, nlohmann::json& json, bool hasBLine) {
     // Check the first word to see if it is a correction
     std::string type;
 
@@ -198,7 +198,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, st
     json = nlohmann::json::array();
     std::vector<std::string> lines;
     MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-    for (std::string blobline : lines) {
+    for (const std::string& blobline : lines) {
         nlohmann::json line;
         std::string delimiter = ":";
         std::vector<std::string> tokens;
@@ -211,7 +211,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, st
         }
         type = tokens[0];
         // Parse line
-        if (type.find("#") == 0) {
+        if (type.find('#') == 0) {
             // skip it
             continue;
         }
@@ -237,7 +237,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, st
             }
 
             ATH_MSG_VERBOSE("Parsing Line = ");
-            for (std::string token : tokens) ATH_MSG_VERBOSE(token << " | ");
+            for (const std::string& token : tokens) ATH_MSG_VERBOSE(token << " | ");
             ATH_MSG_VERBOSE(" ");
 
             bool thisRowHasBLine = true;
@@ -343,13 +343,13 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, st
                 line["hwElement"] = tokens[ival++];
             }
         }
-        if (line.size() == 0) continue;
+        if (line.empty()) continue;
         json.push_back(line);
     }
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName, ALineMapContainer* writeALineCdo,
+StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName, ALineMapContainer* writeALineCdo,
                                                   BLineMapContainer* writeBLineCdo, EventIDRange& rangeALineW, EventIDRange& rangeBLineW) {
     ATH_MSG_INFO("Load alignment parameters from DB folder <" << folderName << ">");
 
@@ -643,7 +643,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName, ALineM
                                  << nDecodedLines << "/" << nNewDecodedALines << "/" << nNewDecodedBLines);
 
     // set A-lines from ASCII file
-    if (m_aLinesFile != "" && (int)writeALineCdo->size() > 0) setALinesFromAscii(writeALineCdo);
+    if (!m_aLinesFile.empty() && (int)writeALineCdo->size() > 0) setALinesFromAscii(writeALineCdo);
 
     // dump A-lines to log file
     if (m_dumpALines && (int)writeALineCdo->size() > 0) dumpALines(folderName, writeALineCdo);
@@ -659,7 +659,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName, ALineM
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName) {
+StatusCode MuonAlignmentCondAlg::loadAlignILines(const std::string& folderName) {
     // =======================
     // Write ILine Cond Handle
     // =======================
@@ -801,7 +801,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName) {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std::string data, nlohmann::json& json) {
+StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderName, const std::string& data, nlohmann::json& json) {
     // Check the first word to see if it is a correction
     std::string type;
 
@@ -813,7 +813,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std
     json = nlohmann::json::array();
     std::vector<std::string> lines;
     MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-    for (std::string blobline : lines) {
+    for (const std::string& blobline : lines) {
         nlohmann::json line;
         std::string delimiter = ":";
         std::vector<std::string> tokens;
@@ -825,7 +825,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std
         }
         type = tokens[0];
         // Parse line
-        if (type.find("#") == 0) {
+        if (type.find('#') == 0) {
             // skip it
             continue;
         }
@@ -846,7 +846,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std
             }
 
             ATH_MSG_VERBOSE("Parsing Line = ");
-            for (std::string token : tokens) ATH_MSG_VERBOSE(token << " | ");
+            for (const std::string& token : tokens) ATH_MSG_VERBOSE(token << " | ");
             ATH_MSG_VERBOSE(" ");
 
             // Start parsing
@@ -898,13 +898,13 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std
             sscanf(rott_str.c_str(), "%80f", &rott);
             line["rott"] = rott;
         }
-        if (line.size() == 0) continue;
+        if (line.empty()) continue;
         json.push_back(line);
     }
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName) {
+StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(const std::string& folderName) {
     // =======================
     // Write AsBuilt Cond Handle
     // =======================
@@ -965,7 +965,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName) {
 
         std::vector<std::string> lines;
         MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-        for (std::string blobline : lines) {
+        for (const std::string& blobline : lines) {
             ++nLines;
 
             std::string delimiter = ":";
@@ -978,7 +978,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName) {
             }
             type = tokens[0];
             // Parse line
-            if (type.find("#") == 0) {
+            if (type.find('#') == 0) {
                 // skip it
                 continue;
             }
@@ -1011,7 +1011,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName) {
                                 << nNewDecodedAsBuilt << "/");
 
     // !!!!!!!!!!!!!! In the MuonAlignmentDbTool this was in loadAlignABLines. I moved it here
-    if (m_asBuiltFile != "") setAsBuiltFromAscii(writeCdo.get());
+    if (!m_asBuiltFile.empty()) setAsBuiltFromAscii(writeCdo.get());
 
     if (writeHandle.record(rangeMdtAsBuiltW, std::move(writeCdo)).isFailure()) {
         ATH_MSG_FATAL("Could not record MdtAsBuiltMapContainer " << writeHandle.key() << " with EventRange " << rangeMdtAsBuiltW

@@ -13,8 +13,6 @@
 #include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "IRegionSelector/IRegSelLUTCondData.h"
 
 //forward declarations
 class IIncidentSvc;
@@ -76,12 +74,11 @@ namespace NSWL1 {
         PadTrigger convert(const SectorTriggerCandidate &t);
             
     private:
-        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         /// get the output tree from the athena histogram service
-         const std::vector<float> m_etaBandsLargeSector;
-         const std::vector<float> m_etaBandsSmallSector;
-
-
+	const std::vector<float> m_etaBandsLargeSector;
+	const std::vector<float> m_etaBandsSmallSector;
+	
+	std::map<IdentifierHash, std::pair<double,double> > m_phiTable; 
 
         StatusCode get_tree_from_histsvc(TTree*&);
 
@@ -99,8 +96,8 @@ namespace NSWL1 {
         PadTriggerValidationTree m_validation_tree;
 
         void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&);
+	void fillPhiTable();
 	L1TdrStgcTriggerLogic m_tdrLogic;
-	SG::ReadCondHandleKey<IRegSelLUTCondData> m_regSelTableKey{this, "RegSelLUT", "RegSelLUTCondData_STGC", "sTGC Region Selector lookup table"};
 
     };  
 

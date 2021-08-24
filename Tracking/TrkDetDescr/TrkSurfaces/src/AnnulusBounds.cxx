@@ -160,25 +160,25 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
   if (m_boundValues[AnnulusBounds::bv_minR] > m_boundValues[AnnulusBounds::bv_maxR])
     swap(m_boundValues[AnnulusBounds::bv_minR], m_boundValues[AnnulusBounds::bv_maxR]);
 
-  m_k_L = std::tan((M_PI + phi) / 2. + phiS);
-  m_k_R = std::tan((M_PI - phi) / 2. + phiS);
+  m_k_L = std::tan((M_PI + phi) / 2. - phiS);
+  m_k_R = std::tan((M_PI - phi) / 2. - phiS);
 
-  m_d_L = R * std::sin(phiS) * std::tan((M_PI - phi) / 2. - phiS) + R * (1. - std::cos(phiS));
-  m_d_R = R * std::sin(phiS) * std::tan((M_PI + phi) / 2. - phiS) + R * (1. - std::cos(phiS));
+  m_d_L = R * std::sin(-phiS) * std::tan((M_PI - phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
+  m_d_R = R * std::sin(-phiS) * std::tan((M_PI + phi) / 2. + phiS) + R * (1. - std::cos(-phiS));
 
   // solving quadratic equation to find four corners of the AnnulusBounds
-  m_solution_L_min = circleLineIntersection(minR, m_k_L, m_d_L);
-  m_solution_L_max = circleLineIntersection(maxR, m_k_L, m_d_L);
-  m_solution_R_min = circleLineIntersection(minR, m_k_R, m_d_R);
-  m_solution_R_max = circleLineIntersection(maxR, m_k_R, m_d_R);
+  m_solution_L_min = circleLineIntersection(minR, m_k_L, m_d_L); // Corner D
+  m_solution_L_max = circleLineIntersection(maxR, m_k_L, m_d_L); // Corner C
+  m_solution_R_min = circleLineIntersection(minR, m_k_R, m_d_R); // Corner A
+  m_solution_R_max = circleLineIntersection(maxR, m_k_R, m_d_R); // Corner B
 
-  std::vector<TDD_real_t> XX;
+  std::vector<TDD_real_t> XX; // x co-ordinates of corners
   XX.push_back(m_solution_L_min[0]);
   XX.push_back(m_solution_L_max[0]);
   XX.push_back(m_solution_R_min[0]);
   XX.push_back(m_solution_R_max[0]);
 
-  std::vector<TDD_real_t> YY;
+  std::vector<TDD_real_t> YY; // y co-ordinates of corners
   YY.push_back(m_solution_L_min[1]);
   YY.push_back(m_solution_L_max[1]);
   YY.push_back(m_solution_R_min[1]);
@@ -285,7 +285,8 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
                   : 0.;
   scResult = bchk.FastSinCos(theta);
   AmgMatrix(2, 2) rotMatrix;
-  rotMatrix << scResult.cosC, scResult.sinC, -scResult.sinC, scResult.cosC;
+  rotMatrix << scResult.cosC, scResult.sinC, 
+              -scResult.sinC, scResult.cosC;
   Amg::Vector2D tmp = rotMatrix * (-locpoCar);
   double x1 = tmp(0, 0);
   double y1 = tmp(1, 0);
@@ -300,7 +301,7 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
 
   AmgMatrix(2, 2) normal;
   // cppcheck-suppress constStatement
-  normal << 0, -1, 1, 0;
+  normal << 0, -1, 1,  0;
 
   // ellipse is always at (0,0), surface is moved to ellipse position and then rotated
   Amg::Vector2D p;
@@ -447,7 +448,16 @@ Trk::AnnulusBounds::minDistance(const Amg::Vector2D& locpo) const
   return dist;
 }
 
-/** Circle and line intersection **/
+/** 
+ * @brief Circle and line intersection. \n 
+ * 
+ * Circle is of radius R and centred at the origin. Line takes the form y = kx + d
+ * 
+ * @param R Radius of the circle
+ * @param k Gradient of the line
+ * @param d Intercept of the line
+ * @return Co-ordinates of the intercept with highest y
+ **/
 std::vector<double>
 Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) 
 {
@@ -460,17 +470,22 @@ Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d)
   double y2;
 
   // Intersection of a line with an arc
-  // equation:   (1+k^2)*x^2 + 2kdx +d^2 - R^2 = 0
+  // equation:   (1+k^2)*x^2 + (2kd)x + d^2 - R^2 = 0
+  //                a    x^2 +   b  x +     c     = 0
   double delta = 4. * k * d * k * d - 4. * (1 + k * k) * (d * d - R * R);
 
   if (delta < 0){
-    return solution;
+    return solution; // Does not intersect (imaginary solutions)
   }
+    // at least 1 intersect
+    // sol = (-b \pm sqrt(b^2 -4ac))/2a
     x1 = (-2. * k * d - std::sqrt(delta)) / (2. * (1 + k * k));
-    x2 = (-2. * k * d + std::sqrt(delta)) / (2. * (1 + k * k));
+    x2 = (-2. * k * d + std::sqrt(delta)) / (2. * (1 + k * k)); 
+    // y = grad*x * intercept
     y1 = k * x1 + d;
     y2 = k * x2 + d;
 
+  // Set solution as the one with the highest y-co-ordinate
   if (y1 > y2) {
     solution.push_back(x1);
     solution.push_back(y1);
@@ -598,6 +613,18 @@ Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo,
   return (d >= 0.0); // intersection if d>=0
 }
 
+std::array<std::pair<double, double>, 4> Trk::AnnulusBounds::corners() const {
+  
+  std::array<std::pair<double, double>, 4> corners;
+  
+  corners[0]=std::make_pair(m_solution_R_max.at(0),m_solution_R_max.at(1));
+  corners[1]=std::make_pair(m_solution_R_min.at(0),m_solution_R_min.at(1));
+  corners[2]=std::make_pair(m_solution_L_min.at(0),m_solution_L_min.at(1));
+  corners[3]=std::make_pair(m_solution_L_max.at(0),m_solution_L_max.at(1));
+  
+  return corners;
+}
+
 MsgStream&
 Trk::AnnulusBounds::dump(MsgStream& sl) const
 {
@@ -620,4 +647,21 @@ Trk::AnnulusBounds::dump(std::ostream& sl) const
      << m_boundValues[AnnulusBounds::bv_phi] << ")";
   sl << std::setprecision(-1);
   return sl;
+}
+
+/**
+ * @brief Returns the gradient and y-intercept of the left and right module edges.
+ * 
+ * This method is only intended for debug purposes. If used for production code, this should be changed to a
+ * return-by-reference. This will necessitate the vector being stored in the class.
+ * 
+ * @return Array with the gradients (m) and intercepts (c) of the left (_L) and right (_R) edges. [m_L, m_R, c_L, c_R]. Use as `auto [m_L, m_R, c_L, c_R] = bounds.getEdgeLines();`.
+ */
+std::array<TDD_real_t,4> Trk::AnnulusBounds::getEdgeLines() const {
+    std::array<TDD_real_t,4> returnArr{};
+    returnArr[0]=m_k_L;
+    returnArr[1]=m_k_R;
+    returnArr[2]=m_d_L;
+    returnArr[3]=m_d_R;
+    return returnArr;
 }

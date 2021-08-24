@@ -29,12 +29,13 @@
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
-  , m_deltaEta1Pear{}
 {}
 
 StatusCode
 topoEgammaBuilder::initialize()
 {
+  m_deltaEta1Pear = std::make_unique<electronPearShapeAlignmentCorrection>();
+
   // the data handle keys
   ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize(m_doElectrons));
   ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
@@ -65,7 +66,8 @@ topoEgammaBuilder::initialize()
   }else{
     m_ambiguityTool.disable();
   }
-
+  m_doDummyElectrons = !(m_dummyElectronOutputKey.empty());
+  ATH_CHECK(m_dummyElectronOutputKey.initialize(m_doDummyElectrons));
   return StatusCode::SUCCESS;
 }
 
@@ -220,7 +222,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
   }
 
   // Calibration
-  if (m_clusterTool->contExecute(ctx, *calodetdescrmgr, electrons, photons)
+  if (m_clusterTool->contExecute(ctx,electrons, photons)
         .isFailure()) {
     ATH_MSG_ERROR("Problem executing the " << m_clusterTool << " tool");
     return StatusCode::FAILURE;
@@ -248,6 +250,15 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
     ATH_CHECK(doAmbiguityLinks(ctx,electrons, photons));
   }
 
+  if (m_doDummyElectrons){
+    SG::WriteHandle<xAOD::ElectronContainer> dummyElectronContainer(m_dummyElectronOutputKey, ctx);
+    ATH_CHECK(dummyElectronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+                                     std::make_unique<xAOD::ElectronAuxContainer>()));
+
+    xAOD::Electron* dummy= new xAOD::Electron();
+    dummyElectronContainer->push_back(dummy);
+}
+
   return StatusCode::SUCCESS;
 }
 
@@ -255,7 +266,7 @@ StatusCode
 topoEgammaBuilder::doAmbiguityLinks(
   const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
-  xAOD::PhotonContainer* photonContainer) const
+  xAOD::PhotonContainer* photonContainer) 
 {
 
   /// Needs the same logic as the ambiguity after building the objects (make
@@ -374,7 +385,10 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
   }
   electron->setTrackParticleLinks(trackLinks);
 
-  electron->setCharge(electron->trackParticle()->charge());
+  const xAOD::TrackParticle* trackParticle = electron->trackParticle();
+  if (trackParticle) {
+    electron->setCharge(trackParticle->charge());
+  }
   // Set DeltaEta, DeltaPhi , DeltaPhiRescaled
   std::array<double, 4> deltaEta = egRec->deltaEta();
   std::array<double, 4> deltaPhi = egRec->deltaPhi();
@@ -397,7 +411,7 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
   static const SG::AuxElement::Accessor<float> pear("deltaEta1PearDistortion");
 
   const float pearShape = m_isTruth ? 0.0
-                                    : m_deltaEta1Pear.getDeltaEtaDistortion(
+                                    : m_deltaEta1Pear->getDeltaEtaDistortion(
                                         electron->caloCluster()->etaBE(2),
                                         electron->caloCluster()->phiBE(2));
 

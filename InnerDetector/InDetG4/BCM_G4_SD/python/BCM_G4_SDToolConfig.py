@@ -6,12 +6,11 @@ from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
 def BCMSensorSDCfg(ConfigFlags, name="BCMSensorSD", **kwargs):
-
-    result = ComponentAccumulator()
     bare_collection_name = "BCMHits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "BCMHits"
     region = "ID"
+
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
                                                     bare_collection_name,
                                                     mergeable_collection_suffix,
@@ -20,6 +19,7 @@ def BCMSensorSDCfg(ConfigFlags, name="BCMSensorSD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Pixel::bcmDiamondLog"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
+    result = ComponentAccumulator()
     result.merge(acc)
-    BCMSensorSDTool = CompFactory.BCMSensorSDTool
-    return result, BCMSensorSDTool(name, **kwargs)
+    result.setPrivateTools(CompFactory.BCMSensorSDTool(name, **kwargs))
+    return result

@@ -12,7 +12,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include <vector>
-//#include "ext/functional"
 
 InDet::InDetPRD_AssociationToolGangedPixels::InDetPRD_AssociationToolGangedPixels(const std::string& t,
 										  const std::string& n,
@@ -65,8 +64,8 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::addPRDs( Maps& maps,
   for (const Trk::PrepRawData* prd : prds) {
      maps.m_prepRawDataTrackMap.emplace(prd, &track);
      // test ganged ambiguity
-     const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-     if (pixel!=nullptr) {
+     if (prd->type(Trk::PrepRawDataType::PixelCluster)) {
+       const PixelCluster* pixel = static_cast<const PixelCluster*> (prd);
        if (pixel->gangedPixel()) {
 	       ATH_MSG_DEBUG( "Found ganged pixel, search for mirror" );
 	       std::pair<PixelGangedClusterAmbiguities::const_iterator,
@@ -134,27 +133,28 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::removePRDs( Maps& maps,
     }
 
     // test ganged ambiguity
-    const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-    if (pixel!=nullptr) {
+    
+    if (prd->type(Trk::PrepRawDataType::PixelCluster)) {
+      const PixelCluster* pixel = static_cast<const PixelCluster*> (prd);
       if (pixel->gangedPixel()) {
-	std::pair<PixelGangedClusterAmbiguities::const_iterator,
+	      std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	          PixelGangedClusterAmbiguities::const_iterator> ambi = gangedAmbis->equal_range(pixel);
-	for (; ambi.first != ambi.second ; ++(ambi.first) ) {
-	  // add ambiguity as used by this track as well
-	  ATH_MSG_DEBUG("Found ganged pixel, remove also mirror from association map");
+        for (; ambi.first != ambi.second ; ++(ambi.first) ) {
+          // add ambiguity as used by this track as well
+          ATH_MSG_DEBUG("Found ganged pixel, remove also mirror from association map");
 
-	  range = maps.m_prepRawDataTrackMap.equal_range(ambi.first->second);
-	  // get iterators for range
-	  mapIt    = range.first;
-	  mapItEnd = range.second;
-	  // simple for loop instead of fancier remove_if above
-	  for ( ;mapIt!=mapItEnd; ++mapIt) {
-	    if ( mapIt->second==&track ) {
-	      maps.m_prepRawDataTrackMap.erase( mapIt );
-	      break;//should only ever be one Track
-	    }
-	  }
-	}
+          range = maps.m_prepRawDataTrackMap.equal_range(ambi.first->second);
+          // get iterators for range
+          mapIt    = range.first;
+          mapItEnd = range.second;
+          // simple for loop instead of fancier remove_if above
+          for ( ;mapIt!=mapItEnd; ++mapIt) {
+            if ( mapIt->second==&track ) {
+              maps.m_prepRawDataTrackMap.erase( mapIt );
+              break;//should only ever be one Track
+            }
+          }
+        }
       }
     }
 
@@ -191,17 +191,18 @@ InDet::InDetPRD_AssociationToolGangedPixels::findConnectedTracks( const Maps& ma
       connectedTracks.insert((range.first)->second);
 
     // test ganged ambiguity
-    const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (prd);
-    if (pixel!=nullptr) {
+    
+    if (prd->type(Trk::PrepRawDataType::PixelCluster)) {
+      const PixelCluster* pixel = static_cast<const PixelCluster*> (prd);
       if (pixel->gangedPixel()) {
-	std::pair<PixelGangedClusterAmbiguities::const_iterator,
+	      std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	          PixelGangedClusterAmbiguities::const_iterator> ambi = gangedAmbis->equal_range(pixel);
-	for (; ambi.first != ambi.second ; ++(ambi.first) ) {
-	  range = onTracks( maps, *(ambi.first->second) );
-	  // add them into the list
-	  for ( ; range.first!=range.second; ++(range.first) )
-	    connectedTracks.insert((range.first)->second);
-	}
+        for (; ambi.first != ambi.second ; ++(ambi.first) ) {
+          range = onTracks( maps, *(ambi.first->second) );
+          // add them into the list
+          for ( ; range.first!=range.second; ++(range.first) )
+            connectedTracks.insert((range.first)->second);
+        }
       }
     }
   }
@@ -242,12 +243,6 @@ InDet::InDetPRD_AssociationToolGangedPixels::getPrdsOnTrack(const Maps& maps,
     return PRDs_t(); // return vector optimization
    }
 
-  // FIXME can I do this without copying the vector?
-  /*  transform(
-      track.measurementsOnTrack()->begin(), 
-      track.measurementsOnTrack()->end() ,
-      back_inserter(vec), 
-      bind2nd(CreatePRD_VectorFromTrack(), &track) );*/
 
   // output vector
   PRDs_t vec;
@@ -257,38 +252,29 @@ InDet::InDetPRD_AssociationToolGangedPixels::getPrdsOnTrack(const Maps& maps,
   // get the PRDs for the measuremenst on track
   DataVector<const Trk::MeasurementBase>::const_iterator it    = track.measurementsOnTrack()->begin();
   DataVector<const Trk::MeasurementBase>::const_iterator itEnd = track.measurementsOnTrack()->end();
-  for (;it!=itEnd;it++)
-    {
-    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*it);
-    if (nullptr!=rot)
+  for (;it!=itEnd;++it){
+    const auto  pThisMeasurement(*it);
+    if (pThisMeasurement->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+      const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(pThisMeasurement);
       vec.push_back(rot->prepRawData());
+    }
   }
-  
-  ATH_MSG_DEBUG(" Getting "<<vec.size()
-			       <<" PRDs from track at:"<<&track);
-  
-  // new mode, we add the outleirs in the TRT
+  ATH_MSG_DEBUG(" Getting "<<vec.size()<<" PRDs from track at:"<<&track);
+  // new mode, we add the outliers in the TRT
   if (m_addTRToutliers) {
-
     // get the PRDs for the measuremenst on track
-    for (const Trk::MeasurementBase* meas : *track.outliersOnTrack())
-      {
-
-	// get the ROT, make sure it is not a pseudo measurment
-	const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
-	if (nullptr!=rot) {
-
-	  // check if outlier is TRT ?
-	  const TRT_DriftCircleOnTrack* trt = dynamic_cast<const TRT_DriftCircleOnTrack*> (rot);
-	  if (trt) {
-	    // add to the list, it is TRT
-	    vec.push_back(rot->prepRawData());
-	  }
-	}
+    for (const Trk::MeasurementBase* meas : *track.outliersOnTrack()){
+      // get the ROT, make sure it is not a pseudo measurment
+      if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+        const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
+        // check if outlier is TRT ?
+        if (rot->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+          // add to the list, it is TRT
+          vec.push_back(rot->prepRawData());
+        }
       }
-  
-    ATH_MSG_DEBUG(" Getting "<<vec.size()
-				 <<" PRDs including TRT outlier from track at:"<<&track);
+    }
+    ATH_MSG_DEBUG(" Getting "<<vec.size()<<" PRDs including TRT outlier from track at:"<<&track);
   }
 
   return vec;
@@ -304,7 +290,6 @@ Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange
 InDet::InDetPRD_AssociationToolGangedPixels::onTracks(const Maps& maps,
                                                       const Trk::PrepRawData& prd) const
 {
-  //	std::pair<IPRD_AssociationTool::PRD_MapIt, IPRD_AssociationTool::PRD_MapIt>       range = 
   return maps.m_prepRawDataTrackMap.equal_range(&prd);
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_CSCCONDDBALG_H
@@ -37,7 +37,7 @@ private:
 
     StatusCode loadDataHv(writeHandle_t &, CscCondDbData *, const EventContext &) const;
 
-    StatusCode loadData(CscCondDbData *, const CondAttrListCollection *, const std::string, bool = false) const;
+    StatusCode loadData(CscCondDbData *, const CondAttrListCollection *, const std::string&, bool = false) const;
 
     StatusCode loadDataF001(writeHandle_t &, CscCondDbData *, const EventContext &) const;
     StatusCode loadDataNoise(writeHandle_t &, CscCondDbData *, const EventContext &) const;
@@ -48,12 +48,12 @@ private:
     StatusCode loadDataT0Base(writeHandle_t &, CscCondDbData *, const EventContext &) const;
     StatusCode loadDataT0Phase(writeHandle_t &, CscCondDbData *, const EventContext &) const;
 
-    StatusCode cache(std::string, CscCondDbData *, const std::string) const;
-    StatusCode cacheASM(std::string, CscCondDbData *, const std::string) const;
+    StatusCode cache(const std::string&, CscCondDbData *, const std::string&) const;
+    StatusCode cacheASM(const std::string&, CscCondDbData *, const std::string&) const;
     StatusCode getAsmScope(int, int &, int &, int &, int &, int &) const;
 
-    StatusCode recordParameter(unsigned int, std::string, CscCondDbData *, const std::string) const;
-    StatusCode recordParameter(IdentifierHash, std::string, CscCondDbData *, const std::string) const;
+    StatusCode recordParameter(unsigned int, const std::string&, CscCondDbData *, const std::string&) const;
+    StatusCode recordParameter(IdentifierHash, const std::string&, CscCondDbData *, const std::string&) const;
 
     StatusCode recordParameterF001(IdentifierHash, std::string, CscCondDbData *) const;
     StatusCode recordParameterNoise(IdentifierHash, std::string, CscCondDbData *) const;

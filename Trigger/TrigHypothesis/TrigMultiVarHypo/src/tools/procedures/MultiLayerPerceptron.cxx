@@ -25,22 +25,22 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int>  &n,
   : 
     IModel(etmin,etmax,etamin,etamax,mumin,mumax),
     m_nodes(n),
-    m_weights(0),
-    m_bias(0),
+    m_weights(nullptr),
+    m_bias(nullptr),
     m_tfnames(TF)
 {
 
-  if ( !n.size() )  throw BAD_BIAS_SIZE; //Nothing to do
+  if ( n.empty() )  throw BAD_BIAS_SIZE; //Nothing to do
   
   //Verifying weight vector size
   unsigned wSize=0;
   for (unsigned k=0; k<n.size()-1; ++k) wSize+=n[k]*n[k+1];
   try{
-    if (wSize != w.size() || !w.size() )  throw BAD_WEIGHT_SIZE;
+    if (wSize != w.size() || w.empty() )  throw BAD_WEIGHT_SIZE;
     //Verifying bias vector size
     unsigned bSize=0;
     for (unsigned k=1; k<n.size(); ++k)bSize+=n[k];
-    if(bSize != b.size() || !b.size() ) throw BAD_BIAS_SIZE;
+    if(bSize != b.size() || b.empty() ) throw BAD_BIAS_SIZE;
   }catch(int i){
     throw;
   }
@@ -118,42 +118,6 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int>  &n,
 }
 
 
-void MultiLayerPerceptron::release(double** neuronOutputs, double** layerOutputs) const
-{
-
-  for (unsigned l=0; l<m_nodes.size(); l++){
-    if(layerOutputs){
-      if (layerOutputs[l]==nullptr){
-        delete layerOutputs[l]; //Deletes null pointer
-      }
-    }else{
-      delete[] layerOutputs[l]; //Deletes array of values at second dimension of layerOutputs
-    }
-    if(neuronOutputs){
-      if (neuronOutputs[l]==nullptr){
-        delete neuronOutputs[l]; //Deletes null pointer
-      }
-    }else{
-      delete[] neuronOutputs[l]; //Deletes array of values at second dimension of layerOutputs
-    }
-  }
-
-  if(layerOutputs==nullptr)
-    delete layerOutputs;
-  else
-    delete[] layerOutputs;
-
-  if(neuronOutputs==nullptr)
-    delete neuronOutputs;
-  else
-    delete[] neuronOutputs;
-
-
-}
-
-
-
-
 MultiLayerPerceptron::~MultiLayerPerceptron(){
 
   for (unsigned l=0; l<m_nodes.size()-1; l++){
@@ -202,29 +166,28 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
 
 Ringer::RnnOutInfo MultiLayerPerceptron::propagate(std::vector<float> &input ) const
 {
-  double **layerOutputs;
-  double **neuronOutputs;
-  //this->malloc(neuronOutputs, layerOutputs);
 
   //First multiplication dimension
-  neuronOutputs   = new double *[m_nodes.size()];
-  layerOutputs = new double *[m_nodes.size()]; //number of layers including input
+  std::vector<std::vector<double>> layerOutputs(m_nodes.size()); 
+  std::vector<std::vector<double>> neuronOutputs(m_nodes.size());
 
   for (unsigned l = 0; l<m_nodes.size(); ++l){ 
     //Second and last dimension of layerOutputs
-    layerOutputs[l] = new double[m_nodes[l]]; //number of nodes in current layer
+    layerOutputs[l].resize(m_nodes[l]); //number of nodes in current layer
     //Second and last dimension of layerOutputs
-    neuronOutputs[l] = new double[m_nodes[l]]; //number of nodes in current layer
+    neuronOutputs[l].resize(m_nodes[l]); //number of nodes in current layer
   }
 
 
   for (unsigned l = 0; l<m_nodes.size()-1; ++l){ 
     for (unsigned i=0; i<m_nodes[l]; i++){ 
       //Populating multiplication matrix so that starting sum equals zero
-      if(l==0)
+      if(l==0){
         layerOutputs[0][i]=(double)input.at(i);
-      else
+      }
+      else{
         layerOutputs[l][i]=0;
+      }
       neuronOutputs[l][i]=0;
     }
   }
@@ -240,27 +203,9 @@ Ringer::RnnOutInfo MultiLayerPerceptron::propagate(std::vector<float> &input ) c
     } 
   }
 
-  Ringer::RnnOutInfo answer;
+  Ringer::RnnOutInfo answer{};
   answer.output=(float)(layerOutputs[m_nodes.size()-1][0]);
   answer.outputBeforeTheActivationFunction=(float)(neuronOutputs[m_nodes.size()-1][0]);
-  this->release(neuronOutputs,layerOutputs);
   return answer;
 }
-
-/*
-double MultiLayerPerceptron::activation( double value, std::string &tfname ){
-
-  // Apply the hiperbolic tangent
-  if(tfname=="tanh"){
-    return tanh(value);
-  // Applyt the RELU transfer function 
-  }else if(tfname=="relu"){
-    return (value > 0) ? value : 0;
-  }else if(tfname=="linear"){
-    return value;
-  }else{ // Bypass the TF
-    return value;
-  }
-}
-*/
 

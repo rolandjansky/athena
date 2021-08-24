@@ -88,7 +88,7 @@ StatusCode InDet::TrackFilter::execute()
   std::vector<std::string>::const_iterator it=m_inputTrackCollectionNames.begin();
   std::vector<std::string>::const_iterator itE=m_inputTrackCollectionNames.end();
 
-  for(;it!=itE && !passed;it++){
+  for(;it!=itE && !passed;++it){
 
   // input TrackSegment Collection
     const TrackCollection *tracks   = 0;

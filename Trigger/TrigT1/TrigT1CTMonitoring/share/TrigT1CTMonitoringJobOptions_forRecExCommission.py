@@ -163,9 +163,8 @@ if athenaCommonFlags.isOnline():
                             ProcessCTPData=True,
                             ProcessRoIBResult=True,
                             InclusiveTriggerThresholds=True,
-                            FillStateCoolFolderName=UsedFillStateCoolFolderName,
-                            UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON )
-    
+                            FillStateCoolFolderName=UsedFillStateCoolFolderName )
+
     printfunc (topSequence)
     printfunc (svcMgr)
 
@@ -258,10 +257,6 @@ else:
                                 RunOnESD = True,
                                 CompareRerun = False,
                                 FillStateCoolFolderName=UsedFillStateCoolFolderName)
-
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    CTBSMonTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
-
 
     processByteStream = True
 

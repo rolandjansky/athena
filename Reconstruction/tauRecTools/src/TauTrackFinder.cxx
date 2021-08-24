@@ -39,6 +39,16 @@ StatusCode TauTrackFinder::initialize() {
   // allow empty for LRT
   ATH_CHECK( m_largeD0TracksInputContainer.initialize(SG::AllowEmpty) );
 
+  if(m_useGhostTracks) {
+    if(inTrigger()) {
+      ATH_MSG_ERROR ("Ghost matching is not a valid tau-track association scheme for trigger, use cone association. Aborting.");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO ("Using ghost matching for tau-track association" << m_ghostTrackDR );
+    // allow empty for trigger 
+    ATH_CHECK( m_jetContainer.initialize(SG::AllowEmpty) );
+  }
+
   if (inTrigger()) {
     ATH_CHECK(m_beamSpotKey.initialize());
   }
@@ -74,7 +84,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     }
   }
 
-  //Retrieve LRT tracking container
+  //Retrieve LRT container
   const xAOD::TrackParticleContainer* largeD0TracksParticleCont = nullptr; 
   
   if (! m_largeD0TracksInputContainer.empty()) { 
@@ -88,6 +98,17 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     }  
   }
 
+  // retrieve the seed jet container when using ghost-matching
+  const xAOD::JetContainer* jetContainer = nullptr; 
+  if (! m_jetContainer.empty()) {
+    SG::ReadHandle<xAOD::JetContainer> jetContHandle( m_jetContainer );
+    if (!jetContHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << jetContHandle.key());
+      return StatusCode::FAILURE;
+    }
+    jetContainer = jetContHandle.cptr();
+  }
+
   // get the primary vertex
   const xAOD::Vertex* pVertex = nullptr;
   if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
@@ -95,12 +116,13 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
 
-  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+  getTauTracksFromPV(pTau, *trackParticleCont, pVertex, m_useGhostTracks, jetContainer, tauTracks, wideTracks, otherTracks);
 
   bool foundLRTCont = bool (largeD0TracksParticleCont != nullptr);
   // additional LRT with vertex association added to tracks
   if (foundLRTCont){
-    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+    // for now, use cone association for LRTs, not ghost association
+    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, false, nullptr, tauTracks, wideTracks, otherTracks);
   }
 
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
@@ -114,7 +136,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
       {
 	alreadyUsed = false;
 	//loop over all up-to-now core tracks	
-	for( const xAOD::TauTrack* tau_trk : (tauTrackCon) ) {
+	for( const xAOD::TauTrack* tau_trk : tauTrackCon ) {
 	  //originally it was coreTrack&passTrkSelector
 	  if(! tau_trk->flagWithMask( (1<<xAOD::TauJetParameters::TauTrackFlag::coreTrack) | (1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector))) continue; 
 	  if( (*track_it) == tau_trk->track()) alreadyUsed = true;
@@ -126,7 +148,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
       }
   }
 
-  // associated track to tau candidate and calculate charge                                                                                                    
+  // associate track to tau candidate and calculate charge                                                                                                    
   float charge = 0.;  
   for (unsigned int i = 0; i < tauTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = tauTracks.at(i);
@@ -144,7 +166,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true);
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -182,7 +205,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true);
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -219,7 +243,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
       linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, true); 
-    }else{
+    }
+    else {
       linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
       track->setFlag(xAOD::TauJetParameters::TauTrackFlag::LargeRadiusTrack, false);
     }
@@ -246,24 +271,31 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // impact parameter variables w.r.t. tau vertex 
   const xAOD::Vertex* vxcand = nullptr;
 
-  xAOD::Vertex theBeamspot;
-  theBeamspot.makePrivateStore();
+  xAOD::Vertex vxbkp;
+  vxbkp.makePrivateStore();
 
-  if (inTrigger()) { // online: use beamspot
+  if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
+    vxcand = pTau.vertex();
+  }
+  else if (inTrigger()) { // online: use vertex with x-y coordinates from the beamspot and the z from the leading track
+    vxbkp.setX(0); vxbkp.setY(0); vxbkp.setZ(0);
+
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     if(beamSpotHandle.isValid()) {
-      theBeamspot.setPosition(beamSpotHandle->beamPos());
+      vxbkp.setPosition(beamSpotHandle->beamPos());
       const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
-      theBeamspot.setCovariancePosition(cov);
-      vxcand = &theBeamspot;
+      vxbkp.setCovariancePosition(cov);
+
+      if(!tauTracks.empty()) {
+         vxbkp.setZ(tauTracks.at(0)->z0());
+      }
     }
     else {
       ATH_MSG_DEBUG("No Beamspot object in tau candidate");
     }
+    vxcand = & vxbkp;
   }
-  else if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
-    vxcand = pTau.vertex();
-  }
+
 
   // this could be replaced with TauTrack::setDetail
   static const SG::AuxElement::Accessor<float> dec_d0TJVA("d0TJVA");
@@ -332,15 +364,50 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
 void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 					 const xAOD::TrackParticleContainer& trackParticleCont,
 					 const xAOD::Vertex* primaryVertex,
+					 const bool& useGhostTracks,
+					 const xAOD::JetContainer* jetContainer,
 					 std::vector<const xAOD::TrackParticle*> &tauTracks,
 					 std::vector<const xAOD::TrackParticle*> &wideTracks,
 					 std::vector<const xAOD::TrackParticle*> &otherTracks) const
 {
-  for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont.begin(); tpcItr != trackParticleCont.end(); ++tpcItr) {
-    const xAOD::TrackParticle *trackParticle = *tpcItr;
-
+  std::vector<const xAOD::TrackParticle*> ghostTracks;
+  if(useGhostTracks) {
+    const xAOD::Jet* seedJet = pTau.jet();
+    if(seedJet) {
+      if(!seedJet->getAssociatedObjects("GhostTrack", ghostTracks)) {
+	ATH_MSG_WARNING("Could not retrieve GhostTrack from seed jet.");
+      }
+    }
+  }
+  
+  for (const xAOD::TrackParticle *trackParticle : trackParticleCont) {
     TauTrackType type = tauTrackType(pTau, *trackParticle, primaryVertex);
-		
+    if(type == NotTauTrack) continue;
+
+    if(useGhostTracks) {
+      // require that tracks are ghost-matched with the seed jet at large dR(tau,track), to avoid using tracks from another tau
+      double dR = pTau.p4().DeltaR(trackParticle->p4());
+      if (dR > m_ghostTrackDR) {
+	if (std::find(ghostTracks.begin(), ghostTracks.end(), trackParticle) == ghostTracks.end()) {
+	  // check whether the jet closest to the track is the current seed jet
+	  // if so, recover the track even if not ghost-matched, to improve tau-track association efficiency at low pt (esp. for 3p)
+	  double dRmin = 999.;
+	  bool isSeedClosest = false;
+	  for (const xAOD::Jet* jet : *jetContainer) {
+	    xAOD::JetFourMom_t jetP4 = jet->jetP4(xAOD::JetScale::JetConstitScaleMomentum);
+	    TLorentzVector jetLV;
+	    jetLV.SetPtEtaPhiM(jetP4.Pt(), jetP4.Eta(), jetP4.Phi(), jetP4.M());
+	    double dRjet = trackParticle->p4().DeltaR(jetLV);
+	    if(dRjet < dRmin) {
+	      dRmin = dRjet;
+	      isSeedClosest = (jet == pTau.jet());
+	    }
+	  }
+	  if(!isSeedClosest) continue;
+	}
+      }
+    }
+    
     if (type == TauTrackCore)
       tauTracks.push_back(trackParticle);
     else if (type == TauTrackWide)
@@ -364,9 +431,10 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
   std::unique_ptr<Trk::CaloExtension> uniqueExtension;
   for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
     const xAOD::TrackParticle *orgTrack = tauTrack->track();
+    if( !orgTrack ) continue;
     trackIndex = orgTrack->index();
 
-    if( !orgTrack ) continue;
+    
 
     // set default values
     float etaEM = -10.0;
@@ -392,7 +460,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
           Gaudi::Hive::currentContext(), *orgTrack);
         caloExtension = uniqueExtension.get();
       }
-    }else{
+    }
+    else {
       /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
       ATH_MSG_VERBOSE("Using the CaloExtensionTool");
       uniqueExtension = m_caloExtensionTool->caloExtension(

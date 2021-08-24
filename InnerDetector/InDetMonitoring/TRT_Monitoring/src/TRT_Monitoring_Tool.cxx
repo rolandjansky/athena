@@ -59,7 +59,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_good_bcid(0),
 	m_nTotalTracks(0),
 	m_passEventBurst(),
-	m_idHelper(0),
+	m_idHelper(nullptr),
 	p_toolSvc("IToolSvc", name),
 	m_sumTool("TRT_StrawStatusSummaryTool", this),
 	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
@@ -67,8 +67,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
 	m_TRTCalDbTool("TRT_CalDbTool", this),
 	m_drifttool("TRT_DriftFunctionTool"),
-	m_pTRTHelper(0),
-	m_mgr(0),
+	m_pTRTHelper(nullptr),
+	m_mgr(nullptr),
 	m_HTfraconTrack_B(),
 	m_LonTrack_B(),
 	m_nTrack_B(),
@@ -194,18 +194,18 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("doArgonXenonSeparation",   m_ArgonXenonSplitter  = true); // Argon Histograms won't be created if this is set to false.
 	m_flagforscale = 1; //Added for a fix
 	m_totalEvents = 0;
-	m_hSummary = 0;
-	m_IntLum = 0;//
-	m_LBvsLum = 0; // coverity 25098
-	m_LBvsTime = 0; //
-	m_hEvtPhaseDetPhi_B = 0;
-	m_hEvtPhase = 0;
-	m_hEvtPhaseVsTrig = 0;
-	m_hOccAll = 0;
-	m_hefficiency_eta = 0;
-	m_hefficiency_phi = 0;
-	m_hefficiency_pt = 0;
-	m_hefficiency_z0 = 0;
+	m_hSummary = nullptr;
+	m_IntLum = nullptr;//
+	m_LBvsLum = nullptr; // coverity 25098
+	m_LBvsTime = nullptr; //
+	m_hEvtPhaseDetPhi_B = nullptr;
+	m_hEvtPhase = nullptr;
+	m_hEvtPhaseVsTrig = nullptr;
+	m_hOccAll = nullptr;
+	m_hefficiency_eta = nullptr;
+	m_hefficiency_phi = nullptr;
+	m_hefficiency_pt = nullptr;
+	m_hefficiency_z0 = nullptr;
 
 	for (int iside = 0; iside < 2; iside++) { // A-side(iside=0), C-side(iside=1)
 		m_nTracksB[iside] = 0;
@@ -214,158 +214,158 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	}
 
 	for (int ibe = 0; ibe < 2; ibe++) {
-		m_hBCIDvsOcc[ibe] = 0;
-		m_hHitsOnTrack_Scatter[ibe] = 0;
-		m_hLLOcc_Scatter[ibe] = 0;
-		m_hHightoLowRatioOnTrack_Scatter[ibe] = 0;
-		m_hefficiencyMap[ibe] = 0;
+		m_hBCIDvsOcc[ibe] = nullptr;
+		m_hHitsOnTrack_Scatter[ibe] = nullptr;
+		m_hLLOcc_Scatter[ibe] = nullptr;
+		m_hHightoLowRatioOnTrack_Scatter[ibe] = nullptr;
+		m_hefficiencyMap[ibe] = nullptr;
 
 		for (int iside = 0; iside < 2; iside++) {
-			m_hChipBSErrorsVsLB[ibe][iside] = 0;
-			m_hRobBSErrorsVsLB[ibe][iside] = 0;
-			m_hAvgHLOcc_side[ibe][iside] = 0;
-			m_hAvgLLOcc_side[ibe][iside] = 0;
-			m_hAvgLLOccMod_side[ibe][iside] = 0;
-			m_hAvgHLOccMod_side[ibe][iside] = 0;
-			m_hefficiency[ibe][iside] = 0;
-			m_hefficiencyIntegral[ibe][iside] = 0;
+			m_hChipBSErrorsVsLB[ibe][iside] = nullptr;
+			m_hRobBSErrorsVsLB[ibe][iside] = nullptr;
+			m_hAvgHLOcc_side[ibe][iside] = nullptr;
+			m_hAvgLLOcc_side[ibe][iside] = nullptr;
+			m_hAvgLLOccMod_side[ibe][iside] = nullptr;
+			m_hAvgHLOccMod_side[ibe][iside] = nullptr;
+			m_hefficiency[ibe][iside] = nullptr;
+			m_hefficiencyIntegral[ibe][iside] = nullptr;
 		}// for (int iside=0; iside<2; iside++)
 
 		for (int i = 0; i < 64; i++) {
-			m_hChipOcc[ibe][i] = 0;
-			m_hStrawOcc[ibe][i] = 0;
-			m_hStrawsEff[ibe][i] = 0;
-			m_hChipsEff[ibe][i] = 0;
-			m_hHitOnTrackVsAllS[ibe][i] = 0;
-			m_hHitOnTrackVsAllC[ibe][i] = 0;
-			m_hHitWMapS[ibe][i] = 0;
-			m_hHitTrWMapS[ibe][i] = 0;
-			m_hHitTrMapS[ibe][i] = 0;
-			m_hHitAMapS[ibe][i] = 0;
-			m_hHitAWMapS[ibe][i] = 0;
-			m_hHtoLMapS[ibe][i] = 0;
-			m_hHitToTMapS[ibe][i] = 0;
-			m_hHitToTLongMapS[ibe][i] = 0;
-			m_hHitToTLongTrMapS[ibe][i] = 0;
-			m_hHitHMapS[ibe][i] = 0;
-			m_hHitHWMapS[ibe][i] = 0;
-			m_hHitWonTMapS[ibe][i] = 0;
-			m_hHitTronTMapS[ibe][i] = 0;
-			m_hHitAonTMapS[ibe][i] = 0;
-			m_hHitAWonTMapS[ibe][i] = 0;
-			m_hHitHonTMapS[ibe][i] = 0;
-			m_hHitHWonTMapS[ibe][i] = 0;
-			m_hHtoLonTMapS[ibe][i] = 0;
-			m_hHtoLWonTMapS[ibe][i] = 0;
-			m_hHitToTonTMapS[ibe][i] = 0;
-			m_hHitTronTwEPCMapS[ibe][i] = 0;
-			m_hValidRawDriftTimeonTrk[ibe][i] = 0;
-			m_hValidRawDriftTimeonTrkC[ibe][i] = 0;
-			m_hHitWMapC[ibe][i] = 0;
-			m_hHitTrMapC[ibe][i] = 0;
-			m_hHitTrWMapC[ibe][i] = 0;
-			m_hHitAMapC[ibe][i] = 0;
-			m_hHitAWMapC[ibe][i] = 0;
-			m_hHtoLMapC[ibe][i] = 0;
-			m_hHtoBCMapC[ibe][i] = 0;
-			m_hHtoBCMapB[ibe][i] = 0;
-			m_hHitToTMapC[ibe][i] = 0;
-			m_hHitHMapC[ibe][i] = 0;
-			m_hHitHWMapC[ibe][i] = 0;
-			m_hHitWonTMapC[ibe][i] = 0;
-			m_hHitTronTMapC[ibe][i] = 0;
-			m_hHitAonTMapC[ibe][i] = 0;
-			m_hHitAWonTMapC[ibe][i] = 0;
-			m_hHitHonTMapC[ibe][i] = 0;
-			m_hHitHWonTMapC[ibe][i] = 0;
-			m_hHtoLonTMapC[ibe][i] = 0;
-			m_hHtoLWonTMapC[ibe][i] = 0;
-			m_hHitToTonTMapC[ibe][i] = 0;
-			m_hHitTronTwEPCMapC[ibe][i] = 0;
-			m_hefficiencyS[ibe][i] = 0;
-			m_hefficiencyC[ibe][i] = 0;
+			m_hChipOcc[ibe][i] = nullptr;
+			m_hStrawOcc[ibe][i] = nullptr;
+			m_hStrawsEff[ibe][i] = nullptr;
+			m_hChipsEff[ibe][i] = nullptr;
+			m_hHitOnTrackVsAllS[ibe][i] = nullptr;
+			m_hHitOnTrackVsAllC[ibe][i] = nullptr;
+			m_hHitWMapS[ibe][i] = nullptr;
+			m_hHitTrWMapS[ibe][i] = nullptr;
+			m_hHitTrMapS[ibe][i] = nullptr;
+			m_hHitAMapS[ibe][i] = nullptr;
+			m_hHitAWMapS[ibe][i] = nullptr;
+			m_hHtoLMapS[ibe][i] = nullptr;
+			m_hHitToTMapS[ibe][i] = nullptr;
+			m_hHitToTLongMapS[ibe][i] = nullptr;
+			m_hHitToTLongTrMapS[ibe][i] = nullptr;
+			m_hHitHMapS[ibe][i] = nullptr;
+			m_hHitHWMapS[ibe][i] = nullptr;
+			m_hHitWonTMapS[ibe][i] = nullptr;
+			m_hHitTronTMapS[ibe][i] = nullptr;
+			m_hHitAonTMapS[ibe][i] = nullptr;
+			m_hHitAWonTMapS[ibe][i] = nullptr;
+			m_hHitHonTMapS[ibe][i] = nullptr;
+			m_hHitHWonTMapS[ibe][i] = nullptr;
+			m_hHtoLonTMapS[ibe][i] = nullptr;
+			m_hHtoLWonTMapS[ibe][i] = nullptr;
+			m_hHitToTonTMapS[ibe][i] = nullptr;
+			m_hHitTronTwEPCMapS[ibe][i] = nullptr;
+			m_hValidRawDriftTimeonTrk[ibe][i] = nullptr;
+			m_hValidRawDriftTimeonTrkC[ibe][i] = nullptr;
+			m_hHitWMapC[ibe][i] = nullptr;
+			m_hHitTrMapC[ibe][i] = nullptr;
+			m_hHitTrWMapC[ibe][i] = nullptr;
+			m_hHitAMapC[ibe][i] = nullptr;
+			m_hHitAWMapC[ibe][i] = nullptr;
+			m_hHtoLMapC[ibe][i] = nullptr;
+			m_hHtoBCMapC[ibe][i] = nullptr;
+			m_hHtoBCMapB[ibe][i] = nullptr;
+			m_hHitToTMapC[ibe][i] = nullptr;
+			m_hHitHMapC[ibe][i] = nullptr;
+			m_hHitHWMapC[ibe][i] = nullptr;
+			m_hHitWonTMapC[ibe][i] = nullptr;
+			m_hHitTronTMapC[ibe][i] = nullptr;
+			m_hHitAonTMapC[ibe][i] = nullptr;
+			m_hHitAWonTMapC[ibe][i] = nullptr;
+			m_hHitHonTMapC[ibe][i] = nullptr;
+			m_hHitHWonTMapC[ibe][i] = nullptr;
+			m_hHtoLonTMapC[ibe][i] = nullptr;
+			m_hHtoLWonTMapC[ibe][i] = nullptr;
+			m_hHitToTonTMapC[ibe][i] = nullptr;
+			m_hHitTronTwEPCMapC[ibe][i] = nullptr;
+			m_hefficiencyS[ibe][i] = nullptr;
+			m_hefficiencyC[ibe][i] = nullptr;
 
-			if (ibe == 1) m_hHitToTrkDistanceMapS_E[i] = 0;
+			if (ibe == 1) m_hHitToTrkDistanceMapS_E[i] = nullptr;
 		} //for (int i = 0; i < 64; i++)
 	} // for (int ibe=0; ibe<2; ibe++)
 
 	m_nTrksperLB_B = 0;
 	m_nHitsperLB_B = 0;
 	m_nHLHitsperLB_B = 0;
-	m_hNumTrksDetPhi_B = 0;
-	m_hNumHoTDetPhi_B = 0;
-	m_hAvgTroTDetPhi_B = 0;
-	m_hAvgTroTDetPhi_B_Ar = 0;
-	m_hStrawEffDetPhi_B = 0;
-	m_hNumSwLLWoT_B = 0;
-	m_hHitWMap_B = 0;
-	m_hHitWonTMap_B = 0;
-	m_Pull_Biased_Barrel = 0;
-	m_hResidual_B = 0;
-	m_hResidual_B_20GeV = 0;
-	m_hTimeResidual_B = 0;
-	m_hDriftTimeonTrkDist_B = 0;
-	m_hTronTDist_B = 0;
-	m_hrtRelation_B = 0;
-	m_hHLhitOnTrack_B = 0;
-	m_hHtoLRatioOnTrack_B = 0;
-	m_hWireToTrkPosition_B = 0;
-	m_hWireToTrkPosition_B_Ar = 0;
-	m_hHtoLRatioOnTrack_B_Ar = 0;
-	m_hHtoLRatioOnTrack_B_Xe = 0;
-	m_hResVsDetPhi_B = 0;
-	m_hNHitsperLB_B = 0;
-	m_hNTrksperLB_B = 0;
-	m_hNHLHitsperLB_B = 0;
-	m_hefficiencyBarrel_locR = 0;
-	m_hefficiencyBarrel_locR_Ar = 0;
-	m_hHitWMap_B_Ar = 0;
-	m_hResidual_B_Ar = 0;
-	m_hResidual_B_Ar_20GeV = 0;
-	m_hTimeResidual_B_Ar = 0;
-	m_hrtRelation_B_Ar = 0;
-	m_hDriftTimeonTrkDist_B_Ar = 0;
-	m_hTronTDist_B_Ar = 0;
-	m_Pull_Biased_EndCap = 0;
+	m_hNumTrksDetPhi_B = nullptr;
+	m_hNumHoTDetPhi_B = nullptr;
+	m_hAvgTroTDetPhi_B = nullptr;
+	m_hAvgTroTDetPhi_B_Ar = nullptr;
+	m_hStrawEffDetPhi_B = nullptr;
+	m_hNumSwLLWoT_B = nullptr;
+	m_hHitWMap_B = nullptr;
+	m_hHitWonTMap_B = nullptr;
+	m_Pull_Biased_Barrel = nullptr;
+	m_hResidual_B = nullptr;
+	m_hResidual_B_20GeV = nullptr;
+	m_hTimeResidual_B = nullptr;
+	m_hDriftTimeonTrkDist_B = nullptr;
+	m_hTronTDist_B = nullptr;
+	m_hrtRelation_B = nullptr;
+	m_hHLhitOnTrack_B = nullptr;
+	m_hHtoLRatioOnTrack_B = nullptr;
+	m_hWireToTrkPosition_B = nullptr;
+	m_hWireToTrkPosition_B_Ar = nullptr;
+	m_hHtoLRatioOnTrack_B_Ar = nullptr;
+	m_hHtoLRatioOnTrack_B_Xe = nullptr;
+	m_hResVsDetPhi_B = nullptr;
+	m_hNHitsperLB_B = nullptr;
+	m_hNTrksperLB_B = nullptr;
+	m_hNHLHitsperLB_B = nullptr;
+	m_hefficiencyBarrel_locR = nullptr;
+	m_hefficiencyBarrel_locR_Ar = nullptr;
+	m_hHitWMap_B_Ar = nullptr;
+	m_hResidual_B_Ar = nullptr;
+	m_hResidual_B_Ar_20GeV = nullptr;
+	m_hTimeResidual_B_Ar = nullptr;
+	m_hrtRelation_B_Ar = nullptr;
+	m_hDriftTimeonTrkDist_B_Ar = nullptr;
+	m_hTronTDist_B_Ar = nullptr;
+	m_Pull_Biased_EndCap = nullptr;
 
 	for (int iside = 0; iside < 2; iside++) {
 		m_nTrksperLB_E[iside] = 0;
 		m_nHitsperLB_E[iside] = 0;
 		m_nHLHitsperLB_E[iside] = 0;
-		m_hNumTrksDetPhi_E[iside] = 0;
-		m_hNumHoTDetPhi_E[iside] = 0;
-		m_hAvgTroTDetPhi_E[iside] = 0;
-		m_hAvgTroTDetPhi_E_Ar[iside] = 0;
-		m_hStrawEffDetPhi_E[iside] = 0;
-		m_hNumSwLLWoT_E[iside] = 0;
-		m_hEvtPhaseDetPhi_E[iside] = 0;
-		m_hHitWMap_E[iside] = 0;
-		m_hHitWonTMap_E[iside] = 0;
-		m_hResidual_E[iside] = 0;
-		m_hResidual_E_20GeV[iside] = 0;
-		m_hTimeResidual_E[iside] = 0;
-		m_hDriftTimeonTrkDist_E[iside] = 0;
-		m_hTronTDist_E[iside] = 0;
-		m_hrtRelation_E[iside] = 0;
-		m_hHLhitOnTrack_E[iside] = 0;
-		m_hHtoLRatioOnTrack_E[iside] = 0;
-		m_hHtoLRatioOnTrack_E_Ar[iside] = 0;
-		m_hHtoLRatioOnTrack_E_Xe[iside] = 0;
-		m_hWireToTrkPosition_E[iside] = 0;
-		m_hWireToTrkPosition_E_Ar[iside] = 0;
-		m_hResVsDetPhi_E[iside] = 0;
-		m_hNHitsperLB_E[iside] = 0;
-		m_hNTrksperLB_E[iside] = 0;
-		m_hNHLHitsperLB_E[iside] = 0;
-		m_hefficiencyEndCap_locR[iside] = 0;
-		m_hefficiencyEndCap_locR_Ar[iside] = 0;
-		m_hHitWMap_E_Ar[iside] = 0;
-		m_hResidual_E_Ar[iside] = 0;
-		m_hResidual_E_Ar_20GeV[iside] = 0;
-		m_hTimeResidual_E_Ar[iside] = 0;
-		m_hrtRelation_E_Ar[iside] = 0;
-		m_hTronTDist_E_Ar[iside] = 0;
-		m_hDriftTimeonTrkDist_E_Ar[iside] = 0;
+		m_hNumTrksDetPhi_E[iside] = nullptr;
+		m_hNumHoTDetPhi_E[iside] = nullptr;
+		m_hAvgTroTDetPhi_E[iside] = nullptr;
+		m_hAvgTroTDetPhi_E_Ar[iside] = nullptr;
+		m_hStrawEffDetPhi_E[iside] = nullptr;
+		m_hNumSwLLWoT_E[iside] = nullptr;
+		m_hEvtPhaseDetPhi_E[iside] = nullptr;
+		m_hHitWMap_E[iside] = nullptr;
+		m_hHitWonTMap_E[iside] = nullptr;
+		m_hResidual_E[iside] = nullptr;
+		m_hResidual_E_20GeV[iside] = nullptr;
+		m_hTimeResidual_E[iside] = nullptr;
+		m_hDriftTimeonTrkDist_E[iside] = nullptr;
+		m_hTronTDist_E[iside] = nullptr;
+		m_hrtRelation_E[iside] = nullptr;
+		m_hHLhitOnTrack_E[iside] = nullptr;
+		m_hHtoLRatioOnTrack_E[iside] = nullptr;
+		m_hHtoLRatioOnTrack_E_Ar[iside] = nullptr;
+		m_hHtoLRatioOnTrack_E_Xe[iside] = nullptr;
+		m_hWireToTrkPosition_E[iside] = nullptr;
+		m_hWireToTrkPosition_E_Ar[iside] = nullptr;
+		m_hResVsDetPhi_E[iside] = nullptr;
+		m_hNHitsperLB_E[iside] = nullptr;
+		m_hNTrksperLB_E[iside] = nullptr;
+		m_hNHLHitsperLB_E[iside] = nullptr;
+		m_hefficiencyEndCap_locR[iside] = nullptr;
+		m_hefficiencyEndCap_locR_Ar[iside] = nullptr;
+		m_hHitWMap_E_Ar[iside] = nullptr;
+		m_hResidual_E_Ar[iside] = nullptr;
+		m_hResidual_E_Ar_20GeV[iside] = nullptr;
+		m_hTimeResidual_E_Ar[iside] = nullptr;
+		m_hrtRelation_E_Ar[iside] = nullptr;
+		m_hTronTDist_E_Ar[iside] = nullptr;
+		m_hDriftTimeonTrkDist_E_Ar[iside] = nullptr;
 	}
 }
 
@@ -379,7 +379,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_MSG_VERBOSE("Initializing TRT Monitoring");
 
 	ATH_CHECK( ManagedMonitorToolBase::initialize() );
-	ATH_CHECK( AlgTool::initialize() );
+	ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
 	IToolSvc *p_toolSvc; // NOTE: recreation of ToolSvc
 
@@ -420,7 +420,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		//Identifier ident = m_trtid->straw_id(1,1,1,1,1);
 		Identifier ident;
 
-		if (m_sumTool.name() != "") {
+		if (!m_sumTool.name().empty()) {
 			ATH_MSG_VERBOSE("Trying " << m_sumTool << " isGood");
 			ATH_MSG_VERBOSE("TRT_StrawStatusTool reports status = " << m_sumTool->getStatus(ident));
 		}
@@ -2085,11 +2085,11 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 					if (m_doChips) m_hHitHMapC[ibe][iphi_module]->Fill(chip - 1);
 
-					if (is_middleHTbit_high) {
-						if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
+					
+					if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-						if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(chip - 1);
-					}
+					if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(chip - 1);
+					
 				}
 
 				if (firstBinHigh || lastBinHigh || driftTimeBin > 0 || trailingEdge < 23) {
@@ -2349,7 +2349,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	const float timeCor =  comTimeObject ? comTimeObject->getTime() : 0;
 	auto p_trk = trackCollection.begin();
 	const Trk::Perigee *mPer = nullptr;
-	const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
+	const DataVector<const Trk::TrackParameters> *AllTrkPar(nullptr);
 	DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
 	//Take out normalization of previous event for online environment
@@ -2479,7 +2479,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 
 		const DataVector<const Trk::TrackStateOnSurface> *trackStates = (**p_trk).trackStateOnSurfaces();
 
-		if (trackStates == 0) continue;
+		if (trackStates == nullptr) continue;
 
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin0    = trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
@@ -2491,17 +2491,13 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		const int n_si_hits = n_pixel_hits + n_sct_hits;
 		bool is_pT_over_20GeV = false;
 
-		if (mPer->pT() > 20 * CLHEP::GeV) {
-			is_pT_over_20GeV = true;
-		} else {
-			is_pT_over_20GeV = false;
-		}
+		is_pT_over_20GeV = mPer->pT() > 20 * CLHEP::GeV;
 
 		const bool cnst_is_pT_over_20GeV = is_pT_over_20GeV;
 		///hardcoded cut for pT 2.0 GeV for collision setup
 		float min_pt_new = m_min_pT;
 
-		if (m_isCosmics == false) {
+		if (!m_isCosmics) {
 			min_pt_new = 2.0 * CLHEP::GeV;
 		}
 
@@ -2560,7 +2556,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		float phi2D[2] = {-100, -100};
 
 		for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
-			if ((*TSOSItBeginTemp) == 0) continue;
+			if ((*TSOSItBeginTemp) == nullptr) continue;
 
 			if (! ((*TSOSItBeginTemp)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 
@@ -2619,7 +2615,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 
 		for (TSOSItBegin = TSOSItBegin0; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
 			//select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations
-			if ((*TSOSItBegin) == 0) continue;
+			if ((*TSOSItBegin) == nullptr) continue;
 
 			if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 
@@ -3592,7 +3588,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 
 		float min_pt_new = m_min_pT;
 
-		if (m_isCosmics == false) {
+		if (!m_isCosmics) {
 			min_pt_new = 2.0 * CLHEP::GeV;
 		}
 
@@ -3816,8 +3812,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 //----------------------------------------------------------------------------------//
 	ATH_MSG_VERBOSE("");
 	DataVector<Trk::Track>::const_iterator p_trk;
-	const Trk::Perigee *perigee = NULL;
-	const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
+	const Trk::Perigee *perigee = nullptr;
+	const DataVector<const Trk::TrackParameters> *AllTrkPar(nullptr);
 	DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 	int lumiBlockNumber;
 	int timeStamp;
@@ -3853,7 +3849,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 		float track_p    = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (perigee->parameters()[Trk::qOverP])) : 10e7;
 		const DataVector<const Trk::TrackStateOnSurface> *trackStates = (**p_trk).trackStateOnSurfaces();
 
-		if (trackStates == 0) continue;
+		if (trackStates == nullptr) continue;
 
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
@@ -3884,7 +3880,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 		int straw_layer    = 0;
 
 		for (; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
-			if ((*TSOSItBegin) == 0) continue;
+			if ((*TSOSItBegin) == nullptr) continue;
 			if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 
 			const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack *>((*TSOSItBegin)->measurementOnTrack());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * L1TopoDataTypes.h
@@ -184,6 +184,7 @@ namespace TSU {
           // Do the fractional part
           if (F > 0) {
             unsigned frac = m_tvalue & ( (1<<F)-1 );
+            // cppcheck-suppress shiftNegative; false positive
             res += static_cast<float>(frac) / (2<<(F-1));
           }
           return res;

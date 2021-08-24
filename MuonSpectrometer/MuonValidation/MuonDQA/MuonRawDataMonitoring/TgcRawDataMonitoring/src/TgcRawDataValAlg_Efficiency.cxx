@@ -28,7 +28,7 @@
 #include <TError.h>
 #include <TH1F.h>
 #include <TH2F.h>
-#include <inttypes.h> 
+#include <cinttypes> 
 
 #include <sstream>
 #include <cmath>
@@ -314,14 +314,14 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     for(int ws=0;ws<2;ws++)
       for(int sector=1;sector<=12;sector++)
         for(int layer=1;layer<=7;layer++){
-          ss.str(""); ss<<side[i];
+          ss.str(""); 
+          ss<<side[i];
           if(sector<10)ss<<0;
           ss<<sector<<"L"<<layer;
           int k=(sector-1)*7+layer;
           m_tgceffsector[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
           m_tgceffsectornum[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
           m_tgceffsectordenom[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
-          ss.str();
         }
 
     //Summary
@@ -704,7 +704,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   std::vector<Identifier>::const_iterator itc_end = m_hitIdVects[CURR][ac][ws][eta][phi48][layer].end();
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[CURR][ac][ws][eta][phi48][layer].begin();
       it!=itc_end;
-      it++){
+      ++it){
     int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
@@ -723,7 +723,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   std::vector<Identifier>::const_iterator itp_end = m_hitIdVects[PREV][ac][ws][eta][phi48][layer].end();
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[PREV][ac][ws][eta][phi48][layer].begin();
       it!=itp_end;
-      it++){
+      ++it){
     int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
@@ -738,7 +738,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   std::vector<Identifier>::const_iterator itn_end = m_hitIdVects[NEXT][ac][ws][eta][phi48][layer].end();
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[NEXT][ac][ws][eta][phi48][layer].begin();
       it!=itn_end;
-      it++){
+     ++it){
     int prdChannel = m_idHelperSvc->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;

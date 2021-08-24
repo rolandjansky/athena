@@ -3,18 +3,23 @@
 pT     = 400;
 #else
 pT     = 1000;
-endif
+#endif
 
 eta    = 2.5;
 #if defined(LARGED0)
-	a0=10;
+   a0=10.;
 #elif defined(LARGED0_EL)
-	a0=4.;
-#elif defined(LRT)
-        a0=100.;
-#else	
-	a0=3.;
+   a0=4.;
+#elif defined(LRT) || defined (FSLRT)
+   a0=200.;
+#else
+   a0=3.;
 #endif
+
+#if defined(FSLRT)
+   a0min=2.;
+#endif
+
 // npix   = 1;
 // nsct   = 2;
 npix   = 1;
@@ -26,8 +31,8 @@ pT_rec  = 0;
 eta_rec = 5;
 Rmatch = 0.05;
 
-#if defined(LRT)
-	a0v = 100.;
+#if defined(LRT) || defined (FSLRT)
+	a0v = 200.;
 	z0v = 300.5;
 #else
 
@@ -39,7 +44,7 @@ Rmatch = 0.05;
 /// only 10.5 mm with respect to the primary vertex
 	a0v = 10.5;
 	z0v = 300.5;
-#ndif
+#endif
 #endif
 
 // VertexSelection    = 0;

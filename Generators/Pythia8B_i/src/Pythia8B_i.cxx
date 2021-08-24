@@ -100,27 +100,26 @@ StatusCode Pythia8B_i::genInitialize() {
         return RndmStatus;
     }
     
-    // Call the base class genInitialize()
-    ATH_CHECK (Pythia8_i::genInitialize());
 
     // This over-rides the genInitialize in the base class Pythia8_i, but then calls it
     // Sets the built-in UserHook called SuppressLowPT
     // FOR ONIA USE ONLY
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
+    bool canSetHook=true;
+    StatusCode returnCode = StatusCode::SUCCESS;
     if (m_doSuppressSmallPT) {
         m_SuppressSmallPT = new Pythia8::SuppressSmallPT(m_pt0timesMPI,m_numberAlphaS,m_sameAlphaSAsMPI);
-#ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER > 8300
-        Pythia8_i::m_pythia->setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
-#else
-        Pythia8_i::m_pythia->setUserHooksPtr(m_SuppressSmallPT);
-  #endif
-#else
-        Pythia8_i::m_pythia->setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
-#endif
+        canSetHook=Pythia8_i::m_pythia->setUserHooksPtr(PYTHIA8_PTRWRAP(m_SuppressSmallPT));
     }
 
-    return StatusCode::SUCCESS;
+    if (!canSetHook) {
+       returnCode=StatusCode::FAILURE;
+       ATH_MSG_ERROR(" *** Unable to initialise PythiaB !! ***");
+    }
+   
+    if (! Pythia8_i::genInitialize().isSuccess() ) returnCode=StatusCode::FAILURE;
+    
+    return returnCode;
 }
 
 
@@ -380,7 +379,7 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     Pythia8::Event &pyev = *(m_BEventBuffer.begin());
     evt->set_event_number(*(m_internalEventNumbers.begin()));
-    m_pythiaToHepMC.fill_next_event(pyev, evt, 1);
+    m_pythiaToHepMC.fill_next_event(pyev, evt, 1, &Pythia8_i::m_pythia->info);
     
     
     // set the randomseeds

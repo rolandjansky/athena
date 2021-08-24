@@ -4,7 +4,7 @@
 
 // First the corresponding header.
 #include "MUCTPI_AthAlg.h"
-#include "TrigT1Interfaces/IMuctpiSimTool.h"
+#include "MUCTPI_AthTool.h"
 
 namespace LVL1MUCTPIPHASE1 {
   MUCTPI_AthAlg::MUCTPI_AthAlg( const std::string& name, ISvcLocator* pSvcLocator )

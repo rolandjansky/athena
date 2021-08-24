@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCHARGECALIBCONDDATA_H
@@ -7,6 +7,7 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "PixelReadoutDefinitions/PixelReadoutDefinitions.h"
 #include <map>
 
 class PixelChargeCalibCondData {
@@ -14,7 +15,12 @@ class PixelChargeCalibCondData {
     PixelChargeCalibCondData();
     virtual ~PixelChargeCalibCondData();
 
-    enum PixelType{NORMAL,LONG,GANGED};
+    enum class CalibrationStrategy
+    {
+      RUN1PIX,
+      LUTFEI4,
+      RD53
+    };
 
     // Normal pixel
     void setAnalogThreshold(const int chanNum, const int value);
@@ -29,14 +35,14 @@ class PixelChargeCalibCondData {
     void setTotRes1(const int chanNum, const float value);
     void setTotRes2(const int chanNum, const float value);
 
-    int getAnalogThreshold(const int chanNum, const int FE, const int type) const;
-    int getAnalogThresholdSigma(const int chanNum, const int FE, const int type) const;
-    int getAnalogThresholdNoise(const int chanNum, const int FE, const int type) const;
-    int getInTimeThreshold(const int chanNum, const int FE, const int type) const;
+    int getAnalogThreshold(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    int getAnalogThresholdSigma(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    int getAnalogThresholdNoise(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    int getInTimeThreshold(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
 
-    float getQ2TotA(const int chanNum, const int FE, const int type) const;
-    float getQ2TotE(const int chanNum, const int FE, const int type) const;
-    float getQ2TotC(const int chanNum, const int FE, const int type) const;
+    float getQ2TotA(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    float getQ2TotE(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    float getQ2TotC(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
 
     float getTotRes(const int chanNum, const int FE, float Q) const;
 
@@ -56,8 +62,16 @@ class PixelChargeCalibCondData {
     void setAnalogThresholdNoiseGanged(const int chanNum, const int value);
     void setInTimeThresholdGanged(const int chanNum, const int value);
 
-    float getToT(const int chanNum, const int FE, const int type, float Q) const;
-    float getCharge(const int chanNum, const int FE, const int type, float ToT) const;
+    float getToT(const int chanNum, const int FE, const InDetDD::PixelDiodeType type, float Q) const;
+    float getCharge(const int chanNum, const int FE, const InDetDD::PixelDiodeType type, float ToT) const;
+
+    // new IBL calibration
+    void  setCalibrationStrategy(const int chanNum, const CalibrationStrategy strategy);
+    void  setTot2Charges(const int chanNum, const std::array<float,16> charges);
+    const std::array<float,16> getQs(const int chanNum, const int FE) const;
+    CalibrationStrategy getCalibrationStrategy(const int chanNum) const;
+    float getChargeLUTFEI4(const int chanNum, const int FE, float ToT) const;
+    float getToTLUTFEI4(const int chanNum, const int FE, float Q) const;
 
     void clear();
 
@@ -93,6 +107,11 @@ class PixelChargeCalibCondData {
     chipThreshold m_analogThresholdSigmaGanged;
     chipThreshold m_analogThresholdNoiseGanged;
     chipThreshold m_intimethresholdGanged;
+
+    // new IBL calibration
+    std::map<int, CalibrationStrategy> m_calibrationStrategy;
+    typedef std::vector<std::array<float,16>> IBLModule;
+    std::map<int, IBLModule> m_tot2chrg;
 
 };
 

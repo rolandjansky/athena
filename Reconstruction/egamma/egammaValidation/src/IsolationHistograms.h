@@ -33,7 +33,7 @@ namespace egammaMonitoring{
       m_rootHistSvc(rootHistSvc) {}
 
     std::map<std::string, TH1D* > histoMap;
-    StatusCode initializePlots();
+    StatusCode initializePlots(bool do_var_histos);
     void fill(const xAOD::Egamma& egamma);
 
   protected:
@@ -43,9 +43,10 @@ namespace egammaMonitoring{
     std::string m_folder;
     ITHistSvc*  m_rootHistSvc =  nullptr;
 
-    float m_ptCone20{}, m_ptCone30{}, m_ptCone40{}, m_ptVarCone20{};
-    float m_ptVarCone30{}, m_ptVarCone40{}, m_etCone20{}, m_etCone30{};
-    float m_etCone40{}, m_topoEtCone20{}, m_topoEtCone30{}, m_topoEtCone40{};
+    float m_ptCone20{}, m_ptCone30{}, m_ptVarCone20{}, m_ptVarCone30{};
+    float m_topoEtCone20{}, m_topoEtCone30{}, m_topoEtCone40{};
+
+    bool m_do_var_histos;
 
   };
 

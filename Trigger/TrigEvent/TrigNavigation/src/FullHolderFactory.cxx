@@ -22,8 +22,8 @@ HLT::FullHolderFactory::FullHolderFactory(const std::string& prefix)
 }
 
 HLT::BaseHolder* HLT::FullHolderFactory::fromSerialized(int version, const std::vector<uint32_t>::const_iterator& start, const std::vector<uint32_t>::const_iterator& end){
-  class_id_type clid;
-  sub_index_type idx;
+  class_id_type clid{0};
+  sub_index_type idx{0};
   std::string label;
 
   std::vector<uint32_t>::const_iterator blobIt = start;

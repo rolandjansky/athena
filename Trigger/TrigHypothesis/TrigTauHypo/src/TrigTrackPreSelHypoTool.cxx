@@ -81,6 +81,7 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
   auto nTracksInCore     = Monitored::Scalar<int>( "nTracksInCore", -1);
   auto nTracksInIso      = Monitored::Scalar<int>( "nTracksInIso", -1);
   auto PassedCuts        = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto monitorIt         = Monitored::Group( m_monTool, nTracksInCore, nTracksInIso, PassedCuts);
 
   // general reset
   PassedCuts = 0;
@@ -174,6 +175,8 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
 	     }
       }
     }
+  }else{
+    return false;
   }
  
   if (nTracksInCore > m_tracksInCoreCut || nTracksInIso > m_tracksInIsoCut) 

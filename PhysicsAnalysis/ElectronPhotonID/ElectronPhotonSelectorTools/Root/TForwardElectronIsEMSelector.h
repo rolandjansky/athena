@@ -47,49 +47,11 @@ public:
   /** Initialize this class */
   StatusCode initialize();
 
-  /** The main accept method: the actual cuts are applied here */
-  asg::AcceptData accept(
-    // eta
-    float eta,
-    // NVP
-    float nvtx,
-    // secondlambda
-    float secondLambda,
-    // lateral
-    float lateral,
-    // longitudinal
-    float longitudinal,
-    // fracMax
-    float fracMax,
-    // centerlambda
-    float centerLambda,
-    // secondR
-    float secondR) const;
-
   /** Return dummy accept with only info */
   asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
 
-  // calculate the isEM. (Used internally by accept)
-  unsigned int calcIsEm(
-    // eta
-    float eta,
-    // NPV
-    float nvtx,
-    // secondlambda
-    float secondLambda,
-    // lateral
-    float lateral,
-    // lateral
-    float longitudinal,
-    // longitudinal
-    float centerLambda,
-    // fracMax
-    float fracMax,
-    // secondR
-    float secondR) const;
-
-  // used internally by calcIsEm, but left public because it can be useful for
-  // users. Note that it doesn't necessarily zero all the values that pass, so
+  // used to calcIsEm. 
+  // Note that it doesn't necessarily zero all the values that pass, so
   // make sure that the input iflag bits that you are concerned with start out
   // with 0.
   unsigned int calocuts_electrons(
@@ -103,10 +65,10 @@ public:
     float lateral,
     // lateral
     float longitudinal,
-    // longitudinal
-    float centerLambda,
     // fracMax
     float fracMax,
+    // longitudinal
+    float centerLambda,
     // secondR
     float secondR,
     // the starting isEM (should be 0 if new)

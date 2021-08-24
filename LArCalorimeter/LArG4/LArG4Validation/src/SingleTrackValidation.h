@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4VALIDATION_SINGLETRACKVALIDATION_H
@@ -23,7 +23,7 @@ private:
     class Clockwork;
     Clockwork *m_c;
 
-    TH1F* m_histos[162];
+    TH1F* m_histos[162]{};
 
     SingleTrackValidation (const SingleTrackValidation&);
     SingleTrackValidation& operator= (const SingleTrackValidation&);

@@ -4,6 +4,7 @@
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -25,7 +26,10 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
+ex.threads = 4
+ex.concurrent_events = 4
 ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'grid'

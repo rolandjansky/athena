@@ -27,6 +27,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stdexcept>
 
 TRRegionXMLHandler::TRRegionXMLHandler(TRTTransitionRadiation *tr) :
   m_theProcess(tr),
@@ -46,14 +47,14 @@ void TRRegionXMLHandler::Process(const std::string& name)
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
       msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endmsg;
-    throw;
+    throw std::runtime_error("Unable to locate StoreGate!");
   }
   StoreGateSvc* detStore = 0;
   sc = svcLocator->service( "DetectorStore", detStore);
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
       msg(MSG::ERROR) << "Unable to locate DetectorStore! Leaving!" << endmsg;
-    throw;
+    throw std::runtime_error("Unable to locate DetectorStore!");
   }
 
   const IdDictManager * idDictMgr = 0;
@@ -67,14 +68,14 @@ void TRRegionXMLHandler::Process(const std::string& name)
     if (msgLevel(MSG::FATAL))
       msg(MSG::FATAL) << "Could not retrieve geometry layout. TR process is not to be trusted in the following "
                       << endmsg;
-    throw;
+    throw std::runtime_error("Could not retrieve geometry layout!");
   }
 
   // Crack open the XML file
   std::filebuf fb;
   if (!fb.open(name,std::ios::in)){
     msg(MSG::FATAL) << "Could not open file " << name << " bombing out" << endmsg;
-    throw;
+    throw std::runtime_error("Could not open file!");
   }
   std::istream is(&fb);
   boost::property_tree::ptree pt;

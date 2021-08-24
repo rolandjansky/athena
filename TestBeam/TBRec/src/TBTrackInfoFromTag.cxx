@@ -108,7 +108,7 @@ TBTrackInfoFromTag::execute()
 	ATH_CHECK( evtStore()->retrieve(evtInfo,m_SGkey1) );
 
 	int runNumber = evtInfo->event_ID()->run_number();
-	int evtNumber = evtInfo->event_ID()->event_number();
+	uint64_t evtNumber = evtInfo->event_ID()->event_number();
 
 	ATH_MSG_DEBUG("Run/Event numbers:\t " << runNumber << " / " << evtNumber); 
 

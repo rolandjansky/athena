@@ -14,6 +14,10 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from . import JetRecoConfiguration
 from .JetRecoConfiguration import jetRecoDictToString
 
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
+
 ###############################################################################################
 # Sequences for input information
 
@@ -142,11 +146,11 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
             buildSeq += constitModAlg
 
     # Add the PseudoJetGetter alg to the sequence
-    constitPJAlg = JetRecConfig.getConstitPJGAlg( jetDef.inputdef )
+    constitPJAlg = JetRecConfig.getConstitPJGAlg( jetDef.inputdef , suffix=None)
     buildSeq += conf2toConfigurable( constitPJAlg )
     finalpjs = str(constitPJAlg.OutputContainer)
 
-    if doesTracking:
+    if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
         # We need to do ghost association.
         # The ghost tracks pseudoJet are build in other part of the chain : here
         # we just need to merge our constituents with them
@@ -196,7 +200,9 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     rhoKey = "auto"
     if "sub" in jetRecoDict["jetCalib"]:
         # Add the event shape alg if needed for area subtraction
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix )
+        # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
+        
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix, voronoiRf = 1.0 )
         recoSeq += conf2toConfigurable(eventShapeAlg)
         # Not currently written because impossible to merge
         # across event views, which is maybe a concern in
@@ -210,16 +216,10 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     if doesTracking:
         jetDef.modifiers.append("JVT") #+jetRecoDict["trkopt"]
     #Configuring jet cleaning mods now
-    if jetRecoDict["cleaning"] != 'noCleaning': 
-        #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
-        if isPFlow:
-            raise RuntimeError('Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets.')
-        if jetRecoDict['recoAlg']!='a4':
-            raise RuntimeError('Requested jet cleaning for a non small-R jet chain. Jet cleaning is currently not supported for large-R jets.')
-
+    if not isPFlow and jetRecoDict['recoAlg']=='a4': #Add jet cleaning decorations only to small-R non-PFlow jets for now
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import cleaningDict
         jetDef.modifiers.append("CaloQuality")
-        jetDef.modifiers.append("Cleaning:{}".format(jetRecoDict["cleaning"]))
-
+        for key,cleanWP in cleaningDict.items(): jetDef.modifiers.append(f"Cleaning:{cleanWP}")
 
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
     decorList += ["Jvt"]
@@ -305,7 +305,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
     rcModList = [] # Could set substructure mods
     rcJetDef.modifiers = rcModList
 
-    rcConstitPJAlg = JetRecConfig.getConstitPJGAlg( rcJetDef.inputdef )
+    rcConstitPJAlg = JetRecConfig.getConstitPJGAlg( rcJetDef.inputdef, suffix=jetDefString)
     rcConstitPJKey = str(rcConstitPJAlg.OutputContainer)
     recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
@@ -314,7 +314,9 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
     monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+rcJetDef.fullname()+"/")
 
     rcJetDef._internalAtt['finalPJContainer'] = rcConstitPJKey
-    rcJetRecAlg = JetRecConfig.getJetRecAlg(rcJetDef, monTool)
+    # Depending on whether running the trackings step
+    ftf_suffix = "" if jetRecoDict["trkopt"] == "notrk" else "_ftf" 
+    rcJetRecAlg = JetRecConfig.getJetRecAlg(rcJetDef, monTool, ftf_suffix)
     recoSeq += conf2toConfigurable( rcJetRecAlg )
 
     jetsOut = recordable(rcJetDef.fullname())

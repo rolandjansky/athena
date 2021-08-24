@@ -83,23 +83,23 @@ bool CoraCoolDatabase::extractCoralConStr(const std::string& coolstr) {
   // extract CORAL database string from COOL one
   bool dbok=false;
   // first check for initial colon - if so, technology-specific string
-  std::string::size_type c1=coolstr.find(":");
+  std::string::size_type c1=coolstr.find(':');
   if (c1!=std::string::npos) {
     std::string techno,server,schema,user,passwd;
     techno=coolstr.substr(0,c1);
     std::string::size_type c2;
-    c2=coolstr.find(";");
+    c2=coolstr.find(';');
     if (c2==std::string::npos) c2=coolstr.size();
     server=coolstr.substr(c1+3,c2-c1-3);
     c1=coolstr.find("schema=");
     if (c1!=std::string::npos) {
-      c2=coolstr.find(";",c1+7);
+      c2=coolstr.find(';',c1+7);
       if (c2==std::string::npos) c2=coolstr.size();
       schema=coolstr.substr(c1+7,c2-c1-7);
     }
     c1=coolstr.find("dbname=");
     if (c1!=std::string::npos) {
-      c2=coolstr.find(";",c1+7);
+      c2=coolstr.find(';',c1+7);
       if (c2==std::string::npos) c2=coolstr.size();
       m_dbname=coolstr.substr(c1+7,c2-c1-7);
     }
@@ -116,7 +116,7 @@ bool CoraCoolDatabase::extractCoralConStr(const std::string& coolstr) {
       }
     }
   } else {
-    c1=coolstr.find("/");
+    c1=coolstr.find('/');
     if (c1!=std::string::npos) {
       m_dbconn=coolstr.substr(0,c1);
       m_dbname=coolstr.substr(c1+1);

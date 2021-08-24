@@ -67,6 +67,10 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("smallRJetTOB_phi", &m_smallRJetTOB_phi);
   m_myTree->Branch ("smallRJetTOB_ET", &m_smallRJetTOB_ET);
   m_myTree->Branch ("smallRJetTOB_sat", &m_smallRJetTOB_sat);
+  m_myTree->Branch ("smallRJetTOB_word", &m_smallRJetTOB_word);
+  m_myTree->Branch ("smallRJetTOB_jfexID", &m_smallRJetTOB_jfexID);
+  m_myTree->Branch ("smallRJetTOB_fpgaID", &m_smallRJetTOB_fpgaID);
+
 
   m_myTree->Branch ("largeRJet_eta", &m_largeRJet_eta);
   m_myTree->Branch ("largeRJet_phi", &m_largeRJet_phi); 
@@ -77,6 +81,10 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("largeRJetTOB_eta", &m_largeRJetTOB_eta);
   m_myTree->Branch ("largeRJetTOB_phi", &m_largeRJetTOB_phi);
   m_myTree->Branch ("largeRJetTOB_sat", &m_largeRJetTOB_sat);
+
+  m_myTree->Branch ("largeRJetTOB_word",   &m_largeRJetTOB_word);
+  m_myTree->Branch ("largeRJetTOB_jfexID", &m_largeRJetTOB_jfexID);
+  m_myTree->Branch ("largeRJetTOB_fpgaID", &m_largeRJetTOB_fpgaID);
 
   m_myTree->Branch ("tau_TT_ID" ,  &m_tau_TT_ID);
   m_myTree->Branch ("tau_isLocalMax" ,  &m_tau_isLocalMax);
@@ -95,6 +103,15 @@ StatusCode LVL1::jFEXNtupleWriter::initialize () {
   m_myTree->Branch ("tau_TOB_phi",  &m_tau_TOB_phi);
   m_myTree->Branch ("tau_TOB_ISO",  &m_tau_TOB_ISO);
   m_myTree->Branch ("tau_TOB_Sat",  &m_tau_TOB_Sat);
+
+    //Pileup
+  m_myTree->Branch ("pileup_FPGAid",    &m_pileup_FPGAid);
+  m_myTree->Branch ("pileup_jFEXid",    &m_pileup_jFEXid);
+  m_myTree->Branch ("pileup_rho_EM",    &m_pileup_rho_EM);
+  m_myTree->Branch ("pileup_rho_HAD1",  &m_pileup_rho_HAD1);
+  m_myTree->Branch ("pileup_rho_HAD2",  &m_pileup_rho_HAD2);
+  m_myTree->Branch ("pileup_rho_HAD3",  &m_pileup_rho_HAD3);
+  m_myTree->Branch ("pileup_rho_FCAL",  &m_pileup_rho_FCAL);
   
 
   return StatusCode::SUCCESS;
@@ -112,6 +129,7 @@ StatusCode LVL1::jFEXNtupleWriter::execute () {
   CHECK(loadsmallRJetAlgoVariables());
   CHECK(loadlargeRJetAlgoVariables());
   CHECK(loadtauAlgoVariables());
+  CHECK(loadPileupVariables());
   m_myTree->Fill();
   m_jFEXOutputCollection->clear();
   return StatusCode::SUCCESS;
@@ -132,6 +150,10 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
   m_smallRJetTOB_phi.clear();
   m_smallRJetTOB_ET.clear();
   m_smallRJetTOB_sat.clear();
+  m_smallRJetTOB_word.clear();
+  m_smallRJetTOB_jfexID.clear();  
+  m_smallRJetTOB_fpgaID.clear();
+
   for (int i = 0; i < m_jFEXOutputCollection->SRsize(); i++)
   {
     m_smallRJet_isCentralTowerSeed.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJet_isCentralTowerSeed"]);
@@ -143,6 +165,9 @@ StatusCode LVL1::jFEXNtupleWriter::loadsmallRJetAlgoVariables() {
     m_smallRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_phi"]);
     m_smallRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_ET"]);
     m_smallRJetTOB_sat.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_sat"]);
+    m_smallRJetTOB_word.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_word"]);
+    m_smallRJetTOB_jfexID.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_jfexID"]);
+    m_smallRJetTOB_fpgaID.push_back((*(m_jFEXOutputCollection->get_smallRJet(i)))["smallRJetTOB_fpgaID"]);
   }
   return StatusCode::SUCCESS;
 }
@@ -153,6 +178,12 @@ StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
   m_largeRJet_eta.clear();
   m_largeRJet_phi.clear();
   m_largeRJetTOB_ET.clear();
+  m_largeRJetTOB_eta.clear();
+  m_largeRJetTOB_phi.clear();
+  m_largeRJetTOB_sat.clear();
+  m_largeRJetTOB_word.clear();
+  m_largeRJetTOB_fpgaID.clear();
+  m_largeRJetTOB_jfexID.clear();
 
   for (int i = 0; i < m_jFEXOutputCollection->LRsize(); i++)
   {
@@ -161,6 +192,12 @@ StatusCode LVL1::jFEXNtupleWriter::loadlargeRJetAlgoVariables() {
     m_largeRJet_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_eta"]);
     m_largeRJet_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJet_phi"]);
     m_largeRJetTOB_ET.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_ET"]);
+    m_largeRJetTOB_eta.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_eta"]);
+    m_largeRJetTOB_phi.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_phi"]);
+    m_largeRJetTOB_sat.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_sat"]);
+    m_largeRJetTOB_word.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_word"]);
+    m_largeRJetTOB_fpgaID.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_fpgaID"]);
+    m_largeRJetTOB_jfexID.push_back((*(m_jFEXOutputCollection->get_largeRJet(i)))["largeRJetTOB_jfexID"]);
 
   }
   return StatusCode::SUCCESS;
@@ -206,6 +243,33 @@ StatusCode LVL1::jFEXNtupleWriter::loadtauAlgoVariables() {
     m_tau_TOB_phi.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_phi"]);
     m_tau_TOB_ISO.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_ISO"]);
     m_tau_TOB_Sat.push_back((*(m_jFEXOutputCollection->get_tau(i)))["tau_TOB_Sat"]);
+
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LVL1::jFEXNtupleWriter::loadPileupVariables() {
+
+
+  m_pileup_FPGAid.clear();
+  m_pileup_jFEXid.clear();
+  m_pileup_rho_EM.clear();
+  m_pileup_rho_HAD1.clear();
+  m_pileup_rho_HAD2.clear();
+  m_pileup_rho_HAD3.clear();
+  m_pileup_rho_FCAL.clear();
+
+  
+  for (int i = 0; i < m_jFEXOutputCollection->pileupsize(); i++)
+  {
+
+    m_pileup_FPGAid.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_FPGAid"]);
+    m_pileup_jFEXid.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_jFEXid"]);
+    m_pileup_rho_EM.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_EM"]);
+    m_pileup_rho_HAD1.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD1"]);
+    m_pileup_rho_HAD2.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD2"]);
+    m_pileup_rho_HAD3.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_HAD3"]);
+    m_pileup_rho_FCAL.push_back((*(m_jFEXOutputCollection->get_pileup(i)))["pileup_rho_FCAL"]);
 
   }
   return StatusCode::SUCCESS;

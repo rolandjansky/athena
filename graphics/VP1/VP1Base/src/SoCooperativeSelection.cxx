@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class: SoCooperativeSelection.
@@ -127,7 +127,7 @@ void SoCooperativeSelection::handleEvent(SoHandleEventAction * action)
 
       SoCooperativeSelection * lastsoselectionfrompath = getLastActiveSoSelectionFromPath(selectionpath);
 
-      if (selectionpath&&lastsoselectionfrompath==this) {
+      if (lastsoselectionfrompath==this) {
 	//We are the selection node furthest down the path => handle the event.
 	this->mouseDownPickPath = selectionpath;
 	this->mouseDownPickPath->ref();

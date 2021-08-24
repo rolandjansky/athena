@@ -18,7 +18,6 @@
 #include "TrigT1CaloUtils/CPMTobAlgorithm.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -88,8 +87,6 @@ namespace LVL1
     private:
       
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "LVL1 Config Service"};
-      Gaudi::Property<bool> m_useNewConfig { this, "UseNewConfig", true, "When true, read the menu from detector store, when false use the L1ConfigSvc" };
       const TrigConf::L1Menu * m_l1menu{nullptr};
 
       /** Utility for decoding RoI words */

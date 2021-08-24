@@ -18,6 +18,7 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxTrackAtVertex.h"
+#include <cmath>
 
 using HepGeom::Point3D;
 
@@ -158,8 +159,8 @@ namespace InDet {
 
     //check if measurements are on the same surface
     if (first_pos_meas->associatedSurface() == first_neg_meas->associatedSurface()) distance =
-      sqrt(pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + pow(trk_hit_pos[1] - trk_hit_neg[1],2.) +
-	   pow(trk_hit_pos[2] - trk_hit_neg[2],2.));
+      std::sqrt(std::pow(trk_hit_pos[0] - trk_hit_neg[0],2.) + std::pow(trk_hit_pos[1] - trk_hit_neg[1],2.) +
+	   std::pow(trk_hit_pos[2] - trk_hit_neg[2],2.));
 
 
     //if not choose the track with the fist measurement closest to 000 and calculate the distance
@@ -185,7 +186,7 @@ namespace InDet {
       Amg::Vector3D position = perigee->position();
       double p = momentum.mag();
       Amg::Vector3D delta = position - ref_point;
-      distance = sqrt(pow(delta.mag(),2.) - pow((delta.adjoint()*momentum)[0]/p,2.));
+      distance = std::sqrt(std::pow(delta.mag(),2.) - std::pow((delta.adjoint()*momentum)[0]/p,2.));
     }
 
     ATH_MSG_DEBUG("Distance between two tracks = "<<distance);
@@ -239,7 +240,7 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    auto	    ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+    auto	 ntsos = DataVector<const Trk::TrackStateOnSurface>();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) {return nullptr;}
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
@@ -249,9 +250,9 @@ namespace InDet {
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       const Trk::TrackStateOnSurface* per_tsos =
         ((*its)->type(Trk::TrackStateOnSurface::Perigee))
-          ? new Trk::TrackStateOnSurface(nullptr, mp->clone(), nullptr, nullptr, typePattern)
+          ? new Trk::TrackStateOnSurface(nullptr, mp->uniqueClone(), nullptr, nullptr, typePattern)
           : (*its)->clone();
-      ntsos->push_back(per_tsos);
+      ntsos.push_back(per_tsos);
     }
 
     //Construct the new track

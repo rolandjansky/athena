@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // AtlCoolCopy.cxx
@@ -7,14 +7,14 @@
 // Richard Hawkings, started 30/5/06
 // compiles in offline cmt framework to binary executable, needs offline env
 
-#include <vector>
-#include <string>
+#include <algorithm>
+#include <cmath>
+#include <ctime>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <time.h>
-#include <math.h>
-#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "CoolKernel/DatabaseId.h"
 #include "CoolKernel/Exception.h"
@@ -60,31 +60,31 @@
 
 class AtlCoolCopy {
  public:
-  AtlCoolCopy(const std::string sourcedb, const std::string destdb,
+  AtlCoolCopy(const std::string& sourcedb, const std::string& destdb,
 	      bool allowcreate=false);
   bool isOpen() const;
   bool addFolder(const std::string& folder,const bool onlyTags);
   bool addExclude(const std::string& folder);
-  int copyFolder(const std::string folder,const std::vector<std::string>& taglist);
+  int copyFolder(const std::string& folder,const std::vector<std::string>& taglist);
   int doCopy();
   int setOpts(int argc, const char* argv[]);
 
  private:
   // methods
-  bool openConnections(const std::string sourcedb, const std::string destdb,
+  bool openConnections(const std::string& sourcedb, const std::string& destdb,
 		  bool allowcreate);
   bool openCoraCool();
   bool getLockedTags();
   bool procOptVector(const int argc, const char* argv[],
 		     std::vector<std::string>& folders);
-  std::string transConn(const std::string& inconn);
-  void setChannelRange(cool::IFolderPtr sourcefl);
-  cool::ChannelId channelID(cool::IFolderPtr folder,
+  static std::string transConn(const std::string& inconn);
+  void setChannelRange(const cool::IFolderPtr& sourcefl);
+  static cool::ChannelId channelID(const cool::IFolderPtr& folder,
 			    const std::string& chanstring);
   int copyIOVs(const std::string& folder,const std::string& destfolder,
-	       cool::IFolderPtr sourcefl,CoraCoolFolderPtr sourceflc,
-	       cool::IFolderPtr destfl,CoraCoolFolderPtr destflc,
-      const std::string sourcetag,const std::string desttag,
+	       const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
+	       const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
+      const std::string& sourcetag,const std::string& desttag,
 	       const cool::ValidityKey since,const cool::ValidityKey until,
 	       bool timestamp,bool checkrefs,bool iscora,
 	       const cool::PayloadMode::Mode paymode, bool created);
@@ -94,46 +94,46 @@ class AtlCoolCopy {
 		  const cool::ValidityKey& quntil,
 		  cool::ValidityKey& newsince,
 		  cool::ValidityKey& newuntil,
-		  const bool timestamp);
+		  const bool timestamp) const;
   int nocopyIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
 	       const cool::ValidityKey since,const cool::ValidityKey until,
 	       bool checkrefs);
   int verifyIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,CoraCoolFolderPtr sourceflc,
-      cool::IFolderPtr destfl,CoraCoolFolderPtr destflc,
-      const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
+      const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
+      const std::string& sourcetag,
 	       const cool::ValidityKey since,const cool::ValidityKey until,
 	       const bool checkrefs,const bool iscora,
 	       const cool::PayloadMode::Mode paymode);
   int rootIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
 	       const cool::ValidityKey since,const cool::ValidityKey until,
 	       const bool timestamp);
   std::string rootDirs(const std::string& folder, const std::string& toproot);
   bool rootAllocate(const cool::IFieldSpecification& spec,
-		    void*& sptr,char& rootID);
-  void rootWrite(void* sptr, const cool::IField& field);
-  bool isNumeric(const char* input);
-  bool equalRecord(const cool::IRecord& lhs,
+		    void*& sptr,char& rootID) const;
+  void rootWrite(void* sptr, const cool::IField& field) const;
+  static bool isNumeric(const char* input);
+  static bool equalRecord(const cool::IRecord& lhs,
 		   const cool::IRecord& rhs);
   int analyseIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
  		 const cool::ValidityKey since,const cool::ValidityKey until,
 		 const bool timestamp);
-  TH1F* bookOrFindTH1F(const std::string& hID, const std::string& htitle,
+  static TH1F* bookOrFindTH1F(const std::string& hID, const std::string& htitle,
 		       const int chan, const float xlow, const float xhigh);
-  cool::ValidityKey timeVal(const char* input);
-  std::string timeString(const cool::ValidityKey iovtime);
-  cool::ValidityKey runLBVal(const char* input1, const char* input2);
+  static cool::ValidityKey timeVal(const char* input);
+  static std::string timeString(const cool::ValidityKey iovtime);
+  static cool::ValidityKey runLBVal(const char* input1, const char* input2);
   bool getTimeFromRun();
   bool getOnlineRun();
   bool getBulkRun();
   bool getRunList();
-  int getUpdateMode(const std::string& desc, const std::string& tag);
+  static int getUpdateMode(const std::string& desc, const std::string& tag);
 
   bool checkChannels(const std::string& folder,
-		     cool::IFolderPtr sourcefl,cool::IFolderPtr destfl,
+		     const cool::IFolderPtr& sourcefl,const cool::IFolderPtr& destfl,
 		     bool newfolder);
   void checkRef(const cool::IRecord& payload,
 		const std::string& folder,const std::string& tag);
@@ -141,9 +141,9 @@ class AtlCoolCopy {
   int writeTagInfo();
   int listPoolRefs();
   int resolvePoolRefs();
-  std::string getCoolHistGUID(const std::string& file);
+  static std::string getCoolHistGUID(const std::string& file);
   void filePoolRefs();
-  pool::IFileCatalog* setupCatalog(const std::vector<std::string>& catvec);
+  static pool::IFileCatalog* setupCatalog(const std::vector<std::string>& catvec);
 
   // input parameters
   std::string m_sourcedb;
@@ -246,13 +246,13 @@ class AtlCoolCopy {
   PoolMap::iterator m_poollast; // pointer to last POOL ref updated
   PoolMap m_poolrefs; // POOL refs and usage counts
   // hierarchical tags - tag name and folder
-  typedef std::map<std::string,std::string> HiTagMap;
+  using HiTagMap = std::map<std::string, std::string>;
   HiTagMap m_hitagmap;
   // tags indirectly used in the hierarchy and have to be treated at end
   std::vector<std::string> m_hiparent;
   // map of CoolTagInfo objects - tags which have have their descriptions
   // and lock status set in the destination DB at the end
-  typedef std::map<std::string,CoolTagInfo> CoolTagMap;
+  using CoolTagMap = std::map<std::string, CoolTagInfo>;
   CoolTagMap m_cooltagmap;
   // output root file for ROOT file export and IOV analysis
   TFile* p_rootfile;
@@ -262,7 +262,7 @@ inline bool AtlCoolCopy::isOpen() const { return m_open; }
 
 void printHelp();
 
-AtlCoolCopy::AtlCoolCopy(const std::string sourcedb, const std::string destdb,
+AtlCoolCopy::AtlCoolCopy(const std::string& sourcedb, const std::string& destdb,
 	    bool allowcreate) :
   m_sourcedb(sourcedb),m_destdb(destdb),m_allowcreate(allowcreate),
   m_recreate(false),
@@ -289,8 +289,8 @@ AtlCoolCopy::AtlCoolCopy(const std::string sourcedb, const std::string destdb,
   m_anadelt(-1),m_outfolder(""),m_outtag(""),m_newdataset(""),
   m_checkoutputfile(""),m_timedb(""),m_taglabel(""),
   m_coolapp(&m_coralsvc),
-  m_dbSvc(&(m_coolapp.databaseService())),m_repsort(0),
-  m_open(false),m_chansel(cool::ChannelSelection::all()),p_rootfile(0)
+  m_dbSvc(&(m_coolapp.databaseService())),m_repsort(nullptr),
+  m_open(false),m_chansel(cool::ChannelSelection::all()),p_rootfile(nullptr)
 {
   m_poolrefs.clear();
   m_poollast=m_poolrefs.end();
@@ -300,8 +300,8 @@ AtlCoolCopy::AtlCoolCopy(const std::string sourcedb, const std::string destdb,
   csconfig.setConnectionTimeOut(0);
 }
 
-bool AtlCoolCopy::openConnections(const std::string sourcedb,
-			     const std::string destdb,bool allowcreate) {
+bool AtlCoolCopy::openConnections(const std::string& sourcedb,
+			     const std::string& destdb,bool allowcreate) {
   // check connections not already open
   if (m_open) return true;
   // initialise replica sorter if it was requested
@@ -328,9 +328,9 @@ bool AtlCoolCopy::openConnections(const std::string sourcedb,
   } else if (m_root || m_analyse) {
     std::cout << "Open destination ROOT file: " << destdb << std::endl;
     p_rootfile=new TFile(destdb.c_str(),"RECREATE");
-    if (p_rootfile==0) std::cout << "ERROR: Could not open ROOT file" << 
+    if (p_rootfile==nullptr) std::cout << "ERROR: Could not open ROOT file" << 
 			 std::endl;
-    m_open=(p_rootfile!=0);
+    m_open=(p_rootfile!=nullptr);
     return m_open;
   }
   std::string tdestdb=transConn(destdb);
@@ -371,7 +371,7 @@ bool AtlCoolCopy::openConnections(const std::string sourcedb,
 }
 
 bool AtlCoolCopy::openCoraCool() {
-  if (m_sourceCoraPtr.get()==0) {
+  if (m_sourceCoraPtr.get()==nullptr) {
     std::cout << "Attempt to open source CoraCool DB " << m_sourcedb << 
       std::endl;
     m_sourceCoraPtr=CoraCoolDatabasePtr(new CoraCoolDatabase(m_sourcedb,
@@ -380,7 +380,7 @@ bool AtlCoolCopy::openCoraCool() {
   }
   // skip destination DB if not copying
   if (m_nocopy) return true;
-  if (m_destCoraPtr.get()==0) {
+  if (m_destCoraPtr.get()==nullptr) {
     std::cout << "Attempt to open destination CoraCool DB " << m_destdb << 
       std::endl;
     m_destCoraPtr=CoraCoolDatabasePtr(new CoraCoolDatabase(m_destdb,
@@ -413,7 +413,7 @@ bool AtlCoolCopy::getLockedTags() {
 std::string AtlCoolCopy::transConn(const std::string& inconn) {
   // translate simple connection string (no slash) to mycool.db with given
   // instance name, all others are left alone
-  if (inconn.find("/")==std::string::npos) {
+  if (inconn.find('/')==std::string::npos) {
     return "sqlite://X;schema=mycool.db;dbname="+inconn;
   } else {
     return inconn;
@@ -495,7 +495,7 @@ bool AtlCoolCopy::addExclude(const std::string& folder) {
   return true;
 }
 
-int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::string>& taglist) {
+int AtlCoolCopy::copyFolder(const std::string& folder,const std::vector<std::string>& taglist) {
   // get source folder
   cool::IFolderPtr sourcefl,destfl;
   CoraCoolFolderPtr sourceflc,destflc;
@@ -540,7 +540,7 @@ int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::stri
 
   // set name for destination folder
   std::string destfolder=folder;
-  if (m_outfolder!="") {
+  if (!m_outfolder.empty()) {
     destfolder=m_outfolder;
     std::cout << "Destination folder will be renamed to " << destfolder <<
       std::endl;
@@ -703,7 +703,7 @@ int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::stri
   std::vector<std::string> tags;
   if (vermode==cool::FolderVersioning::SINGLE_VERSION) {
     std::cout << "Single version folder" << std::endl;
-    tags.push_back("HEAD");
+    tags.emplace_back("HEAD");
   } else {
     std::cout << "Multi version folder: consider tags [ ";
     // get list of tags in this node which are requested
@@ -712,7 +712,7 @@ int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::stri
 	 itag!=foldertags.end();++itag) {
       bool copyit=copyall;
       // if input taglist is empty, take all tags in folder
-      if (taglist.size()==0 ||
+      if (taglist.empty() ||
 	  find(taglist.begin(),taglist.end(),*itag)!=taglist.end()) 
 	copyit=true;
       for (std::vector<std::string>::const_iterator imtag=m_magic.begin();
@@ -746,16 +746,16 @@ int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::stri
     std::cout << "]" << std::endl;
     // if still no tags were found, or forced HEAD tag copying, or no
     // tags in the folder at all (=MV folder being used as SV), add HEAD
-    if (((tags.size()==0 || m_includehead) && !m_excludehead) ||
-	foldertags.size()==0)
-      tags.push_back("HEAD");
+    if (((tags.empty() || m_includehead) && !m_excludehead) ||
+	foldertags.empty())
+      tags.emplace_back("HEAD");
   }
 
   sourcefl->setPrefetchAll(false);
   for (std::vector<std::string>::const_iterator itag=tags.begin();
        itag!=tags.end();++itag) {
     std::string outtag=*itag;
-    if (m_outtag!="") outtag=m_outtag;
+    if (!m_outtag.empty()) outtag=m_outtag;
     int retcode;
     // verify or copy folder
     if (m_verify) {
@@ -781,16 +781,16 @@ int AtlCoolCopy::copyFolder(const std::string folder,const std::vector<std::stri
   return 0;
 }
 
-void AtlCoolCopy::setChannelRange(cool::IFolderPtr sourcefl) {
+void AtlCoolCopy::setChannelRange(const cool::IFolderPtr& sourcefl) {
   // add range specified via -ch1 -ch2 if given
-  if (m_channel1!="" && m_channel2!="") {
+  if (!m_channel1.empty() && !m_channel2.empty()) {
     m_channelRange.clear();
     m_channelRange.push_back(m_channel1+":"+m_channel2);
   }
   m_chansel=cool::ChannelSelection::all();
   const size_t nChanRange=m_channelRange.size();
   for (size_t i=0;i<nChanRange;i++) {
-    size_t cpos=m_channelRange[i].find(":");
+    size_t cpos=m_channelRange[i].find(':');
     if (cpos==std::string::npos || cpos > m_channelRange[i].size()-1) {
       // single channel
       std::cout << "Adding channel " << m_channelRange[i] << 
@@ -816,12 +816,12 @@ void AtlCoolCopy::setChannelRange(cool::IFolderPtr sourcefl) {
   }//end loop over channel ranges
 }
 
-cool::ChannelId AtlCoolCopy::channelID(cool::IFolderPtr folder,
+cool::ChannelId AtlCoolCopy::channelID(const cool::IFolderPtr& folder,
 				       const std::string& chanstring) {
   const char* cstr=chanstring.c_str();
   if (isNumeric(cstr)) {
     // channel is a number 
-    return cool::ChannelId(strtoul(cstr,NULL,10));
+    return cool::ChannelId(strtoul(cstr,nullptr,10));
   } else {
     cool::ChannelId chan=0;
     try {
@@ -839,9 +839,9 @@ cool::ChannelId AtlCoolCopy::channelID(cool::IFolderPtr folder,
 
 int AtlCoolCopy::copyIOVs(const std::string& folder,
       const std::string& destfolder,
-      cool::IFolderPtr sourcefl,CoraCoolFolderPtr sourceflc,
-      cool::IFolderPtr destfl,CoraCoolFolderPtr destflc,
-      const std::string sourcetag,const std::string desttag,
+      const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
+      const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
+      const std::string& sourcetag,const std::string& desttag,
       const cool::ValidityKey since,const cool::ValidityKey until,
 	    bool timestamp,bool checkrefs,bool iscora,
 	    const cool::PayloadMode::Mode paymode ,bool created) {
@@ -856,7 +856,7 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   // if online mode, must have --getonline and either -truncate or -alliov
   // only if destination DB is oracle
   if (updatemode==1 && m_destdb.find("oracle")!=std::string::npos &&
-     (m_getonline==false || (m_truncate==false && m_alliov==false))) {
+     (!m_getonline || (!m_truncate && !m_alliov))) {
     if (m_ignoremode) {
       std::cout << "Folder is online (UPD1) mode but IGNORING PROTECTION"
 		<< std::endl;
@@ -873,7 +873,7 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   }
   // if UPD4 mode, must have -getbulk and either -truncate or -alliov
   if (updatemode==4 && m_destdb.find("oracle")!=std::string::npos &&
-     (m_getbulk==false || (m_truncate==false && m_alliov==false))) {
+     (!m_getbulk || (!m_truncate && !m_alliov))) {
     if (m_ignoremode) {
       std::cout << "Folder is bulkreco (UPD4) mode but IGNORING PROTECTION"
 		<< std::endl;
@@ -893,7 +893,7 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   // also skip if tag is HEAD, and folder was not newly created
   if (m_checkdesttag) {
     if (find(dtaglist.begin(),dtaglist.end(),desttag)!=dtaglist.end()
-        || (desttag=="HEAD" && created==false)) {
+        || (desttag=="HEAD" && !created)) {
       std::cout << "Destination tag " << desttag << 
 	" already exists in folder " << folder << " - skip copy" << std::endl;
       return 0;
@@ -936,7 +936,7 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   // set up tag to be used at point of insertion
   std::string localtag="";
   if (dvermode==cool::FolderVersioning::MULTI_VERSION &&
-      desttag!="HEAD" && m_usertags==true) localtag=desttag;
+      desttag!="HEAD" && m_usertags) localtag=desttag;
   // now loop over IOVs - separate for CoraCool and COOL
   try {
     if (iscora) {
@@ -999,12 +999,12 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   	  int newfk=
 	    destflc->storeObject(newsince,newuntil,obj->begin(),obj->end(),
 			       obj->channelId(),localtag,
-			     (!m_userupdatehead && localtag!=""));
+			     (!m_userupdatehead && !localtag.empty()));
 	  if (foundkey) insertkeymap[oldfk]=newfk;
 	} else {
 	  destflc->referenceObject(newsince,newuntil,ikey->second,
 			       obj->channelId(),localtag,
-			     (!m_userupdatehead && localtag!=""));
+			     (!m_userupdatehead && !localtag.empty()));
 	  ++nref;
 	}
         ++nbuf;
@@ -1130,14 +1130,14 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
 	  const cool::IRecordVectorPtr vptr=pitr.fetchAllAsVector();
 	  destfl->storeObject(newsince,newuntil,
 			     *vptr,obj.channelId(),localtag,
-			    (!m_userupdatehead && localtag!=""));
+			    (!m_userupdatehead && !localtag.empty()));
 	  nbuf+=vptr->size();
 	  pitr.close();
 	} else {
 	  // standard COOL object copy
 	  destfl->storeObject(newsince,newuntil,
 	      	  obj.payload(),obj.channelId(),localtag,
-			    (!m_userupdatehead && localtag!=""));
+			    (!m_userupdatehead && !localtag.empty()));
 	  ++nbuf;
 	}
         // flush buffer every m_bufsize objects
@@ -1181,7 +1181,7 @@ int AtlCoolCopy::copyIOVs(const std::string& folder,
   }
 
   if (dvermode==cool::FolderVersioning::MULTI_VERSION && desttag!="HEAD") {
-    if (m_usertags==false) {
+    if (!m_usertags) {
       // apply HEAD style tagging
       std::cout << "Tag folder with HEAD-style tagging for tag: " << desttag
         	<< std::endl;
@@ -1255,7 +1255,7 @@ void AtlCoolCopy::adjustIOVs(const cool::ValidityKey& since,
 			     const cool::ValidityKey& quntil,
 			     cool::ValidityKey& newsince,
 			     cool::ValidityKey& newuntil,
-			     bool timestamp) {
+			     bool timestamp) const {
   // set newsince/until to since/until
   // but doing any required truncation/adjustment
   newsince=since;
@@ -1281,7 +1281,7 @@ void AtlCoolCopy::adjustIOVs(const cool::ValidityKey& since,
 }
 
 int AtlCoolCopy::nocopyIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
       const cool::ValidityKey since,const cool::ValidityKey until,
 			  bool checkrefs) {
 
@@ -1315,9 +1315,9 @@ int AtlCoolCopy::nocopyIOVs(const std::string& folder,
 }
 
 int AtlCoolCopy::verifyIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,CoraCoolFolderPtr sourceflc,
-      cool::IFolderPtr destfl,CoraCoolFolderPtr destflc,
-      const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
+      const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
+      const std::string& sourcetag,
       const cool::ValidityKey since,const cool::ValidityKey until,
 			    const bool checkrefs,const bool iscora, 
 			    const cool::PayloadMode::Mode paymode) {
@@ -1521,7 +1521,7 @@ std::vector<void*> nt_bufferptr;
 
 
 int AtlCoolCopy::rootIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
       const cool::ValidityKey since,const cool::ValidityKey until,
 			  const bool timestamp) {
   // copy this selection to ROOT
@@ -1536,7 +1536,7 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
   // create TTree with appropriate structure - only if it does not exist
   // could have been created from a previous tag in the same folder
   TTree* tree=static_cast<TTree*>(gDirectory->FindObject(treename.c_str()));
-  if (tree==0) {
+  if (tree==nullptr) {
     std::cout << "Book TTree " << treename << std::endl;
     tree=new TTree(treename.c_str(),"COOL datadump");
     if (timestamp2) {
@@ -1562,7 +1562,7 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
     nt_bufferptr.clear();
     for (unsigned int icol=0;icol<ncolumns;++icol) {
       const cool::IFieldSpecification& fieldspec=spec[icol];
-      void* ptr=0;
+      void* ptr=nullptr;
       char rootID;
       if (rootAllocate(fieldspec,ptr,rootID)) {
         tree->Branch(fieldspec.name().c_str(),ptr,
@@ -1628,7 +1628,7 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
       try {
         const cool::IRecord& record=sobj.payload();
         for (unsigned int icol=0;icol<record.size();++icol) {
-	  if (nt_bufferptr[icol]!=0) rootWrite(nt_bufferptr[icol],record[icol]);
+	  if (nt_bufferptr[icol]!=nullptr) rootWrite(nt_bufferptr[icol],record[icol]);
         }
         tree->Fill();
         ++nobj;
@@ -1657,7 +1657,7 @@ std::string AtlCoolCopy::rootDirs(const std::string& folder,
   // and cd to the directory where a tree should be created
   // return the tree name (=leaf of the COOL foldername)
   p_rootfile->cd();
-  if (p_rootfile->FindObject(toproot.c_str())==0) {
+  if (p_rootfile->FindObject(toproot.c_str())==nullptr) {
     p_rootfile->mkdir(toproot.c_str());
     std::cout << "Made top directory " << toproot << std::endl;
   }
@@ -1668,14 +1668,14 @@ std::string AtlCoolCopy::rootDirs(const std::string& folder,
   std::string::size_type iofs2=1;
   std::string treename;
   while (iofs2!=std::string::npos) {
-    iofs2=folder.find("/",iofs1);
+    iofs2=folder.find('/',iofs1);
     if (iofs2==std::string::npos) {
       // no more /, so current part of string is leaf tree name
       treename=folder.substr(iofs1);
     } else {
       std::string dirname=folder.substr(iofs1,iofs2-iofs1);
       iofs1=iofs2+1;
-      if (gDirectory->FindObject(dirname.c_str())==0) {
+      if (gDirectory->FindObject(dirname.c_str())==nullptr) {
 	std::cout << "Make directory " << dirname << std::endl;
         gDirectory->mkdir(dirname.c_str());
       }
@@ -1686,10 +1686,10 @@ std::string AtlCoolCopy::rootDirs(const std::string& folder,
 }
 
 bool AtlCoolCopy::rootAllocate(const cool::IFieldSpecification& spec,
-			       void*& sptr,char& rootID) {
+			       void*& sptr,char& rootID) const {
   const cool::StorageType& stype=spec.storageType();
   rootID=' ';
-  sptr=0;
+  sptr=nullptr;
   if (stype==cool::StorageType::Bool) {
     // map bool to uint32 for now
     sptr=static_cast<void*>(new unsigned int(0));
@@ -1735,10 +1735,10 @@ bool AtlCoolCopy::rootAllocate(const cool::IFieldSpecification& spec,
     std::cout << "rootAllocate: Unsupported storage type for attribute: " <<
       spec.name() << std::endl;
   }
-  return (sptr!=0);
+  return (sptr!=nullptr);
 }
 
-void AtlCoolCopy::rootWrite(void* sptr,const cool::IField& field) {
+void AtlCoolCopy::rootWrite(void* sptr,const cool::IField& field) const {
   // check for NULL value
   bool recnull=(field.isNull() && m_zeronull);
   const cool::StorageType& stype=field.storageType();
@@ -1817,7 +1817,7 @@ void AtlCoolCopy::rootWrite(void* sptr,const cool::IField& field) {
 }
 
 int AtlCoolCopy::analyseIOVs(const std::string& folder,
-      cool::IFolderPtr sourcefl,const std::string sourcetag,
+      const cool::IFolderPtr& sourcefl,const std::string& sourcetag,
        const cool::ValidityKey since,const cool::ValidityKey until,
 			     const bool timestamp) {
   // analyse the IOV and channel structure of this folder/tag, make ROOT histos
@@ -1830,7 +1830,7 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
   }
   // create COOLANA/folder structure and create leaf directory for histograms
   std::string dirname=rootDirs(folder,"COOLANA");
-  if (gDirectory->FindObject(dirname.c_str())==0) {
+  if (gDirectory->FindObject(dirname.c_str())==nullptr) {
     std::cout << "Make directory " << dirname << std::endl;
     gDirectory->mkdir(dirname.c_str());
   }
@@ -1863,8 +1863,8 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
   TH1F* h_iovgap=bookOrFindTH1F("IOVLogGapLength","IOV log10 gap length",
 				100,0.,20.);
   // histograms for time analysis if needed
-  TH1F* h_anadelt=0;
-  TH1F* h_chandelt=0;
+  TH1F* h_anadelt=nullptr;
+  TH1F* h_chandelt=nullptr;
   if (anatime) {
     h_anadelt=bookOrFindTH1F("IOVAlignLogDelT","IOV alignment log deltaT",
 			     100,0.,20.);
@@ -1876,7 +1876,7 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
   std::cout << "Booked histograms for folder with " << nchan << " channels"
 	    << std::endl;
   // setup storage for IOV time analysis 
-  typedef std::map<cool::ValidityKey,int> IOVTimeMap;
+  using IOVTimeMap = std::map<cool::ValidityKey, int>;
   IOVTimeMap iov_time_map;
 
   // setup iterator to loop over objects
@@ -2033,7 +2033,7 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
   delete [] lastiov;
   delete [] iovtotlen;
   delete [] iovtotgap;
-  delete[] iovn; iovn=0; 
+  delete[] iovn; iovn=nullptr; 
   return 0;
 }
 
@@ -2043,7 +2043,7 @@ TH1F* AtlCoolCopy::bookOrFindTH1F(const std::string& hID,
   // check histogram does not exist in current directory
   // if yes, return pointer to it, else book and return pointer
   TObject* obj=gDirectory->FindObject(hID.c_str());
-  if (obj==0) {
+  if (obj==nullptr) {
     return new TH1F(hID.c_str(),htitle.c_str(),nchan,xlow,xhigh);
   } else {
     return static_cast<TH1F*>(obj);
@@ -2074,7 +2074,7 @@ int AtlCoolCopy::doCopy() {
       int code=0;
       if (m_poolcat.empty()) {
 	code=listPoolRefs();
-	if (m_checkoutputfile!="") filePoolRefs();
+	if (!m_checkoutputfile.empty()) filePoolRefs();
       } else {
 	code=resolvePoolRefs();
       }
@@ -2101,13 +2101,13 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
     // strip double "--" to achieve compatability with python-style options
     if (par0.substr(0,2)=="--") par0=par0.substr(1);
     if ((par0=="-f" || par0=="-folder") && ir>1) {
-      folders.push_back(argv[ic+1]);
+      folders.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-e" || par0=="-exclude") && ir>1) {
       addExclude(argv[ic+1]);
       ++ic;
     } else if ((par0=="-t" || par0=="-tag") && ir>1) {
-      m_tags.push_back(argv[ic+1]);
+      m_tags.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-mt" || par0=="-magic") && ir>1) {
       m_magic.push_back("_"+std::string(argv[ic+1]));
@@ -2178,7 +2178,7 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
     } else if (par0=="-c" || par0=="-create") {
       m_allowcreate=true;
     } else if ((par0=="-ch" || par0=="-channel") && ir>1) {
-      m_channelRange.push_back(argv[ic+1]);
+      m_channelRange.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-ch1" || par0=="-channel1") && ir>1) {
       m_channel1=argv[ic+1];
@@ -2220,7 +2220,7 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
     } else if (par0=="-hi" || par0=="-hitag") {
       m_hitag=true;
     } else if ((par0=="-ec" || par0=="-excludechannel") && ir>1) {
-      m_excludechans.push_back(strtoul(argv[ic+1],NULL,10));
+      m_excludechans.push_back(strtoul(argv[ic+1],nullptr,10));
       ++ic;
     } else if (par0=="-fs" || par0=="-forcesingle") {
       m_forcesingle=true;
@@ -2248,10 +2248,10 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
       m_checkoutputfile=argv[ic+1];
       ++ic;
     } else if ((par0=="-pc" || par0=="-poolcat") && ir>1) {
-      m_poolcat.push_back(argv[ic+1]);
+      m_poolcat.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-mc" || par0=="-mergecat") && ir>1) {
-      m_mergecat.push_back(argv[ic+1]);
+      m_mergecat.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-ds" || par0=="-dataset") && ir>1) {
       m_newdataset=argv[ic+1];
@@ -2310,16 +2310,16 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
       ++ic;
       m_copytaginfo=true;
     } else if ((par0=="-ag" || par0=="-addguid") && ir>1) {
-      m_addguid.push_back(argv[ic+1]);
+      m_addguid.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-alf" || par0=="-addlfn") && ir>1) {
-      m_addlfn.push_back(argv[ic+1]);
+      m_addlfn.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-pf" || par0=="-parfile") && ir>1) {
-      m_parfile.push_back(argv[ic+1]);
+      m_parfile.emplace_back(argv[ic+1]);
       ++ic;
     } else if ((par0=="-rf" || par0=="-runfile") && ir>1) {
-      m_runfile.push_back(argv[ic+1]);
+      m_runfile.emplace_back(argv[ic+1]);
       ++ic;
     } else if (par0=="-h" || par0=="-help") {
       // help printout triggered by -999 return code
@@ -2345,31 +2345,31 @@ int AtlCoolCopy::setOpts(int argc, const char* argv[]) {
        ifile!=m_parfile.end();++ifile) {
     std::cout << "Reading parameters from file " << *ifile << std::endl;
     FILE* p_inp=fopen(ifile->c_str(),"r");
-    if (p_inp==0) {
+    if (p_inp==nullptr) {
       std::cout << "File not found" << std::endl;
       return 3;
     }
     char* p_buf=new char[999];
     while (!feof(p_inp)) {
       char* p_line=fgets(p_buf,999,p_inp);
-      if (p_line!=NULL) {
+      if (p_line!=nullptr) {
 	int fargc=0;
 	const char* fargv[99];
 	// split this line into tokens
-	char* p_start=0;
+	char* p_start=nullptr;
 	while (*p_line!='\0') {
 	  if (*p_line==' ' || *p_line=='\n') {
 	    // pointing at a space/newline, marking the end of a parameter
-	    if (p_start!=NULL) {
+	    if (p_start!=nullptr) {
 	      // if we have a parameter, mark the end and store it
 	      *p_line='\0';
 	      fargv[fargc]=p_start;
 	      fargc++;
-	      p_start=NULL;
+	      p_start=nullptr;
 	    }
 	  } else {
 	    // mark the start of a parameter
-	    if (p_start==NULL) p_start=p_line;
+	    if (p_start==nullptr) p_start=p_line;
 	  }
 	  ++p_line;
 	}
@@ -2397,7 +2397,7 @@ int AtlCoolCopy::setOpts(int argc, const char* argv[]) {
     if (m_lockedonly) {
       if (getLockedTags()==0) return 11;
     }
-    if (folders.size()==0) {
+    if (folders.empty()) {
       // no folders specified, take all with tags
       addFolder("/",false);
     } else {
@@ -2506,9 +2506,9 @@ cool::ValidityKey AtlCoolCopy::timeVal(const char* input) {
     return static_cast<long long>(atol(input))*
       static_cast<long long>(1.E9);
   } else {
-    struct tm mytm,mytm2;
+    struct tm mytm{},mytm2{};
     char* result=strptime(input,"%Y-%m-%d:%T",&mytm);
-    if (result!=0) {
+    if (result!=nullptr) {
       // make the DST field zero, so the time is interpreted without daylight
       // savings time
       mytm.tm_isdst=0;
@@ -2563,7 +2563,7 @@ bool AtlCoolCopy::getTimeFromRun() {
   // in the /TDAQ/RunCtrl/SOR_Params and EOR_Params on the given DB connection
 
   // choose database instance based on run number switchover if none is given
-  if (m_timedb=="") {
+  if (m_timedb.empty()) {
     if ((m_runemin >> 32)>=236107) {
       m_timedb="COOLONL_TDAQ/CONDBR2";
     } else {
@@ -2661,7 +2661,7 @@ bool AtlCoolCopy::getOnlineRun() {
       std::endl;
   }
   coral::ISessionProxy* proxy=m_coralsvc.connect(connstr,coral::ReadOnly);
-  if (proxy==0) {
+  if (proxy==nullptr) {
     std::cout << "Could not connect to " << connstr << std::endl;
     return false;
   }
@@ -2679,7 +2679,7 @@ bool AtlCoolCopy::getOnlineRun() {
       const coral::AttributeList& res=cursor.currentRow();
       int nextrun=res["res"].data<int>()+1;
       std::cout << "Next run started will be " << nextrun << std::endl;
-      const long long rtime=time(0);
+      const long long rtime=time(nullptr);
       std::cout << "Epoch time extracted " << rtime << std::endl;
       if (m_alliov) {
 	// if overwriting IOVs, set the new IOV lower limit
@@ -2714,7 +2714,7 @@ bool AtlCoolCopy::getBulkRun() {
   const std::string connstr="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_GLOBAL";
   std::cout << "Extracting bulk-reco run limit from ATLR ... " << std::endl;
   coral::ISessionProxy* proxy=m_coralsvc.connect(connstr,coral::ReadOnly);
-  if (proxy==0) {
+  if (proxy==nullptr) {
     std::cout << "Could not connect to " << connstr << std::endl;
     return false;
   }
@@ -2769,14 +2769,14 @@ bool AtlCoolCopy::getRunList() {
        itr!=m_runfile.end();++itr) {
     std::cout << "Reading allowed run numbers from file " << *itr << std::endl;
     FILE* p_inp=fopen(itr->c_str(),"r");
-    if (p_inp==0) {
+    if (p_inp==nullptr) {
       std::cout << "File not found" << std::endl;
       return false;
     }
     char* p_buf=new char[999];
     while (!feof(p_inp)) {
       char* p_line=fgets(p_buf,999,p_inp);
-      if (p_line!=NULL) {
+      if (p_line!=nullptr) {
 	unsigned int run=atoi(p_line);
 	m_runlist.push_back(run);
       }
@@ -2812,7 +2812,7 @@ int AtlCoolCopy::getUpdateMode(const std::string& desc,
 
 
 bool AtlCoolCopy::checkChannels(const std::string& folder,
-	     cool::IFolderPtr sourcefl,cool::IFolderPtr destfl,
+	     const cool::IFolderPtr& sourcefl,const cool::IFolderPtr& destfl,
 				bool newfolder) {
   // Channel manipulation is slow due to lack of bulk API for creating them
   // this routine therefore does the minimum work, not checking destination
@@ -2846,7 +2846,7 @@ bool AtlCoolCopy::checkChannels(const std::string& folder,
       std::string destdesc="";
       if (m_chdesc) destdesc=destfl->channelDescription(chan);
       // if sourcename is not set, and destination is, dont worry
-      if (sourcename!=destname && sourcename!="") {
+      if (sourcename!=destname && !sourcename.empty()) {
         // channel names differ - error if verifying, set if copying
         if (m_verify) {
           std::cout << "ERROR: Channel " << chan << " names differ: " << 
@@ -2858,7 +2858,7 @@ bool AtlCoolCopy::checkChannels(const std::string& folder,
 		    << destname << " to " << sourcename << std::endl;
  	++nmodify;
       }
-      if (sourcedesc!=destdesc && sourcedesc!="") {
+      if (sourcedesc!=destdesc && !sourcedesc.empty()) {
         // channel descriptions differ - error if verifying, set if copying
         if (m_verify) {
           std::cout << "ERROR: Channel " << chan << " descriptions differ: " 
@@ -2896,7 +2896,7 @@ void AtlCoolCopy::checkRef(const cool::IRecord& payload,
     std::string addr=payload[0].data<std::string>();
     if (name=="PoolRef") {
       std::string::size_type iofs1=addr.find("[DB=");
-      std::string::size_type iofs2=addr.find("]",iofs1);
+      std::string::size_type iofs2=addr.find(']',iofs1);
       if (iofs1!=std::string::npos && iofs2!=std::string::npos && iofs2>iofs1) {
         poolref=addr.substr(iofs1+4,iofs2-iofs1-4);
       } else {
@@ -3013,21 +3013,21 @@ int AtlCoolCopy::resolvePoolRefs() {
   std::cout << "Total of " << m_poolrefs.size() << " POOL Files referenced"
 	    << std::endl;
   pool::IFileCatalog* catalog=setupCatalog(m_poolcat);
-  if (catalog==0) return 110;
+  if (catalog==nullptr) return 110;
   pool::SimpleUtilityBase       pool_utility;
   if (m_poolopen) {
      // prepare POOL session
      pool_utility.startSession();
   }
   // inject additional GUIDs/LFNs if needed
-  if (m_addguid.size()>0) {
+  if (!m_addguid.empty()) {
     for (std::vector<std::string>::const_iterator itr=m_addguid.begin();
 	 itr!=m_addguid.end();++itr) {
       m_poolrefs[*itr]=PoolMapElement(1,"ADDGUID");
       std::cout << "Added POOL file GUID: " << *itr << std::endl;
     }
   }
-  if (m_addlfn.size()>0) {
+  if (!m_addlfn.empty()) {
     for (std::vector<std::string>::const_iterator itr=m_addlfn.begin();
 	 itr!=m_addlfn.end();++itr) {
       std::string guid;
@@ -3039,7 +3039,7 @@ int AtlCoolCopy::resolvePoolRefs() {
   }
 
   // set up for making new dataset if needed
-  typedef std::vector<std::pair<std::string,std::string> > LFNGVec;
+  using LFNGVec = std::vector<std::pair<std::string, std::string> >;
   LFNGVec dsfound;
   bool dscopy=!m_newdataset.empty();
 
@@ -3072,7 +3072,7 @@ int AtlCoolCopy::resolvePoolRefs() {
 	if (m_poolopen) {
 	  // first try the file as a CoolHist file
 	  std::string hguid=getCoolHistGUID(pfn);
-	  if (hguid!="") {
+	  if (!hguid.empty()) {
 	    // successful get of CoolHist GUID
 	    if (hguid!=ipool->first) {
 	      std::cout << "ERROR File CoolHist GUID " << hguid << 
@@ -3116,7 +3116,7 @@ int AtlCoolCopy::resolvePoolRefs() {
     // which indicate which files are already available and don't need to 
     // put in the output dataset definition
     catalog=setupCatalog(m_mergecat);
-    if (catalog==0) return 110;
+    if (catalog==nullptr) return 110;
     const std::string dssname="register.sh";
     std::cout << "Write DQ2 registerFileInDataset commands to " << dssname
 	      << " for registration in dataset " << m_newdataset << std::endl;
@@ -3160,10 +3160,10 @@ std::string AtlCoolCopy::getCoolHistGUID(const std::string& file) {
   // attempt to extract COOL Hist GUID from file
   std::string hguid="";
   TFile* myfile=TFile::Open(file.c_str(),"READ");
-  if (myfile!=0) {
+  if (myfile!=nullptr) {
     TObjString* oguid;
     myfile->GetObject("fileGUID",oguid);
-    if (oguid!=0) {
+    if (oguid!=nullptr) {
       hguid=oguid->GetString();
       std::cout << "CoolHist GUID found to be " << hguid << std::endl;
     }
@@ -3174,7 +3174,7 @@ std::string AtlCoolCopy::getCoolHistGUID(const std::string& file) {
 
 void AtlCoolCopy::filePoolRefs() {
   // list POOL refs and error codes, optionally to file
-  if (m_checkoutputfile!="") {
+  if (!m_checkoutputfile.empty()) {
     std::cout << "Write POOL file checkoutput on " << m_checkoutputfile << 
       std::endl;
   } else {
@@ -3189,12 +3189,12 @@ void AtlCoolCopy::filePoolRefs() {
       // write error code, GUID, usage count 
       line << ipool->second.errcode() << " " << ipool->first << " " << 
         ipool->second.count() << " ";
-      if (ipool->second.lfn()!="") {
+      if (!ipool->second.lfn().empty()) {
         line << ipool->second.lfn() << " ";
       } else {
         line << "noLFN ";
       }
-      if (ipool->second.pfn()!="") {
+      if (!ipool->second.pfn().empty()) {
 	line << ipool->second.pfn() << " ";
       } else {
         line << "noPFN ";
@@ -3218,7 +3218,7 @@ pool::IFileCatalog* AtlCoolCopy::setupCatalog(
 	 icat!=catvec.end();++icat) {
       std::cout << "Add catalogue: " << *icat << std::endl;
       // if catalogue contains no ":" specifier, assume plain file
-      if (icat->find(":")==std::string::npos) {
+      if (icat->find(':')==std::string::npos) {
         catalog->addReadCatalog("file:"+(*icat));
       } else {
         catalog->addReadCatalog(*icat);
@@ -3231,7 +3231,7 @@ pool::IFileCatalog* AtlCoolCopy::setupCatalog(
   catch (std::exception& e) {
     std::cout << "Could not setup POOL catalogues, exception:" << e.what() 
 	      << std::endl;
-    return 0;
+    return nullptr;
   }
 }
 

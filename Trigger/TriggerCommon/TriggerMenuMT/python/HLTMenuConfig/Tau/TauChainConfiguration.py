@@ -11,52 +11,43 @@ log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelTTSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 #--------------------------------------------------------
-def getTauCaloCfg(flags):
-    return tauCaloMenuSeq("Tau")
+def getTauCaloCfg(flags, is_probe_leg=False):
+    return tauCaloMenuSeq("Tau", is_probe_leg=is_probe_leg)
 
-def getTauCaloMVACfg(flags):
-    return tauCaloMVAMenuSeq("Tau")
+def getTauCaloMVACfg(flags, is_probe_leg=False):
+    return tauCaloMVAMenuSeq("Tau", is_probe_leg=is_probe_leg)
 
-def getFTFTauCfg(flags):
-    return tauFTFTauSeq()
+def getFTFCoreCfg(flags, is_probe_leg=False):
+    return tauFTFTauCoreSeq(is_probe_leg=is_probe_leg)
 
-def getFTFCoreCfg(flags):
-    return tauFTFTauCoreSeq()
+def getFTFIsoCfg(flags, is_probe_leg=False):
+    return tauFTFTauIsoSeq(is_probe_leg=is_probe_leg)
 
-def getFTFIsoCfg(flags):
-    return tauFTFTauIsoSeq()
+def getFTFIsoBDTCfg(flags, is_probe_leg=False):
+    return tauFTFTauIsoBDTSeq(is_probe_leg=is_probe_leg)
 
-def getFTFIsoBDTCfg(flags):
-    return tauFTFTauIsoBDTSeq()
+def getTrackTwoPrecCfg(flags, is_probe_leg=False):
+    return tauTrackTwoPrecSeq(is_probe_leg=is_probe_leg)
 
-def getTrackPrecCfg(flags):
-    return tauTrackPrecSeq()
+def getTrackTwoMVACfg(flags, is_probe_leg=False):
+    return tauTrackTwoMVASeq(is_probe_leg=is_probe_leg)
 
-def getTrackTwoPrecCfg(flags):
-    return tauTrackTwoPrecSeq()
+def getTrackTwoMVATestCfg(flags, is_probe_leg=False):
+    return tauTrackTwoMVATestSeq(is_probe_leg=is_probe_leg)
 
-def getTrackTwoMVACfg(flags):
-    return tauTrackTwoMVASeq()
+def getTrackTwoLLPCfg(flags, is_probe_leg=False):
+    return tauTrackTwoLLPSeq(is_probe_leg=is_probe_leg)
 
-def getTrackTwoLLPCfg(flags):
-    return tauTrackTwoLLPSeq()
+def getPreSelTTCfg(flags, is_probe_leg=False):
+    return tauPreSelTTSeq(is_probe_leg=is_probe_leg)
 
-def getPreSelCfg(flags):
-    return tauPreSelSeq()
-
-def getPreSelTTCfg(flags):
-    return tauPreSelTTSeq()
-
-def getPrecTrackCfg(flags):
-    return tauPrecTrackSeq()
-
-def getPrecTrackIsoCfg(flags):
-    return tauPrecTrackIsoSeq()
+def getPrecTrackIsoCfg(flags, is_probe_leg=False):
+    return tauPrecTrackIsoSeq(is_probe_leg=is_probe_leg)
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -70,7 +61,7 @@ class TauChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
-    def assembleChain(self):                            
+    def assembleChainImpl(self):                            
         chainSteps = []
         log.debug("Assembling chain for %s", self.chainName)
 
@@ -79,9 +70,9 @@ class TauChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "ptonly"        :['getCaloSeq'   , 'getFTFEmpty', 'getTrkEmpty' , 'getTauEmpty'  , 'getPTEmpty'      , 'getIDEmpty'      ], 
-            "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
             "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoMVATest" :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVATest' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoLLP":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
         }
@@ -90,7 +81,11 @@ class TauChainConfiguration(ChainConfigurationBase):
         key = self.chainPart['preselection']
         steps=stepDictionary[key]
         for step in steps:
-            chainstep = getattr(self, step)()
+            is_probe_leg = self.chainPart['extra']=='probe'
+            if 'Empty' in step:
+                chainstep = getattr(self, step)()
+            else:
+                chainstep = getattr(self, step)(is_probe_leg=is_probe_leg)
             chainSteps+=[chainstep]
     
         myChain = self.buildChain(chainSteps)
@@ -98,24 +93,19 @@ class TauChainConfiguration(ChainConfigurationBase):
 
 
     # --------------------
-    def getCaloSeq(self):
+    def getCaloSeq(self, is_probe_leg=False):
         stepName = 'tau'
-        return self.getStep(1,stepName, [getTauCaloCfg])
+        return self.getStep(1,stepName, [getTauCaloCfg], is_probe_leg=is_probe_leg)
 
     # --------------------
-    def getCaloMVASeq(self):
+    def getCaloMVASeq(self, is_probe_leg=False):
         stepName = 'MVA_tau'
-        return self.getStep(1,stepName, [getTauCaloMVACfg])
-
-    # --------------------                                                                                                 
-    def getFTFTau(self):
-        stepName = 'FTFTau_tau'
-        return self.getStep(2,stepName, [getFTFTauCfg])
+        return self.getStep(1,stepName, [getTauCaloMVACfg], is_probe_leg=is_probe_leg)
         
     # --------------------
-    def getFTFCore(self):
+    def getFTFCore(self, is_probe_leg=False):
         stepName = 'FTFCore_tau'
-        return self.getStep(2,stepName, [getFTFCoreCfg])
+        return self.getStep(2,stepName, [getFTFCoreCfg], is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getFTFEmpty(self):
@@ -123,14 +113,14 @@ class TauChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(2,stepName)
 
     # --------------------                                                                                                      
-    def getFTFIso(self):
+    def getFTFIso(self, is_probe_leg=False):
         stepName = 'FTFIso_tau'
-        return self.getStep(3,stepName, [getFTFIsoCfg])
+        return self.getStep(3,stepName, [getFTFIsoCfg], is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                                                         
-    def getFTFIsoBDT(self):
+    def getFTFIsoBDT(self, is_probe_leg=False):
         stepName = 'FTFIsoBDT_tau'
-        return self.getStep(3,stepName, [getFTFIsoBDTCfg])
+        return self.getStep(3,stepName, [getFTFIsoBDTCfg], is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getTrkEmpty(self):
@@ -138,14 +128,9 @@ class TauChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(3,stepName)
 
     # --------------------                                                                                                                                   
-    def getPreSel(self):
-        stepName = 'PreSel_tau'
-        return self.getStep(4,stepName, [getPreSelCfg])
-
-    # --------------------                                                                                                                                   
-    def getPreSelTT(self):
+    def getPreSelTT(self, is_probe_leg=False):
         stepName = 'PreSelTT_tau'
-        return self.getStep(4,stepName, [getPreSelTTCfg])
+        return self.getStep(4,stepName, [getPreSelTTCfg], is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getTauEmpty(self):
@@ -153,39 +138,34 @@ class TauChainConfiguration(ChainConfigurationBase):
         return self.getEmptyStep(4,stepName)
 
     # --------------------                                                                                                                                   
-    def getPrecTrack(self):
-        stepName = 'PrecTrk_tau'
-        return self.getStep(5,stepName,[getPrecTrackCfg])
-
-    # --------------------                                                                                                                                   
-    def getPrecTrackIso(self):
+    def getPrecTrackIso(self, is_probe_leg=False):
         stepName = 'PrecTrkIso_tau'
-        return self.getStep(5,stepName,[getPrecTrackIsoCfg])
+        return self.getStep(5,stepName,[getPrecTrackIsoCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getPTEmpty(self):
         stepName = 'PTEmpty_tau'
         return self.getEmptyStep(5,stepName)
 
-    # --------------------                                                                                                       
-    def getTrackPrec(self):
-        stepName = 'TrkPrec_tau'
-        return self.getStep(6,stepName, [getTrackPrecCfg])
-
     # --------------------                                                                                                     
-    def getTrackTwoPrec(self):
+    def getTrackTwoPrec(self, is_probe_leg=False):
         stepName = 'TrkTwo_tau'
-        return self.getStep(6,stepName, [getTrackTwoPrecCfg])
+        return self.getStep(6,stepName, [getTrackTwoPrecCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                      
-    def getTrackTwoMVA(self):
+    def getTrackTwoMVA(self, is_probe_leg=False):
         stepName = "TrkTwoMVA_tau"
-        return self.getStep(6,stepName,[getTrackTwoMVACfg])
+        return self.getStep(6,stepName,[getTrackTwoMVACfg],is_probe_leg=is_probe_leg)
+
+    # --------------------                                                                                                                                                                                  
+    def getTrackTwoMVATest(self, is_probe_leg=False):
+        stepName = "TrkTwoMVATest_tau"
+        return self.getStep(6,stepName,[getTrackTwoMVATestCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                      
-    def getTrackTwoLLP(self):
+    def getTrackTwoLLP(self, is_probe_leg=False):
         stepName = "TrkTwoLLP_tau"
-        return self.getStep(6,stepName,[getTrackTwoLLPCfg])
+        return self.getStep(6,stepName,[getTrackTwoLLPCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                   
     def getIDEmpty(self):

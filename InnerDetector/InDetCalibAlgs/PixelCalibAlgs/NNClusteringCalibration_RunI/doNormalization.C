@@ -3,16 +3,17 @@
 */
 
 #include <cmath>
+#include <stdexcept>
 
 double norm_rawToT(double input)
 {
-  throw;
+  throw std::runtime_error("Exception in doNormalization.C");
   return (input-21.)/12.;
 }
 
 double back_rawToT(double input)
 {
-  throw;
+  throw std::runtime_error("Exception in doNormalization.C");
   return input*12.+21.;
 }
 
@@ -29,31 +30,31 @@ double back_ToT(double input)
 
 double norm_pitch(double input)
 {
-  if (fabs(input-0.4)<0.001)
+  if (std::fabs(input-0.4)<0.001)
   {
     return -0.5;
   }
-  if (fabs(input-0.6)<0.001)
+  if (std::fabs(input-0.6)<0.001)
   {
     return +0.5;
   }
-  std::cout << " WARNING inpus is: " << input << std::endl;
-  throw;
+  std::cout << " WARNING input is: " << input << std::endl;
+  throw std::runtime_error("Exception in doNormalization.C");
   return -1;
 }
 
 double back_pitch(double input)
 {
-  if (fabs(input-(-0.5))<0.001)
+  if (std::fabs(input-(-0.5))<0.001)
   {
     return 0.4;
   }
-  if (fabs(input-0.5)<0.001)
+  if (std::fabs(input-0.5)<0.001)
   {
     return 0.6;
   }
-  std::cout << " WARNING inpus is: " << input << std::endl;
-  throw;
+  std::cout << " WARNING input is: " << input << std::endl;
+  throw std::runtime_error("Exception in doNormalization.C");
   return 0;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMATRACKSLIMMER_H
@@ -62,12 +62,6 @@ class egammaTrackSlimmer : public AthReentrantAlgorithm
       "VertexContainerName", 
       "",
       "Name of the Vertex container to thin"};
-
-  /** @brief GSF Track Particle container to thin */
-  SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey {this,
-      "InDetTrackParticleContainerName", 
-      "",
-      "Name of the Track Particle container to thin"};
 
   /** @brief Name of the stream being thinned */
   StringProperty m_streamName

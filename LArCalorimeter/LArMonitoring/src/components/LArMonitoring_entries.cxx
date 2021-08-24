@@ -7,6 +7,7 @@
 #include "../LArNoisyROMonAlg.h"
 #include "../LArHVCorrectionMonAlg.h"
 #include "../LArCosmicsMonAlg.h"
+#include "../LArDigitalTriggMonAlg.h"
 #include "../LArNoiseCorrelationMonAlg.h"
 #include "../LArCalibPedMonAlg.h"
 #include "../LArCoherentNoisefractionMonAlg.h"
@@ -20,6 +21,7 @@ DECLARE_COMPONENT(LArCoverageAlg)
 DECLARE_COMPONENT(LArNoisyROMonAlg)
 DECLARE_COMPONENT(LArHVCorrectionMonAlg)
 DECLARE_COMPONENT(LArCosmicsMonAlg)
+DECLARE_COMPONENT(LArDigitalTriggMonAlg)
 DECLARE_COMPONENT(LArNoiseCorrelationMonAlg)
 DECLARE_COMPONENT(LArCalibPedMonAlg)
 DECLARE_COMPONENT(LArCoherentNoisefractionMonAlg)

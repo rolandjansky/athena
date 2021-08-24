@@ -19,6 +19,8 @@
 #include <vector> 
 #include <map>
 
+class HWIdentifier;
+
 /** class that provides LArReadoutModuleID to integer
     hash ID mapping.  */
 class LArRodIdHash  {
@@ -29,7 +31,7 @@ class LArRodIdHash  {
   typedef unsigned int ID; 
 
   /** Initialize. Here real map is built */
-  void initialize(int offset ); 
+  void initialize(int offset, const std::vector<HWIdentifier>& roms ); 
 
   /**Convert ID to int */
   int operator() (const ID& id) const ;

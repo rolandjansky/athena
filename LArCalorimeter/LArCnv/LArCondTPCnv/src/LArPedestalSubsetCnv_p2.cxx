@@ -11,17 +11,21 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
 				     LArPedestalTransType* transObj, 
 				     MsgStream & log)
 {
+    // Copy basic metadata
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
+
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
     // Copy conditions
-    unsigned int nfebids          = persObj->m_subset.m_febIds.size();
+    const unsigned int nfebids          = persObj->m_subset.m_febIds.size();
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
     unsigned int pedestalIndex    = 0;
-    
     // Loop over febs
     auto subsetIt = transObj->subsetBegin();
     for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
         // Loop over channels in feb
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 	  //Copy Pedestal
 	  subsetIt->second[j].m_Pedestal=copyFloatPT(persObj->m_vPedestal[pedestalIndex]);
 	  //Copy RMS
@@ -56,9 +60,6 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
     }//end if ncorrs
     transObj->insertCorrections (std::move (corrs));
 
-    // Copy the rest
-    transObj->setChannel       (persObj->m_subset.m_channel);
-    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 
@@ -71,9 +72,9 @@ LArPedestalSubsetCnv_p2::transToPers(const LArPedestalTransType* transObj,
 {
     // Copy conditions
     // Get the number of channels, corrections and the size of pedestal and pedestalrms
-    unsigned int ncorrs           = transObj->correctionVecSize();
+    const unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nsubsetsNotEmpty = 0;
-
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     // Find the number of pedestals/pedestalrmss and check for sparse
     // conditions, e.g. MC conditions
     const auto subsetEnd = transObj->subsetEnd();
@@ -83,7 +84,7 @@ LArPedestalSubsetCnv_p2::transToPers(const LArPedestalTransType* transObj,
     {
         unsigned int nfebChans = subsetIt->second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArPedestalSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;
@@ -94,8 +95,8 @@ LArPedestalSubsetCnv_p2::transToPers(const LArPedestalTransType* transObj,
     // Reserve space in vectors
     persObj->m_subset.m_febIds.reserve(nsubsetsNotEmpty);
     persObj->m_subset.m_corrChannels.reserve(ncorrs);
-    persObj->m_vPedestal.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
-    persObj->m_vPedestalRMS.reserve(ncorrs+nsubsetsNotEmpty*NCHANNELPERFEB);
+    persObj->m_vPedestal.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
+    persObj->m_vPedestalRMS.reserve(ncorrs+nsubsetsNotEmpty*nChannelsPerFeb);
 
     // Copy conditions in subset
     for (auto subsetIt = transObj->subsetBegin();

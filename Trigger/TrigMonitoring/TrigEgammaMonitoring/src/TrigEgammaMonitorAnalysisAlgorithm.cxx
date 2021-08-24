@@ -21,10 +21,7 @@ StatusCode TrigEgammaMonitorAnalysisAlgorithm::initialize()
 }
 
 
-
-
 // *********************************************************************************
-
 
 
 
@@ -38,11 +35,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillLabel( const ToolHandle<GenericMoni
 
 
 
-
 // *********************************************************************************
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
-                                                           const TrigInfo info ) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
+                                                           const TrigInfo& info ) const
 {
 
   std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pair_vec;
@@ -51,7 +47,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
   std::vector<asg::AcceptData> accept_vec;
   std::vector<asg::AcceptData> accept_iso_vec;
 
+  std::vector<asg::AcceptData> emu_accept_vec;
+  std::vector<asg::AcceptData> emu_accept_iso_vec;
+
+
   for( auto pairObj : pairObjs ){
+
 
     if(pairObj.first->type()==xAOD::Type::Electron){
       const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
@@ -71,57 +72,82 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
     } // Offline photon
   
 
-    pair_vec.push_back(pairObj);
-    auto acceptData = setAccept( pairObj.second, info );
-    accept_vec.push_back(acceptData);
-    if( pairObj.first->auxdecor<bool>("Isolated") ){
-        pair_iso_vec.push_back(pairObj);
-        accept_iso_vec.push_back(acceptData);
+    
+    // Good pair to be measure
+    if(m_doEmulation){ // Emulation
+        bool valid=false;
+        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigName , valid);
+        // skip this probe since the emulation is not possible. Avoid diff denominators between emulation and efficiecy
+        if(!valid) {
+            ATH_MSG_WARNING("Emulation fail. Skip this probe...");
+            continue;
+        } 
+        emu_accept_vec.push_back( acceptData );
+        if( pairObj.first->auxdecor<bool>("Isolated") ){
+            emu_accept_iso_vec.push_back(acceptData);
+        }
+    }
+
+
+
+    // Good pair to be measure
+    { // Efficiency
+        pair_vec.push_back(pairObj);
+        auto acceptData = setAccept( pairObj.second, info );
+        accept_vec.push_back(acceptData);
+        if( pairObj.first->auxdecor<bool>("Isolated") ){
+            pair_iso_vec.push_back(pairObj);
+            accept_iso_vec.push_back(acceptData);
+        }
     }
 
 
   }
+
+  std::string dirname= "Efficiency";
   
   if (info.trigL1){
-    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec);
+    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
   }else{
-    fillEfficiency( "L1Calo"  , "L1Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "FastCalo"  , "L2Calo", info.trigPidDecorator, info, pair_vec , accept_vec);
-    fillEfficiency( "PrecisionCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec , accept_vec);
 
+    std::string l2step = "FastElectron";
     if( info.trigType == "electron" ){
-        fillEfficiency( "FastElectron"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec); 
+      l2step = "FastElectron";
+    }else if( info.trigType == "photon" ){
+      l2step = "FastPhoton";
     }
-    else if( info.trigType == "photon" ){
-        fillEfficiency( "FastPhoton"      , "L2"    , info.trigPidDecorator, info, pair_vec , accept_vec);       
-        fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec , accept_vec);
-    }
+    fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+    fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
+
+    
     if( m_detailedHists ){
-
-        if( info.trigType == "electron" ){
-            for( const auto& pid : m_isemname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-            for( const auto& pid : m_lhname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-        }
-        else if( info.trigType == "photon" ){
-            for( const auto& pid : m_isemname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec);
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-
-            for( const auto& pid : m_lhname ){
-                fillEfficiency( "HLT" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec );
-                fillEfficiency( "HLT" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec );
-            }
-        }
-
+      for( const auto& pid : m_isemname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec, dirname);
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
+      }
+      for( const auto& pid : m_lhname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec, dirname );
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
+      }
     } 
+
+    // Fill emulator efficiency plots
+    if ( m_doEmulation ){
+        dirname= "Emulation";
+        if (info.trigL1){
+            fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+        }else{
+            fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+            fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
+        }
+    }
+    
 
   }
 
@@ -133,9 +159,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pai
 void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subgroup, 
                                                          const std::string &level,
                                                          const std::string &pidword,
-                                                         const TrigInfo info,
-                                                         std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs,
-                                                         std::vector< asg::AcceptData > acceptObjs ) const
+                                                         const TrigInfo& info,
+                                                         const std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >>& pairObjs,
+                                                         std::vector< asg::AcceptData > acceptObjs ,
+                                                         const std::string& dirname ) const
 {
 
 
@@ -144,7 +171,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
     const std::string trigger = info.trigName;
 
 
-    auto monGroup = getGroup( trigger + "_Efficiency_" + subgroup );
+    auto monGroup = getGroup( trigger + "_"+dirname+"_" + subgroup );
 
     
     std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
@@ -267,8 +294,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
 // *********************************************************************************
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
-                                                           const TrigInfo info ) const
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
+                                                           const TrigInfo& info ) const
 {
 
   const std::string trigger = info.trigName;
@@ -284,7 +314,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
       auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
       for( auto &initRoi: initRois ){               
         if( !initRoi.link.isValid() ) continue;      
-        auto feat = match()->getL1Feature( initRoi.source );
+        const auto *feat = match()->getL1Feature( initRoi.source );
         if(feat)
           l1_vec.push_back(feat);
       }
@@ -346,7 +376,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
           auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
           for( auto &initRoi: initRois ){               
             if( !initRoi.link.isValid() ) continue;      
-            auto feat = match()->getL1Feature( initRoi.source );
+            const auto *feat = match()->getL1Feature( initRoi.source );
             if(feat)
               l1_vec.push_back(feat);
           }
@@ -450,7 +480,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger, std::vector< const xAOD::EmTauRoI* > l1_vec ) const 
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger, const std::vector< const xAOD::EmTauRoI* >& l1_vec ) const 
 {
     auto monGroup = getGroup(trigger+"_Distributions_L1Calo");
 
@@ -463,7 +493,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger,
     auto emIso_col    = Monitored::Collection( "emIso"   , emIso_vec     );
     auto hadCore_col  = Monitored::Collection( "hadCore" , hadCore_vec  );
 
-    for( auto l1 : l1_vec )
+    for( const auto *l1 : l1_vec )
     {
       if(!l1)  continue;
       eta_vec.push_back( l1->eta() );
@@ -482,7 +512,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger,
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, std::vector< const xAOD::TrigEMCluster *> emCluster_vec) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, const std::vector< const xAOD::TrigEMCluster *>& emCluster_vec) const
 {
     auto monGroup = getGroup(trigger+"_Distributions_L2Calo");
     
@@ -492,7 +522,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, 
     auto eta_col  = Monitored::Collection("eta", eta_vec );    
     auto phi_col  = Monitored::Collection("phi", phi_vec );    
     
-    for ( auto emCluster : emCluster_vec )
+    for ( const auto *emCluster : emCluster_vec )
     {
       if(!emCluster)  continue;
       et_vec.push_back(  emCluster->et()/Gaudi::Units::GeV );
@@ -507,7 +537,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, 
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigger, std::vector< const xAOD::TrigElectron* > el_vec) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigger, const std::vector< const xAOD::TrigElectron* >& el_vec) const
 {
  
     auto monGroup = getGroup(trigger+"_Distributions_L2Electron");
@@ -518,7 +548,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigg
     auto eta_col  = Monitored::Collection("eta", eta_vec );    
     auto phi_col  = Monitored::Collection("phi", phi_vec );    
     
-    for ( auto el : el_vec )
+    for ( const auto *el : el_vec )
     {
       if(!el)  continue;
       et_vec.push_back( el->pt()/Gaudi::Units::GeV );
@@ -529,7 +559,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigg
     fill( monGroup, et_col, eta_col, phi_col );
 }
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, std::vector< const xAOD::CaloCluster*> clus_vec) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, const std::vector< const xAOD::CaloCluster*>& clus_vec) const
 {
     
     auto monGroup = getGroup( trigger + "_Distributions_EFCalo" );
@@ -551,7 +581,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
     auto eta_calo_col   = Monitored::Collection("eta_calo" , eta_calo_vec );
     auto phi_calo_col   = Monitored::Collection("phi_calo" , phi_calo_vec );
 
-    for ( auto clus : clus_vec )
+    for ( const auto *clus : clus_vec )
     {
         double tmpeta = -999.;
         if(!clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta))
@@ -582,7 +612,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &trigger, std::vector<const xAOD::Egamma*> eg_vec , bool online) const 
+void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &trigger, const std::vector<const xAOD::Egamma*>& eg_vec , bool online) const 
 {
     
     ATH_MSG_DEBUG("Fill SS distributions: " << trigger);
@@ -613,7 +643,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &tri
     auto topoetcone20_rel_col   = Monitored::Collection("topoetcone20_rel", topoetcone20_rel_vec);
     auto topoetcone40_shift_rel_col   = Monitored::Collection("topoetcone40_shift_rel",  topoetcone40_shift_rel_vec );
      
-    for ( auto eg : eg_vec ){
+    for ( const auto *eg : eg_vec ){
 
         if(!eg) continue;
 
@@ -649,7 +679,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &tri
 }
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger, std::vector< const xAOD::Electron *> eg_vec, bool online ) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger, const std::vector< const xAOD::Electron *>& eg_vec, bool online ) const
 {
 
     ATH_MSG_DEBUG("Fill tracking");
@@ -681,7 +711,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
     auto ptvarcone20_rel_col  = Monitored::Collection( "ptvarcone20" , ptvarcone20_rel_vec );
 
 
-    for ( auto eg : eg_vec ){
+    for ( const auto *eg : eg_vec ){
     
       if(!eg)  continue;
 
@@ -736,8 +766,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
 //
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
-                                                          const TrigInfo info ) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
+                                                          const TrigInfo& info ) const
 {
 
   std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pair_l1_vec;
@@ -756,28 +786,28 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( std::vector< std::pair
     if (feat){
       if (info.trigL1){
         // Get l1 for all level one objects found for each off object
-        auto l1 = match()->getL1Feature( feat );
+        const auto *l1 = match()->getL1Feature( feat );
         if(l1){
-          pair_l1_vec.push_back( std::make_pair(eg,l1) );
+          pair_l1_vec.emplace_back(eg,l1 );
         }
       }else{
         //
         // Get only off and l1 where the offline object passed by the offline pid selector
         //
-        auto l1 = match()->getL1Feature( feat  );
+        const auto *l1 = match()->getL1Feature( feat  );
         if(eg->type()==xAOD::Type::Electron){
           const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
           float et = getEt(el)/Gaudi::Units::GeV;
           if( et < info.trigThrHLT-5.0) continue;
           if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue;
-          pair_eg_vec.push_back(std::make_pair(el,feat));
-          if(l1)  pair_l1_vec.push_back( std::make_pair(eg,l1) );
+          pair_eg_vec.emplace_back(el,feat);
+          if(l1)  pair_l1_vec.emplace_back(eg,l1 );
         }
         else if(eg->type()==xAOD::Type::Photon){
           float et = getCluster_et(eg)/Gaudi::Units::GeV;
           if( et < info.trigThrHLT-5.0) continue;
-          pair_eg_vec.push_back(std::make_pair(eg,feat));
-          if(l1)  pair_l1_vec.push_back( std::make_pair(eg,l1) );
+          pair_eg_vec.emplace_back(eg,feat);
+          if(l1)  pair_l1_vec.emplace_back(eg,l1 );
         }
       }
 
@@ -813,7 +843,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( std::vector< std::pair
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloResolution(const std::string &trigger,
-                                                              std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pairObjs ) const
+                                                              const std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >>& pairObjs ) const
 {
     auto monGroup = getGroup( trigger + "_Resolutions_L1Calo" );
     
@@ -823,9 +853,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloResolution(const std::string 
     auto res_et_col = Monitored::Collection( "res_et"   , res_et_vec     );
  
 
-    for (auto& pairObj : pairObjs){
-      auto off = pairObj.first;
-      auto l1 = pairObj.second;
+    for (const auto & pairObj : pairObjs){
+      const auto *off = pairObj.first;
+      const auto *l1 = pairObj.second;
       ATH_MSG_DEBUG("Fill L1CaloResolution");
       if(off->type()==xAOD::Type::Electron){
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
@@ -843,7 +873,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloResolution(const std::string 
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::string &trigger,
-                                                                 std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pairObjs ) const
+                                                                 const std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >>& pairObjs ) const
 {
     auto monGroup = getGroup( trigger + "_AbsResolutions_L1Calo" );
     
@@ -853,9 +883,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::stri
     auto res_et_col = Monitored::Collection( "res_et"   , res_et_vec     );
  
 
-    for (auto& pairObj : pairObjs){
-      auto off = pairObj.first;
-      auto l1 = pairObj.second;
+    for (const auto & pairObj : pairObjs){
+      const auto *off = pairObj.first;
+      const auto *l1 = pairObj.second;
       ATH_MSG_DEBUG("Fill L1CaloAbsResolution");
       if(off->type()==xAOD::Type::Electron){
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
@@ -871,7 +901,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::stri
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::string &trigger,
-                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
+                                                        const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
                                                         bool filliso) const
 {
 
@@ -935,7 +965,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 
 
-    for ( auto& pairObj : pairObjs ){
+    for ( const auto & pairObj : pairObjs ){
 
       const xAOD::Electron *off = static_cast<const xAOD::Electron*>(pairObj.first);
       const xAOD::Electron *onl=nullptr;
@@ -1237,7 +1267,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::string &trigger,
-                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs, 
+                                                        const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs, 
                                                         bool filliso) const
 {
 
@@ -1304,7 +1334,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
 
 
 
-    for ( auto& pairObj : pairObjs ){
+    for ( const auto & pairObj : pairObjs ){
 
       const xAOD::Photon *off = static_cast<const xAOD::Photon*>(pairObj.first);
       const xAOD::Photon *onl=nullptr;
@@ -1542,7 +1572,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
 
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string &trigger,
-                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs ) const
+                                                        const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs ) const
 
 {
     ATH_MSG_DEBUG("Fill L2Calo Resolution");
@@ -1570,7 +1600,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string 
     auto res_eratio_col   = Monitored::Collection( "res_eratio"     , res_eratio_vec        );
 
 
-    for ( auto& pairObj : pairObjs ){
+    for ( const auto & pairObj : pairObjs ){
 
 
         const xAOD::Egamma *off = pairObj.first;

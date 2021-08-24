@@ -15,6 +15,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <list>
 
@@ -77,12 +79,6 @@ StatusCode TBByteStreamCnvTool::initialize()
    return StatusCode::FAILURE;
  }
  
- sc=toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
- if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
-   return StatusCode::FAILURE;
- }
- 
  IService* svc;
  sc= service("ByteStreamCnvSvc",svc);
  if (sc!=StatusCode::SUCCESS)
@@ -116,9 +112,9 @@ StatusCode TBByteStreamCnvTool::initialize()
   std::vector<std::string> keys;
   keys.resize(24);
   for(; it!=it_e;++it) {
-    ListItem item(*it);
-    std::string t = item.type();
-    std::string nm = item.name();
+    const ListItem &item(*it);
+    const std::string &t = item.type();
+    const std::string &nm = item.name();
     logstr << MSG::DEBUG << " type "<<t<<" name="<<nm<<endmsg;
     if(t=="TBTDC") keys[0]=nm;
     if(t=="TBTriggerPatternUnit") keys[1]=nm;
@@ -141,12 +137,14 @@ StatusCode TBByteStreamCnvTool::initialize()
   keys[23]="HIGH";
 
   
-  m_keys=keys;
+  m_keys=std::move(keys);
   m_subdet_id=(eformat::SubDetector)m_subdet_key;
 
   m_isCalib = false;
 
   m_febgain.clear();
+
+  ATH_CHECK( m_CLKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -545,6 +543,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG << "H6BuildObject called for " << unrec_code<< endmsg;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   StatusCode sc=StatusCode::FAILURE;
   //bool gotobject=false;
   //bool recordfailure=false;
@@ -582,6 +582,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   m_adcrawCont = new TBADCRawCont();
   TBADCRaw* dummyadc = new TBADCRaw("dummy",true,0);
   m_adcrawCont->push_back(dummyadc);
+
+  SG::ReadCondHandle<LArCalibLineMapping> calibLine (m_CLKey, ctx);
 
 
   // with this initialisation, first call of NextSubFrag will initialise correctly the index :
@@ -638,9 +640,9 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	} ;
 	
 	
-	short m_slot[8]={5,7,9,11,3,4,5,6};
+	constexpr short m_slot[8]={5,7,9,11,3,4,5,6};
 	
-	const int NWREC = 8;
+	constexpr int NWREC = 8;
 	int pos=m_subfrag_firstdata;
 	for(unsigned int nfeb=0;nfeb<m_boards.size();nfeb++){ // FEB loop ----------------------------------
 	  pos += NWREC*3;    // skip FEB header
@@ -713,7 +715,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	      m_tblardigitcont[gainmode]->push_back(lardig);
 	      if(m_isCalib) {
                 bool isPulsed=false;
-                const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(hwid);
+                const std::vector<HWIdentifier>& calibChannelIDs=calibLine->calibSlotLine(hwid);
                 if (calibChannelIDs.size() != 0) {
                   // Now figure out if any calibration line connected to this channel is pulsed.
                   // I'm going to cheat and use the fact that we only pulsed one board at a time
@@ -847,8 +849,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  os.str("");
 	  os << bpcname << i;
 	  bpcname= os.str();
-	  std::list<const TBTDCRaw*> theTDCs;
-	  std::list<const TBADCRaw*> theADCs;
+	  std::vector<const TBTDCRaw*> theTDCs;
+	  std::vector<const TBADCRaw*> theADCs;
 	  int pos=m_subfrag_firstdata;
 
 	  unsigned int tmp1,tmp2;
@@ -1764,8 +1766,8 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   m_bpcrawCont = new TBBPCRawCont();
 
   for(int i=0;i<BPCNum;i++){
-    std::list<const TBTDCRaw*> listtdc;
-    std::list<const TBADCRaw*> listadc;
+    std::vector<const TBTDCRaw*> listtdc;
+    std::vector<const TBADCRaw*> listadc;
     for(int j=0;j<4;j++){
       if(BPCtdc[i][j]==0) listtdc.push_back(dummytdc);
       else listtdc.push_back(BPCtdc[i][j]);

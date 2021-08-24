@@ -4,14 +4,15 @@
 
 #include "EnergyDepositionTool.h"
 
-#include "TGraph.h"
 #include "TString.h"
-#include "TMath.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetIdentifier/PixelID.h"
+#include "SiDigitization/SiChargedDiodeCollection.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 #include "AtlasHepMC/GenEvent.h"
@@ -19,15 +20,16 @@
 #include "AtlasHepMC/GenParticle.h"
 
 #include "PathResolver/PathResolver.h"
-#include <fstream>
-#include <cmath>
 
+
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandExpZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "TLorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-
-using namespace std;
+#include <cmath>
+#include <fstream>
+#include <algorithm> //for std::clamp
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -89,9 +91,9 @@ StatusCode EnergyDepositionTool::initialize() {
 
       while (!inputFile.eof()) {
         // check if this BetaGamma has already been stored
-        if ((iData.Array_BetaGammaLog10.size() == 0) || (iData.Array_BetaGammaLog10.back() != BetaGammaLog10)) { // a new
+        if ((iData.Array_BetaGammaLog10.empty()) || (iData.Array_BetaGammaLog10.back() != BetaGammaLog10)) { // a new
                                                                                                                  // BetaGamma
-          if (iData.Array_BetaGammaLog10.size() != 0) {
+          if (!iData.Array_BetaGammaLog10.empty()) {
             iData.Array_BetaGammaLog10_UpperBoundIntXLog10.push_back(iData.Array_BetaGammaLog10_IntXLog10.back().back());
           }
 
@@ -205,7 +207,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
-  if (m_doBichsel && !(Module.isDBM())) {
+  if (m_doBichsel and !(Module.isDBM()) and genPart) {
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : trfPDG(genPart->pdg_id());
 
 
@@ -247,8 +249,8 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
       iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
     } else {
       double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-      double m = 0.511;                             // unit of MeV
-      iBetaGamma = TMath::Sqrt(k * (2 * m + k)) / m;
+      constexpr double m = 0.511;                             // unit of MeV
+      iBetaGamma = std::sqrt(k * (2 * m + k)) / m;
     }
 
     int iParticleType = ParticleType;
@@ -262,7 +264,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
     rndmEngine);
 
     // check if returned simulation result makes sense
-    if (rawHitRecord.size() == 0) { // deal with rawHitRecord==0 specifically -- no energy deposition
+    if (rawHitRecord.empty()) { // deal with rawHitRecord==0 specifically -- no energy deposition
       std::pair<double, double> specialHit;
       specialHit.first = 0.;
       specialHit.second = 0.;
@@ -343,7 +345,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
 
   // load relevant data
   BichselData iData = m_BichselData[ParticleType - 1];
-  double BetaGammaLog10 = TMath::Log10(BetaGamma);
+  double BetaGammaLog10 = std::log10(BetaGamma);
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
 
   // upper bound
@@ -365,7 +367,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
 
   // direct those hits with potential too many steps into nominal simulation
   int LoopLimit = m_LoopLimit;                         // limit assuming 1 collision per sampling
-  if (fabs(1.0 * TotalLength / lambda) > LoopLimit) {       // m_nCols is cancelled out in the formula
+  if (std::abs(1.0 * TotalLength / lambda) > LoopLimit) {       // m_nCols is cancelled out in the formula
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
@@ -396,7 +398,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
     while (TossEnergyLoss <= 0.) { // we have to do this because sometimes TossEnergyLoss will be negative due to too
                                    // small TossIntX
       double TossIntX = CLHEP::RandFlat::shoot(rndmEngine, 0., IntXUpperBound);
-      TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
+      TossEnergyLoss = GetColE(indices_BetaGammaLog10, std::log10(TossIntX), iData);
     }
 
     // check if it is delta-ray -- delta-ray is already taken care of by G4 and treated as an independent hit.
@@ -495,7 +497,7 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::ClusterHits(std::v
 //=======================================
 // TRF PDG
 //=======================================
-int EnergyDepositionTool::trfPDG(int pdgId) const {
+int EnergyDepositionTool::trfPDG(int pdgId) {
   if (std::fabs(pdgId) == 2212) return 1;                                              // proton
 
   if (std::fabs(pdgId) == 211) return 2;                                              // pion
@@ -514,7 +516,7 @@ int EnergyDepositionTool::trfPDG(int pdgId) const {
 //=======================================
 // C L U S T E R   H I T S
 //=======================================
-std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) const {
+std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) {
   std::pair<int, int> output;
 
   int index_low = 0;
@@ -553,7 +555,7 @@ std::pair<int, int> EnergyDepositionTool::FastSearch(std::vector<double> vec, do
 //=======================================
 // B E T A   G A M M A   I N D E X
 //=======================================
-std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const {
+std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10;
   if (BetaGammaLog10 > iData.Array_BetaGammaLog10.back()) { // last one is used because when beta-gamma is very large,
                                                             // energy deposition behavior is very similar
@@ -571,7 +573,7 @@ std::pair<int, int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLo
 //==========================================
 //Interpolate collision energy
 double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10,
-                                     BichselData& iData) const {
+                                     BichselData& iData) {
   if ((indices_BetaGammaLog10.first == -1) && (indices_BetaGammaLog10.second == -1)) return -1.;
 
   // BetaGammaLog10_2 then
@@ -584,23 +586,26 @@ double EnergyDepositionTool::GetColE(std::pair<int, int> indices_BetaGammaLog10,
   if (indices_IntXLog10_x2.second < 0) {
     return -1;
   }
-
-  double y21 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first];
-  double y22 = iData.Array_BetaGammaLog10_IntXLog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second];
+  
+  double y21 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.first);
+  double y22 = iData.Array_BetaGammaLog10_IntXLog10.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.second);
+  const auto diff = y22 - y21;
+  if (diff<1e-300){
+    return -1;
+  }  
   double Est_x2 =
     ((y22 - IntXLog10) *
      iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.first] +
      (IntXLog10 - y21) *
-     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / (y22 - y21);
-  double Est = Est_x2;
-
-  return TMath::Power(10., Est);
+     iData.Array_BetaGammaLog10_ColELog10[indices_BetaGammaLog10.second][indices_IntXLog10_x2.second]) / diff;
+  double Est = std::clamp(Est_x2,-300.,300.);
+  return std::pow(10., Est);
 }
 
 //===========================================
 // Overloaded C O L L I S I O N  E N E R G Y
 //===========================================
-double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const {
+double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetColE(indices_BetaGammaLog10, IntXLog10, iData);
 }
@@ -609,31 +614,36 @@ double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, Bi
 // G E T   U P P E R   B O U N D  BETA GAMMA
 //==========================================
 double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10,
-                                           BichselData& iData) const {
+                                           BichselData& iData) {
   if (indices_BetaGammaLog10.first < 0) {
     return -1;
   }
   if (indices_BetaGammaLog10.second < 0) {
     return -1;
   }
-  double BetaGammaLog10_1 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.first];
-  double BetaGammaLog10_2 = iData.Array_BetaGammaLog10[indices_BetaGammaLog10.second];
+  double BetaGammaLog10_1 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.first);
+  double BetaGammaLog10_2 = iData.Array_BetaGammaLog10.at(indices_BetaGammaLog10.second);
 
   // obtain estimation
-  double Est_1 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10[indices_BetaGammaLog10.first];
-  double Est_2 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10[indices_BetaGammaLog10.second];
+  double Est_1 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.first);
+  double Est_2 = iData.Array_BetaGammaLog10_UpperBoundIntXLog10.at(indices_BetaGammaLog10.second);
 
   // final estimation
-  double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /
-               (BetaGammaLog10_2 - BetaGammaLog10_1);
-
-  return TMath::Power(10., Est);
+  const auto diff=BetaGammaLog10_2 - BetaGammaLog10_1;
+  if (diff<1e-300){
+    return -1;
+  } 
+  double Est = ((BetaGammaLog10_2 - BetaGammaLog10) * Est_1 + (BetaGammaLog10 - BetaGammaLog10_1) * Est_2) /diff;
+  Est = std::clamp(Est,-300.,300.);
+  return std::pow(10., Est);
+  
+  
 }
 
 //==========================================
 // overloaded G E T  U P P E R   B O U N D
 //==========================================
-double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const {
+double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) {
   std::pair<int, int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
 }
@@ -641,7 +651,7 @@ double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& i
 //==========================================
 // S E T  F A I L U R E
 //==========================================
-void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) const {
+void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double, double> >& rawHitRecord) {
   rawHitRecord.clear();
   std::pair<double, double> specialFlag;
   specialFlag.first = -1.;

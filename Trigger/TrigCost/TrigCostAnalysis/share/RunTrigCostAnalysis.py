@@ -26,7 +26,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
 
   enhancedBiasWeighter = CompFactory.EnhancedBiasWeighter()
   enhancedBiasWeighter.RunNumber = runNumbers[0]
-  enhancedBiasWeighter.UseBunchCrossingTool = False
+  enhancedBiasWeighter.UseBunchCrossingData = False
   enhancedBiasWeighter.IsMC = isMC
   if isMC:
     MCpayload = readMCpayload(args)
@@ -43,12 +43,12 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
   trigCostAnalysis.UseEBWeights = args.useEBWeights
   trigCostAnalysis.MaxFullEventDumps = 100
   trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
-  trigCostAnalysis.UseSingleTimeRange = isMC
+  trigCostAnalysis.UseSingleTimeRange = isMC or args.useEBWeights
   trigCostAnalysis.ROSToROBMap = ROSToROBMap().get_mapping()
   trigCostAnalysis.DoMonitorChainAlgorithm = args.monitorChainAlgorithm
+  trigCostAnalysis.DoMonitorThreadOccupancy = args.monitorThreads
 
-  if args.joFile:
-    trigCostAnalysis.AdditionalHashList = readHashes(args.joFile)
+  trigCostAnalysis.AdditionalHashList = readHashes(args.joFile, args.smk, args.dbAlias)
 
   acc.addEventAlgo(trigCostAnalysis)
 
@@ -66,26 +66,39 @@ def readMCpayload(args):
   return payload
 
 # Read algorithm and class names from HLTJobOptions file
-def readHashes(joFileName):
+def readHashes(joFileName="", smk=0, dbAlias=""):
+
+  joData = {}
+
+  if joFileName:
+    log.debug("Reading HLTJobOptions from file {0}".format(joFileName))
+    with open(joFileName, "r") as joFile:
+      import json
+      joData = json.load(joFile)
+  elif smk and dbAlias:
+    log.debug("Reading HLTJobOptions from database {0} {1}".format(smk, dbAlias))
+    from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
+    joData = HLTJobOptionsAccess(dbalias = dbAlias, smkey = smk)
+  else:
+    log.debug("Additional names not available")
+    return list()
+
   namesList = set()
+  log.info("Reading additional names...")
 
-  with open(joFileName, "r") as joFile:
-    import json
-    joData = json.load(joFile)
+  for entry in joData["properties"]:
+    namesList.add(entry.split('.')[0])
 
-    log.info("Reading additional names...")
+    # Read algorithm names with classes
+    entryObj = joData["properties"][entry]
+    if "Members" in entryObj:
+      membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
+      namesList.update(membersList)
 
-    for entry in joData["properties"]:
-      namesList.add(entry.split('.')[0])
 
-      # Read algorithm names with classes
-      entryObj = joData["properties"][entry]
-      if "Members" in entryObj:
-        membersList = entryObj["Members"].strip('][').replace("'", "").split(', ')
-        namesList.update(membersList)
-
-  log.info("Retrieved {0} names".format(len(namesList)))
+  log.info("Retrieved {0} additional names".format(len(namesList)))
   return list(namesList)
+
 
 # Configure deserialisation
 def decodingCfg(flags):
@@ -114,13 +127,13 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
   menuFile = getHltMenu()
   # If local file not found - read HLTMenu from database
   if menuFile:
-    log.debug("Reading menu from file")
+    log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
     hltConfigSvc.InputType = "file"
     hltConfigSvc.XMLMenuFile = "None"
     hltConfigSvc.JsonFileName = menuFile
   else:
-    log.debug("Reading menu from database")
+    log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
 
     if not smk or not dbAlias:
       # Try to read keys from COOL (for P1 data)
@@ -173,6 +186,7 @@ if __name__=='__main__':
   parser = ArgumentParser()
   parser.add_argument('--outputHist', type=str, default='TrigCostRoot_Results.root', help='Histogram output ROOT file')
   parser.add_argument('--monitorChainAlgorithm', action='store_true', help='Turn on Chain Algorithm monitoring')
+  parser.add_argument('--monitorThreads', action='store_true', help='Turn on Thread Occupancy monitoring. Should only be used with TrigCostSvc.EnableMultiSlot=true')
   parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
   parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
   parser.add_argument('--joFile', type=str, help='Optional HLTJobOptions file to add more hashes')
@@ -190,6 +204,8 @@ if __name__=='__main__':
   parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
   parser.add_argument('flags', nargs='*', help='Config flag overrides')  
   args = parser.parse_args()
+
+  log.level = args.loglevel
 
   # Setup the Run III behavior
   from AthenaCommon.Configurable import Configurable
@@ -222,6 +238,5 @@ if __name__=='__main__':
   # If you want to turn on more detailed messages ...
   # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
   cfg.printConfig(withDetails=False) # set True for exhaustive info
-
   sc = cfg.run(args.maxEvents, args.loglevel)
   sys.exit(0 if sc.isSuccess() else 1)

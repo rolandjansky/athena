@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef WIREDOR_H
@@ -9,6 +9,8 @@
 #include <list>
 #include <map>
 #include <vector>
+
+#include "GaudiKernel/MsgStream.h"
 
 #include "MuonCablingTools/ShowRequest.h"
 #include "RPC_CondCabling/CMAidentity.h"
@@ -25,10 +27,25 @@ namespace RPC_CondCabling {
     public:
         typedef std::map<int, const RPCchamber*, std::less<int> > RPClink;
 
+        struct defineParams {
+            defineParams() = default;
+            defineParams(const defineParams&) = default;
+            defineParams& operator=(const defineParams&) = default;
+            defineParams(defineParams&&) = default;
+
+            ViewType side{ViewType::Phi};  /// strip type put in wired OR
+            int start{0};                  /// first RPC chamber to which wired strips belong
+            int stop{0};                   /// last RPC chamber to which wired strips belong
+        };
+        struct parseParams : public defineParams, public cablingParameters {
+            parseParams() = default;
+            parseParams(const parseParams&) = default;
+            parseParams& operator=(const parseParams&) = default;
+            parseParams(parseParams&&) = default;
+        };
+
     private:
-        ViewType m_side;  // strip type put in wired OR
-        int m_start;      // first RPC chamber to which wired strips belong
-        int m_stop;       // last RPC chamber to which wired strips belong
+        defineParams m_params{};
 
         typedef std::vector<int> ReadoutCh;
         typedef std::list<const CMAparameters*> CMAlist;
@@ -42,43 +59,50 @@ namespace RPC_CondCabling {
         bool connect(SectorLogicSetup&);
 
     public:
-        WiredOR();
-        WiredOR(int, int, int, int, int);
-        WiredOR(const WiredOR&);
-        ~WiredOR();
+        WiredOR(parseParams);
 
-        WiredOR& operator=(const WiredOR&);
+        // WiredOR(int, int, int, int, int);
+        WiredOR(const WiredOR&) = default;
+        virtual ~WiredOR();
 
-        ViewType side(void) const { return m_side; }
-        int start(void) const { return m_start; }
-        int stop(void) const { return m_stop; }
-        const ReadoutCh& even_read_mul(void) const { return m_even_read_mul; }
-        const ReadoutCh& odd_read_mul(void) const { return m_odd_read_mul; }
-        const RPClink& RPCread(void) const { return m_RPCread; }
-        const CMAlist& readoutCMAs(void) const { return m_readoutCMAs; }
+        WiredOR& operator=(const WiredOR&) = default;
+
+        ViewType side() const;
+        int start() const;
+        int stop() const;
+        const ReadoutCh& even_read_mul() const;
+        const ReadoutCh& odd_read_mul() const;
+        const RPClink& RPCread() const;
+        const CMAlist& readoutCMAs() const;
 
         const RPCchamber* connected_rpc(int) const;
 
-        bool check(void);
+        bool check();
         bool setup(SectorLogicSetup&);
 
         void add_cma(const CMAparameters*);
         void add_even_read_mul(ReadoutCh&);
         void add_odd_read_mul(ReadoutCh&);
 
-        int give_max_phi_strips(void) const;
-        int give_max_eta_strips(void) const;
-        int RPCacquired(void) const { return m_RPCread.size(); }
+        int give_max_phi_strips() const;
+        int give_max_eta_strips() const;
+        int RPCacquired() const { return m_RPCread.size(); }
 
         void Print(std::ostream&, bool) const;
 
-        void two_obj_error_message(std::string, WiredOR*);
-        void error(std::string);
+        [[nodiscard]] std::string two_obj_error_message(const std::string&, WiredOR*);
+        [[nodiscard]] std::string error(const std::string&);
     };
 
-    template <class X> X& operator<<(X& stream, const WiredOR& Wor) {
+    inline std::ostream& operator<<(std::ostream& stream, const WiredOR& Wor) {
         Wor.Print(stream, false);
         return stream;
+    }
+
+    inline MsgStream& operator<<(MsgStream& stream, const WiredOR& Wor) {
+        std::ostringstream oss;
+        Wor.Print(oss, false);
+        return (stream << oss.str());
     }
 
 }  // namespace RPC_CondCabling

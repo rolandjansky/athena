@@ -14,7 +14,7 @@
 // Gaudi & Athena
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -28,9 +28,11 @@ namespace Trk {
 
       @author Andreas.Salzburger@cern.ch
      */
+    class ATLAS_NOT_THREAD_SAFE LayerProvider
+      : public AthAlgTool
+      , virtual public ILayerProvider
+    {
 
-    class LayerProvider :  public AthAlgTool, virtual public ILayerProvider {
-     
       public:
         /** Constructor */
         LayerProvider(const std::string&,const std::string&,const IInterface*);

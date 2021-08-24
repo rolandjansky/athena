@@ -161,7 +161,7 @@ IntersectorWrapper::intersect (const EventContext&              /*ctx*/,
   findIntersection(cache,parameters,surface);
   IntersectionSolution* solution = new IntersectionSolution;
   if (cache.m_intersection) {
-    solution->push_back(cache.m_intersection.release());
+    solution->push_back(std::move(cache.m_intersection));
   }
   return solution;
 }

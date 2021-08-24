@@ -6,7 +6,6 @@
 #define PFOATTRIBUTEPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "xAODPFlow/PFO.h"
 #include "xAODPFlow/FlowElement.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -16,24 +15,16 @@ namespace PFO {
 
   public:
 
-    PFOAttributePlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
-
-     void fill(const xAOD::PFO& PFO, const xAOD::EventInfo& eventInfo);
+    PFOAttributePlots(PlotBase *pParent, std::string sDir, std::string sFEContainerName);
+     
      void fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo);
 
-  private:
+  private:     
 
-     TH1* m_PFO_LAYER_ENERGY_EM3;
-     TH1* m_PFO_LAYER_ENERGY_HEC0;
-     TH1* m_PFO_LAYER_ENERGY_HEC;
-     TH1* m_PFO_LAYER_ENERGY_Tile0;
-     TH1* m_PFO_TIMING;
-
-     // only attribute available to the FE is the timing
      TH1* m_FE_TIMING;
+     TH1* m_FE_LAYER_ENERGY_Tile0;
 
-     void initializePlots();
-     std::string m_sPFOContainerName;
+     void initializePlots();     
      std::string m_sFEContainerName;
 
   };

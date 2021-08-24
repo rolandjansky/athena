@@ -70,7 +70,7 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
         doElectrons = False,
         )
 
-def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoEgammaBuilder'):
+def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoMonitoring'):
     
     from TrigEgammaMonitoring import TrigEgammaMonitoringConf
     from TrigEgammaMonitoring.egammaMonitorPrecisionConfig import egammaMonitorPrecisionCfg
@@ -85,7 +85,7 @@ def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoEgammaBuilder'):
 
     return PrecisionPhotonTopoMonitor()
 
-def PrecisionPhotonSuperClusterMonitorCfg(name = 'PrecisionPhotonSuperClusterBuilder'):
+def PrecisionPhotonSuperClusterMonitorCfg(name = 'PrecisionPhotonSuperClusterMonitoring'):
     
     from TrigEgammaMonitoring import TrigEgammaMonitoringConf
     from TrigEgammaMonitoring.egammaMonitorPrecisionConfig import egammaMonitorSuperClusterCfg

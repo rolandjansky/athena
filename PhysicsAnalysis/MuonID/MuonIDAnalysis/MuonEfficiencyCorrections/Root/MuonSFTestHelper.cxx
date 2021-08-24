@@ -279,7 +279,7 @@ namespace TestMuonSF {
                 m_tree_raw_ptr(new TTree("MuonEfficiencyTest", "MuonEfficiencyTest")),
                 m_Branches(),
                 m_sel_tool(){
-        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
+        if (release_name.find('/') != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind('/') + 1, m_name.size()); // branches cannot start with number
         m_Branches.push_back(std::make_unique<TestMuonSF::MuonInfoBranches>(tree(),m_sel_tool));
         if (HasOwnerShip) m_tree = std::shared_ptr < TTree > (m_tree_raw_ptr);
     }
@@ -289,7 +289,7 @@ namespace TestMuonSF {
                 m_tree_raw_ptr(tree.get()),
                 m_Branches(),
                 m_sel_tool(){
-        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
+        if (release_name.find('/') != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind('/') + 1, m_name.size()); // branches cannot start with number
     }
     MuonSFTestHelper::MuonSFTestHelper(TTree* tree, const std::string& release_name) :
                 m_name(release_name),
@@ -297,7 +297,7 @@ namespace TestMuonSF {
                 m_tree_raw_ptr(tree),
                 m_Branches(),
                 m_sel_tool(){
-        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
+        if (release_name.find('/') != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind('/') + 1, m_name.size()); // branches cannot start with number
     }
     void MuonSFTestHelper::addTool(const asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> &handle) {
         addTool(handle.getHandle());

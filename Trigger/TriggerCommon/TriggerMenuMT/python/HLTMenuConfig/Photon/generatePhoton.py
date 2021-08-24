@@ -1,19 +1,20 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequenceCA, SelectionCA, ChainStep, Chain
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-# TODO reuse electron calo setup (these two could share all algorithms)
-def _fastCalo(flags, chainDict):
+@AccumulatorCache
+def _fastCaloSeq(flags):
     selAcc=SelectionCA('FastCaloPhoton')
     selAcc.mergeReco(l2CaloRecoCfg(flags))
 
@@ -21,19 +22,26 @@ def _fastCalo(flags, chainDict):
     from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
     selAcc.merge(LumiBlockMuWriterCfg(flags))
 
-    l2CaloHypo = l2CaloHypoCfg(flags,
-                               name='L2PhotonCaloHypo',
-                               CaloClusters=recordable('HLT_FastCaloEMClusters'))
-
-    selAcc.addHypoAlgo(l2CaloHypo)
+    from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoAlgCfg
+    l2CaloHypo = TrigEgammaFastCaloHypoAlgCfg(flags,
+                                              name='ElectronEgammaFastCaloHypo',
+                                              CaloClusters=recordable('HLT_FastCaloEMClusters'))
+    selAcc.mergeHypo(l2CaloHypo)
 
     fastCaloSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
 
+    return (selAcc , fastCaloSequence)
+
+# TODO reuse electron calo setup (these two could share all algorithms)
+def _fastCalo(flags, chainDict):
+    
+    selAcc , fastCaloSequence = _fastCaloSeq(flags)
+
     return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-
-def _fastPhoton(flags, chainDict):
+@AccumulatorCache
+def _fastPhotonSeq(flags):
     selAcc=SelectionCA('FastPhoton')
     selAcc.mergeReco(l2PhotonRecoCfg(flags))
 
@@ -45,6 +53,12 @@ def _fastPhoton(flags, chainDict):
     l2PhotonSequence = MenuSequenceCA(selAcc,
                                       HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict)
 
+    return (selAcc , l2PhotonSequence)
+
+def _fastPhoton(flags, chainDict):
+    
+    selAcc , l2PhotonSequence = _fastPhotonSeq(flags)
+    
     return ChainStep(selAcc.name, Sequences=[l2PhotonSequence], chainDicts=[chainDict],  multiplicity=getChainMultFromDict(chainDict) )
 
 

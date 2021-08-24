@@ -40,8 +40,7 @@ def AthenaTrackingActionToolCfg(ConfigFlags, name='G4UA::AthenaTrackingActionToo
     kwargs.setdefault('SecondarySavingLevel', 2)
     
     subDetLevel=1
-    if "ATLAS" in ConfigFlags.Sim.Layout and \
-    (ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal' ):
+    if "ATLAS" in ConfigFlags.Sim.Layout and ConfigFlags.Detector.GeometryCavern:
         subDetLevel=2
 
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)

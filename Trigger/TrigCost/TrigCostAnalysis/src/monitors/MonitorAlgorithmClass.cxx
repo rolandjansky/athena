@@ -3,7 +3,7 @@
 */
 
 #include "MonitorAlgorithmClass.h"
-#include "../counters/CounterAlgorithm.h"
+#include "../counters/CounterAlgorithmClass.h"
 
 MonitorAlgorithmClass::MonitorAlgorithmClass(const std::string& name, const MonitoredRange* parent)
   : MonitorBase(name, parent) {
@@ -26,5 +26,5 @@ StatusCode MonitorAlgorithmClass::newEvent(const CostData& data, const float wei
 
 
 std::unique_ptr<CounterBase> MonitorAlgorithmClass::newCounter(const std::string& name) {
-  return std::make_unique<CounterAlgorithm>(name, this);
+  return std::make_unique<CounterAlgorithmClass>(name, this);
 } 

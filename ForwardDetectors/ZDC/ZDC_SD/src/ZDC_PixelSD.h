@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_SD_ZDC_PIXEL_SD_H
@@ -56,8 +56,8 @@ private:
   // The hits collection
   SG::WriteHandle<ZDC_SimPixelHit_Collection> m_HitColl;
 
-  double m_Edep_Cherenkov_Pixel   [2][2][80];
-  int    m_NPhoton_Cherenkov_Pixel[2][2][80];
+  double m_Edep_Cherenkov_Pixel   [2][2][80]{};
+  int    m_NPhoton_Cherenkov_Pixel[2][2][80]{};
 
   // The first index is [A_side/C_side] second is [EMXY/HMXY] third is [0...79(63)] channel No
   // I keep 80 channels in the HMXY and add them up later during digitization

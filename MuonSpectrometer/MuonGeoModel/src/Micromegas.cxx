@@ -71,7 +71,9 @@ namespace MuonGM {
         logVolName = name;
         if (!(m_component->subType).empty())
             logVolName += ("-" + m_component->subType);
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("sct::PCB");
+        // std::FR4 is not always available. Fallback to sct::PCB
+        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::FR4") != nullptr ?
+            getMaterialManager()->getMaterial("std::FR4") : getMaterialManager()->getMaterial("sct::PCB");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoFullPhysVol *ptrd = new GeoFullPhysVol(ltrd);
 

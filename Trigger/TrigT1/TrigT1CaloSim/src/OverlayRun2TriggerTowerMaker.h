@@ -37,6 +37,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
 
+#include "TrigConfData/L1Menu.h"
+
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
 #include "TileEvent/TileTTL1Container.h"
@@ -46,11 +48,11 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaults.h"
 
 // EDM include(s)
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 // forward decl(s)
-class ILumiBlockMuTool;
 class CaloLVL1_ID;
 class CaloTriggerTowerService;
 class L1CaloCondSvc;
@@ -63,13 +65,11 @@ class L1CaloPpmDeadChannelsContainer;
 class L1CaloPpmDeadChannels;
 
 class IAthRNGSvc;
-class ILumiBlockMuTool;
 namespace ATHRNG {
   class RNGWrapper;
 }
 
 namespace CLHEP { class HepRandomEngine; }
-namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1BS {
    class ITrigT1CaloDataAccessV2;
@@ -156,20 +156,16 @@ private:
   std::string m_deadChannelsKeyoverlay;
 
   // Tools/Services
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ServiceHandle <IAthRNGSvc> m_rngSvc;
   ServiceHandle<L1CaloCondSvc> m_condSvc;
   ATHRNG::RNGWrapper* m_rndmADCs; // non owning ptr
 
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<LVL1BS::ITrigT1CaloDataAccessV2> m_bstowertool;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
-  // Global calibration scale (MeV/count, to optimise performance)
-  double m_digitScale;
   // Global LUT scales
   double m_cpLutScale;
   double m_jepLutScale;
@@ -221,15 +217,15 @@ private:
   void digitize();
 
   /** Simulate PreProcessing on analogue amplitudes */
-  StatusCode preProcess(const int eventBCID);
-  StatusCode preProcessTower(const int eventBCID,xAOD::TriggerTower* tower);
+  StatusCode preProcess(const xAOD::EventInfo& event);
+  StatusCode preProcessTower(const xAOD::EventInfo& event,xAOD::TriggerTower* tower);
   
   /** Add overlay data **/
-  virtual StatusCode addOverlay(const int eventBCID);
-  virtual StatusCode addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
+  virtual StatusCode addOverlay(const xAOD::EventInfo& event);
+  virtual StatusCode addOverlay(const xAOD::EventInfo& event,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
   
   /** PreProcess up to LUT in **/
-  StatusCode preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
+  StatusCode preProcessTower_getLutIn(const xAOD::EventInfo& event,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
   
   /** calculate LUT out **/
   StatusCode calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
@@ -241,6 +237,7 @@ private:
   bool IsDeadChannel(const L1CaloPpmDeadChannels* db) const;
   bool IsDisabledChannel(const L1CaloDisabledTowers* db) const;
   bool IsGoodTower(const xAOD::TriggerTower* tt,const L1CaloPpmDeadChannelsContainer* dead,const L1CaloDisabledTowersContainer* disabled) const;
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   
   /** normalise the number of ADC digits for overlay **/

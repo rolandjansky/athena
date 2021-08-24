@@ -1,9 +1,5 @@
-# $Id: CMakeLists.txt 797759 2017-02-18 01:24:37Z zmarshal $
-################################################################################
-# Package: SUSYTools
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
- 
 # Declare the package name:
 atlas_subdir( SUSYTools )
 
@@ -25,7 +21,7 @@ atlas_add_library( SUSYToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCore xAODEgamma xAODEventInfo
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
-   AssociationUtilsLib BoostedJetTaggersLib GoodRunsListsLib PATInterfaces TrigDecisionToolLib 
+   AssociationUtilsLib BoostedJetTaggersLib GoodRunsListsLib PATInterfaces TrigDecisionToolLib
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
    ParticleJetToolsLib PMGAnalysisInterfacesLib AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
@@ -76,7 +72,7 @@ atlas_add_executable( SUSYToolsTester
 atlas_add_executable( SUSYTruthTester
    util/SUSYTruthTester.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo 
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo
    xAODTruth xAODCore xAODBase PATInterfaces PathResolver xAODCutFlow
    SUSYToolsLib ${extra_libs} )
 
@@ -94,38 +90,21 @@ if( XAOD_STANDALONE )
 endif()
 
 # Log ignore patterns
-set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs/atlas.*\.cern\.ch/repo|INFO|x86_64-centos7-gcc[0-9]*-opt/data/SUSYTools|build/Analysis.*/x86_64-centos7-gcc[0-9]*-opt|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*|Booked|<HEADER>")
+set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs/atlas.*\.cern\.ch/repo|INFO|${ATLAS_PLATFORM}/data/SUSYTools|build(/Analysis.*)?/${ATLAS_PLATFORM}|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*|Booked|<HEADER>|Warning in <TClass::Init>|(start|done) processing event")
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   ##    SCRIPT test/ut_SUSYTools_config_checker.py
-   ##    LOG_IGNORE_PATTERN ${extra_patterns}
-   ##    PROPERTIES TIMEOUT 300
-   ## )
-   ## # Additional veto lines: more timing, local conf file this thing is writing
-   ## atlas_add_test( ut_SUSYTools_wp_checker
-   ##    SCRIPT test/ut_SUSYTools_wp_checker.py
-   ##    LOG_IGNORE_PATTERN ${extra_patterns}
-   ##    PROPERTIES TIMEOUT 700
-   ## )
-   ## atlas_add_test( ut_SUSYToolsTester_atlfast
-   ##    SOURCES test/ut_SUSYToolsTester_atlfast.cxx
-   ##    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   ##    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
-   ##    LOG_IGNORE_PATTERN ${extra_patterns}
-   ##    PROPERTIES TIMEOUT 300
-   ## )
    atlas_add_test( ut_SUSYToolsTester_data
-      SOURCES test/ut_SUSYToolsTester_data.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root
+             maxEvents=500 isData=1 isAtlfast=0 Debug=0
       LOG_IGNORE_PATTERN ${extra_patterns}
       PROPERTIES TIMEOUT 300
    )
    atlas_add_test( ut_SUSYToolsTester_mc
-      SOURCES test/ut_SUSYToolsTester_mc.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root
+             maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0
+             PRWFile=dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root
+             ilumicalcFile=GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
       LOG_IGNORE_PATTERN ${extra_patterns}
       PROPERTIES TIMEOUT 300
    )

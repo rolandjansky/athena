@@ -15,6 +15,7 @@ ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
 ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args += ' --dump-config-reload'
 
 test = Test.Test()
 test.art_type = 'build'

@@ -120,18 +120,20 @@ namespace met {
       ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
       ATH_CHECK( m_trkcollKey.initialize());
     }
-    if(!m_fecollKey.key().empty()){
-      ATH_CHECK(m_fecollKey.initialize());
-      ATH_MSG_INFO("Configured to use FlowElement collection \"" << m_fecollKey.key() << "\".");
-    }
-    else if(m_pflow){
-      ATH_CHECK( m_pfcollKey.initialize());
-      if(m_pfcollKey.key() == "JetETMissParticleFlowObjects") {
-        ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcollKey.key() << "\".");
-        ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
-        return StatusCode::FAILURE;
-      } else {
+    
+    if(m_pflow){
+      if(!m_fecollKey.key().empty()){
+        ATH_CHECK(m_fecollKey.initialize());
+        ATH_MSG_INFO("Configured to use FlowElement collection \"" << m_fecollKey.key() << "\".");
+      }
+      else{
+        ATH_CHECK( m_pfcollKey.initialize());
         ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcollKey.key() << "\".");
+        if(m_pfcollKey.key() == "JetETMissParticleFlowObjects") {
+          ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcollKey.key() << "\".");
+          ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
+          return StatusCode::FAILURE;
+        }
       }
     }
     if(!m_skipconst || m_forcoll.empty()){
@@ -161,8 +163,8 @@ namespace met {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
     }
-    if((m_pflow || !m_fecollKey.key().empty())&& !m_useTracks ){
-      ATH_MSG_WARNING("Attempting to build PFlow/FlowElement MET without a track collection.");
+    if(m_pflow && !m_useTracks ){
+      ATH_MSG_WARNING("Attempting to build PFlow MET without a track collection.");
       return StatusCode::FAILURE;
     }
 
@@ -269,25 +271,27 @@ namespace met {
       }
       constits.trkCont=trCont.cptr();
 
-      if(!m_fecollKey.key().empty()){
-        ATH_MSG_DEBUG("Retrieving FlowElement collection " << m_fecollKey.key());
-        constits.feCont = 0;
-        SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
-        if (!feCont.isValid()) {
-          ATH_MSG_ERROR("Unable to retrieve FlowElement container");
-          return StatusCode::FAILURE;
+      if(m_pflow){
+        if(!m_fecollKey.key().empty()){
+          ATH_MSG_DEBUG("Retrieving FlowElement collection " << m_fecollKey.key());
+          constits.feCont = 0;
+          SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
+          if (!feCont.isValid()) {
+            ATH_MSG_ERROR("Unable to retrieve FlowElement container");
+            return StatusCode::FAILURE;
+          }
+          constits.feCont=feCont.cptr();
         }
-        constits.feCont=feCont.cptr();
-      }
-      else if(m_pflow) {
-        ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcollKey.key());
-        constits.pfoCont = 0;
-        SG::ReadHandle<PFOContainer> pfCont(m_pfcollKey);
-        if (!pfCont.isValid()) {
-          ATH_MSG_WARNING("Unable to PFlow object container");
-          return StatusCode::FAILURE;
+        else{
+          ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcollKey.key());
+          constits.pfoCont = 0;
+          SG::ReadHandle<PFOContainer> pfCont(m_pfcollKey);
+          if (!pfCont.isValid()) {
+            ATH_MSG_WARNING("Unable to PFlow object container");
+            return StatusCode::FAILURE;
+          }
+          constits.pfoCont=pfCont.cptr();
         }
-        constits.pfoCont=pfCont.cptr();
       }//pflow
     }//retrieve track/pfo containers
 
@@ -326,23 +330,26 @@ namespace met {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
-      if(!m_fecollKey.key().empty()){
-        if(!m_useTracks){
-          ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
-          return StatusCode::FAILURE;
+      if(m_pflow){
+        if(!m_fecollKey.key().empty()){
+          if(!m_useTracks){
+            ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
+            return StatusCode::FAILURE;
+          }
+          std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
+          ATH_CHECK( this->extractFE(obj, constlist, constits, momentumOverride) );
+          MissingETComposition::insert(metMap, obj, constlist, momentumOverride);
         }
-        std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
-        ATH_CHECK( this->extractFE(obj, constlist, constits, momentumOverride) );
-        MissingETComposition::insert(metMap, obj, constlist, momentumOverride);
-      }
-      else if (m_pflow) {
-        if(!m_useTracks){
-          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-          return StatusCode::FAILURE;
-        }else{
-          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-          ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+        else{
+          // Old PFO EDM
+          if(!m_useTracks){
+            ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+            return StatusCode::FAILURE;
+          }else{
+            std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+            ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+            MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+          }
         }
       } else {
         std::vector<const IParticle*> tclist;

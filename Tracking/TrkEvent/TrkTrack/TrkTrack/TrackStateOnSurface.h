@@ -184,11 +184,11 @@ public:
     const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
 
   TrackStateOnSurface(
-    const MeasurementBase* meas,
-    std::unique_ptr<TrackParameters> trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffects = nullptr,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack = nullptr);
+    std::unique_ptr<const MeasurementBase> meas,
+    std::unique_ptr<const TrackParameters> trackParameters,
+    std::unique_ptr<const FitQualityOnSurface> fitQoS,
+    std::unique_ptr<const MaterialEffectsBase> materialEffects = nullptr,
+    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack = nullptr);
 
   /**
    * Full constructor.
@@ -227,13 +227,13 @@ public:
   );
 
   explicit TrackStateOnSurface(
-    const MeasurementBase* meas,
-    std::unique_ptr<TrackParameters> trackParameters,
-    const FitQualityOnSurface* fitQoS,
-    const MaterialEffectsBase* materialEffectsOnTrack,
+    std::unique_ptr<const MeasurementBase> meas,
+    std::unique_ptr<const TrackParameters> trackParameters,
+    std::unique_ptr<const FitQualityOnSurface> fitQoS,
+    std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack,
     const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
       typePattern,
-    const AlignmentEffectsOnTrack* alignmentEffectsOnTrack =
+    std::unique_ptr<const AlignmentEffectsOnTrack> alignmentEffectsOnTrack =
       nullptr /// @todo remove =0 at some point
   );
 
@@ -247,8 +247,8 @@ public:
    */
   TrackStateOnSurface(const MeasurementBase* meas,
                       const TrackParameters* trackParameters);
-  TrackStateOnSurface(const MeasurementBase* meas,
-                      std::unique_ptr<TrackParameters> trackParameters);
+  TrackStateOnSurface(std::unique_ptr<const MeasurementBase> meas,
+                      std::unique_ptr<const TrackParameters> trackParameters);
 
   /**
    * Pseudo-constructor: needed to avoid excessive RTTI
@@ -263,7 +263,7 @@ public:
   Trk::TrackStateOnSurface& operator=(const Trk::TrackStateOnSurface& rhs);
   Trk::TrackStateOnSurface& operator=(Trk::TrackStateOnSurface&& rhs) noexcept = default;
   /** destructor*/
-  virtual ~TrackStateOnSurface() = default ;
+  virtual ~TrackStateOnSurface();
 
   /** returns 0 if there is no FQOS object assigned*/
   const FitQualityOnSurface* fitQualityOnSurface() const;

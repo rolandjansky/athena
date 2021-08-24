@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMSVCPU_H
@@ -18,6 +18,7 @@
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // Tracking includes
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -113,6 +114,8 @@ namespace ISF
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release ;
       ToolHandle< IPunchThroughTool >     m_punchThroughTool;
       
+      ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this,"ParticleTruthSvc", "ISF_TruthRecordSvc", "ISF Particle Truth Svc"};
+
       CaloCellContainer* 		  m_theContainer;
       
       //->PU Development:

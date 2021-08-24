@@ -79,8 +79,10 @@ class IDPerfMonZmumu : public AthAlgorithm
   StatusCode          bookTrees ();
   StatusCode          CheckTriggerStatusAndPrescale ();
   void                Clear4MuNtupleVariables (); 
+  void                ExtractIDHitsInformation(const xAOD::Muon* muon_pos, const xAOD::Muon* muon_neg);
   int                 GetMuonQualityValue(std::string qualityname);
   void                RegisterHistograms ();
+  void                ResetCommonNtupleVectors ();
   const xAOD::Vertex* GetDiMuonVertex (const xAOD::TrackParticle*,const  xAOD::TrackParticle*);
   StatusCode          FillRecParameters (const Trk::Track* track, const xAOD::TrackParticle* trackp_for_unbias, double charge,const xAOD::Vertex* vertex);
   StatusCode          FillRecParametersTP (const xAOD::TrackParticle* trackp, const xAOD::TrackParticle* trackp_for_unbias,double charge,const xAOD::Vertex* vertex = nullptr);
@@ -140,6 +142,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   bool                            m_validationMode;
 
   //!< validation tree name - to be acessed by this from root
+  std::string                     m_commonTreeName;        //Tree containing all track collections
   std::string                     m_defaultTreeName;       //Default Tracks
   std::string                     m_IDTreeName;            //Default ID Tracks
   std::string                     m_refit1TreeName;        //Refit ID Tracks
@@ -152,6 +155,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   //!< validation tree description - second argument in TTree
   std::string                     m_ValidationTreeDescription;
   //!< stream/folder to for the TTree to be written out
+  std::string                     m_commonTreeFolder;
   std::string                     m_defaultTreeFolder;
   std::string                     m_IDTreeFolder;
   std::string                     m_refit1TreeFolder;
@@ -168,6 +172,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   // cut flow histogram
   TH1F*                           m_h_cutflow;
   //!< Root Validation Tree
+  TTree*                          m_commonTree;
   TTree*                          m_defaultTree;
   TTree*                          m_IDTree;
   TTree*                          m_refit1Tree;
@@ -199,6 +204,8 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_positive_d0_PV{};
   double m_positive_z0_PVerr{};
   double m_positive_d0_PVerr{};
+  double m_positive_qoverp{};
+  double m_positive_sigma_qoverp{};
   int m_positive_1_vtx{};
   int m_positive_parent{};
 
@@ -230,6 +237,8 @@ class IDPerfMonZmumu : public AthAlgorithm
   double m_negative_d0_PV{};
   double m_negative_z0_PVerr{};
   double m_negative_d0_PVerr{};
+  double m_negative_qoverp{};
+  double m_negative_sigma_qoverp{};
   int m_negative_1_vtx{};
   int m_negative_parent{};
 
@@ -309,7 +318,72 @@ class IDPerfMonZmumu : public AthAlgorithm
 
   double m_met{};
   double m_metphi{};
-  
+
+  // common tree
+  std::vector<float> m_IDTrack_pt;
+  std::vector<float> m_CBTrack_pt;
+  std::vector<float> m_Refit1_pt;
+  std::vector<float> m_Refit2_pt;
+  std::vector<float> m_Truth_pt;
+
+  std::vector<float> m_IDTrack_eta;
+  std::vector<float> m_CBTrack_eta;
+  std::vector<float> m_Refit1_eta;
+  std::vector<float> m_Refit2_eta;
+  std::vector<float> m_Truth_eta;
+
+  std::vector<float> m_IDTrack_phi;
+  std::vector<float> m_CBTrack_phi;
+  std::vector<float> m_Refit1_phi;
+  std::vector<float> m_Refit2_phi;
+  std::vector<float> m_Truth_phi;
+
+  std::vector<float> m_IDTrack_d0;
+  std::vector<float> m_CBTrack_d0;
+  std::vector<float> m_Refit1_d0;
+  std::vector<float> m_Refit2_d0;
+  std::vector<float> m_Truth_d0;
+
+  std::vector<float> m_IDTrack_z0;
+  std::vector<float> m_CBTrack_z0;
+  std::vector<float> m_Refit1_z0;
+  std::vector<float> m_Refit2_z0;
+  std::vector<float> m_Truth_z0;
+
+  std::vector<float> m_IDTrack_qoverp;
+  std::vector<float> m_CBTrack_qoverp;
+  std::vector<float> m_Refit1_qoverp;
+  std::vector<float> m_Refit2_qoverp;
+  std::vector<float> m_Truth_qoverp;
+
+  std::vector<int> m_Truth_parent;
+
+  std::vector<float> m_IDTrack_sigma_pt;
+  std::vector<float> m_CBTrack_sigma_pt;
+  std::vector<float> m_Refit1_sigma_pt;
+  std::vector<float> m_Refit2_sigma_pt;
+
+  std::vector<float> m_IDTrack_sigma_d0;
+  std::vector<float> m_CBTrack_sigma_d0;
+  std::vector<float> m_Refit1_sigma_d0;
+  std::vector<float> m_Refit2_sigma_d0;
+
+  std::vector<float> m_IDTrack_sigma_z0;
+  std::vector<float> m_CBTrack_sigma_z0;
+  std::vector<float> m_Refit1_sigma_z0;
+  std::vector<float> m_Refit2_sigma_z0;
+
+  std::vector<float> m_IDTrack_sigma_qoverp;
+  std::vector<float> m_CBTrack_sigma_qoverp;
+  std::vector<float> m_Refit1_sigma_qoverp;
+  std::vector<float> m_Refit2_sigma_qoverp;
+
+  std::vector<int> m_nBLhits;
+  std::vector<int> m_nPIXhits;
+  std::vector<int> m_nSCThits;
+  std::vector<int> m_nTRThits;
+
+  //
   std::string m_sTriggerChainName;
   std::string m_outputTracksName;
   bool m_doRemoval{};

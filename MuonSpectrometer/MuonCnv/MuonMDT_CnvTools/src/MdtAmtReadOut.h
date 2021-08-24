@@ -43,36 +43,36 @@ private:
 
     // Word header Position and values
     // The word header occupies the 4 highest bits of each TDC data word
-    static const uint16_t s_headerPos = 28;
-    static const uint16_t s_headerBits = 0xf;
+    static constexpr uint16_t s_headerPos = 28;
+    static constexpr uint16_t s_headerBits = 0xf;
 
     // Beginning of TDC: two possible header values
     // for channels 00-15 and 16-17 respectively
-    static const uint16_t s_BOTvalue1 = 0xa;
-    static const uint16_t s_BOTvalue2 = 0xb;
+    static constexpr uint16_t s_BOTvalue1 = 0xa;
+    static constexpr uint16_t s_BOTvalue2 = 0xb;
 
     // End of TDC
-    static const uint16_t s_EOTvalue = 0xc;
+    static constexpr uint16_t s_EOTvalue = 0xc;
 
     // TDC single measurement
-    static const uint16_t s_TMCvalue = 0x2;
+    static constexpr uint16_t s_TMCvalue = 0x2;
 
     // TDC single measurement
-    static const uint16_t s_TSMvalue = 0x3;
+    static constexpr uint16_t s_TSMvalue = 0x3;
 
     // TDC combined measurement
-    static const uint16_t s_TCMvalue = 0x4;
+    static constexpr uint16_t s_TCMvalue = 0x4;
 
     // TDC error status
-    static const uint16_t s_TESvalue = 0x6;
+    static constexpr uint16_t s_TESvalue = 0x6;
 
     // add the CSM trailer word count for operation with TDC trailer suppression
-    static const uint16_t s_TWCvalue = 0x8;
+    static constexpr uint16_t s_TWCvalue = 0x8;
 
 public:
     // Constructor and destructor
     MdtAmtReadOut();
-    ~MdtAmtReadOut();
+    ~MdtAmtReadOut() =default;
 
     // Methods for decoding and encoding dataWords
     void decodeWord(uint32_t dataWord);

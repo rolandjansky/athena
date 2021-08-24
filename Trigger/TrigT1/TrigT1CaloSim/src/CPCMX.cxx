@@ -26,6 +26,8 @@
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
+#include "TrigConfData/L1Threshold.h"
+
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXCPHits_ClassDEF.h"
 #include "TrigT1CaloEvent/CMXCPTob_ClassDEF.h"
@@ -34,10 +36,6 @@
 #include "TrigT1CaloEvent/CPMCMXData.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
 
 
 
@@ -71,7 +69,6 @@ StatusCode CPCMX::initialize()
   ATH_CHECK(m_CPMCMXDataLocation.initialize());
   ATH_CHECK( m_L1MenuKey.initialize() );
 
-  ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -142,7 +139,7 @@ StatusCode CPCMX::execute( )
   auto l1Menu = SG::makeHandle( m_L1MenuKey );
 
 
-  float cpScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
+  float cpScale = l1Menu->thrExtraInfo().EM().emScale();
   std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
   std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds;
   for ( const auto& thresh : allThresholds  ) {
@@ -285,44 +282,6 @@ StatusCode CPCMX::execute( )
       
 
   return StatusCode::SUCCESS ;
-}
-
-
-
-/** print trigger configuration, for debugging purposes */
-void LVL1::CPCMX::printTriggerMenu(){
-  /** This is all going to need updating for the new menu structure.
-      Comment out in the meanwhile 
-  
-  L1DataDef def;
-
-  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endmsg
-          << "  threshold number " << (*it)->thresholdNumber() << endmsg
-          << "  number of values = " << (*it)->numberofValues() );
-      for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
-           tv != (*it)->thresholdValueVector().end(); ++tv) {
-        ClusterThresholdValue* ctv;
-        ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
-	if (!ctv) {
-          ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
-          continue;
-        }
-        ATH_MSG_DEBUG("ClusterThresholdValue: " << endmsg
-            << "  Threshold value = " << ctv->thresholdValueCount() << endmsg
-            << "  EM isolation = " << ctv->emIsolationCount() << endmsg
-            << "  Had isolation = " << ctv->hadIsolationCount() << endmsg
-            << "  Had veto = " << ctv->hadVetoCount() << endmsg
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
-        
-      } // end of loop over threshold values
-    } //  is type == em or tau?
-  } // end of loop over thresholds
-  
-  */   
 }
 
 } // end of namespace bracket

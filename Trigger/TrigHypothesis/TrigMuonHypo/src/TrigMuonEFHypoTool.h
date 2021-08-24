@@ -23,15 +23,18 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   struct MuonEFInfo {
   MuonEFInfo( TrigCompositeUtils::Decision* d, 
               const xAOD::Muon* m,
+	      bool o,
 	      const TrigCompositeUtils::Decision* previousDecision )
     : decision( d ), 
       muon( m ),
+      isOverlapping( o ),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
       
     TrigCompositeUtils::Decision* decision;
     const xAOD::Muon* muon;
+    bool isOverlapping;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   virtual StatusCode initialize() override;    
@@ -48,7 +51,7 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   Gaudi::Property< bool > m_nscan {
     this, "NarrowScan", false, "Apply narrow scan" };
   Gaudi::Property< float > m_conesize {
-    this, "ConeSize", 5, "Narrow scan cone size" };
+    this, "ConeSize", 0.5, "Narrow scan cone size" };
   Gaudi::Property< bool > m_muonqualityCut {
     this, "MuonQualityCut", false, "Ignore selection" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
@@ -65,6 +68,8 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
     this, "RequireSAMuons", false, "Apply cut on SA muons (otherwise require combined muons)"};
    Gaudi::Property< float > m_d0min {
         this, "MinimumD0", 0., "lower d0 cut (mm)"};
+   Gaudi::Property< bool > m_checkOvlp {
+        this, "RemoveOverlaps", false, "do overlap removal"};
 
   // Other members:   
   std::vector<size_t> m_bins={0};

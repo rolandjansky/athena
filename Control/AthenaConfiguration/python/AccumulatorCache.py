@@ -8,6 +8,8 @@ _msg = logging.getLogger('AccumulatorCache')
 import functools
 from copy import deepcopy
 
+from collections.abc import Hashable
+
 class AccumulatorDecorator:
     """Class for use in function decorators, implements memoization.
 
@@ -64,26 +66,36 @@ class AccumulatorDecorator:
         """Resume memoization for all instances of AccumulatorDecorator."""
         cls._memoize = True
 
+    def _hasHash(x):
+        if(hasattr(x , "athHash")):
+            return True
+        elif(isinstance(x , Hashable)):
+            return True
+        return False
+
+    def _getHash(x):
+        if(hasattr(x , "athHash")):
+            return x.athHash()
+        elif(isinstance(x , Hashable)):
+            return hash(x)
+        return None
+
     def __call__(self , *args , **kwargs):
         if(AccumulatorDecorator._memoize):
             hashable_args = True
             for a in args:
-                if(not hasattr(a , "athHash")):
+                if(not AccumulatorDecorator._hasHash(a)):
                     hashable_args = False
                     _msg.debug("Positional argument to AccumulatorDecorator __call__ is not hashable.")
                     break
             for k , v in kwargs.items():
-                if(not hasattr(k , "athHash")):
-                    hashable_args = False
-                    _msg.debug("Key value in keyword argument to AccumulatorDecorator __call__ is not hashable.")
-                    break
-                if(not hasattr(v , "athHash")):
+                if(not AccumulatorDecorator._hasHash(v)):
                     hashable_args = False
                     _msg.debug("Value in keyword argument to AccumulatorDecorator __call__ is not hashable.")
                     break
             if(hashable_args):
                 # frozen set makes the order of keyword arguments irrelevant
-                hsh = hash(tuple((tuple(a.athHash() for a in args) , frozenset((k.athHash() , v.athHash()) for k , v in kwargs.items()))))
+                hsh = hash(tuple((tuple(AccumulatorDecorator._getHash(a) for a in args) , frozenset((hash(k) , AccumulatorDecorator._getHash(v)) for k , v in kwargs.items()))))
 
                 if(hsh in self._cache):
                     res = self._cache[hsh]
@@ -91,8 +103,8 @@ class AccumulatorDecorator:
                     if(AccumulatorDecorator.VERIFY_HASH == self._verify):
                         resHsh = self._resultCache[hsh]
                         chkHsh = None
-                        if(hasattr(res , "athHash")):
-                            chkHsh = res.athHash()
+                        if(AccumulatorDecorator._hasHash(res)):
+                            chkHsh = AccumulatorDecorator._getHash(res)
                         if((not (chkHsh is None)) and (not (resHsh is None))): 
                             # hashes are available and can be compared
                             if(chkHsh != resHsh):
@@ -107,8 +119,8 @@ class AccumulatorDecorator:
                             res = self._func(*args , **kwargs)
                             self._cache[hsh] = res
                             self._resultCache[hsh] = None
-                            if(hasattr(res , "athHash")):
-                                self._resultCache[hsh] = res.athHash()
+                            if(AccumulatorDecorator._hasHash(res)):
+                                self._resultCache[hsh] = AccumulatorDecorator._getHash(res)
                         else:
                             self._hits += 1
                     elif(AccumulatorDecorator.VERIFY_NOTHING == self._verify):
@@ -132,8 +144,8 @@ class AccumulatorDecorator:
                         if(len(self._resultCache) >= self._maxSize):
                             del self._resultCache[next(iter(self._resultCache))]
                         self._resultCache[hsh] = None
-                        if(hasattr(res , "athHash")):
-                            self._resultCache[hsh] = res.athHash()
+                        if(AccumulatorDecorator._hasHash(res)):
+                            self._resultCache[hsh] = AccumulatorDecorator._getHash(res)
                         self._cache[hsh] = res
                     elif(AccumulatorDecorator.VERIFY_NOTHING == self._verify):
                         self._cache[hsh] = res

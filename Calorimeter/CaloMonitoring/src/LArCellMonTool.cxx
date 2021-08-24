@@ -396,7 +396,7 @@ StatusCode LArCellMonTool::bookSporHists(){
   std::stringstream dir;
   dir.precision(0);
   dir.setf(std::ios_base::fixed, std::ios_base::floatfield);
-  dir << "/CaloMonitoring/LArCellMon_NoTrigSel/Sporadic_" <<  m_threshold_em_S0S1*1e-3 << "_"  << m_threshold_HECFCALEMS2S3*1e-3 << "GeV";
+  dir << "/CaloMonitoring/LArCellMon_NoTrigSel_OldTool/Sporadic_" <<  m_threshold_em_S0S1*1e-3 << "_"  << m_threshold_HECFCALEMS2S3*1e-3 << "GeV";
   m_sporadicDir=dir.str();
  
   for (unsigned i=0;i<MAXPARTITIONS;++i) {

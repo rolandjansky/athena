@@ -186,7 +186,7 @@ const {
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
   et  = et/Gaudi::Units::GeV; ///in GeV
   
-  if(m_discriminators.size() > 0){
+  if(!m_discriminators.empty()){
     for(unsigned i=0; i<m_discriminators.size(); ++i){
       if(mu > m_discriminators[i]->mumin() && mu <= m_discriminators[i]->mumax()){
         if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){

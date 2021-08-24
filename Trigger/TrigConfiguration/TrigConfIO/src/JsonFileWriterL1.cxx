@@ -295,8 +295,14 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
                jWPIso["reta"] = iso.value().reta_d();
+               jWPIso["reta_fw"] = iso.value().reta_fw();
                jWPIso["rhad"] = iso.value().rhad_d();
+               jWPIso["rhad_fw"] = iso.value().rhad_fw();
                jWPIso["wstot"] = iso.value().wstot_d();
+               jWPIso["wstot_fw"] = iso.value().wstot_fw();
+               jWPIso["etamin"] = iso.etaMin();
+               jWPIso["etamax"] = iso.etaMax();
+               jWPIso["priority"] = iso.priority();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }

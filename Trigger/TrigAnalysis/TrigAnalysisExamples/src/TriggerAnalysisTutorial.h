@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
@@ -22,7 +22,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TriggerAnalysisHelper.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 // Forward declaration(s):
 class TTree;
@@ -73,7 +72,6 @@ private:
    //! Helper class for tutorial, provides an additional layer to illustrate TDT functionality
    ToolHandle< Trig::TriggerAnalysisHelper > m_tah; 
    
-   ToolHandle< Trig::IBunchCrossingTool > m_bcTool; ///< Handle to the tool
    // The THistSvc
    ServiceHandle< ITHistSvc > m_histSvc;
 

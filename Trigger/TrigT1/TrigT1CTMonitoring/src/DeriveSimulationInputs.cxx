@@ -55,9 +55,6 @@
 #include "TrigT1Interfaces/EnergyCTP.h"
 #include "TrigT1Interfaces/MbtsCTP.h"
 #include "TrigT1Interfaces/BcmCTP.h"
-#include "TrigT1Interfaces/TrtCTP.h"
-#include "TrigT1Interfaces/LucidCTP.h"
-#include "TrigT1Interfaces/ZdcCTP.h"
 #include "TrigT1Interfaces/NimCTP.h"
 #include "TrigT1Interfaces/BptxCTP.h"
 #include "TrigT1Interfaces/FrontPanelCTP.h"
@@ -331,8 +328,6 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    unsigned int energyCables = 0;
    unsigned int bcmCables = 0;
    unsigned int bptxCables = 0;
-   unsigned int lucidCables = 0;
-   unsigned int zdcCables = 0;
    unsigned int mbtsCablesA = 0;
    unsigned int mbtsCablesC = 0;
    unsigned int nimCables0 = 0;
@@ -431,11 +426,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
             energyCables |= cable;
          else if (!thr->type().find("BCM"))
             bcmCables |= cable;
-         else if (thr->type() == "LUCID")
-            lucidCables |= cable;
-         else if (thr->type() == "ZDC")
-            zdcCables |= cable;
-			
+
          //belof 4 are a hack but I don't think there is another way other than connecting threshold->pit
          else if ((thr->type().find("MBTS") != std::string::npos)&&(thr->cableConnector() == "CON0"))
             mbtsCablesA |= cable;
@@ -630,33 +621,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_BcmCTPLocation);
       return sc;
    }
-    
-   LVL1::LucidCTP* newLUCID{nullptr};
-   if (ctpVersionNumber<=3) {
-      newLUCID = new LVL1::LucidCTP(lucidCables);
-   } else {
-      newLUCID = new LVL1::LucidCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
-   sc = evtStore()->record(newLUCID, LVL1::DEFAULT_LucidCTPLocation);
-   if ( sc.isFailure() ) {
-      ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_LucidCTPLocation);
-      return sc;
-   }
-    
-   LVL1::ZdcCTP* newZDC{nullptr};
-   if (ctpVersionNumber<=3) {
-      newZDC = new LVL1::ZdcCTP(zdcCables);
-   } else {
-      newZDC = new LVL1::ZdcCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
-   sc = evtStore()->record(newZDC, LVL1::DEFAULT_ZdcCTPLocation); 
-   if ( sc.isFailure() ) {
-      ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_ZdcCTPLocation);
-      return sc;
-   }
-		
+
+
    LVL1::BptxCTP* newBPTX = new LVL1::BptxCTP(bptxCables);
    if (ctpVersionNumber<=3) {
       newBPTX = new LVL1::BptxCTP(bptxCables);

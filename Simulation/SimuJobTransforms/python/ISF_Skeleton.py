@@ -9,16 +9,25 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # TODO: how to autoconfigure those
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr"
+    # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
+    if (ConfigFlags.Sim.ISF.Simulator not in ('FullG4MT', 'FullG4MT_LongLived')) or ConfigFlags.Sim.LArParameterization!=0:
+        ConfigFlags.Sim.CalibrationRun = "Off"
+
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
     ConfigFlags.Sim.ReleaseGeoModel = False
     ConfigFlags.Sim.ISFRun = True
     ConfigFlags.GeoModel.Align.Dynamic = False
 
     #Frozen showers OFF = 0
     # ConfigFlags.Sim.LArParameterization = 2
+
+    # Fatras does not support simulating the BCM, so have to switch that off
+    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS'):
+        try:
+            detectors.remove('BCM')
+        except ValueError:
+            pass
 
     # Setup detector flags
     from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
@@ -61,6 +70,9 @@ def fromRunArgs(runArgs):
     #if hasattr(runArgs, 'CavernOn'):
     #    detectors = detectors+['Cavern']
 
+    if hasattr(runArgs, 'simulator'):
+       ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
+
     # Setup common simulation flags
     defaultSimulationFlags(ConfigFlags, detectors)
 
@@ -82,14 +94,11 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.OverrideRunNumber = True
         ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
 
-    if hasattr(runArgs, 'outputHITSFile'):
+    if hasattr(runArgs, 'physicsList'):
         ConfigFlags.Sim.PhysicsList = runArgs.physicsList
 
     if hasattr(runArgs, 'conditionsTag'):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
-
-    if hasattr(runArgs, 'simulator'):
-        ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
 
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
@@ -118,8 +127,8 @@ def fromRunArgs(runArgs):
     cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
 
     # add the ISF_MainConfig
-    from ISF_Config.ISF_MainConfigNew import Kernel_FullG4MTCfg
-    cfg.merge(Kernel_FullG4MTCfg(ConfigFlags))
+    from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
+    cfg.merge(ISF_KernelCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList

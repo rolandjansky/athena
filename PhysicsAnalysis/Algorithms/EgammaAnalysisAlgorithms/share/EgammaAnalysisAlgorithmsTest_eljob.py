@@ -62,9 +62,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType, not useDNNeID)
 print (algSeq) # For debugging
-for alg in algSeq :
-    job.algsAdd( alg )
-    pass
+algSeq.addSelfToJob( job )
 
 # Find the right output directory:
 submitDir = options.submission_dir

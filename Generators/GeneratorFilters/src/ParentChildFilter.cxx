@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/ParentChildFilter.h"
@@ -13,6 +13,9 @@ ParentChildFilter::ParentChildFilter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MassMinParent",m_MassMinParent = -1e9);
   declareProperty("MassMaxParent",m_MassMaxParent = 1e9);
   declareProperty("EtaRangeParent",m_EtaRangeParent = 10.0);
+  declareProperty("EtaMinParent",m_EtaMinParent = 0.);
+  declareProperty("RapidityRangeParent",m_RapidityRangeParent = 10.0);
+  declareProperty("RapidityMinParent",m_RapidityMinParent = 0.);
   declareProperty("PDGChild",m_PDGChild);
   declareProperty("PtMinChild",m_PtMinChild = 0.);
   declareProperty("EtaRangeChild",m_EtaRangeChild = 10.0);
@@ -28,6 +31,10 @@ StatusCode ParentChildFilter::filterInitialize() {
   ATH_MSG_INFO("MassMinParent = " << m_MassMinParent);
   ATH_MSG_INFO("MassMaxParent = " << m_MassMaxParent);
   ATH_MSG_INFO("EtaRangeParent = " << m_EtaRangeParent);
+  ATH_MSG_INFO("EtaMinParent = " << m_EtaMinParent);
+  ATH_MSG_INFO("RapidityRangeParent = " << m_RapidityRangeParent);
+  ATH_MSG_INFO("RapidityMinParent = " << m_RapidityMinParent);
+
   for (int i=0; i < int(m_PDGChild.size()); i++) ATH_MSG_INFO("PDGChild["<<i<<"] = " << m_PDGChild[i]);
   ATH_MSG_INFO("PtMinChild = " << m_PtMinChild);
   ATH_MSG_INFO("EtaRangeChild = " << m_EtaRangeChild);
@@ -42,11 +49,19 @@ StatusCode ParentChildFilter::filterEvent() {
       int okPDGParent = 0;
       for (int i = 0; i < int(m_PDGParent.size()); i++) if (std::abs(pitr->pdg_id()) == m_PDGParent[i]) okPDGParent=1;
       if ( (m_PDGParent[0] == 0) || (okPDGParent
-           && pitr->momentum().perp() >= m_PtMinParent
+           && (pitr->momentum().perp() >= m_PtMinParent)
            && (pitr->momentum().perp() < m_PtMaxParent)
            && (pitr->momentum().m() >= m_MassMinParent)
-           && (pitr->momentum().m() < m_MassMaxParent)
-           && std::abs(pitr->momentum().eta()) < m_EtaRangeParent)) {
+	   && (pitr->momentum().m() < m_MassMaxParent)
+	   && (std::abs(pitr->momentum().eta()) > m_EtaMinParent)
+	   && (std::abs(pitr->momentum().eta()) < m_EtaRangeParent)
+#ifdef HEPMC3     
+	   && (std::abs(pitr->momentum().rap()) > m_RapidityMinParent)
+	   && (std::abs(pitr->momentum().rap()) < m_RapidityRangeParent))) {
+#else
+     && (std::abs(getRapidity(pitr)) > m_RapidityMinParent)
+	   && (std::abs(getRapidity(pitr)) < m_RapidityRangeParent))) {
+#endif
         // Check if has end_vertex (skips initial protons)
         if (!pitr->end_vertex()) continue;
         // Child

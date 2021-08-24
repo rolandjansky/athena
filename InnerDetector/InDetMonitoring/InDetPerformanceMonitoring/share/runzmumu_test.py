@@ -5,22 +5,20 @@
 import os
 import socket # find hostname with socket.gethostname()
 #
-print (' == runzmumu == START == TestArea = %s' %os.getenv("TestArea"))
+print (' == runzmumu == START == TestArea = %s ==' %os.getenv("TestArea"))
 ###############################
 # MC
-MC_bool = True
+MC_bool = False
 
-# user defined ID alignment constants
+# user defined ID alignment constants or tags
 inputConstantsFile = "NONE"
-#inputConstantsFile = "352448_AlignmentConstants_Iter0_Block00.root"
-
 userAlignTags = False
 
 # use IDAlignment dynamic folders for Run 2 data
 useIDADynamicFolders = True
 if (MC_bool): useIDADynamicFolders = False # dynamic folders must be disabled in MC
 
-EvtMax = 10 # -1 all events
+EvtMax = 10000 # -1 all events
 SkipEvents = 0
 
 #fill Alignment monitoring
@@ -29,14 +27,14 @@ fillIDAmonitoring = True
 # run alignment on Zmumu events
 runAlignment = False
 
-PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
-#PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352448.physics_Main.merge.DRAW_ZMUMU.f938_m1831._0568.1"]
+# Solneoid Current
+solenoidCurrent = 7730 # 7730 is the nominal value
 
+PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
 if (MC_bool): 
     PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
 
 conditionsTag = "default"
-#conditionsTag = "CONDBR2-BLKPA-2018-14"
 #conditionsTag = "CONDBR2-BLKPA-RUN2-03"
 
 ###########################################################
@@ -53,6 +51,7 @@ print (' == useIDADynamicFolders = %s' %useIDADynamicFolders)
 print (' == inputConstantsFile = %s ' % inputConstantsFile)
 print (' == userAlignTags = %s ' % userAlignTags)
 print (' == conditions tag = %s ' %conditionsTag )
+print (' == solenoid current = %d A' %solenoidCurrent) 
 print (' ========= runzmumu === config == end == ')
 
 ###########################################################
@@ -61,7 +60,7 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AlgSequence import AthSequencer
 from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AppMgr      import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr      import ServiceMgr 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 job = AlgSequence()
@@ -151,6 +150,7 @@ rec.doMuon.set_Value_and_Lock(False)
 rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 
+## processing of DRAW
 if (inputIsDRAW):
     # These are not needed for our purposes and can cause athena crash when running over DRAW
     print (" == runzmumu == switching off R3LargeD0 and TrackSegmentsDisappearing")
@@ -181,24 +181,20 @@ if ('21.' in os.getenv("Athena_VERSION") ):
 if ("NONE" not in inputConstantsFile or userAlignTags):
     inputCollections = []
     if ("NONE" not in inputConstantsFile): 
-        print (' == runzmumu == setting user inputConstantsFile in == %s' %inputConstantsFile)
+        print (' == runzmumu == setting user inputConstantsFile: %s' %inputConstantsFile)
+        if ('lxplus' not in socket.gethostname()): # grid jobs use another path
+            inputConstantsFile = "usr/WorkDir/%s/InstallArea/%s/src/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" % (os.getenv("Athena_VERSION"), os.getenv("WorkDir_PLATFORM"), inputConstantsFile)
+            print (' == runzmumu == extended inputConstantsFile for grid jobs:\n --> %s' %inputConstantsFile)
+
         inputCollections = [inputConstantsFile]
+
 
     print (' == runzmumu == going to: from IOVDbSvc.CondDB import conddb')
     from IOVDbSvc.CondDB import conddb
 
-    print (' == runzmumu == use this set of alignment constants on RD')
-    if (userAlignTags):
+    if (userAlignTags and not MC_bool):
+        # different set of alignment tags for Run2 data
         if (False):
-            print (' == runzmumu == setting userAlignTags == 2018_ReAlign_Initial ')
-            conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/Indet/AlignL3",     "IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
-            conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2-R2dynamic_2018_ReAlign_Initial")
-        if (True):
             print (' == runzmumu == setting userAlignTags == Run2_Legacy_looser')
             conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID_Run2_Legacy_looser")
             conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX_Run2_Legacy_looser")
@@ -207,18 +203,50 @@ if ("NONE" not in inputConstantsFile or userAlignTags):
             conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist_Run2_Legacy_looser")
             conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_Run2_Legacy_looser")
             conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2_Run2_Legacy_looser")
+        if (True):
+            print (' == runzmumu == setting userAlignTags == MDN alignment test')
+            conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID_Run2_Legacy_looser")
+            conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX_Run2_Legacy_looser")
+            conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT_Run2_Legacy_looser")
+            conddb.addOverride("/Indet/AlignL3",     "IndetAlignL3_MDN_2018_2ndPart_BS+WM-SCTL2-2")
+            conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist_Run2_Legacy_looser")
+            conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_Run2_Legacy_looser")
+            conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2_Run2_Legacy_looser")
 
-    if ("NONE" not in inputConstantsFile):
+    if ("NONE" not in inputConstantsFile and not MC_bool):
+        # changing alignment and conditions for real data
         print (' == runzmumu == setting user constants file == %s' %inputConstantsFile)
-        conddb.blockFolder("/Indet/AlignL1/ID")
-        conddb.blockFolder("/TRT/AlignL1/TRT")
-        conddb.addFolder('INDET','/Indet/AlignL1/ID'+'<dbConnection>sqlite://X;schema='+inputConstantsFile+';dbname=CONDBR2</dbConnection><tag>IndetAlignTest</tag>',force=True,className="CondAttrListCollection") 
-        conddb.addFolder('INDET','/TRT/AlignL1/TRT'+'<dbConnection>sqlite://X;schema='+inputConstantsFile+';dbname=CONDBR2</dbConnection><tag>IndetAlignTest</tag>',force=True,className="CondAttrListCollection") 
+        conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID_Run2_Legacy_looser")
+        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX_Run2_Legacy_looser")
+        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT_Run2_Legacy_looser")
+        conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist_Run2_Legacy_looser")
+        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_Run2_Legacy_looser")
 
+        conddb.blockFolder("/Indet/AlignL3")
+        conddb.blockFolder("/TRT/AlignL2")
+        
+        conddb.addFolder("","<dbConnection>sqlite://X;schema="+inputConstantsFile+";dbname=CONDBR2</dbConnection>/Indet/AlignL3<tag>IndetAlign_test</tag>",force=True,className="AlignableTransformContainer")
+        conddb.addFolder("","<dbConnection>sqlite://X;schema="+inputConstantsFile+";dbname=CONDBR2</dbConnection>/TRT/AlignL2<tag>TRTAlign_test</tag>",force=True,className="AlignableTransformContainer")
+
+    if ("NONE" not in inputConstantsFile and MC_bool):
+        # user input alignment constants file in MC
+        print (' == runzmumu == setting user constants file in MC == file: %s' %inputConstantsFile)
+        conddb.blockFolder("/Indet/Align")
+        conddb.blockFolder("/TRT/Align")
+        conddb.addOverride("/Indet/IBLDist", "IBLDist-NULL")
+
+        conddb.addFolder("","<dbConnection>sqlite://X;schema="+inputConstantsFile+";dbname=OFLP200</dbConnection>/Indet/Align<tag>InDetSi_MisalignmentMode_</tag>",force=True,className="AlignableTransformContainer")
+        conddb.addFolder("","<dbConnection>sqlite://X;schema="+inputConstantsFile+";dbname=OFLP200</dbConnection>/TRT/Align<tag>MisalignmentMode__TRT</tag>",force=True,className="AlignableTransformContainer")
+        
+    if (userAlignTags and MC_bool):
+        # user input alignment tags in MC
+        print (' == runzmumu == setting user alignment tags in MC == Nominal_RDeltaR_01' )
+        conddb.addOverride("/Indet/Align", "InDetAlign_Nominal_RDeltaR_01")
+        conddb.addOverride("/TRT/Align",   "TRTAlign_Nominal_RDeltaR_01")
+       
+    ### carry on
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
     ServiceMgr += CondProxyProvider()
-    print (' == runzmumu == SALVA == next line:  ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]')
-    # warning # if this line is uncommented --> athena crashes !!! #ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
     # set this to the file containing AlignableTransform objects
     if len(inputCollections) > 0:
         ServiceMgr.CondProxyProvider.InputCollections += inputCollections
@@ -232,13 +260,13 @@ if ("NONE" not in inputConstantsFile or userAlignTags):
     print (' == runzmumu == condproxyprovider already set')
 
     if ("NONE" not in inputConstantsFile):
-        print (' == runzmumu == setting user constants: inputConstantsFile= %s  - completed -' % inputConstantsFile)
+        print (' == runzmumu == setting user constants: inputConstantsFile = %s  - completed -' % inputConstantsFile)
     if (userAlignTags):
         print (' == runzmumu == setting user align tags ')
     
     # report
-    print (svcMgr.IOVDbSvc)
-    print (svcMgr.IOVSvc)
+    print (ServiceMgr.IOVDbSvc)
+    print (ServiceMgr.IOVSvc)
 
 else:
     print (' == runzmumu == setting user alignment constants or tags: NO user input')
@@ -273,8 +301,24 @@ if ('22.' in os.getenv("Athena_VERSION") and inputIsDRAW and False):
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = False
 
+##########################
+## magnetic field
+if (MC_bool and solenoidCurrent != 7730): 
+    # 7730 A is the nominal solenoid current
+    import MagFieldServices.SetupField
+    condSeq = AthSequencer('AthCondSeq')
+    condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = True #True
+    condSeq.AtlasFieldMapCondAlg.UseMapsFromCOOL = False
+    condSeq.AtlasFieldCacheCondAlg.LockMapCurrents = False
+    condSeq.AtlasFieldCacheCondAlg.UseDCS = False
+    condSeq.AtlasFieldCacheCondAlg.UseSoleCurrent = solenoidCurrent # nominal 7730 A
+    condSeq.AtlasFieldCacheCondAlg.UseToroCurrent = 20400 # nominal 20400 A
+    condSeq.AtlasFieldMapCondAlg.OutputLevel = DEBUG
+    condSeq.AtlasFieldCacheCondAlg.OutputLevel = DEBUG
+    print (' == runzmumu == solenoid current: %d A ' %condSeq.AtlasFieldCacheCondAlg.UseSoleCurrent)
 
-#
+    
+########################
 # Track Selection Tool
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 m_TrackSelectorTool_TightPrimary = InDet__InDetTrackSelectionTool(name     = "InDetTrackSelectorTightPrimary",
@@ -343,14 +387,18 @@ iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
 job += iDPerfMonZmumu
 print (iDPerfMonZmumu)
 
-## run global ID alignment monitoring
-if (fillIDAmonitoring):
-    trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
-    include("InDetPerformanceMonitoring/TrackMonitoring.py")
-
 ##-------- Load Alignment --------------------
 if (runAlignment):
     include("InDetPerformanceMonitoring/InDetAlign_Setup.py")
+
+##-------- Load monitoring --------------------
+## run global ID alignment monitoring
+if (fillIDAmonitoring):
+    trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
+    if (runAlignment):
+        trackCollections.append("AlignTracksNormalRefitted")
+        trackCollections.append("AlignTracksBeamspotConstrained")
+    include("InDetPerformanceMonitoring/TrackMonitoring.py")
 
 print (' == runzmumu == COMPLETED == ')
 # end of file

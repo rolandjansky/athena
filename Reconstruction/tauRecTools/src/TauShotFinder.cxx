@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
 
 #include "TauShotFinder.h"
 #include "TauShotVariableHelpers.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -43,18 +44,18 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& tau, xAOD::CaloCluster
   std::vector<ElementLink<xAOD::PFOContainer>> empty;
   tau.setShotPFOLinks(empty);
   
-  // Only run on 1-5 prong taus 
-  if (tau.nTracks() == 0 || tau.nTracks() >5 ) {
+  // Only run on 0-5 prong taus 
+  if (!tauRecTools::doPi0andShots(tau)) {
      return StatusCode::SUCCESS;
   }
-    
+  
   SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
   if (!caloCellInHandle.isValid()) {
     ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
     return StatusCode::FAILURE;
   }
   const CaloCellContainer *cellContainer = caloCellInHandle.cptr();;
-    
+  
   // Select seed cells:
   // -- dR < 0.4, EM1, pt > 100
   // -- largest pt among the neighbours in eta direction 
@@ -153,7 +154,7 @@ int TauShotFinder::getEtaBin(float eta) const {
   if (absEta<1.80) {
     return 3; // Endcap, fine granularity
   }
-  return 4; // ndcap, coarse granularity
+  return 4; // Endcap, coarse granularity
 }
 
 

@@ -71,7 +71,7 @@ namespace JiveXML
 
       //Get the set of particle barcodes associated with the first cluster identifier
       std::pair<PRDTruthIter,PRDTruthIter> equalRangeFirst = truthColl->equal_range(idFirst);
-      for(PRDTruthIter TruthCollItr=equalRangeFirst.first; TruthCollItr!= equalRangeFirst.second; TruthCollItr++)
+      for(PRDTruthIter TruthCollItr=equalRangeFirst.first; TruthCollItr!= equalRangeFirst.second; ++TruthCollItr)
         barcodesFirst.insert(TruthCollItr->second.barcode());
 
       //Check if we have only have one valid cluster identifier
@@ -85,7 +85,7 @@ namespace JiveXML
 
         //Get the set of particle barcodes associated with the second cluster identifier
         std::pair<PRDTruthIter,PRDTruthIter> equalRangeSecond = truthColl->equal_range(idSecond);
-        for(PRDTruthIter TruthCollItr=equalRangeSecond.first; TruthCollItr!= equalRangeSecond.second; TruthCollItr++)
+        for(PRDTruthIter TruthCollItr=equalRangeSecond.first; TruthCollItr!= equalRangeSecond.second; ++TruthCollItr)
           barcodesSecond.insert(TruthCollItr->second.barcode());
 
         //Copy the list of particle barcodes that are associated with both clusters

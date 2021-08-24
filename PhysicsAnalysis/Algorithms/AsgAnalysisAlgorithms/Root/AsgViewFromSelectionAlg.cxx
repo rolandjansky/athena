@@ -195,8 +195,9 @@ namespace CP
   StatusCode AsgViewFromSelectionAlg ::
   initialize ()
   {
-    m_systematicsList.addHandle (m_inputHandle);
-    m_systematicsList.addHandle (m_outputHandle);
+    ANA_CHECK (m_systematicsList.service().registerCopy (m_inputHandle.getNamePattern(), m_outputHandle.getNamePattern()));
+    ANA_CHECK (m_inputHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_outputHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
 
     if (m_ignore.size() > m_selection.size())
@@ -222,7 +223,10 @@ namespace CP
   StatusCode AsgViewFromSelectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        return (this->*m_function) (sys);});
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK ((this->*m_function) (sys));
+    }
+    return StatusCode::SUCCESS;
   }
 }

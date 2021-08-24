@@ -10,8 +10,8 @@ ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_EXT_PROJECT_NAME="AthAnalysisExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=100
-                        -DLCG_VERSION_POSTFIX="_ATLAS_4"
-                        -DATLAS_GAUDI_TAG="v35r1.000")
+                        -DLCG_VERSION_POSTFIX="_ATLAS_7"
+                        -DATLAS_GAUDI_TAG="v36r0.000")
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.

@@ -927,14 +927,14 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   // Fill new track information
   //
-  auto tsosn = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto tsosn = DataVector<const Trk::TrackStateOnSurface>();
 
-  tsosn->push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
+  tsosn.push_back(new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 
   // Copy old information to new track
   //
   for(++s; s!=se; ++s) {
-    tsosn->push_back(new Trk::TrackStateOnSurface(*(*s)));
+    tsosn.push_back(new Trk::TrackStateOnSurface(*(*s)));
   }
 
   // Add new information from TRT without parameters
@@ -944,18 +944,18 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     if(mb) {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-      tsosn->push_back(new Trk::TrackStateOnSurface(mb,nullptr,nullptr,nullptr,typePattern));
+      tsosn.push_back(new Trk::TrackStateOnSurface(mb,nullptr,nullptr,nullptr,typePattern));
     }
   }
 
   // For last points add new information from TRT with parameters
   //
-  const Trk::MeasurementBase* mb = m_elements[m_lastTrajectory].rioOnTrackSimple();
+  std::unique_ptr<const Trk::MeasurementBase> mb(m_elements[m_lastTrajectory].rioOnTrackSimple());
   if(mb) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
-    tsosn->push_back
-      (new Trk::TrackStateOnSurface(mb,m_parameters.convert(true),nullptr,nullptr,typePattern));
+    tsosn.push_back
+      (new Trk::TrackStateOnSurface(std::move(mb),m_parameters.convert(true),nullptr,nullptr,typePattern));
   }
 
   // New fit quality production

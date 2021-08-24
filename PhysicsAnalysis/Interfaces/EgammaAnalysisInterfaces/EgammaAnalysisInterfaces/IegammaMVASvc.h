@@ -17,8 +17,8 @@
 
 
 class IegammaMVASvc : virtual public asg::IAsgService {
-  ASG_SERVICE_INTERFACE(IegammaMVASvc)
 public:
+  DeclareInterfaceID(IegammaMVASvc,1,0);
 
   virtual ~IegammaMVASvc() override {};
 

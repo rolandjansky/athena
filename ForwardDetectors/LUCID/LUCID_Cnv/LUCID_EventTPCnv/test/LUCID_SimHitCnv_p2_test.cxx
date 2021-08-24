@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -58,7 +58,7 @@ void compare (const LUCID_SimHit& p1,
 
 void testit (const LUCID_SimHit& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   LUCID_SimHitCnv_p2 cnv;
   LUCID_SimHit_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

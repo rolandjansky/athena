@@ -14,9 +14,9 @@ DrawHypoTools=True
 def drawHypoTools(file, all_hypos):
     all_hypos=list(set(all_hypos))
     for hp in all_hypos:
-        for hypotool in hp.tools:
-            file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n"%(hypotool))
-            file.write("    %s -> %s [style=dashed, color=grey]\n"%(compName(hp.Alg), hypotool))
+        for hypotool in hp.Alg.HypoTools:
+            file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n" % hypotool.getName())
+            file.write("    %s -> %s [style=dashed, color=grey]\n"%(compName(hp.Alg), hypotool.getName()))
 
 
 def stepCF_ControlFlow_to_dot(stepCF):

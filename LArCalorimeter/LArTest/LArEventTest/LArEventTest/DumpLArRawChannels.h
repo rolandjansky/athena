@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DUMPLARRAWCHANNEL_H
@@ -46,7 +46,7 @@ class DumpLArRawChannels : public AthAlgorithm
   unsigned m_gain=0;
   unsigned m_id=0;
   bool m_toLog;
-  bool m_toFile;
+  bool m_toFile = false;
 
   ServiceHandle<ITHistSvc> m_thistSvc;
 

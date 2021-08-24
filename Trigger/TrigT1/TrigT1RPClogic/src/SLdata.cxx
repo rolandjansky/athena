@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/SLdata.h"
@@ -53,10 +53,9 @@ SLdata::create_sl_patterns(PADpatterns* pad_patterns)
         patterns->load_pad_patterns(pad_patterns);
     else 
     {
-        patterns = new SLpatterns(sector,m_debug);
-        patterns->load_pad_patterns(pad_patterns);
-	m_sl_patterns.push_back(*patterns);
-	delete patterns;
+        SLpatterns patterns(sector,m_debug);
+        patterns.load_pad_patterns(pad_patterns);
+        m_sl_patterns.push_back(std::move(patterns));
     }
 }
 

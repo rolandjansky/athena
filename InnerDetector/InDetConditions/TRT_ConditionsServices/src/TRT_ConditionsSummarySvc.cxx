@@ -21,8 +21,8 @@
 TRT_ConditionsSummarySvc::TRT_ConditionsSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_svcCollection(name),
-  m_manager(0),
-  m_trtid(0)
+  m_manager(nullptr),
+  m_trtid(nullptr)
 {
   // Get properties from job options
   declareProperty( "ServiceList", m_svcCollection );
@@ -40,7 +40,7 @@ TRT_ConditionsSummarySvc::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
 
   // Retrieve the services to be called.
-  if ( m_svcCollection.size() == 0 ) {
+  if ( m_svcCollection.empty() ) {
     msg(MSG::WARNING) << "No services to be called!" << endmsg;
   } else {
     sc = m_svcCollection.retrieve();
@@ -95,10 +95,7 @@ TRT_ConditionsSummarySvc::isActive(const Identifier & elementId, const InDetCond
   if(h==InDetConditions::TRT_STRAW || h==InDetConditions::DEFAULT){
     InDet::TRT_CondFlag flag=condSummaryStatus(elementId);
     
-    if(flag==InDet::TRT_COND_GOOD || flag==InDet::TRT_COND_CAUTION || flag==InDet::TRT_COND_NOINFO)
-      result=true;
-    else
-      result=false;
+    result = flag==InDet::TRT_COND_GOOD || flag==InDet::TRT_COND_CAUTION || flag==InDet::TRT_COND_NOINFO;
   }else if(h==InDetConditions::TRT_STRAW_LAYER){
     //need to loop over all straws at this hierarchy level
     result=true;
@@ -180,10 +177,7 @@ TRT_ConditionsSummarySvc::isGood(const Identifier & elementId, const InDetCondit
   if(h==InDetConditions::TRT_STRAW || h==InDetConditions::DEFAULT){
     InDet::TRT_CondFlag flag=condSummaryStatus(elementId);
     
-    if(flag==InDet::TRT_COND_GOOD)
-      result=true;
-    else
-      result=false;
+    result = flag==InDet::TRT_COND_GOOD;
   }else if(h==InDetConditions::TRT_STRAW_LAYER){
     //need to loop over all straws at this hierarchy level
     result=true;

@@ -26,32 +26,36 @@
 
 """
 
-from builtins import zip
-from builtins import str
-from builtins import map
-from builtins import range
-from collections import OrderedDict
-# Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND
-from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
+
+from AthenaCommon.CFElements import parOR, seqAND, getSequenceChildren, isSequence, compName, findSubSequence,findAlgorithm
+from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
 from AthenaCommon.Configurable import Configurable
-from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
-from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
+from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects, \
+     triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
+from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTOnlineConfig
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+
+from builtins import map, range, str, zip
+from collections import OrderedDict, defaultdict
 import re
 
-
-from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
-    from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg    
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
-    summary.InputDecision = "L1DecoderSummary"
+    summary.InputDecision = "HLTSeedingSummary"
     summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
     return summary
 
@@ -127,13 +131,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely
 
     # get topSequnece
-    from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
 
     # find main HLT top sequence (already set up in runHLT_standalone)
-    from AthenaCommon.CFElements import findSubSequence,findAlgorithm
-    l1decoder = findAlgorithm(topSequence, "L1Decoder")
+    hltSeeding = findAlgorithm(topSequence, "HLTSeeding")
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -165,11 +167,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     log.info("[makeHLTTree] created the final summary tree")
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
-    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
     # Collections required to configure the algs below
     hypos = collectHypos(steps)
@@ -180,8 +177,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for vmname, vm in viewMakerMap.items():
         log.debug(f"{vmname} InputMakerOutputDecisions: {vm.InputMakerOutputDecisions}")
         if vmname.endswith("_probe"):
-            log.debug(f"Setting InputCachedViews on {vmname} to read decisions from tag leg {vmname[:-6]}: {vm.InputMakerOutputDecisions}")
-            vm.InputCachedViews = viewMakerMap[vmname[:-6]].InputMakerOutputDecisions
+            try:
+                log.debug(f"Setting InputCachedViews on {vmname} to read decisions from tag leg {vmname[:-6]}: {vm.InputMakerOutputDecisions}")
+                vm.InputCachedViews = viewMakerMap[vmname[:-6]].InputMakerOutputDecisions
+            except KeyError: # We may be using a probe leg that has different reco from the tag
+                log.debug(f"Tag leg does not match probe: '{vmname[:-6]}', will not use cached views")
 
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
@@ -194,11 +194,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # Add any required algs to hltFinalizeSeq here
 
     # More collections required to configure the algs below
-    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryAlg )
+    decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     Configurable.configurableRun3Behavior=1
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, hltSeeding )
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
@@ -209,10 +209,13 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
+    if ConfigFlags.Trigger.doOnlineNavigationCompactification:
+        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+        hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
+
     hltEndSeq += hltFinalizeSeq
 
     # Test the configuration
-    from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( hltTop )
 
     def debugDecisions(hypos, summary, mon, summaryAlg):
@@ -232,7 +235,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
 
 def matrixDisplayOld( allCFSeq ):
-    from collections import defaultdict
     longestName = 5
     mx = defaultdict(lambda: dict())
     for stepNumber,step in enumerate(allCFSeq, 1):
@@ -277,7 +279,6 @@ def matrixDisplay( allCFSeq ):
         return []
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
-    from collections import defaultdict
     mx = defaultdict(list)
 
     for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
@@ -290,7 +291,6 @@ def matrixDisplay( allCFSeq ):
                     mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
 
     # sort dictionary by fist key=step
-    from collections import  OrderedDict
     sorted_mx = OrderedDict(sorted( list(mx.items()), key= lambda k: k[0]))
 
     log.debug( "" )
@@ -311,7 +311,6 @@ def sequenceScanner( HLTNode ):
     #   +-- AthSequencer/Step1_filter
     #   +-- AthSequencer/Step1_reco
 
-    from collections import defaultdict
     _seqMapInStep = defaultdict(set)
     _status = True
     def _mapSequencesInSteps(seq, stepIndex, childInView):
@@ -332,10 +331,12 @@ def sequenceScanner( HLTNode ):
                 inView = c.name()==inViewSequence or childInView
                 stepIndex = _mapSequencesInSteps(c, stepIndex, childInView=inView)
                 _seqMapInStep[compName(c)].add((stepIndex,inView))
+                log.verbose("sequenceScanner: Child %s of sequence %s is in view? %s --> '%s'", compName(c), name, inView, inViewSequence)
             else:
-                from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
                 if isinstance(c,EventViewCreatorAlgorithm):
                     inViewSequence = c.ViewNodeName
+                    log.verbose("sequenceScanner: EventViewCreatorAlg %s is child of sequence %s with ViewNodeName %s", compName(c), name, c.ViewNodeName)
+        log.debug("sequenceScanner: Sequence %s is in view? %s --> '%s'", name, inView, inViewSequence)
         return stepIndex
 
     # do the job:
@@ -346,7 +347,7 @@ def sequenceScanner( HLTNode ):
         nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])
         if nonViewSteps > 1:
             steplist = [stepIndex for stepIndex,inViewSequence in steps]
-            log.error("sequenceScanner: Sequence %s is expected outside of a view in more than one step: %s", alg, )
+            log.error("sequenceScanner: Sequence %s is expected outside of a view in more than one step: %s", alg, steplist)
             match=re.search('Step([0-9]+)',alg)
             if match:
                 candidateStep=match.group(1)
@@ -371,8 +372,8 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     if not newJO:
         createControlFlow(HLTNode, CFseq_list)
     else:
-        from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import createControlFlowNewJO
-        createControlFlowNewJO(HLTNode, CFseq_list)
+        raise RuntimeError('createControlFlowNewJO not implemented')
+        # createControlFlowNewJO(HLTNode, CFseq_list)
 
     
     # decode and attach HypoTools:
@@ -382,7 +383,6 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
     # create dot graphs
     log.debug("finalDecisions: %s", finalDecisions)
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     if ConfigFlags.Trigger.generateMenuDiagnostics:
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
@@ -401,8 +401,7 @@ def createDataFlow(chains, allDicts):
     NSTEPS = len(chainWithMaxSteps.steps)
 
     log.info("[createDataFlow] creating DF for %d chains and total %d steps", len(chains), NSTEPS)
-    
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
+
     # initialize arrays for monitor
     finalDecisions = [ [] for n in range(NSTEPS) ]
     CFseqList = [ [] for n in range(NSTEPS) ]
@@ -425,27 +424,9 @@ def createDataFlow(chains, allDicts):
             if len(filterInput) == 0 :
                 log.error("[createDataFlow] Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
-
-            #  adapt multiplicity  between two steps:
-            hasHiddenLeg = False
-            chainSignatures = list(filter(lambda x : (x['chainName']==chain.name), allDicts))[0]['signatures']
-            if chainSignatures.count('Jet') > 1 and len(set(chainSignatures)) > 1:
-                hasHiddenLeg = True
-
-            if  len(filterInput) < len(chainStep.multiplicity):
-                oldlen=len(filterInput)
-                if  len(filterInput)  == 1:
-                    filterInput = filterInput * len(chainStep.multiplicity)                   
-                    log.info("Adapted Multiplicity at step %d of chain %s: %d -> %d",nstep, chain.name, oldlen, len(filterInput))
-                elif hasHiddenLeg:
-                    pass
-                else:
-                    log.error("Found  %d inputs to step %s having multiplicity %d", len(filterInput), chainStep.name, len(chainStep.multiplicity))
-                    raise Exception("[createDataFlow] Cannot proceed, exiting.")
             
             log.debug("Set Filter input: %s while setting the chain: %s", filterInput, chain.name)
 
-            
             # make one filter per step:
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
@@ -479,18 +460,12 @@ def createDataFlow(chains, allDicts):
 
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
-            if len(chainLegs) != len(filterInput) and not hasHiddenLeg:
+            if len(chainLegs) != len(filterInput): 
                 log.error("[createDataFlow] lengths of chainlegs = %s differ from inputs=%s", str(chainLegs), str(filterInput))
                 raise Exception("[createDataFlow] Cannot proceed, exiting.")
             for finput, leg in zip(filterInput, chainLegs):
                 sequenceFilter.addChain(leg, finput)
                 log.debug("Adding chain %s to input %s of %s", leg, finput,sequenceFilter.Alg.name())
-
-            # add hiden legs appended in MenuComponents to filter 
-            if hasHiddenLeg:
-                for leg in chainLegs[len(filterInput):]:
-                    sequenceFilter.addChain(leg, filterInput[chainSignatures.index('Jet')])
-                    log.debug("Adding hidden chain %s to input %s of %s", leg, filterInput[chainSignatures.index('Jet')], sequenceFilter.Alg.name())
 
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
             log.debug("Now Filter has chains/input: %s", sequenceFilter.getChainsPerInput())
@@ -544,7 +519,6 @@ def createControlFlow(HLTNode, CFseqList):
 
         HLTNode += summary
 
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.generateMenuDiagnostics:
             log.debug("Now Draw...")
             stepCF_DataFlow_to_dot(stepRecoNode.name(), CFseqList[nstep])
@@ -581,7 +555,6 @@ def buildFilter(filter_name,  filter_input, empty):
      if the previous hypo has more than one output, try to get all of them
      one filter per previous sequence: 1 input/previous seq, 1 output/next seq
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode, PassFilterNode
     if empty:
         sfilter = PassFilterNode(name=filter_name)
         for i in filter_input:

@@ -110,7 +110,7 @@ class L1Menu(object):
         extraThresholds = dd(list)
         for item in self.items:
             for thrName in item.thresholdNames():
-                if thrName[0] not in ('e','j','g') and "TOPO" not in thrName and "MU" not in thrName:
+                if thrName[0] not in ('e','j','g') and "TOPO" not in thrName and "MU" not in thrName and "MBTS" not in thrName and "ZB" not in thrName and "ALFA" not in thrName and "ZDC" not in thrName and "AFP" not in thrName and "BCM" not in thrName:
                     if thrName not in legacyThresholds:
                         extraThresholds[thrName].append(item.name)
 

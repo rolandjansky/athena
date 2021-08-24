@@ -191,7 +191,7 @@ namespace xAOD {
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
-      { printf("MissingETComposition::add - WARNING - jet with index %lu already in map, not added again\n",pJet->index()); return false; }
+      { printf("MissingETComposition::add - WARNING - jet with index %zu already in map, not added again\n",pJet->index()); return false; }
     // insert object
     size_t nextIdx = pMap->size();
     pMap->push_back(new MissingETAssociation(pJet));
@@ -208,7 +208,7 @@ namespace xAOD {
       { printf("MissingETComposition::add - ERROR - possible invalid pointer values: MissingETAssociationMap* = %p, Jet* = %p\n",(void*)pMap,(void*)pJet); return false; }
     // check if jet already in map
     if ( pMap->find(pJet) != pMap->end() ) 
-      { printf("MissingETComposition::add - WARNING - jet with index %lu already in map, not added again\n",pJet->index()); return false; }
+      { printf("MissingETComposition::add - WARNING - jet with index %zu already in map, not added again\n",pJet->index()); return false; }
     // insert object
     // size_t nextIdx = pMap->size();
     std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();

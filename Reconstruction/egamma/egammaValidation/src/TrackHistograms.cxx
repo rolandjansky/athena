@@ -50,40 +50,45 @@ void TrackHistograms::fill(const xAOD::IParticle& track) {
   TrackHistograms::fill(track,0.);
 }
 
-void TrackHistograms::fill(const xAOD::IParticle& track, float mu) {
+void
+TrackHistograms::fill(const xAOD::IParticle& track, float mu)
+{
 
-  xAOD::TrackParticle* tp = dynamic_cast<xAOD::TrackParticle*>(const_cast<xAOD::IParticle*>(&track));
-  
+  const xAOD::TrackParticle* tp =
+    dynamic_cast<const xAOD::TrackParticle*>(&track);
+
   int nTRTHits = getNumberOfHits(tp, xAOD::numberOfTRTHits);
   int nTRTTubeHits = getNumberOfHits(tp, xAOD::numberOfTRTTubeHits);
-  float precHitFrac = (nTRTHits>0 && nTRTTubeHits>=0) ? (1. - ((float)nTRTTubeHits)/((float)nTRTHits)) : -999.;
+  float precHitFrac = (nTRTHits > 0 && nTRTTubeHits >= 0)
+                        ? (1. - ((float)nTRTTubeHits) / ((float)nTRTHits))
+                        : -999.;
 
   float eProbabilityHT = summaryValueFloat(*tp, xAOD::eProbabilityHT);
 
-  histoMap["pT"]->Fill(tp->pt()/1000.);
+  histoMap["pT"]->Fill(tp->pt() / 1000.);
 
   histoMap["PrecisionHitFraction"]->Fill(precHitFrac);
   histoMap["eProbabilityHT"]->Fill(eProbabilityHT);
-  
-  if(mu<25.){
+
+  if (mu < 25.) {
     histoMap["PrecisionHitFraction_lowmu"]->Fill(precHitFrac);
     histoMap["eProbabilityHT_lowmu"]->Fill(eProbabilityHT);
   }
 
-  if(mu>35.){
+  if (mu > 35.) {
     histoMap["PrecisionHitFraction_highmu"]->Fill(precHitFrac);
     histoMap["eProbabilityHT_highmu"]->Fill(eProbabilityHT);
   }
 
-    profileMap["PrecisionHitFractionvsmu"]->Fill(mu, precHitFrac);
-    profileMap["eProbabilityHTvsmu"]->Fill(mu, eProbabilityHT);
-
+  profileMap["PrecisionHitFractionvsmu"]->Fill(mu, precHitFrac);
+  profileMap["eProbabilityHTvsmu"]->Fill(mu, eProbabilityHT);
 }
 
-
-int TrackHistograms::getNumberOfHits(const xAOD::TrackParticle* tp, xAOD::SummaryType info){
+int
+TrackHistograms::getNumberOfHits(const xAOD::TrackParticle* tp,
+                                 xAOD::SummaryType info)
+{
 
   uint8_t nHits = 0;
   return tp->summaryValue(nHits, info) ? nHits : -999;
-
 }

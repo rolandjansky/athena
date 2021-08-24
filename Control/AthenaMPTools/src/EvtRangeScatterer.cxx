@@ -264,7 +264,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     while(endpos!=std::string::npos) {
       // Get the Key-Value pair
       std::string keyValue(eventRange.substr(startpos,endpos-startpos));
-      size_t colonPos = keyValue.find(":");
+      size_t colonPos = keyValue.find(':');
       std::string strKey = keyValue.substr(0,colonPos);
       std::string strVal = keyValue.substr(colonPos+1);
       trimRangeStrings(strKey);
@@ -276,7 +276,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     }
     // Get the final Key-Value pair
     std::string keyValue(eventRange.substr(startpos));
-    size_t colonPos = keyValue.find(":");
+    size_t colonPos = keyValue.find(':');
     std::string strKey = keyValue.substr(0,colonPos);
     std::string strVal = keyValue.substr(colonPos+1);
     trimRangeStrings(strKey);
@@ -459,13 +459,13 @@ void EvtRangeScatterer::trimRangeStrings(std::string& str)
   // Get rid of them!
   if(str.find("u\'")==0) {
     str = str.substr(2);
-    if(str.rfind("\'")==str.size()-1) {
+    if(str.rfind('\'')==str.size()-1) {
       str = str.substr(0,str.size()-1);
     }
   }
-  else if(str.find("\"")==0) {
+  else if(str.find('\"')==0) {
     str = str.substr(1);
-    if(str.rfind("\"")==str.size()-1) {
+    if(str.rfind('\"')==str.size()-1) {
       str = str.substr(0,str.size()-1);
     }
   }

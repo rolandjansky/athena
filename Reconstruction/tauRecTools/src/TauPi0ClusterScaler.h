@@ -38,9 +38,6 @@ private:
   /** @brief Get extrapolated position to the CAL */
   float getExtrapolatedPosition(const xAOD::PFO& chargedPFO, xAOD::TauJetParameters::TrackDetail detail) const; 
 
-  /** @brief Correct neutral PFO kinematics to point at the current tau vertex */
-  void correctNeutralPFOs(const xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
-
   /** @brief create charged PFOs */
   void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
 

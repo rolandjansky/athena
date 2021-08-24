@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
+
+
 
 #include "KinematicsPlots.h"
 
@@ -8,8 +12,8 @@ using CLHEP::GeV;
 
 namespace PhysVal{
 
-KinematicsPlots::KinematicsPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-m_sParticleType(sParticleType)
+KinematicsPlots::KinematicsPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+m_sParticleType(std::move(sParticleType))
 {}	
   
 void KinematicsPlots::initializePlots(){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCellContainerCnv.h"
@@ -16,9 +16,8 @@
 // false positive
 // cppcheck-suppress uninitMemberVar
 TileCellContainerCnv::TileCellContainerCnv(ISvcLocator* svcloc)
-  : TileCellContainerCnvBase::T_AthenaPoolCustCnv(svcloc)
+  : TileCellContainerCnvBase::T_AthenaPoolCustomCnv(svcloc)
  // Must create DataVector that does NOT own elements
-  , m_vecCellAll()
   , m_storeGate(0)
   , m_tileTBID(0)
   , m_mbtsMgr(0)
@@ -123,7 +122,7 @@ void TileCellContainerCnv::initIdToIndex()
   }
 }
 
-StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVec*& persObj)
+TileCellVec* TileCellContainerCnv::createPersistent(TileCellContainer* cont)
 {
     // Convert every TileCell to 3 32-bit integers: ID,Ene, and (time,qual,qain)
 
@@ -133,17 +132,12 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     bool lVerbose = (logLevel<=MSG::VERBOSE);
 
     std::string name = m_storeGate->proxy(cont)->name();
-    if ( m_vecCellAll.find(name) == m_vecCellAll.end()) {
-      m_vecCellAll.insert(std::pair<std::string,TileCellVec>(name,TileCellVec()));
-    }
-    TileCellVec & vecCell = m_vecCellAll[name];
+    auto vecCell = std::make_unique<TileCellVec>();
+    vecCell->reserve(NCELLMBTS);
 
     if (lDebug) log << MSG::DEBUG << "storing TileCells from " << name << " in POOL" << endmsg;
 
-    // Clear vector from previous write
-    vecCell.clear();
-
-    vecCell.push_back(m_version);
+    vecCell->push_back(m_version);
     int nMBTSfound=0;
 
     std::vector<const TileCell *> allCells;
@@ -151,8 +145,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     switch (m_version) {
 
     case 1: // 3 words per cell, energy scale factor is 1000, time scale factor is 100
-      for (TileCellContainer::const_iterator it = cont->begin(); it != cont->end(); ++it) {
-        const TileCell* cell = *it;
+      for (const TileCell* cell : *cont) {
         if (lVerbose)
           log << MSG::VERBOSE 
               << "ene=" << cell->energy()
@@ -166,9 +159,9 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         unsigned int qua = std::max(0, std::min(0xFF, (int)cell->qual1()));
         unsigned int gai = std::max(0, std::min(0xFF,   0x80   + (int)(cell->gain())));
         unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-        vecCell.push_back(id);
-        vecCell.push_back((unsigned int)ene);
-        vecCell.push_back(tqg);
+        vecCell->push_back(id);
+        vecCell->push_back((unsigned int)ene);
+        vecCell->push_back(tqg);
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell in three words " 
               << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endmsg;
@@ -179,8 +172,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
       // prepare vector with all cells first, expect at least 32 MBTS cells
       allCells.resize(NCELLMBTS);
-      for (TileCellContainer::const_iterator it = cont->begin(); it != cont->end(); ++it) {
-        const TileCell* cell = *it;
+      for (const TileCell* cell : *cont) {
         Identifier id = cell->ID();
         if (m_tileTBID->is_tiletb(id)) {
           int side = std::max(0,m_tileTBID->type(id));
@@ -240,7 +232,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           unsigned int qua = std::max(0, std::min(0xFF, quality)); // 8 bits for quality
           unsigned int gai = m_gainIndex[-gain];
           unsigned int gqe = (gai << 28) | (qua<<20) | ene; // upper most bit is always 1 here
-          vecCell.push_back(gqe);
+          vecCell->push_back(gqe);
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in one word "
@@ -254,8 +246,8 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           unsigned int qua = std::max(0, std::min(0xFF, quality)); // 8 bits for quality
           unsigned int gai = std::max(0, std::min(0xFF,   0x80   + gain));
           unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-          vecCell.push_back(ene);
-          vecCell.push_back(tqg);
+          vecCell->push_back(ene);
+          vecCell->push_back(tqg);
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in two words "
@@ -265,7 +257,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
      } else {
 
-       vecCell[0] = 1; // no MBTS found - use version 1 for packing 
+       (*vecCell)[0] = 1; // no MBTS found - use version 1 for packing
      }
 
       // keep all other cells (if any) with identifiers, 3 words per cell
@@ -288,9 +280,9 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         unsigned int qua = std::max(0, std::min(0xFF, (int)cell->qual1()));
         unsigned int gai = std::max(0, std::min(0xFF,   0x80   + (int)(cell->gain())));
         unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-        vecCell.push_back(id);
-        vecCell.push_back((unsigned int)ene);
-        vecCell.push_back(tqg);
+        vecCell->push_back(id);
+        vecCell->push_back((unsigned int)ene);
+        vecCell->push_back(tqg);
 
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell " << ind << " in three words "
@@ -301,16 +293,15 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     default:
 
       log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<m_version << endmsg;
-      return StatusCode::FAILURE;
+
     }
 
-    if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << m_vecCellAll[name].size() << " with version " << m_vecCellAll[name][0] << endmsg;
-    persObj = &vecCell;
+    if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << vecCell->size() << " with version " << vecCell->front() << endmsg;
 
-    return StatusCode::SUCCESS; 
+    return vecCell.release();
 }
 
-StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellVec* vec)
+TileCellContainer* TileCellContainerCnv::createTransient()
 {
     // Fill TileCellContainer from vector, creating cells from 3 integers 
 
@@ -319,10 +310,12 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
     bool lDebug = (logLevel<=MSG::DEBUG);
     bool lVerbose = (logLevel<=MSG::VERBOSE);
 
+    std::unique_ptr<TileCellVec> vec(this->poolReadObject<TileCellVec>());
+
     if (lDebug) log << MSG::DEBUG << "Read TileCell Vec, size " << vec->size() << endmsg;
 
     // create the TileCellContainer
-    cont = new TileCellContainer();
+    auto cont = std::make_unique<TileCellContainer>();
 
     TileCellVec::const_iterator it   = vec->begin();
     TileCellVec::const_iterator last = vec->end();
@@ -440,10 +433,8 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
     default:
 
       log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<version << endmsg;
-      return StatusCode::FAILURE;
-
     }
     
-    return StatusCode::SUCCESS; 
+    return cont.release();
 }
 

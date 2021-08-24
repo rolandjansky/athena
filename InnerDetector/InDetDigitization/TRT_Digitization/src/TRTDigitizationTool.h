@@ -35,7 +35,6 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
-#include <list>
 #include <set>
 #include <utility> /* pair */
 
@@ -160,7 +159,7 @@ private:
   //unsigned int m_timer_eventcount;
   const InDetDD::TRT_DetectorManager* m_manager{};
   const TRT_ID* m_trt_id{};       /**< TRT Id Helper */
-  std::list<TRTUncompressedHitCollection*> m_trtHitCollList;
+  std::vector<TRTUncompressedHitCollection*> m_trtHitCollList;
   TimedHitCollection<TRTUncompressedHit>* m_thpctrt{};
   bool m_alreadyPrintedPDGcodeWarning{false};
   double m_minCrossingTimeSDO{0.0};

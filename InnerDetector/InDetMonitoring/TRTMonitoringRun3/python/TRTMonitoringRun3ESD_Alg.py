@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 '''@file TRTMonitoringRun3ESD_Alg.py
 @author N. Belyaev
@@ -39,7 +39,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
     algTRTMonitoringRun3ESD.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
     ############################## WORKAROUND (END) ############################
-    
+
 #     # To run job only with ID
 #    if hasattr(inputFlags, "Detector") and hasattr(inputFlags.Detector, "GeometryMuon") and hasattr(inputFlags.Detector, "GeometryID"):
 #        TrkEventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool(name = "EventCnvSuperTool",
@@ -81,7 +81,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                     oss = 'TRT/EndcapA/Sector{0}'.format(nBarrelModules)
                 elif i >= numberOfStacks[ibe]:
                     nBarrelModules = i + 1 - 32
-                    oss = 'TRT/EndcapC/Sector{0}'.format(nBarrelModules)      
+                    oss = 'TRT/EndcapC/Sector{0}'.format(nBarrelModules)
 
             trackGroup.defineHistogram('HitTronTMapS_x,HitTronTMapS_y;hHitTronTMapS',type='TProfile',title='Mean Trailing Edge on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
             trackGroup.defineHistogram('HitToTonTMapS_x,HitToTonTMapS_y;hHitToTonTMapS',type='TProfile',title='Mean ToT on Track: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe],duration='run')
@@ -117,15 +117,23 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
             shiftTrackGroup.defineHistogram('Pull_Biased_Barrel;hPull_Biased_Barrel',type='TH1F',title='Biased Track Pulls for Barrel Hits;Pulls;Entries',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
             shiftTrackGroup.defineHistogram('Residual_B_Ar;hResidual_Ar',type='TH1F',title='Residuals for Argon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
             shiftTrackGroup.defineHistogram('Residual_B_Ar;hResidual_Ar',type='TH1F',title='Residuals for Argon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B_Ar;hResidual_noTubeHits_Ar',type='TH1F',title='Residuals for Argon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B_Ar;hResidual_noTubeHits_Ar',type='TH1F',title='Residuals for Argon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
             shiftTrackGroup.defineHistogram('Residual_B_Ar_20GeV;hResidual_Ar_20GeV',type='TH1F',title='Residuals for Argon Straws{0} (After 20GeV pT cut);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B_Ar_20GeV;hResidual_noTubeHits_Ar_20GeV',type='TH1F',title='Residuals for Argon Straws{0} (After 20GeV pT cut, no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
             shiftTrackGroup.defineHistogram('AvgTroTDetPhi_B_Ar_x,AvgTroTDetPhi_B_Ar_y;hAvgTroTDetPhi_Ar',type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Argon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
             shiftTrackGroup.defineHistogram('TimeResidual_B_Ar;hTimeResidual_Ar',type='TH1F',title='Time Residuals for Argon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
+            shiftTrackGroup.defineHistogram('TimeResidual_noTubeHits_B_Ar;hTimeResidual_noTubeHits_Ar',type='TH1F',title='Time Residuals for Argon Straws{0} (no tube hits);Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
             shiftTrackGroup.defineHistogram('WireToTrkPosition_B_Ar;hWireToTrkPosition_Ar',type='TH1F',title='Track-to-Wire Distance for Argon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
-            
+
             shiftTrackGroup.defineHistogram('Residual_B;hResidual_Xe',type='TH1F',title='Residuals for Xenon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
             shiftTrackGroup.defineHistogram('Residual_B;hResidual_Xe',type='TH1F',title='Residuals for Xenon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B;hResidual_noTubeHits_Xe',type='TH1F',title='Residuals for Xenon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B;hResidual_noTubeHits_Xe',type='TH1F',title='Residuals for Xenon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
             shiftTrackGroup.defineHistogram('Residual_B_20GeV;hResidual_Xe_20GeV',type='TH1F',title='Residuals for Xenon Straws{0} (After 20GeV pT cut);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+            shiftTrackGroup.defineHistogram('Residual_noTubeHits_B_20GeV;hResidual_noTubeHits_Xe_20GeV',type='TH1F',title='Residuals for Xenon Straws{0} (After 20GeV pT cut, no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
             shiftTrackGroup.defineHistogram('TimeResidual_B;hTimeResidual',type='TH1F',title='Time Residuals for Xenon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
+            shiftTrackGroup.defineHistogram('TimeResidual_noTubeHits_B;hTimeResidual_noTubeHits',type='TH1F',title='Time Residuals for Xenon Straws{0} (no tube hits);Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
             shiftTrackGroup.defineHistogram('WireToTrkPosition_B;hWireToTrkPosition',type='TH1F',title='Track-to-Wire Distance for Xenon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
             shiftTrackGroup.defineHistogram('AvgTroTDetPhi_B_x,AvgTroTDetPhi_B_y;hAvgTroTDetPhi',type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Xenon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
             shiftTrackGroup.defineHistogram('NTrksperLB_x,NTrksperLB_y;hNTrksperLB',type='TProfile',title='Avg. Number of Reconstructed Tracks per Event{0};Luminosity Block;Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run')
@@ -144,8 +152,12 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                 shiftTrackEndcapGroup.defineHistogram('NumTrksDetPhi_E;hNumTrksDetPhi_{0}'.format(sideId[iside]),type='TH1F',title='Number of Reconstructed Tracks vs #phi (2D){0};#phi (deg);Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=60,xmin=0,xmax=360,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E;hResidual_Xe_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E;hResidual_Xe_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E;hResidual_noTubeHits_Xe_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E;hResidual_noTubeHits_Xe_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E_20GeV;hResidual_Xe_{0}_20GeV'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0} (After 20GeV pT cut);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E_20GeV;hResidual_noTubeHits_Xe_{0}_20GeV'.format(sideId[iside]),type='TH1F',title='Residuals for Xenon Straws{0} (After 20GeV pT cut, no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('TimeResidual_E;hTimeResidual_{0}'.format(sideId[iside]),type='TH1F',title='Time Residuals for Xenon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('TimeResidual_noTubeHits_E;hTimeResidual_noTubeHits_{0}'.format(sideId[iside]),type='TH1F',title='Time Residuals for Xenon Straws{0} (no tube hits);Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
 
                 shiftTrackEndcapGroup.defineHistogram('TronTDist_E_Ar;hTronTDist_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Trailing Edge Distribution on Track for Argon Straws{0};Trailing Edge (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=26,xmin=-0.5,xmax=80.75,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('AvgTroTDetPhi_E_Ar_x,AvgTroTDetPhi_E_Ar_y;hAvgTroTDetPhi_Ar_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Argon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
@@ -153,19 +165,23 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                 shiftTrackEndcapGroup.defineHistogram('DriftTimeonTrkDist_E_Ar;hDriftTimeonTrkDist_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Drift Time Distribution on Track for Argon Straws{0};Drift Time (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=100,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E_Ar;hResidual_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E_Ar;hResidual_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0};Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E_Ar;hResidual_noTubeHits_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='lowStat')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E_Ar;hResidual_noTubeHits_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0} (no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('Residual_E_Ar_20GeV;hResidual_Ar_{0}_20GeV'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0} (After 20GeV pT cut);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('Residual_noTubeHits_E_Ar_20GeV;hResidual_noTubeHits_Ar_{0}_20GeV'.format(sideId[iside]),type='TH1F',title='Residuals for Argon Straws{0} (After 20GeV pT cut, no tube hits);Hit-to-Track Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-2.5,xmax=2.5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('TimeResidual_E_Ar;hTimeResidual_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Time Residuals for Argon Straws{0};Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
+                shiftTrackEndcapGroup.defineHistogram('TimeResidual_noTubeHits_E_Ar;hTimeResidual_noTubeHits_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Time Residuals for Argon Straws{0} (no tube hits);Time Residual (ns);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=200,xmin=-20,xmax=20,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('WireToTrkPosition_E_Ar;hWireToTrkPosition_Ar_{0}'.format(sideId[iside]),type='TH1F',title='Track-to-Wire Distance for Argon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
-                
+
                 shiftTrackEndcapGroup.defineHistogram('WireToTrkPosition_E;hWireToTrkPosition_{0}'.format(sideId[iside]),type='TH1F',title='Track-to-Wire Distance for Xenon{0};Track-to-Wire Distance (mm);Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=100,xmin=-5,xmax=5,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('AvgTroTDetPhi_E_x,AvgTroTDetPhi_E_y;hAvgTroTDetPhi_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Trailing Edge on Track vs #phi (2D) for Xenon{0};#phi (deg);Trailing Edge (ns)'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=nPhiBins,xmin=0,xmax=360,duration='run')
                 shiftTrackEndcapGroup.defineHistogram('NTrksperLB_x,NTrksperLB_y;hNTrksperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Number of Reconstructed Tracks per Even{0};Luminosity Block;Number of Tracks'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run')
                 #CAN_REBIN(hNTrksperLB_[iside]);
-                
+
         #Initialize Aging plots
         for iL in range(5):
-            for iSide in range(2): 
-                if ibe == 0: 
+            for iSide in range(2):
+                if ibe == 0:
                     if iL < 3:
                         agingGroup = helper.addGroup(algTRTMonitoringRun3ESD,'TRTAgingHistograms0{0}{1}'.format(iL,iSide))
                         agingGroup.defineHistogram('Trackz_All;trackz_m{0}_{1}_All'.format(Mod[iL],sideId[iSide]),type='TH1F',title='Number All Hits side {0} Layer {1};z [mm];Number of Hits'.format(sideId[iSide],Mod[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=-750.,xmax=750.,duration='run')
@@ -186,7 +202,7 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                         agingGroup.defineHistogram('Trackz_HT;trackz_m1_{0}_HT_{1}'.format(sideId[iSide],Mod[iL]),type='TH1F',title='Number HT Hits side {0} Layer 1 {1};z [mm];Number of HT Hits'.format(sideId[iSide],Mod[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=-725.,xmax=0.,duration='lowStat')
                 elif ibe == 1:
                     # prevent double booking of histograms here
-                    if iL < 4: 
+                    if iL < 4:
                         agingGroup = helper.addGroup(algTRTMonitoringRun3ESD,'TRTAgingHistograms1{0}{1}'.format(iL,iSide))
                         agingGroup.defineHistogram('Trackr_All;trackr_E{0}_{1}_All'.format(sideId[iSide],gas[iL]),type='TH1F',title='Number All Hits E{0} {1};r [mm];Number of Hits'.format(sideId[iSide],gas[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=644.,xmax=1004.,duration='run')
                         agingGroup.defineHistogram('Trackr_All;trackr_E{0}_{1}_All'.format(sideId[iSide],gas[iL]),type='TH1F',title='Number All Hits E{0} {1};r [mm];Number of Hits'.format(sideId[iSide],gas[iL]),path='TRT/Aging/{0}'.format(barrelOrEndcap[ibe]),xbins=30,xmin=644.,xmax=1004.,duration='lowStat')
@@ -195,8 +211,10 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
 
     smryGroup = helper.addGroup(algTRTMonitoringRun3ESD,'SmryHistograms')
     sumLabels = ['Events', 'Tracks Total', 'Tracks BA', 'Tracks BC', 'Tracks EA', 'Tracks EC', 'Transition Side A', 'Transition Side C']
-    smryGroup.defineHistogram('Summary;hSummary',weight='SummaryWeight',type='TH1F',title='Run Summary;;Entries',path='TRT/Shift/Summary',xbins=8,xmin=0,xmax=8,xlabels=sumLabels) 
-
+    smryGroup.defineHistogram('Summary;hSummary',weight='SummaryWeight',type='TH1F',title='Run Summary;;Entries',path='TRT/Shift/Summary',xbins=8,xmin=0,xmax=8,xlabels=sumLabels)
+    smryGroup.defineHistogram('IntLum;hIntLum',weight='IntLumWeight',type='TH1F',title='Luminosity;;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=1,xmin=0.,xmax=1.)
+    smryGroup.defineHistogram('LBvsLum;hLBvsLum',weight='LBvsLumWeight',type='TH1F',title='Luminosity;Luminosity Bin;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
+    smryGroup.defineHistogram('LBvsTime_x,LBvsTime_y;hLBvsTime',type='TProfile',title='Time;Luminosity Bin;Time [s]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
 
     acc = helper.result()
     result.merge(acc)
@@ -248,4 +266,4 @@ if __name__ == '__main__':
     ServiceMgr.Dump = False
 
     cfg.merge(TRTMonitoringRun3Acc)
-    cfg.run(200)
+    cfg.run(100)

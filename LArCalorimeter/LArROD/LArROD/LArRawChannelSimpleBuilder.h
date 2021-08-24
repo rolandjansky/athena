@@ -68,11 +68,11 @@ private:
   int m_averageSamplesEM,m_averageSamplesHEC,m_averageSamplesFCAL;
   float m_averageScaleEM,m_averageScaleHEC,m_averageScaleFCAL;
   
-  float m_ADCtoMeVFCAL[3];
-  float m_ADCtoMeVHEC[2];
-  float m_ADCtoMeVEMECInner[2];
-  float m_ADCtoMeVEMECOuter[4];
-  float m_ADCtoMeVEMB[4];
+  float m_ADCtoMeVFCAL[3]{};
+  float m_ADCtoMeVHEC[2]{};
+  float m_ADCtoMeVEMECInner[2]{};
+  float m_ADCtoMeVEMECOuter[4]{};
+  float m_ADCtoMeVEMB[4]{};
   
   unsigned int m_iPedestal;
 };

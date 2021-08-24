@@ -39,10 +39,15 @@ NSWPRDValAlg.doMDTSDO = True
 NSWPRDValAlg.doMDTDigit = False # no MDT_DIGITS present in RDO files
 
 NSWPRDValAlg.doTGCHit = False # no TGC_Hits present in RDO files
+NSWPRDValAlg.doTGCSDO = True
 NSWPRDValAlg.doTGCDigit = False # no TGC_DIGITS present in RDO files
+NSWPRDValAlg.doTGCRDO = False
+NSWPRDValAlg.doTGCPRD = False
 
 NSWPRDValAlg.doCSCHit = False # no CSC_Hits present in RDO files
 NSWPRDValAlg.doCSCDigit = False # no CSC_DIGITS present in RDO files
+NSWPRDValAlg.doCSCRDO = False
+NSWPRDValAlg.doCSCPRD = False
 
 
 #-----------------------------------------------------------------------------

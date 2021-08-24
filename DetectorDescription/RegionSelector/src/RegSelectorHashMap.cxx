@@ -111,7 +111,7 @@ void RegSelectorHashMap::mountDataStruct(void){
   initMatrix();
 
   //Populates the matrix
-  for(k=0;k<iNumRanges;k++){
+  for(k=0;k<iNumRanges;++k){
     //Get the range values
     dEtaMin = std::min(m_etamin[k],m_etamax[k]);
     dEtaMax = std::max(m_etamin[k],m_etamax[k]);
@@ -128,34 +128,34 @@ void RegSelectorHashMap::mountDataStruct(void){
 
     // initial position
     iYphi = std::floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi);
-    for(yPhi=0;yPhi<iRepeatOverY;yPhi++){
+    for(yPhi=0;yPhi<iRepeatOverY;++yPhi){
      iXeta = std::floor((dEtaMin - m_etaminDet)/m_stepMinEta);
-     for(xEta=0;xEta<iRepeatOverX;xEta++){
+     for(xEta=0;xEta<iRepeatOverX;++xEta){
         iPosition = iPage + (iYphi* m_iColumns +iXeta);
         m_hashIDMap[iPosition] = m_hashId[k];
         m_robIDMap[iPosition][0]=m_robId[k][0];
-	for(unsigned int i=1; i< m_robId[k].size();i++ )
+	for(unsigned int i=1; i< m_robId[k].size();++i )
            m_robIDMap[iPosition].push_back(m_robId[k][i]);
-        iXeta++;
+        ++iXeta;
       }
-      iYphi++;
+      ++iYphi;
     }
   }
 #ifdef REGSELDEBUG 	 
-   for(k=0;k<iNumRanges;k++){ 	 
+   for(k=0;k<iNumRanges;++k){ 	 
          std::cout << "REGSELECTOR HASH TABLE " << 	 
          m_phimin[k] << " " << m_phimax[k] << " " << 	 
          m_etamin[k] << " " << m_etamax[k] << " " << 	 
          m_sample[k] << " " << m_layer[k]  << " " << 	 
          m_hashId[k] << " 0x"; 	 
 	 std::cout << std::hex;
-         for(unsigned int i=0;i<m_robId[k].size();i++) 	 
+         for(unsigned int i=0;i<m_robId[k].size();++i) 	 
                  std::cout << m_robId[k][i]  << " "; 	 
 	 std::cout << std::dec;
          std::cout << std::endl; 	 
    } 	 
    //Populates the matrix 	 
-   for(k=0;k<iNumRanges;k++){ 	 
+   for(k=0;k<iNumRanges;++k){ 	 
      //Get the range values 	 
      dEtaMin = std::min(m_etamin[k],m_etamax[k]); 	 
      dEtaMax = std::max(m_etamin[k],m_etamax[k]); 	 
@@ -168,21 +168,21 @@ void RegSelectorHashMap::mountDataStruct(void){
      iPage = m_sample[k] * (m_iColumns * m_iLines); 	 
      // initial position 	 
      iYphi = std::floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi); 	 
-     for(yPhi=0;yPhi<iRepeatOverY;yPhi++){ 	 
+     for(yPhi=0;yPhi<iRepeatOverY;++yPhi){ 	 
       iXeta = std::floor((dEtaMin - m_etaminDet)/m_stepMinEta); 	 
-      for(xEta=0;xEta<iRepeatOverX;xEta++){ 	 
+      for(xEta=0;xEta<iRepeatOverX;++xEta){ 	 
          iPosition = iPage + (iYphi* m_iColumns +iXeta); 	 
          std::cout << "REGSELECTOR MAPS " << 	 
          iXeta << " " << iYphi << " " << iPosition << " " << 	 
          m_hashIDMap[iPosition] << " "; 	 
 	 std::cout << std::hex;
-         for(unsigned int i=0; i<m_robIDMap[iPosition].size();i++) 	 
+         for(unsigned int i=0; i<m_robIDMap[iPosition].size();++i) 	 
                  std::cout << "0x" << m_robIDMap[iPosition][i]  << " "; 	 
 	 std::cout << std::dec;
          std::cout << std::endl; 	 
-         iXeta++; 	 
+         ++iXeta; 	 
        } 	 
-       iYphi++; 	 
+       ++iYphi; 	 
      } 	 
     } 	 
 #endif
@@ -207,16 +207,16 @@ void RegSelectorHashMap::populateMatrix(int iPage,IdentifierHash value) {
   std::vector<uint32_t> tocreate(1);
   IdentifierHash tocreateIH(value);
 
-  for(xEta= 0; xEta < m_iColumns; xEta++){
-    for(yPhi= 0; yPhi < m_iLines; yPhi++){
+  for(xEta= 0; xEta < m_iColumns; ++xEta){
+    for(yPhi= 0; yPhi < m_iLines; ++yPhi){
       iPosition = iPage + (yPhi* m_iColumns + xEta);
       if(iPosition>max_iPosition) max_iPosition=iPosition;
     }
   }
   m_hashIDMap.resize(max_iPosition+1,tocreateIH);
   m_robIDMap.resize(max_iPosition+1,tocreate);
-  for(xEta= 0; xEta < m_iColumns; xEta++){
-    for(yPhi= 0; yPhi < m_iLines; yPhi++){
+  for(xEta= 0; xEta < m_iColumns; ++xEta){
+    for(yPhi= 0; yPhi < m_iLines; ++yPhi){
       iPosition = iPage + (yPhi* m_iColumns + xEta);
       m_robIDMap[iPosition].clear();
       m_robIDMap[iPosition].push_back(value);
@@ -228,8 +228,8 @@ void RegSelectorHashMap::populateMatrix(int iPage,IdentifierHash value) {
 void RegSelectorHashMap::populateMatrixRobId(int iPage,uint32_t value)  {
   int xEta,yPhi, iPosition;
 
-  for(xEta= 0; xEta < m_iColumns; xEta++){
-    for(yPhi= 0; yPhi < m_iLines; yPhi++){
+  for(xEta= 0; xEta < m_iColumns; ++xEta){
+    for(yPhi= 0; yPhi < m_iLines; ++yPhi){
       iPosition = iPage + (yPhi* m_iColumns + xEta);
       m_robIDMap[iPosition].push_back(value);
     }
@@ -242,7 +242,7 @@ void RegSelectorHashMap::initMatrix(void){
 
   iNumRanges =  m_NumSamples;
 
-  for(k=0;k<=iNumRanges;k++){
+  for(k=0;k<=iNumRanges;++k){
     iPage = k * (m_iColumns * m_iLines);
       populateMatrix(iPage, INITHASH);
   }
@@ -324,17 +324,17 @@ void RegSelectorHashMap::regionSelectorIN(const int& sampling,
     }
     if(sampling == -1){ // Consider all samplings (0...3)
       if( pi_boundary ){
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifier(auxsetIH, iXBeg, iXEnd, iYBeg, m_iLines, iPage);
         }
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifier(auxsetIH, iXBeg, iXEnd, 0, iYEnd, iPage);
         }
       }
       else{
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifier(auxsetIH,iXBeg, iXEnd, iYBeg, iYEnd, iPage);
         }
@@ -405,18 +405,18 @@ void RegSelectorHashMap::regionSelectorINROB(const int& sampling,
     if(sampling == -1){ // Consider all samplings (0...3)
 
       if( pi_boundary ){
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifierROB(auxset, iXBeg, iXEnd, iYBeg, m_iLines,
 		iPage);
         }
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifierROB(auxset, iXBeg, iXEnd, 0, iYEnd, iPage);
         }
       }
       else{
-        for(k=0; k<=m_NumSamples; k++){
+        for(k=0; k<=m_NumSamples; ++k){
           iPage = k * (m_iColumns * m_iLines);
           findIdentifierROB(auxset,iXBeg, iXEnd, iYBeg, iYEnd, iPage);
         }
@@ -575,7 +575,7 @@ StatusCode RegSelectorHashMap::read(const char *filename){
       m_phimaxDet = std::max(std::max(m_phimaxDet,pmax),pmin);
       m_NumSamples = std::max(m_NumSamples,samp);
       writeLine(layer, (IdentifierHash) hashId, robId, emin, emax, pmin, pmax, samp);
-      // nlines++;
+      // ++nlines;
     }while((fin.getline(buffer, 128, '\n')));
   }
   // m_readFromFile = !( nlines == 0 );
@@ -606,7 +606,7 @@ void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
   m_layer.reserve(tablesize);
   m_sample.reserve(tablesize);
   
-  for( int j=0; j<tablesize; j++){
+  for( int j=0; j<tablesize; ++j){
     if ( detLut->hashId(j)==hash && detLut->sampling(j)==samp &&
 	  detLut->etaMin(j)==etamin && detLut->etaMax(j) == etamax &&
           detLut->phiMin(j)==phimin && detLut->phiMax(j) == phimax &&
@@ -620,7 +620,7 @@ void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
               detLut->phiMin(j),
               detLut->phiMax(j),
               detLut->sampling(j));
-	      j++;
+	      ++j;
      } else { // Write previous line
 	if ( j!= 0 )
 	writeLine(layer,hash,robId_cpy,etamin,etamax,phimin,phimax,samp);
@@ -650,13 +650,13 @@ void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
 
 void RegSelectorHashMap::summaryDataFile(std::list<RegSelectorMapElement> &dataList){
   for(std::list<RegSelectorMapElement>::iterator it = dataList.begin();
-      it != dataList.end(); it++){ // runs through entire list
+      it != dataList.end(); ++it){ // runs through entire list
     std::cout << "position: " << (*it).layerDiskPosition() << " number: " << (*it).layerDiskNumber() << std::endl;
     std::cout << "etamin: " << m_etaminDet << "  etamax: " << m_etamaxDet << std::endl;
     std::cout << "phimin: " << m_phiminDet << "  phimax: " << m_phimaxDet << std::endl;
     std::cout << "hashId: ";
     std::vector<IdentifierHash> aux = (*it).hashId();
-    for(std::vector<IdentifierHash>::iterator i = aux.begin(); i != aux.end(); i++)
+    for(std::vector<IdentifierHash>::iterator i = aux.begin(); i != aux.end(); ++i)
       std::cout << (*i) << " ";
     std::cout << std::endl;
     std::cin.get();
@@ -713,7 +713,7 @@ void RegSelectorHashMap::verifyROBIDOutput(double etaminIn, double etamaxIn,
   phimintmp = phiminIn;
   phimaxtmp = phimaxIn;
 
-  for(i= 0; i < vecsize; i++){
+  for(i= 0; i < vecsize; ++i){
     if(m_etamin[i] > m_etamax[i]){
       etamin = m_etamax[i]; etamax = m_etamin[i];
     }
@@ -734,7 +734,7 @@ void RegSelectorHashMap::verifyROBIDOutput(double etaminIn, double etamaxIn,
   }
 
   std::set<uint32_t>::iterator it;
-  for(it = myset.begin(); it!= myset.end(); it++){
+  for(it = myset.begin(); it!= myset.end(); ++it){
     outset.push_back(*it);
   }
 
@@ -745,11 +745,11 @@ void RegSelectorHashMap::verifyROBIDOutput(double etaminIn, double etamaxIn,
     std::cout << "nonequal vectors " << std::endl;
     std::cout << "eta(" << etaminIn << "," << etamaxIn << ")   phi(" << phiminIn << "," << phimaxIn << ")" << std::endl;
     std::cout << "desired output ";
-    for(unsigned int i=0; i < outset.size(); i++)
+    for(unsigned int i=0; i < outset.size(); ++i)
       std::cout << std::dec << outset[i] << " ";
     std::cout << std::endl;
     std::cout << "obtained output ";
-    for(unsigned int i=0; i < outputIdlist.size(); i++)
+    for(unsigned int i=0; i < outputIdlist.size(); ++i)
       std::cout << std::dec << outputIdlist[i] << " ";
     std::cout << std::endl;
     std::cin.get();
@@ -779,7 +779,7 @@ void RegSelectorHashMap::verifyROBIDOutput(int sampling,
   phimintmp = phiminIn;
   phimaxtmp = phimaxIn;
 
-  for(i= 0; i < vecsize; i++){
+  for(i= 0; i < vecsize; ++i){
     if( sampling == m_sample[i]){
       if(m_etamin[i] > m_etamax[i]){
         etamin = m_etamax[i]; etamax = m_etamin[i];
@@ -802,7 +802,7 @@ void RegSelectorHashMap::verifyROBIDOutput(int sampling,
   }
 
   std::set<uint32_t>::iterator it;
-  for(it = myset.begin(); it!= myset.end(); it++){
+  for(it = myset.begin(); it!= myset.end(); ++it){
     outset.push_back(*it);
   }
 
@@ -812,11 +812,11 @@ void RegSelectorHashMap::verifyROBIDOutput(int sampling,
   else {
     std::cout << "sampling " << sampling << "eta(" << etaminIn << "," << etamaxIn << ")   phi(" << phiminIn << "," << phimaxIn << ")" << std::endl;
     std::cout << "desired output ";
-    for(unsigned int i=0; i < outset.size(); i++)
+    for(unsigned int i=0; i < outset.size(); ++i)
       std::cout << std::dec << outset[i] << " ";
     std::cout << std::endl;
     std::cout << "obtained output ";
-    for(unsigned int i=0; i < outputIdlist.size(); i++)
+    for(unsigned int i=0; i < outputIdlist.size(); ++i)
       std::cout << std::dec << outputIdlist[i] << " ";
     std::cout << std::endl;
     std::cin.get();
@@ -841,7 +841,7 @@ void RegSelectorHashMap::verifyOutput(double etaminIn, double etamaxIn,
   phimintmp = phiminIn;
   phimaxtmp = phimaxIn;
 
-  for(i= 0; i < vecsize; i++){
+  for(i= 0; i < vecsize; ++i){
     if(m_etamin[i] > m_etamax[i]){
       etamin = m_etamax[i]; etamax = m_etamin[i];
     }
@@ -862,7 +862,7 @@ void RegSelectorHashMap::verifyOutput(double etaminIn, double etamaxIn,
   }
 
   std::set<IdentifierHash>::iterator it;
-  for(it = myset.begin(); it!= myset.end(); it++){
+  for(it = myset.begin(); it!= myset.end(); ++it){
     outset.push_back(*it);
   }
 
@@ -872,11 +872,11 @@ void RegSelectorHashMap::verifyOutput(double etaminIn, double etamaxIn,
   else {
     std::cout << "eta(" << etaminIn << "," << etamaxIn << ")   phi(" << phiminIn << "," << phimaxIn << ")" << std::endl;
     std::cout << "desired output ";
-    for(unsigned int i=0; i < outset.size(); i++)
+    for(unsigned int i=0; i < outset.size(); ++i)
       std::cout << std::dec << outset[i] << " ";
     std::cout << std::endl;
     std::cout << "obtained output ";
-    for(unsigned int i=0; i < (*outputIdlist).size(); i++)
+    for(unsigned int i=0; i < (*outputIdlist).size(); ++i)
       std::cout << std::dec << (*outputIdlist)[i] << " ";
     std::cout << std::endl;
   }
@@ -900,7 +900,7 @@ void RegSelectorHashMap::verifyOutput(int sampling,double etaminIn, double etama
   phimintmp = phiminIn;
   phimaxtmp = phimaxIn;
 
-  for(i= 0; i < vecsize; i++){
+  for(i= 0; i < vecsize; ++i){
     if( sampling == m_sample[i]){
       if(m_etamin[i] > m_etamax[i]){
         etamin = m_etamax[i]; etamax = m_etamin[i];
@@ -923,7 +923,7 @@ void RegSelectorHashMap::verifyOutput(int sampling,double etaminIn, double etama
   }
 
   std::set<IdentifierHash>::iterator it;
-  for(it = myset.begin(); it!= myset.end(); it++){
+  for(it = myset.begin(); it!= myset.end(); ++it){
     outset.push_back(*it);
   }
 
@@ -933,11 +933,11 @@ void RegSelectorHashMap::verifyOutput(int sampling,double etaminIn, double etama
   else {
     std::cout << "sampling " << sampling << "eta(" << etaminIn << "," << etamaxIn << ")   phi(" << phiminIn << "," << phimaxIn << ")" << std::endl;
     std::cout << "desired output ";
-    for(unsigned int i=0; i < outset.size(); i++)
+    for(unsigned int i=0; i < outset.size(); ++i)
       std::cout << std::dec << outset[i] << " ";
     std::cout << std::endl;
     std::cout << "obtained output ";
-    for(unsigned int i=0; i < (*outputIdlist).size(); i++)
+    for(unsigned int i=0; i < (*outputIdlist).size(); ++i)
       std::cout << std::dec << (*outputIdlist)[i] << " ";
     std::cout << std::endl;
     std::cin.get();
@@ -950,8 +950,8 @@ void RegSelectorHashMap::findIdentifier(std::vector<IdentifierHash> &auxsetIH,
 					const int iPage) const  {
  int xEta, yPhi, iPosition;
 
-  for(xEta= iXBeg; xEta < iXEnd; xEta++){
-    for(yPhi=iYBeg; yPhi < iYEnd; yPhi++){
+  for(xEta= iXBeg; xEta < iXEnd; ++xEta){
+    for(yPhi=iYBeg; yPhi < iYEnd; ++yPhi){
       iPosition = iPage + (yPhi* m_iColumns + xEta);
       if(m_hashIDMap[iPosition] != INITHASH){
           auxsetIH.push_back(m_hashIDMap[iPosition]);
@@ -973,11 +973,11 @@ void RegSelectorHashMap::findIdentifierROB( std::vector<uint32_t> &auxset,
   int xEta, yPhi, iPosition;
   unsigned int i,size_rod;
   
-  for(xEta= iXBeg; xEta < iXEnd; xEta++){
-    for(yPhi=iYBeg; yPhi < iYEnd; yPhi++){
+  for(xEta= iXBeg; xEta < iXEnd; ++xEta){
+    for(yPhi=iYBeg; yPhi < iYEnd; ++yPhi){
       iPosition = iPage + (yPhi* m_iColumns + xEta);
           size_rod=m_robIDMap[iPosition].size();
-          for(i=0; i < size_rod; i++)
+          for(i=0; i < size_rod; ++i)
              if ( m_robIDMap[iPosition][i] != INITHASH )
              auxset.push_back(m_robIDMap[iPosition][i]);
       }
@@ -1003,9 +1003,9 @@ void RegSelectorHashMap::getEtaPhi(IdentifierHash hashId,
 }
 
 void RegSelectorHashMap::DisableMissingROBs(const std::vector<uint32_t>& vec){
-	for(size_t i=0;i<vec.size();i++){
-		for(size_t j=0;j<m_robIDMap.size();j++){
-			for(size_t k=0;k<m_robIDMap[j].size();k++){
+	for(size_t i=0;i<vec.size();++i){
+		for(size_t j=0;j<m_robIDMap.size();++j){
+			for(size_t k=0;k<m_robIDMap[j].size();++k){
 			   if ( vec[i] == m_robIDMap[j][k] )
 				m_robIDMap[j][k] = INITHASH;
 			}

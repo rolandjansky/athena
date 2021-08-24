@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
 
@@ -29,7 +29,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
   std::vector<int> MMflag;
   IdentifierHash hash;
 
-  if ( MMprds.size() > 0 ) {
+  if ( !MMprds.empty() ) {
     hash = MMprds.at(0).collectionHash();
   }
   else {
@@ -144,7 +144,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     std::vector<Muon::MMPrepData> stripsVec;
     Amg::Vector2D clusterLocalPosition;
     double totalCharge=0.0;
-    if ( mergeStrips.size() > 0 ) {
+    if ( !mergeStrips.empty() ) {
       for ( unsigned int k=0 ; k<mergeStrips.size() ; ++k ) {
 	stripsVec.push_back(MMprds[mergeIndices[k]]);
 	totalCharge += MMprds[mergeIndices[k]].charge();

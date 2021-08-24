@@ -67,9 +67,8 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   // ============
   std::vector<MonitorJepJemJE> monJEs;  // for filling cutmasks
 
-  int nSlices = static_cast<int>(m_maxSlices);  // not sure how to properly convert from 'const Gaudi::Property<int>' to 'int'
-  auto hitmapVectsEM  = std::make_unique<std::vector<MonitorJepJemJE>[]>(nSlices);  // for filling EM timeslices
-  auto hitmapVectsHAD = std::make_unique<std::vector<MonitorJepJemJE>[]>(nSlices);  // for filling HAD timeslices
+  std::vector<std::vector<MonitorJepJemJE>> hitmapVectsEM(m_maxSlices);  // for filling EM timeslices
+  std::vector<std::vector<MonitorJepJemJE>> hitmapVectsHAD(m_maxSlices);  // for filling HAD timeslices
 
   xAOD::JetElementContainer::const_iterator jeIterator = (*JetElementTES).begin();
   xAOD::JetElementContainer::const_iterator jeIteratorEnd = (*JetElementTES).end();
@@ -82,16 +81,10 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
     // for cutmasks
     if (em > 0)  {
-      MonitorJepJemJE monJE;
-      monJE.eta = eta;
-      monJE.phi = phi;
-      monJEs.push_back(monJE);
+      monJEs.push_back(MonitorJepJemJE{je, eta, phi});
     }
     if (had > 0) {
-      MonitorJepJemJE monJE;
-      monJE.eta = eta;
-      monJE.phi = phi;
-      monJEs.push_back(monJE);
+      monJEs.push_back(MonitorJepJemJE{je, eta, phi});
     }
 
     // for the hitmaps per timeslice
@@ -103,16 +96,10 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
     for (int i=0; i < m_maxSlices; i++) {
       if (i < slicesEm && emEnergyVec[i] > 0) {
-        MonitorJepJemJE monJE_slice;
-        monJE_slice.eta = eta;
-        monJE_slice.phi = phi;
-        hitmapVectsEM[i].push_back(monJE_slice);
+        hitmapVectsEM[i].push_back(MonitorJepJemJE{je, eta, phi});
       }
       if (i < slicesHad && hadEnergyVec[i] > 0) {
-        MonitorJepJemJE monJE_slice;
-        monJE_slice.eta = eta;
-        monJE_slice.phi = phi;
-        hitmapVectsHAD[i].push_back(monJE_slice);
+        hitmapVectsHAD[i].push_back(MonitorJepJemJE{je, eta, phi});
       }
     }
   }
@@ -126,20 +113,22 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   // monitored eta and phi for slices
   std::string varNameEta, varNamePhi;
   std::stringstream buffer;
+  // "variables" does not own Monitored::Collections; use a vector to hold them so the references aren't
+  // invalid once the loop ends
+  std::vector<Monitored::ObjectsCollection<std::vector<MonitorJepJemJE>, double>> varowner;
   for (int i=0; i < m_maxSlices; i++) {
     buffer.str("");
     buffer << i;
 
     // em
-    auto etaSliceJepJemJE_em = Monitored::Collection("etaSliceJepJemJE_em_num"+buffer.str(), hitmapVectsEM[i], []( const auto &je ) { return (je.jelement->eta()); });
-    variables.push_back(etaSliceJepJemJE_em);
-    auto phiSliceJepJemJE_em = Monitored::Collection("phiSliceJepJemJE_em_num"+buffer.str(), hitmapVectsHAD[i], []( const auto &je ) { return (je.jelement->phi()); });
-    variables.push_back(phiSliceJepJemJE_em);
+    varowner.push_back(Monitored::Collection("etaSliceJepJemJE_em_num"+buffer.str(), hitmapVectsEM[i], []( const auto &je ) { return je.eta; }));
+    varowner.push_back(Monitored::Collection("phiSliceJepJemJE_em_num"+buffer.str(), hitmapVectsEM[i], []( const auto &je ) { return je.phi; }));
     // had
-    auto etaSliceJepJemJE_had = Monitored::Collection("etaSliceJepJemJE_had_num"+buffer.str(), hitmapVectsHAD[i], []( const auto &je ) { return (je.jelement->eta()); });
-    variables.push_back(etaSliceJepJemJE_had);
-    auto phiSliceJepJemJE_had = Monitored::Collection("phiSliceJepJemJE_had_num"+buffer.str(), hitmapVectsHAD[i], []( const auto &je ) { return (je.jelement->phi()); });
-    variables.push_back(phiSliceJepJemJE_had);
+    varowner.push_back(Monitored::Collection("etaSliceJepJemJE_had_num"+buffer.str(), hitmapVectsHAD[i], []( const auto &je ) { return je.eta; }));
+    varowner.push_back(Monitored::Collection("phiSliceJepJemJE_had_num"+buffer.str(), hitmapVectsHAD[i], []( const auto &je ) { return je.phi; }));
+  }
+  for (auto& i : varowner) {
+    variables.push_back(i);
   }
   
   // ===================
@@ -160,8 +149,7 @@ StatusCode JepJemMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   auto etaJepJemJE_had = Monitored::Collection("etaJepJemJE_had", monJepJemJEs_had, []( const auto &je ){ return je.jelement->eta(); });
   variables.push_back(etaJepJemJE_had);
 
-  fill(m_packageName,variables); 
-  variables.clear();
+  fill(m_packageName,variables);
   return StatusCode::SUCCESS;
 }
 
@@ -183,10 +171,7 @@ StatusCode JepJemMonitorAlgorithm::fillJepJemJEVectors(
     // const double phi_scaled je->phi_scaled;
 
     // fill jet element vector for plots
-    MonitorJepJemJE monJE;
-    monJE.jelement=je;
-    monJE.eta = eta;
-    monJE.phi = phi;
+    MonitorJepJemJE monJE{je, eta, phi};
     // monJE.phi_scaled = phi_scaled
     
     if (em) {

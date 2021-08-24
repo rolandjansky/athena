@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ */
 
 //////////////////////////////////////////////////////////////////
 // TrkPlanarSurface.cpp
@@ -12,151 +12,148 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#include"TrkDistributedKalmanFilter/TrkPlanarSurface.h"
+#include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 #include "TrkSurfaces/Surface.h"
-#include<cmath>
-#include<cstdio>
-#include<cstdlib>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 namespace Trk
 {
-
-  TrkPlanarSurface::TrkPlanarSurface(const double c[3],const double n[3],double m[3][3], double rl, const Surface* pS):
-    m_radLength(rl), 
+  TrkPlanarSurface::TrkPlanarSurface(const double c[3], const double n[3], double m[3][3], double rl,
+                                     const Surface* pS) :
+    m_radLength(rl),
     m_input{},
-    m_trkSurface(pS)
-  {
-    int i,j;
-    m_Params[3]=0.0;m_Rc=0.0;
-    for(i=0;i<3;i++){
-			m_Center[i]=c[i];
-			m_Normal[i]=n[i];
-			m_Params[i]=n[i];
-			m_Params[3]-=n[i]*c[i];
-			m_Rc+=c[i]*c[i];
+    m_trkSurface(pS) {
+    int i, j;
+
+    m_Params[3] = 0.0;
+    m_Rc = 0.0;
+    for (i = 0; i < 3; i++) {
+      m_Center[i] = c[i];
+      m_Normal[i] = n[i];
+      m_Params[i] = n[i];
+      m_Params[3] -= n[i] * c[i];
+      m_Rc += c[i] * c[i];
     }
-    for(i=0;i<3;i++){
-	    for(j=0;j<3;j++)
-	      m_L[i][j]=m[i][j];
+    for (i = 0; i < 3; i++) {
+      for (j = 0; j < 3; j++)
+        m_L[i][j] = m[i][j];
     }
-    m_Rc=sqrt(m_Rc);
+    m_Rc = sqrt(m_Rc);
     calculateInverseTransform();
-    m_breakPoint=false;
+    m_breakPoint = false;
   }
 
-  const Surface* TrkPlanarSurface::getTrkSurface()
-  {
+  const Surface* TrkPlanarSurface::getTrkSurface() {
     return m_trkSurface;
   }
 
-  void TrkPlanarSurface::calculateInverseTransform()
-  {
-    m_M[0][0]= m_L[1][1]*m_L[2][2]-m_L[1][2]*m_L[2][1];
-    m_M[1][0]=-m_L[1][0]*m_L[2][2]+m_L[1][2]*m_L[2][0];
-    m_M[2][0]= m_L[1][0]*m_L[2][1]-m_L[1][1]*m_L[2][0];
-    m_M[0][1]=-m_L[0][1]*m_L[2][2]+m_L[0][2]*m_L[2][1];
-    m_M[1][1]= m_L[0][0]*m_L[2][2]-m_L[0][2]*m_L[2][0];
-    m_M[2][1]=-m_L[0][0]*m_L[2][1]+m_L[0][1]*m_L[2][0];
-    m_M[0][2]= m_L[0][1]*m_L[1][2]-m_L[0][2]*m_L[1][1];
-    m_M[1][2]=-m_L[0][0]*m_L[1][2]+m_L[0][2]*m_L[1][0];
-    m_M[2][2]= m_L[0][0]*m_L[1][1]-m_L[0][1]*m_L[1][0];
+  void TrkPlanarSurface::calculateInverseTransform() {
+    m_M[0][0] = m_L[1][1] * m_L[2][2] - m_L[1][2] * m_L[2][1];
+    m_M[1][0] = -m_L[1][0] * m_L[2][2] + m_L[1][2] * m_L[2][0];
+    m_M[2][0] = m_L[1][0] * m_L[2][1] - m_L[1][1] * m_L[2][0];
+    m_M[0][1] = -m_L[0][1] * m_L[2][2] + m_L[0][2] * m_L[2][1];
+    m_M[1][1] = m_L[0][0] * m_L[2][2] - m_L[0][2] * m_L[2][0];
+    m_M[2][1] = -m_L[0][0] * m_L[2][1] + m_L[0][1] * m_L[2][0];
+    m_M[0][2] = m_L[0][1] * m_L[1][2] - m_L[0][2] * m_L[1][1];
+    m_M[1][2] = -m_L[0][0] * m_L[1][2] + m_L[0][2] * m_L[1][0];
+    m_M[2][2] = m_L[0][0] * m_L[1][1] - m_L[0][1] * m_L[1][0];
   }
-  TrkPlanarSurface::~TrkPlanarSurface()
-  {
-    
+
+  TrkPlanarSurface::~TrkPlanarSurface() {
   }
-  const double* TrkPlanarSurface::getCenter()
-  {
+
+  const double* TrkPlanarSurface::getCenter() {
     return &m_Center[0];
   }
-  double TrkPlanarSurface::radiusVector() const
-  {
+
+  double TrkPlanarSurface::radiusVector() const {
     return m_Rc;
   }
-  const double* TrkPlanarSurface::getNormal()
-  {
+
+  const double* TrkPlanarSurface::getNormal() {
     return &m_Normal[0];
   }
-  const double* TrkPlanarSurface::getParameters()
-  {
+
+  const double* TrkPlanarSurface::getParameters() {
     return &m_Params[0];
   }
-  double TrkPlanarSurface::getPar(int i)
-  {
+
+  double TrkPlanarSurface::getPar(int i) {
     return m_Params[i];
   }
-  double TrkPlanarSurface::getRotMatrix(int i, int j)
-  {
+
+  double TrkPlanarSurface::getRotMatrix(int i, int j) {
     return m_M[i][j];
   }
-  double TrkPlanarSurface::getInvRotMatrix(int i, int j)
-  {
+
+  double TrkPlanarSurface::getInvRotMatrix(int i, int j) {
     return m_L[i][j];
   }
-  double TrkPlanarSurface::calculateCombinedMatrix(int i,int j,TrkPlanarSurface* pS)
-  {
-    double rc=0;
-    for(int m=0;m<3;m++) rc+=pS->m_M[i][m]*m_L[m][j];
+
+  double TrkPlanarSurface::calculateCombinedMatrix(int i, int j, TrkPlanarSurface* pS) {
+    double rc = 0;
+
+    for (int m = 0; m < 3; m++) rc += pS->m_M[i][m] * m_L[m][j];
     return rc;
   }
-  void TrkPlanarSurface::rotateVectorToLocal(const double* X, double* Y)
-  {
+
+  void TrkPlanarSurface::rotateVectorToLocal(const double* X, double* Y) {
     int i;
-    for(i=0;i<3;i++)
-      Y[i]=m_M[i][0]*X[0]+m_M[i][1]*X[1]+m_M[i][2]*X[2];
+
+    for (i = 0; i < 3; i++)
+      Y[i] = m_M[i][0] * X[0] + m_M[i][1] * X[1] + m_M[i][2] * X[2];
   }
-  void TrkPlanarSurface::rotateVectorToGlobal(const double* X, double* Y)
-  {
+
+  void TrkPlanarSurface::rotateVectorToGlobal(const double* X, double* Y) {
     int i;
-    for(i=0;i<3;i++)
-      Y[i]=m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
+
+    for (i = 0; i < 3; i++)
+      Y[i] = m_L[i][0] * X[0] + m_L[i][1] * X[1] + m_L[i][2] * X[2];
   }
-  void TrkPlanarSurface::transformPointToLocal(const double* X, double* Y)
-  {
+
+  void TrkPlanarSurface::transformPointToLocal(const double* X, double* Y) {
     int i;
-    for(i=0;i<3;i++)
-      Y[i]=m_M[i][0]*(X[0]-m_Center[0])+
-	m_M[i][1]*(X[1]-m_Center[1])+
-	m_M[i][2]*(X[2]-m_Center[2]);
+
+    for (i = 0; i < 3; i++)
+      Y[i] = m_M[i][0] * (X[0] - m_Center[0]) +
+             m_M[i][1] * (X[1] - m_Center[1]) +
+             m_M[i][2] * (X[2] - m_Center[2]);
   }
-  void TrkPlanarSurface::transformPointToGlobal(const double* X, double* Y)
-  {
+
+  void TrkPlanarSurface::transformPointToGlobal(const double* X, double* Y) {
     int i;
-    for(i=0;i<3;i++)
-      Y[i]=m_Center[i]+m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
+
+    for (i = 0; i < 3; i++)
+      Y[i] = m_Center[i] + m_L[i][0] * X[0] + m_L[i][1] * X[1] + m_L[i][2] * X[2];
   }
-  double TrkPlanarSurface::getRadLength() const
-  {
+
+  double TrkPlanarSurface::getRadLength() const {
     //return 0.022;
     return m_radLength;
   }
 
-  void TrkPlanarSurface::setBreakPoint(double u)
-  {
-    m_breakPoint=true;
-    m_input=u;
+  void TrkPlanarSurface::setBreakPoint(double u) {
+    m_breakPoint = true;
+    m_input = u;
   }
 
-  bool TrkPlanarSurface::isBreakPoint() const
-  {
+  bool TrkPlanarSurface::isBreakPoint() const {
     return m_breakPoint;
   }
 
-  double TrkPlanarSurface::getInput() const
-  {
+  double TrkPlanarSurface::getInput() const {
     return m_input;
   }
 
-  void TrkPlanarSurface::report()
-  {
-    printf("SURFACE: CENTER x=%f y=%f z=%f R=%f\n",m_Center[0],m_Center[1],m_Center[2],m_Rc);
-    printf("         NORMAL nx=%f ny=%f nz=%f\n",m_Normal[0],m_Normal[1],m_Normal[2]);
-    printf("EQUATION: (%f)x+(%f)y+(%f)z+(%f)=0\n",m_Params[0],m_Params[1],m_Params[2],m_Params[3]);
-    for(int i=0;i<3;i++)
-      {
-	for(int j=0;j<3;j++) printf("%f ",m_M[i][j]);
-	printf("\n");
-      }
+  void TrkPlanarSurface::report() {
+    printf("SURFACE: CENTER x=%f y=%f z=%f R=%f\n", m_Center[0], m_Center[1], m_Center[2], m_Rc);
+    printf("         NORMAL nx=%f ny=%f nz=%f\n", m_Normal[0], m_Normal[1], m_Normal[2]);
+    printf("EQUATION: (%f)x+(%f)y+(%f)z+(%f)=0\n", m_Params[0], m_Params[1], m_Params[2], m_Params[3]);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) printf("%f ", m_M[i][j]);
+      printf("\n");
+    }
   }
 }
-

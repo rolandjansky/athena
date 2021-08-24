@@ -55,8 +55,8 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
         algTRTMonitoringRun3RAW.trt_hole_search=TRTHoleSearch()
 
 
-    maxLumiBlock         = 200
-    maxLumiblock         = 720
+    maxLumiBlockSummary  = 200
+    maxLumiBlockShift    = 720
     numberOfBarrelStacks = 32
     distToStraw          = 0.4
     numberOfStacks       = (32, 32)
@@ -89,50 +89,44 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                 elif i >= numberOfStacks[ibe]:
                     oss = 'TRT/EndcapC/Sector' + str(i + 1 - 32)
 
-            rdoStackGroup.defineHistogram('HitWMapS_passed,strawNumber;hHitWMapS',type='TEfficiency',title='Leading Edge in Time Window: Straws;Straw Number in Stack;Probability per Event',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber,HitWMapS_passed;hHitWMapS',cutmask='HitWMapS_cut',type='TProfile',title='Leading Edge in Time Window: Straws;Straw Number in Stack;Probability per Event',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
             rdoStackGroup.defineHistogram('strawNumber,HitTrWMapS_y;hHitTrWMapS',cutmask='HitTrWMapS_cut',type='TProfile',title='Mean Trailing Edge in Time Window: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
             rdoStackGroup.defineHistogram('strawNumber,HitTrMapS_y;hHitTrMapS',type='TProfile',title='Mean Trailing Edge: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('HitAWMapS_passed,strawNumber;hHitAWMapS',type='TEfficiency',title='LL in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('HitAMapS_passed,strawNumber;hHitAMapS',type='TEfficiency',title='Any LL Bit: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('StrawOcc_passed,StrawOcc;hOccupancyS',type='TEfficiency',title='Straw Occupancy Distribution: Straws;Occupancy;Number of Straws',path=oss,xbins=201,xmin=0,xmax=1.005)
+            rdoStackGroup.defineHistogram('strawNumber,HitAWMapS_passed;hHitAWMapS',cutmask='HitAWMapS_cut',type='TProfile',title='LL in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber,HitAMapS_passed;hHitAMapS',cutmask='HitAMapS_cut',type='TProfile',title='Any LL Bit: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber;unscaled_hHitAMapS',cutmask='HitAMapS_cut',type='TH1F',title='Any LL Bit: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('StrawOcc,StrawOcc_passed;hOccupancyS',type='TProfile',title='Straw Occupancy Distribution: Straws;Occupancy;Number of Straws',path=oss,xbins=201,xmin=0,xmax=1.005)
             rdoStackGroup.defineHistogram('strawNumber,HitToTMapS_y;hHitToTMapS',type='TProfile',title='Mean ToT: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
             rdoStackGroup.defineHistogram('strawNumber,HitToTMapS_y;hHitToTLongMapS',cutmask='HitToTLong_cut',type='TProfile',title='Mean ToT for Straws with ToT > LongToTCut: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('strawNumber,HitTrMapS_y;hHitToTLongTrMapS',cutmask='HitToTLong_cut',type='TProfile',title='Mean Trailing Edge for Straws with ToT > LongToTCut: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('HitHMapS_passed,strawNumber;hHitHMapS',type='TEfficiency',title='Any HL Bit: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('HitHWMapS_passed,strawNumber;hHitHWMapS',type='TEfficiency',title='HL in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoStackGroup.defineHistogram('HtoLMapS_passed,HtoLMapS;hHtoLMapS',type='TEfficiency',title='HL/LL Ratio: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber,HitTrMapS_y;hHitToTLongTrMapS',cutmask='HitToTLong_cut',type='TProfile',title='Mean Trailing Edge for Straws with ToT > LongToTCut: Straws;Straw Number in Stack;Time (ns)',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber,HitHMapS_passed;hHitHMapS',cutmask='HitHMapS_cut',type='TProfile',title='Any HL Bit: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('strawNumber,HitHWMapS_passed;hHitHWMapS',cutmask='HitHWMapS_cut',type='TProfile',title='HL in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoStackGroup.defineHistogram('HtoLMapS,HtoLMapS_passed;hHtoLMapS',type='TProfile',title='HL/LL Ratio: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
 
-            rdoStackGroup.defineHistogram('HitWMapC_passed,chipNumber;hHitWMapC',type='TEfficiency',title='Leading Edge in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber,HitWMapC_passed;hHitWMapC',cutmask='HitWMapC_cut',type='TProfile',title='Leading Edge in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
             rdoStackGroup.defineHistogram('chipNumber,HitTrMapC_y;hHitTrMapC',type='TProfile',title='Mean Trailing Edge: Chips;Chip Number in Stack;Time (ns)',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
             rdoStackGroup.defineHistogram('chipNumber,HitTrMapC_y;hHitTrWMapC',cutmask='HitTrWMapC_cut',type='TProfile',title='Mean Trailing Edge in Time Window: Chips;Chip Number in Stack;Time (ns)',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-            rdoStackGroup.defineHistogram('HitAWMapC_passed,chipNumber;hHitAWMapC',type='TEfficiency',title='LL in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-            rdoStackGroup.defineHistogram('HitAMapC_passed,chipNumber;hHitAMapC',type='TEfficiency',title='Any LL Bit: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber,HitAWMapC_passed;hHitAWMapC',cutmask='HitAWMapC_cut',type='TProfile',title='LL in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber,HitAMapC_passed;hHitAMapC',cutmask='HitAMapC_cut',type='TProfile',title='Any LL Bit: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber;unscaled_hHitAMapC',cutmask='HitAMapC_cut',type='TH1F',title='Any LL Bit: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
             rdoStackGroup.defineHistogram('OccupancyC;hOccupancyC',type='TH1F',title='Chip Occupancy Distribution;Occupancy;Number of Chips',path=oss,xbins=201,xmin=0,xmax=1.005)
             rdoStackGroup.defineHistogram('chipNumber,HitToTMapC_y;hHitToTMapC',type='TProfile',title='Mean ToT: Chips;Chip Number in Stack;Time (ns)',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-            rdoStackGroup.defineHistogram('HitHMapC_passed,chipNumber;hHitHMapC',type='TEfficiency',title='Any HL Bit: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-            rdoStackGroup.defineHistogram('HitHWMapC_passed,chipNumber;hHitHWMapC',type='TEfficiency',title='HL in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-            rdoStackGroup.defineHistogram('HtoLMapC_passed,HtoLMapC;hHtoLMapC',type='TEfficiency',title='HL/LL Ratio: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber,HitHMapC_passed;hHitHMapC',cutmask='HitHMapC_cut',type='TProfile',title='Any HL Bit: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('chipNumber,HitHWMapC_passed;hHitHWMapC',cutmask='HitHWMapC_cut',type='TProfile',title='HL in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+            rdoStackGroup.defineHistogram('HtoLMapC,HtoLMapC_passed;hHtoLMapC',type='TProfile',title='HL/LL Ratio: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
             rdoStackGroup.defineHistogram('HtoBCMapC_x,chipNumber;hHtoBCMapC',cutmask='HtoBCMap_cut',type='TH2F',title='HL in BC: Chips;Bunch Crossing ID;Chip Number in Stack',path=oss,xbins=3,xmin=0,xmax=3,ybins=iChipMax[ibe],ymin=0,ymax=iChipMax[ibe])
 
             if   ibe == 0: rdoStackGroup.defineHistogram('HtoBCMapB_x,HtoBCMapB_y;hHtoBCMapB',type='TH2F',title='HL in BC: Boards;Bunch Crossing ID;Board Number in Stack',path=oss,xbins=3,xmin=0,xmax=3,ybins=9,ymin=0,ymax=9)
             elif ibe == 1: rdoStackGroup.defineHistogram('HtoBCMapB_x,HtoBCMapB_y;hHtoBCMapB',type='TH2F',title='HL in BC: Boards;Bunch Crossing ID;Board Number in Stack',path=oss,xbins=3,xmin=0,xmax=3,ybins=20,ymin=-0.5,ymax=19.5)
 
-
     ### Registering Collisions Histograms ###
-    rdoShiftSmryGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOShiftSmryHistograms')
-
-    # Luminosity summary histograms
-    rdoShiftSmryGroup.defineHistogram('IntLum_passed,IntLum;IntLum',type='TEfficiency',title='Luminosity;;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=1,xmin=0.,xmax=1.)
-    rdoShiftSmryGroup.defineHistogram('LBvsLum_passed,LBvsLum;LBvsLum',type='TEfficiency',title='Luminosity;Luminosity Bin;Luminosity [#mub^{1}]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
-    rdoShiftSmryGroup.defineHistogram('LBvsTime_passed,LBvsTime;LBvsTime',type='TEfficiency',title='Time;Luminosity Bin;Time [s]',path='TRT/Shift/Summary',xbins=2000,xmin=0.,xmax=2000.)
-
     for ibe in range(2):
         for iside in range(2):
             regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
             rdoShiftSmryRebinnedGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOShiftSmryRebinnedHistograms{0}{1}'.format(ibe,iside))
-            rdoShiftSmryRebinnedGroup.defineHistogram('ChipBSErrorsVsLB_x,ChipBSErrorsVsLB_y;hChipBSErrorsVsLB{0}{1}'.format(beId[ibe],sideId[iside]),type='TProfile',title='Chip Bytestream Errors vs LB{0};Luminosity Block;Fraction of Chips with Errors'.format(regionTag),path='TRT/Shift/Summary',xbins=maxLumiBlock + 1,xmin=-0.5,xmax=maxLumiBlock + 0.5)
+            rdoShiftSmryRebinnedGroup.defineHistogram('ChipBSErrorsVsLB_x,ChipBSErrorsVsLB_y;hChipBSErrorsVsLB_{0}{1}'.format(beId[ibe],sideId[iside]),type='TProfile',title='Chip Bytestream Errors vs LB{0};Luminosity Block;Fraction of Chips with Errors'.format(regionTag),path='TRT/Shift/Summary',xbins=maxLumiBlockSummary + 1,xmin=-0.5,xmax=maxLumiBlockSummary + 0.5)
             #CAN_REBIN(m_hChipBSErrorsVsLB[ibe][iside]);
-            rdoShiftSmryRebinnedGroup.defineHistogram('RobBSErrorsVsLB_x,RobBSErrorsVsLB_y;hRobBSErrorsVsLB_{0}{1}'.format(beId[ibe],sideId[iside]),type='TProfile',title='Rob Bytestream Errors vs LB{0};Luminosity Block;Fraction of RODs with Errors'.format(regionTag),path='TRT/Shift/Summary',xbins=maxLumiBlock + 1,xmin=-0.5,xmax=maxLumiBlock + 0.5)
+            rdoShiftSmryRebinnedGroup.defineHistogram('RobBSErrorsVsLB_x,RobBSErrorsVsLB_y;hRobBSErrorsVsLB_{0}{1}'.format(beId[ibe],sideId[iside]),type='TProfile',title='Rob Bytestream Errors vs LB{0};Luminosity Block;Fraction of RODs with Errors'.format(regionTag),path='TRT/Shift/Summary',xbins=maxLumiBlockSummary + 1,xmin=-0.5,xmax=maxLumiBlockSummary + 0.5)
             #CAN_REBIN(m_hRobBSErrorsVsLB[ibe][iside]);
 
     # Barrel/Endcap Histograms
@@ -141,15 +135,15 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
         rdoGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOHistograms{0}'.format(ibe))
         rdoGroup.defineHistogram('BCIDvsOcc_x,BCIDvsOcc_y;hBCIDvsOcc',type='TProfile',title='Avg. Occupancy vs BCID{0};Bunch Crossing ID;Occupancy'.format(regionTag),path='TRT/{0}/Expert'.format(barrelOrEndcap[ibe]),xbins=3564,xmin=0,xmax=3564)
         if ibe == 0:
-            rdoGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap',type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(str(barrelOrEndcap[ibe])),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-            rdoGroup.defineHistogram('HitWMap_Ar_passed,strawNumber;hHitWMap_Ar',type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoGroup.defineHistogram('strawNumber,HitWMap_passed;hHitWMap',cutmask='isNotAr',type='TProfile',title='Leading Edge in Time Window: Xenon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(str(barrelOrEndcap[ibe])),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+            rdoGroup.defineHistogram('strawNumber,HitWMap_Ar_passed;hHitWMap_Ar',cutmask='isAr',type='TProfile',title='Leading Edge in Time Window: Argon Straws (Barrel);Straw Number in Stack;Probability',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
             rdoGroup.defineHistogram('OccAll;hOccAll',type='TH1F',title='Occupancy per Event;Occupancy;Events',path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=400,xmin=0.0,xmax=1.0)
         elif ibe == 1:
             for iside in range(2):
                 side = ('A', 'C')
                 rdoEndcapGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOHistograms1{0}'.format(iside))
-                rdoEndcapGroup.defineHistogram('HitWMap_passed,strawNumber;hHitWMap_{0}'.format(side[iside]),type='TEfficiency',title='Leading Edge in Time Window: Xenon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                rdoEndcapGroup.defineHistogram('HitWMap_Ar_passed,strawNumber;hHitWMap_Ar_{0}'.format(side[iside]),type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])   
+                rdoEndcapGroup.defineHistogram('strawNumber,HitWMap_passed;hHitWMap_{0}'.format(side[iside]),cutmask='isNotAr',type='TProfile',title='Leading Edge in Time Window: Xenon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                rdoEndcapGroup.defineHistogram('strawNumber,HitWMap_Ar_passed;hHitWMap_Ar_{0}'.format(side[iside]),cutmask='isAr',type='TProfile',title='Leading Edge in Time Window: Argon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])   
         for iside in range(2):
             regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
             regionMarker = (beId[ibe] + sideId[iside]) if isOnline is True else (sideId[iside])
@@ -160,22 +154,22 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
             rdoLLHLOccGroup.defineHistogram('AvgHLOccMod_side_x,AvgHLOccMod_side_y;hAvgHLOccMod_{0}'.format(regionMarker),type='TProfile',title='Avg. HL Occupancy: {0}s{1};{2};Occupancy'.format(moduleOrWheel[ibe],regionTag,moduleNumAssign[ibe]),path='TRT/{0}/Expert'.format(barrelOrEndcap[ibe]),xbins=moduleNum[ibe],xmin=0,xmax=moduleNum[ibe])
 
     effGroup = helper.addGroup(algTRTMonitoringRun3RAW,'TRTEfficiencyHistograms')
-    effGroup.defineHistogram('Efficiency_eta_passed,Efficiency_eta;hefficiency_eta',type='TEfficiency',title='Efficiency vs #eta;#eta;Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.8,xmax=2.8)
-    effGroup.defineHistogram('Efficiency_phi_passed,Efficiency_phi;hefficiency_phi',type='TEfficiency',title='Efficiency vs #phi;#phi (deg);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-3.2,xmax=3.2)
-    effGroup.defineHistogram('Efficiency_pt_passed,Efficiency_pt;hefficiency_pt',type='TEfficiency',title='Efficiency vs pT;pT (GeV);Efficiency',path='TRT/Efficiency',xbins=50,xmin=0,xmax=10)
-    effGroup.defineHistogram('Efficiency_z0_passed,Efficiency_z0;hefficiency_z0',type='TEfficiency',title='Efficiency vs z0;z0;Efficiency',path='TRT/Efficiency',xbins=50,xmin=-200,xmax=200)
-    effGroup.defineHistogram('EfficiencyBarrel_locR_passed,EfficiencyBarrel_locR;hefficiencyBarrel_locR',type='TEfficiency',title='Efficiency vs Track-to-Wire Distance for Xenon Straws (Barrel);Track-to-Wire Distance (mm);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
-    effGroup.defineHistogram('EfficiencyBarrel_locR_Ar_passed,EfficiencyBarrel_locR_Ar;hefficiencyBarrel_locR_Ar',type='TEfficiency',title='Efficiency vs Track-to-Wire Distance for Argon Straws (Barrel);Track-to-Wire Distance (mm);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
+    effGroup.defineHistogram('Efficiency_eta_passed,Efficiency_eta;hefficiency_eta',type='TProfile',title='Efficiency vs #eta;#eta;Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.8,xmax=2.8)
+    effGroup.defineHistogram('Efficiency_phi_passed,Efficiency_phi;hefficiency_phi',type='TProfile',title='Efficiency vs #phi;#phi (deg);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-3.2,xmax=3.2)
+    effGroup.defineHistogram('Efficiency_pt_passed,Efficiency_pt;hefficiency_pt',type='TProfile',title='Efficiency vs pT;pT (GeV);Efficiency',path='TRT/Efficiency',xbins=50,xmin=0,xmax=10)
+    effGroup.defineHistogram('Efficiency_z0_passed,Efficiency_z0;hefficiency_z0',type='TProfile',title='Efficiency vs z0;z0;Efficiency',path='TRT/Efficiency',xbins=50,xmin=-200,xmax=200)
+    effGroup.defineHistogram('EfficiencyBarrel_locR,EfficiencyBarrel_locR_passed;hefficiencyBarrel_locR',type='TProfile',title='Efficiency vs Track-to-Wire Distance for Xenon Straws (Barrel);Track-to-Wire Distance (mm);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
+    effGroup.defineHistogram('EfficiencyBarrel_locR_Ar,EfficiencyBarrel_locR_Ar_passed;hefficiencyBarrel_locR_Ar',type='TProfile',title='Efficiency vs Track-to-Wire Distance for Argon Straws (Barrel);Track-to-Wire Distance (mm);Efficiency',path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
     effBarrelGroup = helper.addGroup(algTRTMonitoringRun3RAW,'TRTEfficiencyHistogramsBarrel')
-    effBarrelGroup.defineHistogram('EfficiencyBarrelMap_passed,EfficiencyBarrelMap;hEfficiencyBarrelMap',type='TEfficiency',title='Straw Efficiency Map (Barrel);Straw Number;Efficiency',path='TRT/Efficiency',xbins=strawMax[0],xmin=0,xmax=strawMax[0])
+    effBarrelGroup.defineHistogram('EfficiencyBarrelMap,EfficiencyBarrelMap_passed;hEfficiencyBarrelMap',type='TProfile',title='Straw Efficiency Map (Barrel);Straw Number;Efficiency',path='TRT/Efficiency',xbins=strawMax[0],xmin=0,xmax=strawMax[0])
     effEndcapGroup = helper.addGroup(algTRTMonitoringRun3RAW,'TRTEfficiencyHistogramsEndCap')
-    effEndcapGroup.defineHistogram('EfficiencyEndCapMap_passed,EfficiencyEndCapMap;hEfficiencyEndCapMap',type='TEfficiency',title='Straw Efficiency Map (Endcap);Straw Number;Efficiency',path='TRT/Efficiency',xbins=strawMax[1],xmin=0,xmax=strawMax[1])
+    effEndcapGroup.defineHistogram('EfficiencyEndCapMap,EfficiencyEndCapMap_passed;hEfficiencyEndCapMap',type='TProfile',title='Straw Efficiency Map (Endcap);Straw Number;Efficiency',path='TRT/Efficiency',xbins=strawMax[1],xmin=0,xmax=strawMax[1])
 
     for iside in range(2):
         regionTag = ' (' + beId[1]   + sideId[iside] + ')'
         effTRTEndcapACGroup = helper.addGroup(algTRTMonitoringRun3RAW,'TRTEfficiencyHistogramsEndCap{0}'.format(iside))
-        effTRTEndcapACGroup.defineHistogram('EfficiencyEndCap_locR_passed,EfficiencyEndCap_locR;hEfficiencyEndCap{0}_locR'.format(sideId[iside]),type='TEfficiency',title='Efficiency vs Track-to-Wire Distance for Xenon Straws{0};Track-to-Wire Distance (mm);Efficiency'.format(regionTag),path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
-        effTRTEndcapACGroup.defineHistogram('EfficiencyEndCap_locR_Ar_passed,EfficiencyEndCap_locR_Ar;hEfficiencyEndCap{0}_locR_Ar'.format(sideId[iside]),type='TEfficiency',title='Efficiency vs Track-to-Wire Distance for Argon Straws{0};Track-to-Wire Distance (mm);Efficiency'.format(regionTag),path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
+        effTRTEndcapACGroup.defineHistogram('EfficiencyEndCap_locR,EfficiencyEndCap_locR_passed;hEfficiencyEndCap{0}_locR'.format(sideId[iside]),type='TProfile',title='Efficiency vs Track-to-Wire Distance for Xenon Straws{0};Track-to-Wire Distance (mm);Efficiency'.format(regionTag),path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
+        effTRTEndcapACGroup.defineHistogram('EfficiencyEndCap_locR_Ar,EfficiencyEndCap_locR_Ar_passed;hEfficiencyEndCap{0}_locR_Ar'.format(sideId[iside]),type='TProfile',title='Efficiency vs Track-to-Wire Distance for Argon Straws{0};Track-to-Wire Distance (mm);Efficiency'.format(regionTag),path='TRT/Efficiency',xbins=50,xmin=-2.5,xmax=2.5)
 
     for ibe in range(2):
         for iside in range(2):
@@ -188,8 +182,8 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                 elif ibe == 1:
                     oss = 'TRT/Endcap' + str(sideId[iside]) + '/Sector' + str(i + 1 - 32*iside) 
                 effStrawChipGroup = helper.addGroup(algTRTMonitoringRun3RAW,'TRTEfficiencyHistograms{0}{1}'.format(ibe,i))
-                effStrawChipGroup.defineHistogram('EfficiencyS_passed,EfficiencyS;hHitEfficiencyS',type='TEfficiency',title='Straw Efficiency Map;Straw Number;Efficiency',path=oss,xbins=strawMax[ibe],xmin=0.5,xmax=strawMax[ibe])
-                effStrawChipGroup.defineHistogram('EfficiencyC_passed,EfficiencyC;hHitEfficiencyC',type='TEfficiency',title='Chip Efficiency Map;Chip Number;Efficiency',  path=oss,xbins=iChipMax[ibe],xmin=0.5,xmax=iChipMax[ibe])
+                effStrawChipGroup.defineHistogram('EfficiencyS,EfficiencyS_passed;hHitEfficiencyS',type='TProfile',title='Straw Efficiency Map;Straw Number;Efficiency',path=oss,xbins=strawMax[ibe],xmin=0.5,xmax=strawMax[ibe])
+                effStrawChipGroup.defineHistogram('EfficiencyC,EfficiencyC_passed;hHitEfficiencyC',type='TProfile',title='Chip Efficiency Map;Chip Number;Efficiency',  path=oss,xbins=iChipMax[ibe],xmin=0.5,xmax=iChipMax[ibe])
     ## Finished Booking TRT RDO Histograms ###
 
     ### Booking TRT Hits Histograms ###
@@ -215,25 +209,24 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                         nBarrelModules = i + 1 - 32
                         oss = 'TRT/EndcapC/Sector{0}'.format(nBarrelModules)      
 
-                trackGroup.defineHistogram('HitWonTMapS_passed,HitWonTMapS;hHitWonTMapS',type='TEfficiency',title='Leading Edge on Track in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HitAonTMapS_passed,HitAonTMapS;hHitAonTMapS',type='TEfficiency',title='Any LL Bit on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('EfficiencyS_passed,EfficiencyS;hEfficiencyS',type='TEfficiency',title='Straw Efficiency with {0} mm Cut;Straw Number in Stack;Efficiency'.format(distance),path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HitHonTMapS_passed,HitHonTMapS;hHitHonTMapS',type='TEfficiency',title='HL Hit on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HitHWonTMapS_passed,HitHWonTMapS;hHitHWonTMapS',type='TEfficiency',title='HL Hit(In Time Window) on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HitAWonTMapS_passed,HitAWonTMapS;hHitAWonTMapS',type='TEfficiency',title='Any LL Bit on Track in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HitWonTMapC_passed,HitWonTMapC;hHitWonTMapC',type='TEfficiency',title='Leading Edge on Track in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HitTronTMapC_x,HitTronTMapC_y;hHitTronTMapC',type='TProfile',title='Mean Trailing Edge on Track: Chips;Chip Number in Stack;Time (ns)',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HitAonTMapC_passed,HitAonTMapC;hHitAonTMapC',type='TEfficiency',title='Any LL Bit on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('EfficiencyC_passed,EfficiencyC;hEfficiencyC',type='TEfficiency',title='Chip Efficiency with {0} mm Cut;Chip Number in Stack;Efficiency'.format(distance),path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HitAWonTMapC_passed,HitAWonTMapC;hHitAWonTMapC',type='TEfficiency',title='Any LL Bit on Track in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HitHonTMapC_passed,HitHonTMapC;hHitHonTMapC',type='TEfficiency',title='HL Hit on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HitHWonTMapC_passed,HitHWonTMapC;hHitHWonTMapC',type='TEfficiency',title='HL Hit(In time Window) on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HtoLonTMapS_passed,HtoLonTMapS;hHtoLonTMapS',type='TEfficiency',title='HL/LL Ratio on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
-                trackGroup.defineHistogram('HtoLWonTMapS_passed,HtoLWonTMapS;hHtoLWonTMapS',type='TEfficiency',title='HL/LL (In Time Window) Ratio on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HitWonTMapS;unscaled_hHitWonTMapS',type='TH1F',title='Leading Edge on Track in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HitAonTMapS;unscaled_hHitAonTMapS',type='TH1F',title='Any LL Bit on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HitHonTMapS;unscaled_hHitHonTMapS',type='TH1F',title='HL Hit on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HitHWonTMapS;unscaled_hHitHWonTMapS',type='TH1F',title='HL Hit(In Time Window) on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HitAWonTMapS;unscaled_hHitAWonTMapS',type='TH1F',title='Any LL Bit on Track in Time Window: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('EfficiencyS,EfficiencyS_passed;hEfficiencyS',type='TProfile',title='Straw Efficiency with {0} mm Cut;Straw Number in Stack;Efficiency'.format(distance),path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('EfficiencyC,EfficiencyC_passed;hEfficiencyC',type='TProfile',title='Chip Efficiency with {0} mm Cut;Chip Number in Stack;Efficiency'.format(distance),path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HitWonTMapC;unscaled_hHitWonTMapC',type='TH1F',title='Leading Edge on Track in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HitAonTMapC;unscaled_hHitAonTMapC',type='TH1F',title='Any LL Bit on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HitAWonTMapC;unscaled_hHitAWonTMapC',type='TH1F',title='Any LL Bit on Track in Time Window: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HitHonTMapC;unscaled_hHitHonTMapC',type='TH1F',title='HL Hit on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HitHWonTMapC;unscaled_hHitHWonTMapC',type='TH1F',title='HL Hit(In time Window) on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HtoLonTMapS,HtoLonTMapS_passed;hHtoLonTMapS',type='TProfile',title='HL/LL Ratio on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
+                trackGroup.defineHistogram('HtoLWonTMapS,HtoLWonTMapS_passed;hHtoLWonTMapS',type='TProfile',title='HL/LL (In Time Window) Ratio on Track: Straws;Straw Number in Stack;Probability',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
                 trackGroup.defineHistogram('HitonTrackVAllS_x,HitonTrackVAllS_y;hHitonTrackVAllS',type='TProfile',title='(Hit on Track) / (Any LL Bit): Straws;Straw Number in Stack;Ratio',path=oss,xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])
                 trackGroup.defineHistogram('HitonTrackVAllC_x,HitonTrackVAllC_y;hHitonTrackVAllC',type='TProfile',title='(Hit on Track) / (Any LL Bit): Chips;Chip Number in Stack;Ratio',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HtoLWonTMapC_passed,HtoLWonTMapC;hHtoLWonTMapC',type='TEfficiency',title='HL/LL(In Time Window) Ratio on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
-                trackGroup.defineHistogram('HtoLonTMapC_passed,HtoLonTMapC;hHtoLonTMapC',type='TEfficiency',title='HL/LL Ratio on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HtoLWonTMapC,HtoLWonTMapC_passed;hHtoLWonTMapC',type='TProfile',title='HL/LL(In Time Window) Ratio on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
+                trackGroup.defineHistogram('HtoLonTMapC,HtoLonTMapC_passed;hHtoLonTMapC',type='TProfile',title='HL/LL Ratio on Track: Chips;Chip Number in Stack;Probability',path=oss,xbins=iChipMax[ibe],xmin=0,xmax=iChipMax[ibe])
 
     for ibe in range(2):
         if ibe == 0:
@@ -245,7 +238,7 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
             shiftTrackGroup.defineHistogram('HLhitOnTrack_B;hHLhitOnTrack',type='TH1F',title='Number of HL Hits per Reconstructed Track{0};Number of HL Hits per Track;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=50,xmin=0,xmax=50)
             shiftTrackGroup.defineHistogram('HtoLRatioOnTrack_B;hHtoLRatioOnTrack',type='TH1F',title='HL/LL Ratio per Reconstructed Track for All{0};HL/LL Ratio;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=50,xmin=0,xmax=1)
             shiftTrackGroup.defineHistogram('HitWonTMap_B;hHitWonTMap',type='TH1F',title='Leading Edge in Time Window per Reconstructed Track{0};Straw Number;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[0],xmin=0,xmax=strawMax[0])
-            shiftTrackGroup.defineHistogram('StrawEffDetPhi_B_passed,StrawEffDetPhi_B;hStrawEffDetPhi',type='TEfficiency',title='Straw Efficiency on Track with {0} mm Cut vs #phi(2D){1};Stack;Avg. Straw Efficiency'.format(distance,regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=32)
+            shiftTrackGroup.defineHistogram('StrawEffDetPhi_B_passed,StrawEffDetPhi_B;hStrawEffDetPhi',type='TProfile',title='Straw Efficiency on Track with {0} mm Cut vs #phi(2D){1};Stack;Avg. Straw Efficiency'.format(distance,regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=32)
         elif ibe == 1:
             for iside in range(2):
                 regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
@@ -256,19 +249,21 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                 shiftTrackEndcapGroup.defineHistogram('HLhitOnTrack_E;hHLhitOnTrack_{0}'.format(sideId[iside]),type='TH1F',title='Number of HL Hits per Reconstructed Track{0};Number of HL Hits per Track;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=50,xmin=0,xmax=50)
                 shiftTrackEndcapGroup.defineHistogram('HtoLRatioOnTrack_E;hHtoLRatioOnTrack_{0}'.format(sideId[iside]),type='TH1F',title='HL/LL Ratio per Reconstructed Track for All{0};HL/LL Ratio;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=50,xmin=0,xmax=1)
                 shiftTrackEndcapGroup.defineHistogram('HitWonTMap_E;hHitWonTMap_{0}'.format(sideId[iside]),type='TH1F',title='Leading Edge in Time Window per Reconstructed Track{0};Straw Number;Entries'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[1],xmin=0,xmax=strawMax[1])
-                shiftTrackEndcapGroup.defineHistogram('StrawEffDetPhi_E_passed,StrawEffDetPhi_E;hStrawEffDetPhi_{0}'.format(sideId[iside]),type='TEfficiency',title='Straw Efficiency on Track with {0} mm Cut vs #phi(2D){1};Stack;Avg. Straw Efficiency'.format(distance,regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=32)
+                shiftTrackEndcapGroup.defineHistogram('StrawEffDetPhi_E_passed,StrawEffDetPhi_E;hStrawEffDetPhi_{0}'.format(sideId[iside]),type='TProfile',title='Straw Efficiency on Track with {0} mm Cut vs #phi(2D){1};Stack;Avg. Straw Efficiency'.format(distance,regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=32)
     ### Finished Booking TRT Hits Histograms ###
 
     for ibe in range(2):
+        regionTag = ' (' + barrelOrEndcap[ibe] + ')'
         if ibe == 0:
             rdoShiftRebinnedBarrelGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOShiftRebinnedBarrelHistograms0')
-            rdoShiftRebinnedBarrelGroup.defineHistogram('NHitsperLB_x,NHitsperLB_y;hNHitsperLB',type='TProfile',title='Avg. Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run') #CAN_REBIN(m_hNHitsperLB_B);
-            rdoShiftRebinnedBarrelGroup.defineHistogram('NHLHitsperLB_x,NHLHitsperLB_y;hNHLHitsperLB',type='TProfile',title='Avg. HL Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run') #CAN_REBIN(m_hNHLHitsperLB_B);
+            rdoShiftRebinnedBarrelGroup.defineHistogram('NHitsperLB_x,NHitsperLB_y;hNHitsperLB',type='TProfile',title='Avg. Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiBlockShift,xmin=-0.5,xmax=maxLumiBlockShift-0.5,duration='run') #CAN_REBIN(m_hNHitsperLB_B);
+            rdoShiftRebinnedBarrelGroup.defineHistogram('NHLHitsperLB_x,NHLHitsperLB_y;hNHLHitsperLB',type='TProfile',title='Avg. HL Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiBlockShift,xmin=-0.5,xmax=maxLumiBlockShift-0.5,duration='run') #CAN_REBIN(m_hNHLHitsperLB_B);
         elif ibe == 1:
             for iside in range(2):
+                regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
                 rdoShiftRebinnedEndcapGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOShiftRebinnedEndcapHistograms1{0}'.format(iside))
-                rdoShiftRebinnedEndcapGroup.defineHistogram('NHitsperLB_x,NHitsperLB_y;hNHitsperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run') #CAN_REBIN(m_hNHitsperLB_E[iside]);
-                rdoShiftRebinnedEndcapGroup.defineHistogram('NHLHitsperLB_x,NHLHitsperLB_y;hNHLHitsperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. HL Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiblock,xmin=-0.5,xmax=maxLumiblock-0.5,duration='run') #CAN_REBIN(m_hNHLHitsperLB_E[iside]);
+                rdoShiftRebinnedEndcapGroup.defineHistogram('NHitsperLB_x,NHitsperLB_y;hNHitsperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiBlockShift,xmin=-0.5,xmax=maxLumiBlockShift-0.5,duration='run') #CAN_REBIN(m_hNHitsperLB_E[iside]);
+                rdoShiftRebinnedEndcapGroup.defineHistogram('NHLHitsperLB_x,NHLHitsperLB_y;hNHLHitsperLB_{0}'.format(sideId[iside]),type='TProfile',title='Avg. HL Occupancy{0};Luminosity Block;Occupancy'.format(regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=maxLumiBlockShift,xmin=-0.5,xmax=maxLumiBlockShift-0.5,duration='run') #CAN_REBIN(m_hNHLHitsperLB_E[iside]);
 
 
     if isRun3Cfg():

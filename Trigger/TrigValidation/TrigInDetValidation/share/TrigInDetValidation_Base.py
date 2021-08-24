@@ -13,7 +13,7 @@ from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigCostStep, TrigInDetRdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
-import sys,getopt
+import os,sys,getopt
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"lcxptmn:",["local","config"])
@@ -57,6 +57,11 @@ for opt,arg in opts:
         testconfig = True
     if opt=="-t":
         dry_run=True
+
+vdry_run = os.environ.get('TRIGVALSTEERING_DRY_RUN')
+
+if vdry_run == '1':
+    dry_run=True
 
 
 if 'postinclude_file' in dir() :
@@ -110,6 +115,17 @@ if (Malloc):
     os.environ["MALLOC_CHECK_"] = "3"
     rdo2aod.malloc = True
 
+for a in ["preexec_trig", "preexec_reco", "preexec_aod", "preexec_all", "postexec_trig", "postexec_reco"]:
+    if a in locals():
+        v = locals()[a]
+        if type(v) is list: v = ";".join(v)
+        v0 = getattr (rdo2aod, a)
+        if v0 is None or v0 == "":
+            v0 = v
+        else:
+            v0 += ";"+v
+        setattr (rdo2aod, a, v0)
+
 # Run athena analysis to produce TrkNtuple
 
 test = Test.Test()
@@ -134,9 +150,9 @@ if (not exclude):
 if ((not exclude) or postproc ):
     for job in Jobs :
         if len(job) >= 3:
-            rdict = TrigInDetRdictStep( name=job[0], args=job[1], testbin=job[2] )
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], testbin=job[2], config=(testconfig or dry_run)  )
         else:
-            rdict = TrigInDetRdictStep( name=job[0], args=job[1] )
+            rdict = TrigInDetRdictStep( name=job[0], args=job[1], config=(testconfig or dry_run) )
         print( "\n\033[0;32m TIDArdict "+job[1]+" \033[0m" )
         test.check_steps.append(rdict)
 

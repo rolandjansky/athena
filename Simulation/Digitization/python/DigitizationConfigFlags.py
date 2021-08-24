@@ -4,6 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Logging import log
 from PyUtils import AthFile
 
@@ -72,8 +73,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?
     flags.addFlag("Digitization.DoXingByXingPileUp", False)
-    # Run pile-up presampling
-    flags.addFlag("Digitization.PileUpPresampling", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     # Run Calorimeter noise simulation
@@ -103,11 +102,22 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.DataRunNumber", -1)
     # Job number
     flags.addFlag("Digitization.JobNumber", 1)
+    # Beam spot reweighting (-1 disables it)
+    flags.addFlag("Digitization.InputBeamSigmaZ", -1)
 
     # Run radiation damage simulation
     flags.addFlag("Digitization.DoRadiationDamage", False)
 
     # for PileUp digitization
+    # Bunch structure configuration
+    flags.addFlag("Digitization.PU.BunchStructureConfig", "")
+    # Pile-up profile configuration
+    flags.addFlag("Digitization.PU.ProfileConfig", "")
+    # Custom pile-up profile configuration - fully custom or for mu range
+    flags.addFlag("Digitization.PU.CustomProfile", "")
+    # Force sequential event numbers
+    flags.addFlag("Digitization.PU.ForceSequentialEventNumbers",
+                  lambda prevFlags: prevFlags.Common.ProductionStep == ProductionStep.PileUpPresampling)
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
     # LHC Bunch Structure (list of non-negative floats)
@@ -165,7 +175,7 @@ def digitizationRunArgsToFlags(runArgs, flags):
         flags.Digitization.JobNumber = runArgs.jobNumber
 
     if hasattr(runArgs, "PileUpPresampling"):
-        flags.Digitization.PileUpPresampling = runArgs.PileUpPresampling
+        flags.Common.ProductionStep = ProductionStep.PileUpPresampling
 
     if hasattr(runArgs, "doAllNoise"):
         flags.Digitization.DoInnerDetectorNoise = runArgs.doAllNoise
@@ -174,8 +184,11 @@ def digitizationRunArgsToFlags(runArgs, flags):
     if hasattr(runArgs, "AddCaloDigi"):
         flags.Digitization.AddCaloDigi = runArgs.AddCaloDigi
 
-    if hasattr(runArgs, "digiSeedOffset1"):
-        flags.Digitization.RandomSeedOffset = runArgs.digiSeedOffset1
+    flags.Digitization.RandomSeedOffset = 0
+    if hasattr(runArgs,"digiSeedOffset1"):
+        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset1)
+    if hasattr(runArgs,"digiSeedOffset2"):
+        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset2)
 
     if hasattr(runArgs, "digiSteeringConf"):
         flags.Digitization.DigiSteeringConf = runArgs.digiSteeringConf + "PileUpToolsAlg"
@@ -218,7 +231,11 @@ def pileupRunArgsToFlags(runArgs, flags):
                                                flags.Digitization.PU.NumberOfLowPtMinBias, True)
 
     if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
-        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        from Digitization.PileUpUtils import getInputCollectionOffset, generateBackgroundInputCollections
+        if flags.Digitization.PU.HighPtMinBiasInputColOffset < 0:
+            # Calculate a pseudo random offset into the collection from the jobNumber
+            flags.Digitization.PU.HighPtMinBiasInputColOffset = getInputCollectionOffset(flags, runArgs.inputHighPtMinbiasHitsFile)
+
         flags.Digitization.PU.HighPtMinBiasInputCols = \
             generateBackgroundInputCollections(flags, runArgs.inputHighPtMinbiasHitsFile,
                                                flags.Digitization.PU.NumberOfHighPtMinBias, True)
@@ -243,3 +260,21 @@ def pileupRunArgsToFlags(runArgs, flags):
 
     # TODO: Not covered yet as no flag equivalents exist yet
     # '--testPileUpConfig'
+
+
+def setupDigitizationFlags(runArgs, flags):
+    """Setup common digitization flags."""
+    # autoconfigure pile-up if inputs are present
+    if (hasattr(runArgs, "inputLowPtMinbiasHitsFile")
+        or hasattr(runArgs, "inputHighPtMinbiasHitsFile")
+        or hasattr(runArgs, "inputCavernHitsFile")
+        or hasattr(runArgs, "inputBeamHaloHitsFile")
+        or hasattr(runArgs, "inputBeamGasHitsFile")):
+        flags.Digitization.PileUp = True
+
+    if flags.Digitization.PileUp:
+        flags.Input.OverrideRunNumber = True
+        # keep this one True by default in CA-based config
+        flags.Digitization.DoXingByXingPileUp = True
+    else:
+        flags.Input.OverrideRunNumber = flags.Digitization.DataRunNumber > 0

@@ -35,6 +35,8 @@ class ParametersT;
  It inherits from Surface.
 
  @author Andreas.Salzburger@cern.ch
+ @author Christos Anastopoulos (Thread safety and interface cleanup)
+ @author Shaun Roe (interface cleanup)
  */
 
 class PerigeeSurface final : public Surface
@@ -73,6 +75,9 @@ public:
 
   /**Virtual constructor*/
   virtual PerigeeSurface* clone() const override final;
+  
+  /** NVI unique_ptr method **/
+  std::unique_ptr<PerigeeSurface> uniqueClone() const;
 
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;

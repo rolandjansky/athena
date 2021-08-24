@@ -46,9 +46,9 @@ def formatRvalue(parameter):
 
 # Could also split off a VR name builder
 def buildJetAlgName(finder, mainParam,
-                    variableRMassScale=None, variableRMinRadius=None):
+                    variableRMassScale= -1.0, variableRMinRadius=-1.0):
     """variableRMassScale (Rho) in MeV """
-    if ( variableRMassScale and variableRMinRadius ):
+    if ( variableRMassScale >= 0.0 and variableRMinRadius >= 0.0):
         rmaxstr = formatRvalue(mainParam)
         rminstr = formatRvalue(variableRMinRadius)
         return f"{finder}VR{str(int(variableRMassScale/1000))}Rmax{rmaxstr}Rmin{rminstr}"
@@ -64,6 +64,7 @@ from AthenaCommon.SystemOfUnits import MeV
 @clonable
 @onlyAttributesAreProperties
 class JetDefinition(object):
+    _allowedattributes = ['_cflags'] # onlyAttributesAreProperties will add all properties to this list.
     def __init__(self,
                  algorithm,           # The fastjet clustering algorithm
                  radius,              # The jet radius specifier (clustering cutoff)
@@ -76,6 +77,8 @@ class JetDefinition(object):
                  prefix = "",         # allows to tune the full JetContainer name
                  suffix = "",         # allows to tune the full JetContainer name
                  context = "default", # describe a context for which this definition will be used. See StandardJetContext
+                 VRMinR = -1.0, # Minimum radius for VR jet finding
+                 VRMassSc = -1.0, # Mass scale for VR jet finding, in MeV
                  lock = False,        # lock the properties of this instance to avoid accidental overwrite after __init__
     ):     
 
@@ -92,6 +95,8 @@ class JetDefinition(object):
         self._prefix = prefix
         self._suffix = suffix
         self._context = context
+        self._VRMinRadius = VRMinR
+        self._VRMassScale = VRMassSc
         self._defineName()
         
         self.ptmin = ptmin # The pt down to which FastJet is run
@@ -102,15 +107,11 @@ class JetDefinition(object):
 
         self.standardRecoMode = standardRecoMode
         
-        # These should probably go in a derived class
-        self.VRMinRadius = None
-        self.VRMassScale = None
-
-        
         # used internally to resolve dependencies
         self._prereqDic = {}
         self._prereqOrder = [] 
-        self._internalAtt = {} 
+        self._internalAtt = {}
+        self._cflags = None # pointer to AthenaConfiguration.ConfigFlags. Mainly to allow to invoke building of input dependencies which are outside Jet domain during std reco
         self._locked = lock
 
             
@@ -186,7 +187,7 @@ class JetDefinition(object):
         return self.prefix+self.basename+"Jets"+self.suffix
         
     def _defineName(self):
-        self._basename = buildJetAlgName(self.algorithm,self.radius)+self.inputdef.label # .label
+        self._basename = buildJetAlgName(self.algorithm,self.radius,self.VRMassScale,self.VRMinRadius)+self.inputdef.label # .label
         if self.inputdef.basetype == xAODType.CaloCluster:
             # Omit cluster origin correction from jet name
             # Keep the origin correction explicit because sometimes we may not
@@ -251,8 +252,6 @@ class JetModifier(object):
         # These will be set as the Gaudi properties of the C++ tool
         self.properties = properties
         
-        self._instanceMap = {}
-        #self._locked = lock
                 
 
         
@@ -422,7 +421,6 @@ class JetInputType(IntEnum):
     HI=auto()
     HIClusters=auto()
     Other = 100
-    EMPFlowFE = 200 # Temporary, until xAOD::PFO is phased out and replaced with xAOD::FlowElement
     Uncategorized= 1000
 
     def fromxAODType(xt):
@@ -523,7 +521,6 @@ class JetInputConstitSeq(JetInputConstit):
         self.inputname  = inputname or name
         self.modifiers = modifiers
 
-        self._instanceMap = dict() # internal maps of modifier to actual configuration object        
         
         self._locked = lock
 
@@ -549,7 +546,7 @@ class JetInputConstitSeq(JetInputConstit):
     
     # Define a string conversion for printing
     def __str__(self):
-        return f"JetInputConstitSeq({self.name}, {self.inputname} , {self.outputname})"
+        return f"JetInputConstitSeq({self.name}, {self.inputname} , {self.containername})"
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
     
@@ -569,17 +566,23 @@ class JetConstitModifier(object):
     def __init__(self,
                  name,
                  tooltype,
-                 properties={}):
+                 prereqs= [],                 
+                 properties={},
+                 ):
         self.name = name
         self.tooltype = tooltype
         self.properties = properties
-
+        self.prereqs = prereqs
+        self.filterfn = _condAlwaysPass # we might want to make this a proper attribute in the future
+        
     @make_lproperty
     def name(self): pass
     @make_lproperty
     def tooltype(self): pass
     @make_lproperty
     def properties(self): pass
+    @make_lproperty
+    def prereqs(self): pass
 
 
 

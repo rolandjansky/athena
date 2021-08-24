@@ -23,7 +23,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
    MuonEventAthenaPool/*.h src/*Cnv.h src/*Cnv.cxx
    FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h
          MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h
-         MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h
+         MuonRDO/TgcRdoContainer.h MuonRDO/TgcL1RdoContainer.h MuonRDO/CscRawDataContainer.h
          MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h
          MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h
          MuonDigitContainer/RpcDigitContainer.h
@@ -75,7 +75,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONEVENTATHENAPOOL_REFERENCE_TAG
-       MuonEventAthenaPoolReference-03-01-00 )
+       MuonEventAthenaPoolReference-04-00-00 )
   run_tpcnv_test( MuonEventTPCnv_17.0.0 ESD-17.0.0
                   REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2

@@ -191,12 +191,10 @@ def writeDigitizationMetadata():
     # Make the MetaData Db
     #-------------------------------------------------
     dbFiller.genDigitDb()
-
+    from IOVDbSvc.CondDB import conddb
     folder = "/Digitization/Parameters"
-    dbConnection = "sqlite://;schema=DigitParams.db;dbname=DIGPARAM"
+    conddb.addFolder("",folder+"<db>sqlite://;schema=DigitParams.db;dbname=DIGPARAM</db>", className = 'AthenaAttributeList')
     from AthenaCommon.AppMgr import ServiceMgr
-    ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
     ServiceMgr.IOVDbSvc.FoldersToMetaData += [ folder ]
     ServiceMgr.IOVSvc.partialPreLoadData = True
-
     #raise SystemExit("Testing")

@@ -17,10 +17,7 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDORawData.h"
 
-// static member variables
-const double TRT_LoLumRawData::m_driftTimeBinWidth = 3.125;
-const unsigned int TRT_LoLumRawData::m_maskFourLastBits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
-const unsigned int TRT_LoLumRawData::m_maskThreeLastBits=0xFFFFFF8;  // 1 1 11111111 1 11111111 1 11111000
+
 
 // default constructor
 TRT_LoLumRawData::TRT_LoLumRawData() :
@@ -33,10 +30,6 @@ TRT_LoLumRawData::TRT_LoLumRawData(const Identifier rdoId,
   TRT_RDORawData( rdoId, word) //call base-class constructor
 {}
 
-// Destructor:
-//should I be destructing something here?
-TRT_LoLumRawData::~TRT_LoLumRawData()
-{}
 
 unsigned int TRT_LoLumRawData::driftTimeBin(unsigned int word) {
   unsigned int leadingEdge=0, trailingEdge=0;

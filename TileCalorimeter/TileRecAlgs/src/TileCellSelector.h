@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECALGS_TILESELECTOR_H
@@ -123,23 +123,23 @@ class TileCellSelector: public AthAlgorithm {
 
     float m_minEneCell;
     float m_maxEneCell;
-    float m_minEneChan[3];
-    float m_maxEneChan[3];
+    float m_minEneChan[3]{};
+    float m_maxEneChan[3]{};
     float m_minTimeCell;
     float m_maxTimeCell;
-    float m_minTimeChan[3];
-    float m_maxTimeChan[3];
+    float m_minTimeChan[3]{};
+    float m_maxTimeChan[3]{};
     int m_ptnEneCell;
-    int m_ptnEneChan[3];
+    int m_ptnEneChan[3]{};
     int m_ptnTimeCell;
-    int m_ptnTimeChan[3];
+    int m_ptnTimeChan[3]{};
     int m_selectGain;
-    bool m_skipGain[2];
+    bool m_skipGain[2]{};
 #define ptnlength 5
-    bool m_bitEneCell[ptnlength];
-    bool m_bitTimeCell[ptnlength];
-    bool m_bitEneChan[3][ptnlength];
-    bool m_bitTimeChan[3][ptnlength];
+    bool m_bitEneCell[ptnlength]{};
+    bool m_bitTimeCell[ptnlength]{};
+    bool m_bitEneChan[3][ptnlength]{};
+    bool m_bitTimeChan[3][ptnlength]{};
     float m_secondMaxLevel;
     float m_jumpDeltaHG;
     float m_jumpDeltaLG;
@@ -176,8 +176,8 @@ class TileCellSelector: public AthAlgorithm {
 
     std::string m_infoName;
     const TileInfo* m_tileInfo;
-    float m_ADCmaxMinusEps;
-    float m_ADCmaskValueMinusEps;
+    float m_ADCmaxMinusEps = 0.0F;
+    float m_ADCmaskValueMinusEps = 0.0F;
 };
 
 #endif // TILERECALGS_TILESELECTOR_H

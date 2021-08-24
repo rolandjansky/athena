@@ -68,7 +68,7 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
       ATH_MSG_WARNING("AFP_SIDLocReco, cannot get siHitContainer");
       return StatusCode::SUCCESS;
   }
-  else ATH_MSG_INFO("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
+  else ATH_MSG_DEBUG("AFP_SIDLocReco::execute(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
 	
   // get list of hits SID hits from the container
   std::list<SIDHIT> ListSIDHits = AFPCollectionReading(siHitContainer, eventInfo);
@@ -81,7 +81,7 @@ StatusCode AFP_SIDLocReco::execute(const EventContext& ctx) const
   auto monitorIt    = Monitored::Group( m_monTool, hitsSize);
 
   std::string strAlgoSID;
-  for(unsigned int i=0; i<m_vecListAlgoSID.size(); i++)
+  for(unsigned int i=0; i<m_vecListAlgoSID.size(); ++i)
   {
     strAlgoSID = m_vecListAlgoSID[i];
 
@@ -131,7 +131,7 @@ std::list<SIDHIT> AFP_SIDLocReco::AFPCollectionReading(SG::ReadHandle<xAOD::AFPS
   std::list<SIDHIT> ListSIDHits;
   ListSIDHits.clear();
 
-  for(auto hit : *siHitContainer)
+  for(const auto *hit : *siHitContainer)
   {
     SIDHit.iEvent 			= eventInfo->eventNumber();
     SIDHit.fADC  			= hit->depositedCharge();
@@ -152,9 +152,9 @@ StatusCode AFP_SIDLocReco::ReadGeometryDetCS()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ReadGeometryDetCS()");
 
-  for(Int_t nStationID = 0; nStationID < SIDSTATIONID; nStationID++)
+  for(Int_t nStationID = 0; nStationID < SIDSTATIONID; ++nStationID)
     {				
-      for (Int_t nPlateID = 0; nPlateID < SIDCNT; nPlateID++)
+      for (Int_t nPlateID = 0; nPlateID < SIDCNT; ++nPlateID)
 	{
 			
 	  HepGeom::Point3D<double> LocPoint = HepGeom::Point3D<double>(-SID_SENSORXDIM+SID_DEATH_EDGE, -SID_SENSORYDIM+SID_LOWER_EDGE, 0.*CLHEP::mm); //changed! (death edge info from AFP_Geometry)
@@ -188,7 +188,7 @@ StatusCode AFP_SIDLocReco::ReadGeometryDetCS()
 }
 
 
-StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const
+StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const std::list<SIDHIT> &ListSIDHits, SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer, const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ExecuteRecoMethod()");
   
@@ -217,10 +217,10 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
       afpTrkContainer->reserve(listSIDResults.size());
 
       std::list<SIDRESULT>::const_iterator iter;
-      for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); iter++) {
+      for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); ++iter) {
         if (iter->nStationID != -1) {
           // fill the container with a "dummy" track, then set it properly
-          auto track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
+          auto *track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
 
           track->setStationID(iter->nStationID);
           track->setXLocal(iter->x_pos);
@@ -266,7 +266,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
             const int pixelLayer = ( (*hitIter)/100000) % 10;
             const int pixelStation = ( (*hitIter)/1000000) % 10;
             unsigned int result = 0;
-            for (auto origHitIter : *siHitContainer) {
+            for (const auto *origHitIter : *siHitContainer) {
               if (
                   (origHitIter)->pixelVertID() == pixelRow
                   && (origHitIter)->pixelHorizID() == pixelCol
@@ -275,7 +275,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const st
                   )
                 break;
 
-              result++;
+              ++result;
             }
 
           // check if the hit was found

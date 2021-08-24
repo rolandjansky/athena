@@ -175,7 +175,10 @@ bool psc::Psc::configure(const ptree& config)
       ERS_DEBUG(1,"Initializing Python interpreter");
 
       Py_Initialize();
-      if (!PyEval_ThreadsInitialized()) PyEval_InitThreads();
+
+      /*
+       * The GIL is initialized by Py_Initialize() since Python 3.7."
+       */
 
       // check
       if ( ! Py_IsInitialized() ) {
@@ -676,10 +679,8 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
     /* Release the Python GIL (which we inherited from the mother)
        to avoid dead-locking on the first call to Python. Only relevant
        if Python is initialized and Python-based algorithms are used. */
-    if (PyEval_ThreadsInitialized()) {
-      ERS_DEBUG(1, "Releasing Python GIL");
-      PyEval_SaveThread();
-    }
+    ERS_DEBUG(1, "Releasing Python GIL");
+    PyEval_SaveThread();
   }
 
   m_workerID = args.get<int>("workerId");

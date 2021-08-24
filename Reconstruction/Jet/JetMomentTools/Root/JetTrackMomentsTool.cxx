@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -192,7 +192,7 @@ const std::vector<JetTrackMomentsTool::TrackMomentStruct> JetTrackMomentsTool::g
 JetTrackMomentsTool::TrackMomentStruct JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, const xAOD::Vertex* vertex, const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
 {
     // Prepare the moments
-    TrackMomentStruct moments;
+    TrackMomentStruct moments{};
     moments.numTrk = 0;
     moments.sumPtTrk = 0;
     moments.trackWidth = 0;

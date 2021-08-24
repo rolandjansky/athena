@@ -98,9 +98,11 @@ def generateCaloSensitiveDetectorList():
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.LAr_on():
         SensitiveDetectorList += [ 'LArEMBSensitiveDetector','LArEMECSensitiveDetector','LArFCALSensitiveDetector',\
-                                   'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+                                   'LArHECSensitiveDetector']
+        if False:  # disabled for now
+            SensitiveDetectorList += [ 'LArMiniFCALSensitiveDetector' ]
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-            SensitiveDetectorList += [ 'HGTDSensorSD' ]
+            raise RuntimeError('High Luminosity LHC configurations only supported in CA-based configuration')
         else:
             SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags

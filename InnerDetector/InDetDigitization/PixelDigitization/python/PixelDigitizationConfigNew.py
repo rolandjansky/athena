@@ -4,18 +4,19 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg,
-    PixelDistortionAlgCfg, PixelRadSimFluenceMapAlgCfg
-    # TODO: NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
+    PixelDistortionAlgCfg, PixelRadSimFluenceMapAlgCfg,
+    PixelChargeLUTCalibCondAlgCfg
 )
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 
@@ -104,13 +105,15 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
 
 def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
-    acc = PixelCablingSvcCfg(flags)
+    acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI4SimTool = CompFactory.FEI4SimTool
     acc.setPrivateTools(FEI4SimTool(name, **kwargs))
@@ -119,13 +122,15 @@ def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
 
 def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
-    acc = PixelCablingSvcCfg(flags)
+    acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 4)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI4SimTool = CompFactory.FEI4SimTool
     acc.setPrivateTools(FEI4SimTool(name, **kwargs))
@@ -134,12 +139,14 @@ def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
 
 def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
-    acc = PixelCablingSvcCfg(flags)
+    acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI3SimTool = CompFactory.FEI3SimTool
     acc.setPrivateTools(FEI3SimTool(name, **kwargs))
@@ -148,12 +155,14 @@ def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
 
 def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
-    acc = PixelCablingSvcCfg(flags)
+    acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    # TODO: NEW FOR RUN3 acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run=="RUN3":
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     FEI3SimTool = CompFactory.FEI3SimTool
     acc.setPrivateTools(FEI3SimTool(name, **kwargs))
@@ -191,6 +200,12 @@ def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
     rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "PixelRDOs")
+        kwargs.setdefault("SDOCollName", flags.Overlay.BkgPrefix + "PixelSDO_Map")
+    else:
+        kwargs.setdefault("RDOCollName", "PixelRDOs")
+        kwargs.setdefault("SDOCollName", "PixelSDO_Map")
     tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc

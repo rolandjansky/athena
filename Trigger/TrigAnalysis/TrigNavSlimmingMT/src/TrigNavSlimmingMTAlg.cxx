@@ -18,8 +18,25 @@ TrigNavSlimmingMTAlg::TrigNavSlimmingMTAlg(const std::string& name, ISvcLocator*
 StatusCode TrigNavSlimmingMTAlg::initialize() {
   ATH_CHECK( m_primaryInputCollection.initialize() );
   ATH_CHECK( m_outputCollection.initialize() );
-  ATH_CHECK( m_trigDec.retrieve() );
-  m_trigDec->ExperimentalAndExpertMethods()->enable();
+  if (not m_trigDec.empty()) {
+    ATH_CHECK( m_trigDec.retrieve() );
+    m_trigDec->ExperimentalAndExpertMethods()->enable();
+  }
+  for (const std::string& output : m_allOutputContainers) {
+    if (output == m_primaryInputCollection.key()) {
+      continue; // We do want to search for failed nodes in the primary input (it may already be merged)
+    }
+    // We don't want to search for failed nodes in other possible summary keys, we might read in the 
+    // summary collection from another running instance (e.g. an AODSlim alg reading in the output of
+    // ESDSlim in a RAWtoALL job).
+    m_allOutputContainersSet.insert(output);
+  }
+  m_allOutputContainersSet.insert(m_outputCollection.key());
+  msg() << MSG::INFO << "Initialized. Will *not* inspect the following SG Keys: ";
+  for (const std::string& key : m_allOutputContainersSet) {
+    msg() << key << " ";
+  }
+  msg() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -55,7 +72,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // Note: We use the "internal" version of this call such that we maintain our own cache, 
   // as we may need to call this more than once if keepFailedBranches is ture
   TrigCompositeUtils::recursiveGetDecisionsInternal(terminusNode, 
-    nullptr, 
+    nullptr, // 'Coming from' is nullptr for the first call of the recursive function
     transientNavGraph, 
     fullyExploredFrom, 
     chainIDs, 
@@ -68,15 +85,15 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // These branches do not connect to the terminusNode, so we have to go hunting them explicitly.
   // We need to pass in the evtStore as these nodes can be spread out over numerous collections.
   // Like with the terminus node, we can restrict this search to only nodes which were rejected by certain chains.
-
+  // We also want to restrict the search to exclue the output collections of any other TrigNavSlimminMTAlg instances.\\s
   if (m_keepFailedBranches) {
-    std::vector<const Decision*> rejectedNodes = getRejectedDecisionNodes(&*evtStore(), chainIDs);
+    std::vector<const Decision*> rejectedNodes = TrigCompositeUtils::getRejectedDecisionNodes(&*evtStore(), chainIDs, m_allOutputContainersSet);
     for (const Decision* rejectedNode : rejectedNodes) {
       // We do *not* enfoce that a member of chainIDs must be present in the starting node (rejectedNode)
       // specifically because we know that at least one of chainIDs was _rejected_ here, but is active in the rejected
       // node's seeds.
       TrigCompositeUtils::recursiveGetDecisionsInternal(rejectedNode, 
-        nullptr, 
+        nullptr, // 'Coming from' is nullptr for the first call of the recursive function
         transientNavGraph, 
         fullyExploredFrom, 
         chainIDs, 

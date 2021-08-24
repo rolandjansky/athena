@@ -8,20 +8,23 @@ log = logging.getLogger(__name__)
 class CTPInputConfig:
     """
     Defines the cabling of the CTP input
+    https://twiki.cern.ch/twiki/bin/view/Atlas/LevelOneCentralTriggerSetup#CTP_inputs
     """
 
     @staticmethod
     def cablingLayout():
         inputLayout = odict()
         inputLayout["optical"] = odict([
-            ( "connector0", "Topo1Opt0" ),
-            ( "connector1", "Topo1Opt1" ),
-            ( "connector2", "MuCTPiOpt0" )
+            ( "connector0", "MuCTPiOpt0" ),
+            ( "connector1", "Topo1Opt0" ),
+            ( "connector2", "Topo1Opt1" ),
+            ( "connector3", "Topo1Opt2" ),
+            ( "connector4", "Topo1Opt3" )
         ])
         inputLayout["electrical"] = odict([
-            ( "connector0", "Topo3El" ),
+            ( "connector0", "AlfaCtpin" ),
             ( "connector1", "LegacyTopo0" ),
-            ( "connector2", "AlfaCtpin" )
+            ( "connector2", "Topo3El" )
         ])
         inputLayout["ctpin"] = odict()
         inputLayout["ctpin"]["slot7"] = odict([

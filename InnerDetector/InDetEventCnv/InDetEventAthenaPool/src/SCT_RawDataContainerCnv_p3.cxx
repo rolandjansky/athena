@@ -58,7 +58,7 @@ void SCT_RawDataContainerCnv_p3::transToPers(const SCT_RDO_Container* transCont,
   (persCont->m_numErrorsInRDO).clear();
   (persCont->m_allErrorsInContainer).clear();
 
-  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+  for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
     /** Add in new collection */
     const SCT_RDO_Collection& collection = (**it_Coll);
     chanBegin  = chanEnd;

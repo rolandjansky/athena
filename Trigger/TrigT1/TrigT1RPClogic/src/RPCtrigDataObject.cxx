@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
@@ -36,13 +36,6 @@ RPCtrigDataObject::Print(ostream& stream,bool detail) const
         stream << name() << " number " << setw(3) << number();
     }
     stream << endl;
-}
-
-void
-RPCtrigDataObject::error_header(void)
-{     
-    DISP << "Error in " << name() << "  number " << number() << ":" << endl;
-    DISP_ERROR;   
 }
 
 void

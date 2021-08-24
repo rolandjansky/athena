@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,6 +38,10 @@ class SiIntersect;
 
 enum DetectorShape {
   Box=0, Trapezoid, Annulus,Other
+};
+
+enum DetectorType {
+    Undefined=0,PixelBarrel,PixelEndcap,PixelInclined,StripBarrel,StripEndcap,BCMPrime,PLR,HGTD
 };
 
 /** @class DetectorDesign
@@ -97,8 +101,13 @@ public:
     virtual Amg::Vector3D sensorCenter() const;
 
     /** Test if point is in the active part of the detector with specified tolerances */
-    SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
-                           double etaTol) const;
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
+                        double etaTol) const;
+
+         /** Test if point is in the active part of the detector with specified tolerances  - allows forcing of most stringent check*/
+    virtual SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
+                        double etaTol, bool forceStringentCheck) const;
+
 
     /** Override default symmetries to prevent swapping of axes.
        NB. Flags can be changed from true to false but not false to true. */
@@ -139,6 +148,9 @@ public:
     /** Shape of element */
     virtual DetectorShape shape() const;
 
+     /** Type of element */
+    virtual DetectorType type() const;
+
     /** Method to calculate length of a module */
     virtual double length() const = 0;
 
@@ -166,10 +178,6 @@ public:
 
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
-
-    /** Transform from SiHit to GeoModel frame */
-    //virtual const HepGeom::Transform3D SiHitToGeoModel() const;
-    virtual const Amg::Transform3D SiHitToGeoModel() const;
 
     //Transform for "split" modules
     virtual const Amg::Transform3D moduleShift() const;

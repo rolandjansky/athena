@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -100,8 +100,6 @@ public:
     truthRecoElectronTightLH;
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutTight;
-  std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
-    recoElectronIsoFixedCutTightTrackOnly;
   std::unique_ptr<egammaMonitoring::TruthElectronHistograms>
     recoElectronIsoFixedCutLoose;
 
@@ -208,12 +206,6 @@ private:
     "CP::IsolationSelectionTool/IsoFixedCutTight",
     ""
   };
-  ToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightTrackOnly{
-    this,
-    "IsoFixedCutTightTrackOnly",
-    "CP::IsolationSelectionTool/IsoFixedCutTightTrackOnly",
-    ""
-  };
   ToolHandle<CP::IIsolationSelectionTool> m_IsoFixedCutTightCaloOnly{
     this,
     "IsoFixedCutTightCaloOnly",
@@ -234,9 +226,9 @@ private:
     ""
   };
 
-  bool matchedToElectron(const xAOD::TrackParticle& tp);
-  bool matchedToPion(const xAOD::TrackParticle& tp);
-  bool notMatchedToTruth(const xAOD::TrackParticle& tp);
+  static bool matchedToElectron(const xAOD::TrackParticle& tp);
+  static bool matchedToPion(const xAOD::TrackParticle& tp);
+  static bool notMatchedToTruth(const xAOD::TrackParticle& tp);
 };
 
 #endif

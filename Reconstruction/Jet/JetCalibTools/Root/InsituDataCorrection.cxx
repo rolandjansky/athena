@@ -83,15 +83,15 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     insitu_filename=PathResolverFindCalibFile(insitu_filename.Data());
   }
 
-  TFile *insitu_file = TFile::Open(insitu_filename);
+  std::unique_ptr<TFile> insitu_file(TFile::Open(insitu_filename));
   if ( !insitu_file ) { ATH_MSG_FATAL( "Cannot open InsituCalibrationFile: " << insitu_filename ); return StatusCode::FAILURE; }
 
   ATH_MSG_INFO("Reading In-situ correction factors from: " << insitu_filename);
 
   rel_histoname.ReplaceAll("JETALGO",m_jetAlgo); abs_histoname.ReplaceAll("JETALGO",m_jetAlgo);
   if(m_applyRelativeandAbsoluteInsitu){
-    std::unique_ptr<TH2D> rel_histo(dynamic_cast<TH2D*>(JetCalibUtils::GetHisto2(insitu_file,rel_histoname)));
-    std::unique_ptr<TH1D> abs_histo(dynamic_cast<TH1D*>(JetCalibUtils::GetHisto(insitu_file,abs_histoname)));
+    std::unique_ptr<const TH2> rel_histo(JetCalibUtils::GetHisto2(*insitu_file,rel_histoname));
+    std::unique_ptr<const TH1> abs_histo(JetCalibUtils::GetHisto(*insitu_file,abs_histoname));
     if ( !rel_histo || !abs_histo ) {
       ATH_MSG_FATAL( "\n  Tool configured for data, but no residual in-situ histograms could be retrieved. Aborting..." );
       return StatusCode::FAILURE;
@@ -101,14 +101,14 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     m_relhistoPtMax = rel_histo->GetXaxis()->GetBinLowEdge(rel_histo->GetNbinsX()+1);
     m_abshistoPtMax = abs_histo->GetBinLowEdge(abs_histo->GetNbinsX()+1);
     // combine in situ calibrations
-    m_insituCorr = std::unique_ptr<TH2D>(combineCalibration(rel_histo.get(),abs_histo.get()));
+    m_insituCorr = combineCalibration(rel_histo.get(),abs_histo.get());
     m_insituEtaMax = m_insituCorr->GetYaxis()->GetBinLowEdge(m_insituCorr->GetNbinsY()+1);
     m_insituPtMin = m_insituCorr->GetXaxis()->GetBinLowEdge(1);
     m_insituPtMax = m_insituCorr->GetXaxis()->GetBinLowEdge(m_insituCorr->GetNbinsX()+1);
     if(m_applyEtaRestrictionRelativeandAbsolute) m_insituEtaMax = insitu_etarestriction_relativeandabsolute;
   }
   if(m_applyResidualMCbasedInsitu){
-    m_insituCorr_ResidualMCbased = std::unique_ptr<TH2D>((TH2D*)JetCalibUtils::GetHisto2(insitu_file,residualmcbased_histoname));
+    m_insituCorr_ResidualMCbased = JetCalibUtils::GetHisto2(*insitu_file,residualmcbased_histoname);
     if ( !m_insituCorr_ResidualMCbased ) {
       ATH_MSG_FATAL( "\n  Tool configured for the Residual MC based correction, but no residualmcbased in-situ histograms could be retrieved. Aborting..." );
       return StatusCode::FAILURE;
@@ -148,7 +148,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
       insituJMS_filename=PathResolverFindCalibFile(insituJMS_filename.Data());
     }
 
-    TFile *insituJMS_file = TFile::Open(insituJMS_filename);
+    std::unique_ptr<TFile> insituJMS_file(TFile::Open(insituJMS_filename));
     if ( !insituJMS_file ) { ATH_MSG_FATAL( "Cannot open InsituJMSCalibrationFile: " << insituJMS_filename ); return StatusCode::FAILURE; }
 
     ATH_MSG_INFO("Reading In-situ JMS correction factors from: " << insituJMS_filename);
@@ -159,7 +159,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     }
 
     if(m_applyRelativeandAbsoluteInsitu){
-      std::unique_ptr<TH2D> abs_histo_JMS(dynamic_cast<TH2D*>(JetCalibUtils::GetHisto2(insituJMS_file,abs_histoname_JMS)));
+      std::unique_ptr<const TH2> abs_histo_JMS(JetCalibUtils::GetHisto2(*insituJMS_file,abs_histoname_JMS));
       if ( !abs_histo_JMS ) {
         ATH_MSG_FATAL( "\n  Tool configured for data, but no in-situ JMS histogram could be retrieved. Aborting..." );
         return StatusCode::FAILURE;
@@ -167,7 +167,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
       else {
         gROOT->cd();
         // combine in situ calibrations
-        m_insituCorr_JMS    = std::unique_ptr<TH2D>(invertHistogram(abs_histo_JMS.get()));
+        m_insituCorr_JMS    = invertHistogram(abs_histo_JMS.get());
         m_insituEtaMax_JMS  = insitu_etarestriction_JMS;
         m_insituPtMin_JMS   = m_insituCorr_JMS->GetXaxis()->GetBinLowEdge(1);
         m_insituPtMax_JMS   = m_insituCorr_JMS->GetXaxis()->GetBinLowEdge(m_insituCorr_JMS->GetNbinsX()+1);
@@ -176,7 +176,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
         if(m_applyInsituCaloTAjets){
 
-	  std::unique_ptr<TH2D> abs_histo_JMS_TA(dynamic_cast<TH2D*>(JetCalibUtils::GetHisto2(insituJMS_file,abs_histoname_JMS_TA)));
+          std::unique_ptr<const TH2> abs_histo_JMS_TA(JetCalibUtils::GetHisto2(*insituJMS_file,abs_histoname_JMS_TA));
 
           if ( !abs_histo_JMS_TA ){
             ATH_MSG_FATAL( "\n  Tool configured for data, but no in-situ JMS histogram for TA mass could be retrieved. Aborting..." );
@@ -184,7 +184,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
           }
 
           gROOT->cd();
-          m_insituCorr_JMS_TA = std::unique_ptr<TH2D>(invertHistogram(abs_histo_JMS_TA.get()));
+          m_insituCorr_JMS_TA = invertHistogram(abs_histo_JMS_TA.get());
         }
       }
     }
@@ -393,8 +393,8 @@ double InsituDataCorrection::getInsituCorr_JMS(double pt, double mass, double et
 
 
 
-TH2D * InsituDataCorrection::combineCalibration(TH2D *h2d, TH1D *h) {
-  TH2D *prod = (TH2D*)h2d->Clone();
+std::unique_ptr<const TH2> InsituDataCorrection::combineCalibration(const TH2* h2d, const TH1* h) {
+  std::unique_ptr<TH2> prod(static_cast<TH2*>(h2d->Clone()));
   for (int xi=1;xi<=prod->GetNbinsX();xi++) {
     double pt=prod->GetXaxis()->GetBinCenter(xi);
     const double R_abs=h->Interpolate(pt); // Rdata/RMC for the absolute scale
@@ -408,8 +408,8 @@ TH2D * InsituDataCorrection::combineCalibration(TH2D *h2d, TH1D *h) {
   return prod;
 }
 
-TH2D * InsituDataCorrection::invertHistogram(TH2D *h2d){
-  TH2D *inv = (TH2D*)h2d->Clone();
+std::unique_ptr<const TH2> InsituDataCorrection::invertHistogram(const TH2* h2d){
+  std::unique_ptr<TH2> inv(static_cast<TH2*>(h2d->Clone()));
   for (int xi=1;xi<=inv->GetNbinsX();xi++) {
     for (int yi=1;yi<=inv->GetNbinsY();yi++) {
       inv->SetBinContent(xi,yi,1./h2d->GetBinContent(xi,yi));

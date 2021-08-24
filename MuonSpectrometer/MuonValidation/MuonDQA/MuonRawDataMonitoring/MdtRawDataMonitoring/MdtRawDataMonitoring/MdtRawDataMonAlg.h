@@ -109,6 +109,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms(const EventContext& ctx ) const override;     
 
  private: 
+  static constexpr Identifier::value_type s_detectorElementMask = 0xFFFFC00000000000;
 
   MDTNoisyTubes* m_masked_tubes;
 
@@ -149,6 +150,9 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   int mezzmdt(Identifier) const;
   int GetTubeMax(const Identifier & digcoll_id, const std::string & hardware_name);
 
+  inline int cachedTubeMax(const Identifier& digcoll_id) const { return m_tubemax_map.at(digcoll_id.get_compact() & s_detectorElementMask); };
+  inline int cachedTubeLayerMax(const Identifier& digcoll_id) const { return m_tubelayermax_map.at(digcoll_id.get_compact() & s_detectorElementMask); };
+
   bool isATLASReady() { return m_atlas_ready; }
   void setIsATLASReady();
   StatusCode GetTimingInfo();//here
@@ -170,6 +174,8 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   std::vector<IdentifierHash> m_chambersIdHash;
   //  std::map<std::string,float> m_hitsperchamber_map;//DEV to be put back?
   std::map<std::string,int> m_tubesperchamber_map; 
+  std::map<Identifier::value_type,int> m_tubemax_map;
+  std::map<Identifier::value_type,int> m_tubelayermax_map;
 
   bool m_doMdtESD ; 
 

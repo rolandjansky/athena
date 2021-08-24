@@ -35,9 +35,6 @@ namespace LVL1 {
   class EnergyCTP;
   class MbtsCTP;
   class BcmCTP;
-  class TrtCTP;
-  class LucidCTP;
-  class ZdcCTP;
   class BptxCTP;
   class NimCTP;
   class FrontPanelCTP;

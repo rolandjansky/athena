@@ -1,31 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CablingObject.h"
 
 #include <iomanip>
 
-CablingObject::CablingObject(int num, int stat, int type, std::string name) :
-    BaseObject(Logic, name), m_number(num), m_station(stat), m_sector_type(type) {}
+CablingObject::CablingObject(const CablingObject::cablingParameters& params, const std::string& obj_name) :
+    BaseObject(Logic, obj_name), m_number{params.number}, m_station{params.station}, m_sector_type{params.sectorType} {}
 
-CablingObject::CablingObject(int num, int stat, int type, const char* name) :
-    BaseObject(Logic, name), m_number(num), m_station(stat), m_sector_type(type) {}
-
-CablingObject::CablingObject(const CablingObject& obj) : BaseObject(Logic, obj.name()) {
-    m_number = obj.number();
-    m_station = obj.station();
-    m_sector_type = obj.sector_type();
-}
-
-CablingObject& CablingObject::operator=(const CablingObject& obj) {
-    if (this != &obj) {
-        m_number = obj.number();
-        m_station = obj.station();
-        m_sector_type = obj.sector_type();
-    }
-    return *this;
-}
+int CablingObject::number() const { return m_number; }
+int CablingObject::station() const { return m_station; }
+int CablingObject::sector_type() const { return m_sector_type; }
 
 std::ostream& operator<<(std::ostream& stream, const CablingObject& obj) {
     stream << obj.name() << " number " << std::setw(3) << obj.number() << "  associated to sector type " << std::setw(3)
@@ -33,21 +19,16 @@ std::ostream& operator<<(std::ostream& stream, const CablingObject& obj) {
     return stream;
 }
 
-void CablingObject::error_header(void) const {
-    __osstream disp;
+std::string CablingObject::error_header() const {
+    std::ostringstream disp;
     disp << "Error in Sector Type " << m_sector_type;
-    if (m_station > 0)
-        disp << ", station " << m_station << ":" << std::endl;
-    else
-        disp << ":" << std::endl;
-
-    display_error(disp);
+    if (m_station > 0) disp << ", station " << m_station;
+    disp << ":" << std::endl;
+    return disp.str();
 }
 
-void CablingObject::no_connection_error(std::string name, int num) {
-    this->error_header();
-
-    DISP << this->name() << " n. " << m_number << " is supposed to receive input from " << name << " n. " << num << " which doesn't exist!"
-         << std::endl;
-    DISP_ERROR;
+std::string CablingObject::no_connection_error(const std::string& conn_name, int num) const {
+    std::ostringstream disp;
+    disp << error_header() << name() << " n. " << number() << " is supposed to receive input from " << conn_name << " n. " << num << " which doesn't exist!";
+    return disp.str();
 }

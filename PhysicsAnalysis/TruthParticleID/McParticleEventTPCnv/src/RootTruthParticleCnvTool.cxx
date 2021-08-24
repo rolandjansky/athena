@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootTruthParticleCnvTool.h"
@@ -206,13 +206,13 @@ StatusCode RootTruthParticleCnvTool::setProperty( const std::string&, const Gaud
 StatusCode RootTruthParticleCnvTool::setPropertyRepr( const std::string&, const std::string& ){ abort(); }
 StatusCode RootTruthParticleCnvTool::getProperty( Gaudi::Details::PropertyBase* ) const { abort(); }
 const Gaudi::Details::PropertyBase&
-RootTruthParticleCnvTool::getProperty( const std::string& ) const{ abort(); }
-StatusCode RootTruthParticleCnvTool::getProperty( const std::string&,
+RootTruthParticleCnvTool::getProperty( std::string_view ) const{ abort(); }
+StatusCode RootTruthParticleCnvTool::getProperty( std::string_view,
                                                   std::string& ) const {
    abort(); }
 const std::vector< Gaudi::Details::PropertyBase* >&
 RootTruthParticleCnvTool::getProperties() const { abort(); }
-bool RootTruthParticleCnvTool::hasProperty( const std::string& ) const {
+bool RootTruthParticleCnvTool::hasProperty( std::string_view ) const {
    abort(); }
 
 //

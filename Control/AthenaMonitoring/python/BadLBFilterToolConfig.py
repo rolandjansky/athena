@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaCommon.Logging import logging
-from PyUtils.Decorators import memoize
 from functools import reduce
 
 #The memonize decorator makes sure that this piece of code isn't executed multiple times - as long as the name is the same
 #The deduplication logic of the CA make sure that the algo isn't run mutliple time 
-@memoize
+@AccumulatorCache
 def BadLBFilterAlgCfg(inputFlags,name, defects, writekey, ignoreRecoverable=False, origDbTag=None):
     log = logging.getLogger('BadLBFilterAlgCfg')
     result=ComponentAccumulator()
@@ -74,7 +74,8 @@ def BadLBFilterToolCfg(inputFlags,name, defects, alwaysReturnTrue=False, ignoreR
     return result
 
 
-@memoize
+#@memoize - hash function on flags is deprecated, use AccumulatorCache instead
+@AccumulatorCache
 def LArDefectList(inputFlags,origDbTag=None):
     """
     Get the defects to configure for LAr - cache results to avoid lots of DB lookups

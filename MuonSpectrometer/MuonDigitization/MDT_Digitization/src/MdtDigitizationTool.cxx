@@ -60,7 +60,7 @@
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 namespace {
     // what about this? does this also need to be 1/m_signalSpeed ?
-    static constexpr double s_inv_c_light(1. / Gaudi::Units::c_light);
+    constexpr double s_inv_c_light(1. / Gaudi::Units::c_light);
 }  // namespace
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID) :
     PileUpToolBase(type, name, pIID) {}
@@ -145,7 +145,7 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_CHECK(m_calibrationDbTool.retrieve());
 
     // Gather masked stations
-    for (unsigned int i = 0; i < m_maskedStations.size(); i++) {
+    for (unsigned int i = 0; i < m_maskedStations.size(); ++i) {
         std::string mask = m_maskedStations[i];
         std::string maskedName = mask.substr(0, mask.find(':'));
         std::string temps = mask.substr(maskedName.size() + 1, std::string::npos);
@@ -184,7 +184,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList hitCollList;
 
     if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing, bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+        hitCollList.empty()) {
         ATH_MSG_ERROR("Could not fill TimedHitCollList");
         return StatusCode::FAILURE;
     } else {
@@ -195,7 +195,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList::iterator endColl(hitCollList.end());
 
     // Iterating over the list of collections
-    for (; iColl != endColl; iColl++) {
+    for (; iColl != endColl; ++iColl) {
         MDTSimHitCollection* hitCollPtr = new MDTSimHitCollection(*iColl->second);
         PileUpTimeEventIndex timeIndex(iColl->first);
 
@@ -213,7 +213,7 @@ StatusCode MdtDigitizationTool::getNextEvent(const EventContext& ctx) {
     ATH_MSG_DEBUG("MdtDigitizationTool::getNextEvent()");
 
     //  get the container(s)
-    typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
+    using TimedHitCollList = PileUpMergeSvc::TimedList<MDTSimHitCollection>::type;
 
     // In case of single hits container just load the collection using read handles
     if (!m_onlyUseContainerName) {
@@ -285,8 +285,8 @@ StatusCode MdtDigitizationTool::mergeEvent(const EventContext& ctx) {
     if (status.isFailure()) { ATH_MSG_ERROR("doDigitization Failed"); }
 
     // Clean-up
-    std::list<MDTSimHitCollection*>::iterator MDTHitColl = m_MDTHitCollList.begin();
-    std::list<MDTSimHitCollection*>::iterator MDTHitCollEnd = m_MDTHitCollList.end();
+    std::vector<MDTSimHitCollection*>::iterator MDTHitColl = m_MDTHitCollList.begin();
+    std::vector<MDTSimHitCollection*>::iterator MDTHitCollEnd = m_MDTHitCollList.end();
     while (MDTHitColl != MDTHitCollEnd) {
         delete (*MDTHitColl);
         ++MDTHitColl;
@@ -342,7 +342,7 @@ StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigit
         int size_id = readCdo->getDeadStationsId().size();
         ATH_MSG_DEBUG("Number of dead/missing stations retrieved from CondService= " << size_id);
 
-        for (int k = 0; k < size_id; k++) {
+        for (int k = 0; k < size_id; ++k) {
             Identifier Id = readCdo->getDeadStationsId()[k];
             m_IdentifiersToMask.push_back(readCdo->getDeadStationsId()[k]);
             ATH_MSG_VERBOSE("Dead/missing chambers id from CondDB: " << m_idHelperSvc->mdtIdHelper().show_to_string(Id));
@@ -389,7 +389,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     // Important checks for hits (global time, position along tube, masked chambers etc..) DO NOT SET THIS CHECK TO FALSE IF YOU DON'T KNOW
     // WHAT YOU'RE DOING !
     if (m_checkMDTSimHits) {
-        if (checkMDTSimHit(hit) == false) return false;
+        if (!checkMDTSimHit(hit)) return false;
     }
 
     const int id = hit.MDTid();
@@ -413,7 +413,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     // find the detector element associated to the hit
     const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
 
-    if (0 == element) {
+    if (nullptr == element) {
         ATH_MSG_ERROR("MuonGeoManager does not return valid element for given id!");
         return false;
     } else {
@@ -653,7 +653,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 
     //+MASKING OF DEAD/MISSING CHAMBERS
     if (m_UseDeadChamberSvc) {
-        for (unsigned int i = 0; i < m_IdentifiersToMask.size(); i++) {
+        for (unsigned int i = 0; i < m_IdentifiersToMask.size(); ++i) {
             Identifier Id = m_IdentifiersToMask[i];
 
             if ((stationName == m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(Id))) &&
@@ -669,10 +669,10 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
         bool phiMasked = false;
         bool masked = false;
 
-        for (unsigned int i = 0; i < m_maskedStations.size(); i++) {
+        for (unsigned int i = 0; i < m_maskedStations.size(); ++i) {
             bool temp = true;
 
-            for (unsigned int k = 0; k < 3; k++) {
+            for (unsigned int k = 0; k < 3; ++k) {
                 char c = m_vMaskedStations[i].maskedName[k];
                 char cc = stationName[k];
                 if (c == '*') continue;
@@ -695,7 +695,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 
     const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
 
-    if (0 == element) {
+    if (nullptr == element) {
         ATH_MSG_ERROR("MuonGeoManager does not return valid element for given id!");
     } else {
         tubeL = element->tubeLength(DigitId);
@@ -733,7 +733,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
     Identifier currentElementId;
 
     double currentDeadTime = 0.;
-    MdtDigitCollection* digitCollection = 0;
+    MdtDigitCollection* digitCollection = nullptr;
     // loop over sorted hits
     m_hits.sort();
     HitIt it = m_hits.begin();
@@ -825,10 +825,13 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
                 if (ml >= 0 && layer >= 0 && tube >= 0) {
                     // extract calibration constants for single tube
                     const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = data.tubeCalib->getCalib(ml, layer, tube);
-                    if (singleTubeData) { t0 = singleTubeData->t0; }
+                    if (singleTubeData) { 
+                        ATH_MSG_DEBUG("Extracted the following calibration constant for "<<m_idHelperSvc->toString(idDigit)<<" "<<singleTubeData->t0);
+                        t0 = singleTubeData->t0 + m_t0ShiftTuning; 
+                    } else  ATH_MSG_WARNING("No calibration data found, using t0=" << m_offsetTDC<<" "<<m_idHelperSvc->toString(idDigit));
                 }
             } else {
-                ATH_MSG_WARNING("No calibration data found, using t0=" << m_offsetTDC);
+                ATH_MSG_WARNING("No calibration data found, using t0=" << m_offsetTDC<<" for "<<m_idHelperSvc->toString(idDigit));
             }
             bool isHPTDC = m_idHelperSvc->hasHPTDC(idDigit);
             int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC, rndmEngine);
@@ -840,8 +843,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
             MdtDigit* newDigit = new MdtDigit(idDigit, tdc, adc, insideMask);
             digitCollection->push_back(newDigit);
 
-            float localZPos = (float)hit.localPosition().z();
-            ATH_MSG_VERBOSE(" createDigits() phit-" << &phit << " hit-" << hit.print() << "    localZPos = " << localZPos);
+            ATH_MSG_VERBOSE(" createDigits() phit-" << &phit << " hit-" << hit.print() << "    localZPos = " << hit.localPosition().z());
 
             // Do not store pile-up truth information
             if (!m_includePileUpTruth && ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) { continue; }
@@ -851,7 +853,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
             const HepMcParticleLink::PositionFlag idxFlag =
                 (phit.eventId() == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
             MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag),
-                                         MuonMCData((float)driftRadius, localZPos));
+                                         MuonMCData(driftRadius, hit.localPosition().z()));
 
             // Record the SDO collection in StoreGate
             std::vector<MuonSimData::Deposit> deposits;
@@ -865,7 +867,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 
         } else {
             ATH_MSG_DEBUG("  >> OUTSIDE TIME WINDOWS << "
-                          << " Digit Id = " << m_idHelperSvc->mdtIdHelper().show_to_string(idDigit) << " driftTime " << driftTime
+                          << " Digit Id = " << m_idHelperSvc->toString(idDigit) << " driftTime " << driftTime
                           << " --> hit ignored");
         }
     }  // for (; it != hits.end(); ++it)
@@ -885,13 +887,11 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
         elementId.show();
     }
 
-    StatusCode status;
     // Get the messaging service, print where you are
     const MdtDigitCollection* coll = digitContainer->indexFindPtr(coll_hash);
-    if (nullptr == coll) {
+    if (!coll) {
         digitCollection = new MdtDigitCollection(elementId, coll_hash);
-        status = digitContainer->addCollection(digitCollection, coll_hash);
-        if (status.isFailure())
+        if (digitContainer->addCollection(digitCollection, coll_hash).isFailure())
             ATH_MSG_ERROR("Couldn't record MdtDigitCollection with key=" << coll_hash << " in StoreGate!");
         else
             ATH_MSG_DEBUG("New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate.");
@@ -902,11 +902,9 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
 }
 
 int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine* rndmEngine) const {
-    int tdcCount;
+    int tdcCount{0};
     double tmpCount = isHPTDC ? time / m_ns2TDCHPTDC : time / m_ns2TDCAMT;
-    double rand = CLHEP::RandGaussZiggurat::shoot(rndmEngine, tmpCount, m_resTDC);
-    tdcCount = static_cast<long>(rand);
-
+    tdcCount = CLHEP::RandGaussZiggurat::shoot(rndmEngine, tmpCount, m_resTDC);
     if (tdcCount < 0 || tdcCount > 4096) { ATH_MSG_DEBUG(" Count outside TDC window: " << tdcCount); }
     return tdcCount;
 }
@@ -918,7 +916,7 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId, const MuonGM::MuonDet
     double distanceToVertex(0.);
     const MuonGM::MdtReadoutElement* element = detMgr->getMdtReadoutElement(DigitId);
 
-    if (0 == element) {
+    if (!element) {
         ATH_MSG_ERROR("MuonGeoManager does not return valid element for given id!");
     } else {
         distanceToVertex = element->tubePos(DigitId).mag();
@@ -955,7 +953,7 @@ MDTSimHit MdtDigitizationTool::applyDeformations(const MDTSimHit& hit, const Muo
     Amg::Vector3D hitAtGlobalFrame = element->nodeform_localToGlobalCoords(hit.localPosition(), DigitId);
     Amg::Vector3D hitDeformed = element->globalToLocalCoords(hitAtGlobalFrame, DigitId);
 
-    double driftRadius = sqrt(hitDeformed.x() * hitDeformed.x() + hitDeformed.y() * hitDeformed.y());
+    double driftRadius = std::hypot(hitDeformed.x() , hitDeformed.y());
     MDTSimHit simhit2 = MDTSimHit(id, hit.globalTime(), driftRadius, hitDeformed, hit.trackNumber());
 
     return simhit2;
@@ -990,7 +988,7 @@ MdtDigitizationTool::GeoCorOut MdtDigitizationTool::correctGeometricalWireSag(co
         surface.globalToLocal(gpos, gpos, lp);
 
         // calculate sagged wire position
-        const Trk::StraightLineSurface* wireSurface = surface.correctedSurface(lp);
+        std::unique_ptr<const Trk::StraightLineSurface> wireSurface {surface.correctedSurface(lp)};
         // calculate displacement of wire from nominal
         // To do this, note that the sagged surface is modeled as a straight line
         // through the point in the space that the bit of wire closest to the hit
@@ -1003,7 +1001,7 @@ MdtDigitizationTool::GeoCorOut MdtDigitizationTool::correctGeometricalWireSag(co
         double sagX = lSaggedSpot.x();
         double sagY = lSaggedSpot.y();
 
-        localSag = sqrt(sagX * sagX + sagY * sagY);
+        localSag = std::hypot(sagX, sagY);
 
         // global to local sagged wire frame transform
         gToWireFrame = wireSurface->transform().inverse();
@@ -1025,8 +1023,6 @@ MdtDigitizationTool::GeoCorOut MdtDigitizationTool::correctGeometricalWireSag(co
         wireSurface->globalToLocal(saggedGPos, gdir, lpsag);
         trackingSign = lpsag[Trk::locR] < 0 ? -1. : 1.;
 
-        // don't forget to delete pointers....
-        delete wireSurface;
     } else {
         // recalculate tracking sign
         Amg::Vector2D lpsag;

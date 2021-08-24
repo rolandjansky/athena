@@ -517,7 +517,7 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     kwargs.setdefault('Csc2dSegmentMaker', csc_2d_segment_maker)
     kwargs.setdefault('Csc4dSegmentMaker', csc_4d_segment_maker)
     kwargs.setdefault('DoSummary', flags.Muon.printSummary)
-    
+
     segment_finder_tool = Muon__MooSegmentCombinationFinder(name=name, **kwargs)
     
     result.setPrivateTools(segment_finder_tool)
@@ -611,6 +611,8 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
         
     kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "TrackMuonSegments")
+    if flags.Beam.Type != 'collisions':
+        kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
 
     moo_segment_finder_alg = MooSegmentFinderAlg( name=name, **kwargs )
     moo_segment_finder_alg.Cardinality=10
@@ -646,7 +648,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     # Now set other NCB properties
     kwargs.setdefault('MuonPatternCombinationLocation', "NCB_MuonHoughPatternCombinations" )
     kwargs.setdefault('MuonSegmentOutputLocation', "NCB_TrackMuonSegments" )
-    kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', 'NCB_HoughDataPerSectorVec')
+    kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', '')
     kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
     kwargs.setdefault('UseMDT', False)
     kwargs.setdefault('UseRPC', False)

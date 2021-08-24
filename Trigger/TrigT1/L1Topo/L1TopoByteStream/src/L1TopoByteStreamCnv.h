@@ -1,21 +1,20 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TOPOBYTESTREAM_L1TOPOBYTESTREAMCNV_H
 #define L1TOPOBYTESTREAM_L1TOPOBYTESTREAMCNV_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 
 // Local include(s):
 #include "L1TopoByteStreamTool.h"
@@ -38,7 +37,7 @@ class L1TopoSrcIdMap;
  *  @author Simon George
  *    @date $Date: 2014-11-12 00:00:00 $
  */
-class L1TopoByteStreamCnv : public Converter, public AthMessaging {
+class L1TopoByteStreamCnv : public AthConstConverter {
 
 public:
   /// Standard constructor
@@ -52,10 +51,10 @@ public:
   virtual StatusCode initialize();
   /// Function creating the L1TopoRDOCollection object from a L1Topo ROB
   /// fragment
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+  virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const;
   /// Function creating the L1Topo ROB fragment from a L1TopoRDOCollection
   /// object
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const;
 
   /// Function needed by the framework
   virtual long repSvcType() const { return i_repSvcType(); }

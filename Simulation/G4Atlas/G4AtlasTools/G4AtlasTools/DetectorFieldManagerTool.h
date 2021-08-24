@@ -37,7 +37,8 @@ class DetectorFieldManagerTool : public G4FieldManagerToolBase
   protected:
 
     /// List of volumes to assign this field configuration to
-    Gaudi::Property<std::vector<std::string> > m_volumeList{this, "LogicalVolumes", {}, "List of volumes to which the field will be applied"};
+    Gaudi::Property<std::vector<std::string> > m_logVolumeList{this, "LogicalVolumes", {}, "List of logical volumes to which the field will be applied"};
+    Gaudi::Property<std::vector<std::string> > m_physVolumeList{this, "PhysicalVolumes", {}, "List of physical volumes to which the field will be applied"};
 
     /// Option for muons feeling the B-field only
     Gaudi::Property<bool> m_muonOnlyField{this, "MuonOnlyField", false, "Only muons experience the magnetic field"};

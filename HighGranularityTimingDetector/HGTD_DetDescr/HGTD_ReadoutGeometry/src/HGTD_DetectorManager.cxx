@@ -7,6 +7,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+using InDetDD::HGTD_DetectorElementCollection;
+using InDetDD::HGTD_DetectorElement;
+using InDetDD::SiCommonItems;
+
 HGTD_DetectorManager::HGTD_DetectorManager(StoreGateSvc* detStore)
     : m_idHelper(0)
 {

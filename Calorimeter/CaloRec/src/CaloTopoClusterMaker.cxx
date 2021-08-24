@@ -582,7 +582,7 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 		  toKeep = otherCluster;
 		}
 		if ( toKill ) {
-                  for (auto hc : *toKill)
+                  for (auto *hc : *toKill)
                     hc->setCaloTopoTmpHashCluster(toKeep);
 		  toKeep->add(*toKill);
 		  toKill->removeAll();
@@ -682,7 +682,7 @@ void CaloTopoClusterMaker::getClusterSize(){
 }
 
 
-inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell,float threshold) const {
+inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell,float threshold) {
   // get the cell time to cut on (the same as in CaloEvent/CaloCluster.h)                             
   
   // need sampling number already for time

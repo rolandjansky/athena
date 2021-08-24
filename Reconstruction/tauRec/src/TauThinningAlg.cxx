@@ -50,17 +50,8 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
   SG::ThinningHandle<CaloClusterCellLinkContainer> pi0CellLinks (m_pi0CellLinks, ctx);
   pi0CellLinks.thinAll();
 
-  SG::ThinningHandle<xAOD::ParticleContainer> finalPi0s (m_finalPi0s, ctx);
-  finalPi0s.thinAll();
-
   SG::ThinningHandle<xAOD::PFOContainer> shotPFOs (m_shotPFOs, ctx);
   shotPFOs.thinAll();
-
-  SG::ThinningHandle<xAOD::CaloClusterContainer> shotclusters (m_shotclusters, ctx);
-  shotclusters.thinAll();
-
-  SG::ThinningHandle<CaloClusterCellLinkContainer> shotCellLinks (m_shotCellLinks, ctx);
-  shotCellLinks.thinAll();
 
   SG::ThinningHandle<xAOD::PFOContainer> hadronicPFOs (m_hadronicPFOs, ctx);
   hadronicPFOs.thinAll();
@@ -74,15 +65,38 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
   SG::ThinningHandle<CaloClusterCellLinkContainer> tauCellLinks (m_tauCellLinks, ctx);
   tauCellLinks.thinAll();
 
+  // The three following containers didn't exist in r21.
+  // Make them optional, so we won't crash processing a r21 ESD.
+
+  std::optional<SG::ThinningHandle<xAOD::ParticleContainer> > finalPi0sOpt;
+  if (evtStore()->contains<xAOD::ParticleContainer> (m_finalPi0s.key())) {
+    finalPi0sOpt.emplace (m_finalPi0s, ctx);
+    finalPi0sOpt->thinAll();
+  }
+
+  std::optional<SG::ThinningHandle<xAOD::CaloClusterContainer> > shotclustersOpt;
+  if (evtStore()->contains<xAOD::CaloClusterContainer> (m_shotclusters.key())) {
+    shotclustersOpt.emplace (m_shotclusters, ctx);
+    shotclustersOpt->thinAll();
+  }
+
+  std::optional<SG::ThinningHandle<CaloClusterCellLinkContainer> > shotCellLinksOpt;
+  if (evtStore()->contains<CaloClusterCellLinkContainer> (m_shotCellLinks.key())) {
+    shotCellLinksOpt.emplace (m_shotCellLinks, ctx);
+    shotCellLinksOpt->thinAll();
+  }
+
+  static const SG::AuxElement::ConstAccessor<char> acc_passThinning("passThinning");
+
   for (const xAOD::TauJet* tau : *taus) {
 
-    if(tau->pt() < m_minTauPt) continue;
+    if (!acc_passThinning(*tau)) continue;
 
     // keep tau
     taus.keep(tau->index());
     
     // keep tau tracks
-    for(const xAOD::TauTrack* track : tau->allTracks()) {
+    for (const xAOD::TauTrack* track : tau->allTracks()) {
       tauTracks.keep(track->index());
     }
 
@@ -165,8 +179,10 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
     }
 
     // keep final pi0s
-    for(size_t i=0; i<tau->nPi0s(); i++) {
-      finalPi0s.keep(tau->pi0(i)->index());
+    if (finalPi0sOpt) {
+      for(size_t i=0; i<tau->nPi0s(); i++) {
+        finalPi0sOpt->keep(tau->pi0(i)->index());
+      }
     }
 
     // keep shot PFOs, clusters, cell links and cells
@@ -176,17 +192,22 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
 
       // shot clusters
       const xAOD::CaloCluster* cluster = tau->shotPFO(i)->cluster(0);
-      shotclusters.keep(cluster->index());
+      if (!cluster) continue;
+      if (shotclustersOpt) {
+        shotclustersOpt->keep(cluster->index());
+      }
 
       // shot cell links
       const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
-      CaloClusterCellLinkContainer::const_iterator cellLinks_it = std::find(shotCellLinks->begin(), shotCellLinks->end(), cellLinks);
-      if(cellLinks_it != shotCellLinks->end()) {
-	size_t link_index = std::distance(shotCellLinks->begin(), cellLinks_it);
-	shotCellLinks.keep(link_index);
-      }
-      else {
-	ATH_MSG_WARNING( "Could not find cluster cell link in " << m_shotCellLinks.key() << ", won't be saved in xAOD." );
+      if (shotCellLinksOpt) {
+        CaloClusterCellLinkContainer::const_iterator cellLinks_it = std::find((*shotCellLinksOpt)->begin(), (*shotCellLinksOpt)->end(), cellLinks);
+        if(cellLinks_it != (*shotCellLinksOpt)->end()) {
+          size_t link_index = std::distance((*shotCellLinksOpt)->begin(), cellLinks_it);
+          shotCellLinksOpt->keep(link_index);
+        }
+        else {
+          ATH_MSG_WARNING( "Could not find cluster cell link in " << m_shotCellLinks.key() << ", won't be saved in xAOD." );
+        }
       }
 
       // shot cells

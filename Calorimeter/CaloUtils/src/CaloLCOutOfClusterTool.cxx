@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -240,7 +240,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster, const EventCo
             if(m_interpolate) {
               // accesing interpolated coefficients
               CaloLocalHadCoeff::LocalHadCoeff parint;
-              bool isa = hp.Interpolate(data, 0,vars,parint, m_interpolateDimensions);
+              bool isa = CaloLCCoeffHelper::Interpolate(data, 0,vars,parint, m_interpolateDimensions);
               if(isa && parint[CaloLocalHadDefs::BIN_ENTRIES] > 0) {
                 isDataOK = true;
                 oocData = parint[CaloLocalHadDefs::BIN_WEIGHT];

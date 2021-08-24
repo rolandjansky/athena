@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_XYZ_H
@@ -30,7 +30,7 @@ class MuonHoughTransformer_xyz : public MuonHoughTransformer
   virtual int sector(MuonHoughHit* hit)const; 
 
   /** calcalates the phi angle for a given hit and r0 */
-  double calculateAngle(double hitx, double hity, double r0)const; 
+  static double calculateAngle(double hitx, double hity, double r0); 
 
   /** build new houghpattern */
   virtual MuonHoughPattern* initialiseHoughPattern()const=0;

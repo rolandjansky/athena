@@ -19,10 +19,10 @@ namespace TCS {
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
       // default constructor
-      eEmTOB(uint32_t roiWord = 0, std::string tobName = "eEmTOB");
+      eEmTOB(uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
       
       // constructor with individual values
-      eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, std::string tobName = "eEmTOB");
+      eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eEmTOB");
 
       // constructor with initial values
       eEmTOB(const eEmTOB & eem);
@@ -40,6 +40,10 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
+      unsigned int Reta() const { return m_reta; }
+      unsigned int Rhad() const { return m_rhad; }
+      unsigned int Wstot() const { return m_wstot; }
+     
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
@@ -49,6 +53,10 @@ namespace TCS {
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
+     
+      void setReta(unsigned int th) { m_reta = th; }
+      void setRhad(unsigned int th) { m_rhad = th; }
+      void setWstot(unsigned int th) { m_wstot = th; }
       
       // memory management
       static eEmTOB* createOnHeap(const eEmTOB& eem);
@@ -75,6 +83,10 @@ namespace TCS {
       double m_EtDouble {0};
       double m_etaDouble {0};
       double m_phiDouble {0};
+
+      unsigned int m_reta {0};
+      unsigned int m_rhad {0};
+      unsigned int m_wstot {0};
 
       inputTOBType_t  m_tobType { NONE };
 

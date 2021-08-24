@@ -7,8 +7,8 @@
 namespace Trk {
 // constructor with parameters
 inline Trk::ResidualPull::ResidualPull(
-  const std::vector<double> residual,
-  const std::vector<double> pull,
+  std::vector<double> residual,
+  std::vector<double> pull,
   bool pullValid,
   Trk::ResidualPull::ResidualType type,
   int parameterKey,

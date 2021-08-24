@@ -201,7 +201,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
 
   //////////////////////////////////////////////////////////////////////////////////////////
   // the regular filter loop after finding the correct initialisation
-  for( ; it!=trajectory.end(); it++) {
+  for( ; it!=trajectory.end(); ++it) {
 
     const AmgVector(5)* predDiffPar = nullptr;
     const AmgSymMatrix(5)* predDiffCov = nullptr;

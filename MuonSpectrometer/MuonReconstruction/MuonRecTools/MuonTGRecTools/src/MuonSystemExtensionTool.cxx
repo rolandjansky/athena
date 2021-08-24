@@ -109,9 +109,7 @@ namespace Muon {
             Amg::Vector3D positionInSector(layerDescriptor.referencePosition, 0., 0.);
             Amg::Vector3D globalPosition = sectorRotation * positionInSector;
 
-            // Amg::Vector3D positionInSector2(layerDescriptor.referencePosition+100,0.,0.);
-            // Amg::Vector3D globalPosition2 = sectorRotation*positionInSector2;
-
+           
             // reference transform + surface
             Amg::Transform3D trans(sectorRotation * Amg::AngleAxis3D(xToZRotation, Amg::Vector3D(0., 1., 0.)));
             trans.pretranslate(globalPosition);
@@ -134,11 +132,6 @@ namespace Muon {
                                            << globalPosition.z() << " lpos3d " << lpos3d.x() << " " << lpos3d.y() << " " << lpos3d.z()
                                            << " normal: x " << surface->normal().x() << " y " << surface->normal().y() << " z "
                                            << surface->normal().z());
-                // << " lpos " << lpos[Trk::loc1] << " " << lpos[Trk::loc2]
-                // << " ref theta2 " << globalPosition2.theta() << " phi " << globalPosition2.phi() << " r " <<
-                // globalPosition2.perp()
-                // << " lpos3d2 " << lpos3d2.x() << " " << lpos3d2.y() << " " << lpos3d2.z()
-                // << " normal: theta " << surface->normal().phi() << " phi " << surface->normal().theta() );
             }
         }
         return true;
@@ -147,8 +140,9 @@ namespace Muon {
     bool MuonSystemExtensionTool::muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle,
                                                       const MuonSystemExtension*& muonSystemExtention) const {
         // get calo extension
+        const EventContext& ctx  = Gaudi::Hive::currentContext();
         std::unique_ptr<Trk::CaloExtension> caloExtension =
-          m_caloExtensionTool->caloExtension(Gaudi::Hive::currentContext(),
+          m_caloExtensionTool->caloExtension(ctx,
                                              indetTrackParticle);
         if (!caloExtension || !caloExtension->muonEntryLayerIntersection()) {
           ATH_MSG_VERBOSE("Failed to get CaloExtension ");
@@ -169,11 +163,9 @@ namespace Muon {
         std::vector<std::shared_ptr<const Trk::TrackParameters> > trackParametersVec;
 
         // loop over reference surfaces
-        SurfaceVec::const_iterator it = surfaces.begin();
-        SurfaceVec::const_iterator it_end = surfaces.end();
-        for (; it != it_end; ++it) {
+        for (const Muon::MuonLayerSurface&  it : surfaces) {
             // extrapolate to next layer
-            const Trk::Surface& surface = *it->surfacePtr;
+            const Trk::Surface& surface = *it.surfacePtr;
             if (msgLvl(MSG::VERBOSE)) {
                 ATH_MSG_VERBOSE(" startPars: phi pos "
                                 << currentPars->position().phi() << " direction phi " << currentPars->momentum().phi() << " theta pos "
@@ -184,33 +176,30 @@ namespace Muon {
                 if (currentPars->covariance())
                     ATH_MSG_VERBOSE(" err " << Amg::error(*currentPars->covariance(), Trk::locX) << " "
                                             << Amg::error(*currentPars->covariance(), Trk::locY));
-                ATH_MSG_VERBOSE(" destination: sector " << it->sector << "  " << MuonStationIndex::regionName(it->regionIndex) << "  "
-                                                        << MuonStationIndex::layerName(it->layerIndex) << " phi  " << surface.center().phi()
+                ATH_MSG_VERBOSE(" destination: sector " << it.sector << "  " << MuonStationIndex::regionName(it.regionIndex) << "  "
+                                                        << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
                                                         << " r " << surface.center().perp() << " z " << surface.center().z());
             }
-            if (currentPars->momentum().perp() < 500.) {
-                ATH_MSG_DEBUG("Extrapolated pT less than 0.5 GeV, don't keep trying");
-                break;
-            }
-
-            const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*currentPars, surface, Trk::alongMomentum, false, Trk::muon);
+            
+            std::unique_ptr<const Trk::TrackParameters> exPars {m_extrapolator->extrapolate(ctx, *currentPars, surface, Trk::alongMomentum, false, Trk::muon)};
             if (!exPars) {
                 ATH_MSG_VERBOSE("extrapolation failed, trying next layer ");
                 continue;
             }
 
-            // create shared pointer and add to garbage collection
-            std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
             //    reject intersections with very big uncertainties (parallel to surface)
-            if (!Amg::valid_cov(*exPars->covariance()) || Amg::error(*exPars->covariance(), Trk::locX) > 10000. ||
+            if (!Amg::saneCovarianceDiagonal(*exPars->covariance()) ||
+                Amg::error(*exPars->covariance(), Trk::locX) > 10000. ||
                 Amg::error(*exPars->covariance(), Trk::locY) > 10000.)
-                continue;
+              continue;
 
-            trackParametersVec.push_back(sharedPtr);
+            // create shared pointer and add to garbage collection
+            std::shared_ptr<const Trk::TrackParameters> sharedPtr{std::move(exPars)};
+            trackParametersVec.emplace_back(sharedPtr);
 
-            if (it->regionIndex != MuonStationIndex::Barrel) {
+            if (it.regionIndex != MuonStationIndex::Barrel) {
                 // in the endcaps we need to update the sector and check that we are in the correct sector
-                double phi = exPars->position().phi();
+                double phi = sharedPtr->position().phi();
                 std::vector<int> sectors;
                 m_sectorMapping.getSectors(phi, sectors);
 
@@ -218,26 +207,26 @@ namespace Muon {
                 // the sector
                 int sector = -1;
                 for (auto sec : sectors) {
-                    if (it->sector % 2 == sec % 2) {
+                    if (it.sector % 2 == sec % 2) {
                         sector = sec;
                         break;
                     }
                 }
-                ATH_MSG_DEBUG(" sector " << it->sector << " selected " << sector << " nsectors " << sectors);
+                ATH_MSG_DEBUG(" sector " << it.sector << " selected " << sector << " nsectors " << sectors);
                 // only select if we found a matching sector in the set
                 if (sector != -1) {
-                    MuonSystemExtension::Intersection intersection(sharedPtr, *it);
+                    MuonSystemExtension::Intersection intersection(sharedPtr, it);
                     intersection.layerSurface.sector = sector;
                     intersections.push_back(intersection);
                 }
             } else {
-                MuonSystemExtension::Intersection intersection(sharedPtr, *it);
+                MuonSystemExtension::Intersection intersection(sharedPtr, it);
                 intersections.push_back(intersection);
             }
-            if (Amg::error(*exPars->covariance(), Trk::locX) < 10. * Amg::error(*currentPars->covariance(), Trk::locX) &&
-                Amg::error(*exPars->covariance(), Trk::locY) < 10. * Amg::error(*currentPars->covariance(), Trk::locY)) {
+            if (Amg::error(*sharedPtr->covariance(), Trk::locX) < 10. * Amg::error(*currentPars->covariance(), Trk::locX) &&
+                Amg::error(*sharedPtr->covariance(), Trk::locY) < 10. * Amg::error(*currentPars->covariance(), Trk::locY)) {
                 // only update the parameters if errors don't blow up
-                currentPars = exPars;
+                currentPars = sharedPtr.get();
             }
         }
 
@@ -245,10 +234,7 @@ namespace Muon {
 
         if (intersections.empty()) return false;
 
-        MuonSystemExtension* theExtension = new MuonSystemExtension(
-            std::unique_ptr<const Trk::TrackParameters>(caloExtension->muonEntryLayerIntersection()->clone()), std::move(intersections));
-
-        muonSystemExtention = theExtension;
+        muonSystemExtention = new MuonSystemExtension(caloExtension->muonEntryLayerIntersection()->uniqueClone(), std::move(intersections));
         return true;
     }
 

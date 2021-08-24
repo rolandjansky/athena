@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -127,8 +127,8 @@ private:
       observed cluster size distribution */
   std::vector<int> TurnOnStrips(std::vector<int> pcs, const Identifier* id, CLHEP::HepRandomEngine* rndmEngine);
   /** Calculates the propagation time along the strip */
-  double PropagationTime(const Identifier* id, const Amg::Vector3D pos);
-  double PropagationTimeNew(const Identifier* id, const Amg::Vector3D globPos);
+  double PropagationTime(const Identifier* id, const Amg::Vector3D& pos);
+  double PropagationTimeNew(const Identifier* id, const Amg::Vector3D& globPos);
   /** Calculates the position of the hit wrt to the strip panel
       this transformation is needed since the impact point comes from the SD
       int he gas gap's reference frame. */
@@ -138,7 +138,7 @@ private:
   Gaudi::Property<double> m_UncorrJitter_BIS78 {this, "UncorrJitter_BIS78", 0.3 , "jitter uncorrelated between eta and phi BIS78"};
   Gaudi::Property<double> m_CorrJitter_BIS78   {this, "CorrJitter_BIS78",  0.0 , "jitter correlated between eta and phi BIS78"};
 
-  Amg::Vector3D posInPanel(const Identifier* id, const Amg::Vector3D posInGap);
+  Amg::Vector3D posInPanel(const Identifier* id, const Amg::Vector3D& posInGap);
   /** adjust strip numbering according to standard OIDs **/
   int adjustStripNumber(const Identifier* id,int nstrip);
   /** Accounts for rotation of chambers.
@@ -146,7 +146,7 @@ private:
       the gas gap reference system but RPC chambers are placed in the spectrometer
       after a certain number of rotations. This method applies the necessary
       modifications to axis orientation, in order to obtain the correct strip number */
-  Amg::Vector3D adjustPosition(const Identifier* id, const Amg::Vector3D hitPos);
+  Amg::Vector3D adjustPosition(const Identifier* id, const Amg::Vector3D& hitPos);
   /** calculates the strip number and returns the position along the strip*/
   int findStripNumber(Amg::Vector3D gasGapPos, Identifier stripPanelId, double& posinstrip);
 

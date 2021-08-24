@@ -8,6 +8,8 @@
 // Local include(s):
 #include "AsgMessaging/MsgStreamMacros.h"
 
+#include "CxxUtils/AthUnlikelyMacros.h"
+
 /// Helper macro for checking the status code returned by a function call
 ///
 /// To be able to write code in a compact form, we can use this macro to
@@ -40,7 +42,7 @@
 #define ASG_CHECK_1( EXP )                                     \
    do {                                                        \
       const StatusCode sc__(EXP);                              \
-      if( ! sc__.isSuccess() ) {                               \
+      if( ATH_UNLIKELY ( ! sc__.isSuccess() ) ) {              \
          ATH_MSG_ERROR( "Failed to call \"" << #EXP << "\"" ); \
          return sc__;                                          \
       }                                                        \
@@ -49,7 +51,7 @@
 #define ASG_CHECK_2( EXP, RET )                                \
    do {                                                        \
       const StatusCode sc__(EXP);                              \
-      if( ! sc__.isSuccess() ) {                               \
+      if( ATH_UNLIKELY ( ! sc__.isSuccess() ) ) {              \
          ATH_MSG_ERROR( "Failed to call \"" << #EXP << "\"" ); \
          return RET;                                           \
       }                                                        \
@@ -67,7 +69,7 @@
 #define ASG_CHECK_SA( SOURCE, EXP )                                     \
    do {                                                                 \
       const StatusCode sc__(EXP);                                       \
-      if( ! sc__.isSuccess() ) {                                        \
+      if( ATH_UNLIKELY ( ! sc__.isSuccess() ) ) {                       \
          static MsgStream msg( SOURCE );                                \
          msg << MSGSTREAM_REPORT_PREFIX << MSG::ERROR                   \
              << "Failed to call \"" << #EXP << "\"" << endmsg;          \

@@ -4,6 +4,7 @@
 
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 #include "AsgMessaging/StatusCode.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
@@ -151,6 +152,8 @@ StatusCode JetJvtEfficiency::initialize(){
     ATH_MSG_ERROR("Could not configure for nominal settings");
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK(m_passJvtKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -305,7 +308,12 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
   return CorrectionCode::Ok;
 }
 
-
+StatusCode JetJvtEfficiency::decorate(const xAOD::JetContainer& jets) const{
+  SG::WriteDecorHandle<xAOD::JetContainer, char> passJvtHandle(m_passJvtKey);
+  for(const xAOD::Jet* jet : jets)
+    passJvtHandle(*jet) = passesJvtCut(*jet);
+  return StatusCode::SUCCESS;
+}
 
 bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) const {
   if (!isInRange(jet)) return true;

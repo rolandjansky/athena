@@ -103,7 +103,7 @@ class TrigCostAnalysis: public ::AthAlgorithm {
     Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
       "Monitor global event properties" };
 
-    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", false,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
@@ -114,6 +114,9 @@ class TrigCostAnalysis: public ::AthAlgorithm {
 
     Gaudi::Property<bool> m_doMonitorChainAlgorithm { this, "DoMonitorChainAlgorithm", false,
       "Monitor algorithms associated with chains by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorSequence { this, "DoMonitorSequence", true,
+      "Monitor individual sequences by name" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };

@@ -64,13 +64,11 @@ using namespace InDet;
 	const xAOD::TrackParticle * tmp = dynamic_cast< const xAOD::TrackParticle* > ( *trk_iter );
 	assert( tmp != nullptr ); // in principle should really check that inputTracks only contains TrackParticle objects
 
-	// Apply track filter
-	if ( !m_trkFilter->decision( *tmp,&primaryVertex ) ) continue;
-
 	// Compute compatibility and understand track type
-	// 0: extrapolation of MeasuredPerigee failed
-	// 1: primary
-	// 2: secondary
+	// -1: track filter failed
+	//  0: extrapolation of MeasuredPerigee failed
+	//  1: primary
+	//  2: secondary
 	int type = computeTrackCompatibility( primaryVertex,jetMomentum,*tmp );
 
 	// Create Trk::ITrackLink collections to be given to selected tracks
@@ -99,11 +97,22 @@ using namespace InDet;
 
     int JetFitterTrackSelectorTool::computeTrackCompatibility( const xAOD::Vertex &primaryVertex,
 							    const TLorentzVector &jetMomentum,
-							    const xAOD::TrackParticle &track ) const {
+							       const xAOD::TrackParticle &track ) const {
 
       // Decorators for tracks
-      SG::AuxElement::Decorator< float > compatibilityDecorator( "TrackCompatibility" );
+      std::string toolname = this->name();
+      std::string delimiter = "_";
+      std::string::size_type firstDelimiter = toolname.find(delimiter);
+      std::string sub = toolname.substr(0, firstDelimiter);
+      std::string decoratorName = std::string("JetFitter_TrackCompatibility_") + sub;
+      SG::AuxElement::Decorator< float > compatibilityDecorator(decoratorName.c_str());
       
+      // Apply track filter
+      if ( !m_trkFilter->decision( track, &primaryVertex ) ) {
+        compatibilityDecorator ( track ) = 0.;
+        return -1;
+      }
+
       // Recomputing Perigee w.r.t PV
       Trk::PerigeeSurface mySurface( primaryVertex.position() );
       std::unique_ptr<const Trk::TrackParameters>  myMeasuredPerigee(m_extrapolator->extrapolate( track,mySurface ));
@@ -129,7 +138,7 @@ using namespace InDet;
       
       // Decorate
       ATH_MSG_DEBUG( "compatibilityValue = " << compatibilityValue );
-      compatibilityDecorator ( track ) = compatibilityValue;      
+      compatibilityDecorator ( track ) = compatibilityValue;
 
       // Understand if primary or secondary track particle
       double cutCompatibilityPVforPosTracks = m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks;

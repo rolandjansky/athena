@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -85,7 +85,7 @@ namespace MuonCalib {
 
     private:
         // parameters of the curved line //
-        Legendre_polynomial *m_Legendre;  // pointer to the Legendre polynomial
+        const Legendre_polynomial *m_Legendre;  // pointer to the Legendre polynomial
                                           // describing the curved line
         Amg::VectorX m_coeff_xz;          // coefficients of the straight line in the local
                                           // xz plane

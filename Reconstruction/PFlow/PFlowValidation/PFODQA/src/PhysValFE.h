@@ -12,7 +12,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
 #include "xAODTracking/VertexContainer.h"
-#include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODMuon/MuonContainer.h"
@@ -20,7 +19,6 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "PFO_FE_ComparisonPlots.h"
 
 class PhysValFE : public ManagedMonitorToolBase {
 
@@ -44,11 +42,7 @@ public:
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerReadHandleKey{this,"primaryVerticesName","PrimaryVertices","ReadHandleKey for the PrimaryVertices container"};
 
   /** ReadHandle to retrieve xAOD::FlowElementContainer (charged) */
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_FEContainerHandleKey{this,"FlowElementContainerName","JetETMissChargedFlowElements","ReadHandleKey for the FE container"};
-   
-  
-  /** ReadHandleKey to retrieve xAOD::PFOContainer */
-  SG::ReadHandleKey<xAOD::PFOContainer> m_PFOContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_FEContainerHandleKey{this,"FlowElementContainerName","JetETMissChargedFlowElements","ReadHandleKey for the FE container"};  
 
   /** ReadHandleKey to retrieve MuonContainer */
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerHandleKey{this,"MuonContainerName","Muons","ReadHandleKey for the muon container"};
@@ -77,13 +71,7 @@ public:
   
   /** Select whether to use neutral or charged FE */
   bool m_useNeutralFE;
-
-  /** Pointer to class that deals with PFO/FE comparison plots  */
-  std::unique_ptr<PFO_FE_ComparisonPlots> m_charged_PFO_FE_comparison;
-  std::unique_ptr<PFO_FE_ComparisonPlots> m_neutral_PFO_FE_comparison;
-
-  /** Toggle to enable plots directly comparing FE and PFO */
-  Gaudi::Property<bool> m_compareFEtoPFO{this,"compareFEtoPFO",false,"Toggle to enable plots directly comparing FE and PFO "};
+  
 
 };
 #endif

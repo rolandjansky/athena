@@ -5,7 +5,7 @@
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "TrigT1TGC/TGCArguments.h"
 #include "TrigT1TGC/TGCConnectionPPToSL.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
+#include "TrigT1TGC/BigWheelCoincidenceLUT.h"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceLUT.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
@@ -13,6 +13,7 @@
 #include "TrigT1TGC/TGCConnectionASDToPP.h"
 #include "TrigT1TGC/TGCConnectionInPP.h"
 #include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/Run2TileMuCoincidenceMap.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -88,9 +89,6 @@ TGCDatabaseManager::TGCDatabaseManager()
   }
   for (int side=0; side<NumberOfSide; side +=1) {
     m_mapEIFI[side] = 0;
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = 0;
-    }
   }
 
 }
@@ -143,13 +141,6 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     ver_HotRoI = "v" + vers[0];
   }
 
-  // RPhi Coincidence Map
-  for (int side=0; side<NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey,readLUTsCondKey, ver_BW, side, oct);
-    }
-  }
-
   // EIFI Coincidence Map
   ATH_MSG_DEBUG("start to create EIFI coincidence map.");
   for (int side=0; side<NumberOfSide; side +=1) {
@@ -157,6 +148,9 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   }
 
   if(tgcArgs()->useRun3Config()){
+    // Big Wheel Coincidence LUT
+    m_bigWheelLUT.reset(new LVL1TGC::BigWheelCoincidenceLUT(tgcArgs(), readLUTsCondKey, ver_BW));
+
     // Tile-Muon LUT
     m_tileMuLUT.reset(new LVL1TGC::TGCTileMuCoincidenceLUT(tgcArgs(), readCondKey, ver_TILE));
 
@@ -176,6 +170,13 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     m_mapGoodMF.reset(new TGCGoodMF(tgcArgs(),ver_HotRoI));
 
   } else {   // for Run-2
+    // RPhi Coincidence Map (available on DB)
+    for (int side=0; side<NumberOfSide; side +=1) {
+      for (int oct=0; oct<NumberOfOctant; oct++) {
+        m_mapRphi[side][oct].reset(new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey, side, oct));
+      }
+    }
+
     // Tile-Muon Coincidence Map (available on DB)
     m_mapRun2TileMu.reset(new LVL1TGC::Run2TileMuCoincidenceMap(readCondKey));
   }
@@ -204,11 +205,6 @@ TGCDatabaseManager::~TGCDatabaseManager()
     m_PPToSL[j]=0;
   }
 
-  for (int side=0; side<NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++)
-       delete m_mapRphi[side][oct];
-  }
-
   for(int side=0; side<NumberOfSide; side +=1) {
     delete m_mapEIFI[side];
   }
@@ -227,10 +223,6 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   for( int i=0; i<NumberOfRegionType; i+=1) m_PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
     m_mapEIFI[side] =0;
-    
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = 0;
-    }
   }
 
   *this = right;
@@ -257,11 +249,6 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     for (int side=0; side<NumberOfSide; side +=1) {
       if (m_mapEIFI[side]!=0) delete m_mapEIFI[side];
       m_mapEIFI[side] = new TGCEIFICoincidenceMap(*(right.m_mapEIFI[side]));
-      
-      for (int oct=0; oct<NumberOfOctant; oct++) {
-	if(m_mapRphi[side][oct]!=0) delete m_mapRphi[side][oct];
-	m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.m_mapRphi[side][oct]));
-      }
     }
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;

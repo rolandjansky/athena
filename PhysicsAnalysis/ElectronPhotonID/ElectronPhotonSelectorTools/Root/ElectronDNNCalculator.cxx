@@ -75,7 +75,7 @@ ElectronDNNCalculator::ElectronDNNCalculator(AsgElectronSelectorTool* owner,
 
   // Open quantiletransformer file
   ATH_MSG_INFO("Loading QuantileTransformer " << quantileFileName);
-  TFile* qtfile = TFile::Open(quantileFileName.data());
+  std::unique_ptr<TFile> qtfile(TFile::Open(quantileFileName.data()));
   if (readQuantileTransformer((TTree*)qtfile->Get("tree"), variables) == 0){
     throw std::runtime_error("Could not load all variables for the QuantileTransformer");
 

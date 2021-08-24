@@ -4,7 +4,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
-use_tracking_geometry_cond_alg = False
+use_tracking_geometry_cond_alg = True
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -1239,8 +1239,11 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
         kwargs=setDefaults(kwargs, UpdatorTool         = getInDetPatternUpdator())
 
     if 'DriftCircleCutTool' not in kwargs :
-        kwargs=setDefaults(kwargs,
-                           DriftCircleCutTool  = getInDetTRTDriftCircleCutForPatternReco(TrackingCuts=InDetNewTrackingCuts))
+        if kwargs.get('UseParameterization',InDetNewTrackingCuts.useParameterizedTRTCuts()) :
+            kwargs=setDefaults(kwargs,
+                               DriftCircleCutTool  = getInDetTRTDriftCircleCutForPatternReco(TrackingCuts=InDetNewTrackingCuts))
+        else :
+            kwargs=setDefaults(kwargs, DriftCircleCutTool  = '')
 
     if 'RIOonTrackToolYesDr' not in kwargs :
         kwargs=setDefaults(kwargs, RIOonTrackToolYesDr = getInDetTRT_DriftCircleOnTrackTool())
@@ -1346,12 +1349,15 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     if have_calo_rois :
         alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
         kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    if 'DriftCircleCutTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
     return InDet__InDetAmbiScoringTool(the_name,
                                        **setDefaults(kwargs,
                                                      Extrapolator            = getInDetExtrapolator(),
                                                      SummaryTool             = getInDetTrackSummaryTool(),
-                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
                                                      useAmbigFcn             = True,  # this is NewTracking
                                                      useTRT_AmbigFcn         = False,
                                                      maxZImp                 = NewTrackingCuts.maxZImpact(),
@@ -1378,6 +1384,12 @@ def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwar
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
 
+def getInDetAmbiScoringToolSi(NewTrackingCuts, name='InDetAmbiScoringToolSi', **kwargs) :
+    return getInDetAmbiScoringTool(NewTrackingCuts,
+                                   name+NewTrackingCuts.extension(),
+                                   **setDefaults( kwargs,
+                                                  DriftCircleCutTool      =  ''))
+
 @makePublicTool
 def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     NewTrackingCuts = kwargs.pop("NewTrackingCuts")
@@ -1388,6 +1400,10 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     if have_calo_rois :
         alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
         kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    if 'DriftCircleCutTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
+
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetNNScoringTool
     return InDet__InDetNNScoringTool(the_name,
                                        **setDefaults(kwargs,
@@ -1395,7 +1411,6 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
                                                      nnCutThreshold          = InDetFlags.nnCutLargeD0Threshold(),
                                                      Extrapolator            = getInDetExtrapolator(),
                                                      SummaryTool             = getInDetTrackSummaryTool(),
-                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
                                                      useAmbigFcn             = True,  # this is NewTracking
                                                      useTRT_AmbigFcn         = False,
                                                      maxZImp                 = NewTrackingCuts.maxZImpact(),
@@ -1421,6 +1436,12 @@ def getInDetNNScoringTool(NewTrackingCuts, name='InDetNNScoringTool', **kwargs) 
                                                       maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
+def getInDetNNScoringToolSi(NewTrackingCuts, name='InDetNNScoringToolSi', **kwargs) :
+    return getInDetNNScoringTool(NewTrackingCuts,
+                                 name+NewTrackingCuts.extension(),
+                                 **setDefaults( kwargs,
+                                                DriftCircleCutTool      = ''))
 
 def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringTool',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -1581,7 +1602,7 @@ def combinedClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     ClusterSplitProbContainerLargeD0=''
-    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.runLRTReco() or InDetFlags.doLowPtLargeD0():
       if ('InDetNewTrackingCutsLargeD0' not in dir()):
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")

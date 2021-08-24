@@ -100,7 +100,6 @@ m_all(nullptr),
 m_muonMass(105.66)
 {
     declareProperty("muonMass"          , m_muonMass);
-    declareProperty("JpsiCandidates"    , m_JpsiCandidatesKey = "JpsiCandidates","Offline di-muon candidates");
 
     declareProperty("BphysShifterPath"  , m_base_path_shifter="HLT/BphysMon/shifter","Shifter hist path");
     declareProperty("BphysExpertPath"   , m_base_path_expert ="HLT/BphysMon/expert" ,"Expert hist path");
@@ -211,6 +210,7 @@ StatusCode HLTXAODBphysMonTool::init()
     
     ATH_MSG_INFO ("Initializing... ");
     ATH_CHECK( m_tdt.retrieve());
+    ATH_CHECK( m_JpsiCandidatesKey.initialize(SG::AllowEmpty) );
     
     if(m_GenerateChainDictsFromDB)
       if(generateChainDicts().isFailure())
@@ -1067,8 +1067,13 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
     // fill the hists with offline comparisons
     ATH_MSG_DEBUG("in JpsiFinder()");
     
-    const xAOD::VertexContainer*    jpsiContainer(nullptr);
-    if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
+    const xAOD::VertexContainer* jpsiContainer = nullptr;
+    if (not m_JpsiCandidatesKey.empty()) {
+      jpsiContainer = SG::get(m_JpsiCandidatesKey);
+      ATH_CHECK( jpsiContainer != nullptr );
+    }
+
+    if (!jpsiContainer) {
         ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
         return StatusCode::SUCCESS;
     }
@@ -1441,9 +1446,13 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
     bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed) { 
-      const xAOD::VertexContainer*    jpsiContainer(nullptr);
+      const xAOD::VertexContainer* jpsiContainer = nullptr;
+      if (not m_JpsiCandidatesKey.empty()) {
+        jpsiContainer = SG::get(m_JpsiCandidatesKey);
+        ATH_CHECK( jpsiContainer != nullptr );
+      }
     
-      if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
+      if (!jpsiContainer) {
       ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
       return StatusCode::SUCCESS;
       }
@@ -1807,6 +1816,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                                              const std::string & prefix,const std::string & path, const std::string & chainName, const bool fullSetOfHists) {
     if (!bphysItem) {
         ATH_MSG_WARNING("fillTrigBphysHists null pointer provided");
+        return;
     }
     ATH_MSG_DEBUG("fillTrigBphysHists for: " <<  bphysItem << " " <<  groupName << " "
                   << prefix << " " <<path << " " <<chainName );

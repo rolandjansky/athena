@@ -151,7 +151,7 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
       }
     
     int run = evtInfo->event_ID()->run_number(); 
-    int event = evtInfo->event_ID()->event_number();
+    uint64_t event = evtInfo->event_ID()->event_number();
 
     ATH_MSG_VERBOSE( "run   " << run  );
 

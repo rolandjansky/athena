@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZDCPulseAnalyzer.h"
 
-#include <numeric>
 #include <algorithm>
 #include <sstream>
 #include <cmath>
@@ -1184,7 +1183,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
   // Set up the virtual fitter
   //
-  TFitter* theFitter = 0;
+  TFitter* theFitter = nullptr;
+
   if (PrePulse()) {
     m_prePulseCombinedFitter = MakeCombinedFitter(fitWrapper->GetWrapperTF1RawPtr());
 
@@ -1213,8 +1213,8 @@ void ZDCPulseAnalyzer::DoFitCombined()
   if (s_quietFits) {
     theFitter->GetMinuit()->fISW[4] = -1;
 
-    int  ierr = 0;
-    theFitter->GetMinuit()->mnexcm("SET NOWarnings", 0, 0, ierr);
+    int  ierr= 0; 
+    theFitter->GetMinuit()->mnexcm("SET NOWarnings",nullptr,0,ierr);
   }
   else theFitter->GetMinuit()->fISW[4] = 0;
 

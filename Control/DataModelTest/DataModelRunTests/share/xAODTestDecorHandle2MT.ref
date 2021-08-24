@@ -110,12 +110,12 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
   IncidentProcAlg3
       none
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' )     required by Algorithm: 
-       * xAODTestReadDecor
-   o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1' )     required by Algorithm: 
-       * xAODTestReadDecor
-   o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1Base' )     required by Algorithm: 
-       * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
+AvalancheSchedulerSvc                                        0    INFO    o  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1Base' )     required by Algorithm: 
+AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecor
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                                        0    INFO Concurrency level information:

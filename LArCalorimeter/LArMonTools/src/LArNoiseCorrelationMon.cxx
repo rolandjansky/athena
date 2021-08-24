@@ -204,7 +204,7 @@ LArNoiseCorrelationMon::bookHistograms()
     m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
 
     /** Check which (if any) FEBs we want to monitor*/ 
-    if(m_FEBsToMonitor.size()==0) {
+    if(m_FEBsToMonitor.empty()) {
       if(!m_publishAllFebsOnline && m_IsOnline) {
 	ATH_MSG_INFO("'m_publishAllFebsOnline' set to false: cannot publish all FEBs in online run. Do nothing.");
 	return StatusCode::SUCCESS;
@@ -222,7 +222,7 @@ StatusCode
 LArNoiseCorrelationMon::fillHistograms()
 {
   /** if publishing all FEBs has been forbidden and m_FEBsToMonitor is empty, then no histogram will be published anyway: no need to loop over channels */
-  if(!m_publishAllFebsOnline && m_IsOnline && m_FEBsToMonitor.size()==0) {
+  if(!m_publishAllFebsOnline && m_IsOnline && m_FEBsToMonitor.empty()) {
       ATH_MSG_DEBUG("'m_publishAllFebsOnline' set to false and empty FEB list in online run. No FEB will be monitored.");
       return StatusCode::SUCCESS;
     }
@@ -248,7 +248,7 @@ LArNoiseCorrelationMon::fillHistograms()
 
     bool passBCID;
     if(!m_trigDecTool.empty()) {
-      for(auto trig_chain : m_triggers) {
+      for(const auto& trig_chain : m_triggers) {
 	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END):true);
 	passTrig=(passTrig || (passBCID && m_trigDecTool->isPassed(trig_chain)));
       }

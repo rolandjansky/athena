@@ -19,14 +19,11 @@ def createTriggerFlags():
     # need proper documentation
     flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
 
-    # enable HLT part of the trigger
-    flags.addFlag('Trigger.doHLT', True)
+    # Run HLT selection algorithms
+    flags.addFlag('Trigger.doHLT', False)
 
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
-    flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
-
-#    # Enable Run-3 LVL1 simulation and/or decoding
-#    flags.addFlag('Trigger.enableL1Phase1', False)
+    flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
     # Enable Run-3 LVL1 muon simulation and/or decoding
     flags.addFlag('Trigger.enableL1MuonPhase1', False)
@@ -62,7 +59,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doCalo', True)
 
     # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
-    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    # parents all the way back to the HLTSeeding. Potentially CPU expensive.
     # also enables per step decison printouts
     flags.addFlag('Trigger.doRuntimeNaviVal', False)
 
@@ -103,8 +100,15 @@ def createTriggerFlags():
         return default_version
 
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
-    flags.addFlag('Trigger.doEDMVersionConversion', True)
+    flags.addFlag('Trigger.doEDMVersionConversion', False)
     flags.addFlag('Trigger.doConfigVersionConversion', True)
+
+    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework). 
+    flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
+
+    # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
+    flags.addFlag('Trigger.doNavigationSlimming', False) # Defaulting to False until validated (July 2021)
+
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
 
@@ -128,14 +132,18 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
     flags.addFlag('Trigger.CostMonitoring.monitorROBs', True)
 
-    # enable muon inputs simulation
-    flags.addFlag('Trigger.L1.doMuons', True)
+    # enable L1Muon ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doMuon', True)
 
-    # version of CTP data, int value up to 4
-    flags.addFlag('Trigger.L1.CTPVersion', 4)
+    # enable L1Calo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCalo', True)
 
-    # list of thresholds (not sure if we want to use new flags to generate L1, leaving out for now?)
-    
+    # enable L1Topo ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doTopo', True)
+
+    # enable CTP ByteStream conversion / simulation
+    flags.addFlag('Trigger.L1.doCTP', True)
+
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
@@ -159,7 +167,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-02')
 
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
@@ -292,9 +300,11 @@ def createTriggerFlags():
     # the minimum pT threshold to use for the muon removal
     flags.addFlag("Trigger.FSHad.PFOMuonRemovalMinPt", 10 * GeV)
 
-    # Switch on AMVF vertice and priority TTVA for jet slice
-    flags.addFlag("Trigger.Jet.doAMVFPriorityTTVA", False)
-    flags.addFlag("Trigger.Jet.doMC16_EOverP", False)
+    # Switch on MC20 EOverP maps for the jet slice
+    flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
+
+    # Return dummy chain configurations for fast slice independence checks
+    flags.addFlag("Trigger.Test.doDummyChainConfig", False)
 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:

@@ -3,38 +3,50 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def RDOAnalysisBaseCfg(configFlags,name,**kwargs):
-    
+
+def RDOAnalysisBaseCfg(flags, name, **kwargs):
     result = ComponentAccumulator()
-    
-    THistSvc= CompFactory.THistSvc
-    histsvc = THistSvc(name="THistSvc")
+
+    histsvc = CompFactory.THistSvc(name="THistSvc",
+                                   Output=[ f"{name} DATAFILE='{name}.root' OPT='RECREATE'" ])
     result.addService(histsvc)
     
     return result
 
-def ITkStripRDOAnalysisCfg(configFlags,name="ITkStripRDOAnalysis",**kwargs):
 
-    result = RDOAnalysisBaseCfg(configFlags,name,**kwargs)
+def ITkPixelRDOAnalysisCfg(flags, name="ITkPixelRDOAnalysis", **kwargs):
+    result = RDOAnalysisBaseCfg(flags, name, **kwargs)
 
-    kwargs.setdefault("NtupleFileName","/"+name+"/")
-    kwargs.setdefault("HistPath","/"+name+"/")
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+    result.merge(ITkPixelGeometryCfg(flags))
 
-    ITkStripRDOAnalysis = CompFactory.StripRDOAnalysis(name,**kwargs)
-    result.addEventAlgo(ITkStripRDOAnalysis)
-    result.getService("THistSvc").Output = [ name+" DATAFILE='"+name+".root' OPT='RECREATE'" ] 
-    
+    kwargs.setdefault("NtupleFileName", f"/{name}/")
+    kwargs.setdefault("HistPath", f"/{name}/")
+
+    result.addEventAlgo(CompFactory.ITkPixelRDOAnalysis(name, **kwargs))
     return result
 
-def ITkPixelRDOAnalysisCfg(configFlags,name="ITkPixelRDOAnalysis",**kwargs):
-  
-    result = RDOAnalysisBaseCfg(configFlags,name,**kwargs)
 
-    kwargs.setdefault("NtupleFileName","/"+name+"/")
-    kwargs.setdefault("HistPath","/"+name+"/")
+def ITkStripRDOAnalysisCfg(flags, name="ITkStripRDOAnalysis", **kwargs):
+    result = RDOAnalysisBaseCfg(flags, name, **kwargs)
 
-    ITkPixelRDOAnalysis = CompFactory.ITkPixelRDOAnalysis(name,**kwargs)
-    result.addEventAlgo(ITkPixelRDOAnalysis)
-    result.getService("THistSvc").Output = [ name+" DATAFILE='"+name+".root' OPT='RECREATE'" ] 
-    
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
+    result.merge(ITkStripGeometryCfg(flags))
+
+    kwargs.setdefault("NtupleFileName", f"/{name}/")
+    kwargs.setdefault("HistPath", f"/{name}/")
+
+    result.addEventAlgo(CompFactory.StripRDOAnalysis(name, **kwargs))
     return result
+
+
+def RDOAnalysisCfg(flags):
+    acc = ComponentAccumulator()
+
+    if flags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelRDOAnalysisCfg(flags))
+    
+    if flags.Detector.EnableITkStrip:
+        acc.merge(ITkStripRDOAnalysisCfg(flags))
+
+    return acc

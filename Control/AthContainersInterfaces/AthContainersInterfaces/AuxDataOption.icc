@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainersInterfaces/AuxDataOption.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -51,7 +50,7 @@ AuxDataOption::AuxDataOption (const std::string& name, double val)
   : m_name (name),
     m_isInt(false)
 {
-  m_val.f = val;
+  m_val.f = static_cast<float>(val);
 }
 
 
@@ -71,10 +70,7 @@ std::string AuxDataOption::name() const
 inline
 int AuxDataOption::intVal() const
 {
-  if (m_isInt)
-    return m_val.i;
-  else
-    return m_val.f;
+  return m_isInt ? m_val.i : static_cast<int>(m_val.f);
 }
 
 
@@ -84,10 +80,7 @@ int AuxDataOption::intVal() const
 inline
 float AuxDataOption::floatVal() const
 {
-  if (m_isInt)
-    return m_val.i;
-  else
-    return m_val.f;
+  return m_isInt ? static_cast<float>(m_val.i) : m_val.f;
 }
 
 

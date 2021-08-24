@@ -937,8 +937,6 @@ TriggerResultsList=[
 
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3SummaryAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
-    ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3Aux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ]
 
 

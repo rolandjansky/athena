@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::LocalGeometry
@@ -21,13 +21,10 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-//#include "globals.hh"
-// Forward declarations.
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+
 class LArG4Identifier;
 class G4Step;
-// class IGeoModelSvc;
-// class IRDBAccessSvc;
 
 namespace LArG4 {
 
@@ -52,7 +49,7 @@ namespace LArG4 {
       int binSearchAll(double ly, int depth, bool regular=false) const;
       double deadZone(double locx, double locy) const;
       ServiceHandle<IGeoModelSvc> m_geoModel;
-      ServiceHandle<IRDBAccessSvc> m_AccessSvc;
+      ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc;
 
       bool m_isX;
       double m_depthSize[7] = {0.0};

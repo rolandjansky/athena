@@ -163,7 +163,7 @@ class LArSCL1Maker : public AthReentrantAlgorithm
   /** pointer to the offline TT helper */
   const CaloCell_SuperCell_ID*     m_scHelper;
   /** pointer to the offline id helper  */
-  const CaloCell_ID*               m_OflHelper;
+  const CaloCell_ID*               m_OflHelper = nullptr;
   /** pointer to the online LAr helper */
   const LArOnline_SuperCellID*   m_OnlSCHelper;
   

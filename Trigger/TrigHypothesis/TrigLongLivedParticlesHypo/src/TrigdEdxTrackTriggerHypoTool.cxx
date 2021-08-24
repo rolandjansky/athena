@@ -58,11 +58,11 @@ StatusCode TrigdEdxTrackTriggerHypoTool::decide( TrackInfo& input ) const
       ATH_MSG_DEBUG("+++++ i_trk: " << i_trk++ << " +++++");
 
       // values
-      float trackPt     = trk->getDetail<float>("trk_pt");
-      float trackEta    = trk->getDetail<float>("trk_eta");
-      float tracka0beam = trk->getDetail<float>("trk_a0beam");
-      float trackdEdx   = trk->getDetail<float>("trk_dedx");
-      int   trackId     = trk->getDetail<int>  ("trk_id");
+      float trackPt     = trk->getDetail<float>("dEdxTrk_pt");
+      float trackEta    = trk->getDetail<float>("dEdxTrk_eta");
+      float tracka0beam = trk->getDetail<float>("dEdxTrk_a0beam");
+      float trackdEdx   = trk->getDetail<float>("dEdxTrk_dedx");
+      int   trackId     = trk->getDetail<int>  ("dEdxTrk_id");
       ATH_MSG_DEBUG("track pt / eta / a0beam / dEdx / Id = " << trackPt << " / " << trackEta << " / " << tracka0beam << " / " << trackdEdx << " / " << trackId );
       
       // pT cut
@@ -98,9 +98,9 @@ StatusCode TrigdEdxTrackTriggerHypoTool::decide( TrackInfo& input ) const
       int n_hdedx_hits = 0;
       ATH_MSG_DEBUG("looping hits for trackId=" << trackId);
       for ( const xAOD::TrigComposite* hit : *hitsContainer ) {
-	 int id = hit->getDetail<int>("hit_trkid");
+	 int id = hit->getDetail<int>("dEdxHit_trkid");
 	 if( id != trackId ) continue;
-	 float dedx  = hit->getDetail<float>("hit_dedx");
+	 float dedx  = hit->getDetail<float>("dEdxHit_dedx");
 	 ATH_MSG_DEBUG("... dEdx = " << dedx);
 	 if( dedx < m_cutTrackHighdEdxDef[cutIndex] ) continue;
 	 n_hdedx_hits++;
@@ -119,21 +119,21 @@ StatusCode TrigdEdxTrackTriggerHypoTool::decide( TrackInfo& input ) const
       xAOD::TrigComposite *dedx = new xAOD::TrigComposite();
       dedx->makePrivateStore();
       dedxContainer.push_back(dedx);
-      dedx->setDetail<float>("trk_pt",     trackPt);
-      dedx->setDetail<float>("trk_eta",    trackEta);
-      float trackPhi = trk->getDetail<float>("trk_phi");
-      dedx->setDetail<float>("trk_phi",    trackPhi);
-      dedx->setDetail<float>("trk_dedx",   trackdEdx);
-      dedx->setDetail<int>  ("trk_n_hdedx_hits", n_hdedx_hits);
-      dedx->setDetail<float>("trk_a0beam", tracka0beam);
-      float n_hits_innermost = trk->getDetail<float>("trk_n_hits_innermost");
-      float n_hits_inner     = trk->getDetail<float>("trk_n_hits_inner");
-      float n_hits_pix       = trk->getDetail<float>("trk_n_hits_pix");
-      float n_hits_sct       = trk->getDetail<float>("trk_n_hits_sct");
-      dedx->setDetail<float>("trk_n_hits_innermost", n_hits_innermost);
-      dedx->setDetail<float>("trk_n_hits_inner",     n_hits_inner);
-      dedx->setDetail<float>("trk_n_hits_pix",       n_hits_pix);
-      dedx->setDetail<float>("trk_n_hits_sct",       n_hits_sct);
+      float trackPhi       = trk->getDetail<float>("dEdxTrk_phi");
+      int n_hits_innermost = trk->getDetail<int>  ("dEdxTrk_n_hits_innermost");
+      int n_hits_inner     = trk->getDetail<int>  ("dEdxTrk_n_hits_inner");
+      int n_hits_pix       = trk->getDetail<int>  ("dEdxTrk_n_hits_pix");
+      int n_hits_sct       = trk->getDetail<int>  ("dEdxTrk_n_hits_sct");
+      dedx->setDetail<float>("HPtdEdxTrk_pt",     trackPt);
+      dedx->setDetail<float>("HPtdEdxTrk_eta",    trackEta);
+      dedx->setDetail<float>("HPtdEdxTrk_phi",    trackPhi);
+      dedx->setDetail<float>("HPtdEdxTrk_dedx",   trackdEdx);
+      dedx->setDetail<int>  ("HPtdEdxTrk_n_hdedx_hits", n_hdedx_hits);
+      dedx->setDetail<float>("HPtdEdxTrk_a0beam",       tracka0beam);
+      dedx->setDetail<int>  ("HPtdEdxTrk_n_hits_innermost", n_hits_innermost);
+      dedx->setDetail<int>  ("HPtdEdxTrk_n_hits_inner",     n_hits_inner);
+      dedx->setDetail<int>  ("HPtdEdxTrk_n_hits_pix",       n_hits_pix);
+      dedx->setDetail<int>  ("HPtdEdxTrk_n_hits_sct",       n_hits_sct);
       ATH_MSG_DEBUG("Created a new entry EDM");
    }
 

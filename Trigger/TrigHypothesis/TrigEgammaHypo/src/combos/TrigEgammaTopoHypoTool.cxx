@@ -41,12 +41,24 @@ StatusCode TrigEgammaTopoHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigEgammaTopoHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigEgammaTopoHypoTool::executeAlg(const std::vector<Combo::LegDecision> &combination) const {
   auto massOfAccepted = Monitored::Scalar( "MassOfAccepted"   , -1.0 );
   auto dphiOfAccepted = Monitored::Scalar( "DphiOfAccepted"   , -99 );
   auto monitorIt    = Monitored::Group( m_monTool, massOfAccepted, dphiOfAccepted);
-//retrieve the elements
+  //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
+
+  // Expecting to only run over chains with two legs and one electron or photon required on each leg
+  // So should always have two objects from which to form the invariant mass
+  if(combination.size() != 2){
+    ATH_MSG_ERROR(
+      "Expecting to combine exactly two electrons/photons, but instead found "
+      << combination.size() << ". Will throw a runtime error");
+    throw std::runtime_error(
+      "Expecting to combine exactly two electrons/photons, but instead found " +
+      std::to_string(combination.size()));
+  }
+
   for (auto el: combination){
     ATH_MSG_DEBUG("found Combination: "<<combination);
     auto EL= el.second;    

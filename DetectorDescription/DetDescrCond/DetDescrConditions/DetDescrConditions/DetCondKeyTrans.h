@@ -1,20 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef DETDESCRCOND_KEYTRANS_H
-#define DETDESCRCOND_KEYTRANS_H
-// DetCondKeyTrans.h - class to hold set of HepGeom::Transform3D keyed by string
-// value for storage in the conditions DB
-// typically for holding top-level transforms for GeoModel/G4
-// This class can be persistified (converters in DetDescrCondAthenaPool)
-//
-// Richard Hawkings, started 23/6/05
+#ifndef DETDESCRCONDITIONS_DETCONDKEYTRANS_H
+#define DETDESCRCONDITIONS_DETCONDKEYTRANS_H
+
+/**
+ * @file DetCondKeyTrans.h
+ *
+ * @class DetCondKeyTrans
+ * 
+ * @brief Class to hold set of HepGeom::Transform3D keyed by string
+ * value for storage in the conditions DB typically for holding top-level transforms 
+ * for GeoModel/G4. This class can be persistified (converters in DetDescrCondAthenaPool)
+ *
+ * @author Richard Hawkings, started 23/6/05
+ *
+ **/
 
 #include <string>
 #include <map>
 #include "CLHEP/Geometry/Transform3D.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 
 class DetCondKeyTrans {
  public:
@@ -44,6 +52,7 @@ private:
 };
 
 CLASS_DEF(DetCondKeyTrans,254546453,1)
+CONDCONT_DEF( DetCondKeyTrans , 116888117 );
 
 // iterator declaration for SEAL dictionary
 // removed - perhaps will not be needed for reflex, causes problem for gcc344

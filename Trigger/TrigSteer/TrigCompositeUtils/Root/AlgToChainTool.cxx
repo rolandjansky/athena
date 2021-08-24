@@ -119,6 +119,41 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::getActiveChainsForAlg(
 }
 
 
+StatusCode TrigCompositeUtils::AlgToChainTool::getAllActiveSequences( const EventContext& context, std::map<std::string, std::string>& algToSeq) const {
+
+    // Retrieve EventStore and keys
+    IProxyDict* storeProxy = Atlas::getExtendedEventContext(context).proxy();
+    SmartIF<SGImplSvc> eventStore (storeProxy);
+
+    std::vector<std::string> keys;
+    eventStore->keys(static_cast<CLID>( ClassID_traits<TrigCompositeUtils::DecisionContainer>::ID() ), keys);
+
+    SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey, context );
+    ATH_CHECK( hltMenuHandle.isValid() );
+    for (const auto& sequence : hltMenuHandle->sequencers()) {
+        std::string filterName = "HLTNav_F" + sequence.first;
+
+        auto foundKey = std::find_if(keys.begin(), keys.end(), [&](const std::string& key) {
+            return key.find(filterName) == 0;
+        });
+
+        if (foundKey != keys.end() ){
+            // Check if sequence passed - if at least one DecisionObject was produced
+            for ( const TrigCompositeUtils::Decision* d : *getDecisionFromStore(eventStore, *foundKey) ) {
+                if (!d->decisions().empty()){
+                    // Save algorithm to active sequence mapping
+                    for (const std::string& alg : sequence.second) {
+                        algToSeq[alg.substr(alg.find('/') + 1, alg.size())] = sequence.first;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
 std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::retrieveActiveChains(const EventContext& context, const std::string& collectionName) const {
     std::set<TrigCompositeUtils::DecisionID> activeChainsID;
 

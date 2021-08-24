@@ -362,8 +362,8 @@ namespace Muon {
         Amg::Vector3D updateDirection(double linephi, const Trk::PlaneSurface& surf, const Amg::Vector3D& roaddir,
                                       bool isCurvedSegment) const;
 
-        std::vector<std::unique_ptr<const Trk::MeasurementBase> > addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
-                                                                             bool isEndcap) const;
+        void addEtaHits(std::vector<const MuonClusterOnTrack*>& clusters,
+                        std::vector<std::unique_ptr<const Trk::MeasurementBase> >& tash_bin, bool isEndcap) const;
 
         MuonSegment* createSegment(TrkDriftCircleMath::Segment& segment, const Identifier& chid, const Amg::Vector3D& roadpos,
                                    const Amg::Vector3D& roaddir2, const std::vector<const MdtDriftCircleOnTrack*>& mdts,
@@ -439,7 +439,6 @@ namespace Muon {
         };
 
         double m_sinAngleCut;                        //<! cut on the angle between the segment and the prediction
-        bool m_debugSpacePoints;                     //<! additional debug output for space point formation
         bool m_doGeometry;                           //<! use chamber geometry in segment finding
         bool m_curvedErrorScaling;                   //<! rescale errors for low momenta
         bool m_doSpacePoints;                        //<! use cluster space points for association

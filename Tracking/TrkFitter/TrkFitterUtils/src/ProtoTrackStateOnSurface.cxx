@@ -16,8 +16,7 @@
 #include "TrkFitterUtils/DNA_MaterialEffects.h"
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
 
-//#include "GaudiKernel/MsgStream.h"
-//#include <string>
+
 #include <algorithm>
 
 Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()

@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import DetDescrInfo
+from AthenaConfiguration.Enums import ProductionStep
 import re
 
 # Some comments from Ed about existing flags
@@ -125,6 +126,9 @@ def createMuonConfigFlags():
     # Muon Trigger Flags
     mcf.addFlag("Muon.MuonTrigger", False) 
     mcf.addFlag("Muon.SAMuonTrigger", False) 
+
+    mcf.addFlag("Muon.enableAlignment",lambda flags: (flags.Common.Project != 'AthSimulation' \
+                                                      and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)))
 
     # TODO - add configuration for above    
         

@@ -133,19 +133,21 @@ namespace TrigConf {
          WorkingPoints_eEM() = default;
          WorkingPoints_eEM( const boost::property_tree::ptree & );
          bool isDefined() const { return m_isDefined; } 
-         int reta()       const { return m_reta; } 
-         int wstot()      const { return m_wstot; }
-         int rhad()       const { return m_rhad; }
-         int had()        const { return m_rhad; }
+         int reta_fw()       const { return m_reta_fw; } 
+         int wstot_fw()      const { return m_wstot_fw; }
+         int rhad_fw()       const { return m_rhad_fw; }
          unsigned int maxEt()  const { return m_maxEt; }
-         double reta_d()       const { return m_reta/100.; } 
-         double wstot_d()     const { return m_wstot/100.; }
-         double rhad_d()       const { return m_rhad/100.; }
+         double reta_d()       const { return m_reta_d; } 
+         double wstot_d()     const { return m_wstot_d; }
+         double rhad_d()       const { return m_rhad_d; }
       private:
          bool m_isDefined { false };
-         int m_reta { 0 };
-         int m_wstot { 0 };
-         int m_rhad { 0 };
+         double m_reta_d { 0 };
+         double m_wstot_d { 0 };
+         double m_rhad_d { 0 };
+         int   m_reta_fw { 0 };
+         int   m_wstot_fw { 0 };
+         int   m_rhad_fw { 0 };
          unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_eEM(const std::string & thrTypeName, const ptree & data) :

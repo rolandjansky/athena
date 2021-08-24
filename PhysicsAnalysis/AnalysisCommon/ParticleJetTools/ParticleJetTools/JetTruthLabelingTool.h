@@ -6,18 +6,22 @@
 #define PARTICLEJETTOOLS_JETTRUTHLABELINGTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "JetInterface/IJetModifier.h"
+#include "JetInterface/IJetDecorator.h"
 #include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 class JetTruthLabelingTool :
   public asg::AsgTool,
-  virtual public IJetModifier
+  virtual public IJetDecorator
 {
-  ASG_TOOL_CLASS(JetTruthLabelingTool, IJetModifier)
+  ASG_TOOL_CLASS(JetTruthLabelingTool, IJetDecorator)
 
 public:
 
@@ -26,10 +30,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// decorate truth label to a jet collection
-  StatusCode modify(xAOD::JetContainer& jets) const override;
-
-  /// decorate truth label to a const jet
-  StatusCode modifyJet(const xAOD::Jet& jet) const;
+  StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
   /// Print configured parameters
   void print() const override;
@@ -41,20 +42,21 @@ public:
 
 protected:
   
-  /// truth label name
-  std::string m_truthLabelName;
+  Gaudi::Property<std::string> m_jetContainerName{this, "RecoJetContainer", "", "Input reco jet container name"};
+  Gaudi::Property<std::string> m_truthLabelName{this, "TruthLabelName", "R10TruthLabel_R21Consolidated", "Truth label name"};
 
-  /// Flag indicating whether input collection is a truth jet container
-  bool m_isTruthJetCol;
+  Gaudi::Property<bool> m_isTruthJetCol{this, "IsTruthJetCollection", false, "Flag indicating whether input collection is a truth jet container"};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey{this, "EventInfoKey", "EventInfo", "Name of EventInfo object"};
 
   /// TRUTH1 or TRUTH3
-  bool m_useTRUTH3;
-  std::string m_truthParticleContainerName;
-  std::string m_truthBosonContainerName;
-  std::string m_truthTopQuarkContainerName;
+  Gaudi::Property<bool> m_useTRUTH3{this, "UseTRUTH3", false, "True for TRUTH3 format, false for TRUTH1"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerName{this, "TruthParticleContainerName", "TruthParticles", "Truth particle container name"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthBosonContainerName{this, "TruthBosonContainerName", "TruthBosonsWithDecayParticles", "Truth boson container name"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthTopQuarkContainerName{this, "TruthTopQuarkContainerName", "TruthTopQuarkWithDecayParticles", "Truth top container name"};
 
   /// parameters for truth labeling
-  std::string m_truthJetCollectionName;
+  SG::ReadHandleKey<xAOD::JetContainer> m_truthJetCollectionName{this, "TruthJetContainer", "", "Do not configure manually!"};
   bool m_useDRMatch;
   double m_dRTruthJet;
   double m_dRTruthPart;
@@ -68,12 +70,8 @@ protected:
   StatusCode labelTruthJets() const;
   StatusCode labelTruthJets( const xAOD::JetContainer &jets ) const;
 
-  /// Apply label to a single jet
-  /// This method is included for backwards compatibility with BoostedJetTaggers
-  StatusCode labelRecoJet( const xAOD::Jet &jet, const xAOD::JetContainer *truthJets = nullptr ) const;
-
   /// Apply labels to all jets in a container
-  StatusCode labelRecoJets( xAOD::JetContainer &jets ) const;
+  StatusCode labelRecoJets(const xAOD::JetContainer &jets ) const;
 
   /// Get truth label using dR-matched particles
   int getTruthJetLabelDR( const xAOD::Jet &jet, std::vector<std::pair<TLorentzVector,int> > tlv_truthParts ) const;
@@ -107,24 +105,22 @@ protected:
   /// Check if truth particle has correct DSID and isn't self decay
   bool selectTruthParticle( const xAOD::TruthParticle *tp, int pdgId ) const;
 
-  /// Accessors and decorators
-  std::unique_ptr< SG::AuxElement::Accessor<int> > m_acc_label;
-  std::unique_ptr< SG::AuxElement::Accessor<float> > m_acc_dR_W;
-  std::unique_ptr< SG::AuxElement::Accessor<float> > m_acc_dR_Z;
-  std::unique_ptr< SG::AuxElement::Accessor<float> > m_acc_dR_H;
-  std::unique_ptr< SG::AuxElement::Accessor<float> > m_acc_dR_Top;
-  std::unique_ptr< SG::AuxElement::Accessor<int> > m_acc_NB;
-  std::unique_ptr< SG::AuxElement::Accessor<float> > m_acc_Split23;
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_label_truthKey{this, "label_TruthKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_W_truthKey{this, "dR_W_TruthKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Z_truthKey{this, "dR_Z_TruthKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_H_truthKey{this, "dR_H_TruthKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Top_truthKey{this, "dR_Top_TruthKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_NB_truthKey{this, "NB_TruthKey", "", "Do not configure manually!"};
+  SG::ReadDecorHandleKey<xAOD::JetContainer> m_split23_truthKey{this, "Split23_TruthKey", "", "Do not configure manually!"};
 
-  std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_label;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dR_W;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dR_Z;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dR_H;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dR_Top;
-  std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_NB;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_TruthJetMass;
-  std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_TruthJetSplit23;
-
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_label_recoKey{this, "label_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_W_recoKey{this, "dR_W_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Z_recoKey{this, "dR_Z_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_H_recoKey{this, "dR_H_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_dR_Top_recoKey{this, "dR_Top_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_NB_recoKey{this, "NB_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_truthSplit23_recoKey{this, "TruthSplit23_RecoKey", "", "Do not configure manually!"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_truthJetMass_recoKey{this, "TruthJetMass_RecoKey", "", "Do not configure manually!"};
 };
 
 #endif

@@ -64,6 +64,3 @@ if (lucid.fillRootTree):
     THistSvc = THistSvc()
     THistSvc.Output = ["AANT DATAFILE='cali.root' OPT='RECREATE'"]
     ServiceMgr += THistSvc
-
-if DetFlags.LVL1_on():
-    include("LUCID_Digitization/LUCID_LVL1Digitization_JobOptions.py")

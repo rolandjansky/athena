@@ -304,7 +304,7 @@ void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
   Amg::Vector3D TRThitGlobalPos(0.0,0.0,0.0);
 
   //Now we loop over all the simhits
-  for (hitCollConstIter hit_iter= i;  hit_iter != e; hit_iter++)
+  for (hitCollConstIter hit_iter= i;  hit_iter != e; ++hit_iter)
     {
       //Get the hit:
       const TimedHitPtr<TRTUncompressedHit> *theHit = &(*hit_iter);

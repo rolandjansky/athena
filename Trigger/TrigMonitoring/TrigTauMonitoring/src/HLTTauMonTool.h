@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.h
@@ -180,6 +180,7 @@ class HLTTauMonTool : public IHLTMonTool {
   SG::ReadHandleKey<xAOD::JetRoIContainer> m_jetRoIKey { this, "jetRoIKey", "LVL1JetRoIs", "Jet RoI container key" };
   SG::ReadHandleKey<xAOD::VertexContainer> m_pvKey { this, "pvKey", "PrimaryVertices", "Primary vertex container key" };
   SG::ReadHandleKey<xAOD::JetContainer> m_jetKey { this, "jetKey", "AntiKt4LCTopoJets", "Offline jet container key" };
+  SG::ReadHandleKey<xAOD::JetContainer> m_ditauOfflineJetContainer { this, "ditauOfflineJetContainer", "AntiKt4EMPFlowJets", "Offline ditau comparison jet container key" };
 
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;

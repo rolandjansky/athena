@@ -71,6 +71,7 @@ case $ArtProcess in
       --outputNTUP_PHYSVALFile physval.ntuple.root \
       --outputAODFile   physval.AOD.root \
       --steering        doRAWtoALL \
+      --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
       --checkEventCount False \
       --ignoreErrors    True \
       --maxEvents       -1 \

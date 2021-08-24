@@ -196,8 +196,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
     ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
   }
   // create vector for new TSOS (the ones which are kept)
-  DataVector<const TrackStateOnSurface>* trackStates =
-    new DataVector<const TrackStateOnSurface>;
+  auto trackStates = DataVector<const TrackStateOnSurface>();
   const TrackStateOnSurface* firstValidIDTSOS(nullptr);
   const TrackStateOnSurface* lastValidIDTSOS(nullptr);
   const TrackStateOnSurface* firstValidMSTSOS(nullptr);
@@ -209,8 +208,8 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
 
   // If m_keepParameters is true, then we want to keep the first and last
   // parameters of ID & MS.
-  const Trk::MeasurementBase* rot = nullptr;
-  const Trk::TrackParameters* parameters = nullptr;
+  std::unique_ptr<const Trk::MeasurementBase> rot{};
+  std::unique_ptr<const Trk::TrackParameters> parameters{};
   bool keepParameter = false;
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
     typePattern(0);
@@ -218,8 +217,8 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS =
     oldTrackStates->begin();
   for (; itTSoS != oldTrackStates->end(); ++itTSoS) {
-    parameters = nullptr;
-    rot = nullptr;
+    parameters.reset();
+    rot.reset();
     // if requested: keep calorimeter TSOS with adjacent scatterers (on combined
     // muons)
     if (m_keepCaloDeposit &&
@@ -228,7 +227,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if (itTSoS != oldTrackStates->begin()) {
         --itTSoS;
         if ((**itTSoS).type(TrackStateOnSurface::Scatterer)) {
-          trackStates->push_back((**itTSoS).clone());
+          trackStates.push_back((**itTSoS).clone());
         }
         ++itTSoS;
       }
@@ -237,12 +236,12 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
         dynamic_cast<const MaterialEffectsOnTrack*>(
           (**itTSoS).materialEffectsOnTrack());
       if (meot && meot->energyLoss()) {
-        trackStates->push_back(new TrackStateOnSurface(
+        trackStates.push_back(new TrackStateOnSurface(
           nullptr,
-          (**itTSoS).trackParameters()->clone(),
+          (**itTSoS).trackParameters()->uniqueClone(),
           nullptr,
-          new MaterialEffectsOnTrack(meot->thicknessInX0(),
-                                     nullptr,
+          std::make_unique<const MaterialEffectsOnTrack>(meot->thicknessInX0(),
+                                     std::nullopt,
                                      new EnergyLoss(*meot->energyLoss()),
                                      meot->associatedSurface()),
           (**itTSoS).types()));
@@ -251,7 +250,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       ++itTSoS;
       if (itTSoS != oldTrackStates->end() &&
           (**itTSoS).type(TrackStateOnSurface::Scatterer)) {
-        trackStates->push_back((**itTSoS).clone());
+        trackStates.push_back((**itTSoS).clone());
       }
       --itTSoS;
     }
@@ -268,9 +267,10 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
                                    lastValidMSTSOS);
 
     if (keepParameter) {
-      parameters = (*itTSoS)
-                     ->trackParameters()
-                     ->clone(); // make sure we add a new parameter by cloning
+      parameters =
+        (*itTSoS)
+          ->trackParameters()
+          ->uniqueClone(); // make sure we add a new parameter by cloning
       if ((*itTSoS)->type(TrackStateOnSurface::Perigee)) {
         typePattern.set(TrackStateOnSurface::Perigee);
       }
@@ -285,17 +285,17 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
       if ((*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         typePattern.set(TrackStateOnSurface::Outlier);
       }
-      rot = (*itTSoS)->measurementOnTrack()->clone();
+      rot =(*itTSoS)->measurementOnTrack()->uniqueClone();
     }
 
     Trk::TrackStateOnSurface* newTSOS = nullptr;
     if (rot != nullptr || parameters != nullptr) {
       newTSOS = new Trk::TrackStateOnSurface(
-        rot, parameters, nullptr, nullptr, typePattern);
-      trackStates->push_back(newTSOS);
+        std::move(rot), std::move(parameters), nullptr, nullptr, typePattern);
+      trackStates.push_back(newTSOS);
     }
   }
-  track.setTrackStateOnSurfaces(trackStates);
+  track.setTrackStateOnSurfaces(std::move(trackStates));
   track.info().setTrackProperties(TrackInfo::SlimmedTrack);
   // The above resets also the caches.
 }
@@ -321,24 +321,27 @@ Trk::TrackSlimmingTool::checkForValidMeas(const Trk::TrackStateOnSurface* tsos,
                                           bool& isMSmeas) const
 {
   if (tsos->measurementOnTrack() != nullptr) {
-    bool isPseudo = (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
-                       tsos->measurementOnTrack()) != nullptr);
+    bool isPseudo = (tsos->measurementOnTrack()->type(
+      Trk::MeasurementBaseType::PseudoMeasurementOnTrack));
     // Handle horrible cROTs
-    const Trk::CompetingRIOsOnTrack* cROT =
-      dynamic_cast<const Trk::CompetingRIOsOnTrack*>(
+    const Trk::CompetingRIOsOnTrack* cROT = nullptr;
+    if (tsos->measurementOnTrack()->type(
+          Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+      cROT = static_cast<const Trk::CompetingRIOsOnTrack*>(
         tsos->measurementOnTrack());
+    }
     Identifier id;
     if (cROT) {
       id = cROT->rioOnTrack(cROT->indexOfMaxAssignProb()).identify();
-    } else {
-      id = tsos->measurementOnTrack()
-             ->associatedSurface()
-             .associatedDetectorElementIdentifier();
+      } else {
+        id = tsos->measurementOnTrack()
+               ->associatedSurface()
+               .associatedDetectorElementIdentifier();
+      }
+      isIDmeas = !isPseudo && m_detID->is_indet(id);
+      isMSmeas = tsos->measurementOnTrack() != nullptr && !isPseudo &&
+                 m_detID->is_muon(id);
     }
-    isIDmeas = !isPseudo && m_detID->is_indet(id);
-    isMSmeas = tsos->measurementOnTrack() != nullptr && !isPseudo &&
-               m_detID->is_muon(id);
-  }
 }
 
 void

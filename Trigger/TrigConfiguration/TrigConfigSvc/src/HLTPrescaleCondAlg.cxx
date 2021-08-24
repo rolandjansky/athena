@@ -99,7 +99,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          return StatusCode::FAILURE;
       }
       pss->setPSK(m_psk);
-      m_pssMap[0] = pss;
+      m_pssMap.insert(std::make_pair(0u, std::move(pss)));
 
    } else if( m_psk != 0u ) {
 
@@ -111,7 +111,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          ATH_MSG_ERROR( "Failed loading HLT prescales set " << m_psk << " from the database" );
          return StatusCode::FAILURE;
       }
-      m_pssMap[m_psk] = pss;
+      m_pssMap.insert(std::make_pair(m_psk.value(), std::move(pss)));
    }
 
    return StatusCode::SUCCESS;
@@ -121,6 +121,11 @@ StatusCode
 TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    ATH_MSG_DEBUG("HLTPrescaleCondAlg::execute with lb " << ctx.eventID().lumi_block());
+
+   SG::WriteCondHandle<TrigConf::HLTPrescalesSet> writeCondHandle(m_hltPrescalesSetOutputKey, ctx);
+   if (writeCondHandle.isValid()) {  // prescales already available?
+     return StatusCode::SUCCESS;
+   }
 
    unsigned int hltPsk = m_psk;
    EventIDRange range;
@@ -191,8 +196,6 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
    }
 
    // record HLT prescales set
-   SG::WriteCondHandle<TrigConf::HLTPrescalesSet> writeCondHandle(m_hltPrescalesSetOutputKey, ctx);
-
    if( pss == nullptr ) {
       ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );

@@ -21,7 +21,7 @@ AFPSiStationMonitor::AFPSiStationMonitor(const std::string& type,
 
 StatusCode AFPSiStationMonitor::initialize()
 {
-  if (m_layersMonitors.size() != 0) {
+  if (!m_layersMonitors.empty()) {
     // loop over tools
     for (ToolHandle<IAFPSiLayerMonitor>& layerMon : m_layersMonitors) {
       // retrieve tools

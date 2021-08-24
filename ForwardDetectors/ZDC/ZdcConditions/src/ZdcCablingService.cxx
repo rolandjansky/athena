@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcConditions/ZdcCablingService.h"
@@ -51,7 +51,7 @@ ZdcCablingService::ZdcCablingService (const ZdcID* zdcID) //  const ZdcHardwareI
 void ZdcCablingService::fillDB()
 {
 
-  if (m_dbFilled==true) return;
+  if (m_dbFilled) return;
 
   std::cout << "starting fillDB()" << std::endl;
 

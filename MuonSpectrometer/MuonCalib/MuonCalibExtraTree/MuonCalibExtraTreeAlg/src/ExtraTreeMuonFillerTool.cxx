@@ -148,20 +148,16 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
   if (muon.author() == xAOD::Muon::MuTagIMO) author = Trk::TrackInfo::StacoLowPt;
   ATH_MSG_VERBOSE(" author " << muon.author());
 
-  auto trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
+  auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
 
   //  Copy ID track
-  // if(!m_useMuonHitsOnly){
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it     = track->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = track->trackStateOnSurfaces()->end(); 
-  for ( ; it!=it_end; ++it) trackStateOnSurfaces->push_back( (*it)->clone() );
-  //}
+  for ( ; it!=it_end; ++it) trackStateOnSurfaces.push_back( (*it)->clone() );
 
   //  Loop over segments   
   int nseg = muon.nMuonSegments();
   for (int i = 0; i < nseg; ++i) {
-//     const Trk::Segment* tseg = muon.muonSegment(i);
-//     const Muon::MuonSegment* seg  = dynamic_cast<const  Muon::MuonSegment* > (tseg);
     const xAOD::MuonSegment *segx = muon.muonSegment(i);   
     if (!segx ) {
       ATH_MSG_WARNING("Zero pointer to xAOD::MuonSegment! Skipping.");
@@ -181,18 +177,16 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
     std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg->containedMeasurements().end();
     for( ;mit!=mit_end;++mit ) {
       const Trk::MeasurementBase &meas = **mit;
-
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
       //ownership: assume the TSoS is taking care of this
-      const Trk::TrackParameters *exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
-									     Trk::anyDirection, false, Trk::MagneticFieldProperties()).release();
+     std::unique_ptr<const Trk::TrackParameters> exPars(m_propagator->propagateParameters(*pars,meas.associatedSurface(),
+									     Trk::anyDirection, false, Trk::MagneticFieldProperties()).release());
       if(!exPars){
-	ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
+        ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
       }
-
-      const Trk::TrackStateOnSurface *trackState = new Trk::TrackStateOnSurface( meas.clone(), exPars, nullptr, nullptr, typePattern );
-      trackStateOnSurfaces->push_back( trackState ); 
+      const Trk::TrackStateOnSurface *trackState = new Trk::TrackStateOnSurface( meas.uniqueClone(), std::move(exPars), nullptr, nullptr, typePattern );
+      trackStateOnSurfaces.push_back( trackState ); 
     } // end segment loop
     delete pars;
   }

@@ -3,196 +3,272 @@
 */
 
 #include "DecisionHandling/ComboHypoToolBase.h"
+#include "TrigCompositeUtils/Combinators.h"
 using namespace TrigCompositeUtils;
 
 
 ComboHypoToolBase::ComboHypoToolBase(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_decisionId(HLT::Identifier::fromToolName(name))
+  m_decisionId(HLT::Identifier::fromToolName(name)), m_legMultiplicities()
 {}
 
 
-StatusCode ComboHypoToolBase::decide(LegDecisionsMap& passingLegs, const EventContext& /* context */) const
-{
-  // if no combinations passed, then exit 
-  if (passingLegs.size() == 0)  return StatusCode::SUCCESS;
-  ATH_MSG_DEBUG("Looking for " << decisionId() << " in the map. Map contains " << passingLegs.size() << " legs");
-  //ATH_CHECK( printDebugInformation(passingLegs));
-  // select the leg decisions from  the map with this ID:
-  std::vector<std::vector<LegDecision>> legDecisions;
-  ATH_CHECK(selectLegs(passingLegs, legDecisions));
-  if (legDecisions.size() == 0) {
-    ATH_MSG_DEBUG("Found 0 legs with this DecisionID: something failed?");
-    return StatusCode::SUCCESS;
+StatusCode ComboHypoToolBase::setLegMultiplicity(const Combo::MultiplicityReqMap& multiplicityRequiredMap) {
+  const std::string nameOfToolsChain = m_decisionId.name();
+  const Combo::MultiplicityReqMap::const_iterator it = multiplicityRequiredMap.find(nameOfToolsChain);
+
+  if (it == multiplicityRequiredMap.end()) {
+    ATH_MSG_ERROR("ComboHypoTool for " << m_decisionId << " could not find its required multiplcity data in the map supplied by its parent alg.");
+    return StatusCode::FAILURE;
   }
-  size_t nLegs = legDecisions.size();
-  // create the combinations between the legs:
-  // next: TODO with Combinators.h, to crate one combination  at a time
-  std::vector<std::vector<LegDecision>> combinations;
-  createCombinations(legDecisions, combinations, nLegs, 2); // do we need to pass nLegs?
-  std::vector<std::vector<LegDecision>> passingCombinations;
-  // do the actual algorithm and select the decisions that passed
-  for (std::vector<LegDecision>& thecomb : combinations) {
-    // to add: protection when the two decisions are the same object
-    bool pass = executeAlg(thecomb);
-    if (pass) {
-      ATH_MSG_DEBUG("Combination decided to be passing");
-      passingCombinations.push_back(thecomb);
+
+  m_legMultiplicities = it->second;
+  if (m_legMultiplicities.size() == 0) {
+    ATH_MSG_ERROR("ComboHypoTool for " << m_decisionId << " was listed in the supplied multiplicityRequiredMap, but data was not supplied for any legs.");
+    return StatusCode::FAILURE;
+  }
+
+  m_legDecisionIds.clear();
+  for (size_t i = 0; i < m_legMultiplicities.size(); ++i) {
+    if(m_legMultiplicities.at(i) <= 0) {
+      ATH_MSG_ERROR("ComboHypoTool for " << m_decisionId << " has been configured with an impossible multiplicity requirement of " << m_legMultiplicities.at(i) << " on leg " << i);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("ComboHypoTool for " << m_decisionId << " will require multiplicity " << m_legMultiplicities.at(i) << " on leg " << i);
+    if (m_legMultiplicities.size() > 1) { // We only have per-leg IDs when there is more than one leg
+      m_legDecisionIds.push_back(createLegName(m_decisionId, i));
+    } else {  // For one leg, just repete the chain's ID
+      m_legDecisionIds.push_back(m_decisionId);
     }
   }
 
-  if (not passingCombinations.empty()) {// need partial erasure of the decsions (only those not present in any combination)
-    updateLegDecisionsMap(passingCombinations, passingLegs);
+  return StatusCode::SUCCESS;
+}
+
+StatusCode ComboHypoToolBase::decide(Combo::LegDecisionsMap& passingLegs, const EventContext& /*context*/) const {
+  if (m_legMultiplicities.size() == 0) {
+    ATH_MSG_ERROR("ComboHypoTool for " << m_decisionId << " has not been properly configured. setLegMultiplicity should be called by the parent alg in initalize");
+    return StatusCode::FAILURE;
   }
-  else { // need complete erasure of input decisions
+
+  // if no combinations passed, then exit 
+  if (passingLegs.size() == 0) {
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_DEBUG("Looking for legs from " << decisionId() << " in the map. Map contains features for " << passingLegs.size() << " legs, which may be data for many chains.");
+
+  // select the leg decisions from the map with this ID:
+  std::vector<std::vector<Combo::LegDecision>> legDecisions;
+  ATH_CHECK(selectLegs(passingLegs, legDecisions));
+
+  for (size_t legIndex = 0; legIndex < m_legMultiplicities.size(); ++legIndex) {
+    // The static cast is because this gets read as a Gaudi property which only seems to work with vector<int> rather than vector<size_t> 
+    if (legDecisions.at(legIndex).size() < static_cast<size_t>(m_legMultiplicities.at(legIndex))) {
+      ATH_MSG_DEBUG("Too few features are found for " << m_decisionId << " on leg " << legIndex <<", require:" << m_legMultiplicities.at(legIndex) << " have:" << legDecisions.at(legIndex).size());
+      ATH_MSG_DEBUG("This ComboHypoTool cannot run in this event, this chain **REJECTS** this event.");
+      eraseFromLegDecisionsMap(passingLegs);
+      ATH_CHECK(printDebugInformation(passingLegs));
+      return StatusCode::SUCCESS;
+    }
+  }
+
+  // Create and initialise the combinations generator for the requirements of this chain, given the objects available in this event.
+  HLT::NestedUniqueCombinationGenerator nucg;
+  for (size_t legIndex = 0; legIndex < m_legMultiplicities.size(); ++legIndex) {
+    const size_t choose_any = m_legMultiplicities.at(legIndex);
+    const size_t out_of = legDecisions.at(legIndex).size();
+    nucg.add({out_of, choose_any});
+    ATH_MSG_DEBUG("For leg " << legIndex << " we will be choosing any " << choose_any << " Decision Objects out of " << out_of);
+  }
+
+  std::vector<std::vector<Combo::LegDecision>> passingCombinations;
+
+  size_t warnings = 0, iterations = 0;
+  do {
+
+    const std::vector<size_t> combination = nucg();
+    ++nucg;
+    std::vector<Combo::LegDecision> combinationToCheck;
+
+    size_t location_in_combination = 0;
+    for (size_t legIndex = 0; legIndex < m_legMultiplicities.size(); ++legIndex) {
+      // We loop over however many objects are required on the leg,
+      // but we take their index from the 'combination'. Hence 'object' is not used directly
+      for (size_t object = 0; object < static_cast<size_t>(m_legMultiplicities.at(legIndex)); ++object) {
+        const size_t objectIndex = combination.at(location_in_combination++);
+        combinationToCheck.push_back( legDecisions.at(legIndex).at(objectIndex) );
+      }
+    }
+
+    ++iterations;
+
+    try {
+      if (executeAlg(combinationToCheck)) {
+        ATH_MSG_DEBUG("Combination " << (iterations - 1) << " decided to be passing");
+        passingCombinations.push_back(combinationToCheck);
+        if (m_modeOR == true and m_enableOverride) {
+          break;
+        }
+      } else { // the combination failed
+        if (m_modeOR == false and m_enableOverride) {
+          break;
+        }
+      }
+    } catch (std::exception& e) {
+      ATH_MSG_ERROR(e.what());
+      return StatusCode::FAILURE;
+    }
+
+    if ((iterations >= m_combinationsThresholdWarn && warnings == 0) or (iterations >= m_combinationsThresholdBreak)) {
+      ATH_MSG_WARNING("Have so far processed " << iterations << " combinations for " << m_decisionId << " in this event, " << passingCombinations.size() << " passing.");
+      ++warnings;
+      if (iterations >= m_combinationsThresholdBreak) {
+        ATH_MSG_WARNING("Too many combinations! Breaking the loop at this point.");
+        break;
+      }
+    }
+
+  } while (nucg);
+
+
+  if (m_modeOR) {
+
+    ATH_MSG_DEBUG("Passing " << passingCombinations.size() << " combinations out of " << iterations << ", " 
+      << m_decisionId << (passingCombinations.size() ? " **ACCEPTS**" : " **REJECTS**") << " this event based on OR logic.");
+
+    if (m_enableOverride) {
+      ATH_MSG_DEBUG("Note: stopped after the first successful combination due to the EnableOverride flag.");  
+    }
+
+  } else {  // modeAND
+
+    const bool passAll = (passingCombinations.size() == iterations);
+
+    ATH_MSG_DEBUG("Passing " << passingCombinations.size() << " combinations out of " << iterations << ", " 
+      << m_decisionId << (passAll ? " **ACCEPTS**" : " **REJECTS**") << " this event based on AND logic.");
+
+    if (m_enableOverride) {
+      ATH_MSG_DEBUG("Note: stopped after the first failed combination due to the EnableOverride flag.");  
+    }
+
+    if (not passAll) {
+      passingCombinations.clear();
+    }
+
+  }
+
+  if (not passingCombinations.empty()) { // need partial erasure of the decsions (only those not present in any combination)
+    updateLegDecisionsMap(passingCombinations, passingLegs);
+  } else { // need complete erasure of input decisions
     eraseFromLegDecisionsMap(passingLegs);
   }
 
-  ATH_MSG_DEBUG("End of Tool  -----");
   ATH_CHECK(printDebugInformation(passingLegs));
-  //ATH_CHECK( createOutput( passingLegs, context ));
   return StatusCode::SUCCESS;
-
 }
 
 
-StatusCode ComboHypoToolBase::selectLegs(const LegDecisionsMap& IDCombMap, std::vector<std::vector<LegDecision>>& legDecisions) const
+StatusCode ComboHypoToolBase::selectLegs(const Combo::LegDecisionsMap& IDCombMap, std::vector<std::vector<Combo::LegDecision>>& legDecisions) const
 {
   /*
-    legDecisions: vector with vectors like:
-    [(leg0, el0), (leg0, el1)],
-    [(leg1, mu0), (leg1, mu1)]
+    legDecisions: nested vector like:
+    [(leg0, el0), (leg0, el1), (leg0, el2), (leg0, el3)], <-- All leg0 objects are in legDecisions[0][X]
+    [(leg1, mu0), (leg1, mu1)] <-- All leg1 objects are in legDecisions[1][X]
+    We keep the legID in the std::pair inside the inner vector as these pairs will be flattened into a single vector
+    when individual combinations of objects are passed to executeAlg, pair.first then contains the leg, with pair.second containing the Decision Object.
   */
 
-  ElementLinkVector<TrigCompositeUtils::DecisionContainer> comb;
-  // collect combinations from all the legs, searching both chain name and leg name
-  for (auto id : IDCombMap) {
-    // get the Element links from the chainID (from all the legs)
-    HLT::Identifier chainId = 0;
-    if (TrigCompositeUtils::isLegId(id.first))
-      chainId = TrigCompositeUtils::getIDFromLeg(id.first);
-    else
-      chainId = id.first;
+  // Extract from IDCombMap the features for this chain. Wrap the features up in a pair along with their leg ID
+  for (size_t legIndex = 0; legIndex < m_legMultiplicities.size(); ++ legIndex) {
 
-    if (chainId != decisionId()) continue;
-    comb = id.second;
-    std::vector<LegDecision> oneleg;
-    for (auto el : comb) {
-      auto newel = std::make_pair(id.first, el);
-      oneleg.push_back(newel);
+    // If the chain has more than one leg, then we have per-leg IDs. Otherwise we just use the chain's ID
+    const HLT::Identifier& legIdentifier = (m_legMultiplicities.size() > 1 ? m_legDecisionIds.at(legIndex) : m_decisionId);
+
+    // Combo::LegDecision is a pair of <DecisionID, ElementLink<Decision>>
+    std::vector<Combo::LegDecision> decisionObjectsOnLeg;
+
+    // Find physics objects on this leg. May be zero.
+    const Combo::LegDecisionsMap::const_iterator it = IDCombMap.find(legIdentifier.numeric());
+
+    if (it != IDCombMap.end()) {
+      for (const ElementLink<DecisionContainer> el : it->second) {
+        decisionObjectsOnLeg.emplace_back(legIdentifier, el);
+      }
     }
-    legDecisions.push_back(oneleg);
+
+    legDecisions.push_back(std::move(decisionObjectsOnLeg));
   }
 
-  size_t nLegs = legDecisions.size(); // the legs for this chain only
-  if (nLegs == 0) {
-    ATH_MSG_DEBUG("There are no decisions in the legs to combine for ID " << decisionId());
-    return StatusCode::SUCCESS;
-  }
   if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Getting " << nLegs << " legs to combine, for ID: " << decisionId());
-    for (auto leg : legDecisions) {
-      ATH_MSG_DEBUG("Leg --");
+    ATH_MSG_DEBUG("Getting " << legDecisions.size() << " legs to combine, for ID: " << decisionId());
+    size_t count = 0;
+    for (const auto& leg : legDecisions) {
+      ATH_MSG_DEBUG("Leg " << count++ << " --");
       for (auto dEL : leg) {
-        ATH_MSG_DEBUG(HLT::Identifier(dEL.first)
-          << " " << dEL.second.dataID() << " , " << dEL.second.index());
+        ATH_MSG_DEBUG("-- " << HLT::Identifier(dEL.first) << " container:" << dEL.second.dataID() << ", index:" << dEL.second.index());
       }
     }
   }
   return StatusCode::SUCCESS;
 }
 
-
-// TODO: Include case of one leg and multiple legs with mult=1 on each leg. Need to be extended to cover cases with multiple legs qith different multiplicities (2mu_3e)
-void ComboHypoToolBase::createCombinations(const std::vector<std::vector<LegDecision>>& legs, std::vector<std::vector<LegDecision>>& combinations,
-                                           int nLegs, int nToGroup) const {
-  if (nLegs == 1) {
-    auto elements = legs[0];
-    std::vector<int> selector(elements.size());
-    fill(selector.begin(), selector.begin() + nToGroup, 1);
-    std::vector<LegDecision> thecomb;
-    do {
-      for (u_int i = 0; i < elements.size(); i++) {
-        if (selector[i]) {
-          thecomb.push_back(elements[i]);
-        }
-      }
-      combinations.push_back(thecomb);
-      thecomb.clear();
-    } while (std::prev_permutation(selector.begin(), selector.end()));
-  } else {
-    std::vector<LegDecision> local;
-    recursive_combine(legs, combinations, local, 0);
-  }
-
+void ComboHypoToolBase::updateLegDecisionsMap(const std::vector<std::vector<Combo::LegDecision>>& passingComb, Combo::LegDecisionsMap& passingLegs) const {
   if (msgLvl(MSG::DEBUG)) {
-    for (auto comb : combinations) {
-      ATH_MSG_DEBUG("Combination");
-      for (auto dEL : comb) {
-        ATH_MSG_DEBUG(dEL.second.dataID() << " , " << dEL.second.index());
+    size_t count = 0;
+    for (const std::vector<Combo::LegDecision>& comb : passingComb) {
+      ATH_MSG_DEBUG("-- Passing combination " << count++ << " of " << passingComb.size());
+      for (const auto& [id, EL] : comb) {
+        ATH_MSG_DEBUG("-- -- " << HLT::Identifier(id) << " container:" << EL.dataID() << ", index:" << EL.index());
       }
     }
   }
-  return;
-}
 
-void ComboHypoToolBase::updateLegDecisionsMap(const std::vector<std::vector<LegDecision>>& passingComb, LegDecisionsMap& passingLegs) const {
   // remove combinations that didn't pass from the final map passingLegs
-  if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Update output because these combinations are passing, number of combinations: " << passingComb.size());
-    for (auto combV : passingComb) {
-      ATH_MSG_DEBUG("  combination of size " << combV.size() << " should be contant identical to the multiplcity ");
-      for (auto [id, EL] : combV) {
-        ATH_MSG_DEBUG("    obj in combination " << id << " link " << EL.dataID() << " , " << EL.index());
-      }
-    }
-  }
-  for (auto& [legId, decisionsForLeg] : passingLegs) {
-    ElementLinkVector<DecisionContainer> newLegs;
+  for (auto& it : passingLegs) {
+    DecisionID legId = it.first;
+    if (not(legId == m_decisionId or (isLegId(legId) and getIDFromLeg(legId) == m_decisionId))) {
+      continue; // Some other chain, ignore it to get faster execution.
+    } 
+    ElementLinkVector<DecisionContainer> updatedDecisionObjectsOnLeg;
     bool update = false;
-    // new passing
-    for (auto thecomb : passingComb) {
-      for (auto dEL : thecomb) {
-        if (dEL.first == legId) {
-          ElementLink<DecisionContainer>  EL = dEL.second;
-          ATH_MSG_DEBUG("decision object in passing combination " << HLT::Identifier(dEL.first) << "  " << EL.dataID() << " , " << EL.index());
-          newLegs.push_back(EL);
+    // Loop over all passing combinations, and all Decision Objects in each passing combination. Find Decision Objects on this leg.
+    for (const std::vector<Combo::LegDecision>& comb : passingComb) {
+      for (const auto& [id, EL] : comb) {
+        // Check that this Decision Object is on the correct leg, and that we haven't collated it already from another combination.
+        if (id == legId and std::find(updatedDecisionObjectsOnLeg.begin(), updatedDecisionObjectsOnLeg.end(), EL) == updatedDecisionObjectsOnLeg.end()) {
+          ATH_MSG_VERBOSE("Keeping on leg " << HLT::Identifier(id) << " the Decision Object container:" << EL.dataID() << ", index:" << EL.index());
+          updatedDecisionObjectsOnLeg.push_back(EL);
           update = true;
         }
       }
-      // only update those concerning this tool ID
-      if (update)
-        decisionsForLeg = newLegs;
     }
-  }
-
-  // how to remove duplicates?
-  return;
-}
-
-void ComboHypoToolBase::eraseFromLegDecisionsMap(LegDecisionsMap& passingLegs) const {
-  ATH_MSG_DEBUG("Combinations rejected, removing respective IDs");
-
-  for (auto& [id, ELV] : passingLegs) {
-    if (id == m_decisionId) {
-      passingLegs[id] = {};
-      ATH_MSG_DEBUG(" Removed " << id);
-
-    }
-    else if (TrigCompositeUtils::isLegId(id) and m_decisionId == TrigCompositeUtils::getIDFromLeg(id)) {
-      passingLegs[id] = {};
-      ATH_MSG_DEBUG(" Removed " << id);
+    // only update those concerning this tool ID
+    if (update){ 
+      it.second = updatedDecisionObjectsOnLeg;
     }
   }
 }
 
-StatusCode ComboHypoToolBase::printDebugInformation(const LegDecisionsMap& passingLegs) const {
-  ATH_MSG_DEBUG("ComboHypoToolBase: Passing elements are: ");
-  for (auto& [id, ELV]: passingLegs) {
-    if (id == m_decisionId or (TrigCompositeUtils::isLegId(id) and m_decisionId == TrigCompositeUtils::getIDFromLeg(id)) ) { 
-      ATH_MSG_DEBUG(" --- " << HLT::Identifier(id) << " with " << ELV.size() << " elements");
-      for (auto EL : ELV) {
-        ATH_MSG_DEBUG("       " << EL.dataID() << " , idx: " << EL.index());
+void ComboHypoToolBase::eraseFromLegDecisionsMap(Combo::LegDecisionsMap& passingLegs) const {
+  for (auto& it : passingLegs) {
+    DecisionID id = it.first;
+    if (id == m_decisionId or (isLegId(id) and getIDFromLeg(id) == m_decisionId)) {
+      const size_t nDecisionObjects = it.second.size();
+      it.second.clear();
+      ATH_MSG_VERBOSE("-- Removed " << nDecisionObjects << " from " << id);
+    }
+  }
+}
+
+StatusCode ComboHypoToolBase::printDebugInformation(const Combo::LegDecisionsMap& passingLegs) const {
+  ATH_MSG_DEBUG("ComboHypoToolBase: End of " << m_decisionId << ", passing elements are: ");
+  for (const auto& [id, ELV] : passingLegs) {
+    // Only print for this chain
+    if (id == m_decisionId or (isLegId(id) and m_decisionId == getIDFromLeg(id))) { 
+      ATH_MSG_DEBUG("-- " << HLT::Identifier(id) << " with " << ELV.size() << " elements");
+      for (const auto& EL : ELV) {
+        ATH_MSG_DEBUG("-- -- container:" << EL.dataID() << ", index:" << EL.index());
       }
     }
   }
@@ -200,18 +276,14 @@ StatusCode ComboHypoToolBase::printDebugInformation(const LegDecisionsMap& passi
 }
 
 
-void ComboHypoToolBase::recursive_combine(const std::vector<std::vector<LegDecision>>& all, std::vector<std::vector<LegDecision>>& toCombine, 
-                                          std::vector<LegDecision>& local, u_int lindex) const {
-  for (size_t leg = lindex; leg < all.size(); leg++) {
-    for (size_t i = 0; i < all[leg].size(); i++) {
-      local.push_back(all[leg][i]);
-      recursive_combine(all, toCombine, local, leg + 1);
-      local.pop_back();
-    }
-  }
-  if (local.size() == all.size())
-    toCombine.push_back(local);
+bool ComboHypoToolBase::executeAlg(const std::vector<Combo::LegDecision>& /*combination*/) const {
+  ATH_MSG_ERROR("Do not use ComboHypoToolBase on its own, inherit this class and override executeAlg.");
+  return false;
+}
 
-  return;
-
+StatusCode ComboHypoToolBase::decideOnSingleObject(Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const {
+  ATH_MSG_ERROR("Do not use ComboHypoToolBase on its own, inherit this class and override decideOnSingleObject.");
+  ATH_MSG_ERROR("NOTE: Only if you are also supplying your own decide(...) implimentation, or similar.");
+  ATH_MSG_ERROR("NOTE: Most uses cases should only need to override executeAlg(...).");
+  return StatusCode::FAILURE;
 }

@@ -163,13 +163,16 @@ def ignoreDefaults(dic, args) -> Dict:
         c = {}
 
         for k,v in val_dict.items():
-            default = str(comp_cls._descriptors[k].default)
-            sv = str(v)
-            if default == sv or default.replace("StoreGateSvc+", "") == sv.replace("StoreGateSvc+", ""):
-                logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
-            else:
+            if k not in comp_cls._descriptors: # property not in descriptors (for instance, removed from component now)
                 c[k] = v
-                logger.debug("Keep value %s of property %s in %s because it is different from default %s", str(v), str(k), component_name, str(comp_cls._descriptors[k].default))
+            else:    
+                default = str(comp_cls._descriptors[k].default)
+                sv = str(v)
+                if default == sv or default.replace("StoreGateSvc+", "") == sv.replace("StoreGateSvc+", ""):
+                    logger.debug("Dropped default value %s of property %s in %s", str(v), str(k), component_name)
+                else:
+                    c[k] = v
+                    logger.debug("Keep value %s of property %s in %s because it is different from default %s", str(v), str(k), component_name, str(comp_cls._descriptors[k].default))
         return c
 
      # collect types for all componets (we look for A/B or lost of A/B strings)

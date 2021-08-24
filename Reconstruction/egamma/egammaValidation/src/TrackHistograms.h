@@ -26,7 +26,7 @@ namespace egammaMonitoring{
     void fill(const xAOD::IParticle& track);
 
   private:
-    int getNumberOfHits(const xAOD::TrackParticle*, xAOD::SummaryType);
+    static int getNumberOfHits(const xAOD::TrackParticle*, xAOD::SummaryType);
 
   };
 

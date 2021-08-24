@@ -198,7 +198,7 @@ void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -234,7 +234,7 @@ void IHLTMonTool::addHistogram(TH2 *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -270,7 +270,7 @@ void IHLTMonTool::addTree(TTree *t, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -307,7 +307,7 @@ void IHLTMonTool::addGraph(TGraph *g, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -345,7 +345,7 @@ void IHLTMonTool::addProfile(TProfile *h, const std::string &monGroup) {
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -382,7 +382,7 @@ void IHLTMonTool::removeHistogram(const std::string &histName, const std::string
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -413,7 +413,7 @@ void IHLTMonTool::removeHistogram2(const std::string &histName, const std::strin
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -444,7 +444,7 @@ void IHLTMonTool::removeProfile(const std::string &histName, const std::string &
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -477,7 +477,7 @@ TH1 *IHLTMonTool::hist(const std::string &histName, const std::string &monGroup)
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -503,7 +503,7 @@ TH2 *IHLTMonTool::hist2(const std::string &histName, const std::string &monGroup
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -528,7 +528,7 @@ TH2 *IHLTMonTool::hist2(const std::string &histName, const std::string &monGroup
 TTree *IHLTMonTool::tree(const std::string &treeName, const std::string &monGroup) {
   std::string theMonGroup;
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -552,7 +552,7 @@ TTree *IHLTMonTool::tree(const std::string &treeName, const std::string &monGrou
 TGraph *IHLTMonTool::graph(const std::string &graphName, const std::string &monGroup) {
   std::string theMonGroup;
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -577,7 +577,7 @@ TProfile *IHLTMonTool::profile(const std::string &histName, const std::string &m
   std::string theMonGroup;
   
   std::map<std::string, MonGroup *>::iterator groupItr;
-  if (monGroup == "") {
+  if (monGroup .empty()) {
     theMonGroup = m_currentMonGroup;
   } else {
     theMonGroup = monGroup;
@@ -608,7 +608,7 @@ TNtuple *IHLTMonTool::ntuple(const std::string &treeName, const std::string &mon
   if (!mntuple) {
     std::string theMonGroup;
     std::map<std::string, MonGroup *>::iterator groupItr;
-    if (monGroup == "") {
+    if (monGroup .empty()) {
       theMonGroup = m_currentMonGroup;
     } else {
       theMonGroup = monGroup;

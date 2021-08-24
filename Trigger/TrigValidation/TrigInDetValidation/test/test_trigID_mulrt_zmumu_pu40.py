@@ -36,7 +36,7 @@ GridFiles = True
 ExtraAna = ' -c LRT="True" '
 Release = "current"
 
-preinclude_file = 'all:TrigInDetValidation/TIDAlrt_preinclude.py'
+preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py,TrigInDetValidation/TIDAlrt_preinclude.py' #conditions fix for ATR-23982. In future find a more recent RDO  
 
 Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root -p 13", "Test_bin_lrt.dat" ),
          ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root", "Test_bin_lrt.dat" ) ]

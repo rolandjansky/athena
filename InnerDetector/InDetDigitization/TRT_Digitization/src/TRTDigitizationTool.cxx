@@ -227,7 +227,7 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
 
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
     TRTUncompressedHitCollection  *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
@@ -680,13 +680,7 @@ StatusCode TRTDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_CHECK(this->processStraws(ctx, *m_thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   delete m_thpctrt;
-  std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());
-  std::list<TRTUncompressedHitCollection*>::iterator trtHitCollEnd(m_trtHitCollList.end());
-  while(trtHitColl!=trtHitCollEnd)
-    {
-      delete (*trtHitColl);
-      ++trtHitColl;
-    }
+  for(TRTUncompressedHitCollection* ptr : m_trtHitCollList) delete ptr;
   m_trtHitCollList.clear();
   // no more hits
 

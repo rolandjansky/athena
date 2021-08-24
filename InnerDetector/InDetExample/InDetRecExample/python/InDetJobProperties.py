@@ -1204,6 +1204,13 @@ class doTTVADecos(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+## Decide whether to wrap the new configuration in the old.
+class useNewConfig(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1668,6 +1675,10 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
+        if not self.doTIDE_Ambi:
+           # Need to also set new config flag consistently.
+           from AthenaConfiguration.AllConfigFlags import ConfigFlags
+           ConfigFlags.InDet.doTIDE_Ambi = False
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
@@ -1766,8 +1777,9 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------
       #
       # control whether to run SiSPSeededTrackFinder
+      # doR3LargeD0 is removed from setTrackingOff sequence therefore "not self.setTrackingOff() and self.doR3LargeD0()" becomes the equivalent expression
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -1952,7 +1964,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -1976,7 +1988,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()
+           or self.doForwardTracks() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -1986,12 +1998,12 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()) \
              and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0()) \
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.runLRTReco() or self.doLowPtLargeD0()) \
             and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
@@ -2038,7 +2050,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
-       self.doR3LargeD0               = False
        self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
@@ -2053,6 +2064,9 @@ class InDetJobProperties(JobPropertyContainer):
        self.doLowBetaFinder           = False  # couple to post processing? 
     return
  
+  def runLRTReco(self):
+    return self.doR3LargeD0() and not self.disableTracking()
+
   def setInDetRecoOff(self):
     "Disable all ID reco: pre-processing, tracking, post-processing ..."
     if self.disableInDetReco():
@@ -2314,7 +2328,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print(standAloneTracking)
     # -----------------------------------------
-    if self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() :
+    if self.doLargeD0() or (not self.disableTracking() and self.doR3LargeD0()) or self.doLowPtLargeD0() :
        print('*')
        print('* LargeD0 Tracking is ON')
        if self.doSiSPSeededTrackFinder() :
@@ -2801,7 +2815,8 @@ _list_InDetJobProperties = [Enabled,
                             useMuForTRTErrorScaling,
                             writeSeedValNtuple,
                             doTRTPIDNN,
-                            doTTVADecos
+                            doTTVADecos,
+                            useNewConfig
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

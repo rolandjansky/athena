@@ -65,14 +65,8 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   const std::vector<int>&  totList     = origCluster.totList();
 
   //fill lvl1group all with the same value... (not best way but ...)
-  std::vector<int> lvl1group;
-  lvl1group.reserve(rdos.size());
-  std::vector<Identifier>::const_iterator rdoBegin=rdos.begin();
-  std::vector<Identifier>::const_iterator rdoEnd=rdos.end();
-  for (std::vector<Identifier>::const_iterator rdoIter=rdoBegin;rdoIter!=rdoEnd;rdoIter++)
-  {
-    lvl1group.push_back(origCluster.LVL1A());
-  }
+  std::vector<int> lvl1group(rdos.size(),origCluster.LVL1A());
+  
   
 
   std::vector<Amg::Vector2D>     allLocalPositions;
@@ -151,14 +145,8 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
   const std::vector<int>&  totList     = origCluster.totList();
 
   //fill lvl1group all with the same value... (not best way but ...)
-  std::vector<int> lvl1group;
-  lvl1group.reserve(rdos.size());
-  std::vector<Identifier>::const_iterator rdoBegin=rdos.begin();
-  std::vector<Identifier>::const_iterator rdoEnd=rdos.end();
-  for (std::vector<Identifier>::const_iterator rdoIter=rdoBegin;rdoIter!=rdoEnd;rdoIter++)
-  {
-    lvl1group.push_back(origCluster.LVL1A());
-  }
+  std::vector<int> lvl1group(rdos.size(), origCluster.LVL1A());
+ 
   
 
   if (splitProb.getHighestSplitMultiplicityStored()<3) return std::vector<InDet::PixelClusterParts>();

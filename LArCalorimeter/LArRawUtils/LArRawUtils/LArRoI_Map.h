@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWEVENT_LARROI_MAP_H
@@ -121,11 +121,11 @@ class ATLAS_NOT_THREAD_SAFE
   bool m_loadAtBegin;
   bool m_validCache;
 
-  const CaloLVL1_ID* m_TT_ID; 
-  const LArOnlineID* m_onlineID; 
-  const LArEM_ID*  m_em_id   ; 
-  const LArHEC_ID* m_hec_id  ; 
-  const LArFCAL_ID* m_fcal_id; 
+  const CaloLVL1_ID* m_TT_ID = nullptr; 
+  const LArOnlineID* m_onlineID = nullptr; 
+  const LArEM_ID*  m_em_id = nullptr   ; 
+  const LArHEC_ID* m_hec_id = nullptr  ; 
+  const LArFCAL_ID* m_fcal_id = nullptr; 
 };
 
   
