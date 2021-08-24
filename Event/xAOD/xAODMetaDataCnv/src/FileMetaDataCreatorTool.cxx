@@ -42,7 +42,7 @@ StatusCode
       // TagInfoMgr (prio 50). That means the FileMetaDataTool be called first
       ServiceHandle< IIncidentSvc > incidentSvc("IncidentSvc", name());
       ATH_CHECK(incidentSvc.retrieve());
-      incidentSvc->addListener(this, "BeginInputFile", 40);
+      incidentSvc->addListener(this, "EndInputFile", 40);
 
       // Create a fresh object to fill
       ATH_MSG_DEBUG("Creating new xAOD::FileMetaData object to fill");
@@ -61,9 +61,12 @@ StatusCode
 void
     FileMetaDataCreatorTool::handle(const Incident& inc) {
       // gracefully ignore unexpected incident types
-      if (inc.type() == "BeginInputFile")
+      if (inc.type() == "EndInputFile") {
+        // Lock the tool while we work on the FileMetaData
+        std::lock_guard lock(m_toolMutex);
         if (!updateFromNonEvent().isSuccess())
           ATH_MSG_DEBUG("Failed to fill FileMetaData with non-event info");
+      }
     }
 
 StatusCode
@@ -119,6 +122,10 @@ StatusCode
 
       // Return if object has already been filled
       if (m_filledEvent) return StatusCode::SUCCESS;
+
+      // Fill information from TagInfo and Simulation Parameters
+      if (!updateFromNonEvent().isSuccess())
+        ATH_MSG_DEBUG("Failed to fill FileMetaData with non-event info");
 
       // Sanity check
       if (!(m_info && m_aux)) {
@@ -188,8 +195,6 @@ StatusCode
 
 StatusCode
     FileMetaDataCreatorTool::updateFromNonEvent() {
-      // Lock the tool while we work on the FileMetaData
-      std::lock_guard lock(m_toolMutex);
 
       // Have we already done this?
       if (m_filledNonEvent) return StatusCode::SUCCESS;
@@ -212,13 +217,14 @@ StatusCode
 
       set(xAOD::FileMetaData::beamType, m_tagInfoMgr->findTag("beam_type"));
 
+      std::string beamEnergy = m_tagInfoMgr->findTag("beam_energy");
       try {
         set(xAOD::FileMetaData::beamEnergy,
-            std::stof(m_tagInfoMgr->findTag("beam_energy")));
+            std::stof(beamEnergy));
       } catch (std::invalid_argument& e) {
-        ATH_MSG_DEBUG("beam energy tag could not be converted to float");
+        ATH_MSG_DEBUG("beam energy \"" << beamEnergy << "\" tag could not be converted to float");
       } catch (std::out_of_range& e) {
-        ATH_MSG_DEBUG("converted beam energy value outside float range");
+        ATH_MSG_DEBUG("converted beam energy value (\"" << beamEnergy << "\") outside float range");
       }
 
       // Read simulation parameters
