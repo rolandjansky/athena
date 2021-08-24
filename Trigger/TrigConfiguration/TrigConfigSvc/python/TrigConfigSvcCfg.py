@@ -220,8 +220,6 @@ def getL1ConfigSvc( flags ):
         l1ConfigSvc.BGSK = cfg["BGSK"]
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d, and BGSK %d", cfg['SMK'], cfg['BGSK']  )
 
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
 
@@ -252,22 +250,21 @@ def getHLTConfigSvc( flags ):
         hltConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured HLTConfigSvc with InputType='DB' and SMK %d", cfg['SMK'] )
 
-    from AthenaCommon.AppMgr import theApp
-    theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
     return hltConfigSvc
 
 
 # provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ) )
+    l1ConfigSvc = getL1ConfigSvc( flags )
+    acc.addService( l1ConfigSvc, create=True )
     return acc
 
 # provide HLT config service in new JO
 def HLTConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getHLTConfigSvc( flags ) )
+    acc.addService( getHLTConfigSvc( flags ), create=True )
     return acc
 
 # provide both services in new JO

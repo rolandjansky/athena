@@ -1,7 +1,6 @@
 #include "../Run2TriggerTowerMaker.h"
 #include "../Run2CPMTowerMaker.h"
 #include "../Run2JetElementMaker.h"
-#include "../Tester.h"
 #include "../CPMSim.h"
 #include "../JEMJetSim.h"
 #include "../JEMEnergySim.h"
@@ -20,7 +19,6 @@ using namespace LVL1;
 DECLARE_COMPONENT( Run2TriggerTowerMaker )
 DECLARE_COMPONENT( Run2CPMTowerMaker )
 DECLARE_COMPONENT( Run2JetElementMaker )
-DECLARE_COMPONENT( Tester )
 DECLARE_COMPONENT( CPMSim )
 DECLARE_COMPONENT( JEMJetSim )
 DECLARE_COMPONENT( JEMEnergySim )

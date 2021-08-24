@@ -18,7 +18,6 @@
 #include "TrigT1CaloUtils/CPMTobAlgorithm.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class AtlasDetectorID;
 class Identifier;
