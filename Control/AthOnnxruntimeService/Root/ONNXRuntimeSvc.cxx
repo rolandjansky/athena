@@ -1,10 +1,14 @@
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s).
-#include "ONNXRuntimeSvc.h"
+#include "AthOnnxruntimeService/ONNXRuntimeSvc.h"
 
 namespace AthONNX {
-
+  ONNXRuntimeSvc::ONNXRuntimeSvc(const std::string& name, ISvcLocator* svc) :
+      asg::AsgService(name, svc)
+   {
+     declareServiceInterface<AthONNX::IONNXRuntimeSvc>();
+   }
    StatusCode ONNXRuntimeSvc::initialize() {
 
       // Create the environment object.
