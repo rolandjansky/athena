@@ -7,7 +7,7 @@
 #include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
 
 // Framework include(s).
-#include "AthenaBaseComps/AthService.h"
+#include <AsgServices/AsgService.h>
 
 // ONNX include(s).
 #include <core/session/onnxruntime_cxx_api.h>
@@ -24,14 +24,13 @@ namespace AthONNX {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   class ONNXRuntimeSvc : public extends< AthService, IONNXRuntimeSvc > {
+   class ONNXRuntimeSvc : public asg::AsgService, virtual public IONNXRuntimeSvc {
 
    public:
-      /// Inherit the base class's constructor
-      using extends::extends;
 
       /// @name Function(s) inherited from @c Service
       /// @{
+      ONNXRuntimeSvc (const std::string& name, ISvcLocator* svc);
 
       /// Function initialising the service
       virtual StatusCode initialize() override;

@@ -8,16 +8,24 @@ find_package( onnxruntime )
 
 # Component(s) in the package.
 atlas_add_library( AthOnnxruntimeServiceLib
-   AthOnnxruntimeService/*.h
+   AthOnnxruntimeService/*.h Root/*.cxx
    INTERFACE
    PUBLIC_HEADERS AthOnnxruntimeService
    INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} GaudiKernel )
+   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AsgServicesLib)
 
-atlas_add_component( AthOnnxruntimeService
-   src/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthOnnxruntimeServiceLib AthenaBaseComps GaudiKernel)
+if (XAOD_STANDALONE)
+atlas_add_dictionary( AthOnnxruntimeServiceDict
+   AthOnnxruntimeService/AthOnnxruntimeServiceDict.h
+   AthOnnxruntimeService/selection.xml
+   LINK_LIBRARIES AthOnnxruntimeServiceLib )
+endif ()
 
+if (NOT XAOD_STANDALONE)
+  atlas_add_component( AthOnnxruntimeService
+     src/*.h src/*.cxx src/components/*.cxx
+     INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
+     LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthOnnxruntimeServiceLib AthenaBaseComps GaudiKernel AsgServicesLib)
+endif ()
 
 
