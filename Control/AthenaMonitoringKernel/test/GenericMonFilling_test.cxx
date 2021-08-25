@@ -445,7 +445,7 @@ bool fillFromNonTrivialSources( ToolHandle<GenericMonitoringTool>& monTool, ITHi
     //! [fillFromNonTrivialSources_lambda]
     auto group = Monitored::Group( monTool, eta );
   }
-  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 3 ) ) EXPECTED( 1 );
 
   resetHists( histSvc );
   {
@@ -461,19 +461,68 @@ bool fillFromNonTrivialSources( ToolHandle<GenericMonitoringTool>& monTool, ITHi
 
   resetHists( histSvc );
   {
-    //! [fillFromNonTrivialSources_array]
+    //! [fillFromNonTrivialSources_collectionref]
+    std::vector<float> reta( {0.2, 0.1} );
+    std::vector<double> rphi( {-1, 1} ) ;
+    auto eta = std::ref(reta);
+    auto phi = std::ref(rphi);
+    auto vectorT   = Monitored::Collection( "Eta", eta );
+    auto setT      = Monitored::Collection( "Phi", phi );
+    auto group = Monitored::Group( monTool, vectorT, setT );
+    //! [fillFromNonTrivialSources_collectionref]
+  }
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
+
+  resetHists( histSvc );
+  {
+    //! [fillFromNonTrivialSources_stdarray]
     std::array<double, 2> eta( {{0.1, 0.7}} );
     double phi[2] = {-2., -1.};
     auto arrayT = Monitored::Collection( "Eta", eta );
     auto rawArrayT = Monitored::Collection( "Phi", phi );
     auto group = Monitored::Group( monTool, arrayT, rawArrayT );
-    //! [fillFromNonTrivialSources_array]
+    //! [fillFromNonTrivialSources_stdarray]
   }
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
 
   resetHists( histSvc );
   {
     //! [fillFromNonTrivialSources_obj_collection]
+    std::vector<Track> tracks;
+    auto eta = Monitored::Collection( "Eta", tracks, &Track::eta );
+    auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
+
+    auto group = Monitored::Group( monTool, eta, phi ); // this is binding to histograms
+
+    tracks.emplace_back( 0.1, 0.9 );
+    tracks.emplace_back( 1.3, 1. );
+    //! [fillFromNonTrivialSources_obj_collection]
+  }
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 2 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 2 );
+
+  resetHists( histSvc );
+  {
+    //! [fillFromNonTrivialSources_obj_collectionref]
+    std::vector<Track> rtracks;
+    auto tracks = std::ref(rtracks);
+    auto eta = Monitored::Collection( "Eta", tracks, &Track::eta );
+    auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
+
+    auto group = Monitored::Group( monTool, eta, phi ); // this is binding to histograms
+
+    rtracks.emplace_back( 0.1, 0.9 );
+    rtracks.emplace_back( 1.3, 1. );
+    //! [fillFromNonTrivialSources_obj_collectionref]
+  }
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 2 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 2 );
+
+  resetHists( histSvc );
+  {
+    //! [fillFromNonTrivialSources_obj_array]
     Track tracks[2];
     auto eta = Monitored::Collection( "Eta", tracks, &Track::eta );
     auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
@@ -482,10 +531,29 @@ bool fillFromNonTrivialSources( ToolHandle<GenericMonitoringTool>& monTool, ITHi
 
     tracks[0] = Track( 0.1, 0.9 );
     tracks[1] = Track( 1.3, 1. );
-    //! [fillFromNonTrivialSources_obj_collection]
+    //! [fillFromNonTrivialSources_obj_array]
   }
-  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
-  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 1 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 2 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 2 );
+
+  resetHists( histSvc );
+  {
+    //! [fillFromNonTrivialSources_obj_arrayref]
+    Track rtracks[2];
+    auto tracks = std::ref(rtracks);
+    auto eta = Monitored::Collection( "Eta", tracks, &Track::eta );
+    auto phi = Monitored::Collection( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
+
+    auto group = Monitored::Group( monTool, eta, phi ); // this is binding to histograms
+
+    tracks[0] = Track( 0.1, 0.9 );
+    tracks[1] = Track( 1.3, 1. );
+    //! [fillFromNonTrivialSources_obj_arrayref]
+  }
+
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 2 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 2 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 2 );
 
   return true;
@@ -756,6 +824,8 @@ int main() {
   assert( fillWithCutMask( validMon, histSvc ) );
   log << MSG::DEBUG << "fillWithWeight" << endmsg;
   assert( fillWithWeight( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillFromNonTrivialSources" << endmsg;
+  assert( fillFromNonTrivialSources( validMon, histSvc ) );
   log << MSG::DEBUG << "assign" << endmsg;
   assert( assign() );
   log << MSG::DEBUG << "operators" << endmsg;

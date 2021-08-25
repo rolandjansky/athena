@@ -520,29 +520,29 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       }
 
       MonVariables  ctpMonVariables;
-      auto val_roiMatching_CTPin = Monitored::Collection(Form("%s_roiMatching_CTPin",monObj.title.Data()), roiMatching_CTPin);
-      auto val_roiMatching_CTPout = Monitored::Collection(Form("%s_roiMatching_CTPout",monObj.title.Data()), roiMatching_CTPout);
+      auto val_roiMatching_CTPin = Monitored::Collection("roiMatching_CTPin", roiMatching_CTPin);
+      auto val_roiMatching_CTPout = Monitored::Collection("roiMatching_CTPout", roiMatching_CTPout);
 
-      auto val_ctpMultiplicity = Monitored::Scalar<int>(Form("%s_ctpMultiplicity",monObj.title.Data()),ctpMuonCands.size());
-      auto val_rawMultiplicity = Monitored::Scalar<int>(Form("%s_rawMultiplicity",monObj.title.Data()),inputMuonCands.size());
-      auto val_countDiff = Monitored::Scalar<int>(Form("%s_countDiff",monObj.title.Data()),ctpMuonCands.size()-inputMuonCands.size());
+      auto val_ctpMultiplicity = Monitored::Scalar<int>("ctpMultiplicity",ctpMuonCands.size());
+      auto val_rawMultiplicity = Monitored::Scalar<int>("rawMultiplicity",inputMuonCands.size());
+      auto val_countDiff = Monitored::Scalar<int>("countDiff",ctpMuonCands.size()-inputMuonCands.size());
 
-      auto val_roi_Eta = Monitored::Collection(Form("%s_roi_Eta",monObj.title.Data()),roi_Eta);
-      auto val_roi_Phi = Monitored::Collection(Form("%s_roi_Phi",monObj.title.Data()),roi_Phi);
-      auto val_roi_dRmin = Monitored::Collection(Form("%s_roi_dRmin",monObj.title.Data()),roi_dRmin);
-      auto val_roi_pTdiff = Monitored::Collection(Form("%s_roi_pTdiff",monObj.title.Data()),roi_pTdiff);
-      auto val_roi_ThrNum = Monitored::Collection(Form("%s_roi_ThrNum",monObj.title.Data()),roi_ThrNum);
-      auto val_roi_Charge = Monitored::Collection(Form("%s_roi_Charge",monObj.title.Data()),roi_Charge);
-      auto val_roi_BW3Coin = Monitored::Collection(Form("%s_roi_BW3Coin",monObj.title.Data()),roi_BW3Coin);
-      auto val_roi_InnCoin = Monitored::Collection(Form("%s_roi_InnCoin",monObj.title.Data()),roi_InnCoin);
-      auto val_roi_GoodMF = Monitored::Collection(Form("%s_roi_GoodMF",monObj.title.Data()),roi_GoodMF);
-      auto val_roi_IsMoreCandInRoI = Monitored::Collection(Form("%s_roi_IsMoreCandInRoI",monObj.title.Data()),roi_IsMoreCandInRoI);
-      auto val_roi_PhiOverlap = Monitored::Collection(Form("%s_roi_PhiOverlap",monObj.title.Data()),roi_PhiOverlap);
-      auto val_roi_EtaOverlap = Monitored::Collection(Form("%s_roi_EtaOverlap",monObj.title.Data()),roi_EtaOverlap);
-      auto val_roi_isVetoed = Monitored::Collection(Form("%s_roi_isVetoed",monObj.title.Data()),roi_isVetoed);
-      auto val_roi_inOk_outOk = Monitored::Collection(Form("%s_roi_inOk_outOk",monObj.title.Data()),roi_inOk_outOk);
-      auto val_roi_inOk_outNg = Monitored::Collection(Form("%s_roi_inOk_outNg",monObj.title.Data()),roi_inOk_outNg);
-      auto val_roi_inNg_outOk = Monitored::Collection(Form("%s_roi_inNg_outOk",monObj.title.Data()),roi_inNg_outOk);
+      auto val_roi_Eta = Monitored::Collection("Eta",roi_Eta);
+      auto val_roi_Phi = Monitored::Collection("Phi",roi_Phi);
+      auto val_roi_dRmin = Monitored::Collection("dRmin",roi_dRmin);
+      auto val_roi_pTdiff = Monitored::Collection("pTdiff",roi_pTdiff);
+      auto val_roi_ThrNum = Monitored::Collection("ThrNum",roi_ThrNum);
+      auto val_roi_Charge = Monitored::Collection("Charge",roi_Charge);
+      auto val_roi_BW3Coin = Monitored::Collection("BW3Coin",roi_BW3Coin);
+      auto val_roi_InnCoin = Monitored::Collection("InnCoin",roi_InnCoin);
+      auto val_roi_GoodMF = Monitored::Collection("GoodMF",roi_GoodMF);
+      auto val_roi_IsMoreCandInRoI = Monitored::Collection("IsMoreCandInRoI",roi_IsMoreCandInRoI);
+      auto val_roi_PhiOverlap = Monitored::Collection("PhiOverlap",roi_PhiOverlap);
+      auto val_roi_EtaOverlap = Monitored::Collection("EtaOverlap",roi_EtaOverlap);
+      auto val_roi_isVetoed = Monitored::Collection("isVetoed",roi_isVetoed);
+      auto val_roi_inOk_outOk = Monitored::Collection("inOk_outOk",roi_inOk_outOk);
+      auto val_roi_inOk_outNg = Monitored::Collection("inOk_outNg",roi_inOk_outNg);
+      auto val_roi_inNg_outOk = Monitored::Collection("inNg_outOk",roi_inNg_outOk);
 
       ctpMonVariables.push_back(val_roiMatching_CTPin);
       ctpMonVariables.push_back(val_roiMatching_CTPout);
@@ -565,7 +565,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       ctpMonVariables.push_back(val_roi_inOk_outOk);
       ctpMonVariables.push_back(val_roi_inOk_outNg);
       ctpMonVariables.push_back(val_roi_inNg_outOk);
-      fill(m_packageName, ctpMonVariables);
+      fill(m_packageName + monObj.title.Data(), ctpMonVariables);
     }
   }
 
