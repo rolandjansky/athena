@@ -95,19 +95,26 @@ LArCoverageAlg::initialize()
   /** raw channel key */
   ATH_CHECK( m_rawChannelsKey.initialize() ); 
 
+  std::vector<std::string> availableErrorCodesStrs;
+  /** Translate codes to integers **/
+  for (const auto& code : m_availableErrorCodes) {
+    availableErrorCodesStrs.emplace_back(Form("%d", code));
+    m_availableErrorCodesPairs.emplace_back(code, availableErrorCodesStrs.back());
+  }
+
   /** tool maps (arrays of histograms) */
   m_CaloNoiseGroupArrEM = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"EM",m_Nsample);
   m_CaloNoiseGroupArrHEC = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"HEC",m_Nsample);
   m_CaloNoiseGroupArrFCAL = Monitored::buildToolMap<int>(m_tools,m_CaloNoiseToolGroupName+"FCal",m_Nsample);
 
-  m_CoverageToolArrayEMBA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBA",m_availableErrorCodes);
-  m_CoverageToolArrayEMECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECA",m_availableErrorCodes);
-  m_CoverageToolArrayHECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECA",m_availableErrorCodes);
-  m_CoverageToolArrayFCalA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalA",m_availableErrorCodes);
-  m_CoverageToolArrayEMBC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBC",m_availableErrorCodes);
-  m_CoverageToolArrayEMECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECC",m_availableErrorCodes);
-  m_CoverageToolArrayHECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECC",m_availableErrorCodes);
-  m_CoverageToolArrayFCalC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalC",m_availableErrorCodes);
+  m_CoverageToolArrayEMBA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBA",availableErrorCodesStrs);
+  m_CoverageToolArrayEMECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECA",availableErrorCodesStrs);
+  m_CoverageToolArrayHECA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECA",availableErrorCodesStrs);
+  m_CoverageToolArrayFCalA = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalA",availableErrorCodesStrs);
+  m_CoverageToolArrayEMBC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMBC",availableErrorCodesStrs);
+  m_CoverageToolArrayEMECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"EMECC",availableErrorCodesStrs);
+  m_CoverageToolArrayHECC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"HECC",availableErrorCodesStrs);
+  m_CoverageToolArrayFCalC = Monitored::buildToolMap<int>(m_tools,m_CoverageHWGroupName+"FCalC",availableErrorCodesStrs);
 
   m_BadChannelToolArrayBarrel = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"Barrel",m_Sides);
   m_BadChannelToolArrayEndcap = Monitored::buildToolMap<int>(m_tools,m_BadChannelsGroupName+"EndCap",m_Sides);
@@ -136,24 +143,25 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   /** monitoring of coverage maps */
   auto mon_FtSlot = Monitored::Scalar<int>("mon_FtSlot",-1);
   std::vector<LArChanHelp> the_coverageMap(0);
+  auto ref_the_coverageMap = std::ref(the_coverageMap);
   //Note for when we'll have the proper histogram class: the feedthrough-slot coverage plot must be filled with the latest value, the eta-phi coverage plot must be filled with the maximum value
-  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",the_coverageMap,[](const LArChanHelp& ch){return ch.getChFtSlot();});
-  auto mon_Channels = Monitored::Collection("mon_Channels",the_coverageMap,[](const LArChanHelp& ch){return ch.getChNumber();});
-  auto mon_Eta = Monitored::Collection("mon_Eta",the_coverageMap,[](const LArChanHelp& ch){return ch.getChEta();});
-  auto mon_Phi = Monitored::Collection("mon_Phi",the_coverageMap,[](const LArChanHelp& ch){return ch.getChPhi();});
+  auto mon_ChanFtSlot = Monitored::Collection("mon_ChanFtSlot",ref_the_coverageMap,[](const LArChanHelp& ch){return ch.getChFtSlot();});
+  auto mon_Channels = Monitored::Collection("mon_Channels",ref_the_coverageMap,[](const LArChanHelp& ch){return ch.getChNumber();});
+  auto mon_Eta = Monitored::Collection("mon_Eta",ref_the_coverageMap,[](const LArChanHelp& ch){return ch.getChEta();});
+  auto mon_Phi = Monitored::Collection("mon_Phi",ref_the_coverageMap,[](const LArChanHelp& ch){return ch.getChPhi();});
 
   //cutmasks for filling the proper partition
-  auto mon_isSampling0 = Monitored::Collection("isSampl0",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==0);});
-  auto mon_isSampling1 = Monitored::Collection("isSampl1",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==1);});
-  auto mon_isSampling2 = Monitored::Collection("isSampl2",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==2);});
-  auto mon_isSampling3 = Monitored::Collection("isSampl3",the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==3);});
+  auto mon_isSampling0 = Monitored::Collection("isSampl0",ref_the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==0);});
+  auto mon_isSampling1 = Monitored::Collection("isSampl1",ref_the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==1);});
+  auto mon_isSampling2 = Monitored::Collection("isSampl2",ref_the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==2);});
+  auto mon_isSampling3 = Monitored::Collection("isSampl3",ref_the_coverageMap,[](const LArChanHelp& ch){return (ch.getChSampling()==3);});
 
   /** Coverage map 
    * each line is a FEB, each column a sampling (needed for eta-phi plots): coverageMapHWEMBA[ft*(Nslot)+slot-1][sampling]=channelStatus. 
    * NOTE the -1 with the slot, needed because slots counts from 1 and vectors want 0. 
    * also: GlobalVariables::slotEMBA=[1,14]-->Nslot=14 (index=slot-1 from 0 to 13), while feedthroughEMBS=[0,31]-->Nfeedthrough=32. 
    */
-  std::map<std::string,std::map<std::string,std::vector<LArChanHelp> > > coverageMap;
+  std::map<int,std::map<std::string,std::vector<LArChanHelp> > > coverageMap;
   for(auto code : m_availableErrorCodes) {
     for(auto part : m_CoverageBarrelPartitions) coverageMap[code][part] = std::vector<LArChanHelp>(0);
     for(auto part : m_CoverageEndcapPartitions) coverageMap[code][part] = std::vector<LArChanHelp>(0);
@@ -309,9 +317,11 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
     }
     if(knownErrorFEBs.size()>0 && std::find(knownErrorFEBs.begin(), knownErrorFEBs.end(), febID.get_compact())!=knownErrorFEBs.end())cellContent=1;
 
-    std::string cellStatusCode=Form("%d",cellContent);
     /** Fill Coverage maps */
-    if(std::find(m_availableErrorCodes.begin(),m_availableErrorCodes.end(),cellStatusCode)!=m_availableErrorCodes.end()) {
+    const auto cellStatusCodeItr = std::find(m_availableErrorCodes.begin(),
+                                             m_availableErrorCodes.end(),
+                                             cellContent);
+    if(cellStatusCodeItr!=m_availableErrorCodes.end()) {
       std::string part;
       int sampling=-1;
       int i_ftslot=-1;
@@ -350,8 +360,8 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
       if(etaChan >= 0) part+="A";
       else part+="C";
       
-      if(part.find("FCal") != std::string::npos) coverageMap[cellStatusCode][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaFCal,phiFCal));
-      else coverageMap[cellStatusCode][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaChan,phiChan));
+      if(part.find("FCal") != std::string::npos) coverageMap[cellContent][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaFCal,phiFCal));
+      else coverageMap[cellContent][part].push_back(LArChanHelp(single_channel,i_ftslot,sampling,etaChan,phiChan));
     }//end of 'if cellContent in availableErrors'
   }// end Raw Channels Loop
 
@@ -360,45 +370,37 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
 
   ATH_MSG_DEBUG( "now fill coverage plots");
 
-  for (auto chanStatusCode : m_availableErrorCodes) {
+  for (const auto& chanStatusCodePair : m_availableErrorCodesPairs) {
     //EMBA
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["EMBA"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMBA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["EMBA"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayEMBA.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
     //EMBC
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["EMBC"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMBC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["EMBC"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayEMBC.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
   
     //EMECA
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["EMECA"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMECA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["EMECA"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayEMECA.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
 
     //EMECC
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["EMECC"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayEMECC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["EMECC"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayEMECC.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
 
     //HECA
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["HECA"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayHECA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["HECA"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayHECA.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
 
     //HECC
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["HECC"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayHECC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["HECC"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayHECC.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
     
     //FCalA
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["FCalA"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayFCalA.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["FCalA"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayFCalA.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
 
     //FCalC
-    the_coverageMap.clear();
-    the_coverageMap=coverageMap[chanStatusCode]["FCalC"];
-    if(the_coverageMap.size()!=0) fill(m_tools[m_CoverageToolArrayFCalC.at(chanStatusCode)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
+    ref_the_coverageMap=coverageMap[chanStatusCodePair.first]["FCalC"];
+    if(ref_the_coverageMap.get().size()!=0) fill(m_tools[m_CoverageToolArrayFCalC.at(chanStatusCodePair.second)],mon_Channels,mon_ChanFtSlot,mon_Eta,mon_Phi,mon_isSampling0,mon_isSampling1,mon_isSampling2,mon_isSampling3);
 
   }
 

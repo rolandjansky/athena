@@ -65,7 +65,7 @@ void
 CountingConnector::setAlgorithm(TCS::ConfigurableAlg* alg) {
    Connector::setAlgorithm(alg);
    m_countingAlgorithm = dynamic_cast<CountingAlg*>(alg);
-   if( ! m_countingAlgorithm ) {
+   if(m_countingAlgorithm == nullptr && alg != nullptr) {
       TCS_EXCEPTION("Error: algorithm " << alg->name() << " is not a CountingAlg");
    }
 }

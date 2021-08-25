@@ -15,16 +15,21 @@ log_trigeg = logging.getLogger( 'TrigEgammaMonitorAlgorithm' )
 
 
 
-def TrigEgammaMonConfig(inputFlags):
+def TrigEgammaMonConfig(inputFlags, emulator=None):
     '''Function to configures some algorithms in the monitoring system.'''
 
  
     # The following class will make a sequence, configure algorithms, and link
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
+
+    if emulator: # add emulator as public
+        acc = helper.resobj
+        acc.addPublicTool(emulator.core())
+
     # configure alg and ana tools
     from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonAlgBuilder
-    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistograms=False ) # Using 2018 e/g tunings
+    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistograms=False, emulator=emulator ) # Using 2018 e/g tunings
     # build monitor and book histograms
     monAlgCfg.configure()
 

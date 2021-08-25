@@ -25,25 +25,25 @@ namespace InDetDD {
     void setDefaultSchema();
     void setSimpleSchema();
   
-    std::string rmin() const {return m_rmin;}
-    std::string rmax() const {return m_rmax;}
-    std::string rmin2() const {return m_rmin2;}
-    std::string rmax2() const {return m_rmax2;}
-    std::string zmin() const {return m_zmin;}
-    std::string zmax() const {return m_zmax;}
-    std::string zsymm() const {return m_zsymm;}
-    std::string shapeType() const {return m_shapeType;}
-    std::string materialName() const {return m_materialName;}
-    std::string volName() const {return m_volName;}
-    std::string phiWidth() const {return m_phiWidth;}
-    std::string width() const {return m_width;}
-    std::string repeat() const {return m_repeat;}
-    std::string phiStart() const {return m_phiStart;}
-    std::string phiDelta() const {return m_phiDelta;}
-    std::string phiStep() const {return m_phiStep;}
-    std::string radialDiv() const {return m_radialDiv;}
-    std::string volId() const {return m_volId;}
-    std::string shiftFlag() const {return m_shiftFlag;}
+    const std::string& rmin() const {return m_rmin;}
+    const std::string& rmax() const {return m_rmax;}
+    const std::string& rmin2() const {return m_rmin2;}
+    const std::string& rmax2() const {return m_rmax2;}
+    const std::string& zmin() const {return m_zmin;}
+    const std::string& zmax() const {return m_zmax;}
+    const std::string& zsymm() const {return m_zsymm;}
+    const std::string& shapeType() const {return m_shapeType;}
+    const std::string& materialName() const {return m_materialName;}
+    const std::string& volName() const {return m_volName;}
+    const std::string& phiWidth() const {return m_phiWidth;}
+    const std::string& width() const {return m_width;}
+    const std::string& repeat() const {return m_repeat;}
+    const std::string& phiStart() const {return m_phiStart;}
+    const std::string& phiDelta() const {return m_phiDelta;}
+    const std::string& phiStep() const {return m_phiStep;}
+    const std::string& radialDiv() const {return m_radialDiv;}
+    const std::string& volId() const {return m_volId;}
+    const std::string& shiftFlag() const {return m_shiftFlag;}
     
     void set_rmin        (const std::string & s) {m_rmin = s;}
     void set_rmax        (const std::string & s) {m_rmax = s;}

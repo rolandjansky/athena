@@ -32,7 +32,6 @@ StatusCode TrigEgammaEmulationToolMT::initialize()
     ATH_CHECK( m_hypoTools.retrieve() );
 
 
-    ATH_CHECK( m_ringerTools.retrieve() );
     ATH_CHECK( m_egammaPhotonCBTools.retrieve() );
     ATH_CHECK( m_egammaElectronDNNTools.retrieve() );
     ATH_CHECK( m_egammaElectronCBTools.retrieve() );
@@ -55,19 +54,27 @@ StatusCode TrigEgammaEmulationToolMT::initialize()
 //**********************************************************************
 
 asg::AcceptData TrigEgammaEmulationToolMT::emulate(const TrigCompositeUtils::Decision *roi,
-                                                   std::string trigger) const
+                                                   std::string trigger, bool &valid) const
 {
   asg::AcceptData acceptData (&m_accept);
-
+  valid=false;
   for ( auto& tool : m_hypoTools )
   {
     if( tool->chain() == trigger )
     {
       Trig::TrigData input(trigger);
       if(!match(roi, input)) return acceptData;
-      if(input.isValid())
-        return tool->emulate(input);
-    }
+
+      // Check of the match procedure has all objects inside
+      if(!input.isValid()){
+        ATH_MSG_WARNING("Its not possible to find all trigger features for this RoI. Skip emulation.");
+        return acceptData;
+      }
+
+      valid=true;
+      return tool->emulate(input);
+      
+    }// Tool
 
   }// Loop over all hypo tool chains
 
@@ -101,8 +108,9 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
   if(output.signature == "electron"){
     for (auto& trigger : m_electronTrigList){
 
-      if(boost::contains(trigger,"gsf")) continue;
-      if(boost::contains(trigger,"lrt")) continue;
+      if(boost::contains(output.trigger,"gsf") && !boost::contains(trigger,"gsf")) continue;
+      if(boost::contains(output.trigger,"lrt") && !boost::contains(trigger,"lrt")) continue;
+
       ATH_MSG_DEBUG("Matching with " << trigger );
 
 

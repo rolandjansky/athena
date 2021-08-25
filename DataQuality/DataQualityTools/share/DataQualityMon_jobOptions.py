@@ -36,24 +36,12 @@ else:
     JetCollectionKey='AntiKt4EMTopoJets'
 
 # add isolation variables for IsolationSelection
-isESD=False
-for class_name, name in metadata['metadata_items'].items():
-    if name == 'EventStreamInfo':
-        if "ESD" in class_name :
-            print ("Running on ESD - will add TTVA decorations.")
-            isESD=True
-
-if isESD:
-    from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'tier0':
     if not hasattr(topSequence,"IsolationBuilderNonprompt_All_MaxWeight1000"):
-        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = topSequence.name()+"_InDetUsedInFitDecoratorTool_forIso",
-                                                                    AMVFVerticesDecoName    = 'TTVA_AMVFVertices',
-                                                                    AMVFWeightsDecoName     = 'TTVA_AMVFWeights',
-                                                                    TrackContainer          = 'InDetTrackParticles',
-                                                                    VertexContainer         = 'PrimaryVertices' )
-        topSequence += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = topSequence.name()+"_InDetUsedInFitDecorator_forIso",
-                                                                        UsedInFitDecoratorTool  = getattr(ToolSvc, topSequence.name()+"_InDetUsedInFitDecoratorTool_forIso") )
-        topSequence += GetUpdatedIsoTrackCones()
+        from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+        from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+        WP='Nonprompt_All_MaxWeight'
+        topSequence += GetUpdatedIsoTrackCones(TTVATool=getTTVAToolForReco(WP,WorkingPoint=WP))
 
 from AthenaCommon.JobProperties import jobproperties
 if not 'InDetKeys' in dir():

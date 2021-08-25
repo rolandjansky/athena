@@ -34,6 +34,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/HLTResultMT.h"
 #include "TrigOutputHandling/ITriggerBitsMakerTool.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/HLTMenu.h"
 
 // containers
@@ -75,8 +76,6 @@ namespace TrigDec {
 
     StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)
 
-    char getBGByte(unsigned int BCId) const; //!< to get the BG byte encoded for a given BC
-
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
 
@@ -86,7 +85,8 @@ namespace TrigDec {
     ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};
 
     // Input keys configuration
-    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key, for use if IsJSONConfig=True"};
+    SG::ReadHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "DetectorStore+L1BunchGroup", "L1BunchGroupSet key name"};
+    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key"};
 
     SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object to get bits from online bytestream" };
     SG::ReadHandleKey<ROIB::RoIBResult> m_ROIBResultKeyIn {this, "RoIBResult", "RoIBResult", "RoIB Result Object Key"};

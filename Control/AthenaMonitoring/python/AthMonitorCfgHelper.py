@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file AthMonitorCfgHelper.py
@@ -64,7 +64,8 @@ class AthMonitorCfgHelper(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
-        algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
+        if self.inputFlags.DQ.useTrigger:
+            algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
         algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
         if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:

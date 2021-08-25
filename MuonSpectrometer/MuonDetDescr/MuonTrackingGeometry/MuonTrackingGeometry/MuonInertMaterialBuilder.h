@@ -79,7 +79,7 @@ namespace Muon {
         const std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > >* buildDetachedTrackingVolumeTypes(
             bool blend);
         /** Method extracting material objects from GeoModel tree */
-        void getObjsForTranslation(const GeoVPhysVol* pv, Amg::Transform3D,
+        void getObjsForTranslation(const GeoVPhysVol* pv, const Amg::Transform3D&,
                                    std::vector<std::pair<const GeoLogVol*, std::vector<Amg::Transform3D> > >& vols) const;
         /** Dump from GeoModel tree  */
         void printInfo(const GeoVPhysVol* pv) const;
@@ -87,7 +87,7 @@ namespace Muon {
         /** Simplification of GeoModel object + envelope */
         const Trk::TrackingVolume* simplifyShape(const Trk::TrackingVolume* tr, bool blend);
         /** Envelope creation & material fraction calculation */
-        const Trk::Volume* createEnvelope(const Amg::Transform3D transf,
+        const Trk::Volume* createEnvelope(const Amg::Transform3D& transf,
                                           std::vector<std::pair<const Trk::Volume*, std::pair<float, float> > >) const;
         /** Simplification of objects, material fraction calculation */
         std::vector<std::pair<const Trk::Volume*, std::pair<float, float> > > splitComposedVolume(const Trk::Volume*, bool) const;
@@ -96,7 +96,7 @@ namespace Muon {
         /** Volume calculation */
         double calculateVolume(const Trk::Volume* envelope) const;
 
-        const MuonGM::MuonDetectorManager* m_muonMgr;                                               //!< the MuonDetectorManager
+        const MuonGM::MuonDetectorManager* m_muonMgr = nullptr;                                               //!< the MuonDetectorManager
         Gaudi::Property<std::string> m_muonMgrLocation{this, "MuonDetManagerLocation", "MuonMgr"};  //!< the location of the Muon Manager
         Gaudi::Property<bool> m_simplify{this, "SimplifyGeometry", false};                          // switch geometry simplification on/off
         Gaudi::Property<bool> m_simplifyToLayers{this, "SimplifyGeometryToLayers",

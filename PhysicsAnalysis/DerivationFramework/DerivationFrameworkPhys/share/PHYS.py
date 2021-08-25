@@ -132,7 +132,8 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSSlimmingHelper = SlimmingHelper("PHYSSlimmingHelper")
 
-PHYSSlimmingHelper.SmartCollections = ["Electrons",
+PHYSSlimmingHelper.SmartCollections = ["EventInfo",
+                                       "Electrons",
                                        "Photons",
                                        "Muons",
                                        "PrimaryVertices",
@@ -205,7 +206,6 @@ if DerivationFrameworkIsMonteCarlo:
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
    PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
-PHYSSlimmingHelper.AllVariables += ['EventInfo']
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
@@ -216,7 +216,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
-                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights",
+                                      "EventInfo.hardScatterVertexLink.timeStampNSOffset"]
 
 # Add trigger matching
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)

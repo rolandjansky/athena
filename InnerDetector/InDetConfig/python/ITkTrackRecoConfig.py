@@ -109,7 +109,7 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (ITkPixelChargeCalibCondAlgCfg, ITkPixelConfigCondAlgCfg, ITkPixelDeadMapCondAlgCfg,
                                                                  ITkPixelOfflineCalibCondAlgCfg)
-    from PixelCabling.PixelCablingConfigNew import ITkPixelCablingSvcCfg
+    from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
     #ITkPixelCablingCondAlgCfg + ITkPixelReadoutSpeedAlgCfg needed?
 
     # This directly needs the following Conditions data:
@@ -118,7 +118,7 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
     acc.merge(ITkPixelDeadMapCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     acc.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
-    acc.merge(ITkPixelCablingSvcCfg(flags))
+    acc.merge(ITkPixelReadoutManagerCfg(flags))
     #acc.merge(PixelCablingCondAlgCfg(flags))
     #acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
@@ -128,7 +128,7 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
     ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags))
 
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
-    kwargs.setdefault("PixelCablingSvc",acc.getService("ITkPixelCablingSvc"))
+    kwargs.setdefault("PixelReadoutManager",acc.getService("ITkPixelReadoutManager"))
     kwargs.setdefault("PixelLorentzAngleTool", ITkPixelLorentzAngleTool)
     kwargs.setdefault("SCTLorentzAngleTool", ITkStripLorentzAngleTool)
     kwargs.setdefault("PixelOfflineCalibData", "")
@@ -157,14 +157,17 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         kwargs["TrackToVertex"] = result.popToolsAndMerge(ITkTrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-        kwargs["TrackSummaryTool"] = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+        TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+        result.addPublicTool(TrackSummaryTool)
+        kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.ITk.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.ITk.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", flags.ITk.KeepFirstParameters)
     kwargs.setdefault("PerigeeExpression", p_expr if p_expr != "Vertex" else "BeamLine")
     kwargs.setdefault("DoITk", True)
-    result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary=True)
+    ITkTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
+    result.addPublicTool(ITkTrackParticleCreatorTool, primary=True)
     return result
 
 def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTrackParticleCreator = None, **kwargs):

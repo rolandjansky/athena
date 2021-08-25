@@ -18,16 +18,9 @@ atlas_add_component( TrigConfigSvc
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/jobOptions_commonSetup.py
-  share/jobOptions_setupHLTSvc.py
-  share/jobOptions_setupLVL1Svc.py
-  share/testTriggerFrontierQuery.py )
-atlas_install_scripts( share/checkTrigger.py share/trigconf_property.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_xmls( data/*.dtd )
+atlas_install_scripts( share/trigconf_property.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-# Aliases:
-atlas_add_alias( checkTrigger "checkTrigger.py" )
-
+# Tests:
 atlas_add_test( AccumulatorTest
    SCRIPT python -m TrigConfigSvc.TrigConfigSvcConfig
    POST_EXEC_SCRIPT nopost.sh )

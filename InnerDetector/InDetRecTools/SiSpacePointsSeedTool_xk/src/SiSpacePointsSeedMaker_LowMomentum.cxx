@@ -506,7 +506,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpConditions(EventData& 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -549,7 +549,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(const EventContext& ctx
 // New and old list vertices comparison
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSpacePointsSeedMaker_LowMomentum::newVertices(EventData& data, const std::list<Trk::Vertex>& lV) const
+bool InDet::SiSpacePointsSeedMaker_LowMomentum::newVertices(EventData& data, const std::list<Trk::Vertex>& lV) 
 {
   unsigned int s1 = data.l_vertex.size();
   unsigned int s2 = lV.size();
@@ -697,7 +697,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::buildBeamFrameWork(EventData& da
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp, float* r) const
+(EventData& data, const Trk::SpacePoint*const& sp, float* r) 
 {
   r[0] = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   r[1] = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -753,7 +753,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::erase(EventData& data) 
 {
   for (int i=0; i!=data.nr; ++i) {
     int n = data.r_index[i];
@@ -778,7 +778,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::erase(EventData& data) const
 // 2 space points seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::production2Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::production2Sp(EventData& data) 
 {
   data.endlist = true;
 }
@@ -1092,7 +1092,7 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::isZCompatible
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1118,7 +1118,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::newSpaceP
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const float& z) const
+ const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1139,7 +1139,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newSeed
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3,const float& z) const
+ const Trk::SpacePoint*& p3,const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1158,7 +1158,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::fillSeeds(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::fillSeeds(EventData& data) 
 {
   std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
     l  = data.mapOneSeeds.begin(),

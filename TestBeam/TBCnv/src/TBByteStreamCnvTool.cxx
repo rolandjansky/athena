@@ -15,6 +15,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "Identifier/HWIdentifier.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <list>
 
@@ -74,12 +76,6 @@ StatusCode TBByteStreamCnvTool::initialize()
  sc=service( "ToolSvc",toolSvc  );
  if (sc.isFailure()) {
    logstr << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
-   return StatusCode::FAILURE;
- }
- 
- sc=toolSvc->retrieveTool("LArCablingLegacyService",m_larCablingSvc);
- if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
    return StatusCode::FAILURE;
  }
  
@@ -147,6 +143,8 @@ StatusCode TBByteStreamCnvTool::initialize()
   m_isCalib = false;
 
   m_febgain.clear();
+
+  ATH_CHECK( m_CLKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -545,6 +543,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   MsgStream logstr(msgSvc(), name());
   logstr << MSG::DEBUG << "H6BuildObject called for " << unrec_code<< endmsg;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   StatusCode sc=StatusCode::FAILURE;
   //bool gotobject=false;
   //bool recordfailure=false;
@@ -582,6 +582,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   m_adcrawCont = new TBADCRawCont();
   TBADCRaw* dummyadc = new TBADCRaw("dummy",true,0);
   m_adcrawCont->push_back(dummyadc);
+
+  SG::ReadCondHandle<LArCalibLineMapping> calibLine (m_CLKey, ctx);
 
 
   // with this initialisation, first call of NextSubFrag will initialise correctly the index :
@@ -713,7 +715,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	      m_tblardigitcont[gainmode]->push_back(lardig);
 	      if(m_isCalib) {
                 bool isPulsed=false;
-                const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(hwid);
+                const std::vector<HWIdentifier>& calibChannelIDs=calibLine->calibSlotLine(hwid);
                 if (calibChannelIDs.size() != 0) {
                   // Now figure out if any calibration line connected to this channel is pulsed.
                   // I'm going to cheat and use the fact that we only pulsed one board at a time

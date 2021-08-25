@@ -69,8 +69,9 @@ class FCALHVManager
 				  , unsigned int iSector
 				  , unsigned int iSampling) const;
 
-  // Get the database payload
-  FCALHVData getData() const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  FCALHVData getDataSim() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   FCALHVData getData (const LArHVIdMapping& hvIdMapping,

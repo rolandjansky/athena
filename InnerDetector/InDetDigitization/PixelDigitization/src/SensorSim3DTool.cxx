@@ -72,14 +72,14 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                          CLHEP::HepRandomEngine* rndmEngine,
                                          const EventContext &ctx) {
   // TODO: check that detectors other than ITk have this properly set
-  if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::RD53) {
+  if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) {
     // disable for now!
     return StatusCode::SUCCESS;
   } else {
     if (!Module.isBarrel()) {
       return StatusCode::SUCCESS;
     }
-    if (p_design.getReadoutTechnology() != InDetDD::PixelModuleDesign::FEI4) {
+    if (p_design.getReadoutTechnology() != InDetDD::PixelReadoutTechnology::FEI4) {
       return StatusCode::SUCCESS;
     }
     if (p_design.numberOfCircuits() > 1) {
@@ -573,7 +573,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
             // -- retrieve the charge collection probability from Svc
             // -- swap x and y bins to match Map coord convention
-            double ccprob_neighbor = getProbMapEntry(SensorType::FEI4, y_bin_cc_map, x_bin_cc_map);
+            double ccprob_neighbor = getProbMapEntry(InDetDD::PixelReadoutTechnology::FEI4, y_bin_cc_map, x_bin_cc_map);
             if (ccprob_neighbor == -1.) return StatusCode::FAILURE;
 
             double ed = es_current * eleholePairEnergy * ccprob_neighbor;
@@ -657,13 +657,13 @@ StatusCode SensorSim3DTool::printProbMap(const std::string& readout) const {
 }
 
 // -- Returns the Charge Collection Probability at a given point (bin_x,bin_y)
-double SensorSim3DTool::getProbMapEntry(const SensorType& readout, int binx, int biny) const {
+double SensorSim3DTool::getProbMapEntry(const InDetDD::PixelReadoutTechnology &readout, int binx, int biny) const {
   std::pair<int, int> doublekey(binx, biny);
   double echarge;
-  if (readout == SensorType::FEI4) {
+  if (readout == InDetDD::PixelReadoutTechnology::FEI4) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI4.find(doublekey);
     echarge = iter->second;
-  } else if (readout == SensorType::FEI3) {
+  } else if (readout == InDetDD::PixelReadoutTechnology::FEI3) {
     std::multimap<std::pair<int, int>, double>::const_iterator iter = m_probMapFEI3.find(doublekey);
     echarge = iter->second;
   } else {

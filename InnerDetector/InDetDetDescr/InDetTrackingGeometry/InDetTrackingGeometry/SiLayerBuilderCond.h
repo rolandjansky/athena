@@ -41,7 +41,7 @@ namespace Trk {
   class CylinderLayer;
   class DiscLayer;
   class PlaneLayer;
-  class LayerMaterialProperties;
+  class BinnedLayerMaterial;
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
 }
 
@@ -99,8 +99,8 @@ namespace InDet {
       /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */
       std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > createDiscLayers(const EventContext& ctx, std::vector<const Trk::DiscLayer* >* dLayers = nullptr) const;
         
-      const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
-      const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
+      const Trk::BinnedLayerMaterial barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
+      const Trk::BinnedLayerMaterial endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
         
       void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
 

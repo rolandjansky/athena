@@ -78,8 +78,9 @@ class EMBHVManager
   unsigned int beginSideIndex() const;
   unsigned int endSideIndex() const;
 
-  // Get the database payload
-  EMBHVData getData() const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  EMBHVData getDataSim() const;
   
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMBHVData getData (const LArHVIdMapping& hvIdMapping,

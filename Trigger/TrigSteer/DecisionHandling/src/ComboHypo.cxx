@@ -440,8 +440,8 @@ StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
   }
 
   // Try and get seeding ROI data too.
-  uint32_t roiClid; // Unused
-  const Decision* roiSource; // Unused
+  uint32_t roiClid{0}; // Unused
+  const Decision* roiSource{nullptr}; // Unused
   const bool foundROI = typelessFindLink(subGraph, initialRoIString(), roiKey, roiClid, roiIndex, roiSource);
   if (foundROI) {
     ElementLink<TrigRoiDescriptorCollection> roiEL(roiKey, roiIndex);

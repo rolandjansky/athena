@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,6 +31,7 @@
 #include <QShortcut>
 #include <QCloseEvent>
 #include <QScrollBar>
+#include <QtCoreVersion>
 
 #include <iostream>
 
@@ -191,7 +192,11 @@ void VP1CustomTourEditor::frameStepToEarlier()
   int iframe(m_d->frames.indexOf(dynamic_cast<VP1CustomTourFrameWidget*>(sender())));
   if (iframe<=0)
     return;//not found or already at start
+#if QTCORE_VERSION >= 0x050D00
+  m_d->frames.swapItemsAt(iframe-1,iframe);
+#else
   m_d->frames.swap(iframe-1,iframe);
+#endif
   m_d->updateFrameListVisuals();
 }
 
@@ -203,7 +208,11 @@ void VP1CustomTourEditor::frameStepToLater()
     return;
   if (iframe>=m_d->frames.count()-1)
     return;//already at end
+#if QTCORE_VERSION >= 0x050D00
+  m_d->frames.swapItemsAt(iframe,iframe+1);
+#else
   m_d->frames.swap(iframe,iframe+1);
+#endif
   m_d->updateFrameListVisuals();
 }
 
@@ -278,7 +287,11 @@ void VP1CustomTourEditor::swap( VP1CustomTourFrameWidget * frame1,
        ||iframe1>=m_d->frames.count()
        ||iframe2>=m_d->frames.count() )
     return;
+#if QTCORE_VERSION >= 0x050D00
+  m_d->frames.swapItemsAt(iframe1,iframe2);
+#else
   m_d->frames.swap(iframe1,iframe2);
+#endif
   m_d->updateFrameListVisuals();
 }
 

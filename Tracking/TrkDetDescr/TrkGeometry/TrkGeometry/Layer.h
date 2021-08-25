@@ -157,8 +157,6 @@ class Layer {
   const Layer* previousLayer(bool skipNavLayer = false) const;
   /** set the previous Layer*/
   void setPreviousLayer(const Layer*);
-  /** set the previous Layer const not const thread safe*/
-  void setPreviousLayer ATLAS_NOT_THREAD_SAFE(const Layer*) const;
 
   /** getting the next/previous Layer if registered - unit for direction vector
    * required */
@@ -169,15 +167,11 @@ class Layer {
   const Layer* nextLayer(bool skipNavLayer = false) const;
   /** set the next Layer*/
   void setNextLayer(const Layer*);
-  /** set the next Layer const not const thread safe*/
-  void setNextLayer ATLAS_NOT_THREAD_SAFE(const Layer*) const;
 
   /** access the BinUtility*/
   const BinUtility* binUtility() const;
   /** set the BinUtility*/
   void setBinUtility(const BinUtility*);
-  /** set the BinUtility const not const thread safe*/
-  void setBinUtility ATLAS_NOT_THREAD_SAFE(const BinUtility*) const;
 
   /** Surface seen on approach - if not defined differently, it is the
    * surfaceRepresentation() */
@@ -225,9 +219,6 @@ class Layer {
   /** set the Layer coding */
   void setLayerType(int identifier);
 
-  /** set the Layer coding */
-  void setLayerType ATLAS_NOT_THREAD_SAFE(int identifier) const;
-
   /** boolean method to check if the layer needs a LayerMaterialProperties */
   bool needsMaterialProperties() const;
 
@@ -264,8 +255,6 @@ class Layer {
   double getRef() const;
 
   void encloseTrackingVolume(const TrackingVolume& tvol);
-  void encloseTrackingVolume
-  ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol) const;
   //!< private method to set the enclosed detached TV
   void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol);
   void encloseDetachedTrackingVolume

@@ -17,8 +17,26 @@ namespace xAOD {
   const float jFexLRJetRoI_v1::s_tobEtScale = 200.;
   const float jFexLRJetRoI_v1::s_towerEtaWidth = 0.1;
   const float jFexLRJetRoI_v1::s_towerPhiWidth = 0.1;
-  const float jFexLRJetRoI_v1::s_minEta = -4.9;
 
+  // globalEta/Phi calculation in the FCAL varies depending on position in eta space due to TT granularity change.
+  //| Region          |      eta region     | TT (eta x phi)
+  //---------------------------------------------------------
+  // Region 1  EMB    |      |eta| <  25    | (1 x 1)
+  // Region 2  EMIE   | 25 < |eta|< 31      | (2 x 2)
+  // Region 3  TRANS  | 31 < |eta| < 32     | (1 x 2)
+  // Region 4  FCAL   |      |eta| > 32     | (2 x 4)                 
+
+  //eta position in FCAL FPGAs
+  const std::vector<int> jFexLRJetRoI_v1::s_FWD_EtaPosition  =   {0,  8,   //Region 1 
+                                                                  9, 11,   //Region 2
+                                                                     12,   //Region 3
+                                                                 13, 23};  //Region 4
+
+    //eta position of FCAL EM layer as an integer
+    //Needs to be modified with firmware values
+    const std::vector<int> jFexLRJetRoI_v1::s_FCAL_EtaPosition = {32,34,35,37,38,40,41,43,44,46,47,49};
+    
+ 
    jFexLRJetRoI_v1::jFexLRJetRoI_v1()
      : SG::AuxElement() {
    }
@@ -33,12 +51,13 @@ namespace xAOD {
      setTobSat(unpackSaturationIndex());
      setGlobalEta(unpackGlobalEta());
      setGlobalPhi(unpackGlobalPhi());
-     setEta( (unpackGlobalEta()+0.5)/10 ); 
-     setPhi( (unpackGlobalPhi()+0.5)/10 ); 
+     setEta( (unpackGlobalEta()+unpackTTweightEta())/10 );
+     setPhi( (unpackGlobalPhi()+unpackTTweightPhi())/10 );
+
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
-   // For xTOB default is false, but should be set if a matching TOB is found 
+ // For xTOB default is false, but should be set if a matching TOB is found 
    // if (type() == TOB) setIsTOB(1);
    // else               setIsTOB(0);
 
@@ -66,7 +85,8 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexLRJetRoI_v1, float, phi, setPhi)
 
    //-----------------
-   /// Methods to decode data from the TOB/RoI and return to the user
+   //
+   //Methods to decode data from the TOB/RoI and return to the user
    //-----------------
 
   //include in future when xTOB in jFEX has been implemented.
@@ -108,29 +128,121 @@ namespace xAOD {
      return tobEt()*s_tobEtScale;
    }
 
-  //global coords
-  
-  /// As the Trigger towers are 1x1 in Eta - Phi coords (x10), we add 0.5 to centre them
-  int jFexLRJetRoI_v1::unpackGlobalEta() const{
-      
-    int globalEta = 0;
-    if(jFexNumber()==0){
-        globalEta = -25+tobLocalEta(); //-24.5 is the minimum eta for the most granular part of module 0 - needs to be modified for the EMEC/HEC and FCAL
-    }
-    else if(jFexNumber()==5){
-        globalEta = 16+tobLocalEta(); //16.5 is the minimum eta for the most granular part of module 5 - needs to be modified for the EMEC/HEC and FCAL
-    }
-    else{
-        globalEta = tobLocalEta()+(8*(jFexNumber() - 3)) ;  // for module 1 to 4 
-    }
-    return globalEta;
-  }
+  // Global coords
+  // As the Trigger towers are 1x1 in Eta - Phi coords (x10). This changes in the FCAL, and depends on the eta position
+    int jFexLRJetRoI_v1::unpackGlobalEta() const {
+        int globalEta = 0;
 
-  uint jFexLRJetRoI_v1::unpackGlobalPhi() const{
-     uint globalPhi = tobLocalPhi() + (fpgaNumber() * 16); 
-     return globalPhi; 
-  
-  }
+        if(jFexNumber()==5 ) {
+
+            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
+                globalEta = (tobLocalEta() + (8*(jFexNumber() -3)) );
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
+                globalEta = 25 +2*(tobLocalEta()-9);
+            }
+            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
+                globalEta = 31;
+            }
+            else if(tobLocalEta() <= s_FWD_EtaPosition[6]) { //Region 4
+                globalEta = s_FCAL_EtaPosition[tobLocalEta()-13]-1;
+            }
+
+        }
+        else if(jFexNumber()==0) {
+
+            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
+                globalEta = (8-tobLocalEta() + (8*(jFexNumber() -3)) )-1;
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
+                globalEta = -27 -2*(tobLocalEta()-9);
+            }
+            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
+                globalEta = -32;
+            }
+            else if(tobLocalEta() <= s_FWD_EtaPosition[6]) { //Region 4
+                globalEta = -s_FCAL_EtaPosition[tobLocalEta()-13];
+            }
+        }
+        else { //Module 1-4
+            globalEta = (tobLocalEta() + (8*(jFexNumber() -3)) );
+        }
+
+        return globalEta;
+    }
+
+    uint jFexLRJetRoI_v1::unpackGlobalPhi() const {
+        uint globalPhi = 0;
+
+        //16 is the phi height of an FPGA
+        if(jFexNumber() == 0 || jFexNumber() == 5) {
+
+            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
+                globalPhi = tobLocalPhi() + (fpgaNumber() * 16);
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[4]) {//Region 2 and Region 3 have the same granularity
+                globalPhi = (16*fpgaNumber()) + 2*(tobLocalPhi());
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
+                globalPhi = (16*fpgaNumber()) + 4*(tobLocalPhi());
+            }
+        }
+        else{ //Modules 1-4
+            globalPhi = tobLocalPhi() + (fpgaNumber() * 16);
+        }
+
+
+        return globalPhi;
+
+    }
+
+
+    float jFexLRJetRoI_v1::unpackTTweightEta(){
+        float weight = 0.0;
+        if(jFexNumber() == 0 || jFexNumber() == 5) {
+
+            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
+                weight = 0.5;
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
+                weight = 1.0;
+            }
+            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
+                weight = 0.5;
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
+                weight = 0.5;
+            }
+        }
+        else{ //Modules 1-4
+            weight = 0.5;
+        }
+
+        return   weight;
+    }
+    float jFexLRJetRoI_v1::unpackTTweightPhi(){
+        float weight = 0.0;
+        if(jFexNumber() == 0 || jFexNumber() == 5) {
+
+            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
+                weight = 0.5;
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
+                weight = 1.0;
+            }
+            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
+                weight = 1.0;
+            }
+            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
+                weight = 2;
+            }
+        }
+        else { //Modules 1-4
+            weight = 0.5;
+        }
+
+        return   weight;
+    }
 
 
 } // namespace xAOD

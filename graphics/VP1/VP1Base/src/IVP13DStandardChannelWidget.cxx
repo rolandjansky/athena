@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -232,7 +232,7 @@ void IVP13DStandardChannelWidget::create() {
   } else if (sysname2extradisplay.count()==1) {
     m_d->setupSplitter(sysname2extradisplay.front().second);
   } else if (sysname2extradisplay.count()>1) {
-    VP1TabWidget * tabWidget = new VP1TabWidget(0);
+    VP1TabWidget * tabWidget = new VP1TabWidget();
     for (int i = 0; i < sysname2extradisplay.count(); ++i) {
       tabWidget->addTab(sysname2extradisplay.at(i).second,sysname2extradisplay.at(i).first);
     }

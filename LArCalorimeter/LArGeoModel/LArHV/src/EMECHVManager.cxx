@@ -38,9 +38,9 @@
 namespace {
 
 
-struct LegacyIdFunc
+struct SimIdFunc
 {
-  LegacyIdFunc();
+  SimIdFunc();
   std::vector<HWIdentifier> operator()(HWIdentifier id)
   {
     return m_cablingTool->getLArElectrodeIDvec (id);
@@ -49,7 +49,7 @@ struct LegacyIdFunc
 };
 
 
-LegacyIdFunc::LegacyIdFunc()
+SimIdFunc::SimIdFunc()
 {
   ToolHandle<LArHVCablingSimTool> tool ("LArHVCablingSimTool");
   if (!tool.retrieve().isSuccess()) {
@@ -371,7 +371,7 @@ EMECHVManager::getData (idfunc_t idfunc,
 
 
 EMECHVManager::EMECHVData
-EMECHVManager::getData() const
+EMECHVManager::getDataSim() const
 {
   std::vector<const CondAttrListCollection*> attrLists;
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
@@ -383,7 +383,7 @@ EMECHVManager::getData() const
   if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREL/I8").isSuccess()) {
     attrLists.push_back (atrlistcol);
   }
-  return getData (LegacyIdFunc(), attrLists);
+  return getData (SimIdFunc(), attrLists);
 }
 
 

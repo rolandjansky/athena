@@ -24,12 +24,12 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
 
 	if ( evtStore()->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
 		ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
-		//return StatusCode::FAILURE;
+		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){
-                ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoIs container. Exiting.");
-                //return StatusCode::FAILURE;
-        }
+		ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoIs container. Exiting.");
+		return StatusCode::SUCCESS;
+	}
    
 	xAOD::JetRoIContainer::const_iterator itJetRoI;
 	xAOD::JetRoIContainer::const_iterator itJetRoI_e = l1jets->end();

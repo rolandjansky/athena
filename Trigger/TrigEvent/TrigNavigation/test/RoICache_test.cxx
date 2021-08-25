@@ -78,14 +78,14 @@ bool run() {
   MsgStream* msglog = &log;
   BEGIN_TEST("RoIcaching test");
 
-  ISvcLocator* pSvcLoc;
+  ISvcLocator* pSvcLoc{nullptr};
   if (!Athena_test::initGaudi("test2.txt",  pSvcLoc)) {
     REPORT_AND_STOP("Can not intit Gaudi");
   }
-  assert(pSvcLoc);
+  assert(pSvcLoc!=nullptr);
 
 
-  StoreGateSvc* pStore(0);
+  StoreGateSvc* pStore{nullptr};
 
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
@@ -94,7 +94,7 @@ bool run() {
     REPORT_AND_STOP("SG not available");
   }
 
-  IToolSvc* toolSvc;
+  IToolSvc* toolSvc{nullptr};
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
     REPORT_AND_CONTINUE("ToolSvc pointer obtained: " << toolSvc );
@@ -103,11 +103,11 @@ bool run() {
   }
 
 
-  IAlgTool* algTool;
+  IAlgTool* algTool{nullptr};
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
     REPORT_AND_CONTINUE("OK navigation tool retrieved" );
     hns = dynamic_cast< HLT::Navigation*>(algTool);
-    if ( hns ) {
+    if ( hns!=nullptr ) {
       REPORT_AND_CONTINUE("OK navigation casted" );
     } else {
       REPORT_AND_STOP("navigation not casted" );    
@@ -156,8 +156,8 @@ bool run() {
 
   auto calo = createAlgo("calo", 
 			 [](TriggerElement* te) -> StatusCode {   // get RoI
-			   const TestA* back(0);
-			   const TriggerElement* tsource;
+			   const TestA* back{nullptr};
+			   const TriggerElement* tsource{nullptr};
 			   std::string  lsource;
 			   hns->getRecentFeature(te, back, "", tsource, lsource);
 			   return StatusCode::SUCCESS;
@@ -183,8 +183,8 @@ bool run() {
   // next algo will depend on this extra objects and there shoudl be apropriate caching kicking in only wto times
   auto caloaux = createAlgo("caux", 
 			    [](TriggerElement* te) -> StatusCode { // require TestBContainer
-			      const TestBContainer* back(0);
-			      const TriggerElement* tsource;
+			      const TestBContainer* back{nullptr};
+			      const TriggerElement* tsource{nullptr};
 			      std::string  lsource;
 			      hns->getRecentFeature(te, back, "", tsource, lsource);
 			      return StatusCode::SUCCESS; 
@@ -205,10 +205,13 @@ bool run() {
 
   auto calo2 = createAlgo("calo2",
 			  [&](TriggerElement* te) -> StatusCode {   // get RoI
-			    const TestA* back(0);
-			    const TriggerElement* tsource;
+			    const TestA* back{nullptr};
+			    const TriggerElement* tsource{nullptr};
 			    std::string  lsource;
 			    hns->getRecentFeature(te, back, "", tsource, lsource);
+			    if (back==nullptr) {
+			      REPORT_AND_RETURN("got back nullptr", StatusCode::FAILURE);
+			    }
 			    REPORT_AND_CONTINUE("got back object " << back->value());
 			    return StatusCode::SUCCESS;
 			  }, 
@@ -246,8 +249,8 @@ bool run() {
   // we expect now high level of caching as we dpend on the common object
   auto trk = createAlgo("trk", 
 			[&](TriggerElement* te) -> StatusCode {   // get RoI
-			  const TestA* back(0);
-			  const TriggerElement* tsource;
+			  const TestA* back{nullptr};
+			  const TriggerElement* tsource{nullptr};
 			  std::string  lsource;
 			  hns->getRecentFeature(te, back, "initialRoI", tsource, lsource);
 			  if ( back )  REPORT_AND_CONTINUE("got back object " << back->value());
@@ -289,8 +292,8 @@ bool run() {
 
   auto matcher = createAlgo("matcher", 
 			    [&](TriggerElement* te) -> StatusCode {   // get RoI
-			      const TestC* back(0);
-			      const TriggerElement* tsource;
+			      const TestC* back{nullptr};
+			      const TriggerElement* tsource{nullptr};
 			      std::string  lsource;
 			      hns->getRecentFeature(te, back, "", tsource, lsource);
 			      if ( back ) {
@@ -338,8 +341,8 @@ bool run() {
 
   auto overlap = createAlgo ("overlap",
 			     [&](TriggerElement* te) -> StatusCode {   // get obj made by ma
-			       const TestDContainer* back(0);
-			       const TriggerElement* tsource;
+			       const TestDContainer* back{nullptr};
+			       const TriggerElement* tsource{nullptr};
 			       std::string  lsource;
 			       hns->getRecentFeature(te, back, "", tsource, lsource);
 			       return StatusCode::SUCCESS;

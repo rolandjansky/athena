@@ -17,20 +17,16 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
-class VectorOperations
-{
-	public:
-		static void PathCOUT( vector<string> );
-		static void PathCERR( vector<string> );
-		static vector<string> SplitString( string, char, bool IncludeEmptyStrings = false );
-		static vector<string> CombineUniques( vector<string>, vector<string> );
-		static int VectorContains( vector<string>*, string* );
-		static bool FullSearch( vector<string>&, vector<string>& );
-		static int ComparePaths( vector<string>, vector<string> );
-		static int CompareObjectNames( string, string );
-		static int CyclicCompareNames( string, string );
+namespace VectorOperations{
+		void PathCOUT( const std::vector<std::string> & vec);
+		void PathCERR( const std::vector<std::string> & vec );
+		std::vector<std::string> SplitString( std::string & s, char delimiter, bool IncludeEmptyStrings = false );
+		std::vector<std::string> CombineUniques( const std::vector<std::string> & v1, const std::vector<std::string> & v2);
+		int VectorContains( std::vector<std::string>*, std::string* );
+		bool FullSearch( const std::vector<std::string> & v1, const std::vector<std::string> & v2);
+		int ComparePaths( const std::vector<std::string> & v1, const std::vector<std::string> & v2 );
+		int CompareObjectNames( const std::string& name1, const std::string & name2 );
+		int CyclicCompareNames( const std::string& name1, const std::string & name2 );
 };
 
 #endif

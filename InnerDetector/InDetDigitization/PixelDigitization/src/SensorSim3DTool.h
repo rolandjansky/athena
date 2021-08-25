@@ -45,15 +45,9 @@ public:
   std::vector<double> getDriftTime(bool isHoleBit, size_t number);
 
 private:
-
-  enum class SensorType {
-    FEI4,
-    FEI3
-  };
-
   SensorSim3DTool();
-  
-  double getProbMapEntry(const SensorType&, int, int) const;
+
+  double getProbMapEntry(const InDetDD::PixelReadoutTechnology &, int, int) const;
 
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
   std::multimap<std::pair<int, int>, double> m_probMapFEI4;

@@ -148,4 +148,9 @@
 + PhysicsAnalysis/TopPhys/xAOD/TopPartons
 + PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
 
+#
+### Onnxruntime Service 
+#
+
++ Control/AthOnnxruntimeService
 - .*

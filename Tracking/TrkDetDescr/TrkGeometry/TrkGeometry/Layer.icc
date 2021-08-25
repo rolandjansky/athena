@@ -148,39 +148,20 @@ inline const OverlapDescriptor *Layer::overlapDescriptor() const {
 }
 /** set the previous Layer*/
 inline void Layer::setPreviousLayer(const Layer *in) { m_previousLayer = in; }
-/** set the previous Layer const not const thread safe*/
-inline void Layer::setPreviousLayer
-ATLAS_NOT_THREAD_SAFE(const Layer * in) const {
-  const_cast<Layer *>(this)->setPreviousLayer(in);
-}
 
 /** set the next Layer*/
 inline void Layer::setNextLayer(const Layer *in) { m_nextLayer = in; }
-/** set the next Layer const not const thread safe*/
-inline void Layer::setNextLayer
-ATLAS_NOT_THREAD_SAFE(const Layer *in) const {
-  const_cast<Layer *>(this)->setNextLayer(in);
-}
 
 /** access the BinUtility*/
 inline const BinUtility *Layer::binUtility() const { return m_binUtility; }
 /** set the BinUtility*/
 inline void Layer::setBinUtility(const BinUtility *in) { m_binUtility = in; }
-/** set the BinUtility const not const thread safe*/
-inline void Layer::setBinUtility
-ATLAS_NOT_THREAD_SAFE(const BinUtility *in) const {
-  const_cast<Layer *>(this)->setBinUtility(in);
-}
 
 inline const TrackingVolume *Layer::enclosingTrackingVolume() const {
   return m_enclosingTrackingVolume;
 }
 inline void Layer::encloseTrackingVolume(const TrackingVolume &tvol) {
   m_enclosingTrackingVolume = &(tvol);
-}
-inline void Layer::encloseTrackingVolume
-ATLAS_NOT_THREAD_SAFE(const TrackingVolume &tvol) const {
-  const_cast<Layer *>(this)->encloseTrackingVolume(tvol);
 }
 
 inline const DetachedTrackingVolume *
@@ -200,9 +181,6 @@ inline const LayerIndex &Layer::layerIndex() const { return m_index; }
 
 inline int Layer::layerType() const { return m_layerType; }
 inline void Layer::setLayerType(int id) { m_layerType = id; }
-inline void Layer::setLayerType ATLAS_NOT_THREAD_SAFE(int id) const {
-  const_cast<Layer *>(this)->setLayerType(id);
-}
 
 inline void Layer::assignMaterialProperties
 ATLAS_NOT_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,

@@ -13,6 +13,7 @@ include.block("MuonCnvExample/MuonReadBS_jobOptions.py")
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.CfgGetter import getAlgorithm
 from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 # ================= MDT ===========================
 if DetFlags.readRDOBS.MDT_on() and muonRecFlags.makePRDs():
@@ -27,5 +28,14 @@ if DetFlags.readRDOBS.TGC_on() and muonRecFlags.makePRDs():
     topSequence += getAlgorithm("MuonTgcRawDataProvider")
 
 # ================= CSC ===========================
-if DetFlags.readRDOBS.CSC_on() and muonRecFlags.makePRDs():
-    topSequence += getAlgorithm("MuonCscRawDataProvider")
+if MuonGeometryFlags.hasCSC():
+    if DetFlags.readRDOBS.CSC_on() and muonRecFlags.makePRDs():
+        topSequence += getAlgorithm("MuonCscRawDataProvider")
+
+# ================= NSW ===========================
+if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+    if DetFlags.readRDOBS.Micromegas_on() and muonRecFlags.makePRDs():
+        topSequence += getAlgorithm("MuonMmRawDataProvider")
+
+    if DetFlags.readRDOBS.sTGC_on() and muonRecFlags.makePRDs():
+        topSequence += getAlgorithm("MuonsTgcRawDataProvider")

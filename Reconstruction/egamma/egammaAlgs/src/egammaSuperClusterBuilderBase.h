@@ -230,25 +230,6 @@ private:
     const CaloDetDescrManager& mgr,
     const xAOD::EgammaParameters::EgammaType egType) const;
 
-  /** Function to decorate the calo cluster with position variables.
-   * Filling eta phi in calo-frame:
-   * - xAOD::CaloCluster::ETACALOFRAME
-   * - xAOD::CaloCluster::PHICALOFRAME
-   * - xAOD::CaloCluster::ETA2CALOFRAME
-   * - xAOD::CaloCluster::PHI2CALOFRAME
-   * - xAOD::CaloCluster::ETA1CALOFRAME
-   * - xAOD::CaloCluster::PHI1CALOFRAME
-   */
-  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster,
-                                 const CaloDetDescrManager& mgr) const;
-
-  /** functions to refine position in eta1*/
-  StatusCode refineEta1Position(xAOD::CaloCluster* cluster,
-                                const CaloDetDescrManager& mgr) const;
-  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,
-                             const CaloDetDescrManager& mgr,
-                             const CaloSampling::CaloSample sample) const;
-
   // window values for the windows
   // in which cells of topoclusters are added
   // half of addCells window size, converted in units of eta/phi
@@ -258,9 +239,6 @@ private:
   float m_extraL0L1PhiSize;
   // Extra opening in eta for L3 cells
   float m_extraL3EtaSize;
-
-  /** @brief Position in Calo frame**/
-  CaloCellDetPos m_caloCellDetPos;
 
   /** @brief Size of topocluster search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel{

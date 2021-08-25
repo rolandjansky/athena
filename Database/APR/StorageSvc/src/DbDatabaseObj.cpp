@@ -279,7 +279,7 @@ DbStatus DbDatabaseObj::addShape (const DbTypeInfo* pShape) {
         for (size_t ic=0; ic < cols.size();++ic)  {
           const DbColumn* c = cols[ic];
           log << "---->[" << ic << "]:" << c->name()
-              << " Typ:" << c->typeName() << " ["<< c->typeID() << "]"
+              << " Typ:" << c->typeName() << " ["<< c->typeID() << ']'
               << " Size:" << c->size()
               << " Offset:" << c->offset()
               << " #Elements:" << c->nElement()
@@ -370,7 +370,7 @@ DbStatus DbDatabaseObj::open()   {
             for (size_t ic=0; ic < cols.size();++ic)  {
               const DbColumn* c = cols[ic];
               log << "---->[" << ic << "]:" << c->name()
-                  << " Typ:" << c->typeName() << " ["<< c->typeID() << "]"
+                  << " Typ:" << c->typeName() << " ["<< c->typeID() << ']'
                   << " Size:" << c->size()
                   << " Offset:" << c->offset()
                   << " #Elements:" << c->nElement()
@@ -430,7 +430,7 @@ DbStatus DbDatabaseObj::open()   {
                 string n = dsc.substr(id1+6, id11-id1-6);
                 string v = dsc.substr(id2+7, id22-id2-7);
                 // ParamMap::value_type val(n, v);
-                log << "--->Reading Param:" << n << "=[" << v << "]" 
+                log << "--->Reading Param:" << n << "=[" << v << ']' 
                     << DbPrint::endmsg;
                 m_paramMap[n] = v;
                 if (n == "FID") fids.push_back(v);
@@ -488,7 +488,7 @@ DbStatus DbDatabaseObj::open()   {
 		string cnt = dsc.substr(id1+5, id2-1-5);
 		int section_offset  = ::atoi((tmp=dsc.substr(id2+5,id3-id2-6)).c_str());
 		int section_start   = ::atoi((tmp=dsc.substr(id3+7,id4-id3-8)).c_str());
-		int section_length  = ::atoi((tmp=dsc.substr(id4+5,dsc.find("]",id4+5)-id4-5)).c_str());
+		int section_length  = ::atoi((tmp=dsc.substr(id4+5,dsc.find(']',id4+5)-id4-5)).c_str());
 		m_sections[cnt].push_back(DbSection(section_offset,section_start,section_length));
 		//m_redirects[db].push_back(Redirection(DbSection(section_offset,section_start,section_length));
 		log << "--->Internal section:" << dsc << " offset:" << section_offset 
@@ -633,7 +633,7 @@ DbStatus DbDatabaseObj::addParam(const string& nam, const string& val) {
     if ( m_info )  {
       ParamMap::const_iterator i = m_paramMap.find(nam);
       if ( i == m_paramMap.end() )  {
-        string dsc = "[NAME=" + nam + "][VALUE=" + val + "]";
+        string dsc = "[NAME=" + nam + "][VALUE=" + val + ']';
         DbHandle<DbString> persH = new(m_params, m_string_t) DbString(dsc);
         if ( !m_params.save(persH, m_string_t).isSuccess() )  {
           return Error;

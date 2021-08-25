@@ -88,15 +88,13 @@ if rec.doTrigger():
 
         import TrigT1CaloTools.TrigT1CaloToolsConf as calotools  # noqa: F401
         for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
-                         'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
+                         'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools']:
             if not hasattr(ToolSvc, toolName ):
                 ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
             theTool = getattr(ToolSvc, toolName)
             if 'LVL1ConfigSvc' in theTool.getProperties():
                 theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-            if 'UseNewConfig' in theTool.getProperties():
-                _log.info("Setting ToolSvc.%s.UseNewConfig to %s", theTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
-                theTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
     #---------------------------------------------------------------------------
     try:
         from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter

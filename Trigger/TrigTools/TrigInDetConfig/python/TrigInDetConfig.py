@@ -307,9 +307,9 @@ def pixelCondCfg(flags):
   )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+  from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
   from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
   from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-  from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 
   # module parameters
   acc.merge(PixelConfigCondAlgCfg(flags))
@@ -338,7 +338,7 @@ def pixelCondCfg(flags):
   acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
   acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
   acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-  acc.merge(PixelCablingSvcCfg(flags))
+  acc.merge(PixelReadoutManagerCfg(flags))
 
   return acc
 

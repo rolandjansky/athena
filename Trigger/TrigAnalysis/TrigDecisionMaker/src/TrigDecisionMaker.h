@@ -34,6 +34,8 @@
 #include "TrigDecisionMaker/ILvl1ResultAccessTool.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+#include "TrigConfData/HLTMenu.h"
 
 #include <vector>
 #include <string>
@@ -45,10 +47,6 @@ namespace HLT {
 
 namespace LVL1CTP {
   class Lvl1Result;
-}
-
-namespace TrigConf {
-  class ITrigConfigSvc;
 }
 
 namespace TrigDec {
@@ -88,8 +86,6 @@ namespace TrigDec {
     ResultStatus getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& ctx) const; //!< retrieve LVL1 result (called in execute)
     ResultStatus getHLTResult(const HLT::HLTResult*&   result, TrigLevel level, const EventContext& ctx) const; //!< retrieve HLT results (called in execute)
 
-    char getBGByte(int BCId) const; //!< to get the BG byte encoded for a given BC
-
   private:
 
     Gaudi::Property<bool> m_doL1{this, "doL1", true, "flag whether or not to consider L1 trigger information"};
@@ -97,8 +93,8 @@ namespace TrigDec {
     Gaudi::Property<bool> m_doEF{this, "doEF", true, "flag whether or not to consider L3 (EF) trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "flag whether or not to consider merged L2EF=HLT trigger information"};
 
-//    bool m_doEvtInfo;
-
+    SG::ReadHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "DetectorStore+L1BunchGroup", "L1BunchGroupSet key name"};
+    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key"};
     SG::WriteHandleKey<TrigDecision> m_trigDecisionKey{this, "TrigDecisionKey", "TrigDecision", "SG key to save the TrigDecision object" };
     SG::ReadHandleKey<ROIB::RoIBResult> m_l1roibResultKey{this, "L1ROIBResultKey", "RoIBResult", "SK key to retrieve the L1 ROIB result from SG" };
     SG::ReadHandleKey<LVL1CTP::Lvl1Result> m_l1ResultKey{this, "L1ResultKey", "Lvl1Result", "SK key to retrieve the L1 result from SG" };
@@ -106,7 +102,6 @@ namespace TrigDec {
     SG::ReadHandleKey<HLT::HLTResult> m_efResultKey{this, "EFResultKey", "HLTResult_EF", "SK key to retrieve the EF result from SG" };
     SG::ReadHandleKey<HLT::HLTResult> m_hltResultKey{this, "HLTResultKey", "HLTResult_HLT", " SK key to retrieve the merged HLT result from SG" };
 
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"}; //!< tool to ease the access to the L1 results (RoIs, items, etc)
 
     // For statistics

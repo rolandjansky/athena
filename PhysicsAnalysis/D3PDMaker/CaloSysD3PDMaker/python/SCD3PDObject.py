@@ -1,9 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject, make_SG_D3PDObject
 
 import CaloSysD3PDMaker
+
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 
 AllSCD3PDObject = make_SG_D3PDObject( "CaloCellContainer",
                                    "AllCalo",

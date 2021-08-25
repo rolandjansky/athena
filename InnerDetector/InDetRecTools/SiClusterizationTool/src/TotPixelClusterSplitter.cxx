@@ -22,7 +22,7 @@ InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type
 
 StatusCode InDet::TotPixelClusterSplitter::initialize() {
 
-  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -223,8 +223,8 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
         Identifier pixid = Rdos[i];
         Identifier moduleID = pixelID.wafer_id(pixid);
         IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-        int circ = m_pixelCabling->getFE(&pixid,moduleID);
-        int type = m_pixelCabling->getPixelType(pixid);
+        int circ = m_pixelReadout->getFE(pixid, moduleID);
+        InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
 
         SplitRdos[j].push_back(Rdos[i]);
         Totgroups[j].push_back(static_cast<int>(calibData->getToT((int)moduleHash,circ,type,Charges[i]/2.0)));

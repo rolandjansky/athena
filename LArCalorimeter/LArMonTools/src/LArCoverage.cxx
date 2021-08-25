@@ -44,7 +44,6 @@ LArCoverage::LArCoverage(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
-    m_larCablingService("LArCablingLegacyService"),
     m_hCoverageEMBA(),
     m_hCoverageEMBC(),
     m_hCoverageEMECA(),
@@ -101,7 +100,6 @@ LArCoverage::initialize()
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
-  ATH_CHECK( m_larCablingService.retrieve() );
    
   // LArOnlineIDStrHelper
   m_strHelper = std::make_unique<LArOnlineIDStrHelper>(m_LArOnlineIDHelper);
@@ -109,6 +107,7 @@ LArCoverage::initialize()
   
   ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_noiseCDOKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_rawChannelsKey.initialize() );
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
@@ -543,6 +542,8 @@ LArCoverage::fillHistograms()
 {
   ATH_MSG_DEBUG( "in fillHists()" );
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   m_eventsCounter++;
 
   if(m_eventsCounter > m_nevents ) return StatusCode::SUCCESS;
@@ -552,7 +553,7 @@ LArCoverage::fillHistograms()
 
   // Retrieve Raw Channels Container
   
-  SG::ReadHandle<LArRawChannelContainer> pRawChannelsContainer(m_rawChannelsKey);
+  SG::ReadHandle<LArRawChannelContainer> pRawChannelsContainer(m_rawChannelsKey, ctx);
   if(!pRawChannelsContainer.isValid()) {
     ATH_MSG_ERROR( " Can not retrieve LArRawChannelContainer: "
                    << m_rawChannelsKey.key()  );
@@ -560,21 +561,23 @@ LArCoverage::fillHistograms()
    }
 
   
-  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey, ctx};
   const LArBadChannelCont* bcCont{*bch};
 
-  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey, ctx};
   const CaloNoise* noiseCDO=*noiseHdl;
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
 
   for (const LArRawChannel& pRawChannel :  *pRawChannelsContainer) {
     int provenanceChan  = pRawChannel.provenance();
     float energyChan  = pRawChannel.energy();
     HWIdentifier id  = pRawChannel.hardwareID();
     //CaloGain::CaloGain gain = pRawChannel->gain();
-    Identifier offlineID = m_larCablingService->cnvToIdentifier(id);
+    Identifier offlineID = cabling->cnvToIdentifier(id);
     
     // Skip disconnected channels
-    if(!m_larCablingService->isOnlineConnected(id)) continue;
+    if(!cabling->isOnlineConnected(id)) continue;
     
     // Get ft/slot info
     HWIdentifier febID = m_LArOnlineIDHelper->feb_Id(id);
@@ -617,7 +620,7 @@ LArCoverage::fillHistograms()
       }
 
       // Fill Bad Channels histograms  
-      int flag = DBflag(id);
+      int flag = DBflag(ctx, id);
       if (flag==0) continue;
  
       // A-Side
@@ -760,7 +763,7 @@ LArCoverage::fillHistograms()
   // Fill known missing FEBs with -1
   //
   
-  FillKnownMissingFEBs(ddman);
+  FillKnownMissingFEBs(ctx, ddman);
 
   //
   // Fix for Cosmetic : Fill "empty bins" in plots 
@@ -783,9 +786,9 @@ StatusCode LArCoverage::procHistograms()
 
 }
 /*---------------------------------------------------------*/
-int LArCoverage::DBflag(HWIdentifier onID){
+int LArCoverage::DBflag(const EventContext& ctx, HWIdentifier onID){
 
-  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey, ctx};
   const LArBadChannelCont* bcCont{*bch};
   if(!bcCont) {
      ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
@@ -826,14 +829,13 @@ void LArCoverage::SetBadChannelZaxisLabels(TH2I_LW* h){
       h->SetMaximum(10.);
 }
 /*---------------------------------------------------------*/
-void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr){
+void LArCoverage::FillKnownMissingFEBs(const EventContext& ctx,
+                                       const CaloDetDescrManager* caloDetDescrMgr){
 
-  SG::ReadCondHandle<LArBadFebCont> bf{m_BFKey};
-  const LArBadFebCont* mfCont{*bf};
-  if(!mfCont) {
-     ATH_MSG_WARNING( "Do not have Missing FEBs container !!" );
-     return ;
-  }
+  SG::ReadCondHandle<LArBadFebCont> mfCont{m_BFKey, ctx};
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+
   // Loop over all FEBs
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_LArOnlineIDHelper->feb_begin(); 
        allFeb != m_LArOnlineIDHelper->feb_end(); ++allFeb) {
@@ -864,10 +866,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	for (int ichan=0;ichan<128;ichan++){
 	  HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	  // Skip disconnected channels
-	  if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	  if(!cabling->isOnlineConnected(chid)) continue;
 	  m_hCoverageHWEMBA->SetBinContent(ft*14+slot,ichan+1,replace); 
 
-	  Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	  Identifier offid = cabling->cnvToIdentifier(chid);
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
 	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -896,10 +898,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	for (int ichan=0;ichan<128;ichan++){
 	  HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	  // Skip disconnected channels
-	  if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	  if(!cabling->isOnlineConnected(chid)) continue;
 	  m_hCoverageHWEMBC->SetBinContent(ft*14+slot,ichan+1,replace); 
 
-	  Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	  Identifier offid = cabling->cnvToIdentifier(chid);
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
 	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -933,10 +935,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWEMECA->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -965,10 +967,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWHECA->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -997,10 +999,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWFCALA->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArFCAL_IDHelper->module(offid);
 	    int ieta = m_LArFCAL_IDHelper->eta(offid);
 	    int iphi = m_LArFCAL_IDHelper->phi(offid);
@@ -1031,10 +1033,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWEMECC->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -1063,10 +1065,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWHECC->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
 	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
@@ -1095,10 +1097,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	  for (int ichan=0;ichan<128;ichan++){
 	    HWIdentifier chid = m_LArOnlineIDHelper->channel_Id(febid,ichan);
 	    // Skip disconnected channels
-	    if(!m_larCablingService->isOnlineConnected(chid)) continue;
+	    if(!cabling->isOnlineConnected(chid)) continue;
 	    m_hCoverageHWFCALC->SetBinContent(ft*15+slot,ichan+1,replace); 
 
-	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
+	    Identifier offid = cabling->cnvToIdentifier(chid);
 	    int sampling = m_LArFCAL_IDHelper->module(offid);
 	    int ieta = m_LArFCAL_IDHelper->eta(offid);
 	    int iphi = m_LArFCAL_IDHelper->phi(offid);

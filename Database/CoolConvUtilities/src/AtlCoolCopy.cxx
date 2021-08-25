@@ -3218,7 +3218,7 @@ pool::IFileCatalog* AtlCoolCopy::setupCatalog(
 	 icat!=catvec.end();++icat) {
       std::cout << "Add catalogue: " << *icat << std::endl;
       // if catalogue contains no ":" specifier, assume plain file
-      if (icat->find(":")==std::string::npos) {
+      if (icat->find(':')==std::string::npos) {
         catalog->addReadCatalog("file:"+(*icat));
       } else {
         catalog->addReadCatalog(*icat);

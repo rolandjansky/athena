@@ -161,11 +161,11 @@ float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
   if (isdines) trfunc2.SetParameters(0.21, 3.57, 17.0);
   else trfunc2.SetParameters(0.0, 0.0, 0.0);
   trfunc2.SetRange(0,2);
-  if (opt.find("3")==string::npos) trfunc2.FixParameter(3,0);
+  if (opt.find('3')==string::npos) trfunc2.FixParameter(3,0);
   trfunc2.SetLineColor(4) ;
   int result3 = trgr.Fit(&trfunc2,"QR"); // always fit the t-r relation
   trgr.SetTitle(trrelation.data());
-  if (opt.find("Q")==string::npos) trgr.Write();
+  if (opt.find('Q')==string::npos) trgr.Write();
   rtpars[0] = trfunc2.GetParameter(0);
   rtpars[1] = trfunc2.GetParameter(1);
   rtpars[2] = trfunc2.GetParameter(2);
@@ -174,7 +174,7 @@ float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
   // r-t relation
   TF1 rtfunc2("rtfunc2",rtrelation.data(),mintime,200);
   rtfunc2.SetRange(-0.1,60);
-  if (opt.find("3")==string::npos) rtfunc2.FixParameter(3,0);
+  if (opt.find('3')==string::npos) rtfunc2.FixParameter(3,0);
   rtfunc2.SetLineColor(4) ;
   if (isdines) rtfunc2.SetParameters(trfunc2.GetParameter(0),trfunc2.GetParameter(1),trfunc2.GetParameter(2),trfunc2.GetParameter(3));
   else {
@@ -186,7 +186,7 @@ float Calibrator::FitRt(const string & key, const string & opt, TH2F* rtHist){
     rtpars[3] = rtfunc2.GetParameter(3);
   }
 
-  if (opt.find("0")==string::npos) {
+  if (opt.find('0')==string::npos) {
     if (isdines) rtpars[1]=0;
     else rtpars[0]=0;
   }
@@ -266,13 +266,13 @@ float Calibrator::FitResidual(string key, TH1F* resHist){
 TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, caldata caldata_above){
 
   //set some bool flags
-  bool calrt=opt.find("R")!=string::npos;
-  bool calt0=opt.find("T")!=string::npos;
-  bool donothing=opt.find("N")!=string::npos;
-  bool godeeper=opt.find("D")!=string::npos;
-  bool isquiet=opt.find("Q")!=string::npos;
-  bool prnt=opt.find("P")!=string::npos;
-  bool useref=opt.find("B")!=string::npos;
+  bool calrt=opt.find('R')!=string::npos;
+  bool calt0=opt.find('T')!=string::npos;
+  bool donothing=opt.find('N')!=string::npos;
+  bool godeeper=opt.find('D')!=string::npos;
+  bool isquiet=opt.find('Q')!=string::npos;
+  bool prnt=opt.find('P')!=string::npos;
+  bool useref=opt.find('B')!=string::npos;
 
   if (donothing) return dir;
 
@@ -527,12 +527,12 @@ bool IncludedLevels(string opt0, int* levinc){
 
   string popts[7]{};
 
-  string opt1=opt0.substr(0,opt0.rfind("_"));
-  string opt2=opt1.substr(0,opt1.rfind("_"));
-  string opt3=opt2.substr(0,opt2.rfind("_"));
-  string opt4=opt3.substr(0,opt3.rfind("_"));
-  string opt5=opt4.substr(0,opt4.rfind("_"));
-  string opt6=opt5.substr(0,opt5.rfind("_"));
+  string opt1=opt0.substr(0,opt0.rfind('_'));
+  string opt2=opt1.substr(0,opt1.rfind('_'));
+  string opt3=opt2.substr(0,opt2.rfind('_'));
+  string opt4=opt3.substr(0,opt3.rfind('_'));
+  string opt5=opt4.substr(0,opt4.rfind('_'));
+  string opt6=opt5.substr(0,opt5.rfind('_'));
 
   popts[6]=opt0.replace(0,opt1.size(),"");
   popts[5]=opt1.replace(0,opt2.size(),"");
@@ -546,7 +546,7 @@ bool IncludedLevels(string opt0, int* levinc){
   int var;
   for (int i=0;i<7;i++){    
     string slevinc = popts[i].substr(1,popts[i].size());
-    if (slevinc.find("*")!=string::npos || slevinc.find(",")!=string::npos || slevinc.find("-")!=string::npos) levinc[i]=-3;
+    if (slevinc.find('*')!=string::npos || slevinc.find(',')!=string::npos || slevinc.find('-')!=string::npos) levinc[i]=-3;
     else {
       if(EOF == sscanf( (popts[i].substr(1,popts[i].size())).data() , "%d", &var));
       levinc[i]=var;
@@ -562,9 +562,9 @@ string SubLev(string pat, int lev){
   string sublev;
 
   for (int i=0;i<lev;i++){
-    pat.replace(pat.find("_"),1,"");
-    sublev = pat.substr(0,pat.find("_"));
-    pat.replace(0,pat.find("_"),"");
+    pat.replace(pat.find('_'),1,"");
+    sublev = pat.substr(0,pat.find('_'));
+    pat.replace(0,pat.find('_'),"");
   }
   return sublev;
 }
@@ -576,10 +576,10 @@ bool IsSubLev(const string &key, int lev, const string &sublev){
 
   if (sl.compare(SubLev(key,lev))==0) return true;
 
-   while(sl.compare(sl.substr(sl.find(",")+1))!=0){
-     if (SubLev(key,lev).compare(sl.substr(0,sl.find(",")))==0) return true;
-     sl=sl.substr(sl.find(",")+1);
-     if (SubLev(key,lev).compare(sl.substr(0,sl.find(",")))==0) return true;
+   while(sl.compare(sl.substr(sl.find(',')+1))!=0){
+     if (SubLev(key,lev).compare(sl.substr(0,sl.find(',')))==0) return true;
+     sl=sl.substr(sl.find(',')+1);
+     if (SubLev(key,lev).compare(sl.substr(0,sl.find(',')))==0) return true;
    }
   return false;
 

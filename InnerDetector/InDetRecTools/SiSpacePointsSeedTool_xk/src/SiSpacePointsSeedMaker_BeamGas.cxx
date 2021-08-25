@@ -553,7 +553,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions(EventData& data
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -720,7 +720,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork(EventData& data) 
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_BeamGas::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp,float* r) const
+(EventData& data, const Trk::SpacePoint*const& sp,float* r) 
 {
   float x = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   float y = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -783,7 +783,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) 
 {
   for (int i=0; i!=data.nr;    ++i) {
     int n = data.r_index[i];
@@ -815,7 +815,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::erase(EventData& data) const
 // 2 space points seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::production2Sp(EventData& data) 
 {
   data.endlist = true;
 }
@@ -1124,7 +1124,7 @@ bool InDet::SiSpacePointsSeedMaker_BeamGas::isZCompatible(float& Zv) const
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1150,7 +1150,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_BeamGas::newSpacePoint
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const float& z) const
+ const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1171,7 +1171,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3,const float& z) const
+ const Trk::SpacePoint*& p3,const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1190,7 +1190,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data) 
 {
   std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
     l  = data.mapOneSeeds.begin(),

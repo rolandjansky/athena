@@ -9,6 +9,8 @@
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/MultiCjetFilter.h"
 #include "GeneratorFilters/MultiElecMuTauFilter.h"
+#include "GeneratorFilters/ParentChildFilter.h"
+#include "GeneratorFilters/ParentTwoChildrenFilter.h"
 #include "GeneratorFilters/QCDTruthJetFilter.h"
 #include "GeneratorFilters/TauFilter.h"
 #include "GeneratorFilters/xAODTauFilter.h"
@@ -49,8 +51,6 @@
 #include "GeneratorFilters/TTbarMassFilter.h"
 #include "GeneratorFilters/TruthJetFilter.h"
 #include "GeneratorFilters/SoftLeptonFilter.h"
-#include "GeneratorFilters/ParentChildFilter.h"
-#include "GeneratorFilters/ParentTwoChildrenFilter.h"
 #include "GeneratorFilters/ParentChildwStatusFilter.h"
 #include "GeneratorFilters/SoftLeptonInJetFilter.h"
 #include "GeneratorFilters/VBFForwardJetsFilter.h"
@@ -119,6 +119,8 @@ DECLARE_COMPONENT( M4MuIntervalFilter )
 DECLARE_COMPONENT( MissingEtFilter )
 DECLARE_COMPONENT( MultiCjetFilter )
 DECLARE_COMPONENT( MultiElecMuTauFilter )
+DECLARE_COMPONENT( ParentChildFilter )
+DECLARE_COMPONENT( ParentTwoChildrenFilter ) 
 DECLARE_COMPONENT( QCDTruthJetFilter )
 DECLARE_COMPONENT( TauFilter )
 DECLARE_COMPONENT( xAODTauFilter )
@@ -160,8 +162,6 @@ DECLARE_COMPONENT( TTbarWToLeptonFilter )
 DECLARE_COMPONENT( TTbarMassFilter )
 DECLARE_COMPONENT( TruthJetFilter )
 DECLARE_COMPONENT( SoftLeptonFilter )
-DECLARE_COMPONENT( ParentChildFilter )
-DECLARE_COMPONENT( ParentTwoChildrenFilter )
 DECLARE_COMPONENT( ParentChildwStatusFilter )
 DECLARE_COMPONENT( SoftLeptonInJetFilter )
 DECLARE_COMPONENT( VBFForwardJetsFilter )

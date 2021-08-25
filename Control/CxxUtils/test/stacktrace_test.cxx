@@ -10,7 +10,6 @@
  */
 
 
-#pragma GCC optimize "-O0"
 #undef NDEBUG
 
 #include "CxxUtils/checker_macros.h"

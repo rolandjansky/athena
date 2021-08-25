@@ -19,7 +19,6 @@ if not 'vp1Multinp' in dir(): vp1Multinp=False
 if not 'vp1Multinpsrc' in dir(): vp1Multinpsrc=""
 if not 'vp1Multinpcpy' in dir(): vp1Multinpcpy=""
 if not 'vp1MultiAvailableSrcDirs' in dir(): vp1MultiAvailableSrcDirs = []
-if not 'vp1TrigDecXML' in dir(): vp1TrigDecXML=""
 if not 'vp1Batch' in dir(): vp1Batch=False
 if not 'vp1BatchAllEvents' in dir(): vp1BatchAllEvents=False
 if not 'vp1BatchNEvents' in dir(): vp1BatchNEvents=0
@@ -380,14 +379,6 @@ if ( vp1LarHvData ):
 
 if (vp1Fatras):
     include( "FatrasExample/Fatras_jobOptions.py" )
-
-if (vp1TrigDecXML!=""):
-    include( "TrigConfigSvc/jobOptions_commonSetup.py" )
-    include( "TrigConfigSvc/jobOptions_setupLVL1Svc.py" )
-    include( "TrigConfigSvc/jobOptions_setupHLTSvc.py" )
-    HLTConfigSvc.XMLMenuFile     = vp1TrigDecXML
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    ToolSvc += Trig__TrigDecisionTool("TrigDecisionTool")
 
 if (vp1Calo):
     from AthenaCommon.GlobalFlags import globalflags

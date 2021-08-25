@@ -429,7 +429,7 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 		    it=trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator
 		    it_end=trackStates->end();
-		for ( ; it != it_end ; it++) {
+		for ( ; it != it_end ; ++it) {
 		    const Trk::TrackStateOnSurface* trackState=(*it);
 	    
 		    if (trackState == nullptr) {

@@ -146,7 +146,9 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-        kwargs["TrackSummaryTool"] = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+        result.addPublicTool(TrackSummaryTool)
+        kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
@@ -154,17 +156,17 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
     kwargs.setdefault(
         "PerigeeExpression",
         p_expr if p_expr != "Vertex" else "BeamLine")
-    result.setPrivateTools(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs))
+    result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
-        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
-    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
-        name,
-        TrackParticleCreator=TrackParticleCreator,
-    ))
+        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
+        result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
+            name,
+            TrackParticleCreator=TrackParticleCreator,
+        ))
     return result
 
 def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
@@ -174,7 +176,7 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(TrackCollectionCnvToolCfg(
             flags,

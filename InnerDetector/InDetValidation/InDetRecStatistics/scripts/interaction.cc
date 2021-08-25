@@ -11,23 +11,16 @@
 
 using std::string;
 
-void interaction (TTree *tree, const string plotprefix="interaction_", const string plotext="",
+void interaction (TTree *tree, const string & plotprefix="interaction_", const string & plotext="",
                   const TCut mc_cut="")
 {
 
-
+  //cppcheck-suppress incorrectStringBooleanError
   TCut cut_electron  (mc_cut && "abs(mctrack_pdgid)==11  && sqrt(pow(mctrack_endvertexx,2)+pow(mctrack_endvertexy,2))<3000");
+  //cppcheck-suppress incorrectStringBooleanError
   TCut cut_pion      (mc_cut && "abs(mctrack_pdgid)==211  && sqrt(pow(mctrack_endvertexx,2)+pow(mctrack_endvertexy,2))<3000");
 
-  //  TCanvas *beginxy_e  =  new TCanvas("beginxy_e",   "electron truth track begin vertex");
-  //  TCanvas *beginrz_e  =  new TCanvas("beginrz_e",   "electron truth track begin vertex");
-  //  TCanvas *beginxy_pi =  new TCanvas("beginxy_pi",  "pion truth track begin vertex");
-  //  TCanvas *beginrz_pi =  new TCanvas("beginrz_pi",  "pion truth track begin vertex");
-
-  //  TCanvas *endxy_e    =  new TCanvas("endxy_e",     "electron truth track end vertex");
-  //  TCanvas *endrz_e    =  new TCanvas("endrz_e",     "electron truth track end vertex");
-  //  TCanvas *endxy_pi   =  new TCanvas("endxy",       "pion truth track end vertex");
-  //  TCanvas *endrz_pi   =  new TCanvas("endrz",       "pion truth track end vertex");
+ 
 
   TCanvas *end_e    =  new TCanvas("end_e",     "electron truth track end vertex",800,400);
   TCanvas *end_pi   =  new TCanvas("end_pi",    "pion truth track end vertex",800,400);

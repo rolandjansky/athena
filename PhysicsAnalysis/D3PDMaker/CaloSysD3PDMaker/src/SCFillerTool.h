@@ -17,7 +17,8 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ToolHandle.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <list>
@@ -70,7 +71,8 @@ private:
   const LArHEC_ID  *m_hecid;
   const TileID     *m_tileid;    
   const LArOnlineID* m_onlineHelper;
-  ToolHandle<LArCablingLegacyService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   //  const CaloDetDescrManager*  m_dd_man; 
 
 

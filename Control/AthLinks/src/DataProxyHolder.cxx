@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -440,7 +440,7 @@ bool DataProxyHolder::toPersistent (sgkey_t& sgkey, uint32_t& index)
   size_t index_s = index;
   bool ret = tryRemap (sgkey, index_s);
   if (ret)
-    index = index_s;
+    index = static_cast<uint32_t>(index_s);
   return ret;
 }
 

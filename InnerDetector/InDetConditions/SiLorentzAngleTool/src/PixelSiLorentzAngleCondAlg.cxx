@@ -152,7 +152,7 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
       return StatusCode::FAILURE;
     }
     double forceLorentzToZero = 1.0;
-    if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4 && p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+    if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4 && p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
       forceLorentzToZero = 0.0;
     }
 

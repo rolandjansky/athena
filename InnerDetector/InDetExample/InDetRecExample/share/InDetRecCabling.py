@@ -110,11 +110,11 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 
     condSeq += alg
 
-  from PixelCabling.PixelCablingConf import PixelCablingSvc
-  PixelCablingSvc = PixelCablingSvc()
-  ServiceMgr += PixelCablingSvc
+  from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+  PixelReadoutManager = InDetDD__PixelReadoutManager()
+  ServiceMgr += PixelReadoutManager
   if (InDetFlags.doPrintConfigurables()):
-    printfunc  (PixelCablingSvc)
+    printfunc  (PixelReadoutManager)
       
 #
 # --- SCT cabling

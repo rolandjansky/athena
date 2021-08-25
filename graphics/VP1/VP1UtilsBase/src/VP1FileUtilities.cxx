@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ void VP1FileUtilities::produceNewFile(const std::string& sourceFile,
 				      int runNumber,
 				      int eventNumber,
 				      int timeStamp,
-                      std::string textLabel)
+                                      const std::string& textLabel)
 {
   // Check if the sourceFile exists
   QString srcName(sourceFile.c_str());

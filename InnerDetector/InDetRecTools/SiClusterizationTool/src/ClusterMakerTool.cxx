@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -57,8 +57,8 @@ StatusCode  ClusterMakerTool::initialize(){
 
    ATH_MSG_DEBUG ( name() << " initialize()" );
 
-   if (not m_pixelCabling.empty()) {
-     ATH_CHECK(m_pixelCabling.retrieve());
+   if (not m_pixelReadout.empty()) {
+     ATH_CHECK(m_pixelReadout.retrieve());
    }
    ATH_CHECK(m_chargeDataKey.initialize(SG::AllowEmpty));
 
@@ -144,8 +144,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
       Identifier moduleID = pid->wafer_id(pixid);
       IdentifierHash moduleHash = pid->wafer_hash(moduleID);
-      int circ = m_pixelCabling->getFE(&pixid,moduleID);
-      int type = m_pixelCabling->getPixelType(pixid);
+      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
       float charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
 
       chargeList.push_back(charge);
@@ -304,8 +304,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       float charge = ToT;
       Identifier moduleID = pixelID.wafer_id(pixid);
       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-      int circ = m_pixelCabling->getFE(&pixid,moduleID);
-      int type = m_pixelCabling->getPixelType(pixid);
+      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
       charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
       if (moduleHash<12 || moduleHash>2035) {
         charge = ToT/8.0*(8000.0-1200.0)+1200.0;

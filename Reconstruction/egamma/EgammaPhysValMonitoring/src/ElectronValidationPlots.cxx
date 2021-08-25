@@ -36,7 +36,7 @@ void ElectronValidationPlots::initializePlots(){
 
 }
  
-void ElectronValidationPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) {
+void ElectronValidationPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const {
 
   float weight = 1.;
   weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;

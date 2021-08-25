@@ -81,8 +81,9 @@ class EMECHVManager
   // Gets the Wheel, 0 for the Outer Wheel HV Manager and 1 for the inner Wheel HV Manager
   EMECHVManager::IOType getWheelIndex() const;
 
-  // Get the database payload
-  EMECHVData getData() const;
+  // Get the database payload --- for use by simulation only
+  // (doesn't account for conditions changes)
+  EMECHVData getDataSim() const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   EMECHVData getData (const LArHVIdMapping& hvIdMapping,

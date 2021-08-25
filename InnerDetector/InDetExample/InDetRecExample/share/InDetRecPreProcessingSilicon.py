@@ -147,6 +147,11 @@ if InDetFlags.doPRDFormation():
       #
       # --- PixelClusterization algorithm
       #
+      from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+      if not hasattr(svcMgr, "PixelReadoutManager"):
+        from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
+        svcMgr += InDetDD__PixelReadoutManager("PixelReadoutManager")
+
       from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
       InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                             clusteringTool          = InDetMergedPixelsTool,

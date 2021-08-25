@@ -321,7 +321,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
        // fill the Surface vector
        Amg::Vector3D orderPosition((*sidetIter)->center());
        double currentPhi = orderPosition.phi();
-	   takeSmaller( layerMinPhi[currentlayer], currentPhi);
+	     takeSmaller( layerMinPhi[currentlayer], currentPhi);
        takeBigger( layerMaxPhi[currentlayer], currentPhi);
        
        // decide which one to register on the Radius: always the one with smaller radius
@@ -461,7 +461,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       layerThickness[layerCounter] = layerRmax[layerCounter] - layerRmin[layerCounter];
 
       // create the material
-      const Trk::LayerMaterialProperties* layerMaterial = barrelLayerMaterial(layerRadius[layerCounter], currentLayerExtend);
+      const Trk::LayerMaterialProperties& layerMaterial = barrelLayerMaterial(layerRadius[layerCounter], currentLayerExtend);
       double currentLayerThickness = layerThickness[layerCounter]+m_barrelEnvelope;
       
       // screen output
@@ -496,11 +496,9 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       // construct the layer (finally)
       activeLayer = new Trk::CylinderLayer(new Trk::CylinderBounds(layerRadius[layerCounter],currentLayerExtend),
                                            currentBinnedArray,
-                                           *layerMaterial,
+                                           layerMaterial,
                                            layerThickness[layerCounter],
                                            olDescriptor);
-      // cleanup of the layer material --------------------------------------------------------------
-      delete layerMaterial; 
       // register the layer to the surfaces
       const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
       registerSurfacesToLayer(layerSurfaces,*activeLayer);
@@ -916,7 +914,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
         ATH_MSG_DEBUG( "  -> With Rmin/Rmax (corr) :  " << minRmin << " / " << maxRmax );
        
        // get the layer material from the helper method
-        const Trk::LayerMaterialProperties* layerMaterial = endcapLayerMaterial(rMin,rMax);
+        const Trk::LayerMaterialProperties& layerMaterial = endcapLayerMaterial(rMin,rMax);
 
         // position & bounds of the active Layer
         Amg::Transform3D activeLayerTransform ;
@@ -946,11 +944,9 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
         Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
                                                          activeLayerBounds,
                                                          currentBinnedArray,
-                                                         *layerMaterial,
+                                                         layerMaterial,
                                                          thickness,
                                                          olDescriptor);
-        // cleanup
-        delete layerMaterial;
         // register the layer to the surfaces --- if necessary to the other sie as well
         const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
         registerSurfacesToLayer(layerSurfaces,*activeLayer);
@@ -1032,12 +1028,12 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
                 ATH_MSG_DEBUG(
                   "Building an additional DiscLayer w/o sensitive modules at");
                 // create the material and the passive layer
-                const Trk::LayerMaterialProperties* passiveLayerMaterial =
+                const Trk::LayerMaterialProperties& passiveLayerMaterial =
                   endcapLayerMaterial(rMin, rMax);
                 passiveLayer =
                   new Trk::DiscLayer(passiveDiscTransf,
                                      new Trk::DiscBounds(rMin, rMax),
-                                     *passiveLayerMaterial,
+                                     passiveLayerMaterial,
                                      1. * Gaudi::Units::mm);
               } else
                 passiveLayer = new Trk::DiscLayer(
@@ -1092,14 +1088,12 @@ std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilderCond::dressCylind
               if ( (*addLayerTypeIter) ) {
                     ATH_MSG_DEBUG("[- M -] Building an additional CylinderLayer w/o sensitive modules");
                     // the material for the passive layer
-                    const Trk::LayerMaterialProperties* passiveLayerMaterial = barrelLayerMaterial(*addLayerIter,cylLayerExtend);
+                    const Trk::LayerMaterialProperties& passiveLayerMaterial = barrelLayerMaterial(*addLayerIter,cylLayerExtend);
                     // create the passive layer
                     cylinderLayers->push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(*addLayerIter,cylLayerExtend),
-                                                                     *passiveLayerMaterial,
+                                                                     passiveLayerMaterial,
                                                                      1.*Gaudi::Units::mm,
                                                                      nullptr,0));
-                    // cleanup of the layer material --------------------------------------------------------------
-                    delete passiveLayerMaterial;                                                       
               } else {
                   ATH_MSG_DEBUG("[- N -] Building an additional NavigationLayer for volume dimension control");
                   // create the passive layer
@@ -1124,42 +1118,37 @@ std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilderCond::dressCylind
     return cylinderLayers;
 }
 
-const Trk::LayerMaterialProperties* InDet::SiLayerBuilderCond::barrelLayerMaterial(double r, double hz) const
+const Trk::BinnedLayerMaterial 
+InDet::SiLayerBuilderCond::barrelLayerMaterial(double r, double hz) const
 {
-  Trk::LayerMaterialProperties* layerMaterial = nullptr;
   // --------------- material estimation ----------------------------------------------------------------
   // -- material with 1D binning
   Trk::BinUtility layerBinUtilityZ(m_barrelLayerBinsZ, -hz, hz, Trk::open, Trk::binZ);
-  if (m_barrelLayerBinsPhi==1){
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityZ);
-  } else  { // -- material with 2D binning
+  auto & layerBinUtility(layerBinUtilityZ);
+  if (m_barrelLayerBinsPhi!=1){ // -- material with 2D binning
       Trk::BinUtility layerBinUtilityRPhiZ(m_barrelLayerBinsPhi,
                                                  -r*M_PI, r*M_PI,
                                                  Trk::closed,
                                                  Trk::binRPhi);
-      layerBinUtilityRPhiZ += layerBinUtilityZ;                                                       
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityRPhiZ);
+      layerBinUtilityRPhiZ += layerBinUtilityZ; 
+      layerBinUtility =  layerBinUtilityRPhiZ;                                                
   }
   // --------------- material estimation ----------------------------------------------------------------
-  return layerMaterial;    
+  return Trk::BinnedLayerMaterial(layerBinUtility);  
 }
 
-const Trk::LayerMaterialProperties* InDet::SiLayerBuilderCond::endcapLayerMaterial(double rMin, double rMax) const
+const Trk::BinnedLayerMaterial 
+InDet::SiLayerBuilderCond::endcapLayerMaterial(double rMin, double rMax) const
 {
-  Trk::LayerMaterialProperties* layerMaterial = nullptr;
   // --------------- material estimation ----------------------------------------------------------------
-
   Trk::BinUtility layerBinUtilityR(m_endcapLayerBinsR,rMin,rMax,Trk::open, Trk::binR);
-  // -- material with 1D binning
-  if (m_endcapLayerBinsPhi==1){
-      layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityR);
-  } else { // -- material with 2D binning
+  if (m_endcapLayerBinsPhi!=1){ // -- material with 2D binning
       Trk::BinUtility layerBinUtilityPhi(m_endcapLayerBinsPhi,-M_PI,M_PI,Trk::closed,Trk::binPhi);
       layerBinUtilityR += layerBinUtilityPhi;
-      layerMaterial     = new Trk::BinnedLayerMaterial(layerBinUtilityR);
   }
+  //const auto layerMaterial = Trk::BinnedLayerMaterial(layerBinUtilityR);
   // --------------- material estimation ----------------------------------------------------------------
-  return layerMaterial;    
+  return Trk::BinnedLayerMaterial(layerBinUtilityR);    
 }     
 
 void InDet::SiLayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const

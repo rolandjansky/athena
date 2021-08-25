@@ -241,7 +241,10 @@ protected:
 
   std::string m_trigseedML_LUT;//ML-based track seeding LUT name
 
-  // L1 J seeded hit-based displaced vertex
+  // create UTT EDMs (to avoid crash in case of findTrack's quitting before UTT algos)
+  StatusCode createEmptyUTTEDMs(const EventContext&) const;
+
+  // Hit-based displaced vertex
   bool m_doHitDV;
   bool m_doHitDV_Seeding;
   StatusCode findHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;

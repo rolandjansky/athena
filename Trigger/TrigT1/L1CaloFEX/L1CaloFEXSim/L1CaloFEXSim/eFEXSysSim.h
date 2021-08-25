@@ -55,14 +55,13 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize  () override;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void init() override ;
 
     virtual void cleanup() override;
 
-    virtual int calcTowerID(int eta, int phi, int mod) override ;
-
+    virtual int calcTowerID(int eta, int phi, int mod) override;
 
     /** Internal data */
   private:

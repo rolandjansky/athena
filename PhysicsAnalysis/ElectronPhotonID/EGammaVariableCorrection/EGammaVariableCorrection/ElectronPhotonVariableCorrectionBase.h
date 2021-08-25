@@ -265,7 +265,7 @@ private:
      * @param evalPoint The evaluation point for which the bin number should be found
      * @param binning The binning which should be evaluated
      */
-    const StatusCode findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) const;
+    static const StatusCode findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) ;
 
     /** @brief Return the interpolation flag of parameter parameter_number as a boolean.
      * @param parameter_number Number of the parameter for which the interpolation flag should be checked
@@ -296,7 +296,7 @@ private:
      * @param right_bin_center The x-value of the right bin center used for the interpolation
      * @param right_bin_value The y-value of the right bin at the right bin center
      */
-    float interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) const;
+    static float interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) ;
 
     /** @brief Get the events energy density from the eventShape
      * @param value The respective correction function parameter value is saved in this parameter

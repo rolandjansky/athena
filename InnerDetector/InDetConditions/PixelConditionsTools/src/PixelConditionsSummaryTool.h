@@ -29,8 +29,8 @@
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
@@ -85,6 +85,9 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     Gaudi::Property<bool> m_useByteStreamFEI3
     {this, "UseByteStreamFEI3", false, "Switch of the ByteStream error for FEI3"};
 
+    Gaudi::Property<bool> m_useByteStreamRD53
+    {this, "UseByteStreamRD53", false, "Switch of the ByteStream error for RD53"};
+
     SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
     {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
 
@@ -97,8 +100,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
     {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
 
-    ServiceHandle<IPixelCablingSvc> m_pixelCabling
-    {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+    ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+    {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
     SG::ReadHandleKey<IDCInDetBSErrContainer>  m_BSErrContReadKey
     {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
@@ -149,7 +152,7 @@ inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHas
   std::bitset<16> chipStatus(SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
   if (chipStatus.any()) {
     Identifier moduleID = m_pixelID->wafer_id(pixid);
-    std::bitset<16> circ; circ.set(m_pixelCabling->getFE(&pixid,moduleID));
+    std::bitset<16> circ; circ.set(m_pixelReadout->getFE(pixid,moduleID));
     if ((chipStatus&circ).any()) { return false; }
   }
   return true;

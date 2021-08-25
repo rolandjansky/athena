@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelChargeLUTCalibCondAlg.h"
@@ -105,7 +105,7 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
               while (std::getline(calibFE,buffer,',')) { calibString.push_back(buffer); }
 
               // new charge calibration for RUN-3
-              if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4 && !(element->isDBM())) {
+              if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4 && !(element->isDBM())) {
                 if (calibString.size()!=20) {
                   ATH_MSG_FATAL("Parameter size is not consistent(20) " << calibString.size() << " at (i,j)=(" <<  i-1 << "," << j << ")");
                   return StatusCode::FAILURE;
@@ -115,7 +115,7 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
                 for (int k=0; k<16; k++) {
                   chrgs[k]=std::atof(calibString[k+4].c_str());
                 }
-                writeCdo -> setCalibrationStrategy(i-1, 1);
+                writeCdo -> setCalibrationStrategy(i-1, PixelChargeCalibCondData::CalibrationStrategy::LUTFEI4);
                 writeCdo -> setTot2Charges(i-1, chrgs);
 
                 // Normal pixel

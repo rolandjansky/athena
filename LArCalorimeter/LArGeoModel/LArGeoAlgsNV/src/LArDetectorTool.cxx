@@ -248,17 +248,10 @@ StatusCode LArDetectorToolNV::registerCallback()
     return StatusCode::FAILURE;
   }
 
-  std::string folderName = "/LAR/Align";
-
   const DataHandle<DetCondKeyTrans> dckt;
-  ATH_MSG_DEBUG("Registering callback on DetCondKeyTrans with folder " << folderName);
-  StatusCode sc = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName);
-  if(sc.isSuccess()) {
-    ATH_MSG_DEBUG(" Successfully registered ");
-  }
-  else {
-    ATH_MSG_DEBUG(" Registration failed ");
-  }
+  StatusCode sc = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, LAR_ALIGN);
+  ATH_MSG_DEBUG( (sc.isSuccess() ? "Successfully registered" : "Registration failed for")
+		 << " callback on DetCondKeyTrans with folder " << LAR_ALIGN);
 
   return sc;
 }
@@ -270,40 +263,13 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     return StatusCode::SUCCESS;
   }
 
-  std::vector<std::string> alignNames {
-    "LARCRYO_B"
-      ,"LARCRYO_EC_POS"
-      ,"LARCRYO_EC_NEG"
-      ,"PRESAMPLER_B_POS"
-      ,"PRESAMPLER_B_NEG"
-      ,"EMB_POS"
-      ,"EMB_NEG"
-      ,"PRESAMPLER_EC_POS"
-      ,"PRESAMPLER_EC_NEG"
-      ,"EMEC_POS"
-      ,"EMEC_NEG"
-      ,"HEC_POS"  // Policy:  either HEC_POS is present or HEC1_POS and HEC2_POS
-      ,"HEC_NEG"  // Same with HEC_NEG.  Now in recent releases if HEC_POS is found
-      ,"HEC1_POS" // it will be applied to both HEC1 and HEC2...
-      ,"HEC1_NEG"
-      ,"HEC2_POS"
-      ,"HEC2_NEG"
-      ,"FCAL1_POS"
-      ,"FCAL1_NEG"
-      ,"FCAL2_POS"
-      ,"FCAL2_NEG"
-      ,"FCAL3_POS"
-      ,"FCAL3_NEG"
-      ,"SOLENOID"
-      };
-
   if(m_manager==nullptr) {
     ATH_MSG_ERROR(" LArDetDescrManager not created yet, cannot align !");
     return StatusCode::FAILURE;
   }
 
-  const DetCondKeyTrans* align=0;
   if(detStore()->contains<DetCondKeyTrans>(LAR_ALIGN)) {
+    const DetCondKeyTrans* align{nullptr};
     StatusCode sc = detStore()->retrieve(align, LAR_ALIGN);
 
     if(sc.isFailure()) {
@@ -311,142 +277,20 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
       return sc;
     }
 
-    if(0 == align) {
-      ATH_MSG_ERROR(" LAr DetCondKeyTrans ptr is 0");
+    if(align==nullptr) {
+      ATH_MSG_ERROR("LAr DetCondKeyTrans ptr is null");
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG(" LAr DetCondKeyTrans retrieved ");
-
-    // Special treatment for the HEC:
-    StoredAlignX *hec1AlxPos{nullptr};
-    StoredAlignX *hec2AlxPos{nullptr};
-    StoredAlignX *hec1AlxNeg{nullptr};
-    StoredAlignX *hec2AlxNeg{nullptr};
-    if (detStore()->contains<StoredAlignX> ("HEC1_POS")) {
-      if (detStore()->retrieve(hec1AlxPos,"HEC1_POS")!=StatusCode::SUCCESS) {
-	ATH_MSG_WARNING(" Unable to retrieve StoredAlignX for the key HEC1_POS");
-      }
+    if(m_alignHelper.applyAlignments(detStore(),align,nullptr).isFailure()) {
+      ATH_MSG_ERROR("Failed to apply LAr alignments to GeoModel");
+      return StatusCode::FAILURE;
     }
-    if (detStore()->contains<StoredAlignX> ("HEC1_NEG")) {
-      if (detStore()->retrieve(hec1AlxNeg,"HEC1_NEG")!=StatusCode::SUCCESS) {
-	ATH_MSG_WARNING(" Unable to retrieve StoredAlignX for the key HEC1_NEG");
-      }
-    }
-    if (detStore()->contains<StoredAlignX> ("HEC2_POS")) {
-      if (detStore()->retrieve(hec2AlxPos,"HEC2_POS")!=StatusCode::SUCCESS) {
-	ATH_MSG_WARNING(" Unable to retrieve StoredAlignX for the key HEC2_POS");
-      }
-    }
-    if (detStore()->contains<StoredAlignX> ("HEC2_NEG")) {
-      if (detStore()->retrieve(hec2AlxNeg,"HEC2_NEG")!=StatusCode::SUCCESS) {
-	ATH_MSG_WARNING(" Unable to retrieve StoredAlignX for the key HEC2_NEG");
-      }
-    }
-    GeoAlignableTransform *hec1GatPos = hec1AlxPos ? hec1AlxPos->getAlignX(): nullptr;
-    GeoAlignableTransform *hec1GatNeg = hec1AlxPos ? hec1AlxNeg->getAlignX(): nullptr;
-    GeoAlignableTransform *hec2GatPos = hec2AlxPos ? hec2AlxPos->getAlignX(): nullptr;
-    GeoAlignableTransform *hec2GatNeg = hec2AlxPos ? hec2AlxNeg->getAlignX(): nullptr;
-
-    // loop over align names
-    // if the transform presented alter its delta
-    // if the transform is not presented clear its delta
-    for(unsigned int i=0; i<alignNames.size(); i++) {
-      std::string alignName = alignNames[i];
-      HepGeom::Transform3D newDelta;
-      // First try to retrieve StoredAlignX
-      if(detStore()->contains<StoredAlignX>(alignName)) {
-	StoredAlignX* alignX{nullptr};
-	sc = detStore()->retrieve(alignX,alignName);
-
-	if(sc.isFailure()) {
-	  ATH_MSG_ERROR(" Unable to retrieve StoredAlignX for the key " << alignName);
-	  return sc;
-	}
-
-	if(!alignX) {
-	  ATH_MSG_ERROR(" 0 pointer to StoredAlignX for the key " << alignName);
-	  return StatusCode::FAILURE;
-	}
-
-	GeoAlignableTransform* gat = alignX->getAlignX();
-	if(!gat) {
-	  ATH_MSG_ERROR(" 0 pointer to GeoAlignableTransform for the key " << alignName);
-	  return StatusCode::FAILURE;
-	}
-
-	// check existence of new delta in DetCondKeyTrans
-	if(align->getTransform(alignName,newDelta)) {
-	  gat->setDelta(Amg::CLHEPTransformToEigen(newDelta));
-	}
-	else {
-	  gat->clearDelta();
-	}
-      }
-      else if (alignName=="HEC_POS") {
-	if (hec1GatPos) {
-	  if(align->getTransform(alignName,newDelta)) {
-	    hec1GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta));
-	  }
-	  else {
-	    hec1GatPos->clearDelta();
-	  }
-	}
-	if (hec2GatPos) {
-	  if(align->getTransform(alignName,newDelta)) {
-	    hec2GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta));
-	  }
-	  else {
-	    hec2GatPos->clearDelta();
-	  }
-	}
-      }
-      else if (alignName=="HEC_NEG") {
-	if (hec1GatNeg) {
-	  if(align->getTransform(alignName,newDelta)) {
-	    hec1GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta));
-	  }
-	  else {
-	    hec1GatNeg->clearDelta();
-	  }
-	}
-	if (hec2GatNeg) {
-	  if(align->getTransform(alignName,newDelta)) {
-	    hec2GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta));
-	  }
-	  else {
-	    hec2GatNeg->clearDelta();
-	  }
-	}
-      }
-      else {
-	ATH_MSG_DEBUG(" No StoredAlignX for the key " << alignName);
-      }
-    } // for
+    ATH_MSG_DEBUG("LAr Alignments applied successfully");
   }
   else {
     ATH_MSG_DEBUG(" No LAr DetCondKeyTrans in SG, skipping align() ");
-  }
-
-  // debug printout of global positions:
-//  for(unsigned int i=0; i<alignNames.size(); i++)
-  for(const std::string& alignName : alignNames) {
-    if(detStore()->contains<StoredPhysVol>(alignName)) {
-      StoredPhysVol* storedPV{nullptr};
-      StatusCode sc = detStore()->retrieve(storedPV,alignName);
-      if(sc.isSuccess()) {
-	const GeoFullPhysVol* fullPV = storedPV->getPhysVol();
-	const GeoTrf::Transform3D& xf =  fullPV->getAbsoluteTransform();
-	GeoTrf::Vector3D trans=xf.translation();
-	GeoTrf::RotationMatrix3D rot=xf.rotation();
-	ATH_MSG_DEBUG("Dump Absolute Transform:");
-	ATH_MSG_DEBUG("Key " << alignName << " transl [" << trans.x()
-		      << "," << trans.y() << "," << trans.z() << "] rotation \n("
-		      << rot(0,0) << "," << rot(0,1) << "," << rot(0,2) << "\n"
-		      << rot(1,0) << "," << rot(1,1) << "," << rot(1,2) << "\n"
-		      << rot(2,0) << "," << rot(2,1) << "," << rot(2,2) << ")");
-      }
-    }
   }
 
   return StatusCode::SUCCESS;

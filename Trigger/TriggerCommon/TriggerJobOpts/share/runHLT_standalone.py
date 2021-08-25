@@ -522,6 +522,7 @@ svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
+        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 

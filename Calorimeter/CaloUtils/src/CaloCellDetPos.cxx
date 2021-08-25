@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // for a given calorimeter layer, this class will convert detector eta,phi to Atlas eta,phi
@@ -14,7 +14,7 @@
 bool CaloCellDetPos::getDetPosition(const CaloDetDescrManager& mgr,
                                     CaloCell_ID::CaloSample sam,
                                     double etaAtlas, double phiAtlas,
-                                    double& etaDet, double& phiDet) const {
+                                    double& etaDet, double& phiDet) {
 
   const CaloDetDescrElement* elt = mgr.get_element(sam,etaAtlas,phiAtlas);
   if (!elt) {
@@ -31,7 +31,7 @@ bool CaloCellDetPos::getAtlasPosition(const CaloDetDescrManager& mgr,
                                       CaloCell_ID::CaloSample sam,
                                       double etaDet, double phiDet,
                                       double& etaAtlas,
-                                      double& phiAtlas) const {
+                                      double& phiAtlas) {
 
   const CaloDetDescrElement* elt = mgr.get_element_raw(sam,etaDet,phiDet);
   if (!elt) {
@@ -46,7 +46,7 @@ bool CaloCellDetPos::getAtlasPosition(const CaloDetDescrManager& mgr,
 
 bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam,
                                     double etaAtlas, double phiAtlas,
-                                    double& etaDet, double& phiDet) const {
+                                    double& etaDet, double& phiDet) {
   const CaloDetDescrManager* calo_mgr;
   calo_mgr = CaloDetDescrManager::instance();
   return getDetPosition(*calo_mgr,sam,etaAtlas,phiAtlas,etaDet,phiDet);
@@ -55,7 +55,7 @@ bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam,
 bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam,
                                       double etaDet, double phiDet,
                                       double& etaAtlas,
-                                      double& phiAtlas) const {
+                                      double& phiAtlas) {
 
   const CaloDetDescrManager* calo_mgr;
   calo_mgr = CaloDetDescrManager::instance();

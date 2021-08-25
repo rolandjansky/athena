@@ -203,12 +203,8 @@ def _precisionElectronSeq(flags, doIDperf=False):
     def TrigEMClusterToolCfg(flags):
         acc = ComponentAccumulator()
         from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
-        from egammaTools.egammaSwToolConfig import egammaSwToolCfg
         tool = CompFactory.EMClusterTool('TrigEMClusterTool',
                                             OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer,
-                                            OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-                                            ClusterCorrectionTool = acc.popToolsAndMerge(egammaSwToolCfg(flags)),
-                                            doSuperCluster = True,
                                             MVACalibSvc = acc.getPrimaryAndMerge(egammaMVASvcCfg(flags))
         )        
         acc.setPrivateTools(tool)

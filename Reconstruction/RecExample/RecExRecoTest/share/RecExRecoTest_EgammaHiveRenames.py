@@ -1,6 +1,4 @@
 from SGComps.AddressRemappingSvc import addInputRename
-addInputRename ('xAOD::EventAuxInfo','EventInfoAux.', 'old_EventInfoAux.')
-addInputRename ('xAOD::EventInfo','EventInfo', 'old_EventInfo')
 addInputRename ('xAOD::CaloClusterContainer','CaloCalTopoClusters', 'old_CaloCalTopoClusters')
 addInputRename ('xAOD::CaloClusterAuxContainer','CaloCalTopoClustersAux.', 'old_CaloCalTopoClustersAux.')
 

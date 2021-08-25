@@ -73,8 +73,8 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto L2CB_failure = Monitored::Scalar<bool>(chain+"_L2CB_failure",false);
     bool off_cb_match = false;
     bool off_sa_match = false;
-    L2SA_success = (std::abs(saPt) > ZERO_LIMIT)? true:false;
-    L2CB_success = (std::abs(cbPt) > ZERO_LIMIT)? true:false;
+    L2SA_success = std::abs(saPt) > ZERO_LIMIT;
+    L2CB_success = std::abs(cbPt) > ZERO_LIMIT;
 
 
     // matching to offline

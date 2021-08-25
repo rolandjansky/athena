@@ -879,7 +879,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions(EventData &data, 
 /// Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -1269,7 +1269,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildBeamFrameWork(EventData& data) co
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_ATLxk::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp, std::array<float,3> & r) const
+(EventData& data, const Trk::SpacePoint*const& sp, std::array<float,3> & r) 
 {
   r[0] = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   r[1] = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -1402,7 +1402,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
 
 
 
-float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const
+float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) 
 {
   /// here we approximate the largest curvature
   /// that can be expected for the seeds we build
@@ -1430,7 +1430,7 @@ float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ATLxk::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_ATLxk::erase(EventData& data) 
 {
   for (int i=0; i<data.nrfz;  ++i) {
     int n = data.rfz_index[i];
@@ -2633,7 +2633,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_ATLxk::newSpacePoint
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
-(EventData& data, InDet::SiSpacePointForSeed*& p1, InDet::SiSpacePointForSeed*& p2, float z) const
+(EventData& data, InDet::SiSpacePointForSeed*& p1, InDet::SiSpacePointForSeed*& p2, float z) 
 {
   InDet::SiSpacePointForSeed* p3 = nullptr;
 

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloLayerCalculator.h,v 1.1 2006-03-20 17:42:26 ssnyder Exp $
@@ -280,20 +280,20 @@ private:
 
 
   /// Layer variables.
-  double   m_etam;    // Mean @f$\eta@f$.
-  double   m_phim;    // Mean @f$\phi@f$.
-  double   m_etas;    // RMS @f$\eta@f$.
-  double   m_phis;    // RMS @f$\phi@f$.
-  double   m_em;      // Total energy.
-  double   m_etamax;  // @f$\eta@f$ center of maximum-energy cell.
-  double   m_phimax;  // @f$\phi@f$ center of maximum-energy cell.
-  double   m_emax;    // Energy of maximum-energy cell.
+  double   m_etam = 0.0;    // Mean @f$\eta@f$.
+  double   m_phim = 0.0;    // Mean @f$\phi@f$.
+  double   m_etas = 0.0;    // RMS @f$\eta@f$.
+  double   m_phis = 0.0;    // RMS @f$\phi@f$.
+  double   m_em = 0.0;      // Total energy.
+  double   m_etamax = 0.0;  // @f$\eta@f$ center of maximum-energy cell.
+  double   m_phimax = 0.0;  // @f$\phi@f$ center of maximum-energy cell.
+  double   m_emax = 0.0;    // Energy of maximum-energy cell.
 
   // Added to cluster in the calorimeter frame
-  double   m_etamr;  // Mean @f$\eta@f$ with raw quantity
-  double   m_phimr;  // Mean @f$\phi@f$ with raw quantity
-  double   m_etarmax;  // @f$\eta_raw@f$ center of maximum-energy cell.
-  double   m_phirmax;  // @f$\phi_raw@f$ center of maximum-energy cell.
+  double   m_etamr = 0.0;  // Mean @f$\eta@f$ with raw quantity
+  double   m_phimr = 0.0;  // Mean @f$\phi@f$ with raw quantity
+  double   m_etarmax = 0.0;  // @f$\eta_raw@f$ center of maximum-energy cell.
+  double   m_phirmax = 0.0;  // @f$\phi_raw@f$ center of maximum-energy cell.
 
 
   /**

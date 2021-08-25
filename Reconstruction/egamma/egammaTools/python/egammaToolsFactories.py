@@ -69,15 +69,10 @@ def configureSuperClusterCorrections(swTool):
                 cells_name=egammaKeys.caloCellKey())))
 
 
-def configureClusterCorrections(swTool):
-    "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
-    configureFixedSizeClusterCorrections(swTool)
-    if jobproperties.egammaRecFlags.doSuperclusters():
-        configureSuperClusterCorrections(swTool)
-
-
+# At the end we could keep only one version of the tools
+# below
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
-                           postInit=[configureClusterCorrections])
+                           postInit=[configureSuperClusterCorrections])
 
 
 egammaSwSuperClusterTool = ToolFactory(
@@ -88,9 +83,6 @@ egammaSwSuperClusterTool = ToolFactory(
 EMClusterTool = ToolFactory(
     egammaToolsConf.EMClusterTool,
     OutputClusterContainerName=egammaKeys.outputClusterKey(),
-    OutputTopoSeededClusterContainerName=egammaKeys.outputTopoSeededClusterKey(),
-    ClusterCorrectionTool=egammaSwTool,
-    doSuperCluster=jobproperties.egammaRecFlags.doSuperclusters(),
     MVACalibSvc=egammaMVASvc
 )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/LArHVManager.h"
@@ -211,7 +211,7 @@ void HVHelper::GetMapFromDB(void)
     const EMECHVManager& hvManager = manager->getEMECHVManager(
       isInner? EMECHVModule::INNER: EMECHVModule::OUTER
     );
-    const EMECHVManager::EMECHVData hvdata = hvManager.getData();
+    const EMECHVManager::EMECHVData hvdata = hvManager.getDataSim();
     ATH_MSG_INFO("got LAr HV Manager for "
                  << (isInner? "inner": "outer") << " wheel");
     const EMECHVDescriptor& dsc = hvManager.getDescriptor();

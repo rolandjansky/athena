@@ -46,7 +46,6 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
 				     const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
     m_rootStore(nullptr),
-    m_larCablingService("LArCablingLegacyService"),
     m_newrun(true)
 {
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
@@ -109,9 +108,9 @@ LArCosmicsMonTool::initialize()
   ATH_CHECK(m_bcContKey.initialize());
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
-  ATH_CHECK( m_larCablingService.retrieve() );
   ATH_CHECK( this->initMonInfo() );
   ATH_CHECK( m_larPedestalKey.initialize() );
+  ATH_CHECK( m_cablingKey.initialize() );
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
@@ -246,6 +245,8 @@ LArCosmicsMonTool::fillHistograms() {
   SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey,ctx};
   const LArBadChannelCont* bcCont{*bcContHdl};
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+
   // loop over LArDigits
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_e= pLArDigitContainer->end(); 
@@ -253,10 +254,10 @@ LArCosmicsMonTool::fillHistograms() {
   for ( ; itDig!=itDig_e;++itDig) {
     pLArDigit = *itDig;
     HWIdentifier id = pLArDigit->hardwareID();
-    Identifier offlineID = m_larCablingService->cnvToIdentifier(id);
+    Identifier offlineID = cabling->cnvToIdentifier(id);
     
     // Skip disconnected channels
-    if(!m_larCablingService->isOnlineConnected(id)) continue;
+    if(!cabling->isOnlineConnected(id)) continue;
     
     // Get Physical Coordinates     
     float eta = 0; float phi = 0;

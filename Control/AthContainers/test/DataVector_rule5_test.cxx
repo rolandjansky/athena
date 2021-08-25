@@ -52,6 +52,8 @@ void fillWithApples(apples & appleDataVec){
 int
 main()
 {
+  std::cout << "AthContainers/DataVector_rule5_test\n";
+
   [[maybe_unused]] applePie myPie;
   
   { //straight assignment, both vectors prefilled

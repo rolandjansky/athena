@@ -39,7 +39,7 @@ asg::AcceptData TrigEgammaEmulationChain::emulate(const Trig::TrigData &input) c
 {
   asg::AcceptData acceptData (&m_accept);
 
-  ATH_MSG_INFO( "Emulate " << m_chain);
+  ATH_MSG_DEBUG( "Emulate " << m_chain);
  
   // Emulate L1 seed
   bool passedL1Calo = false;
@@ -57,13 +57,13 @@ asg::AcceptData TrigEgammaEmulationChain::emulate(const Trig::TrigData &input) c
     }
   }
   
-  ATH_MSG_INFO("Accept results:");
-  ATH_MSG_INFO("L1      : " << acceptData.getCutResult(0)); // Step 0
-  ATH_MSG_INFO("L2Calo  : " << acceptData.getCutResult(1)); // Step 1
-  ATH_MSG_INFO("L2      : " << acceptData.getCutResult(2)); // Step 2
-  ATH_MSG_INFO("EFCalo  : " << acceptData.getCutResult(3)); // Step 3
-  ATH_MSG_INFO("EFTrack : " << acceptData.getCutResult(4)); // Step 4
-  ATH_MSG_INFO("HLT     : " << acceptData.getCutResult(5)); // Step 5
+  ATH_MSG_DEBUG("Accept results:");
+  ATH_MSG_DEBUG("L1      : " << acceptData.getCutResult(0)); // Step 0
+  ATH_MSG_DEBUG("L2Calo  : " << acceptData.getCutResult(1)); // Step 1
+  ATH_MSG_DEBUG("L2      : " << acceptData.getCutResult(2)); // Step 2
+  ATH_MSG_DEBUG("EFCalo  : " << acceptData.getCutResult(3)); // Step 3
+  ATH_MSG_DEBUG("EFTrack : " << acceptData.getCutResult(4)); // Step 4
+  ATH_MSG_DEBUG("HLT     : " << acceptData.getCutResult(5)); // Step 5
 
   return acceptData;
 }

@@ -4,19 +4,19 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelDeadMapCondAlgCfg
 )
+from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
 
 def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     """Return configured ComponentAccumulator with tool for Pixel Conditions"""
-    acc = PixelCablingSvcCfg(flags)
+    acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
     acc.merge(PixelDeadMapCondAlgCfg(flags))
 
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("UseByteStreamFEI4", not flags.Input.isMC and not flags.Overlay.DataOverlay)
     kwargs.setdefault("UseByteStreamFEI3", not flags.Input.isMC and not flags.Overlay.DataOverlay)
 

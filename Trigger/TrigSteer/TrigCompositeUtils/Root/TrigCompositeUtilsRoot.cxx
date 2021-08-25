@@ -566,8 +566,9 @@ namespace TrigCompositeUtils {
       found = start->typelessGetObjectCollectionLinks(linkName, tmpKeyVec, tmpClidVec, tmpIndexVec);
     }
     if (start->hasObjectLink(linkName)) {
-      uint32_t tmpKey, tmpClid;
-      uint16_t tmpIndex;
+      uint32_t tmpKey{0};
+      uint32_t tmpClid{0};
+      uint16_t tmpIndex{0};
       found |= start->typelessGetObjectLink(linkName, tmpKey, tmpClid, tmpIndex);
       tmpKeyVec.push_back(tmpKey);
       tmpClidVec.push_back(tmpClid);

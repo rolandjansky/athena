@@ -81,12 +81,10 @@ StatusCode TrigCostAnalysis::start() {
     ATH_MSG_VERBOSE("Found Sequencer:" << sequencer.first);
     for (const auto& alg : sequencer.second) {
       // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
-      size_t breakPoint = alg.second.data().find("/");
+      size_t breakPoint = alg.second.data().find('/');
       std::string algType = alg.second.data().substr(0, breakPoint);
       const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
-      while(algType.find(":") != std::string::npos) {
-        algType.replace(algType.find(":"), 1, "_");
-      }
+      std::replace(algType.begin(), algType.end(), ':', '_');
       m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
       ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
@@ -114,14 +112,12 @@ StatusCode TrigCostAnalysis::start() {
   // Save identifiers and classes for additional HLTJobOptions map
   if (not m_additionalHashList.empty()){
     for (const std::string& entry : m_additionalHashList){
-      size_t breakPoint = entry.find("/");
+      size_t breakPoint = entry.find('/');
       if (breakPoint != std::string::npos){
         std::string algType = entry.substr(0, breakPoint);
         const std::string algName = entry.substr(breakPoint+1, entry.size());
-        while(algType.find(":") != std::string::npos) {
-          algType.replace(algType.find(":"), 1, "_");
-        }
-        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
+        std::replace(algType.begin(), algType.end(), ':', '_');
+        m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = std::move(algType);
       } else {
         TrigConf::HLTUtils::string2hash(entry, "ALG");
       }

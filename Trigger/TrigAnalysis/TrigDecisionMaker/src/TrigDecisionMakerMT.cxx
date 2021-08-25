@@ -23,8 +23,6 @@
 
 #include "xAODTrigger/TrigDecisionAuxInfo.h"
 
-#include "TrigConfData/L1BunchGroupSet.h"
-
 #include <boost/dynamic_bitset.hpp>
 
 TrigDec::TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)
@@ -49,7 +47,8 @@ TrigDec::TrigDecisionMakerMT::initialize()
   }
   ATH_CHECK( m_hltResultKeyIn.initialize(resultObjectIsUsed) ); // If false, this removes the ReadHandle
 
-  ATH_CHECK(m_HLTMenuKey.initialize());
+  ATH_CHECK( m_bgKey.initialize() );
+  ATH_CHECK( m_HLTMenuKey.initialize() );
 
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );
@@ -164,12 +163,19 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
   // get the bunch crossing id
   const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKeyIn, context);
-  const char bgByte = getBGByte(eventInfo->bcid());
-  trigDec->setBGCode(bgByte);
+  const TrigConf::L1BunchGroupSet* l1bgs = SG::get(m_bgKey, context);
+  if (l1bgs) {
+    // We currently only support 8 bits/bunchgroups (ATR-24030)
+    trigDec->setBGCode( static_cast<char>(l1bgs->bgPattern(eventInfo->bcid())) );
+  }
+  else {
+    ATH_MSG_WARNING("Could not read " << m_bgKey);
+  }
+
   ATH_MSG_DEBUG ( "Run '" << eventInfo->runNumber()
                   << "'; Event '" << eventInfo->eventNumber()
                   << "'; BCID '" << eventInfo->bcid()
-                  << "'; BG Code '" << (size_t)bgByte << "'" ) ;
+                  << "'; BG Code '" << trigDec->bgCode() << "'" ) ;
 
   ATH_MSG_DEBUG ("Decision object dump: " << *(trigDec.get()));
   auto trigDecWriteHandle = SG::makeHandle( m_trigDecisionKeyOut, context );
@@ -198,29 +204,4 @@ TrigDec::TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result *&result, co
   }
 
   return StatusCode::SUCCESS;
-}
-
-char TrigDec::TrigDecisionMakerMT::getBGByte(unsigned int bcId) const
-{
-  if (bcId >= 3564) { // LHC has 3564 bunch crossings
-    ATH_MSG_WARNING("Could not return BGCode for bunch crossing ID " << bcId << ", which is outside allowed range 0..3563 ");
-    return 0;
-  }
-
-  const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
-  detStore()->retrieve(l1bgs).ignore();
-  if (l1bgs) {
-    char bgword = 0;
-    for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i) {
-      auto bg = l1bgs->getBunchGroup(i);
-      if (bg->contains(bcId)) {
-        bgword += 1 << i;
-      }
-    }
-    return bgword;
-  }
-  else {
-    ATH_MSG_WARNING("Did not find L1BunchGroupSet in DetectorStore");
-    return 0;
-  }
 }

@@ -477,7 +477,7 @@ StatusCode EgammaPhysValMonitoringTool::procHistograms()
 //--------------------------------------------------------------------------------------------
 const xAOD::TruthParticle* EgammaPhysValMonitoringTool::Match(const xAOD::Egamma* particle,
 							      int pdg,
-							      const xAOD::TruthParticleContainer* truthParticles) const {
+							      const xAOD::TruthParticleContainer* truthParticles) {
 //-------------------------------------------------------------------------------------------
   float currentdr = 0.05;
   const xAOD::TruthParticle* matchedTruthParticle = nullptr;

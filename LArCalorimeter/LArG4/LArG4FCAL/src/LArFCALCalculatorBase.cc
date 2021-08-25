@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -48,8 +48,7 @@ LArFCALCalculatorBase::LArFCALCalculatorBase(const std::string& name, ISvcLocato
   //m_FCalSampling.verifier().setUpper(3); //Would need to make m_FCalSampling an IntegerProperty for this to work. Overkill?
 }
 
-// Uses not-thread-safe FCALHVManager::getData()
-StatusCode LArFCALCalculatorBase::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode LArFCALCalculatorBase::initialize()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArFCALCalculatorBase");
   ATH_CHECK(detStore->retrieve(m_ChannelMap));
@@ -69,7 +68,7 @@ StatusCode LArFCALCalculatorBase::initialize ATLAS_NOT_THREAD_SAFE ()
       m_posModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::POS);
       m_negModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::NEG);
 
-      m_hvdata = fcalManager->getHVManager().getData();
+      m_hvdata = fcalManager->getHVManager().getDataSim();
     }
   }
   return StatusCode::SUCCESS;

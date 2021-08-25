@@ -927,7 +927,7 @@ MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpConditions(EventData &data, Ms
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpEvent(EventData &data, MsgStream &out) const
+MsgStream &InDet::SiSpacePointsSeedMaker_ITK::dumpEvent(EventData &data, MsgStream &out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -1259,7 +1259,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildConnectionMaps(std::array<int, arra
   }
 }
 
-float InDet::SiSpacePointsSeedMaker_ITK::azimuthalStep(const float pTmin, const float maxd0, const float Rmin, const float Rmax) const
+float InDet::SiSpacePointsSeedMaker_ITK::azimuthalStep(const float pTmin, const float maxd0, const float Rmin, const float Rmax) 
 {
   /// here we approximate the largest curvature
   /// that can be expected for the seeds we build
@@ -1320,7 +1320,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork(EventData &data) cons
 ///////////////////////////////////////////////////////////////////
 // Initiate beam frame work for seed generator
 ///////////////////////////////////////////////////////////////////
-void InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork(EventData &data, const Trk::SpacePoint *const &sp, float *r) const
+void InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork(EventData &data, const Trk::SpacePoint *const &sp, float *r) 
 {
   r[0] = static_cast<float>(sp->globalPosition().x()) - data.xbeam[0];
   r[1] = static_cast<float>(sp->globalPosition().y()) - data.ybeam[0];
@@ -1661,7 +1661,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillListsFast(const EventContext &ctx, E
 // Pixels information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::pixInform(const Trk::SpacePoint *sp, float *r) const
+void InDet::SiSpacePointsSeedMaker_ITK::pixInform(const Trk::SpacePoint *sp, float *r) 
 {
   const InDet::SiCluster *cl = static_cast<const InDet::SiCluster *>(sp->clusterList().first);
   const InDetDD::SiDetectorElement *de = cl->detectorElement();
@@ -1675,7 +1675,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::pixInform(const Trk::SpacePoint *sp, flo
 // SCT information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::sctInform(EventData &data, const Trk::SpacePoint *sp, float *r) const
+void InDet::SiSpacePointsSeedMaker_ITK::sctInform(EventData &data, const Trk::SpacePoint *sp, float *r) 
 {
   const InDet::SiCluster *c0 = static_cast<const InDet::SiCluster *>(sp->clusterList().first);
   const InDet::SiCluster *c1 = static_cast<const InDet::SiCluster *>(sp->clusterList().second);
@@ -1722,7 +1722,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::sctInform(EventData &data, const Trk::Sp
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::erase(EventData &data) const
+void InDet::SiSpacePointsSeedMaker_ITK::erase(EventData &data) 
 {
   for (int i = 0; i < data.nrfz; ++i)
   {
@@ -1848,7 +1848,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production2Sp(EventData &data) const
               continue;
             float A = Vt * R / UR;
             float B = Vt - A * Ut;
-            if (std::abs(B * data.K) > m_ipt * sqrt(1.f + A * A))
+            if (std::abs(B * data.K) > m_ipt * std::sqrt(1.f + A * A))
               continue;
             ++nseed;
             newSeed(data, (*r), (*r0), Zo);
@@ -1914,10 +1914,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp(EventData &data) const
   std::array<std::list<InDet::SiSpacePointForSeedITK *>::iterator, arraySizeNeighbourBins> iter_endBottomCands;
 
   int nPhiBins;
-  std::array<int, arraySizePhiZ> nNeighbourCellsBottom;
-  std::array<int, arraySizePhiZ> nNeighbourCellsTop;
-  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsBottom;
-  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsTop;
+  std::array<int, arraySizePhiZ> nNeighbourCellsBottom{};
+  std::array<int, arraySizePhiZ> nNeighbourCellsTop{};
+  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsBottom{};
+  std::array<std::array<int, arraySizeNeighbourBins>, arraySizePhiZ> neighbourCellsTop{};
 
   if (isPixel)
   {
@@ -3276,7 +3276,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison(Event
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds(EventData &data) const
+void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds(EventData &data) 
 {
   data.fillOneSeeds = 0;
 
@@ -3412,9 +3412,9 @@ InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(
   {
     float R2 = r[0] * r[0] + r[1] * r[1];
     if (std::abs(r[2]) > m_dzMaxFast && R2 < m_R2MaxFast)
-      return 0;
+      return nullptr;
     if (std::abs(r[2]) - m_zmax > data.dzdrmax * std::sqrt(R2))
-      return 0;
+      return nullptr;
   }
 
   if (usePixSctInform)
@@ -3454,7 +3454,7 @@ InDet::SiSpacePointForSeedITK *InDet::SiSpacePointsSeedMaker_ITK::newSpacePoint(
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newSeed(EventData &data,
-                                                InDet::SiSpacePointForSeedITK *&p1, InDet::SiSpacePointForSeedITK *&p2, float z) const
+                                                InDet::SiSpacePointForSeedITK *&p1, InDet::SiSpacePointForSeedITK *&p2, float z) 
 {
   InDet::SiSpacePointForSeedITK *p3 = nullptr;
 

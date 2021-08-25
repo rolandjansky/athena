@@ -15,6 +15,22 @@
 
 using namespace Muon;
 
+namespace {
+  struct MonStruct {
+    std::vector<int> count_mon;
+    std::vector<int> scount_mon;
+    std::vector<int> count_diff;
+    std::vector<float> tmp_val_mon;
+    std::vector<float> secLayer;
+    std::vector<int> mphi_true;
+    std::vector<int> mphi_false;
+    std::vector<int> scount_phi_false;
+    std::vector<int> scount_phi_true;
+    std::vector<int> scount_eta_false;
+    std::vector<int> scount_eta_true;
+  };
+}
+
 CscClusterValMonAlg::CscClusterValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name,pSvcLocator)
   { }
@@ -64,6 +80,8 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
   ATH_MSG_DEBUG ( " Size of Cluster Collection : " << cscCluster->size() );
   ATH_MSG_DEBUG ( " Size of Strip Collection : " << cscStrip->size() );
+
+  MonStruct monstruct;
 
   for ( CscPrepDataContainer::const_iterator Icol = cscCluster->begin(); Icol != cscCluster->end(); ++Icol )
   {
@@ -344,24 +362,10 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         bool mphi = (km > 0 && km < 5) ? true : false; // 1,2,3,4 (phi-layers) 5,6,7,8 (eta-layers)
         std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
         int count = clusCount[kl][km];
-        auto count_mon = Monitored::Scalar<int>("count_mon",count);
         int scount = sigclusCount[kl][km];
-        auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
-        auto count_diff = Monitored::Scalar<int>("count_diff",(count-scount));
-
-        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)(mphi && count));
-        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)(!(mphi) && count));
-
-        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count && scount);
-        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count && !scount);
-
-        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count && scount);
-        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count && !scount);
-
-        auto secLayer = Monitored::Scalar<float>("secLayer",(sec + 0.2 * (lay - 1) + 0.1));
 
         if(count){
-          ATH_MSG_DEBUG ("sec[" << sec << "]\t" << wlay << "[" << lay << "] = " << secLayer << "= " << "\tNsig = " << scount << ", Ntot = " << count);
+          ATH_MSG_DEBUG ("sec[" << sec << "]\t" << wlay << "[" << lay << "] = " << monstruct.secLayer.back() << "= " << "\tNsig = " << scount << ", Ntot = " << count);
           if(mphi){
             numphi += count;
             if(scount){
@@ -377,10 +381,19 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
               numetasignal +=scount;
             }
           }
-          ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " << secLayer << "\t = " << count << "\t" << scount);
+          ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " << monstruct.secLayer.back() << "\t = " << count << "\t" << scount);
         }
 
-        fill("CscClusMonitor", count_mon, scount_mon, count_diff, secLayer, mphi_true, mphi_false, scount_phi_true, scount_phi_false, scount_eta_true, scount_eta_false);
+        monstruct.count_mon.push_back(count);
+        monstruct.scount_mon.push_back(scount);
+        monstruct.count_diff.push_back(count-scount);
+        monstruct.mphi_true.push_back((int)mphi && count);
+        monstruct.mphi_false.push_back((int)!(mphi) && count);
+        monstruct.scount_phi_true.push_back((int)mphi && count && scount);
+        monstruct.scount_phi_false.push_back((int)mphi && count && !scount);
+        monstruct.scount_eta_true.push_back((int)!(mphi) && count && scount);
+        monstruct.scount_eta_false.push_back((int)!(mphi) && count && !scount);
+        monstruct.secLayer.push_back((sec + 0.2 * (lay - 1) + 0.1));
 
       }// end loop over layers
 
@@ -415,6 +428,19 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
     fill("CscClusMonitor",numphi_mon,numeta_mon,numphi_sig_mon,numeta_sig_mon,numphi_numeta_mon,numphi_numeta_sig_mon,num_num_noise_mon,numphi_diff_mon,numeta_diff_mon);
 
   } // end for loop over prep-data container
+
+  auto count_mon = Monitored::Collection("count_mon", monstruct.count_mon);
+  auto scount_mon = Monitored::Collection("scount_mon", monstruct.scount_mon);
+  auto count_diff = Monitored::Collection("count_diff", monstruct.count_diff);
+  auto mphi_true = Monitored::Collection("mphi_true", monstruct.mphi_true);
+  auto mphi_false = Monitored::Collection("mphi_false", monstruct.mphi_false);
+  auto scount_phi_true = Monitored::Collection("scount_phi_true", monstruct.scount_phi_true);
+  auto scount_phi_false = Monitored::Collection("scount_phi_false", monstruct.scount_phi_false);
+  auto scount_eta_true = Monitored::Collection("scount_eta_true", monstruct.scount_eta_true);
+  auto scount_eta_false = Monitored::Collection("scount_eta_false", monstruct.scount_eta_false);
+  auto secLayer = Monitored::Collection("secLayer", monstruct.secLayer);
+  auto tmp_val_mon = Monitored::Collection("tmp_val_mon", monstruct.tmp_val_mon);
+  fill("CscClusMonitor", count_mon, scount_mon, count_diff, secLayer, mphi_true, mphi_false, scount_phi_true, scount_phi_false, scount_eta_true, scount_eta_false);
 
   ATH_MSG_DEBUG ( " END EVENT ============================");
 

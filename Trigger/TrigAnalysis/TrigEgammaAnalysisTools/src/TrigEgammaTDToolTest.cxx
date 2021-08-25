@@ -71,6 +71,7 @@ StatusCode TrigEgammaTDToolTest::execute() {
   const xAOD::ElectronContainer *onlElectrons = 0;
   if ( (evtStore()->retrieve(offElectrons,"Electrons")).isFailure() ){
       ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
+      return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Offline Electron container size " << offElectrons->size());
   for(const auto eg : *offElectrons){

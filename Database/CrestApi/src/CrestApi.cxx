@@ -41,12 +41,12 @@ namespace Crest {
   }
 
   CrestClient::CrestClient(const std::string& url) : m_mode(SERVER_MODE) {
-    size_t found = url.find_first_of(":");
+    size_t found = url.find_first_of(':');
 
     std::string protocol = url.substr(0, found);
     std::string url_new = url.substr(found + 3); //url_new is the url excluding the http part
-    size_t found1 = url_new.find_first_of(":");
-    size_t found2 = url_new.find_first_of("/");
+    size_t found1 = url_new.find_first_of(':');
+    size_t found2 = url_new.find_first_of('/');
     if (found1 != std::string::npos && found2 != std::string::npos) {
       m_host = url_new.substr(0, found1);
       m_port = url_new.substr(found1 + 1, found2 - found1 - 1);
@@ -160,7 +160,7 @@ namespace Crest {
 
     checkFsException(method_name);
 
-    std::string current_path = s_PATH + s_ADMIN_PATH + s_TAG_PATH + "/" + tagName;
+    std::string current_path = s_PATH + s_ADMIN_PATH + s_TAG_PATH + '/' + tagName;
     std::string getTxt = "DELETE";
 
     std::string retv;
@@ -176,7 +176,7 @@ namespace Crest {
       return findTagFs(tagName);
     }
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagName;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagName;
     std::string getTxt = "GET";
 
     std::string retv;
@@ -229,7 +229,7 @@ namespace Crest {
 
     checkFsException(method_name);
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname;
 
     std::string retv;
 
@@ -241,7 +241,7 @@ namespace Crest {
 
     checkFsException(method_name);
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname;
 
     nlohmann::json body;
     body["objectType"] = objectType;
@@ -259,7 +259,7 @@ namespace Crest {
       std::filesystem::create_directory(std::filesystem::path(rootDir));
     }
 
-    std::string workDir = m_root_folder + s_FS_TAG_PATH + "/" + name;
+    std::string workDir = m_root_folder + s_FS_TAG_PATH + '/' + name;
     if (!std::filesystem::exists(std::filesystem::path(workDir))) {
       std::filesystem::create_directory(std::filesystem::path(workDir));
     }
@@ -296,7 +296,7 @@ namespace Crest {
       nlohmann::json iov = item.second;
       std::string name = item.first;
       std::cerr << "Flush tag=" << name << std::endl;
-      std::string workDir = m_root_folder + s_FS_TAG_PATH + "/" + name;
+      std::string workDir = m_root_folder + s_FS_TAG_PATH + '/' + name;
       std::ofstream myfile;
       std::string tagFile = workDir + s_FS_IOV_FILE;
       myfile.open(tagFile.c_str());
@@ -517,7 +517,7 @@ namespace Crest {
 
     checkFsException(method_name);
 
-    std::string current_path = s_PATH + s_ADMIN_PATH + s_GLOBALTAG_PATH + "/" + name;
+    std::string current_path = s_PATH + s_ADMIN_PATH + s_GLOBALTAG_PATH + '/' + name;
 
     std::string retv;
 
@@ -570,7 +570,7 @@ namespace Crest {
       return s;
     }
 
-    std::string current_path = s_PATH + s_GLOBALTAG_PATH + "/" + name;
+    std::string current_path = s_PATH + s_GLOBALTAG_PATH + '/' + name;
     std::string retv;
 
     nlohmann::json js = nullptr;
@@ -597,7 +597,7 @@ namespace Crest {
 
     checkFsException(method_name);
 
-    std::string current_path = s_PATH + s_ADMIN_PATH + s_GLOBALTAG_PATH + "/" + name;
+    std::string current_path = s_PATH + s_ADMIN_PATH + s_GLOBALTAG_PATH + '/' + name;
     std::string retv;
     nlohmann::json js = nullptr;
     retv = performRequest(current_path, DELETE, js, method_name);
@@ -665,7 +665,7 @@ namespace Crest {
       return findGlobalTagMapFs(name);
     }
 
-    std::string current_path = s_PATH + s_GLOBALTAG_MAP_PATH + "/" + name;
+    std::string current_path = s_PATH + s_GLOBALTAG_MAP_PATH + '/' + name;
 
     std::string retv;
 
@@ -726,7 +726,7 @@ namespace Crest {
       return getBlobFs(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash;
 
     std::string retv;
 
@@ -743,7 +743,7 @@ namespace Crest {
       return getBlobInStreamFs(hash, out);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash;
 
     std::string retv;
 
@@ -762,7 +762,7 @@ namespace Crest {
       return getPayloadMetaInfoAsJsonFS(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + s_META_PATH;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash + s_META_PATH;
 
     std::string retv;
 
@@ -782,7 +782,7 @@ namespace Crest {
       return getPayloadMetaInfoAsStringFS(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + s_META_PATH;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash + s_META_PATH;
 
     std::string retv;
 
@@ -836,7 +836,7 @@ namespace Crest {
       return getPayloadAsJsonFS(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + "?format=DTO";
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash + "?format=DTO";
 
     std::string retv;
 
@@ -856,7 +856,7 @@ namespace Crest {
       return getPayloadAsStringFS(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + "?format=BLOB";
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + '/' + hash + "?format=BLOB";
 
     std::string retv;
 
@@ -1038,7 +1038,7 @@ namespace Crest {
     if (curl) {
       std::ostringstream url;
       std::string s;
-      url << "http://" << m_host << ":" << m_port << current_path;
+      url << "http://" << m_host << ':' << m_port << current_path;
 
       curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
       headers = curl_slist_append(headers, "Accept: */*");
@@ -1105,7 +1105,7 @@ namespace Crest {
     if (curl) {
       std::ostringstream url;
       std::string s;
-      url << "http://" << m_host << ":" << m_port << current_path;
+      url << "http://" << m_host << ':' << m_port << current_path;
 
       curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
       if (js.is_null()) {
@@ -1187,13 +1187,13 @@ namespace Crest {
 
       if (js.is_null()) {
         request_stream << action << " " << current_path << " HTTP/1.0\r\n";
-        request_stream << "Host: " << m_host << ":" << m_port << " \r\n";
+        request_stream << "Host: " << m_host << ':' << m_port << " \r\n";
         request_stream << "Accept: */*\r\n";
         request_stream << "Connection: close\r\n\r\n";
       } else {
         std::string s = js.dump();
         request_stream << action << " " << current_path << " HTTP/1.0\r\n";
-        request_stream << "Host: " << m_host << ":" << m_port << " \r\n";
+        request_stream << "Host: " << m_host << ':' << m_port << " \r\n";
         request_stream << "Content-Type: application/json; \r\n";
         request_stream << "Accept: */*\r\n";
         request_stream << "Content-Length: " << s.length() << "\r\n";
@@ -1305,7 +1305,7 @@ namespace Crest {
     if (curl) {
       std::ostringstream url;
       std::string s;
-      url << "http://" << m_host << ":" << m_port << current_path;
+      url << "http://" << m_host << ':' << m_port << current_path;
 
       // First set the URL that is about to receive our POST. This URL can
       // just as well be a https:
@@ -1509,7 +1509,7 @@ namespace Crest {
 
   nlohmann::json CrestClient::findTagFs(const std::string& name) {
     nlohmann::json js = nullptr;
-    std::string file_path = m_root_folder + "/" + s_FS_TAG_PATH + "/" + name + s_FS_TAG_FILE;
+    std::string file_path = m_root_folder + '/' + s_FS_TAG_PATH + '/' + name + s_FS_TAG_FILE;
     try{
       std::string tag = getFileString(file_path);
       js = nlohmann::json::parse(tag);
@@ -1523,7 +1523,7 @@ namespace Crest {
 
   nlohmann::json CrestClient::findAllIovsFs(const std::string& tagname) {
     nlohmann::json js = nullptr;
-    std::string file_path = m_root_folder + "/" + s_FS_TAG_PATH + "/" + tagname + s_FS_IOV_FILE;
+    std::string file_path = m_root_folder + '/' + s_FS_TAG_PATH + '/' + tagname + s_FS_IOV_FILE;
 
     try{
       std::string tag = getFileString(file_path);
@@ -1540,7 +1540,7 @@ namespace Crest {
   std::string CrestClient::getFileName(const std::string& path) {
     std::string filename = "";
     int size = path.size();
-    int pos = path.find(":");
+    int pos = path.find(':');
     filename = path.substr(pos + 3, size);
     return filename;
   }
@@ -1729,7 +1729,7 @@ namespace Crest {
               "ERROR in CrestClient::createTagMetaInfo cannot get the tag name from tag meta info JSON.");
     }
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname + s_META_PATH;
 
     std::string retv;
 
@@ -1755,7 +1755,7 @@ namespace Crest {
       return getTagMetaInfoFs(tagname);
     }
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname + s_META_PATH;
     std::string getTxt = "GET";
 
     std::string retv;
@@ -1788,7 +1788,7 @@ namespace Crest {
       return;
     }
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname + s_META_PATH;
 
     std::string retv;
 
@@ -1816,7 +1816,7 @@ namespace Crest {
       return;
     }
 
-    std::string current_path = s_PATH + s_TAG_PATH + "/" + tagname + s_META_PATH;
+    std::string current_path = s_PATH + s_TAG_PATH + '/' + tagname + s_META_PATH;
 
     std::string retv;
 
@@ -1878,7 +1878,7 @@ namespace Crest {
       throw std::runtime_error(
               "ERROR in CrestClient::createTagMetaInfoFs cannot get the tag name from tag meta info JSON.");
     }
-    std::string workDir = m_root_folder + s_FS_TAG_PATH + "/" + name;
+    std::string workDir = m_root_folder + s_FS_TAG_PATH + '/' + name;
     std::string tagMetaFile = workDir + s_FS_TAGMETAINFO_FILE;
 
     if (!std::filesystem::exists(std::filesystem::path(workDir))) {
@@ -1902,7 +1902,7 @@ namespace Crest {
 
   nlohmann::json CrestClient::getTagMetaInfoFs(const std::string& name) {
     nlohmann::json js = nullptr;
-    std::string file_path = m_root_folder + s_FS_TAG_PATH + "/" + name + s_FS_TAGMETAINFO_FILE;
+    std::string file_path = m_root_folder + s_FS_TAG_PATH + '/' + name + s_FS_TAGMETAINFO_FILE;
     try{
       std::string tag = getFileString(file_path);
       js = nlohmann::json::parse(tag);
@@ -1966,7 +1966,7 @@ namespace Crest {
     }
 
     std::string gTagDir = m_root_folder + s_FS_GLOBALTAG_PATH;
-    std::string workDir = gTagDir + "/" + name;
+    std::string workDir = gTagDir + '/' + name;
     std::string globalTagFile = workDir + s_FS_GLOBALTAG_FILE;
 
 
@@ -1997,7 +1997,7 @@ namespace Crest {
     nlohmann::json js = nullptr;
 
 
-    std::string workDir = m_root_folder + s_FS_GLOBALTAG_PATH + "/" + name;
+    std::string workDir = m_root_folder + s_FS_GLOBALTAG_PATH + '/' + name;
     std::string file_path = workDir + s_FS_GLOBALTAG_FILE;
 
     try{
@@ -2031,11 +2031,11 @@ namespace Crest {
       throw std::runtime_error("ERROR in CrestClient::createGlobalTagMapFs: cannot get the tag name from JSON.");
     }
 
-    std::string fname = "/" + tagname + ".json";
+    std::string fname = '/' + tagname + ".json";
 
 
     std::string gTagDir = m_root_folder + s_FS_GLOBALTAG_PATH;
-    std::string workDir = gTagDir + "/" + name;
+    std::string workDir = gTagDir + '/' + name;
 
 
     if (!std::filesystem::exists(std::filesystem::path(workDir))) {
@@ -2095,7 +2095,7 @@ namespace Crest {
     nlohmann::json js = nullptr;
 
     std::string workDir = m_root_folder + s_FS_GLOBALTAG_PATH;
-    std::string file_path = workDir + "/" + name + s_FS_MAP_FILE;
+    std::string file_path = workDir + '/' + name + s_FS_MAP_FILE;
 
     try{
       std::string tag = getFileString(file_path);
@@ -2129,7 +2129,7 @@ namespace Crest {
 
     // payload file:
     std::string hashCode = getHash(js);
-    std::string workDir = m_data_folder + "/" + hashCode;
+    std::string workDir = m_data_folder + '/' + hashCode;
     if (!std::filesystem::exists(std::filesystem::path(workDir))) {
       std::filesystem::create_directory(std::filesystem::path(workDir));
     }
@@ -2196,7 +2196,7 @@ namespace Crest {
   }
 
   std::string CrestClient::getPayloadAsStringFS(const std::string& hash) {
-    std::string workDir = m_data_folder + "/" + hash;
+    std::string workDir = m_data_folder + '/' + hash;
     std::string filePath = workDir + "/payload.json";
     std::string res = "";
 
@@ -2217,7 +2217,7 @@ namespace Crest {
   }
 
   std::string CrestClient::getPayloadMetaInfoAsStringFS(const std::string& hash) {
-    std::string workDir = m_data_folder + "/" + hash;
+    std::string workDir = m_data_folder + '/' + hash;
     std::string filePath = workDir + "/meta.json";
     std::string res = "";
 
@@ -2251,7 +2251,7 @@ namespace Crest {
     std::string line;
     std::string str = "";
 
-    std::string workDir = m_data_folder + "/" + hash;
+    std::string workDir = m_data_folder + '/' + hash;
     std::string file_path = workDir + "/payload.json";
 
     std::cout << "blob file = " << file_path << std::endl;

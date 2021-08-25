@@ -155,7 +155,7 @@ QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool /*batch*/)
 
 	QPainter painter;
 	painter.begin(&pm);
-	painter.drawPixmap(0,0,QPixmap::grabWidget ( this ));
+	painter.drawPixmap(0,0,this->grab ( ));
 
 	m_d->it = m_d->renderareas.begin();
 	for (;m_d->it!=m_d->itE;++(m_d->it)) {

@@ -9,13 +9,13 @@ from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFo
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from PixelCabling.PixelCablingConfigNew import ITkPixelCablingSvcCfg
 from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
     ITkPixelConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
 from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
 from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
 from SiPropertiesTool.ITkPixelSiPropertiesConfig import ITkPixelSiPropertiesCfg
 
@@ -51,12 +51,12 @@ def ITkEnergyDepositionToolCfg(flags, name="ITkEnergyDepositionTool", **kwargs):
 
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
-    acc = ITkPixelCablingSvcCfg(flags)
+    acc = ITkPixelReadoutManagerCfg(flags)
     acc.merge(ITkPixelConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
@@ -67,12 +67,12 @@ def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
 
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
-    acc = ITkPixelCablingSvcCfg(flags)
+    acc = ITkPixelReadoutManagerCfg(flags)
     acc.merge(ITkPixelConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
-    kwargs.setdefault("PixelCablingSvc", acc.getPrimary())
+    kwargs.setdefault("PixelReadoutManager", acc.getPrimary())
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))

@@ -115,7 +115,7 @@ std::string time_str() {
   std::string s(ctime(&_t));
   //  std::string::size_type pos = s.find("\n");
   // if ( pos != std::string::npos ) 
-  return s.substr(0,s.find("\n"));
+  return s.substr(0,s.find('\n'));
   //  return s;
 }
 
@@ -471,7 +471,7 @@ int main(int argc, char** argv)
       if ( ++i>=argc ) return usage(argv[0], -1);
       binningConfigFile = std::string(argv[i]);
     }
-    else if ( std::string(argv[i]).find("-")==0 ) { 
+    else if ( std::string(argv[i]).find('-')==0 ) { 
       /// unknown option 
       std::cerr << "unknown option " << argv[i] << std::endl; 
       return usage(argv[0], -1);

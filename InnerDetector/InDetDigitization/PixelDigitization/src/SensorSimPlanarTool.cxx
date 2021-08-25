@@ -197,7 +197,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                              std::vector<double>& initialConditions,
                                              CLHEP::HepRandomEngine* rndmEngine,
                                              const EventContext &ctx) {
-  if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::RD53) {
+  if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) {
     // TODO: check that detectors other than ITk have this properly set
     // if (p_design.is3D()) {
     //   return StatusCode::SUCCESS;
@@ -393,7 +393,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         
 
         // Slim Edge for IBL planar sensors:
-        if (p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
+        if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
           applyIBLSlimEdges(energy_per_step, eta_f_e);
           applyIBLSlimEdges(energy_per_step, eta_f_h);
         }
@@ -529,7 +529,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         double eta_drifted = eta_i + rdif * etaRand;
 
         // Slim Edge for IBL planar sensors:
-        if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelModuleDesign::FEI4) {
+        if (!(Module.isDBM()) && p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
           applyIBLSlimEdges(energy_per_step, eta_drifted);
         }
 

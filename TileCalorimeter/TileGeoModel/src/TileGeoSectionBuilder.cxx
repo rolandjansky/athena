@@ -1509,25 +1509,9 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   const GeoMaterial *air        = m_theMaterialManager->getMaterial("std::Air");
   const GeoMaterial *iron       = m_theMaterialManager->getMaterial("std::Iron");
   const GeoMaterial *shieldSteel = m_theMaterialManager->getMaterial("shield::ShieldSteel");
-  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
-
-  // Fallback rubber material definition
-  if (matRubber == nullptr) {
-    (*m_log) << MSG::WARNING << "Creating fallback sct::Rubber material definition" << endmsg;
-    const GeoElement* carbon = m_theMaterialManager->getElement("Carbon");
-    const GeoElement* hydrogen = m_theMaterialManager->getElement("Hydrogen");
-    const int carbonAtoms{5};
-    const int hydrogenAtoms{8};
-    const double inv_totalFraction = 1. / (carbonAtoms * carbon->getA() + hydrogenAtoms * hydrogen->getA());
-
-    auto matRubberFallback = new GeoMaterial("sct::Rubber", 2.982*GeoModelKernelUnits::gram/Gaudi::Units::cm3);
-    matRubberFallback->add(carbon, carbonAtoms * carbon->getA() * inv_totalFraction);
-    matRubberFallback->add(hydrogen, hydrogenAtoms * hydrogen->getA() * inv_totalFraction);
-    matRubberFallback->lock();
-    m_theMaterialManager->addMaterial("sct", matRubberFallback);
-
-    matRubber = m_theMaterialManager->getMaterial("sct::Rubber");
-  }
+  const GeoMaterial *matRubber = m_theMaterialManager->getMaterial("std::Rubber")!=nullptr
+    ? m_theMaterialManager->getMaterial("std::Rubber")
+    : m_theMaterialManager->getMaterial("sct::Rubber");
 
   // m_matLArServices
   if (m_matLArServices == 0)

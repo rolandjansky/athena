@@ -35,15 +35,15 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1BunchGroup();
 
-      virtual std::string className() const override;
+      virtual std::string className() const override { return "L1BunchGroup"; }
 
-      size_t id() const;
+      size_t id() const { return m_id; }
 
       /** Accessor to the number of bunches */
       std::size_t size() const;
 
       /** Accessor to the number of groups of consecutive bunches */
-      size_t nGroups() const;
+      size_t nGroups() const { return m_bunchdef.size(); }
 
       /** check if bunchgroup contains a certain bunch */
       bool contains(size_t bcid) const;
@@ -52,11 +52,7 @@ namespace TrigConf {
       std::vector<uint16_t> bunches() const;
 
       /** bunch trains (pairs: 1st bunch in train, and train length) */
-      const std::vector<std::pair<size_t,size_t>>& trains() const;
-
-   public:
-
-      static const size_t s_maxBunchGroups { 16 }; // this is the hardware-imposed limit
+      const std::vector<std::pair<size_t,size_t>>& trains() const { return m_bunchdef; }
 
    private:
 
@@ -75,6 +71,9 @@ namespace TrigConf {
    class L1BunchGroupSet final : public DataStructure {
    public:
 
+      /** type for bunchgroup pattern bitset */
+      typedef uint16_t bgPattern_t;
+
       /** Constructor */
       L1BunchGroupSet();
 
@@ -90,11 +89,11 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1BunchGroupSet();
 
-      virtual std::string className() const override;
+      virtual std::string className() const override { return "L1BunchGroupSet"; }
 
       /** setter and getter for the bunch group key */
-      unsigned int bgsk() const;
-      void setBGSK(unsigned int bgsk);
+      unsigned int bgsk() const { return m_bgsk; }
+      void setBGSK(unsigned int bgsk) { m_bgsk = bgsk; }
 
       /** Accessor to the bunchgroup by name
        * @param name - name as used in the L1Menu (BGRP0, BGRP1, ..., BGRP15)
@@ -105,13 +104,16 @@ namespace TrigConf {
       const std::shared_ptr<L1BunchGroup> & getBunchGroup(size_t id) const;
 
       /** Maximum number of bunchgroups */
-      std::size_t maxNBunchGroups() const { return L1BunchGroup::s_maxBunchGroups; }
+      constexpr std::size_t maxNBunchGroups() const { return L1BunchGroupSet::s_maxBunchGroups; }
 
       /** Accessor to the number of defined bunchgroups */
       std::size_t size() const;
 
       /** Accessor to the number of non-empty bunchgroups */
       std::size_t sizeNonEmpty() const;
+
+      /** Return word with bit-pattern of fired bunchgroups for given bcid */
+      bgPattern_t bgPattern(size_t bcid) const;
 
       /** print a more or less detailed summary */
       void printSummary(bool detailed = false) const;
@@ -124,6 +126,9 @@ namespace TrigConf {
       /** Update the internal members */
       virtual void update() override { load(); };
       void load();
+
+      /** Hardware limit for number of bunch group */
+      static const size_t s_maxBunchGroups { 16 };
 
       /** the bunch group key */
       unsigned int m_bgsk {0};

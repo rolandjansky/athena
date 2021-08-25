@@ -537,7 +537,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions(EventData& dat
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpEvent(EventData& data, MsgStream& out) const
+MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpEvent(EventData& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<endmsg;
@@ -771,7 +771,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork(const EventConte
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_HeavyIon::convertToBeamFrameWork
-(EventData& data, const Trk::SpacePoint*const& sp,float* r) const
+(EventData& data, const Trk::SpacePoint*const& sp,float* r) 
 {
   r[0] = static_cast<float>(sp->globalPosition().x())-data.xbeam[0];
   r[1] = static_cast<float>(sp->globalPosition().y())-data.ybeam[0];
@@ -842,7 +842,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists(EventData& data) const
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::erase(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::erase(EventData& data) 
 {
   for (int i=0; i<data.nr; ++i) {
     int n = data.r_index[i];
@@ -951,7 +951,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp(EventData& data) cons
 	    float UR = Ut*R+1.              ; if (UR == 0.) continue;
 	    float A  = Vt*R/UR              ;
 	    float B  = Vt-A*Ut              ;
-	    if (std::abs(B*data.K) > m_ipt*sqrt(1.f+A*A)) continue;
+	    if (std::abs(B*data.K) > m_ipt*std::sqrt(1.f+A*A)) continue;
             ++nseed;
 	    newSeed(data, (*r)->spacepoint, (*r0)->spacepoint,Zo);
 	  }
@@ -1637,7 +1637,7 @@ bool InDet::SiSpacePointsSeedMaker_HeavyIon::isZCompatible
   return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
 }
 
-float InDet::SiSpacePointsSeedMaker_HeavyIon::dZVertexMin(EventData& data, float& Z) const
+float InDet::SiSpacePointsSeedMaker_HeavyIon::dZVertexMin(EventData& data, float& Z) 
 {
   float dZm = std::numeric_limits<float>::max();
   for (const float& v: data.l_vertex) {
@@ -1652,7 +1652,7 @@ float InDet::SiSpacePointsSeedMaker_HeavyIon::dZVertexMin(EventData& data, float
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_HeavyIon::newSpacePoint
-(EventData& data, const Trk::SpacePoint*const& sp) const
+(EventData& data, const Trk::SpacePoint*const& sp) 
 {
   InDet::SiSpacePointForSeed* sps = nullptr;
 
@@ -1678,7 +1678,7 @@ InDet::SiSpacePointForSeed* InDet::SiSpacePointsSeedMaker_HeavyIon::newSpacePoin
 void InDet::SiSpacePointsSeedMaker_HeavyIon::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1, const Trk::SpacePoint*& p2, 
- const float& z) const
+ const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1699,7 +1699,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newSeed
 void InDet::SiSpacePointsSeedMaker_HeavyIon::newSeed
 (EventData& data,
  const Trk::SpacePoint*& p1, const Trk::SpacePoint*& p2, 
- const Trk::SpacePoint*& p3, const float& z) const
+ const Trk::SpacePoint*& p3, const float& z) 
 {
   if (data.i_seede!=data.l_seeds.end()) {
     InDet::SiSpacePointsSeed* s = &(*data.i_seede++);
@@ -1718,7 +1718,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newSeed
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::fillSeeds(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::fillSeeds(EventData& data) 
 {
   std::multimap<float, InDet::SiSpacePointsSeed*>::iterator 
     l  = data.mapOneSeeds.begin(),
