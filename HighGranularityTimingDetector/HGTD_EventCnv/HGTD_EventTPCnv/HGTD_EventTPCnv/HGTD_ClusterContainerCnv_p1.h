@@ -28,7 +28,7 @@ class HGTD_ClusterContainerCnv_p1
     : public T_AthenaPoolTPCnvBase<HGTD::HGTD_ClusterContainer,
                                    HGTD::HGTD_ClusterContainer_p1> {
 public:
-  HGTD_ClusterContainerCnv_p1() : m_is_initialized(false){};
+  HGTD_ClusterContainerCnv_p1() : m_is_initialized(false) {}
 
   typedef HGTD::HGTD_ClusterContainer_p1 Pers_t;
   typedef HGTD::HGTD_ClusterContainer Trans_t;
@@ -45,6 +45,7 @@ private:
   StatusCode initialize(MsgStream& log);
 
   const HGTD_ID* m_hgtd_idhelper;
+  const HGTD_DetectorManager* m_hgtd_det_mgr;
 
   bool m_is_initialized;
 };

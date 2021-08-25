@@ -30,7 +30,6 @@ StatusCode HGTD::HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
   // Get Storegate, ID helpers, and so on
   ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-
   StoreGateSvc* detStore;
   // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", detStore);
@@ -48,6 +47,12 @@ StatusCode HGTD::HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
   sc = detStore->retrieve(m_hgtd_idhelper, "HGTD_ID");
   if (sc.isFailure()) {
     log << MSG::FATAL << "Could not get HGTD_ID helper !" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  sc = detStore->retrieve(m_hgtd_det_mgr, "HGTD");
+  if (sc.isFailure()) {
+    log << MSG::FATAL << "Could not get HGTD_DetectorManager!" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -154,6 +159,9 @@ void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
     IdentifierHash coll_idhash = IdentifierHash(prd_coll.m_hash_id);
     Identifier coll_id = m_hgtd_idhelper->wafer_id(coll_idhash);
 
+    InDetDD::HGTD_DetectorElement* det_elem =
+        m_hgtd_det_mgr->getDetectorElement(coll_idhash);
+
     collection = new HGTD::HGTD_ClusterCollection(coll_idhash);
     collection->setIdentifier(coll_id);
 
@@ -167,7 +175,7 @@ void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
       // NOTE the cluster is created without setting the detector element!
       // NOTE if this is needed down the road, it has to be added here!
       HGTD::HGTD_Cluster* trans_cluster = new HGTD::HGTD_Cluster(
-          cluster_converter.createHGTDCluster(pers_cluster, nullptr, log));
+          cluster_converter.createHGTDCluster(pers_cluster, det_elem, log));
 
       trans_cluster->setHashAndIndex(coll_idhash, clus_i);
       (*collection).at(clus_i) = trans_cluster;
