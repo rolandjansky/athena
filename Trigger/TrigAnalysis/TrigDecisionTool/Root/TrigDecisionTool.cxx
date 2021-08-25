@@ -15,31 +15,23 @@
  ***********************************************************************************/
 
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
-
-
-
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
-#include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+
+#include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
-
-#ifndef XAOD_STANDALONE
-#include "AthenaKernel/getMessageSvc.h"
-#endif
 
 
 static std::vector<std::string> s_instances;
 
 
-Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
-  asg::AsgMetadataTool(name)
-#ifndef XAOD_STANDALONE
-  ,AthMessaging( Athena::getMessageSvc(), this->name() ) // call name() to get demangled name from AsgTool
-#endif
+Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name)
+  : Logger(this)
+  , asg::AsgMetadataTool(name)
 #ifndef XAOD_ANALYSIS
-  ,m_fullNavigation("HLT::Navigation/Navigation", this)
+  , m_fullNavigation("HLT::Navigation/Navigation", this)
 #endif
 {
 #ifdef XAOD_ANALYSIS
@@ -49,34 +41,9 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   //full Athena env
 #ifndef XAOD_ANALYSIS
    declareProperty( "Navigation", m_fullNavigation);
-   // ugly hack to prevent genconf from causing the MessageSvc to bork
-   const std::string cmd = System::cmdLineArgs()[0];
-   if ( cmd.find( "genconf" ) == std::string::npos ) {
-     m_navigation = &*m_fullNavigation;
-   }
+   m_navigation = &*m_fullNavigation;
 #endif
-   
-#ifndef XAOD_STANDALONE
-   //just for Athena/AthAnalysisBase
-   auto props = getProperties();
-   for( Gaudi::Details::PropertyBase* prop : props ) {
-     if( prop->name() != "OutputLevel" ) {
-       continue;
-     }
-     prop->declareUpdateHandler( &Trig::TrigDecisionTool::outputlevelupdateHandler, this );
-     break;
-   }
-#endif
-    Logger::setMessaging(this);
-
 }
-
-#ifndef XAOD_STANDALONE
-void Trig::TrigDecisionTool::outputlevelupdateHandler(Gaudi::Details::PropertyBase& /*p*/) {
-   //call the original update handler
-   Logger::msg().setLevel(AthMessaging::msg().level());
-}
-#endif
 
 Trig::TrigDecisionTool::~TrigDecisionTool() {
 #ifdef XAOD_ANALYSIS

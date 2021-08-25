@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_DECISIONUNPACKEREVENTINFO_H
@@ -9,13 +9,10 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigSteeringEvent/Chain.h"
 
-
 #include "TrigDecisionTool/IDecisionUnpacker.h"
-#include "AsgMessaging/AsgMessaging.h"
+#include "TrigDecisionTool/Logger.h"
 
 #include "DecisionObjectHandleEventInfo.h"
-
-class StoreGateSvc;
 
 namespace HLT {
   class TrigNavStructure;

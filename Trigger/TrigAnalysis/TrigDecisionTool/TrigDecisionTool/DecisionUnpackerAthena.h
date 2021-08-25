@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_DECISIONUNPACKERATHENA_H
@@ -12,13 +12,9 @@
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "AsgMessaging/AsgMessaging.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
 
-
-
-class StoreGateSvc;
 
 namespace TrigDec {
   class TrigDecision;

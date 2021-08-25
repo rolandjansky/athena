@@ -4,7 +4,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -26,13 +25,11 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h" 
 #ifndef XAOD_STANDALONE
-#include "AthenaBaseComps/AthMessaging.h"
 #include "EventInfo/EventInfo.h"
 
 #ifndef XAOD_ANALYSIS
 #include "TrigNavigation/Navigation.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h" 
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 
@@ -61,17 +58,15 @@ namespace Trig {
     public asg::AsgMetadataTool,
     virtual Trig::ITrigDecisionTool,
     public TrigDecisionToolCore
-#ifndef XAOD_STANDALONE
-    , public AthMessaging
-#endif   
-  { 
+  {
     // constructors, destructor
     ASG_TOOL_INTERFACE(Trig::TrigDecisionTool)
     ASG_TOOL_CLASS2(TrigDecisionTool,Trig::ITrigDecisionTool,Trig::TrigDecisionTool)
 
   public:
-    using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
-    using Logger::msg;   //resolve ambiguity from also inheriting from Logger
+    // resolve ambiguity and use Logger adaptor for all messaging
+    using Logger::msgLvl;
+    using Logger::msg;
 
     // constructors, destructor
     TrigDecisionTool(const std::string& name);
@@ -85,11 +80,6 @@ namespace Trig {
     StatusCode beginInputFile();
 
     StatusCode finalize();
-
-    #ifndef XAOD_STANDALONE
-    void outputlevelupdateHandler(Gaudi::Details::PropertyBase& p);  //propagates outputlevel changes to the Logger
-    
-    #endif
 
 #ifndef XAOD_ANALYSIS
     // this is called by Incident dispatcher
@@ -111,8 +101,6 @@ namespace Trig {
     
     using TrigDecisionToolCore::isPassed;
     using TrigDecisionToolCore::isPassedBits;
-
-    bool msgLvl(const MSG::Level lvl) const { return Logger::msgLvl(lvl); }
 
     const std::string& getNavigationFormat() const; //!< Note: Temporary
 

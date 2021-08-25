@@ -1,45 +1,39 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef TrigDecisionTool_Logger_h
 #define TrigDecisionTool_Logger_h
 
-/**********************************************************************************
- * @Project:
- * @Package: TrigDecision
- * @class  : TrigDecision
- *
- * @brief common logger for various non Athena components 
- *
- * @author Tomasz Bold     <Tomasz.Bold@cern.ch>    - UC Irvine - AGH-UST Krakow
- *
- ***********************************************************************************/
-#include <string>
-
-#ifdef XAOD_STANDALONE
-#include "AsgMessaging/AsgMessaging.h"
-#endif
-#ifndef XAOD_STANDALONE
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaBaseComps/AthMessaging.h"
-#endif
+#include "AsgTools/AsgTool.h"
+#include <stdexcept>
 
 namespace Trig{
+  /**
+   * Logging adaptor to provide interfaces required for ATH_MSG macros.
+   *
+   * TrigDecisionTool helper classes derive from this class to be able to use the usual
+   * ATH_MSG macros in their code. One has to ensure that one class in the hierarchy
+   * initializes the (static) Logger via the non-default constructor. All messaging
+   * then occurs via the actual messaging implementation of that class.
+   *
+   * Note that while we are using asg::AsgTool as the logger type, in a full athena
+   * release, this is a direct descendent of AthAlgTool.
+   */
   class Logger {
   public:
-    MsgStream& msg() const;
-    MsgStream& msg(const MSG::Level lvl) const {return msg() << lvl;}
-    bool msgLvl(const MSG::Level lvl) const {return Logger::staticStream->msgLvl(lvl);}
-#ifdef XAOD_STANDALONE
-    void setMessaging(asg::AsgMessaging* messaging){staticStream = messaging;}
-    static asg::AsgMessaging* staticStream;
-#endif
-#ifndef XAOD_STANDALONE
-    void setMessaging(AthMessaging* messaging){staticStream = messaging;}
-    static AthMessaging* staticStream;
-#endif
+    Logger() = default;
+    Logger(asg::AsgTool* logger) { s_logger = logger; }
+
+    MsgStream& msg() const {
+      if (s_logger) return s_logger->msg();
+      else throw std::runtime_error("TrigDecisionTool Logger not initialized.");
+    }
+    MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
+    bool msgLvl(const MSG::Level lvl) const { return s_logger && s_logger->msgLvl(lvl); }
+
+  private:
+    inline static asg::AsgTool* s_logger{nullptr};
   };
 }
 
