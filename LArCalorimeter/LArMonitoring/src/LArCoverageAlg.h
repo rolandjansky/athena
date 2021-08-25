@@ -121,7 +121,8 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   Gaudi::Property< std::vector<std::string> > m_CoverageBarrelPartitions {this, "CoverageBarrelPartitions", {"EMBA","EMBC"}};
   Gaudi::Property< std::vector<std::string> > m_CoverageEndcapPartitions {this, "CoverageEndcapPartitions", {"EMECA","EMECC","HECA","HECC","FCalA","FCalC"}};
   Gaudi::Property< std::vector<std::string> > m_Sides {this, "Sides", {"A","C"}};
-  Gaudi::Property< std::vector<std::string> > m_availableErrorCodes {this, "AvailableErrorCodes", {"0","1","2","3","4"}};
+  Gaudi::Property< std::vector<int> > m_availableErrorCodes {this, "AvailableErrorCodes", {0, 1, 2, 3, 4}};
+  std::vector<std::pair<int, std::string>> m_availableErrorCodesPairs;
 
   
 
