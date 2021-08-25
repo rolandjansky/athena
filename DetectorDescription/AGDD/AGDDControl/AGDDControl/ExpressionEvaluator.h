@@ -22,9 +22,9 @@ public:
   	~ExpressionEvaluator();
 
   	bool RegisterConstant( std::string& c, double v );
-  	bool RegisterPhysConstant( std::string&, std::string, std::string  );
-  	bool RegisterExpression( std::string& c, std::string v  );
-  	bool RegisterArray( std::string& c, std::vector<double> v );
+  	bool RegisterPhysConstant( std::string&, const std::string&, const std::string&  );
+  	bool RegisterExpression( std::string& c, const std::string& v  );
+  	bool RegisterArray( std::string& c, const std::vector<double>& v );
   	bool RegisterVariable( const std::string& var_name, double value);
   
   	double EvaluateString(const std::string& str);
@@ -33,10 +33,10 @@ public:
   	double Eval( const std::string& expr );
   	double Eval( const char* expr );
 	
-	static std::string trim(const std::string);
+	static std::string trim(const std::string&);
 	static std::vector<std::string> tokenize(const std::string&,const std::string&); 
   
-  	void setFileCurrentlyParsed(std::string set)
+  	void setFileCurrentlyParsed(const std::string& set)
   	{
    		m_fileCurrentlyParsed = set;
   	}
