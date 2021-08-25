@@ -258,6 +258,27 @@ namespace EL
 
 
 
+  StatusCode AnaAlgorithm ::
+  requestEndInputFile ()
+  {
+    m_hasEndInputFile = true;
+
+#ifndef XAOD_STANDALONE
+    // Connect to the IncidentSvc:
+    ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
+
+    // Set up the right callback, but ensure we don't double-register
+    // if we are called twice
+    incSvc->removeListener( this, IncidentType::EndInputFile );
+    incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
+#endif
+
+    return StatusCode::SUCCESS;
+  }
+
+
+
   ::StatusCode AnaAlgorithm ::
   initialize ()
   {
@@ -298,6 +319,14 @@ namespace EL
 
   ::StatusCode AnaAlgorithm ::
   beginInputFile ()
+  {
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  endInputFile ()
   {
     return StatusCode::SUCCESS;
   }
@@ -359,6 +388,19 @@ namespace EL
       return StatusCode::FAILURE;
     }
     return beginInputFile ();
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  sysEndInputFile ()
+  {
+    if (m_hasEndInputFile == false)
+    {
+      ANA_MSG_FATAL ("called endInputFile(), though it was not registered");
+      return StatusCode::FAILURE;
+    }
+    return endInputFile ();
   }
 
 
@@ -432,6 +474,14 @@ namespace EL
   {
     return m_hasBeginInputFile;
   }
+
+
+
+  bool AnaAlgorithm ::
+  hasEndInputFile () const noexcept
+  {
+    return m_hasEndInputFile;
+  }
 #endif
 
 
@@ -446,6 +496,10 @@ namespace EL
         ANA_CHECK_THROW (beginInputFile ());
       if (m_hasFileExecute)
         ANA_CHECK_THROW (fileExecute ());
+    } else if (inc.type() == IncidentType::EndInputFile)
+    {
+      if (m_hasEndInputFile)
+        ANA_CHECK_THROW (endInputFile ());
     } else
     {
       ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
