@@ -1629,7 +1629,7 @@ namespace AtlasRoot {
 
 
   // returns mean electron ET at given eta
-  double egammaEnergyCorrectionTool::getZeeMeanET(double /* cl_eta */) const {
+  double egammaEnergyCorrectionTool::getZeeMeanET(double /* cl_eta */) {
 
     return 40000.; // to be replaced by histogram look-up at some point
 
@@ -1641,7 +1641,7 @@ namespace AtlasRoot {
 
   // sampling term inMC, parametrization from Iro Koletsou
 
-  double egammaEnergyCorrectionTool::mcSamplingTerm(double cl_eta) const {
+  double egammaEnergyCorrectionTool::mcSamplingTerm(double cl_eta) {
 
     double aeta = fabs( cl_eta );
     double sampling = 0.;
@@ -1671,7 +1671,7 @@ namespace AtlasRoot {
 
   // sampling term uncertainty
 
-  double egammaEnergyCorrectionTool::mcSamplingTermRelError( double cl_eta ) const {
+  double egammaEnergyCorrectionTool::mcSamplingTermRelError( double cl_eta ) {
 
     (void) cl_eta; // not used
     return 0.1; // when will this be improved?
@@ -1681,7 +1681,7 @@ namespace AtlasRoot {
 
   // noise term in MC (from Iro)
 
-  double egammaEnergyCorrectionTool::mcNoiseTerm( double cl_eta ) const {
+  double egammaEnergyCorrectionTool::mcNoiseTerm( double cl_eta ) {
 
     double aeta = fabs( cl_eta );
     double noise = 0.;
@@ -1704,7 +1704,7 @@ namespace AtlasRoot {
 
   // constant term in MC (local)
 
-  double egammaEnergyCorrectionTool::mcConstantTerm( double cl_eta ) const {
+  double egammaEnergyCorrectionTool::mcConstantTerm( double cl_eta ) {
 
     double aeta = fabs( cl_eta );
     double cst = 0.;
@@ -1968,7 +1968,7 @@ namespace AtlasRoot {
 
   // internal use only
 
-  double egammaEnergyCorrectionTool::fcn_sigma(double energy, double Cdata, double Cdata_er, double S, double S_er) const {
+  double egammaEnergyCorrectionTool::fcn_sigma(double energy, double Cdata, double Cdata_er, double S, double S_er) {
 
     double sigma2 = std::pow((Cdata+Cdata_er)*energy,2) + std::pow(S*(1+S_er)*std::sqrt(energy),2);
 
@@ -2330,7 +2330,7 @@ namespace AtlasRoot {
   }
 
 
-  double egammaEnergyCorrectionTool::getE4Uncertainty(double eta) const {
+  double egammaEnergyCorrectionTool::getE4Uncertainty(double eta) {
     const double aeta = std::abs(eta);
     if ((aeta > 1.6) or (aeta < 1.4)) { return 0.; }
 
@@ -3147,13 +3147,13 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
   }
 
 
-  bool egammaEnergyCorrectionTool::isInCrack( double cl_eta ) const {
+  bool egammaEnergyCorrectionTool::isInCrack( double cl_eta ) {
 
     return fabs(cl_eta)>=1.35 && fabs(cl_eta)<=1.55;
 
   }
 
-  double egammaEnergyCorrectionTool::nearestEtaBEC( double cl_eta ) const {
+  double egammaEnergyCorrectionTool::nearestEtaBEC( double cl_eta ) {
 
     double newEta = cl_eta;
 
@@ -3410,7 +3410,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 
   }
 
-  string egammaEnergyCorrectionTool::variationName(egEnergyCorr::Scale::Variation& var) const {
+  string egammaEnergyCorrectionTool::variationName(egEnergyCorr::Scale::Variation& var) {
     switch(var) {
     case egEnergyCorr::Scale::None: return "None";
     case egEnergyCorr::Scale::Nominal: return "Nominal";
@@ -3485,7 +3485,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     }
   }
 
-  string egammaEnergyCorrectionTool::variationName(egEnergyCorr::Resolution::Variation& var) const {
+  string egammaEnergyCorrectionTool::variationName(egEnergyCorr::Resolution::Variation& var) {
     switch(var) {
       case egEnergyCorr::Resolution::None: return "Resolution::None";
       case egEnergyCorr::Resolution::Nominal: return "Resolution::Nominal";

@@ -34,8 +34,12 @@ public:
   bool m_keep_one;
 
 private:
-  enum class ParticleType {ELECTRON, PHOTON};
-  ParticleType m_particle_type;
+  enum class ParticleType
+  {
+    ELECTRON,
+    PHOTON
+  };
+  ParticleType m_particle_type = ParticleType::ELECTRON;
 
   TTree* m_tree{};
 
