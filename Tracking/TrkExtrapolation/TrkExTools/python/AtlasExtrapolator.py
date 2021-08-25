@@ -54,14 +54,12 @@ class AtlasExtrapolator(Trk__Extrapolator):
             Trk__MaterialEffectsUpdator as MaterialEffectsUpdator)
         AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(
             name='AtlasMaterialEffectsUpdator')
-        ToolSvc += AtlasMaterialEffectsUpdator
 
         self.AtlasUpdators += [AtlasMaterialEffectsUpdator]
 
         AtlasMaterialEffectsUpdatorLandau = MaterialEffectsUpdator(
             name='AtlasMaterialEffectsUpdatorLandau')
         AtlasMaterialEffectsUpdatorLandau.LandauMode = True
-        ToolSvc += AtlasMaterialEffectsUpdatorLandau
 
         self.AtlasUpdators += [AtlasMaterialEffectsUpdatorLandau]
 
