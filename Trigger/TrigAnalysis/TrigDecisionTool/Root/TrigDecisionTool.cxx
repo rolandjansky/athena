@@ -36,7 +36,7 @@ static std::vector<std::string> s_instances;
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name)
 #ifndef XAOD_STANDALONE
-  ,AthMessaging( Athena::getMessageSvc(), name)
+  ,AthMessaging( Athena::getMessageSvc(), this->name() ) // call name() to get demangled name from AsgTool
 #endif
 #ifndef XAOD_ANALYSIS
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
