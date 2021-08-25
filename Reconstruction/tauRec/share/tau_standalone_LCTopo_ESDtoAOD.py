@@ -2,6 +2,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e4993_s3227_r12847/ESD.26288534._000001.pool.root.1", "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e4993_s3227_r12847/ESD.26288534._000002.pool.root.1"]
 athenaCommonFlags.PoolAODOutput = "LCTopo_AOD.pool.root"
 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-RUN2-08")
+
 from RecExConfig.RecFlags import rec
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
