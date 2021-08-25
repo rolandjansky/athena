@@ -19,13 +19,13 @@ namespace TCS {
    public:
       
       // default constructor
-      jLargeRJetTOB(uint32_t roiWord = 0, std::string tobName = "jLargeRJetTOB");
+      jLargeRJetTOB(uint32_t roiWord = 0, const std::string& tobName = "jLargeRJetTOB");
 
       // copy constructor
       jLargeRJetTOB(const jLargeRJetTOB & jet);
 
       // constructor with initial values
-      jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, std::string tobName = "jLargeRJetTOB" );
+      jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jLargeRJetTOB" );
 
       // destructor
       virtual ~jLargeRJetTOB();
