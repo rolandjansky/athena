@@ -22,7 +22,7 @@ QStringList PRDCollHandle_Pixel::availableCollections(IVP1System*sys)
 class PRDCollHandle_Pixel::Imp {
 public:
   PRDCommonFlags::InDetPartsFlags indetpartsflags;
-  unsigned minNRDOPerCluster;
+  unsigned minNRDOPerCluster = 0U;
 };
 
 //____________________________________________________________________

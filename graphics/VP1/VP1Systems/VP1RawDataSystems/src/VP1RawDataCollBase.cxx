@@ -28,12 +28,12 @@ class VP1RawDataCollBase::Imp {
 public:
   QString key;
   bool commonCuts(VP1RawDataHandleBase*handle);
-  VP1ExtraSepLayerHelper * sepHelper;
+  VP1ExtraSepLayerHelper * sepHelper = nullptr;
   VP1Interval allowedEta;
   QList<VP1Interval> allowedPhi;
   VP1RawDataFlags::InDetPartsFlags allowedInDetParts;
   std::vector<VP1RawDataHandleBase*> handles;
-  int iupdategui;
+  int iupdategui = 0;
 };
 
 

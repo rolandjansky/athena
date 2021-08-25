@@ -77,16 +77,16 @@
 //____________________________________________________________________
 class TrackSystemController::Imp {
 public:
-  TrackSystemController * theclass;
-  Ui::VP1TrackControllerForm ui;
-  TrackCollWidget * trackcollwidget;
+  TrackSystemController * theclass = nullptr;
+  Ui::VP1TrackControllerForm ui{};
+  TrackCollWidget * trackcollwidget = nullptr;
   void initMaterials();
   SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
   SoMaterial * getMat(VP1MaterialButton*) const;
-  SoMaterial * materialFallback;
+  SoMaterial * materialFallback = nullptr;
   // SoDrawStyle * trackDrawStyle;
-  SoDrawStyle * ascObjDrawStyle;
-  SoComplexity * ascObjComplexity;
+  SoDrawStyle * ascObjDrawStyle = nullptr;
+  SoComplexity * ascObjComplexity = nullptr;
   // SoLightModel * trackLightModel;
 
   QString restoredLastPropagator;
@@ -95,71 +95,71 @@ public:
   QStringList lastUpdatedAvailableFitters;
   bool updateComboBoxContents(QComboBox*cb,QStringList l,QString& restoredSelection);
   static const QString noneAvailString;
-  unsigned numberOfSelectedPRDs;
-  unsigned numberOfSelectedTracks;
+  unsigned numberOfSelectedPRDs = 0U;
+  unsigned numberOfSelectedTracks = 0U;
   void updateFitPRDButtonState();
 
-  VP1SoMaterialMixer * matmixer;
-  VP1AvailableToolsHelper *  toolhelper_extrapolators;
-  VP1AvailableToolsHelper *  toolhelper_fitters;
-  VP1ToolAccessHelper * toolaccesshelper;
+  VP1SoMaterialMixer * matmixer = nullptr;
+  VP1AvailableToolsHelper *  toolhelper_extrapolators = nullptr;
+  VP1AvailableToolsHelper *  toolhelper_fitters = nullptr;
+  VP1ToolAccessHelper * toolaccesshelper = nullptr;
   TrackCommonFlags::TrackPartsFlags last_shownTrackParts;
-  int last_vertexProjectionAngle;
-  double last_trackTubeRadius;
+  int last_vertexProjectionAngle = 0;
+  double last_trackTubeRadius = 0.0;
   TrackLabelModes last_trackLabels;
-  float last_trackLabelTrkOffset;
+  float last_trackLabelTrkOffset = 0.0F;
   QList<int> last_trackLabelPosOffset;
-  Trk::IExtrapolator * last_propagator;
+  Trk::IExtrapolator * last_propagator = nullptr;
   // bool last_ignoreMeasurementEffectsOnTrackInProp;  
   PropagationOptionFlags last_propagationOptions;
-  float last_propMaxRadius;
-  Trk::ITrackFitter * last_trackFitter;
-  Muon::MuonEDMPrinterTool * muonedmprintertool;
+  float last_propMaxRadius = 0.0F;
+  Trk::ITrackFitter * last_trackFitter = nullptr;
+  Muon::MuonEDMPrinterTool * muonedmprintertool = nullptr;
   TrackCommonFlags::SELECTIONMODE last_selectionMode;
-  bool last_showTruthAscObjs;
+  bool last_showTruthAscObjs = false;
   TrackCommonFlags::DETAILLEVEL last_assocObjDetailLevel;
   TrackCommonFlags::TSOSPartsFlags last_shownTSOSParts;
   TrackCommonFlags::TSOSPartsFlags last_customColouredTSOSParts;
-  bool last_useShortTRTMeasurements;
-  bool last_useShortMDTMeasurements;
-  bool last_drawMeasGlobalPositions;
-  double last_measurementsShorttubesScale;
-  double last_nStdDevForParamErrors;
-  bool last_parTubeErrorsDrawCylinders;
-  int last_numberOfPointsOnCircles;
-  double last_materialEffectsOnTrackScale;
+  bool last_useShortTRTMeasurements = false;
+  bool last_useShortMDTMeasurements = false;
+  bool last_drawMeasGlobalPositions = false;
+  double last_measurementsShorttubesScale = 0.0;
+  double last_nStdDevForParamErrors = 0.0;
+  bool last_parTubeErrorsDrawCylinders = false;
+  int last_numberOfPointsOnCircles = 0;
+  double last_materialEffectsOnTrackScale = 0.0;
   VP1Interval last_cutAllowedPt;
   VP1Interval last_cutAllowedP;
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;
   QList<unsigned> last_cutRequiredNHits;
-  bool last_cutTruthFromIROnly;
-  bool last_cutExcludeBarcodeZero;
-  bool last_cutTruthExcludeNeutrals;
-  bool last_cutOnlyVertexAssocTracks;
-  bool last_showTotMomentumOnMultiTrackSelection;
+  bool last_cutTruthFromIROnly = false;
+  bool last_cutExcludeBarcodeZero = false;
+  bool last_cutTruthExcludeNeutrals = false;
+  bool last_cutOnlyVertexAssocTracks = false;
+  bool last_showTotMomentumOnMultiTrackSelection = false;
 
-  Ui::TrackSysSettingsColouringForm ui_col;
-  Ui::TrackSysSettingsExtrapolationsForm ui_extrap;
-  Ui::TrackSysSettingsInteractionsForm ui_int;
-  Ui::TrackSysSettingsProjectionsForm ui_proj;
-  Ui::TrackSysSettingsCutsForm ui_cuts;
-  Ui::TrackSysSettingsAscObjsForm ui_ascobjs;
-  Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers;
-  Ui::ObjectBrowser ui_objBrowser;
+  Ui::TrackSysSettingsColouringForm ui_col{};
+  Ui::TrackSysSettingsExtrapolationsForm ui_extrap{};
+  Ui::TrackSysSettingsInteractionsForm ui_int{};
+  Ui::TrackSysSettingsProjectionsForm ui_proj{};
+  Ui::TrackSysSettingsCutsForm ui_cuts{};
+  Ui::TrackSysSettingsAscObjsForm ui_ascobjs{};
+  Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers{};
+  Ui::ObjectBrowser ui_objBrowser{};
   
   static bool extrapolatorsCreated;
   static void ensureExtrapolatorsCreated(IVP1System *);
   static bool fittersCreated;
   static void ensureFittersCreated(IVP1System *);
   
-  QTreeWidget* objBrowserWidget;
-  TrackSysCommonData * common;
+  QTreeWidget* objBrowserWidget = nullptr;
+  TrackSysCommonData * common = nullptr;
   
   // Added because TrackingVolumeSvc doesn't work any more. Can remove when we move to new extrapolator
-  Trk::Volume* calorimeterEntryLayer;
-  Trk::Volume* muonSpectrometerEntryLayer;
-  Trk::Volume* muonSpectrometerExitLayer;
+  Trk::Volume* calorimeterEntryLayer = nullptr;
+  Trk::Volume* muonSpectrometerEntryLayer = nullptr;
+  Trk::Volume* muonSpectrometerExitLayer = nullptr;
 };
 
 const QString TrackSystemController::Imp::noneAvailString = QString("None available");

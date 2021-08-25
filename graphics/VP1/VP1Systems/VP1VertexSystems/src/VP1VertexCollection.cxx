@@ -63,8 +63,8 @@ QList<VP1StdCollection*> VP1VertexCollection::createCollections(VertexSysControl
 //____________________________________________________________________
 class VP1VertexCollection::Imp {
 public:
-  VP1VertexCollection * theclass;
-  VertexSysController * controller;
+  VP1VertexCollection * theclass = nullptr;
+  VertexSysController * controller = nullptr;
   QString key;
 
   //  std::map <SoNode *, const Trk::VxCandidate *> nodeToVertexMap;//fixme: obsolete
@@ -261,11 +261,11 @@ public:
 
   QList<VertexHandle*> vertices;
   //Extra widgets:
-  QComboBox * comboBox_colourby;
+  QComboBox * comboBox_colourby = nullptr;
   static QString comboBoxEntry_ColourByCollection() { return "Uniform"; }
   static QString comboBoxEntry_ColourByRandom() { return "Random"; }
   
-  SoMaterial * m_randommaterial;
+  SoMaterial * m_randommaterial = nullptr;
 };
 
 

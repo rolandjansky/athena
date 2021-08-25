@@ -142,10 +142,10 @@ private:
   VP1Interval m_cut_allowedY;
   VP1Interval m_cut_allowedR;
   VP1Interval m_cut_allowedZ;
-  bool m_cut_y_allowall;
+  bool m_cut_y_allowall = false;
   bool m_cut_r_allowall;
   bool m_cut_z_allowall;
-  bool m_cut_ry_allwillfail;
+  bool m_cut_ry_allwillfail = false;
   bool m_cut_rz_allwillfail;
 };
 

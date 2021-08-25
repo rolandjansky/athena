@@ -26,7 +26,7 @@ class VP1RawDataCommonData::Imp {
 public:
   std::map<SoTransform*,VP1RawDataHandleBase*> transform2handle;
   static void setShowVolumeOutlines(SoGroup*nodegroup,bool showvol);
-  bool showVolOutlines;
+  bool showVolOutlines = false;
 };
 
 

@@ -41,15 +41,15 @@
 //____________________________________________________________________
 class GuideSysController::Imp {
 public:
-  GuideSysController * theclass;
-  Ui::VP1GuidesControllerForm ui;
-  Ui::VP1GuidesSysSettingsCoordinateAxesForm ui_axes;
-  Ui::VP1GuidesSysSettingsEtaConeForm ui_etacones;
-  Ui::VP1GuidesSysSettingsFloorAndLettersForm ui_floorandletters;
-  Ui::VP1GuidesSysSettingsGridForm ui_grid;
-  Ui::VP1GuidesSysSettingsIDProjSurfsForm ui_idprojsurfs;
-  Ui::VP1TrackingVolumesForm ui_trkvolumes;
-  Ui::VP1LinesForm ui_lines;
+  GuideSysController * theclass = nullptr;
+  Ui::VP1GuidesControllerForm ui{};
+  Ui::VP1GuidesSysSettingsCoordinateAxesForm ui_axes{};
+  Ui::VP1GuidesSysSettingsEtaConeForm ui_etacones{};
+  Ui::VP1GuidesSysSettingsFloorAndLettersForm ui_floorandletters{};
+  Ui::VP1GuidesSysSettingsGridForm ui_grid{};
+  Ui::VP1GuidesSysSettingsIDProjSurfsForm ui_idprojsurfs{};
+  Ui::VP1TrackingVolumesForm ui_trkvolumes{};
+  Ui::VP1LinesForm ui_lines{};
 
   static SbColor4f color4f(const QColor& col, int transp_int) {
     return SbColor4f(std::max<float>(0.0f,std::min<float>(1.0f,col.redF())),
@@ -60,37 +60,37 @@ public:
 
   InDetProjFlags::DetTypeFlags inDetDetTypesUsingProjections;
 
-  bool last_showFloor;
+  bool last_showFloor = false;
   SbColor4f last_floorColourAndTransp;
-  double last_floorExtent;
-  double last_floorSpacing;
-  double last_floorHeight;
-  bool last_showLetters;
-  double last_lettersZPos;
-  double last_lettersVerticalPos;
-  bool last_showAxes;
-  double last_axesLength;
+  double last_floorExtent = 0.0;
+  double last_floorSpacing = 0.0;
+  double last_floorHeight = 0.0;
+  bool last_showLetters = false;
+  double last_lettersZPos = 0.0;
+  double last_lettersVerticalPos = 0.0;
+  bool last_showAxes = false;
+  double last_axesLength = 0.0;
   SbVec3f last_axesPosition;
-  double last_relAxesThickness;
-  bool last_showCartesianGrid;
-  bool last_showCylindricalGrid;
+  double last_relAxesThickness = 0.0;
+  bool last_showCartesianGrid = false;
+  bool last_showCylindricalGrid = false;
   SbColor4f last_gridColourAndTransp;
-  double last_gridSpacing;
-  double last_gridExtent;
-  bool last_showEtaCone1;
-  bool last_showEtaCone2;
-  bool last_showEtaCone3;
-  double last_etaConeValue1;
-  double last_etaConeValue2;
-  double last_etaConeValue3;
-  double last_etaExtent;
-  bool last_showTrackingVolumes;
-  bool last_showInnerDetector;
-  bool last_showCalorimeters;
-  bool last_showMuonSpectrometer;
-  bool last_showLines;
+  double last_gridSpacing = 0.0;
+  double last_gridExtent = 0.0;
+  bool last_showEtaCone1 = false;
+  bool last_showEtaCone2 = false;
+  bool last_showEtaCone3 = false;
+  double last_etaConeValue1 = 0.0;
+  double last_etaConeValue2 = 0.0;
+  double last_etaConeValue3 = 0.0;
+  double last_etaExtent = 0.0;
+  bool last_showTrackingVolumes = false;
+  bool last_showInnerDetector = false;
+  bool last_showCalorimeters = false;
+  bool last_showMuonSpectrometer = false;
+  bool last_showLines = false;
   SbVec3f last_lineDirection;
-  double last_line_eta; // This is needed to update the display in possibleChange_lineDirection
+  double last_line_eta = 0.0; // This is needed to update the display in possibleChange_lineDirection
 
   InDetProjFlags::InDetProjPartsFlags last_applicablePixelProjParts;
   InDetProjFlags::InDetProjPartsFlags last_applicableSCTProjParts;

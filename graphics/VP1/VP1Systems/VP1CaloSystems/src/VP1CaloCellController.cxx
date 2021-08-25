@@ -47,24 +47,24 @@ class VP1CaloCellController::Imp
 {
 public:
 	// ---------- Data members ------------
-	VP1CaloCellController* theclass;
-	Ui::frmCaloCellController ui;
-	Ui::frmCaloCellVisOptions ui_visopts;
-	Ui::frmCaloCellBadChannels ui_badchans;
-	Ui::frmCaloCellInteractions ui_interact;
-	Ui::frmCaloCellCuts ui_cuts;
-	Ui::frmCaloCellThresholdsMbts ui_threshmbts;
-	Ui::frmCaloCellThresholdsTile ui_threshtile;
-	Ui::frmCaloCellThresholdsLArSimple ui_threshlarsimp;
-	Ui::frmCaloCellThresholdsLArExpert ui_threshlarexp;
+	VP1CaloCellController* theclass = nullptr;
+	Ui::frmCaloCellController ui{};
+	Ui::frmCaloCellVisOptions ui_visopts{};
+	Ui::frmCaloCellBadChannels ui_badchans{};
+	Ui::frmCaloCellInteractions ui_interact{};
+	Ui::frmCaloCellCuts ui_cuts{};
+	Ui::frmCaloCellThresholdsMbts ui_threshmbts{};
+	Ui::frmCaloCellThresholdsTile ui_threshtile{};
+	Ui::frmCaloCellThresholdsLArSimple ui_threshlarsimp{};
+	Ui::frmCaloCellThresholdsLArExpert ui_threshlarexp{};
 
 	// This is needed by VP1Controller base class
 	VP1CCIntervalMap last_selectionIntervals;
 	QPair<bool,double> last_scale;
 	VP1Interval last_selectionMbts;
-	bool last_showDigits;
-	bool last_showVolumeOutLines;
-	bool last_energyModeEt;
+	bool last_showDigits = false;
+	bool last_showVolumeOutLines = false;
+	bool last_energyModeEt = false;
 	VP1CC_GlobalCuts last_globalCuts;
 
 	// Map of gui object structures by selection type (simple/expert modes)
@@ -76,15 +76,15 @@ public:
 	MatButtonMap matButtonMap;
 
 	// Digits display
-	QWidget*                   digit_form_single;
-	QWidget*                   digit_form_double;
+	QWidget*                   digit_form_single = nullptr;
+	QWidget*                   digit_form_double = nullptr;
 
 //	Ui::frmCaloDigitsSingle*   UiDigitsSingle; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 //	Ui::frmCaloDigitsDouble*   UiDigitsDouble; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 
 	// at the beginning of every event reset these flags to FALSE
-	bool singlePlotHasData;
-	bool doublePlotHasData;
+	bool singlePlotHasData = false;
+	bool doublePlotHasData = false;
 };
 
 // -------------------- Controller -------------------------------

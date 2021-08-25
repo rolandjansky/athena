@@ -56,7 +56,7 @@ public:
     return std::sqrt( v.x()*v.x() + v.y()*v.y() + v.z()*v.z() );
   }
 
-  TrackCollHandle_TruthTracks * theclass;
+  TrackCollHandle_TruthTracks * theclass = nullptr;
   bool loadHitLists(std::map<SimBarCode,SimHitList> & hitLists);
   void loadGenParticles( std::map<SimBarCode,HepMC::ConstGenParticlePtr> & genParticles,
 			 HepMC::ConstGenVertexPtr vtx );
@@ -85,18 +85,18 @@ public:
 
   std::map<SimBarCode::ExtBarCode,int> extBarCode2pdg;
 
-  int updateGUICounter;
+  int updateGUICounter = 0;
   void possiblyUpdateGUI() {
     if (!((updateGUICounter++)%750)) {
       theclass->systemBase()->updateGUI();
     }
   }
 
-  bool cut_fromIROnly;
-  bool cut_excludeBarcodeZero;
-  bool cut_excludeNeutrals;
+  bool cut_fromIROnly = false;
+  bool cut_excludeBarcodeZero = false;
+  bool cut_excludeNeutrals = false;
 
-  bool displayAscObjs;
+  bool displayAscObjs = false;
   void updateVisibleAssociatedObjects();
 
   bool fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist);

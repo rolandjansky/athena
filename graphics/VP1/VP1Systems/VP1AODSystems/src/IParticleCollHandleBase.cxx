@@ -49,7 +49,7 @@
 //____________________________________________________________________
 class IParticleCollHandleBase::Imp {
 public:
-  IParticleCollHandleBase * theclass;
+  IParticleCollHandleBase * theclass = nullptr;
   
   //Vector of iParticle handles:
   std::vector<IParticleHandleBase*> handles;
