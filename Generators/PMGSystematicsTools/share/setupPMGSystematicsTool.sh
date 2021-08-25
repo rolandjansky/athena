@@ -16,6 +16,5 @@ source setupLHAPDF.sh
 linkpath=`which systematicsTool.py`
 toolpath=`readlink -f $linkpath`
 tooldir=`dirname $toolpath`
-tooldir=`dirname $tooldir`
 export SYSTTOOLSPATH=`dirname ${tooldir}` 
 export PYTHONPATH=$PYTHONPATH:${tooldir}
