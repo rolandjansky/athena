@@ -12,6 +12,7 @@
 #include "AthenaBaseComps/AthMessaging.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+#include "ByteStreamData/RawEvent.h"
 
 // Gaudi includes
 #include "GaudiKernel/Converter.h"
@@ -44,12 +45,16 @@ public:
   long repSvcType() const override { return i_repSvcType(); } //!< return repSvcType
 
 private:
+  /// Helper method for debug printouts
+  void printRob(const OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment& rob) const;
+
   /// Helper to obtain the RawEvent pointer
   ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess{"ByteStreamCnvSvc", "L1TriggerResultByteStreamCnv"};
 
   // Tools performing the decoding work - *public* tools hard-coded in C++ because of Converter interface limitations
-  /// Encoder tool for L1Muon RoIs
+  /// Encoder tools for L1Muon RoIs (one writing RoIB ROB, one writing DAQ ROB)
   ToolHandle<IL1TriggerByteStreamTool> m_muonEncoderTool{"MuonRoIByteStreamTool/L1MuonBSEncoderTool"};
+  ToolHandle<IL1TriggerByteStreamTool> m_muonEncoderToolDaq{"MuonRoIByteStreamTool/L1MuonBSEncoderToolDAQ"};
   // Placeholder for other L1 xAOD outputs:
   // - CTP result
   // - L1Topo result
