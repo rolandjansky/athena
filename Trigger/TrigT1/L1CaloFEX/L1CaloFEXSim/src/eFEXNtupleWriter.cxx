@@ -32,6 +32,8 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
   CHECK( histSvc.retrieve() );
   m_myTree = new TTree("data","data");
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
+
+  ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
   
   m_load_truth_jet = false;
 
@@ -86,17 +88,18 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
 }
 
 StatusCode LVL1::eFEXNtupleWriter::execute () {
-  //ATH_MSG_DEBUG("==== eFEXNtupleWriter ============ execute()");
-  ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc/StoreGateSvc",  "arbitrary");
-  CHECK(evtStore.retrieve() );
+  SG::ReadHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionobj = SG::ReadHandle<LVL1::eFEXOutputCollection>(m_eFEXOutputCollectionSGKey/*,ctx*/);
+  if(!eFEXOutputCollectionobj.isValid()){
+    ATH_MSG_FATAL("Could not retrieve eFEXOutputCollection " << m_eFEXOutputCollectionSGKey.key());
+    return StatusCode::FAILURE;
+  }
+  if (!eFEXOutputCollectionobj->getdooutput()) {
+    return StatusCode::SUCCESS; 
+  }
 
-  m_eFEXOutputCollection = new eFEXOutputCollection();
-  //m_eFEXOutputCollection = std::make_shared<eFEXOutputCollection>();
-  CHECK(evtStore->retrieve(m_eFEXOutputCollection, "eFEXOutputCollection"));
-
-  CHECK(loadegAlgoVariables());
-  CHECK(loadegAlgoTOBs());
-  CHECK(loadtauAlgoVariables());
+  CHECK(loadegAlgoVariables(eFEXOutputCollectionobj));
+  CHECK(loadegAlgoTOBs(eFEXOutputCollectionobj));
+  CHECK(loadtauAlgoVariables(eFEXOutputCollectionobj));
   CHECK(loadTruthElectron());
   CHECK(loadTruthTau());
   if (m_load_truth_jet){
@@ -104,7 +107,7 @@ StatusCode LVL1::eFEXNtupleWriter::execute () {
   }
 
   m_myTree->Fill();
-  m_eFEXOutputCollection->clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -113,7 +116,7 @@ StatusCode LVL1::eFEXNtupleWriter::finalize () {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables() {
+StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables(SG::ReadHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionobj) {
   m_tau_Iso.clear();
   m_tau_Et.clear();
   m_tau_Eta.clear();
@@ -121,20 +124,20 @@ StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables() {
   m_tau_floatEta.clear();
   m_tau_floatPhi.clear();
   m_tau_isCentralTowerSeed.clear();
-  for (int i = 0; i < m_eFEXOutputCollection->tau_size(); i++)
+  for (int i = 0; i < eFEXOutputCollectionobj->tau_size(); i++)
   {
-    m_tau_isCentralTowerSeed.push_back((*(m_eFEXOutputCollection->get_tau(i)))["isCentralTowerSeed"]);
-    m_tau_Et.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Et"]);
-    m_tau_Eta.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Eta"]);
-    m_tau_Phi.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Phi"]);
-    m_tau_floatEta.push_back((*(m_eFEXOutputCollection->get_tau(i)))["FloatEta"]);
-    m_tau_floatPhi.push_back((*(m_eFEXOutputCollection->get_tau(i)))["FloatPhi"]);
-    m_tau_Iso.push_back((*(m_eFEXOutputCollection->get_tau(i)))["Iso"]);
+    m_tau_isCentralTowerSeed.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["isCentralTowerSeed"]);
+    m_tau_Et.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Et"]);
+    m_tau_Eta.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Eta"]);
+    m_tau_Phi.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Phi"]);
+    m_tau_floatEta.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["FloatEta"]);
+    m_tau_floatPhi.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["FloatPhi"]);
+    m_tau_Iso.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Iso"]);
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables() {
+StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables(SG::ReadHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionobj) {
   m_eg_ET.clear();
   m_eg_WstotNum.clear();
   m_eg_WstotDen.clear();
@@ -149,10 +152,10 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables() {
   m_em.clear();
   m_had.clear();
 
-  m_eg_nTOBs = m_eFEXOutputCollection->size();
-  for (int i = 0; i < m_eFEXOutputCollection->size(); i++)
+  m_eg_nTOBs = eFEXOutputCollectionobj->size();
+  for (int i = 0; i < eFEXOutputCollectionobj->size(); i++)
   {
-    std::map<std::string, float> eFEXegvalue_tem = (*(m_eFEXOutputCollection->get_eg(i)));
+    std::map<std::string, float> eFEXegvalue_tem = (*(eFEXOutputCollectionobj->get_eg(i)));
     m_eg_WstotNum.push_back(eFEXegvalue_tem["WstotNum"]);
     m_eg_WstotDen.push_back(eFEXegvalue_tem["WstotDen"]);
     m_eg_RetaNum.push_back(eFEXegvalue_tem["RetaNum"]);
@@ -169,7 +172,7 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoVariables() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::eFEXNtupleWriter::loadegAlgoTOBs() {
+StatusCode LVL1::eFEXNtupleWriter::loadegAlgoTOBs(SG::ReadHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionobj) {
   m_eg_TOB_FP.clear();
   m_eg_TOB_Eta.clear();
   m_eg_TOB_Phi.clear();
@@ -181,9 +184,9 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoTOBs() {
   m_eg_TOB_Max.clear();
   m_eg_TOB_zeros.clear();
   m_eg_TOB_energy.clear();
-  for (int i = 0; i < m_eFEXOutputCollection->size(); i++)
+  for (int i = 0; i < eFEXOutputCollectionobj->size(); i++)
   {
-    uint32_t TOB = m_eFEXOutputCollection->getEMtob()[i];
+    uint32_t TOB = eFEXOutputCollectionobj->getEMtob()[i];
     uint32_t FP = getbits(TOB, 1, 2);
     uint32_t Eta = getbits(TOB, 3, 5);
     uint32_t Phi = getbits(TOB, 6, 8);
@@ -208,7 +211,7 @@ StatusCode LVL1::eFEXNtupleWriter::loadegAlgoTOBs() {
     m_eg_TOB_zeros.push_back(zeros);
     m_eg_TOB_energy.push_back(energy * 100);
   }
-  m_eFex_number = m_eFEXOutputCollection->geteFexNumber();
+  m_eFex_number = eFEXOutputCollectionobj->geteFexNumber();
   return StatusCode::SUCCESS;
 }
 

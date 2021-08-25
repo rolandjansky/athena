@@ -47,7 +47,7 @@ namespace LVL1 {
     virtual ~eFEXFPGA();
 
     virtual StatusCode init(int id, int efexid) override ;
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) override ;
     virtual void reset() override ;
     virtual int getID() override {return m_id;}
 
@@ -56,7 +56,6 @@ namespace LVL1 {
 
     virtual std::vector <uint32_t> getEmTOBs() override ;
     virtual std::vector <uint32_t> getTauTOBs() override ;
-
 
     /** Internal data */
   private:
@@ -75,8 +74,6 @@ namespace LVL1 {
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXFPGA_eTowerContainerKey {
       this, "MyETowers", "eTowerContainer", 
 	"Input container for eTowers"};
-
-    //SG::ReadHandleKey<eFEXOutputCollection> m_eFEXFPGA_eFEXOutputCollectionKey {this, "MyOutputs", "eFEXOutputCollection", "Input container for eFEXOutputCollection"};
 
     ToolHandle<IeFEXtauAlgo> m_eFEXtauAlgoTool {
       this, "eFEXtauAlgoTool", "LVL1::eFEXtauAlgo", 

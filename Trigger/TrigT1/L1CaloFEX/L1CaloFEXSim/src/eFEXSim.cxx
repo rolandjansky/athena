@@ -74,7 +74,7 @@ namespace LVL1 {
 
  }
 
-StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
+StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputCollection* inputOutputCollection){
   m_emTobWords.clear();
   m_tauTobWords.clear();
 
@@ -93,7 +93,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   }
   ATH_CHECK(m_eFEXFPGATool->init(0, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
-  ATH_CHECK(m_eFEXFPGATool->execute());
+  ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
   m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
@@ -108,7 +108,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   }
   ATH_CHECK(m_eFEXFPGATool->init(1, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
-  ATH_CHECK(m_eFEXFPGATool->execute());
+  ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
   m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
@@ -124,7 +124,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   }
   ATH_CHECK(m_eFEXFPGATool->init(2, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
-  ATH_CHECK(m_eFEXFPGATool->execute());
+  ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
   m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
@@ -139,7 +139,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
   }
   ATH_CHECK(m_eFEXFPGATool->init(3, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
-  ATH_CHECK(m_eFEXFPGATool->execute());
+  ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobWords.push_back(m_eFEXFPGATool->getEmTOBs());
   m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
@@ -247,7 +247,6 @@ void eFEXSim::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[10][18]){ // METHOD
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
   
 }
-  
 
 } // end of namespace bracket
 
