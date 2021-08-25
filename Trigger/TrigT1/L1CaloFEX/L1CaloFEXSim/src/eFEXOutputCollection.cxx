@@ -4,6 +4,10 @@
 
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 
+LVL1::eFEXOutputCollection::eFEXOutputCollection() {
+  m_dooutput = false;
+}
+
 LVL1::eFEXOutputCollection::~eFEXOutputCollection()
 {
   for (auto iValues : m_allvalues_eg) {
@@ -50,24 +54,24 @@ void LVL1::eFEXOutputCollection::fill_tau()
   m_values_tem_tau.clear();
 }
 
-int LVL1::eFEXOutputCollection::tau_size()
+int LVL1::eFEXOutputCollection::tau_size() const
 {
   return m_allvalues_tau.size();
 }
 
-int LVL1::eFEXOutputCollection::size()
+int LVL1::eFEXOutputCollection::size() const
 {
   return m_allvalues_eg.size();
 }
 
-std::map<std::string, float>* LVL1::eFEXOutputCollection::get_eg(int location)
+std::map<std::string, float>* LVL1::eFEXOutputCollection::get_eg(int location) const
 {
-  return m_allvalues_eg[location];
+  return m_allvalues_eg.at(location);
 }
 
-std::map<std::string, float>* LVL1::eFEXOutputCollection::get_tau(int location)
+std::map<std::string, float>* LVL1::eFEXOutputCollection::get_tau(int location) const
 {
-  return m_allvalues_tau[location];
+  return m_allvalues_tau.at(location);
 }
 
 void LVL1::eFEXOutputCollection::addeFexNumber(int efexnumber)
@@ -75,7 +79,7 @@ void LVL1::eFEXOutputCollection::addeFexNumber(int efexnumber)
   m_eFexNumber.push_back(efexnumber);
 }
 
-std::vector<int> LVL1::eFEXOutputCollection::geteFexNumber()
+std::vector<int> LVL1::eFEXOutputCollection::geteFexNumber() const
 {
   return m_eFexNumber;
 }
@@ -85,7 +89,16 @@ void LVL1::eFEXOutputCollection::addEMtob(uint32_t emtob)
   m_emtob.push_back(emtob);
 }
 
-std::vector<uint32_t> LVL1::eFEXOutputCollection::getEMtob()
+std::vector<uint32_t> LVL1::eFEXOutputCollection::getEMtob() const
 {
   return m_emtob;
+}
+
+
+void LVL1::eFEXOutputCollection::setdooutput(bool input) {
+  m_dooutput = input;
+}
+
+bool LVL1::eFEXOutputCollection::getdooutput() const {
+  return m_dooutput;
 }

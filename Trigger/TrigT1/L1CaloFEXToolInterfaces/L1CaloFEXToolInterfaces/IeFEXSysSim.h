@@ -14,6 +14,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "L1CaloFEXSim/eTowerContainer.h"
+#include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -29,14 +30,14 @@ Interface definition for eFEXSysSim
   public:
     static const InterfaceID& interfaceID( ) ;
     
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void init() = 0;
 
     virtual void cleanup() = 0;
 
     virtual int calcTowerID(int eta, int phi, int mod) = 0 ;
-    
+
   private:
 
   };

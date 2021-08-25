@@ -20,6 +20,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "L1CaloFEXSim/eFEXOutputCollection.h"
 
 namespace LVL1 {
   
@@ -55,7 +56,7 @@ namespace LVL1 {
     
     virtual void SetTowersAndCells_SG(int tmp[10][18]) override;
 
-    virtual StatusCode NewExecute(int tmp[10][18]) override;
+    virtual StatusCode NewExecute(int tmp[10][18], eFEXOutputCollection* inputOutputCollection) override;
 
     virtual std::vector<uint32_t> getEmTOBs() override;
     virtual std::vector<uint32_t> getTauTOBs() override;

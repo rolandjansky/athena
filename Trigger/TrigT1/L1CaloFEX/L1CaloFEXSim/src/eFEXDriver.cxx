@@ -87,7 +87,7 @@ StatusCode eFEXDriver::initialize()
   //   ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
   // }
 
-  //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
+  ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -119,33 +119,18 @@ StatusCode eFEXDriver::finalize()
   //eTowerContainer* local_eTowerContainerRaw = new eTowerContainer();
   std::unique_ptr<eTowerContainer> local_eTowerContainerRaw = std::make_unique<eTowerContainer>();
 
-  // STEP 1 - Do some monitoring (code to exported in the future to another algorithm accessing only StoreGate and not appearing in this algorithm)
-  eFEXOutputCollection* my_eFEXOutputCollection = new eFEXOutputCollection();
-  bool savetob = true;
-  if(savetob)
-  {
-    StatusCode sctob = evtStore()->record(my_eFEXOutputCollection,"eFEXOutputCollection");
-    if(sctob == StatusCode::SUCCESS){}
-    else if (sctob == StatusCode::FAILURE){ATH_MSG_ERROR("Event " << m_numberOfEvents << " , Failed to put eFEXOutputCollection into Storegate.");}
-    
-    /*
-    SG::WriteHandle<eFEXOutputCollection> eFEXOutputCollectionSG(m_eFEXOutputCollectionSGKey,ctx);
-    ATH_CHECK(eFEXOutputCollectionSG.record(std::make_unique<eFEXOutputCollection>()));
-    */
-  }
-
-  // STEP 2 - Make some eTowers and fill the local container
+  // STEP 1 - Make some eTowers and fill the local container
   ATH_CHECK( m_eTowerBuilderTool.retrieve() );
   m_eTowerBuilderTool->init(local_eTowerContainerRaw);
   local_eTowerContainerRaw->clearContainerMap();
   local_eTowerContainerRaw->fillContainerMap();
 
-  // STEP 3 - Do the supercell-tower mapping - put this information into the eTowerContainer
+  // STEP 2 - Do the supercell-tower mapping - put this information into the eTowerContainer
   ATH_CHECK( m_eSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_eTowerContainerRaw));
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_eTowerContainerRaw));
 
-  // STEP 3.5 - Set up a the first CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
+  // STEP 2.5 - Set up a the first CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
   if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
     if(m_numberOfEvents == 1){
       std::ofstream sc_tower_map;
@@ -177,17 +162,21 @@ StatusCode eFEXDriver::finalize()
   // }
 
 
-  // STEP 4 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
+  // STEP 3 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::eTowerContainer> eTowerContainerSG(m_eTowerContainerSGKey/*, ctx*/);
   //std::unique_ptr<LVL1::eTowerContainer> my_eTowerContainerRaw(local_eTowerContainerRaw);
   ATH_CHECK(eTowerContainerSG.record(std::move(/*my_eTowerContainerRaw*/local_eTowerContainerRaw)));
 
-  // STEP 5 - Set up the eFEXSysSim
+  // STEP 4 - Set up the eFEXSysSim
   ATH_CHECK( m_eFEXSysSimTool.retrieve() );
   m_eFEXSysSimTool->init();
 
+  // STEP 5 - Do some monitoring
+  eFEXOutputCollection* my_eFEXOutputCollection = new eFEXOutputCollection();
+  my_eFEXOutputCollection->setdooutput(true);
+
   // STEP 6 - Run THE eFEXSysSim
-  ATH_CHECK(m_eFEXSysSimTool->execute());
+  ATH_CHECK(m_eFEXSysSimTool->execute(my_eFEXOutputCollection));
 
   ///STEP 6.5 - test the EDM
   ATH_CHECK(testEDM());
@@ -197,6 +186,11 @@ StatusCode eFEXDriver::finalize()
   m_eFEXSysSimTool->cleanup();
   m_eSuperCellTowerMapperTool->reset();
   m_eTowerBuilderTool->reset();
+
+  // STEP 8 - Write the completed eFEXOutputCollection into StoreGate (move the local copy in memory)
+  std::unique_ptr<eFEXOutputCollection> local_eFEXOutputCollection = std::unique_ptr<eFEXOutputCollection>(my_eFEXOutputCollection);
+  SG::WriteHandle<LVL1::eFEXOutputCollection> eFEXOutputCollectionSG(m_eFEXOutputCollectionSGKey);
+  ATH_CHECK(eFEXOutputCollectionSG.record(std::move(local_eFEXOutputCollection)));
 
   ATH_MSG_DEBUG("Executed " << name() << ", closing event number " << m_numberOfEvents );
 
