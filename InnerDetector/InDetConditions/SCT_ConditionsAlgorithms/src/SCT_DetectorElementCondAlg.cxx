@@ -83,7 +83,7 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     if (*muonDependency != nullptr){
       writeHandle.addDependency(muonDependency);
     } else {
-    ATH_MSG_WARNING("MuonManager not found, ignoring Muons for PixelDetElement lifetime");
+    ATH_MSG_WARNING("MuonManager not found, ignoring Muons for SCT_DetElement lifetime");
     }
   }
   for (const SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> &key :m_trtDetElContKey ) {
@@ -91,7 +91,7 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     if (*trtDependency != nullptr){
       writeHandle.addDependency(trtDependency);
     } else {
-      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for PixelDetElement lifetime");
+      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for SCT_DetElement lifetime");
     }
   }
   for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_pixelReadKey ) {
