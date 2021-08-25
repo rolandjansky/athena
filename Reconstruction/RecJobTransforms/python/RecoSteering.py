@@ -51,8 +51,9 @@ def RecoSteering(flags):
       acc.merge(CaloExtensionBuilderAlgCfg(flags))
       log.info("---------- Configured track calorimeter extension builder")
 
-    from eflowRec.PFRun3Config import PFCfg
-    acc.merge(PFCfg(flags))
+    if tryConfiguringAll:
+        from eflowRec.PFRun3Config import PFCfg
+        acc.merge(PFCfg(flags))
 
     # physics objects
     # egamma
