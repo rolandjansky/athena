@@ -4021,8 +4021,6 @@ StatusCode TrigEDMChecker::dumpTDT() {
   if (chain.empty()) {
     chain = "HLT_.*";
   }
-  if (msgLvl(MSG::VERBOSE)) m_trigDec->setLevel( MSG::VERBOSE );
-  else if (msgLvl(MSG::DEBUG)) m_trigDec->setLevel( MSG::DEBUG );
   std::vector<std::string> confChains = m_trigDec->getListOfTriggers(chain);
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item);
