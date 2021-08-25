@@ -209,6 +209,9 @@ bool run() {
 			    const TriggerElement* tsource{nullptr};
 			    std::string  lsource;
 			    hns->getRecentFeature(te, back, "", tsource, lsource);
+			    if (back==nullptr) {
+			      REPORT_AND_RETURN("got back nullptr", StatusCode::FAILURE);
+			    }
 			    REPORT_AND_CONTINUE("got back object " << back->value());
 			    return StatusCode::SUCCESS;
 			  }, 

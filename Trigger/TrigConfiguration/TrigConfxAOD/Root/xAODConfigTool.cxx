@@ -428,6 +428,11 @@ namespace TrigConf {
    }
 
    StatusCode xAODConfigTool::beginEvent_Run3(const xAOD::TrigConfKeys* keys) {
+      if (keys==nullptr) {
+         ATH_MSG_ERROR("nullptr TrigConfKeys");
+         return StatusCode::FAILURE;
+      }
+
       // Check if we have the correct menu already:
       bool validConfig = true;
       if (m_currentHltJson->key() != keys->smk()) {
