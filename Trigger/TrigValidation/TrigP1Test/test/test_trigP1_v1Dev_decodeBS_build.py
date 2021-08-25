@@ -42,8 +42,14 @@ writeBS.type = 'athenaHLT'
 writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
 writeBS.max_events = 50
-writeBS.args = '-o output'
-writeBS.args += ' -c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;doRuntimeNaviVal=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+precommand = ''.join([
+  "setMenu='LS2_v1_TriggerValidation_prescale';",
+  "doL1Sim=True;",
+  "rewriteLVL1=True;",
+  "doRuntimeNaviVal=True;",
+])
+writeBS.args = '-c "{:s}"'.format(precommand)
+writeBS.args += ' -o output'
 writeBS.args += ' --dump-config-reload'
 
 # Extract and decode physics_Main
@@ -79,7 +85,7 @@ chaindump.args = '--json --yaml ref_v1Dev_decodeBS_build.new'
 refcomp = CheckSteps.ChainCompStep("CountRefComp")
 refcomp.input_file = 'ref_v1Dev_decodeBS_build.new'
 refcomp.args += ' --patch'
-refcomp.reference_from_release = True # installed from TriggerTest/share
+refcomp.reference_from_release = True # installed from TrigP1Test/share
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 

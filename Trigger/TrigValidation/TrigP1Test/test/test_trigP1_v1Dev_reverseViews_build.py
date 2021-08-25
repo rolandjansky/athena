@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: athenaHLT test of the Dev_pp_run3_v1 menu, with forks=2, threads=4, concurrent_events=4
+# art-description: athenaHLT test of the Dev_pp_run3_v1 menu with with reversed order of views to check their independence
 # art-type: build                                                                  
 # art-include: master/Athena                                                       
 
@@ -12,14 +12,12 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.max_events = 50
-ex.forks = 2
-ex.threads = 4
-ex.concurrent_events = 4
 precommand = ''.join([
   "setMenu='LS2_v1_TriggerValidation_prescale';",
   "doL1Sim=True;",
   "rewriteLVL1=True;",
   "doRuntimeNaviVal=True;",
+  "reverseViews=True;",
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 ex.args += ' --dump-config-reload'
