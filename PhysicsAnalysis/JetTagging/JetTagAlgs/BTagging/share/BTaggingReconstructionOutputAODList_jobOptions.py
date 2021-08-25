@@ -1,3 +1,4 @@
+include.block('BTagging/BTaggingReconstructionOutputAODList_jobOptions.py')
 #**************   AOD list  ************************************************
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingAODList =  BTaggingFlags.btaggingAODList
