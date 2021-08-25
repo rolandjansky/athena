@@ -50,11 +50,11 @@
 //____________________________________________________________________
 class AODCollHandleBase::Imp {
 public:
-  AODCollHandleBase * theclass;
+  AODCollHandleBase * theclass = nullptr;
   QString name;
 
   //Extra widgets:
-  QTreeWidgetItem* objBrowseTree;
+  QTreeWidgetItem* objBrowseTree = nullptr;
 
   // N.B. Material button defined in children.
 };

@@ -97,19 +97,19 @@
 //____________________________________________________________________
 class VP1TrackSystem::Imp {
 public:
-  VP1TrackSystem * theclass;
-  TrackSysCommonData * common;
-  SoCooperativeSelection * sel_tracks;
-  AscObjSelectionManager * ascObjSelManager;
+  VP1TrackSystem * theclass = nullptr;
+  TrackSysCommonData * common = nullptr;
+  SoCooperativeSelection * sel_tracks = nullptr;
+  AscObjSelectionManager * ascObjSelManager = nullptr;
   TrackCommonFlags::SELECTIONMODE selMode;
 
   InDetProjFlags::DetTypeFlags lastEmittedUsedIDProjections;
   InDetProjFlags::DetTypeFlags currentUsedIDProjections() const;
 
-  SoSeparator * totmomsep;
-  SoLineSet * totmomline;
+  SoSeparator * totmomsep = nullptr;
+  SoLineSet * totmomline = nullptr;
   Amg::Vector3D totmomgev;
-  double totmass;
+  double totmass = 0.0;
 
   QList<const Trk::PrepRawData*> selectedPRDs;
 

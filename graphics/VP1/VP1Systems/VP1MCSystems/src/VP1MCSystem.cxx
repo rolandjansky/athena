@@ -34,7 +34,7 @@ class VP1MCSystem::Imp {
 public:
   Imp(VP1MCSystem*tc);
   VP1MCSystem * theclass;
-  Ui::VP1MCSystemControllerForm ui;
+  Ui::VP1MCSystemControllerForm ui{};
   QTreeWidget *tw;
   IPartPropSvc *pps;
 

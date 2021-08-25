@@ -51,7 +51,7 @@
 //____________________________________________________________________
 class TrackCollHandleBase::Imp {
 public:
-  TrackCollHandleBase * theclass;
+  TrackCollHandleBase * theclass = nullptr;
   QString name;
 
   //Vector of track handles:
@@ -60,22 +60,22 @@ public:
   std::vector<TrackHandleBase*>::iterator itTrackHandles;
   std::vector<TrackHandleBase*>::iterator itTrackHandlesEnd;
 
-  Trk::IExtrapolator *  lastUsedPropagator;
-  bool notifystatesave;
+  Trk::IExtrapolator *  lastUsedPropagator = nullptr;
+  bool notifystatesave = false;
 
   TrackCommonFlags::TSOSPartsFlags shownTSOSParts;
   TrackCommonFlags::TSOSPartsFlags customColouredTSOSParts;
-  bool tsos_useShortTRTMeasurements;
-  bool tsos_useShortMDTMeasurements;
-  bool tsos_drawMeasGlobalPositions;
-  double tsos_measurementsShorttubesScale;
-  double tsos_nStdDevForParamErrors;
-  int tsos_numberOfPointsOnCircles;
-  double tsos_materialEffectsOnTrackScale;
-  bool tsos_parTubeErrorsDrawCylinders;
+  bool tsos_useShortTRTMeasurements = false;
+  bool tsos_useShortMDTMeasurements = false;
+  bool tsos_drawMeasGlobalPositions = false;
+  double tsos_measurementsShorttubesScale = 0.0;
+  double tsos_nStdDevForParamErrors = 0.0;
+  int tsos_numberOfPointsOnCircles = 0;
+  double tsos_materialEffectsOnTrackScale = 0.0;
+  bool tsos_parTubeErrorsDrawCylinders = false;
 
   //Extra widgets:
-  QComboBox * comboBox_colourby;
+  QComboBox * comboBox_colourby = nullptr;
 
   static QString comboBoxEntry_ColourByCollection() { return "Uniform"; }
   static QString comboBoxEntry_ColourByRandom() { return "Random"; }
@@ -85,9 +85,9 @@ public:
   static QString comboBoxEntry_ColourByDistanceFromSelectedTrack() { return "Dist. Sel."; }
   static QString comboBoxEntry_ColourByVertex() { return "Vertex"; }
 
-  QTreeWidgetItem* objBrowseTree;
-  TrackCollectionSettingsButton * matButton;
-  bool last_useDefaultCuts;
+  QTreeWidgetItem* objBrowseTree = nullptr;
+  TrackCollectionSettingsButton * matButton = nullptr;
+  bool last_useDefaultCuts = false;
 };
 
 

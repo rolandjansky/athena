@@ -48,7 +48,7 @@
 class TrackCollHandle_SimulationTracks::Imp {
 public:
 
-  TrackCollHandle_SimulationTracks * theclass;
+  TrackCollHandle_SimulationTracks * theclass = nullptr;
   bool loadHitLists(std::map<SimBarCode,SimHitList> & hitLists);
 
   template <class collT>
@@ -56,7 +56,7 @@ public:
 
   static SimHitHandleBase * createHitHandle( const SimulationHit& h ) { return new SimHitHandle_ForwardHit(&h); }
 
-  int updateGUICounter;
+  int updateGUICounter = 0;
   void possiblyUpdateGUI() {
     if (!((updateGUICounter++)%750)) {
       theclass->systemBase()->updateGUI();
@@ -64,11 +64,11 @@ public:
   }
 
   std::map<SimBarCode::ExtBarCode,int> extBarCode2pdg;
-  bool cut_fromIROnly;
-  bool cut_excludeBarcodeZero;
-  bool cut_excludeNeutrals;
+  bool cut_fromIROnly = false;
+  bool cut_excludeBarcodeZero = false;
+  bool cut_excludeNeutrals = false;
 
-  bool displayAscObjs;
+  bool displayAscObjs = false;
   void updateVisibleAssociatedObjects();
 
   static const int maxPdgCode = 1000000000;

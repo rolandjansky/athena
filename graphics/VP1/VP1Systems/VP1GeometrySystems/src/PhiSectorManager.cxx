@@ -40,8 +40,8 @@
 //____________________________________________________________________
 class PhiSectorManager::Imp {
 public:
-  PhiSectionWidget * phisectionwidget;
-  IVP1System * system;
+  PhiSectionWidget * phisectionwidget = nullptr;
+  IVP1System * system = nullptr;
 
   std::map<VP1GeoFlags::SubSystemFlag,SoSeparator *> subsysflag2sep;
   std::map<VP1GeoFlags::SubSystemFlag,SoSeparator *> subsysflag2labelsep;
@@ -69,7 +69,7 @@ public:
   void copyShapeFieldsAndOverridePhiRange( const SoPcons* source, SoPcons* dest, double phistart, double phispan);
   void copyShapeFieldsAndOverridePhiRange( const SoCons* source, SoCons* dest, double phistart, double phispan);
   void copyShapeFieldsAndOverridePhiRange( const SoLAr* source, SoLAr* dest, double phistart, double phispan);
-  int nactivelargechanges;
+  int nactivelargechanges = 0;
 
   QVector<bool> currentlyEnabledPhiSectors;
 };

@@ -28,10 +28,10 @@ class VP1MbtsHelper::Clockwork
 {
  public:
   // ID helper
-  const TileTBID* tiletb_id;
+  const TileTBID* tiletb_id = nullptr;
 
   // Event data
-  const TileCellContainer* mbts_container;
+  const TileCellContainer* mbts_container = nullptr;
 
   // VP1Mbts objects of this event
   std::vector<VP1Mbts*> vp1_mbts;
@@ -41,9 +41,9 @@ class VP1MbtsHelper::Clockwork
   VP1CC_SoNode2MbtsMap   node2mbtsMap;
 
   // Separator helper
-  SoSeparator* separator;
+  SoSeparator* separator = nullptr;
   
-	VP1CaloCellController* controller;
+	VP1CaloCellController* controller = nullptr;
 };
 
 

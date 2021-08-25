@@ -28,8 +28,8 @@
 //____________________________________________________________________
 class PRDTrackSegmentHelper::Imp {
 public:
-  PRDTrackSegmentHelper * theclass;
-  std::map< const Trk::PrepRawData *, QList<PRDHandleBase *> >* prd2handles;
+  PRDTrackSegmentHelper * theclass = nullptr;
+  std::map< const Trk::PrepRawData *, QList<PRDHandleBase *> >* prd2handles = nullptr;
 
   std::map< const Trk::Track*, const SoMaterial* > tracks2mat;
   std::map< const Trk::Segment*, const SoMaterial* > segments2mat;

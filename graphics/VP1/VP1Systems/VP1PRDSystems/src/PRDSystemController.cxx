@@ -31,50 +31,50 @@
 //____________________________________________________________________
 class PRDSystemController::Imp {
 public:
-  PRDSystemController * theclass;
-  Ui::VP1PrdControllerForm ui;
-  Ui::PRDSysSettingsInteractionsForm ui_int;
-  Ui::PRDSysSettingsDisplayForm ui_disp;
-  Ui::PRDSysSettingsCutsForm ui_cuts;
-  VP1CollectionWidget * collWidget;
+  PRDSystemController * theclass = nullptr;
+  Ui::VP1PrdControllerForm ui{};
+  Ui::PRDSysSettingsInteractionsForm ui_int{};
+  Ui::PRDSysSettingsDisplayForm ui_disp{};
+  Ui::PRDSysSettingsCutsForm ui_cuts{};
+  VP1CollectionWidget * collWidget = nullptr;
 
-  SoMaterial * highlightmaterial;
+  SoMaterial * highlightmaterial = nullptr;
 
   PRDCollHandleBase::COLOURMETHOD last_colourMethod;
-  bool last_drawErrors;
-  bool last_drawRDOs;
-  bool last_highLightOutliers;
-  double last_highLightMaterialWeight;
-  bool last_highLightTRTHitsByHighThreshold;
-  bool last_highLightMDTHitsByMask;
-  int last_highLightMDTHitsByUpperADCBound;
-  bool last_projectPixelHits;
-  bool last_projectSCTHits;
-  bool last_projectTRTHits;
-  bool last_projectMDTHits;
-  bool last_projectRPCHits;
-  bool last_projectCSCHits;
-  bool last_projectTGCHits;
+  bool last_drawErrors = false;
+  bool last_drawRDOs = false;
+  bool last_highLightOutliers = false;
+  double last_highLightMaterialWeight = 0.0;
+  bool last_highLightTRTHitsByHighThreshold = false;
+  bool last_highLightMDTHitsByMask = false;
+  int last_highLightMDTHitsByUpperADCBound = 0;
+  bool last_projectPixelHits = false;
+  bool last_projectSCTHits = false;
+  bool last_projectTRTHits = false;
+  bool last_projectMDTHits = false;
+  bool last_projectRPCHits = false;
+  bool last_projectCSCHits = false;
+  bool last_projectTGCHits = false;
   // bool last_projectSTGCHits;
   //Cuts:
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;//All off: empty list. All on: list with one entry: ]-inf,inf[
   PRDCommonFlags::InDetPartsFlags last_inDetPartsFlags;
-  unsigned last_pixelMinNRDOPerCluster;
-  bool last_sctExcludeIsolatedClusters;
-  unsigned last_trtMinToT;
-  unsigned last_trtMaxToT;
-  unsigned last_trtMinLE;
-  unsigned last_trtMaxLE;
-  bool last_trtRequireHT;
-  unsigned last_mdtMinNHitsPerStation;
+  unsigned last_pixelMinNRDOPerCluster = 0U;
+  bool last_sctExcludeIsolatedClusters = false;
+  unsigned last_trtMinToT = 0U;
+  unsigned last_trtMaxToT = 0U;
+  unsigned last_trtMinLE = 0U;
+  unsigned last_trtMaxLE = 0U;
+  bool last_trtRequireHT = false;
+  unsigned last_mdtMinNHitsPerStation = 0U;
   VP1Interval last_mdtAllowedADCValues;
-  bool last_mdtExcludeMaskedHits;
+  bool last_mdtExcludeMaskedHits = false;
   QString last_mdt_cutMdtDriftCircleStatus;
   std::set<PRDDetType::Type> last_shownCollectionTypes;
-  bool last_limitToActiveChambers;
-  bool last_selectionModeMultiple;
-  bool last_showSelectionLine;
+  bool last_limitToActiveChambers = false;
+  bool last_selectionModeMultiple = false;
+  bool last_showSelectionLine = false;
   //Used ID parts:
   InDetProjFlags::DetTypeFlags last_inDetPartsUsingProjections;
 

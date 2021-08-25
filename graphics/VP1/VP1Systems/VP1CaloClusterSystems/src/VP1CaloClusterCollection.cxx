@@ -45,18 +45,18 @@ QList<VP1CaloClusterCollection*> VP1CaloClusterCollection::createCollections(IVP
 //____________________________________________________________________
 class VP1CaloClusterCollection::Imp {
 public:
-  VP1CaloClusterCollection * theclass;
-  CaloClusterSysController*controller;
-  VP1ExtraSepLayerHelper * sephelper;
+  VP1CaloClusterCollection * theclass = nullptr;
+  CaloClusterSysController*controller = nullptr;
+  VP1ExtraSepLayerHelper * sephelper = nullptr;
   QString key;
 
-  bool considerTransverseEnergies;
+  bool considerTransverseEnergies = false;
   QPair<bool,double> scale;
-  bool showOutlines;
+  bool showOutlines = false;
   VP1Interval allowedEnergies;
   VP1Interval allowedEta;
   QList<VP1Interval> allowedPhi;
-  double last_highestEnergy;
+  double last_highestEnergy = 0.0;
   double calculateHighestVisibleClusterEnergy() const;
 
   double energyToLength(const double&energy) {
