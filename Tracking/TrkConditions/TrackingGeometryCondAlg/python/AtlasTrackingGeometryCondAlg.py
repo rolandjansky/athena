@@ -86,24 +86,6 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
           # and give it to the Geometry Builder
           AtlasGeometryBuilder.InDetTrackingGeometryBuilder = InDetTrackingGeometryBuilder
 
-          # artifical dependencies to Si-DetectorElement conditions algs to ensure that
-          # the IOV is identical to the IOV of the tracking geoemtry
-          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-          if jp.ConcurrencyFlags.NumThreads() > 0:
-
-              MuonManagerKey  = ['MuonDetectorManager']     if (DetFlags.Muon_on() and not DetFlags.writeRDOPool.Muon_on()) else []
-              TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
-              SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
-              PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
-
-              modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
-                                                      TRT_DetEltContKey   = TRT_DetEltKey,
-                                                      PixelAlignmentStore = PixelAlignStore)
-
-              modifyCondAlg('PixelDetectorElementCondAlg', MuonManagerKey     = MuonManagerKey,
-                                                       TRT_DetEltContKey  = TRT_DetEltKey,
-                                                       SCTAlignmentStore  = SCTAlignStore)
-
         # (Calo)
         if DetFlags.Calo_on() :
            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CylinderVolumeCreator
@@ -127,6 +109,56 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            # and give it to the Geometry Builder
            AtlasGeometryBuilder.MuonTrackingGeometryBuilder = MuonTrackingGeometryBuilderCond
 
+        # adding the artificial SiDetEltCondAlg dependencies after everything else has been set up
+        if DetFlags.ID_on() :
+
+          # artifical dependencies to Si-DetectorElement conditions algs to ensure that
+          # the IOV is identical to the IOV of the tracking geoemtry
+
+          # Edit the conditions algorithm sequence to ensure dependencies are executed in a feasible order.
+          # Only necessary for single threaded athena where the AvalancheScheduler is not used.
+          pixelDep = "PixelAlignCondAlg/PixelAlignCondAlg"
+          sctDep = "SCT_AlignCondAlg/SCT_AlignCondAlg"
+          trtDep = "TRTAlignCondAlg/TRTAlignCondAlg"
+          muonAlignDep = "MuonAlignmentCondAlg/MuonAlignmentCondAlg"
+          muonDetDep = "MuonDetectorCondAlg/MuonDetectorCondAlg"
+          condInputLoader = "CondInputLoader/CondInputLoader"
+          dependencies = {pixelDep,
+                          sctDep,
+                          trtDep,
+                          muonAlignDep,
+                          muonDetDep,
+                          condInputLoader}
+          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+          if jp.ConcurrencyFlags.NumThreads() <= 0:
+              prependList = list()
+              appendList = list()
+              from AthenaCommon.AlgSequence import AthSequencer
+              cond_seq=AthSequencer("AthCondSeq")
+              condAlgs = cond_seq._Configurable__children
+              for alg in condAlgs:
+                  condAlgName = alg.getFullName()
+                  if condAlgName in dependencies:
+                      prependList.append(alg)
+                  else:
+                      appendList.append(alg)
+              prependList.extend(appendList)
+              cond_seq._Configurable__children = prependList
+              
+          MuonManagerKey  = ['MuonDetectorManager']     if DetFlags.Muon_on()  else []
+          TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
+          SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
+          PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
+
+          modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
+                                                      TRT_DetEltContKey   = TRT_DetEltKey,
+                                                      PixelAlignmentStore = PixelAlignStore)
+
+          modifyCondAlg('PixelDetectorElementCondAlg', MuonManagerKey     = MuonManagerKey,
+                                                       TRT_DetEltContKey  = TRT_DetEltKey,
+                                                       SCTAlignmentStore  = SCTAlignStore)
+        #end editing cond_seq for artificial SiDetEltCondAlg dependencies
+        
         # processors
         AtlasGeometryProcessors = []   
            
