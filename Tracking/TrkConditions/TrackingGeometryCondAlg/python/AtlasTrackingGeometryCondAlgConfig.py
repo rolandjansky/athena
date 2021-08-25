@@ -82,9 +82,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     # is identical to the IOV of the tracking geoemtry cond alg
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
     result.merge(PixelDetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0  else [],
-                                                TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0  else [],
-                                                SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT and flags.Concurrency.NumThreads > 0  else []))
+                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment else [],
+                                                TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT  else [],
+                                                SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT  else []))
 
   if flags.Detector.GeometrySCT:
     # for SCT DetectorElement conditions data :
@@ -123,10 +123,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0 else [],
-    
-                                                TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0 else [],
-                                                PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel and flags.Concurrency.NumThreads > 0 else []))
+                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment  else [],
+                                                TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT   else [],
+                                                PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel else []))
 
   if flags.Detector.GeometryTRT:
     # for TRT DetectorElement conditions data :
@@ -311,6 +310,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     
       atlas_geometry_builder.MuonTrackingGeometryBuilder = muonTrackingGeometryBuilder
     
+
     # Now set up processors
     atlas_geometry_processors=[]
     
@@ -337,6 +337,28 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
                                     TrackingGeometryWriteKey = atlas_tracking_geometry_name,
                                     GeometryProcessors = PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary = True)
+    
+    # Hack for Single Threaded Athena: manually move dependencies of SCT_DetectorElementCondAlg
+    # and PixelDetectorElementCondAlg such that these are executed after their dependencies.
+
+    if flags.Concurrency.NumThreads <= 0:
+        condAlgs = result._conditionsAlgs
+        dependencies = {"PixelAlignCondAlg",
+                        "SCT_AlignCondAlg",
+                        "TRTAlignCondAlg",
+                        "MuonAlignCondAlg",
+                        "MuonDetectorCondAlg",
+                        "CondInputLoader"}
+        prependList = list()
+        appendList = list()
+        for alg in condAlgs:
+            for name in dependencies:
+                if str(alg).startswith(name+"("):
+                  prependList.append(alg)
+            appendList.append(alg)
+        prependList.extend(appendList)
+        condAlgs = prependList
+        result._conditionsAlgs = condAlgs
 
     return result
         
