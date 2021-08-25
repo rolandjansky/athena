@@ -99,7 +99,9 @@ StatusCode MultiCjetFilter::filterEvent() {
   }
 
   // Apply leading jet pt cut
-  if(lead_jet_pt < m_leadJet_ptMin || (lead_jet_pt > m_leadJet_ptMax && m_leadJet_ptMax > 0)) pass = false;
+  if(lead_jet_pt < m_leadJet_ptMin || (lead_jet_pt > m_leadJet_ptMax && m_leadJet_ptMax > 0)) {
+    pass = false;
+    }
 
   // Apply jet multiplicity cut
   int njets = jets.size();
@@ -129,7 +131,7 @@ StatusCode MultiCjetFilter::filterEvent() {
       if( !isCwithWeakDK( pitr->pdg_id()) ) continue;
       if( pitr->momentum().perp() < m_charmPtMin ) continue;
       if( std::abs( pitr->momentum().pseudoRapidity() ) > m_charmEtaMax) continue;
-      bHadrons.push_back(pitr);
+      cHadrons.push_back(pitr);
     }
 
     // Count how many truth jets contain c-hadrons
@@ -149,6 +151,7 @@ StatusCode MultiCjetFilter::filterEvent() {
     // check if cjets contian b-hadron 
     // select only those withouty b-hadron 
     // @todo - removal based on parrent  
+    
     for(uint i = 0; i < cjets_all.size(); i++){
       bool b_inside_cjet = false; 
       for(uint j = 0; j < bHadrons.size(); j++){
