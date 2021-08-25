@@ -19,7 +19,7 @@
 class ElectronValidationPlots:public PlotBase {
     public:
       ElectronValidationPlots(PlotBase* pParent, const std::string& sDir);
-      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt);
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
 
       std::string m_sParticleType;
 

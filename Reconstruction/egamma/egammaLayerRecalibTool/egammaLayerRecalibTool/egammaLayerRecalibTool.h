@@ -344,7 +344,7 @@ public:
 private:
   std::string m_tune;
   const std::string resolve_path(std::string filename) const;
-  std::string resolve_alias(const std::string& tune) const;
+  static std::string resolve_alias(const std::string& tune) ;
   ModifiersList m_modifiers;
 
   corr_pileupShift* m_pileup_tool = nullptr;
