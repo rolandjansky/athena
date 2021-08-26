@@ -8,7 +8,7 @@
 
 #include "PathResolver/PathResolver.h"
 
-RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
+RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
 
 StatusCode RpcCablingCondAlg::initialize() {
     ATH_MSG_DEBUG("initializing" << name());
@@ -27,7 +27,9 @@ StatusCode RpcCablingCondAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode RpcCablingCondAlg::execute(const EventContext& ctx) const {
+StatusCode RpcCablingCondAlg::execute() {
+    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     ATH_MSG_DEBUG("executing" << name());
 
     SG::WriteCondHandle<RpcCablingCondData> writeHandle{m_writeKey, ctx};
