@@ -122,7 +122,8 @@ protected:
     const EventContext& ctx,
     const std::vector<const xAOD::CaloCluster*>& clusters,
     const CaloDetDescrManager& mgr,
-    xAOD::EgammaParameters::EgammaType egType) const;
+    xAOD::EgammaParameters::EgammaType egType,
+    xAOD::CaloClusterContainer* precorrClusters) const;
 
   /** check if we pass the basic criteria for
    * a seed cluster
@@ -228,7 +229,8 @@ private:
     const EventContext& ctx,
     xAOD::CaloCluster* newCluster,
     const CaloDetDescrManager& mgr,
-    const xAOD::EgammaParameters::EgammaType egType) const;
+    const xAOD::EgammaParameters::EgammaType egType,
+    xAOD::CaloClusterContainer* precorrClusters) const;
 
   // window values for the windows
   // in which cells of topoclusters are added
