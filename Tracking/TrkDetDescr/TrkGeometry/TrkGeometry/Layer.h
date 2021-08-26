@@ -238,10 +238,6 @@ class Layer {
   /**register Volume associated to the layer */
   void registerRepresentingVolume(const Volume* theVol);
 
-  /**register Volume associated to the layer */
-  void registerRepresentingVolume
-  ATLAS_NOT_THREAD_SAFE(const Volume* theVol) const;
-
   /** get the Volume associated to the layer */
   const Volume* representingVolume() const;
 
