@@ -1,9 +1,8 @@
-#!/usr/bin/env physh
+#!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import sys
+import os
 from os.path import isfile
 from optparse import OptionParser
 from random import randint
@@ -21,7 +20,7 @@ parser.set_defaults(part=[],outfile="genevents.ascii",numevents=0,draw=False,exe
 
 (options, args) = parser.parse_args()
 
-del args[0]
+print (options, args)
 
 if len(args) == 0 :
     print ("ERROR: No input! Aborting")
@@ -118,31 +117,6 @@ outdata.write("HepMC::IO_GenEvent-END_EVENT_LISTING")
 outdata.close()
 print ("INFO: Written", i, "starting points")
 
-## Algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+exec = __file__.replace("LArG4FSStartPointFilter.py","LArG4FSStartPointFilterBody.py")
+os.system('athena -c "options={:s}" {:s}'.format(str(options),exec))
 
-## AthenaCommon flags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.EvtMax = i
-athenaCommonFlags.PoolHitsOutput.set_Off()
-
-from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = i
-
-import AthenaCommon.AtlasUnixGeneratorJob
-
-from ReadEventFromFile.ReadEventFromFileConf import ReadHepMcFromAscii
-read = ReadHepMcFromAscii()
-read.AsciiFile = options.outfile
-topSequence += read
-
-
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
-outStream.ItemList  = ["EventInfo#*", "McEventCollection#*"]
-
-outfile = options.outfile
-if outfile.endswith(".ascii") :
-    outfile = outfile[:-6]
-outStream.OutputFile = outfile+".pool.root"
