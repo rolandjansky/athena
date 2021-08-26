@@ -284,7 +284,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs(){
     for(int nphi = 0; nphi < FEXAlgoSpaceDefs::jFEX_algoSpace_height; nphi++) {
       for(int neta = 0; neta < FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width; neta++) {
 
-        if((m_jFEXalgoTowerID[nphi][neta] == (it->first))){continue;}
+        if (m_jFEXalgoTowerID[nphi][neta] == it->first) {continue;}
         float TT_phi = globalPhi(nphi, neta);
         float TT_eta = globalEta(nphi, neta);
         float R = sqrt(pow((centreTT_eta - TT_eta),2) + pow((centreTT_phi - TT_phi),2));
