@@ -23,18 +23,15 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
   struct MuonEFInfo {
   MuonEFInfo( TrigCompositeUtils::Decision* d, 
               const xAOD::Muon* m,
-	      bool o,
 	      const TrigCompositeUtils::Decision* previousDecision )
     : decision( d ), 
       muon( m ),
-      isOverlapping( o ),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
       
     TrigCompositeUtils::Decision* decision;
     const xAOD::Muon* muon;
-    bool isOverlapping;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   virtual StatusCode initialize() override;    
