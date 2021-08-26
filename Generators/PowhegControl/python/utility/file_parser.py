@@ -66,11 +66,10 @@ class FileParser(object):
         replaced_lines = 0
         for i in range(len(regex_find_replace_count)):
             regex_find_replace_count[i][0] = re.compile(regex_find_replace_count[i][0])
-
         for input_file_name in self.__input_file_names:
             shutil.move(input_file_name, "{}.text_replace_backup".format(input_file_name))
-            f_input = open("{}.text_replace_backup".format(input_file_name), "rb")
-            f_output = open(input_file_name, "wb")
+            f_input = open("{}.text_replace_backup".format(input_file_name), "r")
+            f_output = open(input_file_name, "w")
             for line in f_input:
                 if regex_line_match is not None and not re.search(regex_line_match, line):
                     f_output.write(line)
