@@ -17,9 +17,9 @@ public:
                            AGDDController& c);
 	virtual void ElementHandle(AGDDController& c,
                                    xercesc::DOMNode *t) override;
-	static GeoTrf::Vector3D CurrentPoint() {return s_point;}
+	GeoTrf::Vector3D CurrentPoint() {return m_point;}
 private:
-	static GeoTrf::Vector3D s_point;
+	GeoTrf::Vector3D m_point;
 };
 
 #endif

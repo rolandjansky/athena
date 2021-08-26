@@ -3,8 +3,6 @@
 */
 
 #include "AGDDHandlers/addmaterialHandler.h"
-#include "AGDDHandlers/AddMaterial.h"
-#include "AGDDHandlers/globals.h"
 #include <iostream>
 
 addmaterialHandler::addmaterialHandler(const std::string& s,
@@ -22,5 +20,13 @@ void addmaterialHandler::ElementHandle(AGDDController& c,
 	std::string material=getAttributeAsString(c, t, "material");
 //	std::cout<<" material= "<<material<<std::endl;
 	
-	globals::addMaterial.names.push_back(material);
+        m_names.push_back (material);
+}
+
+
+std::vector<std::string> addmaterialHandler::GetNames()
+{
+  std::vector<std::string> v;
+  v.swap (m_names);
+  return v;
 }
