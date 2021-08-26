@@ -47,7 +47,7 @@
 
 class ITHistSvc;
 
-class NSWPRDValAlg:public AthAlgorithm
+class NSWPRDValAlg: public AthAlgorithm
 {
  public:
   NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -65,7 +65,7 @@ class NSWPRDValAlg:public AthAlgorithm
 
   std::vector<std::unique_ptr<ValAlgVariables>> m_testers;
   
-  TTree* m_tree; // still needed in NSWMatchingAlg during finalize
+  TTree* m_tree{nullptr}; // still needed in NSWMatchingAlg during finalize
 
   // MuonDetectorManager from the Detector Store (to be used only at initialize)
   const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
@@ -77,8 +77,8 @@ class NSWPRDValAlg:public AthAlgorithm
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};
  
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_csc_decoder{this, "CscRDODecoder", "Muon::CscRDO_Decoder/CSC_RDODecoder"};
    Gaudi::Property<bool>  m_isData{this, "isData", false};             // if false use MuonDetectorManager from detector store everywhere
    Gaudi::Property<bool>  m_doTruth{this, "doTruth", false};            // switch on the output of the MC truth
    Gaudi::Property<bool>  m_doMuEntry{this, "doMuEntry", false};          // switch on the output of the Muon Entry Layer

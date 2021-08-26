@@ -134,8 +134,10 @@ StatusCode NSWPRDValAlg::initialize() {
                                                 &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_DigitContainerName, msgLevel()));
   }
   if (m_doCSCRDO) {
+    ATH_CHECK(m_csc_decoder.retrieve());
     m_testers.emplace_back(std::make_unique<CSCRDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_RDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_RDOContainerName, msgLevel(),
+                                                m_csc_decoder.get()));
   }
   if (m_doCSCPRD) {
     m_testers.emplace_back(std::make_unique<CSCPRDVariables>(evtStore().get(), m_muonDetMgrDS,
@@ -239,7 +241,10 @@ StatusCode NSWPRDValAlg::execute()
     } 
   }
   for (std::unique_ptr<ValAlgVariables>& tester : m_testers){
-    ATH_CHECK(tester->fillVariables(muonDetMgr));
+     if (msgLevel(MSG::DEBUG)){
+        tester->msg(MSG::DEBUG)<<" fill variables"<<endmsg;
+     }
+     ATH_CHECK(tester->fillVariables(muonDetMgr));
   }
 
   m_tree->Fill();
