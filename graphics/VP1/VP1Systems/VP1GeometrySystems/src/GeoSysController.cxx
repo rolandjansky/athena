@@ -42,23 +42,23 @@
 //____________________________________________________________________
 class GeoSysController::Imp {
 public:
-  GeoSysController * theclass;
-  Ui::GeometrySystemControllerForm ui;
-  Ui::GeoSysSettingsDisplayForm ui_disp;
-  Ui::GeoSysSettingsIconisedVolumesForm ui_iconisedvols;
-  Ui::GeoSysSettingsInteractionsForm ui_int;
-  Ui::GeoSysSettingsMiscForm ui_misc;
-  Ui::GeoSysSettingsMuonChamberForm ui_muon;
-  Ui::GeoSysSettingsTreeBrowserForm ui_treebrowser;
+  GeoSysController * theclass = nullptr;
+  Ui::GeometrySystemControllerForm ui{};
+  Ui::GeoSysSettingsDisplayForm ui_disp{};
+  Ui::GeoSysSettingsIconisedVolumesForm ui_iconisedvols{};
+  Ui::GeoSysSettingsInteractionsForm ui_int{};
+  Ui::GeoSysSettingsMiscForm ui_misc{};
+  Ui::GeoSysSettingsMuonChamberForm ui_muon{};
+  Ui::GeoSysSettingsTreeBrowserForm ui_treebrowser{};
   std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*> subSysCheckBoxMap;
-  float last_transparency;
-  bool last_showVolumeOutLines;
+  float last_transparency = 0.0F;
+  bool last_showVolumeOutLines = false;
   VP1GeoFlags::MuonChamberAdaptionStyleFlags last_muonChamberAdaptionStyle;
-  int last_labels; //!< needed for POSSIBLECHANGE_IMP macro.
+  int last_labels = 0; //!< needed for POSSIBLECHANGE_IMP macro.
   QList<int> last_labelPosOffset; //!< needed for  POSSIBLECHANGE_IMP macro.
-  SoPickStyle * pickStyle;
-  VolumeHandle * lastSelectedVolHandle;
-  ZappedVolumeListModel * zappedVolumeListModel;
+  SoPickStyle * pickStyle = nullptr;
+  VolumeHandle * lastSelectedVolHandle = nullptr;
+  ZappedVolumeListModel * zappedVolumeListModel = nullptr;
 
   QString lastSaveMaterialsFile;
   QString lastLoadMaterialsFile;

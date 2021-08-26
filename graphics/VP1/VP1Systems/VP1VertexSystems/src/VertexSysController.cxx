@@ -29,19 +29,19 @@
 //____________________________________________________________________
 class VertexSysController::Imp {
 public:
-  Ui::VP1VertexControllerForm ui;
-  Ui::VertexSysSettingsCutsForm ui_cuts;
-  Ui::VertexSysSettingsInteractionsForm ui_int;
-  Ui::VertexSysSettingsColouringForm ui_display;
-  VP1CollectionWidget * collWidget;
+  Ui::VP1VertexControllerForm ui{};
+  Ui::VertexSysSettingsCutsForm ui_cuts{};
+  Ui::VertexSysSettingsInteractionsForm ui_int{};
+  Ui::VertexSysSettingsColouringForm ui_display{};
+  VP1CollectionWidget * collWidget = nullptr;
 
   VP1Interval last_truthCutAllowedEta;
   QList<VP1Interval> last_truthCutAllowedPhi;//All off: empty list. All on: list with one entry: ]-inf,inf[
-  bool last_truthCutPrimaryVertexOnly;
+  bool last_truthCutPrimaryVertexOnly = false;
   QPair<VertexCommonFlags::QUANTITY,VP1Interval> last_truthCutQuantity;
   QPair<VertexCommonFlags::QUANTITY,double> last_truthCrossLength;
   VertexCommonFlags::ReconVertexTypeFlags last_reconCutAllowedTypes;
-  double last_reconVertexRepresentation;
+  double last_reconVertexRepresentation = 0.0;
 };
 
 //____________________________________________________________________

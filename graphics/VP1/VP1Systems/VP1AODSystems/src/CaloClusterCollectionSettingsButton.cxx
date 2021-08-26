@@ -72,8 +72,8 @@ public:
 
 	// setup the UI
 	QWidget * editwindow; // the main window
-	Ui::IParticleCollectionSettingsForm ui_commonsettings; // the common main UI window
-	Ui::CaloClusterSettingsDisplayForm ui_customsettings; // the custom jet cuts
+	Ui::IParticleCollectionSettingsForm ui_commonsettings{}; // the common main UI window
+	Ui::CaloClusterSettingsDisplayForm ui_customsettings{}; // the custom jet cuts
 
 
 //	QList<VP1MaterialButton*> parameterTypeMatButtons;// enum used to access the specific button

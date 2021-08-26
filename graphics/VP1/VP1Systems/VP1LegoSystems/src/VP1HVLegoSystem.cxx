@@ -35,10 +35,10 @@ public:
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *embSwitch[4];      // EMB
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *embSwitch[4]{};      // EMB
 
 
   //  std::map < SoNode *, const FCALTile *>   TileMap;
