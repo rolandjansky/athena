@@ -119,9 +119,9 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST(iovDbFolder.bytesRead() == 8);
       BOOST_TEST(iovDbFolder.readTime() > 0.0);
       BOOST_TEST(iovDbFolder.clid() == 1238547719);
-      auto theValidityKey=iovDbFolder.iovTime(cool::ValidityKey(600));
+      auto theValidityKey=iovDbFolder.iovTime(IOVTime(cool::ValidityKey(600)));
       BOOST_TEST(theValidityKey == cool::ValidityKey(600));
-      IOVRange zeroRange{0,0};
+      IOVRange zeroRange{IOVTime(0),IOVTime(0)};
       IOVRange returnRange{zeroRange};
       BOOST_TEST(iovDbFolder.currentRange() ==  zeroRange);//why?
       BOOST_TEST(iovDbFolder.cacheValid(cool::ValidityKey(600)) );
@@ -131,7 +131,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST( iovDbFolder.getAddress(cool::ValidityKey(600), &(*persistencySvc),0,returnedAddress,returnRange, poolRequested));
       BOOST_TEST_CHECKPOINT("After getAddress method call");
       BOOST_TEST(iovDbFolder.retrieved() == true);
-      IOVRange actualRange{100,cool::ValidityKeyMax};
+      IOVRange actualRange{IOVTime(100),IOVTime(cool::ValidityKeyMax)};
       BOOST_TEST(returnRange == actualRange);
       BOOST_CHECK_NO_THROW(iovDbFolder.resetCache());
     }
