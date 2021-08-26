@@ -14,6 +14,10 @@ from .TriggerJetMods import stdJetModifiers  # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+def getHLTPrefix():
+    prefix = "HLT_"
+    return prefix
+
 def interpretJetCalibDefault(recoDict):
     if recoDict['recoAlg'] == 'a4':
         if recoDict['constitType'] == 'tc':

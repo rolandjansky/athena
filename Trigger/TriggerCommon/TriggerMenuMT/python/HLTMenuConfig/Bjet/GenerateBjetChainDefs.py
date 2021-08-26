@@ -22,18 +22,17 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
 
-        jet = JetChainConfiguration(chainDict).assembleChain()
+        jet_cfg = JetChainConfiguration(chainDict)
+        jet_name = jet_cfg.jetName
+        jet = jet_cfg.assembleChain()
 
         # don't setup btagging for legs that are jet-only
         # happens for bjet + normal jet chains
         if subChainDict['chainParts'][0]['signature'] != 'Bjet':
             listOfChainDefs += [jet]
         else:
-            log.info('bjet sub dictionary is: %s\n', pprint.pformat(subChainDict))
-            jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
-            jetNamePrefix = JetRecoSequences.getJetNamePrefix()
-            jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=jetNamePrefix+jetRecoDict["trkopt"],prefix=jetNamePrefix)
-            jet_name = jetDef.fullname() 
+            log.info('jet name is: %s\n', jet_name)
+            jet_name='' # don't feed in yet
             Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
             jet.steps = jet.steps + Bjet.steps
             listOfChainDefs += [ jet ] 

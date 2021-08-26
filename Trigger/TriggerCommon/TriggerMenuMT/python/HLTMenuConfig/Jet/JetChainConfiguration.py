@@ -7,6 +7,9 @@ log = logging.getLogger(__name__)
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 from .JetRecoConfiguration import jetRecoDictToString
+from ..Menu.ChainDictTools import splitChainDict
+from .JetRecoSequences import JetRecoConfiguration
+from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
 
 import copy
 
@@ -34,6 +37,8 @@ class JetChainConfiguration(ChainConfigurationBase):
         self.chainPart = self.dict['chainParts']
         self.L1Threshold = ''
         self.mult = 1 # from the framework point of view I think the multiplicity is 1, internally the jet hypo has to figure out what to actually do
+
+        self._setJetName()
 
         # these properties are in the base class, but I don't think we need them for jets
         #self.chainPartName = ''
@@ -78,6 +83,28 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
+
+    # ----------------------
+    # Assemble jet collection name based on reco dictionary
+    # ----------------------
+    def _setJetName(self):
+        try:
+            subChainDict = splitChainDict(self.dict)[0]
+        except IndexError:
+            raise RunTimeError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        prefix = JetRecoConfiguration.getHLTPrefix()
+        suffix = "_"+jetRecoDict["jetCalib"]
+        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
+        actualradius = float(jetradius)/10
+        self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
+        if inputDef.basetype == xAODType.CaloCluster:
+             # Omit cluster origin correction from jet name
+             # Keep the origin correction explicit because sometimes we may not
+             # wish to apply it, whereas PFlow corrections are applied implicitly
+             self.jetName = self.jetName.replace("Origin","")
+        
 
     # ----------------------
     # Assemble the chain depending on information from chainName
