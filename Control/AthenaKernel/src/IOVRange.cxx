@@ -10,8 +10,9 @@
 #endif
 
 #include "GaudiKernel/EventIDRange.h"
-
+#include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 /*****************************************************************************
  *
@@ -53,3 +54,8 @@ MsgStream& operator<< (MsgStream &msg, const IOVRange& rhs) {
   return msg;
 }
 
+IOVRange::operator std::string () const {
+  std::ostringstream os;
+  os << '{' << m_start << " - " << m_stop << '}';
+  return os.str();
+}
