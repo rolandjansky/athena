@@ -1,30 +1,12 @@
-#!/usr/bin/env physh
+#!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+import os
 from optparse import OptionParser
 
 parser = OptionParser(usage="usage: %prog lib1 [lib2...]", version="%prog v0.1 $Id: LArG4ShowerLibSvcTest.py 489535 2012-03-20 01:19:04Z gsedov $")
 
 (options, args) = parser.parse_args()
 
-args.pop(0)
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
-athenaCommonFlags.EvtMax=1
-from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 1
-
-from AthenaCommon.AppMgr import ServiceMgr
-from LArG4ShowerLibSvc.LArG4ShowerLibSvcConf import LArG4ShowerLibSvc
-ServiceMgr += LArG4ShowerLibSvc()
-
-ServiceMgr.LArG4ShowerLibSvc.FileNameList = args
-
-MessageSvc = Service( "MessageSvc" )
-MessageSvc.OutputLevel = DEBUG
-
-from LArG4ShowerLibSvc.LArG4ShowerLibSvcConf import LArG4ShowerLibSvcTest
-topSequence += LArG4ShowerLibSvcTest()
+exec = __file__.replace("LArG4ShowerLibSvcTest.py","LArG4ShowerLibSvcTestBody.py")
+os.system('athena -c "args={:s}" {:s}'.format(str(args),exec))
