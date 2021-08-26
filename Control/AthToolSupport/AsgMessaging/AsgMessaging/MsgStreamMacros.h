@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASGMESSAGING_MSGSTREAMMACROS_H
@@ -63,6 +63,10 @@
 #define ATH_MSG_FATAL( xmsg )    ATH_MSG_LVL_SERIOUS( MSG::FATAL, xmsg )
 /// Macro printing messages that should always appear
 #define ATH_MSG_ALWAYS( xmsg )   ATH_MSG_LVL_NOCHK( MSG::ALWAYS, xmsg )
+
+/// can be used like so: ATH_MSG(INFO) << "hello" << endmsg;
+#define ATH_MSG(lvl) \
+  if( msg().msgLevel( MSG::lvl ) ) msg(MSG::lvl)
 
 #endif // not XAOD_STANDALONE
 #endif // ASGMESSAGING_MSGSTREAMMACROS_H
