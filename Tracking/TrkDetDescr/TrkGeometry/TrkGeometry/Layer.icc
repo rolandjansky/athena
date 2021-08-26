@@ -194,10 +194,6 @@ inline const Volume *Layer::representingVolume() const {
 inline void Layer::registerRepresentingVolume(const Volume *theVol) {
   m_representingVolume = theVol;
 }
-inline void Layer::registerRepresentingVolume
-ATLAS_NOT_THREAD_SAFE(const Volume *theVol) const {
-  const_cast<Layer *>(this)->registerRepresentingVolume(theVol);
-}
 
 inline void Layer::registerLayerIndex(const LayerIndex &lIdx) {
   m_index = lIdx;
