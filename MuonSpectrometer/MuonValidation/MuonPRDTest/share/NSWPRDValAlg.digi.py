@@ -46,8 +46,8 @@ NSWPRDValAlg.doCSCHit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCSDO= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCDigit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCRDO= MuonGeometryFlags.hasCSC()
-NSWPRDValAlg.doCSCPRD= MuonGeometryFlags.hasCSC()
-
+NSWPRDValAlg.doCSCPRD= False
+NSWPRDValAlg.OutputLevel = DEBUG
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
 #-----------------------------------------------------------------------------
