@@ -1,5 +1,5 @@
 # 
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
 # 
 
 from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -572,7 +572,6 @@ def muEFSAFSSequence(is_probe_leg=False):
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
-    trigMuonEFSAFSHypo.DoOverlapRemoval=False
     
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
     
@@ -620,7 +619,6 @@ def muEFCBFSSequence(is_probe_leg=False):
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFFSCombinerHypoAlg" )
     trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
-    trigMuonEFCBFSHypo.DoOverlapRemoval=False
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromName
 
