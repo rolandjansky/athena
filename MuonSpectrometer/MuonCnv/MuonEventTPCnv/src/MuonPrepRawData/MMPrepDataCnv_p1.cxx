@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/MMPrepData.h"
@@ -60,6 +60,7 @@ persToTrans( const Muon::MMPrepData_p1 *persObj, Muon::MMPrepData *transObj,MsgS
 				transObj->identify(),
                                 transObj->detectorElement(),
                                 log);
+  transObj->setAuthor(static_cast<Muon::MMPrepData::Author>(persObj->m_author));
 }
 
 void MMPrepDataCnv_p1::
