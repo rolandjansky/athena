@@ -5,7 +5,7 @@
 #ifndef ISF_FASTCALOSIMEVENT_TFCSNewExtrapolationWeightsTester_h
 #define ISF_FASTCALOSIMEVENT_TFCSNewExtrapolationWeightsTester_h
 
-#include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include <string>
 #include "TH2D.h"
@@ -13,57 +13,45 @@
 // forward declare lwtnn dependencies
 namespace lwt
 {
-  class LightweightGraph;
+  class LightweightNeuralNetwork;
+//  struct JSONConfig;
 }
 
-class TFCSNewExtrapolationWeightsTester:public TFCSParametrizationBinnedChain {
+//class TFCSNewExtrapolationWeightsTester:public TFCSParametrizationBinnedChain {
+class TFCSNewExtrapolationWeightsTester : public TFCSLateralShapeParametrizationHitBase {
 public:
-  // type of input requested by lwtnn
-  typedef std::map<std::string, std::map<std::string, double> >  NetworkInputs ;
-  typedef std::map<std::string, double> NetworkOutputs;
-  typedef std::map<int, TH2D> Binning;
 
   TFCSNewExtrapolationWeightsTester(const char* name=nullptr, const char* title=nullptr);
   virtual ~TFCSNewExtrapolationWeightsTester();
 
+  // Used to decorate Hit with extrap center positions
+  virtual FCSReturnCode simulate_hit(Hit& hit, TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  inline void setExtrapWeight(const float weight){m_extrapWeight=weight;}
+  inline float getExtrapWeight(){return m_extrapWeight;}
+
   ///Status bit for chain persistency
-  enum FCSGANfreemem {
-     kGANfreemem = BIT(17) ///< Set this bit in the TObject bit if the memory for m_input should be freed after reading in athena
+  enum FCSfreemem {
+     kfreemem = BIT(17) ///< Set this bit in the TObject bit if the memory for m_input should be freed after reading in athena
   };
 
-  bool GANfreemem() const {return TestBit(kGANfreemem);};
-  void set_GANfreemem() {SetBit(kGANfreemem);};
-  void reset_GANfreemem() {ResetBit(kGANfreemem);};
+  bool freemem() const {return TestBit(kfreemem);};
+  void set_freemem() {SetBit(kfreemem);};
 
-  ///Status bit for energy initialization
-  enum FCSEnergyInitializationStatusBits {
-     kOnlyScaleEnergy = BIT(18) ///< Set this bit in the TObject bit field the simulated energy should only be scaled by the GAN
-  };
-
-  const lwt::LightweightGraph* get_graph() const {return m_graph;};
-  
-  bool initializeNetwork(int pid,int etaMin,std::string FastCaloGANInputFolderName);
+  bool initializeNetwork(int pid, std::string etaBin, std::string FastCaloNNInputFolderName);
+  bool getTXTs(int pid, std::string etaBin, std::string FastCaloTXTInputFolderName);
   
   static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
-
-protected:  
-  void GetBinning(int pid,int etaMax,std::string FastCaloGANInputFolderName);
   
 private:
-  std::vector< int > m_bin_ninit;
   
   //Persistify configuration in string m_input. A custom Streamer(...) builds m_graph on the fly when reading from file.
   //Inside Athena, if GANfreemem() is true, the content of m_input is deleted after reading in order to free memory
-  std::string*     m_input=nullptr;
-  lwt::LightweightGraph* m_graph=nullptr;//!Do not persistify
-  
-  Binning m_Binning;
-  
-  // specific to architecture
-  // preprocessing of input
-  int m_GANLatentSize = 0;
+  std::string*                                  m_input      = nullptr;
+  lwt::LightweightNeuralNetwork*                m_nn         = nullptr; //! Do not persistify
+  std::map< std::string, std::vector<double> >* m_normInputs = nullptr;
+  float m_extrapWeight;
 
-  ClassDefOverride(TFCSNewExtrapolationWeightsTester,2)  //TFCSNewExtrapolationWeightsTester
+  ClassDefOverride(TFCSNewExtrapolationWeightsTester,1)  //TFCSNewExtrapolationWeightsTester
 };
 
 #endif
