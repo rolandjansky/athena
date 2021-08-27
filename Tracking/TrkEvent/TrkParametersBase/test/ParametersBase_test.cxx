@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
   BOOST_AUTO_TEST_CASE(Constructors){
     //constructors are 'tested' just by seeing whether the following
     //compiles for each instantiation, but I put the 'NO_THROW' check around them
-    using ChargedParams_t = Trk::ParametersBase<DIM, T>;
+    using ChargedParams_t [[maybe_unused]] = Trk::ParametersBase<DIM, T>;
     //ChargedParams_t x; <-constructors are protected, this won't compile
     //Instantiate a derived class using default c'tor . Never do this! 
     //The default c'tor is only for use by POOL
