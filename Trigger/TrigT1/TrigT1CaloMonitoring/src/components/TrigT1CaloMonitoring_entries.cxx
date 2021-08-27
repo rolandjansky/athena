@@ -24,16 +24,7 @@
 #include "../TagProbeEfficiencyMon.h"
 
 // Run 1
-#include "../CMMMon.h"
-#include "../CPMSimBSMon.h"
-#include "../JEMMon.h"
-// #include "../JEPSimBSMon.h"
-#include "../TrigT1CaloBSMon.h"
-#include "../TrigT1CaloCpmMonTool.h"
 #include "../TrigT1CaloGlobalMonTool.h"
-// #include "../EmEfficienciesMonTool.h"
-#include "../JetEfficienciesMonTool.h"
-#include "../RODMonV1.h"
 
 // Run 3
 DECLARE_COMPONENT( CpmMonitorAlgorithm )
@@ -63,13 +54,4 @@ DECLARE_COMPONENT( LVL1::RODMon )
 DECLARE_COMPONENT( LVL1::TagProbeEfficiencyMon )
 
 // Run 1
-DECLARE_COMPONENT( LVL1::CMMMon )
-DECLARE_COMPONENT( LVL1::CPMSimBSMon )
-DECLARE_COMPONENT( LVL1::JEMMon )
-// DECLARE_COMPONENT( LVL1::JEPSimBSMon )
-DECLARE_COMPONENT( LVL1::TrigT1CaloBSMon )
-DECLARE_COMPONENT( LVL1::TrigT1CaloCpmMonTool )
 DECLARE_COMPONENT( LVL1::TrigT1CaloGlobalMonTool )
-// DECLARE_COMPONENT( LVL1::EmEfficienciesMonTool )
-DECLARE_COMPONENT( LVL1::JetEfficienciesMonTool )
-DECLARE_COMPONENT( LVL1::RODMonV1 )
