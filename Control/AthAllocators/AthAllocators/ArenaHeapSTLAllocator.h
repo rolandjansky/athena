@@ -228,9 +228,10 @@ public:
   /**
    * @brief Call the @c T constructor.
    * @param p Location of the memory.
-   * @param val Parameter to pass to the constructor.
+   * @param args Arguments to pass to the constructor.
    */
-  void construct (pointer p, const T& val);
+  template <class... Args>
+  void construct (pointer p, Args&&... args);
 
 
   /**
