@@ -106,201 +106,248 @@ StatusCode EgammaPhysValMonitoringTool::bookHistograms()
 StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 //-------------------------------------------------------------------
 {
-  ATH_MSG_DEBUG ("Filling hists " << name() << "...");
+  ATH_MSG_DEBUG("Filling hists " << name() << "...");
 
-  SG::ReadHandle< xAOD::EventInfo> eventInfo( m_EventInfoContainerKey );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_EventInfoContainerKey);
   if (!eventInfo.isValid()) {
-    ATH_MSG_ERROR ("Couldn't retrieve EventInfo container with key: " << m_EventInfoContainerKey.key());
+    ATH_MSG_ERROR("Couldn't retrieve EventInfo container with key: "
+                  << m_EventInfoContainerKey.key());
     return StatusCode::FAILURE;
   }
 
-  float weight=1.;
+  float weight = 1.;
   weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
 
-  SG::ReadHandle< xAOD::TruthParticleContainer> truthParticles;
-  
-  if(m_isMC){// return StatusCode::SUCCESS;
-    
-    truthParticles = SG::ReadHandle< xAOD::TruthParticleContainer> ( m_egammaTruthContainerKey );
-    
-    //filling truth iso (prompt) particles from egammaTruthParticles container (containing only iso particles)
-    // validity check is only really needed for serial running. Remove when MT is only way.
+  if (m_isMC) {
+
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticles =
+      SG::ReadHandle<xAOD::TruthParticleContainer>(m_egammaTruthContainerKey);
+
+    // filling truth iso (prompt) particles from egammaTruthParticles container
+    // (containing only iso particles)
+    // validity check is only really needed for serial running. Remove when MT
+    // is only way.
     if (!truthParticles.isValid()) {
-      ATH_MSG_ERROR ("Couldn't retrieve Truth container with key: " << m_egammaTruthContainerKey.key());
+      ATH_MSG_ERROR("Couldn't retrieve Truth container with key: "
+                    << m_egammaTruthContainerKey.key());
       return StatusCode::FAILURE;
     }
-    
-    for(const auto *const truthParticle : *truthParticles){
-      
+
+    for (const auto* const truthParticle : *truthParticles) {
+
       //--electrons
-      if (std::abs(truthParticle->pdgId()) == 11 && truthParticle->status() == 1  && truthParticle->barcode() < 1000000) {
-	m_oElectronValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,*eventInfo);     	
+      if (std::abs(truthParticle->pdgId()) == 11 &&
+          truthParticle->status() == 1 && truthParticle->barcode() < 1000000) {
+        m_oElectronValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,
+                                                         *eventInfo);
       } //-- end electrons
-      
-	//--photons 	   
-      if (std::abs(truthParticle->pdgId()) == 22 && truthParticle->status() == 1 && truthParticle->barcode() < 1000000){
-	m_oPhotonValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,*eventInfo);
-	//-- filling conversions
-	const xAOD::TruthParticle* tmp = xAOD::TruthHelpers::getTruthParticle( *truthParticle ); //20.7.0.1
-	//      const xAOD::TruthParticle* tmp = xAOD::EgammaHelpers::getTruthParticle( truthParticle ); 
-	bool isTrueConv = false;
-	float trueR = -999;
-	float truthEta = -999;
-	if( tmp && tmp->hasDecayVtx() ){
-	  float x = tmp->decayVtx()->x();
-	  float y = tmp->decayVtx()->y();
-	  trueR = std::sqrt( x*x + y*y );
-	}
-	
-	if (tmp != nullptr ) {
-	  truthEta = tmp->eta();
-	  isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
-	} 
-	
-	m_oPhotonValidationPlots.convTruthR->Fill(trueR,weight);
-	m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR,truthEta,weight);
-	if(isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoConvPlots.fill(*truthParticle,*eventInfo);
-	if(!isTrueConv) m_oPhotonValidationPlots.m_oTruthIsoUncPlots.fill(*truthParticle,*eventInfo);
-	
-	
-	
-	const xAOD::Photon* recoPhoton = xAOD::EgammaHelpers::getRecoPhoton( truthParticle ); 
-	if( recoPhoton ){
-	  m_oPhotonValidationPlots.convTruthMatchedR->Fill(trueR,weight);
-	  m_oPhotonValidationPlots.convTruthMatchedRvsEta->Fill(trueR,truthEta,weight);
-	  
-	  m_oPhotonValidationPlots.m_oTruthRecoPlots.fill(*truthParticle,*eventInfo);
-	  if(isTrueConv){
-	    m_oPhotonValidationPlots.m_oTruthRecoConvPlots.fill(*truthParticle,*eventInfo);
-	  }else{
-	    m_oPhotonValidationPlots.m_oTruthRecoUncPlots.fill(*truthParticle,*eventInfo);
-	  }
-	  bool val_loose=false;    
-	  recoPhoton->passSelection(val_loose, "Loose");
-	  if(val_loose) {
-	    m_oPhotonValidationPlots.m_oTruthRecoLoosePlots.fill(*truthParticle,*eventInfo);
-	    if(isTrueConv){
-	      m_oPhotonValidationPlots.m_oTruthRecoLooseConvPlots.fill(*truthParticle,*eventInfo);
-	    }else{
-	      m_oPhotonValidationPlots.m_oTruthRecoLooseUncPlots.fill(*truthParticle,*eventInfo);
-	    }
-	  }//--  end truth loose
-	  bool val_tight=false;    
-	  recoPhoton->passSelection(val_tight, "Tight");
-	  if(val_tight) {
-	    m_oPhotonValidationPlots.m_oTruthRecoTightPlots.fill(*truthParticle,*eventInfo);
-	    if(isTrueConv){
-	      m_oPhotonValidationPlots.m_oTruthRecoTightConvPlots.fill(*truthParticle,*eventInfo);
-	    }else{
-	      m_oPhotonValidationPlots.m_oTruthRecoTightUncPlots.fill(*truthParticle,*eventInfo);
-	    }
-	  }//--  end truth tight
-	}//--  end recoPhoton
-      }//-- end Photons
-    } // -- end fill histos iso particles 
-    
-    
-      //filling all truth particles from TruthParticles container (possibly will be deleted, also possibly to fill only prompt particles)
-    SG::ReadHandle< xAOD::TruthParticleContainer> truthallParticles( m_truthParticleContainerKey );
+
+      //--photons
+      if (std::abs(truthParticle->pdgId()) == 22 &&
+          truthParticle->status() == 1 && truthParticle->barcode() < 1000000) {
+        m_oPhotonValidationPlots.m_oTruthIsoPlots.fill(*truthParticle,
+                                                       *eventInfo);
+        //-- filling conversions
+        const xAOD::TruthParticle* tmp =
+          xAOD::TruthHelpers::getTruthParticle(*truthParticle); // 20.7.0.1
+        //      const xAOD::TruthParticle* tmp =
+        //      xAOD::EgammaHelpers::getTruthParticle( truthParticle );
+        bool isTrueConv = false;
+        float trueR = -999;
+        float truthEta = -999;
+        if (tmp && tmp->hasDecayVtx()) {
+          float x = tmp->decayVtx()->x();
+          float y = tmp->decayVtx()->y();
+          trueR = std::sqrt(x * x + y * y);
+        }
+
+        if (tmp != nullptr) {
+          truthEta = tmp->eta();
+          isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp); // rel20
+        }
+
+        m_oPhotonValidationPlots.convTruthR->Fill(trueR, weight);
+        m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR, truthEta, weight);
+        if (isTrueConv)
+          m_oPhotonValidationPlots.m_oTruthIsoConvPlots.fill(*truthParticle,
+                                                             *eventInfo);
+        if (!isTrueConv)
+          m_oPhotonValidationPlots.m_oTruthIsoUncPlots.fill(*truthParticle,
+                                                            *eventInfo);
+
+        const xAOD::Photon* recoPhoton =
+          xAOD::EgammaHelpers::getRecoPhoton(truthParticle);
+        if (recoPhoton) {
+          m_oPhotonValidationPlots.convTruthMatchedR->Fill(trueR, weight);
+          m_oPhotonValidationPlots.convTruthMatchedRvsEta->Fill(
+            trueR, truthEta, weight);
+
+          m_oPhotonValidationPlots.m_oTruthRecoPlots.fill(*truthParticle,
+                                                          *eventInfo);
+          if (isTrueConv) {
+            m_oPhotonValidationPlots.m_oTruthRecoConvPlots.fill(*truthParticle,
+                                                                *eventInfo);
+          } else {
+            m_oPhotonValidationPlots.m_oTruthRecoUncPlots.fill(*truthParticle,
+                                                               *eventInfo);
+          }
+          bool val_loose = false;
+          recoPhoton->passSelection(val_loose, "Loose");
+          if (val_loose) {
+            m_oPhotonValidationPlots.m_oTruthRecoLoosePlots.fill(*truthParticle,
+                                                                 *eventInfo);
+            if (isTrueConv) {
+              m_oPhotonValidationPlots.m_oTruthRecoLooseConvPlots.fill(
+                *truthParticle, *eventInfo);
+            } else {
+              m_oPhotonValidationPlots.m_oTruthRecoLooseUncPlots.fill(
+                *truthParticle, *eventInfo);
+            }
+          } //--  end truth loose
+          bool val_tight = false;
+          recoPhoton->passSelection(val_tight, "Tight");
+          if (val_tight) {
+            m_oPhotonValidationPlots.m_oTruthRecoTightPlots.fill(*truthParticle,
+                                                                 *eventInfo);
+            if (isTrueConv) {
+              m_oPhotonValidationPlots.m_oTruthRecoTightConvPlots.fill(
+                *truthParticle, *eventInfo);
+            } else {
+              m_oPhotonValidationPlots.m_oTruthRecoTightUncPlots.fill(
+                *truthParticle, *eventInfo);
+            }
+          } //--  end truth tight
+        }   //--  end recoPhoton
+      }     //-- end Photons
+    }       // -- end fill histos iso particles
+    // filling all truth particles from TruthParticles container (possibly will
+    // be deleted, also possibly to fill only prompt particles)
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthallParticles(
+      m_truthParticleContainerKey);
     if (!truthallParticles.isValid()) {
-      ATH_MSG_ERROR ("Couldn't retrieve Truth container with key: " << m_truthParticleContainerKey.key());
+      ATH_MSG_ERROR("Couldn't retrieve Truth container with key: "
+                    << m_truthParticleContainerKey.key());
       return StatusCode::FAILURE;
-    }         
-    
+    }
+
 #ifdef MCTRUTHCLASSIFIER_CONST
     IMCTruthClassifier::Info info;
 #else
-    std::pair<ParticleType,ParticleOrigin>  partClass;
+    std::pair<ParticleType, ParticleOrigin> partClass;
     MCTruthPartClassifier::ParticleType type;
 #endif
-    bool elecPrompt=false;
-    bool photonPrompt=false;
-    
-    for(const auto *const truthallParticle : *truthallParticles){// Electrons and photons from standard TruthParticle container      
-      
+    bool elecPrompt = false;
+    bool photonPrompt = false;
+
+    for (const auto* const truthallParticle :
+         *truthallParticles) { // Electrons and photons from standard
+                               // TruthParticle container
+
       //--electrons
-      if (std::abs(truthallParticle->pdgId()) == 11 && truthallParticle->status() == 1  && truthallParticle->barcode() < 1000000) {
+      if (std::abs(truthallParticle->pdgId()) == 11 &&
+          truthallParticle->status() == 1 &&
+          truthallParticle->barcode() < 1000000) {
 
 #ifdef MCTRUTHCLASSIFIER_CONST
-	auto type = m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
-	if(type.first==IsoElectron) elecPrompt=true;
+        auto type =
+          m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
+        if (type.first == IsoElectron)
+          elecPrompt = true;
 #else
-	partClass=std::make_pair(Unknown,NonDefined);
-	type = Unknown;
-      
-	if(truthallParticle->isAvailable <int>("truthType")) {
-	  MCTruthPartClassifier::ParticleType type   = (MCTruthPartClassifier::ParticleType) truthallParticle->auxdata< int >("truthType");
-	}
-	if(type==IsoElectron) elecPrompt=true;
+        partClass = std::make_pair(Unknown, NonDefined);
+        type = Unknown;
+
+        if (truthallParticle->isAvailable<int>("truthType")) {
+          MCTruthPartClassifier::ParticleType type =
+            (MCTruthPartClassifier::ParticleType)truthallParticle->auxdata<int>(
+              "truthType");
+        }
+        if (type == IsoElectron)
+          elecPrompt = true;
 #endif
 
-	
-	m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,*eventInfo);
-	if(elecPrompt) m_oElectronValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,*eventInfo);
-	 
+        m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,
+                                                         *eventInfo);
+        if (elecPrompt)
+          m_oElectronValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,
+                                                              *eventInfo);
+
       } //-- end electrons
-      
-	//--photons 	   
-      if (std::abs(truthallParticle->pdgId()) == 22 && truthallParticle->status() == 1 && truthallParticle->barcode() < 1000000){
-	
+
+      //--photons
+      if (std::abs(truthallParticle->pdgId()) == 22 &&
+          truthallParticle->status() == 1 &&
+          truthallParticle->barcode() < 1000000) {
+
 #ifdef MCTRUTHCLASSIFIER_CONST
-	auto type = m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
-	if(type.first==IsoPhoton) photonPrompt=true;
+        auto type =
+          m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
+        if (type.first == IsoPhoton)
+          photonPrompt = true;
 #else
-	partClass=std::make_pair(Unknown,NonDefined);
-	type = Unknown;
-      
-	if(truthallParticle->isAvailable <int>("truthType")) {
-	  MCTruthPartClassifier::ParticleType type   = (MCTruthPartClassifier::ParticleType) truthallParticle->auxdata< int >("truthType");
-	}
-	if(type==IsoPhoton) photonPrompt=true;
-#endif
-	
-	m_oPhotonValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,*eventInfo);
-	
-	if(!photonPrompt) continue;
-	if(truthallParticle->pt()/GeV>20. && fabs(truthallParticle->eta())<2.47){
-	  m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,*eventInfo);
-#ifdef MCTRUTHCLASSIFIER_CONST
-	  m_truthClassifier->particleTruthClassifier (truthallParticle, &info);
-	  ParticleOutCome photOutCome = info.particleOutCome;
-#else
-	  ParticleOutCome photOutCome = m_truthClassifier->getParticleOutCome();
+        partClass = std::make_pair(Unknown, NonDefined);
+        type = Unknown;
+
+        if (truthallParticle->isAvailable<int>("truthType")) {
+          MCTruthPartClassifier::ParticleType type =
+            (MCTruthPartClassifier::ParticleType)truthallParticle->auxdata<int>(
+              "truthType");
+        }
+        if (type == IsoPhoton)
+          photonPrompt = true;
 #endif
 
-	  float convTruthR = 9999.;
-	  if(truthallParticle->decayVtx()) convTruthR = truthallParticle->decayVtx()->perp();
-	  //std::cout<<"Truth Conversion R "<<convTruthR<<std::endl;
-	  //m_oPhotonValidationPlots.convTruthR->Fill(convTruthR);
-      
-	  //fill only iso photon for conv and not converted
-	  if (photOutCome == Converted&&convTruthR<800.)   
-	    m_oPhotonValidationPlots.m_oTruthAllIsoConvPlots.fill(*truthallParticle,*eventInfo);
-	  else 
-	    m_oPhotonValidationPlots.m_oTruthAllIsoUncPlots.fill(*truthallParticle,*eventInfo);
-	}//end cuts on truth
-      } // -- end photons
- 
-    } 
-  } 
+        m_oPhotonValidationPlots.m_oTruthAllPlots.fill(*truthallParticle,
+                                                       *eventInfo);
 
+        if (!photonPrompt)
+          continue;
+        if (truthallParticle->pt() / GeV > 20. &&
+            fabs(truthallParticle->eta()) < 2.47) {
+          m_oPhotonValidationPlots.m_oTruthAllIsoPlots.fill(*truthallParticle,
+                                                            *eventInfo);
+#ifdef MCTRUTHCLASSIFIER_CONST
+          m_truthClassifier->particleTruthClassifier(truthallParticle, &info);
+          ParticleOutCome photOutCome = info.particleOutCome;
+#else
+          ParticleOutCome photOutCome = m_truthClassifier->getParticleOutCome();
+#endif
 
-  //---------Electrons----------------------
-  if(!fillRecoElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
-    ATH_MSG_ERROR ("Filling reco elecectron hists  failed " << name() << "...");
-    return StatusCode::FAILURE;
-  }
-  //---------Frwd Electrons----------------------  
-  if(!fillRecoFrwdElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
-    ATH_MSG_ERROR ("Filling reco frwd elecectron hists  failed " << name() << "...");
-    return StatusCode::FAILURE;
-  }
-  //----------Photons
-  if(!fillRecoPhotHistograms(truthParticles.ptr(), eventInfo.ptr())) {
-    ATH_MSG_ERROR ("Filling reco photon  hists  failed " << name() << "...");
-    return StatusCode::FAILURE;
-  }
+          float convTruthR = 9999.;
+          if (truthallParticle->decayVtx())
+            convTruthR = truthallParticle->decayVtx()->perp();
+          // std::cout<<"Truth Conversion R "<<convTruthR<<std::endl;
+          // m_oPhotonValidationPlots.convTruthR->Fill(convTruthR);
 
+          // fill only iso photon for conv and not converted
+          if (photOutCome == Converted && convTruthR < 800.)
+            m_oPhotonValidationPlots.m_oTruthAllIsoConvPlots.fill(
+              *truthallParticle, *eventInfo);
+          else
+            m_oPhotonValidationPlots.m_oTruthAllIsoUncPlots.fill(
+              *truthallParticle, *eventInfo);
+        } // end cuts on truth
+      }   // -- end photons
+    }
+
+    //---------Electrons----------------------
+    if (!fillRecoElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
+      ATH_MSG_ERROR("Filling reco elecectron hists  failed " << name()
+                                                             << "...");
+      return StatusCode::FAILURE;
+    }
+    //---------Frwd Electrons----------------------
+    if (!fillRecoFrwdElecHistograms(truthParticles.ptr(), eventInfo.ptr())) {
+      ATH_MSG_ERROR("Filling reco frwd elecectron hists  failed " << name()
+                                                                  << "...");
+      return StatusCode::FAILURE;
+    }
+    //----------Photons
+    if (!fillRecoPhotHistograms(truthParticles.ptr(), eventInfo.ptr())) {
+      ATH_MSG_ERROR("Filling reco photon  hists  failed " << name() << "...");
+      return StatusCode::FAILURE;
+    }
+  } // end is MC / code using truth particles
 
   return StatusCode::SUCCESS;
 }
