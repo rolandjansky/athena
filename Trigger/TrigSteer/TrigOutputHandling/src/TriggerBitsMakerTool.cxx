@@ -144,13 +144,13 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill, const Eve
   }
 
   if ( msgLvl( MSG::DEBUG ) ) {
-    const boost::dynamic_bitset<uint32_t> passRawBits = resultToFill.getHltPassRawBits();
+    const boost::dynamic_bitset<uint32_t>& passRawBits = resultToFill.getHltPassRawBits();
     std::vector<uint32_t> bitsTemp(passRawBits.num_blocks());
     boost::to_block_range(passRawBits, bitsTemp.begin());
     ATH_MSG_VERBOSE("HLT result now has " << bitsTemp.size() << " words with HLT pass raw bits:");
     for (const auto& w : bitsTemp) ATH_MSG_VERBOSE("0x" << MSG::hex << w << MSG::dec);
     //
-    const boost::dynamic_bitset<uint32_t> prescaleBits = resultToFill.getHltPrescaledBits();
+    const boost::dynamic_bitset<uint32_t>& prescaleBits = resultToFill.getHltPrescaledBits();
     boost::to_block_range(prescaleBits, bitsTemp.begin());
     ATH_MSG_VERBOSE("HLT result now has " << bitsTemp.size() << " words with HLT prescale bits:");
     for (const auto& w : bitsTemp) ATH_MSG_VERBOSE("0x" << MSG::hex << w << MSG::dec);

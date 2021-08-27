@@ -58,9 +58,20 @@ namespace TrigCompositeUtils
     m_legFeatures.push_back(features);
   }
 
+  void Combinations::addLeg(std::size_t multiplicity, VecLInfo_t&& features)
+  {
+    m_legMultiplicities.push_back(multiplicity);
+    m_legFeatures.push_back(std::move(features));
+  }
+
   void Combinations::addLeg(const VecLInfo_t &features)
   {
     addLeg(1, features);
+  }
+
+  void Combinations::addLeg(VecLInfo_t&& features)
+  {
+    addLeg(1, std::move(features));
   }
 
   IPartCombItr Combinations::begin() const
