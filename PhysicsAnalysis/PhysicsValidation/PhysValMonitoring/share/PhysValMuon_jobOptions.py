@@ -21,11 +21,16 @@ for class_name, name in metadata['metadata_items'].items():
             isDAOD_PHYSVAL=True
     
 if not isDAOD_PHYSVAL:
-        from TrackVertexAssociationTool.getTTVAToolForReco import addUsedInFitDecoratorForReco
-        addUsedInFitDecoratorForReco(add2Seq = algseq)
-        from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
-        if not hasattr(algseq,"IsolationBuilderTight500"):
-            algseq += GetUpdatedIsoTrackCones()
+    from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+    if not hasattr(algseq,"IsolationBuilderNonprompt_All_MaxWeight500"):
+        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = algseq.name()+"_InDetUsedInFitDecoratorTool_forIso",
+                                                                    AMVFVerticesDecoName    = 'TTVA_AMVFVertices',
+                                                                    AMVFWeightsDecoName     = 'TTVA_AMVFWeights',
+                                                                    TrackContainer          = 'InDetTrackParticles',
+                                                                    VertexContainer         = 'PrimaryVertices' )
+        algseq += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = algseq.name()+"_InDetUsedInFitDecorator_forIso",
+                                                                   UsedInFitDecoratorTool  = getattr(ToolSvc, algseq.name()+"_InDetUsedInFitDecoratorTool_forIso") )
+        algseq += GetUpdatedIsoTrackCones()
 
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags

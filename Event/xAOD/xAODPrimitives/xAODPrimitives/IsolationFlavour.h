@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IsolationType.h 618834 2014-09-27 16:40:39Z christos $
@@ -31,19 +31,19 @@ namespace xAOD {
        neflowisol = 4,
 
        ///ptvarcone for high mu
-       ptvarcone_TightTTVA_pt500 = 5,
-       ptvarcone_TightTTVA_pt1000 = 6,
+       ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500 = 5,
+       ptvarcone_Nonprompt_All_MaxWeightTTVA_pt1000 = 6,
 
        ///ptcone for high mu
-       ptcone_TightTTVA_pt500 = 7,
-       ptcone_TightTTVA_pt1000 = 8,
+       ptcone_Nonprompt_All_MaxWeightTTVA_pt500 = 7,
+       ptcone_Nonprompt_All_MaxWeightTTVA_pt1000 = 8,
 
-       ptvarcone_TightTTVALooseCone_pt500 = 9,
-       ptvarcone_TightTTVALooseCone_pt1000 = 10,
+       ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 9,
+       ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 10,
 
        ///ptcone for high mu
-       ptcone_TightTTVALooseCone_pt500 = 11,
-       ptcone_TightTTVALooseCone_pt1000 = 12,
+       ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500 = 11,
+       ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 = 12,
 
 
        numIsolationFlavours=13
@@ -57,14 +57,14 @@ namespace xAOD {
        case topoetcone: return "topoetcone";
        case ptvarcone:  return "ptvarcone";
        case neflowisol: return "neflowisol";
-       case ptvarcone_TightTTVA_pt500:  return "ptvarcone_TightTTVA_pt500";
-       case ptvarcone_TightTTVA_pt1000:  return "ptvarcone_TightTTVA_pt1000";
-       case ptcone_TightTTVA_pt500:  return "ptcone_TightTTVA_pt500";
-       case ptcone_TightTTVA_pt1000:  return "ptcone_TightTTVA_pt1000";
-       case ptvarcone_TightTTVALooseCone_pt500:  return "ptvarcone_TightTTVALooseCone_pt500";
-       case ptvarcone_TightTTVALooseCone_pt1000:  return "ptvarcone_TightTTVALooseCone_pt1000";
-       case ptcone_TightTTVALooseCone_pt500:  return "ptcone_TightTTVALooseCone_pt500";
-       case ptcone_TightTTVALooseCone_pt1000:  return "ptcone_TightTTVALooseCone_pt1000";
+       case ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500:  return "ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500";
+       case ptvarcone_Nonprompt_All_MaxWeightTTVA_pt1000:  return "ptvarcone_Nonprompt_All_MaxWeightTTVA_pt1000";
+       case ptcone_Nonprompt_All_MaxWeightTTVA_pt500:  return "ptcone_Nonprompt_All_MaxWeightTTVA_pt500";
+       case ptcone_Nonprompt_All_MaxWeightTTVA_pt1000:  return "ptcone_Nonprompt_All_MaxWeightTTVA_pt1000";
+       case ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500:  return "ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+       case ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:  return "ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
+       case ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500:  return "ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500";
+       case ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000:  return "ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000";
        default:         return "[Unknown IsolationFlavour]";	
        }
      }
