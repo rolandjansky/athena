@@ -94,17 +94,11 @@ class NavigationLayer final : public Layer {
  protected:
   /** Resize the layer to the tracking volume - not implemented */
   virtual void resizeLayer(const VolumeBounds&, double) override final {}
-  /** Resize the layer to the tracking volume - not implemented */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                 double) const override final {}
 
   /** Resize the layer to the tracking volume - not implemented */
   virtual void resizeAndRepositionLayer(const VolumeBounds&,
                                         const Amg::Vector3D&,
                                         double) override final {}
-  /** Resize the layer to the tracking volume - not implemented */
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
 
   Surface* m_surfaceRepresentation;  //!< for the navigation Volume the
                                      //!< surface is a private member */

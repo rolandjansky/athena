@@ -1351,15 +1351,18 @@ void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE(
   // case a : Layers exist
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers) {
-    for (const auto& clayIter : confLayers->arrayObjects())
-      if (clayIter) {
-        if (clayIter->surfaceRepresentation().type() ==
+    for (const Trk::Layer* clay : confLayers->arrayObjects())
+      if (clay) {
+        Trk::Layer* mutableclay = const_cast<Trk::Layer*> (clay);
+        if (clay->surfaceRepresentation().type() ==
                 Trk::SurfaceType::Cylinder &&
-            !(center().isApprox(clayIter->surfaceRepresentation().center())))
-          clayIter->resizeAndRepositionLayer(volumeBounds(), center(),
+            !(center().isApprox(clay->surfaceRepresentation().center()))){
+          mutableclay->resizeAndRepositionLayer(volumeBounds(), center(),
                                              envelope);
-        else
-          clayIter->resizeLayer(volumeBounds(), envelope);
+        }
+        else{
+          mutableclay->resizeLayer(volumeBounds(), envelope);
+        }
       } else
         msgstream << MSG::WARNING
                   << "  ---> found 0 pointer to layer in Volume [ "
