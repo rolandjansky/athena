@@ -82,7 +82,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     # is identical to the IOV of the tracking geoemtry cond alg
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
     result.merge(PixelDetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment else [],
+                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Detector.GeometryMuon else [],
                                                 TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT  else [],
                                                 SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT  else []))
 
@@ -123,7 +123,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment  else [],
+                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and  flags.Detector.GeometryMuon else [],
                                                 TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT   else [],
                                                 PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel else []))
 
@@ -346,7 +346,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
         dependencies = {"PixelAlignCondAlg",
                         "SCT_AlignCondAlg",
                         "TRTAlignCondAlg",
-                        "MuonAlignCondAlg",
+                        "MuonAlignmentCondAlg",
                         "MuonDetectorCondAlg",
                         "CondInputLoader"}
         prependList = list()
