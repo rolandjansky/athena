@@ -54,7 +54,6 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ClustersMeanEMProbability", &vars.eprobability) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis", &vars.ptEM_D_ptLC) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined", &vars.ptLC_D_ptCombined) );
-    availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined", &vars.ptConstituent_D_ptCombined) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.etaPanTauCellBased", &vars.etaConstituent) );
     if(m_bdtHelper0p && xTau.nTracks()==0) {
       availableVars.insert( std::make_pair("log(TauJetsAuxDyn.ptCombined)", &vars.logPtCombined) );
@@ -64,6 +63,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
       availableVars.insert( std::make_pair("TauJetsAuxDyn.ptJetSeed/TauJetsAuxDyn.ptCombined", &vars.ptSeed_D_ptCombined) );
     }
     else {
+      availableVars.insert( std::make_pair("TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined", &vars.ptConstituent_D_ptCombined) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.ptCombined", &vars.ptCombined) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n", &vars.PanTauBDT_1p0n_vs_1p1n) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn", &vars.PanTauBDT_1p1n_vs_1pXn) );
@@ -123,7 +123,6 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
 
     vars.ptEM_D_ptLC = (ptLC != 0.) ? ptEM / ptLC : 0.;
     vars.ptLC_D_ptCombined = ptLC / ptCombined;
-    vars.ptConstituent_D_ptCombined = ptConstituent / ptCombined;
 
     float ptMVA = 0.;
 
@@ -143,6 +142,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     }
     else {
       vars.ptCombined = ptCombined;
+      vars.ptConstituent_D_ptCombined = ptConstituent / ptCombined;
 
       // Retrieve substructure info
       static const SG::AuxElement::ConstAccessor<float> acc_PanTauBDT_1p0n_vs_1p1n("PanTau_BDTValue_1p0n_vs_1p1n");
