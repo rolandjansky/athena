@@ -37,16 +37,11 @@ else:
 
 # add isolation variables for IsolationSelection
 if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'tier0':
-    from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
     if not hasattr(topSequence,"IsolationBuilderNonprompt_All_MaxWeight1000"):
-        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = topSequence.name()+"_InDetUsedInFitDecoratorTool_forIso",
-                                                                    AMVFVerticesDecoName    = 'TTVA_AMVFVertices',
-                                                                    AMVFWeightsDecoName     = 'TTVA_AMVFWeights',
-                                                                    TrackContainer          = 'InDetTrackParticles',
-                                                                    VertexContainer         = 'PrimaryVertices' )
-        topSequence += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = topSequence.name()+"_InDetUsedInFitDecorator_forIso",
-                                                                        UsedInFitDecoratorTool  = getattr(ToolSvc, topSequence.name()+"_InDetUsedInFitDecoratorTool_forIso") )
-        topSequence += GetUpdatedIsoTrackCones()
+        from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+        from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+        WP='Nonprompt_All_MaxWeight'
+        topSequence += GetUpdatedIsoTrackCones(TTVATool=getTTVAToolForReco(WP,WorkingPoint=WP))
 
 from AthenaCommon.JobProperties import jobproperties
 if not 'InDetKeys' in dir():

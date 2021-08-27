@@ -7,7 +7,7 @@ from AthenaCommon.BeamFlags import jobproperties
 log = logging.getLogger(__name__)
 
 
-def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "Muons"),WP="Nonprompt_All_MaxWeight"):
+def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "Muons"),WP="Nonprompt_All_MaxWeight",TTVATool=None):
     """ Return a list of IsolationBuilder algorithms to calculate TTVA moments
 
     ---------
@@ -55,42 +55,28 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
             toolkwargs = {}
             if jobproperties.Beam.beamType == 'cosmics':
                 toolkwargs['VertexLocation'] = ''
-            if WP != "MVATight":
-              algs.append(
-                  CfgMgr.IsolationBuilder(
-                      f"IsolationBuilder{WP}{cone_str}{track_pt}{postfix}",
-                      TrackIsolationTool=CfgMgr.xAOD__TrackIsolationTool(
-                          f"TrackIsolationTool{WP}{track_pt}",
-                          TrackSelectionTool=CfgMgr.InDet__InDetTrackSelectionTool(
-                              minPt=track_pt, CutLevel="Loose"
-                          ),
-                          TTVATool=CfgMgr.CP__TrackVertexAssociationTool(WP,
-                              WorkingPoint=WP,
-                          ),
-                          CoreTrackEtaRange=0.01 if loose_cone else 0.0,
-                          **toolkwargs,
-                      ),
-                      **kwargs,
-                  )
-              )
-            else:
-              algs.append(
-                  CfgMgr.IsolationBuilder(
-                      f"IsolationBuilder{WP}{cone_str}{track_pt}{postfix}",
-                      TrackIsolationTool=CfgMgr.xAOD__TrackIsolationTool(
-                          f"TrackIsolationTool{WP}{track_pt}",
-                          TrackSelectionTool=CfgMgr.InDet__InDetTrackSelectionTool(
-                              minPt=track_pt, CutLevel="Loose"
-                          ),
-                          TTVATool=CfgMgr.CP__MVATrackVertexAssociationTool(WP,
-                              WorkingPoint="Tight",
-                          ),
-                          CoreTrackEtaRange=0.01 if loose_cone else 0.0,
-                          **toolkwargs,
-                      ),
-                      **kwargs,
-                  )
-              )
+            if TTVATool is None:
+                if WP != "MVATight":
+                    TTVATool = CfgMgr.CP__TrackVertexAssociationTool(WP,
+                                WorkingPoint=WP)
+                else:
+                    TTVATool = CfgMgr.CP__MVATrackVertexAssociationTool(WP,
+                                WorkingPoint="Tight")
+              
+            algs.append(CfgMgr.IsolationBuilder(
+                            f"IsolationBuilder{WP}{cone_str}{track_pt}{postfix}",
+                            TrackIsolationTool=CfgMgr.xAOD__TrackIsolationTool(
+                                f"TrackIsolationTool{WP}{track_pt}",
+                                TrackSelectionTool=CfgMgr.InDet__InDetTrackSelectionTool(
+                                    minPt=track_pt, CutLevel="Loose"
+                                ),
+                                TTVATool=TTVATool,
+                                CoreTrackEtaRange=0.01 if loose_cone else 0.0,
+                                **toolkwargs,
+                            ),
+                            **kwargs,
+                            )
+                        )
     return algs
 
 def iso_vars():
