@@ -12,8 +12,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthContainers/DataVector.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JetCMXTools.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
 
@@ -43,8 +43,6 @@ class L1JetCMXTools : virtual public IL1JetCMXTools, public AthAlgTool {
 
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize();
-  /** standard Athena-Algorithm method */
-  virtual StatusCode finalize();
 
   /** form CMX-Jet TOBs from RoIs - single slice */
   virtual void formCMXJetTob(const xAOD::JEMTobRoIContainer* jemRoiVec,
@@ -100,8 +98,7 @@ class L1JetCMXTools : virtual public IL1JetCMXTools, public AthAlgTool {
                       const ErrorVector& err0, const ErrorVector& err1,
                       int crate, int source, int peak) const;
 
-  /** Trigger configuration service */
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
   /** Number of crates */
   int m_crates;
   /** Number of JEM modules per crate */
