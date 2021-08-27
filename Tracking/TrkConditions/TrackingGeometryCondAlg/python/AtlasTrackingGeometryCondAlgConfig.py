@@ -37,6 +37,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # i.e. this is far from complete, but is better than what was there before.
 
   # beampipe
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  result.merge(BeamPipeGeometryCfg(flags))
   InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilderCond
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder'+nameSuffix)
 
@@ -211,12 +213,16 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
+  from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+  result.merge(LArGMCfg(flags))
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
   lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,
                                            TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
+  from TileGeoModel.TileGMConfig import TileGMCfg
+  result.merge(TileGMCfg(flags))
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
   tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix,
                                                TrackingVolumeHelper = trackingVolumeHelper,)
