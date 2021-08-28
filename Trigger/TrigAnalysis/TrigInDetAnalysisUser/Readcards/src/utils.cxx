@@ -105,7 +105,7 @@ std::string chop(std::string& s1, const std::string& s2)
   }
   else {
     s3 = s1.substr(0, pos); 
-    s1.clear();
+    s1.erase(0, pos+s2.size());
   }
   return s3;
 } 
