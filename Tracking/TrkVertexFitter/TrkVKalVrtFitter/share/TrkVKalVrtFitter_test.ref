@@ -1,16 +1,16 @@
-Thu Jul 22 09:58:31 CEST 2021
+Fri Aug 27 10:05:50 CEST 2021
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.40] [x86_64-centos7-gcc8-opt] [fixesForCondAlf/1b97caf7369] -- built on [2021-07-22T0954]
+Py:Athena            INFO using release [WorkDir-22.0.43] [x86_64-centos7-gcc8-opt] [reorder_TG_deps_for_athenaST/9334cbdd380] -- built on [2021-08-27T0959]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TrkVKalVrtFitter/TrkVKalVrtFitter_test.py"
 Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5052 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5069 configurables from 13 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.40
+EventInfoMgtInit: Got release version  Athena-22.0.43
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
 Py:Athena            INFO Importing module MuonCnvExample.MuonCalibFlags
@@ -21,18 +21,85 @@ Py:MuonRec           INFO Changing default applyResilience = True
 Py:MuonRec           INFO Changing default doMSVertex = True
 Py:MuonRec           INFO Changing default enableErrorTuning = True
 Py:MuonRec           INFO Changing default writeSDOs = True
-Py:ConfiguredFactory    INFO imported 134 confDb modules in 1.13 seconds
+Py:ConfiguredFactory    INFO imported 135 confDb modules in 0.33 seconds
 Py:Athena            INFO Importing MagFieldServices.SetupField
 Py:Athena            INFO Importing MagFieldServices.MagFieldServicesSetup
 [ TrackingGeometrySvc ]     base material tag :  AtlasLayerMat_v21_
 [ TrackingGeometrySvc ]     translated to COOL:  /GLOBAL/TrackingGeo/LayerMaterialV2<tag>TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas</tag>
+Modified SCT_DetectorElementCondAlg
+/***** Algorithm SCT_DetectorElementCondAlg/SCT_DetectorElementCondAlg *****************************
+|-AuditAlgorithms            = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Blocking                   = False
+|-Cardinality                = 0
+|-CondSvc                    = ServiceHandle('CondSvc')
+|-DetManagerName             = 'SCT'
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-MonitorService             = 'MonitorSvc'
+|-MuonManagerKey             = []  (default: [])
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-PixelAlignmentStore        = ['PixelAlignmentStore']  (default: [])
+|-ReadKey                    = DataHandle('ConditionStore+SCTAlignmentStore','R','GeoAlignmentStore')
+|-RegisterForContextService  = False
+|-TRT_DetEltContKey          = []  (default: [])
+|-Timeline                   = True
+|-WriteKey                   = DataHandle('ConditionStore+SCT_DetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
+\----- (End of Algorithm SCT_DetectorElementCondAlg/SCT_DetectorElementCondAlg) --------------------
+Modified PixelDetectorElementCondAlg
+/***** Algorithm PixelDetectorElementCondAlg/PixelDetectorElementCondAlg ***************************
+|-AuditAlgorithms            = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Blocking                   = False
+|-Cardinality                = 0
+|-CondSvc                    = ServiceHandle('CondSvc')
+|-DetManagerName             = 'Pixel'
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-MonitorService             = 'MonitorSvc'
+|-MuonManagerKey             = []  (default: [])
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-PixelAlignmentStore        = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
+|-ReadKey                    = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
+|-RegisterForContextService  = False
+|-SCTAlignmentStore          = ['SCTAlignmentStore']  (default: [])
+|-TRT_DetEltContKey          = []  (default: [])
+|-Timeline                   = True
+|-WriteKey                   = DataHandle('ConditionStore+PixelDetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
+\----- (End of Algorithm PixelDetectorElementCondAlg/PixelDetectorElementCondAlg) ------------------
 [ TrackingGeometryCondAlg ]     base material tag :  AtlasLayerMat_v21_
 [ TrackingGeometryCondAlg ]     translated to COOL:  /GLOBAL/TrackingGeo/LayerMaterialV2<tag>TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas</tag>
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v36r0)
-                                          running on Beast2 on Thu Jul 22 09:58:42 2021
+                                          running on atpc002 on Fri Aug 27 10:06:00 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
@@ -43,10 +110,9 @@ MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-07-21T2101/Athena/22.0.40/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 2 servers found for host Beast2.localdomain [ATLF atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-08-26T2101/Athena/22.0.43/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host atpc002.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO Unable find catalog apcfile:poolcond/PoolCat_oflcond.xml in $ATLAS_POOLCOND_PATH and $DATAPATH
@@ -84,7 +150,7 @@ IOVDbSvc             INFO Added taginfo remove for /Indet/IBLDist
 IOVDbSvc             INFO Added taginfo remove for /Indet/PixelDist
 IOVDbSvc             INFO Added taginfo remove for /TRT/Align
 ClassIDSvc           INFO getRegistryEntries: read 273 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO getRegistryEntries: read 42 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 45 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -310,10 +376,10 @@ SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SC
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC9, level 1, with frame local.
 ClassIDSvc           INFO getRegistryEntries: read 3605 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
-ClassIDSvc           INFO getRegistryEntries: read 2781 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO getRegistryEntries: read 1538 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 3983 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 1580 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO getRegistryEntries: read 240 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO getRegistryEntries: read 255 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 139 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'AlignableTransformContainer' , 'ConditionStore+/Indet/Align' )   -> no bases
@@ -322,6 +388,7 @@ CondInputLoader      INFO Adding base classes:
   +  ( 'CondAttrListCollection' , 'ConditionStore+/GLOBAL/BField/Maps' )   ->
   +  ( 'CondAttrListCollection' , 'ConditionStore+/Indet/IBLDist' )   ->
   +  ( 'DetCondCFloat' , 'ConditionStore+/Indet/PixelDist' )   -> no bases
+  +  ( 'Trk::LayerMaterialMap' , 'ConditionStore+/GLOBAL/TrackingGeo/LayerMaterialV2' )   -> no bases
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
     +  ( 'AlignableTransformContainer' , 'ConditionStore+/Indet/Align' ) 
     +  ( 'AlignableTransformContainer' , 'ConditionStore+/TRT/Align' ) 
@@ -329,6 +396,7 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'CondAttrListCollection' , 'ConditionStore+/GLOBAL/BField/Maps' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/Indet/IBLDist' ) 
     +  ( 'DetCondCFloat' , 'ConditionStore+/Indet/PixelDist' ) 
+    +  ( 'Trk::LayerMaterialMap' , 'ConditionStore+/GLOBAL/TrackingGeo/LayerMaterialV2' ) 
 AtlasFieldMapCo...   INFO Initialize: Key  ( 'AtlasFieldMapCondObj' , 'ConditionStore+fieldMapCondObj' )  has been succesfully registered 
 AtlasFieldMapCo...   INFO Initialize: Will update the field map from conditions
 AtlasFieldCache...   INFO Initialize: Key  ( 'AtlasFieldCacheCondObj' , 'ConditionStore+fieldCondObj' )  has been succesfully registered 
@@ -347,7 +415,7 @@ AtlasGeometry_E...   INFO Sucessfully read Python-based envelope definition for 
 AtlasGeometry_E...   INFO No entries for table 'CavernEnvelope' in Detector Description Database (DDDB). Maybe you are using Python-based envelope definitions...
 AtlasGeometry_E...   INFO Sucessfully read Python-based envelope definition for 'CavernEnvelope'.
 AtlasGeometry_E...   INFO Initialize successful.
-ClassIDSvc           INFO getRegistryEntries: read 1872 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 1780 CLIDRegistry entries for module ALL
 AtlasTrackingGe...   INFO Retrieved tool LayerArrayCreator = PublicToolHandle('Trk::LayerArrayCreator/InDetLayerArrayCreatorCond')
 AtlasTrackingGe...   INFO initialize() succesful
 ClassIDSvc           INFO getRegistryEntries: read 452 CLIDRegistry entries for module ALL
@@ -376,6 +444,7 @@ CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'Con
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/GLOBAL/BField/Maps'
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/Indet/IBLDist'
 CondInputLoader      INFO created CondCont<DetCondCFloat> with key 'ConditionStore+/Indet/PixelDist'
+CondInputLoader      INFO created CondCont<Trk::LayerMaterialMap> with key 'ConditionStore+/GLOBAL/TrackingGeo/LayerMaterialV2'
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
@@ -416,10 +485,16 @@ Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p2 is available
 Warning in <TClass::Init>: no dictionary for class PoolToken_p1 is available
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cmccond/cmccond.000001.conditions.recon.pool.v0000/oflcond.000001.conditions.recon.pool.v0000._0058.pool.root File version:51400
+ElementTableCnv      INFO LayerMaterialMapCnv::initialize()
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 2B8BB54A-2F81-7B49-8484-60F83666998E
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000126.gen.COND/cond09_mc.000126.gen.COND._0001.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000126.gen.COND/cond09_mc.000126.gen.COND._0001.pool.root File version:60416
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D0709FD7-6A55-E011-925D-002481043EC0
 SCT_AlignCondAlg     INFO recorded new CDO SCTAlignmentStore with range {[INVALID] - [1,l:4294967294]} into Conditions Store
-SCT_DetectorEle...   INFO recorded new CDO SCT_DetectorElementCollection with range {[INVALID] - [1,l:4294967294]} with size of 8176 into Conditions Store
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key /Indet/IBLDist
 PixelAlignCondAlg    INFO recorded new CDO PixelAlignmentStore with range {[0,t:0,l:0] - [1,l:4294967294]} into Conditions Store
+SCT_DetectorEle...   INFO recorded new CDO SCT_DetectorElementCollection with range {[0,t:0,l:0] - [1,l:4294967294]} with size of 8176 into Conditions Store
 PixelDetectorEl...   INFO recorded new CDO PixelDetectorElementCollection with range {[0,t:0,l:0] - [1,l:4294967294]} with size of 2048 into Conditions Store
 AtlasFieldMapCo...   INFO updateFieldMap: Update map from conditions
 AtlasFieldMapCo...   INFO updateFieldMap: Update map from conditions: Range of input/output is {[0,l:0] - [INVALID]}
@@ -453,12 +528,6 @@ AtlasFieldCache...   INFO scaleField: Solenoid field scale factor 1. Desired cur
 AtlasFieldCache...   INFO scaleField: Toroid field scale factor 1. Desired current and map current: 20400,20400
 AtlasFieldCache...   INFO execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor 1/1, EventRange {[0,0,t:0] - [t:4294967294.854775807]}
 AtlasFieldCache...   INFO execute: solenoid zone id  7000
-ElementTableCnv      INFO LayerMaterialMapCnv::initialize()
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 2B8BB54A-2F81-7B49-8484-60F83666998E
-Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000126.gen.COND/cond09_mc.000126.gen.COND._0001.pool.root
-RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000126.gen.COND/cond09_mc.000126.gen.COND._0001.pool.root File version:60416
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D0709FD7-6A55-E011-925D-002481043EC0
 testalg1          VERBOSE execute
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...
@@ -476,19 +545,19 @@ Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All]
 ApplicationMgr       INFO Application Manager Stopped successfully
 CondInputLoader      INFO Finalizing CondInputLoader...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/1 objs/chan/bytes 4/4/20 ((     0.15 ))s
-IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.17 ))s
-IOVDbFolder          INFO Folder /GLOBAL/TrackingGeo/LayerMaterialV2 (PoolRef) db-read 1/1 objs/chan/bytes 1/1/231 ((     0.05 ))s
-IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.16 ))s
-IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     0.09 ))s
-IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/179 ((     0.10 ))s
-IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.14 ))s
-IOVDbSvc             INFO  bytes in ((      0.87 ))s
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/1 objs/chan/bytes 4/4/20 ((     0.03 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.02 ))s
+IOVDbFolder          INFO Folder /GLOBAL/TrackingGeo/LayerMaterialV2 (PoolRef) db-read 1/1 objs/chan/bytes 1/1/231 ((     0.01 ))s
+IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.05 ))s
+IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     0.03 ))s
+IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/179 ((     0.03 ))s
+IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.05 ))s
+IOVDbSvc             INFO  bytes in ((      0.22 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.35 ))s
-IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.14 ))s
-IOVDbSvc             INFO Connection COOLOFL_GLOBAL/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.22 ))s
-IOVDbSvc             INFO Connection COOLOFL_DCS/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.15 ))s
+IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.11 ))s
+IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.05 ))s
+IOVDbSvc             INFO Connection COOLOFL_GLOBAL/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.03 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.03 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 testalg1.TrkVKa...   INFO Trk::Extrapolator::Cache s_navigSurfsMax    = 0
@@ -501,9 +570,9 @@ AtlasTrackingGe...   INFO finalize() successful
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObj_ALL             INFO Time User   : Tot=  100 [ms] Ave/Min/Max=    11.1(+-    24.7)/       0/      80 [ms] #=  9
-cObjR_ALL            INFO Time User   : Tot=  100 [ms] Ave/Min/Max=    0.98(+-    7.98)/       0/      80 [ms] #=102
-ChronoStatSvc        INFO Time User   : Tot= 1.61  [s]  #=  1
+cObjR_ALL            INFO Time User   : Tot=  190 [ms] Ave/Min/Max=    1.86(+-    14.9)/       0/     150 [ms] #=102
+cObj_ALL             INFO Time User   : Tot=  220 [ms] Ave/Min/Max=    24.4(+-    48.8)/       0/     160 [ms] #=  9
+ChronoStatSvc        INFO Time User   : Tot=  2.8  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
