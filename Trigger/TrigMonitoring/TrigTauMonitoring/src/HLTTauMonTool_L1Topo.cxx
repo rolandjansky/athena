@@ -19,8 +19,8 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
 
 //	if(!getTDT()->isPassed(trigItem_topo,m_L1TriggerCondition)) return StatusCode::SUCCESS;
 
-	const xAOD::JetRoIContainer *l1jets = 0;
-        const xAOD::EmTauRoIContainer *l1taus = 0;
+	const xAOD::JetRoIContainer *l1jets = nullptr;
+        const xAOD::EmTauRoIContainer *l1taus = nullptr;
 
 	if ( evtStore()->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
 		ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
@@ -170,7 +170,7 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
         	hist("hDRBothtausJet")->Fill(min_dR_BothtausJet);
         	hist("hDRBothtausJetN")->Fill(min_dR_BothtausJetN);
  
-                if (phi_roi.size() >= 1 &&min_dR_Bothtaus>2.8 && min_dR_Bothtaus < 50.) {
+                if (!phi_roi.empty() &&min_dR_Bothtaus>2.8 && min_dR_Bothtaus < 50.) {
         	  if (index_tau20 > 0) hist("hPTLeading")->Fill(tau_val_roi.at(index_tau20)/GeV);
         	  if (index_tau12 > 0) hist("hPTSubLeading")->Fill(tau_val_roi.at(index_tau12)/GeV);
         	  if (index_tau20 > 0) hist("hEtaLeading")->Fill(eta_roi.at(index_tau20));
@@ -180,7 +180,7 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
         	  hist("hMultiTaus")->Fill(MultiTaus);
         	  hist("hMultiJets")->Fill(MultiJets);
                 }
-                if (phi_roi.size() >= 1 &&min_dR_BothtausJet>2.8 && min_dR_BothtausJet < 50.) {
+                if (!phi_roi.empty() &&min_dR_BothtausJet>2.8 && min_dR_BothtausJet < 50.) {
         	  if (indexJet_tau20 > 0) hist("hPTLeadingJet")->Fill(tau_val_roi.at(indexJet_tau20)/GeV);
         	  if (indexJet_tau12 > 0) hist("hPTSubLeadingJet")->Fill(tau_val_roi.at(indexJet_tau12)/GeV);
         	  if (indexJet_tau20 > 0) hist("hEtaLeadingJet")->Fill(eta_roi.at(indexJet_tau20));

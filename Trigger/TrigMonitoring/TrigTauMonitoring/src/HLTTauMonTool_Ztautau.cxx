@@ -50,8 +50,8 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
  
   StatusCode sc = StatusCode::SUCCESS;
 
-  const xAOD::MuonContainer      * muon_cont  = 0;
-  const xAOD::MissingETContainer * off_met_cont = 0;
+  const xAOD::MuonContainer      * muon_cont  = nullptr;
+  const xAOD::MissingETContainer * off_met_cont = nullptr;
     
   bool found_met = false;
 
@@ -139,7 +139,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
   }
 
   //Tau Selection
-  for(auto recoTau : taus_here)
+  for(const auto *recoTau : taus_here)
   {
     TLorentzVector TauTLV = recoTau->p4();
     double pt_Tau     = TauTLV.Pt();
@@ -179,7 +179,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
   }
 
   //Offline MET 
-  const xAOD::MissingET  *off_met_ptr = 0;
+  const xAOD::MissingET  *off_met_ptr = nullptr;
   float off_ex    = -9e9;
   float off_ey    = -9e9;
   float off_met   = -9e9;
@@ -187,7 +187,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
   //float off_phi   = -9e9;
  
   if(found_met){ 
-    if (off_met_cont && off_met_cont->size())
+    if (off_met_cont && !off_met_cont->empty())
     {
       off_met_ptr = (*off_met_cont)["FinalClus"];
       if(off_met_ptr)
