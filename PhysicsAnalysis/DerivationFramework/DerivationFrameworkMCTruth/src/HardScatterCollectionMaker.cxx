@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -52,12 +52,12 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
 
-    if (m_eventsKey=="") {
+    if (m_eventsKey.empty()) {
         ATH_MSG_FATAL("No truth event collection provided to use as a basis for new collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_eventsKey << " as the source collections for new truth collections");}
 
-    if (m_collectionName=="") {
+    if (m_collectionName.empty()) {
         ATH_MSG_FATAL("No key provided for the new truth particle collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
@@ -80,7 +80,7 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
         // Shamelessly stolen from the file meta data tool
         ATH_CHECK( m_metaStore->retrieve(truthMetaData) );
 
-        if (truthMetaData->size()>0){
+        if (!truthMetaData->empty()){
             // Let's just be super sure...
             const std::string gens = boost::algorithm::to_lower_copy(truthMetaData->at(0)->generators());
             // Check if it has Pythia8 in it
@@ -89,7 +89,7 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
             std::string remainder = boost::algorithm::erase_all_copy(gens,"pythia8");
             boost::algorithm::erase_all(remainder,"evtgen");
             boost::algorithm::erase_all(remainder,"+");
-            if (remainder!=""){
+            if (!remainder.empty()){
                 ATH_MSG_INFO("Ideentified sample as not pure-Pythia8. Gen info was " << gens);
                 is_pure_pythia8=0;
             } else if (is_pure_pythia8){
@@ -111,7 +111,7 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
         return StatusCode::FAILURE;
     }
     // We only care about the first event
-    if (importedTruthEvents->size()==0){
+    if (importedTruthEvents->empty()){
         ATH_MSG_ERROR("TruthEvent collection with name " << m_eventsKey << " is empty!");
         return StatusCode::FAILURE;
     }

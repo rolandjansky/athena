@@ -87,7 +87,7 @@ namespace DerivationFramework {
       isMC = true;
 
 
-    for( const auto el : *electrons ){
+    for( const auto *const el : *electrons ){
       fillTrackDetails(el,isMC);
       fillVertexDetails(el);
       fillClusterDetails(el);
@@ -107,7 +107,7 @@ namespace DerivationFramework {
    if( !truthPart || !truthPart->hasProdVtx() )
       return;
     
-   auto prodVtx = truthPart->prodVtx();
+   const auto *prodVtx = truthPart->prodVtx();
 
    Amg::Vector3D pos( prodVtx->x(), prodVtx->y(), prodVtx->z() );
    Amg::Vector3D mom( truthPart->px(), truthPart->py(), truthPart->pz() );
@@ -192,7 +192,7 @@ namespace DerivationFramework {
   }
 
 
-  int  DerivationFramework::MergedElectronDetailsDecorator::nSiHits( const xAOD::TrackParticle * tp ) const
+  int  DerivationFramework::MergedElectronDetailsDecorator::nSiHits( const xAOD::TrackParticle * tp ) 
   {
     uint8_t dummy(-1);
     int nPix = tp->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy : 0;
@@ -218,11 +218,11 @@ namespace DerivationFramework {
     std::vector<float> trueMatch_dEta2(el->nTrackParticles(),-999);
     std::vector<float> trueMatch_dPhi2(el->nTrackParticles(),-999);
 
-    auto caloCluster =  el->caloCluster();
+    const auto *caloCluster =  el->caloCluster();
     if( caloCluster && caloCluster->pt() > m_minET ){
       std::vector<float> trkMatch(9,-999);
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
-        auto trackParticle = el->trackParticle( i );
+        const auto *trackParticle = el->trackParticle( i );
         if(trackParticle){
           fillMatchDetails( trkMatch, trackParticle, caloCluster);
           trkMatchTrkP_dEta1[i]  = trkMatch[0];
@@ -259,9 +259,9 @@ namespace DerivationFramework {
     el->auxdecor<std::vector<float>>("TrackMatchingTrue_dPhi2") = trueMatch_dPhi2;
   }
 
-  void DerivationFramework::MergedElectronDetailsDecorator::fillClusterDetails(const xAOD::Electron* el) const
+  void DerivationFramework::MergedElectronDetailsDecorator::fillClusterDetails(const xAOD::Electron* el) 
   {
-    auto caloCluster =  el->caloCluster();
+    const auto *caloCluster =  el->caloCluster();
 
     std::vector<float> subCluster_E;
     std::vector<float> subCluster_dEta;
@@ -270,7 +270,7 @@ namespace DerivationFramework {
     static SG::AuxElement::Accessor<std::vector<ElementLink<xAOD::CaloClusterContainer> > > clusterLinksAcc("constituentClusterLinks");
     if(caloCluster && clusterLinksAcc.isAvailable(*caloCluster) ){
       std::vector<ElementLink<xAOD::CaloClusterContainer> >  clusterLinks = clusterLinksAcc(*caloCluster);
-      for( auto link : clusterLinks){
+      for( const auto& link : clusterLinks){
         if( link.isValid() ){
           subCluster_E.push_back( (*link)->e() );
           subCluster_dEta.push_back( caloCluster->eta() - (*link)->eta() );
@@ -288,7 +288,7 @@ namespace DerivationFramework {
   void DerivationFramework::MergedElectronDetailsDecorator::fillVertexDetails(const xAOD::Electron* el) const
   {
     const EventContext& ctx = Gaudi::Hive::currentContext(); 
-    auto caloCluster =  el->caloCluster();
+    const auto *caloCluster =  el->caloCluster();
     
     float vtxR = -999;
     float vtxZ = -999;
@@ -318,7 +318,7 @@ namespace DerivationFramework {
       int trkIndex1 = -999;
       int trkIndex2 = -999;
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
-        auto trackParticle = el->trackParticle( i );
+        const auto *trackParticle = el->trackParticle( i );
         if( nSiHits(trackParticle) >= 7 &&  ElectronSelectorHelpers::passBLayerRequirement(trackParticle) ) {
           if ( trk1 == nullptr ){
             trk1 = trackParticle;
@@ -375,7 +375,7 @@ namespace DerivationFramework {
           vtxEta = vertex4P.Eta();
           double momentumScaleFactor = caloCluster->e() / vtxE;
 
-          auto perigeeParameters = trk1->perigeeParameters();
+          const auto& perigeeParameters = trk1->perigeeParameters();
           Amg::Vector3D pos = perigeeParameters.position();
           Amg::Vector3D mom = perigeeParameters.momentum();
           mom *= momentumScaleFactor; 
@@ -390,7 +390,7 @@ namespace DerivationFramework {
             vtxTrkParticle1_dPhi2 = P4Helpers::deltaPhi(caloCluster->phiBE(2), phiAtCalo) ;
           }
 
-          auto perigeeParameters2 = trk2->perigeeParameters();
+          const auto& perigeeParameters2 = trk2->perigeeParameters();
           pos = perigeeParameters2.position();
           mom = perigeeParameters2.momentum();
           mom *= momentumScaleFactor; 

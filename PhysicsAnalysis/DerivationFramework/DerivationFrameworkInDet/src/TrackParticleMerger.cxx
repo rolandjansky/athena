@@ -50,14 +50,6 @@ namespace DerivationFramework {
   }
 
   ///////////////////////////////////////////////////////////////////
-  // Execute
-  ///////////////////////////////////////////////////////////////////
-  StatusCode TrackParticleMerger::execute()
-  {
-    return StatusCode::SUCCESS;
-  }
-
-  ///////////////////////////////////////////////////////////////////
   // Finalize
   ///////////////////////////////////////////////////////////////////
 
@@ -78,7 +70,7 @@ namespace DerivationFramework {
     std::vector<const xAOD::TrackParticleContainer*> trackParticleCollections;
     trackParticleCollections.reserve(m_trackParticleLocation.size());
     size_t ttNumber = 0;
-    for (auto& tcname : m_trackParticleLocation){
+    for (const auto & tcname : m_trackParticleLocation){
       ///Retrieve track particles from StoreGate
       SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCol (tcname, ctx);
       if (!trackParticleCol.isValid()) {
@@ -108,10 +100,10 @@ namespace DerivationFramework {
                                                   xAOD::TrackParticleContainer* outputCol) const
   {
     // loop over tracks, accept them and add them into association tool
-    if(trackParticleCol && trackParticleCol->size()) {
+    if(trackParticleCol && !trackParticleCol->empty()) {
       ATH_MSG_DEBUG("Size of track particle collection " << trackParticleCol->size());
       // loop over tracks
-      for(const auto rf: *trackParticleCol){
+      for(const auto *const rf: *trackParticleCol){
         // add track into output
         // FIXME: const_cast
         xAOD::TrackParticle* newTrackParticle = m_createViewCollection ? const_cast<xAOD::TrackParticle*>(rf) : new xAOD::TrackParticle(*rf);

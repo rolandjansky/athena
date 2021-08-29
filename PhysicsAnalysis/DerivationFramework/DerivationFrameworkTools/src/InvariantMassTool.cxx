@@ -33,7 +33,7 @@ namespace DerivationFramework {
 
   StatusCode InvariantMassTool::initialize()
   {
-    if (m_sgName.key()=="") {
+    if (m_sgName.key().empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
       return StatusCode::FAILURE;
     }
@@ -171,7 +171,7 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS; 
 
   }
-  float InvariantMassTool::calculateInvariantMass(const TVector3& v1, const TVector3&v2,float M1,float M2) const{
+  float InvariantMassTool::calculateInvariantMass(const TVector3& v1, const TVector3&v2,float M1,float M2) {
       TLorentzVector p1(v1, M1 > 0 ? std::hypot(M1, v1.Mag()) : v1.Mag());
       TLorentzVector p2(v2, M2 > 0 ? std::hypot(M2, v2.Mag()) : v2.Mag());
       return (p1+p2).M();

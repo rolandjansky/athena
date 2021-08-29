@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkMCTruth/HadronOriginDecorator.h"
@@ -36,7 +36,7 @@ namespace DerivationFramework {
   }
 
   StatusCode HadronOriginDecorator::addBranches() const{
-    const xAOD::TruthParticleContainer* xTruthParticleContainer = 0;
+    const xAOD::TruthParticleContainer* xTruthParticleContainer = nullptr;
     if (evtStore()->retrieve(xTruthParticleContainer,m_TruthEventName).isFailure()) {
       ATH_MSG_WARNING("could not retrieve TruthParticleContainer " <<m_TruthEventName);
       return StatusCode::FAILURE;

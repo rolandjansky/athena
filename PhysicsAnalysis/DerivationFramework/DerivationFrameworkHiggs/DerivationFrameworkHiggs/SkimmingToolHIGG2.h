@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ namespace DerivationFramework {
     unsigned int m_nElectrons;
     unsigned int m_nMuons;
     unsigned int m_nJets;
-    unsigned int m_nMergedJets[NUMBER_OF_MERGED_JET_TYPES];
+    unsigned int m_nMergedJets[NUMBER_OF_MERGED_JET_TYPES]{};
     unsigned int m_nPhotons;
     unsigned int m_nTracks;
 
@@ -105,7 +105,7 @@ namespace DerivationFramework {
     double m_tightElectronEtCut;
     double m_tightMuonPtCut;
     double m_jetPtCut;
-    double m_mergedJetPtCut[NUMBER_OF_MERGED_JET_TYPES];
+    double m_mergedJetPtCut[NUMBER_OF_MERGED_JET_TYPES]{};
     double m_photonPtCut;
     double m_trackPtCut;
 
@@ -113,7 +113,7 @@ namespace DerivationFramework {
     double m_muonEtaCut;
     double m_caloMuonEtaCut;
     double m_jetEtaCut;
-    double m_mergedJetEtaCut[NUMBER_OF_MERGED_JET_TYPES];
+    double m_mergedJetEtaCut[NUMBER_OF_MERGED_JET_TYPES]{};
     double m_photonEtaCut;
 
     double m_invariantMassCut;
@@ -157,10 +157,10 @@ namespace DerivationFramework {
     bool checkPHI() const;
 
     TLorentzVector electronFourMomentum(const xAOD::Electron *el) const;
-    TLorentzVector muonFourMomentum(const xAOD::Muon *mu) const;
+    static TLorentzVector muonFourMomentum(const xAOD::Muon *mu) ;
     TLorentzVector jetFourMomentum(const xAOD::Jet *jet) const;
 
-    double getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) const; 
+    static double getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) ; 
 
     static const double s_MZ;
     static const double s_MKplus;

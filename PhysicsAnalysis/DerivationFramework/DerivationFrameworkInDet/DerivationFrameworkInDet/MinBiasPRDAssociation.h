@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MINBIASD3PD_PRDASSOCIATION_H
@@ -15,21 +15,21 @@ class MinBiasPRDAssociation {
 
   void reset();
 
-  int nPixelUA;
-  int nBlayerUA;
-  int nPixelBarrelUA;
-  int nPixelEndCapAUA;
-  int nPixelEndCapCUA;
+  int nPixelUA = 0;
+  int nBlayerUA = 0;
+  int nPixelBarrelUA = 0;
+  int nPixelEndCapAUA = 0;
+  int nPixelEndCapCUA = 0;
 
-  int nSCTUA;
-  int nSCTBarrelUA;
-  int nSCTEndCapAUA;
-  int nSCTEndCapCUA;
+  int nSCTUA = 0;
+  int nSCTBarrelUA = 0;
+  int nSCTEndCapAUA = 0;
+  int nSCTEndCapCUA = 0;
 
-  int nTRTUA;
-  int nTRTBarrelUA;
-  int nTRTEndCapAUA;
-  int nTRTEndCapCUA;
+  int nTRTUA = 0;
+  int nTRTBarrelUA = 0;
+  int nTRTEndCapAUA = 0;
+  int nTRTEndCapCUA = 0;
 };
 
 CLASS_DEF( MinBiasPRDAssociation, 95564017, 1 )

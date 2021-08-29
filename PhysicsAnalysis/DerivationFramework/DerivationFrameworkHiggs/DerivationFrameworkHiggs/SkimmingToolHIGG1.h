@@ -144,9 +144,9 @@ namespace DerivationFramework {
       bool   MuonPreselect(const xAOD::Muon *mu) const;
       void   CalculateInvariantMass() const;
       void   GetDiphotonVertex() const;
-      double CorrectedEnergy(const xAOD::Photon *ph) const;
+      static double CorrectedEnergy(const xAOD::Photon *ph) ;
       double CorrectedEta(const xAOD::Photon *ph) const;
-      double ReturnRZ_1stSampling_cscopt2(double eta1) const;
+      static double ReturnRZ_1stSampling_cscopt2(double eta1) ;
     
 
       ///////////////

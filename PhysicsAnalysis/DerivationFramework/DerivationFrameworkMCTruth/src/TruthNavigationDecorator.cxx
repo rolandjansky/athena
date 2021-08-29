@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ StatusCode DerivationFramework::TruthNavigationDecorator::addBranches() const
   // Either use DataHandles or reserve the memory; these are just pointers, so the reserve is not such a big deal?
   std::vector< DataHandle<xAOD::TruthParticleContainer> > inputParticles;
   for (size_t k=0;k<m_inputKeys.size();++k){
-    inputParticles.push_back(nullptr);
+    inputParticles.emplace_back(nullptr);
     CHECK(evtStore()->retrieve(inputParticles[k],m_inputKeys[k]));
   }
 
