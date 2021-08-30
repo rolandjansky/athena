@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,6 +49,10 @@ namespace InDetDD {
       /** Number of layers */
       int numLayers() const; 
       
+      /** Number of disk layers (ITk endcap-specific) */
+      /** Used to deal with geometry with multiple layers of disks in endcap **/
+      int numDiskLayers() const;
+
       /** Number of disks */
       int numDisks() const; 
       
@@ -61,8 +65,14 @@ namespace InDetDD {
       /** Number of sectors in phi for a ring in a disk */
       int numPhiModulesForDiskRing(int disk, int ring) const;
       
-      /** Number of sectors in phi for a ring in a disk */
+      /** Number of sectors in eta for a layer */
       int numEtaModulesForLayer(int layer) const;
+
+      /** Number of disks for a layer (ITk endcap-specific) */
+      int numDisksForLayer(int layer) const;
+
+      /** Number of sectors in phi for a disk in a layer (ITk endcap-specific) */
+      int numPhiModulesForLayerDisk(int layer, int disk) const;
       
       /** First eta_module number for a layer */
       int beginEtaModuleForLayer(int layer) const;
@@ -76,6 +86,9 @@ namespace InDetDD {
       // Check presence of layer/disk
       /** Check if layer exists */
       bool useLayer(int layer) const;
+
+      /** Check if layer exists */
+      bool useDiskLayer(int layer) const;
       
       /** Check if disk exists */
       bool useDisk(int disk) const;
@@ -100,11 +113,14 @@ namespace InDetDD {
       void addBarrel(int id);
       void addEndcap(int id);
       void setNumLayers(int nLayers); 
+      void setNumDiskLayers(int nLayers);
       void setNumDisks(int nDisks); 
       void setNumRingsForDisk(int disk, int nRings);
       void setNumPhiModulesForLayer(int layer, int nPhiModules);
       void setNumPhiModulesForDiskRing(int disk, int ring, int nPhiModules);
       void setNumEtaModulesForLayer(int layer, int nEtaModules);
+      void setNumDisksForLayer(int layer, int nDisks);
+      void setNumPhiModulesForLayerDisk(int layer, int disk, int nPhiModules);
       void setMaxNumEtaCells(int cells);
       void setMaxNumPhiCells(int cells);
       
@@ -125,10 +141,12 @@ namespace InDetDD {
     private:
       
       int m_numLayers;
+      int m_numDiskLayers;
       int m_numDisks;
       int m_maxPhiCells;
       int m_maxEtaCells;
       int m_maxNumBarrelEta;
+      int m_maxNumEndcapDisks;
       int m_maxNumEndcapRings;
       int m_maxNumBarrelPhiModules;
       int m_maxNumEndcapPhiModules;
@@ -139,6 +157,8 @@ namespace InDetDD {
       std::vector<int> m_ringsForDisk;
       std::vector<std::vector<int> > m_phiModulesForDiskRing;
       std::vector<int> m_etaModulesForLayer;
+      std::vector<int> m_disksForLayer;
+      std::vector<std::vector<int> > m_phiModulesForLayerDisk;
 
       int m_numDisksDBM; 
       int m_numBarrelDBM; 
