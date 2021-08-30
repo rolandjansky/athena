@@ -65,6 +65,8 @@ else:
 # Common athena flags
 if hasattr(overlayArgs, 'skipEvents'):
     athenaCommonFlags.SkipEvents.set_Value_and_Lock(overlayArgs.skipEvents)
+if hasattr(overlayArgs, 'skipSecondaryEvents'):
+    overlayFlags.SkipSecondaryEvents.set_Value_and_Lock(overlayArgs.skipSecondaryEvents)
 if hasattr(overlayArgs, 'maxEvents'):
     athenaCommonFlags.EvtMax.set_Value_and_Lock(overlayArgs.maxEvents)
 

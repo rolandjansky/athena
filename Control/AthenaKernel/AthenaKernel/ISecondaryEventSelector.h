@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,8 +31,8 @@ public:
 
   /// Handle file transition at the next iteration
   virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& ctxt) const = 0;
-  /// Sync event count
-  virtual void syncEventCount(int count) const = 0;
+  /// Go to next event and skip if necessary
+  virtual StatusCode nextWithSkip(IEvtSelector::Context& ctxt) const = 0;
   /// Record AttributeList in StoreGate
   virtual StatusCode recordAttributeList() const = 0;
   /// Fill AttributeList with specific items from the selector and a suffix
