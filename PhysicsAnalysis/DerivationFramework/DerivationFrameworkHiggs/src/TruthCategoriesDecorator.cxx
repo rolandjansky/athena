@@ -75,7 +75,7 @@ namespace DerivationFramework {
 
   // Converts a string of numbers - separated by "sep" to a vector of integers
   // sep is by default any number of space characters
-  std::vector<int> TruthCategoriesDecorator::vectorize(TString str, TString sep) const {
+  std::vector<int> TruthCategoriesDecorator::vectorize(const TString& str, const TString& sep) {
     std::vector<int> result;
     TObjArray *strings = str.Tokenize(sep.Data());
     if (strings->GetEntries()==0) { delete strings; return result; }
@@ -95,7 +95,7 @@ namespace DerivationFramework {
       return HTXS::HiggsProdMode::UNKNOWN;
     }
 
-    for (TString prodMode:{"GGF","VBF","WH","QQ2ZH","GG2ZH","TTH","BBH","TH","THQB","WHT"}) {
+    for (const TString& prodMode:{"GGF","VBF","WH","QQ2ZH","GG2ZH","TTH","BBH","TH","THQB","WHT"}) {
 
       // loop over each mcID belonging to the production mode
       for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) ){
@@ -122,7 +122,7 @@ namespace DerivationFramework {
   }
 
   // Save a TLV as 4 floats
-  void TruthCategoriesDecorator::decorateFourVec(const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4) const {
+  void TruthCategoriesDecorator::decorateFourVec(const xAOD::EventInfo *eventInfo, const TString& prefix, const TLorentzVector& p4) {
     eventInfo->auxdecor<float>((prefix+"_pt").Data())  = p4.Pt()*CLHEP::GeV;
     eventInfo->auxdecor<float>((prefix+"_eta").Data()) = p4.Eta();
     eventInfo->auxdecor<float>((prefix+"_phi").Data()) = p4.Phi();
@@ -130,9 +130,9 @@ namespace DerivationFramework {
   }
 
   // Save a vector of TLVs as vectors of float
-  void TruthCategoriesDecorator::decorateFourVecs(const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s) const {
+  void TruthCategoriesDecorator::decorateFourVecs(const xAOD::EventInfo *eventInfo, const TString& prefix, const std::vector<TLorentzVector>& p4s) {
     std::vector<float> pt, eta, phi, mass;
-    for (auto p4:p4s) { pt.push_back(p4.Pt()*CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()*CLHEP::GeV); }
+    for (const auto& p4:p4s) { pt.push_back(p4.Pt()*CLHEP::GeV); eta.push_back(p4.Eta()); phi.push_back(p4.Phi()); mass.push_back(p4.M()*CLHEP::GeV); }
     eventInfo->auxdecor<std::vector<float> >((prefix+"_pt").Data())  = pt;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_eta").Data()) = eta;
     eventInfo->auxdecor<std::vector<float> >((prefix+"_phi").Data()) = phi;
@@ -170,7 +170,7 @@ namespace DerivationFramework {
     // convert xAOD -> HepMC
     std::vector<HepMC::GenEvent> hepmc_evts = m_xAODtoHepMCTool->getHepMCEvents( xTruthEventContainer, eventInfo );
 
-    if (hepmc_evts.size()==0) {
+    if (hepmc_evts.empty()) {
       // ANGRY MESSAGE HERE
       return StatusCode::FAILURE;
     }

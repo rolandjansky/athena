@@ -32,22 +32,22 @@ namespace DerivationFramework {
 
     {
       std::vector<std::string> moduleConditionList;
-      moduleConditionList.push_back("PixelBiasVoltagePerLB");
-      moduleConditionList.push_back("PixelTemperaturePerLB");
+      moduleConditionList.emplace_back("PixelBiasVoltagePerLB");
+      moduleConditionList.emplace_back("PixelTemperaturePerLB");
       createDecoratorKeys(*this,m_eventInfoKey,m_prefix.value(),moduleConditionList,m_moduleConditionKeys);
     }
 
     {
       std::vector<std::string> moduleFEmaskList;
-      moduleFEmaskList.push_back("PixelFEmaskIndex");
-      moduleFEmaskList.push_back("PixelFEmaskPerLB");
+      moduleFEmaskList.emplace_back("PixelFEmaskIndex");
+      moduleFEmaskList.emplace_back("PixelFEmaskPerLB");
       createDecoratorKeys(*this,m_eventInfoKey,m_prefix.value(),moduleFEmaskList,m_moduleFEmaskKeys);
     }
 
     {
       std::vector<std::string> moduleBSErrList;
-      moduleBSErrList.push_back("PixelBSErrIndex");
-      moduleBSErrList.push_back("PixelBSErrWord");
+      moduleBSErrList.emplace_back("PixelBSErrIndex");
+      moduleBSErrList.emplace_back("PixelBSErrWord");
       createDecoratorKeys(*this,m_eventInfoKey,m_prefix.value(),moduleBSErrList,m_moduleBSErrKeys);
     }
 

@@ -69,7 +69,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
 
   SG::ReadHandle<xAOD::VertexContainer> PV (m_primaryVertexKey);
 
-  if (PV->size() && PV->at(0)) {
+  if (!PV->empty() && PV->at(0)) {
     ATH_MSG_DEBUG( "Default PV " << PV->at(0) << ", type = " << PV->at(0)->vertexType() << " , z = " << PV->at(0)->z()  );
   } 
   
@@ -101,12 +101,12 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   const xAOD::Vertex *newPV = nullptr;
 
   SG::ReadHandle<xAOD::FlowElementContainer> FEHandle(m_FEContainerHandleKey);
-  for(const auto fe : *FEHandle) fe->auxdecor<char>("passOR") = true;
+  for(const auto *const fe : *FEHandle) fe->auxdecor<char>("passOR") = true;
   
   if (ph1 and ph2)
   {
     vxResult = m_photonVertexSelectionTool->getVertex( *( vertexPhotons.asDataVector()) , m_ignoreConv, &yyvertexVtxType, &vertexFailType );
-    if(vxResult.size()) {
+    if(!vxResult.empty()) {
       newPV = vxResult[0].first; //output of photon vertex selection tool must be sorted according to score
     }
     ATH_CHECK(matchFlowElement(ph1,&*FEHandle));
@@ -127,7 +127,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   if (newPV) {
     //loop over vertex container; shallow copy has the same order
     for (unsigned int iPV=0; iPV<PV->size(); iPV++) {
-      auto vx = PV->at(iPV);
+      const auto *vx = PV->at(iPV);
       auto yyvx = (HggPV.first)->at(iPV);
       //reset vertex type
       if (vx == newPV) { 
@@ -211,7 +211,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::matchFlowElement(const 
   // Preselect FEs based on proximity: dR<0.4
   std::vector<const xAOD::FlowElement*> nearbyFE;
   nearbyFE.reserve(20);
-  for(const auto fe : *feCont) {
+  for(const auto *const fe : *feCont) {
     if(xAOD::P4Helpers::isInDeltaR(*fe, *swclus, 0.4, true)) {
       if( ( !fe->isCharged() && fe->e() > FLT_MIN )) nearbyFE.push_back(fe);
     } // DeltaR check
@@ -220,7 +220,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::matchFlowElement(const 
   double eg_cl_e = swclus->e();
   bool doSum = true;
   double sumE_fe = 0.;
-  const xAOD::IParticle* bestbadmatch = 0;
+  const xAOD::IParticle* bestbadmatch = nullptr;
   std::sort(nearbyFE.begin(),nearbyFE.end(),greaterPtFlowElement);
   for(const auto& fe : nearbyFE) {
     if(!xAOD::P4Helpers::isInDeltaR(*fe, *swclus, m_tcMatch_dR, true)) {continue;}

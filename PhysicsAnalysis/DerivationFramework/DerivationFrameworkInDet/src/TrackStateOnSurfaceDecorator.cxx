@@ -63,10 +63,10 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_idHelper(0),
-    m_pixId(0),
-    m_sctId(0),
-    m_trtId(0),
+    m_idHelper(nullptr),
+    m_pixId(nullptr),
+    m_sctId(nullptr),
+    m_trtId(nullptr),
     m_updator("Trk::KalmanUpdator"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
@@ -323,11 +323,11 @@ namespace DerivationFramework {
     std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
        trackPixFloatDecorators = createDecorators<xAOD::TrackParticleContainer,float>(m_trackPixFloatDecorKeys,ctx);
     // -- Run over each track and decorate it
-    for (const auto track : *tracks) {
+    for (const auto *const track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
 
       // -- Now things that require a Trk::Track object
-      if( !track->trackLink().isValid() || track->track() == 0 ) {
+      if( !track->trackLink().isValid() || track->track() == nullptr ) {
         ATH_MSG_WARNING("Track particle without Trk::Track");
         continue;
       }
@@ -411,7 +411,7 @@ namespace DerivationFramework {
 
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
-      for (const auto trackState: *(trkTrack->trackStateOnSurfaces())){
+      for (const auto *const trackState: *(trkTrack->trackStateOnSurfaces())){
         //Get rid of any holes that already exist  --  we are doing the search again
         if( trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;
@@ -421,7 +421,7 @@ namespace DerivationFramework {
       std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>  holes; 
       if(m_storeHoles){
         holes =  std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>( m_holeSearchTool->getHolesOnTrack(*trkTrack, trkTrack->info().particleHypothesis()) ); 
-        for (auto hole: *holes){
+        for (const auto *hole: *holes){
           tsoss.push_back(hole);
         }
         if(trkTrack->perigeeParameters()){
@@ -583,7 +583,7 @@ namespace DerivationFramework {
 
 	  bool isShared=false;
           if (prd_to_track_map_cptr) {
-             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : nullptr;
              if (hit_trt) {
                 if (prd_to_track_map_cptr->isShared(*(hit_trt->prepRawData())) ) isShared=true;
                 msos->auxdata<bool>("isShared") = isShared;
@@ -627,9 +627,9 @@ namespace DerivationFramework {
         const Trk::TrkDetElementBase *de = trackState->surface().associatedDetectorElement();
         const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
         if (side && (isSCT || isPixel)) {
-          Amg::Vector3D mynormal = side->normal();
-          Amg::Vector3D myphiax = side->phiAxis();
-          Amg::Vector3D myetaax = side->etaAxis();
+          const Amg::Vector3D& mynormal = side->normal();
+          const Amg::Vector3D& myphiax = side->phiAxis();
+          const Amg::Vector3D& myetaax = side->etaAxis();
           if (tp) {
             Amg::Vector3D mytrack = tp->momentum();
             float trketacomp = mytrack.dot(myetaax);
@@ -660,7 +660,7 @@ namespace DerivationFramework {
         if(!measurement)
           continue;
       
-        const Trk::RIO_OnTrack* hit = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+        const Trk::RIO_OnTrack* hit = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : nullptr;
 
         if(!hit){
           const Trk::CompetingRIOsOnTrack *crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(measurement);

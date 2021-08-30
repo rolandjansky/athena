@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header file
@@ -29,7 +29,7 @@ namespace DerivationFramework {
 
   StatusCode TruthEDDecorator::initialize(){
     for (size_t i=0;i<m_edKeys.size();++i){
-      m_dec_eventShape.push_back( SG::AuxElement::Decorator<float>(m_edKeys[i]+m_ed_suffix) );
+      m_dec_eventShape.emplace_back(m_edKeys[i]+m_ed_suffix );
     }
     return StatusCode::SUCCESS;
   }

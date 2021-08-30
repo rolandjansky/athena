@@ -54,7 +54,7 @@ DerivationFramework::TrackParticleThinning::~TrackParticleThinning() {
 StatusCode DerivationFramework::TrackParticleThinning::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_selectionString=="") {
+    if (m_selectionString.empty()) {
         ATH_MSG_FATAL("No inner detector track selection string provided!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Track thinning selection string: " << m_selectionString);}
@@ -294,7 +294,7 @@ void DerivationFramework::TrackParticleThinning::selectTrackHits(const xAOD::Tra
 			<< ", trackState index: " << trkState_el.index());
 	continue; //not a valid link
       }
-      if (*trkMeasurement_el == 0) {
+      if (*trkMeasurement_el == nullptr) {
 	ATH_MSG_VERBOSE("Invalid pointer to TrackMeasurementValidation object from track state for track index: " << trkIndex
 			<< ", trackState index: " << trkState_el.index());
 	continue; //not linking to a valid object -- is it necessary?

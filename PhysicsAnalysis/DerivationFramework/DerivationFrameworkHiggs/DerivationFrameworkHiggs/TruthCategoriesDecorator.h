@@ -59,14 +59,14 @@ namespace DerivationFramework {
     bool fileExists(TString fileName) { return gSystem->AccessPathName(fileName) == false; }
 
     // Converts a string to a vector of integers
-    std::vector<int> vectorize(TString string, TString sep=" ") const;
+    static std::vector<int> vectorize(const TString& string, const TString& sep=" ") ;
   
     // Method to access the production mode for a given MC channel number
     HTXS::HiggsProdMode getHiggsProductionMode(uint32_t mc_channel_number,HTXS::tH_type &th_type) const;
  
     // Methods for decoration of four vectors
-    void decorateFourVec  ( const xAOD::EventInfo *eventInfo, TString prefix, const TLorentzVector p4 ) const;
-    void decorateFourVecs ( const xAOD::EventInfo *eventInfo, TString prefix, const std::vector<TLorentzVector> p4s ) const;
+    static void decorateFourVec  ( const xAOD::EventInfo *eventInfo, const TString& prefix, const TLorentzVector& p4 ) ;
+    static void decorateFourVecs ( const xAOD::EventInfo *eventInfo, const TString& prefix, const std::vector<TLorentzVector>& p4s ) ;
 
 
   }; /// class

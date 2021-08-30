@@ -42,16 +42,16 @@ StatusCode DerivationFramework::MaxCellDecorator::initialize(){
   
   CHECK( m_cablingKey.initialize() );
   
-  if(m_SGKey_photons == "" && m_SGKey_electrons == "" ){
+  if(m_SGKey_photons.empty() && m_SGKey_electrons.empty() ){
     ATH_MSG_FATAL("No e-gamma collection provided. At least one egamma collection (photon/electrons) must be provided!");
     return StatusCode::FAILURE;
   }
 
-  if (m_SGKey_electrons!="") {
+  if (!m_SGKey_electrons.empty()) {
     ATH_MSG_INFO("Using "<< m_SGKey_electrons <<" for electrons");
   }
 
-  if (m_SGKey_photons!="") {
+  if (!m_SGKey_photons.empty()) {
     ATH_MSG_INFO("Using "<< m_SGKey_photons <<" for photons");
   }
 
@@ -65,13 +65,13 @@ StatusCode DerivationFramework::MaxCellDecorator::finalize(){
 // The decoration itself
 StatusCode DerivationFramework::MaxCellDecorator::addBranches() const{
   // Retrieve photon container
-  const xAOD::EgammaContainer* importedPhotons(0);
-  if(m_SGKey_photons != ""){
+  const xAOD::EgammaContainer* importedPhotons(nullptr);
+  if(!m_SGKey_photons.empty()){
     if (evtStore()->retrieve(importedPhotons,m_SGKey_photons).isFailure()) {
       ATH_MSG_ERROR("No e-gamma collection with name " << m_SGKey_photons << " found in StoreGate!");
       return StatusCode::FAILURE;
     }
-    for (auto photon : *importedPhotons) {
+    for (const auto *photon : *importedPhotons) {
       if(photon->author() != 128) {
 	decorateObject(photon);
       }
@@ -79,13 +79,13 @@ StatusCode DerivationFramework::MaxCellDecorator::addBranches() const{
   }
 
   // Retrieve electron container
-  const xAOD::EgammaContainer* importedElectrons(0);
-  if(m_SGKey_electrons != ""){
+  const xAOD::EgammaContainer* importedElectrons(nullptr);
+  if(!m_SGKey_electrons.empty()){
     if (evtStore()->retrieve(importedElectrons,m_SGKey_electrons).isFailure()) {
       ATH_MSG_ERROR("No e-gamma collection with name " << m_SGKey_electrons << " found in StoreGate!");
       return StatusCode::FAILURE;
     }
-    for (auto electron : *importedElectrons) {
+    for (const auto *electron : *importedElectrons) {
       decorateObject(electron);
     }
   }
@@ -119,7 +119,7 @@ void DerivationFramework::MaxCellDecorator::decorateObject(const xAOD::Egamma*& 
    
     float emax = -9999.;
 
-    const CaloCell* cell_maxE = 0;
+    const CaloCell* cell_maxE = nullptr;
     for( const CaloCell* cell : *cluster ){
       int sampling = cell->caloDDE()->getSampling();
       if( sampling== CaloCell_ID::EMB2 || sampling== CaloCell_ID::EME2 ){

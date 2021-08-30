@@ -143,7 +143,7 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
    if( m_doTauTracksThinning ) {
       SG::ThinningHandle<xAOD::TauTrackContainer> importedTauTracks
       (m_tauTracksSGKey, ctx);
-      if( importedTauTracks->size() == 0 ) {
+      if( importedTauTracks->empty() ) {
          return StatusCode::SUCCESS;
       }    
       std::vector< bool > mask_tautracks( importedTauTracks->size(), false );

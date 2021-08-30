@@ -31,7 +31,7 @@ namespace DerivationFramework {
       StatusCode initialize();
       StatusCode finalize();
       virtual bool eventPassesFilter() const;
-      void GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) const;
+      static void GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) ;
 
     private:
       SG::ReadHandleKey<xAOD::TrackParticleContainer> m_containerKey

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -53,8 +53,8 @@ DerivationFramework::GainDecorator::GainDecorator(const std::string& t,
       m_names_nCells[ key ] = name_nCells;
     }
   
-  for (auto kv : m_names_E) ATH_MSG_DEBUG("Decorating (layer, gain): " << kv.first << " " << kv.second );
-  for (auto kv : m_names_nCells) ATH_MSG_DEBUG("Decorating (layer, gain): " << kv.first << " " << kv.second );
+  for (const auto& kv : m_names_E) ATH_MSG_DEBUG("Decorating (layer, gain): " << kv.first << " " << kv.second );
+  for (const auto& kv : m_names_nCells) ATH_MSG_DEBUG("Decorating (layer, gain): " << kv.first << " " << kv.second );
     
 }
 
@@ -68,16 +68,16 @@ StatusCode DerivationFramework::GainDecorator::initialize()
   // Decide which collections need to be checked for ID TrackParticles
   ATH_MSG_VERBOSE("initialize() ...");
 
-  if(m_SGKey_photons == "" && m_SGKey_electrons == "" ){
+  if(m_SGKey_photons.empty() && m_SGKey_electrons.empty() ){
     ATH_MSG_FATAL("No e-gamma collection provided for thinning. At least one egamma collection (photon/electrons) must be provided!");
     return StatusCode::FAILURE;
   }
 
-  if (m_SGKey_electrons!="") {
+  if (!m_SGKey_electrons.empty()) {
     ATH_MSG_INFO("Using "<< m_SGKey_electrons <<" for electrons");
   }
 
-  if (m_SGKey_photons!="") {
+  if (!m_SGKey_photons.empty()) {
     ATH_MSG_INFO("Using "<< m_SGKey_photons <<" for photons");
   }
   
@@ -94,24 +94,24 @@ StatusCode DerivationFramework::GainDecorator::finalize()
 StatusCode DerivationFramework::GainDecorator::addBranches() const
 {
   // Retrieve photon container
-  const xAOD::EgammaContainer* importedPhotons(0);
-  if(m_SGKey_photons != ""){
+  const xAOD::EgammaContainer* importedPhotons(nullptr);
+  if(!m_SGKey_photons.empty()){
     if (evtStore()->retrieve(importedPhotons,m_SGKey_photons).isFailure()) {
       ATH_MSG_ERROR("No e-gamma collection with name " << m_SGKey_photons << " found in StoreGate!");
       return StatusCode::FAILURE;
     }
-    for (auto photon : *importedPhotons) {
+    for (const auto *photon : *importedPhotons) {
       decorateObject(photon);
     }
   }
   // Retrieve electron container
-  const xAOD::EgammaContainer* importedElectrons(0);
-  if(m_SGKey_electrons != ""){
+  const xAOD::EgammaContainer* importedElectrons(nullptr);
+  if(!m_SGKey_electrons.empty()){
     if (evtStore()->retrieve(importedElectrons,m_SGKey_electrons).isFailure()) {
       ATH_MSG_ERROR("No e-gamma collection with name " << m_SGKey_electrons << " found in StoreGate!");
       return StatusCode::FAILURE;
     }
-    for (auto electron : *importedElectrons) {
+    for (const auto *electron : *importedElectrons) {
       decorateObject(electron);
     }
   }
@@ -133,7 +133,7 @@ void DerivationFramework::GainDecorator::decorateObject(const xAOD::Egamma*& ega
     
     // Skip the computation for missing cell links (like topo-seeded photons)
     // but decorate anyway
-    const CaloClusterCellLink* cellLinks = egamma->caloCluster() ? egamma->caloCluster()->getCellLinks() : 0;
+    const CaloClusterCellLink* cellLinks = egamma->caloCluster() ? egamma->caloCluster()->getCellLinks() : nullptr;
     if (cellLinks) 
     {
       for (const CaloCell *cell : *cellLinks)

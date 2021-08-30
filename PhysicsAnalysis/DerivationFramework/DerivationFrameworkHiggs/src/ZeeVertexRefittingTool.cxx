@@ -53,7 +53,7 @@ namespace DerivationFramework {
     ATH_CHECK( m_primaryVertexKey.initialize() );
     ATH_CHECK( m_electronKey.initialize() );
     ATH_CHECK( m_refitpvKey.initialize() );
-    if (m_refitpvKey.key()=="") {
+    if (m_refitpvKey.key().empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of ZeeVertexRefittingTool!");
       return StatusCode::FAILURE;
     }
@@ -101,7 +101,7 @@ namespace DerivationFramework {
                                              std::unique_ptr< xAOD::VertexAuxContainer >(refittedPVAuxContainer)));
 
     const xAOD::Vertex* pv = nullptr;
-    for ( auto v : *pv_cont ) {
+    for ( const auto *v : *pv_cont ) {
       if (v->vertexType()==xAOD::VxType::PriVtx) {
         pv = v;
         break;

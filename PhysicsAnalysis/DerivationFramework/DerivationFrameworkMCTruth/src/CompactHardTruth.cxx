@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompactHardTruth.cxx
@@ -123,8 +123,8 @@ StatusCode CompactHardTruth::execute() {
   // doExtra = doPrint;
 
   // Retrieve input data
-  const McEventCollection* mcEvts = 0;
-  if (!evtStore()->retrieve(mcEvts, m_mcEventsName).isSuccess() || 0 == mcEvts) {
+  const McEventCollection* mcEvts = nullptr;
+  if (!evtStore()->retrieve(mcEvts, m_mcEventsName).isSuccess() || nullptr == mcEvts) {
     ATH_MSG_WARNING("could not retrieve mc collection at [" << m_mcEventsName << "]!");
     return StatusCode::FAILURE;
   }
@@ -139,7 +139,7 @@ StatusCode CompactHardTruth::execute() {
   if (!evtStore()->record(thinnedMcEvts, m_thinnedMcEventsName).isSuccess()) {
     ATH_MSG_WARNING("Could not record thinned mc collection at [" << m_thinnedMcEventsName << "]!");
     delete thinnedMcEvts;
-    thinnedMcEvts = 0;
+    thinnedMcEvts = nullptr;
     return StatusCode::FAILURE;
   }
   if (evtStore()->setConst(thinnedMcEvts).isFailure()) { ATH_MSG_WARNING("Could not lock the McEventCollection at [" << m_thinnedMcEventsName << "] !!"); }
@@ -147,7 +147,7 @@ StatusCode CompactHardTruth::execute() {
   // Signal event is first (only?) event; front() is from DataVector
   const HepMC::GenEvent* mcEvt = mcEvts->front();
   auto wtCont = mcEvt->weights();
-  if (wtCont.size() != 0) {
+  if (!wtCont.empty()) {
   } else {
     ATH_MSG_WARNING("Weights not found for mc collection [" << m_mcEventsName << "]");
   }
@@ -260,7 +260,7 @@ StatusCode CompactHardTruth::execute() {
   }
 #endif
 
-  if (hadVertices.size() < 1) {
+  if (hadVertices.empty()) {
     ATH_MSG_WARNING("No hadronization vertices for event " << nEvent);
     ATH_MSG_WARNING("Exiting without changing event.");
     thinnedMcEvts->push_back(thinEvt);
@@ -300,7 +300,7 @@ StatusCode CompactHardTruth::execute() {
     HepMC::GenVertex::particles_in_const_iterator pin = ivtx->particles_in_const_begin();
     HepMC::GenVertex::particles_in_const_iterator pinE = ivtx->particles_in_const_end();
     for (; pin != pinE; ++pin) {
-      removePV.push_back(vpPair(ivtx, *pin));
+      removePV.emplace_back(ivtx, *pin);
     }
   }
 
@@ -312,9 +312,9 @@ StatusCode CompactHardTruth::execute() {
     HepMC::GenVertex::particle_iterator poutE = ivtx->particles_end(HepMC::descendants);
     for (; pout != poutE; ++pout) {
       HepMC::GenVertex* vpar = (*pout)->production_vertex();
-      if (vpar) removePV.push_back(vpPair(vpar, *pout));
+      if (vpar) removePV.emplace_back(vpar, *pout);
       HepMC::GenVertex* vend = (*pout)->end_vertex();
-      if (vend) removePV.push_back(vpPair(vend, *pout));
+      if (vend) removePV.emplace_back(vend, *pout);
       deleteP.push_back(*pout);
     }
   }
@@ -361,13 +361,13 @@ StatusCode CompactHardTruth::execute() {
     HepMC::GenVertex::particles_in_const_iterator pin = (*hadv)->particles_in_const_begin();
     HepMC::GenVertex::particles_in_const_iterator pinE = (*hadv)->particles_in_const_end();
     for (; pin != pinE; ++pin) {
-      removePV.push_back(vpPair(*hadv, *pin));
+      removePV.emplace_back(*hadv, *pin);
       if ((*pin)->barcode() > cutG4) { deleteP.push_back(*pin); }
     }
     HepMC::GenVertex::particles_out_const_iterator pout = (*hadv)->particles_out_const_begin();
     HepMC::GenVertex::particles_out_const_iterator poutE = (*hadv)->particles_out_const_end();
     for (; pout != poutE; ++pout) {
-      removePV.push_back(vpPair(*hadv, *pout));
+      removePV.emplace_back(*hadv, *pout);
       if ((*pout)->barcode() > cutG4) { deleteP.push_back(*pout); }
     }
     removeV.push_back(*hadv);
@@ -452,7 +452,7 @@ StatusCode CompactHardTruth::execute() {
   // longer needed.
 
   bool moreP = true;
-  typedef std::pair<HepMC::GenVertexPtr, HepMC::GenParticlePtr> vpPair;
+  using vpPair = std::pair<HepMC::GenVertexPtr, HepMC::GenParticlePtr>;
   removePV.clear();
   addinPV.clear();
   addoutPV.clear();
@@ -460,7 +460,7 @@ StatusCode CompactHardTruth::execute() {
   deleteP.clear();
   deleteV.clear();
 
-  typedef std::pair<HepMC::GenParticlePtr, HepMC::FourVector> pkPair;
+  using pkPair = std::pair<HepMC::GenParticlePtr, HepMC::FourVector>;
   std::vector<pkPair> changePK;
 
   if (doDebug) ATH_MSG_DEBUG("Start parton thinning");
@@ -701,12 +701,12 @@ StatusCode CompactHardTruth::execute() {
         moreP = true;
         iCase = 1;
 
-        removePV.push_back(vpPair(ppvtx, pp));
-        removePV.push_back(vpPair(pvtx, pp));
+        removePV.emplace_back(ppvtx, pp);
+        removePV.emplace_back(pvtx, pp);
         deleteP.push_back(pp);
         removeV.push_back(pvtx);
         deleteV.push_back(pvtx);
-        addoutPV.push_back(vpPair(ppvtx, fp));
+        addoutPV.emplace_back(ppvtx, fp);
         if (doDebug) { ATH_MSG_DEBUG("1->1: ppvtx,pp,pvtx,fp,evtx " << ppvtx->barcode() << " " << pp->barcode() << " " << pvtx->barcode() << " " << fp->barcode()); }
       }
 
@@ -747,9 +747,9 @@ StatusCode CompactHardTruth::execute() {
         moreP = true;
         iCase = 2;
 
-        removePV.push_back(vpPair(pvtx, fp));
-        removePV.push_back(vpPair(pvtx, pp1));
-        removePV.push_back(vpPair(pvtx, pp2));
+        removePV.emplace_back(pvtx, fp);
+        removePV.emplace_back(pvtx, pp1);
+        removePV.emplace_back(pvtx, pp2);
         deleteP.push_back(fp);
         removeV.push_back(pvtx);
         deleteV.push_back(pvtx);
@@ -827,10 +827,10 @@ StatusCode CompactHardTruth::execute() {
         iCase = 3;
         if (doDebug) ATH_MSG_DEBUG("Merging 1->2: mass " << p12.m());
 
-        changePK.push_back(pkPair(pp, p12));
-        removePV.push_back(vpPair(pvtx, pp));
-        removePV.push_back(vpPair(pvtx, pout1));
-        removePV.push_back(vpPair(pvtx, pout2));
+        changePK.emplace_back(pp, p12);
+        removePV.emplace_back(pvtx, pp);
+        removePV.emplace_back(pvtx, pout1);
+        removePV.emplace_back(pvtx, pout2);
 
         deleteP.push_back(pout1);
         deleteP.push_back(pout2);
@@ -1332,7 +1332,7 @@ StatusCode CompactHardTruth::execute() {
       ++m_dangleFound;
       if (pt > m_danglePtCut) continue;
       if (doDebug) ATH_MSG_DEBUG("1->0: removing pp,badv,pt " << HepMC::barcode(pp) << " " << HepMC::barcode(*badv) << " " << pt);
-      removePV.push_back(vpPair(*badv, pp));
+      removePV.emplace_back(*badv, pp);
       deleteP.push_back(pp);
       removeV.push_back(*badv);
       deleteV.push_back(*badv);
@@ -1409,17 +1409,15 @@ bool CompactHardTruth::isParton(HepMC::ConstGenParticlePtr p) {
 // It should have been detached from hadronization vertex.
 bool CompactHardTruth::isFinalParton(HepMC::ConstGenParticlePtr p) {
   if (!isParton(p)) return false;
-  auto endp = p->end_vertex();
-  if (endp) return false;
-  return true;
+  auto *endp = p->end_vertex();
+  return endp == nullptr;
 }
 
 // Hadron excludes leptons and BSM particles
 // Includes clusters to find, e.g., partons->cluster vertices
 bool CompactHardTruth::isHadron(HepMC::ConstGenParticlePtr p) {
   int ida = std::abs(p->pdg_id());
-  if ((ida >= 80 && ida < 1000000) || ida > 9000000) return true;
-  return false;
+  return (ida >= 80 && ida < 1000000) || ida > 9000000;
 }
 
 // Total cluster FourVectors
