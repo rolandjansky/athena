@@ -52,7 +52,8 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
             raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
 
     kwargs.setdefault("GeneralCut", 1.)
-    kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
+    if ConfigFlags.Sim.CavernBG not in ["Read","Write"]:
+        kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
     kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
     kwargs.setdefault("ApplyEMCuts", ConfigFlags.Sim.ApplyEMCuts)
     ## from AthenaCommon.SystemOfUnits import eV, TeV

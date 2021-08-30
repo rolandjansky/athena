@@ -15,7 +15,7 @@ def TrackFastSimSDCfg(flags, name='TrackFastSimSD', **kwargs):
     return result
 
 def NeutronFastSimCfg(flags, name='NeutronFastSim', **kwargs):
-    if flags.Sim.CavernBG.get_Value() not in ['Off', 'Read']:
+    if flags.Sim.CavernBG not in ['Off', 'Read']:
         kwargs.setdefault('RegionNames', ['MuonSystemFastRegion'])
     # Cannot actually get these from the job options in a normal fashion;
     #  would need to know what they are for a "normal" job and configure

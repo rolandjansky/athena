@@ -41,8 +41,10 @@ def createSimConfigFlags():
     scf.addFlag("Sim.DoFullChain", False)
 
     def _check_G4_version(prevFlags):
-        from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
+        version = ''
+        if len(prevFlags.Input.Files)>0:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            version = GetFileMD(prevFlags.Input.Files).get('G4Version', '')
         if not version:
             from os import environ
             version = str(environ.get('G4VERS', ''))
@@ -58,7 +60,7 @@ def createSimConfigFlags():
 
     #For G4AtlasToolsConfig
     scf.addFlag("Sim.RecordStepInfo",False)
-    scf.addFlag("Sim.StoppedParticleFile", False)
+    scf.addFlag("Sim.StoppedParticleFile", '')
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
     scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
@@ -84,7 +86,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.CosmicFilterID", False) # PDG ID to be filtered ("13")
     scf.addFlag("Sim.CosmicFilterPTmin", False) # min pT filtered in cosmics processing (MeV) ("5000")
     scf.addFlag("Sim.CosmicFilterPTmax", False) # max pT filtered in cosmics processing (MeV) ("6000")
-    scf.addFlag("Sim.CosmicPtSlice", False) #slice1, 'slice2', 'slice3', 'slice4', 'NONE' 
+    scf.addFlag("Sim.CosmicPtSlice", 'Off') #slice1, 'slice2', 'slice3', 'slice4', 'NONE'
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)

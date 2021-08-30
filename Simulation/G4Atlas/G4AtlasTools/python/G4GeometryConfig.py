@@ -253,7 +253,7 @@ def getCavernWorld(name="Cavern", **kwargs):
             bedrockDX = 1000.*3000 # 3 km
             bedrockDZ = 1000.*3000 # 3 km
         else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
+            from CosmicGenerator.CosmicGeneratorConfigLegacy import CavernPropertyCalculator
             theCavernProperties = CavernPropertyCalculator()
             if theCavernProperties.BedrockDX() > bedrockDX:
                 bedrockDX = theCavernProperties.BedrockDX()
