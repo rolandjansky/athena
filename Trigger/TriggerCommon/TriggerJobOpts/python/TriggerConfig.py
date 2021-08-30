@@ -224,6 +224,7 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
+    decisionSummaryAlg.SetFilterStatus = flags.Trigger.writeBS
     return acc, decisionSummaryAlg
 
 
@@ -624,6 +625,18 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( summaryAcc, sequenceName="HLTFinalizeSeq" )
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
 
+    # to be updated when reco code is ready to be used by new JO
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior == 0:
+        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
+        from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+        recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
+        endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
+        endOfEventAlg.RoIs = [LArNBRoIs]
+        acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
+        acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )
+        acc.merge( recoSeq, sequenceName="acceptedEventSeq" )
+    
     #once menu is included we should configure monitoring here as below
     hltSeedingAlg = hltSeedingAcc.getEventAlgo("HLTSeeding")
 

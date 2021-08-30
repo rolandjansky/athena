@@ -10,6 +10,17 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
 from AthenaCommon.CFElements import seqAND
 
+
+# --------------------
+# LArNoiseBurst end-of-event configuration
+# --------------------
+def getLArNoiseBurstEndOfEvent():
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.FullScanDefs import caloFSRoI
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import cellRecoSequence
+
+    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=caloFSRoI)
+    return cells_sequence, caloFSRoI
+
 # --------------------
 # LArNoiseBurst configuration
 # --------------------
