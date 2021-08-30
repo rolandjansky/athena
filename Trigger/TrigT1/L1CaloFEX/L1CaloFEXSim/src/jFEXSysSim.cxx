@@ -254,13 +254,15 @@ namespace LVL1 {
 
       }
     }
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol];
             if(tmptowerid == 0 ) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowerphi << "][" << tmptowereta << "])  ");
             }
@@ -268,6 +270,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
@@ -344,13 +347,16 @@ namespace LVL1 {
 
         }
     }
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_1[thisRow][thisCol];
             if(tmptowerid == 0) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowerphi << "][" << tmptowereta << "])  ");
             }
@@ -358,6 +364,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
@@ -455,17 +462,15 @@ namespace LVL1 {
         }
     }
 
-  
-    
-    
-
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_2[thisRow][thisCol];
             if(tmptowerid == 0) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  ");
             }
@@ -473,6 +478,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
 
     //tool use instead
@@ -571,13 +577,15 @@ namespace LVL1 {
 
     }
 
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_3[thisRow][thisCol];
             if(tmptowerid == 0) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  ");
             }
@@ -585,6 +593,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
     
     //tool use instead
@@ -658,13 +667,15 @@ namespace LVL1 {
       }
     }
 
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_4[thisRow][thisCol];
             if(tmptowerid == 0) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  ");
             }
@@ -672,6 +683,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
     
     //tool use instead
@@ -811,13 +823,15 @@ namespace LVL1 {
     }
     //---
 
-    ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--) {
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
+      for (int thisRow=rows-1; thisRow>=0; thisRow--) {
         for (int thisCol=0; thisCol<cols; thisCol++) {
             int tmptowerid = tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol];
             if(tmptowerid == 0) continue;
-            const float tmptowereta = this_jTowerContainer->findTower(tmptowerid)->eta();
-            const float tmptowerphi = this_jTowerContainer->findTower(tmptowerid)->phi();
+            const LVL1::jTower* tmptower = this_jTowerContainer->findTower(tmptowerid);
+            const float tmptowereta = tmptower->eta();
+            const float tmptowerphi = tmptower->phi();
             if(thisCol != cols-1) {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowerphi << "][" << tmptowereta << "])  ");
             }
@@ -825,6 +839,7 @@ namespace LVL1 {
                 ATH_MSG_DEBUG("|  " << tmptowerid << "([" << tmptowereta << "][" << tmptowerphi << "])  |");
             }
         }
+      }
     }
 
     m_jFEXSimTool->init(thisJFEX);
