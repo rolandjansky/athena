@@ -84,6 +84,11 @@
  *                          indicates that the element number i-N
  *                          from the second input vector should be placed 
  *                          in the corresponding position in the result vector.
+ *  - @c CxxUtils::vconvert(VEC1& dst, const VEC2& src)
+ *                          Fills dst with the result  of a
+ *                          static_cast of every element of src
+ *                          to the element type of dst.
+ *                          dst[i] = static_cast<vec_type_t<VEC1>>(src[i])
  *
  * In terms of expected performance it might be  advantageous to
  * use vector types that fit the size of the ISA.
@@ -112,9 +117,10 @@
 namespace CxxUtils {
 
 
-// Define @c WANT_VECTOR_FALLBACK prior to including this file to always
+// Define @c WANT_VECTOR_FALLBACK prior to including this file to
 // make the fallback class @c vec_fb visible, even if we support the
-// built-in type.  Intended for testing.
+// built-in type.
+// Intended for testing.
 #ifndef WANT_VECTOR_FALLBACK
 # define WANT_VECTOR_FALLBACK 0
 #endif
@@ -526,10 +532,10 @@ vpermute(VEC& dst, const VEC& src)
 
   constexpr size_t N = vec_size<VEC>();
   static_assert((sizeof...(Indices) == N),
-                "Number of indices different than vector size");
+                "vpermute number of indices different than vector size");
   static_assert(
     bool_pack_helper::all_true<(Indices >= 0 && Indices < N)...>::value,
-    "permute indices outside allowed range");
+    "vpermute indices outside allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   dst = VEC{ src[Indices]... };
@@ -551,10 +557,10 @@ vblend(VEC& dst, const VEC& src1, const VEC& src2)
 {
   constexpr size_t N = vec_size<VEC>();
   static_assert((sizeof...(Indices) == N),
-                "Number of indices different than vector size");
+                "vblend number of indices different than vector size");
   static_assert(
     bool_pack_helper::all_true<(Indices >= 0 && Indices < 2 * N)...>::value,
-    "blend indices outside allowed range");
+    "vblend indices outside allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   size_t pos{ 0 };
@@ -570,6 +576,24 @@ vblend(VEC& dst, const VEC& src1, const VEC& src2)
   dst = __builtin_shufflevector(src1, src2, Indices...);
 #else // gcc
   dst = __builtin_shuffle(src1, src2, mask_type_t<VEC>{ Indices... });
+#endif
+}
+
+template<typename VEC1, typename VEC2>
+inline void
+vconvert(VEC1& dst, const VEC2& src)
+{
+  static_assert((vec_size<VEC1>() == vec_size<VEC2>()),
+                "vconvert dst and src have different number of elements");
+
+#if !HAVE_CONVERT_VECTOR || WANT_VECTOR_FALLBACK
+  typedef vec_type_t<VEC1> ELT;
+  constexpr size_t N = vec_size<VEC1>();
+  for (size_t i = 0; i < N; ++i) {
+    dst[i] = static_cast<ELT>(src[i]);
+  }
+#else
+  dst = __builtin_convertvector(src, VEC1);
 #endif
 }
 

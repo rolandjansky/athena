@@ -76,6 +76,15 @@
 #define HAVE_VECTOR_TERNARY_OPERATOR 0
 #endif
 
+// Do we additionally support the clang
+// __builtin_convertvector
+// GCC>11 does
+#if HAVE_VECTOR_SIZE_ATTRIBUTE && (defined(__clang__) || (__GNUC__ >= 11))
+#define HAVE_CONVERT_VECTOR 1
+#else
+#define HAVE_CONVERT_VECTOR 0
+#endif
+
 // Do we have mallinfo2?  Present in glibc 2.33,
 // in which mallinfo is deprecated.
 #define HAVE_MALLINFO2 (__GLIBC_PREREQ(2, 33))
