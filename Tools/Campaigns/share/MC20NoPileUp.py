@@ -3,6 +3,9 @@
 from AthenaCommon.BeamFlags import jobproperties as bf
 bf.Beam.numberOfCollisions.set_Value_and_Lock(0)
 
+from Digitization.DigitizationFlags import digitizationFlags
+digitizationFlags.OldBeamSpotZSize = 42
+
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun2Old_NoPileup.py')
 
