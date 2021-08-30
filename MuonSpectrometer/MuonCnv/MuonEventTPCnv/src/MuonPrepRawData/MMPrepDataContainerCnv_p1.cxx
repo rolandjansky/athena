@@ -88,11 +88,15 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
   unsigned int pcollEnd = 0; // index to end 
   int numColl = transCont->numberOfCollections();
   persCont->m_collections.resize(numColl);
-  log << MSG::DEBUG<< " Preparing " << persCont->m_collections.size() << "collections" <<endmsg;
-
-  for (unsigned int pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++) {
+  if (log.level() <= MSG::DEBUG){
+    log << MSG::DEBUG<< " Preparing " << persCont->m_collections.size() << "collections" <<endmsg;
+  }
+  
+  for (unsigned int pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll) {
     const Muon::MMPrepDataCollection& collection = (**it_Coll);
-    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifyHash()<<endmsg;
+    if (log.level() <= MSG::DEBUG){
+        log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifyHash()<<endmsg;   
+    }
     // Add in new collection
     Muon::MuonPRD_Collection_p2& pcollection = persCont->m_collections[pcollIndex]; //get ref to collection we're going to fill
 
@@ -103,30 +107,40 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
     pcollection.m_id = collection.identify().get_identifier32().get_compact();
     pcollection.m_size = collection.size();
     // Add in channels
-    persCont->m_prds.resize(pcollEnd); // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
-    persCont->m_prdDeltaId.resize(pcollEnd);
+    persCont->m_prds.reserve(pcollEnd); // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
+    persCont->m_prdDeltaId.reserve(pcollEnd);
 
     for (unsigned int i = 0; i < collection.size(); ++i) {
       unsigned int pchanIndex=i+pcollBegin;
       const MMPrepData* chan = collection[i]; // channel being converted
-      MMPrepData_p1*   pchan = &(persCont->m_prds[pchanIndex]); // persistent version to fill
-      chanCnv.transToPers(chan, pchan, log); // convert from MMPrepData to MMPrepData_p1
+      MMPrepData_p1   pchan{}; // persistent version to fill
+      const Identifier chan_id = chan->identify();
+      chanCnv.transToPers(chan, &pchan, log); // convert from MMPrepData to MMPrepData_p1
 
       // persCont->m_prdDeltaId is of data type unsigned short, thus we need to encode the channel (starting from the 
       // collection (module) is in contained) into 16 bits, we do it by storing multilayer, gasGap and channel
-      int multilayer = (m_MMId->multilayer(chan->identify())-1); // ranges between 1-2 (1bit)
-      int gasGap = (m_MMId->gasGap(chan->identify())-1); // ranges between 1-4 (2bits)
-      int channel = (m_MMId->channel(chan->identify())-m_MMId->channelMin()); // ranges between 1-5012 (13bits)
-
+      int multilayer = (m_MMId->multilayer(chan_id)-1); // ranges between 1-2 (1bit)
+      int gasGap = (m_MMId->gasGap(chan_id)-1); // ranges between 1-4 (2bits)
+      int channel = (m_MMId->channel(chan_id)-m_MMId->channelMin()); // ranges between 1-5012 (13bits)
+      
       // created an unsigned short and store multilayer, gasGap and channel by bit-shifts
       unsigned short diff = ( channel << 3 | gasGap << 1 | multilayer) ;
-      log << MSG::DEBUG  << "Translated id=" << chan->identify().get_compact() << " (multilayer=" << multilayer << ", gasGap=" << gasGap << ", channel=" << channel << ") into diff=" << diff << endmsg;
-
-      persCont->m_prdDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
+      if (log.level() <= MSG::DEBUG){
+         log << MSG::DEBUG  
+             << "Translated id=" << chan_id.get_compact() << " (multilayer=" << multilayer << ", gasGap=" << gasGap << ", channel=" << channel << ") into diff=" << diff << endmsg;
+      }
+        
+      persCont->m_prdDeltaId.emplace_back(diff); //store delta identifiers, rather than full identifiers
       
-      if (chan->detectorElement() != m_muonDetMgr->getMMReadoutElement(chan->identify()))
-        log << MSG::WARNING<<"DE from det manager ("<<m_muonDetMgr->getMMReadoutElement(chan->identify())
-            <<") does not match that from PRD ("<<chan->detectorElement()<<")"<<endmsg; 
+      
+      const MuonGM::MMReadoutElement* ele_from_mgr = m_muonDetMgr->getMMReadoutElement(chan_id); 
+      if (log.level() <= MSG::WARNING && chan->detectorElement()->identify() != ele_from_mgr->identify()){
+        log << MSG::WARNING<<"DE from det manager ("<<m_MMId->print_to_string(ele_from_mgr->identify())
+            <<") does not match that from PRD ("<< m_MMId->print_to_string(chan->detectorElement()->identify())<<") for PRD "<<m_MMId->print_to_string(chan_id)<<endmsg;      
+      }
+      persCont->m_prds.emplace_back(std::move(pchan));
+         
+         
     }
   }
   log << MSG::DEBUG<< " ***  Writing MMPrepDataContainer ***" <<endmsg;
@@ -154,11 +168,15 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
   MMPrepDataCnv_p1  chanCnv;
   unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
   unsigned int pCollEnd = persCont->m_collections.size();
-  log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endmsg;
+  if (log.level() <= MSG::DEBUG){
+      log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endmsg;  
+  }
   for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
     const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
     IdentifierHash collIDHash(pcoll.m_hashId);
-    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endmsg;
+    if (log.level() <= MSG::DEBUG){
+        log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endmsg;    
+    }
     
     coll = new Muon::MMPrepDataCollection(collIDHash);
     coll->setIdentifier(Identifier(pcoll.m_id)); 
@@ -178,12 +196,15 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       int gasGap = ( 3 & (diff>>1));
       int multilayer = ( 1 & diff);
       Identifier clusId = m_MMId->channelID(Identifier(pcoll.m_id), multilayer+1, gasGap+1, channel+m_MMId->channelMin());
-      log << MSG::DEBUG  << "Diff of " << diff << " translated into multilayer=" << multilayer << ", gasGap=" << gasGap << ", channel=" << channel << " -> id=" << clusId.get_compact() << endmsg;
+      if (log.level() <= MSG::DEBUG){
+          log << MSG::DEBUG  << "Diff of " << diff << " translated into multilayer=" << multilayer << ", gasGap=" << gasGap << ", channel=" << channel << " -> id=" << clusId.get_compact() << endmsg;
+      }
       
       const MuonGM::MMReadoutElement* detEl = m_muonDetMgr->getMMReadoutElement(clusId);
       if (!detEl) {
-        if (log.level() <= MSG::WARNING) 
+        if (log.level() <= MSG::WARNING) {
           log << MSG::WARNING<< "Muon::MMPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<< m_MMId->show_to_string(clusId) <<". Skipping."<<endmsg;
+        }
         continue;
       }
 
@@ -196,9 +217,10 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       } 
 
       // chanCnv.persToTrans(pchan, chan, log); // Fill chan with data from pchan FIXME! Put this back once diff is sane.
-            
-      log << MSG::DEBUG<<"chan identify(): "<<chan->identify().get_compact()<<endmsg;
-
+      if (log.level()<= MSG::DEBUG){
+         log << MSG::DEBUG<<"chan identify(): "<<chan->identify().get_compact()<<endmsg;
+      }     
+     
       chan->setHashAndIndex(collIDHash, chanIndex); 
       coll->push_back(std::move(chan));
       
@@ -209,11 +231,14 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
     if (sc.isFailure()) {
       throw std::runtime_error("Failed to add collection to Identifiable Container");
     }
-    log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
+    if (log.level() <= MSG::DEBUG){
+        log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
         coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
+        }
+    }
+  if (log.level() <= MSG::DEBUG){
+      log << MSG::DEBUG<< " ***  Reading MMPrepDataContainer ***" << endmsg;
   }
-
-  log << MSG::DEBUG<< " ***  Reading MMPrepDataContainer ***" << endmsg;
 }
 
 Muon::MMPrepDataContainer* Muon::MMPrepDataContainerCnv_p1::createTransient(const Muon::MMPrepDataContainer_p1* persObj, MsgStream& log) 
@@ -224,7 +249,7 @@ Muon::MMPrepDataContainer* Muon::MMPrepDataContainerCnv_p1::createTransient(cons
       return nullptr;
     } 
   }
-  std::unique_ptr<Muon::MMPrepDataContainer> trans(new Muon::MMPrepDataContainer(m_MMId->module_hash_max()));
+  std::unique_ptr<Muon::MMPrepDataContainer> trans = std::make_unique<Muon::MMPrepDataContainer>(m_MMId->module_hash_max());
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
