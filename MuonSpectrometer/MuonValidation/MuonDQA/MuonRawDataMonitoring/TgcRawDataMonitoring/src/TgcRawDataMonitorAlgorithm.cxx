@@ -6,6 +6,7 @@
 
 #include "TObjArray.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 namespace {
   // Cut values on pt bein exploited throughout the monitoring
@@ -51,6 +52,10 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   ATH_CHECK(m_TgcCoinDataContainerNextBCKey.initialize());
   ATH_CHECK(m_TgcCoinDataContainerPrevBCKey.initialize());
 
+  ATH_CHECK(m_L1MenuKey.initialize()); // ReadHandleKey, but DetStore (so renounce)
+  renounce(m_L1MenuKey);
+  ATH_CHECK(m_thresholdPatternsKey.initialize(!m_thresholdPatternsKey.empty()));
+
   m_extZposition.push_back(m_M1_Z.value());
   m_extZposition.push_back(m_M2_Z.value());
   m_extZposition.push_back(m_M3_Z.value());
@@ -65,7 +70,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   if(m_ctpDecMonList.value()!=""){
     m_CtpDecMonObj.clear();
     TString Str = m_ctpDecMonList.value();// format="Tit:L1_MU20_Run3,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:6,TGC:12FCH;"
-    auto monTrigs = Str.Tokenize(";");
+    std::unique_ptr<TObjArray> monTrigs( Str.Tokenize(";") );
     for(int i = 0 ; i < monTrigs->GetEntries() ; i++){
       TString monTrig = monTrigs->At(i)->GetName();
       if(monTrig=="")continue;
@@ -73,7 +78,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
       monObj.trigItem = monObj.title = "dummy";
       monObj.rpcThr=monObj.tgcThr=monObj.multiplicity=0;
       monObj.tgcF=monObj.tgcC=monObj.tgcH=monObj.rpcR=monObj.rpcM=false;
-      auto monElement = monTrig.Tokenize(",");
+      std::unique_ptr<TObjArray> monElement( monTrig.Tokenize(",") );
       for(int j = 0 ; j < monElement->GetEntries() ; j++){
 	TString sysItem = monElement->At(j)->GetName();
 	if(sysItem=="")continue;
@@ -97,13 +102,18 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
 	}
       }
       m_CtpDecMonObj.push_back(monObj);
-      monElement->Clear();
-      monElement->Delete();
-      delete monElement;
     }
-    monTrigs->Clear();
-    monTrigs->Delete();
-    delete monTrigs;
+  }
+
+  if(m_thrPatternList.value()!=""){
+    m_thrMonList.clear();
+    TString Str = m_thrPatternList.value();
+    std::unique_ptr<TObjArray> arr( Str.Tokenize(",") );
+    for(int i = 0 ; i < arr->GetEntries() ; i++){
+      TString name = arr->At(i)->GetName();
+      if(!name.BeginsWith("MU"))continue;
+      m_thrMonList.insert(name);
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -121,7 +131,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       return StatusCode::FAILURE;
     }else{
       std::set<TString> available_muon_triggers;
-      auto chainGroup = getTrigDecisionTool()->getChainGroup("HLT_.*");
+      auto chainGroup = getTrigDecisionTool()->getChainGroup(".*");
       if( chainGroup != nullptr ){
 	auto triggerList = chainGroup->getListOfTriggers();
 	if( !triggerList.empty() ){
@@ -140,10 +150,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 		}
 	      }
 	    }else{ // run 3 access
-	      auto features =getTrigDecisionTool()->features<xAOD::MuonContainer>(thisTrig.Data(), TrigDefs::includeFailedDecisions);
-	      for(const auto& muLinkInfo : features) {
-		if( !muLinkInfo.isValid() )continue;
-		auto roiLinkInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(muLinkInfo.source, "initialRoI");
+	      auto initialRoIs = getTrigDecisionTool()->features<TrigRoiDescriptorCollection>(thisTrig.Data(), TrigDefs::includeFailedDecisions, "", TrigDefs::lastFeatureOfType, "initialRoI");
+	      for(const auto& roiLinkInfo : initialRoIs) {
 		if( !roiLinkInfo.isValid() )continue;
 		auto roiEL = roiLinkInfo.link;
 		if( !roiEL.isValid() )continue;
@@ -569,6 +577,62 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     }
   }
 
+  std::map<const xAOD::MuonRoI*,std::set<TString>> roiAndMenu;
+  if(m_monitorThresholdPatterns.value()){
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_L1MenuKey, ctx);
+    SG::ReadDecorHandle<xAOD::MuonRoIContainer,uint64_t> thrPatternAcc = SG::makeHandle<uint64_t>(m_thresholdPatternsKey, ctx);
+    if(l1Menu.isValid() && thrPatternAcc.isPresent() && thrPatternAcc.isAvailable()){
+      for(const auto& item : m_thrMonList){
+	const TrigConf::L1Threshold& thr = l1Menu->threshold(item.Data());
+	std::vector<const xAOD::MuonRoI*> passed_rois;
+	for(const auto roi : *rois){
+	  const uint64_t thrPattern = thrPatternAcc(*roi);
+	  bool passed = ( thrPattern & (1 << thr.mapping()) );
+	  if(passed){
+	    passed_rois.push_back(roi);
+	    ATH_MSG_DEBUG("This RoI passed "<< item <<", roiWord=" << roi->roiWord() << ", thrNumber=" << roi->getThrNumber() << " eta=" << roi->eta() << " phi=" << roi->phi());
+	    if(roiAndMenu.count(roi)==0){
+	      std::set<TString> items;
+	      roiAndMenu.insert(std::pair(roi,items));
+	    }
+	    roiAndMenu[roi].insert(item);
+	  }
+	}
+
+	MonVariables thrMonVariables;
+	auto l1item_roi_eta = Monitored::Collection(Form("l1item_roi_eta_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return m->eta();
+	  });
+	thrMonVariables.push_back(l1item_roi_eta);
+	auto l1item_roi_phi = Monitored::Collection(Form("l1item_roi_phi_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return m->phi();
+	  });
+	thrMonVariables.push_back(l1item_roi_phi);
+	auto l1item_roi_thrNumber = Monitored::Collection(Form("l1item_roi_thrNumber_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return m->getThrNumber();
+	  });
+	thrMonVariables.push_back(l1item_roi_thrNumber);
+	auto l1item_roi_ismorecand = Monitored::Collection(Form("l1item_roi_ismorecand_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return (m->getSource()==xAOD::MuonRoI::Barrel)?(m->isMoreCandInRoI()):(-1);
+	  });
+	thrMonVariables.push_back(l1item_roi_ismorecand);
+	auto l1item_roi_bw3coin = Monitored::Collection(Form("l1item_roi_bw3coin_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getBW3Coincidence()):(-1);
+	  });
+	thrMonVariables.push_back(l1item_roi_bw3coin);
+	auto l1item_roi_inncoin = Monitored::Collection(Form("l1item_roi_inncoin_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getInnerCoincidence()):(-1);
+	  });
+	thrMonVariables.push_back(l1item_roi_inncoin);
+	auto l1item_roi_goodmf = Monitored::Collection(Form("l1item_roi_goodmf_%s",item.Data()), passed_rois, [](const xAOD::MuonRoI *m) {
+	    return (m->getSource()!=xAOD::MuonRoI::Barrel)?(m->getGoodMF()):(-1);
+	  });
+	thrMonVariables.push_back(l1item_roi_goodmf);
+	fill(m_packageName + item.Data(), thrMonVariables);
+      }
+    }
+  }
+
   SG::ReadHandle < xAOD::MuonContainer > muons(m_MuonContainerKey, ctx);
   if (!muons.isValid()) {
     ATH_MSG_ERROR("evtStore() does not contain muon Collection with name " << m_MuonContainerKey);
@@ -595,21 +659,15 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	    if ( thisTrig.Contains("mu") ) {
 	      TString tmp = thisTrig;
 	      tmp.ReplaceAll("mu","ZZZ");
-	      auto arr = tmp.Tokenize("ZZZ");
+	      std::unique_ptr<TObjArray> arr( tmp.Tokenize("ZZZ") );
 	      auto n = arr->GetEntries();
-	      arr->Clear();
-	      arr->Delete();
-	      delete arr;
 	      if ( n != 2 ) continue; // exact one 'mu' letter
 	    }
 	    if ( thisTrig.Contains("MU") ) {
 	      TString tmp = thisTrig;
 	      tmp.ReplaceAll("MU","ZZZ");
-	      auto arr = tmp.Tokenize("ZZZ");
+	      std::unique_ptr<TObjArray> arr( tmp.Tokenize("ZZZ") );
 	      auto n = arr->GetEntries();
-	      arr->Clear();
-	      arr->Delete();
-	      delete arr;
 	      if ( n > 2 ) continue; // only one 'MU' letter if exists
 	    }
 	    list_of_single_muon_triggers.insert( thisTrig );
@@ -768,6 +826,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     for(const auto roi : *rois){
       double dr = xAOD::P4Helpers::deltaR(*muon,roi->eta(),roi->phi(),false);
       if( dr < max_dr ){
+	if(roiAndMenu.count(roi)>0)mymuon.matchedL1Items.insert( roiAndMenu[roi].begin(), roiAndMenu[roi].end() );
 	mymuon.matchedL1ThrExclusive.insert( roi->getThrNumber() );
 	if(muon->charge()<0 && roi->getCharge()==xAOD::MuonRoI::Neg)mymuon.matchedL1Charge|=true;
 	else if(muon->charge()>0 && roi->getCharge()==xAOD::MuonRoI::Pos)mymuon.matchedL1Charge|=true;
@@ -917,6 +976,17 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       return m.passIsMoreCandInRoI;
     });
   variables.push_back(muon_l1passIsMoreCandInRoI);
+
+  for(const auto& item : m_thrMonList){
+    std::vector<bool> passed;
+    for(const auto& mymuon : mymuons){
+      passed.push_back( mymuon.matchedL1Items.find(item) != mymuon.matchedL1Items.end() );
+    }
+    auto muon_passed_l1item = Monitored::Collection(Form("muon_passed_l1item_%s",item.Data()),passed);
+    fill(m_packageName + item.Data(),
+	 muon_passed_l1item,
+	 muon_eta, muon_phi, muon_pt_rpc, muon_pt_tgc );
+  }
 
   if (!m_anaTgcPrd.value()) {
     fill(m_packageName, variables);
