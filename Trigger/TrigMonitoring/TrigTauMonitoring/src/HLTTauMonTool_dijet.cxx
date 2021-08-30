@@ -54,10 +54,10 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 
   TLorentzVector leadingJetTLV(0.,0.,0.,0.);
   TLorentzVector subleadingJetTLV(0.,0.,0.,0.);
-  const xAOD::TauJet* theOfflineTau = 0;
+  const xAOD::TauJet* theOfflineTau = nullptr;
 
   /* require offline leading jet and subleading jet */
-  for(auto aJet : *jet_cont)                                                                                               
+  for(const auto *aJet : *jet_cont)                                                                                               
   {
     if( aJet->pt() > leadingJetTLV.Pt() )
     {
@@ -92,7 +92,7 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   float dR = 666;
 
   // m_taus_RNN has already taus passing RNN medium WP
-  for(auto aTau : m_taus_RNN){
+  for(const auto *aTau : m_taus_RNN){
     if( aTau->pt() < offlineTauPtCut ) continue;
     if( TMath::Abs(aTau->eta()) > offlineTauEtaCut ) continue;
   
@@ -109,14 +109,14 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
     }
   }
 
-  if( dR > dRCut || theOfflineTau==0 ) 
+  if( dR > dRCut || theOfflineTau==nullptr ) 
   {
     ATH_MSG_DEBUG("No matching tau found. Exiting");
     return StatusCode::SUCCESS;
   }
 
   /* check HLT tau */
-  for(auto aHighPtChain : m_trigItemsHighPt)
+  for(const auto& aHighPtChain : m_trigItemsHighPt)
   {
     setCurrentMonGroup("HLT/TauMon/Expert/dijetFakeTausEff/" + aHighPtChain);
 

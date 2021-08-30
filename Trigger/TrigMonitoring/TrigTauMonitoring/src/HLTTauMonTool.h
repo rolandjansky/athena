@@ -120,8 +120,8 @@ class HLTTauMonTool : public IHLTMonTool {
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
   void testL1TopoNavigation(const std::string & trigItem);
   float PrescaleRetrieval(const std::string & trigItem, const std::string & level);
-  bool Selection(const xAOD::TauJet *aTau);
-  bool Selection(const xAOD::EmTauRoI *aTau);
+  bool Selection(const xAOD::TauJet *aTau) const;
+  bool Selection(const xAOD::EmTauRoI *aTau) const;
   int m_selection_nTrkMax, m_selection_nTrkMin;
   float m_selection_ptMax, m_selection_ptMin;
   float m_selection_absEtaMax, m_selection_absEtaMin;
@@ -131,26 +131,26 @@ class HLTTauMonTool : public IHLTMonTool {
   bool TruthMatched( const xAOD::TauJet * tau);
 
   StatusCode Emulation();
-  std::string LowerChain(std::string hlt_item);
+  std::string LowerChain(const std::string& hlt_item);
   /// Method for managing the histogram divisions
-  void divide(TH1 *num, TH1 *den, TH1 *quo);
-  void divide(TH2 *num, TH2 *den, TH2 *quo);
+  static void divide(TH1 *num, TH1 *den, TH1 *quo);
+  static void divide(TH2 *num, TH2 *den, TH2 *quo);
   void divide(const std::string & h_name_num, const std::string & h_name_den, const std::string & h_name_div, const std::string & dir);
   void divide2(const std::string & h_name_num, const std::string & h_name_den, const std::string & h_name_div, const std::string & dir);
-  float deltaEta(float eta1, float eta2);
-  float deltaPhi(float phi1, float phi2);
-  float deltaR(float eta1, float eta2, float phi1, float phi2);
-  float deltaR(const xAOD::TauJet* aEFTau, const xAOD::EmTauRoI* l1Tau);
-  void plotUnderOverFlow(TH1* hist);
-  void cloneProfile(const std::string name, const std::string folder);
-  void cloneHistogram(const std::string name, const std::string folder); 
-  void cloneHistogram2(const std::string name, const std::string folder);
+  static float deltaEta(float eta1, float eta2);
+  static float deltaPhi(float phi1, float phi2);
+  static float deltaR(float eta1, float eta2, float phi1, float phi2);
+  static float deltaR(const xAOD::TauJet* aEFTau, const xAOD::EmTauRoI* l1Tau);
+  static void plotUnderOverFlow(TH1* hist);
+  void cloneProfile(const std::string& name, const std::string& folder);
+  void cloneHistogram(const std::string& name, const std::string& folder); 
+  void cloneHistogram2(const std::string& name, const std::string& folder);
   /* StatusCode OfflineEfficiency(const std::string & trigItem); */
   /* StatusCode OfflineEfficiencyBDTMedium(const std::string & trigItem); */
   bool Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   bool Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   int PrimaryVertices();
-  void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
+  static void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
   template<class T> void FillRelDiffProfile(TProfile * prof, float val1, float val2, T val3, float checkVal, int checkMode);
 
   bool m_turnOnCurves;
@@ -194,7 +194,7 @@ class HLTTauMonTool : public IHLTMonTool {
 
   float m_mu_offline;
   int m_mu_online;
-  int m_LB;
+  int m_LB = 0;
 
 
   ///Name of the trigger items to be monitored.
@@ -238,15 +238,15 @@ class HLTTauMonTool : public IHLTMonTool {
 
   // EffRatioPlots flags
   //bool doEffRatioPlots = false;
-  bool m_effRatioChains_Active;
+  bool m_effRatioChains_Active = false;
   //bool do0prongEffRatioPlots = false;
-  bool m_effRatio0ProngChains_Active;
+  bool m_effRatio0ProngChains_Active = false;
   //bool doBDTEffRatioPlots = false;
-  bool m_effRatioBDTChains_Active;
+  bool m_effRatioBDTChains_Active = false;
   //bool do0prongBDTEffRatioPlots = false;
-  bool m_effRatio0ProngBDTChains_Active;
+  bool m_effRatio0ProngBDTChains_Active = false;
 
-  bool m_muCut40Passed;
+  bool m_muCut40Passed = false;
 
 };
 
