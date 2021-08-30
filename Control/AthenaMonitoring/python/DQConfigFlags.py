@@ -10,7 +10,7 @@ _steeringFlags = [ 'doGlobalMon', 'doLVL1CaloMon', 'doCTPMon', 'doHLTMon',
                    'doCaloGlobalMon', 'doMuonMon',
                    'doLucidMon', 'doAFPMon',
                    'doHIMon', 'doEgammaMon', 'doJetMon', 'doMissingEtMon',
-                   'doTauMon', 'doJetTagMon' ]
+                   'doTauMon', 'doJetTagMon', 'doDataFlowMon' ]
 
 _lowLevelSteeringFlags = [ 'InDet.doGlobalMon', 'InDet.doAlignMon',
                            'InDet.doPerfMon',  'Muon.doRawMon',

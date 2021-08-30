@@ -83,6 +83,11 @@ def AthenaMonitoringCfg(flags):
         from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
         result.merge(METMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doDataFlowMon:
+        info('Set up Data Flow monitoring')
+        from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
+        result.merge(DQTDataFlowMonAlgConfig(flags))
+
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
         from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig

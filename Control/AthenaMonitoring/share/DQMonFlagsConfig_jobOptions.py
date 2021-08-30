@@ -506,6 +506,7 @@ from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
 from AthenaMonitoring import AthenaMonitoringConf
 
 Steering = ConfigFlags.DQ.Steering
+Steering.doDataFlowMon=DQMonFlags.doDataFlowMon()
 Steering.doGlobalMon=DQMonFlags.doGlobalMon()
 # do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
 mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
