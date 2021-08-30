@@ -23,6 +23,7 @@
 #include "TestTools/FLOATassert.h"
 #include "CoolKernel/IObject.h"
 #include "CxxUtils/checker_macros.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include <iostream>
 #include <cassert>
 
@@ -259,7 +260,7 @@ void test1 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondData").isSuccess() );
-  const LuminosityCondData* data = 0;
+  const LuminosityCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
   assert (rangeout->start().time_stamp() == 0);
@@ -340,7 +341,7 @@ void test2 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondDataRun1").isSuccess() );
-  const LuminosityCondData* data = 0;
+  const LuminosityCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
   assert (rangeout->start().time_stamp() == 0);
@@ -374,35 +375,57 @@ void test3 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 {
   std::cout << "test3\n";
 
+  StoreGateSvc* eventStore = nullptr;
+  assert( svcloc->service("StoreGateSvc/StoreGateSvc", eventStore) );
   EventContext ctx;
-  ctx.setExtension (Atlas::ExtendedEventContext());
   EventIDBase eid (1, 0, 0, 0, 20, 0);
   ctx.setEventID (eid);
+  ctx.setExtension (Atlas::ExtendedEventContext(eventStore));
 
   LuminosityCondAlg *alg = new LuminosityCondAlg("LuminosityCondAlgMC", svcloc);
   theAlgs.push_back(alg);
   alg->addRef();
   assert( alg->sysInitialize().isSuccess() );
 
+  StoreGateSvc* conditionStore = nullptr;
+  assert( svcloc->service("ConditionStore", conditionStore) );
+  auto eventinfo = std::make_unique<xAOD::EventInfo>();
+  auto eventauxinfo = std::make_unique<xAOD::EventAuxInfo>();
+  eventinfo->setStore(eventauxinfo.get());
+  eventinfo->setRunNumber(eid.run_number());
+  eventinfo->setLumiBlock(eid.lumi_block());
+  eventinfo->setAverageInteractionsPerCrossing(20.);
+
+  assert( eventStore->record(std::move(eventauxinfo), "EventInfoAux.") );
+  assert( eventStore->record(std::move(eventinfo), "EventInfo") );
+
+  auto dpobj = std::make_unique<AthenaAttributeList>();
+  dpobj->extend("BeamIntensityPattern", "string");
+  (*dpobj)["BeamIntensityPattern"].setValue(std::string("None"));
+  const EventIDRange range1 (runlbn (1, 10), runlbn (1, 100));
+  Athena_test::DummyRCUSvc rcu;
+  DataObjID id1 ("/Digitization/Parameters");
+  auto digitizationParams = std::make_unique<CondCont<AthenaAttributeList>>(rcu, id1);
+  digitizationParams->insert(range1, std::move(dpobj), ctx).ignore();
+  assert( conditionStore->record(std::move(digitizationParams), "/Digitization/Parameters") );
   assert( alg->execute (ctx).isSuccess() );
 
-  ServiceHandle<StoreGateSvc> conditionStore ("ConditionStore", "test");
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondDataMC").isSuccess() );
-  const LuminosityCondData* data = 0;
+  const LuminosityCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
   assert (rangeout->start().time_stamp() == timestamp(0).time_stamp());
 
-  assert( data->lbAverageLuminosity() == 0 );
-  assert( data->lbAverageInteractionsPerCrossing() == 0 );
+  assert( data->lbAverageLuminosity() == 20.*LuminosityCondData::TOTAL_LHC_BCIDS*data->muToLumi() );
+  assert( data->lbAverageInteractionsPerCrossing() == 20. );
   assert( data->lbAverageValid() == 0xffffffff );
-  assert( data->muToLumi() == 0 );
+  assert( data->muToLumi() == 1. );
 
   std::vector<float> vec = data->lbLuminosityPerBCIDVector();
   assert (vec.size() == LuminosityCondData::TOTAL_LHC_BCIDS);
   for (float f : vec) {
-    assert (f == 0);
+    assert (f == 20*data->muToLumi());
   }
 }
 
@@ -442,7 +465,7 @@ void test4 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
 
   CondCont<LuminosityCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "LuminosityCondDataMiss").isSuccess() );
-  const LuminosityCondData* data = 0;
+  const LuminosityCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
   assert (rangeout->start().time_stamp() == 0);

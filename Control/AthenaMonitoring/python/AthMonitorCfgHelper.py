@@ -68,14 +68,15 @@ class AthMonitorCfgHelper(object):
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
         algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
-        if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
+        if self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True
             from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
-            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
-            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
             self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
-            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
-            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+            if not self.inputFlags.Input.isMC:
+                from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+                from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+                self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+                self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
         self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)
