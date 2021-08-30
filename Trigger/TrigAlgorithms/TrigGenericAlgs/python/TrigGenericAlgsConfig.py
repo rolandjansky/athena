@@ -20,3 +20,7 @@ def TimeBurnerHypoToolGen(chainDict):
             return self.name
 
     return DummyHypo(chainDict['chainName'])
+
+
+def EndOfEventROIConfirmerAlgCfg(name):
+    return CompFactory.EndOfEventROIConfirmerAlg(name)
