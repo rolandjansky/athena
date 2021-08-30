@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -25,7 +25,31 @@ namespace NSWL1 {
     }
 
     StatusCode MMTriggerTool::book_branches() {
+      m_trigger_diamond_ntrig       = new std::vector<unsigned int>();
+      m_trigger_diamond_bc          = new std::vector<int>();
+      m_trigger_diamond_sector      = new std::vector<char>();
+      m_trigger_diamond_stationPhi  = new std::vector<int>();
+      m_trigger_diamond_totalCount  = new std::vector<unsigned int>();
+      m_trigger_diamond_realCount   = new std::vector<unsigned int>();
+      m_trigger_diamond_XbkgCount   = new std::vector<unsigned int>();
+      m_trigger_diamond_UVbkgCount  = new std::vector<unsigned int>();
+      m_trigger_diamond_XmuonCount  = new std::vector<unsigned int>();
+      m_trigger_diamond_UVmuonCount = new std::vector<unsigned int>();
+      m_trigger_diamond_iX          = new std::vector<int>();
+      m_trigger_diamond_iU          = new std::vector<int>();
+      m_trigger_diamond_iV          = new std::vector<int>();
+      m_trigger_diamond_age         = new std::vector<double>();
+      m_trigger_diamond_Xavg        = new std::vector<double>();
+      m_trigger_diamond_Uavg        = new std::vector<double>();
+      m_trigger_diamond_Vavg        = new std::vector<double>();
+      m_trigger_diamond_mxl         = new std::vector<double>();
+      m_trigger_diamond_theta       = new std::vector<double>();
+      m_trigger_diamond_eta         = new std::vector<double>();
+      m_trigger_diamond_dtheta      = new std::vector<double>();
+      m_trigger_diamond_phi         = new std::vector<double>();
+      m_trigger_diamond_phiShf      = new std::vector<double>();
 
+      m_trigger_RZslopes     = new std::vector<double>();
       m_trigger_fitThe       = new std::vector<double>();
       m_trigger_fitPhi       = new std::vector<double>();
       m_trigger_fitDth       = new std::vector<double>();
@@ -34,7 +58,7 @@ namespace NSWL1 {
       m_trigger_fitEtaRange  = new std::vector<double>();
       m_trigger_fitPtRange   = new std::vector<double>();
       m_trigger_resThe       = new std::vector<double>();
-      m_trigger_resPhi       =  new std::vector<double>();
+      m_trigger_resPhi       = new std::vector<double>();
       m_trigger_resDth       = new std::vector<double>();
 
       m_trigger_large_fitThe       = new std::vector<double>();
@@ -42,10 +66,13 @@ namespace NSWL1 {
       m_trigger_large_fitDth       = new std::vector<double>();
       m_trigger_large_trueEtaRange = new std::vector<double>();
       m_trigger_large_truePtRange  = new std::vector<double>();
+      m_trigger_large_trueThe      = new std::vector<double>();
+      m_trigger_large_truePhi      = new std::vector<double>();
+      m_trigger_large_trueDth      = new std::vector<double>();
       m_trigger_large_fitEtaRange  = new std::vector<double>();
       m_trigger_large_fitPtRange   = new std::vector<double>();
       m_trigger_large_resThe       = new std::vector<double>();
-      m_trigger_large_resPhi       =  new std::vector<double>();
+      m_trigger_large_resPhi       = new std::vector<double>();
       m_trigger_large_resDth       = new std::vector<double>();
 
       m_trigger_small_fitThe       = new std::vector<double>();
@@ -53,10 +80,13 @@ namespace NSWL1 {
       m_trigger_small_fitDth       = new std::vector<double>();
       m_trigger_small_trueEtaRange = new std::vector<double>();
       m_trigger_small_truePtRange  = new std::vector<double>();
+      m_trigger_small_trueThe      = new std::vector<double>();
+      m_trigger_small_truePhi      = new std::vector<double>();
+      m_trigger_small_trueDth      = new std::vector<double>();
       m_trigger_small_fitEtaRange  = new std::vector<double>();
       m_trigger_small_fitPtRange   = new std::vector<double>();
       m_trigger_small_resThe       = new std::vector<double>();
-      m_trigger_small_resPhi       =  new std::vector<double>();
+      m_trigger_small_resPhi       = new std::vector<double>();
       m_trigger_small_resDth       = new std::vector<double>();
 
       m_trigger_VMM          = new std::vector<int>();
@@ -161,6 +191,31 @@ namespace NSWL1 {
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
 
+        m_tree->Branch(TString::Format("%s_trigger_diamond_bc",n).Data(), &m_trigger_diamond_bc);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_ntrig",n).Data(), &m_trigger_diamond_ntrig);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_sector",n).Data(), &m_trigger_diamond_sector);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_stationPhi",n).Data(), &m_trigger_diamond_stationPhi);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_totalCount",n).Data(), &m_trigger_diamond_totalCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_realCount",n).Data(), &m_trigger_diamond_realCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_XbkgCount",n).Data(), &m_trigger_diamond_XbkgCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_UVbkgCount",n).Data(), &m_trigger_diamond_UVbkgCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_XmuonCount",n).Data(), &m_trigger_diamond_XmuonCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_UVmuonCount",n).Data(), &m_trigger_diamond_UVmuonCount);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_iX",n).Data(), &m_trigger_diamond_iX);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_iU",n).Data(), &m_trigger_diamond_iU);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_iV",n).Data(), &m_trigger_diamond_iV);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_age",n).Data(), &m_trigger_diamond_age);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_Xavg",n).Data(), &m_trigger_diamond_Xavg);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_Uavg",n).Data(), &m_trigger_diamond_Uavg);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_Vavg",n).Data(), &m_trigger_diamond_Vavg);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_mxl",n).Data(), &m_trigger_diamond_mxl);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_theta",n).Data(), &m_trigger_diamond_theta);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_eta",n).Data(), &m_trigger_diamond_eta);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_dtheta",n).Data(), &m_trigger_diamond_dtheta);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_phi",n).Data(), &m_trigger_diamond_phi);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_phiShf",n).Data(), &m_trigger_diamond_phiShf);
+
+        m_tree->Branch(TString::Format("%s_trigger_RZslopes",n).Data(),&m_trigger_RZslopes);
         m_tree->Branch(TString::Format("%s_trigger_fitThe",n).Data(),&m_trigger_fitThe);
         m_tree->Branch(TString::Format("%s_trigger_fitPhi",n).Data(),    &m_trigger_fitPhi);
         m_tree->Branch(TString::Format("%s_trigger_fitDth",n).Data(),    &m_trigger_fitDth);
@@ -171,12 +226,14 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_resThe",n).Data(),    &m_trigger_resThe);
         m_tree->Branch(TString::Format("%s_trigger_resPhi",n).Data(),    &m_trigger_resPhi);
         m_tree->Branch(TString::Format("%s_trigger_resDth",n).Data(),    &m_trigger_resDth);
-
         m_tree->Branch(TString::Format("%s_trigger_large_fitThe",n).Data(),&m_trigger_large_fitThe);
         m_tree->Branch(TString::Format("%s_trigger_large_fitPhi",n).Data(),    &m_trigger_large_fitPhi);
         m_tree->Branch(TString::Format("%s_trigger_large_fitDth",n).Data(),    &m_trigger_large_fitDth);
         m_tree->Branch(TString::Format("%s_trigger_large_trueEtaRange",n).Data(),    &m_trigger_large_trueEtaRange);
         m_tree->Branch(TString::Format("%s_trigger_large_truePtRange",n).Data(),    &m_trigger_large_truePtRange);
+        m_tree->Branch(TString::Format("%s_trigger_large_trueThe",n).Data(),    &m_trigger_large_trueThe);
+        m_tree->Branch(TString::Format("%s_trigger_large_truePhi",n).Data(),    &m_trigger_large_truePhi);
+        m_tree->Branch(TString::Format("%s_trigger_large_trueDth",n).Data(),    &m_trigger_large_trueDth);
         m_tree->Branch(TString::Format("%s_trigger_large_fitEtaRange",n).Data(),    &m_trigger_large_fitEtaRange);
         m_tree->Branch(TString::Format("%s_trigger_large_fitPtRange",n).Data(),    &m_trigger_large_fitPtRange);
         m_tree->Branch(TString::Format("%s_trigger_large_resThe",n).Data(),    &m_trigger_large_resThe);
@@ -188,6 +245,9 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_small_fitDth",n).Data(),    &m_trigger_small_fitDth);
         m_tree->Branch(TString::Format("%s_trigger_small_trueEtaRange",n).Data(),    &m_trigger_small_trueEtaRange);
         m_tree->Branch(TString::Format("%s_trigger_small_truePtRange",n).Data(),    &m_trigger_small_truePtRange);
+        m_tree->Branch(TString::Format("%s_trigger_small_trueThe",n).Data(),    &m_trigger_small_trueThe);
+        m_tree->Branch(TString::Format("%s_trigger_small_truePhi",n).Data(),    &m_trigger_small_truePhi);
+        m_tree->Branch(TString::Format("%s_trigger_small_trueDth",n).Data(),    &m_trigger_small_trueDth);
         m_tree->Branch(TString::Format("%s_trigger_small_fitEtaRange",n).Data(),    &m_trigger_small_fitEtaRange);
         m_tree->Branch(TString::Format("%s_trigger_small_fitPtRange",n).Data(),    &m_trigger_small_fitPtRange);
         m_tree->Branch(TString::Format("%s_trigger_small_resThe",n).Data(),    &m_trigger_small_resThe);
@@ -301,6 +361,31 @@ namespace NSWL1 {
       //clear the ntuple variables
       if(m_tree==0) return;
 
+      m_trigger_diamond_bc->clear();
+      m_trigger_diamond_ntrig->clear();
+      m_trigger_diamond_sector->clear();
+      m_trigger_diamond_stationPhi->clear();
+      m_trigger_diamond_totalCount->clear();
+      m_trigger_diamond_realCount->clear();
+      m_trigger_diamond_XbkgCount->clear();
+      m_trigger_diamond_UVbkgCount->clear();
+      m_trigger_diamond_XmuonCount->clear();
+      m_trigger_diamond_UVmuonCount->clear();
+      m_trigger_diamond_iX->clear();
+      m_trigger_diamond_iU->clear();
+      m_trigger_diamond_iV->clear();
+      m_trigger_diamond_age->clear();
+      m_trigger_diamond_Xavg->clear();
+      m_trigger_diamond_Uavg->clear();
+      m_trigger_diamond_Vavg->clear();
+      m_trigger_diamond_mxl->clear();
+      m_trigger_diamond_theta->clear();
+      m_trigger_diamond_eta->clear();
+      m_trigger_diamond_dtheta->clear();
+      m_trigger_diamond_phi->clear();
+      m_trigger_diamond_phiShf->clear();
+
+      m_trigger_RZslopes->clear();
       m_trigger_fitThe->clear();
       m_trigger_fitPhi->clear();
       m_trigger_fitDth->clear();
@@ -317,6 +402,9 @@ namespace NSWL1 {
       m_trigger_large_fitDth->clear();
       m_trigger_large_trueEtaRange->clear();
       m_trigger_large_truePtRange->clear();
+      m_trigger_large_trueThe->clear();
+      m_trigger_large_truePhi->clear();
+      m_trigger_large_trueDth->clear();
       m_trigger_large_fitEtaRange->clear();
       m_trigger_large_fitPtRange->clear();
       m_trigger_large_resThe->clear();
@@ -328,6 +416,9 @@ namespace NSWL1 {
       m_trigger_small_fitDth->clear();
       m_trigger_small_trueEtaRange->clear();
       m_trigger_small_truePtRange->clear();
+      m_trigger_small_trueThe->clear();
+      m_trigger_small_truePhi->clear();
+      m_trigger_small_trueDth->clear();
       m_trigger_small_fitEtaRange->clear();
       m_trigger_small_fitPtRange->clear();
       m_trigger_small_resThe->clear();

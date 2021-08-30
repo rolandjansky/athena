@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FITTER_H
@@ -27,13 +27,13 @@ class MMT_Fitter : AthMessaging {
 
   //functions translated
   int Filter_UV(std::vector<Hit>& track) const;
-  float32fixed<2> Get_Global_Slope(const std::vector<Hit>& track, const std::string& type) const;
-  float32fixed<2> Get_Local_Slope(const std::vector<Hit>& Track,double theta=-999.,double phi=-999.) const;
-  ROI Get_ROI(float32fixed<2> M_x,float32fixed<2> M_u,float32fixed<2> M_v,const std::vector<Hit>&track) const;
+  double Get_Global_Slope(const std::vector<Hit>& track, const std::string& type) const;
+  double Get_Local_Slope(const std::vector<Hit>& Track,double theta=-999.,double phi=-999.) const;
+  ROI Get_ROI(double M_x,double M_u,double M_v,const std::vector<Hit>&track) const;
   double phi_correct_factor(const std::vector<Hit>&track)const;
-  float32fixed<2> Get_Delta_Theta(float32fixed<2> M_local,float32fixed<2> M_global) const;
-  float32fixed<2> Get_Delta_Theta_division(float32fixed<2> M_local,float32fixed<2> M_global, float32fixed<4> a=1.) const;
-  int Rough_ROI_temp(float32fixed<4> theta, float32fixed<4> phi) const;
+  double Get_Delta_Theta(double M_local,double M_global) const;
+  double Get_Delta_Theta_division(double M_local,double M_global, double a=1.) const;
+  int Rough_ROI_temp(double theta, double phi) const;
 
   //sim hit code stuff
   int track_to_index(const std::vector<Hit>&track)const;
@@ -45,12 +45,12 @@ class MMT_Fitter : AthMessaging {
   double ideal_zbar(const std::vector<Hit>& Track)const;
 
   //translated from Table_Generators.m
-  float32fixed<2> LG_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> min, float32fixed<2> max) const;
-  float32fixed<2> mult_factor_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> min, float32fixed<2> max) const;
-  float32fixed<4> Slope_Components_ROI_val(int jy, int ix, int thetaphi) const;
-  float32fixed<4> Slope_Components_ROI_theta(int jy, int ix) const;
-  float32fixed<4> Slope_Components_ROI_phi(int jy, int ix) const;
-  float32fixed<2> DT_Factors_val(int i, int j) const;
+  double LG_lgr(int ilgr, double a, int number_LG_regions, double min, double max) const;
+  double mult_factor_lgr(int ilgr, double a, int number_LG_regions, double min, double max) const;
+  double Slope_Components_ROI_val(int jy, int ix, int thetaphi) const;
+  double Slope_Components_ROI_theta(int jy, int ix) const;
+  double Slope_Components_ROI_phi(int jy, int ix) const;
+  double DT_Factors_val(int i, int j) const;
 
 
  private:
@@ -59,7 +59,7 @@ class MMT_Fitter : AthMessaging {
 
   //Fitter components
   int m_number_LG_regions,m_n_fit;
-  float32fixed<2> m_LG_min,m_LG_max;
+  double m_LG_min,m_LG_max;
   std::vector<int> q_planes(char type) const;//return position of what planes are where
 
 };

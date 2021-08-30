@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/getMessageSvc.h"
@@ -18,7 +18,7 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads) :
   m_par = par;
   m_nUVRoads = nUVRoads;
 
-  m_nRoads = ceil(  ( ( m_par->slope_max - m_par->slope_min ) / m_par->h.getFixed()  ).getFixed()  ); //initialization, can use floats
+  m_nRoads = ceil(  ( ( m_par->slope_max - m_par->slope_min ) / m_par->h  )  ); //initialization, can use floats
 
   if(m_nUVRoads>1){
     m_nRoads *= m_nUVRoads; // This should probably be configurable and dynamic based on the geometry of the chamber
@@ -26,7 +26,7 @@ MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads) :
 
   int nplanes=m_par->setup.size();
 
-  ATH_MSG_DEBUG( "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max.getFixed() << " " << m_par->slope_min.getFixed() << " " << m_par->h.getFixed() );
+  ATH_MSG_DEBUG( "MMT_Find::finder entries " << m_nRoads << " " << m_par->slope_max << " " << m_par->slope_min << " " << m_par->h << " " << nplanes );
 
   m_gateFlags = vector<vector<double> >(m_nRoads,(vector<double>(2,0)));// sloperoad,
   m_finder    = vector<vector<finder_entry> >(m_nRoads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
@@ -42,28 +42,31 @@ void MMT_Finder::fillHitBuffer( map< pair<int,int> , finder_entry > & hitBuffer,
   // This function takes in the Hit object and places it into the hit buffer hitBuffer, putting it in any relevant (road,plane)
 
   //Get initial parameters: tolerance, step size (h), slope of hit
-  float32fixed<3> tol;
-  float32fixed<3> h=m_par->h.getFixed();
+  double tol;
+  double h=m_par->h;
 
   //Conver hit to slope here
-  float32fixed<3> slope=hit.info.slope.getFixed();
-  ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFixed());
+  double slope=hit.info.slope;
+  ATH_MSG_DEBUG("SLOPE " << hit.info.slope);
 
   //Plane and key info of the hit
   int plane=hit.info.plane;
 
   string plane_type=m_par->setup.substr(plane,1);
 
-  if(plane_type=="x") tol=m_par->x_error.getFixed();
-  else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error.getFixed();
-  else return;  //if it's an unsupported plane option, don't fill
+  if(plane_type=="x") tol=m_par->x_error;
+  else if(plane_type=="u"||plane_type=="v") tol=m_par->uv_error;
+  else {
+    ATH_MSG_WARNING("WARNING: unsupported plane option!");
+    return;
+  }  //if it's an unsupported plane option, don't fill
 
 
   //---slope road boundaries based on hit_slope +/- tolerance---; if min or max is out of bounds, put it at the limit
-  float32fixed<3> s_min = slope - tol, s_max = slope + tol;
+  double s_min = slope - tol, s_max = slope + tol;
 
-  int road_min = round( (  (s_min - m_par->slope_min)/h  ).getFixed() );
-  int road_max = round( (  (s_max - m_par->slope_min)/h  ).getFixed() );
+  int road_min = round( (  (s_min - m_par->slope_min)/h  ) );
+  int road_max = round( (  (s_max - m_par->slope_min)/h  ) );
 
   if( road_min < 0 ) road_min = 0 ;
   if( road_max >= (m_nRoads/m_nUVRoads) ){ road_max = (m_nRoads/m_nUVRoads) - 1 ; }
