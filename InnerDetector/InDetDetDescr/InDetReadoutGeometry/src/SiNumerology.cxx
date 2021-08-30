@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/SiNumerology.h"
@@ -9,10 +9,12 @@ namespace InDetDD {
 
 SiNumerology::SiNumerology()
   : m_numLayers(0),
+    m_numDiskLayers(0),
     m_numDisks(0),
     m_maxPhiCells(0),
     m_maxEtaCells(0),
     m_maxNumBarrelEta(0),
+    m_maxNumEndcapDisks(0),
     m_maxNumEndcapRings(0),
     m_maxNumBarrelPhiModules(0),
     m_maxNumEndcapPhiModules(0),
@@ -29,6 +31,12 @@ void SiNumerology::setNumLayers(int nLayers)
   m_numLayers = nLayers;
 }
 
+void SiNumerology::setNumDiskLayers(int nLayers)
+{
+  m_disksForLayer.resize(nLayers);
+  m_phiModulesForLayerDisk.resize(nLayers);
+  m_numDiskLayers = nLayers;
+}
     
 void SiNumerology::setNumDisks(int nDisks)
 {
@@ -60,6 +68,19 @@ void SiNumerology::setNumEtaModulesForLayer(int layer, int nEtaModules)
 {
   m_etaModulesForLayer[layer] = nEtaModules;
   m_maxNumBarrelEta = std::max(m_maxNumBarrelEta, nEtaModules);
+}
+
+void SiNumerology::setNumDisksForLayer(int layer, int nDisks)
+{
+  m_disksForLayer[layer] = nDisks;
+  m_phiModulesForLayerDisk[layer].resize(nDisks);
+  m_maxNumEndcapDisks = std::max(m_maxNumEndcapDisks, nDisks);
+}
+
+void SiNumerology::setNumPhiModulesForLayerDisk(int layer, int disk, int nPhiModules)
+{
+  m_phiModulesForLayerDisk[layer][disk] = nPhiModules;
+  m_maxNumEndcapPhiModules = std::max(m_maxNumEndcapPhiModules, nPhiModules);
 }
 
 void SiNumerology::setMaxNumPhiCells(int cells)
