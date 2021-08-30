@@ -154,7 +154,8 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     if flags.ITk.Tracking.useITkPixel:
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksPixelCondAlg",
                                                                                 ReadKey  = "ITkPixelDetectorElementCollection",
-                                                                                WriteKey = "ITkPixelDetElementBoundaryLinks_xk") )
+                                                                                WriteKey = "ITkPixelDetElementBoundaryLinks_xk",
+                                                                                ITkGeometry = True ) )
     if flags.ITk.Tracking.useITkStrip:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "ITkSiDetElementsRoadCondAlg_xk",
                                                                       PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
@@ -162,7 +163,8 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
 
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksSCTCondAlg",
                                                                                 ReadKey  = "ITkStripDetectorElementCollection",
-                                                                                WriteKey = "ITkStripDetElementBoundaryLinks_xk") )
+                                                                                WriteKey = "ITkStripDetElementBoundaryLinks_xk",
+                                                                                ITkGeometry = True ) )
 
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
