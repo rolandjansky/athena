@@ -14,5 +14,3 @@ digitizationFlags.numberOfLowPtMinBias = 56.390
 digitizationFlags.numberOfHighPtMinBias = 0.110
 digitizationFlags.initialBunchCrossing = -32
 digitizationFlags.finalBunchCrossing = 6
-
-digitizationFlags.OldBeamSpotZSize = 42
