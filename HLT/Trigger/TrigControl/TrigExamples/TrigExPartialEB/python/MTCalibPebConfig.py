@@ -262,10 +262,10 @@ def hlt_result_cfg(flags, hypo_algs):
     acc = ComponentAccumulator()
 
     # Give the menu json name to HLTConfigSvc
-    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-    hltConfigSvc = getHLTConfigSvc(flags)
-    hltConfigSvc.JsonFileName = menu_json
-    acc.addService(hltConfigSvc)
+    from TrigConfigSvc.TrigConfigSvcCfg import HLTConfigSvcCfg
+    hltConfigSvcCfg = HLTConfigSvcCfg(flags)
+    hltConfigSvcCfg.getService("HLTConfigSvc").JsonFileName = menu_json
+    acc.merge(hltConfigSvcCfg)
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerToolCfg()
