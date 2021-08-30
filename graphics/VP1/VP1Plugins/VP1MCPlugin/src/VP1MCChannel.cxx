@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -29,8 +29,8 @@ VP1MCChannel::VP1MCChannel()
 //_________________________________________________________
 void VP1MCChannel::init()
 {
-  mcsystem = new VP1MCSystem();
-  registerSystem(mcsystem);
+  mcsystem.reset (new VP1MCSystem());
+  registerSystem(mcsystem.get());
  
 }
 
