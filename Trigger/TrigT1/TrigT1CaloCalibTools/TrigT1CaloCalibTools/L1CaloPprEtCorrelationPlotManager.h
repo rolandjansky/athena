@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************
@@ -57,7 +57,7 @@ public:
 	                                  const std::string& pathInRootFile);
 	inline ~L1CaloPprEtCorrelationPlotManager() {};
 
-	inline void SetCaloCellContainer(std::string name) {m_caloCellContainerName = name;}
+	inline void SetCaloCellContainer(const std::string& name) {m_caloCellContainerName = name;}
 
 	// retrieve calo cell container for offline monitoring
 	// for online monitoring set map of cell energies for every tower

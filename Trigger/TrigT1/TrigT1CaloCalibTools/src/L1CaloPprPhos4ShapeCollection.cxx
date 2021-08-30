@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprPhos4ShapeCollection.h"
@@ -222,7 +222,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId
 }
 
 
-StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId, const unsigned int rodHeaderStep, const std::vector<int> adc) {
+StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId, const unsigned int rodHeaderStep, const std::vector<int>& adc) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
       *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;

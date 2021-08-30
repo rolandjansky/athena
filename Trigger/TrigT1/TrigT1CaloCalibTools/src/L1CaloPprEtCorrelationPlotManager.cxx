@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
@@ -101,8 +101,6 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
 double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {
-    std::vector<float> CaloEnergyLayers;
-    std::vector<float> CaloETLayers;
     float caloEnergy = 0.;
     float ttCpEnergy = trigTower->cpET()*0.5;
     float absEta = fabs(trigTower->eta() );
@@ -110,18 +108,16 @@ double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::Trigger
     if (ttCpEnergy <= m_EtMin) return -1000.;
     if (absEta < 3.2){
       if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
-        CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-        for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
-          caloEnergy += *it;
+        for (float e : trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer")) {
+          caloEnergy += e;
         }
         caloEnergy = caloEnergy / cosh( trigTower->eta() );
       }
     }//for central region only                                                                                                                                                                      
     else {
       if( trigTower->isAvailable< std::vector<float> > ("CaloCellETByLayer") ){
-	CaloETLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
-        for (std::vector<float>::iterator it = CaloETLayers.begin(); it != CaloETLayers.end(); it++){
-          caloEnergy += *it;
+        for (float et : trigTower->auxdataConst< std::vector<float> > ("CaloCellETByLayer")) {
+          caloEnergy += et;
         }
       }
     }//forward region      
