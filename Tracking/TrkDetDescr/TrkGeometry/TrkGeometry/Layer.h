@@ -285,19 +285,10 @@ class Layer {
    * extended classes*/
   virtual void resizeLayer(const VolumeBounds&, double) {}
 
-  /** resize layer to the TrackingVolume dimensions const not thread safe */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                 double) const {}
-
   /** resize and reposition layer : dedicated for entry layers */
   virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                         const Amg::Vector3D& vCenter,
                                         double envelope = 1.) = 0;
-
-  /** resize and reposition layer : dedicated for entry layers */
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, const Amg::Vector3D& vCenter,
-      double envelope = 1.) const = 0;
 
  protected:
   SurfaceArray* m_surfaceArray;  //!< SurfaceArray on this layer Surface

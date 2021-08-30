@@ -120,10 +120,6 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
                                         const Amg::Vector3D&,
                                         double) override final {}
 
-  /** Resize the layer to the tracking volume - not supported since this an
-   * entry layer method*/
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds&, const Amg::Vector3D&, double) const override final {}
 };
 
 }  // namespace Trk
