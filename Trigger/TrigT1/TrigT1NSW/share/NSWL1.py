@@ -1,53 +1,64 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+import glob
+import os
 
-#######################################
-# some basic settings
-#######################################
+###################################################
+# Some basic settings and input file submission
+###################################################
 MessageSvc.defaultLimit=100
 MessageSvc.useColors = True
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags, jobproperties
+athenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails
 athenaCommonFlags.EvtMax = -1
 athenaCommonFlags.SkipEvents = 0
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaPoolCnvSvc.ReadAthenaPool # needed to use EventSelector
-svcMgr.EventSelector.InputCollections=["input.rdo.pool.root"]
-#######################################
+#to run on mutliple files at once please use -c "customInput='/some/path/*pattern*.root'"
+if 'customInput' not in locals() or 'customInput' not in globals():
+  print("customInput not defined: the job will be launched on the GRID")
+  svcMgr.EventSelector.InputCollections=jobproperties.AthenaCommonFlags.FilesInput.get_Value()
+else:
+  if(os.path.isdir(customInput)): customInput+="/*.root"
+  svcMgr.EventSelector.InputCollections=glob.glob(customInput)
 
+###################################################
+# Detector flags: needed to setup geometry tools
+###################################################
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.Muon_setOn()
+DetFlags.sTGC_setOff()
+DetFlags.Micromegas_setOn()
+DetFlags.digitize.Micromegas_setOn()
+DetFlags.digitize.sTGC_setOff()
+DetFlags.Truth_setOn()
+DetFlags.Print()
 
-#######################################
-# initialize the geometry
-#######################################
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion="ATLAS-R3S-2021-01-00-00"
+###################################################
+# Initialize ATLAS geometry
+###################################################
+jobproperties.Global.DetDescrVersion="ATLAS-R3S-2021-01-00-02"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
-from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-GeoModelSvc = GeoModelSvc()
+from AtlasGeoModel import MuonGM
+from AtlasGeoModel import Agdd2Geo
+
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-# initialize the MuonIdHelperService
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
 svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
-# create the MuonDetectorTool (which creates the MuonDetectorManager needed by PadTdsOfflineTool)
-from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM()) ]
-#######################################
 
-
-#######################################
-# now the trigger related things
-#######################################
-
+###################################################
+# Initialize the trigger related things
+###################################################
 include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
-#October 2019 : MM not working so keep it False until fixed
-
-topSequence.NSWL1Simulation.DosTGC=True
+topSequence.NSWL1Simulation.DosTGC=False
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
-topSequence.NSWL1Simulation.DoMM=False
+topSequence.NSWL1Simulation.DoMM=True
+topSequence.NSWL1Simulation.DoMMDiamonds=True
 topSequence.NSWL1Simulation.NSWTrigRDOContainerName="NSWTRGRDO"
 topSequence.NSWL1Simulation.StripSegmentTool.rIndexScheme=0
 
@@ -76,12 +87,12 @@ topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=INFO
 
 #S.I 2019 : Below code handles enabling/disabling of ntuples for the Tools according to the master flag (NSWL1Simulation)
 #in principle we wouldnt need the tuning here but ntuple making and the trigger code is quite tangled so this is just a workaround for now
-#ntuple code must be totally stripped off from trigger Tools. One way of doing is to create a separate tool and implement methods that takes 
-#    std::vector<std::shared_ptr<PadData>> pads;  
+#ntuple code must be totally stripped off from trigger Tools. One way of doing is to create a separate tool and implement methods that takes
+#    std::vector<std::shared_ptr<PadData>> pads;
 #    std::vector<std::unique_ptr<PadTrigger>> padTriggers;
 #    std::vector<std::unique_ptr<StripData>> strips;
 #    std::vector< std::unique_ptr<StripClusterData> > clusters;
-#    as arguments (see NSWL1Simulation.cxx) 
+#    as arguments (see NSWL1Simulation.cxx)
 
 if topSequence.NSWL1Simulation.DoNtuple:
 
@@ -99,7 +110,7 @@ if topSequence.NSWL1Simulation.DoNtuple:
         ServiceMgr += NTupleSvc()
 
     ServiceMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
-    print ServiceMgr
+    print(ServiceMgr)
 
 else:#to avoid any possible crash. If DoNtuple is set to true for a tool but false for NSWL1Simulation the code will crash
      # ideally that should have been already handled in C++ side

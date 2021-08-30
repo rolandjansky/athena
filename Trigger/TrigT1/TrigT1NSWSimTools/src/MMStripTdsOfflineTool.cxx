@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -16,7 +16,6 @@
 #include "EventInfo/EventID.h"
 
 // ROOT includes
-#include "TVector3.h"
 #include "TMath.h"
 
 const bool striphack=true;
@@ -563,7 +562,7 @@ namespace NSWL1 {
     return athena_phi+(athena_phi>=0?-1:1)*TMath::Pi();
     return (-1.*athena_phi+(athena_phi>=0?1.5*TMath::Pi():-0.5*TMath::Pi()));
   }
-  void MMStripTdsOfflineTool::xxuv_to_uvxx(TVector3& hit,int plane)const{
+  void MMStripTdsOfflineTool::xxuv_to_uvxx(ROOT::Math::XYZVector& hit,int plane)const{
     if(plane<4)return;
     else if(plane==4)hit_rot_stereo_bck(hit);//x to u
     else if(plane==5)hit_rot_stereo_fwd(hit);//x to v
@@ -571,8 +570,8 @@ namespace NSWL1 {
     else if(plane==7)hit_rot_stereo_bck(hit);//v to x
   }
 
-  void MMStripTdsOfflineTool::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+  void MMStripTdsOfflineTool::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit)const{
+    double degree=TMath::DegToRad()*(m_par->stereo_degree);
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -580,8 +579,8 @@ namespace NSWL1 {
     }
   }
 
-  void MMStripTdsOfflineTool::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+  void MMStripTdsOfflineTool::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit)const{
+    double degree=-TMath::DegToRad()*(m_par->stereo_degree);
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -606,7 +605,7 @@ namespace NSWL1 {
   int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
     std::string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFixed(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width, degree=TMath::DegToRad()*(m_par->stereo_degree);//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -648,7 +647,7 @@ namespace NSWL1 {
     }
     bool do_auto=false;
     //if true do strip # (ceil(Y/strip_width); what's currently fed into the algorithm)  calculation based on evenly spaced eta assumption of stations
-    double H=m_par->H.getFixed()/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1].getFixed();
+    double H=m_par->H/*,h=m_par->h1,z=m_par->z_nominal[plane],z0=m_par->z_nominal.front()*/,ybase=m_par->ybases[plane][station-1];
     if(do_auto){
       //-log(tan(0.5(atan(y/z))))=eta
       //this is the even y spacing
@@ -660,7 +659,7 @@ namespace NSWL1 {
       ybase=z*tan(2*atan(exp(-1.*this_eta)));
       */
     }
-    double width=m_par->strip_width.getFixed(); 
+    double width=m_par->strip_width; 
     std::string plane_char=m_par->setup.substr(plane,1);
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;

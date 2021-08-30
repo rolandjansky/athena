@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IMMTRIGGERTOOL_H
@@ -23,8 +23,9 @@ namespace NSWL1 {
   public:
     virtual ~IMMTriggerTool() {}
 
-    virtual StatusCode runTrigger() = 0;
-
+    virtual StatusCode runTrigger(const bool do_MMDiamonds) = 0;
+    virtual StatusCode initDiamondAlgorithm() = 0;
+    virtual StatusCode finalizeDiamondAlgorithm(const bool do_MMDiamonds) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IMMTriggerTool("NSWL1::IMMTriggerTool", 1 ,0);
