@@ -369,7 +369,7 @@ if DerivationFrameworkHasTruth:
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "AntiKt10TruthSoftDropBeta100Zcut10Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
-                                      "Electrons.TruthLink",
+                                      "Electrons.TruthLink.DFCommonElectronsLHVeryLoose_v14.DFCommonElectronsLHLoose_v14.DFCommonElectronsLHLooseBL_v14.DFCommonElectronsLHMedium_v14.DFCommonElectronsLHTight_v14.DFCommonElectronsLHVeryLoose_v14IsEMValue.DFCommonElectronsLHLoose_v14IsEMValue.DFCommonElectronsLHLooseBL_v14IsEMValue.DFCommonElectronsLHMedium_v14IsEMValue.DFCommonElectronsLHTight_v14IsEMValue",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",

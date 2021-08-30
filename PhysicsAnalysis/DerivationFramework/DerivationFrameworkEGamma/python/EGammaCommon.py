@@ -82,7 +82,29 @@ ElectronLHSelectorLooseBL = AsgElectronLikelihoodTool("ElectronLHSelectorLooseBL
 ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
 ToolSvc += ElectronLHSelectorLooseBL
 
+#v14 r21 tunes
+ElectronLHSelectorVeryLoose_v14 = AsgElectronLikelihoodTool("ElectronLHSelectorVeryLoose_v14", WorkingPoint="VeryLooseLHElectron_v14")
+ElectronLHSelectorVeryLoose_v14.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorVeryLoose_v14
 
+ElectronLHSelectorLoose_v14 = AsgElectronLikelihoodTool("ElectronLHSelectorLoose_v14", WorkingPoint="LooseLHElectron_v14")
+ElectronLHSelectorLoose_v14.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorLoose_v14
+
+ElectronLHSelectorLooseBL_v14 = AsgElectronLikelihoodTool("ElectronLHSelectorLooseBL_v14", WorkingPoint="LooseBLLHElectron_v14")
+ElectronLHSelectorLooseBL_v14.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorLooseBL_v14
+
+ElectronLHSelectorMedium_v14 = AsgElectronLikelihoodTool("ElectronLHSelectorMedium_v14", WorkingPoint="MediumLHElectron_v14")
+ElectronLHSelectorMedium_v14.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorMedium_v14
+
+ElectronLHSelectorTight_v14 = AsgElectronLikelihoodTool("ElectronLHSelectorTight_v14", WorkingPoint="TightLHElectron_v14")
+ElectronLHSelectorTight_v14.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorTight_v14
+
+
+#DNN selectors
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronSelectorTool
 ElectronDNNSelectorLoose = AsgElectronSelectorTool("ElectronDNNSelectorLoose",
                                                    WorkingPoint="LooseDNNElectron")
@@ -233,6 +255,56 @@ ElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "Elect
                                                                    ContainerName = "Electrons")
 ToolSvc += ElectronPassLHTight
 print ElectronPassLHTight
+
+# decorate electrons with the output of LH very loose V14
+ElectronPassLHVeryLoose_v14 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHVeryLoose_v14",
+																		   EGammaSelectionTool = ElectronLHSelectorVeryLoose_v14,
+																		   EGammaFudgeMCTool = "",
+																		   CutType = "",
+																		   StoreGateEntryName = "DFCommonElectronsLHVeryLoose_v14",
+																		   ContainerName = "Electrons")
+ToolSvc += ElectronPassLHVeryLoose_v14
+print ElectronPassLHVeryLoose_v14
+
+# decorate electrons with the output of LH loose V14
+ElectronPassLHLoose_v14 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLoose_v14",
+																	   EGammaSelectionTool = ElectronLHSelectorLoose_v14,
+																	   EGammaFudgeMCTool = "",
+																	   CutType = "",
+																	   StoreGateEntryName = "DFCommonElectronsLHLoose_v14",
+																	   ContainerName = "Electrons")
+ToolSvc += ElectronPassLHLoose_v14
+print ElectronPassLHLoose_v14
+
+# decorate electrons with the output of LH loose+BL V14
+ElectronPassLHLooseBL_v14 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLooseBL_v14",
+																		 EGammaSelectionTool = ElectronLHSelectorLooseBL_v14,
+																		 EGammaFudgeMCTool = "",
+																		 CutType = "",
+																		 StoreGateEntryName = "DFCommonElectronsLHLooseBL_v14",
+																		 ContainerName = "Electrons")
+ToolSvc += ElectronPassLHLooseBL_v14
+print ElectronPassLHLooseBL_v14
+
+# decorate electrons with the output of LH medium V14
+ElectronPassLHMedium_v14 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHMedium_v14",
+																		EGammaSelectionTool = ElectronLHSelectorMedium_v14,
+																		EGammaFudgeMCTool = "",
+																		CutType = "",
+																		StoreGateEntryName = "DFCommonElectronsLHMedium_v14",
+																		ContainerName = "Electrons")
+ToolSvc += ElectronPassLHMedium_v14
+print ElectronPassLHMedium_v14
+
+# decorate electrons with the output of LH tight V14
+ElectronPassLHTight_v14 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHTight_v14",
+																	   EGammaSelectionTool = ElectronLHSelectorTight_v14,
+																	   EGammaFudgeMCTool = "",
+																	   CutType = "",
+																	   StoreGateEntryName = "DFCommonElectronsLHTight_v14",
+																	   ContainerName = "Electrons")
+ToolSvc += ElectronPassLHTight_v14
+print ElectronPassLHTight_v14
 
 
 # decorate electrons with the output of DNN ----------------------------------------------------------------------
@@ -402,6 +474,7 @@ ToolSvc += ElectronAmbiguity
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
+                       ElectronPassLHVeryLoose_v14, ElectronPassLHLoose_v14, ElectronPassLHLooseBL_v14, ElectronPassLHMedium_v14, ElectronPassLHTight_v14,
                        ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
                        ElectronPassDNNLoose, ElectronPassDNNMedium, ElectronPassDNNTight, ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight,
