@@ -180,12 +180,10 @@ def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
 
     return outfile, bgsOutFile
 
-
-# configuration of L1ConfigSvc
+# provide L1 config service in new JO
 @AccumulatorCache
-def getL1ConfigSvc( flags ):
-    # generate menu file (this only happens if we read from FILE)
-    generatedFile, generatedBgsFile = generateL1Menu( flags )
+def L1ConfigSvcCfg( flags ):
+    acc = ComponentAccumulator()
 
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure LVL1ConfigSvc" )
@@ -207,6 +205,7 @@ def getL1ConfigSvc( flags ):
         l1ConfigSvc.XMLMenuFile = l1XMLFile
         log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
         # Run 3 configuration
+        generatedFile, generatedBgsFile = generateL1Menu( flags )
         l1ConfigSvc.InputType = "file"
         l1ConfigSvc.JsonFileName = generatedFile
         l1ConfigSvc.JsonFileNameBGS = generatedBgsFile
@@ -220,12 +219,13 @@ def getL1ConfigSvc( flags ):
         l1ConfigSvc.BGSK = cfg["BGSK"]
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='DB', SMK %d, and BGSK %d", cfg['SMK'], cfg['BGSK']  )
 
-    return l1ConfigSvc
+    acc.addService( l1ConfigSvc, create=True )
+    return acc
 
-
-# configuration of HLTConfigSvc
+# provide HLT config service in new JO
 @AccumulatorCache
-def getHLTConfigSvc( flags ):
+def HLTConfigSvcCfg( flags ):
+    acc = ComponentAccumulator()
     cfg = getTrigConfigFromFlag( flags )
     log.info( "Configure HLTConfigSvc" )
 
@@ -249,30 +249,15 @@ def getHLTConfigSvc( flags ):
         hltConfigSvc.TriggerDB = cfg["DBCONN"]
         hltConfigSvc.SMK = cfg["SMK"]
         log.info( "For run 3 style menu access configured HLTConfigSvc with InputType='DB' and SMK %d", cfg['SMK'] )
-
-    return hltConfigSvc
-
-
-# provide L1 config service in new JO
-def L1ConfigSvcCfg( flags ):
-    acc = ComponentAccumulator()
-    l1ConfigSvc = getL1ConfigSvc( flags )
-    acc.addService( l1ConfigSvc, create=True )
-    return acc
-
-# provide HLT config service in new JO
-def HLTConfigSvcCfg( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.addService( getHLTConfigSvc( flags ), create=True )
+    acc.addService( hltConfigSvc, create=True )
     return acc
 
 # provide both services in new JO
 def TrigConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ), create=True )
-    acc.addService( getHLTConfigSvc( flags ), create=True )
+    acc.merge( L1ConfigSvcCfg( flags ) )
+    acc.merge( HLTConfigSvcCfg( flags ) )
     return acc
 
 def L1PrescaleCondAlgCfg( flags ):

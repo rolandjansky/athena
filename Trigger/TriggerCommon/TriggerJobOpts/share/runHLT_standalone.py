@@ -75,7 +75,7 @@ class opt:
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -524,8 +524,8 @@ if not opt.createHLTMenuExternally:
 
 
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
+from TrigConfigSvc.TrigConfigSvcCfg import HLTConfigSvcCfg
+CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
 # Tell the SGInputLoader about L1 and HLT menu in the DetectorStore
