@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -66,14 +66,14 @@ bool Trig::ExpertMethods::checkExperimentalAndExpertMethods() const {
 
 
 const TrigConf::TriggerItem*
-Trig::ExpertMethods::getItemConfigurationDetails(const std::string& chain) {
+Trig::ExpertMethods::getItemConfigurationDetails(const std::string& chain) const {
   if (!(checkExperimentalAndExpertMethods())) return 0;
   ATH_MSG_VERBOSE("getting L1 item configuration details for: " << chain);
   return cgm(true)->config_item(chain);
 }
 
 const TrigConf::HLTChain*
-Trig::ExpertMethods::getChainConfigurationDetails(const std::string& chain) {
+Trig::ExpertMethods::getChainConfigurationDetails(const std::string& chain) const {
   if (!(checkExperimentalAndExpertMethods())) return 0;
   ATH_MSG_VERBOSE("getting chain configuration details for: " << chain);
   return cgm(true)->config_chain(chain);

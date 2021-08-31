@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -71,7 +71,7 @@ TrigMatchTool::getConfiguredChainNames() const
 std::string TrigMatchTool::lowerChainName( const std::string& chainName ) const {
 
    // enable expert methods in tdt
-   Trig::ExpertMethods *em = m_trigDecisionTool->ExperimentalAndExpertMethods();
+   auto em = m_trigDecisionTool->ExperimentalAndExpertMethods();
    em->enable();
 
    const TrigConf::HLTChain *hltChain = em->getChainConfigurationDetails(chainName);

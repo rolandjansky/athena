@@ -18,40 +18,26 @@
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 
 
-static std::vector<std::string> s_instances;
+/// Number of TDT instances
+static std::atomic<int> s_instances = 0;
 
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name)
   : Logger(this)
   , asg::AsgMetadataTool(name)
-#ifndef XAOD_ANALYSIS
-  , m_fullNavigation("HLT::Navigation/Navigation", this)
-#endif
 {
 #ifdef XAOD_ANALYSIS
-  m_navigation = new HLT::StandaloneNavigation();
-#endif
-
-  //full Athena env
-#ifndef XAOD_ANALYSIS
-   declareProperty( "Navigation", m_fullNavigation);
-   m_navigation = &*m_fullNavigation;
+  m_navigation = &m_standaloneNavigation;
+#else  //full Athena env
+  m_navigation = &*m_fullNavigation;
 #endif
 }
 
-Trig::TrigDecisionTool::~TrigDecisionTool() {
-#ifdef XAOD_ANALYSIS
-  if(m_navigation){
-    delete m_navigation;
-  }
-#endif
-}
 
 StatusCode
 Trig::TrigDecisionTool::initialize() {
@@ -72,13 +58,15 @@ Trig::TrigDecisionTool::initialize() {
    ATH_CHECK(m_navigationKey.initialize(m_navigationFormat == "TriggerElement"));
    ATH_CHECK(m_decisionKey.initialize());
 
-   s_instances.push_back(name());
-   if ( s_instances.size() > 1) {
-     ATH_MSG_WARNING("Several TrigDecisionTool instances" );
-     ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );
+   ++s_instances;
+   if ( s_instances > 1) {
+     ATH_MSG_WARNING("Multiple TrigDecisionTool instances created. "
+                     "This is not efficent from performance perspective. "
+                     "Access of the same EDM objects will give warnings." );
      if (!m_acceptMultipleInstance){
-       ATH_MSG_ERROR("Will not accept multiple instances. If you really want to have some, use 'AcceptMultipleInstance' property" );
-	     return StatusCode::FAILURE;
+       ATH_MSG_ERROR("Will not accept multiple instances. "
+                     "Set 'AcceptMultipleInstance' to overwrite this behavior.");
+       return StatusCode::FAILURE;
      }
    }
 
@@ -154,8 +142,10 @@ std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
 
 void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  std::atomic<bool>* ab = m_forceConfigUpdate.get();
-  (*ab) = b;
+  {
+    std::atomic<bool>* ab = m_forceConfigUpdate.get();
+    (*ab) = b;
+  }
   if (forceForAllSlots) {
     for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
       EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
@@ -298,15 +288,9 @@ Trig::TrigDecisionTool::finalize() {
    // release all chaingroups
    m_navigation->reset(true);
 
-   auto it = std::find(s_instances.begin(), s_instances.end(), name());
-   if(it != s_instances.end()){
-     s_instances.erase(it);
-   }
-   else{
-      ATH_MSG_ERROR("could not find instance name in instance list, but must have been added in ::initialize(). Name: " << name());
-      return StatusCode::FAILURE;
-   }
-   ATH_MSG_INFO("TDT finalized and removed from instance list");
+   --s_instances;
+
+   ATH_MSG_INFO("Finalized");
    return StatusCode::SUCCESS;
 }
 

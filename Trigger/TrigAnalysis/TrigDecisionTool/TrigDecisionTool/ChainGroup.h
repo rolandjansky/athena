@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CHAIN_GROUP_H
@@ -58,6 +58,10 @@ namespace Trig {
      friend class CacheGlobalMemory;
 
    public:
+
+      ChainGroup(const std::vector< std::string >& triggerNames,
+                 const Trig::CacheGlobalMemory& parent);
+      ~ChainGroup() = default;
 
       typedef std::vector<std::string>::const_iterator const_iterator;
       const Trig::ChainGroup& operator+(const Trig::ChainGroup& rhs);
@@ -140,12 +144,6 @@ namespace Trig {
       // 
       const std::vector< std::string >& patterns() const {return m_patterns;}
    private:
-
-      // constructor
-      ChainGroup(const std::vector< std::string >& triggerNames,
-                 const Trig::CacheGlobalMemory& parent);
-      // 
-      ~ChainGroup();
 
       bool  isCorrelatedL1items(const std::string& item) const;
       float correlatedL1Prescale(const std::string& item) const;

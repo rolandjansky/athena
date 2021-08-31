@@ -16,14 +16,13 @@
  *
  ***********************************************************************************/
 
-#include<iterator>
 #include<vector>
-#include<list>
 #include<set>
 #include<map>
 #include<unordered_map>
 #include<string>
 #include<mutex>
+#include<memory>
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTChainList.h"
@@ -32,6 +31,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 
 #include "TrigSteeringEvent/Chain.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
@@ -53,7 +53,6 @@ namespace HLT {
 }
 
 namespace LVL1CTP {
-  class Lvl1Item;
   class Lvl1Result;
 }
 
@@ -68,12 +67,8 @@ namespace Trig {
 
   public:
     // constructors, destructor
-    CacheGlobalMemory();
-    ~CacheGlobalMemory();
-
-    /**
-     * @brief
-     **/
+    CacheGlobalMemory() = default;
+    ~CacheGlobalMemory() = default;
 
     /**
      * @brief creates new chain group
@@ -134,9 +129,7 @@ namespace Trig {
      **/
     bool assert_decision();
 
-    void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
-    Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
-
+    Trig::IDecisionUnpacker* unpacker(){ return m_unpacker.get(); }
 
     /// Set the event store to be used by the object
     void setStore( EventPtr_t store ) { m_store = store; }
@@ -177,25 +170,24 @@ namespace Trig {
     /**
      * @brief unpacks everything that belongs to a ChainGroup
      **/
-    void updateChainGroup(Trig::ChainGroup* chainGroup, const bool parseAsRegex = true);
+    void updateChainGroup(Trig::ChainGroup& chainGroup, const bool parseAsRegex = true);
 
     //
     // Data members
     //
 
     /// Pointer to the event store in use
-    EventPtr_t m_store;
+    EventPtr_t m_store{nullptr};
 
     /// Trigger decision unpacker helper
-    IDecisionUnpacker* m_unpacker;
+    std::unique_ptr<IDecisionUnpacker> m_unpacker;
 
     // Navigation owned by CGM
-    HLT::TrigNavStructure* m_navigation;
+    HLT::TrigNavStructure* m_navigation{nullptr};
 
     // chain groups
-    typedef std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator ChGrIt;
-    std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroups;     //!< primary storage for chain groups
-    std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef;  //!< this map keeps the chain group more than once i.e. when alias is given
+    std::map< std::vector< std::string >, Trig::ChainGroup > m_chainGroups;     //!< primary storage for chain groups
+    std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef; //!< this map keeps the chain group more than once i.e. when alias is given
 
     //    std::map<CTPID, const LVL1CTP::Lvl1Item*>          m_items;    //!< items keyed by id (changing every event)
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
@@ -207,31 +199,31 @@ namespace Trig {
 
     typedef unsigned CTPID;
     typedef unsigned CHAIN_COUNTER;
-    std::map<CTPID, LVL1CTP::Lvl1Item*>  m_itemsCache;               //!< cache of all CTP items possible (given configuration)
-    std::map<CHAIN_COUNTER, HLT::Chain*> m_l2chainsCache;            //!< cache of all L2 chains possible (given configuration)
-    std::map<CHAIN_COUNTER, HLT::Chain*> m_efchainsCache;            //!< cache of all EF chains possible (given configuration)
+    std::map<CTPID, LVL1CTP::Lvl1Item>  m_itemsCache;               //!< cache of all CTP items possible (given configuration)
+    std::map<CHAIN_COUNTER, HLT::Chain> m_l2chainsCache;            //!< cache of all L2 chains possible (given configuration)
+    std::map<CHAIN_COUNTER, HLT::Chain> m_efchainsCache;            //!< cache of all EF chains possible (given configuration)
 
     std::map<std::string, std::vector<std::string> > m_groups;          //!< mapping from group to list of chains
     std::map<std::string, std::vector<std::string> > m_streams;         //!< mapping from stream to list of chains
 
-    const TrigConf::ItemContainer* m_confItems;             //!< items configuration
-    const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
-    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
+    const TrigConf::ItemContainer* m_confItems{nullptr};             //!< items configuration
+    const TrigConf::HLTChainList*  m_confChains{nullptr};            //!< all chains configuration
+    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer{nullptr};
 
-    SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr{nullptr}; //!< Parent TDT's read handle key
 
 #ifndef XAOD_ANALYSIS // Full Athena
-    SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecisionKeyPtr; //!< Parent TDT's read handle key
-    SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecisionKeyPtr{nullptr}; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr{nullptr}; //!< Parent TDT's read handle key
 #endif
 
-    SG::ReadHandleKey<xAOD::TrigNavigation>* m_run2NavigationKeyPtr; //!< Parent TDT's read handle key
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* m_run3NavigationKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<xAOD::TrigNavigation>* m_run2NavigationKeyPtr{nullptr}; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* m_run3NavigationKeyPtr{nullptr}; //!< Parent TDT's read handle key
 
     typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains
 
-    char     m_bgCode; //!< the encoded bunchgroup information
+    char     m_bgCode{0}; //!< the encoded bunchgroup information
 
 
     class AnyTypeDeleter {
