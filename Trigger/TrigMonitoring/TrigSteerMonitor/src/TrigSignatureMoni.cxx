@@ -642,7 +642,7 @@ void TrigSignatureMoni::RateHistogram::startTimer(unsigned int duration, unsigne
 
 void TrigSignatureMoni::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_timer.reset();
+    m_timer->stop();
     time_t t = time(0);
     unsigned int interval;
     unsigned int duration = m_timeDivider->forcePassed(t, interval);
