@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSECTORMAPPING_H
@@ -49,19 +49,18 @@ namespace Muon {
   private:
 
 
-    static double m_oneEightsOfPi;  //  pi/8
-    static double m_inverseOneEightsOfPi;  // 8/pi
-    static double m_sectorSize[2]; // side of a sector in radiants 
-    static double m_sectorOverlap; // size of the overlap between small and large sectors
-    static bool m_debug; // if true addition cout is enabled
+    static const double s_oneEighthsOfPi;  //  pi/8
+    static const double s_inverseOneEighthsOfPi;  // 8/pi
+    static const double s_sectorSize[2]; // side of a sector in radiants 
+    static const double s_sectorOverlap; // size of the overlap between small and large sectors
   };
 
   inline double MuonSectorMapping::sectorSize( int sector ) const {
-    return m_sectorSize[sector%2];
+    return s_sectorSize[sector%2];
   }
 
   inline double MuonSectorMapping::sectorWidth( int sector ) const {
-    return sectorSize(sector) + m_sectorOverlap;
+    return sectorSize(sector) + s_sectorOverlap;
   }
 
   inline bool MuonSectorMapping::insideSector( int sector, double phi ) const {
@@ -79,7 +78,7 @@ namespace Muon {
 
   inline int MuonSectorMapping::getSector( double phi ) const {
     // remap phi onto sector structure
-    double val = (phi+sectorSize(1))*m_inverseOneEightsOfPi; // convert to value between -8 and 8, shift by width first sector
+    double val = (phi+sectorSize(1))*s_inverseOneEighthsOfPi; // convert to value between -8 and 8, shift by width first sector
     if( val < 0 ) val += 16;
     int    sliceIndex = static_cast<int>(val/2); // large/small wedge
     double valueInSlice = val-2*sliceIndex;
@@ -121,7 +120,7 @@ namespace Muon {
       s1 = 16;
       s2 = 1;
     }else if( std::abs(s1-s2) > 1 ){
-      if( m_debug ) std::cout << " bad sector combination: not neighbouring " << s1 << "   " << s2 << std::endl;
+      //std::cout << " bad sector combination: not neighbouring " << s1 << "   " << s2 << std::endl;
       return 0;
     }
 
@@ -134,10 +133,10 @@ namespace Muon {
 
   inline double MuonSectorMapping::transformRToSector( double r, double phi, int sector, bool toSector ) const {
     double dphi = transformPhiToSector(phi,sector); 
-    if( fabs(dphi) > 0.3 && m_debug ){ 
-      std::cout << " large dphi detected!!: phi " << phi 
-                << " sector " << sector << " phi "  << sectorPhi(sector) << " " << phi << " dphi " << dphi << std::endl; 
-    } 
+    //if( fabs(dphi) > 0.3 ){ 
+    //  std::cout << " large dphi detected!!: phi " << phi 
+    //            << " sector " << sector << " phi "  << sectorPhi(sector) << " " << phi << " dphi " << dphi << std::endl; 
+    //} 
     if( toSector ) return r*cos(dphi); 
     else           return r/cos(dphi); 
   } 
@@ -152,10 +151,10 @@ namespace Muon {
     double phi_sec = sectorPhi(sector);
     double dphi = phio-phi_sec;
     if( dphi < -M_PI ) dphi += 2* M_PI;
-    if( fabs(dphi) > 0.3 && m_debug ){
-      std::cout << " large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
-                << " hit " << phi << " dphi " << dphi << std::endl;
-    }
+    //if( fabs(dphi) > 0.3 ){
+    //  std::cout << " large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
+    //            << " hit " << phi << " dphi " << dphi << std::endl;
+    //}
     return redge*cos(dphi);
   }
 
