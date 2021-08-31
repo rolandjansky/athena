@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CACHE_GLOBAL_MEMORY_H
@@ -35,7 +35,6 @@
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "AsgMessaging/AsgMessaging.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
 
@@ -66,8 +65,6 @@ namespace Trig {
   class ChainGroup;
 
   class CacheGlobalMemory : public virtual Logger {
-
-  using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
 
   public:
     // constructors, destructor

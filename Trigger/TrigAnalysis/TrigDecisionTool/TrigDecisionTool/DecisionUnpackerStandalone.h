@@ -1,15 +1,11 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 #ifndef TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
 #define TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
-
-// ASG include(s):
-#include "AsgMessaging/AsgMessaging.h"
 
 // Trigger configuration include(s):
 #include "TrigConfHLTData/HLTChain.h"

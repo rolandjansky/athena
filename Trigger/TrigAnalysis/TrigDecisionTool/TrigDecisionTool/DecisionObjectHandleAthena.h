@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,25 +11,19 @@
 #ifndef TrigDecisionTool_DecisionObjectHandleAthena_h
 #define TrigDecisionTool_DecisionObjectHandleAthena_h
 
-#include <string>
-#include "StoreGate/DataHandle.h"
-
-
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionEvent/TrigDecision.h"
-#include "AsgMessaging/AsgMessaging.h"
 
+#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 
-
-class StoreGateSvc;
+#include <string>
 
 namespace TrigDec {
   class TrigDecision;
 }
-
 
 namespace Trig {
   /**

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from Gaudi.Configuration import *
 
 # Run Three Offline Trigger Checker
@@ -25,6 +25,7 @@ svcMgr += cvgsvc
 
 tdt = Trig__TrigDecisionTool('TrigDecisionTool')
 tdt.TrigConfigSvc = cvgsvc
+tdt.OutputLevel = Level
 tdt.NavigationFormat = "TrigComposite"
 ToolSvc += tdt
 
