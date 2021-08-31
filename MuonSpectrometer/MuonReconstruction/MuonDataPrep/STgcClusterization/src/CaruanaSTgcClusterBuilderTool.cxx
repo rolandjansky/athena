@@ -107,10 +107,20 @@ StatusCode Muon::CaruanaSTgcClusterBuilderTool::getClusters(std::vector<Muon::sT
           elementsIdentifier.push_back(it.identify());
         }
 
-        // If the cluster is a cluster of pads or wires, use the default weighted mean method to compute the reconstructed postion. If it is a cluster of strips, we use the Caruana method of fitting a Gaussian to the distribution
+        // If the cluster is a cluster of pads or wires, use the default weighted mean method to compute the reconstructed postion. If it is a cluster of strips (with multiplicity >= 3), we use the Caruana method of fitting a Gaussian to the distribution
         bool caruanaFail = false;   // If the Caruana method fails at some point this is changed to true and the reconstruction reverts to the weighted mean method
-        double sigmaSq = 0.0;
+
+        // If it is a strip cluster, make sure there are 3 or more strips with non-zero charge, otherwise revert to the weighted mean method
         if (isStrip){
+          int multiplicity = 0;
+          for (auto stripCharge : elementsCharge){
+            if (stripCharge > 0) multiplicity += 1;
+          }
+          if (multiplicity < 3) caruanaFail = true;
+        }
+
+        double sigmaSq = 0.0;
+        if (isStrip && !caruanaFail){
           // Here we implement the Caruana method to reconstruct the position of the cluster
           AmgSymMatrix(3) elementPosMatrix;
           for (int i=0; i<3; i++){
