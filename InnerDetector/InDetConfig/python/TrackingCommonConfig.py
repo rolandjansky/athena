@@ -398,8 +398,18 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     acc.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name = the_name, **kwargs))
     return acc
 
-def InDetPixelToTPIDToolCfg(name = "InDetPixelToTPIDTool", **kwargs):
+def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
+    PixeldEdxAlg = CompFactory.PixeldEdxAlg(name=name, ReadFromCOOL = True, **kwargs)
+    acc.addCondAlgo(PixeldEdxAlg)
+    return acc
+
+def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
+    acc = ComponentAccumulator()
+
+    acc.merge(PixeldEdxAlg(flags))
+
     the_name = makeName( name, kwargs)
     InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name = the_name, **kwargs)
     acc.setPrivateTools(InDetPixelToTPIDTool)
@@ -428,7 +438,7 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
 def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', **kwargs):
     acc = ComponentAccumulator()
     if 'PixelToTPIDTool' not in kwargs :
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg())
+        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
         acc.addPublicTool(InDetPixelToTPIDTool)
         kwargs.setdefault("PixelToTPIDTool", InDetPixelToTPIDTool)
 
@@ -481,8 +491,23 @@ def InDetTRT_LocalOccupancyCfg(flags, name ="InDet_TRT_LocalOccupancy", **kwargs
         kwargs.setdefault( "TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool )
 
     kwargs.setdefault("isTrigger", False)
+
+    from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg # this will be moved somewhere else so this import will need adjustment
+    acc.merge( TRTStrawCondAlgCfg(flags) )
+
     InDetTRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy(name=the_name, **kwargs )
     acc.setPrivateTools(InDetTRT_LocalOccupancy)
+    return acc
+
+def TRTToTCondAlgCfg(flags, name = "TRTToTCondAlg", **kwargs):
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className='CondAttrListCollection'))
+
+    TRTToTCondAlg = CompFactory.TRTToTCondAlg(  name        = name,
+                                               ToTWriteKey = "Dedxcorrection",
+                                                **kwargs)
+    acc.addCondAlgo(TRTToTCondAlg)
     return acc
 
 def InDetTRT_dEdxToolCfg(flags, name = "InDetTRT_dEdxTool", **kwargs):
@@ -499,9 +524,17 @@ def InDetTRT_dEdxToolCfg(flags, name = "InDetTRT_dEdxTool", **kwargs):
         InDetTRT_LocalOccupancy = acc.popToolsAndMerge(InDetTRT_LocalOccupancyCfg(flags))
         kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
 
+    acc.merge(TRTToTCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.TRT_ToT_dEdx(name = the_name, **kwargs))
     return acc
 
+def TRTHTCondAlg(flags, name = "TRTHTCondAlg", **kwargs):
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className='CondAttrListVec'))
+    TRTHTCondAlg = CompFactory.TRTHTCondAlg(name = name, HTWriteKey = "HTcalculator", **kwargs)
+    acc.addCondAlgo(TRTHTCondAlg)
+    return acc
+    
 def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwargs):
     acc = ComponentAccumulator()
     the_name = makeName( name, kwargs)
@@ -531,6 +564,7 @@ def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwar
 
     kwargs.setdefault( "CalculateNNPid", False) #TODO fixme once the flag is there flags.InDet.doTRTPIDNN)
 
+    acc.merge(TRTHTCondAlg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_ElectronPidToolRun2(name = the_name, **kwargs))
     return acc
 
@@ -559,7 +593,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         kwargs.setdefault("TRT_ElectronPidTool", InDetTRT_ElectronPidTool)
 
     if 'PixelToTPIDTool' not in kwargs :
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg())
+        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
         acc.addPublicTool(InDetPixelToTPIDTool)
         kwargs.setdefault( "PixelToTPIDTool", InDetPixelToTPIDTool)
 
