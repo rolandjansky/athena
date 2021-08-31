@@ -55,10 +55,15 @@ Trk::DetachedTrackingVolume::~DetachedTrackingVolume() {
 void Trk::DetachedTrackingVolume::move ATLAS_NOT_THREAD_SAFE(
     Amg::Transform3D& shift) const {
   m_trkVolume->moveTV(shift);
-  if (m_layerRepresentation) m_layerRepresentation->moveLayer(shift);
-  if (m_multilayerRepresentation)
-    for (unsigned int i = 0; i < m_multilayerRepresentation->size(); i++)
-      (*m_multilayerRepresentation)[i]->moveLayer(shift);
+  if (m_layerRepresentation){
+    (const_cast<Trk::Layer*>(m_layerRepresentation))->moveLayer(shift);
+  }
+  if (m_multilayerRepresentation) {
+    for (unsigned int i = 0; i < m_multilayerRepresentation->size(); i++) {
+      (const_cast<Trk::Layer*>((*m_multilayerRepresentation)[i]))->moveLayer(
+        shift);
+    }
+  }
 }
 
 const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone
@@ -67,7 +72,7 @@ ATLAS_NOT_THREAD_SAFE(const std::string& name, Amg::Transform3D& shift) const {
       new TrackingVolume(*(this->trackingVolume()), shift);
   Trk::DetachedTrackingVolume* newStat = nullptr;
   // layer representation ?
-  const Trk::PlaneLayer* newLay = nullptr;
+  Trk::PlaneLayer* newLay = nullptr;
   if (this->layerRepresentation()) {
     std::vector<const Trk::Layer*>* newMulti = nullptr;
     const Trk::PlaneLayer* pl =
@@ -82,7 +87,7 @@ ATLAS_NOT_THREAD_SAFE(const std::string& name, Amg::Transform3D& shift) const {
           const Trk::PlaneLayer* mpl = dynamic_cast<const Trk::PlaneLayer*>(
               (*(this->multilayerRepresentation()))[i]);
           if (mpl) {
-            const Trk::PlaneLayer* newPl = new Trk::PlaneLayer(*mpl);
+            Trk::PlaneLayer* newPl = new Trk::PlaneLayer(*mpl);
             newPl->moveLayer(shift);
             newMulti->push_back(newPl);
           } else
