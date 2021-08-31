@@ -61,16 +61,16 @@ private:
 			   const float&, const int, xAOD::TrigCompositeContainer*, int&) const;
 
    // BDT
-   SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_n_track_qual ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly2_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly3_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly4_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
-   SG::SlotSpecificObj<float> m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_n_track_qual ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly2_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly3_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly4_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
 }; 
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H

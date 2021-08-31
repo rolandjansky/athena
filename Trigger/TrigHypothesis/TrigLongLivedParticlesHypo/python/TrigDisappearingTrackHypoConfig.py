@@ -1,22 +1,19 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TrigLongLivedParticlesHypo.TrigDisapperingTrackTriggerHypoTool")
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+def createTrigDisappearingTrackHypoAlg(name):
+    # make the Hypo
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigDisappearingTrackHypoAlg)
 
+    # Setup the hypothesis algorithm
+    theDisTrkHypo = TrigDisappearingTrackHypoAlg(name)
+    
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    theDisTrkHypo.DisTrkBDTSel = recordable("HLT_DisTrkBDTSel")
 
-log = logging.getLogger('TrigDisappearingTrackTriggerHypoTool')
-
-def TrigDisappearingTrackTriggerHypoToolFromDict( chainDict ):
-    """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in chainDict['chainParts'] if i['signature']=='UnconventionalTracking']
-    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
-
-    name = chainDict['chainName']
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigDisappearingTrackTriggerHypoTool(name)
-
+    # monioring
     monTool = GenericMonitoringTool("IM_MonTool"+name)
     monTool.defineHistogram('category',            type='TH1F', path='EXPERT', title="DisTrk Category;DisTrk Category;Nevents", xbins=5, xmin=-0.5, xmax=4.5) 
     #
@@ -77,8 +74,25 @@ def TrigDisappearingTrackTriggerHypoToolFromDict( chainDict ):
     monTool.defineHistogram('pix3_sct1p_refit_chi2ndof',type='TH1F', path='EXPERT', title="Pix3Sct1p refit #chi^{2}/ndof;refit #chi^{2}/ndof;Nevents", xbins=50, xmin=0, xmax=10) 
     monTool.defineHistogram('pix3_sct1p_bdtscore', type='TH1F', path='EXPERT', title="Pix3lSct1p BDT score;BDT score;Nevents", xbins=50, xmin=-1, xmax=1) 
     #
-    monTool.HistPath = 'disappearingTrackTriggerHypoAlg/'+tool.getName()
-    tool.MonTool = monTool
+    monTool.HistPath = 'disappearingTrackHypoAlg'
+    theDisTrkHypo.MonTool = monTool
+
+    return theDisTrkHypo
+
+
+def TrigDisappearingTrackHypoToolFromDict( chainDict ):
+
+    log = logging.getLogger('TrigDisappearingTrackHypoTool')
+
+    """ Use menu decoded chain dictionary to configure the tool """
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='UnconventionalTracking']
+    thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
+
+    name = chainDict['chainName']
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tool = CompFactory.TrigDisappearingTrackHypoTool(name)
+
+    # set thresholds
 
     strThr = ""
 
@@ -122,7 +136,7 @@ def TrigDisappearingTrackTriggerHypoToolFromDict( chainDict ):
     return tool
 
 
-def TrigDisappearingTrackTriggerHypoToolFromName( name, conf ):
+def TrigDisappearingTrackHypoToolFromName( name, conf ):
     """ provides configuration of the hypo tool given the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
@@ -130,11 +144,4 @@ def TrigDisappearingTrackTriggerHypoToolFromName( name, conf ):
     
     decodedDict = dictFromChainName(conf)
     
-    return TrigDisappearingTrackTriggerHypoToolFromDict( decodedDict )
-    
-    
-    
-if __name__ == "__main__":
-    tool = TrigDisappearingTrackTriggerHypoToolFromName("HLT_unconvtrk20_dedx_medium_L1XE50", "HLT_unconvtrk20_dedx_medium_L1XE50")
-    assert tool, "Not configured simple tool"
-    log.debug("ALL OK")
+    return TrigDisappearingTrackHypoToolFromDict( decodedDict )

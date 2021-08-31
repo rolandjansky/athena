@@ -110,18 +110,6 @@ BTagVars = '.'.join(BTagOutput)
 BTagJetOutput = ['btaggingLink', 'Jvt', 'JVFCorr', 'SumPtTrkPt500']
 BTagJetVars  ='.'.join(BTagJetOutput)
 
-hitDVTrkToKeepBase = ['id','pt','eta','phi','n_hits_innermost','n_hits_pix','n_hits_sct','a0beam']
-hitDVTrkToKeep = []
-for var in hitDVTrkToKeepBase:
-    hitDVTrkToKeep.append('hitDVTrk_'+var)
-hitDVTrkVars = '.'.join(hitDVTrkToKeep)
-
-hitDVSPToKeepBase = ['eta','r','phi','layer','isPix','isSct','usedTrkId']
-hitDVSPToKeep = []
-for var in hitDVSPToKeepBase:
-    hitDVSPToKeep.append('hitDVSP_'+var)
-hitDVSPVars = '.'.join(hitDVSPToKeep)
-
 hitDVToKeepBase = ['seed_eta','seed_phi','seed_type','n_track_qual','ly0_sp_frac','ly1_sp_frac','ly2_sp_frac','ly3_sp_frac','ly4_sp_frac','ly5_sp_frac','ly6_sp_frac','ly7_sp_frac','bdt_score']
 hitDVToKeep = []
 for var in hitDVToKeepBase:
@@ -140,7 +128,8 @@ for var in dEdxHitToKeepBase:
     dEdxHitToKeep.append('dEdxHit_'+var)
 dEdxHitVars = '.'.join(dEdxHitToKeep)
 
-HPtdEdxTrkToKeepBase = ['pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
+HPtdEdxTrkToKeepBase = ['pt','eta','phi','a0beam','dedx','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
+                        'n_hdedx_hits_1p45','n_hdedx_hits_1p50','n_hdedx_hits_1p55','n_hdedx_hits_1p60','n_hdedx_hits_1p65','n_hdedx_hits_1p70','n_hdedx_hits_1p75','n_hdedx_hits_1p80']
 HPtdEdxTrkToKeep = []
 for var in HPtdEdxTrkToKeepBase:
     HPtdEdxTrkToKeep.append('HPtdEdxTrk_'+var)
@@ -153,7 +142,7 @@ DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost'
                      'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4',
                      'n_brhits_good_ibl','n_brhits_good_pix1','n_brhits_good_pix2','n_brhits_good_pix3',
                      'n_brhits_good_sct1','n_brhits_good_sct2','n_brhits_good_sct3','n_brhits_good_sct4']
-DisTrkToKeepIso = ['iso1_dr01','iso1_dr02','iso1_dr04','iso2_dr01','iso2_dr02','iso2_dr04','iso3_dr01','iso3_dr02','iso3_dr04']
+DisTrkToKeepIso = ['category','is_fail','iso1_dr01','iso1_dr02','iso1_dr04','iso2_dr01','iso2_dr02','iso2_dr04','iso3_dr01','iso3_dr02','iso3_dr04']
 DisTrkVars = []
 for var in DisTrkToKeepNoIso:
     DisTrkVars.append('disTrkCand_'+var)
@@ -787,11 +776,6 @@ TriggerHLTListRun3 = [
 
     # UTT
     # hit-based displaced vertex
-    # commented out temporarly due to HLT truncation issue (ATR-23958)
-    #('xAOD::TrigCompositeContainer#HLT_HitDVTrk',                          'BS ESD', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVTrkAux.'+hitDVTrkVars,      'BS ESD', 'ID'),
-    #('xAOD::TrigCompositeContainer#HLT_HitDVSP',                           'BS ESD AODFULL', 'ID'),
-    #('xAOD::TrigCompositeAuxContainer#HLT_HitDVSPAux.'+hitDVSPVars,        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrigCompositeContainer#HLT_HitDV',                             'BS ESD AODFULL AODSLIM', 'ID'),
     ('xAOD::TrigCompositeAuxContainer#HLT_HitDVAux.'+hitDVVars,            'BS ESD AODFULL AODSLIM', 'ID'),
 
