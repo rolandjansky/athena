@@ -63,9 +63,8 @@ def getPixelPhysicsRegionTool(name='PixelPhysicsRegionTool', **kwargs):
 
 def getSCTPhysicsRegionTool(name='SCTPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'SCT')
-    volumeList = ['SCT::BRLSensor', 'SCT::BRLSensorSS', 'SCT::BRLSensorMS',
-                   'SCT::ECSensor0', 'SCT::ECSensor1', 'SCT::ECSensor2',
-                   'SCT::ECSensor3', 'SCT::ECSensor4', 'SCT::ECSensor5']
+    volumeList = ['SCT::BRLSensor','SCT::ECSensor0', 'SCT::ECSensor1', 
+                  'SCT::ECSensor2','SCT::ECSensor3']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
