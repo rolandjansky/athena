@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_RPCCONDITIONPAR_H
@@ -23,7 +23,7 @@ class RpcConditionPar{
   Identifier  identify()      {return m_panel;}
   //std::string key()           {return m_stationKey;}
 
-  void setParametersPanel(std::string info_panel, std::string info_strip);
+  void setParametersPanel(const std::string& info_panel, const std::string& info_strip);
 
   void getParametersPanel(std::string& info_panel, std::string& info_strip);
   
