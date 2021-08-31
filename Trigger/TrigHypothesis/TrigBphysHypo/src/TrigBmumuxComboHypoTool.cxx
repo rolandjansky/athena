@@ -37,7 +37,8 @@ bool TrigBmumuxComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
   auto mon_fitmass = Monitored::Scalar<float>("Fitmass", -1.);
   auto mon_mass = Monitored::Scalar<float>("Mass", -1.);
   auto mon_pt = Monitored::Scalar<float>("Pt", -1.);
-  auto group = Monitored::Group(m_monTool, mon_chi2, mon_fitmass, mon_mass, mon_pt);
+  auto mon_eta = Monitored::Scalar<float>("Eta", -100.);
+  auto group = Monitored::Group(m_monTool, mon_chi2, mon_fitmass, mon_mass, mon_pt, mon_eta);
 
   ATH_MSG_DEBUG( "in TrigBmumuxComboHypoTool::decideOnSingleObject(), looking at TrigBphys object");
 
@@ -53,6 +54,7 @@ bool TrigBmumuxComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
     mon_fitmass = trigBphys->fitmass();
     mon_mass = trigBphys->mass();
     mon_pt = trigBphys->pt();
+    mon_eta = trigBphys->eta();
   }
 
   return result;

@@ -465,14 +465,20 @@ StatusCode TrigMultiTrkComboHypo::findDiTrackCandidates(TrigMultiTrkStateCand<T>
   std::vector<float> trkMassBeforeFit;
   std::vector<float> bphysMass;
   std::vector<float> d0track1, d0track2;
+  std::vector<float> pttrack1, pttrack2;
+  std::vector<float> etatrack1, etatrack2;
   std::vector<int> bphysCharge;
   auto mon_trkMassBeforeFit = Monitored::Collection("trkMassBeforeFit", trkMassBeforeFit);
   auto mon_bphysChi2 = Monitored::Collection("bphysChi2", *state.trigBphysCollection, &xAOD::TrigBphys::fitchi2);
   auto mon_bphysLxy = Monitored::Collection("bphysLxy", *state.trigBphysCollection, &xAOD::TrigBphys::lxy);
   auto mon_bphysFitMass = Monitored::Collection("bphysFitMass", *state.trigBphysCollection, [](const xAOD::TrigBphys* x){ return x->fitmass()*0.001; });
   auto mon_bphysMass = Monitored::Collection("bphysMass", bphysMass);
-  auto mon_d0track1 = Monitored::Collection("d0track1", d0track1);
-  auto mon_d0track2 = Monitored::Collection("d0track2", d0track2);
+  auto mon_d0track1 = Monitored::Collection("bphysd0_trk1", d0track1);
+  auto mon_d0track2 = Monitored::Collection("bphysd0_trk2", d0track2);
+  auto mon_pttrack1 = Monitored::Collection("bphysPt_trk1", pttrack1);
+  auto mon_pttrack2 = Monitored::Collection("bphysPt_trk2", pttrack2);
+  auto mon_etatrack1 = Monitored::Collection("bphysEtatrack1", etatrack1);
+  auto mon_etatrack2 = Monitored::Collection("bphysEtatrack2", etatrack2);
   auto mon_bphysCharge = Monitored::Collection("bphysCharge", bphysCharge);
 
   auto mon_timer = Monitored::Timer( "TIME_all" );
@@ -480,7 +486,7 @@ StatusCode TrigMultiTrkComboHypo::findDiTrackCandidates(TrigMultiTrkStateCand<T>
   auto group = Monitored::Group(m_monTool,
     mon_nAcceptedTrk, mon_nCombination, mon_nCombinationBeforeFit, mon_nBPhysObject,
     mon_trkMassBeforeFit, mon_bphysChi2, mon_bphysLxy, mon_bphysFitMass, mon_bphysMass, mon_bphysCharge, mon_d0track1, mon_d0track2,
-    mon_timer);
+    mon_timer, mon_pttrack1, mon_pttrack2, mon_etatrack1, mon_etatrack2);
 
   if (legs.size() < m_nTrk) {
     ATH_MSG_DEBUG( "Could not build a subset of " << m_nTrk.value() << " legs from collection which contains only " << legs.size() << " objects" );
@@ -549,6 +555,10 @@ StatusCode TrigMultiTrkComboHypo::findDiTrackCandidates(TrigMultiTrkStateCand<T>
     bphysCharge.push_back(charge);
     d0track1.push_back((*tracklist[0])->d0());
     d0track2.push_back((*tracklist[1])->d0());
+    pttrack1.push_back((*tracklist[0])->pt() * 0.001);
+    pttrack2.push_back((*tracklist[1])->pt() * 0.001);
+    etatrack1.push_back((*tracklist[0])->eta());
+    etatrack2.push_back((*tracklist[1])->eta());
 
   } while (std::prev_permutation(leptonTags.begin(), leptonTags.end()));
 
