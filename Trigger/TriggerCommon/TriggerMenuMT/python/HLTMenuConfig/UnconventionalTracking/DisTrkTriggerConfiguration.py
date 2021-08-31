@@ -8,14 +8,11 @@ log = logging.getLogger(__name__)
 
 
 def DisTrkTriggerHypoSequence():
-        from TrigLongLivedParticlesHypo.TrigDisappearingTrackTriggerHypoTool import  TrigDisappearingTrackTriggerHypoToolFromDict
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf       import (TrigDisappearingTrackTriggerHypoAlg)
 
-        # Setup the hypothesis algorithm
-        theDisTrkTrackTriggerHypo = TrigDisappearingTrackTriggerHypoAlg("DisTrkTrack")
+        from TrigLongLivedParticlesHypo.TrigDisappearingTrackHypoConfig import TrigDisappearingTrackHypoToolFromDict
+        from TrigLongLivedParticlesHypo.TrigDisappearingTrackHypoConfig import createTrigDisappearingTrackHypoAlg
 
-        from TrigEDMConfig.TriggerEDMRun3 import recordable
-        theDisTrkTrackTriggerHypo.DisTrkBDTSel = recordable("HLT_DisTrkBDTSel")
+        theDisTrkHypo = createTrigDisappearingTrackHypoAlg("DisTrkTrack")
 
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.ComponentFactory import CompFactory
@@ -25,6 +22,6 @@ def DisTrkTriggerHypoSequence():
         log.debug("Building the Step dictinary for DisTrk")
         return MenuSequence( Sequence    = seqAND("DisTrkEmptyStep",[DummyInputMakerAlg]),
                              Maker       = DummyInputMakerAlg,
-                             Hypo        = theDisTrkTrackTriggerHypo,
-                             HypoToolGen = TrigDisappearingTrackTriggerHypoToolFromDict,
+                             Hypo        = theDisTrkHypo,
+                             HypoToolGen = TrigDisappearingTrackHypoToolFromDict,
                          )
