@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -46,6 +46,7 @@
 #include <qdatetime.h>
 #include <vector>
 #include <QString>
+#include <QElapsedTimer>
 
 //____________________________________________________________________
 class AODCollHandleBase::Imp {
@@ -411,7 +412,7 @@ void AODCollHandleBase::collVisibilityChanged(bool vis)
     //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
     //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(0); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
 } 
 
@@ -429,7 +430,7 @@ void AODCollHandleBase::updateObjectBrowserVisibilityCounts() {
 
 void AODCollHandleBase::fillObjectBrowser()
 {
-  QTime t;
+  QElapsedTimer t;
   t.start();
   messageVerbose("AODCollHandleBase::fillObjectBrowser called for "+name());
 
