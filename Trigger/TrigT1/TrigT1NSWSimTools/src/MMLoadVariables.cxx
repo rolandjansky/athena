@@ -86,12 +86,12 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 #endif
           const HepMC::FourVector momentum = particle->momentum();
           int k=trackRecordCollection->size(); //number of mu
-          if(particle->barcode() < 1e06 && std::abs(particle->pdg_id())==13){
+          if(HepMC::barcode(particle) < 1e06 && std::abs(particle->pdg_id())==13){
             thePart.SetCoordinates(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
             for(const auto & mit : *trackRecordCollection ) {
               const CLHEP::Hep3Vector mumomentum = mit.GetMomentum();
               const CLHEP::Hep3Vector muposition = mit.GetPosition();
-              if(k>0 && j<k && particle->barcode()==mit.GetBarCode()) {
+              if(k>0 && j<k && HepMC::barcode(particle)==mit.GetBarCode()) {
                 pdg_tmp         = HepMC::barcode(particle);
                 phiEntry_tmp    = mumomentum.getPhi();
                 etaEntry_tmp    = mumomentum.getEta();
@@ -115,7 +115,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             }
             j++;
 
-            if(thePart.Pt() > 0. && particle->barcode() < 1e06){
+            if(thePart.Pt() > 0. && HepMC::barcode(particle) < 1e06){
               bool addIt = true;
               for(unsigned int ipart=0; ipart < truthParticles.size(); ipart++){
                 if( std::abs(thePart.Pt()-truthParticles[ipart].Pt()) < 0.001 ||
