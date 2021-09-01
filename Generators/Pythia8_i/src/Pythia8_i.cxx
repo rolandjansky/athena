@@ -117,6 +117,12 @@ m_athenaTool("")
   ATH_MSG_INFO("XML Path is " + xmlpath());
 
   m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
+#ifdef HEPMC3
+  m_runinfo = std::shared_ptr<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Pythia8"),std::to_string(PYTHIA_VERSION).substr(0,5),std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -557,6 +563,7 @@ std::to_string(iw);
   if(m_internal_event_number == 1){
     std::vector<std::string> names;
     for (auto w: fWeights)   names.push_back(w.first);
+    if (!evt->run_info()) evt->set_run_info(m_runinfo);
     evt->run_info()->set_weight_names(names);
   }
   for (auto w: fWeights) {evt->weight(w.first)=w.second;}
