@@ -29,9 +29,9 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::extrapolateT
     // main loop over volumes 
     while (eCell.leadVolume && eCode == Trk::ExtrapolationCode::InProgress ){
         // give output that you are in the master volume loop
-        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "loop", "processing volume : " << eCell.leadVolume->volumeName() );
+        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "loop", "processing volume (signature) : " << eCell.leadVolume->volumeName() << " (" << eCell.leadVolume->geometrySignature() << ")");
         // get the appropriate IExtrapolationEngine
-        Trk::GeometryType geoType = eCell.leadVolume->geometrySignature()>2 ? Trk::Dense : Trk::Static;
+        Trk::GeometryType geoType = (eCell.leadVolume->geometrySignature()>2 /*and eCell.leadVolume->geometrySignature()!=Trk::HGTD*/) ? Trk::Dense : Trk::Static;
         const Trk::IExtrapolationEngine* iee = m_eeAccessor[geoType];
         eCode = iee ? iee->extrapolate(eCell, sf, bcheck) : Trk::ExtrapolationCode::FailureConfiguration;
         // give a message about what you have

@@ -57,8 +57,8 @@ TrkDetFlags.TRT_BuildStrawLayers     = False
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.MaterialSource              = 'COOL'
 #TrkDetFlags.MaterialSource              = 'Input'
-TrkDetFlags.MaterialVersion             = 20
-TrkDetFlags.MaterialSubVersion          = ''
+TrkDetFlags.MaterialVersion             = 21
+#TrkDetFlags.MaterialSubVersion          = ''
 #TrkDetFlags.MaterialSubVersion          = 'f'
 TrkDetFlags.ConfigurationOutputLevel    = VERBOSE
 
@@ -104,8 +104,8 @@ from IOVDbSvc.CondDB import conddb
 conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09-solTil3')
 
 from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
-ExtrapolationEninge = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=ExToolOutputLevel)
-ToolSvc += ExtrapolationEninge
+ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=ExToolOutputLevel)
+ToolSvc += ExtrapolationEngine
 
 from TrkValTools.TrkValToolsConf import Trk__PositionMomentumWriter as PmWriter
 PmWriter = PmWriter()
@@ -124,28 +124,40 @@ ExtrapolationEngineTest.NumberOfTestsPerEvent   = 100
 # parameters mode: 0 - neutral tracks, 1 - charged particles 
 ExtrapolationEngineTest.ParametersMode          = 1
 # do the full test backwards as well            
-ExtrapolationEngineTest.BackExtrapolation       = True
+ExtrapolationEngineTest.BackExtrapolation       = False
 # Smear the production vertex - standard primary vertex paramters
-ExtrapolationEngineTest.SmearOrigin             = False   
-ExtrapolationEngineTest.SimgaOriginD0           = 0.015 
-ExtrapolationEngineTest.SimgaOriginZ0           = 55.6
+ExtrapolationEngineTest.SmearOrigin             = False
+ExtrapolationEngineTest.SimgaOriginD0           = 2./3.
+ExtrapolationEngineTest.SimgaOriginZ0           = 50.
+ExtrapolationEngineTest.SmearFlatOriginZ0       = False
+ExtrapolationEngineTest.Z0Min                   =  -150.
+ExtrapolationEngineTest.Z0Max                   =  150.
+ExtrapolationEngineTest.Z0Values                = [-150., 0., 150.]
+ExtrapolationEngineTest.SmearFlatOriginD0       = False
+ExtrapolationEngineTest.D0Min                   = -2.0
+ExtrapolationEngineTest.D0Max                   =  2.0
 # pT range for testing                        
 ExtrapolationEngineTest.PtMin                   = 1000
 ExtrapolationEngineTest.PtMax                   = 1000
 # The test range in Eta                      
-ExtrapolationEngineTest.EtaMin                  =  -3.5
-ExtrapolationEngineTest.EtaMax                  =   3.5
+ExtrapolationEngineTest.EtaMin                  =  -3.
+ExtrapolationEngineTest.EtaMax                  =   3.
+#ExtrapolationEngineTest.EtaMin                  =  -2.0
+#ExtrapolationEngineTest.EtaMax                  =   2.0
+#ExtrapolationEngineTest.PhiMin                  =  -0.5
+#ExtrapolationEngineTest.PhiMax                  =   0.5
 # Configure how you wanna run                  
 ExtrapolationEngineTest.CollectSensitive        = True
 ExtrapolationEngineTest.CollectPassive          = True
 ExtrapolationEngineTest.CollectBoundary         = True
 ExtrapolationEngineTest.CollectMaterial         = True
+ExtrapolationEngineTest.UseHGTD                 = False
 # the path limit to test                        
 ExtrapolationEngineTest.PathLimit               = -1.
 # give it the engine
-ExtrapolationEngineTest.ExtrapolationEngine     = ExtrapolationEninge
+ExtrapolationEngineTest.ExtrapolationEngine     = ExtrapolationEngine
 # validation tool 
-ExtrapolationEngineTest.PositionMomentumWriter  = PmWriter
+ExtrapolationEngineTest.PositionMomentumWriter    = PmWriter
 # output formatting
 ExtrapolationEngineTest.OutputLevel             = ExAlgorithmOutputLevel
 job += ExtrapolationEngineTest   # 1 alg, named 'ExtrapolationEngineTest'

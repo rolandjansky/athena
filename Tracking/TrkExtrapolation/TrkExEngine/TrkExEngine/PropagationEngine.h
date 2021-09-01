@@ -66,8 +66,7 @@ namespace Trk {
                                           bool returnCurvilinear = true) const;
        
     protected:
-        
-      ToolHandle<IPropagator>             m_propagator;
+      ToolHandle<IPropagator>     m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
       double                              m_pathLimitTolerance;
 
 
