@@ -258,38 +258,70 @@ if hasattr(runArgs,'TruthReductionScheme'):
     if runArgs.TruthReductionScheme != 'SingleGenParticle':
         filterHitLog.warning( 'Unknown TruthReductionScheme (' + runArgs.TruthReductionScheme + '). Currently just a dummy value, but please check.' )
     ## here configure the level of Truth reduction required
-
-    ## For upgrade geometries the TRT has been removed, so should be switched off.
-    if not DetFlags.detdescr.TRT_on():
+    topSequence += McEventCollectionFilter
+    if DetFlags.detdescr.TRT_on():
         try:
-            McEventCollectionFilter.UseTRTHits = False
+            from McEventCollectionFilter.McEventCollectionFilterConf import TRT_HitsTruthRelink
+            topSequence += TRT_HitsTruthRelink("TRT_HitsTruthRelink")
         except:
             filterHitLog.error('Trying to run on upgrade samples (no TRT) with an old tag of McEventCollectionFilter - job will fail.')
     
-    ## For upgrade geometries the BCM has been removed, so should be switched off
-    if not DetFlags.detdescr.BCM_on():
+    if DetFlags.detdescr.BCM_on():
         try:
-            McEventCollectionFilter.UseBCMHits = False
+            from McEventCollectionFilter.McEventCollectionFilterConf import SiliconHitsTruthRelink
+            topSequence += SiliconHitsTruthRelink("BCM_HitsTruthRelink", InputHits="BCMHitsOLD", OutputHits="BCMHits")
+        except:
+            filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.pixel_on():
+        try:
+            from McEventCollectionFilter.McEventCollectionFilterConf import SiliconHitsTruthRelink
+            topSequence += SiliconHitsTruthRelink("PixelHitsTruthRelink", InputHits="PixelHitsOLD", OutputHits="PixelHits")
+        except:
+            filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.SCT_on():
+        try:
+            from McEventCollectionFilter.McEventCollectionFilterConf import SiliconHitsTruthRelink
+            topSequence += SiliconHitsTruthRelink("SCT_HitsTruthRelink", InputHits="SCT_HitsOLD", OutputHits="SCT_Hits")
         except:
             filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
 
-    if not DetFlags.detdescr.CSC_on():
+    if DetFlags.detdescr.CSC_on():
         try:
-            McEventCollectionFilter.UseCSCHits = False
+            from McEventCollectionFilter.McEventCollectionFilterConf import CSC_HitsTruthRelink
+            topSequence += CSC_HitsTruthRelink("CSC_HitsTruthRelink")
         except:
             filterHitLog.error('Trying to run on upgrade samples (no CSC) with an old tag of McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.MDT_on():
+        try:
+            from McEventCollectionFilter.McEventCollectionFilterConf import MDT_HitsTruthRelink
+            topSequence += MDT_HitsTruthRelink("MDT_HitsTruthRelink")
+        except:
+            filterHitLog.error('Failed to add MDT Hits to McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.RPC_on():
+        try:
+            from McEventCollectionFilter.McEventCollectionFilterConf import RPC_HitsTruthRelink
+            topSequence += RPC_HitsTruthRelink("RPC_HitsTruthRelink")
+        except:
+            filterHitLog.error('Failed to add RPC Hits to McEventCollectionFilter - job will fail.')
+    if DetFlags.detdescr.TGC_on():
+        try:
+            from McEventCollectionFilter.McEventCollectionFilterConf import TGC_HitsTruthRelink
+            topSequence += TGC_HitsTruthRelink("TGC_HitsTruthRelink")
+        except:
+            filterHitLog.error('Failed to add TGC Hits to McEventCollectionFilter - job will fail.')
     ## For RUN3 geometries, turn on the NSW technologies.
     if DetFlags.detdescr.sTGC_on():
         try:
-            McEventCollectionFilter.UseSTGCHits = True
+            from McEventCollectionFilter.McEventCollectionFilterConf import sTGC_HitsTruthRelink
+            topSequence += sTGC_HitsTruthRelink("sTGC_HitsTruthRelink")
         except:
             filterHitLog.error('Failed to add sTGC Hits to McEventCollectionFilter - job will fail.')
     if DetFlags.detdescr.Micromegas_on():
         try:
-            McEventCollectionFilter.UseMMHits = True
+            from McEventCollectionFilter.McEventCollectionFilterConf import MM_HitsTruthRelink
+            topSequence += MM_HitsTruthRelink("MM_HitsTruthRelink")
         except:
             filterHitLog.error('Failed to add Micromega Hits to McEventCollectionFilter - job will fail.')
-    topSequence += McEventCollectionFilter
 
 
 #--------------------------------------------------------------
