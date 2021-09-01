@@ -210,7 +210,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer> seedEL : seeds) {
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -237,7 +237,7 @@ namespace TrigCompositeUtils {
   }
 
   std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore,
-    const DecisionIDContainer ids,
+    const DecisionIDContainer& ids,
     const std::set<std::string>& keysToIgnore) {
 
     std::vector<const Decision*> output;
@@ -334,7 +334,7 @@ namespace TrigCompositeUtils {
     const Decision* comingFrom, 
     NavGraph& navGraph, 
     std::set<const Decision*>& fullyExploredFrom,
-    const DecisionIDContainer ids,
+    const DecisionIDContainer& ids,
     const bool enforceDecisionOnNode) {
 
     // Does this Decision satisfy the chain requirement?
@@ -356,7 +356,7 @@ namespace TrigCompositeUtils {
     // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(node) ) {
       // Do the recursion
-      for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
+      for ( const ElementLink<DecisionContainer>& seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
         recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
@@ -371,7 +371,7 @@ namespace TrigCompositeUtils {
 
   void recursiveGetDecisions(const Decision* start, 
     NavGraph& navGraph, 
-    const DecisionIDContainer ids,
+    const DecisionIDContainer& ids,
     const bool enforceDecisionOnStartNode) {
 
     std::set<const Decision*> fullyExploredFrom;
@@ -483,7 +483,7 @@ namespace TrigCompositeUtils {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const ElementLink<DecisionContainer> seed : getLinkToPrevious(start)) {
+    for (const ElementLink<DecisionContainer>& seed : getLinkToPrevious(start)) {
 #if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
       if (fullyExploredFrom != nullptr) {
         // We only need to recursively explore back from each node in the graph once.
@@ -730,12 +730,12 @@ namespace TrigCompositeUtils {
   }
 
 
-  std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
+  std::string dump( const Decision* tc, const std::function< std::string( const Decision* )>& printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer> seedEL : seeds) {
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }

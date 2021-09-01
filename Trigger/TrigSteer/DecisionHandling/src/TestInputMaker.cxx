@@ -62,7 +62,7 @@ namespace HLTTest {
     for (const  auto outputDecision : *outputHandle){ 
       const ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
       ATH_MSG_DEBUG("Element "<< count << " has " << inputLinks.size() <<" previous links");
-      for (const auto input: inputLinks){
+      for (const auto& input: inputLinks){
         ATH_MSG_DEBUG( " -- Got seed link to input  "<<input.dataID() <<" and index "<< input.index() );
         const Decision* inputDecision = *input;
         const auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision,  m_roisLink.value());

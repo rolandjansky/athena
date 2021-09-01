@@ -49,11 +49,11 @@ namespace HLTTest {
       Split_t  objects;
       Event_t event;
       split( line, ';', objects );
-      for ( auto obj: objects ) {
+      for ( const auto& obj: objects ) {
 	Obj_t object;
 	Split_t properties;
 	split( obj, ',', properties );
-	for ( auto prop: properties ) {
+	for ( const auto& prop: properties ) {
 	  Split_t keyval;
 	  split( prop, ':', keyval );
 	  if ( keyval.size() != 2  ) {
@@ -111,7 +111,7 @@ namespace HLTTest {
 	  xobj->setObjectLink( "initialRoI", roiLink );// this is used by the HypoAlg
 
 	  ATH_MSG_DEBUG( "Reconstructed object" );
-	  for ( auto prop : object )  {
+	  for ( const auto& prop : object )  {
 	    xobj->setDetail( prop.first, prop.second );
 	    ATH_MSG_DEBUG( "  " << prop.first << " : " << prop.second );
 	  }
