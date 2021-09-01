@@ -638,7 +638,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta)
     // Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
     auto & thr_jJ = l1Menu->thrExtraInfo().jJ();
-    unsigned int minEtThreshold = thr_jJ.ptMinToTopoSmallMeV()/jFEXETResolution;
+    unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV()/jFEXETResolution;
     if (jFEXSmallRJetTOBEt < minEtThreshold) return 0;
     else return tobWord;
 }
@@ -689,6 +689,7 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
         }
     }    
 
+
   jFEXLargeRJetTOBEt = et/jFEXETResolution;
   if (jFEXLargeRJetTOBEt > 0x1fff){
     jFEXLargeRJetTOBEt = 0x1fff;  //0x1fff is 13 bits
@@ -701,7 +702,7 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
   // Retrieve the L1 menu configuration
   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
   auto & thr_jJ = l1Menu->thrExtraInfo().jJ();
-  unsigned int minEtThreshold = thr_jJ.ptMinToTopoLargeMeV()/jFEXETResolution;
+  unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV()/jFEXETResolution;
  
   if (jFEXLargeRJetTOBEt < minEtThreshold) return 0;
   else return tobWord;
