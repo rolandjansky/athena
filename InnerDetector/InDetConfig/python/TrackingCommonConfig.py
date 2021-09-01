@@ -574,13 +574,13 @@ def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
     acc = ComponentAccumulator()
 
     tool = None
-    if flags.ITk.kalmanUpdator == "fast" :
+    if flags.InDet.kalmanUpdator == "fast" :
         tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "weight" :
+    elif flags.InDet.kalmanUpdator == "weight" :
         tool = CompFactory.Trk.KalmanWeightUpdator(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "smatrix" :
+    elif flags.InDet.kalmanUpdator == "smatrix" :
         tool = CompFactory.Trk.KalmanUpdatorSMatrix(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "amg" :
+    elif flags.InDet.kalmanUpdator == "amg" :
         tool = CompFactory.Trk.KalmanUpdatorAmg(name = the_name, **kwargs)
     else :
         tool = CompFactory.Trk.KalmanUpdator(name = the_name, **kwargs)
