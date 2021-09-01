@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1GeometrySystems/VolumeHandle.h"
@@ -38,6 +38,11 @@
 #include <QSet>
 #include <QMap>
 #include <QDataStream>
+
+// Suppress warning from Coin4 headers.
+#if __GNUC__ >= 10
+# pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#endif
 
 //____________________________________________________________________
 class VolumeHandle::Imp {
