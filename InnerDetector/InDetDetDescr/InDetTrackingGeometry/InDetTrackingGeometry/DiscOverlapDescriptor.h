@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,6 +53,7 @@
 #endif // INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
 
 class SCT_ID;
+class PixelID;
 
 namespace Trk {
   class Surface;
@@ -80,7 +81,8 @@ namespace InDet {
     
     /** Constructor */
     DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = 0,
-			  std::vector<Trk::BinUtility*>* singleBinUtils = 0);
+                          std::vector<Trk::BinUtility*>* singleBinUtils = 0,
+                          bool isPixel = false);
     
     /** Destructor */
     virtual ~DiscOverlapDescriptor() {
@@ -111,10 +113,13 @@ namespace InDet {
                            const Amg::Vector3D& dir) const override;
     
   private:
+    bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
     
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
     std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
+    bool                                            m_pixelCase;    
     mutable std::atomic<const SCT_ID*>              m_sctIdHelper{nullptr};
+    mutable std::atomic<const PixelID*>             m_pixIdHelper{nullptr};
     
   };
   
