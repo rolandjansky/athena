@@ -9,13 +9,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( 'electron' )
+    IDTrigConfig = TrigEgammaKeys.IDTrigConfig
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
