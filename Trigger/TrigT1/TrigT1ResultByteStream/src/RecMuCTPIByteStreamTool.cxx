@@ -7,11 +7,7 @@
 // Trigger include(s):
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Result/MuCTPI_RIO.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerItem.h"
+#include "TrigConfData/L1Menu.h"
 
 // Local include(s):
 #include "RecMuCTPIByteStreamTool.h"
@@ -62,13 +58,6 @@ StatusCode RecMuCTPIByteStreamTool::initialize() {
     ATH_MSG_DEBUG("Connected to TGC RecMuonRoISvc");
   }
 
-  sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to Lvl1ConfigSvc.");
-  } else {
-    ATH_MSG_DEBUG("Connected to Lvl1ConfigSvc");
-  }
-    
   return StatusCode::SUCCESS;
   
 }
@@ -82,18 +71,10 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
 
   ATH_MSG_DEBUG("executing convert() from ROBFragment to RIO");
 
-  //
-  // config retrieval via Lvl1ConfigSvc
-  //
-  std::vector<TrigConf::TriggerThreshold*> muonConfig;
-  if ( m_configSvc.isSet() ) {
-    std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-    for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
-                                                                  it != thresholds.end(); ++it) {
-       if ( (*it)->type() == TrigConf::L1DataDef::muonType() ) muonConfig.push_back(*it);
-    }
-  }
-  
+  // L1Menu
+  const TrigConf::L1Menu * l1menu = nullptr;
+  ATH_CHECK( detStore()->retrieve(l1menu) );
+
   // Source ID of MIROD
   const uint32_t miRodId = m_srcIdMap.getRodID();
 
@@ -196,7 +177,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
 
       // reconstruct
       LVL1::RecMuonRoI thisRoI( roiWord, m_rpcRoITool.isSet() ? m_rpcRoITool.operator->() : 0,
-                                m_tgcRoITool.isSet() ? m_tgcRoITool.operator->() : 0, &muonConfig );
+                                m_tgcRoITool.isSet() ? m_tgcRoITool.operator->() : 0, l1menu );
 
       uint16_t pTVal = thisRoI.getThresholdValue();
       uint16_t pTNumber = thisRoI.getThresholdNumber();

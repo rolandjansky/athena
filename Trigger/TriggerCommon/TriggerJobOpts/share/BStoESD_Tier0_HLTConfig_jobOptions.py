@@ -84,7 +84,6 @@ if rec.doTrigger():
         if not hasattr(ToolSvc,'RecMuCTPIByteStreamTool'):
             from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RecMuCTPIByteStreamTool
             ToolSvc += RecMuCTPIByteStreamTool("RecMuCTPIByteStreamTool")
-        ToolSvc.RecMuCTPIByteStreamTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         import TrigT1CaloTools.TrigT1CaloToolsConf as calotools  # noqa: F401
         for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
