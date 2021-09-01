@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -27,7 +27,6 @@ AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc)
   m_AmdcDbSvcFromAmdc = 0 ;
   m_AmdcDbSvcFromRDB  = 0 ;
 
-  m_AMDBtag = "" ;
   m_UglyCodeOn = 0 ;
 
   m_FromAmdcEpsLengthMM = 4 ;
