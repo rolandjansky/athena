@@ -231,6 +231,7 @@ if __name__ == '__main__':
     flags.Scheduler.ShowDataDeps=True
     flags.Scheduler.CheckDependencies=True
     flags.Scheduler.ShowDataFlow=True
+    flags.Trigger.enableL1MuonPhase1=True
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg(flags)

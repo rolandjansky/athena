@@ -220,8 +220,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                 topoRoad=True,
                                 dEtasurrRoI = 0.14,
                                 dPhisurrRoI = 0.14,
-                                MonTool                = None )
-                                #MonTool                = TrigL2MuonSAMonitoring() )
+                                MonTool                = None,
+                                UseRun3Config          = flags.Trigger.enableL1MuonPhase1 )
 
     # Default backextrapolator is for MC Misaligned Detector
     # Based on MuonBackExtrapolatorForMisalignedDet at TrigMuonBackExtrapolator/TrigMuonBackExtrapolatorConfig.py
