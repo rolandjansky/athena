@@ -1209,21 +1209,21 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE(
           dynamic_cast<const Trk::CylinderLayer*>((*confArbLayers)[i]);
 
       if (slayer) {
-        const Trk::SubtractedPlaneLayer* lay =
+        Trk::SubtractedPlaneLayer* lay =
             new Trk::SubtractedPlaneLayer(*slayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (layer) {
-        const Trk::PlaneLayer* lay = new Trk::PlaneLayer(*layer);
+        Trk::PlaneLayer* lay = new Trk::PlaneLayer(*layer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (sclayer) {
-        const Trk::SubtractedCylinderLayer* lay =
+        Trk::SubtractedCylinderLayer* lay =
             new Trk::SubtractedCylinderLayer(*sclayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (clayer) {
-        const Trk::CylinderLayer* lay = new Trk::CylinderLayer(*clayer);
+        Trk::CylinderLayer* lay = new Trk::CylinderLayer(*clayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       }
@@ -1320,15 +1320,15 @@ void Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE(
   // confined 'ordered' layers
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers)
-    for (const auto& clayIter : confLayers->arrayObjects())
-      clayIter->moveLayer(transform);
+    for (const Trk::Layer*  clayIter : confLayers->arrayObjects())
+      (const_cast<Trk::Layer*>(clayIter))->moveLayer(transform);
 
   // confined 'unordered' layers
   const std::vector<const Trk::Layer*>* confArbLayers =
       confinedArbitraryLayers();
   if (confArbLayers)
-    for (const auto& calayIter : (*confArbLayers))
-      calayIter->moveLayer(transform);
+    for (const Trk::Layer* calayIter : (*confArbLayers))
+      (const_cast<Trk::Layer*>(calayIter))->moveLayer(transform);
 
   // confined volumes
   const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();

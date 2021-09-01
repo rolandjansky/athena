@@ -232,9 +232,6 @@ class Layer {
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D&){};
 
-  /** move the Layer */
-  virtual void moveLayer ATLAS_NOT_THREAD_SAFE(Amg::Transform3D&) const {};
-
   /**register Volume associated to the layer */
   void registerRepresentingVolume(const Volume* theVol);
 

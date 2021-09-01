@@ -157,11 +157,6 @@ class PlaneLayer final : virtual public PlaneSurface, public Layer {
 
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<PlaneLayer*>(this)->moveLayer(shift);
-  }
 
  private:
   /** Resize the layer to the tracking volume - not implemented */
