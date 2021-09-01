@@ -6,8 +6,6 @@
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 
 
-
-#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
@@ -18,38 +16,38 @@
 
 
 namespace Trig {
-  DecisionUnpackerAthena::DecisionUnpackerAthena(SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey) : m_handle(new DecisionObjectHandleAthena(olddeckey)){
+  DecisionUnpackerAthena::DecisionUnpackerAthena(SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey) : 
+    m_handle(std::make_unique<DecisionObjectHandleAthena>(olddeckey)){
   }
 
   DecisionUnpackerAthena::~DecisionUnpackerAthena(){
-    delete m_handle;
   }
 
 
-  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,
+                                                 std::map<unsigned, LVL1CTP::Lvl1Item>& itemsCache,
+                                                 std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
     itemsByName.reserve( itemsByName.size() + itemsCache.size() );
-    for ( auto cacheIt = itemsCache.begin() ; cacheIt != itemsCache.end(); ++cacheIt ) {
-      unsigned int ctpid = cacheIt->first;
-      LVL1CTP::Lvl1Item* item = cacheIt->second;
-      ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
-      bool passBP = result.isPassedBeforePrescale(ctpid);
-      bool passAP = result.isPassedAfterPrescale(ctpid);
-      bool passAV = result.isPassedAfterVeto(ctpid);
-      LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+    for ( auto& [ctpid, item] : itemsCache ) {
+      ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item.name());
+      const bool passBP = result.isPassedBeforePrescale(ctpid);
+      const bool passAP = result.isPassedAfterPrescale(ctpid);
+      const bool passAV = result.isPassedAfterVeto(ctpid);
+      LVL1CTP::Lvl1Item itemNew (item.name(), item.hashId(),
                                  passBP, passAP, passAV,
-                                 item->prescaleFactor());
-      *item = std::move (itemNew);
-      itemsByName[item->name()] = item;
+                                 item.prescaleFactor());
+      item = std::move (itemNew);
+      itemsByName[item.name()] = &item;
     }
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode DecisionUnpackerAthena::unpackChains(const std::vector<uint32_t>& serialized_chains,
-						   std::map<unsigned, HLT::Chain*>& cache,
+						   std::map<unsigned, HLT::Chain>& cache,
 						   std::unordered_map<std::string, const HLT::Chain*>& output) {
    
-    if( serialized_chains.size() == 0 ) {
+    if( serialized_chains.empty() ) {
       ATH_MSG_WARNING("ChainResult is empty");
       return StatusCode::FAILURE;
     }
@@ -68,21 +66,21 @@ namespace Trig {
         ATH_MSG_WARNING("Missing chain of counter in the configuration: " << cntr);
         return StatusCode::FAILURE;
       } else {
-        cacheIt->second->reset();
-        cacheIt->second->deserialize(*rawIt);
-        output[cacheIt->second->getChainName()] = cacheIt->second;
-        ATH_MSG_VERBOSE("Updated chain in this event : " << *(cacheIt->second));
+        cacheIt->second.reset();
+        cacheIt->second.deserialize(*rawIt);
+        output[cacheIt->second.getChainName()] = &cacheIt->second;
+        ATH_MSG_VERBOSE("Updated chain in this event : " << cacheIt->second);
       }
     }
     return StatusCode::SUCCESS;
   }
 
   StatusCode DecisionUnpackerAthena::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
-						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
+						    std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
 						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
+						    std::map<CHAIN_COUNTER, HLT::Chain>& l2chainsCache,
 						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
+						    std::map<CHAIN_COUNTER, HLT::Chain>& efchainsCache,
 						    char& bgCode,
 						    bool unpackHLT
 						    ){
@@ -141,7 +139,6 @@ namespace Trig {
     if (nav) {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
-      // cppcheck-suppress oppositeInnerCondition
       if(!fullNav){
         ATH_MSG_WARNING("downcast failed");
         return StatusCode::FAILURE;
@@ -202,6 +199,5 @@ namespace Trig {
     this->unpacked_decision(false);
   }
 }
-#endif
 
 #endif // full Athena env

@@ -23,7 +23,9 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/PropertyWrapper.h"
 
-#include "TrigConfInterfaces/ITrigConfigTool.h" 
+#include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
+
 #ifndef XAOD_STANDALONE
 #include "EventInfo/EventInfo.h"
 
@@ -68,9 +70,8 @@ namespace Trig {
     using Logger::msgLvl;
     using Logger::msg;
 
-    // constructors, destructor
+    // constructors
     TrigDecisionTool(const std::string& name);
-    virtual ~TrigDecisionTool();
 
     // initialize routine as required for an Algorithm
     StatusCode initialize();
@@ -118,7 +119,7 @@ namespace Trig {
     //full Athena
     #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", ""};    //!< trigger configuration service handle
-    ToolHandle<HLT::Navigation> m_fullNavigation;
+    ToolHandle<HLT::Navigation> m_fullNavigation{this, "Navigation", "HLT::Navigation/Navigation"};
 
     Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,
       "For use when reading old BS with trigger decision information available in the EventInfo"};
@@ -142,7 +143,10 @@ namespace Trig {
 
     #endif
 
-    Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
+    HLT::StandaloneNavigation m_standaloneNavigation;
+
+    Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false,
+      "Allow multiple TrigDecisionTool instances"};
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_navigationKey {this, "NavigationKey", "TrigNavigation",
       "Storegate key of Run1, Run2 Trig Navigation"};

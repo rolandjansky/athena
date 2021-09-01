@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:06:39 CET
  **
- **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -531,9 +531,8 @@ protected:
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
 
-      Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
-      em->enable();
-      const HLT::NavigationCore* nc = em->getNavigation();
+      (*m_tdt)->ExperimentalAndExpertMethods()->enable();
+      const HLT::NavigationCore* nc = (*m_tdt)->ExperimentalAndExpertMethods()->getNavigation();
 
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
       //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;

@@ -402,7 +402,7 @@ StatusCode TrigDecisionChecker::execute()
         msg(MSG::INFO) << "Pass state HLT = " << m_trigDec->isPassed("HLT_.*") << endmsg;
     }
     
-    Trig::ExpertMethods* em = m_trigDec->ExperimentalAndExpertMethods();
+    auto em = m_trigDec->ExperimentalAndExpertMethods();
     
     // L1
     std::vector<std::string> allItems = m_trigDec->getListOfTriggers("L1_.*");

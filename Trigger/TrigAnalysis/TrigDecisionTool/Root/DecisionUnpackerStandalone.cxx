@@ -39,26 +39,23 @@ namespace Trig {
 
   DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
                                                           SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
-    : m_handle( new DecisionObjectHandleStandalone( deckey, navikey ) )
+    : m_handle( std::make_unique<DecisionObjectHandleStandalone>( deckey, navikey ) )
   {
   }
   
   DecisionUnpackerStandalone::~DecisionUnpackerStandalone() {
-
-      delete m_handle;
   }
   
   StatusCode
   DecisionUnpackerStandalone::
-  unpackDecision( std::unordered_map< std::string,
-                             const LVL1CTP::Lvl1Item* >& itemsByName,
-                   std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
-                   std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
-                   std::map< CHAIN_COUNTER, HLT::Chain* >& l2chainsCache,
-                   std::unordered_map< std::string, const HLT::Chain* >& efchainsByName,
-                   std::map< CHAIN_COUNTER, HLT::Chain* >& efchainsCache,
-                   char& bgCode,
-                   bool unpackHLT ) {
+  unpackDecision( std::unordered_map< std::string,const LVL1CTP::Lvl1Item* >& itemsByName,
+                  std::map< CTPID, LVL1CTP::Lvl1Item >& itemsCache,
+                  std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
+                  std::map< CHAIN_COUNTER, HLT::Chain >& l2chainsCache,
+                  std::unordered_map< std::string, const HLT::Chain* >& efchainsByName,
+                  std::map< CHAIN_COUNTER, HLT::Chain >& efchainsCache,
+                  char& bgCode,
+                  bool unpackHLT ) {
 
       // Grab the trigger decision:
       const xAOD::TrigDecision* xaoddec = m_handle->getDecision();
@@ -123,11 +120,9 @@ namespace Trig {
 
       const xAOD::TrigNavigation* serializedNav = m_handle->getNavigation();
       if( ! serializedNav ) {
-         static bool warningPrinted = false;
-         if( ! warningPrinted ) {
-            ATH_MSG_WARNING( "Serialized navigation not available" );
-            warningPrinted = true;
-         }
+         [[maybe_unused]] static std::atomic<bool> warningPrinted =
+            [&]() { ATH_MSG_WARNING( "Serialized navigation not available" );
+                    return true; }();
          return StatusCode::FAILURE;
       }
 
@@ -197,18 +192,12 @@ namespace Trig {
 
    StatusCode
    DecisionUnpackerStandalone::
-   unpackItems( std::map< unsigned, LVL1CTP::Lvl1Item* >& itemsCache,
-                std::unordered_map< std::string,
-                          const LVL1CTP::Lvl1Item* >& itemsByName ) {
+   unpackItems( std::map< unsigned, LVL1CTP::Lvl1Item >& itemsCache,
+                std::unordered_map< std::string, const LVL1CTP::Lvl1Item* >& itemsByName ) {
       itemsByName.reserve( itemsByName.size() + itemsCache.size() );
-      auto cacheItr = itemsCache.begin();
-      auto cacheEnd = itemsCache.end();
-      for( ; cacheItr != cacheEnd; ++cacheItr ) {
-
-         unsigned int ctpid = cacheItr->first;
-         LVL1CTP::Lvl1Item* item = cacheItr->second;
+      for( auto& [ctpid, item] : itemsCache ) {
          ATH_MSG_VERBOSE( "Unpacking bits for item: " << ctpid << " "
-                          << item->name() );
+                          << item.name() );
          bool passBP = get32BitDecision( ctpid,
                                          m_handle->getDecision()->tbp() );
          bool passAP = get32BitDecision( ctpid,
@@ -219,11 +208,11 @@ namespace Trig {
                           << " ap: " << passAP << " av: "
                           << passAV );
 
-         LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+         LVL1CTP::Lvl1Item itemNew (item.name(), item.hashId(),
                                     passBP, passAP, passAV,
-                                    item->prescaleFactor());
-         *item = std::move (itemNew);
-         itemsByName[ item->name() ] = item;
+                                    item.prescaleFactor());
+         item = std::move (itemNew);
+         itemsByName[ item.name() ] = &item;
       }
 
       return StatusCode::SUCCESS;
@@ -232,7 +221,7 @@ namespace Trig {
    
    StatusCode
    DecisionUnpackerStandalone::
-   unpackChains( std::map< unsigned, HLT::Chain* >& cache,
+   unpackChains( std::map< unsigned, HLT::Chain >& cache,
                  const std::vector< uint32_t >& raw,
                  const std::vector< uint32_t >& passedthrough,
                  const std::vector< uint32_t >& prescaled,
@@ -240,20 +229,18 @@ namespace Trig {
                  std::unordered_map< std::string, const HLT::Chain* >& output ) {
       output.reserve( output.size() + cache.size() );
 
-      for( auto& cntrchain : cache ) {
+      for( auto& [cntr, chain] : cache ) {
 
-         unsigned cntr = cntrchain.first;
-         cntrchain.second->reset();
+         chain.reset();
          ATH_MSG_VERBOSE( "raw dec for " << cntr << " is "
                           << get32BitDecision( cntr, raw ) );
-         cntrchain.second->setDecisions( get32BitDecision( cntr, raw ),
-                                         get32BitDecision( cntr,
-                                                           passedthrough ),
-                                         get32BitDecision( cntr, prescaled),
-                                         get32BitDecision( cntr, resurrected ) );
-         output[ cntrchain.second->getChainName() ] = cntrchain.second;
-         ATH_MSG_VERBOSE( "Updated chain in this event : "
-                          << *( cntrchain.second ) );
+         chain.setDecisions( get32BitDecision( cntr, raw ),
+                             get32BitDecision( cntr,
+                                               passedthrough ),
+                             get32BitDecision( cntr, prescaled),
+                             get32BitDecision( cntr, resurrected ) );
+         output[ chain.getChainName() ] = &chain;
+         ATH_MSG_VERBOSE( "Updated chain in this event : " << chain );
       }
 
       return StatusCode::SUCCESS;

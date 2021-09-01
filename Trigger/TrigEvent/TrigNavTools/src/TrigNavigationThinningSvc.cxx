@@ -291,7 +291,7 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
   std::lock_guard<std::mutex> lock(TrigNavigationThinningSvcMutex::s_mutex);
 
   // grab the navigation
-  Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
+  auto navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
   navAccess->enable();
   // protected by above lock
   HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
