@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
 #include "TrkDetDescrUtils/Intersection.h"
+// STL include
+#include <atomic>
 
 #ifndef TRKDETDESCR_SIDETADDNEXTPHIETA
 #define TRKDETDESCR_SIDETADDNEXTPHIETA
@@ -56,6 +58,8 @@ namespace InDetDD {
     class SiDetectorElement;
 }
 
+class PixelID;
+
 namespace InDet {
     
     /** @class PixelOverlapDescriptor
@@ -73,7 +77,7 @@ namespace InDet {
        public:
          
          /** Constructor (area restriction, LC check) */
-         PixelOverlapDescriptor();
+         PixelOverlapDescriptor(bool addMoreSurfaces = false, int eta_slices = 3, int phi_slices = 1);
 
          /** Destructor */
          virtual ~PixelOverlapDescriptor(){}
@@ -91,8 +95,14 @@ namespace InDet {
       private :                                  
          void addPhiNeighbours(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
                                InDetDD::SiDetectorElement& sElement) const;
-
-	 bool m_robustMode;
+                               
+         bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
+         
+         bool m_robustMode;
+         bool m_addMoreSurfaces;
+         int m_etaSlices;
+         int m_phiSlices;
+         mutable std::atomic<const PixelID*>   m_pixIdHelper{nullptr};
      };
 
      
