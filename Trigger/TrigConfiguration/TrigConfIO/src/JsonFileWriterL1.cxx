@@ -168,6 +168,28 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // eTAU
+         try {
+            auto eTAUThr = dynamic_cast<const TrigConf::L1Threshold_eTAU &>(*thr);
+            jThr["isoConeRel"] = TrigConf::Selection::wpToString(eTAUThr.isoConeRel());
+            jThr["fEM"] = TrigConf::Selection::wpToString(eTAUThr.fEM());
+            jThr["value"] = int(eTAUThr.thrValue());
+         } catch(std::bad_cast&) {};
+         
+         // jTAU
+         try {
+            auto jTAUThr = dynamic_cast<const TrigConf::L1Threshold_jTAU &>(*thr);
+            jThr["isolation"] = TrigConf::Selection::wpToString(jTAUThr.isolation());
+            jThr["value"] = int(jTAUThr.thrValue());
+         } catch(std::bad_cast&) {};         
+
+         // cTAU
+         try {
+            auto cTAUThr = dynamic_cast<const TrigConf::L1Threshold_cTAU &>(*thr);
+            jThr["isolation"] = TrigConf::Selection::wpToString(cTAUThr.isolation());
+            jThr["value"] = int(cTAUThr.thrValue());
+         } catch(std::bad_cast&) {};
+
          // jJ
          try {
             auto jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*thr);
@@ -311,12 +333,45 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "eTAU") {
          auto & eeminfo = l1menu.thrExtraInfo().eTAU();
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, TrigConf::Selection::WP::HAD} ) {
+            auto wpstr = TrigConf::Selection::wpToString(wp);
+            jThrType["workingPoints"][wpstr] = json::array_t({});
+            for(auto & iso : eeminfo.isolation(wp)) {
+               json jWPIso({});
+               jWPIso["isoConeRel"] = iso.value().isoConeRel_d();
+               jWPIso["isoConeRel_fw"] = iso.value().isoConeRel_fw();
+               jWPIso["fEM"] = iso.value().fEM_d();
+               jWPIso["fEM_fw"] = iso.value().fEM_fw();
+               jWPIso["maxEt"] = iso.value().maxEt();
+               jThrType["workingPoints"][wpstr] += jWPIso;
+            }
+         }
+      }
+
+      if(thrType == "jTAU") {
+         auto & eeminfo = l1menu.thrExtraInfo().jTAU();
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isolation"] = (int)iso.value().isolation_d();
+               jWPIso["isolation"] = iso.value().isolation_d();
+               jWPIso["isolation_fw"] = iso.value().isolation_fw();
+               jWPIso["maxEt"] = iso.value().maxEt();
+               jThrType["workingPoints"][wpstr] += jWPIso;
+            }
+         }
+      }
+
+      if(thrType == "cTAU") {
+         auto & eeminfo = l1menu.thrExtraInfo().cTAU();
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
+            auto wpstr = TrigConf::Selection::wpToString(wp);
+            jThrType["workingPoints"][wpstr] = json::array_t({});
+            for(auto & iso : eeminfo.isolation(wp)) {
+               json jWPIso({});
+               jWPIso["isolation"] = iso.value().isolation_d();
+               jWPIso["isolation_fw"] = iso.value().isolation_fw();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
@@ -326,12 +381,11 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       if(thrType == "jJ") {
          auto & ei = l1menu.thrExtraInfo().jJ();
          jThrType["ptMinToTopo"] = json::array_t({});
-         for(auto & x : ei.ptMinToTopoMeV() ) {
+         for(auto & x : ei.ptMinToTopoEtaMeV() ) {
             jThrType["ptMinToTopo"] += json({
                   {"etamin",x.etaMin()},
                   {"etamax",x.etaMax()},
-                  {"small",int(x.value().first/1000.)},
-                  {"large",int(x.value().second/1000.)}
+                  {"value",int(x.value()/1000.)},
                });
          }
       }

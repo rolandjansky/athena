@@ -17,6 +17,10 @@ def getTypeWideThresholdConfig(ttype):
         return getConfig_eEM()
     if ttype == ThrType.eTAU:
         return getConfig_eTAU()
+    if ttype == ThrType.cTAU:
+        return getConfig_cTAU()
+    if ttype == ThrType.jTAU:
+        return getConfig_jTAU()
     if ttype == ThrType.jJ:
         return getConfig_jJ()
     if ttype == ThrType.EM:
@@ -83,26 +87,86 @@ def getConfig_eTAU():
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
-        odict([("isolation", 16), ("maxEt", 25)]),
+        odict([("isoConeRel", 0.150), ("isoConeRel_fw", 40), ("fEM", 1), ("fEM_fw", 1), ("maxEt", 60)]),
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("isolation", 17), ("maxEt", 25)]),
+        odict([("isoConeRel", 0.175), ("isoConeRel_fw", 50), ("fEM", 1), ("fEM_fw", 1), ("maxEt", 60)]),
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("isolation", 18), ("maxEt", 25)]),
+        odict([("isoConeRel", 0.200), ("isoConeRel_fw", 60), ("fEM", 1), ("fEM_fw", 1), ("maxEt", 60)]),
     ]
-    confObj["ptMinToTopo"] = 6
+    confObj["workingPoints"]["Had"] = [
+        odict([("isoConeRel", 1), ("isoConeRel_fw", 1), ("fEM", 0.2), ("fEM_fw", 10), ("maxEt", 60)]),
+    ]
+    confObj["ptMinToTopo"] = 5
     confObj["resolutionMeV"] = 100
+
+    # Check that FW values are integers
+    for wp in confObj["workingPoints"]:
+        for ssthr in confObj["workingPoints"][wp]:
+            for ssthr_i in ssthr:
+                if "_fw" in ssthr_i:
+                     if not isinstance(ssthr[ssthr_i], int):
+                          raise RuntimeError("Threshold %s in eEM configuration is not an integer!", ssthr_i )
     return confObj
 
+def getConfig_cTAU():
+    confObj = odict()
+    confObj["workingPoints"] = odict()
+    confObj["workingPoints"]["Loose"] = [
+        odict([("isolation", 0.40), ("isolation_fw", 40), ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["Medium"] = [
+        odict([("isolation", 0.35), ("isolation_fw", 50), ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["Tight"] = [
+        odict([("isolation", 0.30), ("isolation_fw", 60), ("maxEt", 60)]),
+    ]
+    confObj["resolutionMeV"] = 200
+
+    # Check that FW values are integers
+    for wp in confObj["workingPoints"]:
+        for ssthr in confObj["workingPoints"][wp]:
+            for ssthr_i in ssthr:
+                if "_fw" in ssthr_i:
+                     if not isinstance(ssthr[ssthr_i], int):
+                          raise RuntimeError("Threshold %s in eEM configuration is not an integer!", ssthr_i )
+    return confObj
+
+def getConfig_jTAU():
+    confObj = odict()
+    confObj["workingPoints"] = odict()
+    confObj["workingPoints"]["Loose"] = [
+        odict([("isolation", 0.40), ("isolation_fw", 40), ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["Medium"] = [
+        odict([("isolation", 0.35), ("isolation_fw", 50), ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["Tight"] = [
+        odict([("isolation", 0.30), ("isolation_fw", 60), ("maxEt", 60)]),
+    ]
+    confObj["ptMinToTopo"] = 5
+    confObj["resolutionMeV"] = 200
+
+    # Check that FW values are integers
+    for wp in confObj["workingPoints"]:
+        for ssthr in confObj["workingPoints"][wp]:
+            for ssthr_i in ssthr:
+                if "_fw" in ssthr_i:
+                     if not isinstance(ssthr[ssthr_i], int):
+                          raise RuntimeError("Threshold %s in eEM configuration is not an integer!", ssthr_i )
+    return confObj
 
 def getConfig_jJ():
     confObj = odict()
     confObj["ptMinToTopo"] = [
-        odict([("etamin",-49), ("etamax",49), ("small", 12), ("large", 12)])
+        odict([("etamin",-49), ("etamax",49), ("value", 12)])
     ]
+    confObj["resolutionMeV"] = 200  
     return confObj
 
+
+# LEGACY
 
 def getConfig_EM():
     confObj = odict()

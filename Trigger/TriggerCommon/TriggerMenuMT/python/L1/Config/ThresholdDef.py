@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from ..Base.Thresholds import MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
+from ..Base.Thresholds import MuonThreshold, EMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
 
 class ThresholdDef:
 
@@ -82,46 +82,57 @@ class ThresholdDef:
 
 
         # EM 
-        for thrV in [3, 7, 8, 10, 15, 20, 22]:
-            EMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+        for thrV in [3, 5, 8, 15, 20, 22]:
+            #EMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+            ThresholdDef.addVaryingThrValues( EMThreshold(  'eEM%i'% thrV,  'eEM'), pt=thrV,  shift_set = 1 )
 
         # L section (used to be VH in Run2)
-        ThresholdDef.addVaryingThrValues( EMThreshold(  'eEM8L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=8,  shift_set = 1 ) 
-        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM10L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=10, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM15L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM20L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt=20, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold(  'eEM8L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=8,  shift_set = 1 ) 
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM10L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=10, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM15L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=15, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM20L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=20, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=22, shift_set = 1 )
 
         # M section (used to be VHI in Run2)
+        ThresholdDef.addVaryingThrValues( EMThreshold(  'eEM8M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=8,  shift_set = 1 )
         ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM15M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM18M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=18, shift_set = 1 )
         ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM20M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=20, shift_set = 1 )
         ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=22, shift_set = 1 )
 
         # T section (used to be VHIM in Run2)
-        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22T',  'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt=22, shift_set = 1 )
+        ThresholdDef.addVaryingThrValues( EMThreshold( 'eEM22T',  'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ),    pt=22, shift_set = 1 )
 
-
-        # TAU
+        # eTAU
         for et in [8, 12, 20, 25, 40, 60, 100]:
-            TauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
+            eTauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
-        # TODO: missing isolation thresholds
-        for et in [12,20, 25]:
-            TauThreshold('eTAU%iM' % et, 'eTAU').setEt(et)
-        # TODO: missing hadronic isolation
+        for et in [12]:
+            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Loose" )
+        for et in [12]:
+            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Medium" )
         for et in [30]:
-            TauThreshold('eTAU%iH' % et, 'eTAU').setEt(et)
+            eTauThreshold('eTAU%iH' % et, 'eTAU').setEt(et).setIsolation( fEM = "Had" )
+  
+        # cTAU
+        for et in [12, 20, 25]:
+            cTauThreshold('cTAU%iM' % et, 'cTAU').setEt(et).setIsolation( isolation = "Medium" )
+
+        # jTAU
+        for et in [12]:
+            jTauThreshold('jTAU%i' % et, 'jTAU').setEt(et)
+        for et in [12]:
+            jTauThreshold('jTAU%iM' % et, 'jTAU').setEt(et).setIsolation( isolation = "Medium" )
 
         # JET
-        for thrV in [12, 15, 20, 25, 30, 40, 50, 85, 100]:
+        for thrV in [12, 15, 20, 25, 30, 40, 50, 75, 85, 100, 120, 400]:
             JetThreshold('jJ%i' % thrV, 'jJ').setPt(thrV).addRange(etamin=-31, etamax=31) # jets are between -31 and 31 -ATR-11526
 
         # Central jet
-        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25)]:
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25), (45,20)]:
             JetThreshold('jJ%ip0ETA%i'  % (thrV, etamax), 'jJ').setPt(thrV).addRange(etamin = -etamax,  etamax = etamax)  
 
         # Standard forward jet
-        for thrV in [15, 20, 75]:
+        for thrV in [15, 20, 30, 50, 75]:
             JetThreshold('jJ%ip31ETA49' % thrV, 'jJ').setPt(thrV).addRange(etamin=31, etamax=49).addRange(etamin=-49, etamax=-31)
 
         # XE

@@ -41,8 +41,9 @@ TrigConf::L1Threshold_EM::print(std::ostream & os) const {
       auto value = thrValue(eta);
       auto valueMeV = thrValueMeV(eta);
       auto counts = thrValueCounts(eta);
+      auto value100MeV = thrValue100MeV(eta);
       auto iso = isolationMask(eta);
-      os << "    eta = " << eta << " : " << value << " GeV " << valueMeV << " MeV " 
+      os << "    eta = " << eta << " : " << value << " GeV " << valueMeV << " MeV " << value100MeV << " 100MeV " 
          << counts << " counts , isoMaks " << iso << std::endl;
    }
 }
@@ -125,7 +126,25 @@ TrigConf::L1Threshold_eEM::load()
 
 void
 TrigConf::L1Threshold_eTAU::load()
-{}
+{
+   // read the isolation requirements
+   m_isoConeRel  = Selection::stringToWP(getAttribute("isoConeRel"));
+   m_fEM  = Selection::stringToWP(getAttribute("fEM"));
+}
+
+void
+TrigConf::L1Threshold_jTAU::load()
+{
+   // read the isolation requirements
+   m_isolation  = Selection::stringToWP(getAttribute("isolation"));
+}
+
+void
+TrigConf::L1Threshold_cTAU::load()
+{
+   // read the isolation requirements
+   m_isolation  = Selection::stringToWP(getAttribute("isolation"));
+}
 
 void
 TrigConf::L1Threshold_jJ::load()
