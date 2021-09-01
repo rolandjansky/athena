@@ -110,7 +110,7 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
         } else { // Keep track for each CPS group
           RatesCPS& cps = weightHLT_CPS[CPSID];
           cps.setCoherentFactor( trigger->getCoherentFactor() );
-          cps.execute( trigPrescaleReciprocal );
+          cps.execute( 1. / trigPrescaleReciprocal );
         }
 
       } else { // Trigger FAILED
