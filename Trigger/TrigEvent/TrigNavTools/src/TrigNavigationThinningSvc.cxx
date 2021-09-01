@@ -292,9 +292,8 @@ StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
 
   // grab the navigation
   auto navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
-  navAccess->enable();
   // protected by above lock
-  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
+  HLT::NavigationCore *cnav ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(navAccess.getNavigation());
 
   if(cnav == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );

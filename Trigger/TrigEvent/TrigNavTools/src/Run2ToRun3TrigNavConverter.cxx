@@ -32,7 +32,6 @@ StatusCode Run2ToRun3TrigNavConverter::initialize()
   ATH_CHECK( m_tdt.empty() != m_trigNavKey.key().empty() ); //either of the two has to be enabled but not both
   if ( !m_tdt.empty() ) {
     ATH_CHECK(m_tdt.retrieve());
-    m_tdt->ExperimentalAndExpertMethods()->enable();
     ATH_MSG_INFO( "Will use Trigger Navigation from TrigDecisionTool");
   } else { 
     ATH_CHECK(m_trigNavKey.initialize(SG::AllowEmpty));
@@ -86,7 +85,7 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext &context) cons
     standaloneNav.deserialize(navReadHandle->serialized());
     navDecoderPtr = &standaloneNav;
   } else {
-    navDecoderPtr = m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+    navDecoderPtr = m_tdt->ExperimentalAndExpertMethods().getNavigation();
   }
   const HLT::TrigNavStructure& navDecoder = *navDecoderPtr;
 

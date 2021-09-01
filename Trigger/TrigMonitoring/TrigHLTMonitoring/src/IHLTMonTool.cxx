@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -64,9 +64,6 @@ StatusCode IHLTMonTool::initialize() {
 
   // retrieve the trigger decision tool
   ATH_CHECK(  m_tdthandle.retrieve() );
-
-  // After retrieve enable Expert methods
-  getTDT()->ExperimentalAndExpertMethods()->enable();
 
   ATH_CHECK( m_storeGate.retrieve() );
   ATH_CHECK( m_inputMetaStore.retrieve() );
@@ -659,7 +656,7 @@ StatusCode IHLTMonTool::fillHistograms() {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
     // Require non-truncated HLTResult
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+    if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()) {
       ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
     }
     else { 

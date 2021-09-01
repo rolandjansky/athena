@@ -53,7 +53,6 @@ StatusCode TriggerAnalysisTutorial::initialize() {
    CHECK( m_trigDec.retrieve() );
    CHECK( m_matchTool.retrieve() );
    CHECK( m_histSvc.retrieve() );
-   m_trigDec->ExperimentalAndExpertMethods()->enable();
    // done
    //
    const int nTrigger = (int) m_chain_names.size();

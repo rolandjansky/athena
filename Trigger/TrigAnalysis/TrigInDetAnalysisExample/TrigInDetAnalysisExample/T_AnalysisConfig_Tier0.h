@@ -464,7 +464,7 @@ protected:
     //  still need in the future a more robust test to achieve this same
     //  functionality
     // 
-    //    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+    //    if ( (*m_tdt)->ExperimentalAndExpertMethods().isHLTTruncated() ) {
     //      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
     //      return;
     //    }

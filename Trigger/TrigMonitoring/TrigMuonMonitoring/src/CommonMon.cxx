@@ -1957,7 +1957,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     monalg = "_MuonEFMS";
     wrtalg = "_L2MuonSA";
     std::string monalg2 = "_MuonEFSA";
-    const HLT::Chain* chainDetail = getTDT()->ExperimentalAndExpertMethods()->getChainDetails( chainName);
+    const HLT::Chain* chainDetail = getTDT()->ExperimentalAndExpertMethods().getChainDetails( chainName);
 
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
@@ -3016,7 +3016,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
     wrtalg = "_MuComb";
     std::string monalg3 = "_EFmuon";
 
-    const HLT::Chain* chainDetail = getTDT()->ExperimentalAndExpertMethods()->getChainDetails(chainName);
+    const HLT::Chain* chainDetail = getTDT()->ExperimentalAndExpertMethods().getChainDetails(chainName);
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
       configChain = chainDetail->getConfigChain();

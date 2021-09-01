@@ -70,11 +70,7 @@ TrigMatchTool::getConfiguredChainNames() const
 
 std::string TrigMatchTool::lowerChainName( const std::string& chainName ) const {
 
-   // enable expert methods in tdt
-   auto em = m_trigDecisionTool->ExperimentalAndExpertMethods();
-   em->enable();
-
-   const TrigConf::HLTChain *hltChain = em->getChainConfigurationDetails(chainName);
+   const TrigConf::HLTChain *hltChain = m_trigDecisionTool->ExperimentalAndExpertMethods().getChainConfigurationDetails(chainName);
    if( hltChain ) {
       return hltChain->lower_chain_name();
    }

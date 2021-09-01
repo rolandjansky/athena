@@ -55,7 +55,7 @@ namespace Trig {
     using DecisionAccess::features;
     using DecisionAccess::ancestor;
 
-    const Trig::ExpertMethods* ExperimentalAndExpertMethods() const { return &m_expertMethods; }
+    const Trig::ExpertMethods& ExperimentalAndExpertMethods() const { return m_expertMethods; }
 
   protected:
     virtual Trig::CacheGlobalMemory* cgm() const;

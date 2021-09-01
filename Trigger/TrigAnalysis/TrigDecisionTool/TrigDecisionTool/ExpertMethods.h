@@ -18,7 +18,6 @@
  *
  ***********************************************************************************/
 #include <string>
-#include <boost/algorithm/string/predicate.hpp>
 
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigDecisionTool/Logger.h"
@@ -57,15 +56,6 @@ namespace Trig {
 #endif
 
     virtual ~ExpertMethods();
-
-    /**
-     * @brief enable use of Experimental or expert methods
-     **/
-    void enable() const {m_useExperimentalAndExpertMethods=true;};
-    /**
-     * @brief disable use of Experimental or expert methods
-     **/
-    void disable() const {m_useExperimentalAndExpertMethods=false;};
 
     /**
      * @brief return TrigConf::TriggerItem
@@ -115,11 +105,6 @@ namespace Trig {
 #endif    
 
     Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
-
-    mutable std::atomic<bool> m_useExperimentalAndExpertMethods;
-
-    bool checkExperimentalAndExpertMethods() const;
-
   };
   
 } // End of namespace

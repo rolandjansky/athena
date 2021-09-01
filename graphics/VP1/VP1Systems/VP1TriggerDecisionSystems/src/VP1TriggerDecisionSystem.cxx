@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1TriggerDecisionSystems/VP1TriggerDecisionSystem.h"
@@ -55,8 +55,6 @@ void VP1TriggerDecisionSystem::create( StoreGateSvc* /*triggerDecisonTool*/ )
   StatusCode sc = m_clock->m_trigDec.retrieve();
   if(sc.isFailure())
     message("Error: retrieve TrigDecisionTool failed!");
-
-  m_clock->m_trigDec->ExperimentalAndExpertMethods()->enable();
 }
 
 //____________________________________________________________________
@@ -150,7 +148,7 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
   // For LV1 ROI informations
   if(key.find("L1",0)!= std::string::npos) {
     os << "	LV1: " << key << std::endl;
-    const LVL1CTP::Lvl1Item*  l1iterm = m_trigDec->ExperimentalAndExpertMethods()->getItemDetails(key);
+    const LVL1CTP::Lvl1Item*  l1iterm = m_trigDec->ExperimentalAndExpertMethods().getItemDetails(key);
     if(l1iterm) {
       os << "	LV1 " << l1iterm->name() << " isPassed: " 	<< l1iterm->isPassed() << std::endl;
       os << "	LV1 " << l1iterm->name() << " isPrescaled: " 	<< l1iterm->isPrescaled()

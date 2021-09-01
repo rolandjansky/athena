@@ -102,8 +102,7 @@ StatusCode TrigDecisionChecker::initialize()
 
     // get handle to TrigDecisionTool
     ATH_CHECK(m_trigDec.retrieve());
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
-    
+
     // reserve space for vectors
     m_summary.reserve(700);
     m_summaryChainPassRaw.reserve(700);
@@ -401,9 +400,7 @@ StatusCode TrigDecisionChecker::execute()
         msg(MSG::INFO) << "Pass state EF  = " << m_trigDec->isPassed("EF_.*") << endmsg;
         msg(MSG::INFO) << "Pass state HLT = " << m_trigDec->isPassed("HLT_.*") << endmsg;
     }
-    
-    auto em = m_trigDec->ExperimentalAndExpertMethods();
-    
+
     // L1
     std::vector<std::string> allItems = m_trigDec->getListOfTriggers("L1_.*");
     if (!allItems.empty()) {
@@ -412,7 +409,7 @@ StatusCode TrigDecisionChecker::execute()
         for (std::vector<std::string>::const_iterator itemIt = allItems.begin();
              itemIt != allItems.end(); ++itemIt) {
             
-            const LVL1CTP::Lvl1Item* aItem = em->getItemDetails(*itemIt);
+            const LVL1CTP::Lvl1Item* aItem = m_trigDec->ExperimentalAndExpertMethods().getItemDetails(*itemIt);
             
             if (!aItem) continue;
             if (aItem->name()=="") continue;
@@ -463,7 +460,7 @@ StatusCode TrigDecisionChecker::execute()
         std::map<std::string,float> t_ps_map;
         
         for(std::vector<std::string>::iterator chIter = confChains.begin(); chIter != confChains.end(); ++chIter) {
-            const TrigConf::HLTChain * ch = em->getChainConfigurationDetails(*chIter);
+            const TrigConf::HLTChain * ch = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(*chIter);
             std::string name = *chIter;
             m_summary.push_back(name);
             t_pt_map[name] = ch->pass_through();
@@ -499,7 +496,7 @@ StatusCode TrigDecisionChecker::execute()
         std::string name = m_summary[i];
         ATH_MSG_VERBOSE("Testing chain: " << name);
         
-        const HLT::Chain* aChain = em->getChainDetails(name);
+        const HLT::Chain* aChain = m_trigDec->ExperimentalAndExpertMethods().getChainDetails(name);
         if (! aChain) { // inactive chain
             continue;
         }

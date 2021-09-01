@@ -187,8 +187,6 @@ StatusCode HLTMuonMonTool::init()
 
   */
 
-  getTDT()->ExperimentalAndExpertMethods()->enable();
-
   // chainAnalysis chains
 
   // Generic (EFsuper etc.)
@@ -1128,7 +1126,7 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
   if(step=="L2MuonSA") hyponame = m_hypomapL2SA[chainname];
   if(step=="L2muComb") hyponame = m_hypomapL2CB[chainname];
   const HLT::TriggerElement *hypote = NULL;
-  std::vector<HLT::TriggerElement*> TEsuccessors = getTDT()->ExperimentalAndExpertMethods()->getNavigation()->getDirectSuccessors(te);
+  std::vector<HLT::TriggerElement*> TEsuccessors = getTDT()->ExperimentalAndExpertMethods().getNavigation()->getDirectSuccessors(te);
   for(auto te2 : TEsuccessors){
     ATH_MSG_VERBOSE("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
     if(Trig::getTEName(*te2)==hyponame){

@@ -48,7 +48,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   ATH_MSG_DEBUG("Executing TrigTauMonitorAlgorithm");
 
-  if(m_trigDecTool->ExperimentalAndExpertMethods()->isHLTTruncated()){
+  if(m_trigDecTool->ExperimentalAndExpertMethods().isHLTTruncated()){
     ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
     return StatusCode::SUCCESS; 
   }
