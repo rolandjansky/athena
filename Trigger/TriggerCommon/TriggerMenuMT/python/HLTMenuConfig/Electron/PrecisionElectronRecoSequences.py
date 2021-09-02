@@ -79,6 +79,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
     ## TrigElectronIsoBuilderCfg_noGSF ##
     isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
+    isoBuilder.useBremAssoc = False
     thesequence += isoBuilder
 
     #online monitoring for topoEgammaBuilder

@@ -178,6 +178,10 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
         etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
 
+     bool ispt20 = input.electron->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+     if (!ispt20) {
+       ATH_MSG_WARNING("ptcone20 not available. Will not cut on isolation");
+     }
 
      // variables based on HCAL
      // transverse energy in 1st scintillator of hadronic calorimeter/ET
