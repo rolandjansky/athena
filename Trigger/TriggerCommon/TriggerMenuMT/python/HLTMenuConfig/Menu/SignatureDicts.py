@@ -206,6 +206,7 @@ JetChainParts = {
                       'DIJET35j12ptXX700djmass',
                       'DIJET35j12ptXX500djmass',
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
+                      'HT0',
                       'HT1000',
                       'HT300',
                       'HT500',
@@ -775,10 +776,11 @@ StreamingChainParts = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'jettauetmiss', 'larcells','laser', 'CIS',
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
-                        'zb', 'l1calo', 'l1topo','ftk'],
+    # No effect on configuration, used in special cases for
+    # disambiguation or to allow events from the same L1 seed
+    # to be written to different streams
+    # New cases should be discussed with Menu Coordinators
+    'streamingInfo'  : ['laser', 'CIS','idmon'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
