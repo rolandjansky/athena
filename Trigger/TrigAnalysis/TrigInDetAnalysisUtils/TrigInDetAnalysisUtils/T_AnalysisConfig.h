@@ -531,8 +531,7 @@ protected:
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
 
-      (*m_tdt)->ExperimentalAndExpertMethods()->enable();
-      const HLT::NavigationCore* nc = (*m_tdt)->ExperimentalAndExpertMethods()->getNavigation();
+      const HLT::NavigationCore* nc = (*m_tdt)->ExperimentalAndExpertMethods().getNavigation();
 
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
       //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;

@@ -244,7 +244,6 @@ StatusCode TrigEDMChecker::initialize() {
 
   if (m_doTDTCheck || m_doDumpTrigCompsiteNavigation) {
     ATH_CHECK( m_trigDec.retrieve() );
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
     ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
   ATH_CHECK(m_muonTracksKey.initialize(m_doTDTCheck));
@@ -4237,7 +4236,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   pass = cg->isPassed(TrigDefs::requireDecision);
   std::vector<std::string> chains = cg->getListOfTriggers();
   for (const std::string& chain : chains) {
-    const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+    const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(chain);
     const HLT::Identifier chainID_tmp( hltChain->chain_name() );
     chainIDs.insert( chainID_tmp.numeric() );
     const std::vector<size_t> legMultiplicites = hltChain->leg_multiplicities();

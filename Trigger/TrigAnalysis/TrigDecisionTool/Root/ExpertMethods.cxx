@@ -39,16 +39,14 @@
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 
 Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
-  : m_cacheGlobalMemory(cgm),
-    m_useExperimentalAndExpertMethods(false)   
+  : m_cacheGlobalMemory(cgm)
 {
 }
 
 #else // Analysis or Standalone
 
 Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
-  : m_cacheGlobalMemory(cgm),
-    m_useExperimentalAndExpertMethods(false)   
+  : m_cacheGlobalMemory(cgm)
 {
 }
 
@@ -56,38 +54,24 @@ Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm)
 
 Trig::ExpertMethods::~ExpertMethods() {}
 
-bool Trig::ExpertMethods::checkExperimentalAndExpertMethods() const {
-  if (m_useExperimentalAndExpertMethods) return true;
-  else {
-    ATH_MSG_ERROR("You have not confirmed the use of experimental or expert TrigDecisionTool methods at this time.  Please take care before using such methods.");
-    return false;
-  }
-}
-
-
 const TrigConf::TriggerItem*
 Trig::ExpertMethods::getItemConfigurationDetails(const std::string& chain) const {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   ATH_MSG_VERBOSE("getting L1 item configuration details for: " << chain);
   return cgm(true)->config_item(chain);
 }
 
 const TrigConf::HLTChain*
 Trig::ExpertMethods::getChainConfigurationDetails(const std::string& chain) const {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   ATH_MSG_VERBOSE("getting chain configuration details for: " << chain);
   return cgm(true)->config_chain(chain);
 }
 
 
 const HLT::Chain* Trig::ExpertMethods::getChainDetails(const std::string& chain) const {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   return cgm()->chain(chain);
-  
 }
 
 const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& chain) const {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   return cgm()->item(chain);
 }
 
@@ -95,7 +79,6 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
 
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
 {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   return dynamic_cast<const HLT::NavigationCore*>(cgm()->navigation());
 }
 
@@ -112,7 +95,6 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 {
-  if (!(checkExperimentalAndExpertMethods())) return 0;
   return cgm()->navigation();
 }
 

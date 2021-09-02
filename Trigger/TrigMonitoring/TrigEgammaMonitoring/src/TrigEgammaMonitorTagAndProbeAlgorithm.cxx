@@ -83,7 +83,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 
     // Check HLTResult
-    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS;
     }
