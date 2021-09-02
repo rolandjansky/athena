@@ -21,32 +21,21 @@
 
 namespace MuonGM {
 
-    Station::Station(MYSQL& mysql, std::string s) : m_name(std::move(s)) {
-        m_amdbOrigine_along_length = 0;
-        m_amdbOrigine_along_thickness = 0;
-
-        m_hasMdts = false;
+    Station::Station(MYSQL& mysql, std::string s) :
+      m_amdbOrigine_along_length (0),
+      m_amdbOrigine_along_thickness (0),
+      m_name(std::move(s)),
+      m_hasMdts (false)
+    {
         mysql.StoreStation(this);
     }
 
-    Station::Station() {
-        m_amdbOrigine_along_length = 0;
-        m_amdbOrigine_along_thickness = 0;
-
-        m_name = "unknown";
-        m_hasMdts = false;
-    }
-
-    Station::Station(const Station &s) {
-        m_amdbOrigine_along_length = 0;
-        m_amdbOrigine_along_thickness = 0;
-
-        m_hasMdts = s.m_hasMdts;
-        m_name = s.m_name;
-        for (unsigned int i = 0; i < s.m_components.size(); i++)
-            m_components.push_back(s.m_components[i]);
-        for (unsigned int i = 0; i < s.m_cutouts.size(); i++)
-            m_cutouts.push_back(s.m_cutouts[i]);
+    Station::Station() :
+      m_amdbOrigine_along_length (0),
+      m_amdbOrigine_along_thickness (0),
+      m_name("unknown"),
+      m_hasMdts (false)
+    {
     }
 
     Station::~Station() {
