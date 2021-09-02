@@ -25,6 +25,24 @@ bool isInListVector(const int bcid, const std::vector<int>&arr)
 	return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
 }
 
+int reorganizePlanes(const int* station, const int* layer)
+{
+	if(*station == 0 || *station == 1)
+	{
+		return (*station*4)+3-(*layer);
+	}
+	return 0;
+}
+
+int reorganizePlanesInt(const int station, const int layer)
+{
+	if(station == 0 || station == 1)
+	{
+		return (station*4)+3-(layer);
+	}
+	return 0;
+}
+
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -49,33 +67,33 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 	ATH_CHECK(m_afpHitContainerKey.initialize());
 	
-	ATH_MSG_INFO( "BunchCrossingKey initialization" );
+	ATH_MSG_INFO( "BunchCrossingKey initialization (SiT)" );
 	ATH_CHECK(m_bunchCrossingKey.initialize());
-	ATH_MSG_INFO( "initialization completed" );
+	ATH_MSG_INFO( "initialization completed (SiT)" );
 	return AthMonitorAlgorithm::initialize();
 }
 
 StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	using namespace Monitored;
 	
-	auto bcidAll = Monitored::Scalar<int>("bcidAll", 0);
-	auto bcidFront = Monitored::Scalar<int>("bcidFront", 0);
+	auto bcidAll    = Monitored::Scalar<int>("bcidAll", 0);
+	auto bcidFront  = Monitored::Scalar<int>("bcidFront", 0);
 	auto bcidMiddle = Monitored::Scalar<int>("bcidMiddle", 0);
-	auto bcidEnd = Monitored::Scalar<int>("bcidEnd", 0);
+	auto bcidEnd    = Monitored::Scalar<int>("bcidEnd", 0);
 	
-	auto numberOfEventsPerLumiblockFront = Monitored::Scalar<int>("numberOfEventsPerLumiblockFront", 0);
+	auto numberOfEventsPerLumiblockFront  = Monitored::Scalar<int>("numberOfEventsPerLumiblockFront", 0);
 	auto numberOfEventsPerLumiblockMiddle = Monitored::Scalar<int>("numberOfEventsPerLumiblockMiddle", 0);
-	auto numberOfEventsPerLumiblockEnd = Monitored::Scalar<int>("numberOfEventsPerLumiblockEnd", 0);
+	auto numberOfEventsPerLumiblockEnd    = Monitored::Scalar<int>("numberOfEventsPerLumiblockEnd", 0);
 	
-	numberOfEventsPerLumiblockFront = GetEventInfo(ctx)->lumiBlock();
-	numberOfEventsPerLumiblockMiddle = GetEventInfo(ctx)->lumiBlock();
-	numberOfEventsPerLumiblockEnd = GetEventInfo(ctx)->lumiBlock();
+	numberOfEventsPerLumiblockFront   = GetEventInfo(ctx)->lumiBlock();
+	numberOfEventsPerLumiblockMiddle  = GetEventInfo(ctx)->lumiBlock();
+	numberOfEventsPerLumiblockEnd     = GetEventInfo(ctx)->lumiBlock();
 
 	// BCX handler
 	unsigned int temp = GetEventInfo(ctx)->bcid();
 	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
 	if (!bcidHdl.isValid()) {
-		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object (SiT)" );
 	}
 	const BunchCrossingCondData* bcData{*bcidHdl};
 
@@ -121,8 +139,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 		
 	// Declare the quantities which should be monitored:
-	auto lb = Monitored::Scalar<int>("lb", 0);
-	auto muPerBX = Monitored::Scalar<float>("muPerBX", 0.0);
+	auto lb       = Monitored::Scalar<int>("lb", 0);
+	auto muPerBX  = Monitored::Scalar<float>("muPerBX", 0.0);
 	//auto run = Monitored::Scalar<int>("run",0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
@@ -130,7 +148,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
 	auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
 
-	auto timeOverThreshold = Monitored::Scalar<float>("timeOverThreshold", 0.0);
+	auto timeOverThreshold = Monitored::Scalar<int>("timeOverThreshold", 0);
 
 	auto clusterX = Monitored::Scalar<float>("clusterX", 0.0);
 	auto clusterY = Monitored::Scalar<float>("clusterY", 0.0); 
@@ -139,50 +157,51 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto trackX = Monitored::Scalar<float>("trackX", 0.0);
 	auto trackY = Monitored::Scalar<float>("trackY", 0.0);
 	
-	auto planeHits = Monitored::Scalar<int>("planeHits", 0);
-	auto planeHitsAll = Monitored::Scalar<int>("planeHitsAll", 0);
-	auto planeHitsAllMU = Monitored::Scalar<int>("planeHitsAllMU", 0);
-	auto weightAllPlanes = Monitored::Scalar<float>("weightAllPlanes", 1.0);
+	auto planeHits        = Monitored::Scalar<int>("planeHits", 0);
+	auto planeHitsAll     = Monitored::Scalar<int>("planeHitsAll", 0);
+	auto planeHitsAllMU   = Monitored::Scalar<int>("planeHitsAllMU", 0);
+	auto weightAllPlanes  = Monitored::Scalar<float>("weightAllPlanes", 1.0);
 	
 	auto numberOfHitsPerStation = Monitored::Scalar<int>("numberOfHitsPerStation", 0);
 	
-	auto lbEvents = Monitored::Scalar<int>("lbEvents", 0);
-	auto lbHits = Monitored::Scalar<int>("lbHits", 0);
-	auto lbEventsStations = Monitored::Scalar<int>("lbEventsStations", 0);
-	auto lbEventsStationsAll = Monitored::Scalar<int>("lbEventsStationsAll", 0);
+	auto lbEvents             = Monitored::Scalar<int>("lbEvents", 0);
+	auto lbHits               = Monitored::Scalar<int>("lbHits", 0);
+	auto lbEventsStations     = Monitored::Scalar<int>("lbEventsStations", 0);
+	auto lbEventsStationsAll  = Monitored::Scalar<int>("lbEventsStationsAll", 0);
 	
-	
-	auto lbClustersPerPlanes = Monitored::Scalar<int>("lbClustersPerPlanes", 0);
-	auto weightClustersByMU = Monitored::Scalar<float>("weightClustersByMU", 1.0);
+	auto lbClustersPerPlanes  = Monitored::Scalar<int>("lbClustersPerPlanes", 0);
+	auto weightClustersByMU   = Monitored::Scalar<float>("weightClustersByMU", 1.0);
 	
 	auto lbClustersPerPlanes_full = Monitored::Scalar<int>("lbClustersPerPlanes_full", 0);
 	
-	auto clustersPerPlaneFrontPP = Monitored::Scalar<int>("clustersPerPlaneFrontPP", 0);
-	auto clustersPerPlaneMiddlePP = Monitored::Scalar<int>("clustersPerPlaneMiddlePP", 0);
-	auto clustersPerPlaneEndPP = Monitored::Scalar<int>("clustersPerPlaneEndPP", 0);
-	auto weightClustersPerPlaneFrontPP = Monitored::Scalar<float>("weightClustersPerPlaneFrontPP", 1.0);
+	auto clustersPerPlaneFrontPP        = Monitored::Scalar<int>("clustersPerPlaneFrontPP", 0);
+	auto clustersPerPlaneMiddlePP       = Monitored::Scalar<int>("clustersPerPlaneMiddlePP", 0);
+	auto clustersPerPlaneEndPP          = Monitored::Scalar<int>("clustersPerPlaneEndPP", 0);
+	auto weightClustersPerPlaneFrontPP  = Monitored::Scalar<float>("weightClustersPerPlaneFrontPP", 1.0);
 	auto weightClustersPerPlaneMiddlePP = Monitored::Scalar<float>("weightClustersPerPlaneMiddlePP", 1.0);
-	auto weightClustersPerPlaneEndPP = Monitored::Scalar<float>("weightClustersPerPlaneEndPP", 1.0);
+	auto weightClustersPerPlaneEndPP    = Monitored::Scalar<float>("weightClustersPerPlaneEndPP", 1.0);
 
-	auto clustersPerPlaneFrontPP_full = Monitored::Scalar<int>("clustersPerPlaneFrontPP_full", 0);
-	auto clustersPerPlaneMiddlePP_full = Monitored::Scalar<int>("clustersPerPlaneMiddlePP_full", 0);
-	auto clustersPerPlaneEndPP_full = Monitored::Scalar<int>("clustersPerPlaneEndPP_full", 0);
+	auto clustersPerPlaneFrontPP_full   = Monitored::Scalar<int>("clustersPerPlaneFrontPP_full", 0);
+	auto clustersPerPlaneMiddlePP_full  = Monitored::Scalar<int>("clustersPerPlaneMiddlePP_full", 0);
+	auto clustersPerPlaneEndPP_full     = Monitored::Scalar<int>("clustersPerPlaneEndPP_full", 0);
 	
-	auto lbHitsPerPlanes = Monitored::Scalar<int>("lbHitsPerPlanes", 0);
+	auto lbHitsPerPlanes      = Monitored::Scalar<int>("lbHitsPerPlanes", 0);
 	auto lbHitsPerPlanes_full = Monitored::Scalar<float>("lbHitsPerPlanes_full", 0.0);
-	auto weightHitsByMU = Monitored::Scalar<float>("weightHitsByMU", 1.0);
+	auto weightHitsByMU       = Monitored::Scalar<float>("weightHitsByMU", 1.0);
 	
-	auto hitsCounterPlanesTProfile = Monitored::Scalar<int>("hitsCounterPlanesTProfile", 0.0);
-	auto hitsCounterStationsTProfile = Monitored::Scalar<int>("hitsCounterStationsTProfile", 0.0);
+	auto hitsCounterPlanesTProfile    = Monitored::Scalar<int>("hitsCounterPlanesTProfile", 0.0);
+	auto hitsCounterStationsTProfile  = Monitored::Scalar<int>("hitsCounterStationsTProfile", 0.0);
 	
 	auto planes = Monitored::Scalar<int>("planes", 0);
 	
 	auto eventsPerStation = Monitored::Scalar<int>("eventsPerStation", 0);
 	
-	lb = GetEventInfo(ctx)->lumiBlock();
-	lbEvents = GetEventInfo(ctx)->lumiBlock();
-	muPerBX = lbAverageInteractionsPerCrossing(ctx);
-	//run = GetEventInfo(ctx)->runNumber();
+	auto clusterToT = Monitored::Scalar<int>("clusterToT", 0);
+	
+	lb        = GetEventInfo(ctx)->lumiBlock();
+	lbEvents  = GetEventInfo(ctx)->lumiBlock();
+	muPerBX   = lbAverageInteractionsPerCrossing(ctx);
+	//run     = GetEventInfo(ctx)->runNumber();
 	fill("AFPSiLayerTool", lb, muPerBX);
 	fill("AFPSiLayerTool", lbEvents);
 	
@@ -205,13 +224,14 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
-		lb = GetEventInfo(ctx)->lumiBlock();
-		lbHits = GetEventInfo(ctx)->lumiBlock();
-		lbEventsStations = GetEventInfo(ctx)->lumiBlock();
+		lb                  = GetEventInfo(ctx)->lumiBlock();
+		lbHits              = GetEventInfo(ctx)->lumiBlock();
+		lbEventsStations    = GetEventInfo(ctx)->lumiBlock();
 		lbEventsStationsAll = GetEventInfo(ctx)->lumiBlock();
-		pixelRowIDChip = hitsItr->pixelRowIDChip();
-		pixelColIDChip = hitsItr->pixelColIDChip();
-		timeOverThreshold = hitsItr->timeOverThreshold();
+		pixelRowIDChip      = hitsItr->pixelRowIDChip();
+		pixelColIDChip      = hitsItr->pixelColIDChip();
+		timeOverThreshold   = hitsItr->timeOverThreshold();
+		
 		
 		stationValues.push_back(hitsItr->stationID());
 		
@@ -224,12 +244,27 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lb, hitsCounterPlanesTProfile);
 			
-			planeHits = hitsItr->pixelLayerID();
+			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
+			{
+				planeHits = reorganizePlanesInt(0, hitsItr->pixelLayerID());
+			}
+			else
+			{
+				planeHits = hitsItr->pixelLayerID();
+			}
 			fill(m_tools[m_StationGroup.at(m_stationnames.at(hitsItr->stationID()))], planeHits);
 			
 			++numberOfHitsPerPlane[hitsItr->stationID()][hitsItr->pixelLayerID()];
-			planeHitsAll = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
-			planeHitsAllMU = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
+			if(hitsItr->stationID() == 0 || hitsItr->stationID() == 1)
+			{
+				planeHitsAll = reorganizePlanesInt(hitsItr->stationID(), hitsItr->pixelLayerID());
+				planeHitsAllMU = reorganizePlanesInt(hitsItr->stationID(), hitsItr->pixelLayerID());
+			}
+			else
+			{
+				planeHitsAll = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
+				planeHitsAllMU = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
+			}
 			weightAllPlanes = 1 / muPerBX;
 			fill("AFPSiLayerTool", planeHitsAll);
 			fill("AFPSiLayerTool", planeHitsAllMU, weightAllPlanes);
@@ -242,8 +277,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			
 			fill("AFPSiLayerTool", lbHits);
 			
-			lbHitsPerPlanes = GetEventInfo(ctx)->lumiBlock();
-			lbHitsPerPlanes_full = GetEventInfo(ctx)->lumiBlock();
+			lbHitsPerPlanes       = GetEventInfo(ctx)->lumiBlock();
+			lbHitsPerPlanes_full  = GetEventInfo(ctx)->lumiBlock();
 			weightHitsByMU = 1 / muPerBX;
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes, weightHitsByMU);
 			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], lbHitsPerPlanes_full);
@@ -371,35 +406,40 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		}
 	}
 	
-	auto weightTracksAll = Monitored::Scalar<float>("weightTracksAll", 0.0);
-	auto weightTracksFront = Monitored::Scalar<float>("weightTracksFront", 0.0);
+	auto weightTracksAll    = Monitored::Scalar<float>("weightTracksAll", 0.0);
+	auto weightTracksFront  = Monitored::Scalar<float>("weightTracksFront", 0.0);
 	auto weightTracksMiddle = Monitored::Scalar<float>("weightTracksMiddle", 0.0);
-	auto weightTracksEnd = Monitored::Scalar<float>("weightTracksEnd", 0.0);
+	auto weightTracksEnd    = Monitored::Scalar<float>("weightTracksEnd", 0.0);
 	
-	auto lbTracksAll = Monitored::Scalar<int>("lbTracksAll", 0);
-	auto lbTracksFront = Monitored::Scalar<int>("lbTracksFront", 0);
-	auto lbTracksMiddle = Monitored::Scalar<int>("lbTracksMiddle", 0);
-	auto lbTracksEnd = Monitored::Scalar<int>("lbTracksEnd", 0);
+	auto lbTracksAll        = Monitored::Scalar<int>("lbTracksAll", 0);
+	auto lbTracksFront      = Monitored::Scalar<int>("lbTracksFront", 0);
+	auto lbTracksMiddle     = Monitored::Scalar<int>("lbTracksMiddle", 0);
+	auto lbTracksEnd        = Monitored::Scalar<int>("lbTracksEnd", 0);
 	
-	auto weightTracksAll_full = Monitored::Scalar<int>("weightTracksAll_full", 0);
-	auto weightTracksFront_full = Monitored::Scalar<int>("weightTracksFront_full", 0);
-	auto weightTracksMiddle_full = Monitored::Scalar<int>("weightTracksMiddle_full", 0);
-	auto weightTracksEnd_full = Monitored::Scalar<int>("weightTracksEnd_full", 0);
+	auto weightTracksAll_full     = Monitored::Scalar<int>("weightTracksAll_full", 0);
+	auto weightTracksFront_full   = Monitored::Scalar<int>("weightTracksFront_full", 0);
+	auto weightTracksMiddle_full  = Monitored::Scalar<int>("weightTracksMiddle_full", 0);
+	auto weightTracksEnd_full     = Monitored::Scalar<int>("weightTracksEnd_full", 0);
 	
-	auto lbTracksAll_full = Monitored::Scalar<int>("lbTracksAll_full", 0);
-	auto lbTracksFront_full = Monitored::Scalar<int>("lbTracksFront_full", 0);
-	auto lbTracksMiddle_full = Monitored::Scalar<int>("lbTracksMiddle_full", 0);
-	auto lbTracksEnd_full = Monitored::Scalar<int>("lbTracksEnd_full", 0);
+	auto lbTracksAll_full     = Monitored::Scalar<int>("lbTracksAll_full", 0);
+	auto lbTracksFront_full   = Monitored::Scalar<int>("lbTracksFront_full", 0);
+	auto lbTracksMiddle_full  = Monitored::Scalar<int>("lbTracksMiddle_full", 0);
+	auto lbTracksEnd_full     = Monitored::Scalar<int>("lbTracksEnd_full", 0);
 	
-	lbTracksAll = GetEventInfo(ctx)->lumiBlock();
-	lbTracksFront = GetEventInfo(ctx)->lumiBlock();
-	lbTracksMiddle = GetEventInfo(ctx)->lumiBlock();
-	lbTracksEnd = GetEventInfo(ctx)->lumiBlock();
+	lbTracksAll     = GetEventInfo(ctx)->lumiBlock();
+	lbTracksFront   = GetEventInfo(ctx)->lumiBlock();
+	lbTracksMiddle  = GetEventInfo(ctx)->lumiBlock();
+	lbTracksEnd     = GetEventInfo(ctx)->lumiBlock();
 	
-	lbTracksAll_full = GetEventInfo(ctx)->lumiBlock();
-	lbTracksFront_full = GetEventInfo(ctx)->lumiBlock();
+	lbTracksAll_full      = GetEventInfo(ctx)->lumiBlock();
+	lbTracksFront_full    = GetEventInfo(ctx)->lumiBlock();
+	lbTracksMiddle_full   = GetEventInfo(ctx)->lumiBlock();
+	lbTracksEnd_full      = GetEventInfo(ctx)->lumiBlock();
+	
+	lbTracksAll_full    = GetEventInfo(ctx)->lumiBlock();
+	lbTracksFront_full  = GetEventInfo(ctx)->lumiBlock();
 	lbTracksMiddle_full = GetEventInfo(ctx)->lumiBlock();
-	lbTracksEnd_full = GetEventInfo(ctx)->lumiBlock();
+	lbTracksEnd_full    = GetEventInfo(ctx)->lumiBlock();
 	
 	for(int i = 0; i < 4; i++)
 	{
@@ -434,8 +474,18 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		clusterX = cluster.x * 1.0;
 		clusterY = cluster.y * 1.0;
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
-		clustersInPlanes = (cluster.station*4)+cluster.layer;
+		if (cluster.station == 0 || cluster.station == 1)
+		{
+			clustersInPlanes = reorganizePlanes(&cluster.station, &cluster.layer);
+		}
+		else
+		{
+			clustersInPlanes = (cluster.station*4)+cluster.layer;
+		}
 		fill("AFPSiLayerTool", clustersInPlanes);
+		
+		clusterToT = cluster.sumToT;
+		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterToT);
 		
 		lbClustersPerPlanes = GetEventInfo(ctx)->lumiBlock();
 		lbClustersPerPlanes_full = GetEventInfo(ctx)->lumiBlock();
