@@ -84,7 +84,6 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
     MMPrepDataCnv_p1 chanCnv;
     Muon::MMPrepDataContainer::const_iterator it_Coll = transCont->begin();
     Muon::MMPrepDataContainer::const_iterator it_CollEnd = transCont->end();
-    unsigned int pcollBegin = 0;  // index to start of persistent collection we're filling, in long list of persistent PRDs
     unsigned int pcollEnd = 0;    // index to end
     int numColl = transCont->numberOfCollections();
     persCont->m_collections.resize(numColl);
@@ -98,18 +97,16 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
         // Add in new collection
         Muon::MuonPRD_Collection_p2& pcollection = persCont->m_collections[pcollIndex];  // get ref to collection we're going to fill
 
-        pcollBegin = pcollEnd;  // Next collection starts at end of previous one.
         pcollEnd += collection.size();
 
         pcollection.m_hashId = collection.identifyHash();  // the collection hash is the module hash in MmIdHelper
         pcollection.m_id = collection.identify().get_identifier32().get_compact();
         pcollection.m_size = collection.size();
         // Add in channels
-        persCont->m_prds.reserve(pcollEnd);  // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
+        persCont->m_prds.reserve(pcollEnd);
         persCont->m_prdDeltaId.reserve(pcollEnd);
 
         for (unsigned int i = 0; i < collection.size(); ++i) {
-            unsigned int pchanIndex = i + pcollBegin;
             const MMPrepData* chan = collection[i];  // channel being converted
             MMPrepData_p1 pchan{};                   // persistent version to fill
             const Identifier chan_id = chan->identify();
