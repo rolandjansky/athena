@@ -259,7 +259,7 @@ LArCaliWaveSubsetCnv_p3::transToPers(const LArCWTransType* transObj,  LArCaliWav
         }
 				
         // Save chansSet
-        if  (j == (chansOffset + 31)) {
+        if  (j == (chansOffset + 31) || j == nfebChans-1 ) {
           persObj->m_subset.m_febsWithSparseData.push_back(chansSet);
           chansSet    =   0;
           chansOffset += 32;
