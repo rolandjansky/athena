@@ -116,10 +116,14 @@ def ActsExtrapolationToolCfg(configFlags, name="ActsExtrapolationTool", **kwargs
   return result
 
 
-def ActsMaterialTrackWriterSvcCfg(name="ActsMaterialTrackWriterSvc",
+def ActsMaterialTrackWriterSvcCfg(configFlags,
+                                  name="ActsMaterialTrackWriterSvc",
                                   FilePath="MaterialTracks_mapping.root",
                                   TreeName="material-tracks") :
   result = ComponentAccumulator()
+
+  acc = ActsTrackingGeometrySvcCfg(configFlags)
+  result.merge(acc)
 
   Acts_ActsMaterialTrackWriterSvc = CompFactory.ActsMaterialTrackWriterSvc
   ActsMaterialTrackWriterSvc = Acts_ActsMaterialTrackWriterSvc(name, 
