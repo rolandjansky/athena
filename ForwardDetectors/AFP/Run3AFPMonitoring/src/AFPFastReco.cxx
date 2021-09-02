@@ -19,7 +19,7 @@ void AFPFastReco::reco()
 
 void AFPFastReco::recoClusters() 
 {
-	constexpr float dx   = 0.25;  // [mm]
+    constexpr float dx   = 0.25;  // [mm]
     constexpr float dy   = 0.05;  // [mm]
     constexpr float dz   = 9.00;  // [mm]
     constexpr float tilt = 14. / 180. * 3.14159;
@@ -32,17 +32,19 @@ void AFPFastReco::recoClusters()
 		toCluster.pop_front();
 		auto clusteredHits = findAround(init, toCluster);
 
-		float sumX      = 0;
-		float sumY      = 0;
-		float sumCharge = 0;
+		float sumX        = 0;
+		float sumY        = 0;
+		float sumCharge   = 0;
+		int   sumToT_temp = 0;
 		for (const xAOD::AFPSiHit* h : clusteredHits) 
 		{
-        	const float charge = h->depositedCharge();
+			const float charge = h->depositedCharge();
 			const float pixX   = dx * h->pixelColIDChip();
 			const float pixY   = dy * h->pixelRowIDChip();
 			sumX += charge * pixX;
 			sumY += charge * pixY;
 			sumCharge += charge;
+			sumToT_temp += h->timeOverThreshold();
 		}
 
 		const float xPlane = sumX / sumCharge;
@@ -55,7 +57,7 @@ void AFPFastReco::recoClusters()
 		const float y = yPlane * cos(tilt);
 		const float z = yPlane * sin(tilt) + dz * layerID;
 
-		m_clusters.emplace_back(x, y, z, stationID, layerID);
+		m_clusters.emplace_back(x, y, z, stationID, layerID, sumToT_temp);
     }
 }
 
