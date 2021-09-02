@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ public:
   // Ui::AODSysSettingsExtrapolationsForm ui_extrap;
   // Ui::AODSysSettingsInteractionsForm ui_int;
   // Ui::AODSysSettingsCutsForm ui_cuts;
-  Ui::ObjectBrowser ui_objBrowser;
+  Ui::AODObjectBrowser ui_objBrowser;
   
   QTreeWidget* objBrowserWidget;
   AODSysCommonData * common;
