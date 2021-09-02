@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOCELLVOLUMES_H
-#define CALOCELLVOLUMES_H
+#ifndef CALODETDESCRUTILS_CALOCELLVOLUMES_H
+#define CALODETDESCRUTILS_CALOCELLVOLUMES_H
 
+#include "Identifier/Identifier.h"
 #include <vector>
 #include <string>
 #include <map>
-#include "Identifier/Identifier.h"
 
 class CaloCell_ID;
 class ISvcLocator;
-
-/** This class is a modification of LArDetDescr/LArCellVolumes.
-    Presently it provides volumes for LAr cells only.
-
-*/
 
 struct CaloCellVolume
 {
@@ -28,12 +23,10 @@ typedef std::vector<CaloCellVolume> CaloCellVolumeVector;
 
 class CaloCellVolumes
 {
-public:
-
-  // Constructors:
+ public:
   CaloCellVolumes(ISvcLocator* svcLocator,
                   const CaloCell_ID* calocell_id);
-  virtual ~CaloCellVolumes();
+  ~CaloCellVolumes();
 
   double CellVolume(Identifier cell_id);
   inline std::string layout() { return m_geometryLayout; }
@@ -41,18 +34,20 @@ public:
   // For FCAL cell volumes which are calculated on the fly
   double getFcalTubeSpacing(int sampling);
 
-  virtual void print();
+  void print();
 
-private:
-  const CaloCell_ID* m_calocell_id ;
-  ISvcLocator* m_svcLocator;
+ private:
+  const CaloCell_ID* m_calocell_id{nullptr};
   CaloCellVolumeVector m_cellVolumes;  
   std::string m_geometryLayout;
 
   // map fcal samplings on tube spacings
-  typedef std::map<int, double, std::less<int> > TubeSpacingMap;
-  TubeSpacingMap m_fcalTubeSpacings;
+  typedef std::map<int, double> TubeSpacingMap;
+  TubeSpacingMap m_fcalTubeSpacings{
+    {1, 7.5}
+    , {2, 8.179}
+    , {3, 9.}
+  };
 };
 
- 
 #endif
