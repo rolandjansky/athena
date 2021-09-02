@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_CSC.h"
@@ -53,7 +53,8 @@ void PRDHandle_CSC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
 
   if( !localposHIT )
   {
-    localposHIT = Amg::Vector2D{};
+    localposHIT.emplace();
+    localposHIT->setZero();
     VP1Msg::message("Warning: Local wire position is NULL");
   }
   SoTranslation * localtrans0 = new SoTranslation;
