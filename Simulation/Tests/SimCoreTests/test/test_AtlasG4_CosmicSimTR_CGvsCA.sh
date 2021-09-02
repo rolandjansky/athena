@@ -2,6 +2,7 @@
 #
 # art-description: Run cosmics simulation outside ISF, using TrackRecords as input, using 2015 geometry and conditions
 # art-type: grid
+# art-include: master/Athena
 # art-output: test.*.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl
