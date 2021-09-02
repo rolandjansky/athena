@@ -672,7 +672,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
