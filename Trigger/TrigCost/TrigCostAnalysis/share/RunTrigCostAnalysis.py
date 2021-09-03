@@ -70,17 +70,21 @@ def readHashes(joFileName="", smk=0, dbAlias=""):
 
   joData = {}
 
-  if joFileName:
-    log.debug("Reading HLTJobOptions from file {0}".format(joFileName))
-    with open(joFileName, "r") as joFile:
-      import json
-      joData = json.load(joFile)
-  elif smk and dbAlias:
-    log.debug("Reading HLTJobOptions from database {0} {1}".format(smk, dbAlias))
-    from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
-    joData = HLTJobOptionsAccess(dbalias = dbAlias, smkey = smk)
-  else:
-    log.debug("Additional names not available")
+  try:
+    if joFileName:
+      log.debug("Reading HLTJobOptions from file {0}".format(joFileName))
+      with open(joFileName, "r") as joFile:
+        import json
+        joData = json.load(joFile)
+    elif smk and dbAlias:
+      log.debug("Reading HLTJobOptions from database {0} {1}".format(smk, dbAlias))
+      from TrigConfIO.HLTTriggerConfigAccess import HLTJobOptionsAccess
+      joData = HLTJobOptionsAccess(dbalias = dbAlias, smkey = smk)
+    else:
+      log.debug("Additional names not available")
+      return list()
+  except Exception as err:
+    log.warning("Retrieving additional names failed: {0}".format(err))
     return list()
 
   namesList = set()
