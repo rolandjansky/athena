@@ -1780,6 +1780,9 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
   //DEBUG output for Egamma container
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
+  //
+  static const SG::AuxElement::Accessor< float > accLH("LHValue");
+  static const SG::AuxElement::Accessor< float > accLHCalo("LHCaloValue");
   for (const auto eg : *elCont){
       //REGTEST printout
       if (eg) {
@@ -1810,12 +1813,12 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           if(eg->selectionisEM(isEMbit,"isEMLHTight"))
               ATH_MSG_INFO(" REGTEST: isEMLHTight " << std::hex << isEMbit << std::dec);
           else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
-          if(eg->likelihoodValue(val_float,"LHValue"))
-              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          if(accLH.isAvailable(*eg))
+              ATH_MSG_INFO(" REGTEST: LHValue " << accLH(*eg));
           else
               ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
-          if(eg->likelihoodValue(val_float,"LHCaloValue"))
-              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          if(accLHCalo.isAvailable(*eg))
+              ATH_MSG_INFO(" REGTEST: LHValue " << accLHCalo(*eg));
           else
               ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
           if(eg->passSelection(pid,"LHVLoose"))
