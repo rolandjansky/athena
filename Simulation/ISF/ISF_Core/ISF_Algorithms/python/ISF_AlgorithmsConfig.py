@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -48,3 +48,17 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
 
 def getSimHitTreeCreator(name="ISF_SimHitTreeCreator", **kwargs):
     return CfgMgr.ISF__SimHitTreeCreator(name, **kwargs)
+
+def getSimEventFilter(name="ISF_SimEventFilter", **kwargs):
+    kwargs.setdefault( "InputHardScatterCollection", "BeamTruthEvent")
+    kwargs.setdefault( "GenParticleCommonFilters", ['ISF_ParticlePositionFilterDynamic','ISF_EtaPhiFilter','ISF_GenParticleInteractingFilter'] )
+    kwargs.setdefault( "GenParticleOldFilters", ['ISF_ParticleFinalStateFilter'] )
+    kwargs.setdefault( "GenParticleNewFilters", ['ISF_ParticleSimWhiteList_ExtraParticles'] )
+
+    from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimEventFilter
+    simEventFilter = ISF__SimEventFilter(name, **kwargs)
+    return simEventFilter
+
+def getInvertedSimEventFilter(name="ISF_InvertedSimEventFilter", **kwargs):
+    kwargs.setdefault("InvertFilter", True)
+    return getSimEventFilter(name, **kwargs)
