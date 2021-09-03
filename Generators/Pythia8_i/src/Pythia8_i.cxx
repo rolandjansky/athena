@@ -118,9 +118,9 @@ m_athenaTool("")
 
   m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
 #ifdef HEPMC3
-  m_runinfo = std::shared_ptr<HepMC3::GenRunInfo>();
-  /// Here one can fill extra information.
-  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Pythia8"),std::to_string(PYTHIA_VERSION).substr(0,5),std::string("Used generator")};
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Pythia8"),py8version(),std::string("Used generator")};
   m_runinfo->tools().push_back(generator);  
 #endif
 }
