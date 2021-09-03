@@ -67,7 +67,8 @@ def defineMenu():
         'L1_EM20VH_3J20',
         
         # combined mu - jet
-        'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
+        'L1_MU4_J15', 
+#        'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
         #ATR-13743 
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
         'L1_MU20_J40',
@@ -236,10 +237,26 @@ def defineMenu():
 
         'L1_MU11_2MU10' : 49,
         'L1_EM7_MU10':65,
-        'L1_MU6_J20' : 88,
-        'L1_MU6_J40' : 89,
-        'L1_MU6_J75' : 90,
-        'L1_MU20_J40'  : 428,
+        #'L1_TAU30_EMPTY':341,
+        'L1_MU10_TAU20IM' : 67,
+        'L1_MU11_TAU20IM' : 430,
+        'L1_MU10_TAU20IM_J25_2J20' : 377,
+        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25' : 316,
+        'L1_TAU20IM_2J20_XE45' : 74,
+        #'L1_TAU20IM_2TAU12IM_4J12p0ETA28' : 77,
+        'L1_TAU20IM_2J20_XE50' : 79,
+        #'L1_TAU30_UNPAIRED_ISO' : 343,
+        'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
+        'L1_TAU60_DR-TAU20ITAU12I' : 76,
+        'L1_MU10_TAU12IM_XE35' : 81,
+        'L1_TAU20IM_2TAU12IM_XE35' : 83,
+        'L1_TAU40_2TAU12IM_XE40' : 429,
+        'L1_MU4_J15' : 88,
+#        'L1_MU6_J20' : 88,
+#        'L1_MU6_J40' : 89,
+#        'L1_MU6_J75' : 90,
+#        'L1_MU20_J40'  : 428,
         'L1_MU20_XE30' : 433,
         'L1_J15' : 92,
         'L1_J20' : 93,
@@ -336,7 +353,6 @@ def defineMenu():
         'L1_J40p0ETA25_2J15p31ETA49' : 181,
         'L1_J40p0ETA25_2J25_J20p31ETA49' : 182,
 
-
         ## noid
         'L1_RD0_FILLED' : 200,
         'L1_RD0_UNPAIRED_ISO' : 201,
@@ -361,16 +377,15 @@ def defineMenu():
         'L1_BCM_AC_CALIB' : 235,
         'L1_BCM_CA_CALIB' : 236,
         'L1_BCM_Wide_CALIB' : 237,
-        'L1_BTAG-MU4J15' : 238,
+        'L1_BTAG-MU4jJ15' : 238,
         'L1_ZB' : 240,
-        'L1_BTAG-MU6J20' : 243,
+#        'L1_BTAG-MU6J20' : 243,
 
         'L1_HT190-J15pETA21' : 258,
         'L1_HT190-J15s5pETA21' : 259,
         'L1_HT150-J20pETA31' : 260,
         'L1_JPSI-1M5-EM7' : 263,
         'L1_JPSI-1M5-EM12' : 264,
-
         'L1_MJJ-400-0DPHI20' : 270,
         'L1_MJJ-400-0DPHI22' : 272,
         'L1_MJJ-400-0DPHI24' : 274,

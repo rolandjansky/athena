@@ -40,7 +40,7 @@ l1seeds = { 'low'  : \
                 'L1_J50_DETA20-J50J',\
                 'L1_LFV-MU6',\
                 'L1_MU10_TAU12IM',\
-                'L1_MU6_J20',\
+                #'L1_MU6_J20',\
                 #'L1_MU6_J30p0ETA49_2J20p0ETA49',\
                 'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',\
                 'L1_TAU20IM_2TAU12IM_XE35',\
