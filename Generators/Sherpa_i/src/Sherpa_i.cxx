@@ -14,6 +14,7 @@
 #ifndef SHERPA_Main_Sherpa_H
 #define SHERPA_Main_Sherpa_H
 
+#include "ATOOLS/Org/CXXFLAGS.H"
 #include "ATOOLS/Org/CXXFLAGS_PACKAGES.H"
 #include "ATOOLS/Org/Exception.H"
 #ifdef HEPMC3
@@ -188,6 +189,12 @@ StatusCode Sherpa_i::genInitialize(){
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("SHERPA"), std::string(SHERPA_VERSION)+ "." + std::string(SHERPA_SUBVERSION), std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
   return StatusCode::SUCCESS;
 }
 
@@ -210,6 +217,9 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
   ATH_MSG_DEBUG( "Sherpa_i Filling event");
 
   p_sherpa->FillHepMCEvent(*event);
+#ifdef HEPMC3
+  if (!event->run_info()) event->set_run_info(m_runinfo);
+#endif
   if (event->weights().size()>2) {
     //double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {

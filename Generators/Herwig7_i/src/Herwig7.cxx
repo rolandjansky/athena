@@ -142,6 +142,12 @@ StatusCode Herwig7::genInitialize() {
 
   ATH_MSG_INFO("starting to prepare the run from runfile '"+m_runfile+"'...");
 
+#ifdef HEPMC3
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Herwig7"), std::string("7"), std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
   // read in a Herwig runfile and obtain the event generator
   m_gen = Herwig::API::prepareRun(m_api);
   ATH_MSG_DEBUG("preparing the run...");
@@ -173,6 +179,9 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   // Convert the Herwig event into the HepMC GenEvent
   ATH_MSG_DEBUG("Converting ThePEG::Event to HepMC::GenEvent");
   convert_to_HepMC(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
+#ifdef HEPMC3
+  if (!evt->run_info()) evt->set_run_info(m_runinfo);
+#endif
   ATH_MSG_DEBUG("Converted ThePEG::Event to HepMC::GenEvent");
 
   // Fill the event number into HepMC event record
