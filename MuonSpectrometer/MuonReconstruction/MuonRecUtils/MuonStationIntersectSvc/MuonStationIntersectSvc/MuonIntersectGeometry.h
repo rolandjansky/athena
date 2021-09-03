@@ -12,10 +12,7 @@ namespace Muon {
 
   class MuonIntersectGeometry {
   public:
-    MuonIntersectGeometry() {}
-    virtual ~MuonIntersectGeometry() {}
-    
-
+    virtual ~MuonIntersectGeometry() = default;
     virtual const MuonStationIntersect intersection( const Amg::Vector3D& pos, const Amg::Vector3D& dir) const = 0;
       
 

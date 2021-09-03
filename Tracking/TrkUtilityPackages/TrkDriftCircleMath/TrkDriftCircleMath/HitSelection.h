@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __HIT_SELECTION__H__
 #define __HIT_SELECTION__H__
 
-namespace TrkDriftCircleMath
-{
-
-typedef std::vector<int> HitSelection;
-
+namespace TrkDriftCircleMath {
+    using HitSelection = std::vector<bool>;
 }
 
-#endif // __HIT_SELECTION__H__
+#endif  // __HIT_SELECTION__H__

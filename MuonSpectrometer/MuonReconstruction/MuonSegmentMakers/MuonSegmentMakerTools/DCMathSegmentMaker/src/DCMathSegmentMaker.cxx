@@ -212,7 +212,7 @@ namespace Muon {
 
             // calculate local AMDB position
             Amg::Vector3D locPos = gToStation * mdt->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
             double r = mdt->localParameters()[Trk::locR];
             double dr = Amg::error(mdt->localCovariance(), Trk::locR);
@@ -242,7 +242,7 @@ namespace Muon {
         // create line
         double angleYZ = seg.localDirection().angleYZ();
         const Amg::Vector3D lpos = gToStation * seg.globalPosition();
-        TrkDriftCircleMath::LocPos segPos(lpos.y(), lpos.z());
+        TrkDriftCircleMath::LocVec2D segPos(lpos.y(), lpos.z());
         TrkDriftCircleMath::Line segPars(segPos, angleYZ);
 
         const Trk::FitQuality* fq = seg.fitQuality();
@@ -433,7 +433,7 @@ namespace Muon {
 
         double angle = m_sinAngleCut;
         if (sinAngleCut > 0) angle = sinAngleCut;
-        TrkDriftCircleMath::Road road(TrkDriftCircleMath::LocPos(0., 0.), road_angleYZ, chamber_angleYZ, angle);
+        TrkDriftCircleMath::Road road(TrkDriftCircleMath::LocVec2D(0., 0.), road_angleYZ, chamber_angleYZ, angle);
 
         // call segment finder
         TrkDriftCircleMath::SegVec segs = m_segmentFinder->findSegments(dcs, cls, road, dcStatistics, multiGeo.get());
@@ -1309,7 +1309,7 @@ namespace Muon {
 
             // calculate local cluster position
             Amg::Vector3D locPos = gToStation * cit->globalPos;
-            TrkDriftCircleMath::LocPos lp(locPos.y(), locPos.z());
+            TrkDriftCircleMath::LocVec2D lp(locPos.y(), locPos.z());
 
             if (std::abs(lp.y()) > m_maxAssociateClusterDistance) {
                 ATH_MSG_VERBOSE(" Discarding cluster with large distance from chamber " << m_idHelperSvc->toString(id));
@@ -1360,7 +1360,7 @@ namespace Muon {
 
             // calculate local AMDB position
             Amg::Vector3D locPos = gToStation * rot->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
             double r = rot->localParameters()[Trk::locR];
             double dr = Amg::error(rot->localCovariance(), Trk::locR) * errorScale;
@@ -1459,8 +1459,8 @@ namespace Muon {
         Identifier secondIdml0 = m_idHelperSvc->mdtIdHelper().channelID(name, eta, phi, 1, 1, 2);
         Amg::Vector3D secondTubeMl0 = gToStation * (detEl1->surface(secondIdml0).center());
 
-        TrkDriftCircleMath::LocPos firstTube0(firstTubeMl0.y(), firstTubeMl0.z());
-        TrkDriftCircleMath::LocPos firstTube1(firstTubeMl1.y(), firstTubeMl1.z());
+        TrkDriftCircleMath::LocVec2D firstTube0(firstTubeMl0.y(), firstTubeMl0.z());
+        TrkDriftCircleMath::LocVec2D firstTube1(firstTubeMl1.y(), firstTubeMl1.z());
 
         // position first tube ml 0 and 1
         Identifier firstIdml0lay1 = m_idHelperSvc->mdtIdHelper().channelID(name, eta, phi, 1, 2, 1);
@@ -1493,12 +1493,12 @@ namespace Muon {
         if (segment.hasCurvatureParameters()) {
             // ml2 segment direction
             double ml2phi = line.phi() - segment.deltaAlpha();
-            TrkDriftCircleMath::LocDir ml2dir(std::cos(ml2phi), std::sin(ml2phi));
+            TrkDriftCircleMath::LocVec2D ml2dir(std::cos(ml2phi), std::sin(ml2phi));
             // ml2 segment position
-            const TrkDriftCircleMath::LocPos ml1LocPos = multiGeo->tubePosition(0, multiGeo->nlay(), 0);
-            const TrkDriftCircleMath::LocPos ml2LocPos = multiGeo->tubePosition(1, 1, 0);
+            const TrkDriftCircleMath::LocVec2D ml1LocPos = multiGeo->tubePosition(0, multiGeo->nlay(), 0);
+            const TrkDriftCircleMath::LocVec2D ml2LocPos = multiGeo->tubePosition(1, 1, 0);
             double chamberMidPtY = (ml1LocPos.y() + ml2LocPos.y()) / 2.0;
-            TrkDriftCircleMath::LocPos ml2pos(segment.deltab(), chamberMidPtY);
+            TrkDriftCircleMath::LocVec2D ml2pos(segment.deltab(), chamberMidPtY);
             // construct the new ml2 segment line & transform
             const TrkDriftCircleMath::Line ml2line(ml2pos, ml2dir);
             TrkDriftCircleMath::TransformToLine tmptoLine(ml2line);
@@ -1520,13 +1520,13 @@ namespace Muon {
             TrkDriftCircleMath::TransformToLine toLine = toLineml1;
             if (m_idHelperSvc->mdtIdHelper().multilayer(riodc->identify()) == 2) toLine = toLineml2;
             // calculate position of hit in line frame
-            TrkDriftCircleMath::LocPos pointOnHit = toLine.toLine(dcit->position());
+            TrkDriftCircleMath::LocVec2D pointOnHit = toLine.toLine(dcit->position());
 
             // calculate position of hit on line in line frame
-            TrkDriftCircleMath::LocPos pointOnLine(pointOnHit.x(), 0.);
+            TrkDriftCircleMath::LocVec2D pointOnLine(pointOnHit.x(), 0.);
 
             // transform back to local AMDB coordinates
-            TrkDriftCircleMath::LocPos pointOnLineAMDB = toLine.toLocal(pointOnLine);
+            TrkDriftCircleMath::LocVec2D pointOnLineAMDB = toLine.toLocal(pointOnLine);
 
             // get position along wire from ROT
             Amg::Vector3D posAlong = gToStation * riodc->globalPosition();
@@ -1918,7 +1918,7 @@ namespace Muon {
                 Amg::Vector3D locPos = gToStation * (*cit)->globalPos;
 
                 // calculate intersect of segment with cluster
-                TrkDriftCircleMath::Cluster cl(TrkDriftCircleMath::LocPos(locPos.y(), locPos.z()), 1.);
+                TrkDriftCircleMath::Cluster cl(TrkDriftCircleMath::LocVec2D(locPos.y(), locPos.z()), 1.);
                 double residual = resWithSegment.residual(cl);
                 double segError = sqrt(resWithSegment.trackError2(cl));
                 const MuonGM::RpcReadoutElement* detEl = dynamic_cast<const MuonGM::RpcReadoutElement*>((*cit)->phiHit->detectorElement());
@@ -2009,16 +2009,16 @@ namespace Muon {
         // calculate local AMDB position
         Amg::Vector3D locPos = gToStation * hitPos;
 
-        TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+        TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
         // calculate distance of segment to measurement surface
         double delta_y = lpos.y() - line.position().y();
 
         // calculate position of hit in line frame
-        TrkDriftCircleMath::LocPos lineSurfaceIntersect(delta_y * cos_sinLine + line.position().x(), lpos.y());
+        TrkDriftCircleMath::LocVec2D lineSurfaceIntersect(delta_y * cos_sinLine + line.position().x(), lpos.y());
 
         // calculate position of hit in line frame
-        TrkDriftCircleMath::LocPos pointOnHit = toLine.toLine(lineSurfaceIntersect);
+        TrkDriftCircleMath::LocVec2D pointOnHit = toLine.toLine(lineSurfaceIntersect);
 
         return pointOnHit.x();
     }
@@ -2042,13 +2042,13 @@ namespace Muon {
 
         // calculate sp postion in AMDB reference frame
         Amg::Vector3D locPos = gToStation * spacePoint.globalPos;
-        TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+        TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
         // calculate distance of segment to measurement surface
         double delta_y = lpos.y() - line.position().y();
 
         // calculate position of hit in line frame
-        TrkDriftCircleMath::LocPos lineSurfaceIntersect(delta_y * cos_sinLine + line.position().x(), lpos.y());
+        TrkDriftCircleMath::LocVec2D lineSurfaceIntersect(delta_y * cos_sinLine + line.position().x(), lpos.y());
 
         // calculate position of hit in line frame
         double residual = lpos.x() - lineSurfaceIntersect.x();

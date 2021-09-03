@@ -27,8 +27,8 @@ namespace {  // local funcs
 
     // limit angle difference to -pi/2 < x <= pi/2
     inline double theta_diff(double x) {
-        while (x <= -M_PI / 2.0) x += M_PI;
-        while (x > +M_PI / 2.0) x -= M_PI;
+        while (x <= -M_PI_2) x += M_PI;
+        while (x > +M_PI_2) x -= M_PI;
         return x;
     }
 
