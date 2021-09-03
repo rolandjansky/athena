@@ -51,7 +51,7 @@ def getMuonWallTileTB(name="MuonWallTileTB", **kwargs):
         theta=simFlags.Theta.get_Value()
         z=simFlags.Z.get_Value()
         eta=0.0
-        if abs(theta) < 60.01:
+        if abs(theta) < 70.01:
             # Mode 2 -> User enters theta!=+/-90 and Z
             # Z is the distance from center of the module to the desired
             # entrace point calculated at R=2290 (start of tilecal
