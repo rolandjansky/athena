@@ -13,7 +13,7 @@
 Reco_tf.py \
 --AMI=f1089 \
 --athenaopts='--threads=8' \
---conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-07' \
 --maxEvents=250 \
 --outputESDFile=myESD_Main.pool.root --outputAODFile=myAOD_Main.AOD.pool.root --outputHISTFile=myMergedMonitoring_Main.root \
 --ignoreErrors=False \
