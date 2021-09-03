@@ -8,7 +8,7 @@
 # art-include: 22.0-mc20/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
-# art-athena-mt: 8                                                  
+# art-athena-mt: 8
 
 Reco_tf.py \
 --AMI=f741 \
@@ -16,7 +16,7 @@ Reco_tf.py \
 --maxEvents=400 \
 --ignoreErrors=False \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0114._SFO-5._0003.data \
---conditionsTag='CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag='CONDBR2-BLKPA-RUN2-07' \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --outputESDFile=myESD_Main_0.pool.root --outputAODFile=myAOD_Main_0.AOD.pool.root --imf False
 

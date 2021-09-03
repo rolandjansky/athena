@@ -15,7 +15,7 @@ Reco_tf.py \
 --AMI=f741 \
 --preExec 'r2a:from InDetPrepRawDataToxAOD.SCTxAODJobProperties import SCTxAODFlags;SCTxAODFlags.Prescale.set_Value_and_Lock(50);from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
 --maxEvents=375 \
---conditionsTag=CONDBR2-BLKPA-RUN2-03 \
+--conditionsTag=CONDBR2-BLKPA-RUN2-07 \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --outputESDFile=myESD_Main_0.pool.root --outputAODFile=myAOD_Main_0.AOD.pool.root --outputHISTFile=myMergedMonitoring_Main_0.root \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_13TeV.00307716.physics_Main.daq.RAW._lb0220._SFO-1._0001.data,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_13TeV.00307716.physics_Main.daq.RAW._lb0221._SFO-1._0001.data \
