@@ -9,100 +9,83 @@
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/SortDcsByY.h"
 
-
 namespace TrkDriftCircleMath {
-  /** counts the number of hits shared by the two segments */
-  
-  typedef std::pair< DCOnTrackVec, DCVec > MatchResult;
+    /** counts the number of hits shared by the two segments */
 
-  struct MatchCrossedTubes {
-    
+    typedef std::pair<DCOnTrackVec, DCVec> MatchResult;
 
-    MatchCrossedTubes( bool onlyOnTrack=false ) : m_mode(onlyOnTrack) {
-    }
-    
-    const MatchResult operator()( const DCOnTrackVec& hits, const DCVec& crossedTubes ) const {
-      MatchResult result;
-      result.first.reserve(50);
-      result.second.reserve(50);
-    
-      DCOnTrackCit sit1     = hits.begin();
-      DCOnTrackCit sit1_end = hits.end();
-      DCCit        sit2     = crossedTubes.begin();
-      DCCit        sit2_end = crossedTubes.end();
+    struct MatchCrossedTubes {
+        MatchCrossedTubes(bool onlyOnTrack = false) : m_mode(onlyOnTrack) {}
 
-      SortDcsByY compDC;
-      SameTube   sameTube;
+        const MatchResult operator()(const DCOnTrackVec& hits, const DCVec& crossedTubes) const {
+            MatchResult result;
+            result.first.reserve(50);
+            result.second.reserve(50);
 
-      result.first.clear();
-      result.second.clear();
+            DCOnTrackCit sit1 = hits.begin();
+            DCOnTrackCit sit1_end = hits.end();
+            DCCit sit2 = crossedTubes.begin();
+            DCCit sit2_end = crossedTubes.end();
 
-      while( sit1 != sit1_end && sit2 != sit2_end ){
-	
-/* 	std::cout << " comp " << sit1->position() << "  " << sit2->position() << std::endl; */
-	
-	if( sit1->state() == DCOnTrack::CloseDC ){
-	  ++sit1;
-	  continue;
-	}
+            SortDcsByY compDC;
+            SameTube sameTube;
 
-	if( m_mode ){
-	  // only use hits on track
-	  if( sit1->state() != DCOnTrack::OnTrack ){
-	    ++sit1;
-	    continue;
-	  }
-	}
-	
-	if( sameTube( *sit1, *sit2 ) ){
-/* 	  std::cout << " same tube " << std::endl; */
-	  ++sit1;++sit2;
-	  continue;
-	}
+            result.first.clear();
+            result.second.clear();
 
-	// dc1 < dc2
-	if( compDC( *sit1, *sit2 ) ){
-/* 	  std::cout << " dc1 < dc2 " << std::endl; */
-	  result.first.push_back( *sit1 );
-	  ++sit1;
-	  // dc1 >= dc2
-	}else{
+            while (sit1 != sit1_end && sit2 != sit2_end) {
+                if (sit1->state() == DCOnTrack::CloseDC) {
+                    ++sit1;
+                    continue;
+                }
 
-	  // dc2 < dc1
-	  if( compDC( *sit2, *sit1 ) ){
-/* 	    std::cout << " dc1 > dc2 " << std::endl; */
-	    result.second.push_back( *sit2 );
-	    ++sit2;
-	    // dc1 == dc2
-	  }else{
-	    //std::cout << " shouldn't come here, I think .... " << std::endl;
-	    ++sit1;++sit2;
-	  }
-	}
-      }
+                if (m_mode) {
+                    // only use hits on track
+                    if (sit1->state() != DCOnTrack::OnTrack) {
+                        ++sit1;
+                        continue;
+                    }
+                }
 
-      // add remaining hits to counters
-      for( ; sit1!= sit1_end; ++sit1 ){
-	if( sit1->state() == DCOnTrack::CloseDC ){
-	  continue;
-	}
-	if( m_mode && sit1->state() != DCOnTrack::OnTrack ) continue;
-/* 	std::cout << " dc1 < dc2" << std::endl; */
-	result.first.push_back( *sit1 );
-      }
-      for( ; sit2!= sit2_end; ++sit2 ){
-/* 	std::cout << " dc1 > dc2" << std::endl; */
-	result.second.push_back( *sit2 );
-      }
-      
-      return result;
-    }
+                if (sameTube(*sit1, *sit2)) {
+                    ++sit1;
+                    ++sit2;
+                    continue;
+                }
 
+                // dc1 < dc2
+                if (compDC(*sit1, *sit2)) {
+                    result.first.push_back(*sit1);
+                    ++sit1;
+                    // dc1 >= dc2
+                } else {
+                    // dc2 < dc1
+                    if (compDC(*sit2, *sit1)) {
+                        result.second.push_back(*sit2);
+                        ++sit2;
+                        // dc1 == dc2
+                    } else {
+                        ++sit1;
+                        ++sit2;
+                    }
+                }
+            }
+
+            // add remaining hits to counters
+            for (; sit1 != sit1_end; ++sit1) {
+                if (sit1->state() == DCOnTrack::CloseDC) { continue; }
+                if (m_mode && sit1->state() != DCOnTrack::OnTrack) continue;
+                result.first.push_back(*sit1);
+            }
+            for (; sit2 != sit2_end; ++sit2) { result.second.push_back(*sit2); }
+
+            return result;
+        }
 
     private:
-    bool m_mode;
-  };
+        bool m_mode;
+    };
 
-}
+}  // namespace TrkDriftCircleMath
 
 #endif

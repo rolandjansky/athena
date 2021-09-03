@@ -4,15 +4,11 @@
 
 #include "TrkDriftCircleMath/LocVec2D.h"
 
-
 namespace TrkDriftCircleMath {
 
+    std::ostream& operator<<(std::ostream& os, const TrkDriftCircleMath::LocVec2D& lv) {
+        os << " x " << lv.x() << " y " << lv.y();
+        return os;
+    }
 
-std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::LocVec2D& lv )
-{
-  os << " x " << lv.x() << " y " << lv.y();
-  return os;
-}
-
-
-} // namespace TrkDriftCircleMath
+}  // namespace TrkDriftCircleMath

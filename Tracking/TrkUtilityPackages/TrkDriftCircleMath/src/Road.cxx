@@ -6,14 +6,9 @@
 
 namespace TrkDriftCircleMath {
 
+    Road::Road(const LocVec2D& roadPos, double roadAngle, double chamberAngle, double roadAngularWidth) :
+        m_pos(roadPos), m_angle(roadAngle), m_chamberAngle(chamberAngle), m_width(roadAngularWidth) {}
 
-  Road::Road (const TrkDriftCircleMath::LocPos& roadPos, double roadAngle, double chamberAngle, double roadAngularWidth) :
-    m_pos(roadPos),m_angle(roadAngle),m_chamberAngle(chamberAngle),m_width(roadAngularWidth)
-  {
-  }
+    Road::~Road() = default;
 
-  Road::~Road()
-  {
-  }
-
-}
+}  // namespace TrkDriftCircleMath

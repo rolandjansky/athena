@@ -22,7 +22,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/LocPos.h"
+#include "TrkDriftCircleMath/LocVec2D.h"
 #include "TrkDriftCircleMath/Segment.h"
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/TransformToLine.h"
@@ -511,7 +511,7 @@ namespace MuonCombined {
             Trk::LocalDirection seedLocDir;
             surf->globalToLocalDirection(firstPars.momentum(), seedLocDir);
             Amg::Vector3D seedLocPos = gToStation * slIntersection.position;
-            TrkDriftCircleMath::LocPos seedPos(seedLocPos.y(), seedLocPos.z());
+            TrkDriftCircleMath::LocVec2D seedPos(seedLocPos.y(), seedLocPos.z());
             TrkDriftCircleMath::Line seedLine(seedPos, seedLocDir.angleYZ());
             TrkDriftCircleMath::DCOnTrackVec dcs;
 
@@ -541,7 +541,7 @@ namespace MuonCombined {
 
                 // calculate local AMDB position
                 Amg::Vector3D locPos = gToStation * gpos;
-                TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+                TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
                 double r = std::abs(calibratedMdt->driftRadius());
                 double dr = Amg::error(calibratedMdt->localCovariance(), Trk::locR);
@@ -561,7 +561,7 @@ namespace MuonCombined {
 
             // now loop over the hits and fit the segment taking out each of the hits individually
             for (unsigned int i = 0; i < dcs.size(); ++i) {
-                TrkDriftCircleMath::DCSLFitter::HitSelection selection(dcs.size(), 0);
+                TrkDriftCircleMath::HitSelection selection(dcs.size(), 0);
                 selection[i] = 1;
                 TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0., 0., 0.), TrkDriftCircleMath::DCOnTrackVec());
                 if (!mdtFitter.fit(result, seedLine, dcs, selection)) {
