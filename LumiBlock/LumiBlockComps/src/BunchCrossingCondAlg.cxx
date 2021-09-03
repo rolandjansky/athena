@@ -3,12 +3,12 @@
  */
 
 #include "BunchCrossingCondAlg.h"
+#include "CoolKernel/IObject.h"
+#include "CoralBase/Blob.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
-#include <stdint.h>
 #include <charconv>
-#include "CoralBase/Blob.h"
-#include "CoolKernel/IObject.h"
+#include <cstdint>
 
 #include "CoralBase/AttributeListException.h"
 
@@ -55,7 +55,7 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
      
     const float minBunchIntensity=0.001;
     std::vector<float> bunches=tokenize(sbunches);
-    if (bunches.size()>0) {
+    if (!bunches.empty()) {
       // Check if the pattern "fits into" the LHC:
       if( BunchCrossingCondData::m_MAX_BCID % bunches.size() ) {
 
@@ -217,7 +217,7 @@ std::vector<BunchCrossingCondData::bunchTrain_t> BunchCrossingCondAlg::findTrain
   }
     
 
-  if (holes.size()<1) {
+  if (holes.empty()) {
     ATH_MSG_ERROR("Looks like we have bunch train spanning the entire ring w/o any gap. Really?");
     return result;
   }
