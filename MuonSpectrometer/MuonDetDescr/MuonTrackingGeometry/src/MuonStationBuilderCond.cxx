@@ -858,8 +858,12 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
                 const Trk::Layer* assocLay = nullptr;
                 if (assocVol) assocLay = assocVol->associatedLayer(gpi);
                 unsigned int iD = idi.get_identifier32().get_compact();
-                if (assocVol && assocLay) const_cast< Trk::Layer*>(assocLay)->setLayerType(iD);
-                if (assocLay) assocLay->setRef((assocLay->surfaceRepresentation().transform().inverse() * gpi)[1]);
+                if (assocVol && assocLay) {
+                  const_cast< Trk::Layer*>(assocLay)->setLayerType(iD);
+                }
+                if (assocLay) {
+                  (const_cast< Trk::Layer*> (assocLay))->setRef((assocLay->surfaceRepresentation().transform().inverse() * gpi)[1]);
+                }
             }
         } else {
             ATH_MSG_DEBUG("cscRE not found:" << st << "," << eta << "," << phi);
@@ -972,11 +976,12 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
                                     double sign = (ref > 0.) ? 1. : -1.;
                                     int dec = int(ref / 1e5);
                                     ref = ref - dec * 1e5 - 0.5 * (sign + 1) * 1e5;
-                                    if (fabs(ref - loc) > 0.001) {  // re-pack
-                                        cLays[il]->setRef(loc + dec * 1e5 + 0.5 * (sign + 1) * 1e5);
+                                    if (std::abs(ref - loc) > 0.001) {  // re-pack
+                                        (const_cast<Trk::Layer*>(cLays[il]))->setRef(loc + dec * 1e5 + 0.5 * (sign + 1) * 1e5);
                                     }
-                                } else if (fabs(ref - loc) > 0.001)
-                                    cLays[il]->setRef(loc);
+                                } else if (std::abs(ref - loc) > 0.001){
+                                    (const_cast<Trk::Layer*>(cLays[il]))->setRef(loc);
+                                }
                             }
                         }
                     }
@@ -1138,7 +1143,7 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
                                                     const Amg::Vector3D locPos =
                                                         (*layers)[il]->surfaceRepresentation().transform().inverse() * transf.inverse() *
                                                         rpc->surface(etaId).center();
-                                                    (*layers)[il]->setRef(swap + locPos[0]);
+                                                    (const_cast<Trk::Layer*>((*layers)[il]))->setRef(swap + locPos[0]);
                                                 }
                                             }
                                         }

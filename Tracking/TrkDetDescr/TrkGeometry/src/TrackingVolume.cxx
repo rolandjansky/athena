@@ -742,19 +742,19 @@ void Trk::TrackingVolume::indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(
   if (m_confinedLayers) {
     const std::vector<const Trk::Layer*>& layers =
         m_confinedLayers->arrayObjects();
-    for (const auto& layerIter : layers) {
+    for (const Trk::Layer* layerptr : layers) {
       // only index the material layers & only those that have not yet been
       // singed
-      if (layerIter && layerIter->layerIndex().value() < 0) {
+      if (layerptr && layerptr->layerIndex().value() < 0) {
         // sign only those with material properties - rest goes to 0
         Trk::LayerIndex layIndex =
-            layerIter->layerMaterialProperties()
+            layerptr->layerMaterialProperties()
                 ? Trk::LayerIndex(int(geoSig) *
                                       TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT +
                                   (++offset))
                 : Trk::LayerIndex(0);
         // now register the index
-        layerIter->registerLayerIndex(layIndex);
+        (const_cast<Trk::Layer*>(layerptr))->registerLayerIndex(layIndex);
       }
     }
   }
@@ -766,7 +766,7 @@ void Trk::TrackingVolume::indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(
     if (mLayer && mLayer->layerIndex().value() < 0.) {
       Trk::LayerIndex layIndex = Trk::LayerIndex(
           int(geoSig) * TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT + (++offset));
-      mLayer->registerLayerIndex(layIndex);
+      (const_cast<Trk::Layer*>(mLayer))->registerLayerIndex(layIndex);
     }
   }
 
@@ -798,9 +798,9 @@ void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE(
           const std::vector<const Trk::Surface*>& layerSurfaces =
               surfArray->arrayObjects();
           // loop over the surfaces - there can be 0 entries
-          for (const auto& laySurfIter : layerSurfaces) {
+          for (const Trk::Surface* laySurf : layerSurfaces) {
             const Trk::Layer* materialLayer =
-                laySurfIter ? laySurfIter->materialLayer() : nullptr;
+                laySurf ? laySurf->materialLayer() : nullptr;
             if (materialLayer && materialLayer->layerIndex().value() < 0) {
               // sign only those with material properties - rest goes to 0
               Trk::LayerIndex layIndex =
@@ -810,7 +810,7 @@ void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE(
                             (++offset))
                       : Trk::LayerIndex(0);
               // now register the index
-              materialLayer->registerLayerIndex(layIndex);
+              (const_cast<Trk::Layer*>(materialLayer))->registerLayerIndex(layIndex);
             }
           }
         }
