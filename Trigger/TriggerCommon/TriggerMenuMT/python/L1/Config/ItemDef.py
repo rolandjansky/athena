@@ -1592,7 +1592,6 @@ class ItemDef:
             #needed?
             MenuItem('L1_BTAG-MU4jJ15').setLogic( d.TOPO_0DR04_MU4ab_CjJ15ab & physcond)
             MenuItem('L1_BTAG-MU6jJ20').setLogic( d.TOPO_0DR04_MU6ab_CjJ20ab & d.MU6 & physcond)
-
             #needed?
             MenuItem('L1_BPH-2M8-2MU4_BPH-0DR15-2MU4'     ).setLogic( d.TOPO_2INVM8_2MU4ab & d.TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
             MenuItem('L1_BPH-2M9-2MU4_BPH-0DR15-2MU4'     ).setLogic( d.TOPO_2INVM9_2MU4ab & d.TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
