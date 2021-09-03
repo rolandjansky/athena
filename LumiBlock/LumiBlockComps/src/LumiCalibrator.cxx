@@ -69,7 +69,7 @@ LumiCalibrator::calibrateMu(float rawLumi, float& calMu) const
   if (m_fType == "Polynomial") {
 
     // Check parameter length
-    if (m_parVec.size() < 1) return false;
+    if (m_parVec.empty()) return false;
  
     unsigned int nrange = m_parVec[0];
 
@@ -177,7 +177,7 @@ LumiCalibrator::calibrateMu(float rawLumi, float& calMu) const
 
 // Vincent's Newton-Rhapson method
 float
-LumiCalibrator::getMuVis(float rawPerBX, float sigo, float siga) const 
+LumiCalibrator::getMuVis(float rawPerBX, float sigo, float siga) 
 {
 
   //std::cout << "getMuVis("<<rawPerBX<<","<<sigo<<","<<siga<<")"<<std::endl;
@@ -190,8 +190,8 @@ LumiCalibrator::getMuVis(float rawPerBX, float sigo, float siga) const
   // Set a fixed number of cycles, but break if we converge faster
   for (int i=0; i<30; i++) {
     mu = munew;
-    y = rawPerBX - 1. - exp(-b * mu) + 2. * exp(-a * mu);
-    dy = b * exp(-b * mu) - 2. * a * exp(-a * mu);
+    y = rawPerBX - 1. - std::exp(-b * mu) + 2. * std::exp(-a * mu);
+    dy = b * std::exp(-b * mu) - 2. * a * std::exp(-a * mu);
     munew = mu-y/dy;
 
     //std::cout << i <<" - munew: " << munew << " mu:" << mu << " diff:" 
@@ -199,7 +199,7 @@ LumiCalibrator::getMuVis(float rawPerBX, float sigo, float siga) const
 
     // Protect against unphysical values
     if (munew <= 0.) return -1.;
-    if (fabs(munew-mu)/munew < 1.E-5) break;
+    if (std::abs(munew-mu)/munew < 1.E-5) break;
   }
 
   return munew; 
@@ -207,11 +207,11 @@ LumiCalibrator::getMuVis(float rawPerBX, float sigo, float siga) const
 
 // Mika's original brute-force method
 float rpbx(float sr, float mu) {
-  return 1. - 2.*exp(-(1+sr)*mu/2.) + exp(-sr*mu);
+  return 1. - 2.*std::exp(-(1+sr)*mu/2.) + std::exp(-sr*mu);
 }
 
 float
-LumiCalibrator::getMuVis2(float rawPerBX, float sigo, float siga) const 
+LumiCalibrator::getMuVis2(float rawPerBX, float sigo, float siga) 
 {
   float muvl=1e-10;
   float muvu=100.;

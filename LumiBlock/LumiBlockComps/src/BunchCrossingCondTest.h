@@ -28,9 +28,9 @@ public:
 
 private:
   /// Function for printing detailed info about a given bunch crossing
-  void printInfo(const BunchCrossingCondData* bccd, unsigned int bcid, std::ostream& out);
+  static void printInfo(const BunchCrossingCondData* bccd, unsigned int bcid, std::ostream& out);
   
-  void printCompactInfo(const BunchCrossingCondData* bccd, unsigned int bcid, std::ostream& out);
+  static void printCompactInfo(const BunchCrossingCondData* bccd, unsigned int bcid, std::ostream& out);
 
   SG::ReadCondHandleKey<BunchCrossingCondData> m_inputKey{this,"InputKey","BunchCrossingData",""};
 
