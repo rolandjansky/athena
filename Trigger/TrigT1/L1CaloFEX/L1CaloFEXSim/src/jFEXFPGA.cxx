@@ -733,16 +733,11 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
 
     ATH_MSG_DEBUG("tobword tau with eta, phi, et, iso and sat : " << std::bitset<32>(tobWord) );
 
-    //arbitary et threshold to not overflow the TOBs
-
-    /*****************  NEEDS TO BE IMPLEMENTED IN THE FUTURE (JIRA TICKED OPENED) *****************/ 
     // Retrieve the L1 menu configuration
-    //SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
-    //auto & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
-    //unsigned int minEtThreshold = thr_jTAU.ptMinToTopo()/jFEXETResolution;
-    
-    //arbitary et threshold to not overflow the TOBs
-    unsigned int minEtThreshold = 100;
+    SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+    auto & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
+    unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV()/jFEXETResolution;
+
     if (et < minEtThreshold) return 0;
     else return tobWord;
 
