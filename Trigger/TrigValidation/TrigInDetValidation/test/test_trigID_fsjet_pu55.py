@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_pu40
+# art-description: art job for fsjet_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3

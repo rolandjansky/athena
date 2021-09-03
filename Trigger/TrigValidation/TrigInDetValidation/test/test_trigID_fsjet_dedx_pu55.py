@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_ml_pu40
+# art-description: art job for fsjet_dedx_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -25,18 +25,20 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
+import os
+os.system("echo 'from TrigInDetConfig.ConfigSettings import getInDetTrigConfig ; getInDetTrigConfig(\"jet\")._dodEdxTrk=True' > dodEdx.py ; cat dodEdx.py ")
 
 Slices  = ['fsjet']
 Events  = 2000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Threads = 8 
+Slots   = 8
+preinclude_file = 'RDOtoRDOTrigger:dodEdx.py'
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-preinclude_file = 'RDOtoRDOTrigger:TrigInDetValidation/TIDAml_extensions.py'
-
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
+
 
 Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
          ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline " ),

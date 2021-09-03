@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_nopps_pu40
+# art-description: art job for fsjet_ml2_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 8
+# art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -25,22 +25,18 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
-import os
-# os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")' > dopps.py")
-# os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
-os.system("echo 'from TrigInDetConfig.ConfigSettings import getInDetTrigConfig ; getInDetTrigConfig(\"jet\")._TripletDoPPS=True' >> dopps.py ; cat dopps.py ")
 
 Slices  = ['fsjet']
 Events  = 2000 
-Threads = 8 
-Slots   = 8
-preinclude_file = 'RDOtoRDOTrigger:dopps.py'
+Threads = 1 
+Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
+postinclude_file = 'RDOtoRDOTrigger:TrigInDetValidation/TIDAml2_extensions.py'
+
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
-
 
 Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
          ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline " ),

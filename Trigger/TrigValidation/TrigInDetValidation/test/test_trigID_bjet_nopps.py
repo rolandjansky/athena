@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_pu40_mt
+# art-description: art job for bjet_nopps
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -25,12 +25,16 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
+import os
+os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")' > dopps.py")
+os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
+
 Slices = ['bjet']
 Events  = 4000
 Threads = 8 
 Slots   = 8
+postinclude_file = 'RDOtoRDOTrigger:dopps.py'
 Input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
-Release = "current"
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]

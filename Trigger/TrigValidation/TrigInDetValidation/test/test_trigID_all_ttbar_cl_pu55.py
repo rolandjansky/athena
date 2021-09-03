@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_eff_pu40
+# art-description: art job for all_ttbar_cl_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
@@ -24,6 +24,8 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
+import os
+os.system("echo 'from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags ; InDetTrigFlags.cutLevel.set_Value_and_Lock(15) ' > cutlevel.py ; cat cutlevel.py ")
 
 Slices  = ['muon','electron','tau','bjet','fsjet']
 Events  = 4000
@@ -31,32 +33,25 @@ Threads = 8
 Slots   = 8
 Release = "current"
 
-preinclude_file = 'RDOtoRDOTrigger:TrigInDetValidation/effpreinclude.py'
+preinclude_file = 'RDOtoRDOTrigger:cutlevel.py'
 
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat            -r Offline -o data-hists-offline.root" ),
-         ( "Offlinerz",   " TIDAdata-run3-offline-rzMatcher.dat  -r Offline -o data-hists-offline-rz.root" ),
-         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat        -r Offline -o data-hists-offline-vtx.root" ) ]
+Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ),
+         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat  -r Offline -o data-hists-offline-vtx.root" ) ]
 
 Comp = [ ( "L2muon",       "L2muon",      "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-muon " ),
          ( "L2electron",   "L2electron",  "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-electron " ),
          ( "L2tau",        "L2tau",       "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-tau " ),
          ( "L2bjet",       "L2bjet",      "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-bjet " ),   
+         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-FS " ),
          ( "FSvtx",        "L2fsjetvtx",  "data-hists-offline-vtx.root",  " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtx     --ncols 3" ),
          ( "FSvtxall",     "L2fsjetvtx",  "data-hists-offline.root",      " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtxall  --ncols 3" ), 
-         ( "FSjetoffline",   "L2fsjet",   "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-FS " ),
-         ( "FSjetofflinerz", "L2fsjet",   "data-hists-offline-rz.root",   " -c TIDAhisto-panel.dat  -d HLTL2-plots-rz-FS " ),
 
          ( "EFmuon",       "EFmuon",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-muon " ),
          ( "EFelectron",   "EFelectron",  "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-electron " ),
          ( "EFtau",        "EFtau",       "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-tau " ),
-         ( "EFbjet",       "EFbjet",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-bjet " ),
-
-         ( "EFmuonrz",     "EFmuon",      "data-hists-offline-rz.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-rz-muon " ),
-         ( "EFelectronrz", "EFelectron",  "data-hists-offline-rz.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-rz-electron " ),
-         ( "EFtaurz",      "EFtau",       "data-hists-offline-rz.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-rz-tau " ),
-         ( "EFbjetrz",     "EFbjet",      "data-hists-offline-rz.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-rz-bjet " )  ]
+         ( "EFbjet",       "EFbjet",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-bjet " ) ]
    
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
