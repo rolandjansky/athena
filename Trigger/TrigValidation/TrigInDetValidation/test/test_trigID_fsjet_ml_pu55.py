@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_vtx_pu40
+# art-description: art job for fsjet_ml_pu55
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 8
+# art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -28,23 +28,21 @@
 
 Slices  = ['fsjet']
 Events  = 2000 
-Threads = 8 
-Slots   = 8
+Threads = 1 
+Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
-Release = "current"
 
-preinclude_file = "RDOtoRDOTrigger:TrigInDetValidation/TIDAvtx_preinclude.py"
+preinclude_file = 'RDOtoRDOTrigger:TrigInDetValidation/TIDAml_extensions.py'
 
-
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
 
-
-Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots         -sx Reference Truth" ),
-         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline -sx Reference Offline" ),
+Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
+         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline " ),
          ( "FSvtx",        "L2fsjetvtx",  "data-hists-offline-vtx.root",  " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtx     --ncols 3" ),
          ( "FSvtxall",     "L2fsjetvtx",  "data-hists-offline.root",      " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtxall  --ncols 3" ) ]
+
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

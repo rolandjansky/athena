@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_lowpt_pu40
+# art-description: art job for bjet
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -31,8 +31,6 @@ Threads = 8
 Slots   = 8
 Input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 Release = "current"
-
-preinclude_file = "RDOtoRDOTrigger:TrigInDetValidation/TIDAbjetpt_preinclude.py"
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
