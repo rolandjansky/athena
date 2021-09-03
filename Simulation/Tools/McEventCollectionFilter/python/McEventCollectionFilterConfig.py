@@ -179,3 +179,11 @@ def sTGC_HitsTruthRelinkCfg(flags, **kwargs):
 
     acc.addEventAlgo(CompFactory.sTGC_HitsTruthRelink(name="sTGC_HitsTruthRelink", **kwargs))
     return acc
+
+
+def TruthResetAlgCfg(flags, sequenceName='SimSequence', **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("InputMcEventCollection", "TruthEventOLD")
+    kwargs.setdefault("OutputMcEventCollection", "BeamTruthEvent")
+    result.addEventAlgo(CompFactory.TruthResetAlg(name="TruthResetAlg", **kwargs), sequenceName)
+    return result
