@@ -178,6 +178,7 @@ include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList
+StreamESD.ItemList+=["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
 
 printfunc (StreamESD.ItemList)
 
