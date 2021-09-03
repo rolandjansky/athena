@@ -226,9 +226,6 @@ class Layer {
   void assignMaterialProperties(const LayerMaterialProperties&,
                                 double scale = 1.0);
 
-  void assignMaterialProperties ATLAS_NOT_THREAD_SAFE(
-      const LayerMaterialProperties&, double scale = 1.0) const;
-
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D&){};
 
@@ -241,17 +238,12 @@ class Layer {
   /** set the reference measure */
   void setRef(double);
 
-  /** set the reference measure */
-  void setRef ATLAS_NOT_THREAD_SAFE(double) const;
-
   /** get the reference measure */
   double getRef() const;
 
   void encloseTrackingVolume(const TrackingVolume& tvol);
   //!< private method to set the enclosed detached TV
   void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol);
-  void encloseDetachedTrackingVolume
-  ATLAS_NOT_THREAD_SAFE(const DetachedTrackingVolume& tvol) const;
 
   /** get compatible surfaces starting from charged parameters */
   template <class T>
@@ -268,7 +260,6 @@ class Layer {
 
   //!< register layer index for material map registration
   void registerLayerIndex(const LayerIndex& lIdx);
-  void registerLayerIndex ATLAS_NOT_THREAD_SAFE(const LayerIndex& lIdx) const;
 
   /** private method to set enclosing TrackingVolume, called by friend class
      only optionally, the layer can be resized to the dimensions of the
