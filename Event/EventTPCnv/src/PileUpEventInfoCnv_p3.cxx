@@ -8,7 +8,7 @@
 
 static const EventInfoCnv_p2		evInfoConv;
 
-void PileUpEventInfoCnv_p3::transToPers(const PileUpEventInfo* trans, PileUpEventInfo_p3* pers, MsgStream &log) {
+void PileUpEventInfoCnv_p3::transToPers(const PileUpEventInfo* trans, PileUpEventInfo_p3* pers, MsgStream &log) const {
    evInfoConv.transToPers(trans, pers, log); 
 
    PileUpEventInfo::SubEvent::const_iterator	sub_iter = trans->beginSubEvt();
@@ -24,7 +24,7 @@ void PileUpEventInfoCnv_p3::transToPers(const PileUpEventInfo* trans, PileUpEven
    }
 }
 
-void PileUpEventInfoCnv_p3::persToTrans(const PileUpEventInfo_p3* pers, PileUpEventInfo* trans, MsgStream &log) 
+void PileUpEventInfoCnv_p3::persToTrans(const PileUpEventInfo_p3* pers, PileUpEventInfo* trans, MsgStream &log) const
 {
    *trans = PileUpEventInfo();
    evInfoConv.persToTrans(pers, trans, log); 
@@ -35,7 +35,7 @@ void PileUpEventInfoCnv_p3::persToTrans(const PileUpEventInfo_p3* pers, PileUpEv
                         //p_sub_iter->m_index,
                         static_cast<PileUpTimeEventIndex::PileUpType>(p_sub_iter->m_type),
                         std::unique_ptr<EventInfo>
-                          (evInfoConv.createTransient(&p_sub_iter->m_subEventInfo, log)),
+                          (evInfoConv.createTransientConst(&p_sub_iter->m_subEventInfo, log)),
                         nullptr);
       ++p_sub_iter;
    }
