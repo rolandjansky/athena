@@ -257,8 +257,6 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigEMClusterAuxContainer#HLT_FastCaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
     ('xAOD::TrigRingerRingsContainer#HLT_FastCaloRinger',             'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), #Ringer
     ('xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloRingerAux.',      'BS ESD AODFULL', 'Egamma'), #Ringer
-    ('xAOD::TrigRingerRingsContainer#HLT_FastCaloAsymRinger',             'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), #Ringer
-    ('xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloAsymRingerAux.',      'BS ESD AODFULL', 'Egamma'), #Ringer
 
     # Egamma FWD
     ('xAOD::TrigEMClusterContainer#HLT_FastCaloEMClusters_FWD',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews_FWD'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
