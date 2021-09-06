@@ -24,17 +24,14 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
-import os
-os.system("echo 'doTIDATier0=True ' > tier0.py")
-
-preinclude_file = 'tier0.py'
-
 
 Slices  = ['muon','electron','tau','bjet','fsjet']
 Events  = 4000
 Threads = 8 
 Slots   = 8
 Release = "current"
+
+ExtraAna = " -c doTIDATier0=True "
 
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
