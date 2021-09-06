@@ -18,7 +18,7 @@ atlas_add_component( ISF_Algorithms
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel
    AthenaBaseComps StoreGateLib AtlasDetDescr GeneratorObjects HepMC_InterfacesLib
-   ISF_Event ISF_InterfacesLib PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent
+   ISF_Event ISF_InterfacesLib ISF_HepMC_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent
    MuonSimEvent TrackRecordLib )
 
 atlas_add_test( CollectionMerger_test
