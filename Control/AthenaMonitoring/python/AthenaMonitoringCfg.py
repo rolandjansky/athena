@@ -77,9 +77,16 @@ def AthenaMonitoringCfg(flags):
         info('Set up Jet monitoring')
         from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
         result.merge(standardJetMonitoring(flags))
+        
+    if flags.DQ.Steering.doJetInputsMon:
+        info('Set up Jet Inputs monitoring')
+        from JetInputsMonitoring.ClusterMonitorAlgorithm import ClusterMonitoringConfig
+        result.merge(ClusterMonitoringConfig(flags))
+        from JetInputsMonitoring.PFOMonitorAlgorithm import PFOMonitoringConfig
+        result.merge(PFOMonitoringConfig(flags))
 
     if flags.DQ.Steering.doMissingEtMon:
-        info("Set up MET monitoring")
+        info('Set up MET monitoring')
         from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
         result.merge(METMonitoringConfig(flags))
 
