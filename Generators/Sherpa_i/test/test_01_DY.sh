@@ -22,7 +22,7 @@ echo "art-result: $? convert"
 
 dcubeName="Sherpa"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Sherpa_i/test_01_DY/test_01_config.xml"
-dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Sherpa_i/test_01_DY/test_01_hists.root"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Sherpa_i/master_branch/test_01_DY/test_01_hists.root"
 
 bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName MyOutput.root $dcubeXml $dcubeRef
 

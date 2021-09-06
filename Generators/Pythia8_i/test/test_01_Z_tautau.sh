@@ -25,7 +25,7 @@ echo "art-result: $? convert"
 
 dcubeName="Pythia8i"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_01_Z_tautau/config_Ztt.xml"
-dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/test_01_Z_tautau/MyOutput.root"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/master_branch/test_01_Z_tautau/MyOutput.root"
 
 #dcubeName="Pythia8i"
 #dcubeXml="/afs/cern.ch/user/l/lyue/Qualification_task_ART/Pythia_8/DcubeReference/test_01_Z_tautau/config_Ztt.xml"
