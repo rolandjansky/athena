@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,6 +41,7 @@
 
 #include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QElapsedTimer>
 
 #include <qdatetime.h>
 #include <vector>
@@ -1063,7 +1064,7 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
 //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
 //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(nullptr); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
   actualSetShownTSOSPartsOnHandles();
   actualSetCustomColouredTSOSPartsOnHandles();
@@ -1083,7 +1084,7 @@ void TrackCollHandleBase::updateObjectBrowserVisibilityCounts() {
 
 void TrackCollHandleBase::fillObjectBrowser()
 {
-  QTime t;
+  QElapsedTimer t;
   t.start();
   
   QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();
