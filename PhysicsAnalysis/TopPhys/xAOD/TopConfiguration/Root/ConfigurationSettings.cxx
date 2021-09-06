@@ -180,6 +180,10 @@ namespace top {
                       "Debug output for soft muon additional truth-level information: True or False (default)",
                       "False");
 
+    registerParameter("MuonSFCustomInputFolder",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
+                      " ");
+
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
 
