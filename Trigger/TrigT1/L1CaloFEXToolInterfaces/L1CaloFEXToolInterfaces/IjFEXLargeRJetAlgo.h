@@ -26,7 +26,7 @@ namespace LVL1{
       virtual void setupCluster(int inputTable[15][15]) = 0;
       virtual unsigned int getRingET() = 0;
       virtual unsigned int getLargeClusterET(unsigned int smallClusterET, unsigned int largeRingET) = 0;
-      virtual std::unique_ptr<jFEXLargeRJetTOB> getLargeRJetTOBs() = 0;
+      virtual std::unique_ptr<jFEXLargeRJetTOB> getLargeRJetTOBs(int smallClusterET,int TTID) = 0;
       virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)   =0;
 
    private:

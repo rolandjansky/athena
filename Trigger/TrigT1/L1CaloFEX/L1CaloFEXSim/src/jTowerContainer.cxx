@@ -32,16 +32,7 @@ void jTowerContainer::print() const {
 const LVL1::jTower * jTowerContainer::findTower(int towerID) const
 {
     const auto it = m_map_towerID_containerIndex.find(towerID);
-    if (it==m_map_towerID_containerIndex.cend()) {
-        // FIXME !!!
-        // This should be:
-        // return nullptr;
-        // but the previous version of the code had a bug and relied on UNDEFINED BEHAVIOUR
-        // which would often set container_index to 0 for out-of-range towerID, but maybe
-        // sometimes to a different number. I keep the container_index=0 for now while only
-        // refactoring the code for performance. Rafal Bielski 31/08/2021
-        return (*this)[0];
-    }
+    
     const int container_index = it->second;
     if (container_index < 0) {
         return nullptr;
@@ -52,16 +43,7 @@ const LVL1::jTower * jTowerContainer::findTower(int towerID) const
 LVL1::jTower * jTowerContainer::findTower(int towerID)
 {
     const auto it = m_map_towerID_containerIndex.find(towerID);
-    if (it==m_map_towerID_containerIndex.cend()) {
-        // FIXME !!!
-        // This should be:
-        // return nullptr;
-        // but the previous version of the code had a bug and relied on UNDEFINED BEHAVIOUR
-        // which would often set container_index to 0 for out-of-range towerID, but maybe
-        // sometimes to a different number. I keep the container_index=0 for now while only
-        // refactoring the code for performance. Rafal Bielski 31/08/2021
-        return (*this)[0];
-    }
+    
     const int container_index = it->second;
     if (container_index < 0) {
         return nullptr;

@@ -41,7 +41,7 @@ namespace LVL1 {
 
     virtual StatusCode safetyTest() override;
 
-    virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
+    virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int jfex, int fpga) override;
     //virtual int realValue(int ID, int eta) override;
     virtual float globalPhi(int nphi, int neta) override;
     virtual float globalEta(int nphi, int neta) override;   
@@ -58,10 +58,17 @@ namespace LVL1 {
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXForwardJetsAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int m_jFEXalgoTowerID[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
-        bool m_storeEnergyRingTTIDs; 
         std::map<int,std::vector<int> > m_map_Etvalues;
         int m_lowerEM_eta;
         int m_upperEM_eta;
+        int m_jfex;
+        int m_fpga;
+        
+        
+        //This flag determines if the TT ID which are in the first and second energy rings are stored
+        //in the jFEXForwardJetsInfo class. It is set to false to reduce quantity data stored in class
+        bool m_storeEnergyRingTTIDs = false;        
+                
   };
 }//end of namespace
 #endif
