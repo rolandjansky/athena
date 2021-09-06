@@ -248,11 +248,6 @@ class TrigInDetRdictStep(Step):
             os.system( 'get_files -data TIDAdata-run3-offline-TnP.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)
 
 
@@ -286,6 +281,11 @@ class TrigInDetCompStep(RefComparisonStep):
         self.required   = True
         self.args = args
         self.executable = 'TIDAcomparitor'
+        os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
     
 
     def configure(self, test):
