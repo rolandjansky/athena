@@ -45,6 +45,8 @@ namespace ISF {
 
        /** Register the TrackRecordCollection pointer for a layer */
        virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) = 0;
+
+       virtual void setupEvent() = 0;
   };
 
 } // end of namespace
