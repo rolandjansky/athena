@@ -216,8 +216,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z",
-                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights",
-                                      "EventInfo.hardScatterVertexLink.timeStampNSOffset"]
+                                      "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT",
+                                      "EventInfo.hardScatterVertexLink.timeStampNSOffset",
+                                      "TauJets.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.dRmax.etOverPtLeadTrk"]
 
 # Add trigger matching
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
