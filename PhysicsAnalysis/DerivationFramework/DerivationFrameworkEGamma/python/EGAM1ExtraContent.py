@@ -40,8 +40,8 @@ ExtraMuonsTruth=[
     ]
 
 ExtraContentPhotons=[
-	]
-	
+    ]
+    
 ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
 
 ExtraPhotonsTruth=[
@@ -51,18 +51,18 @@ ExtraPhotonsTruth=[
     ]
 
 ExtraContentGSFConversionVertices=[
-	"GSFConversionVertices.x",
-	"GSFConversionVertices.y",
-	"GSFConversionVertices.z",
-	"GSFConversionVertices.px",
-	"GSFConversionVertices.py",
-	"GSFConversionVertices.pz",
-	"GSFConversionVertices.pt1",
-	"GSFConversionVertices.pt2",
-	"GSFConversionVertices.etaAtCalo",
-	"GSFConversionVertices.phiAtCalo",
-	"GSFConversionVertices.trackParticleLinks"
-	]
+    "GSFConversionVertices.x",
+    "GSFConversionVertices.y",
+    "GSFConversionVertices.z",
+    "GSFConversionVertices.px",
+    "GSFConversionVertices.py",
+    "GSFConversionVertices.pz",
+    "GSFConversionVertices.pt1",
+    "GSFConversionVertices.pt2",
+    "GSFConversionVertices.etaAtCalo",
+    "GSFConversionVertices.phiAtCalo",
+    "GSFConversionVertices.trackParticleLinks"
+    ]
 
 #ExtraContentHLTElectrons=[
 #        "HLT_xAOD__ElectronContainer_egamma_Electrons.e.pt.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1.fracs1.wtots1.weta1.DeltaE.Eratio.caloClusterLinks"
@@ -84,10 +84,10 @@ ExtraContainersTruth=["TruthEvents",
                       "TruthParticles",
                       "TruthVertices",
                       "AntiKt4TruthJets",
-		      "egammaTruthParticles"
+                      "egammaTruthParticles"
                       #,"BTagging_AntiKt4TruthWZ"
                       #,"AntiKt4TruthWZJets"
-		      ]
+              ]
 
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
