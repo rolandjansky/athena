@@ -8,7 +8,10 @@
 #include "../sTGC_HitsTruthRelink.h"
 #include "../TGC_HitsTruthRelink.h"
 #include "../TRT_HitsTruthRelink.h"
- 
+
+#include "../TruthResetAlg.h"
+#include "../TruthClosureCheck.h"
+
 DECLARE_COMPONENT( McEventCollectionFilter )
 
 DECLARE_COMPONENT( CSC_HitsTruthRelink )
@@ -19,3 +22,6 @@ DECLARE_COMPONENT( SiliconHitsTruthRelink )
 DECLARE_COMPONENT( sTGC_HitsTruthRelink )
 DECLARE_COMPONENT( TGC_HitsTruthRelink )
 DECLARE_COMPONENT( TRT_HitsTruthRelink )
+
+DECLARE_COMPONENT( TruthResetAlg )
+DECLARE_COMPONENT( TruthClosureCheck )
