@@ -31,9 +31,11 @@ const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil)
 //
     DOMNode *parent = shape->getParentNode();
     if (XMLString::compareIString(parent->getNodeName(), shapes_tmp) != 0) {
+        char* idref_s = XMLString::transcode (idref);
         OUTPUT_STREAM;
         msglog << MSG::FATAL << "Error processing <shaperef> tag: An IDREF for a shape did not refer to a shape.\nShape ref was " << 
-               idref << "; exiting" << endmsg;
+               idref_s << "; exiting" << endmsg;
+        XMLString::release (&idref_s);
         exit (1); // Need to improve...
     }
 //
