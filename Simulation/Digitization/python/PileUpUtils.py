@@ -232,9 +232,6 @@ def scaleNumberOfCollisions(flags):
 
 def setupPileUpProfile(flags):
     bunchStructure = flags.Digitization.PU.BunchStructureConfig
-    pileUpProfile = flags.Digitization.PU.ProfileConfig
-    if not bunchStructure or not pileUpProfile:
-        raise ValueError('Bunch structure and pile-up profile need to be set')
     
     # custom pile-up
     if flags.Digitization.PU.CustomProfile:
@@ -242,6 +239,12 @@ def setupPileUpProfile(flags):
             flags.Digitization.PU.CustomProfile = eval(flags.Digitization.PU.CustomProfile)
         if isinstance(flags.Digitization.PU.CustomProfile, dict):
             pileUpProfile = 'RunDependentSimData.PileUpProfile_muRange'
+    else:
+        pileUpProfile = flags.Digitization.PU.ProfileConfig
+
+    # sanity check
+    if not bunchStructure or not pileUpProfile:
+        raise ValueError('Bunch structure and pile-up profile need to be set')
 
     # Setup beam intensity pattern
     parts = bunchStructure.split('.')
