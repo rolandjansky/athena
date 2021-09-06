@@ -87,20 +87,19 @@ TrigDecChecker = TrigDecisionChecker("TrigDecChecker")
 TrigDecChecker.WriteEventDecision=False
 TrigDecChecker.MonitoringBlock=100
 TrigDecChecker.MonitoredChains=[]
-#TrigDecChecker.OutputLevel=DEBUG
 
-#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#ToolSvc += tdt
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
+tdtAcc = getTrigDecisionTool(ConfigFlags)
+Configurable.configurableRun3Behavior-=1
 
-#from AthenaCommon.GlobalFlags import GlobalFlags
-#GlobalFlags.DetGeo.set_atlas()
+theTDT = tdtAcc.getPrimary()
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+TrigDecChecker.TrigDecisionTool = conf2toConfigurable(theTDT)
 
-from TrigEDMConfig.TriggerEDM import EDMLibraries
-ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+appendCAtoAthena( tdtAcc )
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
