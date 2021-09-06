@@ -52,7 +52,7 @@ AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::
   }
 
   if (vecRobs.size() == 0) {
-    ATH_MSG_WARNING("vecRobs.size() == 0");
+    ATH_MSG_DEBUG("vecRobs.size() == 0");
     return StatusCode::SUCCESS;
   }
 
