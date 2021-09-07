@@ -15,6 +15,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "TileGeoModel/TileSwitches.h"
 
 // Definition for regions
 #define TILE_REGION_CENTRAL 1
@@ -37,9 +38,7 @@ class TileGeoSectionBuilder
   /** Constructor */
   TileGeoSectionBuilder(const StoredMaterialManager* matManager,
                         TileDddbManager* pDbManager,
-                        int uShape,
-                        int glue,
-                        int csTube,
+                        const TileSwitches & switches,
                         MsgStream * log);
 
   /** Destructor */
@@ -188,9 +187,7 @@ class TileGeoSectionBuilder
   TileDddbManager *                     m_dbManager;
   MsgStream *                           m_log;
 
-  int          m_uShape;
-  int          m_glue;
-  int          m_csTube;
+  TileSwitches m_switches;
   double       m_barrelPeriodThickness;
   double       m_barrelGlue;
   double       m_extendedPeriodThickness;
