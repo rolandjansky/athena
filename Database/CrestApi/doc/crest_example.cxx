@@ -26,7 +26,7 @@ void print_path() {
   std::cout << (std::string) SURL << std::endl;
 }
 
-bool createDirTree(const std::string full_path) {
+bool createDirTree(const std::string& full_path) {
   size_t pos = 0;
   bool ret_val = true;
 
@@ -168,7 +168,7 @@ void testListTagsParams() {
   }
 }
 
-void testListTagsParams(std::string name) {
+void testListTagsParams(const std::string& name) {
   std::cout << std::endl << "test: listTagsParams" << std::endl;
   CrestClientExt myCrestClient = CrestClientExt((std::string) SURL);
 
