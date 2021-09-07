@@ -166,7 +166,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         if TrkDetFlags.MaterialSource() == 'COOL':
             # the material provider
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
-            AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
+            AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialCondProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
             AtlasMaterialProvider.LayerMaterialMapKey   = TrkDetFlags.MaterialStoreGateKey()
         
