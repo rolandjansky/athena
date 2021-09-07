@@ -76,7 +76,7 @@ def getL1BackgroundSeed(menul1items):
             'L1_J10_UNPAIRED_ISO','L1_J10_UNPAIRED_NONISO',
             'L1_LUCID_A_C_EMPTY','L1_LUCID_A_C_UNPAIRED_ISO','L1_LUCID_A_C_UNPAIRED_NONISO',
             'L1_LUCID_EMPTY','L1_LUCID_UNPAIRED_ISO',
-            'L1_MU4_UNPAIRED_ISO',
+            'L1_MU3V_UNPAIRED_ISO',
             'L1_LUCID_COMM_UNPAIRED_ISO','L1_LUCID_COMM_EMPTY'
         ]
         
@@ -208,28 +208,28 @@ def getEBnoL1PSSeed(l1items, l1seedname):
     l1EBitems = []
     if ('L1_PhysicsHigh' in l1seedname):
       l1EBitems = [
-        'L1_MU6_3MU4',
-        'L1_EM15VH_MU10','L1_EM22VHI','L1_2EM8VH_MU10',
-        'L1_MU10_TAU12IM_J25_2J12','L1_MU10_TAU12IM_XE35','L1_MU10_TAU20IM',
+        'L1_MU5VF_3MU3V',
+        'L1_EM15VH_MU8F','L1_EM22VHI','L1_2EM8VH_MU8F',
+        'L1_MU8F_TAU12IM_J25_2J12','L1_MU8F_TAU12IM_XE35','L1_MU8F_TAU20IM',
         'L1_4J15','L1_XE50','L1_2J15_XE55',
         'L1_TAU60','L1_TAU20IM_2TAU12IM_J25_2J20_3J12','L1_TAU20IM_2TAU12IM_XE35','L1_TAU20IM_2J20_XE45',
-        'L1_MU20','L1_MU10_3J20',
+        'L1_MU14FCH','L1_MU8F_3J20',
         'L1_J40p0ETA25_2J15p31ETA49',
-        'L1_3MU6','L1_MU10_2J15_J20',
+        'L1_3MU5VF','L1_MU8F_2J15_J20',
         'L1_J40p0ETA25_2J25_J20p31ETA49',
-        'L1_2MU6_3MU4','L1_MU11_2MU6'
+        'L1_2MU5VF_3MU3V','L1_MU8VF_2MU5VF'
         ]
     elif ('L1_PhysicsVeryHigh' in l1seedname):
       l1EBitems = ['L1_XE60', 'L1_J400', 'L1_6J15']
     elif ('L1_EMPTY' in l1seedname):
-      l1EBitems = ['L1_J12_EMPTY', 'L1_MU11_EMPTY', 'L1_TAU8_EMPTY', 'L1_TAU40_EMPTY', 'L1_EM7_EMPTY']
+      l1EBitems = ['L1_J12_EMPTY', 'L1_MU8VF_EMPTY', 'L1_TAU8_EMPTY', 'L1_TAU40_EMPTY', 'L1_EM7_EMPTY']
     elif ('L1_FIRSTEMPTY' in l1seedname):
       l1EBitems = ['L1_J12_FIRSTEMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_EM7_FIRSTEMPTY']
     elif ('L1_UNPAIRED_ISO' in l1seedname):
       l1EBitems = [
         'L1_J12_UNPAIRED_ISO', 'L1_J15p31ETA49_UNPAIRED_ISO',
         'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_AC_UNPAIRED_ISO', 'L1_BCM_CA_UNPAIRED_ISO',
-        'L1_MU4_UNPAIRED_ISO', 'L1_EM7_UNPAIRED_ISO', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_UNPAIRED_ISO'
+        'L1_MU3V_UNPAIRED_ISO', 'L1_EM7_UNPAIRED_ISO', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_UNPAIRED_ISO'
         ]
     elif ('L1_UNPAIRED_NONISO' in l1seedname):
       l1EBitems = [
@@ -361,19 +361,19 @@ def getL1LowLumi(l1seed):
 
     l1bgditems = [
         'L1_EM20VH', 'L1_2EM10VH',
-        'L1_MU15', 'L1_2MU6', 'L1_3MU4',
-        'L1_EM15VH_MU10', 'L1_EM15I_MU4',
-        'L1_EM7_MU10', 'L1_2EM8VH_MU10',
+        'L1_2MU5VF', 'L1_3MU3V',
+        'L1_EM15VH_MU8F', 'L1_EM15I_MU3V',
+        'L1_EM7_MU8F', 'L1_2EM8VH_MU8F',
         'L1_TAU60', 'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-        'L1_EM15HI_2TAU12IM_XE35', 'L1_MU10_TAU12IM_XE35',
+        'L1_EM15HI_2TAU12IM_XE35', 'L1_MU8F_TAU12IM_XE35',
         'L1_TAU20_2TAU12_XE35', 'L1_TAU20IM_2TAU12IM_XE35',
         'L1_EM15HI_2TAU12IM', 'L1_EM15HI_2TAU12IM_J25_3J12',
-        'L1_EM15HI_TAU40_2TAU15', 'L1_MU10_TAU12IM_J25_2J12',
-        'L1_MU10_TAU12IM',
+        'L1_EM15HI_TAU40_2TAU15', 'L1_MU8F_TAU12IM_J25_2J12',
+        'L1_MU8F_TAU12IM',
         'L1_J75', 'L1_4J15',
         'L1_XE50', 'L1_3J25p0ETA23',
         'L1_3J40', 'L1_2J15_XE55',
-        'L1_MU6_J40', 'L1_J75p31ETA49'
+        'L1_MU5VF_J40', 'L1_J75p31ETA49'
     ]
 
     # check if all the l1 background seeds given are in the current L1 menu

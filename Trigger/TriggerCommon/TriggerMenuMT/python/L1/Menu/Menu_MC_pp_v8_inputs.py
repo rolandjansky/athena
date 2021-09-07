@@ -287,14 +287,11 @@ def defineInputsMenu():
     muctpiBoard["MuCTPi"]["connectors"].append({
         "name" : "MuCTPiOpt0",
         "format" : "multiplicity",
-        "nbitsDefault" : 3,
+        "nbitsDefault" : 2,
         "type" : "optical",
         "legacy" : False,
         "thresholds" : [
             # exactly the first 4 thresholds must be defined with 3 bits, all others use 2 bits automatically
-            # Run2 thresholds
-            ('MU4',3), ('MU6',3), ('MU10',3), ('MU11',3), 'MU20', 'MU21',
-            # Run3
             ('MU3V',3), ('MU5VF',3), ('MU8F',3), ('MU8VF',3), 'MU14FCH', 'MU14FCHR',
             # Run3 test/backup
             'MU3VF', 'MU8FC', 'MU15VFCH', 'MU10BOM', 'MU20FC',

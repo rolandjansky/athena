@@ -67,15 +67,6 @@ class ThresholdDef:
         MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
-        # backward compatible threshold names (definition like above)
-        MuonThreshold( "MU4" ).setThrValue( thr=3, ba=4 )                     # similar to Run-2 MU4 efficiency
-        MuonThreshold( "MU6" ).setThrValue( thr=5, ba=6 ).setTGCFlags("F")    # similar to Run-2 MU6
-        MuonThreshold( "MU10").setThrValue( thr=8 ).setTGCFlags("F")          # similar to Run-2 MU10
-        MuonThreshold( "MU11").setThrValue( thr=8, ba=10 ).setTGCFlags("F")   # similar to Run-2 MU11
-        MuonThreshold( "MU15").setThrValue( thr=12).setTGCFlags("F & c & H")  # guess
-        MuonThreshold( "MU20").setThrValue( thr=14 ).setTGCFlags("F & C & H") # similar to Run-2 MU20
-        MuonThreshold( "MU21" ).setThrValue( thr=14 ).setTGCFlags("F & C & H").setExclusionList("rpcFeet") # similar to Run-2 MU21
-
         # special threshold for magnet-off menu
         MuonThreshold( "MU0").setThrValue( thr=0 )
 
