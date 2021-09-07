@@ -178,10 +178,10 @@ StatusCode Herwig7::callGenerator() {
 StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   // Convert the Herwig event into the HepMC GenEvent
   ATH_MSG_DEBUG("Converting ThePEG::Event to HepMC::GenEvent");
-  convert_to_HepMC(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
 #ifdef HEPMC3
   if (!evt->run_info()) evt->set_run_info(m_runinfo);
 #endif
+  convert_to_HepMC(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
   ATH_MSG_DEBUG("Converted ThePEG::Event to HepMC::GenEvent");
 
   // Fill the event number into HepMC event record
@@ -225,7 +225,7 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(), scale, x2);
   // Create the PDFinfo object
 #ifdef HEPMC3
-  HepMC3::GenPdfInfoPtr pdfi = std::shared_ptr<HepMC3::GenPdfInfo>();
+  HepMC3::GenPdfInfoPtr pdfi = std::make_shared<HepMC3::GenPdfInfo>();
   pdfi->set(id1, id2, x1, x2, Q, pdf1, pdf2);
 #else
   HepMC::PdfInfo pdfi(id1, id2, x1, x2, Q, pdf1, pdf2);
