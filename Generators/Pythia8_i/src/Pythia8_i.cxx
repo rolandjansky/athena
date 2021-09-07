@@ -450,7 +450,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   evt->set_event_number(m_internal_event_number);
 
   // if using "getGroupWeight" and | lhastrategy | = 4, then need to convert mb to pb ( done otherwise when calling info.weight(), [...] )
-  if( m_internal_event_number == 1 && abs(m_pythia->info.lhaStrategy()) == 4 ) {
+  if( m_internal_event_number == 1 && std::abs(m_pythia->info.lhaStrategy()) == 4 ) {
      m_conversion = ( (double) PYTHIA8_CONVERSION);
      ATH_MSG_DEBUG(" LHA strategy needs a conversion to fix Pythia8 shower weights bug(s) equal to " << m_conversion);
   }
@@ -636,7 +636,7 @@ StatusCode Pythia8_i::genFinalize(){
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
 
 #ifdef HEPMC3
-  HepMC::GenEvent *procEvent = new HepMC::GenEvent();
+  HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
   // Adding the LHE event to the HepMC results in undecayed partons in the event record.
   // Pythia's HepMC converter throws up undecayed partons, so we ignore that
