@@ -27,7 +27,7 @@ def addP1Signatures():
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-          ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU20', stream=['RPCSecondaryReadout'], groups=SingleMuonGroup), # TODO: Move to Detector slice
+          ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU14FCH', stream=['RPCSecondaryReadout'], groups=SingleMuonGroup), # TODO: Move to Detector slice
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -215,8 +215,9 @@ def addP1Signatures():
         # Low mu AFP
         ChainProp(name='HLT_noalg_L1EM7_AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
         ChainProp(name='HLT_noalg_L1EM7_AFP_A_AND_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
-        ChainProp(name='HLT_noalg_L1MU6_AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
-        ChainProp(name='HLT_noalg_L1MU6_AFP_A_AND_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1MU5VF_AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1MU5VF_AFP_A_AND_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
+
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
         ChainProp(name='HLT_timeburner_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online','RATE:DISCARD','BW:DISCARD']),

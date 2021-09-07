@@ -28,16 +28,16 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-        ChainProp(name='HLT_mu4_cosmic_L1MU4_EMPTY', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
-        ChainProp(name='HLT_mu4_cosmic_L1MU4', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
-        ChainProp(name='HLT_mu4_msonly_cosmic_L1MU4_EMPTY', l1SeedThresholds=['MU4'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_mu4_cosmic_L1MU3V_EMPTY', l1SeedThresholds=['MU3V'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_mu4_cosmic_L1MU3V', l1SeedThresholds=['MU3V'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_mu4_msonly_cosmic_L1MU3V_EMPTY', l1SeedThresholds=['MU3V'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
 
-        ChainProp(name='HLT_3mu6_msonly_L1MU4_EMPTY', l1SeedThresholds=['MU4'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
-        ChainProp(name='HLT_3mu6_msonly_L1MU6_EMPTY', l1SeedThresholds=['MU6'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
+        ChainProp(name='HLT_3mu6_msonly_L1MU3V_EMPTY', l1SeedThresholds=['MU3V'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
+        ChainProp(name='HLT_3mu6_msonly_L1MU5VF_EMPTY', l1SeedThresholds=['MU5VF'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
 
-        ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', l1SeedThresholds=['MU20'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
-        ChainProp(name='HLT_mu60_msonly_3layersEC_L1MU20', l1SeedThresholds=['MU20'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
-        ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU20', l1SeedThresholds=['MU20'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu60_0eta105_msonly_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu60_msonly_3layersEC_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -66,15 +66,15 @@ def setupMenu():
         
     ]
     TriggerFlags.BjetSlice.signatures = [
-        ChainProp(name='HLT_j0_ftf_boffperf_L1MU10',   l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleBjetGroup),
+        ChainProp(name='HLT_j0_ftf_boffperf_L1MU8F',   l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleBjetGroup),
         ChainProp(name='HLT_j0_ftf_boffperf_L1RD0_EMPTY',   l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleBjetGroup),
         ChainProp(name='HLT_j0_ftf_boffperf_L1J12_EMPTY',   l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleBjetGroup),
     ]
     TriggerFlags.TauSlice.signatures = []
     TriggerFlags.BphysicsSlice.signatures = []
     TriggerFlags.CombinedSlice.signatures = [
-        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU4_EMPTY', l1SeedThresholds=['EM8VH','MU4'], stream=['Main'], groups=PrimaryLegGroup+EgammaMuonGroup),
-        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU6_EMPTY', l1SeedThresholds=['EM8VH','MU6'], stream=['Main'], groups=PrimaryLegGroup+EgammaMuonGroup),
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU3V_EMPTY', l1SeedThresholds=['EM8VH','MU3V'], stream=['Main'], groups=PrimaryLegGroup+EgammaMuonGroup),
+        ChainProp(name='HLT_g15_loose_2mu10_msonly_L1MU5VF_EMPTY', l1SeedThresholds=['EM8VH','MU5VF'], stream=['Main'], groups=PrimaryLegGroup+EgammaMuonGroup),
     ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
@@ -89,9 +89,8 @@ def setupMenu():
         ChainProp(name='HLT_noalg_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
         ChainProp(name='HLT_noalg_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
 
-        ChainProp(name='HLT_noalg_L1MU4_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
-        ChainProp(name='HLT_noalg_L1MU11_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
-
+        ChainProp(name='HLT_noalg_L1MU3V_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_noalg_L1MU8VF_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
 
 ]
     TriggerFlags.MonitorSlice.signatures   = []

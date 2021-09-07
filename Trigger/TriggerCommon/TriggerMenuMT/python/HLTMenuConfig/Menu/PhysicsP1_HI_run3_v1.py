@@ -34,7 +34,7 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-            ChainProp(name='HLT_mu4_L1MU4', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+            ChainProp(name='HLT_mu4_L1MU3V', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
