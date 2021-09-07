@@ -11,3 +11,4 @@ addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getCollectionMerger",  "ISF_Co
 addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getSimHitTreeCreator", "ISF_SimHitTreeCreator")
 addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getSimEventFilter",    "ISF_SimEventFilter")
 addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getInvertedSimEventFilter", "ISF_InvertedSimEventFilter")
+addAlgorithm("ISF_Algorithms.ISF_AlgorithmsConfig.getRenameHitCollections", "RenameHitCollections")
