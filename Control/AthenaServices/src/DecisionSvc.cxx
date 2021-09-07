@@ -126,8 +126,6 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
   if(it != streamsModeMap.end()){
     // ok, it exists, then check if the algname was already been inserted
 
-    // save the list
-    std::vector<std::string> tmpvec = it->second;
 
     bool algexist = false;
     // Check if alg already registered for this stream
@@ -147,16 +145,15 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
     // So, if the stream exist but the alg has not been registered
     // update its content std::vector with a alg
     if(algexist == false){
+      std::vector<std::string> &tmpvec = it->second;
       tmpvec.push_back(name);
-      streamsModeMap.erase(stream);
-      streamsModeMap.insert(std::make_pair(stream, tmpvec));
     }
 
     //if the stream doesn't exist yet, then insert it
   } else {
     std::vector<std::string> tmpvec;
     tmpvec.push_back(name);
-    streamsModeMap.insert(std::make_pair(stream, tmpvec));
+    streamsModeMap[stream] = std::move(tmpvec);
   }
 
   return StatusCode::SUCCESS;
@@ -396,31 +393,31 @@ void DecisionSvc::DeclareToCutFlowSvc()
     std::string accstring(""), reqstring(""), vetstring("");
     for (auto it = accFilt.begin(); it != accFilt.end(); ++it) {
       if(accstring.size()>0) accstring += "||";
-      else accstring += "(";
+      else accstring += '(';
       accstring+=*it;
     }
     for (auto it = reqFilt.begin(); it != reqFilt.end(); ++it) {
       if(reqstring.size()>0) reqstring += "&&";
-      else reqstring += "(";
+      else reqstring += '(';
       reqstring+=*it;
     }
     for (auto it = vetFilt.begin(); it != vetFilt.end(); ++it) {
       if(vetstring.size()>0) vetstring += "||";
-      else vetstring += "(";
+      else vetstring += '(';
       vetstring+=*it;
     }
     std::string logicalKey("");
     if(accstring.size()>0) {
-      accstring += ")";
+      accstring += ')';
       logicalKey += accstring;
     }
     if(reqstring.size()>0) {
-      reqstring += ")";
+      reqstring += ')';
       if (logicalKey.size()>0) logicalKey += "&&";
       logicalKey += reqstring;
     }
     if(vetstring.size()>0) {
-      vetstring += ")";
+      vetstring += ')';
       if (logicalKey.size()>0) logicalKey += "&&";
       logicalKey = logicalKey + "!" + vetstring;
     }
