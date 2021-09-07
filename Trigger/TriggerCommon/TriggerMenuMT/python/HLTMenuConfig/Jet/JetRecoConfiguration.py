@@ -150,8 +150,16 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods = ["EM"] + constitMods
         elif jetRecoDict["clusterCalib"] == "lcw":
             constitMods = ["LC"] + constitMods
+        else:
+            log.error("cluster calib state not recognised : ",jetRecoDict["clusterCalib"])
+        if not clustersKey:
+            raise ValueError("cluster key must be provided for topocluster jets.")
+            
 
-        jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
+        if not constitMods:
+            jetConstit = JetInputConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label='EMTopo'+modstring)
+        else:
+            jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
 
     # declare our new JetInputConstitSeq in the standard dictionary
     from JetRecConfig.StandardJetConstits import stdConstitDic

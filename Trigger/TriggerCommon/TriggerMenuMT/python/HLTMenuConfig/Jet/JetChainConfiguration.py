@@ -7,9 +7,6 @@ log = logging.getLogger(__name__)
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 from .JetRecoConfiguration import jetRecoDictToString
-from ..Menu.ChainDictTools import splitChainDict
-from .JetRecoSequences import JetRecoConfiguration
-from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
 
 import copy
 
@@ -37,8 +34,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         self.chainPart = self.dict['chainParts']
         self.L1Threshold = ''
         self.mult = 1 # from the framework point of view I think the multiplicity is 1, internally the jet hypo has to figure out what to actually do
-
-        self._setJetName()
 
         # these properties are in the base class, but I don't think we need them for jets
         #self.chainPartName = ''
@@ -84,18 +79,29 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
 
+        self._setJetName()
+
+
     # ----------------------
     # Assemble jet collection name based on reco dictionary
     # ----------------------
     def _setJetName(self):
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
+        from ..Menu.ChainDictTools import splitChainDict
+        #from .JetRecoConfiguration import getHLTPrefix, jetDefNeedsTracks, defineJetConstit, interpretRecoAlg
+        from .JetRecoSequences import JetRecoConfiguration
+        from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
         try:
             subChainDict = splitChainDict(self.dict)[0]
         except IndexError:
             raise RunTimeError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
         jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
         prefix = JetRecoConfiguration.getHLTPrefix()
         suffix = "_"+jetRecoDict["jetCalib"]
-        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
+            suffix += "_{}".format(jetRecoDict["trkopt"])
+        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
         jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
         actualradius = float(jetradius)/10
         self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
