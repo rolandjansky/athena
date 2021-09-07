@@ -16,6 +16,7 @@
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "TileDetDescr/TileDetDescrManager.h"
+#include "TileGeoModel/TileSwitches.h"
 
 class MsgStream;
 class StoreGateSvc;
@@ -25,8 +26,8 @@ class TileAtlasFactory : public GeoVDetectorFactory
 public:
   
   /** Constructor */
-  TileAtlasFactory(StoreGateSvc *pDetStore, TileDetDescrManager *manager, 
-                   bool addPlates, int uShape, int glue, int cstube, MsgStream *log, bool fullGeo);
+  TileAtlasFactory(StoreGateSvc *pDetStore, TileDetDescrManager *manager,
+                   const TileSwitches & switches, MsgStream *log, bool fullGeo);
   
   /** Destructor */
   ~TileAtlasFactory();
@@ -57,20 +58,8 @@ private:
   /** Get message SVC */
   MsgStream                 *m_log;
 
-  /** Add plates to cell volume */
-  bool                       m_addPlatesToCellVolume;
-
-  /** U-shape version used */
-  int                        m_uShape;
-
-  /** 0: glue layer is removed and replaced by iron,
-      1: simulation with glue,
-      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
-  int                        m_glue;
-
-  int                        m_csTube;
-  /** Flag for using test beam geometry */
-  bool                       m_testbeamGeometry; 
+  /** all switches */
+  TileSwitches m_switches;
 
   /** Flag for activation verbose level for debugging */
   bool                       m_verbose;

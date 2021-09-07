@@ -257,9 +257,14 @@ class TileDddbManager
   double TICLholes(unsigned int ind) const;
 
   // fields of tile switches
-  bool addPlatesToCell() const;
-  int  uShape()  const;
-  int  glue() const;
+  int getSwitch (const char *name, int def_val) const;
+  int addPlatesToCell() const { return getSwitch("ADDPLATESTOCELL",1); }
+  int uShape()          const { return getSwitch("USHAPE",0); }
+  int glue()            const { return getSwitch("GLUE",1); }
+  int PVT()             const { return getSwitch("PVT",0); }
+  int steel()           const { return getSwitch("STEEL",0); }
+  int csTube()          const { return getSwitch("CSTUBE",0); }
+
  private:
 
   IRDBRecordset_ptr m_tiglob;
