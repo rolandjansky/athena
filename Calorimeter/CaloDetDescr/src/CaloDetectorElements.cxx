@@ -10,6 +10,8 @@
 
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
 
 namespace {
@@ -53,26 +55,25 @@ void fcal_deta_dphi (const CaloDetDescrElement& elt,
 
 
 // -- EMBDetectorElement --
-
-EMBDetectorElement::EMBDetectorElement(const IdentifierHash subcaloHash,
-				       const IdentifierHash onl1,
-				       const IdentifierHash onl2,
-				       const CaloDetDescriptor* descriptor,
-				       EMBCellConstLink& embCell,
-				       const EMBDetectorRegion* embRegion,
-				       bool isTestBeam):
-  CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor),
-  m_cell(embCell),
-  m_region(embRegion)
+EMBDetectorElement::EMBDetectorElement(const IdentifierHash subcaloHash
+				       , const IdentifierHash onl1
+				       , const IdentifierHash onl2
+				       , const CaloDetDescriptor* descriptor
+				       , EMBCellConstLink& embCell
+				       , const EMBDetectorRegion* embRegion
+				       , bool isTestBeam
+				       , const GeoAlignmentStore* geoAlignStore
+                                       , const CaloElementPositionShift* posShift)
+  : CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor)
+  , m_cell(embCell)
+  , m_region(embRegion)
 {
-  init_description();
-  init_interpretation();
-
-  if(isTestBeam)
-    propagateRaw();
+  init_description(geoAlignStore,posShift);
+  if(isTestBeam) propagateRaw();
 }
 
-void EMBDetectorElement::init_description(const CaloElementPositionShift* posShift)
+void EMBDetectorElement::init_description(const GeoAlignmentStore* geoAlignStore
+					  , const CaloElementPositionShift* posShift)
 {
   m_eta_raw = static_cast<float> ((m_cell->getEtaMin() + m_cell->getEtaMax())/2.);
   if(m_cell->getEndcapIndex()==0)
@@ -81,8 +82,8 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
   const double phi_loc = (m_cell->getPhiLocalLower() + m_cell->getPhiLocalUpper())/2.;
 
   double x_loc, y_loc, z_loc, r_loc;
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform(geoAlignStore);
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform(geoAlignStore);
 
   z_loc = (m_cell->getZMaxLocal(EMBCell::CENTER) + m_cell->getZMinLocal(EMBCell::CENTER))/2.;
   r_loc = m_cell->getRLocal(EMBCell::CENTER);
@@ -91,9 +92,9 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
   y_loc = r_loc*sin(phi_loc);
 
   Amg::Vector3D globalDefCoords = xfDef*Amg::Vector3D(x_loc,y_loc,z_loc);
-  Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
-				xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz) :
-				xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc));
+  Amg::Vector3D globalAbsCoords = posShift
+    ? xfAbs*Amg::Vector3D(x_loc+posShift->dx,y_loc+posShift->dy,z_loc+posShift->dz)
+    : xfAbs*Amg::Vector3D(x_loc,y_loc,z_loc);
 
   m_x_raw = static_cast<float> (globalDefCoords.x());
   m_y_raw = static_cast<float> (globalDefCoords.y());
@@ -142,20 +143,15 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
 
 }
 
-void EMBDetectorElement::init_interpretation()
-{
-  // TO DO 
-  // Divide previous method into description and interpretation
-}
-
-void EMBDetectorElement::updateAlignment(EMBCellConstLink& embCell,
-					 const EMBDetectorRegion* embRegion,
-					 const CaloElementPositionShift* posShift)
+void EMBDetectorElement::updateAlignment(EMBCellConstLink& embCell
+					 , const EMBDetectorRegion* embRegion
+					 , const CaloElementPositionShift* posShift)
 {
   m_cell = embCell;
   m_region = embRegion;
-  init_description(posShift);
-  init_interpretation();
+  // updateAlignment() is called only from CaloAlignTool::align() callback
+  // This is why we explicitly use nullptr as first argument to init_description()
+  init_description(nullptr,posShift);
 }
 
 int EMBDetectorElement::getLayer() const
@@ -165,25 +161,27 @@ int EMBDetectorElement::getLayer() const
 
 // -- EMECDetectorElement --
 
-EMECDetectorElement::EMECDetectorElement(const IdentifierHash subcaloHash,
-					 const IdentifierHash onl1,
-					 const IdentifierHash onl2,
-					 const CaloDetDescriptor* descriptor,
-					 EMECCellConstLink& emecCell,
-					 const EMECDetectorRegion* emecRegion,
-					 bool isTestBeam):
-  CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor),
-  m_cell(emecCell),
-  m_region(emecRegion)
+EMECDetectorElement::EMECDetectorElement(const IdentifierHash subcaloHash
+					 , const IdentifierHash onl1
+					 , const IdentifierHash onl2
+					 , const CaloDetDescriptor* descriptor
+					 , EMECCellConstLink& emecCell
+					 , const EMECDetectorRegion* emecRegion
+					 , bool isTestBeam
+					 , const GeoAlignmentStore* geoAlignStore
+					 , const CaloElementPositionShift* posShift)
+  : CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor)
+  , m_cell(emecCell)
+  , m_region(emecRegion)
 {
-  init_description(isTestBeam);
+  init_description(isTestBeam,geoAlignStore,posShift);
   init_interpretation();
-
-  if(isTestBeam)
-    propagateRaw();
+  if(isTestBeam) propagateRaw();
 }
 
-void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPositionShift* posShift)
+void EMECDetectorElement::init_description(bool isTestBeam
+					   , const GeoAlignmentStore* geoAlignStore
+					   , const CaloElementPositionShift* posShift)
 {
   m_eta_raw = static_cast<float> ((m_cell->getEtaMin() + m_cell->getEtaMax())/2.);
   if(m_cell->getEndcapIndex()==0)
@@ -192,7 +190,7 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
   m_phi_raw = static_cast<float> ((m_cell->getPhiLocalLower() + m_cell->getPhiLocalUpper())/2.);
 
   double x_loc, y_loc, z_loc, r_loc;
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform(geoAlignStore);
 
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
@@ -205,7 +203,7 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0.,3689.5*Gaudi::Units::mm));
   }
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform(geoAlignStore);
 
   z_loc = m_cell->getZLocal(EMECCell::CENTER);
   r_loc = (m_cell->getRMinLocal(EMECCell::CENTER) + m_cell->getRMaxLocal(EMECCell::CENTER))/2.;
@@ -281,13 +279,15 @@ void EMECDetectorElement::init_interpretation()
   }
 }
 
-void EMECDetectorElement::updateAlignment(EMECCellConstLink& emecCell,
-					  const EMECDetectorRegion* emecRegion,
-					  const CaloElementPositionShift* posShift)
+void EMECDetectorElement::updateAlignment(EMECCellConstLink& emecCell
+					  , const EMECDetectorRegion* emecRegion
+					  , const CaloElementPositionShift* posShift)
 {
   m_cell = emecCell;
   m_region = emecRegion;
-  init_description(false,posShift);
+  // updateAlignment() is called only from CaloAlignTool::align() callback
+  // This is why we explicitly use nullptr as first argument to init_description()
+  init_description(false,nullptr,posShift);
   init_interpretation();
 }
 
@@ -297,25 +297,29 @@ int EMECDetectorElement::getLayer() const
 }
 
 // -- HECDetectorElement --
-HECDetectorElement::HECDetectorElement(const IdentifierHash subcaloHash,
-				       const IdentifierHash onl1,
-				       const IdentifierHash onl2,
-				       const CaloDetDescriptor* descriptor,
-				       HECCellConstLink& hecCell,
-				       const HECDetectorRegion* hecRegion,
-				       bool isTestBeam):
-  CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor),
-  m_cell(hecCell),
-  m_region(hecRegion)
+HECDetectorElement::HECDetectorElement(const IdentifierHash subcaloHash
+				       , const IdentifierHash onl1
+				       , const IdentifierHash onl2
+				       , const CaloDetDescriptor* descriptor
+				       , HECCellConstLink& hecCell
+				       , const HECDetectorRegion* hecRegion
+				       , bool isTestBeam
+				       , const GeoAlignmentStore* geoAlignStore
+				       , const CaloElementPositionShift* posShift)
+  : CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor)
+  , m_cell(hecCell)
+  , m_region(hecRegion)
 {
-  init_description(isTestBeam);
+  init_description(isTestBeam,geoAlignStore,posShift);
   init_interpretation();
 
   if(isTestBeam)
     propagateRaw();
 }
 
-void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPositionShift* posShift)
+void HECDetectorElement::init_description(bool isTestBeam
+					  , const GeoAlignmentStore* geoAlignStore
+					  , const CaloElementPositionShift* posShift)
 {
   // take PHI_RAW from LAr Readout geometry and use it xor calculations of x_loc and y_loc
   m_phi_raw = static_cast<float> ((m_cell->getPhiLocalLower() + m_cell->getPhiLocalUpper())/2.);
@@ -329,7 +333,7 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
   z_loc = m_cell->getZLocal(HECCell::CENTER);
 
 
-  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform();
+  const Amg::Transform3D &xfDef = m_region->getDefAbsoluteTransform(geoAlignStore);
 
   // we need to apply the famous ZShift.
   Amg::Transform3D xfNominal;
@@ -342,7 +346,7 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
     xfNominal = Amg::Translation3D(Amg::Vector3D(0.,0., 4277.*Gaudi::Units::mm));
   }
 
-  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform();
+  const Amg::Transform3D &xfAbs = m_region->getAbsoluteTransform(geoAlignStore);
 
   x_loc = r_loc*cos(m_phi_raw);
   y_loc = r_loc*sin(m_phi_raw);
@@ -420,13 +424,13 @@ void HECDetectorElement::init_interpretation()
     m_phi_raw = static_cast<float> (m_phi_raw + (2*M_PI));
 }
 
-void HECDetectorElement::updateAlignment(HECCellConstLink& hecCell,
-					 const HECDetectorRegion* hecRegion,
-					 const CaloElementPositionShift* posShift)
+void HECDetectorElement::updateAlignment(HECCellConstLink& hecCell
+					 , const HECDetectorRegion* hecRegion
+					 , const CaloElementPositionShift* posShift)
 {
   m_cell = hecCell;
   m_region = hecRegion;
-  init_description(false,posShift);
+  init_description(false,nullptr,posShift);
   init_interpretation();
 }
 
@@ -437,32 +441,33 @@ int HECDetectorElement::getLayer() const
 
 // -- FCALDetectorElement --
 
-FCALDetectorElement::FCALDetectorElement(const IdentifierHash subcaloHash,
-					 const IdentifierHash onl1,
-					 const IdentifierHash onl2,
-					 const CaloDetDescriptor* descriptor,
-					 const FCALTile* fcalTile,
-					 const FCALModule* fcalModule,
-					 bool isTestBeam):
-  CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor),
-  m_tile(fcalTile),
-  m_module(fcalModule)
+FCALDetectorElement::FCALDetectorElement(const IdentifierHash subcaloHash
+					 , const IdentifierHash onl1
+					 , const IdentifierHash onl2
+					 , const CaloDetDescriptor* descriptor
+					 , const FCALTile* fcalTile
+					 , const FCALModule* fcalModule
+					 , bool isTestBeam
+					 , const GeoAlignmentStore* geoAlignStore
+					 , const CaloElementPositionShift* posShift)
+  : CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor)
+  , m_tile(fcalTile)
+  , m_module(fcalModule)
 {
-  init_description(isTestBeam);
-  init_interpretation();
-
-  if(isTestBeam)
-    propagateRaw();
+  init_description(isTestBeam,geoAlignStore,posShift);
+  if(isTestBeam) propagateRaw();
 }
 
-void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPositionShift* posShift)
+void FCALDetectorElement::init_description(bool isTestBeam
+					   , const GeoAlignmentStore* geoAlignStore
+					   , const CaloElementPositionShift* posShift)
 {
   double x_loc = m_tile->getX();
   double y_loc = m_tile->getY();
   //  double z_loc = -m_module->getFullDepthZ(*m_tile)/2.;
   double z_loc = 0.;
 
-  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransform();
+  const Amg::Transform3D &xfDef = m_module->getDefAbsoluteTransform(geoAlignStore);
 // we need to apply the famous ZShift. 
   Amg::Transform3D xfNominal;
   if(m_module->getEndcapIndex()==FCALModule::POS)
@@ -481,7 +486,7 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
      }
   }
 
-  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransform();
+  const Amg::Transform3D &xfAbs = m_module->getAbsoluteTransform(geoAlignStore);
 
   Amg::Vector3D globalDefCoords = xfNominal*Amg::Vector3D(x_loc,y_loc,z_loc);
   Amg::Vector3D globalAbsCoords = (posShift!=nullptr ?
@@ -555,20 +560,13 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
 
 }
 
-void FCALDetectorElement::init_interpretation()
-{
-  // TO DO 
-  // Divide previous method into description and interpretation
-}
-
 void FCALDetectorElement::updateAlignment(const FCALTile* fcalTile,
 					  const FCALModule* fcalModule,
 					  const CaloElementPositionShift* posShift)
 {
   m_tile = fcalTile;
   m_module = fcalModule;
-  init_description(false,posShift);
-  init_interpretation();
+  init_description(false,nullptr,posShift);
 }
 
 int FCALDetectorElement::getLayer() const
