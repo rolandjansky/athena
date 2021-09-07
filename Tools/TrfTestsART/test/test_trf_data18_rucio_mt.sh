@@ -8,6 +8,8 @@
 # art-include: master/Athena
 # art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
+# art-runon: weekdays
+# art-runon: Sunday
 
 timeout 43200 Reco_tf.py \
   --inputBSFile=${ArtInFile} \

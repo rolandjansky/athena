@@ -3,7 +3,7 @@
 # art-description: Reco_tf.py data18 RAWtoALL in MT mode with RUCIO input dataset processing 50 files with 3 files/job, excuted only on x86_64-centos7-gcc8-opt and once per week on Saturday
 # art-type: grid
 # art-input: data18_13TeV:data18_13TeV.00357750.physics_Main.daq.RAW
-# art-input-nfiles: 100
+# art-input-nfiles: 200
 # art-input-nfilesperjob: 3
 # art-include: master/Athena/x86_64-centos7-gcc8-opt
 # art-athena-mt: 8
