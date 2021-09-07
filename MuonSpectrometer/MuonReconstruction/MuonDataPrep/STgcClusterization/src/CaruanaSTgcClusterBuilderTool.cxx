@@ -172,7 +172,7 @@ StatusCode Muon::CaruanaSTgcClusterBuilderTool::getClusters(std::vector<Muon::sT
           if (!caruanaFail){
             Amg::Vector3D caruanaPars = (elementPosMatrix.inverse())*chargeVector;
             reconstructedPosX = clusterCenter - caruanaPars(1)/(2*caruanaPars(2));
-            if (isnan(reconstructedPosX)) caruanaFail = true;       // In the event that the caruanaPars(2) parameter is 0 we reconstruct and infinite position. In this case we must revert back to the weighted mean method.
+            if (std::isnan(reconstructedPosX)) caruanaFail = true;       // In the event that the caruanaPars(2) parameter is 0 we reconstruct and infinite position. In this case we must revert back to the weighted mean method.
 
             if (!caruanaFail){
               // Find the channel that the cluster position reconstructs on top of and set the cluster id to it's id
