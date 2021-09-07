@@ -11,6 +11,7 @@ CaloCalTopoClustersAuxDyn.AVG_LAR_Q
 CaloCalTopoClustersAuxDyn.AVG_TILE_Q
 CaloCalTopoClustersAuxDyn.BADLARQ_FRAC
 CaloCalTopoClustersAuxDyn.BadChannelList
+CaloCalTopoClustersAuxDyn.CELL_SIGNIFICANCE
 CaloCalTopoClustersAuxDyn.CENTER_LAMBDA
 CaloCalTopoClustersAuxDyn.CENTER_MAG
 CaloCalTopoClustersAuxDyn.CellLink
@@ -20,8 +21,12 @@ CaloCalTopoClustersAuxDyn.ENG_FRAC_MAX
 CaloCalTopoClustersAuxDyn.ENG_POS
 CaloCalTopoClustersAuxDyn.FIRST_ENG_DENS
 CaloCalTopoClustersAuxDyn.ISOLATION
+CaloCalTopoClustersAuxDyn.LATERAL
+CaloCalTopoClustersAuxDyn.LONGITUDINAL
+CaloCalTopoClustersAuxDyn.MASS
 CaloCalTopoClustersAuxDyn.NCELL_SAMPLING
 CaloCalTopoClustersAuxDyn.N_BAD_CELLS
+CaloCalTopoClustersAuxDyn.PTD
 CaloCalTopoClustersAuxDyn.SECOND_LAMBDA
 CaloCalTopoClustersAuxDyn.SECOND_R
 CaloCalTopoClustersAuxDyn.SECOND_TIME
