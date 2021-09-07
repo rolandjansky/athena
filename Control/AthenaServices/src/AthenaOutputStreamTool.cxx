@@ -516,9 +516,9 @@ StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromT
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();
-                  if (keyName.size() > 10 && keyName.substr(0, 10) == hltKey) {
+                  if (keyName.size() > 10 && keyName.compare(0, 10,hltKey)==0) {
                      p2BWrittenFromTool->add(clid, hltKey + "*").ignore();
-                  } else if (keyName.size() > 10 && keyName.substr(keyName.size() - 10, 10) == hltKey) {
+                  } else if (keyName.size() > 10 && keyName.compare(keyName.size() - 10, 10, hltKey)==0) {
                      p2BWrittenFromTool->add(clid, "*" + hltKey).ignore();
                   } else {
                      p2BWrittenFromTool->add(clid, keyName).ignore();

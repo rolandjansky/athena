@@ -430,11 +430,11 @@ std::string ClassName::applyRules (const std::string& name,
 void ClassName::parse (const std::string& name, std::string::size_type& pos)
 {
   m_name = parsePrimary (name, pos);
-  if (m_name.substr (0, 6) == "const ") {
+  if (m_name.compare (0, 6, "const ") ==0) {
     m_const = true;
     m_name.erase (0, 6);
   }
-  if (m_name.size() >= 6 && m_name.substr (m_name.size()-6, 6) == " const") {
+  if (m_name.size() >= 6 && m_name.compare (m_name.size()-6, 6, " const") ==0) {
     m_const = true;
     m_name.erase (m_name.size()-6, 6);
   }
@@ -449,7 +449,7 @@ void ClassName::parse (const std::string& name, std::string::size_type& pos)
       break;
   }
   skipSpaces (name, pos);
-  if (name.substr (pos, 5) == "const") {
+  if (name.compare (pos, 5, "const")==0) {
     m_const = true;
     pos += 5;
   }

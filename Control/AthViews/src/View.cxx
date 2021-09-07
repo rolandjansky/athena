@@ -14,7 +14,8 @@ View::View(const std::string& name, const int index, const bool AllowFallThrough
   }
   else {
     m_index = index;
-    fullName += "_" + std::to_string( index );
+    fullName += '_';
+    fullName += std::to_string( index );
   }
 
 #ifdef ATHVIEWS_DEBUG
