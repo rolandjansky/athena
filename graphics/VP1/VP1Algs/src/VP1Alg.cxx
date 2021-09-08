@@ -157,13 +157,12 @@ StatusCode VP1Alg::execute()
   const xAOD::EventInfo *eventInfo = nullptr;
   StatusCode status = evtStore()->retrieve (eventInfo, "EventInfo");
   
-  if(status.isSuccess()) {
-    
+  if(status.isSuccess()) {    
     // Get run/event number:
-	const unsigned long long eventNumber = eventInfo->eventNumber();
+    const unsigned long long eventNumber = eventInfo->eventNumber();
     const uint32_t           runNumber   = eventInfo->runNumber();
     msg(MSG::DEBUG) << " Got run number = " << runNumber
-	<< ", event number = " << eventNumber << endmsg;
+                    << ", event number = " << eventNumber << endmsg;
     
     // Get time stamp:
     uint32_t time = eventInfo->timeStamp();//0 means no info.
@@ -174,11 +173,19 @@ StatusCode VP1Alg::execute()
       msg(MSG::INFO) << " Ending application gracefully." << endmsg;
       return StatusCode::FAILURE;
     }
+    return StatusCode::SUCCESS;
+  } 
+  
+  msg(MSG::DEBUG) << " Unable to retrieve EventInfo from StoreGate... using dummy values" << endmsg;
+      
+  if (m_noGui||m_vp1gui->executeNewEvent(999,999,trigType,0)) {
+    return StatusCode::SUCCESS;
+  } else {
+    msg(MSG::INFO) << " Ending application gracefully." << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
   return StatusCode::SUCCESS;
-  };
-
-  msg(MSG::WARNING) << " Unable to retrieve EventInfo from StoreGate. Skipping" << endmsg;
-  return StatusCode::FAILURE;
 
 }
 
