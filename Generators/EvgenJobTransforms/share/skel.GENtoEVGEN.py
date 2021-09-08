@@ -213,11 +213,12 @@ def OutputTXTFile():
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 
-if hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") or os.path.isfile("events.lhe") :
-    from EvgenProdTools.EvgenProdToolsConf import TestLHE
-    if not hasattr(genSeq, "TestLHE"):
-        genSeq += TestLHE()
-        print "lheFile events.lhe exists in current directory. Will execute TestLHE checks"
+#commenting out for now
+#if hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") or os.path.isfile("events.lhe") :
+#    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+#    if not hasattr(genSeq, "TestLHE"):
+#        genSeq += TestLHE()
+#        print "lheFile events.lhe exists in current directory. Will execute TestLHE checks"
 
 if len(runArgs.jobConfig) != 1:
     print "INFO    runArgs.jobConfig = ", runArgs.jobConfig
