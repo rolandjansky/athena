@@ -72,7 +72,7 @@ StatusCode TRTPhaseCondAlg::execute()
   double rtShift = 0.;
   double averageT0 = 0.;
 
-  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); ++it  ) {
 
     int nStrawsInLayer = m_trtId->straw_max(*it);
 
