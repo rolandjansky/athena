@@ -53,6 +53,7 @@ public:
 		    const xAOD::TrackParticleContainer* importedTrackCollection,
 		    const xAOD::VertexContainer* pvContainer) const;
    xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
+		     const xAOD::TrackParticleContainer* importedTrackCollection,
 		     const xAOD::Vertex* pv) const;
 private:
     std::vector<int> m_TrackIndices;

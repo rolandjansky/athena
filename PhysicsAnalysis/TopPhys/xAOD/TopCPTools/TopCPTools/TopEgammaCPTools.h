@@ -38,6 +38,7 @@ namespace top {
   private:
     std::shared_ptr<top::TopConfig> m_config;
 
+    std::string m_egammaCalibrationModel;
     std::string m_electronEffTriggerFile;
     std::string m_electronEffTriggerLooseFile;
     std::string m_electronEffSFTriggerFile;
@@ -105,6 +106,9 @@ namespace top {
 							      const std::string& correlationModelEtaBinning="",
 							      const std::string& correlationModelEtBinning="");
 
+
+
+
     // Helper function to deal with path resolving the
     // egamma groups very long file names for SFs and efficiencies.
     std::string electronSFFilePath(const std::string& type, const std::string& ID, const std::string& ISO);
@@ -121,9 +125,34 @@ namespace top {
                                                                      const std::string& correlationModelEtaBinning,
                                                                      const std::string& correlationModelEtBinning);
 
+
+
+
+    IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name,
+                                                                     const std::string& map_path,
+                                                                     const std::string& reco_key,
+                                                                     const std::string& ID_key,
+                                                                     const std::string& iso_key,
+                                                                     const std::string& trigger_key,
+                                                                     const int& data_type,
+                                                                     const int& correlationModelNtoys,
+                                                                     const int& correlationToySeed,  
+                                                                     const std::string& correlationModel,
+                                                                     const std::string& correlationModelEtaBinning,
+                                                                     const std::string& correlationModelEtBinning);
+
+
+
     std::string electronSFMapFilePath(const std::string& type);
     void setCorrelationModelBinning(IAsgElectronEfficiencyCorrectionTool* tool, const std::string& binningName,
                                     const std::string& binning);
+
+
+
+    void setCorrelationModelToys(IAsgElectronEfficiencyCorrectionTool* tool, const std::string& ToysName,
+                                    const int& number);
+
+
 
     std::string mapWorkingPoints(const std::string& type);
   };

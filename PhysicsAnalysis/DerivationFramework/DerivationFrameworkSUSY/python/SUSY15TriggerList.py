@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from DerivationFrameworkSUSY.SUSYCommonTriggerList import MET_2018,MET_2017,MET_2016,MET_2015,JetTrigger_2016
 
@@ -62,12 +62,28 @@ triggers_jet = [
 ]
 
 triggers_lep = [
+                "HLT_mu20_iloose_L1MU15",
+                "HLT_mu24_iloose",
+                "HLT_mu24_ivarloose",
+                "HLT_mu24_imedium",
+                "HLT_mu24_ivarmedium",
+                "HLT_mu26_imedium",
+                "HLT_mu26_ivarmedium",
+                "HLT_mu40",
+                "HLT_mu50",
                 "HLT_mu60_0eta105_msonly",
                 "HLT_mu80_msonly_3layersEC",
-                "HLT_mu26_ivarmedium",
+                "HLT_e24_lhmedium_L1EM20VH",
+                "HLT_e24_lhtight_nod0_ivarloose",
+                "HLT_e26_lhtight_nod0",
                 "HLT_e26_lhtight_nod0_ivarloose",
                 "HLT_e60_lhmedium_nod0",
-                "HLT_e140_lhloose_nod0"
+                "HLT_e60_lhmedium",
+                "HLT_e60_medium",
+                "HLT_e120_lhloose",
+                "HLT_e140_lhloose_nod0",
+                "HLT_e300_etcut"
+
 ]
 
 triggers_photon = [

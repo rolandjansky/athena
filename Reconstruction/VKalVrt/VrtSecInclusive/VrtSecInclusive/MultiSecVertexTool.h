@@ -146,6 +146,7 @@ namespace Rec {
       long int m_cutSctHits{};
       long int m_cutPixelHits{};
       long int m_cutSiHits{};
+      long int m_cutTRTHits{};
       long int m_cutBLayHits{};
       long int m_cutSharedHits{};
       double m_cutPt{};

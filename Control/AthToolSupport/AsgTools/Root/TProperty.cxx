@@ -26,7 +26,15 @@ namespace asg
 
         LIST_OPEN,
 
-        LIST_CLOSE
+        LIST_CLOSE,
+
+        MAP_SEPARATOR,
+
+        MAP_OPEN,
+
+        MAP_CLOSE,
+
+        SUBGROUP
       };
 
       /// \brief the information in one lexical token in an input string
@@ -36,10 +44,13 @@ namespace asg
         TokenType m_type;
 
         /// \brief the raw input string
-        std::string m_raw;
+        std::string_view m_raw;
 
         /// \brief the cooked input string
         std::string m_cooked;
+
+        /// \brief the sub-tokens (if this is a sub group)
+        std::vector<Token> m_subtokens;
       };
 
       StatusCode make_string_token (const std::string& input,
@@ -68,7 +79,8 @@ namespace asg
               ANA_MSG_ERROR ("premature end of string: " << input);
               return StatusCode::FAILURE;
             }
-            if (input[pos] == '\'' || input[pos] == '"' || input[pos] == '\\')
+            if (input[pos] == '\'' || input[pos] == '"' ||
+                input[pos] == '\\' || input[pos] == ',')
             {
               token.m_cooked += input[pos];
             } else
@@ -128,6 +140,12 @@ namespace asg
           token.m_type = TokenType::LIST_CLOSE;
         else if (input[pos] == ',')
           token.m_type = TokenType::COMMA;
+        else if (input[pos] == '{')
+          token.m_type = TokenType::MAP_OPEN;
+        else if (input[pos] == '}')
+          token.m_type = TokenType::MAP_CLOSE;
+        else if (input[pos] == ':')
+          token.m_type = TokenType::MAP_SEPARATOR;
         else
         {
           ANA_MSG_ERROR ("unexpected token '" << input[pos] << "' at position" << pos << " of string: " << input);
@@ -160,34 +178,124 @@ namespace asg
           {
             ANA_CHECK (make_char_token (input, pos, token));
           }
-          token.m_raw = input.substr (start, pos - start);
+          token.m_raw = std::string_view (input).substr (start, pos - start);
           tokens.push_back (std::move (token));
         }
         return StatusCode::SUCCESS;
       }
+
+
+
+      StatusCode make_token_tree (std::vector<Token>::iterator& iterator,
+                                  std::vector<Token>::iterator end,
+                                  std::vector<Token>& result,
+                                  bool isSubTree)
+      {
+        using namespace asg::msgProperty;
+
+        while (iterator != end)
+        {
+          switch (iterator->m_type)
+          {
+          case TokenType::SPACE:
+            ++ iterator;
+            // no-op
+            break;
+          case TokenType::STRING:
+          case TokenType::NUMBER:
+          case TokenType::COMMA:
+          case TokenType::MAP_SEPARATOR:
+          case TokenType::SUBGROUP:
+            result.emplace_back (std::move (*iterator));
+            ++ iterator;
+            break;
+          case TokenType::LIST_OPEN:
+          case TokenType::MAP_OPEN:
+            {
+              Token subtoken;
+              subtoken.m_type = TokenType::SUBGROUP;
+              subtoken.m_subtokens.emplace_back (std::move (*iterator));
+              ++ iterator;
+              if (make_token_tree (iterator, end, subtoken.m_subtokens, true).isFailure())
+                return StatusCode::FAILURE;
+              subtoken.m_raw = std::string_view (subtoken.m_subtokens.front().m_raw.data(), subtoken.m_subtokens.back().m_raw.end() - subtoken.m_subtokens.front().m_raw.begin());
+              result.emplace_back (std::move (subtoken));
+            }
+            break;
+          case TokenType::LIST_CLOSE:
+          case TokenType::MAP_CLOSE:
+            if (!isSubTree)
+            {
+              ANA_MSG_ERROR ("unexpected closing token: " << iterator->m_raw);
+              return StatusCode::FAILURE;
+            }
+            result.emplace_back (std::move (*iterator));
+            ++ iterator;
+            if ((result.back().m_type == TokenType::LIST_CLOSE &&
+                 result.front().m_type != TokenType::LIST_OPEN) ||
+                (result.back().m_type == TokenType::MAP_CLOSE &&
+                 result.front().m_type != TokenType::MAP_OPEN))
+            {
+              ANA_MSG_ERROR ("missmatched open and closing token: " << result.front().m_raw << " " << result.back().m_raw);
+              return StatusCode::FAILURE;
+            }
+            return StatusCode::SUCCESS;
+          }
+        }
+        if (isSubTree)
+        {
+          ANA_MSG_ERROR ("missing closing token for: " << result.front().m_raw);
+          return StatusCode::FAILURE;
+        }
+        return StatusCode::SUCCESS;
+      }
+
+
+
+      std::string quoteString (const std::string& raw)
+      {
+        std::string quoted;
+	for (char ch : raw)
+	{
+	  if (ch == ',' || ch == '\\' || ch == '"')
+	    quoted += '\\';
+	  quoted += ch;
+	}
+	if (quoted.empty())
+	  quoted = "\"\"";
+        return quoted;
+      }
     }
+
+
+
+    StatusCode packStringMap (const std::map<std::string,std::string>& value,
+                              std::string& result)
+    {
+      std::string myresult;
+      for (const auto& subvalue : value)
+      {
+	if (!myresult.empty())
+	  myresult += ",";
+	myresult += quoteString (subvalue.first) + ":" + quoteString (subvalue.second);
+      }
+      result = "{" + std::move (myresult) + "}";
+      return StatusCode::SUCCESS;
+    }
+
 
 
     StatusCode packStringVector (const std::vector<std::string>& value,
 				 std::string& result)
     {
       std::string myresult;
-      for (auto subvalue : value)
+      for (const auto& subvalue : value)
       {
-	std::string subresult;
-	for (char ch : subvalue)
-	{
-	  if (ch == ',' || ch == '\\' || ch == '"')
-	    subresult += '\\';
-	  subresult += ch;
-	}
-	if (subresult.empty())
-	  subresult = "\"\"";
 	if (!myresult.empty())
 	  myresult += ",";
-	myresult += subresult;
+	myresult += quoteString (subvalue);
       }
-      result = "[" + myresult + "]";
+      result = "[" + std::move (myresult) + "]";
       return StatusCode::SUCCESS;
     }
 
@@ -305,6 +413,14 @@ namespace asg
           }
         } else switch (token.m_type)
         {
+        case TokenType::MAP_SEPARATOR:
+        case TokenType::MAP_OPEN:
+        case TokenType::MAP_CLOSE:
+        case TokenType::SUBGROUP:
+          // not handling this (for now).  if it comes up I fix it,
+          // but for now this would be more of a distraction.
+          ANA_MSG_ERROR ("(currently) unsupported token in vector: " << token.m_raw);
+          return StatusCode::FAILURE;
         case TokenType::SPACE:
           break;
         case TokenType::STRING:
@@ -364,6 +480,80 @@ namespace asg
         return StatusCode::FAILURE;
       }
       result.swap (myresult);
+      return StatusCode::SUCCESS;
+    }
+
+
+
+    StatusCode unpackStringMap (const std::string& value,
+                                std::map<std::string,std::string>& result)
+    {
+      using namespace asg::msgProperty;
+
+      std::vector<Token> tokenTree;
+      {
+        std::vector<Token> tokenList;
+        ANA_CHECK (make_token_list (value, tokenList));
+        auto iterator = tokenList.begin();
+        ANA_CHECK (make_token_tree (iterator, tokenList.end(), tokenTree, false));
+      }
+
+      if (tokenTree.size() != 1 ||
+          tokenTree[0].m_type != TokenType::SUBGROUP ||
+          tokenTree[0].m_subtokens[0].m_type != TokenType::MAP_OPEN)
+      {
+        ANA_MSG_ERROR ("failed to recognize value as map: " << value);
+        return StatusCode::FAILURE;
+      }
+
+      // note that this loop avoids the first and last token,
+      // i.e. "{" and "}"
+      for (std::size_t index = 1;
+           index < tokenTree[0].m_subtokens.size()-1; ++ index)
+      {
+        Token& mytoken = tokenTree[0].m_subtokens[index];
+        switch (index % 4)
+        {
+        case 0:
+          if (mytoken.m_type != TokenType::COMMA)
+          {
+            ANA_MSG_ERROR ("unexpected token " << mytoken.m_raw);
+            return StatusCode::FAILURE;
+          }
+          break;
+        case 1:
+          if (mytoken.m_type == TokenType::COMMA ||
+              mytoken.m_type == TokenType::MAP_SEPARATOR)
+          {
+            ANA_MSG_ERROR ("unexpected token " << mytoken.m_raw);
+            return StatusCode::FAILURE;
+          }
+          break;
+        case 2:
+          if (mytoken.m_type != TokenType::MAP_SEPARATOR)
+          {
+            ANA_MSG_ERROR ("unexpected token " << mytoken.m_raw);
+            return StatusCode::FAILURE;
+          }
+          break;
+        case 3:
+          if (mytoken.m_type == TokenType::COMMA ||
+              mytoken.m_type == TokenType::MAP_SEPARATOR)
+          {
+            ANA_MSG_ERROR ("unexpected token " << mytoken.m_raw);
+            return StatusCode::FAILURE;
+          }
+          Token& keytoken = tokenTree[0].m_subtokens[index-2];
+          result.emplace (keytoken.m_raw, mytoken.m_raw);
+          break;
+        }
+      }
+      if (tokenTree[0].m_subtokens.size() > 2 &&
+          tokenTree[0].m_subtokens.size()%4 != 1)
+      {
+        ANA_MSG_ERROR ("unexpected token " << tokenTree[0].m_subtokens.back().m_raw);
+        return StatusCode::FAILURE;
+      }
       return StatusCode::SUCCESS;
     }
   }

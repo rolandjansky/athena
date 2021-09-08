@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __EGSelectorConfigurationMapping__
@@ -19,6 +19,12 @@ namespace EgammaSelectors {
     {"LooseBLLHElectron"  ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"},
     {"MediumLHElectron"   ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"},
     {"TightLHElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"},
+    // rel 21 v14 tunes
+    {"VeryLooseLHElectron_v14","ElectronPhotonSelectorTools/offline/mc16_20190911/ElectronLikelihoodVeryLooseOfflineConfig2018_Smooth.conf"},
+    {"LooseLHElectron_v14" ,"ElectronPhotonSelectorTools/offline/mc16_20190911/ElectronLikelihoodLooseOfflineConfig2018_Smooth.conf"},
+    {"LooseBLLHElectron_v14" ,"ElectronPhotonSelectorTools/offline/mc16_20190911/ElectronLikelihoodLooseOfflineConfig2018_CutBL_Smooth.conf"},
+    {"MediumLHElectron_v14" ,"ElectronPhotonSelectorTools/offline/mc16_20190911/ElectronLikelihoodMediumOfflineConfig2018_Smooth.conf"},
+    {"TightLHElectron_v14" ,"ElectronPhotonSelectorTools/offline/mc16_20190911/ElectronLikelihoodTightOfflineConfig2018_Smooth.conf"},
     // legacy rel 20p7 tunes, to allow usage in rel 20p7 derivations
     {"VeryLooseLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
     {"VeryLooseLHNod0Electron_Rel20p7", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth_NoD0.conf"},
@@ -57,6 +63,11 @@ namespace EgammaSelectors {
   const std::map<std::string,unsigned int> PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
                                                                  {"MediumPhoton",egammaPID::PhotonMedium},
                                                                  {"TightPhoton",egammaPID::PhotonTight},
+  };
+  const std::map<std::string,std::string> ElectronDNNPointToConfFile={
+    {"LooseDNNElectron", "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassLoose.conf"},
+    {"MediumDNNElectron", "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassMedium.conf"},
+    {"TightDNNElectron", "ElectronPhotonSelectorTools/offline/mc16_20210430/ElectronDNNMulticlassTight.conf"}
   };
 }
 ////////////////////////////////////////////

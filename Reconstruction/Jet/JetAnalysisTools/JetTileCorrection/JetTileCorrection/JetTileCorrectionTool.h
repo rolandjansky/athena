@@ -45,7 +45,7 @@ namespace CP {
                                 public asg::AsgMetadataTool
   {
     /// Create a proper constructor for Athena
-    ASG_TOOL_CLASS2( JetTileCorrectionTool, CP::IJetTileCorrectionTool, CP::ISystematicsTool )
+    ASG_TOOL_CLASS3( JetTileCorrectionTool, CP::IJetTileCorrectionTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
     
     public:
     /// Create a constructor for standalone usage

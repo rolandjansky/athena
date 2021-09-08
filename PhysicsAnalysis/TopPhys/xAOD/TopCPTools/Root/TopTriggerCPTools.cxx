@@ -139,15 +139,16 @@ namespace top {
       }
     }
     auto getTriggerLegs =
-      [&](std::unordered_map<std::string, std::vector<std::string> > const& triggerCombination,
-          std::unordered_map<std::string, std::set<std::string> >& electronLegsByPeriod) {
+      [&](std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const& triggerCombination,
+          std::unordered_map<std::string, std::set<std::string> >& electronLegsByPeriod,
+          std::unordered_map<std::string, std::set<std::string> >& photonLegsByPeriod) {
         for (auto&& kv : triggerCombination) {
           std::string const& period = kv.first;
           for (auto const& trigKey : kv.second) {
-            auto triggerDefsIt = triggerDefs.find(trigKey);
+            auto triggerDefsIt = triggerDefs.find(trigKey.first);
             if (triggerDefsIt == triggerDefs.end()) {
               statusCode = StatusCode::FAILURE;
-              ATH_MSG_ERROR("unrecognized trigger `" << trigKey << "'");
+              ATH_MSG_ERROR("unrecognized trigger `" << trigKey.first << "'");
               continue;
             }
             auto const& trigDef = triggerDefsIt->second;
@@ -170,6 +171,10 @@ namespace top {
               case xAOD::Type::Muon:
                 break;
 
+              case xAOD::Type::Photon:
+                photonLegsByPeriod[period].insert(legname);
+                break;
+
               default:
                 statusCode = StatusCode::FAILURE;
                 ATH_MSG_ERROR(
@@ -183,27 +188,30 @@ namespace top {
 
     // Get trigger strings from configuration
     std::map<std::string, std::string> triggerCombination, triggerCombinationLoose;
-    std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
-    std::unordered_map<std::string, std::vector<std::string> > const emptymap;
-    std::unordered_map<std::string, std::vector<std::string> > const&
+    std::vector<std::string> electronSystematics, muonSystematics, photonSystematics, electronToolNames, muonToolNames, photonToolNames;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const emptymap;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > const&
     triggersByPeriod = (m_config->doTightEvents() ? m_config->getGlobalTriggers() : emptymap),
       triggersByPeriodLoose = (m_config->doLooseEvents() ? m_config->getGlobalTriggersLoose() : emptymap);
 
-    std::unordered_map<std::string, std::set<std::string> > electronLegsByPeriod, electronLegsByPeriodLoose;
-    getTriggerLegs(triggersByPeriod, electronLegsByPeriod);
-    getTriggerLegs(triggersByPeriodLoose, electronLegsByPeriodLoose);
+    std::unordered_map<std::string, std::set<std::string> > electronLegsByPeriod, electronLegsByPeriodLoose, photonLegsByPeriod, photonLegsByPeriodLoose;
+    getTriggerLegs(triggersByPeriod, electronLegsByPeriod, photonLegsByPeriod);
+    getTriggerLegs(triggersByPeriodLoose, electronLegsByPeriodLoose, photonLegsByPeriodLoose);
 
     // Get quality
     std::string electronID, electronIDLoose, electronIsolation, electronIsolationLoose, muonQuality, muonQualityLoose;
+    std::string photonIso, photonIsoLoose;
     if (m_config->doTightEvents()) {
       electronID = m_config->electronID();
       electronIsolation = m_config->electronIsolationSF();
       muonQuality = m_config->muonQuality();
+      photonIso = m_config->photonIsolation();
     }
     if (m_config->doLooseEvents()) {
       electronIDLoose = m_config->electronIDLoose();
       electronIsolationLoose = m_config->electronIsolationSFLoose();
       muonQualityLoose = m_config->muonQualityLoose();
+      photonIsoLoose = m_config->photonIsolationLoose();
     }
 
     // Tidy name for e/gamma
@@ -338,13 +346,95 @@ namespace top {
       }
     }
 
+    // Setup photon tools
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> photonEffTools;
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> photonSFTools;
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> photonEffToolsLoose;
+    ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> photonSFToolsLoose;
+
+    const std::string photonKey      = PhotonKeys(triggersByPeriod);
+    const std::string photonKeyLoose = PhotonKeys(triggersByPeriodLoose);
+
+    static const std::string mapPath = "PhotonEfficiencyCorrection/2015_2018/rel21.2/Summer2020_Rec_v1/map2.txt";
+    if (photonKey != "" || photonKeyLoose != "") {
+      if (m_config->doTightEvents()) {
+        nTools = 0;
+        top::check(CheckPhotonIsolation(photonIso), "Unsupported photon isolation for photon triggers provided: " + photonIso);
+        for (auto& y_t : photonLegsByPeriod) {
+          const std::string year = y_t.first;
+          for (auto& trigKey : y_t.second) {
+            nTools++;
+            for(int j=0;j<2;++j) { /// two instances: 0 -> MC efficiencies, 1 -> SFs
+              const std::string nameTool = "AsgPhotonEfficiencyCorrectionTool/" + std::string(j? "PhTrigEff" : "PhTrigSF") + "_" + std::to_string(nTools);
+              auto t = m_photonToolsFactory.emplace(m_photonToolsFactory.end(), nameTool);
+              top::check(t->setProperty("MapFilePath", mapPath.c_str()), "Cannot set MapFilePath");
+              top::check(t->setProperty("TriggerKey", std::string(j ? "" : "Eff_") + photonKey), "Cannot set TriggerKey");
+              top::check(t->setProperty("IsoKey", photonIso), "Cannot set IsoKey");
+              top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Cannot set ForceDataType");
+              top::check(t->setProperty("OutputLevel", MSG::ERROR), "Cannot set OutputLevel");
+              top::check(t->initialize(), "Cannot initialise the photon tools");
+              auto& photonHandles = (j? photonSFTools : photonEffTools);
+              photonHandles.push_back(t->getHandle());
+              const std::string name = photonHandles.back().name();
+              legsPerTool[name] = trigKey + " [" + year + "]";
+              photonToolNames.push_back(name);
+              if (photonSystematics.size() == 0 && j == 1) {
+                for (const auto& s : photonHandles.back()->recommendedSystematics().getBaseNames()) {
+                  photonSystematics.push_back(s);    
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      if (m_config->doLooseEvents()) {
+        nTools = 0;
+        top::check(CheckPhotonIsolation(photonIsoLoose), "Unsupported photon isolation for photon triggers provided: " + photonIsoLoose);
+        for (auto& y_t : photonLegsByPeriodLoose) {
+          const std::string year = y_t.first;
+          for (auto& trigKey : y_t.second) {
+            nTools++;
+            for(int j=0;j<2;++j) { /// two instances: 0 -> MC efficiencies, 1 -> SFs
+              const std::string nameTool = "AsgPhotonEfficiencyCorrectionTool/" + std::string(j? "PhTrigEff" : "PhTrigSF") + "_" + std::to_string(nTools);
+              auto tLoose = m_photonToolsFactoryLoose.emplace(m_photonToolsFactoryLoose.end(), nameTool);
+              top::check(tLoose->setProperty("MapFilePath", mapPath.c_str()), "Cannot set MapFilePath");
+              top::check(tLoose->setProperty("TriggerKey", std::string(j ? "" : "Eff_") + photonKeyLoose), "Cannot set TriggerKey");
+              top::check(tLoose->setProperty("IsoKey", photonIsoLoose), "Cannot set IsoKey");
+              top::check(tLoose->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Cannot set ForceDataType");
+              top::check(tLoose->setProperty("OutputLevel", MSG::ERROR), "Cannot set OutputLevel");
+              top::check(tLoose->initialize(), "Cannot initialise the photon tools");
+              auto& photonHandlesLoose = (j? photonSFToolsLoose : photonEffToolsLoose);
+              photonHandlesLoose.push_back(tLoose->getHandle());
+              const std::string name = photonHandlesLoose.back().name();
+              legsPerToolLoose[name] = trigKey + " [" + year + "]";
+              photonToolNames.push_back(name);
+              if (photonSystematics.size() == 0 && j == 1) {
+                for (const auto& s : photonHandlesLoose.back()->recommendedSystematics().getBaseNames()) {
+                  photonSystematics.push_back(s);    
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    auto combineStrings = [](const std::vector<std::pair<std::string, int> >& input ) {
+      std::vector<std::string> tmp;
+      for (const auto& i : input) {
+        tmp.push_back(i.first);
+      }
+      return boost::algorithm::join(tmp, " || ");
+    };
+
     for (auto& key : triggersByPeriod) {
       if (triggerCombination.find(key.first) == triggerCombination.end()) {
         triggerCombination[key.first] = "";
       } else {
         triggerCombination[key.first] += " || ";
       }
-      triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
+      triggerCombination[key.first] += combineStrings(key.second);
     }
     for (auto& key : triggersByPeriodLoose) {
       if (triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()) {
@@ -352,7 +442,7 @@ namespace top {
       } else {
         triggerCombinationLoose[key.first] += " || ";
       }
-      triggerCombinationLoose[key.first] += boost::algorithm::join(key.second, " || ");
+      triggerCombinationLoose[key.first] += combineStrings(key.second);
     }
 
     // Print out what we configured
@@ -365,6 +455,8 @@ namespace top {
       top::check(globalTriggerEffTool->setProperty("ElectronEfficiencyTools", electronEffTools), "Failed to attach electron efficiency tools");
       top::check(globalTriggerEffTool->setProperty("ElectronScaleFactorTools", electronSFTools), "Failed to attach electron scale factor tools");
       top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "Failed to attach muon tools");
+      top::check(globalTriggerEffTool->setProperty("PhotonEfficiencyTools", photonEffTools), "Failed to attach photon eff tools");
+      top::check(globalTriggerEffTool->setProperty("PhotonScaleFactorTools", photonSFTools), "Failed to attach photon SF tools");
       top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "Failed to define list of legs per tool");
       top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "Failed to define trigger combination");
       top::check(globalTriggerEffTool->setProperty("TriggerMatchingTool", m_trigMatchTool), "Failed to set TriggerMatchingTool");
@@ -378,6 +470,8 @@ namespace top {
       top::check(globalTriggerEffToolLoose->setProperty("ElectronEfficiencyTools", electronEffToolsLoose), "Failed to attach electron efficiency tools");
       top::check(globalTriggerEffToolLoose->setProperty("ElectronScaleFactorTools", electronSFToolsLoose), "Failed to attach electron scale factor tools");
       top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "Failed to attach muon tools");
+      top::check(globalTriggerEffToolLoose->setProperty("PhotonEfficiencyTools", photonEffToolsLoose), "Failed to attach photon eff tools");
+      top::check(globalTriggerEffToolLoose->setProperty("PhotonScaleFactorTools", photonSFToolsLoose), "Failed to attach photon SF tools");
       top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "Failed to define list of legs per tool");
       top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "Failed to define trigger combination");
       top::check(globalTriggerEffToolLoose->setProperty("TriggerMatchingTool", m_trigMatchTool), "Failed to set TriggerMatchingTool");
@@ -388,7 +482,7 @@ namespace top {
     }
 
     // Set information about systematics inside TopConfig
-    m_config->setGlobalTriggerConfiguration(electronSystematics, muonSystematics, electronToolNames, muonToolNames);
+    m_config->setGlobalTriggerConfiguration(electronSystematics, muonSystematics, photonSystematics, electronToolNames, muonToolNames, photonToolNames);
 
     return statusCode;
   }
@@ -420,5 +514,46 @@ namespace top {
     if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient") working_point = type;
 
     return working_point;
+  }
+
+  std::string TriggerCPTools::PhotonKeys(const std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >& map) const {
+    // check of the trigger names are one of the supported
+    std::string result("");
+    if (map.empty()) return result;
+
+    const std::vector<std::pair<std::string,std::string> > supported = {{"2015","3g15_loose"},
+                                                                        {"2016","3g20_loose"},
+                                                                        {"2017","2g25_loose_g15_loose"},
+                                                                        {"2018","2g25_loose_g15_loose"}};
+
+    // check if the keys for each year match the supported photon trigger
+    bool isPhoton(true);
+    for (const auto& isupported : supported) {
+      auto it = map.find(isupported.first);
+      if (it == map.end()) continue;
+      const std::vector<std::pair<std::string, int> > keys = it->second;
+      if (std::find_if(keys.begin(), keys.end(), [&isupported](const std::pair<std::string, int>& pair){return isupported.second == pair.first;}) == keys.end()) {
+        isPhoton = false;
+      }
+    }
+
+    if (isPhoton) {
+      result = "TRI_PH_2015_g15_loose_2016_g20_loose_2017_2018_g15_loose";
+    }
+
+    return result;
+  }
+
+  StatusCode TriggerCPTools::CheckPhotonIsolation(const std::string& isol) const {
+    // only these isolations are available for photons triggers
+    // we need to check for these as the code otherwise crashed 
+    // with a meaningless error
+    static const std::vector<std::string> allowedIso = {"TightCaloOnly", "Loose"};
+
+    if (std::find(allowedIso.begin(), allowedIso.end(), isol) == allowedIso.end()) {
+      return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
   }
 }  // namespace top

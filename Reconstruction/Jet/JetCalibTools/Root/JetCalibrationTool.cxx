@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -19,9 +19,9 @@
 
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL), InsituCombMassCorr(NULL)
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
+    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
+    m_bcidCorr(nullptr), m_jetPileupCorr(nullptr), m_etaJESCorr(nullptr), m_globalSequentialCorr(nullptr), m_insituDataCorr(nullptr), m_jetMassCorr(nullptr), m_jetSmearCorr(nullptr), InsituCombMassCorr(nullptr), m_insituCombMassCorr(), m_genericScaleCorr(nullptr)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -43,6 +43,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
 JetCalibrationTool::~JetCalibrationTool() {
 
   if (m_globalConfig) delete m_globalConfig;
+  if (m_bcidCorr) delete m_bcidCorr;
   if (m_jetPileupCorr) delete m_jetPileupCorr;
   if (m_etaJESCorr) delete m_etaJESCorr;
   if (m_globalSequentialCorr) delete m_globalSequentialCorr;
@@ -50,6 +51,7 @@ JetCalibrationTool::~JetCalibrationTool() {
   if (m_jetMassCorr) delete m_jetMassCorr;
   if (m_jetSmearCorr) delete m_jetSmearCorr;
   if (m_timeDependentCalib) delete InsituCombMassCorr;
+  if (m_genericScaleCorr) delete m_genericScaleCorr;
 }
 
 
@@ -163,7 +165,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
 
-  if ( !calibSeq.Contains("GSC") ) m_doGSC = false;
+  if ( !calibSeq.Contains("GSC") && !calibSeq.Contains("GNNC")) m_doGSC = false;
+
+  if ( !calibSeq.Contains("Bcid") ) m_doBcid = false;
 
   //Protect against the in-situ calibration being requested when isData is false
   if ( calibSeq.Contains("Insitu") && !m_isData ) {
@@ -236,7 +240,20 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
   std::string suffix = "";
   //ATH_MSG_INFO("Initializing sub tools.");
-  if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
+  if ( calibration.EqualTo("Bcid") ){
+    ATH_MSG_INFO("Initializing BCID correction for data.");
+    suffix="_Bcid";
+    if(m_devMode) suffix+="_DEV";
+    m_globalConfig->SetValue("PileupStartingScale","JetBcidScaleMomentum");
+    m_bcidCorr = new BcidOffsetCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_isData,m_devMode);
+    if ( m_bcidCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the BCID Offset correction. Aborting"); 
+      return StatusCode::FAILURE; 
+    } else { 
+      m_calibClasses.push_back(m_bcidCorr); 
+      return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
     ATH_MSG_INFO("Initializing pileup correction.");
     suffix="_Pileup";
     if(m_devMode) suffix+="_DEV";
@@ -288,6 +305,19 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     } else { 
       m_calibClasses.push_back(m_globalSequentialCorr); 
       return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("GNNC") ) {
+    ATH_MSG_INFO("Initializing GenNI correction.");
+    suffix="_GenNI";
+    if(m_devMode) suffix+="_DEV";
+    m_globalNNCorr = new GlobalNNCalibration(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_globalNNCorr->msg().setLevel( this->msg().level() );
+    if ( m_globalNNCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_globalNNCorr);
+      return StatusCode::SUCCESS;
     }
   } else if ( calibration.EqualTo("JMS") ) {
     ATH_MSG_INFO("Initializing JMS correction.");
@@ -371,6 +401,21 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       return StatusCode::FAILURE;
     }
     m_calibClasses.push_back(m_jetSmearCorr);
+    return StatusCode::SUCCESS;
+  } else if ( calibration.EqualTo("GenericCorr") ) {
+    ATH_MSG_INFO("Initializing a generic correction factor");
+    suffix = "_GenericCorr";
+    if (m_devMode) suffix += "_DEV";
+
+    m_genericScaleCorr = new GenericHistScaleCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_genericScaleCorr->msg().setLevel(this->msg().level());
+
+    if (m_genericScaleCorr->initializeTool(name+suffix).isFailure())
+    {
+        ATH_MSG_FATAL("Couldn't initialize the generic jet correction tool.  Aborting.");
+        return StatusCode::FAILURE;
+    }
+    m_calibClasses.push_back(m_genericScaleCorr);
     return StatusCode::SUCCESS;
   }
   ATH_MSG_FATAL("Calibration string not recognized: " << calibration << ", aborting.");
@@ -486,7 +531,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   }
 
   // Retrieve EventInfo object, which now has multiple uses
-  if ( m_doResidual || m_doGSC ) {
+  if ( m_doResidual || m_doGSC || m_doBcid) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
     if ( evtStore()->retrieve(eventObj,m_eInfoName).isFailure() || !eventObj ) {
@@ -499,7 +544,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     }
 
     // If we are applying the reisdual, then store mu
-    if (m_doResidual)
+    if (m_doResidual || m_doBcid)
       jetEventInfo.setMu( eventObj->averageInteractionsPerCrossing() );
     
     // If this is GSC, we need EventInfo to determine the PV to use
@@ -514,6 +559,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       else
         jetEventInfo.setPVIndex(0);
       
+    }
+
+    // Extract the BCID information for the BCID correction
+    if (m_doBcid)
+    {
+      jetEventInfo.setRunNumber( eventObj->runNumber() );
+      jetEventInfo.setBcidDistanceFromFront( eventObj->auxdata<int>("DFCommonJets_BCIDDistanceFromFront") );
+      jetEventInfo.setBcidGapBeforeTrain( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrain") );
+      jetEventInfo.setBcidGapBeforeTrainMinus12( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrainMinus12") );
     }
 
     // If PV index is not zero, we need to confirm it's a reasonable value

@@ -92,10 +92,8 @@ namespace top {
     ///-- Muons --///
     if (topConfig->useMuons()) {
       if (topConfig->useAntiMuons()) objectSelection->muonSelection(new top::AntiMuonMC15(topConfig->muonPtcut(),
-                                                                                          new top::StandardIsolation(
-                                                                                            topConfig->muonIsolation(),
-                                                                                            topConfig->
-        muonIsolationLoose())));
+                                                                                          new top::AntiMuonIsolation(
+                                                                                            topConfig->muonIsolation())));
       else objectSelection->muonSelection(new top::MuonMC15(topConfig->muonPtcut(),
                                                             new top::StandardIsolation(topConfig->muonIsolation(),
                                                                                        topConfig->muonIsolationLoose()),
@@ -103,7 +101,7 @@ namespace top {
     }
 
     ///-- Soft Muons --///
-    if (topConfig->useSoftMuons()) {
+    if (topConfig->useMuons() && topConfig->useSoftMuons()) {
       objectSelection->softmuonSelection(new top::SoftMuonMC15(topConfig->softmuonPtcut()));
     }
 
@@ -120,7 +118,9 @@ namespace top {
 
     ///-- Large R Jets --///
     if (topConfig->useLargeRJets()) {// not doing JVT cut for large-R jets
-      objectSelection->largeJetSelection(new top::JetMC15(topConfig->largeRJetPtcut(), topConfig->largeRJetEtacut(),
+      objectSelection->largeJetSelection(new top::JetMC15(topConfig->largeRJetPtcut(),
+                                                          topConfig->largeRJetEtacut(),
+                                                          topConfig->largeRJetMasscut(),
                                                           false));
     }
 
@@ -138,7 +138,7 @@ namespace top {
     
         ///-- Ghost Track Jets --///
     if (topConfig->useLargeRJetGhostTrack() && topConfig->useLargeRJets()) {
-      objectSelection->jetGhostTrackSelectionLargeR(new top::JetGhostTrackSelection(topConfig->ghostTrackspTLargeR(),2.5,topConfig->ghostTracksVertexAssociationLargeR(),topConfig->largeRjetPtGhostTracks(),topConfig->largeRjetEtaGhostTracks(),false));
+      objectSelection->jetGhostTrackSelectionLargeR(new top::JetGhostTrackSelection(topConfig->ghostTrackspT(),2.5,topConfig->ghostTracksVertexAssociation(),topConfig->largeRjetPtGhostTracks(),topConfig->largeRjetEtaGhostTracks(),false));
     }
     
     ///-- Tracks --///                                                                                                                                                                              

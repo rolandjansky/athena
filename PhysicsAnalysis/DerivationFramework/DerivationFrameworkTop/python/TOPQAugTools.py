@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ augmentation
@@ -12,7 +12,7 @@
 #================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-def setup(ToolSvc):
+def setup_ExKtbb(ToolSvc):
 
     augmentationTools=[]
 
@@ -26,8 +26,24 @@ def setup(ToolSvc):
     #=============
     return augmentationTools
 
+def setup_SoftSV(ToolSvc):
+
+    augmentationTools=[]
+
+    from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__SoftSVAugmentation
+    TOPQSoftSVAugmentation = DerivationFramework__SoftSVAugmentation(name = "TOPQSoftSVAugmentation")
+    TOPQSoftSVAugmentation.isMC = (globalflags.DataSource()=='geant4')
+    ToolSvc += TOPQSoftSVAugmentation
+    augmentationTools.append(TOPQSoftSVAugmentation)
+
+    # return tools
+    return augmentationTools
+
 #==============================================================================
 # SETUP TRUTH KERNEL
 #==============================================================================
-augmentationTools = setup(ToolSvc)
-TOPQExKtCommonTruthKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQExKtCommonTruthKernel", AugmentationTools = augmentationTools)
+augmentationTools_ExKtbb = setup_ExKtbb(ToolSvc)
+TOPQExKtCommonTruthKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQExKtCommonTruthKernel", AugmentationTools = augmentationTools_ExKtbb)
+
+augmentationTools_SoftSV = setup_SoftSV(ToolSvc)
+TOPQSoftSVCommonAugmentation = CfgMgr.DerivationFramework__CommonAugmentation("TOPQSoftSVCommonAugmentation", AugmentationTools = augmentationTools_SoftSV)

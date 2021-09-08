@@ -60,7 +60,7 @@ VarRCJetRho 2
 
 ### Truth configuration
 TruthCollectionName TruthParticles
-TruthJetCollectionName AntiKt4TruthWZJets
+TruthJetCollectionName AntiKt4TruthDressedWZJets
 TruthLargeRJetCollectionName AntiKt10TruthTrimmedPtFrac5SmallR20Jets
 TopPartonHistory ttbar
 TopParticleLevel True
@@ -77,8 +77,6 @@ PerfStats No
 
 ### Systematics configuration
 Systematics Nominal
-JetUncertainties_NPModel CategoryReduction
-LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
@@ -93,7 +91,6 @@ PhotonID Tight
 PhotonIDLoose Loose
 PhotonIsolation FixedCutTight
 PhotonIsolationLoose FixedCutLoose
-PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
@@ -132,7 +129,6 @@ BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN
 BTaggingCaloJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous
 BTaggingTrackJetWP MV2c10:FixedCutBEff_77 MV2c10:Continuous
 # Example of how to remove systematics from b-tag EV
-#BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
 
 # Saving bootstrapping weights
 SaveBootstrapWeights False

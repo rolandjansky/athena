@@ -312,81 +312,6 @@ StatusCode LhoodMM_tools::getTotalYield(float& yield, float& statErrUp, float& s
 
   Double_t poserr, negerr;
   
-  unsigned minNlep = 1;
-  unsigned maxNlep = 1;
-
-  bool reqSameSign = false;
-  bool inclusive = true;
-  
-  minNlep = FakeBkgTools::maxParticles();
-
-  bool atLeastOneValid = false;
-  for(unsigned n=1;n<=FakeBkgTools::maxParticles();++n)
-    {
-      std::string error;
-      FakeBkgTools::FinalState fs(1234, n, m_selection, m_process, error);
-      if(error.length()) {
-	if(!atLeastOneValid && n==FakeBkgTools::maxParticles()) {
-	  ATH_MSG_ERROR(error); // if they all failed
-	  return StatusCode::FAILURE;
-	}
-	continue;
-      }
-      atLeastOneValid = true;
-      for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
-	{
-	  if(!fs.selection[c]) continue; // check if that particular combination is among the ones allowed        
-	  unsigned nTight = FakeBkgTools::FSBitset(c).count(); // if yes, count how many tight leptons it contains
-	  if(nTight < minNlep) minNlep = nTight; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
-	  if (nTight > maxNlep) maxNlep = nTight;
-	  inclusive = inclusive || (nTight>minNlep); // inclusive set to "whether there is at least one allowed combination with more tight leptons than the minimum"
-	}
-      reqSameSign = reqSameSign || fs.hasSS(); // this should in principle not be used standalone, but fs.accept() should be used instead
-    }
-
-  // now check to make sure that minNlep is consistent with the smallest
-  // number of fake leptons specified with the process string
-  unsigned minNlep_proc = maxNlep;
-  unsigned maxNlep_proc = 0;
-  for (unsigned  n=minNlep;n<=maxNlep;++n)  {
-    bool success;
-    auto fs = getCachedFinalState(n, m_selection, m_process, success);
-    
-    if (success) {
-      for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
-	{
-	  FakeBkgTools::FSBitset fakes = c;
-	  FakeBkgTools::FSBitset reals = 0;
-	  FakeBkgTools::FSBitset tights = 0;      
-	  for (unsigned ibit = 0; ibit < n; ibit++) {
-	    reals.set(ibit, ~fakes[ibit]);
-	    tights.set(ibit, 1);
-	  }
-
-	  if (fs.accept_process(n, reals, tights) ) {
-	    ATH_MSG_VERBOSE("Accepted a process for n = " << n);
-	    if(n < minNlep_proc) minNlep_proc = n; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
-	    if (n > maxNlep_proc) {
-	      maxNlep_proc = n;
-	    }
-	    ATH_MSG_VERBOSE("maxNlep_proc = " << maxNlep_proc);
-	    break;
-	  }
-	}
-    } else {
-      ATH_MSG_ERROR("Selection and/or process strings unable to be parsed, or incompatible with each other");
-      return StatusCode::FAILURE;
-    }
-  }
-  minNlep = minNlep_proc;
-  maxNlep = maxNlep_proc;
-
-
-  inclusive = false;
-
-  m_minnlep = minNlep;
-  m_maxnlep = maxNlep;
-
   m_current_fitInfo = &m_global_fitInfo;
   yield = nfakes(&poserr,&negerr);
 
@@ -506,7 +431,7 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
 
     unsigned int catIndex = 0;
     for (int jlep = 0; jlep < nlep; jlep++) {
-      catIndex += (!mmevt.isTight(jlep)) << (nlep-jlep-1);
+      catIndex += (!mmevt.isTight(jlep)) << jlep;
     }
     double weight = mmevt.weight();
 
@@ -546,20 +471,17 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
   
     std::vector<std::vector<FakeBkgTools::Efficiency>> vals(2, std::vector<FakeBkgTools::Efficiency>(nlep));
     for (int ilep = 0; ilep < nlep; ilep++) {
-      // invert lepton pt ordering here since my notation assigns the LSB to
-      // the lowest-pt lepton
       ATH_MSG_VERBOSE("1 vals[0].size() = " << vals[0].size());
       ATH_MSG_VERBOSE("getting efficiency values for lepton " << ilep);
       ATH_MSG_VERBOSE("how many leptons are there? " << mmevt.nlep());
       ATH_MSG_VERBOSE("nlep-ilep-1 = " << nlep-ilep-1);
       ATH_MSG_VERBOSE("2 vals[0].size() = " << vals[0].size());
       ATH_MSG_VERBOSE("vals[1].size() = " << vals[1].size());
-      vals[0][nlep-ilep-1] = mmevt.realEffObj(ilep);
+      vals[0][ilep] = mmevt.realEffObj(ilep);
       if (m_doFakeFactor) {
-	vals[0][nlep-ilep-1].setToConst(1.0);
+	vals[0][ilep].setToConst(1.0);
       }
-      
-      vals[1][nlep-ilep-1] = mmevt.fakeEffObj(ilep);
+      vals[1][ilep] = mmevt.fakeEffObj(ilep);
       ATH_MSG_VERBOSE("Real and fake efficiencies for lepton " << ilep << ": " << vals[0][nlep-ilep-1].value(this) << " " << vals[1][nlep-ilep-1].value(this));
       ATH_MSG_VERBOSE("this is surely harmless");
       ATH_MSG_VERBOSE("3 vals[0].size() = " << vals[0].size());
@@ -672,7 +594,7 @@ void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f,
     if (l->m_current_fitInfo->eventCount[ilep-1] == 0) {
       ASG_MSG_VERBOSE("m_real_indices[" << ilep-1 << "].size() = " << l->m_real_indices[ilep-1].size());
       real_index += l->m_real_indices[ilep-1].size();
-      for (unsigned ipar = 0; ipar < l->m_fake_indices[ilep-1].size()-1; ipar++) {
+      for (int ipar = 0; ipar < (int)l->m_fake_indices[ilep-1].size()-1; ipar++) {
 	theta_nlep_index++;
       }
       continue;
@@ -705,7 +627,7 @@ void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f,
       par_index++;
     }
     
-    for (unsigned ipar = 0; ipar < l->m_fake_indices[ilep-1].size()-1; ipar++) {
+    for (int ipar = 0; ipar < (int)l->m_fake_indices[ilep-1].size()-1; ipar++) {
       ASG_MSG_VERBOSE("theta_nlep_index = " << theta_nlep_index );
       pars_thisnlep[par_index+ipar] = par[theta_nlep_index];
       if(verbose) ASG_MSG_VERBOSE("f pars_thisnlep[" << par_index+ipar <<"] = " <<  pars_thisnlep[par_index+ipar]);
@@ -843,7 +765,10 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
     string error;
     // possible issue here -- reassigning vector elements?
     m_fsvec[ilep].reset(new FakeBkgTools::FinalState(0, ilep+1, m_selection, m_process, error));
-    if (error.size() > 0) continue; // unable to parse selection
+    if (error.size() > 0) {
+      ATH_MSG_VERBOSE("Unable to parse selection " << m_selection << " with process " << m_process << " with " << ilep+1 << " leptons. Error is " << error);
+      continue; // unable to parse selection
+    }
     if (m_fsvec[ilep]->hasSS() ) {
       m_requireSS = true;
     }
@@ -856,17 +781,17 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
     // charges will only give the charges of the leptons in the most recently
     // added event.  That's why the tricks with the hasSS, hasOS, setSS, and
     // setOS functions are played above (so we don't actually have to care 
-    // about the values here 
+    // about the values here) 
     auto charges = m_fsvec[ilep]->retrieveCharges(m_particles);  
   
-    for (int icomb = 0; icomb < (0x1 << ilep); icomb++) {
+    for (int icomb = 0; icomb < (0x1 << (ilep+1)); icomb++) {
       FakeBkgTools::FSBitset tights(icomb);
       ATH_MSG_VERBOSE("ilep " << ilep << " (0x1 << ilep) " << std::hex << (0x1 << ilep) << " icomb " << std::hex << icomb << std::dec);
       ATH_MSG_VERBOSE("tights = " << std::hex << tights << std::dec);
       ATH_MSG_VERBOSE("charges = " << std::hex << charges << std::dec);
 
       if (m_fsvec[ilep]->accept_selection(tights, charges)) {
-	int nlep = tights.count();
+	int nlep = ilep+1; 
 	ATH_MSG_VERBOSE("tights = " << std::hex << tights << std::dec << " nlep = " << nlep);
 	if (nlep > m_maxnlep) m_maxnlep = nlep;
 	if (nlep < m_minnlep) m_minnlep = nlep;
@@ -919,7 +844,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
     return 0.;
   }
 
-  ATH_MSG_VERBOSE("m_minnlep, m_maxnlep = " << m_minnlep << " " << m_maxnlep);
+  ATH_MSG_VERBOSE("In nfakes, m_minnlep, m_maxnlep, m_maxnlep_loose = " << m_minnlep << " " << m_maxnlep << " " << m_maxnlep_loose);
 
   double nfake_fit, nfake_fitErr;
   
@@ -1068,7 +993,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   int init_index = 1;
   int glob_index = 1;
   for (int ilep= m_minnlep; ilep <= m_maxnlep_loose; ilep++) {
-    for (unsigned isublep = 0; isublep < m_real_indices[ilep-1].size(); isublep++) {
+    for (unsigned isublep = 0; isublep < m_real_indices[ilep-1].size(); isublep++) {     
       ATH_MSG_VERBOSE("Setting parameter " << glob_index << " to " <<  init_pars[init_index+isublep]);
       init_par_values[glob_index] = init_pars[init_index+isublep];
       glob_index++;
@@ -1097,7 +1022,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   int currpar = m_theta_tot_start_index+m_maxnlep_loose-m_minnlep;
   index = 1;
   for (int ilep= m_minnlep; ilep <= m_maxnlep_loose; ilep++) {
-    for (unsigned ipar = 0; ipar < m_fake_indices[ilep-1].size() - 1; ipar++) {
+    for (int ipar = 0; ipar < (int)m_fake_indices[ilep-1].size() - 1; ipar++) {
       ATH_MSG_VERBOSE("Setting parameter " << currpar  << " to " <<  init_pars[index+m_real_indices[ilep-1].size()+ipar]);
       init_par_values[currpar] = init_pars[index+m_real_indices[ilep-1].size()+ipar];
       currpar++;
@@ -1112,10 +1037,16 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   ATH_MSG_VERBOSE("About to fix some parameters");
   ATH_MSG_VERBOSE("m_minnlep = " << m_minnlep);
   ATH_MSG_VERBOSE("m_maxnlep_loose = " << m_maxnlep_loose);
-  // account for case where there may be no leptons of a given multiplicity by
-  // fixing the parameters that are relevant to that multiplicity
+  // account for case where there may be no leptons of a given multiplicity 
+  // (or no fake leptons allowed by the process string) by
+  // fixing the parameters that are relevant to that multiplicity.
+  // Also check that at least one lepton multiplicity is valid
+
+  int nGoodLeptonMult = 0;
+
   for (int ilep = m_minnlep; ilep <= m_maxnlep_loose; ilep++) {
-    if (m_current_fitInfo->eventCount[ilep-1] ==  0) {
+    if (m_current_fitInfo->eventCount[ilep-1] ==  0  ||
+	m_fake_indices[ilep-1].size() == 0) {
       // start with the nreal parameters
       for (unsigned ipar = nreal_start_indices[ilep-1]; ipar < nreal_start_indices[ilep-1] + m_real_indices[ilep-1].size(); ipar++) {
 	arglist[0] = ipar;
@@ -1136,8 +1067,17 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
 	lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
 	lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
       }
+    } else {
+      nGoodLeptonMult++;
     }
     index += (0x1 << ilep) - 2;
+  }
+
+  if (nGoodLeptonMult == 0) {
+    ATH_MSG_VERBOSE("No possible fake contribution for any lepton multiplicity");
+    *poserr = 0;
+    *negerr = 0;
+    return 0;
   }
 
   arglist[0] = 5000;
@@ -1322,10 +1262,6 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
   vector<double> init_angles;
 
   double nfakes_std_thisnlep = 0;
-  FakeBkgTools::FSBitset tights = 0;      
-  for (int ibit = 0; ibit < nlep; ibit++) {
-    tights.set(ibit, 1);
-  }
   
   ATH_MSG_VERBOSE("m_fsvec.size() = " << m_fsvec.size() );
   for (int ipar = 0; ipar < 0x1 <<nlep; ipar++) {
@@ -1336,11 +1272,23 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
       reals.set(ibit, ~fakes[ibit]);
     }
     ATH_MSG_VERBOSE("reals set" );
-    if (m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
-      ATH_MSG_VERBOSE("accepted " << ipar);
-      nfakes_std_thisnlep += nrf[ipar];
-      m_fake_indices[lepidx].push_back(ipar);
-    } else {
+    bool countsAsFake = false;
+    for (int jpar = 0; jpar <  0x1 <<nlep; jpar++) {
+      FakeBkgTools::FSBitset tights = jpar;
+      for (int kpar = 0; kpar < 0x1 <<nlep; kpar++) {
+	FakeBkgTools::FSBitset charges = kpar;
+	if (!countsAsFake && 
+	    m_fsvec[lepidx]->accept_process(nlep, reals, tights) && 
+	    m_fsvec[lepidx]->accept_selection(tights, charges) ) {
+	  ATH_MSG_VERBOSE("accepted " << ipar);
+	  nfakes_std_thisnlep += nrf[ipar];
+	  m_fake_indices[lepidx].push_back(ipar);
+	  countsAsFake = true;
+	  break;
+	}
+      }
+    }
+    if (!countsAsFake) {
       ATH_MSG_VERBOSE("trying to push onto m_real_indices");
       ATH_MSG_VERBOSE("m_real_indices.size() = " << m_real_indices.size());
       m_real_indices[lepidx].push_back(ipar);
@@ -1426,7 +1374,7 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
       ATH_MSG_VERBOSE("reals "  << reals);
       ATH_MSG_VERBOSE("charges " << charges);
       if (m_fsvec[lepidx]->accept_selection(tights, charges)
-	  &&  m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
+      	  &&  m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
 	ATH_MSG_VERBOSE("Accepted in LhoodMM_tools " << irf);
 	ATH_MSG_VERBOSE("index is " << (itl<<nlep) + irf);
 	ATH_MSG_VERBOSE("Adding " << m_current_fitInfo->normterms[lepidx][(itl<<nlep) + irf].value(this) << " to " << irf);
@@ -1460,9 +1408,9 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
     
     // The following are "don't care" terms, but need to have non-zero
     // denominators 
-    if (coeff_denom[irf].nominal == 0.) {
-      coeff_denom[irf] =  m_current_fitInfo->coeffs_num[lepidx][0][irf];
-    }
+     if (coeff_denom[irf].nominal == 0.) {
+       coeff_denom[irf] =  m_current_fitInfo->coeffs_num[lepidx][0][irf];
+     }
 
     for (int itl = 0; itl < rank; itl++) {
       ATH_MSG_VERBOSE("coeff_denom[" << irf << "] = " << coeff_denom[irf].value(this));
@@ -1528,7 +1476,7 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
       tights.set(ibit, 1);
       reals.set(ibit, ~fakes[ibit]);
     }
-    if (m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
+    if (m_fsvec[lepidx]->accept_process(nlep, reals, tights) && m_fsvec[lepidx]->accept_selection(tights, charges)) {
       ATH_MSG_VERBOSE("Adding " <<  nfake_mat(ipar,0) << " to m_nfakes_std");
       n_proc_acc++;
       m_nfakes_std += nfake_mat(ipar,0);

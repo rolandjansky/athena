@@ -381,7 +381,7 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % STDM12BplK
 AllVariables += ["Photons", "MuonSpectrometerTrackParticles"]
 tagJetCollections = ['AntiKt4PV0TrackJets', 'AntiKt4EMPFlowJets']
 
-AllVariables += [ "Kt4EMPFlowEventShape" ]
+AllVariables += [ "Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape" ]
 SmartVar = ["Photons"] #[ tagJetCollections ]
 
 

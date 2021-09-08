@@ -72,17 +72,23 @@ namespace asg
       return str.str();
     }
 
-    static inline std::unique_ptr<TFile> file;
+    static std::unique_ptr<TFile> file;
 #ifdef XAOD_STANDALONE
-    static inline std::unique_ptr<xAOD::TEvent> event;
+    static std::unique_ptr<xAOD::TEvent> event;
     xAOD::TStore store;
 #else
-    static inline std::unique_ptr<POOL::TEvent> event;
+    static std::unique_ptr<POOL::TEvent> event;
 #endif
     AsgToolConfig config {"asg::DataHandleTestTool/" + makeUniqueName()};
     std::shared_ptr<void> cleanup;
     ToolHandle<IDataHandleTestTool> tool;
   };
+  std::unique_ptr<TFile> DataHandlesTest::file;
+#ifdef XAOD_STANDALONE
+  std::unique_ptr<xAOD::TEvent> DataHandlesTest::event;
+#else
+  std::unique_ptr<POOL::TEvent> DataHandlesTest::event;
+#endif
 
 
 

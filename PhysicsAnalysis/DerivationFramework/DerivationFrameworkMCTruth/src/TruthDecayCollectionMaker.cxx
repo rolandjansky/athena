@@ -122,6 +122,7 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD
     const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
     const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
     const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
+    const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
     const static SG::AuxElement::Decorator< int > motherIDDecorator("motherID");
     const static SG::AuxElement::Decorator< int > daughterIDDecorator("daughterID");
     // Make a truth particle and add it to the container
@@ -161,6 +162,9 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD
     if (old_part.isAvailable<unsigned int>("classifierParticleOutCome")) {
         outcomeDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "classifierParticleOutCome" );
     } else {outcomeDecorator(*xTruthParticle) = 0;}
+    if (old_part.isAvailable<unsigned int>("Classification")) {
+        classificationDecorator(*xTruthParticle) = old_part.auxdata< unsigned int >( "Classification" );
+    } else {classificationDecorator(*xTruthParticle) = 0;}
     // Return a link to this particle
     return my_index;
 }

@@ -196,7 +196,10 @@ template <class T>
 bool ReadHandle<T>::isPresent_impl (const std::string& key) const
 {
   const T *result = nullptr;
-  return xAOD::TActiveEvent::event()->retrieve (result, key, true);
+  xAOD::TVirtualEvent* event = xAOD::TActiveEvent::event();
+  if(event == nullptr)
+    throw std::runtime_error ("No active event present! ReadHandles cannot be used.");
+  return event->retrieve (result, key, true);
 }
 
 

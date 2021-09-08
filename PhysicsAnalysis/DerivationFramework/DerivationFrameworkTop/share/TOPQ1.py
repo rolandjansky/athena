@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # TOPQ1
@@ -153,6 +153,7 @@ addXbbTaggerInformation(TOPQ1Sequence, ToolSvc)
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt4EMPFlow",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
@@ -196,6 +197,23 @@ addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
+# add soft secondary vertexing variables -- tc-lvt (TOPQDERIV-104)
+from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
+addSoftBVrt(TOPQ1Sequence,'Loose')
+addSoftBVrt(TOPQ1Sequence,'Medium')
+addSoftBVrt(TOPQ1Sequence,'Tight')
+
+# add soft secondary vertexing variables -- t-lvt (TOPQDERIV-104)
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
+# make Pixel and SCT conditions available
+include("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include("InDetRecExample/SCTConditionsAccess.py")
+applySoftBtagging("softBtag", TOPQ1Sequence)
+
+# augment the soft secondary vertices with the decay length variables
+from DerivationFrameworkTop.TOPQAugTools import TOPQSoftSVCommonAugmentation
+TOPQ1Sequence += TOPQSoftSVCommonAugmentation
+
 # Then apply thinning
 #AugmentationTool for TOPQDERIV-69
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ1_Reco_V0Finder])
@@ -203,7 +221,9 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", Thi
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#JetTagNonPromptLepton package is moved to LeptonTaggers package
+import LeptonTaggers.LeptonTaggersConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging

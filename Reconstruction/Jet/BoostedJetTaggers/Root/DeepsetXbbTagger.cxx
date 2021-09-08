@@ -11,11 +11,7 @@
 
 #include "BoostedJetTaggers/DeepsetXbbTagger.h"
 
-// utilities
-#include "PathResolver/PathResolver.h"
-
 // EDM stuff
-#include <xAODJet/JetContainer.h>
 #include <xAODTracking/TrackParticleContainer.h>
 #include <xAODTracking/Vertex.h>
 
@@ -23,23 +19,16 @@
 #include <InDetTrackSelectionTool/InDetTrackSelectionTool.h>
 #include <FlavorTagDiscriminants/BTagTrackAugmenter.h>
 #include <xAODBTagging/SecVtxHelper.h>
+#include <AsgMessaging/MessageCheck.h>
 
 // to parse the input file
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
 
-// ROOT
-#include <TLorentzVector.h>
-
-#include <fstream>
 #include <regex>
-#include <set>
-#include <cmath>
-#include <tuple>
 
-
-namespace DeepsetXbbTagger {
+namespace Dexter {
 
 // internal class to filter tracks in jet and return an std::vector of tracks
 // that passed the selection cuts  
@@ -141,8 +130,9 @@ namespace {
 }
 
 
-DexterTool::DexterTool( const std::string& name ) :
+DeepsetXbbTagger::DeepsetXbbTagger( const std::string& name ) :
   JSSTaggerBase(name),
+  m_nSubjets(2),
   m_negativeTagMode(""),
   m_secvtx_collection_name(SECVTX_NAME),
   m_lwnn(nullptr),
@@ -152,22 +142,22 @@ DexterTool::DexterTool( const std::string& name ) :
   m_decorators(),
   m_offsets()
 {
+
   declareProperty( "secvtxCollection",   m_secvtx_collection_name);
-  declareProperty( "JetEtaMax",  m_jetEtaMax = 2.0, "Eta cut to define fiducial phase space for the tagger");
+  declareProperty( "nSubjets",  m_nSubjets = 2, "number of track subjet cut define fiducial phase space for the tagger");
   declareProperty( "decorationNames", m_decoration_names);
   declareProperty( "negativeTagMode", m_negativeTagMode);
   
 }
 
-DexterTool::~DexterTool() {}
+DeepsetXbbTagger::~DeepsetXbbTagger() {}
 
-StatusCode DexterTool::initialize(){
+StatusCode DeepsetXbbTagger::initialize(){
 
-  using namespace DeepsetXbbTagger;
+  using namespace Dexter;
 
   // Initialize the DNN tagger tool
   ATH_MSG_INFO("Initializing Dexter tool");
-
   // check if run in negative-tag
   // TrksFlip: Reverse the sign of track IP
   // NegTrksFlip: Reverse the sign of track IP and ONLY use  tracks with negative d0
@@ -289,10 +279,24 @@ StatusCode DexterTool::initialize(){
 }
 
 
-std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
+std::map<std::string, double> DeepsetXbbTagger::getScores(const xAOD::Jet& jet)
   const {
 
-  using namespace DeepsetXbbTagger;
+  using namespace Dexter;
+  // check the jet is inside defined fiducial phase space for the tagger 
+  const Root::TAccept& res = tag(jet);
+  if(!res.getCutResult("ValidJet")) {
+    // return NaN for all output node
+    std::map<std::string, double> nn_nan_output;
+    for (const auto& output_value_name: m_output_value_names) {
+        nn_nan_output[output_value_name] = NAN;
+    }
+    ATH_MSG_VERBOSE("Dexter Xbb light-flavor score " << nn_nan_output.at(m_output_value_names.at(0)));
+    ATH_MSG_VERBOSE("Dexter Xbb b-flavor score " << nn_nan_output.at(m_output_value_names.at(1)));
+    ATH_MSG_VERBOSE("Dexter Xbb bb-flavor score " << nn_nan_output.at(m_output_value_names.at(2)));    
+    return nn_nan_output;
+  }
+  
 
   // build the jet properties into a map
   DexterInputBuilder::VMap  inputs;
@@ -310,17 +314,26 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
 
   const xAOD::VertexContainer *secvtxs = nullptr;
   if(evtStore()->retrieve(secvtxs, m_secvtx_collection_name).isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+    ATH_MSG_WARNING("Unable to retrieve multiple vertex container: " << m_secvtx_collection_name );
   }
 
   std::tie(inputs, input_sequences) = m_input_builder->get_map(jet, secvtxs, priVertex, m_negativeTagMode);
 
-  if (msgLvl(MSG::VERBOSE)) {
-    ATH_MSG_VERBOSE("Dexter inputs:");
-    for (auto& input_node: inputs) {
-      ATH_MSG_VERBOSE(" input node: " << input_node.first);
-      for (auto& input: input_node.second) {
-        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
+
+  ATH_MSG_VERBOSE("Dexter inputs:");
+  for (auto& input_node: inputs) {
+    ATH_MSG_VERBOSE(" input node: " << input_node.first);
+    for (auto& input: input_node.second) {
+      ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
+    }
+  }
+  ATH_MSG_VERBOSE("Dexter sequence inputs:");
+  for (auto const&  seq_input: input_sequences){
+    ATH_MSG_VERBOSE("input equences: " << seq_input.first );
+    for (auto input: seq_input.second) {
+      ATH_MSG_VERBOSE(input.first );
+      for (auto i_input: input.second) {
+        ATH_MSG_VERBOSE(i_input);
       }
     }
   }
@@ -332,25 +345,34 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
   return nn_output;
 }
 
-Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
+Root::TAccept& DeepsetXbbTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Dexter result" );
 
-  //clear all accept values
-  m_accept.clear();
+  /// Reset the TAccept cut results
+  resetCuts();
 
   // set the jet validity bits to 1 by default
   m_accept.setCutResult( "ValidPtRangeLow" , true);  
   m_accept.setCutResult( "ValidEtaRange"   , true);
+  m_accept.setCutResult( "ValidnSubjets"   , true);  
+  m_accept.setCutResult( "ValidJet"   , true);  
 
   // check basic kinematic selection
   if (std::abs(jet.eta()) > m_jetEtaMax) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
+    m_accept.setCutResult("ValidJet", false);
   }
   if (jet.pt() < m_jetPtMin) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin/1000.0 << "). Jet pT = " << jet.pt()/1000.0);
     m_accept.setCutResult("ValidPtRangeLow", false);
+    m_accept.setCutResult("ValidJet", false);
+  }
+  if(n_subjets(jet) != m_nSubjets ){
+    ATH_MSG_DEBUG("Jet does not pass subjet selection, only " << n_subjets(jet) << " track subjet(s) pass selection" );
+    m_accept.setCutResult("ValidnSubjets", false);  
+    m_accept.setCutResult("ValidJet", false);  
   }
 
   // return the TAccept object that you created and filled
@@ -358,7 +380,7 @@ Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
 
 }
 
-double DexterTool::getScore(const xAOD::Jet& jet) const {
+double DeepsetXbbTagger::getScore(const xAOD::Jet& jet) const {
   if (m_output_value_names.size() > 1) {
     ATH_MSG_DEBUG("asked for the first tagger score from a multi-class tagger");
   }
@@ -366,7 +388,7 @@ double DexterTool::getScore(const xAOD::Jet& jet) const {
   return nn_output.at(m_output_value_names.at(0));
 }
 
-void DexterTool::decorate(const xAOD::Jet& jet) const {
+void DeepsetXbbTagger::decorate(const xAOD::Jet& jet) const {
   std::map<std::string, double> scores = getScores(jet);
   size_t dec_num = 0;
   for (const auto& dec: m_decorators) {
@@ -374,7 +396,7 @@ void DexterTool::decorate(const xAOD::Jet& jet) const {
     dec_num++;
   }
 }
-void DexterTool::decorateSecond(const xAOD::Jet& ref, 
+void DeepsetXbbTagger::decorateSecond(const xAOD::Jet& ref, 
                                   const xAOD::Jet& target) const {
   std::map<std::string, double> scores = getScores(ref);
   size_t dec_num = 0;
@@ -384,7 +406,7 @@ void DexterTool::decorateSecond(const xAOD::Jet& ref,
   }
 }
 
-std::set<std::string> DexterTool::decorationNames() const {
+std::set<std::string> DeepsetXbbTagger::decorationNames() const {
   std::set<std::string> out;
   for (const auto& pair: m_decoration_names) {
     out.insert(pair.second);
@@ -392,11 +414,11 @@ std::set<std::string> DexterTool::decorationNames() const {
   return out;
 }
 
-size_t DexterTool::n_subjets(const xAOD::Jet& jet) const {
+size_t DeepsetXbbTagger::n_subjets(const xAOD::Jet& jet) const {
   return m_input_builder->n_subjets(jet);
 }
 
-xAOD::Vertex* DexterTool::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer) const {                                                                                                           
+xAOD::Vertex* DeepsetXbbTagger::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer) const {                                                                                                           
   for( auto vtx_itr : *vertexContainer ) {
       if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
       return vtx_itr;
@@ -423,7 +445,7 @@ namespace {
 
 }
 
-namespace DeepsetXbbTagger {
+namespace Dexter {
 
   ////////////////////////////////////////
   /// Input map builder implementation ///
@@ -545,17 +567,17 @@ namespace DeepsetXbbTagger {
     std::map<std::string, double> inputs;
 
     // fat jet inputs
-    inputs["jet_pt"] = jet.pt();  // The pt of jet is in MeV in training
+    inputs["jet_pt"]  = jet.pt();  // The pt of jet is in MeV in training
     inputs["jet_eta"] = jet.eta();
 
     // get subjets for flight direction ref
     auto subjet_links = m_acc_subjets(jet);
     std::vector<const xAOD::Jet*> subjets;
     for (const auto& el: subjet_links) {
-      const auto* jet = dynamic_cast<const xAOD::Jet*>(*el);
-      if (!jet) throw std::logic_error("subjet is invalid");
-      if (jet->pt() < m_subjet_pt_threshold ) continue;
-      subjets.push_back(jet);
+      const auto* subjet = dynamic_cast<const xAOD::Jet*>(*el);
+      if (!subjet) throw std::logic_error("subjet is invalid");
+      if (subjet->pt() < m_subjet_pt_threshold ) continue;
+      subjets.push_back(subjet);
     }
     auto pt_sort = [](auto& sj1, auto& sj2 ){
       return sj1->pt() > sj2->pt();
@@ -570,6 +592,10 @@ namespace DeepsetXbbTagger {
     SG::AuxElement::Decorator<float> track_deltaEta("deltaEta_subjet");
     SG::AuxElement::Decorator<float> track_deltaPhi("deltaPhi_subjet");
     SG::AuxElement::Decorator<float> track_pTfrac("pTfrac_jet");
+    SG::AuxElement::Decorator<float> track_ip3d_signed_d0("exkt2_IP3D_signed_d0");
+    SG::AuxElement::Decorator<float> track_ip3d_signed_z0("exkt2_IP3D_signed_z0");
+    SG::AuxElement::Decorator<float> track_ip3d_signed_d0_significance("exkt2_IP3D_signed_d0_significance");
+    SG::AuxElement::Decorator<float> track_ip3d_signed_z0_significance("exkt2_IP3D_signed_z0_significance");
 
     // get tracks
     std::vector<const xAOD::TrackParticle*> tracks;
@@ -577,9 +603,12 @@ namespace DeepsetXbbTagger {
       auto& subjet = *subjets.at(subjet_n);
       auto temp_tracks = m_track_selector->get_tracks(subjet);
       for (const auto& track: temp_tracks) {
-        m_track_augmenter->augment_with_ip(*track, subjet);
-        track_deltaEta(*track) = track->p4().Eta() - subjet.p4().Eta();
-        track_deltaPhi(*track) = track->p4().DeltaPhi(subjet.p4()); 
+        track_ip3d_signed_d0(*track) = m_track_augmenter->get_signed_ip(*track, subjet).ip3d_signed_d0;
+        track_ip3d_signed_z0(*track) = m_track_augmenter->get_signed_ip(*track, subjet).ip3d_signed_z0;
+        track_ip3d_signed_d0_significance(*track) = m_track_augmenter->get_signed_ip(*track, subjet).ip3d_signed_d0_significance;
+        track_ip3d_signed_z0_significance(*track) = m_track_augmenter->get_signed_ip(*track, subjet).ip3d_signed_z0_significance;
+        track_deltaEta(*track) = std::abs(track->p4().Eta() - subjet.p4().Eta());
+        track_deltaPhi(*track) = std::abs(track->p4().DeltaPhi(subjet.p4())); 
         track_pTfrac(*track) = std::log(track->pt()/jet.pt());
       }
 
@@ -587,12 +616,12 @@ namespace DeepsetXbbTagger {
     }
 
     auto signed_d0_sort = [](const xAOD::TrackParticle* t1, const xAOD::TrackParticle* t2) {
-      static SG::AuxElement::ConstAccessor<float> d0_signed("IP3D_signed_d0_significance");
+      static const SG::AuxElement::ConstAccessor<float> d0_signed("exkt2_IP3D_signed_d0_significance");
       return d0_signed(*t1) > d0_signed(*t2);
     };
     std::sort(tracks.begin(), tracks.end(), signed_d0_sort);
 
-    static SG::AuxElement::ConstAccessor<float> d0("IP3D_signed_d0");
+    static const SG::AuxElement::ConstAccessor<float> d0("exkt2_IP3D_signed_d0");
 
     size_t max_trk = (m_max_tracks < tracks.size()) ? m_max_tracks: tracks.size();
     for (const auto& pair: m_acc_track_doubles) {
@@ -606,6 +635,7 @@ namespace DeepsetXbbTagger {
         }
         else  track_input.push_back(pair.second(*trk));
       }
+      
       tracks_input_sequences[pair.first] = track_input;
     }
     for (const auto& pair: m_acc_track_floats) {
@@ -615,7 +645,7 @@ namespace DeepsetXbbTagger {
         // For negative-tag
         if(!negativeTagMode.empty()) {
           if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
-          if(negativeTagMode.find("TrksFlip") != std::string::npos && pair.first.find("IP3D_signed") != std::string::npos) {
+          if(negativeTagMode.find("TrksFlip") != std::string::npos && pair.first.find("exkt2_IP3D_signed") != std::string::npos) {
             track_input.push_back( (-1) * pair.second(*trk));
           }
           else track_input.push_back(pair.second(*trk));
@@ -623,6 +653,7 @@ namespace DeepsetXbbTagger {
         // For nominal Dexter
         else track_input.push_back(pair.second(*trk));
       }
+
       tracks_input_sequences[pair.first] = track_input;
     }
     for (const auto& pair: m_acc_track_ints) {
@@ -636,6 +667,7 @@ namespace DeepsetXbbTagger {
         }
         else  track_input.push_back(pair.second(*trk));
       }
+      
       tracks_input_sequences[pair.first] = track_input;
     }
 
@@ -665,12 +697,14 @@ namespace DeepsetXbbTagger {
     std::sort(msvtx.begin(), msvtx.end(), Lxy_sig_sort);
 
     size_t max_secvtx = (m_max_secvtx < msvtx.size()) ? m_max_secvtx : msvtx.size();
+    
     for (const auto& pair: m_acc_secvtx_doubles) {
       std::vector<double> secvtx_input;
       for (size_t vt_n = 0; vt_n < max_secvtx; vt_n++) {
         const xAOD::Vertex* vtx = msvtx.at(vt_n);
         secvtx_input.push_back(pair.second(*vtx));
       }
+      
       secvtx_input_sequences[pair.first] = secvtx_input;
     }
     for (const auto& pair: m_acc_secvtx_floats) {
@@ -686,6 +720,7 @@ namespace DeepsetXbbTagger {
         }
         else secvtx_input.push_back(pair.second(*vtx));
       }
+
       secvtx_input_sequences[pair.first] = secvtx_input;
     }
     for (const auto& pair: m_acc_secvtx_ints) {
@@ -694,7 +729,9 @@ namespace DeepsetXbbTagger {
         const xAOD::Vertex* vtx = msvtx.at(vt_n);
         secvtx_input.push_back(pair.second(*vtx));
       }
+         
       secvtx_input_sequences[pair.first] = secvtx_input;
+      
     }
 
     node_input[m_node_name] = inputs;
@@ -791,14 +828,14 @@ namespace DeepsetXbbTagger {
     TLorentzVector SecVtx;
     SecVtx.SetPxPyPzE(tc_lvt_px(*secvtx), tc_lvt_py(*secvtx), tc_lvt_pz(*secvtx), tc_lvt_ee(*secvtx));
     if(SecVtx.DeltaR(subjets.at(0)->p4()) < SecVtx.DeltaR(subjets.at(1)->p4())) {
-      float dEta = SecVtx.Eta() - subjets.at(0)->p4().Eta();
-      float dPhi = SecVtx.DeltaPhi(subjets.at(0)->p4()); 
+      float dEta = std::abs(SecVtx.Eta() - subjets.at(0)->p4().Eta());
+      float dPhi = std::abs(SecVtx.DeltaPhi(subjets.at(0)->p4())); 
       m_deltaEta(*secvtx) = dEta;
       m_deltaPhi(*secvtx) = dPhi;
     }
     else {
-      float dEta = SecVtx.Eta() - subjets.at(1)->p4().Eta();
-      float dPhi = SecVtx.DeltaPhi(subjets.at(1)->p4()); 
+      float dEta = std::abs(SecVtx.Eta() - subjets.at(1)->p4().Eta());
+      float dPhi = std::abs(SecVtx.DeltaPhi(subjets.at(1)->p4())); 
       m_deltaEta(*secvtx) = dEta;
       m_deltaPhi(*secvtx) = dPhi;
     }

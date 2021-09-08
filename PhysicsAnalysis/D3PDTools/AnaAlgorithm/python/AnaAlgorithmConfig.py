@@ -187,9 +187,6 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
           type -- The C++ type of the private tool
         """
 
-        # First off, tell the C++ code what to do.
-        self.createPrivateTool( name, type ).ignore()
-
         # And now set up the Python object that will take care of setting
         # properties on this tool.
 
@@ -211,7 +208,52 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         # Now set up a smart object as a property on that component.
         component._props[ toolNames[ -1 ] ] = PrivateToolConfig( self, name,
                                                                  type )
+
+        # Finally, tell the C++ code what to do.
+        self.createPrivateTool( name, type ).ignore()
+
         pass
+
+    def addPrivateToolInArray( self, name, type ):
+        """Create a private tool in an array for the algorithm
+
+        This function is used in 'standalone' mode to declare a
+        private tool in a tool array for the algorithm, or a private
+        tool in a tool array for an already declared private tool.
+
+        Can be used like:
+          tool = config.addPrivateToolInArray( 'tool1', 'ToolType1' )
+          tool = config.addPrivateToolInArray( 'tool1.tool2', 'ToolType2' )
+
+        Keyword arguments:
+          name -- The full name of the private tool
+          type -- The C++ type of the private tool
+        """
+
+        # And now set up the Python object that will take care of setting
+        # properties on this tool.
+
+        # Tokenize the tool's name. In case it is a subtool of a tool, or
+        # something possibly even deeper.
+        toolNames = name.split( '.' )
+
+        # Look up the component that we need to set up the private tool on.
+        component = self
+        for tname in toolNames[ 0 : -1 ]:
+            component = getattr( component, tname )
+            pass
+
+        # Finally, tell the C++ code what to do.
+        actualName = self.createPrivateToolInArray( name, type )
+
+        # Tokenize the actual tool's name. In case it is a subtool of
+        # a tool, or something possibly even deeper.
+        actualToolNames = actualName.split( '.' )
+
+        # Now set up a smart object as a property on that component.
+        config = PrivateToolConfig( self, actualName, type )
+        component._props[ actualToolNames[ -1 ] ] = config
+        return config
 
     @staticmethod
     def _printHeader( title ):
@@ -437,6 +479,15 @@ class TestAlgPrivateTool( unittest.TestCase ):
         self.config.Tool1.Prop2 = [ 1, 2, 3 ]
         self.assertEqual( self.config.Tool1.Prop1, "Value1" )
         self.assertEqual( self.config.Tool1.Prop2, [ 1, 2, 3 ] )
+        pass
+
+    ## Test setting up and using one private tool
+    def test_privatetoolarray( self ):
+        tool = self.config.addPrivateToolInArray( "Tool1", "ToolType1" )
+        tool.Prop1 = "Value1"
+        tool.Prop2 = [ 1, 2, 3 ]
+        self.assertEqual( tool.Prop1, "Value1" )
+        self.assertEqual( tool.Prop2, [ 1, 2, 3 ] )
         pass
 
     ## Test setting up and using a private tool of a private tool

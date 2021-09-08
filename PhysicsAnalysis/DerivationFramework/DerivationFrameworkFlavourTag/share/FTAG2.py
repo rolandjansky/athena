@@ -113,9 +113,6 @@ addVRJets(FTAG2Seq, doFlipTagger=True)
 addVRJets(FTAG2Seq, doFlipTagger=True, training='201903')
 addVRJets(FTAG2Seq, do_ghost=True, doFlipTagger=True)
 
-# Also add Hbb Tagger
-addHbbTagger(FTAG2Seq, ToolSvc)
-
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
@@ -259,7 +256,8 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "BTagging_AntiKt4EMPFlow_201903SecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810SecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant",
+                                    #    "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant",
+                                       "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant.dips20210517_pu.dips20210517_pc.dips20210517_pb.dipsLoose20210517_pu.dipsLoose20210517_pc.dipsLoose20210517_pb.DL1dLoose20210607_pu.DL1dLoose20210607_pc.DL1dLoose20210607_pb.DL1d20210607_pu.DL1d20210607_pc.DL1d20210607_pb",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
                                        "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
                                        "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",

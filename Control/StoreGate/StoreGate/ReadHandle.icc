@@ -10,6 +10,13 @@
  * @brief Handle class for reading from StoreGate.
  */
 
+
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef STOREGATE_SG_READHANDLE_ICC
 #define STOREGATE_SG_READHANDLE_ICC 1
 
@@ -214,6 +221,31 @@ bool ReadHandle<T>::isValid()
 
 
 /**
+ * @brief Dereference the pointer, but don't cache anything.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::get()
+{
+  return cptr();
+}
+
+
+/**
+ * @brief Dereference the pointer, but don't cache anything.
+ * @param ctx The event context to use.
+ */
+template <class T>
+inline
+typename ReadHandle<T>::const_pointer_type
+ReadHandle<T>::get (const EventContext& /*ctx*/)
+{
+  return cptr();
+}
+
+
+/**
  * @brief Helper: dereference the pointer.
  * Throws ExcNullReadHandle on failure.
  */
@@ -226,6 +258,19 @@ ReadHandle<T>::checkedCPtr()
   if (!p)
     throwExcNullReadHandle (clid(), key(), store());
   return p;
+}
+
+
+/**
+ * @brief Protected constructor used by WriteDecorHandle.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context, or nullptr to use the global default.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const VarHandleKey& key, const EventContext* /*ctx*/)
+  : VarHandleBase (key/*, ctx*/)
+{
 }
 
 

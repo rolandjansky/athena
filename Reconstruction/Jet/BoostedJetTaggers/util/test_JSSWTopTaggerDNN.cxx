@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
-#include <memory>
-#include <cstdlib>
 #include <string>
 
 // ROOT include(s):
 #include <TFile.h>
-#include <TError.h>
 #include <TString.h>
 #include <TTree.h>
 #include <TChain.h>
@@ -21,20 +18,11 @@
 #endif // ROOTCORE
 
 // EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include <xAODJet/JetContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
-#include "AsgTools/Check.h"
-#include "AsgTools/AnaToolHandle.h"
-#include "PATCore/TAccept.h"
 
 // Tool testing include(s):
-#include "AsgTools/AnaToolHandle.h"
-#include "JetInterface/IJetSelector.h"
-#include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
@@ -47,7 +35,7 @@ int main( int argc, char* argv[] ) {
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
-  bool m_IsMC=true;
+  bool m_isMC=true;
   bool verbose=false;
 
 
@@ -99,8 +87,8 @@ int main( int argc, char* argv[] ) {
   if(options.find("-m")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-m")==0){
-        m_IsMC = atoi(argv[ipos+1]);
-        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_IsMC );
+        m_isMC = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_isMC );
         break;
       }
     }
@@ -148,20 +136,21 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open("output_JSSWTopTaggerDNN.root", "recreate"));
   int pass,truthLabel,idx;
-  float sf,pt,eta,m;
+  float sf,pt,eta,m,eff,effSF;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
   Tree->Branch( "sf", &sf, "sf/F" );
   Tree->Branch( "pt", &pt, "pt/F" );
   Tree->Branch( "m", &m, "m/F" );
   Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "eff", &eff, "eff/F" );
+  Tree->Branch( "effSF", &effSF, "effSF/F" );
   Tree->Branch( "idx", &idx, "idx/I" );
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
 
   std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");
-  //m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/R10_SF_LC_DNNContained80_TopTag.config");
-  m_jetUncToolSF->setProperty("ConfigFile", "/afs/cern.ch/user/t/tnobe/workDir/makeConfig/makebjtconfigs/outputs/temp_R10_SF_DNNTaggerTopQuarkContained80_SF.config");
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Fall2020/R10_SF_LCTopo_TopTagContained_SigEff80.config");
   m_jetUncToolSF->setProperty("MCType", "MC16");
   m_jetUncToolSF->initialize();
 
@@ -186,16 +175,13 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing JSSWTopTaggerDNN Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
+  asg::AnaToolHandle<JSSWTopTaggerDNN> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "CalibArea",   "Local");
-  m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/temp_JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_80Eff.dat");
-  m_Tagger.setProperty( "UseTRUTH3", false);
-  //m_Tagger.setProperty( "CalibArea",   "JSSWTopTaggerDNN/Rel21");
-  //m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190405_80Eff.dat");
-  m_Tagger.setProperty("IsMC", m_IsMC);
+  m_Tagger.setProperty( "CalibArea",   "JSSWTopTaggerDNN/Rel21");
+  m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20200720_80Eff.dat");
+  m_Tagger.setProperty("IsMC", m_isMC);
   m_Tagger.retrieve();
 
 
@@ -238,39 +224,45 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"Printing jet score : " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_Score") << std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = jetSC->auxdata<int>("R10TruthLabel_R21Consolidated");
+      truthLabel = -1;
+      if ( m_isMC )
+	truthLabel = jetSC->auxdata<int>("R10TruthLabel_R21Consolidated");
 
       pass = res;
       sf = jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF");
       pt = jetSC->pt();
       m  = jetSC->m();
       eta = jetSC->eta();
+      eff = jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_efficiency");
+      effSF = jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_effSF");
 
       Tree->Fill();
       idx++;
-      if ( m_IsMC ){
-	if ( jetSC->pt() > 350e3 && fabs(jetSC->eta()) < 2.0  ) {
-	  bool validForUncTool = (pt >= 150e3 && pt < 2500e3);
-	  validForUncTool &= (m/pt >= 0 && m/pt <= 1);
-	  validForUncTool &= (fabs(eta) < 2);
-	  std::cout << "Pass: " << pass << std::endl;
-	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb) " 
-		    <<  jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_effSF") 
-		    << " "
-		    <<  jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_efficiency") 
-		    << std::endl;
-	  if( validForUncTool ){
-	    for ( CP::SystematicSet sysSet : m_jetUnc_sysSets ){
-	      m_Tagger->tag( *jetSC );
-	      m_jetUncToolSF->applySystematicVariation(sysSet);
-	      m_jetUncToolSF->applyCorrection(*jetSC);
-	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
-	    }
-	  }
-	}
+      if ( m_isMC ){
+        if ( pt/1.e3 > 350 && std::abs(jetSC->eta()) < 2.0 ) {
+          bool validForUncTool = ( pt/1.e3 >= 150 && pt/1.e3 < 4000 );
+          validForUncTool &= ( m/pt >= 0 && m/pt <= 1 );
+          validForUncTool &= ( std::abs(eta) < 2 );
+          std::cout << "Pass: " << pass << std::endl;
+          std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb) " 
+            <<  jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_effSF") 
+            << " "
+            <<  jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_efficiency") 
+            << " "
+            <<  jetSC->auxdata<int>("DNNTaggerTopQuarkContained80_accept") 
+            << std::endl;
+          if( validForUncTool ){
+            for ( CP::SystematicSet sysSet : m_jetUnc_sysSets ){
+              m_Tagger->tag( *jetSC );
+              m_jetUncToolSF->applySystematicVariation(sysSet);
+              m_jetUncToolSF->applyCorrection(*jetSC);
+              std::cout << sysSet.name() << " " << jetSC->auxdata<float>("DNNTaggerTopQuarkContained80_SF") << std::endl;
+            }
+          }
+        }
       }
     }
-
+    
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 

@@ -20,6 +20,7 @@ jetTriggers = TriggerLists.jetTrig()
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 150.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
 jetSelection += '||(count( AntiKt10TrackCaloClusterJets.pt > 150.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >=1)'
 jetSelection += '||(count( AntiKt10UFOCSSKJets.pt > 150.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >=1)'
+jetSelection += '||(count( AntiKt10UFOCHSJets.pt > 150.*GeV && abs(AntiKt10UFOCHSJets.eta) < 2.5 ) >=1)'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 JETM8TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name           = "JETM8TrigSkimmingTool",
@@ -156,7 +157,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
 #Build ungroomed UFO jets
-addDefaultUFOJets(jetm8Seq,"JETM8",doCHS=False)
+addDefaultUFOJets(jetm8Seq,"JETM8",doCHS=True)
 
 jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel",
                                                           SkimmingTools = [JETM8OfflineSkimmingTool],
@@ -175,21 +176,30 @@ addTCCTrimmedJets(jetm8Seq,"JETM8")
 
 if DerivationFrameworkHasTruth:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
-  addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
 
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False, mods="tcc_groomed")
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False, mods="tcc_groomed")
-addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
 addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
+
+#Additional jet collections for trigger studies
+# R = 1.0 PFlow jets
+addStandardJets("AntiKt", 1.0, "EMPFlow", ptmin=40000, ptminFilter=50000, mods="pflow_groomed", algseq=jetm8Seq, outputGroup="JETM8")
+# R = 1.0 ungroomed PFlow jets with CS+SK
+addConstModJets("AntiKt",1.0, "EMPFlow", ["CS","SK"], jetm8Seq,"JETM8", ptmin=40000, ptminFilter=50000)
+# R = 1.0 ungroomed PFlow jets with CS+SK with Soft-Drop grooming
+addSoftDropJets("AntiKt", 1.0, "EMPFlow", beta=1.0, zcut=0.1, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False, mods="pflow_groomed", constmods=["CS", "SK"])
+# R = 1.0 PFlow jets with Soft-Drop grooming
+addSoftDropJets("AntiKt", 1.0, "EMPFlow", beta=1.0, zcut=0.1, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False, mods="pflow_groomed")
+# R = 1.0 UFO CHS jets with Soft-Drop grooming
+addSoftDropJets("AntiKt", 1.0, "UFOCHS", beta=1.0, zcut=0.1, algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=True, mods="tcc_groomed")
 
 largeRJetAlgs = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
     "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
     "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20",
     "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
-    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5",
-    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf",
+    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5"
     ]
 
 largeRJetCollections = []
@@ -264,7 +274,6 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TruthSoftDropBeta100Zcut10Jets",
                                         "AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets",
-                                        "AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "AntiKt10LCTopoJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterJets",
@@ -273,7 +282,12 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                         "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-                                        "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
+                                        "AntiKt10EMPFlowJets",
+                                        "AntiKt10EMPFlowSoftDropBeta100Zcut10Jets",
+                                        "AntiKt10EMPFlowCSSKJets",
+                                        "AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets",
+                                        "AntiKt10UFOCHSJets",
+                                        "AntiKt10UFOCHSSoftDropBeta100Zcut10Jets",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                         "BTagging_AntiKt4EMPFlow_201810",
@@ -285,7 +299,7 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "TrackCaloClustersCombinedAndNeutral",
                                     "UFOCSSK",
                                     "TruthParticles",
-                                    "Kt4EMPFlowEventShape"]
+                                    "Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
 
 JETM8SlimmingHelper.AppendToDictionary["UFOCSSK"] = "xAOD::TrackCaloClusterContainer"
 JETM8SlimmingHelper.AppendToDictionary["UFOCSSKAux"] = "xAOD::TrackCaloClusterAuxContainer"
@@ -302,11 +316,9 @@ JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter',
                                        'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.SizeParameter',
                                        'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.SizeParameter',
                                        'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
-                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
                                        'AntiKt10TruthTrimmedPtFrac5SmallR20Jets.SizeParameter',
                                        'AntiKt10TruthSoftDropBeta100Zcut10Jets.SizeParameter',
                                        'AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
-                                       'AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
                                        'AntiKt10LCTopoJets.GhostTrack',
                                        'AntiKt10TrackCaloClusterJets.GhostTrack',
                                        'AntiKt10UFOCSSKJets.GhostTrack',
@@ -314,8 +326,7 @@ JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter',
                                        'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.GhostTrack',
                                        'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.GhostTrack',
                                        'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.GhostTrack',
-                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.GhostTrack',
-                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.GhostTrack',
+                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.GhostTrack'
                                        ]
 
 # Add origin corrected clusters to keep LCTopo constituents

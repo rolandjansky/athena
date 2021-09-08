@@ -12,7 +12,7 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "DerivationFrameworkBPhys/FourMuonTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "xAODBPhys/BPhysHelper.h"
@@ -31,14 +31,14 @@ namespace xAOD {
  */
 namespace DerivationFramework {
 
-  class Reco_4mu : public AthAlgTool, public ISkimmingTool {
+  class Reco_4mu : public AthAlgTool, public IAugmentationTool {
     public: 
       Reco_4mu(const std::string& t, const std::string& n, const IInterface* p);
 
       StatusCode initialize();
       StatusCode finalize();
       
-      virtual bool eventPassesFilter() const;
+      virtual StatusCode addBranches() const;
       
     private:
       /** tools

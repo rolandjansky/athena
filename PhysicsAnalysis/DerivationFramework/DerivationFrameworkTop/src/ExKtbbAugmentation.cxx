@@ -9,43 +9,46 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "ParticleJetTools/ParticleJetLabelCommon.h"
 
 
 namespace DerivationFramework {
 
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_pt("SoftBVrtClusterTool_MSVTight_Vertices_pt");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_eta("SoftBVrtClusterTool_MSVTight_Vertices_eta");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_phi("SoftBVrtClusterTool_MSVTight_Vertices_phi");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_mass("SoftBVrtClusterTool_MSVTight_Vertices_mass");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_vtxx("SoftBVrtClusterTool_MSVTight_Vertices_vtxx");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_vtxy("SoftBVrtClusterTool_MSVTight_Vertices_vtxy");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_vtxz("SoftBVrtClusterTool_MSVTight_Vertices_vtxz");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_lxy("SoftBVrtClusterTool_MSVTight_Vertices_lxy");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_lxysig("SoftBVrtClusterTool_MSVTight_Vertices_lxysig");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_lz("SoftBVrtClusterTool_MSVTight_Vertices_lz");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_lzsig("SoftBVrtClusterTool_MSVTight_Vertices_lzsig");
-  SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_3dsig("SoftBVrtClusterTool_MSVTight_Vertices_3dsig");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_maxsd0("ExKtbb_maxsd0");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_av3sd0("ExKtbb_av3sd0");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb("ExKtbb_dexter_pbb");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb("ExKtbb_dexter_pb");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl("ExKtbb_dexter_pl");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_trksflip("ExKtbb_dexter_pbb_trksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_trksflip("ExKtbb_dexter_pb_trksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_trksflip("ExKtbb_dexter_pl_trksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_trksflip_svmassflip("ExKtbb_dexter_pbb_trksflip_svmassflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_trksflip_svmassflip("ExKtbb_dexter_pb_trksflip_svmassflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_trksflip_svmassflip("ExKtbb_dexter_pl_trksflip_svmassflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_negtrksflip("ExKtbb_dexter_pbb_negtrksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_negtrksflip("ExKtbb_dexter_pb_negtrksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_negtrksflip("ExKtbb_dexter_pl_negtrksflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_negtrksflip_svmassflip("ExKtbb_dexter_pbb_negtrksflip_svmassflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_negtrksflip_svmassflip("ExKtbb_dexter_pb_negtrksflip_svmassflip");
-  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_negtrksflip_svmassflip("ExKtbb_dexter_pl_negtrksflip_svmassflip");
-  SG::AuxElement::Decorator<int> ExKtbbAugmentation::ExKtbbDecorators::smalljet_largeJetLabel("LargeJetLabel");
-
 ExKtbbAugmentation::ExKtbbAugmentation(const std::string& t, const std::string& n, const IInterface* p):
-  AthAlgTool(t,n,p)
+  AthAlgTool(t,n,p),
+  secvtx_pt("SoftBVrtClusterTool_MSVTight_Vertices_pt"),
+  secvtx_eta("SoftBVrtClusterTool_MSVTight_Vertices_eta"),
+  secvtx_phi("SoftBVrtClusterTool_MSVTight_Vertices_phi"),
+  secvtx_mass("SoftBVrtClusterTool_MSVTight_Vertices_mass"),
+  secvtx_vtxx("SoftBVrtClusterTool_MSVTight_Vertices_vtxx"),
+  secvtx_vtxy("SoftBVrtClusterTool_MSVTight_Vertices_vtxy"),
+  secvtx_vtxz("SoftBVrtClusterTool_MSVTight_Vertices_vtxz"),
+  secvtx_lxy("SoftBVrtClusterTool_MSVTight_Vertices_lxy"),
+  secvtx_lxysig("SoftBVrtClusterTool_MSVTight_Vertices_lxysig"),
+  secvtx_lz("SoftBVrtClusterTool_MSVTight_Vertices_lz"),
+  secvtx_lzsig("SoftBVrtClusterTool_MSVTight_Vertices_lzsig"),
+  secvtx_3dsig("SoftBVrtClusterTool_MSVTight_Vertices_3dsig"),
+  jet_maxsd0("ExKtbb_maxsd0"),
+  jet_av3sd0("ExKtbb_av3sd0"),
+  jet_dexter_pbb("ExKtbb_dexter_pbb"),
+  jet_dexter_pb("ExKtbb_dexter_pb"),
+  jet_dexter_pl("ExKtbb_dexter_pl"),
+  jet_dexter_pbb_trksflip("ExKtbb_dexter_pbb_trksflip"),
+  jet_dexter_pb_trksflip("ExKtbb_dexter_pb_trksflip"),
+  jet_dexter_pl_trksflip("ExKtbb_dexter_pl_trksflip"),
+  jet_dexter_pbb_trksflip_svmassflip("ExKtbb_dexter_pbb_trksflip_svmassflip"),
+  jet_dexter_pb_trksflip_svmassflip("ExKtbb_dexter_pb_trksflip_svmassflip"),
+  jet_dexter_pl_trksflip_svmassflip("ExKtbb_dexter_pl_trksflip_svmassflip"),
+  jet_dexter_pbb_negtrksflip("ExKtbb_dexter_pbb_negtrksflip"),
+  jet_dexter_pb_negtrksflip("ExKtbb_dexter_pb_negtrksflip"),
+  jet_dexter_pl_negtrksflip("ExKtbb_dexter_pl_negtrksflip"),
+  jet_dexter_pbb_negtrksflip_svmassflip("ExKtbb_dexter_pbb_negtrksflip_svmassflip"),
+  jet_dexter_pb_negtrksflip_svmassflip("ExKtbb_dexter_pb_negtrksflip_svmassflip"),
+  jet_dexter_pl_negtrksflip_svmassflip("ExKtbb_dexter_pl_negtrksflip_svmassflip"),
+  smalljet_largeJetLabel("LargeJetLabel"),
+  jet_dexter_ghostBhadronCount("dexter_GhostBHadronsCount"),
+  jet_dexter_ghostChadronCount("dexter_GhostCHadronsCount"),
+  jet_dexter_TruthLabel("dexter_TruthLabel")
 {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -84,6 +87,33 @@ StatusCode ExKtbbAugmentation::finalize(){
 
 }
 
+int ExKtbbAugmentation::getDeXTerLabel(const int ghostBFinalCount,const int ghostCFinalCount) const
+{
+
+  int jet_flavor = 0;
+  // jet flavor label
+  // 55 - bb: nb >= 2               bb bbb bbc bbl...
+  // 54 - bc: nb = 1 && nc >= 1      bc bcc bcl
+  // 5  - b : nb = 1 && nc = 0      b bl bll
+  // 44 - cc: nb = 0 && nc >= 2     cc ccc ccl...
+  // 4  - c : nb = 0 && nc = 1      c cl cll
+  // 0  - l : nb = 0 && nc = 0      light
+  if (ghostBFinalCount >= 2)
+    jet_flavor = 55;
+  else if (ghostBFinalCount == 1 && ghostCFinalCount >= 1)
+    jet_flavor = 54;
+  else if (ghostBFinalCount == 1 && ghostCFinalCount == 0)
+    jet_flavor = 5;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount >= 2)
+    jet_flavor = 44;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount == 1)
+    jet_flavor = 4;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount == 0)
+    jet_flavor = 0;
+
+  return jet_flavor;
+}
+
 
 StatusCode ExKtbbAugmentation::addBranches() const{
 
@@ -94,14 +124,12 @@ StatusCode ExKtbbAugmentation::addBranches() const{
     return StatusCode::FAILURE;
   }
 
-  static SG::AuxElement::ConstAccessor<float> tc_lvt_px("tc_lvt_px");
-  static SG::AuxElement::ConstAccessor<float> tc_lvt_py("tc_lvt_py");
-  static SG::AuxElement::ConstAccessor<float> tc_lvt_pz("tc_lvt_pz");
-  static SG::AuxElement::ConstAccessor<float> tc_lvt_ee("tc_lvt_ee");
+  const SG::AuxElement::ConstAccessor<float> tc_lvt_px("tc_lvt_px");
+  const SG::AuxElement::ConstAccessor<float> tc_lvt_py("tc_lvt_py");
+  const SG::AuxElement::ConstAccessor<float> tc_lvt_pz("tc_lvt_pz");
+  const SG::AuxElement::ConstAccessor<float> tc_lvt_ee("tc_lvt_ee");
 
   BTagTrackAugmenter  track_augmenter;
-  static SG::AuxElement::ConstAccessor<float> d0("btagIp_d0");
-  static SG::AuxElement::ConstAccessor<float> d0s("btagIp_d0Uncertainty");
 
   const xAOD::VertexContainer *mprimvtx;
   if (evtStore()->retrieve(mprimvtx,m_primaryVerticesCollectionName).isFailure()) {
@@ -127,14 +155,17 @@ StatusCode ExKtbbAugmentation::addBranches() const{
   const xAOD::JetContainer* smalljets = evtStore()->retrieve< const xAOD::JetContainer >( m_smallJetCollectionName );
 
   for (const auto smalljet: *smalljets) {
-    tj_decorators.smalljet_largeJetLabel(*smalljet) = -1;
+    smalljet_largeJetLabel(*smalljet) = -1;
   }
 
   for (const auto jet : *jets) {
 
+    std::vector<const xAOD::TruthParticle *> jetlabelpartsb;
+    std::vector<const xAOD::TruthParticle *> jetlabelpartsc;    
+
     auto constVector = jet->constituentLinks();
     for (auto constituent : constVector)
-      tj_decorators.smalljet_largeJetLabel(*smalljets->at(constituent.index())) = jet->index();
+      smalljet_largeJetLabel(*smalljets->at(constituent.index())) = jet->index();
 
     std::vector<const xAOD::Jet*> ExKtSubjets;
     auto trackJets = jet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >(m_exktJetCollectionName);
@@ -152,17 +183,36 @@ StatusCode ExKtbbAugmentation::addBranches() const{
           ATH_MSG_ERROR("Empty pointer to track subjet! You will crash soon...");
 	  return StatusCode::FAILURE;
         } else {
+          // Add Truth hadron labeling to jets
+          if(m_isMC){
+            const auto& b_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostBHadronsFinal");
+            const auto& c_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostCHadronsFinal");
+            for (const auto &b_el : b_links)
+            {
+              const auto *bhadron = dynamic_cast<const xAOD::TruthParticle *>(*b_el);
+              if (bhadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsb.push_back(bhadron);
+            }
+            for (const auto &c_el : c_links)
+            {
+              const auto *chadron = dynamic_cast<const xAOD::TruthParticle *>(*c_el);
+              if (chadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsc.push_back(chadron);
+            }
+          }
+          // For track sd0      
 	  auto constVector = subjet->getConstituents();
-	  std::vector<float> sd0;
+	  std::vector<double> sd0;
 	  for (const auto constituent : constVector) {
 	    if(constituent->rawConstituent() == 0) {
 	      ATH_MSG_WARNING("Empty pointer to track constituent.");
 	    } else {
 	      const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>(constituent->rawConstituent());
 	      if (track != 0) {
-		track_augmenter.augment_with_ip(*track, *subjet);
-		sd0.push_back(d0(*track)/d0s(*track));
-	      }
+          double ip3d_sd0 = track_augmenter.get_signed_ip(*track, *subjet).ip3d_signed_d0_significance;
+          sd0.push_back(ip3d_sd0);
+
+        }
 	    }
 	  }
 	  std::sort(sd0.begin(), sd0.end(),
@@ -171,81 +221,76 @@ StatusCode ExKtbbAugmentation::addBranches() const{
 		    }
 		    );
 	  if (sd0.size() > 2) {
-	    tj_decorators.jet_maxsd0(*subjet) = sd0[0];
-	    tj_decorators.jet_av3sd0(*subjet) = (sd0[0]+sd0[1]+sd0[2])/3.;
+	    jet_maxsd0(*subjet) = sd0[0];
+	    jet_av3sd0(*subjet) = (sd0[0]+sd0[1]+sd0[2])/3.;
 	  } else if (sd0.size() > 1) {
-	    tj_decorators.jet_maxsd0(*subjet) = sd0[0];
-	    tj_decorators.jet_av3sd0(*subjet) = (sd0[0]+sd0[1])/2.;
+	    jet_maxsd0(*subjet) = sd0[0];
+	    jet_av3sd0(*subjet) = (sd0[0]+sd0[1])/2.;
 	  } else if (sd0.size() > 0) {
-	    tj_decorators.jet_maxsd0(*subjet) = sd0[0];
-	    tj_decorators.jet_av3sd0(*subjet) = sd0[0];
+	    jet_maxsd0(*subjet) = sd0[0];
+	    jet_av3sd0(*subjet) = sd0[0];
 	  } else {
-	    tj_decorators.jet_maxsd0(*subjet) = -999.;
-	    tj_decorators.jet_av3sd0(*subjet) = -999.;
+	    jet_maxsd0(*subjet) = -999.;
+	    jet_av3sd0(*subjet) = -999.;
 	  }
 
           ExKtSubjets.push_back(subjet);
         }
       }
     }
+    if(m_isMC){
+      using ParticleJetTools::childrenRemoved;
+      childrenRemoved(jetlabelpartsb, jetlabelpartsb);
+      childrenRemoved(jetlabelpartsb, jetlabelpartsc);
+      childrenRemoved(jetlabelpartsc, jetlabelpartsc);    
+      int ghostBTotalCount = jetlabelpartsb.size();
+      int ghostCTotalCount = jetlabelpartsc.size();
 
-    if (m_dexter->n_subjets(*jet) == 2) {
-      ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");
+      jet_dexter_ghostBhadronCount(*jet) = ghostBTotalCount;
+      jet_dexter_ghostChadronCount(*jet) = ghostCTotalCount;
 
-      auto scores = m_dexter->getScores(*jet);
-      tj_decorators.jet_dexter_pbb(*jet) = scores.at("dexter_pbb");
-      tj_decorators.jet_dexter_pb(*jet) = scores.at("dexter_pb");
-      tj_decorators.jet_dexter_pl(*jet) = scores.at("dexter_pl");
-
-      m_dexter->setProperty("negativeTagMode", "TrksFlip");
-      auto scores_TrksFlip = m_dexter->getScores(*jet);
-      tj_decorators.jet_dexter_pbb_trksflip(*jet) = scores_TrksFlip.at("dexter_pbb");
-      tj_decorators.jet_dexter_pb_trksflip(*jet) = scores_TrksFlip.at("dexter_pb");
-      tj_decorators.jet_dexter_pl_trksflip(*jet) = scores_TrksFlip.at("dexter_pl");
-
-      m_dexter->setProperty("negativeTagMode", "SVMassTrksFlip");
-      auto scores_SVMassTrksFlip = m_dexter->getScores(*jet);
-      tj_decorators.jet_dexter_pbb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pbb");
-      tj_decorators.jet_dexter_pb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pb");
-      tj_decorators.jet_dexter_pl_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pl");
-
-      m_dexter->setProperty("negativeTagMode", "NegTrksFlip");
-      auto scores_NegTrksFlip = m_dexter->getScores(*jet);
-      tj_decorators.jet_dexter_pbb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pbb");
-      tj_decorators.jet_dexter_pb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pb");
-      tj_decorators.jet_dexter_pl_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pl");
-
-      m_dexter->setProperty("negativeTagMode", "SVMassNegTrksFlip");
-      auto scores_SVMassNegTrksFlip = m_dexter->getScores(*jet);
-      tj_decorators.jet_dexter_pbb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pbb");
-      tj_decorators.jet_dexter_pb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pb");
-      tj_decorators.jet_dexter_pl_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pl");
-
-    } else {
-      tj_decorators.jet_dexter_pbb(*jet) = -999.;
-      tj_decorators.jet_dexter_pb(*jet) = -999.;
-      tj_decorators.jet_dexter_pl(*jet) = -999.;
-
-      tj_decorators.jet_dexter_pbb_trksflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pb_trksflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pl_trksflip(*jet) = -999.;
-
-      tj_decorators.jet_dexter_pbb_trksflip_svmassflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pb_trksflip_svmassflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pl_trksflip_svmassflip(*jet) = -999.;
-
-      tj_decorators.jet_dexter_pbb_negtrksflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pb_negtrksflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pl_negtrksflip(*jet) = -999.;
-
-      tj_decorators.jet_dexter_pbb_negtrksflip_svmassflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pb_negtrksflip_svmassflip(*jet) = -999.;
-      tj_decorators.jet_dexter_pl_negtrksflip_svmassflip(*jet) = -999.;
+      jet_dexter_TruthLabel(*jet) = getDeXTerLabel(ghostBTotalCount, ghostCTotalCount);
     }
+
+    ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");
+
+    m_dexter->setProperty("negativeTagMode", "");
+    ATH_CHECK(m_dexter.retrieve());
+    auto scores = m_dexter->getScores(*jet);
+    jet_dexter_pbb(*jet) = scores.at("dexter_pbb");
+    jet_dexter_pb(*jet) = scores.at("dexter_pb");
+    jet_dexter_pl(*jet) = scores.at("dexter_pl");
+
+    m_dexter->setProperty("negativeTagMode", "TrksFlip");
+    ATH_CHECK(m_dexter.retrieve());
+    auto scores_TrksFlip = m_dexter->getScores(*jet);
+    jet_dexter_pbb_trksflip(*jet) = scores_TrksFlip.at("dexter_pbb");
+    jet_dexter_pb_trksflip(*jet) = scores_TrksFlip.at("dexter_pb");
+    jet_dexter_pl_trksflip(*jet) = scores_TrksFlip.at("dexter_pl");
+
+    m_dexter->setProperty("negativeTagMode", "SVMassTrksFlip");
+    ATH_CHECK(m_dexter.retrieve());
+    auto scores_SVMassTrksFlip = m_dexter->getScores(*jet);
+    jet_dexter_pbb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pbb");
+    jet_dexter_pb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pb");
+    jet_dexter_pl_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pl");
+
+    m_dexter->setProperty("negativeTagMode", "NegTrksFlip");
+    ATH_CHECK(m_dexter.retrieve());
+    auto scores_NegTrksFlip = m_dexter->getScores(*jet);
+    jet_dexter_pbb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pbb");
+    jet_dexter_pb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pb");
+    jet_dexter_pl_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pl");
+
+    m_dexter->setProperty("negativeTagMode", "SVMassNegTrksFlip");
+    ATH_CHECK(m_dexter.retrieve());
+    auto scores_SVMassNegTrksFlip = m_dexter->getScores(*jet);
+    jet_dexter_pbb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pbb");
+    jet_dexter_pb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pb");
+    jet_dexter_pl_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pl");
 
     if (ExKtSubjets.size() == 0) continue;
 
-        
     std::vector<std::vector<float> > vtx_pt(ExKtSubjets.size());
     std::vector<std::vector<float> > vtx_eta(ExKtSubjets.size());
     std::vector<std::vector<float> > vtx_phi(ExKtSubjets.size());
@@ -317,18 +362,18 @@ StatusCode ExKtbbAugmentation::addBranches() const{
     
     // Move the values to the decorator of the appropriate trackjet.
     for (size_t i=0; i<ExKtSubjets.size(); i++) {
-      tj_decorators.secvtx_pt(*ExKtSubjets[i]) = std::move(vtx_pt[i]);
-      tj_decorators.secvtx_eta(*ExKtSubjets[i]) = std::move(vtx_eta[i]);
-      tj_decorators.secvtx_phi(*ExKtSubjets[i]) = std::move(vtx_phi[i]);
-      tj_decorators.secvtx_mass(*ExKtSubjets[i]) = std::move(vtx_mass[i]);
-      tj_decorators.secvtx_vtxx(*ExKtSubjets[i]) = std::move(vtx_vtxx[i]);
-      tj_decorators.secvtx_vtxy(*ExKtSubjets[i]) = std::move(vtx_vtxy[i]);
-      tj_decorators.secvtx_vtxz(*ExKtSubjets[i]) = std::move(vtx_vtxz[i]);
-      tj_decorators.secvtx_lxy(*ExKtSubjets[i]) = std::move(vtx_lxy[i]);
-      tj_decorators.secvtx_lxysig(*ExKtSubjets[i]) = std::move(vtx_lxysig[i]);
-      tj_decorators.secvtx_lz(*ExKtSubjets[i]) = std::move(vtx_lz[i]);
-      tj_decorators.secvtx_lzsig(*ExKtSubjets[i]) = std::move(vtx_lzsig[i]);
-      tj_decorators.secvtx_3dsig(*ExKtSubjets[i]) = std::move(vtx_3dsig[i]);
+      secvtx_pt(*ExKtSubjets[i]) = std::move(vtx_pt[i]);
+      secvtx_eta(*ExKtSubjets[i]) = std::move(vtx_eta[i]);
+      secvtx_phi(*ExKtSubjets[i]) = std::move(vtx_phi[i]);
+      secvtx_mass(*ExKtSubjets[i]) = std::move(vtx_mass[i]);
+      secvtx_vtxx(*ExKtSubjets[i]) = std::move(vtx_vtxx[i]);
+      secvtx_vtxy(*ExKtSubjets[i]) = std::move(vtx_vtxy[i]);
+      secvtx_vtxz(*ExKtSubjets[i]) = std::move(vtx_vtxz[i]);
+      secvtx_lxy(*ExKtSubjets[i]) = std::move(vtx_lxy[i]);
+      secvtx_lxysig(*ExKtSubjets[i]) = std::move(vtx_lxysig[i]);
+      secvtx_lz(*ExKtSubjets[i]) = std::move(vtx_lz[i]);
+      secvtx_lzsig(*ExKtSubjets[i]) = std::move(vtx_lzsig[i]);
+      secvtx_3dsig(*ExKtSubjets[i]) = std::move(vtx_3dsig[i]);
     }
   } 
   return StatusCode::SUCCESS;

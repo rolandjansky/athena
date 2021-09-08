@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -54,11 +54,13 @@
 #include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
 #include "TopPartons/CalcWtbPartonHistory.h"
+#include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
 #include "TopPartons/CalcTTZPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTzqPartonHistory.h"
+#include "TopPartons/CalcTtttPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -108,22 +110,25 @@ int main(int argc, char** argv) {
   StatusCode::enableFailure();
 
   xAOD::TStore store;
-  
+
   ATH_MSG_INFO("INPUT: Configuration file (argv[1]) = "
 	       << argv[1] << "\n");
   std::string settingsFilename = PathResolver::find_file(argv[1],"DATAPATH",PathResolver::LocalSearch);
 
   ATH_MSG_INFO("LOCATED (using PathResolverFindFile ): Configuration file = "
 	       << settingsFilename << "\n");
-  
+
   ATH_MSG_INFO("Configuration Files:\n"
 	       << settingsFilename << "\n"
 	       << argv[2] << "\n");
-  
+
   //load the settings from the input file
   auto* const settings = top::ConfigurationSettings::get();
   settings->loadFromFile(settingsFilename);
   ATH_MSG_INFO("Configuration:\n" << *settings << "\n");
+
+  // only after printing full configuration check if there are issues and inform user and crash if necessary
+  settings->checkSettings();
 
   const std::string libraryNames = settings->value("LibraryNames");
   top::loadLibraries(libraryNames);
@@ -169,7 +174,7 @@ int main(int argc, char** argv) {
     ATH_MSG_INFO("OK.");
   }
 
-  
+
   //picking the first file was a bad idea because in the derivations it often
   //has no events (no CollectionTree).  Be sure to pick a file with events in
   //it...
@@ -215,6 +220,7 @@ int main(int argc, char** argv) {
     }
 
     topConfig->setIsMC(isMC);
+    topConfig->setIsDataOverlay(isOverlay);
 
     const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());
     topConfig->setIsPrimaryxAOD(isPrimaryxAOD);
@@ -380,6 +386,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory> (new top::CalcWtbPartonHistory("top::CalcWtbPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcWtbPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tchannel") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory> (new top::CalcTChannelSingleTopPartonHistory("top::CalcChannelSingleTopPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcChannelSingleTopPartonHistory");
   } else if (settings->value("TopPartonHistory") == "ttz") {
     topPartonHistory =
       std::unique_ptr<top::CalcTopPartonHistory> (new top::CalcTTZPartonHistory("top::CalcTTZPartonHistory"));
@@ -401,6 +412,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcTzqPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tttt") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTtttPartonHistory("top::CalcTtttPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcTtttPartonHistory");
   }
 
 
@@ -484,7 +500,7 @@ int main(int argc, char** argv) {
   outputFile->cd();
   TTree* sumWeights = new TTree("sumWeights", "");
   float totalEventsWeighted = 0;
-  double totalEventsWeighted_temp = 0; 
+  double totalEventsWeighted_temp = 0;
   std::vector<float> totalEventsWeighted_LHE3;
   std::vector<double> totalEventsWeighted_LHE3_temp;// having doubles is necessary in case of re-calculation of the sum
                                                     // of weights on the fly
@@ -504,6 +520,8 @@ int main(int argc, char** argv) {
   std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
+  std::unordered_map<std::string, std::vector<std::string>> boostedTaggersSFSysNames = topConfig->boostedTaggersSFSysNames();
+  
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
   sumWeights->Branch("generators", &generators);
@@ -518,6 +536,10 @@ int main(int argc, char** argv) {
     sumWeights->Branch("processedEvents",&processedEvents);
     sumWeights->Branch("processedEventsWeighted",&processedEventsWeighted);
     sumWeights->Branch("processedEventsWeightedSquared",&processedEventsWeightedSquared);
+  }
+
+  for(auto& it : boostedTaggersSFSysNames) {
+    sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
   }
 
   TTree* sumPdfWeights = 0;
@@ -582,7 +604,7 @@ int main(int argc, char** argv) {
     // but anything else is bad!
     if(topConfig->isTruthDxAOD())
     {
-      ATH_MSG_INFO("Bookkeepers are not read for TRUTH derivations");   
+      ATH_MSG_INFO("Bookkeepers are not read for TRUTH derivations");
     }
     else if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
       ATH_MSG_ERROR("Failed to retrieve cut book keepers");
@@ -661,7 +683,7 @@ int main(int argc, char** argv) {
         recalc_LHE3 = true;
       }
     }
-    
+
     if (topConfig->isTruthDxAOD()) recalculateNominalWeightSum=true;
 
     if (topConfig->printCDIpathWarning()) {
@@ -669,6 +691,22 @@ int main(int argc, char** argv) {
           "\n*************************************************************************\n"
           << "YOU ARE USING A CUSTOM PATH TO THE CDI FILE WHICH IS NOT THE DEFAULT PATH\n"
           << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n"
+          << "*************************************************************************\n\n");
+    }
+    if (topConfig->printEgammaCalibModelWarning()) {
+      ATH_MSG_WARNING(
+              "\n*************************************************************************\n"
+                      << "          YOU HAVE CHANGED DEFAULT EGAMMA CALIBRATION MODEL             \n"
+                      << " TO USE DEFAULT MODEL, REMOVE 'EGammaCalibrationModel' FROM CONFIG FILE \n"
+                      << "*************************************************************************\n\n");
+    }
+    if (topConfig->printEIDFileWarning()) {
+      ATH_MSG_WARNING(
+          "\n*************************************************************************\n"
+          << "       YOU ARE USING THIS CUSTOM PATH TO THE ELECTRON ID SF FILE:        \n\n"
+          << topConfig->electronIDSFFilePath() << "\n\n" 
+          << "               INSTEAD OF THE MOST RECENT RECOMMENDED MAP                \n"
+          << "       YOU MANY NOT BE USING THE LATEST ELECTRON ID RECOMMENDATIONS      \n"
           << "*************************************************************************\n\n");
     }
 
@@ -702,22 +740,24 @@ int main(int argc, char** argv) {
         pileupWeight = topScaleFactors->pileupWeight();
       }
 
-      // perform any operation common to both reco and truth level
-      // currently we load the MC generator weights inside, if requested
-      eventSaver->execute();
-
-      ///-- Truth events --///
       if (topConfig->isMC()) {
-        // Save, if requested, MC truth block, PDFInfo, TopPartons
-        // This will be saved for every event
-
+        // if requested, pre-calculate TopPartons and PDF info
         // Run topPartonHistory
         if (topConfig->doTopPartonHistory()) top::check(topPartonHistory->execute(), "Failed to execute topPartonHistory");
 
         // calculate PDF weights
         if (topConfig->doLHAPDF()) top::check(PDF_SF->execute(),
                                               "Failed to execute PDF SF");
+      }
 
+      // perform any operation common to both reco and truth level
+      // currently we load the MC generator weights and PDFs if requested
+      eventSaver->execute();
+
+      ///-- Truth events --///
+      if (topConfig->isMC()) {
+
+        // Save, if requested, MC truth block, PDFInfo, TopPartons
         eventSaver->saveTruthEvent();
         if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
 
@@ -771,7 +811,7 @@ int main(int argc, char** argv) {
         const xAOD::EventInfo* ei(nullptr);
         top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
                    "Failed to retrieve LHE3 weights from EventInfo");
-        
+
         if(recalculateNominalWeightSum)
         {
           if (totalYieldSoFar == 0) ATH_MSG_INFO("Trying to recalculate nominal weights sum for TRUTH derivation");
@@ -779,6 +819,7 @@ int main(int argc, char** argv) {
           totalEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
           totalEvents++;
         }
+
 	if(saveSumWeightsSquared) {
 	  processedEvents++;
 	  const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
@@ -796,7 +837,7 @@ int main(int argc, char** argv) {
                 totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
               }
               names_LHE3.resize(weightsSize);
-              
+
               ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
               if (m_pmg_weightTool.retrieve()) {
                 const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
@@ -906,7 +947,7 @@ int main(int argc, char** argv) {
           if (isFirst && topConfig->isMC()) {
             const int runNumber = topEvent.m_info->runNumber();
             if (runNumber >= 300000) {
-              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) ||
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
                 ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
               }
@@ -940,9 +981,8 @@ int main(int argc, char** argv) {
           // check if we are using actual mu for mc16d or mc16e
           if (isFirst && topConfig->isMC()) {
             const int runNumber = topEvent.m_info->runNumber();
-            ATH_MSG_INFO("RunNumber: " << runNumber);
             if (runNumber >= 300000) {
-              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) ||
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
                 ATH_MSG_WARNING("\n***************************************************************************************\nYou are running over mc16d or mc16e sample but you are not using actual mu reweighting!\nYou are strongly adviced to use it.\nCheck https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n***************************************************************************************\n");
               }

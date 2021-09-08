@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETQGTAGGERBDT_H_
 #define JETQGTAGGERBDT_H_
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodCuts.h"
-
-#include <TF1.h>
 
 namespace InDet {
   class IInDetTrackSelectionTool;
@@ -21,70 +17,58 @@ namespace InDet {
 
 namespace CP {
 
-  class JetQGTaggerBDT : public JSSTaggerBase {
-    ASG_TOOL_CLASS0(JetQGTaggerBDT)
+  class JetQGTaggerBDT :
+    public JSSTaggerBase {
+      ASG_TOOL_CLASS0(JetQGTaggerBDT)
 
-    public:
+      public:
 
-      //Default - so root can load based on a name
-      JetQGTaggerBDT(const std::string& name);
+        /// Constructor
+        JetQGTaggerBDT(const std::string& name);
 
-      // Default - so we can clean up
-      ~JetQGTaggerBDT();
+        /// Run once at the start of the job to setup everything
+        virtual StatusCode initialize() override;
 
-      // Run once at the start of the job to setup everything
-      virtual StatusCode initialize() override;
+        /// IJetSelectorTool interface
+        virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
 
-      // IJetSelectorTool interface
-      virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
+        /// Retrieve BDT score
+        float getScore(const xAOD::Jet& jet) const;
 
-      // Retrieve BDT score
-      float getScore(const xAOD::Jet& jet) const;
+      private:
 
-    private:
+        /// Update the jet substructure variables for each jet to use in BDT
+        bool getJetProperties(const xAOD::Jet& jet) const;
 
-      // Update the jet substructure variables for each jet to use in BDT
-      void getJetProperties(const xAOD::Jet& jet) const;
+        bool getPrecomputedVariables(const xAOD::Jet& jet) const;
 
-      void getPrecomputedVariables(const xAOD::Jet& jet) const;
+        bool calculateVariables(const xAOD::Jet& jet) const;
 
-      void calculateVariables(const xAOD::Jet& jet) const;
+        bool isCorrectNumberOfTracks(int expectedNTracks, int nTracksFromGhostTracks) const;
 
-      bool isCorrectNumberOfTracks(int expectedNTracks, int nTracksFromGhostTracks) const;
+        /// TMVA tools
+        std::unique_ptr<TMVA::Reader> m_bdtTagger;
+        std::string m_BDTmethod;
 
-      // naming of tool
-      std::string m_name;
-      std::string m_APP_NAME;
+        asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
-      // TMVA tools
-      std::unique_ptr<TMVA::Reader> m_bdtTagger;
-      std::string m_BDTmethod;
+        // inclusive config file
+        std::string m_tmvaConfigFileName;
+        std::string m_tmvaConfigFilePath;
 
-      asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+        // variables for TMVA
+        mutable float m_pt;
+        mutable float m_eta;
+        mutable float m_ntracks;
+        mutable float m_trackwidth;
+        mutable float m_trackC1;
 
-      // inclusive config file
-      std::string m_tmvaConfigFileName;
-      std::string m_tmvaConfigFilePath;
+        int m_mode;
 
-      //string for cut function
-      std::string m_strScoreCut;
+        /// Decorators
+        std::unique_ptr< SG::AuxElement::Decorator< float > > m_dec_score;
 
-      //TF1 for pT dependent cut
-      std::unique_ptr<TF1> m_funcScoreCut;
-
-      // variables for TMVA
-      mutable float m_pt;
-      mutable float m_eta;
-      mutable float m_ntracks;
-      mutable float m_trackwidth;
-      mutable float m_trackC1;
-
-      // bool to check whether variables are undefined
-      mutable  bool m_undefInput;
-
-      int m_mode;
-
-  };
+    };
 
 } /* namespace CP */
 

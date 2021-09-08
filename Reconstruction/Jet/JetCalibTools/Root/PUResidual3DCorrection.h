@@ -130,6 +130,14 @@ namespace PUCorrection {
       m_Dptp1_vs_eta.reset( (TH1F*) paramDelta_l->At(1) ) ;      
       m_Dptp1_vs_eta->SetDirectory(nullptr);
       setupClosestNonEmptyBins();
+
+      // Finding the maximum values of mu and NPV for each eta bin,
+      // which is used to avoid using overflow bins in the residual calculation.
+      // The bin center is used to avoid any effects on the boundaries.
+      for(size_t i=0 ; i<(etaBins_v->size()-1); i++){
+        m_maxMu.push_back(m_3Dp0_vs_muNPV[i]->GetXaxis()->GetBinCenter(m_3Dp0_vs_muNPV[i]->GetNbinsX()));
+        m_maxNPV.push_back(m_3Dp0_vs_muNPV[i]->GetYaxis()->GetBinCenter(m_3Dp0_vs_muNPV[i]->GetNbinsY()));
+      }
     }
 
 
@@ -193,6 +201,8 @@ namespace PUCorrection {
     std::unique_ptr<TH1F> m_Dptp0_vs_eta=nullptr;
     std::unique_ptr<TH1F> m_Dptp1_vs_eta=nullptr;
 
+    std::vector<float> m_maxMu;
+    std::vector<float> m_maxNPV;
 
     //
     float m_maxPt=170.0 ; // GeV !!
@@ -226,6 +236,15 @@ namespace PUCorrection {
     float correction3D_noextrap(float pt, float eta , float mu, int NPV) const {
       int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
       int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
+
+      // Don't want to use the overflow bins, so using this instead
+      if(mu > m_maxMu[etaBin]){ 
+        mu=m_maxMu[etaBin];
+      }
+      if(NPV > m_maxNPV[etaBin]){ 
+        NPV=m_maxNPV[etaBin];
+      }
+
       float p0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       float p1 = m_3Dp1_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);       
 

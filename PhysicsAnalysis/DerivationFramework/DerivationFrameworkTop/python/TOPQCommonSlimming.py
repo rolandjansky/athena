@@ -19,7 +19,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addOriginCorrectedClu
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#JetTagNonPromptLepton package is moved to LeptonTaggers package
+import LeptonTaggers.LeptonTaggersConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 def setup(TOPQname, stream):
@@ -50,6 +52,14 @@ def setup(TOPQname, stream):
         "AntiKt8EMPFlowJetsAux"                             :   "xAOD::JetAuxContainer"     ,
         "AntiKt8EMPFlowExKt2GASubJets"                      :   "xAOD::JetContainer"        ,
         "AntiKt8EMPFlowExKt2GASubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+        "SoftBVrtClusterTool_Loose_Vertices"                :   "xAOD::VertexContainer"     ,
+        "SoftBVrtClusterTool_Loose_VerticesAux"             :   "xAOD::VertexAuxContainer"  ,
+        "SoftBVrtClusterTool_Medium_Vertices"               :   "xAOD::VertexContainer"     ,
+        "SoftBVrtClusterTool_Medium_VerticesAux"            :   "xAOD::VertexAuxContainer"  ,
+        "SoftBVrtClusterTool_Tight_Vertices"                :   "xAOD::VertexContainer"     ,
+        "SoftBVrtClusterTool_Tight_VerticesAux"             :   "xAOD::VertexAuxContainer"  ,
+        "VrtSecInclusive_SoftBtagCandidateVertices"         :   "xAOD::VertexContainer"     ,
+        "VrtSecInclusive_SoftBtagCandidateVerticesAux"      :   "xAOD::VertexAuxContainer"  ,
 
     }
 
@@ -118,7 +128,7 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TauTracks
     # additional variables for tracks in jets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets
-    TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+    TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
     TOPQSlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
     # additional variables for clusters
@@ -160,6 +170,10 @@ def setup(TOPQname, stream):
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_SoftBVrtClusterTool_Loose_Vertices_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_SoftBVrtClusterTool_Medium_Vertices_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_SoftBVrtClusterTool_Tight_Vertices_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_VrtSecInclusive_SoftBtagCandidateVertices_ForTOPQ1
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
@@ -171,6 +185,11 @@ def setup(TOPQname, stream):
         # Xbb tagger extra variables
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
+    elif TOPQname == 'TOPQ2':
+        # for TOPQDERIV-62 and TOPQDERIV-98                                                                                                                                     
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ2
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ2
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ2
     elif TOPQname == 'TOPQ4':
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets

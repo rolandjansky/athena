@@ -20,8 +20,8 @@ find_package( GTest )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoop
    EventLoopDictSource
-   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AnaAlgorithmWrapper.h 
-   EventLoop/BatchDriver.h
+   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AlgorithmWrapper.h
+   EventLoop/AsgServiceWrapper.h EventLoop/AsgToolWrapper.h EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/CondorDriver.h EventLoop/DirectDriver.h
    EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h
@@ -35,10 +35,10 @@ atlas_add_root_dictionary( EventLoop
 atlas_add_library( EventLoop
    EventLoop/*.h EventLoop/*.ihh Root/*.cxx ${EventLoopDictSource}
    PUBLIC_HEADERS EventLoop
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-   SampleHandler AnaAlgorithmLib
-   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess PathResolver )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AnaAlgorithmLib AsgServicesLib AsgMessagingLib AsgTools SampleHandler
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver RootCoreUtils xAODCore xAODRootAccess )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
 

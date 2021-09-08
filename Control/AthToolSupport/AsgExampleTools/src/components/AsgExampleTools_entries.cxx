@@ -5,6 +5,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <AsgExampleTools/DataHandleTestTool.h>
+#include <AsgExampleTools/UnitTestService1.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool1A.h>
 #include <AsgExampleTools/UnitTestTool2.h>
@@ -13,6 +14,8 @@
 DECLARE_TOOL_FACTORY(AsgHelloTool)
 
 DECLARE_ALGORITHM_FACTORY(AsgExampleAlgorithm)
+
+DECLARE_NAMESPACE_SERVICE_FACTORY( asg, UnitTestService1 )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( asg, DataHandleTestTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( asg, UnitTestTool1 )
@@ -23,6 +26,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( asg, UnitTestTool3 )
 DECLARE_FACTORY_ENTRIES(AsgExampleTools) {
   DECLARE_TOOL(AsgHelloTool)
   DECLARE_ALGORITHM(AsgExampleAlgorithm)
+  DECLARE_NAMESPACE_SERVICE( asg, UnitTestService1 );
   DECLARE_NAMESPACE_TOOL( asg, DataHandleTestTool );
   DECLARE_NAMESPACE_TOOL( asg, UnitTestTool1 );
   DECLARE_NAMESPACE_TOOL( asg, UnitTestTool1A );

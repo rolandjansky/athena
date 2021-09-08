@@ -46,7 +46,8 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
 
     // Retreive properties from configuration file, using TEnv class
-    TEnv env(configFile.c_str());
+    TEnv env;
+    env.ReadFile(configFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
@@ -71,6 +72,10 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         return StatusCode::FAILURE;
     }
 
+    ATH_MSG_VERBOSE("number of files for the electron case : " << m_electronConfFiles.size());
+    for (auto fN : m_electronConfFiles)
+      ATH_MSG_VERBOSE("file " << fN);
+
     // initialize the ElectronPhotonVariableCorrectionTools
     ANA_CHECK(initializeCorrectionTools());
 
@@ -81,10 +86,6 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 
 const StatusCode ElectronPhotonVariableCorrectionTool::initializeCorrectionTools()
 {
-    //find all the config files using path resolver
-    ANA_CHECK(findAllConfigFiles(m_convertedPhotonConfFiles));
-    ANA_CHECK(findAllConfigFiles(m_unconvertedPhotonConfFiles));
-    ANA_CHECK(findAllConfigFiles(m_electronConfFiles));
     //initialize all tools
     ANA_CHECK(initializeTools("convertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
     ANA_CHECK(initializeTools("unconvertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
@@ -124,11 +125,13 @@ const StatusCode ElectronPhotonVariableCorrectionTool::initializeTools( const st
     {
         // name: supertool name + type name + variable name
         std::string variable = ""; //get the name of the variable to be corrected
-        ANA_CHECK(getCorrectionVariableName(variable, confFiles.at(confFile_itr)));
+	std::string confFileWithFullPath = PathResolverFindCalibFile(confFiles.at(confFile_itr));
+        ANA_CHECK(getCorrectionVariableName(variable, confFileWithFullPath));
         TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
         ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
         toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionBase>(toolname.Data());
         ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
+	ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("OutputLevel", this->msg().level()));
         ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
     }
     //everything worked out, so
@@ -170,6 +173,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( 
         // correct variables on the converted photon
         for (unsigned int convertedPhotonTool_itr = 0; convertedPhotonTool_itr < m_convertedPhotonTools.size(); convertedPhotonTool_itr++)
         {
+	    ATH_MSG_VERBOSE("Running tool " << m_convertedPhotonTools.at(convertedPhotonTool_itr)->name());
             if ((m_convertedPhotonTools.at(convertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
             {
                 ATH_MSG_ERROR("Could not apply correction to converted photon object.");
@@ -182,6 +186,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( 
         // correct variables on the converted photon
         for (unsigned int unconvertedPhotonTool_itr = 0; unconvertedPhotonTool_itr < m_unconvertedPhotonTools.size(); unconvertedPhotonTool_itr++)
         {
+	    ATH_MSG_VERBOSE("Running tool " << m_unconvertedPhotonTools.at(unconvertedPhotonTool_itr)->name());
             if ((m_unconvertedPhotonTools.at(unconvertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
             {
                 ATH_MSG_ERROR("Could not apply correction to unconverted photon object.");
@@ -198,6 +203,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( 
     // correct variables on the electron
     for (unsigned int electronTool_itr = 0; electronTool_itr < m_electronTools.size(); electronTool_itr++)
     {
+      ATH_MSG_VERBOSE("Running tool " << m_electronTools.at(electronTool_itr)->name());
         if ((m_electronTools.at(electronTool_itr)->applyCorrection(electron)) != CP::CorrectionCode::Ok)
         {
             ATH_MSG_ERROR("Could not apply correction to electron object.");
@@ -214,12 +220,14 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection( 
 
 const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const
 {
+    ATH_MSG_VERBOSE("Will correct photon " << &in_photon << " of pT, eta = " << in_photon.pt() << " " << in_photon.eta());
     out_photon = new xAOD::Photon(in_photon);
     return applyCorrection(*out_photon);
 }
 
 const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const
 {
+    ATH_MSG_VERBOSE("Will correct electron " << &in_electron << " of pT, eta = " << in_electron.pt() << " " << in_electron.eta());
     out_electron = new xAOD::Electron(in_electron);
     return applyCorrection(*out_electron);
 }
@@ -231,7 +239,8 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
 const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
     // Retreive properties from configuration file, using TEnv class
-    TEnv env(confFile.c_str());
+    TEnv env;
+    env.ReadFile(confFile.c_str(), kEnvLocal);
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 

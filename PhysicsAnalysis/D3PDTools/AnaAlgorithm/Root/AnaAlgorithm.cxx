@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -12,8 +12,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 
-#include <AsgTools/MessageCheck.h>
-#include <RootCoreUtils/Assert.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>

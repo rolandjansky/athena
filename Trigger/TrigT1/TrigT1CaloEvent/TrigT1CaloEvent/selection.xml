@@ -1,6 +1,10 @@
 
 <lcgdict>
 
+  <!-- WARNING: This file has been specifically modified to remove
+       patterns duplicate in 21.2 that lead to warnings.  It should
+       not be swept to any other branches. -->
+
   <class name="DataVector<LVL1::TriggerTower>" id="1B6DA81A-2F27-4B50-ACF6-D3FC19B40ADB"/> 
   <class name="std::vector<LVL1::TriggerTower*>" />
   <class name="LVL1::TriggerTower" ></class>
@@ -37,8 +41,10 @@
   <class name="CPMHitsCollection"/>
   <class name="LVL1::CPMRoI"/>
   <class name="CPMRoICollection"/>
+  <!--
   <class name="LVL1::CPMTower"/>
   <class name="CPMTowerCollection"/>
+  -->
   <class name="LVL1::JEMEtSums"/>
   <class name="JEMEtSumsCollection"/>
   <class name="LVL1::JEMHits"/>

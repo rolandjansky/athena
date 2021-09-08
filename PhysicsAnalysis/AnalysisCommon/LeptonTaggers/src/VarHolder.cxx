@@ -289,7 +289,9 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( ip3_cu,          "ip3_cu");
   result += RegisterVar( EtTopoCone20Rel, "EtTopoCone20Rel");
   result += RegisterVar( EtTopoCone30Rel, "EtTopoCone30Rel");
+  result += RegisterVar( TopoEtCone20Rel, "TopoEtCone20Rel");
   result += RegisterVar( TopoEtCone30Rel, "TopoEtCone30Rel");
+  result += RegisterVar( PtVarCone20Rel,  "PtVarCone20Rel");
   result += RegisterVar( PtVarCone30Rel,  "PtVarCone30Rel");
   result += RegisterVar( PtVarCone30TightTTVAPt500Rel,  "PtVarCone30TightTTVAPt500Rel");
   result += RegisterVar( DRlj,            "DRlj");
@@ -324,6 +326,7 @@ int Prompt::Def::RegisterAllVars()
       
   // PromptLeptonImproved
   result += RegisterVar( MVAXBin,                                                 "MVAXBin");
+  result += RegisterVar( RawPt,                                                   "RawPt");
   result += RegisterVar( PromptLeptonRNN_prompt,                                  "PromptLeptonRNN_prompt");
   result += RegisterVar( CaloClusterERel,                                         "CaloClusterERel");
   result += RegisterVar( topoetcone30rel,                                         "topoetcone30rel");

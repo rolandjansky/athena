@@ -38,6 +38,8 @@ class ToolHandleArray : public std::vector< ToolHandle< T > > {
 public:
    /// Default constructor
    ToolHandleArray();
+   /// Constructor with a parent
+   ToolHandleArray( INamedInterface *parent );
    /// Constructor with an initialiser list
    ToolHandleArray( const std::initializer_list< ToolHandle< T > >& l );
    /// Constructor with a string initialiser list

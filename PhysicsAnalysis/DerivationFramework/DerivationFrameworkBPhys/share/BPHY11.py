@@ -48,10 +48,10 @@ BPHY11_JpsiFinder = Analysis__JpsiFinder(
     invMassUpper                = 3600.0,
     invMassLower                = 2600.0,
     Chi2Cut                     = 30.0,
-    oppChargesOnly	        = False,
-    allChargeCombinations	= True,
+    oppChargesOnly	        = True,
+    allMuons                    = True,
     combOnly		        = False,
-    atLeastOneComb              = True,
+    atLeastOneComb              = False,
     useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
     muonCollectionKey           = "Muons",
     TrackParticleCollection     = "InDetTrackParticles",
@@ -143,9 +143,7 @@ BPHY11_LbJpsipK = Analysis__JpsiPlus2Tracks(
   MuonsUsedInJpsi	    = "Muons",
   TrkVertexFitterTool	    = LbJpsipKVertexFit,
   TrackSelectorTool	    = BPHY11_VertexTools.InDetTrackSelectorTool,
-  UseMassConstraint	    = True,
-  UseVertexFittingWithPV    = True,
-  VertexContainer           = "PrimaryVertices"
+  UseMassConstraint	    = True
 )
         
 ToolSvc += BPHY11_LbJpsipK
@@ -201,49 +199,79 @@ ToolSvc += BPHY11_Select_Lb2JpsiKp
 print      BPHY11_Select_Lb2JpsiKp
 
 #-------------------------------------------------------
+# Adding PV to fit
+
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__ReVertex
-BPHY11_LbPlusTrk             = DerivationFramework__ReVertex(
-  name                       = "BPHY11_LbPlusTrk",
+BPHY11_Lb_pK_PV              = DerivationFramework__ReVertex(
+  name                       = "BPHY11_Lb_pK_PV",
   InputVtxContainerName      = "LbJpsipKCandidates",
-  HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName, BPHY11_Select_Lb2JpsiKp.HypothesisName ],
+  HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
-  UseAdditionalTrack         = True,
   UseMassConstraint          = True,
   UseVertexFittingWithPV     = True,
 #  VertexMass                 = 5619.6,
   SubVertexMass              = 3096.900,
-  MassInputParticles         = [ 105.658, 105.658, 139.57, 139.57, 139.57 ],
+  MassInputParticles         = [ 105.658, 105.658, 938.272, 493.677 ],
   SubVertexTrackIndices      = [ 1, 2 ],
-  BMassUpper                 = 10000.0,
-  BMassLower                 = 4000.0,
-  Chi2Cut                    = 5.0,
   TrkVertexFitterTool	     = LbJpsipKVertexFit,
-  OutputVtxContainerName     = "LbJpsipKTrkCandidates"
+  OutputVtxContainerName     = "LbJpsipKCandidatesPV"
 )
 
-ToolSvc += BPHY11_LbPlusTrk
-print      BPHY11_LbPlusTrk
+ToolSvc += BPHY11_Lb_pK_PV
+print      BPHY11_Lb_pK_PV
 
-BPHY11_Select_LbPlusTrk     = DerivationFramework__Select_onia2mumu(
-  name                      = "BPHY11_Select_LbPlusTrk",
-  HypothesisName            = "LbPlusTrk",
-  InputVtxContainerName     = "LbJpsipKTrkCandidates",
-  TrkMasses                 = BPHY11_LbPlusTrk.MassInputParticles,
+BPHY11_Select_Lb_pK_PV      = DerivationFramework__Select_onia2mumu(
+  name                      = "BPHY11_Select_Lb_pK_PV",
+  HypothesisName            = "Lb_pK_PV",
+  InputVtxContainerName     = "LbJpsipKCandidatesPV",
+  TrkMasses                 = BPHY11_Lb_pK_PV.MassInputParticles,
   VtxMassHypo               = 5619.6,
-  MassMin                   = 4000.0,
-  MassMax                   = 10000.0,
-  Chi2Max                   = 50.0
+  MassMin                   = 0.0,
+  MassMax                   = 1.0e10,
+  Chi2Max                   = 1.0e10
 )
 
-ToolSvc += BPHY11_Select_LbPlusTrk
-print      BPHY11_Select_LbPlusTrk
+ToolSvc += BPHY11_Select_Lb_pK_PV
+print      BPHY11_Select_Lb_pK_PV
 
+BPHY11_Lb_Kp_PV              = DerivationFramework__ReVertex(
+  name                       = "BPHY11_Lb_Kp_PV",
+  InputVtxContainerName      = "LbJpsipKCandidates",
+  HypothesisNames            = [ BPHY11_Select_Lb2JpsiKp.HypothesisName ],
+  TrackIndices               = [ 0, 1, 2, 3 ],
+  UseMassConstraint          = True,
+  UseVertexFittingWithPV     = True,
+  SubVertexMass              = 3096.900,
+  MassInputParticles         = [ 105.658, 105.658, 493.677, 938.272 ],
+  SubVertexTrackIndices      = [ 1, 2 ],
+  TrkVertexFitterTool	     = LbJpsipKVertexFit,
+  OutputVtxContainerName     = "LbJpsiKpCandidatesPV"
+)
+
+ToolSvc += BPHY11_Lb_Kp_PV
+print      BPHY11_Lb_Kp_PV
+
+BPHY11_Select_Lb_Kp_PV      = DerivationFramework__Select_onia2mumu(
+  name                      = "BPHY11_Select_Lb_Kp_PV",
+  HypothesisName            = "Lb_Kp_PV",
+  InputVtxContainerName     = "LbJpsiKpCandidatesPV",
+  TrkMasses                 = BPHY11_Lb_Kp_PV.MassInputParticles,
+  VtxMassHypo               = 5619.6,
+  MassMin                   = 0.0,
+  MassMax                   = 1.0e10,
+  Chi2Max                   = 1.0e10
+)
+
+ToolSvc += BPHY11_Select_Lb_Kp_PV
+print      BPHY11_Select_Lb_Kp_PV
+  
 #-------------------------------------------------------
+# Adding mass constrain to LbJpsipKCandidates candidates
 
 BPHY11_Lb_pK_ReFit           = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_pK_ReFit",
-  InputVtxContainerName      = "LbJpsipKCandidates",
-  HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName ],
+  InputVtxContainerName      = "LbJpsipKCandidatesPV",
+  HypothesisNames            = [ BPHY11_Select_Lb_pK_PV.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
   UseVertexFittingWithPV     = True,
@@ -274,8 +302,8 @@ print      BPHY11_Select_Lb_pK_ReFit
 
 BPHY11_Lb_Kp_ReFit           = DerivationFramework__ReVertex(
   name                       = "BPHY11_Lb_Kp_ReFit",
-  InputVtxContainerName      = "LbJpsipKCandidates",
-  HypothesisNames            = [ BPHY11_Select_Lb2JpsiKp.HypothesisName ],
+  InputVtxContainerName      = "LbJpsiKpCandidatesPV",
+  HypothesisNames            = [ BPHY11_Select_Lb_Kp_PV.HypothesisName ],
   TrackIndices               = [ 0, 1, 2, 3 ],
   UseMassConstraint          = True,
   UseVertexFittingWithPV     = True,
@@ -304,6 +332,43 @@ BPHY11_Select_Lb_Kp_ReFit   = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY11_Select_Lb_Kp_ReFit
 print      BPHY11_Select_Lb_Kp_ReFit
   
+
+#-------------------------------------------------------
+BPHY11_LbPlusTrk             = DerivationFramework__ReVertex(
+  name                       = "BPHY11_LbPlusTrk",
+  InputVtxContainerName      = "LbJpsipKCandidates",
+  HypothesisNames            = [ BPHY11_Select_Lb2JpsipK.HypothesisName, BPHY11_Select_Lb2JpsiKp.HypothesisName ],
+  TrackIndices               = [ 0, 1, 2, 3 ],
+  UseAdditionalTrack         = True,
+  UseMassConstraint          = True,
+  UseVertexFittingWithPV     = True,
+  SubVertexMass              = 3096.900,
+  MassInputParticles         = [ 105.658, 105.658, 139.57, 139.57, 139.57 ],
+  SubVertexTrackIndices      = [ 1, 2 ],
+  BMassUpper                 = 10000.0,
+  BMassLower                 = 4000.0,
+  Chi2Cut                    = 5.0,
+  TrkVertexFitterTool	     = LbJpsipKVertexFit,
+  OutputVtxContainerName     = "LbJpsipKTrkCandidates"
+)
+
+ToolSvc += BPHY11_LbPlusTrk
+print      BPHY11_LbPlusTrk
+
+BPHY11_Select_LbPlusTrk     = DerivationFramework__Select_onia2mumu(
+  name                      = "BPHY11_Select_LbPlusTrk",
+  HypothesisName            = "LbPlusTrk",
+  InputVtxContainerName     = "LbJpsipKTrkCandidates",
+  TrkMasses                 = BPHY11_LbPlusTrk.MassInputParticles,
+  VtxMassHypo               = 5619.6,
+  MassMin                   = 4000.0,
+  MassMax                   = 10000.0,
+  Chi2Max                   = 50.0
+)
+
+ToolSvc += BPHY11_Select_LbPlusTrk
+print      BPHY11_Select_LbPlusTrk
+
 
 
 #from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__SelectEvent
@@ -343,8 +408,19 @@ BPHY11_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY11_thinningTool_Tracks",
   ThinningService            = "BPHY11_ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["LbJpsipKCandidates"],
-  PassFlags                  = ["passed_Lb_pK","passed_Lb_Kp"] 
+  VertexContainerNames       = ["LbJpsipKCandidates",
+                                "LbJpsipKCandidatesPV",
+                                "LbJpsiKpCandidatesPV",
+                                "LbJpsipKCandidatesReFit",
+                                "LbJpsiKpCandidatesReFit",
+                                "LbJpsipKTrkCandidates"],
+  PassFlags                  = ["passed_Lb_pK",
+                                "passed_Lb_Kp",
+                                "passed_Lb_pK_PV",
+                                "passed_Lb_Kp_PV",
+                                "passed_Lb_pK_ReFit",
+                                "passed_Lb_Kp_ReFit",
+                                "passed_LbPlusTrk"] 
 )
 
 ToolSvc += BPHY11_thinningTool_Tracks
@@ -353,7 +429,12 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY11_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY11_thinningTool_PV",
   ThinningService            = "BPHY11_ThinningSvc",
-  CandidateCollections       = ["LbJpsipKCandidates"],
+  CandidateCollections       = ["LbJpsipKCandidates",
+                                "LbJpsipKCandidatesPV",
+                                "LbJpsiKpCandidatesPV",
+                                "LbJpsipKCandidatesReFit",
+                                "LbJpsiKpCandidatesReFit",
+                                "LbJpsipKTrkCandidates"],
   KeepPVTracks               = True
 )
 
@@ -404,9 +485,11 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY11_Kernel",
     AugmentationTools = [BPHY11_JpsiSelectAndWrite,     BPHY11_Select_Jpsi2mumu,
                          BPHY11_LbJpsipKSelectAndWrite, BPHY11_Select_Lb2JpsipK, BPHY11_Select_Lb2JpsiKp,
-                         BPHY11_LbPlusTrk, BPHY11_Select_LbPlusTrk,
+                         BPHY11_Lb_pK_PV, BPHY11_Select_Lb_pK_PV,
+                         BPHY11_Lb_Kp_PV, BPHY11_Select_Lb_Kp_PV,
                          BPHY11_Lb_pK_ReFit, BPHY11_Select_Lb_pK_ReFit,
                          BPHY11_Lb_Kp_ReFit, BPHY11_Select_Lb_Kp_ReFit,
+                         BPHY11_LbPlusTrk, BPHY11_Select_LbPlusTrk,
                          BPHY11_AugOriginalCounts],
     #Only skim if not MC
     SkimmingTools     = [BPHY11_SkimmingOR] if not isSimulation else [],
@@ -469,14 +552,20 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_Jps
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_LbJpsipKSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_LbJpsipKSelectAndWrite.OutputVtxContainerName]
 
-StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_LbPlusTrk.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_LbPlusTrk.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_Lb_pK_PV.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_Lb_pK_PV.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_Lb_Kp_PV.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_Lb_Kp_PV.OutputVtxContainerName]
 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_Lb_pK_ReFit.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_Lb_pK_ReFit.OutputVtxContainerName]
 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_Lb_Kp_ReFit.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_Lb_Kp_ReFit.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY11_LbPlusTrk.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY11_LbPlusTrk.OutputVtxContainerName]
 
 
 

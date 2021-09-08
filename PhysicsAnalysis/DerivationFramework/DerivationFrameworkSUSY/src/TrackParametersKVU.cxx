@@ -84,24 +84,26 @@ StatusCode DerivationFramework::TrackParametersKVU::addBranches() const
 
   //-- for each track, update track params with vtx considered as extra measurement (choose the closest vtx)
   if(tracks->size() !=0) { 
-    SG::AuxElement::Decorator< float > decoratorKVUphi(m_sgName+"KVUphi");
-    SG::AuxElement::Decorator< float > decoratorKVUtheta(m_sgName+"KVUtheta");
-    SG::AuxElement::Decorator< float > decoratorKVUd0(m_sgName+"KVUd0");
-    SG::AuxElement::Decorator< float > decoratorKVUz0(m_sgName+"KVUz0");
-    SG::AuxElement::Decorator< float > decoratorKVUqOverP(m_sgName+"KVUqOverP");
-    SG::AuxElement::Decorator< float > decoratorKVUChi2(m_sgName+"KVUChi2");
-    SG::AuxElement::Decorator< std::vector<float> > decoratorKVUCovMat(m_sgName+"KVUCovMat");
+    const SG::AuxElement::Decorator< float > decoratorKVUphi(m_sgName+"KVUphi");
+    const SG::AuxElement::Decorator< float > decoratorKVUtheta(m_sgName+"KVUtheta");
+    const SG::AuxElement::Decorator< float > decoratorKVUd0(m_sgName+"KVUd0");
+    const SG::AuxElement::Decorator< float > decoratorKVUz0(m_sgName+"KVUz0");
+    const SG::AuxElement::Decorator< float > decoratorKVUqOverP(m_sgName+"KVUqOverP");
+    const SG::AuxElement::Decorator< float > decoratorKVUChi2(m_sgName+"KVUChi2");
+    const SG::AuxElement::Decorator< bool >  decoratorKVUusedPV(m_sgName+"KVUusedPV");
+    const SG::AuxElement::Decorator< std::vector<float> > decoratorKVUCovMat(m_sgName+"KVUCovMat");
 
     for (const auto& track : *tracks) {
       if(track){
 	// --- list of new variables that will decorate the track
 	AmgSymMatrix(5) *updateTrackCov = 0;
-	float updatephi = -999;
-	float updatetheta = -999;
-	float updated0 = -999;
-	float updatez0 = -999;
-	float updateqOverP = -999;
-	float updateChi2 = -999; 
+	float updatephi        = -999;
+	float updatetheta      = -999;
+	float updated0         = -999;
+	float updatez0         = -999;
+	float updateqOverP     = -999;
+	float updateChi2       = -999; 
+        bool usedPrimaryVertex = false;
 	std::vector<float> vec;
 
 	const Trk::TrackParameters* trackParams = 0;
@@ -170,6 +172,8 @@ StatusCode DerivationFramework::TrackParametersKVU::addBranches() const
 	    //retrieve & store updated track cov matrix plus save the KVU Chi2 
 	    updateTrackCov = new AmgSymMatrix(5)(*linearTrack->perigeeAtVertex()->covariance());
 	    updateChi2 = linearTrack->trackQuality().chiSquared();
+            // store whether this used the PV or not
+            usedPrimaryVertex = closestVertex->vertexType()==xAOD::VxType::PriVtx;
 	  }
 	  delete linearTrack; linearTrack=NULL;
 	  delete trackParams; trackParams=NULL;
@@ -179,11 +183,12 @@ StatusCode DerivationFramework::TrackParametersKVU::addBranches() const
 
 	//decorate tracks with new updated track parameters:
 	decoratorKVUqOverP(*track) = updateqOverP;
-	decoratorKVUd0(*track) = updated0;
-	decoratorKVUz0(*track) = updatez0;
-	decoratorKVUphi(*track) = updatephi;
-	decoratorKVUtheta(*track) = updatetheta;
-	decoratorKVUChi2(*track) = updateChi2;
+	decoratorKVUd0(*track)     = updated0;
+	decoratorKVUz0(*track)     = updatez0;
+	decoratorKVUphi(*track)    = updatephi;
+	decoratorKVUtheta(*track)  = updatetheta;
+	decoratorKVUChi2(*track)   = updateChi2;
+        decoratorKVUusedPV(*track) = usedPrimaryVertex;
 	if (updateTrackCov){
 	  Amg::compress(*updateTrackCov, vec);
 	  delete updateTrackCov;

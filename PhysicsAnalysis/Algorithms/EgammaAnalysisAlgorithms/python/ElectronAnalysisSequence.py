@@ -98,20 +98,32 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                               'selectionDecorCount' : [3]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
-    # Set up the likelihood ID selection algorithm
-    # It is safe to do this before calibration, as the cluster E is used
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
-    alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
-    if recomputeLikelihood:
-        # Rerun the likelihood ID
-        addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
-        alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
-        alg.selectionTool.WorkingPoint = likelihoodWP
+    if 'LH' in likelihoodWP:
+        # Set up the likelihood ID selection algorithm
+        # It is safe to do this before calibration, as the cluster E is used
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
+        alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the likelihood ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
+            alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
+            alg.selectionTool.WorkingPoint = likelihoodWP
+        else:
+            # Select from Derivation Framework flags
+            addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+            dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
+            alg.selectionTool.selectionFlags = [dfFlag]
     else:
-        # Select from Derivation Framework flags
-        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-        dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
-        alg.selectionTool.selectionFlags = [dfFlag]
+        # Set up the DNN ID selection algorithm
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronDNNAlg' + postfix )
+        alg.selectionDecoration = 'selectDNN' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the DNN ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronSelectorTool' )
+            alg.selectionTool.WorkingPoint = likelihoodWP
+        else:
+            # Select from Derivation Framework flags
+            raise ValueError ( "DNN working points are not available in derivations yet.")
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],

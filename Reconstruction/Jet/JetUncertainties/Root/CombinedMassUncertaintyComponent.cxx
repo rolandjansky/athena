@@ -28,6 +28,8 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const std::st
     , m_caloMassScale_weights("")
     , m_TAMassScale_weights("")
     , m_weightParam(CompParametrization::UNKNOWN)
+    , m_truthLabelName("")
+    , m_truthLabels()
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
@@ -43,6 +45,8 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const Compone
     , m_caloMassScale_weights("")
     , m_TAMassScale_weights("")
     , m_weightParam(CompParametrization::UNKNOWN)
+    , m_truthLabelName(component.LargeRJetTruthLabelName)
+    , m_truthLabels(component.LargeRJetTruthLabels)
 {
     ATH_MSG_DEBUG("Created CombinedMassUncertaintyComponent named " << getName().Data());
 }
@@ -58,6 +62,8 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const Combine
     , m_caloMassScale_weights(toCopy.m_caloMassScale_weights)
     , m_TAMassScale_weights(toCopy.m_TAMassScale_weights)
     , m_weightParam(toCopy.m_weightParam)
+    , m_truthLabelName(toCopy.m_truthLabelName)
+    , m_truthLabels(toCopy.m_truthLabels)
 {
     ATH_MSG_DEBUG("Creating copy of CombinedMassUncertaintyComponent named " << getName().Data());
     if (toCopy.m_caloMassComp)
@@ -309,6 +315,7 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     // Accessors for the scales we need
     static JetFourMomAccessor caloMassScale(CompMassDef::getJetScaleString(CompMassDef::CaloMass).Data());
     static JetFourMomAccessor TAMassScale(CompMassDef::getJetScaleString(CompMassDef::TAMass).Data());
+    static JetFourMomAccessor combMassScale(CompMassDef::getJetScaleString(CompMassDef::CombMassQCD).Data());
 
     // Get the weight factors
     const double factorCalo = getWeightFactorCalo(jet,shiftFactorCalo);
@@ -317,8 +324,21 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     // Watch for division by zero
     if (factorCalo+factorTA == 0)
     {
-        ATH_MSG_ERROR("Encountered division by zero when calculating weights: " << getName().Data());
-        return StatusCode::FAILURE;
+        if (combMassScale.m(jet) == 0)
+        {
+            // JetCalibTools sets the mass to zero when this situation occurs
+            // This is therefore not an error state, rather we want to be consistent
+            combMass = 0;
+            return StatusCode::SUCCESS;
+        }
+        else
+        {
+            // We somehow have invalid calo and TA masses, but a "valid" combined mass
+            // This is an error state that should result in a message to the user
+            // If this occurs, most likely there is something wrong in the inputs
+            ATH_MSG_ERROR("Encountered division by zero when calculating weights: mCalo = " << caloMassScale.m(jet) << ", mTA = " << TAMassScale.m(jet) << ", mComb = " << combMassScale.m(jet));
+            return StatusCode::FAILURE;
+        }
     }
 
     // Calculate the weights
@@ -335,11 +355,39 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     else
         combMass = (caloMassScale.m(jet)*shiftFactorCalo*caloWeight) + (TAMassScale.m(jet)*shiftFactorTA*TAWeight);
 
-    return true;
+    return StatusCode::SUCCESS;
 }
 
 double CombinedMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
+    // Check if we need to do anything at all - this uncertainty may be zero based on the jet truth label
+    // Truth labels are usually not expected for this component, so check if we need to do this
+    if (m_truthLabels.size())
+    {
+        // Truth labels are specified, so we need to check if this jet is labelled appropriately or not
+        const SG::AuxElement::ConstAccessor<int> accTruthLabel(m_truthLabelName);
+        if (!accTruthLabel.isAvailable(jet) || accTruthLabel(jet) == LargeRJetTruthLabel::UNKNOWN)
+        {
+            ATH_MSG_ERROR("Unable to retrieve the LargeRJetTruthLabel: " << m_truthLabelName << " from the jet.  Please use JetTruthLabelingTool before calling this function.");
+            return JESUNC_ERROR_CODE;
+        }
+        const LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(accTruthLabel(jet));
+    
+        // We now have the truth jet label, check if it matches one of the label(s) assigned to this component
+        // The uncertainty is only applied to same-labelled jets (zero otherwise)
+        bool labelApplies = false;
+        for (const LargeRJetTruthLabel::TypeEnum aLabel : m_truthLabels)
+        {
+            if (aLabel == jetTruthLabel)
+            {
+                labelApplies = true;
+                break;
+            }
+        }
+        // If the jet is not of the relevant label, then there is no uncertainty for this jet
+        if (!labelApplies)
+            return 0;
+    }
 
     // Get the per-part uncertainties
     double uncCalo = 0;

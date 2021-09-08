@@ -60,6 +60,9 @@ class EnergyCorrelatorGeneralizedTool :
       std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ECFG_4_2_2;
       std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ECFG_4_4_1;
 
+      /// Added for MDT studies, might remove later
+      std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ECFG_3_3_2;
+
   };
 
 /**

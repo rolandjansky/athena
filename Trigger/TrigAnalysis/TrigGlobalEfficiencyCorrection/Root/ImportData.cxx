@@ -10,6 +10,7 @@
 #include <fstream>
 #include <functional>
 #include <algorithm>
+#include <limits>
 
 using ImportData = TrigGlobEffCorr::ImportData;
 
@@ -329,7 +330,7 @@ bool ImportData::importHierarchies()
 		ss.str(line);
 		if(line[0]=='[')
 		{
-			auto& meta = *m_hierarchyMeta.emplace(m_hierarchyMeta.end(), Hierarchy{(short)m_hierarchyData.size(),0,0.f,1e12f});
+			auto& meta = *m_hierarchyMeta.emplace(m_hierarchyMeta.end(), Hierarchy{(short)m_hierarchyData.size(),0,0.f,std::numeric_limits<float>::max()});
 			if(line[1]=='-' && line[2]==']') ss.ignore(3);
 			else
 			{
@@ -345,7 +346,7 @@ bool ImportData::importHierarchies()
 				if(unit == "GeV]")
 				{
 					meta.minPt *= 1e3f;
-					if(meta.maxPt < 1e12f) meta.maxPt *= 1e3f;
+					if(meta.maxPt < std::numeric_limits<float>::max()) meta.maxPt *= 1e3f;
 				}
 			}
 			while(ss >> token)

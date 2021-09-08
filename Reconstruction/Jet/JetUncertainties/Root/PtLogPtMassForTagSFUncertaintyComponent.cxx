@@ -75,8 +75,13 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     LargeRJetTruthLabel::TypeEnum jetFlavorLabel=LargeRJetTruthLabel::intToEnum(jetFlavorLabelInt);
     
     float mOverPt=jet.m()/jet.pt();
+    if ( m_result_name.Contains("SmoothZ") || m_result_name.Contains("SmoothInclusiveZ") ){
+      // to apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10GeV
+      const double WtoZmassShift = 10803;
+      mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
+    }
+
     if ( m_result_name!="" ) {
-      // currently only TCC 2var tagger uses JESComponent.X.RegionForSF method, which correspont to m_region!="".
       
       SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
       if ( !accResult.isAvailable(jet) ){
@@ -88,11 +93,6 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	     m_region==CompTaggerRegionVar::failMpassD2_2Var ||
 	     m_region==CompTaggerRegionVar::failMfailD2_2Var) {
 	  // TCC 2Var tagger
-	  if ( m_result_name.Contains("SmoothZ") ){
-	    // to apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10GeV
-	    const double WtoZmassShift = 10803;
-	    mOverPt=(jet.m()-WtoZmassShift)/jet.pt();
-	  }
 	  if ( ! ((myCutResult==TagResult::passMpassD2_2Var && m_region==CompTaggerRegionVar::passMpassD2_2Var) ||
 		  (myCutResult==TagResult::passMfailD2_2Var && m_region==CompTaggerRegionVar::passMfailD2_2Var) ||
 		  (myCutResult==TagResult::failMpassD2_2Var && m_region==CompTaggerRegionVar::failMpassD2_2Var) ||
@@ -109,13 +109,13 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
     bool isValidLabel=false;
     for ( CompFlavorLabelVar::TypeEnum m_label : m_labels ) {
       if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel==LargeRJetTruthLabel::tqqb) ||
-	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==LargeRJetTruthLabel::tqqb || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
-	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
+	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==LargeRJetTruthLabel::tqqb || jetFlavorLabel==LargeRJetTruthLabel::other_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_V)) ||
+	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_V)) ||
 	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==LargeRJetTruthLabel::Wqq || jetFlavorLabel==LargeRJetTruthLabel::Zqq || jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t)) ||
 	   (m_label==CompFlavorLabelVar::W_qq_From_t && jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t) ||
 	   (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel==LargeRJetTruthLabel::Wqq) ||
 	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==LargeRJetTruthLabel::Zqq) ||
-	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==LargeRJetTruthLabel::notruth || jetFlavorLabel==LargeRJetTruthLabel::qcd || jetFlavorLabel==LargeRJetTruthLabel::other_From_V)) ) {
+	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==LargeRJetTruthLabel::notruth || jetFlavorLabel==LargeRJetTruthLabel::qcd)) ) {
 	isValidLabel=true;
       }
     }

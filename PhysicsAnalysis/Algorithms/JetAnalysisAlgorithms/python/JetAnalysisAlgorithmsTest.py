@@ -3,7 +3,7 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
@@ -12,10 +12,9 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \

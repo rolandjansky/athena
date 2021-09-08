@@ -19,12 +19,13 @@ namespace DerivationFramework {
 
   EGElectronLikelihoodToolWrapper::EGElectronLikelihoodToolWrapper(const std::string& t,
 								   const std::string& n,
-								   const IInterface* p) : 
+								   const IInterface* p) :
     AthAlgTool(t,n,p),
     m_cut(""),
     m_sgName(""),
     m_containerName(""),
-    m_storeTResult(false)
+    m_storeTResult(false),
+    m_sgMultipleNames({})
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("EGammaElectronLikelihoodTool", m_tool);
@@ -33,6 +34,7 @@ namespace DerivationFramework {
     declareProperty("StoreGateEntryName", m_sgName);
     declareProperty("ContainerName", m_containerName);
     declareProperty("StoreTResult", m_storeTResult);
+    declareProperty("StoreGateEntryMultipleNames", m_sgMultipleNames);
   }
 
   StatusCode EGElectronLikelihoodToolWrapper::initialize()
@@ -84,7 +86,7 @@ namespace DerivationFramework {
 	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGElectronLikelihoodToolWrapper");
 	  return StatusCode::FAILURE;
       }
-      
+
       xAOD::IParticle* pCopy = *pItr;
 
       // this should be computed based on some property of the tool or the existence of the ElectronPhotonShowerShapeFudgeTool
@@ -117,40 +119,60 @@ namespace DerivationFramework {
       // compute the output of the selector
       Root::TAccept theAccept(m_tool->accept(pCopy));
       unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
-      double result(0.); // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
+      std::vector<double> result; // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
       if (m_storeTResult) {
-	Root::TResult theResult(m_tool->calculate(pCopy));
-	result = double(theResult);
+        Root::TResult theResult(m_tool->calculate(pCopy));
+        for (uint i = 0; i < theResult.getNResults(); i++){
+          result.push_back(theResult.getResult(i));
+        }
       }
-      
+
       // decorate the original object
       if(m_cut.empty()){
-	bool pass_selection = (bool) theAccept;
-	if(pass_selection) decoratorPass(**pItr) = 1;
-	else decoratorPass(**pItr) = 0;
-	decoratorIsEM(**pItr) = isEM;
-	if (m_storeTResult) {
-	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
-	  decoratorResult(**pItr) = result;
-	}
+        bool pass_selection = (bool) theAccept;
+        if(pass_selection) decoratorPass(**pItr) = 1;
+        else decoratorPass(**pItr) = 0;
+        decoratorIsEM(**pItr) = isEM;
+        if (m_storeTResult) {
+          if (result.size() == 1){
+            SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
+            decoratorResult(**pItr) = result.at(0);
+          }
+          else{
+            for (uint i = 0; i < m_sgMultipleNames.size(); i++){
+              SG::AuxElement::Decorator< double > decoratorResult(m_sgMultipleNames.at(i));
+              // the first entry is supposed to be the discriminant and does not need to be saved
+              decoratorResult(**pItr) = result.at(i + 1);
+            }
+          }
+      	}
       }
       else{
-	if (theAccept.getCutResult(m_cut)) {
-	  decoratorPass(**pItr) = 1;
-	} else {
-	  decoratorPass(**pItr) = 0;
-	}
-	decoratorIsEM(**pItr) = isEM;
-	if (m_storeTResult) {
-	  SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
-	  decoratorResult(**pItr) = result;
-	}
+        if (theAccept.getCutResult(m_cut)) {
+          decoratorPass(**pItr) = 1;
+        } else {
+          decoratorPass(**pItr) = 0;
+        }
+        decoratorIsEM(**pItr) = isEM;
+        if (m_storeTResult) {
+          if (result.size() == 1){
+            SG::AuxElement::Decorator< double > decoratorResult(m_sgName + "Result");
+            decoratorResult(**pItr) = result.at(0);
+          }
+          else{
+            for (uint i = 0; i < m_sgMultipleNames.size(); i++){
+              SG::AuxElement::Decorator< double > decoratorResult(m_sgMultipleNames.at(i));
+              // the first entry is supposed to be the discriminant and does not need to be saved
+              decoratorResult(**pItr) = result.at(i + 1);
+            }
+          }
+      	}
       }
 
       // delete the particle copy
       if (applyFF) delete pCopy;
     }
-    
+
     return StatusCode::SUCCESS;
   }
 }

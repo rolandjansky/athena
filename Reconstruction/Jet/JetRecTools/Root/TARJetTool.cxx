@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TARJetTool.cxx
@@ -19,6 +19,7 @@ TARJetTool::TARJetTool(const std::string& myname)
   declareProperty("InputSelectedTrackContainer", m_inSelTrackColl); // Name of a view container to allow a track preselection
   declareProperty("OutputTrackContainer", m_outTrackColl);
   declareProperty("OutputAssociatedTracks", m_assocTracksOutName = "TARTracks");
+  declareProperty("OutputAssociatedObjects", m_assocObjsOutName = "TARObjects");
   declareProperty("MatchDeltaR", m_dRmatch);
 
   declareProperty("InputAssociatedTracks", m_assocTracksInName = "GhostTrack");
@@ -52,6 +53,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   std::map<int, std::vector<int>> JetTrackMap; // Map of track indices to RC jet indices
   std::map<int, std::vector<int>> ConstitTrackMap; // Map of track indices to constit jet indices
   std::map<int, int> ConstitJetMap; // Map of all constituent jets to RC jets
+  std::map<int, int> RawConstitMap; // Map of all constituent jets to RC jet raw constituents
 
   // Get input tracks
   const xAOD::TrackParticleContainer *inTracks = nullptr;
@@ -117,6 +119,9 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
 
       // Record which RC jet constituent jet comes from
       ConstitJetMap[constitJet->index()] = jet->index();
+      
+      // Record which RC jet raw constituent it is
+      RawConstitMap[constitJet->index()] = iConstit;
 
       // Get ghost-associated tracks
       std::vector<const xAOD::TrackParticle*> myMatchedTracks;
@@ -178,17 +183,26 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
     }
   }
 
+  // Vector to hold all trackless constituent jets
+  std::vector<int> tracklessConstits;
+  
   // Loop over all constituent jets to assign jet associations to tracks
+  // Trackless constituent jets are stored separately
   // NB: This is being done in a separate loop to make future modifications easier
   for( xAOD::Jet* constitJet : *constitJets ) {
 
-    for( int trackIdx : ConstitTrackMap[constitJet->index()] ) {
-      // Set jet associations for associated tracks
-      // Nominally, each track is associated to a single jet, but this construction
-      // allows each track to be associated to multiple jets with a weight for each
-      // association that is used in the rescaling
-      // Since outTracks is a shallow copy of inTracks, the track index can be used directly
-      outTracks->at(trackIdx)->auxdata< std::vector< std::pair<int, float> > >("JetAssociations").emplace_back(constitJet->index(),1.0);
+    if( ConstitTrackMap[constitJet->index()].size() ) {
+      for( int trackIdx : ConstitTrackMap[constitJet->index()] ) {
+        // Set jet associations for associated tracks
+        // Nominally, each track is associated to a single jet, but this construction
+        // allows each track to be associated to multiple jets with a weight for each
+        // association that is used in the rescaling
+        // Since outTracks is a shallow copy of inTracks, the track index can be used directly
+        outTracks->at(trackIdx)->auxdata< std::vector< std::pair<int, float> > >("JetAssociations").emplace_back(constitJet->index(),1.0);
+      }
+    }
+    else {
+      tracklessConstits.push_back(constitJet->index());
     }
 
   }
@@ -203,7 +217,7 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   for( int goodIdx : allGoodTrackIndices ) {
     outSelTracks->push_back(outTracks->at(goodIdx));
   }
-  
+
   ATH_MSG_DEBUG("New TARTrack container size " << outSelTracks->size());
 
   ATH_CHECK( evtStore()->record(outSelTracks.release(),"Sel"+m_outTrackColl) );
@@ -219,21 +233,43 @@ int TARJetTool::modify( xAOD::JetContainer& inJets ) const {
   for( xAOD::Jet* jet : inJets ) {
 
     std::vector<const xAOD::TrackParticle*> TARTracks;
+    std::vector<const xAOD::IParticle*> TARObjs;
 
-    // Sum of TAR jets for mTAR
+    // Sum of TAR tracks for mTARTrk
+    TLorentzVector TARTrkJet;
+
+    // Sum of TAR tracks and trackless jets for mTAR
     TLorentzVector TARJet;
 
     // Collect all tracks associated to RC jet
     for( int trackIdx : JetTrackMap[jet->index()] ) {
       TARTracks.push_back(pOutTracks->at(trackIdx));
+      TARObjs.push_back(pOutTracks->at(trackIdx));
+
       TARJet += pOutTracks->at(trackIdx)->p4();
+      TARTrkJet += pOutTracks->at(trackIdx)->p4();
     }
+
+    // Add all of the trackless constituents
+    for( int constitIdx : tracklessConstits ) {
+      if( ConstitJetMap[constitIdx] != (int)jet->index() ) continue;
+      TARObjs.push_back( jet->rawConstituent(RawConstitMap[constitIdx]) );
+      TARJet += constitJets->at(constitIdx)->p4();
+    }
+
+    // Add associated TAR tracks and trackless jets
+    jet->setAssociatedObjects< xAOD::IParticle >(m_assocObjsOutName,TARObjs);
 
     // Add associated TAR tracks
     jet->setAssociatedObjects< xAOD::TrackParticle >(m_assocTracksOutName,TARTracks);
 
-    // Add mTAR decoration
+    // Add mTAR and mTARTrk decorations
     jet->setAttribute("mTAR", TARJet.M());
+    jet->setAttribute("mTARTrk", TARTrkJet.M());
+
+    // Add TAR constituents multiplicity decorations
+    jet->setAttribute("nTARTrk", TARTracks.size());
+    jet->setAttribute("nTARObj", TARObjs.size());
 
   }
 

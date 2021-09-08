@@ -12,19 +12,15 @@
 
 #include <AsgExampleTools/DataHandleTestTool.h>
 
-#ifdef XAOD_STANDALONE
 #include <AsgDataHandles/ReadHandle.h>
 #include <AsgDataHandles/ReadDecorHandle.h>
 #include <AsgDataHandles/WriteDecorHandle.h>
 #include <AsgDataHandles/WriteHandle.h>
-#endif
 #include <AsgTesting/UnitTest.h>
 #include <gtest/gtest.h>
 #include <map>
 
-#ifdef XAOD_STANDALONE
 #include <xAODMuon/MuonAuxContainer.h>
-#endif
 
 //
 // method implementations
@@ -55,7 +51,6 @@ namespace asg
   StatusCode DataHandleTestTool ::
   initialize ()
   {
-#ifdef XAOD_STANDALONE
     ANA_CHECK (m_readKey.initialize ());
     ANA_CHECK (m_readDecorKey.initialize ());
     if (!m_writeKey.empty())
@@ -63,7 +58,6 @@ namespace asg
     ANA_CHECK (m_readKeyArray.initialize());
     if (!m_writeDecorKey.empty())
       ANA_CHECK (m_writeDecorKey.initialize ());
-#endif
     return StatusCode::SUCCESS;
   }
 
@@ -72,7 +66,6 @@ namespace asg
   void DataHandleTestTool ::
   runTest ()
   {
-#ifdef XAOD_STANDALONE
     const xAOD::MuonContainer *muonsStore {nullptr};
     ASSERT_SUCCESS (evtStore()->retrieve (muonsStore, "Muons"));
     ASSERT_NE (0u, muonsStore->size());
@@ -134,6 +127,5 @@ namespace asg
       SG::AuxElement::ConstAccessor<unsigned> acc (m_doWriteDecorName);
       EXPECT_EQ (42u, acc (*(*muonsStore)[0]));
     }
-#endif
   }
 }

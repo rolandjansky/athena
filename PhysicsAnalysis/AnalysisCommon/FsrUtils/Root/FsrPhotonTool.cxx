@@ -11,22 +11,19 @@
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
+#include "xAODEgamma/Photon.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
-#include "AsgTools/Check.h"
+#include "AsgTools/AsgToolConfig.h"
+
 
 namespace FSR {
 
     FsrPhotonTool::FsrPhotonTool( const std::string& name )
         : asg::AsgTool( name ),
-        m_fsr_type(FsrCandidate::FsrUnknown),
-        m_isoSelTool(""),
-        m_isoCorrTool(""),
-        m_energyRescaler(""),
-        m_photonContainer(0),
-        m_photonAuxContainer(0),
-        m_photon(0)
+          m_fsr_type(FsrCandidate::FsrUnknown),
+          m_isoCorrTool("", this),
+          m_isoCloseByCorrTool("", this),
+          m_energyRescaler("", this)
     {
 
         declareProperty( "high_et_min", m_high_et_min = 3500. );
@@ -45,9 +42,7 @@ namespace FSR {
     }
 
     FsrPhotonTool::~FsrPhotonTool() 
-    {
-        delete m_photonContainer;
-    }
+    {}
     
     
     StatusCode FsrPhotonTool::initialize() {
@@ -67,53 +62,39 @@ namespace FSR {
         ATH_MSG_INFO( "initialize: topo_drcut " << m_topo_drcut);
         ATH_MSG_INFO( "initialize: topo_f1cut " << m_topo_f1cut);
         ATH_MSG_INFO( "initialize: egCalibToolName " << m_energyRescalerName);
-          
-        // Initialize the isolation selection tool
-        CP::IsolationSelectionTool* isoTool = new CP::IsolationSelectionTool("FsrIsoSelectionTool" + name());
-        RETURN_CHECK("initialize", isoTool->setProperty("PhotonWP", m_far_fsr_isoWorkingPoint));
-        RETURN_CHECK("initialize", isoTool->initialize());
-        m_isoSelTool = ToolHandle<CP::IIsolationSelectionTool>(isoTool->name());
-        ATH_MSG_INFO("initialize - Using IsoSelectionTool photon for " <<  m_far_fsr_isoWorkingPoint << " working point " << m_isoSelTool->name());
 
         // Initialize the isolation tool for leakage correction
 
-        CP::IsolationCorrectionTool* isoCorrTool = new CP::IsolationCorrectionTool("isoCorrTool");
-        RETURN_CHECK("initialize", isoCorrTool->setProperty( "UseMetadata", true)); // for isMC
-        RETURN_CHECK("initialize", isoCorrTool->initialize());
-        m_isoCorrTool = ToolHandle<CP::IIsolationCorrectionTool>(isoCorrTool->name());
+        asg::AsgToolConfig config2 ("CP::IsolationCorrectionTool/isoCorrTool");
+        RETURN_CHECK("initialize", config2.setProperty ("UseMetadata", true));
+        RETURN_CHECK("initialize", config2.makePrivateTool (m_isoCorrTool)); 
         ATH_MSG_INFO("initialize - IsolationCorrectionTool initialized " << m_isoCorrTool->name());
 
+        
+        // Create IsolationCloseByCorrectionTool with IsolationSelectionTool as a private tool,
+        // assigning it the photon working point
 
-        CP::IsolationCloseByCorrectionTool* isoCloseByCorrTool = new CP::IsolationCloseByCorrectionTool("isoCloseByCorrTool");
-        // set photon working point
-        if (!isoCloseByCorrTool->setProperty("IsolationSelectionTool", m_isoSelTool)) {
-            ATH_MSG_ERROR("initialize - unable to set property for mu IsolationCloseByCorrectionTool");
-            return false;
-        }
-        RETURN_CHECK("initialize", isoCloseByCorrTool->initialize());
-        m_isoCloseByCorrTool = ToolHandle<CP::IIsolationCloseByCorrectionTool>(isoCloseByCorrTool->name());
-        ATH_MSG_INFO("initialize - photon IsolationCloseByCorrectionTool initialized ");
+        asg::AsgToolConfig config3 ("CP::IsolationCloseByCorrectionTool/isoCloseByCorrTool");
+        RETURN_CHECK("initialize", config3.createPrivateTool("IsolationSelectionTool", "CP::IsolationSelectionTool"));
+        RETURN_CHECK("initialize", config3.setProperty( "IsolationSelectionTool.PhotonWP", m_far_fsr_isoWorkingPoint));
+        RETURN_CHECK("initialize", config3.makePrivateTool (m_isoCloseByCorrTool));  
+        ATH_MSG_INFO("initialize - photon IsolationCloseByCorrectionTool initialized " << m_isoCloseByCorrTool->name());
+        RETURN_CHECK("initialize", m_isoCloseByCorrTool.retrieve());
+        RETURN_CHECK("initialize", m_isoCorrTool.retrieve());
 
         // get egamma calibration tool - needed to recalibrate electron as a photon
         if (m_energyRescalerName.size()) {
             m_energyRescaler = ToolHandle<CP::IEgammaCalibrationAndSmearingTool>(m_energyRescalerName);
             if (m_energyRescaler.empty()) {
                 ATH_MSG_ERROR("initialize - unable to get IEgammaCalibrationAndSmearingTool with name: " << m_energyRescalerName);
-                return false;
+                return StatusCode::FAILURE;
             }
-
-            // Need photon container and one photon for electron calibration
-            m_photonContainer  = new xAOD::PhotonContainer();
-            m_photonAuxContainer = new xAOD::PhotonAuxContainer();
-            m_photonContainer->setStore( m_photonAuxContainer );
-            m_photon           = new xAOD::Photon();
-            m_photonContainer->push_back(m_photon);
 
             ATH_MSG_INFO("initialize - found  IEgammaCalibrationAndSmearingTool with name: " << m_energyRescalerName);
         }
         else {
             ATH_MSG_ERROR("initialize - CANNOT retrive IEgammaCalibrationAndSmearingTool. Please set the property 'egCalibToolName' to be able to recalibrate fsr photon found as an electron ");
-            return false;
+            return StatusCode::FAILURE;
         }
         
 
@@ -358,21 +339,21 @@ namespace FSR {
                                           << " f1 = " << electron_f1
                                           << " dr = " << dr );
                 }
-                // else {
-                //     double dr = deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi());
+                else {
+                    double dr = deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi());
    
-                //     if (elmutrackmatch && dr < m_drcut ) {
-                //     ATH_MSG_INFO( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
-                //                      << electron->author()
-                //                      << " Et = " << clEt
-                //                      << " f1 = " << electron_f1
-                //                      << " dr = " << deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi())
-                //                      << " theta/phi el/mu " << electron_track->theta() << "/" << muon->p4().Theta()
-                //                      << "/" << electron_track->phi() << "/" << muon->phi()
-                //                      << " theta/phi mu trk " << muon_track->theta() << "/" << muon_track->phi()
-                //                   );
-                //     }
-                // }
+                    if (elmutrackmatch && dr < m_drcut ) {
+                    ATH_MSG_DEBUG( "FAILED Near Fsr candidates ( electron ) kinematics : author  "
+                                   << electron->author()
+                                   << " Et = " << clEt
+                                   << " f1 = " << electron_f1
+                                   << " dr = " << deltaR(muon->eta(), muon->phi(), electron->caloCluster()->eta(), electron->caloCluster()->phi())
+                                   << " theta/phi el/mu " << electron_track->theta() << "/" << muon->p4().Theta()
+                                   << "/" << electron_track->phi() << "/" << muon->phi()
+                                   << " theta/phi mu trk " << muon_track->theta() << "/" << muon_track->phi()
+                                   );
+                    }
+                }
             }
    
         return sortFsrCandidates(nearFsrCandList);
@@ -397,19 +378,20 @@ namespace FSR {
 
                 // If we have an energy rescaler, calibrate correctly the electron as a photon
                 if (!m_energyRescaler.empty()) {
-                    m_photon->Egamma_v1::operator=(*electron);
-                    if (m_energyRescaler->applyCorrection(*m_photon) != CP::CorrectionCode::Ok) {
+                    xAOD::Photon photon;
+                     photon.Egamma_v1::operator=(*electron);
+                    if (m_energyRescaler->applyCorrection(photon) != CP::CorrectionCode::Ok) {
                         ATH_MSG_ERROR("FsrPhotonTool::sortFsrCandidates: Unable to applyCorrection to photon ");
                     }
-                    if ( m_photon->showerShapeValue(part_f1, xAOD::EgammaParameters::f1) ) c.f1 = part_f1; 
-                    c.Et  = m_photon->pt();
-                    c.eta = m_photon->caloCluster()->eta();
-                    c.phi = m_photon->caloCluster()->phi();
+                    if ( photon.showerShapeValue(part_f1, xAOD::EgammaParameters::f1) ) c.f1 = part_f1; 
+                    c.Et  = photon.pt();
+                    c.eta = photon.caloCluster()->eta();
+                    c.phi = photon.caloCluster()->phi();
 
                     ATH_MSG_DEBUG("FsrPhotonTool::sortFsrCandidates: el/ph et " << electron->pt() << "/"
                                   << electron->caloCluster()->eta() << "/" << electron->caloCluster()->phi() << " "
-                                  << m_photon->pt() << "/"
-                                  << m_photon->caloCluster()->eta() << "/" << m_photon->caloCluster()->phi());
+                                  << photon.pt() << "/"
+                                  << photon.caloCluster()->eta() << "/" << photon.caloCluster()->phi());
                 }
                 else {
                     // Use the cluster pt/eta/phi when considering the electron to be an FSR photon
@@ -458,7 +440,7 @@ namespace FSR {
             
         }
    
-        // ATH_MSG_INFO( "sortFsrCandidates: found " << m_fsrPhotons.size() << " FSR photons" );
+        ATH_MSG_DEBUG( "sortFsrCandidates: found " << m_fsrPhotons.size() << " FSR photons" );
         
         // sort FSR candidates w.r.t min dR or ET
         if (option=="ET") std::sort(m_fsrPhotons.begin(), m_fsrPhotons.end(), compareEt);

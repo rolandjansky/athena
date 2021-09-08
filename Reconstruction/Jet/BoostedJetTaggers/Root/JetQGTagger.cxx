@@ -5,17 +5,12 @@
 #include "BoostedJetTaggers/JetQGTagger.h"
 
 #include <TRandom3.h>
-#include "TEnv.h"
-#include "TSystem.h"
+#include <TSystem.h>
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthFilterTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
-#include "PathResolver/PathResolver.h"
-
-#include "CxxUtils/make_unique.h"
-
 
 namespace CP {
 
@@ -81,7 +76,7 @@ namespace CP {
   }
 
 
-  StatusCode JetQGTagger::initialize(){
+  StatusCode JetQGTagger::initialize() {
 
     ATH_MSG_INFO( "Initializing QuarkGluonTagger tool" );
 
@@ -93,12 +88,12 @@ namespace CP {
       FileStat_t fStats;
       int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
 
-      if(fSuccess != 0){
-        ATH_MSG_ERROR("Recommendations file could not be found : ");
+      if ( fSuccess ){
+        ATH_MSG_ERROR( "Recommendations file " << m_configFile << " could not be found");
         return StatusCode::FAILURE;
       }
       else {
-        ATH_MSG_DEBUG("Recommendations file was found : "<<configPath);
+        ATH_MSG_DEBUG( "Recommendations file was found : " << configPath );
       }
 
       TEnv configReader;
@@ -225,19 +220,17 @@ namespace CP {
     ATH_MSG_INFO( ": JetQGTagger tool initialized" );
     ATH_MSG_INFO( "  NTrackCut   : "<< m_NTrackCut );
 
-    //initialize the tagger states
-    //m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  ); JBurr - this is never set to false
-    m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
-    m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
-    m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
-    m_accept.addCut( "ValidEventContent"   , "True if the event is alright technicall (e.g. primary vertices)"        );
+    /// Initialize the tagger states
     m_accept.addCut( "QuarkJetTag"         , "True if the jet is deemed a quark jet because NTrack<NCut, False if jet deemed gluon jet because NTrack<NCut"       );
 
-    //loop over and print out the cuts that have been configured
-    ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
-    showCuts();
+    /// Call base class initialize
+    ATH_CHECK( JSSTaggerBase::initialize() );
+    
+    /// Loop over and print out the cuts that have been configured
+    printCuts();
 
     return StatusCode::SUCCESS;
+  
   }
 
   JetQGTagger::~JetQGTagger(){
@@ -262,105 +255,90 @@ namespace CP {
 
   }
 
+  Root::TAccept& JetQGTagger::tag( const xAOD::Jet& jet, const xAOD::Vertex * pv ) const {
 
-  Root::TAccept& JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
+    ATH_MSG_DEBUG( "Obtaining QG result" );
 
     double jetWeight = -1;
     int    jetNTrack = -1;
-    // reset the TAccept cut results to false
-    m_accept.clear();
+
+    /// Reset the TAccept cut results
+    resetCuts();
     
-    // set the jet validity bits to 1 by default
-    m_accept.setCutResult( "ValidPtRangeLow" , true);
-    m_accept.setCutResult( "ValidEtaRange"   , true);
-    m_accept.setCutResult( "ValidJetContent" , true);
-    m_accept.setCutResult( "ValidEventContent" , true);
+    /// Check basic kinematic selection
+    checkKinRange(jet);
 
-    // check basic kinematic selection
-    bool isValid = true;
-    if (std::fabs(jet.eta()) > m_jetEtaMax) {
-      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
-      m_accept.setCutResult("ValidEtaRange", false);
-      isValid = false;
-    }
-    if (jet.pt() < m_jetPtMin) {
-      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
-      m_accept.setCutResult("ValidPtRangeLow", false);
-      isValid = false;
-    }
-
-    // If the object isn't valid there's no point applying the remaining cuts
-    if (!isValid)
-      return m_accept;
+    /// If the jett isn't valid there's no point applying the remaining cuts
+    if ( !passKinRange(jet) ) return m_accept;
 
     if(m_mode ==0){ //do tagging assuming relevant track particle, PV, etc containers exist
-        if (pv)
-          ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
-        else
-          ATH_MSG_DEBUG( "Obtaining JetQGTagger decision default" );
+      bool isValid = true;
+      if (pv)
+        ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
+      else
+        ATH_MSG_DEBUG( "Obtaining JetQGTagger decision default" );
 
-        // if no primary vertex is specified, then the 0th primary vertex is used
-        if(! pv){
-          const xAOD::VertexContainer* vxCont = 0;
-          if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
-            ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
-            m_accept.setCutResult("ValidEventContent", false);
-            isValid = false;
-          }
-          else if(vxCont->empty()){
-            ATH_MSG_WARNING("Event has no primary vertices!");
-            m_accept.setCutResult("ValidEventContent", false);
-            isValid = false;
-          }
-          else{
-            for(const auto& vx : *vxCont){
-              // take the first vertex in the list that is a primary vertex
-              if(vx->vertexType()==xAOD::VxType::PriVtx){
-                pv = vx;
-                break;
-              }
+      // if no primary vertex is specified, then the 0th primary vertex is used
+      if(! pv){
+        const xAOD::VertexContainer* vxCont = nullptr;
+        if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
+          ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+          m_accept.setCutResult("ValidEventContent", false);
+          isValid = false;
+        }
+        else if(vxCont->empty()){
+          ATH_MSG_WARNING("Event has no primary vertices!");
+          m_accept.setCutResult("ValidEventContent", false);
+          isValid = false;
+        }
+        else{
+          for(const auto& vx : *vxCont){
+            // take the first vertex in the list that is a primary vertex
+            if(vx->vertexType()==xAOD::VxType::PriVtx){
+              pv = vx;
+              break;
             }
           }
-          // Now we have to make sure that we did ID one as PV
-          // I think this can happen in physics events (though they've got to be removed in order to perform a lot of calibrations)
-          // so I've elected to not spit out a warning message here
-          if (!pv) {
-            m_accept.setCutResult("ValidEventContent", false);
-            isValid = false;
-          }
         }
+        // Now we have to make sure that we did ID one as PV
+        // I think this can happen in physics events (though they've got to be removed in order to perform a lot of calibrations)
+        // so I've elected to not spit out a warning message here
+        if (!pv) {
+          m_accept.setCutResult("ValidEventContent", false);
+          isValid = false;
+        }
+      }
 
-	// If the object isn't valid there's no point applying the remaining cuts
-	if (!isValid)
-	  return m_accept;
+      // If the object isn't valid there's no point applying the remaining cuts
+      if (!isValid) return m_accept;
 
-        // obtain the relevant information for tagging
-        // 1) the number of tracks
-        // 2) jet-by-jet event weight
-        checkAndThrow(getNTrack(&jet, pv, jetNTrack) );
-        checkAndThrow(getNTrackWeight(&jet, jetWeight) );
+      // obtain the relevant information for tagging
+      // 1) the number of tracks
+      // 2) jet-by-jet event weight
+      checkAndThrow(getNTrack(&jet, pv, jetNTrack) );
+      checkAndThrow(getNTrackWeight(&jet, jetWeight) );
     }
 
     if(m_mode==1){ //only calculating uncertainty using given jet info (nTrk already calculated, etc)
-        checkAndThrow(simplegetNTrackWeight(&jet, jetWeight) );
-	static SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
-	static SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
-	if(acc_NTracks.isAvailable(jet)) jetNTrack = acc_NTracks(jet);
-	else if(acc_NumTrkPt500PV.isAvailable(jet)) jetNTrack = acc_NumTrkPt500PV(jet);
-	else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running in mode 1 of the JetQGTagger.");
+      checkAndThrow(simplegetNTrackWeight(&jet, jetWeight) );
+      static SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
+      static SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
+      if(acc_NTracks.isAvailable(jet)) jetNTrack = acc_NTracks(jet);
+      else if(acc_NumTrkPt500PV.isAvailable(jet)) jetNTrack = acc_NumTrkPt500PV(jet);
+      else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running in mode 1 of the JetQGTagger.");
 
-        // decorate the cut value if specified
-        if(m_decorate){
-          m_weightdec(jet) = jetWeight;
-        }
-     }
+      // decorate the cut value if specified
+      if(m_decorate){
+        m_weightdec(jet) = jetWeight;
+      }
+    }
 
     // decorate the cut value if specified
     if(m_decorate){
       m_taggerdec(jet) = jetNTrack;
       m_weightdec(jet) = jetWeight;
     }
-    
+
     // fill the TAccept
     ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
     ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
@@ -393,17 +371,17 @@ namespace CP {
 
     // if you are not dealing with a systematic variation, then exit
     if ( m_appliedSystEnum!=QG_NCHARGEDEXP_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDME_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDPDF_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDEXP_DOWN &&
-         m_appliedSystEnum!=QG_NCHARGEDME_DOWN &&
-         m_appliedSystEnum!=QG_NCHARGEDPDF_DOWN &&
-         m_appliedSystEnum!=QG_TRACKEFFICIENCY &&
-         m_appliedSystEnum!=QG_TRACKFAKES
+        m_appliedSystEnum!=QG_NCHARGEDME_UP &&
+        m_appliedSystEnum!=QG_NCHARGEDPDF_UP &&
+        m_appliedSystEnum!=QG_NCHARGEDEXP_DOWN &&
+        m_appliedSystEnum!=QG_NCHARGEDME_DOWN &&
+        m_appliedSystEnum!=QG_NCHARGEDPDF_DOWN &&
+        m_appliedSystEnum!=QG_TRACKEFFICIENCY &&
+        m_appliedSystEnum!=QG_TRACKFAKES
        )
-     {
+    {
       return StatusCode::SUCCESS;
-     }
+    }
 
     // use the lookup tables loaded in initialize() to find the systematically shifted weights
     bool truthsyst = m_appliedSystEnum==QG_NCHARGEDEXP_UP || m_appliedSystEnum==QG_NCHARGEDME_UP || m_appliedSystEnum==QG_NCHARGEDPDF_UP || m_appliedSystEnum == QG_NCHARGEDEXP_DOWN || m_appliedSystEnum== QG_NCHARGEDME_DOWN || m_appliedSystEnum == QG_NCHARGEDPDF_DOWN;
@@ -412,73 +390,73 @@ namespace CP {
     int ptbin, ntrkbin;
     int pdgid = jet->getAttribute<int>("PartonTruthLabelID");
     if (truthsyst){
-        int tntrk = jet->getAttribute<int>("DFCommonJets_QGTagger_truthjet_nCharged");
-        float tjetpt = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_pt")*0.001;
-        float tjeteta = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_eta");
-	ATH_MSG_DEBUG("truth jet pdgid: " << pdgid << " pt: " << tjetpt);
-        if ( pdgid<0 ) {
-          ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
-          return StatusCode::SUCCESS;
-        }
+      int tntrk = jet->getAttribute<int>("DFCommonJets_QGTagger_truthjet_nCharged");
+      float tjetpt = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_pt")*0.001;
+      float tjeteta = jet->getAttribute<float>("DFCommonJets_QGTagger_truthjet_eta");
+      ATH_MSG_DEBUG("truth jet pdgid: " << pdgid << " pt: " << tjetpt);
+      if ( pdgid<0 ) {
+        ATH_MSG_DEBUG("Undefined pdg ID: setting weight to 1");
+        return StatusCode::SUCCESS;
+      }
 
-        // if the jet is outside of the measurement fiducial region
-        // the systematic uncertainty is set to 0
-        if( tjetpt<m_jetPtMin*1e-3 || fabs(tjeteta)>m_jetEtaMax){
-          ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
-          return StatusCode::SUCCESS;
-        }
+      // if the jet is outside of the measurement fiducial region
+      // the systematic uncertainty is set to 0
+      if( tjetpt<m_jetPtMin*1e-3 || std::abs(tjeteta)>m_jetEtaMax){
+        ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
+        return StatusCode::SUCCESS;
+      }
 
-        if ( pdgid==21 && m_appliedSystEnum!=QG_NCHARGEDTOPO ){
-          ptbin = m_hgluon->GetXaxis()->FindBin(tjetpt);
-          ntrkbin = m_hgluon->GetYaxis()->FindBin(tntrk);
-          weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
-        }// gluon
-        else if ( pdgid<5 && m_appliedSystEnum!=QG_NCHARGEDTOPO && m_appliedSystEnum!=QG_TRACKEFFICIENCY && m_appliedSystEnum!=QG_TRACKFAKES){
-          ptbin = m_hquark->GetXaxis()->FindBin(tjetpt);
-          ntrkbin = m_hquark->GetYaxis()->FindBin(tntrk);
-          weight = m_hquark->GetBinContent(ptbin,ntrkbin);
-        }//quarks
-        else{
-          ATH_MSG_INFO("Neither quark nor gluon jet: setting weight to 1");
-        }
+      if ( pdgid==21 && m_appliedSystEnum!=QG_NCHARGEDTOPO ){
+        ptbin = m_hgluon->GetXaxis()->FindBin(tjetpt);
+        ntrkbin = m_hgluon->GetYaxis()->FindBin(tntrk);
+        weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
+      }// gluon
+      else if ( pdgid<5 && m_appliedSystEnum!=QG_NCHARGEDTOPO && m_appliedSystEnum!=QG_TRACKEFFICIENCY && m_appliedSystEnum!=QG_TRACKFAKES){
+        ptbin = m_hquark->GetXaxis()->FindBin(tjetpt);
+        ntrkbin = m_hquark->GetYaxis()->FindBin(tntrk);
+        weight = m_hquark->GetBinContent(ptbin,ntrkbin);
+      }//quarks
+      else{
+        ATH_MSG_INFO("Neither quark nor gluon jet: setting weight to 1");
+      }
     }
 
     // check if jet contains at least one NTracks variables
     // prefer to use DFCommonJets* version
     int ntrk = -1;
     if(recosyst){
-	      static const SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
-	      static const SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
-	      if(acc_NTracks.isAvailable(*jet)) ntrk = acc_NTracks(*jet);
-	      else if(acc_NumTrkPt500PV.isAvailable(*jet)) ntrk = acc_NumTrkPt500PV(*jet);
-	      else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running mode 1 JetQGTagger.");
-        //float rjetpt = jet->getAttribute<float>("truthjet_pt")*0.001;
-        float rjetpt = jet->pt()*1e-3;
-        float rjeteta = jet->eta();
+      static const SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
+      static const SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
+      if(acc_NTracks.isAvailable(*jet)) ntrk = acc_NTracks(*jet);
+      else if(acc_NumTrkPt500PV.isAvailable(*jet)) ntrk = acc_NumTrkPt500PV(*jet);
+      else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running mode 1 JetQGTagger.");
+      //float rjetpt = jet->getAttribute<float>("truthjet_pt")*0.001;
+      float rjetpt = jet->pt()*1e-3;
+      float rjeteta = jet->eta();
 
-	ATH_MSG_DEBUG("reco jet Pt: " << rjetpt << " eta: " << rjeteta);
-        if( rjetpt<m_jetPtMin*1e-3 || fabs(rjeteta)>m_jetEtaMax){
-          ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
-          return StatusCode::SUCCESS;
-        }
+      ATH_MSG_DEBUG("reco jet Pt: " << rjetpt << " eta: " << rjeteta);
+      if( rjetpt<m_jetPtMin*1e-3 || std::abs(rjeteta)>m_jetEtaMax){
+        ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
+        return StatusCode::SUCCESS;
+      }
 
-        if ( pdgid<5 ){
-            ptbin = m_hquark->GetXaxis()->FindBin(rjetpt);
-            ntrkbin = m_hquark->GetYaxis()->FindBin(ntrk);
-            weight = m_hquark->GetBinContent(ptbin,ntrkbin);
-        }
-        if ( pdgid==21 ){
-            ptbin = m_hgluon->GetXaxis()->FindBin(rjetpt);
-            ntrkbin = m_hgluon->GetYaxis()->FindBin(ntrk);
-            weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
-        }
+      if ( pdgid<5 ){
+        ptbin = m_hquark->GetXaxis()->FindBin(rjetpt);
+        ntrkbin = m_hquark->GetYaxis()->FindBin(ntrk);
+        weight = m_hquark->GetBinContent(ptbin,ntrkbin);
+      }
+      if ( pdgid==21 ){
+        ptbin = m_hgluon->GetXaxis()->FindBin(rjetpt);
+        ntrkbin = m_hgluon->GetYaxis()->FindBin(ntrk);
+        weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
+      }
     }
 
     ATH_MSG_DEBUG("weight: " << weight);
 
     return StatusCode::SUCCESS;
 
- }
+  }
 
 
 
@@ -491,12 +469,12 @@ namespace CP {
     std::vector<const xAOD::IParticle*> jettracks;
 
     if(!jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks)){
-	ATH_MSG_ERROR("This jet has no associated objects, so it will not be tagged. Please check the jet collection you are using.");
-	ntracks=999;
-	//Returning failure as this jet has no associated objects and we do not want to wrongly classify it as a gluon or quark using tag(). 
-	//Physics should be independent of skimming, which may have removed tracks.
-	//So we are returning a failure, and throwing an exception. 
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR("This jet has no associated objects, so it will not be tagged. Please check the jet collection you are using.");
+      ntracks=999;
+      //Returning failure as this jet has no associated objects and we do not want to wrongly classify it as a gluon or quark using tag(). 
+      //Physics should be independent of skimming, which may have removed tracks.
+      //So we are returning a failure, and throwing an exception. 
+      return StatusCode::FAILURE;
     }
 
     for (size_t i = 0; i < jettracks.size(); i++) {
@@ -504,11 +482,11 @@ namespace CP {
       const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
 
       if(!trk){
-	ATH_MSG_ERROR("This jet has null tracks, so it will not be tagged. Please check the jet collection you are using.");
-	ntracks=998;
-	//Returning failure as this jet has null tracks and we do not want to wrongly classify it as a gluon or quark using tag(). 
-	//Physics should be independent of skimming, which may have introduced null tracks.
-	//So we are returning a failure, and throwing an exception. 
+        ATH_MSG_ERROR("This jet has null tracks, so it will not be tagged. Please check the jet collection you are using.");
+        ntracks=998;
+        //Returning failure as this jet has null tracks and we do not want to wrongly classify it as a gluon or quark using tag(). 
+        //Physics should be independent of skimming, which may have introduced null tracks.
+        //So we are returning a failure, and throwing an exception. 
         return StatusCode::FAILURE;
       }
 
@@ -530,9 +508,9 @@ namespace CP {
       // 2) accepted track from InDetTrackSelectionTool with CutLevel==Loose
       // 3) associated to primary vertex OR within 3mm of the primary vertex
       bool accept = (trk->pt()>500 &&
-                     m_trkSelectionTool->accept(*trk) &&
-                     (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
-                    );
+          m_trkSelectionTool->accept(*trk) &&
+          (trk->vertex()==pv || (!trk->vertex() && std::abs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
+          );
       if (!accept)
         continue;
 
@@ -554,12 +532,12 @@ namespace CP {
 
     // if you are not dealing with a systematic variation, then exit
     if ( m_appliedSystEnum!=QG_NCHARGEDTOPO &&
-         m_appliedSystEnum!=QG_NCHARGEDEXP_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDME_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDPDF_UP &&
-         m_appliedSystEnum!=QG_NCHARGEDEXP_DOWN &&
-         m_appliedSystEnum!=QG_NCHARGEDME_DOWN &&
-         m_appliedSystEnum!=QG_NCHARGEDPDF_DOWN
+        m_appliedSystEnum!=QG_NCHARGEDEXP_UP &&
+        m_appliedSystEnum!=QG_NCHARGEDME_UP &&
+        m_appliedSystEnum!=QG_NCHARGEDPDF_UP &&
+        m_appliedSystEnum!=QG_NCHARGEDEXP_DOWN &&
+        m_appliedSystEnum!=QG_NCHARGEDME_DOWN &&
+        m_appliedSystEnum!=QG_NCHARGEDPDF_DOWN
        )
       return StatusCode::SUCCESS;
 
@@ -598,7 +576,7 @@ namespace CP {
     // the systematic uncertainty is set to 0
     double tjetpt = tjet->pt()*0.001;
     double tjeteta = tjet->eta();
-    if( tjetpt<m_jetPtMin*1.0e-3 || fabs(tjeteta)>m_jetEtaMax){
+    if( tjetpt<m_jetPtMin*1.0e-3 || std::abs(tjeteta)>m_jetEtaMax){
       ATH_MSG_DEBUG("Outside of fiducial region: setting weight to 1");
       return StatusCode::SUCCESS;
     }
@@ -725,11 +703,11 @@ namespace CP {
     std::string filename = PathResolverFindCalibFile( (m_calibArea+fname).c_str() );
     ATH_MSG_INFO("CALIB FILE: " << filename << " histo: " << histname);
     if (filename.empty()){
-      ATH_MSG_WARNING ( "Could NOT resolve file name " << fname);
+      ATH_MSG_ERROR( "Could NOT resolve file name " << fname );
       return StatusCode::FAILURE;
     }
     else{
-      ATH_MSG_DEBUG(" Path found = "<<filename);
+      ATH_MSG_DEBUG( "Path found = " << filename );
     }
     TFile* infile = TFile::Open(filename.c_str());
     hist = dynamic_cast<TH2D*>(infile->Get(histname.c_str()));

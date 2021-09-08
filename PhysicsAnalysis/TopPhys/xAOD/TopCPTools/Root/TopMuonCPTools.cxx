@@ -113,13 +113,14 @@ namespace top {
     // Muon SF tools now require you to have setup an instance of
     // the pileup reweighting tool!
     // If we haven't set it up then tell the user this and exit.
-    if (!m_config->doPileupReweighting()) {
+    if (!m_config->doPileupReweighting() and !m_config->isDataOverlay()) {
       ATH_MSG_ERROR("\nThe Muon SF tools now require that you have"
                     " previously setup an instance of "
                     "the pileup reweighting tool.\n\n"
                     "To do this set the options:\n\n\t"
                     "PRWLumiCalcFiles\n and \n\tPRWConfigFiles \n\n"
                     "in your config file.");
+      
       return StatusCode::FAILURE;
     }
 

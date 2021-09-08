@@ -26,7 +26,7 @@ void TrackInfo::Reset() {
     for (unsigned int i = 0; i < 5; i++) m_TrackPars.push_back(0.);
     m_TrackCovMatrix.clear();
     for (unsigned int i = 0; i < 5; i++)
-        for (unsigned int j = 0; j < 5; j++) m_TrackCovMatrix.push_back(0.);
+      for (unsigned int j = 0; j < 5; j++) m_TrackCovMatrix.push_back(0.);
 }
 
 void TrackInfo::Register(TTree* t) {
@@ -50,8 +50,13 @@ void TrackInfo::Fill(const xAOD::TrackParticle* tp) {
     m_Phi = tp->phi();
     m_Charge = (int)tp->charge();
     m_QoverP = tp->qOverP() / Gaudi::Units::perThousand;
-    m_Chi2 = tp->chiSquared();
-    m_NDoF = (int)tp->numberDoF();
+    try {
+      m_Chi2 = tp->chiSquared();
+    } catch (SG::ExcBadAuxVar& b) { m_Chi2 = -999; }
+
+    try {
+      m_NDoF = (int)tp->numberDoF();
+    } catch (SG::ExcBadAuxVar& b) { m_NDoF = -999; }
     AmgVector(5) pars = tp->definingParameters();
     AmgSymMatrix(5) cov = tp->definingParametersCovMatrix();
 

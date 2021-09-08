@@ -67,9 +67,10 @@ truth_cond_hadrons = "( (TruthParticles.status ==1) && (TruthParticles.barcode<2
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 
-
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkSM.STDMCommonTruthTools import *
+    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthHSDeco
+    addTruthHSDeco()
    
     STDM7TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM7TruthLepTool",
                                                                   ThinningService              = STDM7ThinningHelper.ThinningSvc(),
@@ -97,7 +98,7 @@ if globalflags.DataSource()=='geant4':
                                                                   PreserveGeneratorDescendants = False,
                                                                   PreserveAncestors            = False)
 
-    
+
     ToolSvc += STDM7TruthLepTool
     ToolSvc += STDM7TruthBosTool
     ToolSvc += STDM7PhotonThinning
@@ -111,12 +112,20 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 
+filterVal = derivationFlags.WriteDAOD_STDM7Stream.nChFilter
+
 muonsRequirements = '(Muons.pt >= 4*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection) && (Muons.DFCommonGoodMuon)'
 electronsRequirements = '(Electrons.pt > 11*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
+chargedParticleRequirements = '(TruthParticles.pt > 500) && (TruthParticles.barcode < 200000) && (TruthParticles.status == 1) && (TruthParticles.charge != 0) && (TruthParticles.theta > 0.163803) && (TruthParticles.theta < 2.97779) && (TruthParticles.HSBool)' #the theta cuts correspond to |eta|<2.5.  Often, theta = 0 or pi, so using eta directly causes and Floating Point Exception
 muonOnlySelection = 'count('+muonsRequirements+') >=2'
 electronOnlySelection = 'count('+electronsRequirements+') >= 2'
 electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
-offlineexpression = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+')'
+
+if filterVal > -1 and globalflags.DataSource()=='geant4':
+    chargedParticleSelection = 'count('+chargedParticleRequirements+') < '+str(filterVal)
+    offlineexpression = '(('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+') && ('+chargedParticleSelection+'))'
+else:
+    offlineexpression = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+')'
 
 MuonTriggerRequirement=['HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 'HLT_2mu10', 'HLT_2mu14', 'HLT_2mu6_10invm30_pt2_z10', 'HLT_mu4_iloose_mu4_11invm60_noos', 'HLT_mu4_iloose_mu4_11invm60_noos_novtx', 'HLT_mu4_iloose_mu4_7invm9_noos', 'HLT_mu4_iloose_mu4_7invm9_noos_novtx', 'HLT_mu6_iloose_mu6_11invm24_noos', 'HLT_mu6_iloose_mu6_11invm24_noos_novtx', 'HLT_mu6_iloose_mu6_24invm60_noos', 'HLT_mu6_iloose_mu6_24invm60_noos_novtx', 'HLT_mu18_mu8noL1', 'HLT_mu20_iloose_L1MU15', 'HLT_2mu6_bBmumu', 'HLT_mu6_mu4_bBmumu', 'HLT_2mu4_bUpsimumu', 'HLT_mu6_mu4_bUpsimumu', 'HLT_2mu6_bUpsimumu', 'HLT_mu4_iloose_mu4_11invm60_noos_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1_MU6_2MU4', 'HLT_mu24_imedium', 'HLT_mu26_ivarmedium', 'HLT_mu50', 'HLT_mu24_iloose', 'HLT_mu24_iloose_L1MU15']
 

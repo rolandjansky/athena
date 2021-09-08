@@ -54,7 +54,7 @@ Updated: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MonteCarloTruthClas
 //
 //std includes
 #include <cmath>
-
+#include <tuple>
 
 using namespace MCTruthPartClassifier;
 using std::abs;
@@ -165,22 +165,35 @@ StatusCode MCTruthClassifier::execute(){
 }
 
 //---------------------------------------------------------------------------------------
+const xAOD::TruthParticle* MCTruthClassifier::getParentHadron(const xAOD::TruthParticle *thePart) {
+//---------------------------------------------------------------------------------------
+
+  ATH_MSG_DEBUG( "Executing getParentHadron" );
+
+  if(!thePart){ATH_MSG_WARNING( "Passed a nullptr" ); return 0;}
+
+  return std::get<1>(defOrigOfParticle(thePart));
+}
+
+//---------------------------------------------------------------------------------------   
+int MCTruthClassifier::getParentHadronID(const xAOD::TruthParticle* thePart) {
+//---------------------------------------------------------------------------------------   
+
+  const xAOD::TruthParticle* parentHadron = getParentHadron(thePart);
+
+  return parentHadron ? parentHadron->pdgId() : 0; 
+}
+
+
+//---------------------------------------------------------------------------------------
 unsigned int MCTruthClassifier::classify(const xAOD::TruthParticle  *thePart){
-  //---------------------------------------------------------------------------------------                                                                
+  //--------------------------------------------------------------------------------------- 
 
   ATH_MSG_DEBUG( "Executing classify" );
-  
-  //retrieve collection and get a pointer                                                                                                                  
-  if(!thePart){ATH_MSG_WARNING( "Not the primary particle" );}
-  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-  if (sc.isFailure()||!xTruthParticleContainer){
-    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" );
-    return 0;}
-  
-  ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
 
-  return defOrigOfParticle(thePart);
+  if(!thePart){ATH_MSG_WARNING( "Passed a nullptr" ); return 0;}
+
+  return std::get<0>(defOrigOfParticle(thePart));
 }
 
 
@@ -834,8 +847,8 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
   return(theGenParticle);
 }
 
-//-------------------------------------------------------------------------------   
-unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *thePart){
+//-------------------------------------------------------------------------------    
+std::tuple<unsigned int, const xAOD::TruthParticle*> MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *thePart){
 //-------------------------------------------------------------------------------  
 
 
@@ -847,6 +860,8 @@ unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *th
 
   int iParticlePDG = std::abs(thePart->pdgId());
   int iParticleStat = std::abs(thePart->status());
+
+  const xAOD::TruthParticle *parent_hadron_pointer = NULL;
 
   unsigned int outputvalue;
 
@@ -873,7 +888,7 @@ unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *th
 	while (mybeam==0){
 	  const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():0;
 	  if( partOriVert!=0 ) { 
-	   const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
+	    const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
 	    if(!theMother) continue;
 
 	    if(std::abs(theMother->pdgId()) == 2212){ 
@@ -884,6 +899,7 @@ unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *th
 	    }
 	    if(isHadron(theMother) == true && theMother->status() == 2 ) {
 	      fromhad = 1;
+	      parent_hadron_pointer = theMother;
 	      if(fromTau == 1){
 		isHadTau = 1;
 	      } 
@@ -903,14 +919,14 @@ unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *th
    }
 	
    std::bitset<MCTC_bits::totalBits> status;
-	
+
    status[MCTC_bits::stable] = isStable;
    status[MCTC_bits::isgeant] = isGeant;
    status[MCTC_bits::isbsm] = isBSM;
    status[MCTC_bits::uncat] = uncat;
    status[MCTC_bits::frombsm] = fromBSM;
-   status[MCTC_bits::hadron] = fromhad;                                             
-   status[MCTC_bits::Tau] = fromTau;                                                                                              
+   status[MCTC_bits::hadron] = fromhad;
+   status[MCTC_bits::Tau] = fromTau;
    status[MCTC_bits::HadTau] = isHadTau;
 
    outputvalue = static_cast<unsigned int>(status.to_ulong());
@@ -922,7 +938,7 @@ unsigned int MCTruthClassifier::defOrigOfParticle(const xAOD::TruthParticle  *th
     outputvalue = static_cast<unsigned int>(unclass.to_ulong());
   }
 
- return outputvalue;
+  return std::make_tuple(outputvalue,parent_hadron_pointer);
 }
 
 //-------------------------------------------------------------------------------

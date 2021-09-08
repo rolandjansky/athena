@@ -376,24 +376,15 @@ if DerivationFrameworkHasTruth:
   import DerivationFrameworkCore.WeightMetadata
   import DerivationFrameworkCore.LHE3WeightMetadata
 
-# Add the BCID info
-addDistanceInTrain(jetm6Seq)
-
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
-from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm6Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM6SlimmingHelper = SlimmingHelper("JETM6SlimmingHelper")
-JETM6SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
-}
 
 JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
@@ -438,7 +429,7 @@ JETM6SlimmingHelper.ExtraVariables  = ['CaloCalTopoClusters.calE.calEta.calM.cal
 #JETM6SlimmingHelper.ExtraVariables += ['UFOCSSK.pt.eta.phi.taste']
 JETM6SlimmingHelper.ExtraVariables += ['Electrons.'+NewTrigVars["Electrons"],'Muons.'+NewTrigVars["Muons"],'Photons.'+NewTrigVars["Photons"]]
 JETM6SlimmingHelper.ExtraVariables += [
-    'AntiKt10TruthJets.Split12.Split23.SizeParameter',
+    'AntiKt10TruthJets.SizeParameter',
     'AntiKt10UFOCSSKJets.SizeParameter',
     'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
     'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',

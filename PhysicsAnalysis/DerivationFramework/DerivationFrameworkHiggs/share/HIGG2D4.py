@@ -313,6 +313,12 @@ addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, training='201903') #new 
 addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
+# Add TruthLabel to large-R jets
+if DerivationFrameworkHasTruth:
+  for coll in largeRJetCollections:
+    alg = coll.replace('Jets', '')
+    addJetTruthLabel(jetalg=alg, sequence=higg2d4Seq, algname="JetTruthLabelingAlg", labelname="R10TruthLabel_R21Consolidated")
+    addJetTruthLabel(jetalg=alg, sequence=higg2d4Seq, algname="JetTruthLabelingAlg", labelname="R10TruthLabel_R21Precision")
 #Add ghost links of VR track-jet to PFlow, postponed due to additional studies
 #HIGG5Common.addVRSmallJets(higg2d4Seq)
 #HIGG5Common.addVRSmallJets(higg2d4Seq, training='201903')

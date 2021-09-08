@@ -8,7 +8,7 @@
 #include "JetUncertainties/FFJetSmearingTool.h"
 
 DECLARE_TOOL_FACTORY(JetUncertaintiesTool)
-DECLARE_NAMESPACE_TOOL(CP, FFJetSmearingTool)
+DECLARE_NAMESPACE_TOOL_FACTORY(CP, FFJetSmearingTool)
 
 DECLARE_FACTORY_ENTRIES(JetUncertainties)
 {

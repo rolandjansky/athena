@@ -143,7 +143,7 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
     algseq += softTagAlgMSVTight
 
     from DerivationFrameworkFlavourTag.HbbCommon import addExKtDoubleTaggerScore                                                        
-    nn_file_name = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202010/nn-config.json'
+    nn_file_name = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202011/nn-config.json'
     addExKtDoubleTaggerScore(algseq, ToolSvc, nn_file_name = nn_file_name)
 
     from DerivationFrameworkTop.TOPQAugTools import TOPQExKtCommonTruthKernel

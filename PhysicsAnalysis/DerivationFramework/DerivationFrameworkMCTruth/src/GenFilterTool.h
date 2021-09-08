@@ -40,7 +40,7 @@ namespace DerivationFramework {
     ~GenFilterTool();
     virtual StatusCode addBranches() const;
 
-    StatusCode getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const;
+    StatusCode getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltHTinclNu, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const;
 
     bool isPrompt( const xAOD::TruthParticle* tp ) const;
     MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp) const;

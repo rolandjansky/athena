@@ -61,6 +61,7 @@ RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
 doDissolvedVertexing = False
 rerunVertexing = True
 newVertexContainerSuffix = "fixedExtrapolator"
+LeptonsModSuffix = "LeptonsMod_LRTR3_1p0"
 keepOriginalVertexContainer = False
 
 #------------------------------------------------------------------------------
@@ -76,10 +77,26 @@ if rerunVertexing:
 
   SeqSUSY15 += vsi_2
 
+  # setup addtional vertex container for displaced HNL analysis. 
+  vsi_lepMod = setupVSI( LeptonsModSuffix ) # setup default vsi configuration 
+  vsi_lepMod.twoTrkVtxFormingD0Cut = 1.0 # loosen d0 cut to 1 mm
+  vsi_lepMod.doSelectTracksWithLRTCuts = True # apply addtional track cuts inspired by LRT Run 3 optimizations
+  vsi_lepMod.doSelectTracksFromMuons    = True # do leptons-only vertexing
+  vsi_lepMod.doRemoveCaloTaggedMuons    = True # do remove calo-tagged muons from track selection
+  vsi_lepMod.doSelectTracksFromElectrons  = True # do leptons-only vertexing
+
+
+  vsi_lepMod.VertexFitterTool        = InclusiveVxFitterTool
+  vsi_lepMod.Extrapolator            = ToolSvc.AtlasExtrapolator
+
+  SeqSUSY15 += vsi_lepMod
+
   MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
                                                   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
                                                   'xAOD::VertexContainer#VrtSecInclusive*'+newVertexContainerSuffix+'*',
-                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'+newVertexContainerSuffix+'*'] )
+                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'+newVertexContainerSuffix+'*',
+                                                  'xAOD::VertexContainer#VrtSecInclusive*'+LeptonsModSuffix+'*',
+                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'+LeptonsModSuffix+'*'] )
   print "List of items for the DAOD_RPVLL output stream:"
   print MSMgr.GetStream("StreamDAOD_SUSY15").GetItems()
 
@@ -418,28 +435,33 @@ SUSY15SlimmingHelper.AllVariables = [
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
                                         "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_LooseBadLLP.DFCommonJets_jetClean_VeryLooseBadLLP.DFCommonJets_jetClean_SuperLooseBadLLP",
-                                        "GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY.radiusOfFirstHit.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
-                                        "InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
-                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                        "GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY.radiusOfFirstHit.truthMatchProbability",
+                                        "InDetTrackParticles.truthOrigin.truthType.chiSquared.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit.truthMatchProbability",
+                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.patternRecoInfo",
+                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.patternRecoInfo",
                                         "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
                                         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
                                         "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                         "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType",
                                         "Electrons.bkgMotherPdgId.bkgTruthOrigin",
                                         "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
+                                        "GSFTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
                                         "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
                                         "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
                                         "MET_LocHadTopo.source.name.mpx.mpy.sumet",
                                         "MET_Track.source.name.mpx.mpy.sumet",
                                         "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
-                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1",
+                                        "Photons.Loose",
+                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.LHLoose.Loose.ptcone30.ptcone20",
 ]
 
 # Include dvtrack variables from re-running of VSI 
 original_dvtrack_vars = "is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV".split(".")
 new_dvtrack_vars = [v + "_" + newVertexContainerSuffix for v in original_dvtrack_vars]
 SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(new_dvtrack_vars) ]
+LeptonsMod_dvtrack_vars = [v + "_" +  LeptonsModSuffix for v in original_dvtrack_vars]
+SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(LeptonsMod_dvtrack_vars) ]
+SUSY15SlimmingHelper.ExtraVariables += [ "GSFTrackParticles." + ".".join(LeptonsMod_dvtrack_vars) ]
 
 SUSY15SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 

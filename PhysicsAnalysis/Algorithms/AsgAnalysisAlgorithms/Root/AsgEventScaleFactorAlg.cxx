@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -49,6 +49,7 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorInputDecoration.preExecute (m_systematicsList));
     ANA_CHECK (m_scaleFactorOutputDecoration.preExecute (m_systematicsList));
 
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {

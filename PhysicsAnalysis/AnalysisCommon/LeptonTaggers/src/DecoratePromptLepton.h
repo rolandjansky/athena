@@ -154,19 +154,20 @@ namespace Prompt
     shortDecoratorMap                     m_shortMap;
     floatDecoratorMap                     m_floatMap;
 
-    TMVA::Reader                         *m_TMVAReader;
-    TMVA::Reader                         *m_TMVAReaderOneTrack;
-    TMVA::Reader                         *m_TMVAReaderThreeTrack;
+    std::unique_ptr<TMVA::Reader>         m_TMVAReader;
+    std::unique_ptr<TMVA::Reader>         m_TMVAReaderOneTrack;
+    std::unique_ptr<TMVA::Reader>         m_TMVAReaderThreeTrack;
 
     std::vector<Float_t*>                 m_varTMVA;
 
-    AccessFloat                          *m_accessCalIsolation20;
-    AccessFloat                          *m_accessCalIsolation30;
-    AccessFloat                          *m_accessTrackIsolation30;
-    AccessVertex                         *m_accessSV1Vertices;
+    std::unique_ptr<AccessFloat>         m_accessCalIsolation20;
+    std::unique_ptr<AccessFloat>         m_accessCalIsolation30;
+    std::unique_ptr<AccessFloat>         m_accessTrackIsolation20;
+    std::unique_ptr<AccessFloat>         m_accessTrackIsolation30;
+    std::unique_ptr<AccessVertex>        m_accessSV1Vertices;
 
-    SG::AuxElement::Decorator<float>     *m_decoratorBDT;
-    SG::AuxElement::Decorator<float>     *m_decoratorDR;
+    std::unique_ptr<SG::AuxElement::Decorator<float> >  m_decoratorBDT;
+    std::unique_ptr<SG::AuxElement::Decorator<float> >  m_decoratorDR;
 
     TStopwatch                            m_timerAll;
     TStopwatch                            m_timerExec;

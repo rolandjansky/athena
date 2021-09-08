@@ -141,7 +141,7 @@ def addDiTauLowPt():
     if hasattr(ToolSvc,"DFCommonDiTauLowPtBuilder"):
         return
 
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
     addCHSPFlowObjects()
 
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob

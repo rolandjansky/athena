@@ -148,9 +148,9 @@ namespace DerivationFramework {
 	decor_leptrkVtx_chi2(**trackItr) = leptrkVtx->chiSquared();
 	decor_leptrkVtx_ndf (**trackItr) = leptrkVtx->numberDoF();
       } else {
-	ATH_MSG_ERROR ("Problems in vertex fit for trk " << trk);
+	ATH_MSG_INFO ("Problems in vertex fit. Our z positions are " << trk->z0() << " for the track and " << leptonVtx->z() << " for the lepton vtx ");
 	decor_leptrkVtx_z   (**trackItr) = -999.;
-	decor_leptrkVtx_chi2(**trackItr) =  999.;
+	decor_leptrkVtx_chi2(**trackItr) =   1e8;
 	decor_leptrkVtx_ndf (**trackItr) =    0.;
       }
       
@@ -197,10 +197,9 @@ namespace DerivationFramework {
 	return false;
       }
     }
-    if ( !passID ) return false;
 
-    // it passed the selection, return true
-    return true;
+    // return the decision
+    return passID;
 
   }
 
@@ -229,7 +228,7 @@ namespace DerivationFramework {
       return false;
     }
 
-    // it passed the selection, return true
+    // return the decision
     return passID;
 
   }

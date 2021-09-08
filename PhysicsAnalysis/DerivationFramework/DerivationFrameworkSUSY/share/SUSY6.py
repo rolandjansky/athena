@@ -38,13 +38,16 @@ DecorationTools     = []
 SeqSUSY6 = CfgMgr.AthSequencer("SeqSUSY6")
 DerivationFrameworkJob += SeqSUSY6
 
-### Toggle soft-pion outputs and thinning
-doSoftPion = False
+# Toggle reprocessing outputs and thinning
+isDAOD_RPVLL = False
 if 'tag_info' in inputFileSummary:
   if 'AMITag' in inputFileSummary['tag_info']:
-    AMITag = inputFileSummary['tag_info']['AMITag']
-    if 'r11571' in AMITag or 'r11620' in AMITag:
-      doSoftPion = True
+    AllowedTags = ['r11571','r11784','r12205','r12206','r11620']
+    AMITag      = inputFileSummary['tag_info']['AMITag']
+    for tag in AllowedTags:
+      if tag in AMITag:
+        isDAOD_RPVLL=True
+        break
 
 #====================================================================
 # Trigger navigation thinning
@@ -63,7 +66,55 @@ SUSY6ThinningHelper.AppendToStream( SUSY6Stream )
 # THINNING TOOLS 
 #====================================================================
 
-if doSoftPion:
+if isDAOD_RPVLL:
+
+  #
+  # --- load vertex fitter
+  #
+  from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+  InDetSecVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
+                                               Extrapolator        = ToolSvc.AtlasExtrapolator,
+                                               IterationNumber     = 30,
+                                               AtlasMagFieldSvc    = "AtlasFieldSvc" )
+
+  ToolSvc += InDetSecVxFitterTool
+
+  #
+  # Add driving algorithm
+  #
+  from VrtSecDecay.VrtSecDecayConf import VKalVrtAthena__VrtSecDecay
+  VrtSecDecayFinder = VKalVrtAthena__VrtSecDecay(name                         = "VrtSecDecayFinder",
+                                                 VertexFitterTool             = InDetSecVxFitterTool,
+                                                 OutputVtxContainer           = "VrtSecDecay_DAOD",
+                                                 ParentxAODContainer          = InDetKeys.xAODPixelPrdAssociationTrackParticleContainer(),
+                                                 ChildxAODContainer           = InDetKeys.xAODTrackParticleContainer(),
+                                                 ExpandToMultiTrkVtx          = True,
+                                                 DoHitPatternMatching         = True,
+                                                 ParentChildMaxDr             = 1.5,
+                                                 MaxVtxPerEvent               = 200,
+                                                 VtxQuality                   = 10.0,
+                                                 VtxMinRadius                 = 85.0,
+                                                 VtxMaxRadius                 = 350.0,
+                                                 ParentPt                     = 10000.0,
+                                                 ParentMinEta                 = 0.0,
+                                                 ParentMaxEta                 = 2.1,
+                                                 ParentZ0SinTheta             = 0.5,
+                                                 ParentIBLHits                = 1,
+                                                 ParentPixelLayers            = 3,
+                                                 ParentSCTHIts                = 0,
+                                                 ChildMinPt                   = 200.0,
+                                                 ChildMaxPt                   = 150000000.0,
+                                                 ChildBLayerHits              = 0,
+                                                 ChildNextToInPixLayerHits    = 0,
+                                                 ChildPixHits                 = 2,
+                                                 ChildSCTHits                 = 6 )
+
+  SeqSUSY6 += VrtSecDecayFinder
+
+  MSMgr.GetStream("StreamDAOD_SUSY6").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
+                                                'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
+                                                'xAOD::VertexContainer#VrtSecDecay_DAOD*',
+                                                'xAOD::VertexAuxContainer#VrtSecDecay_DAOD*'] )
 
   from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
   InDetTrackletSelectionTool = InDet__InDetTrackSelectionTool(name           = "InDetTrackletSelectionTool",
@@ -82,9 +133,21 @@ if doSoftPion:
                                                                            MinGoodTracks          = 1,
                                                                            VertexKey              = "VrtSecDecay",
                                                                            InDetTrackParticlesKey = "InDetTrackParticles" )
-
   ToolSvc += vertexParticleThinningTool
   thinningTools.append(vertexParticleThinningTool)
+
+  # Vertex thinning; keep associated tracks
+  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+  vertexParticleThinningTool_DAOD = DerivationFramework__VertexParticleThinning(name                   = "VertexParticleThinning_DAOD",
+                                                                             ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
+                                                                             TrackSelectionTool     = InDetTrackletSelectionTool,
+                                                                             MinGoodTracks          = 1,
+                                                                             VertexKey              = "VrtSecDecay_DAOD",
+                                                                             InDetTrackParticlesKey = "InDetTrackParticles" )
+
+  ToolSvc += vertexParticleThinningTool_DAOD
+  thinningTools.append(vertexParticleThinningTool_DAOD)
+
 
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
   SUSY6TrackletThinningTool = DerivationFramework__TrackParticleThinning(name                   = "SUSY6TrackletThinningTool",
@@ -257,18 +320,6 @@ SUSY6DFCommonKVU = DerivationFramework__TrackParametersKVU(name                 
 ToolSvc += SUSY6DFCommonKVU
 DecorationTools.append(SUSY6DFCommonKVU)
 
-SUSY6DFThreeKVU = DerivationFramework__TrackParametersKVU(name                       = "SUSY6DFThreeKVU",
-                                                          TrackParticleContainerName = "InDetPixelThreeLayerTrackParticles",
-                                                          VertexContainerName        = "PrimaryVertices")
-ToolSvc += SUSY6DFThreeKVU
-DecorationTools.append(SUSY6DFThreeKVU)
-
-SUSY6DFFourKVU = DerivationFramework__TrackParametersKVU(name                       = "SUSY6DFFourKVU",
-                                                         TrackParticleContainerName = "InDetPixelFourLayerTrackParticles",
-                                                         VertexContainerName        = "PrimaryVertices")
-ToolSvc += SUSY6DFFourKVU
-DecorationTools.append(SUSY6DFFourKVU)
-
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__CaloIsolationDecorator
 SUSY6IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name               = "SUSY6IDTrackDecorator",
                                                                     TrackIsolationTool = TrackIsoTool,
@@ -291,26 +342,6 @@ SUSY6PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name     
                                                                        Prefix             = deco_prefix)
 ToolSvc += SUSY6PixelTrackDecorator
 DecorationTools.append(SUSY6PixelTrackDecorator)
-
-SUSY6ThreeLayerTrackDecorator = DerivationFramework__CaloIsolationDecorator(name               = "SUSY6ThreeLayerTrackDecorator",
-                                                                            TrackIsolationTool = TrackIsoTool,
-                                                                            CaloIsolationTool  = CaloIsoTool,
-                                                                            TargetContainer    = "InDetPixelThreeLayerTrackParticles",
-                                                                            ptcones            = deco_ptcones,
-                                                                            topoetcones        = deco_topoetcones,
-                                                                            Prefix             = deco_prefix)
-ToolSvc += SUSY6ThreeLayerTrackDecorator
-DecorationTools.append(SUSY6ThreeLayerTrackDecorator)
-
-SUSY6FourLayerTrackDecorator = DerivationFramework__CaloIsolationDecorator(name               = "SUSY6FourLayerTrackDecorator",
-                                                                           TrackIsolationTool = TrackIsoTool,
-                                                                           CaloIsolationTool  = CaloIsoTool,
-                                                                           TargetContainer    = "InDetPixelFourLayerTrackParticles",
-                                                                           ptcones            = deco_ptcones,
-                                                                           topoetcones        = deco_topoetcones,
-                                                                           Prefix             = deco_prefix)
-ToolSvc += SUSY6FourLayerTrackDecorator
-DecorationTools.append(SUSY6FourLayerTrackDecorator)
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
 SUSY6IsoTrackDecoratorPdEdx = DerivationFramework__trackIsolationDecorator(name               = "SUSY6TrackIsoPdEdxIDDecorator",
@@ -469,9 +500,10 @@ SeqSUSY6 += CfgMgr.DerivationFramework__DerivationKernel("SUSY6KernelSkim",
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY6)
 
 
-## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
+# Adding decorations for fJVT PFlow jets                                                                                                                                             
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY6, algname='JetForwardPFlowJvtToolAlg')
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY6, algname='JetForwardJvtToolBDTAlg')
+
 #==============================================================================
 # Augment after skim
 #==============================================================================
@@ -513,8 +545,6 @@ SUSY6SlimmingHelper.AllVariables = [
   "CombinedStauTrackParticles",
   # "ExtrapolatedMuonTrackParticles",
   "InDetPixelPrdAssociationTrackParticles",
-  "InDetPixelThreeLayerTrackParticles",
-  "InDetPixelFourLayerTrackParticles",
   # "InDetTrackParticlesAssociatedClusters",
   # "InDetTrackParticlesClusterAssociations",
   "METAssoc_AntiKt4EMTopo",
@@ -535,7 +565,7 @@ SUSY6SlimmingHelper.AllVariables = [
   "TruthVertices"
 ]
 
-if doSoftPion:
+if isDAOD_RPVLL:
   SUSY6SlimmingHelper.AllVariables += ['VrtSecDecay']
 
 SUSY6SlimmingHelper.ExtraVariables = SUSY6ExtraVariables

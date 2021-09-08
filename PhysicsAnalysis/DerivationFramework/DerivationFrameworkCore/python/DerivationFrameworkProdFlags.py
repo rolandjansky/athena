@@ -857,6 +857,7 @@ class WriteDAOD_STDM7Stream (JobProperty):
     FileName = ''
     isVirtual = False
     DPDMakerScript = "DerivationFrameworkSM/STDM7.py"
+    nChFilter = -2
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM7Stream)
 listAODtoDPD.append(WriteDAOD_STDM7Stream.StreamName)
@@ -925,6 +926,32 @@ class WriteDAOD_STDM12Stream (JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM12Stream)
 listAODtoDPD.append(WriteDAOD_STDM12Stream.StreamName)
+
+class WriteDAOD_STDM13Stream (JobProperty):
+    """W+D analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM13'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM13.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM13Stream)
+listAODtoDPD.append(WriteDAOD_STDM13Stream.StreamName)
+
+class WriteDAOD_STDM14Stream (JobProperty):
+    """W->rho+gamma analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM14Stream)
+listAODtoDPD.append(WriteDAOD_STDM14Stream.StreamName)
 
 #################################
 # Defined by the Tau group
@@ -1587,6 +1614,19 @@ class WriteDAOD_EXOT28Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Stream)
 listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
+
+class WriteDAOD_EXOT29Stream(JobProperty):
+    """EXOT29: Lepton-only Displaced vertex"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT29'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT29.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT29Stream)
+listAODtoDPD.append(WriteDAOD_EXOT29Stream.StreamName)
 
 #################################
 # Defined by the Jet/MET group

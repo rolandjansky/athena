@@ -30,6 +30,8 @@ namespace asg
     declareProperty ("initializeFail", m_initializeFail, "whether initialize should fail");
 
     ++ instance_counts (name());
+
+    ANA_MSG_INFO ("create UnitTestTool1 " << this);
   }
 
 
@@ -37,6 +39,8 @@ namespace asg
   UnitTestTool1 ::
   ~UnitTestTool1 ()
   {
+    ANA_MSG_INFO ("destroy UnitTestTool1 " << this);
+
     -- instance_counts (name());
   }
 
@@ -46,6 +50,11 @@ namespace asg
   initialize ()
   {
     m_origMsgLevel = msg().level();
+
+    ANA_MSG_INFO ("initialize UnitTestTool1 " << this);
+    ANA_MSG_INFO ("  propertyString: " << m_propertyString);
+    ANA_MSG_INFO ("  propertyInt: " << m_propertyInt);
+
     if (m_initializeFail)
     {
       ATH_MSG_ERROR ("tool configured to fail initialize");

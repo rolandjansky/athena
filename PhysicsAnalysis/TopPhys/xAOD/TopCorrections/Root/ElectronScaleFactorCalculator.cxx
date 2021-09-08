@@ -7,6 +7,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
+#include "PATInterfaces/MakeSystematicsVector.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "TString.h"
 
@@ -200,7 +201,7 @@ namespace top {
     m_systChargeMisID_SYST_UP.insert(CP::SystematicVariation("EL_CHARGEID_SYStotal", 1));
     m_systChargeMisID_SYST_DOWN.insert(CP::SystematicVariation("EL_CHARGEID_SYStotal", -1));
 
-    if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
+    if (m_config->electronEfficiencySystematicModel() != "TOTAL" && m_config->electronEfficiencySystematicModel() != "COMBMCTOYS") {
       CP::SystematicSet triggerSet = m_electronEffSFTrigger->recommendedSystematics();  //currently we have only the
                                                                                         // TOTAL model implemented for
                                                                                         // trigger SF, it's useless to
@@ -227,6 +228,10 @@ namespace top {
           "--->electron RECO " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << " is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelRecoSize(count2);
+
+
       count = 0;
       count2 = 0;
       for (const CP::SystematicSet& isyst : m_systIDCorrModel) {
@@ -238,6 +243,11 @@ namespace top {
           "--->electron ID " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << "  is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelIdSize(count2);
+
+
+
       count = 0;
       count2 = 0;
       for (const CP::SystematicSet& isyst : m_systIsoCorrModel) {
@@ -249,6 +259,82 @@ namespace top {
           "--->electron ISO " << m_config->electronEfficiencySystematicModel() << " component " << (count2++) << "  is " <<
             name);
       }
+
+      m_config->electronEfficiencySystematicModelIsoSize(count2);
+
+
+    }
+
+ 
+    if (m_config->electronEfficiencySystematicModel() == "COMBMCTOYS") {
+      CP::SystematicSet triggerSet = m_electronEffSFTrigger->recommendedSystematics();  //currently we have only the
+                                                                                        // TOTAL model implemented for
+                                                                                        // trigger SF, it's useless to
+                                                                                        // use an advanced model here
+      CP::SystematicSet recoSet = m_electronEffSFRecoCorrModel->recommendedSystematics();
+      CP::SystematicSet idSet = m_electronEffSFIDCorrModel->recommendedSystematics();
+      CP::SystematicSet isoSet = m_electronEffSFIsoCorrModel->recommendedSystematics();
+
+
+      CP::MakeSystematicsVector recosysVecToys;
+      CP::MakeSystematicsVector idsysVecToys;
+      CP::MakeSystematicsVector isosysVecToys;
+
+      recosysVecToys.addGroup("toys");
+      idsysVecToys.addGroup("toys");
+      isosysVecToys.addGroup("toys");
+
+      recosysVecToys.setToys( m_config->electronEfficiencySystematicModelNToys() );
+      idsysVecToys.setToys(   m_config->electronEfficiencySystematicModelNToys()  );
+      isosysVecToys.setToys(  m_config->electronEfficiencySystematicModelNToys() );
+
+      recosysVecToys.calc(recoSet);
+      idsysVecToys.calc(idSet);
+      isosysVecToys.calc(isoSet);
+      
+      m_systRecoCorrModel=recosysVecToys.result("toys");
+      m_systIDCorrModel  =idsysVecToys.result("toys");
+      m_systIsoCorrModel =isosysVecToys.result("toys");
+
+      m_systTriggerCorrModel = CP::make_systematics_vector(triggerSet);
+
+      ATH_MSG_INFO(
+        "For electron RECO, ID, ISOLATION using the correlation model " <<
+          m_config->electronEfficiencySystematicModel());
+      int count = 0;
+      for (const CP::SystematicSet& isyst : m_systRecoCorrModel) {
+        TString name = isyst.name();
+        ATH_MSG_INFO(
+          "--->electron RECO " << m_config->electronEfficiencySystematicModel() << " component " << count << " is " <<
+            name);
+        count++;
+      }
+      m_config->electronEfficiencySystematicModelRecoSize(count);
+
+
+      count = 0;
+      for (const CP::SystematicSet& isyst : m_systIDCorrModel) {
+        TString name = isyst.name();
+        ATH_MSG_INFO(
+          "--->electron ID " << m_config->electronEfficiencySystematicModel() << " component " << count << "  is " <<
+            name);
+        count++;
+      }
+      m_config->electronEfficiencySystematicModelIdSize(count);
+
+
+      count = 0;
+      for (const CP::SystematicSet& isyst : m_systIsoCorrModel) {
+        TString name = isyst.name();
+        ATH_MSG_INFO(
+          "--->electron ISO " << m_config->electronEfficiencySystematicModel() << " component " << count << "  is " <<
+            name);
+        count++;
+      }
+      m_config->electronEfficiencySystematicModelIsoSize(count);
+
+
+
     }
 
     m_decor_triggerEff = "EL_EFF_Trigger_" + m_config->electronID();
@@ -648,7 +734,7 @@ namespace top {
 
 
             /////now taking care of additional systematic model if needed
-            if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
+            if ((m_config->electronEfficiencySystematicModel() != "TOTAL") && (m_config->electronEfficiencySystematicModel() != "COMBMCTOYS")){
               std::vector<float> vec_Eff_Trigger_UP, vec_Eff_Trigger_DOWN, vec_Eff_TriggerLoose_UP,
                                  vec_Eff_TriggerLoose_DOWN;
               std::vector<float> vec_SF_Trigger_UP, vec_SF_Trigger_DOWN, vec_SF_TriggerLoose_UP,
@@ -900,6 +986,233 @@ namespace top {
               electronPtr->auxdecor<std::vector<float> >(m_decor_chargemisidSF_loose +
                                                          "_CorrModel_DOWN") = vec_SF_ChargeMisIDLoose_DOWN;
             }//end of saving additional systematic model
+
+
+
+            if (m_config->electronEfficiencySystematicModel() == "COMBMCTOYS"){
+              std::vector<float> vec_Eff_Trigger_UP, vec_Eff_Trigger_DOWN, vec_Eff_TriggerLoose_UP,
+                                 vec_Eff_TriggerLoose_DOWN;
+              std::vector<float> vec_SF_Trigger_UP, vec_SF_Trigger_DOWN, vec_SF_TriggerLoose_UP,
+                                 vec_SF_TriggerLoose_DOWN;
+              std::vector<float> vec_SF_Reco_UP, vec_SF_Reco_DOWN;
+              std::vector<float> vec_SF_ID_UP, vec_SF_ID_DOWN, vec_SF_IDLoose_UP, vec_SF_IDLoose_DOWN;
+              std::vector<float> vec_SF_Isol_UP, vec_SF_Isol_DOWN, vec_SF_IsolLoose_UP, vec_SF_IsolLoose_DOWN;
+              std::vector<float> vec_SF_ChargeID_UP, vec_SF_ChargeID_DOWN, vec_SF_ChargeIDLoose_UP,
+                                 vec_SF_ChargeIDLoose_DOWN;
+              std::vector<float> vec_SF_ChargeMisID_UP, vec_SF_ChargeMisID_DOWN, vec_SF_ChargeMisIDLoose_UP,
+                                 vec_SF_ChargeMisIDLoose_DOWN;
+
+              double EFF_Trigger(1.), EFF_TriggerLoose(1.);
+              double SF_Trigger(1.), SF_TriggerLoose(1.);
+              double SF_Reco(1.);
+              double SF_ID(1.), SF_IDLoose(1.);
+              double SF_Isol(1.), SF_IsolLoose(1.);
+
+              /// --Trigger-- ///
+              int count = 0;
+              for (const CP::SystematicSet& isyst : m_systTriggerCorrModel) {
+
+                top::check(m_electronEffSFTriggerCorrModel->applySystematicVariation(isyst),
+                           "Failed to set systematic");
+                top::check(m_electronEffSFTriggerLooseCorrModel->applySystematicVariation(
+                             isyst), "Failed to set systematic");
+                top::check(m_electronEffSFTriggerCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                     SF_Trigger), "Failed to get SF");
+                top::check(m_electronEffSFTriggerLooseCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                          SF_TriggerLoose),
+                           "Failed to get SF");
+                top::check(m_electronEffTriggerCorrModel->applySystematicVariation(isyst), "Failed to set systematic");
+                top::check(m_electronEffTriggerLooseCorrModel->applySystematicVariation(
+                             isyst), "Failed to set systematic");
+                top::check(m_electronEffTriggerCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                   EFF_Trigger), "Failed to get SF");
+                top::check(m_electronEffTriggerLooseCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                        EFF_TriggerLoose),
+                           "Failed to get SF");
+
+                vec_SF_Trigger_DOWN.emplace_back(SF_Trigger);
+                vec_SF_TriggerLoose_DOWN.emplace_back(SF_TriggerLoose);
+                vec_Eff_Trigger_DOWN.emplace_back(EFF_Trigger);
+                vec_Eff_TriggerLoose_DOWN.emplace_back(EFF_TriggerLoose);
+                vec_SF_Trigger_UP.emplace_back(SF_Trigger);
+                vec_SF_TriggerLoose_UP.emplace_back(SF_TriggerLoose);
+                vec_Eff_Trigger_UP.emplace_back(EFF_Trigger);
+                vec_Eff_TriggerLoose_UP.emplace_back(EFF_TriggerLoose);
+
+                count++;
+              }
+
+              // Do some sanity check
+              if (vec_SF_Trigger_DOWN.size() != vec_SF_Trigger_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of trigger SF for up and down are different"
+                };
+              }
+              if (vec_SF_TriggerLoose_DOWN.size() != vec_SF_TriggerLoose_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of triggerLoose SF for up and down are different"
+                };
+              }
+              if (vec_Eff_Trigger_DOWN.size() != vec_Eff_Trigger_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of trigger Eff for up and down are different"
+                };
+              }
+              if (vec_Eff_TriggerLoose_DOWN.size() != vec_Eff_TriggerLoose_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of triggerLoose Eff for up and down are different"
+                };
+              }
+
+              ///-- Trigger reset to nominal --///
+              top::check(m_electronEffSFTriggerCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+              top::check(m_electronEffSFTriggerLooseCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+              top::check(m_electronEffTriggerCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+              top::check(m_electronEffTriggerLooseCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+
+              /// --Reco-- ///
+              count = 0;
+              for (const CP::SystematicSet& isyst : m_systRecoCorrModel) {
+
+                top::check(m_electronEffSFRecoCorrModel->applySystematicVariation(isyst), "Failed to set systematic");
+                top::check(m_electronEffSFRecoCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                  SF_Reco), "Failed to get SF");
+
+                vec_SF_Reco_DOWN.emplace_back(SF_Reco);
+                vec_SF_Reco_UP.emplace_back(SF_Reco);
+                ++count;
+              }
+              if (vec_SF_Reco_DOWN.size() != vec_SF_Reco_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of Reco SF for up and down are different"
+                };
+              }
+
+              ///-- Reco reset to nominal --///
+              top::check(m_electronEffSFRecoCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+
+              /// --ID-- ///
+              count = 0;
+              for (const CP::SystematicSet& isyst : m_systIDCorrModel) {
+
+                top::check(m_electronEffSFIDCorrModel->applySystematicVariation(isyst), "Failed to set systematic");
+                top::check(m_electronEffSFIDLooseCorrModel->applySystematicVariation(isyst),
+                           "Failed to set systematic");
+                top::check(m_electronEffSFIDCorrModel->getEfficiencyScaleFactor(*electronPtr, SF_ID),
+                           "Failed to get SF");
+                top::check(m_electronEffSFIDLooseCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                     SF_IDLoose), "Failed to get SF");
+
+                vec_SF_ID_DOWN.emplace_back(SF_ID);
+                vec_SF_IDLoose_DOWN.emplace_back(SF_IDLoose);
+                vec_SF_ID_UP.emplace_back(SF_ID);
+                vec_SF_IDLoose_UP.emplace_back(SF_IDLoose);
+                ++count;
+              }
+              if (vec_SF_ID_DOWN.size() != vec_SF_ID_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of ID SF for up and down are different"
+                };
+              }
+              if (vec_SF_IDLoose_DOWN.size() != vec_SF_IDLoose_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of IDLoose SF for up and down are different"
+                };
+              }
+
+              ///-- ID reset to nominal --///
+              top::check(m_electronEffSFIDCorrModel->applySystematicVariation(m_systNominal),
+                         "Failed to set systematic");
+              top::check(m_electronEffSFIDLooseCorrModel->applySystematicVariation(
+                           m_systNominal), "Failed to set systematic");
+
+              ///-- Iso --///
+              count = 0;
+              for (const CP::SystematicSet& isyst : m_systIsoCorrModel) {
+
+                if (m_electronEffIso_exists) {
+                  top::check(m_electronEffSFIsoCorrModel->applySystematicVariation(isyst), "Failed to set systematic");
+                  top::check(m_electronEffSFIsoCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                   SF_Isol), "Failed to get SF");
+                  ///-- Iso reset to nominal --///
+                  top::check(m_electronEffSFIsoCorrModel->applySystematicVariation(
+                               m_systNominal), "Failed to set systematic");
+                }
+                if (m_electronEffIsoLoose_exists) {
+                  top::check(m_electronEffSFIsoLooseCorrModel->applySystematicVariation(
+                               isyst), "Failed to set systematic");
+                  top::check(m_electronEffSFIsoLooseCorrModel->getEfficiencyScaleFactor(*electronPtr,
+                                                                                        SF_IsolLoose),
+                             "Failed to get SF");
+                  ///-- Iso reset to nominal --///
+                  top::check(m_electronEffSFIsoLooseCorrModel->applySystematicVariation(
+                               m_systNominal), "Failed to set systematic");
+                }
+                vec_SF_Isol_DOWN.emplace_back(SF_Isol);
+                vec_SF_IsolLoose_DOWN.emplace_back(SF_IsolLoose);
+                vec_SF_Isol_UP.emplace_back(SF_Isol);
+                vec_SF_IsolLoose_UP.emplace_back(SF_IsolLoose);
+                ++count;
+              }
+              if (vec_SF_Isol_DOWN.size() != vec_SF_Isol_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of Isol SF for up and down are different"
+                };
+              }
+              if (vec_SF_IsolLoose_DOWN.size() != vec_SF_IsolLoose_UP.size()) {
+                throw std::runtime_error {
+                        "ElectronScaleFactorCalculator::execute: Sizes of IsolLoose SF for up and down are different"
+                };
+              }
+
+
+              ///-- Decorate --///
+
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerEff + "_CorrModel_UP") = vec_Eff_Trigger_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerEff_loose +
+                                                         "_CorrModel_UP") = vec_Eff_TriggerLoose_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerSF + "_CorrModel_UP") = vec_SF_Trigger_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerSF_loose +
+                                                         "_CorrModel_UP") = vec_SF_TriggerLoose_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_recoSF + "_CorrModel_UP") = vec_SF_Reco_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_idSF + "_CorrModel_UP") = vec_SF_ID_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_idSF_loose + "_CorrModel_UP") = vec_SF_IDLoose_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_isoSF + "_CorrModel_UP") = vec_SF_Isol_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_isoSF_loose + "_CorrModel_UP") = vec_SF_IsolLoose_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargeidSF + "_CorrModel_UP") = vec_SF_ChargeID_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargeidSF_loose +
+                                                         "_CorrModel_UP") = vec_SF_ChargeIDLoose_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargemisidSF +
+                                                         "_CorrModel_UP") = vec_SF_ChargeMisID_UP;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargemisidSF_loose +
+                                                         "_CorrModel_UP") = vec_SF_ChargeMisIDLoose_UP;
+
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerEff + "_CorrModel_DOWN") = vec_Eff_Trigger_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerEff_loose +
+                                                         "_CorrModel_DOWN") = vec_Eff_TriggerLoose_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerSF + "_CorrModel_DOWN") = vec_SF_Trigger_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_triggerSF_loose +
+                                                         "_CorrModel_DOWN") = vec_SF_TriggerLoose_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_recoSF + "_CorrModel_DOWN") = vec_SF_Reco_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_idSF + "_CorrModel_DOWN") = vec_SF_ID_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_idSF_loose + "_CorrModel_DOWN") = vec_SF_IDLoose_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_isoSF + "_CorrModel_DOWN") = vec_SF_Isol_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_isoSF_loose +
+                                                         "_CorrModel_DOWN") = vec_SF_IsolLoose_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargeidSF + "_CorrModel_DOWN") = vec_SF_ChargeID_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargeidSF_loose +
+                                                         "_CorrModel_DOWN") = vec_SF_ChargeIDLoose_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargemisidSF +
+                                                         "_CorrModel_DOWN") = vec_SF_ChargeMisID_DOWN;
+              electronPtr->auxdecor<std::vector<float> >(m_decor_chargemisidSF_loose +
+                                                         "_CorrModel_DOWN") = vec_SF_ChargeMisIDLoose_DOWN;
+            }//end of saving COMBMCTOYS systematic model
+
 
 
             /////////////////////////////////////////

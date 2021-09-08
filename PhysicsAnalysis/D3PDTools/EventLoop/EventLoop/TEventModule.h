@@ -13,6 +13,11 @@
 #include <EventLoop/Module.h>
 #include <memory>
 
+namespace asg
+{
+  class SgTEvent;
+}
+
 namespace xAOD
 {
   class TEvent;
@@ -73,8 +78,8 @@ namespace EL
       /// description: the event structure used
     private:
       std::unique_ptr<xAOD::TEvent> m_event; //!
-    private:
       std::unique_ptr<xAOD::TStore> m_store; //!
+      std::unique_ptr<asg::SgTEvent> m_evtStore; //!
 
       /// description: whether we collect D3PDPerfStats statistics
     private:

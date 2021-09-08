@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: CalcTopPartonHistory.h 800464 2017-03-13 18:06:24Z tpelzer $
@@ -22,6 +22,7 @@
 // system include(s):
 #include <memory>
 #include <vector>
+#include <array>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -56,6 +57,10 @@ namespace top {
     ///Store the four-momentum of several particles in the top decay chain
     bool topWb(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4,
                TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4,
+               int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId, TLorentzVector& tau_decay_from_W_p4,
+	       int& tau_decay_from_W_isHadronic, TLorentzVector& tauvis_decay_from_W_p4); //overloaded
+    bool topWb(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4,
+               TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4,
                int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
     bool topWq(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4,
                TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& q_p4, int& q_pdgId,
@@ -81,6 +86,13 @@ namespace top {
                  TLorentzVector& t_afterFSR_p4, TLorentzVector& Ph_p4, TLorentzVector& W_p4, TLorentzVector& b_p4,
                  TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId,
                  bool& has_ph, int& BranchType, int& IniPartonType, bool& missingTop);
+    
+    //// Store the parton histoiry for 4-top events
+    bool tttt(const xAOD::TruthParticleContainer* truthParticles, std::array<int,4> &top_pdgId, 
+	      std::array<TLorentzVector,4> &top_beforeFSR_p4, std::array<TLorentzVector,4> &top_afterFSR_p4, 
+	      std::array<TLorentzVector,4> &b_p4, std::array<TLorentzVector,4> &W_p4, 
+	      std::array<int,4> &Wdecay1_pdgId, std::array<int,4> &Wdecay2_pdgId, 
+	      std::array<TLorentzVector,4> &Wdecay1_p4, std::array<TLorentzVector,4> &Wdecay2_p4);
 
     virtual StatusCode execute();
   protected:

@@ -88,19 +88,38 @@ namespace DerivationFramework {
       
       const xAOD::Egamma* pCopy = *pItr;
       const xAOD::CaloCluster *clu = pCopy->caloCluster();
+      // note: due to thinning in EDM, the clusters might not be saved
+      // this happens in an extremely tiny fraction of events, but rather
+      // than failing we print a warning and decorate the object with
+      // some default values
+      decoratorEngPos(*pCopy) = -999.;
+      decoratorFirstEngDens(*pCopy) = -999.;
+      decoratorIsolation(*pCopy) = -999.;
+      decoratorNBadCells(*pCopy) = -999.;
+      decoratorSecondLambda(*pCopy) = -999.;
+      decoratorSecondR(*pCopy) = -999.;
+      decoratorAverageLArQ(*pCopy) = -999.;
+      decoratorAverageTileQ(*pCopy) = -999.;
+      decoratorBadLArQFrac(*pCopy) = -999.;
+      decoratorCenterLambda(*pCopy) = -999.;
+      decoratorCenterMag(*pCopy) = -999.;
+      decoratorEMProbability(*pCopy) = -999.;
+      decoratorEngBadCells(*pCopy) = -999.;
+      decoratorEngFracMax(*pCopy) = -999.;
+
       if (clu == nullptr) {
-	ATH_MSG_ERROR ("addBranches(): egamma object has no associated caloCluster");
-	return StatusCode::FAILURE;
+	ATH_MSG_WARNING ("addBranches(): egamma object has no associated caloCluster");
+	continue;
       }
       const std::vector<const xAOD::CaloCluster*> assocC = xAOD::EgammaHelpers::getAssociatedTopoClusters(clu);
       if (assocC.size()==0) {
-	ATH_MSG_ERROR ("addBranches(): egamma object has no associated TopoClusters");
-	return StatusCode::FAILURE;
+	ATH_MSG_WARNING ("addBranches(): egamma object has no associated TopoClusters");
+	continue;
       }
       const xAOD::CaloCluster *topoclu = assocC[0];
       if (topoclu == nullptr) {
-	ATH_MSG_ERROR ("addBranches(): egamma object has no associated TopoClusters");
-	return StatusCode::FAILURE;
+	ATH_MSG_WARNING ("addBranches(): egamma object associated TopoClusters is a nullptr");
+	continue;
       }
 
       decoratorEngPos(*pCopy) = topoclu->getMomentValue(xAOD::CaloCluster::ENG_POS);

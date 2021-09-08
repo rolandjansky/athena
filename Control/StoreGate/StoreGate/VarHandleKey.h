@@ -124,6 +124,12 @@ public:
 
 
   /**
+   * @brief Test if the key is blank.
+   */
+  bool empty() const;
+
+
+  /**
    * @brief Return handle to the referenced store.
    */
   ServiceHandle<IProxyDict> storeHandle() const;

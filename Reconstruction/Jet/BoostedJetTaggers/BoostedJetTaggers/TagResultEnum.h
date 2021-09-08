@@ -13,7 +13,9 @@ namespace TagResult
     passMpassD2_2Var,
     passMfailD2_2Var,
     failMpassD2_2Var,
-    failMfailD2_2Var
+    failMfailD2_2Var,
+    passAll,
+    fail
   };
   inline int enumToInt(const TypeEnum type)
   {
@@ -23,6 +25,8 @@ namespace TagResult
       case passMfailD2_2Var: return 2;
       case failMpassD2_2Var: return 3;
       case failMfailD2_2Var: return 4;
+      case passAll:          return 5;
+      case fail:             return 6;
       default:               return 0;
       }
   }
@@ -36,6 +40,10 @@ namespace TagResult
       return failMpassD2_2Var;
     }else if ( type==4 ){
       return failMfailD2_2Var;
+    }else if ( type==5 ){
+      return passAll;
+    }else if ( type==6 ){
+      return fail;
     }
     
     return UNKNOWN;

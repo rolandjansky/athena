@@ -38,13 +38,9 @@ namespace SoftBVrt {
   
     declareProperty( "SVFinderName", m_SVFinderName = "SoftBJetSVFinder" );
 
-    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/" + m_SVFinderName);    
-    m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
-
     declareProperty( "JetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets" );
     declareProperty( "TrackJetCollectionName", m_trackjetCollectionName = "AntiKtVR30Rmax4Rmin02TrackJets" );
     declareProperty( "TruthMatchDRToolName", m_truthMatchToolName = "SoftBJetDrLabeler" );
-    m_truthMatchTool.setTypeAndName("ParticleJetDeltaRLabelTool/" + m_truthMatchToolName );
   
     //track quality tool
     declareProperty( "TrackSelectionTool", m_selTool );
@@ -134,6 +130,10 @@ namespace SoftBVrt {
 
 
   StatusCode SoftBVrtClusterTool::initializeTools(){
+
+    m_secVertexFinderTool.setTypeAndName("InDet::InDetVKalVxInJetTool/" + m_SVFinderName);    
+    m_trkDistanceFinderTool.setTypeAndName("Trk::SeedNewtonTrkDistanceFinder/TrkDistanceFinder"); 
+    m_truthMatchTool.setTypeAndName("ParticleJetDeltaRLabelTool/" + m_truthMatchToolName );
 
     ATH_CHECK( m_secVertexFinderTool.retrieve() );
     ATH_CHECK( m_trkDistanceFinderTool.retrieve() );

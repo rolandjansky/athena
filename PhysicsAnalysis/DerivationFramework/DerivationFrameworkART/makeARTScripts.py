@@ -5,7 +5,7 @@ makeMCDAODs=True
 makeTruthDAODs=True
 makeTrains=True
 
-formatList = ['PHYSVAL','PHYS','PHYSLITE'
+formatList = ['PHYSVAL','PHYS',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
               'HDBS1',
               'HIGG1D1', 'HIGG1D2',
@@ -15,10 +15,10 @@ formatList = ['PHYSVAL','PHYS','PHYSLITE'
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
               'HIGG6D1', 'HIGG6D2',
               'HIGG8D1',
-              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9','STDM11','STDM12',
+              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9','STDM11','STDM12','STDM13','STDM14',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4', 'TAUP5',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18','SUSY19',
-              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23', 'EXOT27', 'EXOT28',
+              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23', 'EXOT27', 'EXOT28', 'EXOT29',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11', 'JETM12', 'JETM13','JETM14','JETM15',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
@@ -155,7 +155,7 @@ def generateTrains(formatList,label,inputFile,isMC):
 if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
-         if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15"]:
+         if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15","EXOT29"]:
             generateText(formatName,dataLabel+"RPVLL",dataFileRPVLL,False,False,"-1")
             if formatName == "SUSY6": generateText(formatName,dataLabel,dataFile,False,False,"-1") 
          elif formatName=="BPHY3":
@@ -192,7 +192,7 @@ if (makeDataDAODs or makeMCDAODs):
       if (makeMCDAODs):
          if formatName == "TOPQ2": continue # only for data
          if formatName[0:4]=='HION' and not formatName=='HION3': continue # only HION3 runs on MC
-         if formatName in ["SUSY15","SUSY6","EXOT15"]:
+         if formatName in ["SUSY15","SUSY6","EXOT15","EXOT29"]:
             generateText(formatName,mcLabel+"RPVLL",mcFileRPVLL,False,True,"-1")
             if formatName == "SUSY6":generateText(formatName,mcLabel,mcFile,False,True,"-1") 
          elif formatName == "EXOT23":
@@ -224,5 +224,5 @@ if (makeTrains):
       generateTrains(train,dataLabel,dataFile,False)
       generateTrains(train,mcLabel,mcFile,True)
    generateTrains(['TOPQ1','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
-   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],mcLabel,mcFileEXOT23,True)
-   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6"],dataLabel,dataFileRPVLL,False)
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6","EXOT29"],mcLabel,mcFileEXOT23,True)
+   generateTrains(["SUSY15","EXOT23","EXOT15","SUSY6","EXOT29"],dataLabel,dataFileRPVLL,False)

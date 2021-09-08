@@ -106,6 +106,7 @@ namespace CompScaleVar
         C2Beta1,        // The value of C_2^{beta=1} (ECF ratio)
         Qw,             // The value of Qw
         TagScaleFactor, // Tagging efficiency SF
+        TagEfficiency, // Tagging efficiency SF
         
         // Resolution uncertainties
         MassRes,        // The jet mass resolution, relative

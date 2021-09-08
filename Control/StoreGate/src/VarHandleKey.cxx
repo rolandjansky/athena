@@ -11,6 +11,13 @@
  */
 
 
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
+
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/exceptions.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -117,6 +124,15 @@ CLID VarHandleKey::clid() const
 const std::string& VarHandleKey::key() const
 {
   return Gaudi::DataHandle::objKey();
+}
+
+
+/**
+ * @brief Test if the key is blank.
+ */
+bool VarHandleKey::empty() const
+{
+  return Gaudi::DataHandle::objKey().empty();
 }
 
 

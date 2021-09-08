@@ -499,7 +499,7 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
         if jetalg in supportedTruthJets:
             isTruthJet = True
 
-        jetaugtool = getJetAugmentationTool(jetalg)
+        jetaugtool = getJetAugmentationTool(jetalg, labelname)
 
         if(jetaugtool==None):
             extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
@@ -936,27 +936,4 @@ def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
             slimhelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
             slimhelper.ExtraVariables.append('EMOriginTopoClusters.calE.calEta.calPhi')
 
-##################################################################
-# Helper to manually schedule PFO constituent modifications
-# Only use this while the automatic addition in JetAlgorithm.py
-# is disabled
-##################################################################
-def addCHSPFlowObjects():
-    # Only act if the collection does not already exist
-    from RecExConfig.AutoConfiguration import IsInInputFile
-    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
-        # Check that an alg doing this has not already been inserted
-        from AthenaCommon.AlgSequence import AlgSequence
-        job = AlgSequence()
-        from JetRec.JetRecStandard import jtm
-        if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
-            from JetRec.JetRecConf import JetToolRunner
-            jtm += JetToolRunner("jetconstitCHSPFlow",
-                                 EventShapeTools=[],
-                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
-            # Add this tool runner to the JetAlgorithm instance "jetalg"
-            # which runs all preparatory tools
-            # This was added by JetCommon
-            job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
-            extjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
-            extjetlog.info(job.jetalg.Tools)
+

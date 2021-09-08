@@ -6,15 +6,10 @@
 #define JSSXBBTAGGER_H_
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
 #include "PATInterfaces/CorrectionCode.h" // needed for checking of muon momentum correction return value properly
 
-#include "TF1.h"
-
 // EDM includes
-#include <xAODJet/JetContainer.h>
-#include <xAODMuon/MuonContainer.h>
+#include "xAODMuon/MuonContainer.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
@@ -38,13 +33,9 @@ class BoostedXbbTagger : public JSSTaggerBase {
     // standard tool constructor
     BoostedXbbTagger(const std::string& name );
 
-    // destructor
-    ~BoostedXbbTagger();
+    virtual StatusCode initialize() override;
 
-    StatusCode initialize();
-    StatusCode finalize();
-
-    virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
 
     // return a vector of track jets which are btagged by the tool
     std::vector<const xAOD::Jet*> getTrackJets(const xAOD::Jet& jet) const;
@@ -65,24 +56,23 @@ class BoostedXbbTagger : public JSSTaggerBase {
     float getMassMax(const xAOD::Jet& jet) const;
 
   private:
+    
     StatusCode decorateWithMuons(const xAOD::Jet& jet) const;
     StatusCode getMuonCorrectionScheme(std::string scheme_name, MuonCorrectionScheme& scheme) const;
     std::string getMuonCorrectionSchemeName(MuonCorrectionScheme scheme) const;
     const xAOD::JetFourMom_t getMuonCorrectedJetFourMom(const xAOD::Jet& jet, std::vector<const xAOD::Muon*> muons, MuonCorrectionScheme scheme, bool useJMSScale = false) const;
     StatusCode getJSSVar(float& value, const xAOD::Jet& jet, std::string name) const;
 
-    std::string m_name;
-
     // the jet mass cut values
     std::string m_jetMassMinStr;
     std::string m_jetMassMaxStr;
-    TF1 * m_jetMassMaxTF1;
-    TF1 * m_jetMassMinTF1;
+    std::unique_ptr<TF1> m_jetMassMaxTF1;
+    std::unique_ptr<TF1> m_jetMassMinTF1;
 
     // the substructure variable and cut value
     std::string m_jetSubVarStr;
     std::string m_jetSubCutStr;
-    TF1* m_jetSubCutTF1;
+    std::unique_ptr<TF1> m_jetSubCutTF1;
 
     // track jet properties
     float m_trackJetPtMin;

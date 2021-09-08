@@ -53,6 +53,7 @@ namespace Analysis {
     // tagging variable prefix
     std::string m_prefix;
     std::string m_primaryVertexContainer;
+    std::string m_trackContainer;
   };
 
 }

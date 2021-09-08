@@ -9,12 +9,16 @@
  * @brief Handle class for adding a decoration to an object.
  */
 
+
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef ASG_DATA_HANDLES_WRITE_DECOR_HANDLE_H
 #define ASG_DATA_HANDLES_WRITE_DECOR_HANDLE_H
 
-#ifndef XAOD_STANDALONE
-#include <StoreGate/WriteDecorHandle.h>
-#else
 
 #include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -304,7 +308,5 @@ void makeHandle (const WriteDecorHandleKey<T>& key,
 
 #include "AsgDataHandles/WriteDecorHandle.icc"
 
-
-#endif
 
 #endif

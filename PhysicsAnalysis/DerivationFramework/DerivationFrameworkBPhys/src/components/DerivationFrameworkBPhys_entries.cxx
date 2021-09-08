@@ -12,6 +12,7 @@
 #include "DerivationFrameworkBPhys/VertexCaloIsolation.h"
 #include "DerivationFrameworkBPhys/VertexTrackIsolation.h"
 #include "DerivationFrameworkBPhys/BPhysMetadataBase.h"
+#include "DerivationFrameworkBPhys/BdKstarMuMu_metadata.h"
 #include "DerivationFrameworkBPhys/Bmumu_metadata.h"
 #include "DerivationFrameworkBPhys/CfAthAlgTool.h"
 #include "DerivationFrameworkBPhys/Bmumu_reco_mumu.h"
@@ -53,6 +54,7 @@ DECLARE_TOOL_FACTORY( BPhysPVThinningTool )
 DECLARE_TOOL_FACTORY( VertexCaloIsolation )
 DECLARE_TOOL_FACTORY( VertexTrackIsolation )
 DECLARE_TOOL_FACTORY( BPhysMetadataBase )
+DECLARE_TOOL_FACTORY( BdKstarMuMu_metadata )
 DECLARE_TOOL_FACTORY( Bmumu_metadata )
 DECLARE_TOOL_FACTORY( CfAthAlgTool )
 DECLARE_TOOL_FACTORY( Bmumu_reco_mumu )
@@ -93,6 +95,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( VertexCaloIsolation )
    DECLARE_TOOL( VertexTrackIsolation )
    DECLARE_TOOL( BPhysMetaDataBase)
+   DECLARE_TOOL( BdKstarMuMu_metadata )
    DECLARE_TOOL( Bmumu_metadata )
    DECLARE_TOOL( CfAthAlgTool )
    DECLARE_TOOL( Bmumu_reco_mumu )

@@ -24,8 +24,8 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATCore 
    Reconstruction/Jet/JetCPInterfaces
    Reconstruction/Jet/JetInterface
-   PRIVATE
    Reconstruction/Jet/BoostedJetTaggers
+   PRIVATE
    Reconstruction/Jet/JetCalibTools
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking

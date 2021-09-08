@@ -112,6 +112,7 @@ bool FinalState::parseSelection(const unsigned short nparticles, std::string str
     std::stringstream ss(strSelection);
 
     std::string word = "(?:!?T){" + std::to_string(nparticles) + "}(\\+(?:!?T){" + std::to_string(nparticles) + "})*";
+
     if(std::regex_match(strSelection, std::regex(word)))
     {
         while(std::getline(ss, word, '+'))

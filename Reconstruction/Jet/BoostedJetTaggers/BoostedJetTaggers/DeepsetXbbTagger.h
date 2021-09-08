@@ -19,10 +19,8 @@
 #define BOOSTEDJETSTAGGERS_DeepsetXbbTagger_H_
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "AsgTools/AsgTool.h"
-#include "JetInterface/IJetSelector.h"
 
-#include <xAODTracking/VertexContainer.h>
+#include "xAODTracking/VertexContainer.h"
 
 namespace lwt {
   class LightweightGraph;
@@ -30,7 +28,7 @@ namespace lwt {
 }
 
 /** The namespace of all subclass for Dexter implementation */
-namespace DeepsetXbbTagger {
+namespace Dexter {
 
   struct TrackSelectorConfig
   {
@@ -43,7 +41,7 @@ namespace DeepsetXbbTagger {
   class DexterInputBuilder;
 }
 
-/**  \class DexterTool
+/**  \class DeepsetXbbTagger
     Jet modfier tool to run and add btagging information from 
     deep-set based Xbb tagger (DeXTer).
     The neuron network JSON contains the lwtnn model and 
@@ -54,67 +52,72 @@ namespace DeepsetXbbTagger {
      */
 
 
-class DexterTool :   public JSSTaggerBase {
-  ASG_TOOL_CLASS0(DexterTool)
+class DeepsetXbbTagger :   
+  public JSSTaggerBase {
+  ASG_TOOL_CLASS0(DeepsetXbbTagger)
 
-public:
+    public:
 
-  DexterTool(const std::string &name);
-  ~DexterTool();
+      DeepsetXbbTagger(const std::string &name);
+      ~DeepsetXbbTagger();
   
-  virtual StatusCode initialize() override final;
+      virtual StatusCode initialize() override;
 
-  /** IJSSTagger interface */
-  virtual Root::TAccept& tag(const xAOD::Jet& jet) const override final;
+      /** IJetSelectorTool interface */
+      virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
 
-  /** get the tagger output (only defined for single output networks) */
-  double getScore(const xAOD::Jet& jet) const;
+      /** get the tagger output (only defined for single output networks) */
+      double getScore(const xAOD::Jet& jet) const;
 
-  /** get the output in the multi-output case */
-  std::map<std::string, double> getScores(const xAOD::Jet& jet) const;
+      /** get the output in the multi-output case */
+      std::map<std::string, double> getScores(const xAOD::Jet& jet) const;
 
-  /** this (and only this) method will add a decorator to the jet. The
-      name is set with the decorationNames property. If this is not
-      given the names are looked up from the the configuration file
-      under "outputs.decoration_map". If this is unspecified, fall back
-      to the names given in the lwtnn file. */
-  void decorate(const xAOD::Jet& jet) const;
-  
-  /** In some cases it's useful to add the decorations to a jet that
-       is not the one the inputs are coming from. */
-  void decorateSecond(const xAOD::Jet& ref, const xAOD::Jet& target) const;
-  
-  /** convenience function to get the decorator names */
-  std::set<std::string> decorationNames() const;
+      /** this (and only this) method will add a decorator to the jet. The
+        name is set with the decorationNames property. If this is not
+        given the names are looked up from the the configuration file
+        under "outputs.decoration_map". If this is unspecified, fall back
+        to the names given in the lwtnn file. */
+      void decorate(const xAOD::Jet& jet) const;
 
-  /** check how many subjets there are */
-  size_t n_subjets(const xAOD::Jet& jet) const;
-  
-  /** Get PrimaryVertex */
-  xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer*) const;
+      /** In some cases it's useful to add the decorations to a jet that
+        is not the one the inputs are coming from. */
+      void decorateSecond(const xAOD::Jet& ref, const xAOD::Jet& target) const;
 
-protected:
-  /** negative-tag mode */
-  std::string m_negativeTagMode;
+      /** convenience function to get the decorator names */
+      std::set<std::string> decorationNames() const;
 
-  /** secvtx collection name */
-  std::string m_secvtx_collection_name;
+      /** check how many subjets there are */
+      size_t n_subjets(const xAOD::Jet& jet) const;
 
-  /** neural network and feeder class */
-  std::unique_ptr<lwt::LightweightGraph> m_lwnn;
-  std::unique_ptr<DeepsetXbbTagger::DexterInputBuilder> m_input_builder;
+      /** Get PrimaryVertex */
+      xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer*) const;
 
-  /** internal stuff to keep track of the output node for the NN  */
-  std::vector<std::string> m_output_value_names;
+    protected:
 
-  /** if no decoration name is given we look it up from the
-      configuration output name  */ 
-  std::map<std::string, std::string> m_decoration_names;
-  std::vector<SG::AuxElement::Decorator<double> > m_decorators;
+      // the subjet selection
+      float m_nSubjets;
 
-  /** Record the offset of each input variable */
-  std::map<std::string, double> m_offsets;
+      /** negative-tag mode */
+      std::string m_negativeTagMode;
 
-};
+      /** secvtx collection name */
+      std::string m_secvtx_collection_name;
+
+      /** neural network and feeder class */
+      std::unique_ptr<lwt::LightweightGraph> m_lwnn;
+      std::unique_ptr<Dexter::DexterInputBuilder> m_input_builder;
+
+      /** internal stuff to keep track of the output node for the NN  */
+      std::vector<std::string> m_output_value_names;
+
+      /** if no decoration name is given we look it up from the
+        configuration output name  */ 
+      std::map<std::string, std::string> m_decoration_names;
+      std::vector<SG::AuxElement::Decorator<double> > m_decorators;
+
+      /** Record the offset of each input variable */
+      std::map<std::string, double> m_offsets;
+
+  };
 
 #endif

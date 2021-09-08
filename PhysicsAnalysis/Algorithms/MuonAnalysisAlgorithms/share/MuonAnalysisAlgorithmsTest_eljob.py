@@ -59,10 +59,8 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from MuonAnalysisAlgorithms.MuonAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
-print algSeq # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+print( algSeq ) # For debugging
+algSeq.addSelfToJob( job )
 
 # Make sure that both the ntuple and the xAOD dumper have a stream to write to.
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
@@ -76,6 +74,9 @@ if options.unit_test:
     os.rmdir( submitDir )
     pass
 
-# Run the job using the direct driver.
-driver = ROOT.EL.DirectDriver()
+# Run the job using the local driver.  This is intentionally the local
+# driver, unlike most other tests that use the direct driver.  That
+# way it tests whether the code works correctly with that driver,
+# which is a lot more similar to the way the batch/grid drivers work.
+driver = ROOT.EL.LocalDriver()
 driver.submit( job, submitDir )

@@ -7,6 +7,7 @@
 
 #include "JetUncertainties/UncertaintyComponent.h"
 #include "JetUncertainties/Helpers.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 namespace jet
 {
@@ -67,6 +68,10 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
         JetFourMomAccessor m_TAMassScale_weights;
         // The weight parametrization
         CompParametrization::TypeEnum m_weightParam;
+
+        // In rare cases, this may only be applied for a given truth label
+        std::string m_truthLabelName;
+        std::vector<LargeRJetTruthLabel::TypeEnum> m_truthLabels;
 
         // Helper functions
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const double massShiftFactor) const;

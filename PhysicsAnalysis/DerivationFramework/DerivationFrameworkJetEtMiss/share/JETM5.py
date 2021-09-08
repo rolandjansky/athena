@@ -125,14 +125,9 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm5Seq, algname='JetFo
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg',includePV=False)
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlgNew',outLabel="fJvtWithPV",includePV=True)
 
-# Add the BCID info
-addDistanceInTrain(jetm5Seq)
-
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
-from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm5Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #====================================================================
 # SET UP STREAM   
@@ -152,10 +147,6 @@ svcMgr += createThinningSvc( svcName="JETM5ThinningSvc", outStreams=[evtStream] 
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM5SlimmingHelper = SlimmingHelper("JETM5SlimmingHelper")
-JETM5SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
-}
 
 JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",

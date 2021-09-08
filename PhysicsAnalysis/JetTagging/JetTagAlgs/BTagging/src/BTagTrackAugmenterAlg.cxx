@@ -31,12 +31,14 @@ namespace Analysis {
     m_dec_track_pos("DUMMYv"),
     m_dec_track_mom("DUMMYv"),
     m_prefix("btagIp_"),
-    m_primaryVertexContainer("PrimaryVertices")
+    m_primaryVertexContainer("PrimaryVertices"),
+    m_trackContainer("InDetTrackParticles")
   {
     declareProperty( "TrackToVertexIPEstimator", m_track_to_vx );
     declareProperty("Extrapolator", m_extrapolator);
     declareProperty("prefix", m_prefix);
     declareProperty("primaryVertexContainer", m_primaryVertexContainer);
+    declareProperty("trackContainer", m_trackContainer);
   }
   StatusCode BTagTrackAugmenterAlg::initialize() {
     if (m_track_to_vx.retrieve().isFailure()) {
@@ -75,7 +77,7 @@ namespace Analysis {
     Trk::PerigeeSurface primary_surface(primary->position());
 
     const xAOD::TrackParticleContainer* tracks = nullptr;
-    CHECK( evtStore()->retrieve(tracks, "InDetTrackParticles") );
+    CHECK( evtStore()->retrieve(tracks, m_trackContainer) );
 
     // now decorate the tracks
     for (const auto* track: *tracks) {

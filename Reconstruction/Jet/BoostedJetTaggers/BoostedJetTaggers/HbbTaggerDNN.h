@@ -1,7 +1,7 @@
 // for editors : this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_HBBTaggerDNN_H_
@@ -27,7 +27,6 @@ public:
   HbbTaggerDNN(const std::string &name);
   ~HbbTaggerDNN();
   StatusCode initialize();
-  StatusCode finalize();
 
   // keep method is inherited from IJetSelector, it returns 0 if the
   // jet doesn't pass. The threshold is set via the tagThreshold

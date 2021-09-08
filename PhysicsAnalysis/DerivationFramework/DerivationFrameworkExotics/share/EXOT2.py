@@ -149,6 +149,7 @@ EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m","AntiKt4EM
 
 EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     "TruthParticles",
+                                    "TruthVertices",
                                     "LVL1JetRoIs",
                                     "HLT_xAOD__JetContainer_a4tcemsubjesFS",
                                     "HLT_xAOD__JetContainer_a4tcemsubjesISFS",

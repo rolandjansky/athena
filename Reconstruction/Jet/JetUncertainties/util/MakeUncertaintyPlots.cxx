@@ -1008,7 +1008,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         // Fix the large-R jet truth label if relevant
         if (optHelper.FixedLargeRJetTruthLabel() != LargeRJetTruthLabel::UNKNOWN)
         {
-            jet->setAttribute("LargeRJetTruthLabel",LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
+            jet->setAttribute(optHelper.TruthLabelMoment().Data(),LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
             std::cout << "Fixed LargeRJetTruthLabel" << std::endl;
         }
         // Fix the Large-R jet tag accept if relevant

@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
-#include <memory>
-#include <cstdlib>
 #include <string>
 
 // ROOT include(s):
 #include <TFile.h>
-#include <TError.h>
 #include <TString.h>
 #include <TTree.h>
 #include <TChain.h>
@@ -21,22 +18,12 @@
 #endif // ROOTCORE
 
 // EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include <xAODJet/JetContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
-#include "AsgTools/Check.h"
-#include "AsgTools/AnaToolHandle.h"
-#include "PATCore/TAccept.h"
 
 // Tool testing include(s):
-#include "AsgTools/AnaToolHandle.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/JetQGTagger.h"
-
-using namespace std;
 
 int main( int argc, char* argv[] ) {
 
@@ -68,14 +55,14 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////
   //:::  parse the options
   ////////////////////////////////////////////////////
-  string options;
+  std::string options;
   for( int i=0; i<argc; i++){
     options+=(argv[i]);
   }
 
-  if(options.find("-f")!=string::npos){
+  if(options.find("-f")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-f")==0){
+      if(std::string(argv[ipos]).compare("-f")==0){
         fileName = argv[ipos+1];
         Info( APP_NAME, "Argument (-f) : Running on file # %s", fileName.Data() );
         break;
@@ -83,9 +70,9 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-event")!=string::npos){
+  if(options.find("-event")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-event")==0){
+      if(std::string(argv[ipos]).compare("-event")==0){
         ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", ievent );
         break;
@@ -93,9 +80,9 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-n")!=string::npos){
+  if(options.find("-n")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-n")==0){
+      if(std::string(argv[ipos]).compare("-n")==0){
         nevents = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-n) : Running on NEvents = %i", nevents );
         break;
@@ -103,7 +90,7 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  if(options.find("-v")!=string::npos){
+  if(options.find("-v")!=std::string::npos){
     verbose=true;
     Info( APP_NAME, "Argument (-v) : Setting verbose");
   }
@@ -147,8 +134,8 @@ int main( int argc, char* argv[] ) {
   // setup the tool handle as per the
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
-  std::cout<<"Initializing WZ Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
+  std::cout<<"Initializing QG Tagger"<<std::endl;
+  asg::AnaToolHandle<CP::JetQGTagger> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, CP::JetQGTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);

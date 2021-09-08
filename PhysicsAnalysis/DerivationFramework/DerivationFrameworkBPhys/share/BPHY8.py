@@ -94,11 +94,11 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
-BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
-BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
-BPHY8cf.mcBhh             = [300431,300432,300433,300434]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300309,300402,300426,300430,300446,300447]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300309,300997,300999,300404,300405,300406,300437,300756,300757,300758,300759]
+BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300309,300401,300438,300448,300449,300761]
+BPHY8cf.mcBplusJpsiPiplus = [300406,300437,300758,300759]
+BPHY8cf.mcBhh             = [300431,300432,300433,300434,300760,300762,300763,300764,300765]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 
 #====================================================================
@@ -386,9 +386,9 @@ BPHY8cf.IsoTrackIBLHits      = [    -1     ,     -1        ]
 # (Sizes of all lists below need to be identical!)
 # Note: IsoDoTrkImpLogChi2Cut = 2 implements old method used
 #       for the 2015/16 analysis
-BPHY8cf.IsolationConeSizes    = [ 0.7, 0.7, 1.0]
-BPHY8cf.IsoTrkImpLogChi2Max   = [ 5.0, 5.0, 0.0]
-BPHY8cf.IsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
+BPHY8cf.IsolationConeSizes    = [ 0.7, 1.0]
+BPHY8cf.IsoTrkImpLogChi2Max   = [ 5.0, 0.0]
+BPHY8cf.IsoDoTrkImpLogChi2Cut = [ 2  , 0  ]
 # Track types to be used (bit pattern)
 # track sets to consider:
 # bit : meaning
@@ -463,7 +463,7 @@ BPHY8cf.IsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 #          9   simple extrapolation from track parameters with uncertainties
 #              from track and vertex (sum of 2x2 covariance matrices)
 #        (E.g. 127 means to consider all tracks.)
-BPHY8cf.useIsoTrackTypes    = [ 35, 8388608, 134217728, 127]
+BPHY8cf.useIsoTrackTypes    = [ 35, 134217728]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.IsoTvaWorkingPoint = "Loose"
 # use of speed-optimized algorithm
@@ -474,9 +474,7 @@ BPHY8cf.IsoUseOptimizedAlgo = True
 # Tuples: (isolation settings|track types|ID track selection)
 # Note: use an empty list to keep all
 BPHY8cf.IsoIncludes = ['07_LC50d2|35|LoosePt05',            # ACH
-                       '10_LC00d0|134217728|LooSiHi1Pt05',  # BEJ
-                       '10_LC00d0|8388608|LooSiHi1Pt05',    # BGJ
-                       '07_LC50d1|127|LooSiHi1Pt05'       ] # BDI
+                       '10_LC00d0|134217728|LooSiHi1Pt05']  # BEJ
 
 # Isolation for muons from B candidate -- track selection requirements
 # (Sizes of all lists below need to be identical!)
@@ -493,9 +491,9 @@ BPHY8cf.MuIsoTrackIBLHits      = [     -1    ,     -1        ]
 # (Sizes of all lists below need to be identical!)
 # Note: MuIsoDoTrkImpLogChi2Cut = 2 implements old method used
 #       for the 2015/16 analysis
-BPHY8cf.MuIsolationConeSizes    = [ 0.7, 0.7, 1.0]
-BPHY8cf.MuIsoTrkImpLogChi2Max   = [ 5.0, 5.0, 0.0]
-BPHY8cf.MuIsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
+BPHY8cf.MuIsolationConeSizes    = [ 0.7, 1.0]
+BPHY8cf.MuIsoTrkImpLogChi2Max   = [ 5.0, 0.0]
+BPHY8cf.MuIsoDoTrkImpLogChi2Cut = [ 2  , 0  ]
 # Track types to be used (bit pattern)
 # track sets to consider:
 # bit : meaning
@@ -570,7 +568,7 @@ BPHY8cf.MuIsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 #          9   simple extrapolation from track parameters with uncertainties
 #              from track and vertex (sum of 2x2 covariance matrices)
 #        (E.g. 127 means to consider all tracks.)
-BPHY8cf.useMuIsoTrackTypes    = [ 35, 8388608, 134217728, 127]
+BPHY8cf.useMuIsoTrackTypes    = [ 35, 134217728]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.MuIsoTvaWorkingPoint = "Loose"
 #
@@ -578,9 +576,7 @@ BPHY8cf.MuIsoTvaWorkingPoint = "Loose"
 # Tuples: (isolation settings|track types|ID track selection)
 # Note: use an empty list to keep all
 BPHY8cf.MuIsoIncludes = ['07_LC50d2|35|LoosePt05',            # ACH
-                         '10_LC00d0|134217728|LooSiHi1Pt05',  # BEJ
-                         '10_LC00d0|8388608|LooSiHi1Pt05',    # BGJB
-                         '07_LC50d1|127|LooSiHi1Pt05'       ] # BDI
+                         '10_LC00d0|134217728|LooSiHi1Pt05']  # BEJ
 
 # Closest track finding -- track selection requirements
 # Set to "Custom" (for strings) or -1. (for numerics) to disable setting
@@ -683,7 +679,7 @@ BPHY8cf.CloseTrackIBLHits      = [    -1     ,     -1        ]
 #  4 : 127: same as option 3 but using the vertex pointers 
 #           for comparing in old setup; including tracks
 #           with broken (NULL) vertex pointers as well
-BPHY8cf.useCloseTrackTypes    = [ 35, 8388608, 134217728]
+BPHY8cf.useCloseTrackTypes    = [ 35, 134217728]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.CloseTrackTvaWorkingPoint = "Loose"
 #
@@ -721,8 +717,7 @@ BPHY8cf.NCloseTrackMaxLogChi2 = [ 1.      , 2.   ]
 # Tuples: (close track chi2 set|track types|ID track selection)
 # Note: use an empty list to keep all
 BPHY8cf.CloseTrackIncludes = ['201516|35|LoosePt05',           # ACK
-                              'f2dc2|134217728|LooSiHi1Pt05',  # BEL
-                              'f2dc2|8388608|LooSiHi1Pt05'   ] # BGL
+                              'f2dc2|134217728|LooSiHi1Pt05']  # BEL
 
 # track/muon isolation and closest track tools
 # debugging level for track types (output to log)
@@ -1665,8 +1660,8 @@ if "Bsmumu" in BPHY8cf.doChannels:
         BlindOnlyAllMuonsTight = BPHY8cf.blindOnlyAllMuonsTight,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
-# b) for BJpsiK and BsJpsiPhi retain the Jpsi
-if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
+# b) for BJpsiK, BsJpsiPhi and BJpsiPi retain the Jpsi
+if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi", "BJpsiPi"]]:
     BPHY8_SelectTools["Jpsimumu"] = DerivationFramework__Select_Bmumu(
         name                   = "BPHY8_Select_Jpsimumu",
         HypothesisName         = "Jpsimumu",

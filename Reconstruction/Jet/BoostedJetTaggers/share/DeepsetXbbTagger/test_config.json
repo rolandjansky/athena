@@ -12,10 +12,10 @@
         "track_d0_maximum": 3.5,
         "track_z0_maximum": 5, 
         "variables":[
-            "IP3D_signed_d0",
-            "IP3D_signed_z0",
-            "IP3D_signed_d0_significance",
-            "IP3D_signed_z0_significance",
+            "exkt2_IP3D_signed_d0",
+            "exkt2_IP3D_signed_z0",
+            "exkt2_IP3D_signed_d0_significance",
+            "exkt2_IP3D_signed_z0_significance",
             "numberOfNextToInnermostPixelLayerHits",
             "numberOfInnermostPixelLayerHits",
             "numberOfInnermostPixelLayerSharedHits",
@@ -31,9 +31,9 @@
         ] 
     },
     "sexctx": {
-        "fliptag_mass_offset": 13.77075356,
+        "fliptag_mass_offset": 13.77747161, 
         "node_name": "node_1",
-        "maximum_number": 12,
+        "maximum_number": 9,
         "variables":[
             "deltaEta_subjet",
             "deltaPhi_subjet",
@@ -60,7 +60,7 @@
                 "type": "int"
             },
             {
-                "regex": "^(JetFitter_|SV1_|IP3D_signed_|delta|Lxy|Lz|pTfrac_|secvtx_)",
+                "regex": "^(JetFitter_|SV1_|exkt2_IP3D_signed_|IP3D_signed_|delta|Lxy|Lz|pTfrac_|secvtx_)",
                 "type": "float"
             }
         ]

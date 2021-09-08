@@ -35,15 +35,18 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist MathMore )
+find_package( lwtnn )
+
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib EgammaAnalysisHelpersLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
-  xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils )
+  xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils ${LWTNN_LIBRARIES})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools
@@ -76,7 +79,7 @@ if( XAOD_STANDALONE )
    atlas_add_executable( EGIdentification_testEGChargeIDSelector
       util/testEGChargeIDSelector.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess 
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
       ElectronPhotonSelectorToolsLib )
 
 endif()

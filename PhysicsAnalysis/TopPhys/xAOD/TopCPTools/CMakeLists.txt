@@ -54,7 +54,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  TriggerAnalysisInterface
 			  TrigGlobalEfficiencyCorrection
 			  PMGAnalysisInterfaces
-			  JetAnalysisInterfaces)
+			  JetAnalysisInterfaces
+                          TruthClassification)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -117,6 +118,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
 				  TrigGlobalEfficiencyCorrectionLib
 				  PMGAnalysisInterfacesLib
 				  JetAnalysisInterfacesLib
+                                  TruthClassificationLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

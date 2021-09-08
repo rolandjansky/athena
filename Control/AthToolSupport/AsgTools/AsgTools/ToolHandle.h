@@ -46,6 +46,8 @@ public:
    const std::string& name() const;
    /// Return the tool's parent tool name
    const std::string& parentName() const;
+   /// Return a pointer to the tool's parent
+   INamedInterface *parent() const noexcept;
 
    /// Change the handle's type and name
    void setTypeAndName(const std::string& typeAndName);

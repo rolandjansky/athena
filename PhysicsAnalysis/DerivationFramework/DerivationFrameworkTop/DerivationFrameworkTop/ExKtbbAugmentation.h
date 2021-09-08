@@ -31,8 +31,9 @@ namespace DerivationFramework {
     StatusCode initialize();
     StatusCode finalize();
     virtual StatusCode addBranches() const;
-    
-  private:
+    int getDeXTerLabel(const int ghostBFinalCount,const int ghostCFinalCount) const;
+
+   private:
     std::string m_eventInfoName;    
     std::string m_secvtxName;
     std::string m_largeJetCollectionName;
@@ -41,44 +42,41 @@ namespace DerivationFramework {
     std::string m_primaryVerticesCollectionName;
     bool m_isMC;
 
-    ToolHandle<DexterTool> m_dexter;
+    ToolHandle<DeepsetXbbTagger> m_dexter;
 
-    struct ExKtbbDecorators {
-
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_pt;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_eta;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_phi;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_mass;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxx;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxy;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxz;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_lxy;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_lxysig;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_lz;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_lzsig;
-      static SG::AuxElement::Decorator<std::vector<float> > secvtx_3dsig;
-      static SG::AuxElement::Decorator<float> jet_maxsd0;
-      static SG::AuxElement::Decorator<float> jet_av3sd0;
-      static SG::AuxElement::Decorator<float> jet_dexter_pbb;
-      static SG::AuxElement::Decorator<float> jet_dexter_pb;
-      static SG::AuxElement::Decorator<float> jet_dexter_pl;
-      static SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip_svmassflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip_svmassflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip_svmassflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip_svmassflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip_svmassflip;
-      static SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip_svmassflip;
-      static SG::AuxElement::Decorator<int> smalljet_largeJetLabel;
-
-    };
-    
-    ExKtbbDecorators tj_decorators;    
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_pt;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_eta;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_phi;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_mass;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxx;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxy;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_vtxz;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_lxy;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_lxysig;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_lz;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_lzsig;
+    const SG::AuxElement::Decorator<std::vector<float> > secvtx_3dsig;
+    const SG::AuxElement::Decorator<float> jet_maxsd0;
+    const SG::AuxElement::Decorator<float> jet_av3sd0;
+    const SG::AuxElement::Decorator<float> jet_dexter_pbb;
+    const SG::AuxElement::Decorator<float> jet_dexter_pb;
+    const SG::AuxElement::Decorator<float> jet_dexter_pl;
+    const SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip_svmassflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip_svmassflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip_svmassflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip_svmassflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip_svmassflip;
+    const SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip_svmassflip;
+    const SG::AuxElement::Decorator<int> smalljet_largeJetLabel;
+    const SG::AuxElement::Decorator<int> jet_dexter_ghostBhadronCount;
+    const SG::AuxElement::Decorator<int> jet_dexter_ghostChadronCount;
+    const SG::AuxElement::Decorator<int> jet_dexter_TruthLabel;
 
   }; /// class
 

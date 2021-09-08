@@ -136,9 +136,7 @@ namespace Analysis {
     m_finalDiTrackMassLower(-1.0),
     m_finalDiTrackPt(-1.0),
     m_trkDeltaZ(-1.0),
-    m_requiredNMuons(0),
-    m_vertexFittingWithPV(false),
-    m_PVerticesCollection("PrimaryVertices")
+    m_requiredNMuons(0)
     {
         declareInterface<JpsiPlus2Tracks>(this);
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
@@ -178,8 +176,6 @@ namespace Analysis {
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ             );
         declareProperty("ManualMassHypo",        m_manualMassHypo);
         declareProperty("RequireNMuonTracks",   m_requiredNMuons);
-        declareProperty("UseVertexFittingWithPV", m_vertexFittingWithPV);
-        declareProperty("VertexContainer", m_PVerticesCollection);
         declareProperty("AlternativeMassConstraintTrack", m_altMassMuonTracks);
         declareProperty("UseGSFTrackIndices", m_useGSFTrackIndices);
         declareProperty("GSFCollection", m_TrkParticleGSFCollection);
@@ -249,12 +245,6 @@ namespace Analysis {
             ATH_MSG_DEBUG("Muon container size "<< importedMuonCollection->size());
         }
 
-        // Get primary vertices
-        const xAOD::VertexContainer* importedPVerticesCollection(0);
-        if(m_vertexFittingWithPV){
-           ATH_CHECK(evtStore()->retrieve(importedPVerticesCollection, m_PVerticesCollection));
-           ATH_MSG_DEBUG("PVertices container size "<< importedPVerticesCollection->size());
-        }
         // Typedef for vectors of tracks and VxCandidates
         typedef std::vector<const xAOD::TrackParticle*> TrackBag;
         
@@ -430,7 +420,7 @@ namespace Analysis {
                     if (!passes4TrackMass) continue;
 
                     //Managed pointer, "release" if you don't want it deleted. Automatically deleted otherwise
-                    std::unique_ptr<xAOD::Vertex> bVertex (fit(QuadletTracks, importedTrackCollection, nullptr, importedGSFTrackCollection)); // do vertexing
+                    std::unique_ptr<xAOD::Vertex> bVertex (fit(QuadletTracks, importedTrackCollection, importedGSFTrackCollection)); // do vertexing
                     if(!bVertex) continue;
                     double bChi2DOF = bVertex->chiSquared()/bVertex->numberDoF();
                     ATH_MSG_DEBUG("Candidate chi2/DOF is " << bChi2DOF);
@@ -444,22 +434,6 @@ namespace Analysis {
                     // Set links to J/psi
                     std::vector<const xAOD::Vertex*> theJpsiPreceding;
                     theJpsiPreceding.push_back(*jpsiItr);
-                    if(m_vertexFittingWithPV){
-                        const xAOD::Vertex* closestPV = JpsiUpsilonCommon::ClosestPV(bHelper, importedPVerticesCollection);
-		        if (!closestPV) continue;
-                        std::unique_ptr<xAOD::Vertex> bVertexPV (fit(QuadletTracks, importedTrackCollection, closestPV, importedGSFTrackCollection));
-                        if(!bVertexPV) continue;
-                        double bChi2DOFPV = bVertexPV->chiSquared()/bVertexPV->numberDoF();
-                        bool chi2CutPassed = (m_chi2cut <= 0.0 || bChi2DOFPV < m_chi2cut);
-                        if(!chi2CutPassed) continue;
-                        xAOD::BPhysHelper bHelperPV(bVertexPV.get());
-                        bHelperPV.setRefTrks();
-                        bool passesCutsPV = vertexCuts(bHelperPV);
-                        if(!passesCutsPV) continue;
-                        bHelperPV.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
-                        bContainer->push_back(bVertexPV.release());//ptr is released preventing deletion
-                        continue; //Don't store other vertex
-                    }
                     bHelper.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
                     bContainer->push_back(bVertex.release());//ptr is released preventing deletion
                 } // End of inner loop over tracks
@@ -477,7 +451,7 @@ namespace Analysis {
     // ---------------------------------------------------------------------------------
     
     xAOD::Vertex* JpsiPlus2Tracks::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
-                                       const xAOD::TrackParticleContainer* importedTrackCollection, const xAOD::Vertex* pv, 
+                                       const xAOD::TrackParticleContainer* importedTrackCollection,
                                        const xAOD::TrackParticleContainer* gsfCollection) const {
         
         m_VKVFitter->setDefault();
@@ -498,18 +472,6 @@ namespace Analysis {
             if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
             if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices);
         }
-        if (pv) {
-	   m_VKVFitter->setCnstType(8);
-	   m_VKVFitter->setVertexForConstraint(pv->position().x(),
-					       pv->position().y(),
-					       pv->position().z());
-	   m_VKVFitter->setCovVrtForConstraint(pv->covariancePosition()(Trk::x,Trk::x),
-					       pv->covariancePosition()(Trk::y,Trk::x),
-					       pv->covariancePosition()(Trk::y,Trk::y),
-					       pv->covariancePosition()(Trk::z,Trk::x),
-					       pv->covariancePosition()(Trk::z,Trk::y),
-					       pv->covariancePosition()(Trk::z,Trk::z) );
-	}
 
         // Do the fit itself.......
         // Starting point (use the J/psi position)

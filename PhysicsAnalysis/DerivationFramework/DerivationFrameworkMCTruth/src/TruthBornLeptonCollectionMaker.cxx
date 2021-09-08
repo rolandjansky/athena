@@ -103,6 +103,7 @@ StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::addBranches() co
   const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
   const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
   const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
+  const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
 
   // add relevant particles to new collection
   for (unsigned int i=0; i<importedTruthParticles->size(); ++i) {
@@ -171,6 +172,10 @@ StatusCode DerivationFramework::TruthBornLeptonCollectionMaker::addBranches() co
     if (theParticle->isAvailable<unsigned int>("classifierParticleOutCome")) {
       outcomeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
     } else {outcomeDecorator(*xTruthParticle) = 0;}
+    if (theParticle->isAvailable<unsigned int>("Classification")) {
+      classificationDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "Classification" );
+    } else {classificationDecorator(*xTruthParticle) = 0;}
+
   } // Loop over alll particles
 
   return StatusCode::SUCCESS;

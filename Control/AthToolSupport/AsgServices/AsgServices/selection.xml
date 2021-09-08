@@ -1,0 +1,14 @@
+<!--
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ -->
+
+<lcgdict>
+
+   <!-- The basic service types: -->
+   <class name="asg::IAsgService" />
+   <class name="asg::AsgService" />
+   <class name="asg::AsgServiceConfig" />
+
+   <!-- Helper types: -->
+
+</lcgdict>

@@ -5,15 +5,10 @@
 #ifndef JETQGTAGGER_H
 #define JETQGTAGGER_H
 
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/IJetQGTagger.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 
 #include "PATInterfaces/SystematicsTool.h"
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
-
-#include "PATCore/TAccept.h"
 
 #include <TH2D.h>
 

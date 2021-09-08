@@ -101,7 +101,9 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_namePrefix("JET_")
     , m_accTagScaleFactor("temp_SF")
     , m_accEffSF("temp_effSF")
+    , m_accSigeffSF("temp_sigeffSF")
     , m_accEfficiency("temp_efficiency")
+    , m_accTagResult("temp_accept")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
@@ -160,7 +162,9 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_namePrefix(toCopy.m_namePrefix)
     , m_accTagScaleFactor(toCopy.m_accTagScaleFactor)
     , m_accEffSF(toCopy.m_accEffSF)
+    , m_accSigeffSF(toCopy.m_accSigeffSF)
     , m_accEfficiency(toCopy.m_accEfficiency)
+    , m_accTagResult(toCopy.m_accTagResult)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
 
@@ -455,15 +459,19 @@ StatusCode JetUncertaintiesTool::initialize()
     }
 
     // Get name of accessor to SF value
-    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName","temp_SF"));
-    m_name_EffSF           = TString(settings.GetValue("FileValidEffSFName","temp_effSF"));
-    m_name_Efficiency      = TString(settings.GetValue("FileValidEfficiencyName","temp_efficiency"));
+    m_name_TagScaleFactor  = TString(settings.GetValue("TagSFName","temp_SF"));
+    m_name_EffSF           = TString(settings.GetValue("TagSFEffName","temp_effSF"));
+    m_name_Efficiency      = TString(settings.GetValue("TagEfficiencyName","temp_efficiency"));
+    m_name_TagResult       = TString(settings.GetValue("TagResultName","temp_accept"));
+    m_name_SigeffSF        = TString(m_name_EffSF).ReplaceAll("effSF", "sigeffSF");
     if ( m_name_TagScaleFactor != "temp_SF") {
       ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
     }
     m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
     m_accEffSF = SG::AuxElement::Accessor<float>(m_name_EffSF);
+    m_accSigeffSF = SG::AuxElement::Accessor<float>(m_name_SigeffSF);
     m_accEfficiency = SG::AuxElement::Accessor<float>(m_name_Efficiency);
+    m_accTagResult  = SG::AuxElement::Accessor<int>(m_name_TagResult);
 
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
@@ -2189,6 +2197,10 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
 	        if (updateTagScaleFactor(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
+            case CompScaleVar::TagEfficiency:
+	        if (updateTagEfficiency(jet,uncSet.at(iVar).second).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
             case CompScaleVar::MassRes:
             case CompScaleVar::MassResAbs:
                 if (m_currentUncSet->getTopology() == JetTopology::UNKNOWN)
@@ -2895,26 +2907,38 @@ StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const doub
             return StatusCode::FAILURE;
         }
         const float value = m_accTagScaleFactor(constJet);
+	if ( value < 1e-5 ) {
+	  // if the central SF is 0, we don't consider any uncertainties
+	  return StatusCode::SUCCESS;
+	}
 	if (m_accEffSF.isAvailable(jet)) {
 	  // if efficiency and efficiency SF are available, inefficiency SF will be calculated
 	  const float effSF = m_accEffSF(constJet);
 	  const float efficiency = m_accEfficiency(constJet);
-	  if ( value == effSF ){
-	    // this jet is "tagged" since SF applied to the event is equal to effSF
+	  const int tagResult = m_accTagResult(constJet);
+	  if ( tagResult == TagResult::passAll ){
+	    // update the efficiency SF
+
 	    if ( shift*value < 0.0 ){
 	      m_accTagScaleFactor(jet) = 0.0;
+	      m_accEffSF(jet) = 0.0;
 	    } else {
 	      m_accTagScaleFactor(jet) = shift*value;
+	      m_accEffSF(jet) = shift*value;
 	    }
 	    return StatusCode::SUCCESS;
+
 	  } else {
-	    // this jet is "failed", since SF applied to the event is (1-effSF*efficiency)/(1-efficiency)
-	    // so inefficiency SF will be recalculated for given uncertainty
+	    // this jet is "failed"
+	    // inefficiency SF will be recalculated for given uncertainty
+
 	    if ( efficiency < 1.0 ){
 	      if ( shift*value < 0.0 ){
 		m_accTagScaleFactor(jet) = 1.0/(1. - efficiency);
+		m_accEffSF(jet) = 0.0;
 	      } else {
 		m_accTagScaleFactor(jet) = (1. - shift*effSF*efficiency) / (1. - efficiency);
+		m_accEffSF(jet) = shift*effSF;
 	      }
 	    }
 	    return StatusCode::SUCCESS;	    	    
@@ -2935,6 +2959,61 @@ StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const doub
     return StatusCode::FAILURE;
 }
 
+StatusCode JetUncertaintiesTool::updateTagEfficiency(xAOD::Jet& jet, const double shift) const
+{
+  const bool TagScaleFactorwasAvailable  = m_accTagScaleFactor.isAvailable(jet);    
+  const xAOD::Jet& constJet = jet;
+  if (TagScaleFactorwasAvailable)
+    {
+      if (!m_accTagScaleFactor.isAvailable(jet))
+        {
+	  ATH_MSG_ERROR("TagScaleFactor was previously available but is not available on this jet.  This functionality is not supported.");
+	  return StatusCode::FAILURE;
+        }
+      const float value = m_accTagScaleFactor(constJet);
+      if ( value < 1e-5 ) {
+	// if the central SF is 0, we don't consider any uncertainties
+	return StatusCode::SUCCESS;
+      }
+      if (m_accEffSF.isAvailable(jet)) {
+	// if efficiency and efficiency SF are available, inefficiency SF will be calculated
+	const float effSF = m_accEffSF(constJet);
+	const float efficiency = m_accEfficiency(constJet);
+	float sigeffSF = 1.0;
+	float updated_efficiency = efficiency + shift; // efficiency value is varied
+	if ( updated_efficiency < 1e-5 ) updated_efficiency=1e-5;
+	if ( updated_efficiency > 1.0-1e-5 ) updated_efficiency=1.0-1e-5;
+	m_accEfficiency(jet) = updated_efficiency;
+	if (m_accSigeffSF.isAvailable(jet)) sigeffSF = m_accSigeffSF(constJet);
 
+	const int tagResult = m_accTagResult(constJet);
+	if ( tagResult == TagResult::passAll ){
+	  // do nothing, since efficiency variation does not affect the tagged jets
+	  return StatusCode::SUCCESS;
+	} else {
+	  // this jet is "failed"
+	  // inefficiency SF will be recalculated for given uncertainty
+	  if ( std::abs(effSF - 1.0) < 1e-5 && std::abs(shift)>0 ) { 
+	    // For other category, effSF=1.0. So efficiency variation cannot be propagated to the ineffSF i.e. (1 - eff)/(1 - eff) is always 1 not depending on eff value.
+	    // SF for signal (sigeffSF) is used instead of effSF when calculating it
+	    // Relative variation of ineffSF for signal is calculated here and used for the other category
+	    float nominalIneffSFsig = (1. - sigeffSF*efficiency)/(1. - efficiency);
+	    float variatedIneffSFsig = (1. - sigeffSF*updated_efficiency)/(1. - updated_efficiency);
+	    m_accTagScaleFactor(jet) = variatedIneffSFsig/nominalIneffSFsig;
+	  } else {
+	    m_accTagScaleFactor(jet) = (1. - effSF*updated_efficiency) / (1. - updated_efficiency);
+	  }
+	  return StatusCode::SUCCESS;        
+	}
+      } else {
+	// if efficiency and efficiency SF are NOT available, inefficiency SF will not be calculated
+	// do nothing
+	return StatusCode::SUCCESS;
+      }
+    }
+
+  ATH_MSG_ERROR("TagScaleFactor is not available on the jet, please make sure you called BoostedJetTaggers tag() function before calling this function.");
+  return StatusCode::FAILURE;
+}
 
 

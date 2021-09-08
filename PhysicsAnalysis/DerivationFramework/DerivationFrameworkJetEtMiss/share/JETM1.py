@@ -148,10 +148,9 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=jetm1Seq,algname="QGTaggerToolAl
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=jetm1Seq,algname="QGTaggerToolPFAlg")
 
 # Add alternative rho definitions
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
 
 #SCHEDULE BTAGGING FOR PFLOW JETS
@@ -198,9 +197,6 @@ addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
 addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
                 ptmin=2000,ptminFilter=2000)
 
-# Add the BCID info
-addDistanceInTrain(jetm1Seq)
-
 #add pFlow fJVT and MVfJVT for EMTopo
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm1Seq, algname='JetForwardJvtToolBDTAlg')
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetForwardPFlowJvtToolAlg')
@@ -235,8 +231,6 @@ if DerivationFrameworkHasTruth:
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 JETM1SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
     "Kt4EMPFlowNeutEventShape": "xAOD::EventShape"    ,
     "Kt4EMPFlowNeutEventShapeAux": "xAOD::AuxInfoBase"    ,
 

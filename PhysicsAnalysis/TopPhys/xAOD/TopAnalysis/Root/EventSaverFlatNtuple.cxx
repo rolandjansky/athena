@@ -485,9 +485,9 @@ namespace top {
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_Light_down");
               for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_up");
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_down");
               }
             }
@@ -681,6 +681,10 @@ namespace top {
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
                                                "weight_photonSF_effIso_DOWN");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_UP,
+                                               "weight_photonSF_Trigger_UNCERT_UP");
+            systematicTree->makeOutputVariable(m_weight_photonSF_Trigger_UNCERT_DOWN,
+                                               "weight_photonSF_Trigger_UNCERT_DOWN");
           }
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
@@ -820,6 +824,7 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType, "el_true_firstEgMotherTruthType");
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherPdgId, "el_true_firstEgMotherPdgId");
+          systematicTree->makeOutputVariable(m_el_true_IFFclass, "el_true_IFFclass");
           systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
@@ -873,7 +878,12 @@ namespace top {
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_mu_true_type, "mu_true_type");
           systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+          systematicTree->makeOutputVariable(m_mu_true_IFFclass, "mu_true_IFFclass");
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
+        }
+        if(m_config->noORForMuons())
+        {
+          systematicTree->makeOutputVariable(m_mu_passOR, "mu_passOR");
         }
 	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
 	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_b, "PLIV_mu_PromptLeptonRNN_non_prompt_b");
@@ -903,6 +913,7 @@ namespace top {
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_softmu_true_type, "softmu_true_type");
           systematicTree->makeOutputVariable(m_softmu_true_origin, "softmu_true_origin");
+          systematicTree->makeOutputVariable(m_softmu_true_IFFclass, "softmu_true_IFFclass");
           systematicTree->makeOutputVariable(m_softmu_SF_ID, "softmu_SF_ID");
 
           if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
@@ -1063,6 +1074,7 @@ namespace top {
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
           systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName], "ljet_isTagged_" + taggerName);
+          systematicTree->makeOutputVariable(m_ljet_taggingPassedRangeCheck[taggerName], "ljet_passedRangeCheck_" + taggerName);
         }
 
         if (m_config->isMC()) {
@@ -1070,6 +1082,18 @@ namespace top {
           for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
+	  
+	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
+	    
+	    for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
+	      systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName],"ljet_tagSF_" + taggerName + "_variations");
+	    }
+	    
+	  }
+	  
+	  
+	  
+	  
         }
       }
 
@@ -1206,7 +1230,7 @@ namespace top {
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY") {
           /// Model
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt, "klfitter_model_bhad_pt");
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta, "klfitter_model_bhad_eta");
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi, "klfitter_model_bhad_phi");
@@ -1312,7 +1336,7 @@ namespace top {
         }
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "FITTEDTOPS_ONLY") {
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular") {
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt, "klfitter_bestPerm_topLep_pt");
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta, "klfitter_bestPerm_topLep_eta");
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi, "klfitter_bestPerm_topLep_phi");
@@ -1356,27 +1380,34 @@ namespace top {
         systematicTree->makeOutputVariable(m_selectionDecisions[index], branchName);
         // Add all triggers to a map so we don't get any duplicates
         for (auto& trigger_name : m_config->allTriggers_Tight(branchName)) {
-          m_triggerDecisions [trigger_name] = 0;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->allTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
-              && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
-          m_triggerDecisions [trigger_name] = 0;
+          if (m_triggerDecisions.find(trigger_name.first) != m_triggerDecisions.end()
+              && m_triggerPrescales.find(trigger_name.first) != m_triggerPrescales.end()) continue;
+          m_triggerDecisions [trigger_name.first] = 0;
         }
         for (auto& trigger_name : m_config->electronTriggers_Tight(branchName))
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->electronTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_el_trigMatched.find(trigger_name) != m_el_trigMatched.end()) continue;
-          m_el_trigMatched [trigger_name] = std::vector<char>();
+          if (m_el_trigMatched.find(trigger_name.first) != m_el_trigMatched.end()) continue;
+          m_el_trigMatched [trigger_name.first] = std::vector<char>();
         }
         for (auto& trigger_name : m_config->muonTriggers_Tight(branchName))
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
         for (auto& trigger_name : m_config->muonTriggers_Loose(branchName)) {
           // let's make sure this isn't done twice
-          if (m_mu_trigMatched.find(trigger_name) != m_mu_trigMatched.end()) continue;
-          m_mu_trigMatched [trigger_name] = std::vector<char>();
+          if (m_mu_trigMatched.find(trigger_name.first) != m_mu_trigMatched.end()) continue;
+          m_mu_trigMatched [trigger_name.first] = std::vector<char>();
+        }
+        for (auto& trigger_name : m_config->photonTriggers_Tight(branchName))
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
+        for (auto& trigger_name : m_config->photonTriggers_Loose(branchName)) {
+          // let's make sure this isn't done twice
+          if (m_ph_trigMatched.find(trigger_name.first) != m_ph_trigMatched.end()) continue;
+          m_ph_trigMatched [trigger_name.first] = std::vector<char>();
         }
         ++index;
       }
@@ -1387,6 +1418,8 @@ namespace top {
         systematicTree->makeOutputVariable(trig_name.second, "el_trigMatch_" + trig_name.first);
       for (auto& trig_name : m_mu_trigMatched)
         systematicTree->makeOutputVariable(trig_name.second, "mu_trigMatch_" + trig_name.first);
+      for (auto& trig_name : m_ph_trigMatched)
+        systematicTree->makeOutputVariable(trig_name.second, "ph_trigMatch_" + trig_name.first);
     }
 
     setupUpgradeTreeManager();
@@ -1847,12 +1880,12 @@ namespace top {
         m_weight_leptonSF_EL_SF_Isol_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::EL_SF_Isol_DOWN);
 
         if (m_config->electronEfficiencySystematicModel() != "TOTAL") {
-          m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, -1);
-          m_weight_leptonSF_EL_SF_CorrModel_ID_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, -1);
-          m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, 1);
-          m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, -1);
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, 1, m_config->electronEfficiencySystematicModelRecoSize());
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::RECO, -1,m_config->electronEfficiencySystematicModelRecoSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_ID_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, 1,m_config->electronEfficiencySystematicModelIdSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ID, -1,m_config->electronEfficiencySystematicModelIdSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_UP = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, 1,m_config->electronEfficiencySystematicModelIsoSize() );
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN = m_sfRetriever->electronSFSystVariationVector(event, top::topSFComp::ISOLATION, -1,m_config->electronEfficiencySystematicModelIsoSize() );
         }
         m_weight_leptonSF_MU_SF_Trigger_STAT_UP = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
         m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN = m_sfRetriever->leptonSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
@@ -1953,6 +1986,8 @@ namespace top {
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
+          m_weight_photonSF_Trigger_UNCERT_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP);
+          m_weight_photonSF_Trigger_UNCERT_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN);
         }
 
 
@@ -2137,6 +2172,7 @@ namespace top {
         m_el_true_firstEgMotherPdgId.resize(n_electrons);
         m_el_true_isPrompt.resize(n_electrons);
         m_el_true_isChargeFl.resize(n_electrons);
+        m_el_true_IFFclass.resize(n_electrons);
       }
       if (m_config->enablePromptLeptonImprovedVetoStudies()) {
 	m_PLIV_el_PromptLeptonRNN_conversion.resize(n_electrons);
@@ -2232,6 +2268,7 @@ namespace top {
           static const SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
           static const SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
           static const SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
+          static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
 
           if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
           if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
@@ -2242,7 +2279,13 @@ namespace top {
           std::pair<bool, bool> isPrompt_isChargeFl = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
           m_el_true_isPrompt[i] = isPrompt_isChargeFl.first;
           m_el_true_isChargeFl[i] = isPrompt_isChargeFl.second;
-        }
+
+          //Write IFF classification to output 
+          if(IFFClass.isAvailable(*elPtr)){
+            m_el_true_IFFclass[i] = IFFClass(*elPtr);
+            ATH_MSG_DEBUG("Electron (pt = "<< elPtr->pt() << ") IFF classification = " << m_el_true_IFFclass[i]);
+          }
+	}
         ++i;
       }
     }
@@ -2259,6 +2302,8 @@ namespace top {
       m_mu_topoetcone20.resize(n_muons);
       m_mu_ptvarcone30.resize(n_muons);
       m_mu_isTight.resize(n_muons);
+      m_mu_passOR.resize(n_muons);
+      
       for (const auto& trigger : m_mu_trigMatched)
         m_mu_trigMatched[trigger.first].resize(n_muons);
       m_mu_d0sig.resize(n_muons);
@@ -2266,6 +2311,7 @@ namespace top {
       if (m_config->isMC()) {
         m_mu_true_type.resize(n_muons);
         m_mu_true_origin.resize(n_muons);
+        m_mu_true_IFFclass.resize(n_muons);
         m_mu_true_isPrompt.resize(n_muons);
       }
       if (m_config->enablePromptLeptonImprovedVetoStudies()) {
@@ -2293,6 +2339,7 @@ namespace top {
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel("PromptLeptonImprovedInput_CaloClusterERel");
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
+      static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
 
       for (const auto* const muPtr : event.m_muons) {
         m_mu_pt[i] = muPtr->pt();
@@ -2307,6 +2354,12 @@ namespace top {
             m_mu_isTight[i] = muPtr->auxdataConst<char>("passPreORSelection");
           }
         }
+        
+        if(m_config->noORForMuons())
+        {
+          m_mu_passOR[i]=muPtr->auxdataConst<char>("passOverlapRemoval");
+        }
+        
         for (const auto& trigger : m_mu_trigMatched) {
           std::string trig = "TRIGMATCH_" + trigger.first;
           m_mu_trigMatched[trigger.first][i] = muPtr->auxdataConst<char>(trig);
@@ -2337,6 +2390,12 @@ namespace top {
           if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
           if (acc_mcto.isAvailable(*muPtr)) m_mu_true_origin[i] = acc_mcto(*muPtr);
           m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
+	  //Write IFF classification to output
+          if(IFFClass.isAvailable(*muPtr)){
+            m_mu_true_IFFclass[i] = IFFClass(*muPtr);
+            ATH_MSG_DEBUG("Muon (pt = "<< muPtr->pt() << ") IFF classification = " << m_mu_true_IFFclass[i]);
+          }
         }
         ++i;
       }
@@ -2359,6 +2418,7 @@ namespace top {
       if (m_config->isMC()) {
         m_softmu_true_type.resize(n_muons);
         m_softmu_true_origin.resize(n_muons);
+        m_softmu_true_IFFclass.resize(n_muons);
         m_softmu_true_isPrompt.resize(n_muons);
         m_softmu_SF_ID.resize(n_muons);
         m_softmu_SF_ID_STAT_UP.resize(n_muons);
@@ -2412,11 +2472,19 @@ namespace top {
 
           static const SG::AuxElement::Accessor<int> acc_mctt("truthType");
           static const SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
+          static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
+
           m_softmu_true_type[i] = 0;
           m_softmu_true_origin[i] = 0;
           if (acc_mctt.isAvailable(*muPtr)) m_softmu_true_type[i] = acc_mctt(*muPtr);
           if (acc_mcto.isAvailable(*muPtr)) m_softmu_true_origin[i] = acc_mcto(*muPtr);
           m_softmu_true_isPrompt[i] = isPromptMuon(m_softmu_true_type[i], m_softmu_true_origin[i]);
+
+	  //Write IFF classification to output
+          if(IFFClass.isAvailable(*muPtr)){
+            m_softmu_true_IFFclass[i] = IFFClass(*muPtr);
+            ATH_MSG_DEBUG("Muon (pt = "<< muPtr->pt() << ") IFF classification = " << m_softmu_true_IFFclass[i]);
+          }
           
           if(m_config->softmuonAdditionalTruthInfo())
           {
@@ -2465,6 +2533,8 @@ namespace top {
       m_ph_phi.resize(event.m_photons.size());
       m_ph_e.resize(event.m_photons.size());
       m_ph_iso.resize(event.m_photons.size());
+      for (const auto& trigger : m_ph_trigMatched)
+        m_ph_trigMatched[trigger.first].resize(event.m_photons.size());
       for (const auto* const phPtr : event.m_photons) {
         m_ph_pt[i] = phPtr->pt();
         m_ph_eta[i] = phPtr->eta();
@@ -2473,6 +2543,10 @@ namespace top {
 
         m_ph_iso[i] = 0.;
         if (phPtr->isAvailable<float>("ptvarcone20")) m_ph_iso[i] = phPtr->auxdata<float>("ptvarcone20");
+        for (const auto& trigger : m_ph_trigMatched) {
+          std::string trig = "TRIGMATCH_" + trigger.first;
+          m_ph_trigMatched[trigger.first][i] = phPtr->auxdataConst<char>(trig);
+        }
 
         ++i;
       }
@@ -3025,13 +3099,19 @@ namespace top {
 	m_ljet_substructure[it.first].resize(nLargeRJets);
       }
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames)
+      for (const std::string& taggerName : m_boostedJetTaggersNames) {
         m_ljet_isTagged[taggerName].resize(nLargeRJets);
+	m_ljet_taggingPassedRangeCheck[taggerName].resize(nLargeRJets);
+      }
       if (m_config->isMC()) {
         m_ljet_truthLabel.resize(nLargeRJets);
-        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
-      }
+	  if (event.m_hashValue == m_config->nominalHashValue()) {
+	    m_ljet_tagSFSysVars[taggerName].resize(nLargeRJets);
+	  }
+	}
+      } // end isMC()
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -3045,14 +3125,31 @@ namespace top {
 	}
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
-          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
+          m_ljet_isTagged[taggerName][i] = jetPtr->isAvailable<char>("isTagged_" + taggerName) ? jetPtr->getAttribute<char>("isTagged_" + taggerName) : 0;
+	  m_ljet_taggingPassedRangeCheck[taggerName][i] = jetPtr->isAvailable<char>("passedRangeCheck_" + taggerName) ? jetPtr->getAttribute<char>("passedRangeCheck_" + taggerName) : 0;
         }
 
         if (m_config->isMC()) {
           m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
           for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
-            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+            const std::string& taggerName = tagSF.first;
+	    const std::string& sfNameNominal = tagSF.second;
+	    
+	    
+	    
+	    m_ljet_tagSF[taggerName][i] = jetPtr->isAvailable<float>(sfNameNominal) ? jetPtr->auxdata<float>(sfNameNominal) : -999;
+	    
+	    if (event.m_hashValue == m_config->nominalHashValue()) {
+	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
+	      std::vector<float>& vec = m_ljet_tagSFSysVars[taggerName][i];
+	      vec.resize(sysNames.size());
+	      for(size_t iname = 0; iname<sysNames.size();iname++) {
+		vec[iname] = jetPtr->isAvailable<float>(sysNames[iname]) ? jetPtr->auxdata<float>(sysNames[iname]) : -999;
+	      }
+	    }
+
           }
+
         }
 
         ++i;
@@ -3405,7 +3502,9 @@ namespace top {
 	m_klfitter_logLikelihood_t2.resize(nPermutations);
       }
 
-      if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+
+      if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+
         /// Model
         m_klfitter_model_bhad_pt.resize(nPermutations);
         m_klfitter_model_bhad_eta.resize(nPermutations);
@@ -3538,7 +3637,7 @@ namespace top {
 	    m_klfitter_logLikelihood_t2[iPerm] = klPtr->logLikelihood_t2();
 	  }
           /// Model
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();
             m_klfitter_model_bhad_eta[iPerm] = klPtr->model_bhad_eta();
             m_klfitter_model_bhad_phi[iPerm] = klPtr->model_bhad_phi();
@@ -3643,7 +3742,7 @@ namespace top {
         }
 
         // now take the best permutation and build the tops and the ttbar system!
-        if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles") {
+        if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular") {
           if (nPermutations != 0) {
             TLorentzVector bhad, blep, lq1, lq2, lep, nu, top_had, top_lep, ttbar;
 
@@ -3735,6 +3834,13 @@ namespace top {
     const xAOD::EventInfo* eventInfo(nullptr);
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
+
+
+    if(m_config->isDataOverlay()){
+        eventInfo->auxdecor<unsigned int>("RandomRunNumber") = eventInfo->runNumber();
+        eventInfo->auxdecor<unsigned int>("RandomLumiBlockNumber") = eventInfo->lumiBlock();
+        eventInfo->auxdecor<float>("PileupWeight") = 1.;
+    }
 
     m_weight_mc = eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
     m_eventNumber = eventInfo->eventNumber();
@@ -4929,7 +5035,13 @@ namespace top {
     if(treeManager->name() == "truth") filteredBranches= m_config->filterPartonLevelBranches();
     else if(treeManager->name() == "particleLevel") filteredBranches= m_config->filterParticleLevelBranches();
     else if(treeManager->name() == "nominal_Loose") filteredBranches= m_config->filterNominalLooseBranches();
-    else  filteredBranches= m_config->filterBranches();
+    else if(treeManager->name() == "nominal") {
+      if (m_config->filterNominalBranches().empty()) {
+        filteredBranches= m_config->filterBranches();
+      } else {
+        filteredBranches= m_config->filterNominalBranches();
+      }
+    } else  filteredBranches= m_config->filterBranches();
 
     // lambda to test a wildcard on the variable
     auto matches_wildcard = [&variable] (const std::string& wildcard) {

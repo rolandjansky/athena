@@ -57,7 +57,10 @@ RecJetRoI::RecJetRoI( const RecJetRoI &obj ) {
 }
 
 // written assignment operator
-RecJetRoI& RecJetRoI::operator=( const RecJetRoI &obj ) { 
+RecJetRoI& RecJetRoI::operator=( const RecJetRoI &/*obj*/ ) { 
+   // WARNING: I commented out the above argument to silence warnings
+   // in 21.2, but I am not sure if this is the intended behavior.
+   // This change should not be swept to any other branches.
    return *this;
 }
 

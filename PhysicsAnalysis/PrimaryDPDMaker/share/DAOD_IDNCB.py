@@ -3,6 +3,7 @@
 #################
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 # Select active sub-systems
 dumpPixInfo = True
@@ -80,10 +81,6 @@ if dumpPixInfo:
         print PixelChargeToTConversionSetter
         print PixelChargeToTConversionSetter.properties()
 
-#Setup SCT extension efficiency algorithm if running pixel tracklets
-#if InDetFlags.doTrackSegmentsPixel():
-#    include ("SCTExtension/SCTExtensionAlg.py")
-
 #################
 ### Setup decorators tools
 #################
@@ -134,6 +131,9 @@ if dumpPixInfo:
         print xAOD_PixelPrepDataToxAOD
         print xAOD_PixelPrepDataToxAOD.properties()
 
+#Setup SCT extension efficiency algorithm if running pixel tracklets
+#if InDetFlags.doTrackSegmentsPixel():
+#    include ("SCTExtension/SCTExtensionAlg.py")
 
 #################
 ### Setup Augmentation tools
@@ -213,7 +213,6 @@ if dumpLArCollisionTime:
     from RecExConfig.ObjKeyStore           import cfgKeyStore
     # We can only do this if we have the cell container.
     if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
-
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
         lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='NCBlArCollisionTimeDecorator',
                                                                                     ContainerName = "EventInfo",
@@ -238,6 +237,7 @@ skimmingTools = []
 
 thinningTools = []
 
+
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThinningTool",
@@ -247,6 +247,18 @@ IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThin
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDNCBThinningTool
 thinningTools.append(IDNCBThinningTool)
+
+
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+IDNCBThinningTool_jet = DerivationFramework__JetCaloClusterThinning( name                    = "IDNCBThinningTool_jet",
+                                                                     ThinningService         = "IDNCBThinningSvc",
+                                                                     SGKey                   = "AntiKt4EMTopoJets",
+                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters")
+#                                                                     SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 10*GeV")
+#                                                                 AdditionalClustersKey = ["EMOriginTopoClusters","CaloCalTopoClusters"])
+
+ToolSvc += IDNCBThinningTool_jet
+thinningTools.append(IDNCBThinningTool_jet)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
@@ -269,7 +281,8 @@ IDNCBThinningTool_pix = DerivationFramework__TrackMeasurementThinning( name = "I
 ToolSvc += IDNCBThinningTool_pix
 thinningTools.append(IDNCBThinningTool_pix)
 
-thin_trt = "(TRT_DriftCircles.bec != -2) && (TRT_DriftCircles.layer > 5)"
+thin_trt = "(TRT_DriftCircles.bec != -1) && (TRT_DriftCircles.bec != 1)"
+
 IDNCBThinningTool_trt = DerivationFramework__TrackMeasurementThinning( name = "IDNCBTRTThinningTool",
     ThinningService = "IDNCBThinningSvc",
     SelectionString = thin_trt,
@@ -323,6 +336,26 @@ excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackPar
 excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"
 excludedSCTData = "-detectorElementID.-hitsInThirdTimeBin.-rdo_groupsize"
 
+IDNCBExtraVariables = [   "Muons.clusterLink.extrapolatedMuonSpectrometerTrackParticleLink",
+                          "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
+                          "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
+                          "CaloCalTopoClusters.e_sampl.calM.calE.calEta.calPhi.CENTER_MAG",
+                          "EMOriginTopoClusters.e_sampl.calM.calE.calEta.calPhi",
+                          "AntiKt4EMTopoJets.HECQuality.sumpttrk.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.LArQuality.HECFrac.EMFrac.Width.Timing",
+                          "Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ",
+                          "Electrons.MediumLH.ptvarcone30.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.wtots1.deltaEta1.deltaPhiRescaled2",
+                          "MuonSegments.x.y.z.px.py.pz.chamberIndex",
+                          "HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac"]
+
+
+muonsExtraVariables = "allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ"
+
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+IDNCBSlimmingHelper = SlimmingHelper("IDNCBSlimmingHelper")
+IDNCBSlimmingHelper.AppendToDictionary = {'EMOriginTopoClusters': 'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux': 'xAOD::ShallowAuxContainer'}
+IDNCBSlimmingHelper.ExtraVariables = [ "Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ" ]
+IDNCBSlimmingHelper.AppendContentToStream(IDNCBStream)
+
 # Add generic event information
 IDNCBStream.AddItem("xAOD::EventInfo#*")
 IDNCBStream.AddItem("xAOD::EventAuxInfo#*")
@@ -330,13 +363,27 @@ IDNCBStream.AddItem("xAOD::EventAuxInfo#*")
 #SKC Add jets!
 IDNCBStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
 IDNCBStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
-IDNCBStream.AddItem("xAOD::JetContainer#AntiKt4LCTopoJets")
-IDNCBStream.AddItem("xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.")
+IDNCBStream.AddItem("xAOD::JetElementContainer#JetElements")
+IDNCBStream.AddItem("xAOD::JetElementContainer#JetElementsOverlap")
+IDNCBStream.AddItem("xAOD::EventShape#Kt4EMTopoOriginEventShape")
+IDNCBStream.AddItem("xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.")
+IDNCBStream.AddItem("xAOD::EventShape#Kt4EMTopoEventShape")
+IDNCBStream.AddItem("xAOD::EventShapeAuxInfo#Kt4EMTopoEventShapeAux.")
+IDNCBStream.AddItem("xAOD::CaloClusterContainer#EMOriginTopoClusters")
+IDNCBStream.AddItem("xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.")
+IDNCBStream.AddItem("xAOD::EventShapeInfo#TopoCluster")
+IDNCBStream.AddItem("xAOD::EventShapeAuxInfo#TopoClusterAux.")
+IDNCBStream.AddItem("xAOD::JetTrigAuxContainer#HLT_xAOD__JetContainer_SplitJetAux.")
+IDNCBStream.AddItem("xAOD::JetTrigAuxContainer#HLT_xAOD__JetContainer_a4tcemjesPSAux.")
+IDNCBStream.AddItem("xAOD::JetContainer#HLT_xAOD__JetContainer_a4tcemjesPS")
+IDNCBStream.AddItem("xAOD::JetContainer#HLT_xAOD__JetContainer_SplitJet")
 IDNCBStream.AddItem("xAOD::CaloClusterContainer#CaloCalTopoClusters")
 IDNCBStream.AddItem("xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.")
+IDNCBStream.AddItem("xAOD::CaloClusterAuxContainer#EMOriginTopoClustersAux.")
+IDNCBStream.AddItem("xAOD::CaloClusterContainer#EMOriginTopoClusters")
+
 IDNCBStream.AddItem("xAOD::MuonSegmentContainer#MuonSegments")
 IDNCBStream.AddItem("xAOD::MuonSegmentAuxContainer#MuonSegmentsAux.")
-
 IDNCBStream.AddItem("xAOD::MuonSegmentContainer#NCB_MuonSegments")
 IDNCBStream.AddItem("xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux.")
 
@@ -347,13 +394,29 @@ IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 IDNCBStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
 IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
 
+
 # Add info about electrons and muons (are small containers)
 IDNCBStream.AddItem("xAOD::MuonContainer#Muons")
 IDNCBStream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 IDNCBStream.AddItem("xAOD::ElectronContainer#Electrons")
 IDNCBStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
+
 IDNCBStream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
 IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+excludedAuxData)
+
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#CombinedMuonTracks")
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#CombinedMuonTrackParticles")
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#ExtrapolatedMuonTracks")
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles")
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles")
+IDNCBStream.AddItem("xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles")
+
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#CombinedMuonTracksAux.")
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux.")
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTracksAux.")
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux.")
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux.")
+IDNCBStream.AddItem("xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux.")
 
 # Add truth-related information
 if dumpTruthInfo:
@@ -363,9 +426,22 @@ if dumpTruthInfo:
   IDNCBStream.AddItem("xAOD::TruthVertexAuxContainer#*")
   IDNCBStream.AddItem("xAOD::TruthEventContainer#*")
   IDNCBStream.AddItem("xAOD::TruthEventAuxContainer#*")
+  IDNCBStream.AddItem("xAOD::TruthParticleContainer#MuonTruthSegments")
+  IDNCBStream.AddItem("xAOD::TruthParticleContainer#TruthElectrons")
+  IDNCBStream.AddItem("xAOD::TruthParticleContainer#TruthMuons")
+  IDNCBStream.AddItem("xAOD::TruthParticleContainer#MuonTruthParticles")
+  IDNCBStream.AddItem("xAOD::TruthParticleAuxContainer#MuonTruthSegmentsAux.")
+  IDNCBStream.AddItem("xAOD::TruthParticleAuxContainer#TruthElectronsAux.")
+  IDNCBStream.AddItem("xAOD::TruthParticleAuxContainer#TruthMuonsAux.")
+  IDNCBStream.AddItem("xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux.")
+  
 
 #SKC---always include BCM information!
 IDNCBStream.AddItem("BCM_RDO_Container#BCM_RDOs")
+IDNCBStream.AddItem("BCM_RDO_Container#BCM_CompactDOs")
+
+
+
 
 #PJL - Slim the SCT and TRT data
 IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux."+excludedTRTData)

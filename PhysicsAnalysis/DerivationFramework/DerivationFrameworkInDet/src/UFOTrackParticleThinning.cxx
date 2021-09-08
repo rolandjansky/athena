@@ -190,30 +190,36 @@ StatusCode DerivationFramework::UFOTrackParticleThinning::doThinning() const
   if (m_selectionString=="") { // check all jets as user didn't provide a selection string
 
     for(auto jet : *importedJets){
-	    for( size_t j = 0; j < jet->numConstituents(); ++j ) {
-	      auto ufo = jet->constituentLinks().at(j);
-	    	int index = ufo.index();
-	    	maskUFOs[index] = true;
-  	  	const xAOD::TrackCaloCluster* ufoO = dynamic_cast<const xAOD::TrackCaloCluster*>(*ufo);
-  	  	if(!ufoO) continue;
-  	  	if(ufoO->taste()!=1){
-  	  	  index = ufoO->trackParticleLink().index();
-  	  	  if(index>=0) maskTracks[index] = true;
-  	  	}
-  	  	if(ufoO->taste()!=0){
-          for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
-            index = ufoO->iparticleLinks().at(c).index();
-            if(index<0) continue;
-            bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
+      for( size_t j = 0; j < jet->numConstituents(); ++j ) {
+        auto ufo = jet->constituentLinks().at(j);
+        int index = ufo.index();
+        maskUFOs[index] = true;
+        const xAOD::TrackCaloCluster* ufoO = dynamic_cast<const xAOD::TrackCaloCluster*>(*ufo);
+        if(!ufoO) continue;
+        if(ufoO->taste()==2){
+          index = ufoO->trackParticleLink().index();
+           if(index>=0) { 
+             maskTracks[index] = true;
+          }
+        }
+        if(ufoO->taste()==0){
+          index = dynamic_cast<const xAOD::PFO*>(*ufoO->iparticleLinks().at(0))->track(0)->index();
+          if(index>=0) {
+            maskTracks[index] = true;
+          }
+        }
+        for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
+          index = ufoO->iparticleLinks().at(c).index();
+          if(index<0) continue;
+          bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
 
-            // If it's charged, add it to the charged mask
-            if(isCharged) pfomaskCharged.at( index ) = true;
-            // Otherwise, add it to the neutral mask
-            else pfomaskNeutral.at( index ) = true;
-          } // for c < ufoO->iparticleLinks().size()
-		    }
-	    }
- 	  }
+          // If it's charged, add it to the charged mask
+          if(isCharged) pfomaskCharged.at( index ) = true;
+          // Otherwise, add it to the neutral mask
+          else pfomaskNeutral.at( index ) = true;
+        } // for c < ufoO->iparticleLinks().size()
+      }
+    }
 	
   } else {
 	
@@ -224,22 +230,26 @@ StatusCode DerivationFramework::UFOTrackParticleThinning::doThinning() const
 	    	maskUFOs[index] = true;
     		const xAOD::TrackCaloCluster* ufoO = dynamic_cast<const xAOD::TrackCaloCluster*>(*ufo);
 	    	if(!ufoO) continue;
-    		if(ufoO->taste()!=1){
+    		if(ufoO->taste()==2){
 	    	  index = ufoO->trackParticleLink().index();
 		      if(index>=0) maskTracks[index] = true;
     		}
-	    	if(ufoO->taste()!=0){
-		      for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
-		        index = ufoO->iparticleLinks().at(c).index();
-            if(index<0) continue;
+        if(ufoO->taste()==0){
+          index = dynamic_cast<const xAOD::PFO*>(*ufoO->iparticleLinks().at(0))->track(0)->index();
+          if(index>=0) {
+            maskTracks[index] = true;
+          }
+        }
+        for (size_t c = 0; c < ufoO->iparticleLinks().size(); ++c) {
+          index = ufoO->iparticleLinks().at(c).index();
+          if(index<0) continue;
 
-            bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
-            // If it's charged, add it to the charged mask
-            if(isCharged) pfomaskCharged.at( index ) = true;
-            // Otherwise, add it to the neutral mask
-            else pfomaskNeutral.at( index ) = true;
-		      }
-	    	}
+          bool isCharged = std::abs((dynamic_cast<const xAOD::PFO*>( *ufoO->iparticleLinks().at(c)))->charge()) > FLT_MIN;
+          // If it's charged, add it to the charged mask
+          if(isCharged) pfomaskCharged.at( index ) = true;
+          // Otherwise, add it to the neutral mask
+          else pfomaskNeutral.at( index ) = true;
+		    }
 	    }
   	}
 	

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -21,16 +21,6 @@
 // Include the return object
 #include "TAccept.h"
 
-// include the configuration in RootCore environment
-// if this does not exist, call $ROOTCOREDIR/scripts/compile.sh
-// don't just comment out this line
-#ifdef ROOTCORE
-#include <RootCore/Packages.h>
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-#define PAT_CORE_D3PDREADER
-#endif
-#endif
-
 class TObject;
 
 
@@ -38,17 +28,17 @@ namespace Root {
   class TSelectorToolBase
   {
 
-  public: 
+  public:
     /** Standard constructor */
     TSelectorToolBase(const char* name="TSelectorToolBase") :
       m_name(name),
       m_accept( Form("%s_TAccept",name) )
     {
     }
-    
+
     /** Standard destructor */
     virtual ~TSelectorToolBase(){}
-  
+
 
     // Main methods
   public:
@@ -75,10 +65,10 @@ namespace Root {
 #endif
 
 
-#ifdef ROOTCORE 
+#ifdef ROOTCORE
     /** For convenient PROOF support */
-    ClassDef(TSelectorToolBase,1); 
-#endif 
+    ClassDef(TSelectorToolBase,1);
+#endif
 
 
     // Protected members
@@ -88,7 +78,7 @@ namespace Root {
 
     /** The return TAccept object */
     mutable TAccept m_accept;//!
-    
+
 
   }; // End: class definition
 

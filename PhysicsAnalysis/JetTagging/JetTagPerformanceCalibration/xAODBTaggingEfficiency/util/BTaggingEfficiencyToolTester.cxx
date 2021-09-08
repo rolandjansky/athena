@@ -44,8 +44,8 @@ int main() {
 
   StatusCode code6 = tool.initialize();
 
-  if (code1 != StatusCode::SUCCESS || code2 != StatusCode::SUCCESS || code3 != StatusCode::SUCCESS || code4 != StatusCode::SUCCESS 
-    || code5 != StatusCode::SUCCESS 
+  if (code1 != StatusCode::SUCCESS || code2 != StatusCode::SUCCESS || code3 != StatusCode::SUCCESS || code4 != StatusCode::SUCCESS
+    || code5 != StatusCode::SUCCESS
     || code6 != StatusCode::SUCCESS) {
     std::cout << "Initialization of tool " << tool->name() << " failed! " << std::endl;
     return -1;

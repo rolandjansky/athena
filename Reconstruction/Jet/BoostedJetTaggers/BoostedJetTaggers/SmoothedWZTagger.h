@@ -6,60 +6,39 @@
 #define BOOSTEDJETSTAGGERS_SMOOTHEDWZTAGGER_H_
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "AsgTools/AsgTool.h"
-#include "ParticleJetTools/JetTruthLabelingTool.h"
 
-#include "PATCore/TAccept.h"
-
-class TF1;
-
-class SmoothedWZTagger : public  JSSTaggerBase {
-  ASG_TOOL_CLASS0(SmoothedWZTagger)
-  public:
-
-  //Default - so root can load based on a name
-  SmoothedWZTagger(const std::string& name);
-
-  // Default - so we can clean up
-  ~SmoothedWZTagger();
-
-  // Run once at the start of the job to setup everything
-  StatusCode initialize();
-
-  // Run once at the end of the job to clean up
-  StatusCode finalize();
+class SmoothedWZTagger :
+  public JSSTaggerBase {
+    ASG_TOOL_CLASS0(SmoothedWZTagger)
   
-  // Implement IJSSTagger interface
-  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
-  
-  // get scale factor
-  std::pair<double,double> getWeight(const xAOD::Jet& jet) const;
+    public:
 
-  private:
+      /// Constructor
+      SmoothedWZTagger( const std::string& name );
 
-    // need to set in initialization
+      /// Run once at the start of the job to setup everything
+      virtual StatusCode initialize() override;
 
-    // parameters to store specific cut values
-    std::string m_strMassCutLow;
-    std::string m_strMassCutHigh;
-    std::string m_strD2Cut;
-    std::string m_strNtrkCut;
+      /// IJetSelectorTool interface
+      virtual Root::TAccept& tag( const xAOD::Jet& jet ) const override;
 
-    // functions that are configurable for specific cut values
-    TF1* m_funcMassCutLow;
-    TF1* m_funcMassCutHigh;
-    TF1* m_funcD2Cut;
-    TF1* m_funcNtrkCut;
+    private:
 
-     // truth labeling tool
-    asg::AnaToolHandle<JetTruthLabelingTool> m_JetTruthLabelingTool; //!
+      /// Flag to indicate if Ntrk is used
+      bool m_useNtrk;
 
-    // decorators
-    SG::AuxElement::Decorator<float>    m_dec_mcutL;
-    SG::AuxElement::Decorator<float>    m_dec_mcutH;
-    SG::AuxElement::Decorator<float>    m_dec_d2cut;
-    SG::AuxElement::Decorator<float>    m_dec_ntrkcut;
-    SG::AuxElement::Decorator<int>      m_dec_accept;
-};
+      /// Store functional form of cuts
+      std::string m_strD2Cut;
+      std::string m_strNtrkCut;
+
+      /// Functions that are configurable for specific cut values
+      std::unique_ptr<TF1> m_funcD2Cut;
+      std::unique_ptr<TF1> m_funcNtrkCut;
+
+      /// Decorators
+      std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_d2cut;
+      std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ntrkcut;
+
+  };
 
 #endif

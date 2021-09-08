@@ -32,6 +32,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
+find_package( lwtnn )
 
 atlas_install_generic( share/* DESTINATION data/JetCalibTools )
 
@@ -39,15 +40,15 @@ atlas_install_generic( share/* DESTINATION data/JetCalibTools )
 atlas_add_library( JetCalibToolsLib
    JetCalibTools/*.h Root/*.cxx
    PUBLIC_HEADERS JetCalibTools
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LWTNN_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
    xAODJet xAODTracking PATInterfaces JetInterface
    PRIVATE_LINK_LIBRARIES xAODMuon PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetCalibTools
       src/components/*.cxx
-      LINK_LIBRARIES JetCalibToolsLib )
+      LINK_LIBRARIES JetCalibToolsLib ${LWTNN_LIBRARIES})
 endif()
 
 atlas_add_dictionary( JetCalibToolsDict
@@ -80,6 +81,12 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODCore xAODRootAccess JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotGenericCorrection
+      util/JetCalibTools_PlotGenericCorrection.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess JetCalibToolsLib )
    
 else()
    atlas_add_executable( JetCalibTools_Example
@@ -102,6 +109,12 @@ else()
 
    atlas_add_executable( JetCalibTools_SmearingPlots
       util/JetCalibTools_SmearingPlots.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )
+
+   atlas_add_executable( JetCalibTools_PlotGenericCorrection
+      util/JetCalibTools_PlotGenericCorrection.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
       xAODCore xAODRootAccess POOLRootAccessLib JetCalibToolsLib )

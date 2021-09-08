@@ -34,7 +34,7 @@ namespace FlavorTagDiscriminants {
   enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
   enum class SortOrder {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
-  enum class TrackSelection {ALL, IP3D_2018};
+  enum class TrackSelection {ALL, IP3D_2018, DIPS_LOOSE_202102};
   enum class OutputType {FLOAT, DOUBLE};
 
   // classes to deal with typedefs

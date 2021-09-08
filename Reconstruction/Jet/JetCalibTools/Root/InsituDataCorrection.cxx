@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
@@ -134,6 +134,7 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     TString insituJMS_filename = m_config->GetValue("InsituCalibrationFile_JMS","None");
     //Retrieve the name of the histogram for the absolute in-situ calibration
     TString abs_histoname_JMS = m_config->GetValue("AbsoluteInsituCalibrationHistogram_JMS","");
+    TString abs_histoname_JMS_TA = m_config->GetValue("AbsoluteInsituCalibrationHistogram_JMS_TA","");
     //Retrieve the eta range for the in-situ JMS calibration
     double insitu_etarestriction_JMS = m_config->GetValue("InsituEtaRestriction_JMS",2.0);
 
@@ -152,9 +153,12 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     TFile *insituJMS_file = TFile::Open(insituJMS_filename);
     if ( !insituJMS_file ) { ATH_MSG_FATAL( "Cannot open InsituJMSCalibrationFile: " << insituJMS_filename ); return StatusCode::FAILURE; }
 
-    ATH_MSG_INFO("Reading In-situ correction factors from: " << insituJMS_filename);
+    ATH_MSG_INFO("Reading In-situ JMS correction factors from: " << insituJMS_filename);
 
     abs_histoname_JMS.ReplaceAll("JETALGO",m_jetAlgo);
+    if(m_applyInsituCaloTAjets){
+      abs_histoname_JMS_TA.ReplaceAll("JETALGO",m_jetAlgo);
+    }
 
     if(m_applyRelativeandAbsoluteInsitu){
 
@@ -173,6 +177,19 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
         m_insituPtMax_JMS   = m_insituCorr_JMS->GetXaxis()->GetBinLowEdge(m_insituCorr_JMS->GetNbinsX()+1);
         m_insituMassMin_JMS = m_insituCorr_JMS->GetYaxis()->GetBinLowEdge(1);
         m_insituMassMax_JMS = m_insituCorr_JMS->GetYaxis()->GetBinLowEdge((m_insituCorr_JMS->GetNbinsY()+1));
+
+	if(m_applyInsituCaloTAjets){
+
+	  TH2D * abs_histo_JMS_TA = (TH2D*)JetCalibUtils::GetHisto2(insituJMS_file,abs_histoname_JMS_TA);
+
+	  if ( !abs_histo_JMS_TA ){
+	    ATH_MSG_FATAL( "\n  Tool configured for data, but no in-situ JMS histogram for TA mass could be retrieved. Aborting..." );
+	    return StatusCode::FAILURE;
+	  }
+
+	  gROOT->cd();
+	  m_insituCorr_JMS_TA = std::unique_ptr<TH2D>(invertHistogram(abs_histo_JMS_TA));
+	}
       }
     }
     if(!m_applyRelativeandAbsoluteInsitu){
@@ -214,7 +231,7 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
       xAOD::JetFourMom_t calibP4_JMS;
       calibP4_JMS = calibP4;
 
-      calibP4_JMS=calibP4*getInsituCorr_JMS( calibP4.pt(), calibP4.M(), detectorEta, "RelativeAbs" );
+      calibP4_JMS=calibP4*getInsituCorr_JMS( calibP4.pt(), calibP4.M(), detectorEta, "RelativeAbs", false );
 
       // pT doesn't change while applying in situ JMS
       TLorentzVector TLVjet;
@@ -253,7 +270,7 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 	  xAOD::JetFourMom_t calibP4_calo_JMS;
           calibP4_calo_JMS = calibP4_calo;
 
-          calibP4_calo_JMS=calibP4_calo*getInsituCorr_JMS( calibP4_calo.pt(), calibP4_calo.M(), detectorEta, "RelativeAbs" );
+          calibP4_calo_JMS=calibP4_calo*getInsituCorr_JMS( calibP4_calo.pt(), calibP4_calo.M(), detectorEta, "RelativeAbs", false );
 
 	  // pT doesn't change while applying in situ JMS
 	  TLorentzVector TLVjet_calo;
@@ -288,7 +305,7 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 	  xAOD::JetFourMom_t calibP4_ta_JMS;
           calibP4_ta_JMS = calibP4_ta;
 
-          calibP4_ta_JMS=calibP4_ta*getInsituCorr_JMS( calibP4_ta.pt(), calibP4_ta.M(), detectorEta, "RelativeAbs" );
+          calibP4_ta_JMS=calibP4_ta*getInsituCorr_JMS( calibP4_ta.pt(), calibP4_ta.M(), detectorEta, "RelativeAbs", true );
 
           // pT doesn't change while applying in situ JMS
           TLorentzVector TLVjet_ta;
@@ -338,9 +355,14 @@ double InsituDataCorrection::getInsituCorr(double pt, double eta, std::string ca
   return m_insituCorr->Interpolate(myPt,myEta);
 }
 
-double InsituDataCorrection::getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep) const {
+double InsituDataCorrection::getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep, bool isTAmass) const {
 
-  if (!m_insituCorr_JMS) return 1.0;
+  if(!isTAmass){
+    if (!m_insituCorr_JMS) return 1.0;
+  }
+  else{
+    if (!m_insituCorr_JMS_TA) return 1.0;
+  }
 
   double myEta = eta, myPt = pt/m_GeV, myMass = mass/m_GeV;
 
@@ -362,7 +384,16 @@ double InsituDataCorrection::getInsituCorr_JMS(double pt, double mass, double et
   else if (myEta >= etaMax) myEta = etaMax - 1e-6;
   if (myMass <= massMin ) myMass = massMin + 1e-6;
   else if (myMass >= massMax ) myMass = massMax - 1e-6;
-  return m_insituCorr_JMS->Interpolate(myPt,myMass);
+
+  double calibFactor = 1.0;
+  if(!isTAmass){
+    calibFactor = m_insituCorr_JMS->Interpolate(myPt,myMass);
+  }
+  else{
+    calibFactor = m_insituCorr_JMS_TA->Interpolate(myPt,myMass);
+  }
+
+  return calibFactor;
 }
 
 TH2D * InsituDataCorrection::combineCalibration(TH2D *h2d, TH1D *h) {

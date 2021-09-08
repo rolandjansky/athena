@@ -1,6 +1,6 @@
 <lcgdict>
 
    <class name="CP::ISelectionAccessor" />
-   <class name="CP::OutOfValidityAction" />
+   <enum name="CP::OutOfValidityAction" />
 
 </lcgdict>

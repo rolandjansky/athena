@@ -165,8 +165,8 @@ namespace top {
     *  which we can get from the PRW tool.
     *
     *************************************************************/
-
-    if (m_config->doPileupReweighting()) {
+    
+    if (m_config->isMC()) {
       const xAOD::EventInfo* eventInfo(nullptr);
       top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
                  "Failed to retrieve EventInfo");

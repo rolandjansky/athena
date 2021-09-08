@@ -7,6 +7,7 @@
 
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "BoostedJetTaggers/TagResultEnum.h"
 #include "AsgTools/AsgTool.h"
 
 #include <string>
@@ -190,7 +191,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::vector<std::string> m_systFilters;
 	std::string m_name_TagScaleFactor;
 	std::string m_name_EffSF;
+	std::string m_name_SigeffSF;
 	std::string m_name_Efficiency;
+	std::string m_name_TagResult;
         // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
@@ -253,6 +256,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateC2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
         StatusCode updateTagScaleFactor(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTagEfficiency(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions
@@ -264,7 +268,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 	// accessor to taggign efficiency SF
 	SG::AuxElement::Accessor<float> m_accTagScaleFactor;
 	SG::AuxElement::Accessor<float> m_accEffSF;
+	SG::AuxElement::Accessor<float> m_accSigeffSF;
 	SG::AuxElement::Accessor<float> m_accEfficiency;
+	SG::AuxElement::Accessor<int> m_accTagResult;
 };
     
 

@@ -11,11 +11,13 @@ namespace CP {
 
 TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   AthAlgorithm( name, svcLoc ),
-  m_MCaSTool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this )
+  m_MCaSTool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
+  m_MSTTool( "CP::MuonSelectionTool/MuonSelectionTool", this )
 {
   declareProperty( "Output", m_Output = "MCaST_Debug.root" );
   declareProperty( "SGKey", m_sgKey = "Muons" );
   declareProperty( "MuonCalibrationAndSmearingTool", m_MCaSTool );
+  declareProperty( "MuonSelectionTool", m_MSTTool );
 
   m_DebugFile = nullptr;
   m_DebugTree = nullptr;
@@ -28,8 +30,10 @@ TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
 StatusCode TestMCASTTool::initialize() {
   ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
-  ATH_MSG_DEBUG( "MuonCalibrationAndSmearingTool   = " << m_MCaSTool );
+  ATH_MSG_DEBUG( "MuonCalibrationAndSmearingTool = " << m_MCaSTool );
   ATH_CHECK( m_MCaSTool.retrieve() );
+  ATH_MSG_DEBUG( "MuonSelectionTool = " << m_MSTTool );
+  ATH_CHECK( m_MSTTool.retrieve() );
 
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
@@ -51,6 +55,9 @@ StatusCode TestMCASTTool::initialize() {
   m_DebugFile = new TFile( m_Output.c_str(), "RECREATE", "Smearing and non-Smearing of Muons" );
   m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
 
+  m_DebugTree->Branch("EventNumber", &m_EventNumber);
+  m_DebugTree->Branch("Muon_Author", &m_Muon_Author);
+  m_DebugTree->Branch("Muon_Type", &m_Muon_Type);
   m_DebugTree->Branch("Muon_Sel_Category_Raw", &m_SelCategoryRaw);
   m_DebugTree->Branch("Muon_Sel_Category", &m_SelCategory);
 
@@ -63,6 +70,13 @@ StatusCode TestMCASTTool::initialize() {
 }
 
 StatusCode TestMCASTTool::execute() {
+
+  //---\\---// Retrieving EventInfo
+  const xAOD::EventInfo* m_EvtInfo = nullptr;
+  ATH_CHECK( evtStore()->retrieve( m_EvtInfo, "EventInfo" ) );
+  ATH_MSG_DEBUG( "Event Number: " << m_EvtInfo->eventNumber() );
+  m_EventNumber = m_EvtInfo->eventNumber();
+
   //---\\---// Retrieving muons from container
   const xAOD::MuonContainer* muons = 0;
   ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
@@ -78,21 +92,25 @@ StatusCode TestMCASTTool::execute() {
   ATH_CHECK( evtStore()->record(mymuonsaux,"CalibMuonsAux.") );
   mymuons->setStore(mymuonsaux);
 
-  m_Combined->Reset();
-  m_InnerDet->Reset();
-  m_MSExtr->Reset();
-  m_MSOnlyExtr->Reset();
-
+  ATH_MSG_DEBUG( "Calibrating muon" ); 
 
   for(; mu_itr != mu_end; ++mu_itr) {
 
+    m_Combined->Reset();
+    m_InnerDet->Reset();
+    m_MSExtr->Reset();
+    m_MSOnlyExtr->Reset();
+
     //---\\---// Simple preselection
-    if((*mu_itr)->muonType() != xAOD::Muon::Combined) continue;  
+    //if((*mu_itr)->muonType() != xAOD::Muon::Combined) continue;  
 
     const xAOD::TrackParticle* cbTrack = (*mu_itr)->trackParticle(xAOD::Muon::CombinedTrackParticle);
     if(cbTrack) m_Combined->Fill(cbTrack);
 
-    const xAOD::TrackParticle* idTrack = (*mu_itr)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+    const xAOD::TrackParticle* idTrack = nullptr;
+    try {
+      idTrack = (*mu_itr)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+    } catch (SG::ExcBadAuxVar& b) { idTrack = nullptr; }
     if(idTrack) m_InnerDet->Fill(idTrack);
 
     const xAOD::TrackParticle* meTrack = nullptr;
@@ -121,6 +139,8 @@ StatusCode TestMCASTTool::execute() {
 
       std::string syst_name = ( *sysItr ).name();
 
+      m_Muon_Author = (int) mu->author();
+      m_Muon_Type = (int) mu->muonType();
       m_SelCategoryRaw = mu->auxdata<int>("raw_MCaST_Category");
       m_SelCategory = mu->auxdata<int>("MCaST_Category");
       m_Combined->SetCalibPt(mu->pt(), syst_name);

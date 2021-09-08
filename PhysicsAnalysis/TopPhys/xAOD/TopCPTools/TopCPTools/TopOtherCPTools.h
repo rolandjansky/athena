@@ -25,6 +25,10 @@
 #include "PMGTools/PMGSherpa22VJetsWeightTool.h"
 #include "PMGAnalysisInterfaces/IPMGTruthWeightTool.h"
 
+//IFF Truth Classification Tool
+#include "AsgAnalysisInterfaces/IClassificationTool.h"
+
+
 namespace top {
   class TopConfig;
 
@@ -41,10 +45,12 @@ namespace top {
     ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
     ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_pmg_sherpa22_vjets_tool;
     ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool;
+    ToolHandle<CP::IClassificationTool> m_IFFTruthTool;
 
     StatusCode setupGRL();
     StatusCode setupPileupReweighting();
     StatusCode setupPMGTools();
+    StatusCode setupIFFTruthClassifier();
   };
 }  // namespace top
 
