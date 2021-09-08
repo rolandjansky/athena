@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthResetAlg.h"
 //
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "StoreGate/ReadHandle.h"
@@ -49,33 +49,51 @@ StatusCode TruthResetAlg::execute() {
   const HepMC::GenEvent& inputEvent(**(inputMcEventCollection->begin()));
 
   //Sanity check
-  HepMC::GenEvent::particle_const_iterator inputPartIter = inputEvent.particles_begin();
-  const HepMC::GenEvent::particle_const_iterator inputPartEnd = inputEvent.particles_end();
   bool inputProblem(false);
-  while (inputPartIter!=inputPartEnd) {
-    const HepMC::GenParticle& particle(**inputPartIter);
-    if (particle.status()==1) {
-      if (!particle.production_vertex()) {
+  for (auto particle: inputEvent) {
+    if (particle->status() == 1) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 1 particle without a production vertex!! " << particle);
         inputProblem = true;
       }
     }
-    else if (particle.status()==2) {
-      if (!particle.production_vertex()) {
+    else if (particle->status() == 2) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without a production vertex!! " << particle);
         inputProblem = true;
       }
-      if (!particle.end_vertex()) {
+      if (!particle->end_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without an end vertex!! " << particle);
         inputProblem = true;
       }
     }
-    ++inputPartIter;
   }
   if (inputProblem) {
     ATH_MSG_FATAL("Problems in input GenEvent - bailing out.");
     return StatusCode::FAILURE;
   }
+#ifdef HEPMC3
+   /// The algorithm makes a deep copy of the event and drops the particles and vertices created by the simulation
+   /// from the copied event.
+   std::unique_ptr<HepMC::GenEvent>  outputEvent = std::make_unique<HepMC::GenEvent>(inputEvent);
+   if (inputEvent.run_info()) outputEvent->set_run_info(std::make_shared<HepMC3::GenRunInfo>(*(inputEvent.run_info().get())));
+   for (;;) {
+     bool requires_update = false;
+     for (auto particle: outputEvent->particles()) {
+       if (HepMC::barcode(particle) > 200000) { 
+         outputEvent->remove_particle(particle);
+         requires_update = true;
+       }
+     }
+     for (auto vertex: outputEvent->vertices()) {
+       if (HepMC::barcode(vertex) < -200000 || vertex->particles_out().empty() ) { 
+         outputEvent->remove_vertex(vertex);
+         requires_update = true;
+       }
+     }
+     if (!requires_update) break;
+   }
+#else
 
   std::unique_ptr<HepMC::GenEvent> outputEvent = std::make_unique<HepMC::GenEvent>(inputEvent.signal_process_id(),
                                                                                    inputEvent.event_number());
@@ -162,34 +180,31 @@ StatusCode TruthResetAlg::execute() {
   // 4. now that vtx/particles are copied, copy weights and random states
   outputEvent->set_random_states( inputEvent.random_states() );
   outputEvent->weights() = inputEvent.weights();
+#endif
 
   //Sanity check
-  HepMC::GenEvent::particle_const_iterator partIter = outputEvent->particles_begin();
-  const HepMC::GenEvent::particle_const_iterator partEnd = outputEvent->particles_end();
   bool outputProblem(false);
-  while (partIter!=partEnd) {
-    const HepMC::GenParticle& particle(**partIter);
-    if (particle.status()==1) {
-      if (!particle.production_vertex()) {
+  for (auto particle: *(outputEvent.get())) {
+    if (particle->status() == 1) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 1 particle without a production vertex!! " << particle);
         outputProblem = true;
       }
-      if (particle.end_vertex()) {
+      if (particle->end_vertex()) {
         ATH_MSG_ERROR("Status 1 particle with an end vertex!! " << particle);
         outputProblem = true;
       }
     }
-    else if (particle.status()==2) {
-      if (!particle.production_vertex()) {
+    else if (particle->status() == 2) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without a production vertex!! " << particle);
         outputProblem = true;
       }
-      if (!particle.end_vertex()) {
+      if (!particle->end_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without an end vertex!! " << particle);
         outputProblem = true;
       }
     }
-    ++partIter;
   }
   if (outputProblem) {
     ATH_MSG_FATAL("Problems in output GenEvent - bailing out.");
