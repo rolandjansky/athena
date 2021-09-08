@@ -38,7 +38,7 @@ namespace ISF {
     virtual StatusCode  finalize() override final;
 
   private:
-    bool passesFilters(const HepMC::GenParticle& part, ToolHandleArray<IGenParticleFilter>& filters) const;
+    bool passesFilters(HepMC::ConstGenParticlePtr part, ToolHandleArray<IGenParticleFilter>& filters) const;
 
     /** Input truth collections */
     SG::ReadHandleKey<McEventCollection> m_inputHardScatterEvgenKey{this, "InputHardScatterCollection", "", "Input Hard Scatter EVGEN collection."}; //!< input hard scatter collection
