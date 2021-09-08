@@ -159,6 +159,18 @@ def fromRunArgs(runArgs):
         # add McEventCollectionFtiler + AddressRemappingSvc
         from McEventCollectionFilter.McEventCollectionFilterConfig import McEventCollectionFilterCfg
         cfg.merge(McEventCollectionFilterCfg(ConfigFlags))
+        # Check for Truth Containers
+        for entry in ConfigFlags.Input.Collections:
+            if 'AntiKt4TruthJets' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecoratePileupAntiKt4TruthJetsCfg
+                cfg.merge(DecoratePileupAntiKt4TruthJetsCfg(ConfigFlags))
+            if 'AntiKt6TruthJets' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecoratePileupAntiKt6TruthJetsCfg
+                cfg.merge(DecoratePileupAntiKt6TruthJetsCfg(ConfigFlags))
+            if 'TruthPileupParticles' == entry:
+                from McEventCollectionFilter.McEventCollectionFilterConfig import DecorateTruthPileupParticlesCfg
+                cfg.merge(DecorateTruthPileupParticlesCfg(ConfigFlags))
+
         # ID
         if ConfigFlags.Detector.EnableBCM:
             from McEventCollectionFilter.McEventCollectionFilterConfig import BCM_HitsTruthRelinkCfg
