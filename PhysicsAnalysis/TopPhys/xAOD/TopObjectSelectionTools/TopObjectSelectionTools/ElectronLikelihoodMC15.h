@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ELECTRONLIKELIHOODMC15_H_
@@ -33,10 +33,7 @@ namespace top {
                            const std::string& operatingPointLoose, StandardIsolation* isolation,
                            const bool applyTTVACut = true, const bool applyChargeIDCut = false);
     // this constructor is kept for backward compatibility - isPrimaryxAOD is not needed anymore
-    ElectronLikelihoodMC15(const bool,
-                           const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+
     virtual ~ElectronLikelihoodMC15() {}
     /**
      * @brief Selection for the main analysis (i.e. tight object definitions).

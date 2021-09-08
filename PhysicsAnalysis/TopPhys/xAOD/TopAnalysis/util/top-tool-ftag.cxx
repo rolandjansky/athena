@@ -13,7 +13,6 @@
 #include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/TActiveStore.h"
 
-#include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
