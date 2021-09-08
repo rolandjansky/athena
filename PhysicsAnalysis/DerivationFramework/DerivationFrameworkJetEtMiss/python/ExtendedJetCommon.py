@@ -6,7 +6,7 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
-from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addStandardVRTrackJets, addSoftDropJets, addTrimmedJets, defineEDAlg
+from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addStandardVRTrackJets, addTrimmedJets, defineEDAlg
 from JetJvtEfficiency.JetJvtEfficiencyToolConfig import getJvtEffTool
 
 from AthenaCommon import CfgMgr
@@ -34,29 +34,17 @@ def nameJetsFromAlg(alg):
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False,linkVRGhosts=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
-                       algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+        if not hasattr(sequence,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20'):
+            addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
+                           algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
-                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed, includeVRGhosts=linkVRGhosts)
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed, includeVRGhosts=linkVRGhosts,
+                   customGetters=jtm.gettersMap["lctopo_reduced"])
 
 def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",
-                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
-
-def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
-    from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, buildVRJets
-    vrJetName, vrGhostLabel = buildVRJets(
-        sequence, do_ghost=True, logger=logger)
-
-    addVRJets(sequence, do_ghost=True, logger=logger)
-
-    addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
-                    ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed",
-                    addGetters=[vrGhostLabel.lower()])
-    addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
-                    algseq=sequence, outputGroup=seq_name,
-                    writeUngroomed=True, mods="lctopo_groomed",
-                    constmods=["CS", "SK"])
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed,
+                   customGetters=jtm.gettersMap["lctopo_reduced"])
 
 ##################################################################              
 # Jet helpers for ungroomed jets (removed in xAOD reduction)
@@ -118,6 +106,8 @@ def addAntiKt4LCTopoJets(sequence, outputlist):
 def addAntiKt4EMPFlowJets(sequence, outputlist):
     addCHSPFlowObjects()
     addEventShape(0.4, "EMPFlow", sequence)
+    #New rho definition for precision recommendations
+    addEventShape(0.4, "EMPFlowPUSB", sequence)
     addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, mods="pflow_ungroomed", calibOpt="arj:pflow", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["empflow_reduced"])
 
 ##################################################################  
@@ -157,27 +147,38 @@ def addDAODJets(jetlist,sequence,outputlist):
 ##################################################################
 
 # 2 GeV cut after pileup suppression for in-situ Z
-def addAntiKt4LowPtJets(sequence,outputlist):
-    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
-                    mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
-    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
-                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
-
-    addCHSPFlowObjects()
-    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
-                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
+def addAntiKt4LowPtJets(jetlist, sequence,outputlist):
+    if "AntiKt4EMTopoJets" in jetlist:
+        addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                        mods="emtopo_ungroomed", customGetters=jtm.gettersMap["emtopo_reduced"],
+                        algseq=sequence, outputGroup=outputlist,calibOpt="ar")
+    if "AntiKt4LCTopoJets" in jetlist:
+        addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                        mods="lctopo_ungroomed", customGetters=jtm.gettersMap["lctopo_reduced"],
+                        algseq=sequence, outputGroup=outputlist, calibOpt="ar")
+    if "AntiKt4EMPFlowJets" in jetlist:
+        addCHSPFlowObjects()
+        addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                        mods="pflow_ungroomed", customGetters=jtm.gettersMap["empflow_reduced"],
+                        algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
 
 ################################################################## 
 
 # 1 MeV cut at constituent level for MCJES
-def addAntiKt4NoPtCutJets(sequence,outputlist):
-    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
-                    mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
-                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    addCHSPFlowObjects()
-    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
-                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
+def addAntiKt4NoPtCutJets(jetlist, sequence,outputlist):
+    if "AntiKt4EMTopoJets" in jetlist:
+        addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                        mods="emtopo_ungroomed", customGetters=jtm.gettersMap["emtopo_reduced"],
+                        algseq=sequence, outputGroup=outputlist,calibOpt="none")
+    if "AntiKt4LCTopoJets" in jetlist:
+        addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                        mods="lctopo_ungroomed", customGetters=jtm.gettersMap["lctopo_reduced"],
+                        algseq=sequence, outputGroup=outputlist,calibOpt="none")
+    if "AntiKt4EMPFlowJets" in jetlist:
+        addCHSPFlowObjects()
+        addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+                        mods="pflow_ungroomed", customGetters=jtm.gettersMap["empflow_reduced"],
+                        algseq=sequence, outputGroup=outputlist,calibOpt="none")
 
 ##################################################################
 
@@ -510,7 +511,8 @@ def getPseudoJetAlg(inputType):
             "EMTopo" : jtm.emget,
             "LCTopoOrigin" : jtm.lcoriginget,
             "EMTopoOrigin" : jtm.emoriginget,
-            "EMPFlow": jtm.empflowget}[inputType]
+            "EMPFlow": jtm.empflowget,
+            "EMPFlowPUSB": jtm.empflowpusbget}[inputType]
 
 def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP']):
     
@@ -547,3 +549,4 @@ def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP'])
                                         CleaningLevel=cleaningLevel,
                                         doEvent = ('Loose' in wp)) # Only store event-level flags for Loose and LooseLLP
         sequence += algClean
+

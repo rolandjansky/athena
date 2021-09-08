@@ -20,6 +20,8 @@ ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& na
 
   declareProperty("IgnoreVertex", m_ignoreVertex=false, "Dummy option for cosmics - accept everything");
 
+  declareProperty("Z0sinThetaCutValue", m_z0sinThetaCutValue=2.0, "True if we will use the track to vertex tool");
+
 }
 
 StatusCode ChargedHadronSubtractionTool::initialize() {
@@ -95,6 +97,7 @@ const xAOD::Vertex* ChargedHadronSubtractionTool::getPrimaryVertex() const {
 
 StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer& cont) const {
   const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<char> PUsidebandMatchedAcc("matchedToPUsideband");
 
   // Use only one of TVA or PV
   const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
@@ -125,6 +128,7 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
     if(fabs(ppfo->charge()) < FLT_MIN) continue;
 
     bool matchedToPrimaryVertex = false;
+    bool matchedToPileupSideband = false;
     if(m_ignoreVertex) {
       // If we don't use vertex information, don't bother computing the decision
       // Just pass every cPFO -- there shouldn't be many in cosmics!
@@ -146,11 +150,13 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
           // Thus we correct the track z0 to be w.r.t z = 0
           float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
           float theta = ptrk->theta();
-          matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+          matchedToPrimaryVertex = ( std::abs(z0*sin(theta)) < m_z0sinThetaCutValue );
+	  if (std::abs(z0*sin(theta)) < 2.0*m_z0sinThetaCutValue && std::abs(z0*sin(theta)) >= m_z0sinThetaCutValue ) matchedToPileupSideband = true;
         }
       } // TVA vs PV decision
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
+    PUsidebandMatchedAcc(*ppfo) = matchedToPileupSideband;
   }
 
   return StatusCode::SUCCESS;
@@ -158,6 +164,7 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
 
 StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementContainer& cont) const {
   const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<char> PUsidebandMatchedAcc("matchedToPUsideband");
 
   // Use only one of TVA or PV
   const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
@@ -188,6 +195,7 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementC
     if(!ppfo->isCharged()) continue;
 
     bool matchedToPrimaryVertex = false;
+    bool matchedToPileupSideband = false;
     if(m_ignoreVertex) {
       // If we don't use vertex information, don't bother computing the decision
       // Just pass every cPFO -- there shouldn't be many in cosmics!
@@ -209,11 +217,13 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementC
           // Thus we correct the track z0 to be w.r.t z = 0
           float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
           float theta = ptrk->theta();
-          matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+	  matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < m_z0sinThetaCutValue );
+	  if (std::abs(z0*sin(theta)) < 2.0*m_z0sinThetaCutValue && std::abs(z0*sin(theta)) >= m_z0sinThetaCutValue ) matchedToPileupSideband = true;
         }
       } // TVA vs PV decision
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
+    PUsidebandMatchedAcc(*ppfo) = matchedToPileupSideband;
   }
 
   return StatusCode::SUCCESS;
