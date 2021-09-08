@@ -285,6 +285,11 @@ namespace top {
                  "Failed to set WP for " + name + " tool");
       top::check(asg::setProperty(tool, "CloseJetDRDecorator", "dRMuJet_AT_usingWeirdNameToAvoidUsingOnTheFlyCalculation"), 
                  "Failed to set WP for " + name + " tool"); //in this way we'll only read the dR(mu,jet) from the derivation, IF the variable is there, but we'll not use on-the-fly calculation, which is tricky in AT
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonEfficiencyScaleFactors tool");
+
+      }
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

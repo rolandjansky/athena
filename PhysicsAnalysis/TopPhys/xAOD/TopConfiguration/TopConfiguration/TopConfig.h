@@ -1044,25 +1044,25 @@ namespace top {
 
     void muonUseMVALowPt(const bool& UseMVALowPt) {
       if (!m_configFixed) {
-	m_muonUseMVALowPt = UseMVALowPt;
+        m_muonUseMVALowPt = UseMVALowPt;
       }
     }
 
     void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
       if (!m_configFixed) {
-	m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
+        m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
       }
     }
 
     void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
       if (!m_configFixed) {
-	m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+        m_muonUseMVALowPtLoose = UseMVALowPtLoose;
       }
     }
 
     void muonUse2stationMuonsHighPtLoose(const bool& Use2stationMuonsHighPtLoose) {
       if (!m_configFixed) {
-	m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
+        m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
       }
     }
 
@@ -1098,13 +1098,13 @@ namespace top {
 
     void muonMuonDoSmearing2stationHighPt(const bool& MuonDoSmearing2stationHighPt) {
       if (!m_configFixed) {
-	m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
+        m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
       }
     }
 
     void muonMuonDoExtraSmearingHighPt(const bool& MuonDoExtraSmearingHighPt) {
       if (!m_configFixed) {
-	m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
+        m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
       }
     }
 
@@ -1122,6 +1122,13 @@ namespace top {
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
+
+    std::string const& muonSFCustomInputFolder() const {return m_muonSFCustomInputFolder;}
+    void muonSFCustomInputFolder(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonSFCustomInputFolder = s;
+      }
+    } 
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2488,6 +2495,7 @@ namespace top {
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    std::string m_muonSFCustomInputFolder;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut

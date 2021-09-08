@@ -250,6 +250,7 @@ namespace top {
     m_muonIsolationSFLoose("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
+    m_muonSFCustomInputFolder(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1330,6 +1331,10 @@ namespace top {
       muonDoExtraSmearingHighPt = false;
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
+    {
+      std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
+      this->muonSFCustomInputFolder(customMuonSF);
+    }
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
