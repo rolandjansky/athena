@@ -25,6 +25,7 @@ std::string eventInfoAsString(const EventInfo* theEvent);
 std::string formatPosition(const Identifier& waferId, const SCT_ID* helper, const std::string& delimiter="_", const bool includeSide=true);
 std::string chipList2LinkList(const std::string& chipList);
 unsigned int bec2Index(const int bec);
+std::string normalizeList(std::string strList);
 
 template <class T>
 std::string xmlValue(const std::string& name, const T value) {

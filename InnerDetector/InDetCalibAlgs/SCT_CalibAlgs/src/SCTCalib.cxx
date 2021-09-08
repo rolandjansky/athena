@@ -45,7 +45,6 @@
 #include "TF1.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
 
 #include <array>
@@ -111,23 +110,7 @@ xmlModuleData(const Bec bec, const int layer, const int side, const int phi, con
    return os.str();
 }
 
-std::string
-normalizeList(const std::string& strList) {
-   std::string str{strList};
-   if (!str.empty()) {
-      //--- Remove 1st & last space
-      str = str.substr(1, str.length()-2);
-      //--- Replace double space to single space
-      std::string strSingleSpace{" "};
-      std::string strDoubleSpace{"  "};
-      std::string::size_type pos{0};
-      while (pos =str.find(strDoubleSpace, pos), pos != std::string::npos) {
-         str.erase(pos, strSingleSpace.length());
-         pos += strSingleSpace.length();
-      }
-   }
-   return str;
-}
+
 }
 
 
@@ -280,8 +263,6 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
       m_calibEvtInfoTool->setEventNumber(m_eventNumber);
-      //m_calibEvtInfoTool->setLumiBlock(0);
-      //m_calibEvtInfoTool->setBunchCrossing(0);
       m_calibLbTool->read("./SCTLB.root");
       if (m_doBSErrors) {
          m_calibBsErrTool->read("./SCTBSErrors.root");
@@ -539,15 +520,7 @@ void SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::
 ///////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe writeModuleListToCool method is used.
    enum Categories {ALL, NEW, REF, N_CATEGORIES};
-   //--- Check statistics
-   //ATH_MSG_INFO(m_calibEvtInfoTool->counter() << "   " << m_calibHitmapTool->size());
-   //int numOfEventsProcessed=m_calibEvtInfoTool->counter();
-   //sroe: This looks like a bug, so I change the code here
-
-   // if (noisyStripsToSummaryXmlFake(m_badStripsSummaryFile).isFailure()) {
-   //   ATH_MSG_ERROR("Could not write XML file");
-   //   return StatusCode::FAILURE;
-   // }
+   
 
    ATH_MSG_INFO("----- in getNoisyStrip() ----- ");
 
@@ -669,7 +642,6 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
    // Bad strips (w/o bad modules and chips)
    std::set<Identifier> badStripsExclusive;
    m_ConfigurationConditionsTool->badStrips(badStripsExclusive, true, true);
-   //std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
    std::set<Identifier>::const_iterator stripEnd(badStripsExclusive.end());
    //To get #(Enabled Modules)
    int numEnabledModules_B[n_barrels] = {n_phiBinsB0*n_etaInBarrel, n_phiBinsB1*n_etaInBarrel, n_phiBinsB2*n_etaInBarrel, n_phiBinsB3*n_etaInBarrel};
@@ -1197,10 +1169,6 @@ StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe
    double meanNO_ECA[n_disks][n_etaBinsEC] = {{0}, {0}};
    double meanNO_ECC[n_disks][n_etaBinsEC] = {{0}, {0}};
 
-   //--- RunNumber
-   //std::ostringstream runnum;
-   //runnum << m_runNumber.value();
-
    //--- Directory in HIST
    std::string stem;
 
@@ -1413,9 +1381,6 @@ StatusCode SCTCalib::getRawOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe S
    double meanRO_ECA[n_disks][n_etaBinsEC] = {{0}, {0}};
    double meanRO_ECC[n_disks][n_etaBinsEC] = {{0}, {0}};
 
-   //--- RunNumber
-   //std::ostringstream runnum;
-   //runnum << m_runNumber.value();
 
    //--- Directory in HIST
    std::vector<std::pair<std::string, int>> EC_stems;
@@ -1566,10 +1531,6 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
    double meanEff_Barrel_bcid1[ n_barrels ] = { 0 };
    double meanEff_ECA_bcid1[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
    double meanEff_ECC_bcid1[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
-
-   //--- RunNumber
-   //std::ostringstream runnum;
-   //runnum << m_runNumber.value();
 
    //--- Directory in HIST
    std::vector<std::pair<std::string, int>> EC_stems;
@@ -1753,9 +1714,6 @@ StatusCode SCTCalib::getEfficiency ATLAS_NOT_THREAD_SAFE () { // Thread unsafe S
       }
    }
 
-   //--- Tail of XML outputs
-   //  outFile << "</channels>" << std::endl;
-
    outFile << "  </modules>" << std::endl;
    outFile << "</run>" << std::endl;
 
@@ -1851,9 +1809,6 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
    unsigned long long nErrs_ECA_module[n_disks][2][n_etaBinsEC][n_phiBinsECOuter][15] = {{{{{0}}}}};
    unsigned long long nErrs_ECC_module[n_disks][2][n_etaBinsEC][n_phiBinsECOuter][15] = {{{{{0}}}}};
 
-   //--- RunNumber
-   //std::ostringstream runnum;
-   //runnum << m_runNumber.value();
    //--- ErrorList
    typedef std::map<int, std::string> IntStringMap;
    IntStringMap ErrMap_C, ErrMap;
@@ -1921,10 +1876,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                      if (errItr!=errItrE and iType == errItr->first) {
                         std::ostringstream streamHist;
                         std::ostringstream streamHistAlt;
-                        //temporal fix: folder and histogram names should be Preamble
-                        //streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
                         streamHist << "SCT_T" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
-                        //streamHistAlt << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide;
                         streamHistAlt << "SCT_" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
                         std::string folder = errItr->second+std::string("/");
                         //histogram might or might not be inside a folder with the same name
@@ -2011,7 +1963,6 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                   unsigned long long n_errors{0};
                   if (errItr!=errItrE and iType == errItr->first) {
                      std::ostringstream streamHist;
-                     //streamHist << "SCT_T" << errItr->second << "Errors" << "_" << iLayer << "_" << iSide;
                      streamHist << "SCT_T" << errItr->second << "B" << "_" << iLayer << "_" << iSide;
                      //histogram or might not be inside a folder with the same name
                      std::string folder = errItr->second+std::string("/");
@@ -2208,9 +2159,6 @@ StatusCode SCTCalib::getLorentzAngle ATLAS_NOT_THREAD_SAFE () { // Thread unsafe
 
    TFile* fitFile;
 
-   //--- RunNumber
-   //std::ostringstream runnum;
-   //runnum << m_runNumber.value();
 
    //--- Directory in HIST
    std::string stem;
@@ -2601,7 +2549,6 @@ StatusCode SCTCalib::openXML4MonSummary(std::ofstream& file, const char* type) c
    nameAssociation["Efficiency"] = TwoStrings(m_efficiencySummaryFile, "EfficiencyInfo.xsl");
    nameAssociation["BSErrors"] = TwoStrings(m_BSErrorSummaryFile, "BSErrorInfo.xsl");
    nameAssociation["BSErrorsModule"] = TwoStrings(m_BSErrorModuleFile, "BSErrorInfo.xsl");
-   //nameAssociation["LorentzAngle"]=TwoStrings(m_LorentzAngleSummaryFile, "LorentzAngleInfo.xsl");
    Names::iterator found{nameAssociation.find(type)};
    if (found!=nameAssociation.end()) {
       std::string filename{found->second.first};
@@ -2657,7 +2604,6 @@ StatusCode SCTCalib::addToSummaryStr(std::ostringstream& list, const Identifier&
    IdentifierHash   waferHash{m_pSCTHelper->wafer_hash(waferId)};
    SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
    //--- Preparing linkList
-   //std::string linkList=chipList2LinkList(chipList);
    std::string linkList{chipList2LinkList(stripList)};
    //--- Push to summary stream
    XmlStreamer m{"module", list};
@@ -2821,7 +2767,7 @@ SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibW
                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
                }
                nDefects++;
-            }; // else ATH_MSG_DEBUG("Module " << moduleId  << " is identical to the reference output");
+            }; 
          } else {
             if (m_noisyStripAll) { //--- ALL noisy strips
                if (!defectStripsAll.empty() || m_noisyWriteAllModules) {
@@ -2862,16 +2808,13 @@ SCTCalib::getOverlapStripList( const std::set<Identifier>& stripAllIdList,  cons
 
    std::set<Identifier>::const_iterator stripAllItr  = stripAllIdList.begin();
    for ( ; stripAllItr != stripAllItrLast; ++stripAllItr ) {
-      //std::cout << "All: " << *stripAllItr << std::endl;
       std::set<Identifier>::const_iterator stripRefItr  = stripRefIdList.begin();
       bool old = false;
       for ( ; stripRefItr != stripRefItrLast; ++stripRefItr ) {
-         //std::cout << "Ref: " << *stripRefItr << std::endl;
          if (*stripAllItr ==  *stripRefItr) old = true;
       }
       if (!old) {
          stripList.insert(*stripAllItr);
-         //std::cout << "New: " << *stripAllItr << std::endl;
       }
    }
    return stripList;
@@ -2968,7 +2911,6 @@ SCTCalib::noisyStripsToXml(const std::map<Identifier, std::set<Identifier>>& mod
 
 
 StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
-      //const std::map<Identifier, std::set<Identifier>>& moduleListNew,
       const std::map<Identifier, std::set<Identifier>>& moduleListRef,
       const std::string& badStripsFile) const {
 
