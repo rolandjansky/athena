@@ -2073,7 +2073,11 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
             pos = 0 if line.strip().startswith('DECAY') else 1
             if blockName=='MASS' and 'MASS' in params:
                 # Any residual masses to set?
-                leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                if "MASS" in doneParams:
+                    leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                else:
+                    leftOvers = [ x for x in params['MASS'] ]
+
                 for pdg_id in leftOvers:
                     mglog.warning('Adding mass line for '+str(pdg_id)+' = '+str(params['MASS'][pdg_id])+' which was not in original param card')
                     newcard.write('   '+str(pdg_id)+'  '+str(params['MASS'][pdg_id])+'\n')
