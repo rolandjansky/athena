@@ -27,7 +27,3 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
 
 # Install data files from the package:
 atlas_install_data( share/* )
-
-# Install the python modules from the package
-atlas_install_scripts( python/AodMetaDataReader.py )
-

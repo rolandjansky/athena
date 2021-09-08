@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPTOOLS_H__
@@ -37,64 +37,12 @@ namespace top {
   void xAODInit(bool failOnUnchecked = true);
 
 /**
- * @brief Sometimes we need to know if we're running on a primary xAOD or a
- * derivation.
- *
- * To figure this out (while we wait for a proper solution) we can open up
- * the MetaData tree.  As far as I can tell primary xAODs have a branch called
- * StreamAOD and derivations have something a bit like StreamDAOD_TOPQ1.
- * So if we see StreamAOD, we know it's a primary xAOD. I hope.
- *
- * @param inputFile A pointer to the input file
- * @return True if this is a primary xAOD
- */
-  bool isFilePrimaryxAOD(TFile* inputFile);
-
-/**
- * @brief Some of our things need to know if the events are MC or data before
- * we're in the event loop.  In the future this should be in the file metadata
- * but right now we can't access it easily in RootCore.
- *
- * @param inputFile A pointer to the input file
- * @param eventInfoName Name of the EventInfo container in the xAOD
- * @return True if MC simulation, false for data
- */
-  bool isFileSimulation(TFile* inputFile, const std::string& eventInfoName);
-
-/**
- * @brief For fallback cases when metadata is broken in dxAOD, we need to know
- * how many MC generator weights are stored in the MC sample. This is needed
- * to determine, whether there is an unambiguous choice of nominal weight (e.g.
- * only one weight in sample), or if we can't conclusively tell which one it is.
- *
- * @param inputFile A pointer to the input file
- * @param eventInfoName Name of the EventInfo container in the xAOD
- * @return Size of vector of MC generator weights
- */
-  size_t MCweightsSize(TFile* inputFile, const std::string& eventInfoName);
-
-  bool isTruthDxAOD(TFile* inputFile);
-
-  unsigned int getDSID(TFile* inputFile, const std::string& eventInfoName);
-
-/**
- * @brief Some of our things need to know if the events are AFII or FullSim
- * for certain systematics.
- *
- * @param inputFile A pointer to the input file
- * @param eventInfoName Name of the EventInfo container in the xAOD
- * @return True if fast simulation, false for FullSim
- */
-  bool isFileFastSim(TFile* inputFile);
-
-/**
  * @brief Function to determine the derivation type using string manipulation
  *
  * @param inputFile A pointer to the input file
  *
  * @return string with the derivation stream name
  */
-
   std::string getDerivationStream(TFile* inputFile);
 
 /**
@@ -129,30 +77,6 @@ namespace top {
  */
   void renameCutBookkeepers(std::vector<std::string>& bookkepeer_names,
       const std::vector<std::string>& pmg_weight_names);
-
-/**
- * @brief xAODs can be accessed in class or branch access mode. Guess 'the best'
- * by trying branch access first and falling back to class access if that fails.
- *
- * Try to guess the 'best' mode to open the files with.  The way we do this is
- * first try with branch access (this is what is preferred because it'll allow
- * us to make our mini xAODs smaller by kicking-out branches).  The problem is
- * the first xAODs for 8 TeV DC14 can't be read in this mode (actually only the
- * egamma objects).  This is fixed for 13 TeV, and will be for the 8 TeV
- * derivations and the xAOD->xAOD reprocessing.
- *
- * This function opens the file, loads the first event and attempts to read the
- * electron collection.  If that works in branch mode it returns branch  mode.
- * If it fails, it returns class mode.
- *
- * @param filename A file that you're going to run on, so we can attempt to
- * figure out which mode to use.
- *
- * @param electronCollectionName Name of the electron collection - no really!
- *
- * @return BranchAccess (preferred) or ClassAccess if the test fails.
- */
-  xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName);
 
 /**
  * @brief Load the file and make a vector of the cuts to pass on to the

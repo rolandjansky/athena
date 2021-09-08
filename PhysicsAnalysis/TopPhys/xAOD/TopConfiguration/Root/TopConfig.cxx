@@ -3,7 +3,6 @@
 */
 
 #include "TopConfiguration/TopConfig.h"
-#include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include <algorithm>
 #include <cassert>
@@ -72,12 +71,6 @@ namespace top {
     m_isAFII(false),
     // Is Data Overlay
     m_isDataOverlay(false),
-    // Generators
-    m_generators("SetMe"),
-    // AMITag
-    m_AMITag("SetMe"),
-    // Is Primary xAOD
-    m_isPrimaryxAOD(false),
     // Is Truth xAOD
     m_isTruthDxAOD(false),
     // Derivation name
@@ -122,7 +115,6 @@ namespace top {
     m_nominalWeightNames(),
     m_nominalWeightName("SetMe"),
     m_nominalWeightIndex(-1),
-    m_MCweightsSize(-1),
     m_forceWeightIndex(false),
     // Top Parton History
     m_doTopPartonHistory(false),
@@ -367,8 +359,6 @@ namespace top {
 
     // Number of events to skip (only for testing)
     m_numberOfEventsToSkip(0),
-
-    m_aodMetaData(new AodMetaDataAccess()),
 
     // Systematics
     m_nominalHashValue(0),
@@ -895,35 +885,6 @@ namespace top {
         this->setParticleLevelOverlapRemovalWithRapidity(false);
       }
 
-      // check if you are running over AFII samples
-      // only check the configuration file if the AodMetaData is not instatiated
-      if (m_aodMetaData->valid()) {
-        try{
-          auto simulatorName = m_aodMetaData->get("/Simulation/Parameters", "Simulator");
-          bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
-          ATH_MSG_INFO("AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
-            aodMetaDataIsAFII);
-          this->setIsAFII(aodMetaDataIsAFII);
-          auto AMITagName = m_aodMetaData->get("/TagInfo", "AMITag");
-          auto generatorsName = m_aodMetaData->get("/TagInfo", "generators");
-          ATH_MSG_INFO("AodMetaData :: Generators Type " << generatorsName);
-          this->setGenerators(generatorsName);
-          ATH_MSG_INFO("AodMetaData :: AMITag " << AMITagName);
-          this->setAMITag(AMITagName);
-        }
-        catch (const std::logic_error& aodMetaDataError) {
-          ATH_MSG_WARNING("An error was encountered handling AodMetaData : " << aodMetaDataError.what());
-          ATH_MSG_WARNING("We will attempt to read the IsAFII flag from your config.");
-          this->ReadIsAFII(settings);
-          ATH_MSG_WARNING("We will attempt to read the IsDataOverlay flag from your config.");
-          this->ReadIsDataOverlay(settings);
-          ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
-          this->setGenerators("unknown");
-          this->setAMITag("unknown");
-        }
-      } else {
-        this->ReadIsAFII(settings);
-      }
     }
 
     // Get list of branches to be filtered
@@ -3792,10 +3753,6 @@ namespace top {
     fixConfiguration();
   }
 
-  AodMetaDataAccess& TopConfig::aodMetaData() {
-    return *m_aodMetaData;
-  }
-
   // Place into a private function to allow use without replication of code
   void TopConfig::ReadIsAFII(top::ConfigurationSettings* const& settings) {
     if (settings->value("IsAFII") == "True") this->setIsAFII(true);
@@ -3835,22 +3792,6 @@ namespace top {
       m_release_series = 25;
     }
     return;
-  }
-
-  void TopConfig::setAmiTag(std::string const& amiTag) {
-    assert(!m_configFixed);
-    if (m_amiTagSet == 0) {
-      m_amiTag = amiTag;
-      m_amiTagSet = 1;
-    } else if (m_amiTagSet > 0 && m_amiTag != amiTag) {
-      m_amiTag.clear();
-      m_amiTagSet = -1;
-    }
-  }
-
-  std::string const& TopConfig::getAmiTag() const {
-    assert(m_configFixed);
-    return m_amiTag;
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
