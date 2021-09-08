@@ -133,6 +133,8 @@ class Registry(metaclass=Singleton):
         self.add_default("dronly", 0, description="include only double resonant diagrams. [1:enabled]")
         self.add_default("dummyvirtual", 1, description="run with dummy virtual. [1:enabled]")
         self.add_default("dynamic_hdamp", 0, description="if 1, use hdamp = HT/2 (overwrites hdamp), if 0 use fixed hdamp")
+        self.add_default("dynhdamp", 0, description="ttbb: if 1, use hdamp = HT/2 (overwrites hdamp), if 0 use fixed hdamp")
+        self.add_default("dynhdampPF", -1, description="ttbb: prefactor for dynamic hdamp")
         self.add_default("e+e-", 0, hidden=True, description="WWj decay mode [1:enabled]")
         self.add_default("e+mu-", 0, hidden=True, description="WWj decay mode [1:enabled]")
         self.add_default("ebeam1", 6500, name="beam_energy", frozen=True, description="energy of beam in GeV")
