@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -828,49 +828,55 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         deleteLastVertex=true;
       }
 
-      //now try to understand if the vertex was merged with another one...
-      std::vector<xAODVertex_pair>::iterator vxbegin=myxAODVertices.begin();
-      std::vector<xAODVertex_pair>::iterator vxend=myxAODVertices.end();
-      
-      for (std::vector<xAODVertex_pair>::iterator vxiter=vxbegin;vxiter!=vxend;++vxiter) {
-	ATH_MSG_VERBOSE("Estimating compatibility of z positions: " << ((*vxiter).second)->position()[Trk::z] << 
-			" and " << actualcandidate->position()[Trk::z]);
-	//in case of no beam spot constraint you should use the full 3d significance on the distance
-	double dependence=0;
+      const auto& candidatePositionCovariance = actualcandidate->covariancePosition();
+      if(candidatePositionCovariance(0,0)<=0. || candidatePositionCovariance(1,1)<=0. || candidatePositionCovariance(2,2)<=0.){
+	deleteLastVertex = true;
+      }
 
-        if (!m_do3dSplitting)
-        {
-          dependence=fabs((*vxiter).second->position()[Trk::z]-actualcandidate->position()[Trk::z])/
-	    TMath::Sqrt( (*vxiter).second->covariancePosition()(Trk::z,Trk::z)+
-			 actualcandidate->covariancePosition()(Trk::z,Trk::z));
-        }
-        else
-        {
-	  Amg::MatrixX sumCovariances=
-              (*vxiter).second->covariancePosition()+
-              actualcandidate->covariancePosition();
+      else{
 
-	  sumCovariances = sumCovariances.inverse().eval();
+	//now try to understand if the vertex was merged with another one...
+	std::vector<xAODVertex_pair>::iterator vxbegin=myxAODVertices.begin();
+	std::vector<xAODVertex_pair>::iterator vxend=myxAODVertices.end();
 
-	  Amg::Vector3D hepVectorPosition;
-	  hepVectorPosition[0]=
-	    ((*vxiter).second->position()-
-	     actualcandidate->position()).x();
-	  hepVectorPosition[1]=
-	    ((*vxiter).second->position()-
-	     actualcandidate->position()).y();
-	  hepVectorPosition[2]=
-	    ((*vxiter).second->position()-
-	     actualcandidate->position()).z();
-	  dependence=sqrt(hepVectorPosition.dot(sumCovariances*hepVectorPosition));
-        }
+	for (std::vector<xAODVertex_pair>::iterator vxiter=vxbegin;vxiter!=vxend;++vxiter) {
+	  ATH_MSG_VERBOSE("Estimating compatibility of z positions: " << ((*vxiter).second)->position()[Trk::z] <<
+			  " and " << actualcandidate->position()[Trk::z]);
+	  //in case of no beam spot constraint you should use the full 3d significance on the distance
+	  double dependence=0.;
+
+	  if (!m_do3dSplitting)
+	    {
+	      dependence=fabs((*vxiter).second->position()[Trk::z]-actualcandidate->position()[Trk::z])/
+		TMath::Sqrt( (*vxiter).second->covariancePosition()(Trk::z,Trk::z)+
+			     actualcandidate->covariancePosition()(Trk::z,Trk::z));
+	    }
+	  else
+	    {
+
+	      Amg::MatrixX sumCovariances=
+		(*vxiter).second->covariancePosition()+
+		actualcandidate->covariancePosition();
+
+	      sumCovariances = sumCovariances.inverse().eval();
+
+	      if(sumCovariances(0,0)>0 && sumCovariances(1,1)>0 && sumCovariances(2,2)>0){
+		Amg::Vector3D hepVectorPosition;
+		const auto deltaPosition = (*vxiter).second->position() - actualcandidate->position();
+		hepVectorPosition[0] = deltaPosition.x();
+		hepVectorPosition[1] = deltaPosition.y();
+		hepVectorPosition[2] = deltaPosition.z();
+		dependence=sqrt(hepVectorPosition.dot(sumCovariances*hepVectorPosition));
+	      }
+	    }
 	
-	ATH_MSG_VERBOSE("Significance of vertex pair is: " << dependence << "vs. cut at " << m_cutVertexDependence);
+	  ATH_MSG_VERBOSE("Significance of vertex pair is: " << dependence << "vs. cut at " << m_cutVertexDependence);
 
-	if (dependence<m_cutVertexDependence) {
-          ATH_MSG_VERBOSE("Deleting last vertex since it was found to be merged with another!");
-	  deleteLastVertex=true;
-	  break;
+	  if (dependence<m_cutVertexDependence) {
+	    ATH_MSG_VERBOSE("Deleting last vertex since it was found to be merged with another!");
+	    deleteLastVertex=true;
+	    break;
+	  }
 	}
       }
     }
