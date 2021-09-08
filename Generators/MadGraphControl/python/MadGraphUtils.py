@@ -312,7 +312,7 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
         do_PMG_updates(process_dir)
 
     # After 2.9.3, enforce the standard default sde_strategy, so that this won't randomly change on the user
-    if is_version_or_newer([2,9,3]):
+    if is_version_or_newer([2,9,3]) and not is_NLO_run(process_dir=process_dir):
         mglog.info('Setting default sde_strategy to old default (1)')
         my_settings = {'sde_strategy':1}
         modify_run_card(process_dir=process_dir,settings=my_settings,skipBaseFragment=True)
