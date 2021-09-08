@@ -91,6 +91,7 @@ protected:  // data members
     long   m_NumPhiSlices = 0L;        // the number of phi slices, given the width of the RoI 
 
     double m_phiBinSize;          // the size of the phi slices 
+    bool   m_forcePhiBinSize;     // respect the config of phi bin even if below reasonable threshold
     double m_usedphiBinSize;      // the size of the phi slices 
     double m_ROIphiWidth;         // the phi width of the ROI 
     double m_usedROIphiWidth;     // the phi width of the ROI 
