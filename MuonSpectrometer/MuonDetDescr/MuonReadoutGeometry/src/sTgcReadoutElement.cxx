@@ -657,4 +657,57 @@ namespace MuonGM {
     return -1; 
   }
 
+  int sTgcReadoutElement::wireNumber( const Amg::Vector2D& pos, const Identifier& id) const {
+    const MuonChannelDesign* design = getDesign(id);
+    if(!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the wire number" << endmsg;
+      return -1;
+    }
+    return design->wireNumber(pos);
+  }
+
+  double sTgcReadoutElement::wirePitch(int gas_gap) const {
+    if (m_phiDesign.size() < 1) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "no wire design when trying to get the wire pitch" << endmsg;
+      return -1.0;
+    }
+    return (m_phiDesign[gas_gap-1]).inputPitch;
+  }
+
+  double sTgcReadoutElement::positionFirstWire(const Identifier& id) const {
+    double pos_wire = -9999.9;
+    if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {
+      const MuonChannelDesign* design = getDesign(id);
+      if (!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the 1st wire position" << endmsg;
+        return pos_wire;
+      }
+      pos_wire = design->firstPos;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "attempt to retrieve the 1st wire position with a wrong identifier" << endmsg;
+    }
+    return pos_wire;
+  }
+
+  int sTgcReadoutElement::numberOfWires(const Identifier& id) const {
+    int nWires = -1;
+    if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {
+      const MuonChannelDesign* design = getDesign(id);
+      if (!design) {
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << "no wire design when trying to get the total number of wires" << endmsg;
+        return nWires;
+      }
+      nWires = design->nch;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "attempt to retrieve the number of wires with a wrong identifier" << endmsg;
+    }
+    return nWires;
+  }
+
 } // namespace MuonGM
