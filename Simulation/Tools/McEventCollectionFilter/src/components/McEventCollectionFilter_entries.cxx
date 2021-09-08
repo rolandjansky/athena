@@ -8,6 +8,7 @@
 #include "../sTGC_HitsTruthRelink.h"
 #include "../TGC_HitsTruthRelink.h"
 #include "../TRT_HitsTruthRelink.h"
+#include "../PileUpTruthDecoration.h"
 
 #include "../TruthResetAlg.h"
 #include "../TruthClosureCheck.h"
@@ -22,6 +23,7 @@ DECLARE_COMPONENT( SiliconHitsTruthRelink )
 DECLARE_COMPONENT( sTGC_HitsTruthRelink )
 DECLARE_COMPONENT( TGC_HitsTruthRelink )
 DECLARE_COMPONENT( TRT_HitsTruthRelink )
+DECLARE_COMPONENT( PileUpTruthDecoration )
 
 DECLARE_COMPONENT( TruthResetAlg )
 DECLARE_COMPONENT( TruthClosureCheck )
