@@ -3,16 +3,18 @@
 # reductionConf flag JETM4 in Reco_tf.py
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
+#from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addJetPtAssociation
 #
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
 #
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
+
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SKIMMING TOOL
@@ -23,7 +25,8 @@ from DerivationFrameworkJetEtMiss import TriggerLists
 triggerlist = TriggerLists.single_photon_Trig()
 
 triggers = '||'.join(triggerlist)
-expression = '( (EventInfo.eventTypeBitmask==1) || ('+triggers+') )'
+#expression = '( (EventInfo.eventTypeBitmask==1) || ('+triggers+') )'
+expression = triggers
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4SkimmingTool1",
@@ -147,45 +150,8 @@ jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
 
 OutputJets["JETM4"] = []
 
-#==================================================================== 
-# BUILD UFO INPUTS
-#==================================================================== 
-
-from JetRecTools.ConstModHelpers import getConstModSeq
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-    DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction 
-emufoAlg = runUFOReconstruction(jetm4Seq,ToolSvc, PFOPrefix="CHS")
-runUFOReconstruction(jetm4Seq, ToolSvc, PFOPrefix="CSSK")
-
-#=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
-#=======================================
-reducedJetList = ["AntiKt2PV0TrackJets",
-                  "AntiKt4PV0TrackJets",
-                  "AntiKt10PV0TrackJets",
-                  "AntiKt4TruthJets",
-                  "AntiKt10TruthJets",
-                  "AntiKt10LCTopoJets",
-                  "AntiKt10TruthJets",
-                  "AntiKt10UFOCSSKJets",
-                  "AntiKt10UFOCHSJets"]
-replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
-
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
-
-# UFO Trimmed jets
-addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
-addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
-# CSSK UFO SoftDrop jets
-addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
-addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False)
-addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False)
 
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
@@ -202,43 +168,15 @@ if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm4Seq,"JETMX")
-    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm4Seq, algname="JetPtAssociationAlg")
-
-
-#===================================================
-#add variable-R track jets for b-tagging
-#===================================================
-
-largeRJetCollections = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-    ]
-
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-addVRJets(jetm4Seq,largeRColls=largeRJetCollections)
-addVRJets(jetm4Seq,largeRColls=largeRJetCollections, training='201903')
-
-from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-#=======================================
-# Re-tag PFlow jets so they have b-tagging info
-#=======================================
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
+    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
 
 #===============================
 # add xbb taggers
 #===============================
-from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
+#from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+#addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
 
 
 #====================================================================
@@ -262,16 +200,15 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                        "AntiKt4EMPFlowJets_BTagging201810",
-                                        "AntiKt4EMPFlowJets_BTagging201903",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMPFlow_201810",
-                                        "BTagging_AntiKt4EMPFlow_201903",
-                                        "BTagging_AntiKt4EMTopo_201810",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
+                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                        #"AntiKt4EMPFlowJets_BTagging201810",
+                                        #"AntiKt4EMPFlowJets_BTagging201903",
+                                        #"AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track"
+
                                         ]
 
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",

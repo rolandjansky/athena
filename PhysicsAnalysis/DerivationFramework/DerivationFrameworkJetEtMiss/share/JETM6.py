@@ -3,18 +3,20 @@
 # reductionConf flag JETM6 in Reco_tf.py
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
+#from DerivationFrameworkEGamma.EGammaCommon import *
+#from DerivationFrameworkMuons.MuonsCommon import *
 
-from DerivationFrameworkFlavourTag.HbbCommon import *
+#from DerivationFrameworkFlavourTag.HbbCommon import *
 
-from DerivationFrameworkJetEtMiss.METCommon import *
+#from DerivationFrameworkJetEtMiss.METCommon import *
 
-from DerivationFrameworkInDet.InDetCommon import *
+#from DerivationFrameworkInDet.InDetCommon import *
+
+#from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SET UP STREAM   
@@ -386,16 +388,14 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                        "AntiKt4EMPFlowJets_BTagging201810",
-                                        "AntiKt4EMPFlowJets_BTagging201903",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
-                                        "BTagging_AntiKt4EMPFlow_201810",
-                                        "BTagging_AntiKt4EMPFlow_201903",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                        #"AntiKt4EMPFlowJets_BTagging201810",
+                                        #"AntiKt4EMPFlowJets_BTagging201903",
+                                        #"AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMTopo",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
   "TruthEvents",
