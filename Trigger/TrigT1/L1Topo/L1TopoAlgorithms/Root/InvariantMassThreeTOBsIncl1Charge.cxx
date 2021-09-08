@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
- * InvariantMassThreeTOBsInclCharge.cxx
+ * InvariantMassThreeTOBsIncl1Charge.cxx
  * Created by Paula Martinez based on InvariantMassInclusive1 by V Sorin
  * 
  * For questions contact atlas-trig-l1topo-algcom@cern.ch. 
@@ -22,15 +22,15 @@
 #include <sstream>
 #include <vector>
 
-#include "L1TopoAlgorithms/InvariantMassThreeTOBsInclCharge.h"
+#include "L1TopoAlgorithms/InvariantMassThreeTOBsIncl1Charge.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
 
-REGISTER_ALG_TCS(InvariantMassThreeTOBsInclCharge)
+REGISTER_ALG_TCS(InvariantMassThreeTOBsIncl1Charge)
 
 
-TCS::InvariantMassThreeTOBsInclCharge::InvariantMassThreeTOBsInclCharge(const std::string & name) : DecisionAlg(name)
+TCS::InvariantMassThreeTOBsIncl1Charge::InvariantMassThreeTOBsIncl1Charge(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
@@ -58,11 +58,11 @@ TCS::InvariantMassThreeTOBsInclCharge::InvariantMassThreeTOBsInclCharge(const st
    setNumberOutputBits(6);
 }
 
-TCS::InvariantMassThreeTOBsInclCharge::~InvariantMassThreeTOBsInclCharge(){}
+TCS::InvariantMassThreeTOBsIncl1Charge::~InvariantMassThreeTOBsIncl1Charge(){}
 
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsInclCharge::initialize() {
+TCS::InvariantMassThreeTOBsIncl1Charge::initialize() {
   if(parameter("MaxTob").value() > 0) {
       p_NumberLeading1 = parameter("MaxTob").value();
    } else {
@@ -89,14 +89,14 @@ TCS::InvariantMassThreeTOBsInclCharge::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       std::string hname_accept = "hInvariantMassThreeTOBsInclCharge_accept_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_reject = "hInvariantMassThreeTOBsInclCharge_reject_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_acceptEta1Eta2 = "hInvariantMassThreeTOBsInclCharge_acceptEta1Eta2_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_rejectEta1Eta2 = "hInvariantMassThreeTOBsInclCharge_rejectEta1Eta2_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_acceptEta2Eta3 = "hInvariantMassThreeTOBsInclCharge_acceptEta2Eta3_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_rejectEta2Eta3 = "hInvariantMassThreeTOBsInclCharge_rejectEta2Eta3_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_acceptEta3Eta1 = "hInvariantMassThreeTOBsInclCharge_acceptEta3Eta1_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_rejectEta3Eta1 = "hInvariantMassThreeTOBsInclCharge_rejectEta3Eta1_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_accept = "hInvariantMassThreeTOBsIncl1Charge_accept_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_reject = "hInvariantMassThreeTOBsIncl1Charge_reject_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_acceptEta1Eta2 = "hInvariantMassThreeTOBsIncl1Charge_acceptEta1Eta2_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_rejectEta1Eta2 = "hInvariantMassThreeTOBsIncl1Charge_rejectEta1Eta2_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_acceptEta2Eta3 = "hInvariantMassThreeTOBsIncl1Charge_acceptEta2Eta3_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_rejectEta2Eta3 = "hInvariantMassThreeTOBsIncl1Charge_rejectEta2Eta3_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_acceptEta3Eta1 = "hInvariantMassThreeTOBsIncl1Charge_acceptEta3Eta1_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_rejectEta3Eta1 = "hInvariantMassThreeTOBsIncl1Charge_rejectEta3Eta1_bit"+std::to_string(static_cast<int>(i));
        // mass
        bookHist(m_histAccept, hname_accept, "INVM", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]));
        bookHist(m_histReject, hname_reject, "INVM", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]));
@@ -117,7 +117,7 @@ TCS::InvariantMassThreeTOBsInclCharge::initialize() {
 
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassThreeTOBsIncl1Charge::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
 						 const std::vector<TCS::TOBArray *> & output,
 						 Decision & decision )
 {
@@ -191,7 +191,7 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
           }
    } else {
 
-      TCS_EXCEPTION("InvariantMassThreeTOBsInclCharge alg must have 1 input list, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassThreeTOBsIncl1Charge alg must have 1 input list, but got " << input.size());
 
    }
 
@@ -200,7 +200,7 @@ TCS::InvariantMassThreeTOBsInclCharge::processBitCorrect( const std::vector<TCS:
 }
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassThreeTOBsIncl1Charge::process( const std::vector<TCS::TOBArray const *> & input,
 					  const std::vector<TCS::TOBArray *> & output,
 					  Decision & decision )
 {
@@ -274,7 +274,7 @@ TCS::InvariantMassThreeTOBsInclCharge::process( const std::vector<TCS::TOBArray 
 	  }
    } else {
 
-      TCS_EXCEPTION("InvariantMassThreeTOBsInclCharge alg must have either 1 input list, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassThreeTOBsIncl1Charge alg must have either 1 input list, but got " << input.size());
 
    }
 

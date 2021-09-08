@@ -1133,7 +1133,7 @@ class TopoAlgoDef:
         toponame = "0INVM10-3MU4ab"
         log.debug("Define %s", toponame)
         inputList = 'MUab'
-        alg = AlgConf.InvariantMassThreeTOBsIncl( name = toponame, inputs = inputList, outputs = toponame )
+        alg = AlgConf.InvariantMassThreeTOBsIncl1( name = toponame, inputs = inputList, outputs = toponame )
         alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
         alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
         alg.addgeneric('NumResultBits', 1)

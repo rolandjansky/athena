@@ -1033,7 +1033,7 @@ class TopoAlgoDef(object):
         toponame = "0INVM10-3MU4ab"      # noqa: F821
         log.info("Define %s" % toponame)    
         inputList = 'MUab'        
-        alg = AlgConf.InvariantMassThreeTOBsIncl( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+        alg = AlgConf.InvariantMassThreeTOBsIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
         alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
         alg.addgeneric('NumResultBits', 1)
