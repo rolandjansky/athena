@@ -516,6 +516,8 @@ Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
 Steering.doPixelMon=DQMonFlags.doPixelMon()
 Steering.doSCTMon=DQMonFlags.doSCTMon()
 Steering.doTRTMon=DQMonFlags.doTRTMon()
+Steering.InDet.doGlobalMon=DQMonFlags.doInDetGlobalMon()
+Steering.InDet.doAlignMon=DQMonFlags.doInDetAlignMon()
 Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
 Steering.doLArMon=DQMonFlags.doLArMon()
 Steering.doTileMon=DQMonFlags.doTileMon()
@@ -531,5 +533,6 @@ Steering.doJetMon=DQMonFlags.doJetMon()
 Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
 Steering.doTauMon=DQMonFlags.doTauMon()
 Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+Steering.doJetInputsMon=DQMonFlags.doJetInputsMon()
 
 del local_logger

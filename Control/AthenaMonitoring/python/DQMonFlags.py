@@ -153,6 +153,13 @@ class doJetMon(JobProperty):
     StoredValue=True
 list+=[doJetMon]
 
+class doJetInputsMon(JobProperty):
+    """ Switch for jet monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doJetInputsMon]
+
 class doMissingEtMon(JobProperty):
     """ Switch for missing E_T monitoring"""
     statusOn=True
