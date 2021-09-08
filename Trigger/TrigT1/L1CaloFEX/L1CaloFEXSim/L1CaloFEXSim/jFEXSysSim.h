@@ -88,12 +88,12 @@ namespace LVL1 {
     SG::WriteHandleKey< xAOD::jFexSumETRoIContainer> m_jFexSumETOutKey {this,"Key_jFexSumETOutputContainer","L1_jFexSumETRoI","Output jFexEDM SumET container"};
     SG::WriteHandleKey< xAOD::jFexMETRoIContainer>   m_jFexMETOutKey   {this,"Key_jFexMETOutputContainer","L1_jFexMETRoI","Output jFexEDM Met container"};
 
-    std::map<int,jTower> m_jTowersColl;
-    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allSmallRJetTobs; 
-    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allLargeRJetTobs;
-    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_alltauTobs;
-    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allsumEtTobs;
-    std::map<uint8_t, std::vector<std::vector<uint32_t>> > m_allMetTobs;
+    std::unordered_map<int,jTower> m_jTowersColl;
+    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allSmallRJetTobs; 
+    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allLargeRJetTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_alltauTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allsumEtTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allMetTobs;
   };
   
 } // end of namespace
