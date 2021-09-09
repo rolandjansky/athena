@@ -195,7 +195,7 @@ namespace xAOD {
           ATH_MSG_DEBUG("reject track pt = " << tp->pt());
           continue;
       } else{
-	      ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+	ATH_MSG_DEBUG("Accept track " << tp << " pt = " << tp->pt() << " z+vz = " << tp->z0()+tp->vz() << " eta = " << tp->eta() << " phi = " << tp->phi());
       }
       add( input,*tp, result );
 

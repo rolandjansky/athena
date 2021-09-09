@@ -90,10 +90,10 @@ public:
 public:
   IOVTime(): m_status(IOVTime::UNDEF), m_time(UNDEFRETIME), 
     m_timestamp(UNDEFTIMESTAMP){};
-  IOVTime( uint64_t timestamp ): m_status(IOVTime::TIMESTAMP),
+  explicit IOVTime( uint64_t timestamp ): m_status(IOVTime::TIMESTAMP),
     m_time(IOVTime::UNDEFRETIME), m_timestamp(timestamp){};
-  IOVTime(  uint32_t run,  uint32_t event );
-  IOVTime(  uint32_t run,  uint32_t event, 
+  explicit IOVTime(  uint32_t run,  uint32_t event );
+  explicit IOVTime(  uint32_t run,  uint32_t event, 
 	    uint64_t timestamp );
   IOVTime( const EventIDBase& eid);
 

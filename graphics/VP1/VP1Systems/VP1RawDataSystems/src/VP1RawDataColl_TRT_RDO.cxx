@@ -33,8 +33,8 @@ QStringList VP1RawDataColl_TRT_RDO::availableCollections(IVP1System*sys)
 class VP1RawDataColl_TRT_RDO::Imp {
 public:
   VP1Interval allowedToT;
-  bool requireHT;
-  bool useSpecialTRTHTMaterial;
+  bool requireHT = false;
+  bool useSpecialTRTHTMaterial = false;
 };
 
 

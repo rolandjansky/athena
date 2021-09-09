@@ -16,10 +16,11 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1CaloEvent/JetInput.h"
 #include "xAODTrigL1Calo/JEMTobRoI.h"
+
+#include "TrigConfData/L1Menu.h"
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.

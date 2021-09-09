@@ -358,7 +358,8 @@ egammaSuperClusterBuilderBase::createNewCluster(
   const EventContext& ctx,
   const std::vector<const xAOD::CaloCluster*>& clusters,
   const CaloDetDescrManager& mgr,
-  xAOD::EgammaParameters::EgammaType egType) const
+  xAOD::EgammaParameters::EgammaType egType,
+  xAOD::CaloClusterContainer* precorrClusters) const
 {
 
   const auto acSize = clusters.size();
@@ -450,7 +451,7 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // Apply correction calibration
-  if (calibrateCluster(ctx, newCluster.get(), mgr, egType).isFailure()) {
+  if (calibrateCluster(ctx, newCluster.get(), mgr, egType, precorrClusters).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
     return nullptr;
   }
@@ -716,7 +717,8 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   const EventContext& ctx,
   xAOD::CaloCluster* newCluster,
   const CaloDetDescrManager& mgr,
-  const xAOD::EgammaParameters::EgammaType egType) const
+  const xAOD::EgammaParameters::EgammaType egType,
+  xAOD::CaloClusterContainer* precorrClusters) const
 {
 
   refineEta1Position(newCluster, mgr);
@@ -725,6 +727,10 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   newCluster->setAltEta(newCluster->eta());
   newCluster->setAltPhi(newCluster->phi());
   // first do the corrections
+  if (precorrClusters) {
+    precorrClusters->push_back (std::make_unique<xAOD::CaloCluster>());
+    *precorrClusters->back() = *newCluster;
+  }
   ATH_CHECK(m_clusterCorrectionTool->execute(
     ctx, newCluster, egType, xAOD::EgammaHelpers::isBarrel(newCluster)));
   newCluster->setRawE(newCluster->e());

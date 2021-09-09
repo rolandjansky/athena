@@ -11,7 +11,7 @@
 
 void
 LArRawSCContainerCnv_p1::persToTrans(const LArRawSCContainer_p1* pers, 
-				     LArRawSCContainer* trans, MsgStream &log)
+				     LArRawSCContainer* trans, MsgStream &log) const
 {
   const unsigned nDigits=pers->m_channelID.size();
   if (nDigits != pers->m_chan.size() || nDigits != pers->m_nEnergies.size()) {
@@ -57,7 +57,7 @@ LArRawSCContainerCnv_p1::persToTrans(const LArRawSCContainer_p1* pers,
 
 void
 LArRawSCContainerCnv_p1::transToPers(const LArRawSCContainer* trans, 
-				     LArRawSCContainer_p1* pers, MsgStream &/*log*/)
+				     LArRawSCContainer_p1* pers, MsgStream &/*log*/) const
 {
   
   unsigned int nDigits=trans->size();

@@ -20,7 +20,6 @@ StatusCode TrigNavSlimmingMTAlg::initialize() {
   ATH_CHECK( m_outputCollection.initialize() );
   if (not m_trigDec.empty()) {
     ATH_CHECK( m_trigDec.retrieve() );
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
   }
   for (const std::string& output : m_allOutputContainers) {
     if (output == m_primaryInputCollection.key()) {
@@ -162,7 +161,7 @@ StatusCode TrigNavSlimmingMTAlg::fillChainIDs(DecisionIDContainer& chainIDs) con
     const Trig::ChainGroup* cg = m_trigDec->getChainGroup(filter);
     std::vector<std::string> chains = cg->getListOfTriggers();
     for (const std::string& chain : chains) {
-      const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+      const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(chain);
       const HLT::Identifier chainID( hltChain->chain_name() );
       chainIDs.insert( chainID.numeric() );
       const std::vector<size_t> legMultiplicites = hltChain->leg_multiplicities();

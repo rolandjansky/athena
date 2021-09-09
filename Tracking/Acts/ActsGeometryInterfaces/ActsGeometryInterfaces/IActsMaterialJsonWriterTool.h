@@ -9,6 +9,8 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
 
+#include "ActsGeometry/ActsGeometryContext.h"
+
 #include "Acts/Plugins/Json/MaterialMapJsonConverter.hpp"
 
 namespace Acts {
@@ -22,11 +24,11 @@ public:
 
   virtual
   void
-  write(const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const = 0;
+  write(const ActsGeometryContext& gctx, const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const = 0;
 
   virtual
   void
-  write(const Acts::TrackingGeometry& tGeometry) const = 0;
+  write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tGeometry) const = 0;
 
 };
 

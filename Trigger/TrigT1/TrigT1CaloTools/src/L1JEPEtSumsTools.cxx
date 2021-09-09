@@ -45,7 +45,6 @@ L1JEPEtSumsTools::~L1JEPEtSumsTools()
 
 StatusCode L1JEPEtSumsTools::initialize()
 {
-  // Connect to the LVL1ConfigSvc for the trigger configuration:
 
   ATH_CHECK( m_L1MenuKey.initialize() );
   // Retrieve jet element tool
@@ -56,13 +55,6 @@ StatusCode L1JEPEtSumsTools::initialize()
 
   ATH_CHECK(m_etTool.retrieve());
   
-  return StatusCode::SUCCESS;
-}
-
-/** Finalisation */
-
-StatusCode L1JEPEtSumsTools::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

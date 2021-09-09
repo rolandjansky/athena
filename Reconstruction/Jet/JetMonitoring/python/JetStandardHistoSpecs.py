@@ -19,7 +19,6 @@ knownVar = dict(
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
-
 )
 
 # Explicitly declare variables which have underlying type vector<int> (otherwise the system would automatically configure them as vector<float>)
@@ -78,14 +77,14 @@ _knownHistos = [
     HistoSpec( 'rapidity',  (50,-5,5) , title='rapidity;y;Entries'), # Test non-EDM variable 
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
-    HistoSpec( 'pt:GeV',  (100,0,750) , title='p_{T};p_{T} [GeV];'),    
+    HistoSpec( 'pt:GeV',  (200,0,800) , title='p_{T};p_{T} [GeV];'),
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
-    HistoSpec( 'e:GeV',  (100,0,750) , title='E;E [GeV];'),    
-    HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
+    HistoSpec( 'e:GeV',  (200,0,800) , title='E;E [GeV];'),
+    HistoSpec( 'et:GeV', (200,0,800), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
-    HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
+    HistoSpec( 'highpt',  (390,200.,8000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),
 
     HistoSpec( 'avgMu', (100, 0., 200.) , title='Ave. Interactions per Crossing; Ave. mu' , xvar='avgMu'),
     #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
@@ -227,22 +226,22 @@ _knownHistos = [
 
     HistoSpec( 'JetConstitScaleMomentum_eta',  (50,-5,5) , title='ConstitScale #eta;ConstitScale #eta;Entries'),
     HistoSpec( 'JetConstitScaleMomentum_phi',  (50,-3.3,3.3) , title='ConstitScale #phi;ConstitScale #phi;Entries'),
-    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (100,0,200) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (200,0,800) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetConstitScaleMomentum_m:GeV',  (100,0,300) , title='ConstitScale mass;ConstitScale mass [GeV];Entries'),
     
     HistoSpec( 'JetEMScaleMomentum_eta',  (50,-5,5) , title='EMScale #eta;EMScale #eta;Entries'),
     HistoSpec( 'JetEMScaleMomentum_phi',  (50,-3.3,3.3) , title='EMScale #phi;EMScale #phi;Entries'),
-    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (100,0,200) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (200,0,800) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetEMScaleMomentum_m:GeV',  (100,0,300) , title='EMScale mass;EMScale mass [GeV];Entries'),
 
     HistoSpec( 'JetPileupScaleMomentum_eta',  (50,-5,5) , title='PileupScale #eta;PileupScale #eta;Entries'),
     HistoSpec( 'JetPileupScaleMomentum_phi',  (50,-3.3,3.3) , title='PileupScale #phi;PileupScale #phi;Entries'),
-    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (100,0,200) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (200,0,800) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetPileupScaleMomentum_m:GeV',  (100,0,300) , title='PileupScale mass;PileupScale mass [GeV];Entries'),
 
     HistoSpec( 'JetEtaJESScaleMomentum_eta',  (50,-5,5) , title='EtaJESScale #eta;EtaJESScale #eta;Entries'),
     HistoSpec( 'JetEtaJESScaleMomentum_phi',  (50,-3.3,3.3) , title='EtaJESScale #phi;EtaJESScale #phi;Entries'),
-    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (100,0,200) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (200,0,800) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),
     HistoSpec( 'JetEtaJESScaleMomentum_m:GeV',  (100,0,300) , title='EtaJESScale mass;EtaJESScale mass [GeV];Entries'),
     # ---------------------
     # 2D histogram (x and y vars are separated by ';' )

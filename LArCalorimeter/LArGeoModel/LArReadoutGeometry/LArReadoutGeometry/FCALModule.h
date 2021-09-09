@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALMODULE_H
 #define LARREADOUTGEOMETRY_FCALMODULE_H
-#include <vector>
+
 #include "Identifier/Identifier.h"
 #include "LArReadoutGeometry/FCALTile.h"
 #include "GeoModelKernel/GeoVDetectorElement.h"
@@ -13,8 +13,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/CachedValue.h"
 #include <utility>
-
-class FCALDetectorManager;
+#include <vector>
 
 /**
  *  @class FCALModule
@@ -27,7 +26,8 @@ class FCALDetectorManager;
  *	It provides access to the FCAL Tiles.
  */
 
-
+class FCALDetectorManager;
+class GeoAlignmentStore;
 
 class FCALModule : public GeoVDetectorElement  
 {
@@ -102,22 +102,12 @@ class FCALModule : public GeoVDetectorElement
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
-      
-  /**
-   * @brief Returns the absolute transform of this element.
-   */
-  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
+  const Amg::Transform3D&  getAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
 
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const Amg::Transform3D  getAbsoluteTransformAmg () const;
-
-  /**
-   * @brief Returns the absolute transform of this element.
-   */
-  const Amg::Transform3D  getDefAbsoluteTransformAmg () const;
+  const Amg::Transform3D&  getDefAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
 
 
   double getProjectivityDisplacement() const;

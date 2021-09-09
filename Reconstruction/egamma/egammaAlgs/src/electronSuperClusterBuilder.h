@@ -156,6 +156,13 @@ private:
                                       "ElectronSuperClusters",
                                       "output calo cluster container" };
 
+  /** @brief Optional key for pre-correction clusters */
+  SG::WriteHandleKey<xAOD::CaloClusterContainer>
+    m_precorrClustersKey{ this,
+                          "precorrClustersName",
+                          "",
+                          "optional pre-correction clusters" };
+
   /** @brief Tool to perform track matching*/
   ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder{
     this,

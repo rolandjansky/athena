@@ -52,6 +52,12 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "eTAU" )
       return std::make_shared<L1Threshold_eTAU>( name, type, extraInfo, data );
 
+   if( type == "jTAU" )
+      return std::make_shared<L1Threshold_jTAU>( name, type, extraInfo, data );
+
+   if( type == "cTAU" )
+      return std::make_shared<L1Threshold_cTAU>( name, type, extraInfo, data );
+
    if( type == "jJ" )
       return std::make_shared<L1Threshold_jJ>( name, type, extraInfo, data );
 
@@ -254,13 +260,18 @@ TrigConf::L1Threshold_Calo::thrValueCounts(int eta) const {
 }
 
 unsigned int
+TrigConf::L1Threshold_Calo::thrValue100MeV(int eta) const {
+   return energyInCounts( thrValueMeV(eta), 100 );
+}
+
+unsigned int
 TrigConf::L1Threshold_Calo::thrValueMeV(int eta) const {
    return m_etaDepThrValue.empty() ? m_thrValue : m_etaDepThrValue.at(eta);
 }
 
 TrigConf::ValueWithEtaDependence<float>
 TrigConf::L1Threshold_Calo::thrValues() const {
-   auto thresholdValuesGeV = ValueWithEtaDependence<float>{ m_etaDepThrValue.name()+"Counts" };
+   auto thresholdValuesGeV = ValueWithEtaDependence<float>{ m_etaDepThrValue.name()+"GeV" };
    for( auto & r : m_etaDepThrValue ) {
       thresholdValuesGeV.addRangeValue(r.value() / 1000.0f, r.etaMin(), r.etaMax(), r.priority(), r.symmetric());
    }
@@ -270,6 +281,15 @@ TrigConf::L1Threshold_Calo::thrValues() const {
 const TrigConf::ValueWithEtaDependence<unsigned int> &
 TrigConf::L1Threshold_Calo::thrValuesMeV() const {
    return m_etaDepThrValue;
+}
+
+TrigConf::ValueWithEtaDependence<unsigned int>
+TrigConf::L1Threshold_Calo::thrValues100MeV() const {
+   auto thrValues100MeV = ValueWithEtaDependence<unsigned int>{ m_etaDepThrValue.name()+"100MeV" };
+   for( auto & r : m_etaDepThrValue ) {
+      thrValues100MeV.addRangeValue( energyInCounts( r.value(), 100 ), r.etaMin(), r.etaMax(), r.priority(), r.symmetric());
+   }
+   return thrValues100MeV;
 }
 
 TrigConf::ValueWithEtaDependence<unsigned int>
@@ -313,6 +333,8 @@ TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
       return "Medium";
    if (wp == Selection::WP::TIGHT)
       return "Tight";
+   if (wp == Selection::WP::HAD)
+      return "Had";
    throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
@@ -327,5 +349,7 @@ TrigConf::Selection::stringToWP(const std::string & wpStr)
       return Selection::WP::MEDIUM;
    if (wpStr == "Tight")
       return Selection::WP::TIGHT;
+   if (wpStr == "Had")
+      return Selection::WP::HAD;
    throw std::runtime_error("Unknown working point name " + wpStr);
 }

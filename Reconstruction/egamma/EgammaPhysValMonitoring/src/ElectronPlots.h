@@ -24,7 +24,7 @@ namespace Egamma{
 class ElectronPlots:public PlotBase {
     public:
       ElectronPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType);
-      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt);
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const;
      // Reco only information
 
       Egamma::KinematicsPlots     m_oKinAllRecoPlots;

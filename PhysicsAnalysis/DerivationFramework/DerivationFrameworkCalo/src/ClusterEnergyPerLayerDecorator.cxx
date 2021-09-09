@@ -40,7 +40,7 @@ StatusCode DerivationFramework::ClusterEnergyPerLayerDecorator::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
 
-  if(m_SGKey_photons == "" and m_SGKey_electrons == ""){
+  if(m_SGKey_photons.empty() and m_SGKey_electrons.empty()){
     ATH_MSG_FATAL("No e-gamma collection provided");
     return StatusCode::FAILURE;
   }
@@ -63,10 +63,10 @@ StatusCode DerivationFramework::ClusterEnergyPerLayerDecorator::addBranches() co
   const EventContext& ctx=Gaudi::Hive::currentContext();
   for (const std::string& SGkey : {m_SGKey_photons, m_SGKey_electrons})
   {
-    if (SGkey == "") continue;
-    const xAOD::EgammaContainer *container(0);
+    if (SGkey.empty()) continue;
+    const xAOD::EgammaContainer *container(nullptr);
     ATH_CHECK( evtStore()->retrieve(container, SGkey) );
-    for (auto egamma : *container){
+    for (const auto *egamma : *container){
       decorateObject(ctx, egamma);
     }
   }
@@ -82,8 +82,8 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(
 
   if (not egamma or not egamma->caloCluster()) return;
   
-  const CaloCellContainer* cellCont(0);
-  xAOD::CaloCluster* egcClone(0);
+  const CaloCellContainer* cellCont(nullptr);
+  xAOD::CaloCluster* egcClone(nullptr);
   
   if (evtStore()->retrieve(cellCont,m_CellCollectionName).isFailure())
     ATH_MSG_WARNING(m_CellCollectionName<< " not found");

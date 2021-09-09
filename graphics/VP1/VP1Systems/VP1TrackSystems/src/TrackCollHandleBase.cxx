@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,6 +41,7 @@
 
 #include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QElapsedTimer>
 
 #include <qdatetime.h>
 #include <vector>
@@ -51,7 +52,7 @@
 //____________________________________________________________________
 class TrackCollHandleBase::Imp {
 public:
-  TrackCollHandleBase * theclass;
+  TrackCollHandleBase * theclass = nullptr;
   QString name;
 
   //Vector of track handles:
@@ -60,22 +61,22 @@ public:
   std::vector<TrackHandleBase*>::iterator itTrackHandles;
   std::vector<TrackHandleBase*>::iterator itTrackHandlesEnd;
 
-  Trk::IExtrapolator *  lastUsedPropagator;
-  bool notifystatesave;
+  Trk::IExtrapolator *  lastUsedPropagator = nullptr;
+  bool notifystatesave = false;
 
   TrackCommonFlags::TSOSPartsFlags shownTSOSParts;
   TrackCommonFlags::TSOSPartsFlags customColouredTSOSParts;
-  bool tsos_useShortTRTMeasurements;
-  bool tsos_useShortMDTMeasurements;
-  bool tsos_drawMeasGlobalPositions;
-  double tsos_measurementsShorttubesScale;
-  double tsos_nStdDevForParamErrors;
-  int tsos_numberOfPointsOnCircles;
-  double tsos_materialEffectsOnTrackScale;
-  bool tsos_parTubeErrorsDrawCylinders;
+  bool tsos_useShortTRTMeasurements = false;
+  bool tsos_useShortMDTMeasurements = false;
+  bool tsos_drawMeasGlobalPositions = false;
+  double tsos_measurementsShorttubesScale = 0.0;
+  double tsos_nStdDevForParamErrors = 0.0;
+  int tsos_numberOfPointsOnCircles = 0;
+  double tsos_materialEffectsOnTrackScale = 0.0;
+  bool tsos_parTubeErrorsDrawCylinders = false;
 
   //Extra widgets:
-  QComboBox * comboBox_colourby;
+  QComboBox * comboBox_colourby = nullptr;
 
   static QString comboBoxEntry_ColourByCollection() { return "Uniform"; }
   static QString comboBoxEntry_ColourByRandom() { return "Random"; }
@@ -85,9 +86,9 @@ public:
   static QString comboBoxEntry_ColourByDistanceFromSelectedTrack() { return "Dist. Sel."; }
   static QString comboBoxEntry_ColourByVertex() { return "Vertex"; }
 
-  QTreeWidgetItem* objBrowseTree;
-  TrackCollectionSettingsButton * matButton;
-  bool last_useDefaultCuts;
+  QTreeWidgetItem* objBrowseTree = nullptr;
+  TrackCollectionSettingsButton * matButton = nullptr;
+  bool last_useDefaultCuts = false;
 };
 
 
@@ -1063,7 +1064,7 @@ void TrackCollHandleBase::collVisibilityChanged(bool vis)
 //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
 //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(nullptr); // not selectable, not enabled
+    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
   actualSetShownTSOSPartsOnHandles();
   actualSetCustomColouredTSOSPartsOnHandles();
@@ -1083,7 +1084,7 @@ void TrackCollHandleBase::updateObjectBrowserVisibilityCounts() {
 
 void TrackCollHandleBase::fillObjectBrowser()
 {
-  QTime t;
+  QElapsedTimer t;
   t.start();
   
   QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();

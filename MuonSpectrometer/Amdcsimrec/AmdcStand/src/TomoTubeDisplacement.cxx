@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TomoTubeDisplacement.h"
@@ -9,7 +9,7 @@
 
 void tomotubedisplacement_(
 		         int& optionflag,
-		         std::string TheStationName, int& jff, int& jzz, int& MulLay, int& JLay, int& Tube,
+		         const std::string& TheStationName, int& jff, int& jzz, int& MulLay, int& JLay, int& Tube,
 		         double& Delta_szt_z_n , double& Delta_szt_t_n , 
 		         double& Delta_szt_z_p , double& Delta_szt_t_p
 ){

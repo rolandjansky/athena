@@ -6,12 +6,12 @@ thread_local TCS::Heap<TCS::jLargeRJetTOB> TCS::jLargeRJetTOB::fg_heap("Jet");
 
 // constructors
 // default constructor
-TCS::jLargeRJetTOB::jLargeRJetTOB(uint32_t roiWord, std::string tobName) :
+TCS::jLargeRJetTOB::jLargeRJetTOB(uint32_t roiWord, const std::string& tobName) :
    BaseTOB( roiWord,tobName )
 {}
 
 // constructor with initial values
-TCS::jLargeRJetTOB::jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, std::string tobName) :
+TCS::jLargeRJetTOB::jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord, const std::string& tobName) :
    BaseTOB( roiWord,tobName )
    , m_Et(Et)
    , m_eta(eta)

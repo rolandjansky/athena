@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -28,7 +28,7 @@
 typedef TruthEtIsolations::GenEventLink_t GenEventLink_t;
 typedef TruthEtIsolations::EtIsol_t       EtIsol_t;
 
-EtIsol_t TruthEtIsolations::m_dfltEtIsols = {
+const EtIsol_t TruthEtIsolations::m_dfltEtIsols = {
   {
     -999.*CLHEP::GeV, -999.*CLHEP::GeV, -999.*CLHEP::GeV, -999.*CLHEP::GeV,
     -999.*CLHEP::GeV, -999.*CLHEP::GeV, -999.*CLHEP::GeV, -999.*CLHEP::GeV

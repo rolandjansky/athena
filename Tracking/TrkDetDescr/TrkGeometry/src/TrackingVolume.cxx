@@ -742,19 +742,19 @@ void Trk::TrackingVolume::indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(
   if (m_confinedLayers) {
     const std::vector<const Trk::Layer*>& layers =
         m_confinedLayers->arrayObjects();
-    for (const auto& layerIter : layers) {
+    for (const Trk::Layer* layerptr : layers) {
       // only index the material layers & only those that have not yet been
       // singed
-      if (layerIter && layerIter->layerIndex().value() < 0) {
+      if (layerptr && layerptr->layerIndex().value() < 0) {
         // sign only those with material properties - rest goes to 0
         Trk::LayerIndex layIndex =
-            layerIter->layerMaterialProperties()
+            layerptr->layerMaterialProperties()
                 ? Trk::LayerIndex(int(geoSig) *
                                       TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT +
                                   (++offset))
                 : Trk::LayerIndex(0);
         // now register the index
-        layerIter->registerLayerIndex(layIndex);
+        (const_cast<Trk::Layer*>(layerptr))->registerLayerIndex(layIndex);
       }
     }
   }
@@ -766,7 +766,7 @@ void Trk::TrackingVolume::indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(
     if (mLayer && mLayer->layerIndex().value() < 0.) {
       Trk::LayerIndex layIndex = Trk::LayerIndex(
           int(geoSig) * TRKDETDESCR_GEOMETRYSIGNATUREWEIGHT + (++offset));
-      mLayer->registerLayerIndex(layIndex);
+      (const_cast<Trk::Layer*>(mLayer))->registerLayerIndex(layIndex);
     }
   }
 
@@ -798,9 +798,9 @@ void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE(
           const std::vector<const Trk::Surface*>& layerSurfaces =
               surfArray->arrayObjects();
           // loop over the surfaces - there can be 0 entries
-          for (const auto& laySurfIter : layerSurfaces) {
+          for (const Trk::Surface* laySurf : layerSurfaces) {
             const Trk::Layer* materialLayer =
-                laySurfIter ? laySurfIter->materialLayer() : nullptr;
+                laySurf ? laySurf->materialLayer() : nullptr;
             if (materialLayer && materialLayer->layerIndex().value() < 0) {
               // sign only those with material properties - rest goes to 0
               Trk::LayerIndex layIndex =
@@ -810,7 +810,7 @@ void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE(
                             (++offset))
                       : Trk::LayerIndex(0);
               // now register the index
-              materialLayer->registerLayerIndex(layIndex);
+              (const_cast<Trk::Layer*>(materialLayer))->registerLayerIndex(layIndex);
             }
           }
         }
@@ -1209,21 +1209,21 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE(
           dynamic_cast<const Trk::CylinderLayer*>((*confArbLayers)[i]);
 
       if (slayer) {
-        const Trk::SubtractedPlaneLayer* lay =
+        Trk::SubtractedPlaneLayer* lay =
             new Trk::SubtractedPlaneLayer(*slayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (layer) {
-        const Trk::PlaneLayer* lay = new Trk::PlaneLayer(*layer);
+        Trk::PlaneLayer* lay = new Trk::PlaneLayer(*layer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (sclayer) {
-        const Trk::SubtractedCylinderLayer* lay =
+        Trk::SubtractedCylinderLayer* lay =
             new Trk::SubtractedCylinderLayer(*sclayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       } else if (clayer) {
-        const Trk::CylinderLayer* lay = new Trk::CylinderLayer(*clayer);
+        Trk::CylinderLayer* lay = new Trk::CylinderLayer(*clayer);
         lay->moveLayer(transform);
         uLayers.push_back(lay);
       }
@@ -1320,15 +1320,15 @@ void Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE(
   // confined 'ordered' layers
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers)
-    for (const auto& clayIter : confLayers->arrayObjects())
-      clayIter->moveLayer(transform);
+    for (const Trk::Layer*  clayIter : confLayers->arrayObjects())
+      (const_cast<Trk::Layer*>(clayIter))->moveLayer(transform);
 
   // confined 'unordered' layers
   const std::vector<const Trk::Layer*>* confArbLayers =
       confinedArbitraryLayers();
   if (confArbLayers)
-    for (const auto& calayIter : (*confArbLayers))
-      calayIter->moveLayer(transform);
+    for (const Trk::Layer* calayIter : (*confArbLayers))
+      (const_cast<Trk::Layer*>(calayIter))->moveLayer(transform);
 
   // confined volumes
   const Trk::BinnedArray<Trk::TrackingVolume>* confVolumes = confinedVolumes();
@@ -1351,15 +1351,18 @@ void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE(
   // case a : Layers exist
   const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers) {
-    for (const auto& clayIter : confLayers->arrayObjects())
-      if (clayIter) {
-        if (clayIter->surfaceRepresentation().type() ==
+    for (const Trk::Layer* clay : confLayers->arrayObjects())
+      if (clay) {
+        Trk::Layer* mutableclay = const_cast<Trk::Layer*> (clay);
+        if (clay->surfaceRepresentation().type() ==
                 Trk::SurfaceType::Cylinder &&
-            !(center().isApprox(clayIter->surfaceRepresentation().center())))
-          clayIter->resizeAndRepositionLayer(volumeBounds(), center(),
+            !(center().isApprox(clay->surfaceRepresentation().center()))){
+          mutableclay->resizeAndRepositionLayer(volumeBounds(), center(),
                                              envelope);
-        else
-          clayIter->resizeLayer(volumeBounds(), envelope);
+        }
+        else{
+          mutableclay->resizeLayer(volumeBounds(), envelope);
+        }
       } else
         msgstream << MSG::WARNING
                   << "  ---> found 0 pointer to layer in Volume [ "

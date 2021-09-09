@@ -31,36 +31,24 @@ void jTowerContainer::print() const {
 
 const LVL1::jTower * jTowerContainer::findTower(int towerID) const
 {
-    int container_index = -1;
-    container_index = m_map_towerID_containerIndex.find(towerID)->second;
+    const auto it = m_map_towerID_containerIndex.find(towerID);
     
-    //should be written like this
-    if(m_map_towerID_containerIndex.find(towerID) != m_map_towerID_containerIndex.end()){
-        if(container_index >= 0) {
-            return (*this)[container_index];
-        }
+    const int container_index = it->second;
+    if (container_index < 0) {
+        return nullptr;
     }
-    if(container_index >= 0) {
-        return (*this)[container_index];
-    }
-    return nullptr;
+    return (*this)[container_index];
 }
 
 LVL1::jTower * jTowerContainer::findTower(int towerID)
 {
-    int container_index = -1;
-    container_index = m_map_towerID_containerIndex.find(towerID)->second;
+    const auto it = m_map_towerID_containerIndex.find(towerID);
     
-    //should be written like this
-    if(m_map_towerID_containerIndex.find(towerID) != m_map_towerID_containerIndex.end()){
-        if(container_index >= 0) {
-            return (*this)[container_index];
-        }
+    const int container_index = it->second;
+    if (container_index < 0) {
+        return nullptr;
     }
-    if(container_index >= 0) {
-        return (*this)[container_index];
-    }
-    return nullptr;
+    return (*this)[container_index];
 }
 
 void jTowerContainer::clearContainerMap()

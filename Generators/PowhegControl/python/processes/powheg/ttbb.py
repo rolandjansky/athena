@@ -129,6 +129,10 @@ class ttbb(PowhegRES):
         self.add_keyword("withdamp", 1)
         self.add_keyword("xgriditeration")
         self.add_keyword("xupbound", 2)
+        self.add_keyword("hdamp", -1)
+        self.add_keyword("dynhdamp", 1)
+        self.add_keyword("dynhdampPF", 0.5)
+
 
     def validate_decays(self):
         """

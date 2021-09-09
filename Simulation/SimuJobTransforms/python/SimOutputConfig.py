@@ -1,5 +1,17 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+def getStreamEVNT_TR_ItemList(ConfigFlags):
+    #Add to item list
+    ItemList = [
+        "IOVMetaDataContainer#*",
+        "EventInfo#*"
+    ]
+    if ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']:
+        ItemList += ["TrackRecordCollection#NeutronBG"]
+    else:
+        ItemList += ["TrackRecordCollection#CosmicRecord"]
+    return ItemList
+
 
 def getStreamHITS_ItemList(ConfigFlags):
     #Add to item list
@@ -76,6 +88,10 @@ def getStreamHITS_ItemList(ConfigFlags):
     if ConfigFlags.Detector.EnableAFP:
         ItemList += ["AFP_TDSimHitCollection#*",
                      "AFP_SIDSimHitCollection#*"]
+
+    if ConfigFlags.Beam.Type == 'cosmics':
+        ItemList += ["TrackRecordCollection#CosmicRecord",
+                     "TrackRecordCollection#CosmicPerigee"]
 
     # TimingAlg
     ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]

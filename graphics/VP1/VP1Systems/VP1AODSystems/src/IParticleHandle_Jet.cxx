@@ -54,25 +54,25 @@ public:
 	//Imp () : theclass(0), controller(0), scale(1.0), bTaggingTagger("MV1"),bTaggingCut(0.98),randomColours(false),bTaggingSwitch(0),bTaggingTexture(0), bTaggingMaterial(0) {} // NOTE: parameters from the old JetCollection
 	//Imp () : theclass(0), scale(1.0) {} // TODO: implement the parameters above, from the old JetCollection
 
-	IParticleHandle_Jet * theclass; // the Jet class
-	const IParticleCollHandle_Jet* theCollHandle; // the CollHandle instance
+	IParticleHandle_Jet * theclass = nullptr; // the Jet class
+	const IParticleCollHandle_Jet* theCollHandle = nullptr; // the CollHandle instance
 
-	const xAOD::Jet * m_jet; // the single jet
+	const xAOD::Jet * m_jet = nullptr; // the single jet
 
-	SoSeparator * sep; // everything hangs from this.
-	SoCone * cone;//This represents the cone representing the jet.
-	SoMaterial * m_randomMat; // random material for jets
-	SoSwitch   * m_bTagged; // switch for b-tagged jets
-	SoSwitch   * m_bTaggingCollSwitch; // switch for b-tagged jets
+	SoSeparator * sep = nullptr; // everything hangs from this.
+	SoCone * cone = nullptr;//This represents the cone representing the jet.
+	SoMaterial * m_randomMat = nullptr; // random material for jets
+	SoSwitch   * m_bTagged = nullptr; // switch for b-tagged jets
+	SoSwitch   * m_bTaggingCollSwitch = nullptr; // switch for b-tagged jets
 
 
 	// vars to store b-tagging weights for different taggers
-	double m_bTagWeightMV1;
-	double m_bTagWeightMV2c20;
-	double m_bTagWeightMV2c10;
-	double m_JetFitterCombNN_pb;
-	double m_JetFitterCombNN_pc;
-	double m_JetFitterCombNN_pu;
+	double m_bTagWeightMV1 = 0.0;
+	double m_bTagWeightMV2c20 = 0.0;
+	double m_bTagWeightMV2c10 = 0.0;
+	double m_JetFitterCombNN_pb = 0.0;
+	double m_JetFitterCombNN_pc = 0.0;
+	double m_JetFitterCombNN_pu = 0.0;
 
 
 	//QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache // TODO: see if useful for jets

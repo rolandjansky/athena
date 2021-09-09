@@ -37,8 +37,6 @@ StatusCode TrigEgammaEmulationToolTest::initialize() {
   ATH_CHECK(m_matchTool.retrieve());
   ATH_CHECK(m_emulatorTool.retrieve());
 
-  m_trigdec->ExperimentalAndExpertMethods()->enable();
-
   m_accept.addCut("L1Calo","");
   m_accept.addCut("L2Calo","");
   m_accept.addCut("L2","");

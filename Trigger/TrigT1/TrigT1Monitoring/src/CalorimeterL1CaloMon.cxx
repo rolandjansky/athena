@@ -755,8 +755,6 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
     double phi = (*ttIterator)->phi();
     const int layer = (*ttIterator)->layer();      
     const xAOD::TriggerTower_v2* tt = *ttIterator; 
-    std::vector<float> CaloEnergyLayers;           
-    std::vector<float> CaloETLayers;               
     
     em_caloE = 0;
     had_caloE = 0;
@@ -775,21 +773,18 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
       em_L1CaloE = int(tt->jepET());
       em_L1CaloE_CP = int(0.5*(tt->cpET()));  // CP scale hardcoded for now, but this should be updated to be taken automatically
 
-      // Get Calo  ET
-      CaloEnergyLayers = tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-      CaloETLayers = tt->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
       
       if (absEta < 3.2) {
-        if ( tt->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) { 
-          for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {  
-            em_caloE += *it;
+        if ( tt->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
+          for (float e : tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer")) {
+            em_caloE += e;
           }
           em_caloE = em_caloE / cosh(eta); 
         }
       } else {  // FCal: need to use different method due to large variation in cell eta 
         if ( tt->isAvailable< std::vector<float> > ("CaloCellETByLayer") ) {
-          for (std::vector<float>::iterator it = CaloETLayers.begin(); it != CaloETLayers.end(); it++) {
-            em_caloE += *it;
+          for (float et : tt->auxdataConst< std::vector<float> > ("CaloCellETByLayer")) {
+            em_caloE += et;
           }
         }
       }
@@ -965,21 +960,17 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
       had_L1CaloE = int(tt->jepET());
       had_L1CaloE_CP = int(0.5*(tt->cpET())); // CP scale hardcoded for now, but this should be updated to be taken automatically
        
-      // Get Calo ET
-      CaloEnergyLayers = tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-      CaloETLayers = tt->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
-
       if (absEta < 3.2) {
         if ( tt->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
-          for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
-            had_caloE += *it;
+          for (float e : tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer")) {
+            had_caloE += e;
           }
           had_caloE = had_caloE / cosh(eta);
         }
       } else {  // FCal: need to use different method due to large variation in cell eta 
         if ( tt->isAvailable< std::vector<float> > ("CaloCellETByLayer") ) {
-          for (std::vector<float>::iterator it = CaloETLayers.begin(); it != CaloETLayers.end(); it++) {
-            had_caloE += *it;
+          for (float et : tt->auxdataConst< std::vector<float> > ("CaloCellETByLayer")) {
+            had_caloE += et;
           }
         }
       }

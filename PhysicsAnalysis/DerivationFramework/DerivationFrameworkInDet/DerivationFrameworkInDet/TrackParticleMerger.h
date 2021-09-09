@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,6 @@ namespace DerivationFramework {
       TrackParticleMerger(const std::string& t, const std::string& n, const IInterface* p);
       virtual ~TrackParticleMerger() {}
       StatusCode initialize();
-      StatusCode execute();
       StatusCode finalize();
       virtual StatusCode addBranches() const;
  

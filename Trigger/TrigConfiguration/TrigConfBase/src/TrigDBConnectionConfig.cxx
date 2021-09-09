@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <sstream>
 
 using PSKeys = TrigConf::TrigDBConnectionConfig::PSKeys;
 using namespace boost;

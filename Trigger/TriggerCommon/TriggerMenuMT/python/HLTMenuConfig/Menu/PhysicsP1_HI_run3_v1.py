@@ -34,7 +34,7 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
-            ChainProp(name='HLT_mu4_L1MU4', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+            ChainProp(name='HLT_mu4_L1MU3V', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -64,8 +64,8 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
-          ChainProp(name='HLT_noalg_mb_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup), 
-          ChainProp(name='HLT_noalg_mb_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup), 
+          ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup), 
+          ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup), 
     ]
 
     TriggerFlags.MonitorSlice.signatures   = [

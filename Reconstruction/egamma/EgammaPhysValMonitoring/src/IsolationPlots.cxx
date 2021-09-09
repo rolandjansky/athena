@@ -46,7 +46,7 @@ namespace Egamma{
 
 
 
-  void IsolationPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo){
+  void IsolationPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const{
     FillIsolationPlot(etcone20       ,xAOD::Iso::etcone20, egamma, eventInfo);
     FillIsolationPlot(etcone30       ,xAOD::Iso::etcone30, egamma, eventInfo);
     FillIsolationPlot(etcone40       ,xAOD::Iso::etcone40, egamma, eventInfo);

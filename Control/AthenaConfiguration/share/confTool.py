@@ -12,6 +12,7 @@ import pickle
 import pprint
 import re
 import sys
+import collections
 
 from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile
 class color:
@@ -208,6 +209,23 @@ def _knownDifference(comp, prop, chkVal, refVal):
                 return refVal == acceptedDifference[0] and chkVal == acceptedDifference[1]
     return False
 
+def _handleComponentsReanaming( refVal ):
+    """ Rename values in reference as long as they are hashable (and in renamingDict)
+        It is a bit of heuristics that is invoved, the assumption is that the property has value of the form A/B if it is name of the compoemnt or it is a just single string"""
+    refList = refVal if isinstance(refVal, list) else [refVal]
+    updatedRef = []
+    for v in refList:
+        if  isinstance(v, str):
+            if "/" in v and len(v.split("/")) == 2:
+                compType,compName = v.split("/")
+                newName = componentRenamingDict.get(compName, compName)
+                updatedRef.append( f"{compType}/{newName}" )
+            else:
+                updatedRef.append( componentRenamingDict.get(v, v) )
+        else:
+            updatedRef.append(v)
+    return updatedRef if isinstance(refVal, list) else updatedRef[0]
+
 def _compareComponent(compRef, compChk, prefix, args, component):
 
     if isinstance(compRef, dict):
@@ -241,6 +259,8 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             except ValueError:
                 pass  # literal_eval exception when parsing particular strings
 
+            refVal = _handleComponentsReanaming( refVal )
+
             refVal, chkVal = _parseNumericalValues(refVal, chkVal)
             diffmarker = ""
             if str(chkVal) == str(refVal):
@@ -256,9 +276,7 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             if not (component == "IOVDbSvc" and prop == "Folders"):
                 print(f"{prefix}{color.property}{prop} = {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {diffmarker}")
 
-            if refVal and (
-                isinstance(refVal, list) or isinstance(refVal, dict)
-            ):
+            if refVal and ( isinstance(refVal, list) or isinstance(refVal, dict) ):
                 if component == "IOVDbSvc" and prop == "Folders":
                     _compareIOVDbFolders(refVal, chkVal, "\t", args)
                 else:

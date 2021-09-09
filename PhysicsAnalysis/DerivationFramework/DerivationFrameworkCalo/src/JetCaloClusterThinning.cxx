@@ -47,7 +47,7 @@ StatusCode DerivationFramework::JetCaloClusterThinning::initialize()
     ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK( m_TopoClSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_TopoClSGKey.key() << "as the source collection for topo calo clusters");
-    if (m_sgKey=="") {
+    if (m_sgKey.empty()) {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
     } else { ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
@@ -87,7 +87,7 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
     m_ntotTopo += nTopoClusters;
     
     // Retrieve e-gamma container
-    const xAOD::JetContainer* importedJet(0);
+    const xAOD::JetContainer* importedJet(nullptr);
     if (evtStore()->retrieve(importedJet,m_sgKey).isFailure()) {
         ATH_MSG_ERROR("No jet collection with name " << m_sgKey << " found in StoreGate!");
         return StatusCode::FAILURE;
@@ -111,7 +111,7 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
     }
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
-    if (m_selectionString=="") { // check all objects as user didn't provide a selection string
+    if (m_selectionString.empty()) { // check all objects as user didn't provide a selection string
         setJetClustersMask(topomask, importedJet, importedTopoCaloCluster.cptr());
     } else {
         setJetClustersMask(topomask, jetToCheck, importedTopoCaloCluster.cptr());
@@ -154,7 +154,7 @@ void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector
 void DerivationFramework::JetCaloClusterThinning::select(const xAOD::Jet* particle,
                                                          float coneSize,
                                                          const xAOD::CaloClusterContainer* clusters,
-                                                         std::vector<bool> &mask) const {
+                                                         std::vector<bool> &mask) {
     xAOD::JetConstituentVector vec = particle->getConstituents();
     xAOD::JetConstituentVector::iterator it = vec.begin();
     xAOD::JetConstituentVector::iterator itE = vec.end();

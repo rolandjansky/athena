@@ -33,6 +33,8 @@ Interface definition for gFEXSysSim
 
     virtual StatusCode fillgJetEDM(uint32_t tobWord) = 0;
 
+    virtual StatusCode fillgGlobalEDM(uint32_t tobWord) = 0;
+
   private:
 
   };

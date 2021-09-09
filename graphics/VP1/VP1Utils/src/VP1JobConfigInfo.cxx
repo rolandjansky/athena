@@ -178,7 +178,7 @@ bool VP1JobConfigInfo::Imp::actualInit( StoreGateSvc* detStore )
 
   while (!av.atEnd()) {
     std::string name = av.getName();
-    if ( !hasPixelGeometry && name=="Pixel") {
+    if ( !hasPixelGeometry && (name=="Pixel" or name=="ITkPixel")) {
       hasPixelGeometry = true;
       if ( !hasBCMGeometry ) {
 	    //Loop under the top Pixel volume to check if there are BCM volumes
@@ -193,7 +193,7 @@ bool VP1JobConfigInfo::Imp::actualInit( StoreGateSvc* detStore )
 	    }
       }
     }
-    if ( !hasSCTGeometry && name=="SCT") hasSCTGeometry = true;
+    if ( !hasSCTGeometry && (name=="SCT" or name=="ITkStrip")) hasSCTGeometry = true;
     if ( !hasTRTGeometry && name=="TRT") hasTRTGeometry = true;
     if ( !hasInDetServiceMaterialGeometry && name=="InDetServMat") hasInDetServiceMaterialGeometry = true;
     if ( !hasBeamPipeGeometry && name=="BeamPipe") hasBeamPipeGeometry = true;

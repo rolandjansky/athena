@@ -19,13 +19,13 @@ namespace TCS {
    public:
       
       // default constructor
-      jTauTOB(uint32_t roiWord = 0, std::string tobName = "jTauTOB");
+      jTauTOB(uint32_t roiWord = 0, const std::string& tobName = "jTauTOB");
 
       // copy constructor
       jTauTOB(const jTauTOB & jet);
 
       // constructor with initial values
-      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, std::string tobName = "jTauTOB" );
+      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
 
       // destructor
       virtual ~jTauTOB();

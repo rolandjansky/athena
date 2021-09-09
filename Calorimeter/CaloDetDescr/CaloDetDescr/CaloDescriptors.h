@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,13 +7,13 @@
  *
  * @brief LAr subsystem specific descriptors
  *
- * @author Vakho Tsulaia (tsulaia@mail.cern.ch)
+ * @author Vakho Tsulaia
  *
  * $Id: CaloDescriptors.h,v 1.3 2009-04-22 19:54:16 ssnyder Exp $
  */
 
-#ifndef CALODESCRIPTORS_H
-#define CALODESCRIPTORS_H
+#ifndef CALODETDESCR_CALODESCRIPTORS_H
+#define CALODETDESCR_CALODESCRIPTORS_H
 
 #include "CaloDetDescr/CaloDetDescriptor.h"
 
@@ -21,6 +21,8 @@ class EMBDetectorRegion;
 class EMECDetectorRegion;
 class HECDetectorRegion;
 class FCALModule;
+
+class GeoAlignmentStore;
 
 /**
  * @class EMBDescriptor
@@ -31,47 +33,34 @@ class FCALModule;
 class EMBDescriptor : public CaloDetDescriptor
 {
  public:
-  /** @brief Constructor
-      @param id [IN] region identifier (for base class constructor)
-      @param helper [IN] ID helper (for base class constructor)
-      @param calo_helper [IN] ID helper (for base class constructor)
-      @param embRegion [IN] EMB Region Descriptor from LArReadoutGeometry
+  /**
+   * @brief Constructor
+   * @param id [IN] region identifier (for base class constructor)
+   * @param helper [IN] ID helper (for base class constructor)
+   * @param calo_helper [IN] ID helper (for base class constructor)
+   * @param embRegion [IN] EMB Region Descriptor from LArReadoutGeometry
    */
-  EMBDescriptor(const Identifier& id, 
-		const AtlasDetectorID* helper,
-		const CaloCell_ID* calo_helper,
-		const EMBDetectorRegion* embRegion);
-  /** @brief Destructor
-   */
-  ~EMBDescriptor();
+  EMBDescriptor(const Identifier& id
+		, const AtlasDetectorID* helper
+		, const CaloCell_ID* calo_helper
+		, const EMBDetectorRegion* embRegion
+		, const GeoAlignmentStore* alignStore = nullptr);
 
-  /** @brief get pointer to the EMB Region object (from LArReadoutGeometry)
+  /**
+   * @brief Destructor
    */
-  inline const EMBDetectorRegion* getEMBDetectorRegion() const
-  {return m_region;} 
+  virtual ~EMBDescriptor();
 
  private:
-  /** @brief pointer to the EMB Region object (from LArReadoutGeometry)
-   */
-  const EMBDetectorRegion* m_region;
-
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   EMBDescriptor() = delete;
 
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   EMBDescriptor & operator=(const EMBDescriptor &right) = delete;
-
-  /** @brief initialize base description
-   */
-  void init_description();
-
-
-  /** @brief Fill all missing fields of CaloDetDescriptor which
-      have not been filled by init_description()
-   */
-  void init_interpretation();
 };
 
 /**
@@ -82,48 +71,34 @@ class EMBDescriptor : public CaloDetDescriptor
 class EMECDescriptor : public CaloDetDescriptor
 {
  public:
-  /** @brief Constructor
-      @param id [IN] region identifier (for base class constructor)
-      @param helper [IN] ID helper (for base class constructor)
-      @param calo_helper [IN] ID helper (for base class constructor)
-      @param emecRegion [IN] EMEC Region Descriptor from LArReadoutGeometry
+  /**
+   * @brief Constructor
+   * @param id [IN] region identifier (for base class constructor)
+   * @param helper [IN] ID helper (for base class constructor)
+   * @param calo_helper [IN] ID helper (for base class constructor)
+   * @param emecRegion [IN] EMEC Region Descriptor from LArReadoutGeometry
    */
-  EMECDescriptor(const Identifier& id,
-		 const AtlasDetectorID* helper, 
-		 const CaloCell_ID* calo_helper,
-		 const EMECDetectorRegion* emecRegion);
+  EMECDescriptor(const Identifier& id
+		 , const AtlasDetectorID* helper
+		 , const CaloCell_ID* calo_helper
+		 , const EMECDetectorRegion* emecRegion
+		 , const GeoAlignmentStore* alignStore = nullptr);
 
-  /** @brief Destructor
+  /**
+   * @brief Destructor
    */
-  ~EMECDescriptor();
-
-  /** @brief get pointer to the EMEC Region object (from LArReadoutGeometry)
-   */
-  inline const EMECDetectorRegion* getEMECDetectorRegion() const
-  {return m_region;}
+  virtual ~EMECDescriptor();
 
  private:
-  /** @brief pointer to the EMEC Region object (from LArReadoutGeometry)
-   */
-  const EMECDetectorRegion* m_region;
-
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   EMECDescriptor() = delete;
 
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   EMECDescriptor & operator=(const EMECDescriptor &right) = delete;
-
-  /** @brief initialize base description
-   */
-  void init_description();
-
-  /** @brief Fill all missing fields of CaloDetDescriptor which
-      have not been filled by init_description()
-   */
-  void init_interpretation();
-
 };
 
 /**
@@ -134,50 +109,33 @@ class EMECDescriptor : public CaloDetDescriptor
 class HECDescriptor : public CaloDetDescriptor
 {
  public:
-  /** @brief Constructor
-      @param id [IN] region identifier (for base class constructor)
-      @param helper [IN] ID helper (for base class constructor)
-      @param calo_helper [IN] ID helper (for base class constructor)
-      @param hecRegion [IN] HEC Region Descriptor from LArReadoutGeometry
+  /**
+   * @brief Constructor
+   * @param id [IN] region identifier (for base class constructor)
+   * @param helper [IN] ID helper (for base class constructor)
+   * @param calo_helper [IN] ID helper (for base class constructor)
+   * @param hecRegion [IN] HEC Region Descriptor from LArReadoutGeometry
    */
-  HECDescriptor(const Identifier& id,
-		const AtlasDetectorID* helper, 
-		const CaloCell_ID* calo_helper,
-		const HECDetectorRegion* hecRegion);
-
-  /** @brief Destructor
+  HECDescriptor(const Identifier& id
+		, const AtlasDetectorID* helper
+		, const CaloCell_ID* calo_helper
+		, const HECDetectorRegion* hecRegion
+		, const GeoAlignmentStore* alignStore = nullptr);
+  /**
+   * @brief Destructor
    */
-  ~HECDescriptor();
-
-  /** @brief get pointer to the HEC Region object (from LArReadoutGeometry)
-   */
-  inline const HECDetectorRegion* getHECDetectorRegion() const 
-  {return m_region;}
- 
+  virtual ~HECDescriptor();
 
  private:
-  /** @brief pointer to the HEC Region object (from LArReadoutGeometry)
-   */
-  const HECDetectorRegion* m_region;
-
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   HECDescriptor() = delete;
 
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   HECDescriptor & operator=(const HECDescriptor &right) = delete;
-
-
-  /** @brief initialize base description
-   */
-  void init_description();
-
-  /** @brief Fill all missing fields of CaloDetDescriptor which
-      have not been filled by init_description()
-   */
-  void init_interpretation();
-
 };
 
 /**
@@ -188,48 +146,34 @@ class HECDescriptor : public CaloDetDescriptor
 class FCALDescriptor : public CaloDetDescriptor
 {
  public:
-  /** @brief Constructor
-      @param id [IN] region identifier (for base class constructor)
-      @param helper [IN] ID helper (for base class constructor)
-      @param calo_helper [IN] ID helper (for base class constructor)
-      @param fcalModule [IN] FCAL Module Descriptor from LArReadoutGeometry
+  /**
+   * @brief Constructor
+   * @param id [IN] region identifier (for base class constructor)
+   * @param helper [IN] ID helper (for base class constructor)
+   * @param calo_helper [IN] ID helper (for base class constructor)
+   * @param fcalModule [IN] FCAL Module Descriptor from LArReadoutGeometry
    */
-  FCALDescriptor(const Identifier& id,
-		 const AtlasDetectorID* helper, 
-		 const CaloCell_ID* calo_helper,
-		 const FCALModule* fcalModule);
+  FCALDescriptor(const Identifier& id
+		 , const AtlasDetectorID* helper
+		 , const CaloCell_ID* calo_helper
+		 , const FCALModule* fcalModule
+		 , const GeoAlignmentStore* alignStore = nullptr);
 
-  /** @brief Destructor
+  /**
+   * @brief Destructor
    */
-  ~FCALDescriptor();
-
-  /** @brief get pointer to the FCAL Module object (from LArReadoutGeometry)
-   */
-  inline const FCALModule* getFCALModule() const
-  {return m_module;}
+  virtual ~FCALDescriptor();
 
  private:
-  /** @brief pointer to the FCAL Module object (from LArReadoutGeometry)
-   */
-  const FCALModule* m_module;
-
-  /** @brief default constructor hidden
+  /**
+   * @brief default constructor hidden
    */
   FCALDescriptor() = delete;
 
-  /** @brief copy constructor hidden
+  /**
+   * @brief copy constructor hidden
    */
   FCALDescriptor & operator=(const FCALDescriptor &right) = delete;
-
-  /** @brief initialize base description
-   */
-  void init_description();
-
-  /** @brief Fill all missing fields of CaloDetDescriptor which
-      have not been filled by init_description()
-   */
-  void init_interpretation();
-
 };
 
 #endif

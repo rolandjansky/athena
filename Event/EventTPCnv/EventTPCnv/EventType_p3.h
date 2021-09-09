@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTPCNV_EVENTTYPE_P3_H
@@ -46,7 +46,7 @@ bool EventType_p3::operator<(const EventType_p3& rhs) const
       return(this->m_bit_mask.size() < rhs.m_bit_mask.size());
    }
    for (BitMaskIterator i = this->m_bit_mask.begin(), j = rhs.m_bit_mask.begin();
-           i != this->m_bit_mask.end(); i++, j++) {
+           i != this->m_bit_mask.end(); ++i, ++j) {
       if (*i != *j) {
          return(*i < *j);
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ public:
 
 private:
   QTreeWidget  * treeWidget;
-  VP1MCSystem  * mcsystem;
+  std::unique_ptr<VP1MCSystem> mcsystem;
 };
 
 #endif

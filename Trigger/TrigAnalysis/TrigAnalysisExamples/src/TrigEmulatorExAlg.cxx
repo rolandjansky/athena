@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigEmulatorExAlg.cxx 770492 2016-08-28 16:52:40Z rwhite $
 // Place holder for TrigEmulator trigger analysis for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -59,8 +58,6 @@ StatusCode TrigEmulatorExAlg::initialize() {
    CHECK( m_triggerAnalysisHelper.retrieve() );
    CHECK( m_histSvc.retrieve() );
 
-   m_triggerDecisionTool->ExperimentalAndExpertMethods()->enable();
-   
    if ( ! m_l1chainList.empty() ) {
        ATH_MSG_INFO("Considering the following L1 chains:");
        for(const auto& chain : m_l1chainList) {

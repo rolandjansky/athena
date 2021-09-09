@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -18,13 +18,13 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-class RpcCablingCondAlg : public AthReentrantAlgorithm {
+class RpcCablingCondAlg : public AthAlgorithm {
 public:
     RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~RpcCablingCondAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode execute() override;
 
 private:
     typedef std::array<int, 64> sectorMap_t;

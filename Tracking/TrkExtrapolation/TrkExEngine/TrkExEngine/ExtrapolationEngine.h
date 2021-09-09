@@ -119,11 +119,11 @@ namespace Trk {
            {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
 
         //!< the tool handle array for static / dense / detached
-        ToolHandleArray<IExtrapolationEngine>               m_extrapolationEngines;      //!< the extrapolation engines for retrieval
-        ToolHandle<IPropagationEngine>                      m_propagationEngine;         //!< the used propagation engine for navigation initialization
+        ToolHandleArray<IExtrapolationEngine> m_extrapolationEngines{ this, "ExtrapolationEngines", {} };   
+        ToolHandle<IPropagationEngine> m_propagationEngine{this, "PropagationEngine", "Trk::PropagationEngine/AtlasStaticPropagation"};         //!< the used propagation engine for navigation initialization
+        ToolHandle<INavigationEngine>  m_navigationEngine{this, "NavigationEngine", "Trk::StaticNavigationEngine/AtlasStaticNavigation"};          //!< access to tracking geometry (unique?)
         std::vector<const IExtrapolationEngine*>            m_eeAccessor;                //!< the extrapolation engines for 
 
-        ToolHandle<INavigationEngine>                       m_navigationEngine;          //!< access to tracking geometry (unique?)
 
         //!< forces a global search for the initialization, allows to switch TrackingGeometries in one job
         bool                                                m_forceSearchInit; 

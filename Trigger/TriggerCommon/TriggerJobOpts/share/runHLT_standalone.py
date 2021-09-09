@@ -75,7 +75,7 @@ class opt:
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -173,6 +173,12 @@ else:   # athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
+# Load input collection list from POOL metadata
+from RecExConfig.ObjKeyStore import objKeyStore
+if ConfigFlags.Input.Format == 'POOL':
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+
 # Run-3 Trigger produces Run-3 EDM
 ConfigFlags.Trigger.EDMVersion = 3
 
@@ -203,11 +209,18 @@ if 'doL1Sim' not in globals():
     opt.doL1Sim = ConfigFlags.Input.isMC
     log.info('Setting default doL1Sim=%s because ConfigFlags.Input.isMC=%s', opt.doL1Sim, ConfigFlags.Input.isMC)
 
-# Set default enableL1CaloPhase1 option to True if running L1Sim on data (ATR-23703)
+# Set default enableL1CaloPhase1 option to True if running L1Sim on data or MC with SuperCells (ATR-23703)
 if 'enableL1CaloPhase1' not in globals():
-    opt.enableL1CaloPhase1 = opt.doL1Sim and ConfigFlags.Input.Format == 'BS'
-    log.info('Setting default enableL1CaloPhase1=%s because doL1Sim=%s and ConfigFlags.Input.Format=%s',
-             opt.enableL1CaloPhase1, opt.doL1Sim, ConfigFlags.Input.Format)
+    if ConfigFlags.Input.Format == 'BS':
+        opt.enableL1CaloPhase1 = opt.doL1Sim
+        log.info('Setting default enableL1CaloPhase1=%s because ConfigFlags.Input.Format=%s and doL1Sim=%s',
+                 opt.enableL1CaloPhase1, ConfigFlags.Input.Format, opt.doL1Sim)
+    else:
+        scell_available = objKeyStore.isInInput('CaloCellContainer','SCell')
+        opt.enableL1CaloPhase1 = scell_available
+        log.info('Setting default enableL1CaloPhase1=%s because ConfigFlags.Input.Format=%s and SuperCells '
+                 'are%s available in the input file',
+                 opt.enableL1CaloPhase1, ConfigFlags.Input.Format, ('' if scell_available else ' not'))
 
 # Set default enableL1MuonPhase1 option to True if running L1Sim (ATR-23973)
 if 'enableL1MuonPhase1' not in globals():
@@ -443,9 +456,6 @@ CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 # ---------------------------------------------------------------
 # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
 if ConfigFlags.Input.Format == 'POOL':
-    from RecExConfig.ObjKeyStore import objKeyStore
-    from PyUtils.MetaReaderPeeker import convert_itemList
-    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
     if objKeyStore.isInInput("xAOD::EventInfo"):
         topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     else:
@@ -514,8 +524,8 @@ if not opt.createHLTMenuExternally:
 
 
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
+from TrigConfigSvc.TrigConfigSvcCfg import HLTConfigSvcCfg
+CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
 # Tell the SGInputLoader about L1 and HLT menu in the DetectorStore

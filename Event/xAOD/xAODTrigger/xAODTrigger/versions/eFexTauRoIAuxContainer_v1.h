@@ -35,16 +35,15 @@ namespace xAOD {
    private:
       std::vector< uint32_t > word0;
       std::vector< uint32_t > word1;
-      std::vector< uint8_t >  eFexNumber;
-      std::vector< uint8_t >  shelfNumber;
       std::vector< uint16_t > fCoreNumerator;
       std::vector< uint16_t > fCoreDenominator;
+      std::vector< uint16_t > fHadNumerator;
+      std::vector< uint16_t > fHadDenominator;
 
       std::vector< float >    et;
       std::vector< float >    eta;
       std::vector< float >    phi;
       std::vector< char >     isTOB;
-      std::vector< uint32_t > thrPattern;
 
    }; // class eFexTauRoIAuxContainer_v1
 

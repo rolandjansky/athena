@@ -192,7 +192,7 @@ StatusCode ComboHypoToolBase::selectLegs(const Combo::LegDecisionsMap& IDCombMap
     const Combo::LegDecisionsMap::const_iterator it = IDCombMap.find(legIdentifier.numeric());
 
     if (it != IDCombMap.end()) {
-      for (const ElementLink<DecisionContainer> el : it->second) {
+      for (const ElementLink<DecisionContainer>& el : it->second) {
         decisionObjectsOnLeg.emplace_back(legIdentifier, el);
       }
     }
@@ -205,7 +205,7 @@ StatusCode ComboHypoToolBase::selectLegs(const Combo::LegDecisionsMap& IDCombMap
     size_t count = 0;
     for (const auto& leg : legDecisions) {
       ATH_MSG_DEBUG("Leg " << count++ << " --");
-      for (auto dEL : leg) {
+      for (const auto& dEL : leg) {
         ATH_MSG_DEBUG("-- " << HLT::Identifier(dEL.first) << " container:" << dEL.second.dataID() << ", index:" << dEL.second.index());
       }
     }

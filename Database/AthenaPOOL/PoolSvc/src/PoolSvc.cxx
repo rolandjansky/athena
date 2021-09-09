@@ -69,7 +69,7 @@ StatusCode PoolSvc::initialize() {
    if (!m_shareCat) {
       bool allGood = true;
       for (auto& catalog : m_readCatalog.value()) {
-         if (catalog.substr(0, 16) == "xmlcatalog_file:") {
+         if (catalog.compare(0, 16, "xmlcatalog_file:") == 0) {
             const std::string& fileName = catalog.substr(16);
             if (!iomgr->io_register(this, IIoComponentMgr::IoMode::READ, fileName, fileName).isSuccess()) {
                ATH_MSG_FATAL("could not register [" << catalog << "] for input !");
@@ -79,7 +79,7 @@ StatusCode PoolSvc::initialize() {
             }
          }
       }
-      if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
+      if (m_writeCatalog.value().compare(0, 16, "xmlcatalog_file:") == 0) {
          const std::string& fileName = m_writeCatalog.value().substr(16);
          if (!iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, fileName, fileName).isSuccess()) {
             ATH_MSG_FATAL("could not register [" << m_writeCatalog.value() << "] for input !");
@@ -151,7 +151,7 @@ StatusCode PoolSvc::io_reinit() {
    if (!m_shareCat) {
       std::vector<std::string> readcat = m_readCatalog.value();
       for (std::size_t icat = 0, imax = readcat.size(); icat < imax; icat++) {
-         if (readcat[icat].substr(0, 16) == "xmlcatalog_file:") {
+         if (readcat[icat].compare(0, 16, "xmlcatalog_file:") == 0) {
             std::string fileName = readcat[icat].substr(16);
             if (iomgr->io_contains(this, fileName)) {
                if (!iomgr->io_retrieve(this, fileName).isSuccess()) {
@@ -164,7 +164,7 @@ StatusCode PoolSvc::io_reinit() {
       }
       // all good... copy over.
       m_readCatalog = readcat;
-      if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
+      if (m_writeCatalog.value().compare(0, 16, "xmlcatalog_file:") == 0) {
          std::string fileName = m_writeCatalog.value().substr(16);
          if (iomgr->io_contains(this, fileName)) {
             if (!iomgr->io_retrieve(this, fileName).isSuccess()) {
@@ -288,9 +288,9 @@ Token* PoolSvc::registerForWrite(const Placement* placement,
    unsigned int contextId = IPoolSvc::kOutputStream;
    const std::string& auxString = placement->auxString();
    if (!auxString.empty()) {
-      if (auxString.substr(0, 6) == "[CTXT=") {
+      if (auxString.compare(0, 6, "[CTXT=") == 0) {
          ::sscanf(auxString.c_str(), "[CTXT=%08X]", &contextId);
-      } else if (auxString.substr(0, 8) == "[CLABEL=") {
+      } else if (auxString.compare(0, 8, "[CLABEL=") == 0) {
          contextId = this->getOutputContext(auxString);
       }
       if (contextId >= m_persistencySvcVec.size()) {
@@ -310,9 +310,9 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token) {
    unsigned int contextId = IPoolSvc::kInputStream;
    const std::string& auxString = token->auxString();
    if (!auxString.empty()) {
-      if (auxString.substr(0, 6) == "[CTXT=") {
+      if (auxString.compare(0, 6, "[CTXT=") == 0) {
          ::sscanf(auxString.c_str(), "[CTXT=%08X]", &contextId);
-      } else if (auxString.substr(0, 8) == "[CLABEL=") {
+      } else if (auxString.compare(0, 8, "[CLABEL=") == 0) {
          contextId = this->getInputContext(auxString);
       }
       if (contextId >= m_persistencySvcVec.size()) {
@@ -404,11 +404,11 @@ const pool::IFileCatalog* PoolSvc::catalog() const {
 //__________________________________________________________________________
 void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::string& type) const {
    std::string dbID;
-   if (token.substr(0, 4) == "PFN:") {
+   if (token.compare(0, 4, "PFN:") == 0) {
       m_catalog->lookupFileByPFN(token.substr(4), dbID, type); // PFN -> FID
-   } else if (token.substr(0, 4) == "LFN:") {
+   } else if (token.compare(0, 4, "LFN:") == 0) {
       m_catalog->lookupFileByLFN(token.substr(4), dbID); // LFN -> FID
-   } else if (token.substr(0, 4) == "FID:") {
+   } else if (token.compare(0, 4, "FID:") == 0) {
       dbID = token.substr(4);
    } else if (token.size() > Guid::null().toString().size()) { // full token
       Token tok;
@@ -457,7 +457,7 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    // Check POOL FileCatalog entry.
    bool insertFile = false;
-   if (connection.substr(0, 4) == "PFN:") {
+   if (connection.compare(0, 4, "PFN:") == 0) {
       std::string fid, fileType;
       m_catalog->lookupFileByPFN(connection.substr(4), fid, fileType);
       if (fid.empty()) { // No entry in file catalog
@@ -804,7 +804,7 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    }
    bool retError = false;
    std::string objName;
-   bool hasTTreeName = (contName.length() > 6 && contName.substr(0, 6) == "TTree=");
+   bool hasTTreeName = (contName.length() > 6 && contName.compare(0, 6, "TTree=") == 0);
    if (contName.empty() || hasTTreeName || m_persistencySvcVec[contextId]->session().defaultConnectionPolicy().writeModeForNonExisting() == pool::DatabaseConnectionPolicy::RAISE_ERROR) {
       objName = hasTTreeName ? contName.substr(6) : contName;
       if (data[data.size() - 1] == 'L') {
@@ -871,7 +871,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
       if (dbset != nullptr) {
          for (int irep = 0, nrep = dbset->numberOfReplicas(); irep < nrep; ++irep) {
 	    const std::string pcon = dbset->replica(irep).connectionString();
-	    if (pcon.substr(0, 9) == "frontier:") {
+	    if (pcon.compare(0, 9, "frontier:") == 0) {
                physcons.push_back(pcon);
             }
          }
@@ -879,7 +879,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
       } else {
          ATH_MSG_DEBUG("setFrontierCache: Could not find any replicas for " << conn);
       }
-   } else if (conn.substr(0, 9) == "frontier:") {
+   } else if (conn.compare(0, 9, "frontier:") == 0) {
       physcons.push_back(conn);
    }
    // check if any replicas will try and use frontier
@@ -914,7 +914,7 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
    ctlg->removeCatalog("*");
    for (auto& catalog : m_readCatalog.value()) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << catalog);
-      if (catalog.substr(0, 8) == "apcfile:" || catalog.substr(0, 7) == "prfile:") {
+      if (catalog.compare(0, 8,"apcfile:") == 0 || catalog.compare(0, 7, "prfile:") == 0) {
          std::string::size_type cpos = catalog.find(':');
          // check for file accessed via ATLAS_POOLCOND_PATH
          std::string file = poolCondPath(catalog.substr(cpos + 1));

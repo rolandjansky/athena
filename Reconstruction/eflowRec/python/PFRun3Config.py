@@ -121,7 +121,11 @@ def PFCfg(inputFlags,**kwargs):
 
     #Cache the track extrapolations
     from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-    result.merge(CaloExtensionBuilderAlgCfg(inputFlags))
+    # FIXME: This inversion to merge in CAs is a workaround, which can be removed once SiDetElementCondAlgs 
+    # don't depend on Muons/TRT/alignment/otherSiSubdetectorAlignment anymore.
+    tempCA = CaloExtensionBuilderAlgCfg(inputFlags)
+    tempCA.merge(result)
+    result = tempCA
 
     #Configure the pflow algorithms
     PFLeptonSelector=CompFactory.PFLeptonSelector

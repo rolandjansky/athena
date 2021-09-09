@@ -1054,7 +1054,7 @@ public:
            // find input
            const TrigConf::HLTSequence* s = sequencesMap[*te];	
            // and complain if it is not there (or it is not L1 threshold)
-           if ( s == 0 && l1thresholds.find(*te) == l1thresholds.end()) {
+           if ( s == 0 || l1thresholds.find(*te) == l1thresholds.end()) {
               m_error += " missing sequence for TE: " + *te + " ";
               continue;
            }
@@ -1506,11 +1506,12 @@ public:
         }
 
 
-        //std::cerr << " " << fv->etamin() <<  " " <<  bv->etamax() << " " << fv->etamax()  <<  " "  << bv->etamin() << std::endl;
-        if ( fv_prio2->etamin() != -1* bv_prio2->etamax() || fv_prio2->etamax() != -1*bv_prio2->etamin() ) {
-           m_offending += " " +f->first +"/" +b->first + " "
-              + boost::lexical_cast<std::string>(fv_prio2->etamin()) + "!=-1*" +  boost::lexical_cast<std::string>(fv_prio2->etamin()) +" or "
-              + boost::lexical_cast<std::string>(fv_prio2->etamax()) + "!=-1*" +  boost::lexical_cast<std::string>(bv_prio2->etamin());
+        if (fv_prio2!=nullptr && bv_prio2!=nullptr) {
+           if ( fv_prio2->etamin() != -1* bv_prio2->etamax() || fv_prio2->etamax() != -1*bv_prio2->etamin() ) {
+              m_offending += " " +f->first +"/" +b->first + " "
+                 + boost::lexical_cast<std::string>(fv_prio2->etamin()) + "!=-1*" +  boost::lexical_cast<std::string>(fv_prio2->etamin()) +" or "
+                 + boost::lexical_cast<std::string>(fv_prio2->etamax()) + "!=-1*" +  boost::lexical_cast<std::string>(bv_prio2->etamin());
+           }
         }
      }
     

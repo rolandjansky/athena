@@ -227,10 +227,6 @@ if l1caloRawMon:
             L1CaloMan.AthenaMonTools += [JEPSimMonTool]
             # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
 
-        # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
-        # L1JEPHitsTools = LVL1__L1JEPHitsTools("L1JEPHitsTools_Mon")
-        # L1JEPHitsTools.LVL1ConfigSvc = triggerConfigService
-        # ToolSvc += L1JEPHitsTools
         # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JetTools
         # L1JetTools = LVL1__L1JetTools("L1JetTools_Mon")
         # L1JetTools.LVL1ConfigSvc = triggerConfigService
@@ -264,11 +260,6 @@ if l1caloRawMon:
             #ToolSvc += CPSimMonTool
             L1CaloMan.AthenaMonTools += [CPSimMonTool]
             # ToolSvc.CPMSimBSMonTool.OutputLevel = DEBUG
-
-            # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EmTauTools
-            # L1EmTauTools = LVL1__L1EmTauTools("L1EmTauTools_Mon")
-            # L1EmTauTools.LVL1ConfigSvc = triggerConfigService
-            # ToolSvc += L1EmTauTools
 
             #==================================================================
             #===================================== ROD ========================

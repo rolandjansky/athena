@@ -5,35 +5,27 @@
 #ifndef DCMATH_DCSLHITSELECTOR_H
 #define DCMATH_DCSLHITSELECTOR_H
 
-#include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/DCOnTrack.h"
-
+#include "TrkDriftCircleMath/DCSLFitter.h"
 
 namespace TrkDriftCircleMath {
 
-  class DCSLHitSelector {
-  public:
-    typedef DCSLFitter::HitSelection HitSelection;
+    class DCSLHitSelector {
+    public:
+        DCSLHitSelector() = default;
 
-  public:
-    DCSLHitSelector() {}
+        const HitSelection selectHitsOnTrack(const DCOnTrackVec& dcs) const;
+    };
 
-    const HitSelection selectHitsOnTrack( const DCOnTrackVec& dcs ) const; 
-
-  };
-
-  inline const DCSLHitSelector::HitSelection DCSLHitSelector::selectHitsOnTrack( const DCOnTrackVec& dcs ) const
-  {
-    HitSelection selection;
-    selection.resize(dcs.size(),1);
-    for( unsigned int i=0;i<dcs.size();++i) {
-      if( dcs[i].state() == DCOnTrack::OnTrack ) selection[i] = 0;
+    inline const HitSelection DCSLHitSelector::selectHitsOnTrack(const DCOnTrackVec& dcs) const {
+        HitSelection selection;
+        selection.resize(dcs.size(), 1);
+        for (unsigned int i = 0; i < dcs.size(); ++i) {
+            if (dcs[i].state() == DCOnTrack::OnTrack) selection[i] = 0;
+        }
+        return selection;
     }
-    return selection; 
-  }
-  
 
-}
-
+}  // namespace TrkDriftCircleMath
 
 #endif

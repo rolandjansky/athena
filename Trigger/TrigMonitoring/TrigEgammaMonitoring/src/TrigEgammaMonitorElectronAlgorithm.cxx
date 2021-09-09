@@ -43,7 +43,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorElectronAlgorithm");
 
-    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }

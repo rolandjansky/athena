@@ -7,5 +7,6 @@ atlas_subdir( AthOnnxruntimeUtils )
 atlas_add_library( AthOnnxruntimeUtilsLib
    INTERFACE
    PUBLIC_HEADERS AthOnnxruntimeUtils
-   LINK_LIBRARIES AthenaKernel GaudiKernel )
+   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthOnnxruntimeServiceLib AthenaKernel GaudiKernel AsgServicesLib )
 

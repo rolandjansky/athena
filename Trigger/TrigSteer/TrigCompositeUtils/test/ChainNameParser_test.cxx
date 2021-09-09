@@ -9,7 +9,7 @@
 namespace std {
 template<typename T>
 std::ostream& operator<<(std::ostream& o, const std::vector<T>& v) {
-    for ( auto el : v )
+    for ( const auto& el : v )
         o << el << " ";
     return o;
 }

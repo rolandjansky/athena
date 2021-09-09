@@ -24,14 +24,14 @@ class VP1ExtraInputSystem::Clockwork {
 
 public:
 
-  SoSeparator       *root;
-  SoSwitch          *visibilitySwitch;
-  SoLightModel      *lightModel;
-  SoMaterial        *material;
-  SoPickStyle       *pickStyle;
+  SoSeparator       *root = nullptr;
+  SoSwitch          *visibilitySwitch = nullptr;
+  SoLightModel      *lightModel = nullptr;
+  SoMaterial        *material = nullptr;
+  SoPickStyle       *pickStyle = nullptr;
 
   std::map<std::string, SoSeparator *> fileMap;
-  Ui::ExtraInputControllerForm ui;
+  Ui::ExtraInputControllerForm ui{};
   QString lastInputDir;
   void inputFile(const VP1ExtraInputSystem *This, const QString &);
 

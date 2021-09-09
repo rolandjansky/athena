@@ -28,7 +28,6 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
         log.warning('useOnlineLumi argument is provided but not a suffix for the lumi object name. Is this really intended?')
 
     if configFlags.Input.isMC:
-        log.info ("LuminosityCondAlgCfg called for MC!")
         kwargs = luminosityCondAlgMCCfg (configFlags, name, result)
     elif ((useOnlineLumi is None and configFlags.Common.useOnlineLumi)
           or (useOnlineLumi is not None and useOnlineLumi)):
@@ -53,11 +52,14 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
 
 
 def luminosityCondAlgMCCfg (configFlags, name, result):
+    result.merge(addFolders(configFlags,'/Digitization/Parameters',None,className="AthenaAttributeList",tag='HEAD'))
     return { 'LuminosityFolderInputKey' : '',
+             'DigitizationFolderInputKey' : '/Digitization/Parameters',
              'OnlineLumiCalibrationInputKey' : '',
              'BunchLumisInputKey' : '',
              'BunchGroupInputKey' : '',
-             'FillParamsInputKey' : '' }
+             'FillParamsInputKey' : '',
+             'IsMC' : True }
 
 # Configuration for offline default luminosity used in Run2
 def luminosityCondAlgRun2Cfg (configFlags, name, result):

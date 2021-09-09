@@ -29,6 +29,7 @@ egammaSuperClusterBuilder::initialize()
   // the data handle keys
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   ATH_CHECK(m_egammaSuperRecCollectionKey.initialize());
+  ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
   return egammaSuperClusterBuilderBase::initialize();
 }
 
@@ -57,6 +58,14 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
   SG::WriteHandle<EgammaRecContainer> newEgammaRecs(
     m_egammaSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
+
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  if (!m_precorrClustersKey.empty()) {
+    precorrClustersH.emplace (m_precorrClustersKey, ctx);
+    ATH_CHECK( precorrClustersH->record
+               (std::make_unique<xAOD::CaloClusterContainer>(),
+                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+  }
 
   // The calo Det Descr manager
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
@@ -99,7 +108,8 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
-                       xAOD::EgammaParameters::electron);
+                       xAOD::EgammaParameters::electron,
+                       precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
     if (!newCluster) {
       ATH_MSG_DEBUG("Creating a new cluster failed");

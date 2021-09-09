@@ -129,7 +129,7 @@ private:
                       const std::string& fileName);
 
   /// a utility to get a TString out of an TObjString pointer
-  const TString& getString(TObject* obj) const;
+  static const TString& getString(TObject* obj) ;
 
 };
 

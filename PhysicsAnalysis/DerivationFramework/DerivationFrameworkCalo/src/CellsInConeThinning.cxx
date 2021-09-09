@@ -73,7 +73,7 @@ StatusCode DerivationFramework::CellsInConeThinning::addBranches() const{
     //Loop over the egammas, pick the selected ones and fill the cluster
     int index(0);
     for (const xAOD::Egamma* eg : *egammas){
-      if(entries.at(index)==true){
+      if(static_cast<bool>(entries.at(index))){
 	xAOD::CaloCluster *dummy = CaloClusterStoreHelper::makeCluster(cells);
 	DerivationFramework::CellsInCone::egammaSelect(dummy,cells,eg,m_dr);
 	dclHdl->push_back(dummy);

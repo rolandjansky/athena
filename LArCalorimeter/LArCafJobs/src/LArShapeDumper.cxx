@@ -165,10 +165,9 @@ StatusCode LArShapeDumper::start()
     unsigned int idx = 0;
   
     if (m_doAllLvl1) {
-      m_trigDec->ExperimentalAndExpertMethods()->enable();
       const Trig::ChainGroup* group = m_trigDec->getChainGroup("L1_.*");
       for (const std::string& l1Item : group->getListOfTriggers()) {
-        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(l1Item);
+        const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods().getItemConfigurationDetails(l1Item);
         if (!confItem) {
           ATH_MSG_WARNING ( "LVL1 item " << l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
           continue;

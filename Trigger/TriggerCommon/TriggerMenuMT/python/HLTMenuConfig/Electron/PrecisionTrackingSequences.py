@@ -15,8 +15,8 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 
 def precisionTracking(RoIs, precisionCaloClusters, ion=False):
 ## Taking Fast Track information computed in 2nd step ##
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( 'electron' )
+
+    IDTrigConfig = TrigEgammaKeys.IDTrigConfig
 
     tag = '_ion' if ion is True else ''
 

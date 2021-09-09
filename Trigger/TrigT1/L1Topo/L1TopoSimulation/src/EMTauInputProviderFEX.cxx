@@ -198,7 +198,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     unsigned int wstot = eFexRoI->WstotThresholds();
 
     //Em TOB
-    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->Word0()) );
+    TCS::eEmTOB eem( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
     eem.setEtDouble( static_cast<double>(EtTopo/10.) );
     eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
     eem.setPhiDouble( static_cast<double>(phiTopo/20.) );

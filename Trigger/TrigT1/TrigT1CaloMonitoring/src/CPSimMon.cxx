@@ -41,8 +41,6 @@
 
 #include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
-#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
-#include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
@@ -67,7 +65,6 @@ namespace LVL1 {
 CPSimMon::CPSimMon(const std::string &type, const std::string &name,
                    const IInterface *parent)
     : ManagedMonitorToolBase(type, name, parent),
-      m_emTauTool("LVL1::L1EmTauTools/L1EmTauTools"),
       m_cpCmxTool("LVL1::L1CPCMXTools/L1CPCMXTools"),
       m_cpmTool("LVL1::L1CPMTools/L1CPMTools"),
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
@@ -130,7 +127,6 @@ CPSimMon::CPSimMon(const std::string &type, const std::string &name,
       m_v_2d_MismatchEvents(0)
 /*---------------------------------------------------------*/
 {
-  declareProperty("EmTauTool", m_emTauTool);
   declareProperty("CPCMXTool", m_cpCmxTool);
   declareProperty("ErrorTool", m_errorTool);
   declareProperty("HistogramTool", m_histTool);
@@ -178,12 +174,6 @@ StatusCode CPSimMon::initialize()
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure())
     return sc;
-
-  sc = m_emTauTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1EmTauTools" << endmsg;
-    return sc;
-  }
 
   sc = m_cpCmxTool.retrieve();
   if (sc.isFailure()) {
@@ -1958,12 +1948,8 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
   for (int crate = 0; crate < s_crates; ++crate) {
-    // InternalRoiCollection* intRois = new InternalRoiCollection;
-    //@@m_emTauTool->findRoIs(&crateMaps[crate], intRois);
     xAOD::CPMTobRoIContainer *roiTemp =
         new xAOD::CPMTobRoIContainer(SG::VIEW_ELEMENTS);
-    // upadte with new simulation tools
-    // m_cpCmxTool->formCPMTobRoI(intRois, roiTemp);
 
     m_cpmTool->findCPMTobRoIs(towers, roiTemp, 1);
 
@@ -1975,7 +1961,6 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
       }
     }
     delete roiTemp;
-    // delete intRois;
   }
   delete tempColl;
   delete tempCollAux;
@@ -1988,11 +1973,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers,
   if (m_debug)
     msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endmsg;
 
-  // InternalRoiCollection* intRois = new InternalRoiCollection;
-  //@@m_emTauTool->findRoIs(&towers, intRois);
-  // m_cpCmxTool->formCPMTobRoI(intRois, rois);
   m_cpmTool->findCPMTobRoIs(towers, rois, 1);
-  // delete intRois;
 }
 
 // Simulate CMX-CP TOBs from CPM RoIs

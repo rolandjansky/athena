@@ -226,21 +226,11 @@ class Layer {
   void assignMaterialProperties(const LayerMaterialProperties&,
                                 double scale = 1.0);
 
-  void assignMaterialProperties ATLAS_NOT_THREAD_SAFE(
-      const LayerMaterialProperties&, double scale = 1.0) const;
-
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D&){};
 
-  /** move the Layer */
-  virtual void moveLayer ATLAS_NOT_THREAD_SAFE(Amg::Transform3D&) const {};
-
   /**register Volume associated to the layer */
   void registerRepresentingVolume(const Volume* theVol);
-
-  /**register Volume associated to the layer */
-  void registerRepresentingVolume
-  ATLAS_NOT_THREAD_SAFE(const Volume* theVol) const;
 
   /** get the Volume associated to the layer */
   const Volume* representingVolume() const;
@@ -248,17 +238,12 @@ class Layer {
   /** set the reference measure */
   void setRef(double);
 
-  /** set the reference measure */
-  void setRef ATLAS_NOT_THREAD_SAFE(double) const;
-
   /** get the reference measure */
   double getRef() const;
 
   void encloseTrackingVolume(const TrackingVolume& tvol);
   //!< private method to set the enclosed detached TV
   void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol);
-  void encloseDetachedTrackingVolume
-  ATLAS_NOT_THREAD_SAFE(const DetachedTrackingVolume& tvol) const;
 
   /** get compatible surfaces starting from charged parameters */
   template <class T>
@@ -275,7 +260,6 @@ class Layer {
 
   //!< register layer index for material map registration
   void registerLayerIndex(const LayerIndex& lIdx);
-  void registerLayerIndex ATLAS_NOT_THREAD_SAFE(const LayerIndex& lIdx) const;
 
   /** private method to set enclosing TrackingVolume, called by friend class
      only optionally, the layer can be resized to the dimensions of the
@@ -289,19 +273,10 @@ class Layer {
    * extended classes*/
   virtual void resizeLayer(const VolumeBounds&, double) {}
 
-  /** resize layer to the TrackingVolume dimensions const not thread safe */
-  virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                 double) const {}
-
   /** resize and reposition layer : dedicated for entry layers */
   virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                         const Amg::Vector3D& vCenter,
                                         double envelope = 1.) = 0;
-
-  /** resize and reposition layer : dedicated for entry layers */
-  virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(
-      const VolumeBounds& vBounds, const Amg::Vector3D& vCenter,
-      double envelope = 1.) const = 0;
 
  protected:
   SurfaceArray* m_surfaceArray;  //!< SurfaceArray on this layer Surface

@@ -31,7 +31,7 @@ Slices  = ['electron']
 Events  = 20000 
 Threads = 8 
 Slots   = 8
-Input   = 'Single_el_larged0_pu'    # defined in TrigValTools/share/TrigValInputs.json
+Input   = 'Single_el_larged0_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles=True
 
 preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  

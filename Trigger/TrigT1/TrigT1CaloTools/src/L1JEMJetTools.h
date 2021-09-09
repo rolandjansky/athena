@@ -82,7 +82,6 @@ namespace LVL1
             
     private:
       
-      /** pointer to LVL1ConfigSvc */
       const TrigConf::L1Menu * m_l1menu{nullptr};
 
       /** Utility for decoding RoI words */

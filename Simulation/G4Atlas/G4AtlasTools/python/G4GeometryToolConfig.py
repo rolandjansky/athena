@@ -8,7 +8,7 @@ from AthenaCommon import Logging
 
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
-from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
@@ -26,7 +26,7 @@ from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
 
-CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,SmartlessnessTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","SmartlessnessTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,VoxelDensityTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","VoxelDensityTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
@@ -369,7 +369,7 @@ def generateSubDetectorList(ConfigFlags):
     SubDetectorList=[]
 
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
-        if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
+        if ConfigFlags.Beam.Type == 'cosmics' and hasattr(ConfigFlags, "Sim.ReadTR"):
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
     if ConfigFlags.Detector.GeometryMuon:
@@ -489,10 +489,20 @@ def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kw
     return result
 
 
-def SmartlessnessToolCfg(ConfigFlags, name="SmartlessnessTool", **kwargs):
+def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
+    voxelDensitySettings = {}
+    if ConfigFlags.Detector.GeometryITkPixel:
+        voxelDensitySettings["ITkPixelDetector"] = 0.05
+    if ConfigFlags.Detector.GeometryITkStrip:
+        voxelDensitySettings["ITkStrip::Barrel"] = 0.05
+        voxelDensitySettings["ITkStrip::ITkStrip_Forward"] = 0.05
+        ##The below is only needed temporarily, while we wait for
+        ##improved naming to be propagated to all necessary geo tags
+        voxelDensitySettings["ITkStrip::SCT_Forward"] = 0.05
+    kwargs.setdefault("VolumeVoxellDensityLevel",voxelDensitySettings)
     result = ComponentAccumulator()
-    result.setPrivateTools(SmartlessnessTool(name, **kwargs))
+    result.setPrivateTools(VoxelDensityTool(name, **kwargs))
     return result
 
 
@@ -561,10 +571,8 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryMuon:
         #todo - add the line below
         regionCreatorList += [DriftWallPhysicsRegionToolCfg(ConfigFlags), DriftWall1PhysicsRegionToolCfg(ConfigFlags), DriftWall2PhysicsRegionToolCfg(ConfigFlags)]
-        #if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-            #pass
-            #todo - add the line below
-            #regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
+        if ConfigFlags.Sim.CavernBG not in ['Off', 'Read']:# and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            regionCreatorList += [MuonSystemFastPhysicsRegionToolCfg(ConfigFlags)]
     return regionCreatorList
 
 
@@ -709,7 +717,7 @@ def getGeometryConfigurationTools(ConfigFlags):
     # package containing each tool, so G4AtlasTools in this case
     result =ComponentAccumulator()
     geoConfigToolList += [result.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))]
-    geoConfigToolList += [result.popToolsAndMerge(SmartlessnessToolCfg(ConfigFlags))]
+    geoConfigToolList += [result.popToolsAndMerge(VoxelDensityToolCfg(ConfigFlags))]
     return result, geoConfigToolList
 
 
@@ -769,19 +777,13 @@ def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
             bedrockDX = 1000.*3000 # 3 km
             bedrockDZ = 1000.*3000 # 3 km
         else:
-            bedrockDX = 1000.*3000 # 3 km
-            bedrockDZ = 1000.*3000 # 3 km
-            # from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator #todo migrate this...
-            # theCavernProperties = CavernPropertyCalculator()
-            # if theCavernProperties.BedrockDX() > bedrockDX:
-            #     bedrockDX = theCavernProperties.BedrockDX()
-            # if theCavernProperties.BedrockDZ() > bedrockDZ:
-            #     bedrockDZ = theCavernProperties.BedrockDZ()
-            
-            #Use these values from old style before migrating above
-            bedrockDX = 600000.0
-            bedrockDZ = 600000.0
-    
+            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
+            theCavernProperties = CavernPropertyCalculator()
+            if theCavernProperties.BedrockDX(ConfigFlags) > bedrockDX:
+                bedrockDX = theCavernProperties.BedrockDX(ConfigFlags)
+            if theCavernProperties.BedrockDZ(ConfigFlags) > bedrockDZ:
+                bedrockDZ = theCavernProperties.BedrockDZ(ConfigFlags)
+
     kwargs.setdefault("dX", bedrockDX) #FIXME Units?
     kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
     kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?

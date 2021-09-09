@@ -50,16 +50,12 @@ using namespace GeoXF;
   
 TileGeoSectionBuilder::TileGeoSectionBuilder(const StoredMaterialManager* matManager,
 					     TileDddbManager * pDbManager,
-                                             int ushape,
-                                             int glue,
-                                             int cstube,
+                                             const TileSwitches & switches,
                                              MsgStream * log)
   : m_theMaterialManager(matManager)
   , m_dbManager(pDbManager)
   , m_log(log)
-  , m_uShape(ushape)
-  , m_glue(glue)
-  , m_csTube(cstube)
+  , m_switches(switches)
   , m_barrelPeriodThickness(0.)
   , m_barrelGlue(0.)
   , m_extendedPeriodThickness(0.)
@@ -92,7 +88,8 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   // Obtain required materials - Air and Iron
 
   const GeoMaterial* matAir = m_theMaterialManager->getMaterial("std::Air");
-  const GeoMaterial* matIron = m_theMaterialManager->getMaterial("std::Iron");
+  const GeoMaterial* matIron = (m_switches.steel) ? m_theMaterialManager->getMaterial("tile::Steel")
+                                                  : m_theMaterialManager->getMaterial("std::Iron");
   const GeoMaterial* matAluminium = 0;
 
   // -----------------------------------------------------------------------------------------------------------------
@@ -1399,7 +1396,8 @@ void TileGeoSectionBuilder::fillGirder(GeoPhysVol*&             mother,
   // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   // Obtain required materials - Iron, Aluminium and electronic boards
 
-  const GeoMaterial* matIron = m_theMaterialManager->getMaterial("std::Iron");
+  const GeoMaterial* matIron = (m_switches.steel) ? m_theMaterialManager->getMaterial("tile::Steel")
+                                                  : m_theMaterialManager->getMaterial("std::Iron");
   const GeoMaterial* matAluminium = m_theMaterialManager->getMaterial("std::Aluminium");
   const GeoMaterial* matElBoard = m_theMaterialManager->getMaterial("tile::SiO2CondEpox");
 
@@ -1496,7 +1494,8 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   // Obtain required materials - Iron, Aluminium and electronic boards
 
-  const GeoMaterial* matIron = m_theMaterialManager->getMaterial("std::Iron");
+  const GeoMaterial* matIron = (m_switches.steel) ? m_theMaterialManager->getMaterial("tile::Steel")
+                                                  : m_theMaterialManager->getMaterial("std::Iron");
   const GeoMaterial* matAluminium = m_theMaterialManager->getMaterial("std::Aluminium");
   const GeoMaterial* matElBoard = m_theMaterialManager->getMaterial("tile::SiO2CondEpox");
 
@@ -1876,7 +1875,21 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   // Obtain required materials - Air, Glue, Scintillator
 
   const GeoMaterial* matAir = m_theMaterialManager->getMaterial("std::Air");
-  const GeoMaterial* matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
+  const GeoMaterial* matScin = nullptr;
+  if (m_switches.pvt) {
+    if (m_switches.testBeam || // choose PVT for all scintillators in testbeam setup
+        ( period_type>4 && // choose PVT for crack scintillators (defined starting from RUN3)
+          (m_dbManager->TILBsection() == 6 || m_dbManager->TILBsection() == 16) ) ) {
+      // different material for crack scintillators
+      matScin = m_theMaterialManager->getMaterial("tile::Polyvinyltoluene");
+      if (matScin != nullptr) {
+        (*m_log) << MSG::VERBOSE << "Using Polyvinyltoluene for section = " << m_dbManager->TILBsection() << endmsg;
+      } else {
+        (*m_log) << MSG::VERBOSE << "Using Polystyrene for section = " << m_dbManager->TILBsection() << endmsg;
+      }
+    }
+  }
+  if (matScin == nullptr) matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
 
   //Cs hole parameters
   double csHoleR       = 0.45 * Gaudi::Units::cm;
@@ -1887,7 +1900,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   double thicknessMother2 = thickness/2.*Gaudi::Units::cm;
   double heightMother2    = (m_dbManager->TILBrmax() - m_dbManager->TILBrmin())*Gaudi::Units::cm/2.;
 
-  const bool removeGlue = (m_glue == 0 || m_glue == 2);
+  const bool removeGlue = (m_switches.glue == 0 || m_switches.glue == 2);
 
   //Glue layer
   if (dzglue>0.0 && period_type<4 && !removeGlue) {
@@ -1912,7 +1925,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
     glue = new GeoTrd(dzglue2,dzglue2,dy1Glue,dy2Glue,heightGlue2);
 
   //Cs tubes in mother volume and holes in glue
-  if (m_csTube) {
+  if (m_switches.csTube) {
     for (j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
     {
       idTag = new GeoIdentifierTag(j-CurrentScin);
@@ -2002,11 +2015,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_switches.uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*Gaudi::Units::cm: m_dbManager->TILBdzspac()*Gaudi::Units::cm;
-        if (m_glue == 2) thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+        if (m_switches.glue == 2) thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*Gaudi::Units::cm;
@@ -2024,7 +2037,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy2Wrapper,
 			     heightWrapper/2);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
@@ -2045,7 +2058,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy2Scintillator,
 				  scintiHeight/2*Gaudi::Units::cm);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * Gaudi::Units::cm, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
@@ -2104,11 +2117,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_switches.uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*Gaudi::Units::cm: m_dbManager->TILBdzspac()*Gaudi::Units::cm;
-        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+        if (m_switches.glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*Gaudi::Units::cm;
@@ -2126,7 +2139,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy2Wrapper,
 			     heightWrapper/2);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
@@ -2147,7 +2160,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy2Scintillator,
 				  scintiHeight/2*Gaudi::Units::cm);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * Gaudi::Units::cm, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
@@ -2218,11 +2231,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 	scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_uShape > 0) ? 0. : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_switches.uShape > 0) ? 0. : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*Gaudi::Units::cm: m_dbManager->TILBdzspac()*Gaudi::Units::cm;
-        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+        if (m_switches.glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*Gaudi::Units::cm;
@@ -2241,7 +2254,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			     dy2Wrapper,
 			     heightWrapper/2);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
         }
 	lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
@@ -2262,7 +2275,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				  dy2Scintillator,
 				  scintiHeight/2*Gaudi::Units::cm);
 
-	if (m_csTube) {
+	if (m_switches.csTube) {
           scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * Gaudi::Units::cm, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
 	}
 	lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
@@ -2304,11 +2317,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_switches.uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*Gaudi::Units::cm: m_dbManager->TILBdzspac()*Gaudi::Units::cm;
-        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+        if (m_switches.glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
 	if(scintiZPos<0)
 	{
@@ -2329,7 +2342,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 			       dy2Wrapper,
 			       heightWrapper/2);
 
-          if (m_csTube) {
+          if (m_switches.csTube) {
             wrapper = makeHoles(wrapper, csHoleR, thicknessWrapper/2, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
           }
 	  lvWrapper = new GeoLogVol("Wrapper",wrapper,matAir);
@@ -2350,7 +2363,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 				    dy2Scintillator,
 				    scintiHeight/2*Gaudi::Units::cm);
 
-          if (m_csTube) {
+          if (m_switches.csTube) {
             scintillator = makeHolesScint(scintillator, csHoleR, scintiThickness/2 * Gaudi::Units::cm, scintiHeight/2.*Gaudi::Units::cm - csTubeOffCorr);
           }
 	  lvScintillator = new GeoLogVol("Scintillator",scintillator,matScin);
@@ -2405,7 +2418,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*Gaudi::Units::cm;
         thicknessWrapper = (scintiThickness + 2*scintiWrapInZ)*Gaudi::Units::cm;
-        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+        if (m_switches.glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         double thicknessEnvelope = (m_dbManager->TILBdzmodul()*Gaudi::Units::cm - thicknessWrapper); // along phi thickness is twice bigger than along Z 
         dy1Wrapper = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2. - scintiWrapInR)*tanphi)*Gaudi::Units::cm;

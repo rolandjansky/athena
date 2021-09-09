@@ -60,7 +60,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
     m_dataType = dataTypeStringToEnum(m_dataTypeStr);
     m_environment = envStringToEnum(m_environmentStr);
 
-    ATH_CHECK( m_lumiDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
+    ATH_CHECK( m_lumiDataKey.initialize (m_useLumi) );
     ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
     ATH_CHECK( m_trigLiveFractionDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
 
@@ -264,7 +264,8 @@ float AthMonitorAlgorithm::lbLuminosityPerBCID (const EventContext& ctx /*= Gaud
 
 float AthMonitorAlgorithm::lbAverageLivefraction (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if (m_environment == Environment_t::online) {
+    if (m_environment == Environment_t::online
+        || m_dataType == DataType_t::monteCarlo) {
         return 1.0;
     }
 
@@ -280,7 +281,8 @@ float AthMonitorAlgorithm::lbAverageLivefraction (const EventContext& ctx /*= Ga
 
 float AthMonitorAlgorithm::livefractionPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if (m_environment == Environment_t::online) {
+    if (m_environment == Environment_t::online
+        || m_dataType == DataType_t::monteCarlo) {
         return 1.0;
     }
 
@@ -307,7 +309,8 @@ double AthMonitorAlgorithm::lbLumiWeight (const EventContext& ctx /*= Gaudi::Hiv
 
 double AthMonitorAlgorithm::lbDuration (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_environment == Environment_t::online ) {
+    if ( m_environment == Environment_t::online
+         || m_dataType == DataType_t::monteCarlo ) {
         return m_defaultLBDuration;
     }
 
@@ -341,7 +344,7 @@ void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTri
     for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
         std::string& thisName = vTrigChainNames[i];
 
-        if (thisName.substr(0,9) == "CATEGORY_") {
+        if (thisName.compare(0,9, "CATEGORY_")==0) {
             ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". Unpacking.");
             std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
             std::ostringstream oss;

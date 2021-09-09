@@ -8,7 +8,7 @@
 
 Reco_tf.py \
 --AMI q431  \
---conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-07' \
 --multithreaded="True" \
 --steering doRAWtoALL \
 --maxEvents -1

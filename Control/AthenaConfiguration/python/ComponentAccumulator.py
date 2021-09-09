@@ -1243,7 +1243,8 @@ def appendCAtoAthena(ca):
             if instance not in ServiceMgr:
                 ServiceMgr += instance
         for svcName in ca._servicesToCreate:
-            theApp.CreateSvc += [svcName]
+            if svcName not in theApp.CreateSvc:
+                theApp.CreateSvc += [svcName]
 
     if  len(ca._conditionsAlgs) != 0:
         for comp in ca._conditionsAlgs:

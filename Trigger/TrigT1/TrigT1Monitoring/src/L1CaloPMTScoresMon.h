@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,6 +18,8 @@
 #include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
@@ -153,6 +155,9 @@ private:
 
   /// Root histograms directory
   std::string m_PathInRootFile;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
 
   /// Event counter
   int  m_events;

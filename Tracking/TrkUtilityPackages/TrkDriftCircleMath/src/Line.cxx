@@ -4,17 +4,12 @@
 
 #include "TrkDriftCircleMath/Line.h"
 
-
 namespace TrkDriftCircleMath {
 
+    std::ostream& operator<<(std::ostream& os, const TrkDriftCircleMath::Line& l) {
+        os << " phi " << l.phi() << " pos " << l.position();
+        //     << " pos " << l.position() << " dir " << l.direction();
+        return os;
+    }
 
-std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::Line& l )
-{
-  os << " phi " << l.phi() << " pos " << l.position(); 
-  //     << " pos " << l.position() << " dir " << l.direction();
-  return os;
-}
-
-
-} // namespace TrkDriftCircleMath
-
+}  // namespace TrkDriftCircleMath

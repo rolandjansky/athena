@@ -33,7 +33,7 @@ private:
   int m_nPass;
   int m_nCount;
 
-  int m_firstEv;
+  long long int m_firstEv;
   int m_newRunNumber;
 
   bool m_corHepMC;

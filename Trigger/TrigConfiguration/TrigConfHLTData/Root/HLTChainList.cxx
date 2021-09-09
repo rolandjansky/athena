@@ -144,6 +144,7 @@ TrigConf::HLTChainList::setEFLowerChainCounter() {
       HLTChain * l2ch = chain(ch->lower_chain_name());
       if(l2ch==0) {
          cerr << "ERROR: Did not find lower chain name '" << ch->lower_chain_name() << "' for chain '" << ch->chain_name() << "'" << endl;
+         continue;
       }
       ch->set_lower_chain_counter( l2ch->chain_counter() );
    }      

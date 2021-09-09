@@ -1,16 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/TriggerInfo.h"
 #include "EventTPCnv/TriggerInfoCnv_p1.h"
 
-
-void TriggerInfoCnv_p1::transToPers(const TriggerInfo* trans, TriggerInfo_p1* pers, MsgStream &log)
-{
-  const TriggerInfoCnv_p1* cthis = this;
-  cthis->transToPers (trans, pers, log);
-}
 
 void TriggerInfoCnv_p1::transToPers(const TriggerInfo* trans, TriggerInfo_p1* pers, MsgStream &) const
 {
@@ -23,12 +17,6 @@ void TriggerInfoCnv_p1::transToPers(const TriggerInfo* trans, TriggerInfo_p1* pe
      pers->m_eventFilterInfo     = trans->eventFilterInfo();
 }
 
-
-void TriggerInfoCnv_p1::persToTrans(const TriggerInfo_p1* pers, TriggerInfo* trans, MsgStream &log)
-{
-  const TriggerInfoCnv_p1* cthis = this;
-  cthis->persToTrans (pers, trans, log);
-}
 
 void TriggerInfoCnv_p1::persToTrans(const TriggerInfo_p1* pers, TriggerInfo* trans, MsgStream &)  const
 {
@@ -44,26 +32,14 @@ void TriggerInfoCnv_p1::persToTrans(const TriggerInfo_p1* pers, TriggerInfo* tra
 }
 
 
-TriggerInfo* TriggerInfoCnv_p1::createTransient (const TriggerInfo_p1* persObj, MsgStream& log)
-{
-  const TriggerInfoCnv_p1* cthis = this;
-  return cthis->createTransient (persObj, log);
-}
-
-TriggerInfo* TriggerInfoCnv_p1::createTransient (const TriggerInfo_p1* persObj, MsgStream& log) const
+TriggerInfo* TriggerInfoCnv_p1::createTransientConst (const TriggerInfo_p1* persObj, MsgStream& log) const
 {
   auto trans = std::make_unique<TriggerInfo>();
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
 
-TriggerInfo_p1* TriggerInfoCnv_p1::createPersistent (const TriggerInfo* transObj, MsgStream& log)
-{
-  const TriggerInfoCnv_p1* cthis = this;
-  return cthis->createPersistent (transObj, log);
-}
-
-TriggerInfo_p1* TriggerInfoCnv_p1::createPersistent (const TriggerInfo* transObj, MsgStream& log) const
+TriggerInfo_p1* TriggerInfoCnv_p1::createPersistentConst (const TriggerInfo* transObj, MsgStream& log) const
 {
   auto pers = std::make_unique<TriggerInfo_p1>();
   transToPers(transObj, pers.get(), log);

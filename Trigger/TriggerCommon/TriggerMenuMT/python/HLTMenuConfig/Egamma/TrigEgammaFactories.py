@@ -111,7 +111,7 @@ from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
     TrigElectronIsolationBuilder = AlgFactory(IsolationBuilder,
                                     name                  = name,
-                                    doAdd = False,
+                                    doAdd                 = False,
                                     ElectronCollectionContainerName = 'HLT_egamma_Electrons',
                                     CaloCellIsolationTool = None,
                                     CaloTopoIsolationTool = None,
@@ -120,13 +120,14 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                     ElIsoTypes            = [[isoPar.ptcone20]],
                                     ElCorTypes            = [[isoPar.coreTrackPtr]],
                                     ElCorTypesExtra       = [[]],
-                                     )
+                                    IsTrigger = True,
+                                    )
     return TrigElectronIsolationBuilder()
 
 def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
     TrigElectronIsolationBuilder = AlgFactory(IsolationBuilder,
                                     name                  = name,
-                                    doAdd = False,
+                                    doAdd                 = False,
                                     ElectronCollectionContainerName = 'HLT_egamma_Electrons_LRT',
                                     CaloCellIsolationTool = None,
                                     CaloTopoIsolationTool = None,
@@ -152,6 +153,8 @@ cfrc = ToolFactory(
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = TrigEgammaKeys.TrigEMClusterToolOutputContainer)
+
+# this is not used below...
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
 IsoCorrectionTool = ToolFactory(ICT,
                                 name = "TrigLeakageCorrTool")
@@ -179,7 +182,7 @@ H_ClIT.UseEMScale=True
 def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
     TrigPhotonIsolationBuilder = AlgFactory(IsolationBuilder,
                                     name                  = name,
-                                    doAdd                           = False,
+                                    doAdd                 = False,
                                     PhotonCollectionContainerName = 'HLT_egamma_Photons',
                                     CaloCellIsolationTool = None,
                                     CaloTopoIsolationTool = TrigCaloIsolationTool,
@@ -189,8 +192,6 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     PhCorTypes            = [[isoPar.core57cells]],
                                     PhCorTypesExtra       = [[]],
                                     )
-                
-            
     return TrigPhotonIsolationBuilder()
 
 

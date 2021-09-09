@@ -34,6 +34,12 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "eTAU" )
       return std::make_unique<L1ThrExtraInfo_eTAU>(thrTypeName, data);
 
+   if( thrTypeName == "jTAU" )
+      return std::make_unique<L1ThrExtraInfo_jTAU>(thrTypeName, data);
+
+   if( thrTypeName == "cTAU" )
+      return std::make_unique<L1ThrExtraInfo_cTAU>(thrTypeName, data);
+
    if( thrTypeName == "jJ" )
       return std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
 
@@ -99,14 +105,19 @@ TrigConf::L1ThrExtraInfo::eTAU() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_eTAU&>( * m_thrExtraInfo.at("eTAU") );
 }
 
-const TrigConf::L1ThrExtraInfo_jJ &
-TrigConf::L1ThrExtraInfo::jJ() const {
-   return dynamic_cast<const TrigConf::L1ThrExtraInfo_jJ&>( * m_thrExtraInfo.at("jJ") );
-}
-
 const TrigConf::L1ThrExtraInfo_jTAU &
 TrigConf::L1ThrExtraInfo::jTAU() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_jTAU&>( * m_thrExtraInfo.at("jTAU") );
+}
+
+const TrigConf::L1ThrExtraInfo_cTAU &
+TrigConf::L1ThrExtraInfo::cTAU() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_cTAU&>( * m_thrExtraInfo.at("cTAU") );
+}
+
+const TrigConf::L1ThrExtraInfo_jJ &
+TrigConf::L1ThrExtraInfo::jJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_jJ&>( * m_thrExtraInfo.at("jJ") );
 }
 
 const TrigConf::L1ThrExtraInfo_gXE &
@@ -253,8 +264,18 @@ TrigConf::L1ThrExtraInfo_eEM::load()
  * eTAU
  *******/
 TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boost::property_tree::ptree & pt ) {
-   m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+   m_isDefined = true;
+   m_isoConeRel_d    = pt.get_optional<float>("isoConeRel").get_value_or(0);
+   m_fEM_d           = pt.get_optional<float>("fEM").get_value_or(0);
+   m_isoConeRel_fw   = pt.get_optional<float>("isoConeRel_fw").get_value_or(0);
+   m_fEM_fw          = pt.get_optional<float>("fEM_fw").get_value_or(0);
+   m_maxEt           = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+}
+
+std::ostream &
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU & iso) {
+   os << "isoConeRel_fw=" << iso.isoConeRel_fw() << ", fEM_fw=" << iso.fEM_fw() ;
+   return os;
 }
 
 void
@@ -266,7 +287,7 @@ TrigConf::L1ThrExtraInfo_eTAU::load()
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
             auto wp = TrigConf::Selection::stringToWP(y.first);
-            auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
+            auto & iso = m_isolation.emplace(wp, string("eTAU_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
@@ -278,8 +299,77 @@ TrigConf::L1ThrExtraInfo_eTAU::load()
    }
 }
 
+/*******
+ * jTAU
+ *******/
+TrigConf::L1ThrExtraInfo_jTAU::WorkingPoints_jTAU::WorkingPoints_jTAU( const boost::property_tree::ptree & pt ) {
+   m_isDefined = true;
+   m_isolation_d    = pt.get_optional<float>("isolation").get_value_or(0);
+   m_isolation_fw   = pt.get_optional<float>("isolation_fw").get_value_or(0);
+   m_maxEt          = pt.get_optional<unsigned int>("maxEt").get_value_or(0); 
+}
 
+std::ostream &
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_jTAU::WorkingPoints_jTAU & iso) {
+   os << "isolation_fw=" << iso.isolation_fw() ;
+   return os;
+}
 
+void
+TrigConf::L1ThrExtraInfo_jTAU::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopo" ) {
+         m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
+      } else if( x.first == "workingPoints" ) {
+         for( auto & y : x.second.data() ) {
+            auto wp = TrigConf::Selection::stringToWP(y.first);
+            auto & iso = m_isolation.emplace(wp, string("jTAU_WP_" + y.first)).first->second;
+            for(auto & c : y.second ) {
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               iso.addRangeValue(WorkingPoints_jTAU(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+            }
+         }
+      }
+   }
+}
+
+/*******
+ * cTAU
+ *******/
+TrigConf::L1ThrExtraInfo_cTAU::WorkingPoints_cTAU::WorkingPoints_cTAU( const boost::property_tree::ptree & pt ) {
+   m_isDefined = true;
+   m_isolation_d    = pt.get_optional<float>("isolation").get_value_or(0);
+   m_isolation_fw   = pt.get_optional<float>("isolation_fw").get_value_or(0);
+   m_maxEt          = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+}
+
+std::ostream &
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_cTAU::WorkingPoints_cTAU & iso) {
+   os << "isolation_fw=" << iso.isolation_fw() ;
+   return os;
+}
+
+void
+TrigConf::L1ThrExtraInfo_cTAU::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "workingPoints" ) {
+         for( auto & y : x.second.data() ) {
+            auto wp = TrigConf::Selection::stringToWP(y.first);
+            auto & iso = m_isolation.emplace(wp, string("cTAU_WP_" + y.first)).first->second;
+            for(auto & c : y.second ) {
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               iso.addRangeValue(WorkingPoints_cTAU(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+            }
+         }
+      }
+   }
+}
 
 
 /*******
@@ -293,26 +383,11 @@ TrigConf::L1ThrExtraInfo_jJ::load()
          for( auto & k : x.second.data() ) {
             auto etamin = k.second.get_child("etamin").get_value<unsigned int>();
             auto etamax = k.second.get_child("etamax").get_value<unsigned int>();
-            auto small = k.second.get_child("small").get_value<float>();
-            auto large = k.second.get_child("large").get_value<float>();
+            auto value = k.second.get_child("value").get_value<float>();
             auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);            
-            m_ptMinToTopoMeV.addRangeValue( std::make_pair<unsigned int, unsigned int>(lround(1000*small),lround(1000*large)),
+            m_ptMinToTopoMeV.addRangeValue( lround(1000*value),
                                             etamin, etamax, priority, /*symmetric=*/ false);
          }
-      }
-   }
-}
-
-
-/*******
- * jTAU
- *******/
-void
-TrigConf::L1ThrExtraInfo_jTAU::load()
-{
-   for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
-         m_ptMinToTopo = x.second.getValue<unsigned int>();
       }
    }
 }

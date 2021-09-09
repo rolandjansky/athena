@@ -166,6 +166,9 @@ namespace TrigConf {
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
       virtual ~L1Threshold_eTAU() = default;
       virtual std::string className() const override { return "L1Threshold_eTAU"; }
+      // access functions
+      Selection::WP isoConeRel() const { return m_isoConeRel; }
+      Selection::WP fEM() const { return m_fEM; }
    protected:
       virtual void update() override {
          L1Threshold_Calo::update();
@@ -173,6 +176,47 @@ namespace TrigConf {
       }
    private:
       void load();
+      // the isolation requirement
+      Selection::WP m_isoConeRel { Selection::WP::NONE };
+      Selection::WP m_fEM { Selection::WP::NONE };
+   };
+
+   class L1Threshold_jTAU final : public L1Threshold_Calo {
+   public:
+      L1Threshold_jTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_jTAU() = default;
+      virtual std::string className() const override { return "L1Threshold_jTAU"; }
+      // access functions
+      Selection::WP isolation() const { return m_isolation; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+      // the isolation requirement
+      Selection::WP m_isolation { Selection::WP::NONE };
+   };
+
+   class L1Threshold_cTAU final : public L1Threshold_Calo {
+   public:
+      L1Threshold_cTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_cTAU() = default;
+      virtual std::string className() const override { return "L1Threshold_cTAU"; }
+      // access functions
+      Selection::WP isolation() const { return m_isolation; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+      // the isolation requirement
+      Selection::WP m_isolation { Selection::WP::NONE };
    };
 
    class L1Threshold_jJ final : public L1Threshold_Calo {

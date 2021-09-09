@@ -15,8 +15,8 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_LRT
 
 def precisionTracking_LRT(RoIs, precisionCaloClusters):
 ## Taking Fast Track information computed in 2nd step ##
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( 'electronLRT' )
+    
+    IDTrigConfig = TrigEgammaKeys_LRT.IDTrigConfig_LRT
 
     # TrackCollection="TrigFastTrackFinder_Tracks_Electron"
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier_LRT")

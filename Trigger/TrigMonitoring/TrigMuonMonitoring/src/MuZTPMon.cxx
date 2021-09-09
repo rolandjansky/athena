@@ -285,7 +285,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
       chainname += itmap->first;
       if (getTDT()->getNavigationFormat() == "TriggerElement") {
         // code for legacy run-2
-        const TrigConf::HLTChain* chain = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainname);
+        const TrigConf::HLTChain* chain = getTDT()->ExperimentalAndExpertMethods().getChainConfigurationDetails(chainname);
       
         if(chain) {
           

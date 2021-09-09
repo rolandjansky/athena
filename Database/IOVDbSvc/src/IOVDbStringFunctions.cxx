@@ -23,7 +23,7 @@ namespace IOVDbNamespace{
   makeChannel(const std::string& strval, const int defchan) {
     // construct a cool channelId from the string value (numeric)
     // if empty, use the default value
-    if (strval!="") return std::stoi(strval);
+    if (!strval.empty()) return std::stoi(strval);
     return defchan;
   }
   
@@ -136,7 +136,7 @@ namespace IOVDbNamespace{
   
   bool
   looksLikeMagicTag(const std::string & candidateTag){
-    return (candidateTag.substr(0,7)=="TagInfo" and 
+    return (candidateTag.compare(0,7, "TagInfo")==0 and 
       candidateTag.find('/')!=std::string::npos);
   }
   

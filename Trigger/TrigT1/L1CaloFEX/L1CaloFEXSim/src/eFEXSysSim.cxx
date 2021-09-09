@@ -93,7 +93,7 @@ namespace LVL1 {
 
   }
 
-  StatusCode eFEXSysSim::execute()  {    
+  StatusCode eFEXSysSim::execute(eFEXOutputCollection* inputOutputCollection)  {    
 
     SG::ReadHandle<LVL1::eTowerContainer> this_eTowerContainer(m_eTowerContainerSGKey/*,ctx*/);
     if(!this_eTowerContainer.isValid()){
@@ -112,7 +112,7 @@ namespace LVL1 {
       for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
           ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
           m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
-          ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX));
+          ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX, inputOutputCollection));
           m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
           m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getTauTOBs() ) ));
           m_eFEXSimTool->reset();
@@ -222,7 +222,7 @@ namespace LVL1 {
 
 
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
@@ -293,7 +293,7 @@ namespace LVL1 {
 
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_allTauTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getTauTOBs() ) ));
       m_eFEXSimTool->reset();
@@ -378,7 +378,7 @@ namespace LVL1 {
 
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
-      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset, inputOutputCollection));
       m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_eFEXSimTool->reset();
 

@@ -15,6 +15,11 @@
 Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, ISvcLocator* pSvcLocator) :
   Trk::TrkExUnitTestBase(name, pSvcLocator),
   m_extrapolationEngine(""),
+  m_idHelper(0),
+  m_pixel_ID(0),
+  m_sct_ID(0),
+  m_hgtd_ID(0),
+  m_useHGTD(false),
   m_parametersMode(1),
   m_particleHypothesis(2),
   m_smearProductionVertex(false),
@@ -57,6 +62,10 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
   m_sensitiveLayerIndex(nullptr),
   m_sensitiveLocalPosX(nullptr),
   m_sensitiveLocalPosY(nullptr),
+  m_sensitiveCenterPosX(nullptr),
+  m_sensitiveCenterPosY(nullptr),
+  m_sensitiveCenterPosZ(nullptr),
+  m_sensitiveCenterPosR(nullptr),
   m_materialThicknessInX0(0.),
   m_materialThicknessInL0(0.),
   m_materialThicknessZARho(0.),
@@ -107,6 +116,7 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
   declareProperty("CollectPassive", m_collectPassive);
   declareProperty("CollectBoundary", m_collectBoundary);
   declareProperty("CollectMaterial", m_collectMaterial);
+  declareProperty("UseHGTD", m_useHGTD);
   // Mode for scanning in steps
   declareProperty("ScanMode", m_scanMode);
   declareProperty("EtaScans", m_etaScans);
@@ -125,6 +135,7 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
   // z0 min / max values for flat smearing
   declareProperty("Z0Min", m_z0Min);
   declareProperty("Z0Max", m_z0Max);
+  declareProperty("Z0Values", m_z0Values);
   // eta min / max values
   declareProperty("EtaMin", m_etaMin);
   declareProperty("EtaMax", m_etaMax);
@@ -157,8 +168,27 @@ StatusCode Trk::ExtrapolationEngineTest::finalize() {
     delete m_pPt[ip];
   }
   delete m_sensitiveLayerIndex;
+  delete m_sensitiveSurfaceType;
+  delete m_sensitiveCenterPosX;
+  delete m_sensitiveCenterPosY;
+  delete m_sensitiveCenterPosZ;
+  delete m_sensitiveCenterPosR;
   delete m_sensitiveLocalPosX;
   delete m_sensitiveLocalPosY;
+  delete m_sensitiveLocalPosR;
+  delete m_sensitiveLocalPosPhi;
+  delete m_sensitiveDetector;
+  delete m_sensitiveIsInnermost;
+  delete m_sensitiveIsNextToInnermost;
+  delete m_sensitiveBarrelEndcap;
+  delete m_sensitiveLayerDisc;
+  delete m_sensitiveEtaModule;
+  delete m_sensitivePhiModule;
+  delete m_sensitiveSide;
+  delete m_sensitiveNearBondGap;
+  delete m_sensitiveisInside;
+  delete m_sensitiveisInsideBound;
+  delete m_materialtInX0AccumulatedUpTo;
   delete m_materialThicknessInX0Accumulated;
   delete m_materialThicknessInX0Steps;
   delete m_materialThicknessInL0Steps;
@@ -185,6 +215,32 @@ StatusCode Trk::ExtrapolationEngineTest::initializeTest() {
     return StatusCode::FAILURE;
   } else ATH_MSG_INFO("Successfully retrieved ExtrapolationEngine.");
 
+  //ID Helper
+   if (detStore()->retrieve(m_idHelper, "AtlasID" ).isFailure()) {
+     ATH_MSG_ERROR ( "Could not get ATLAS ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved ATLAS ID Helper.");
+
+    if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved Pixel ID Helper.");
+    
+    if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get SCT ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved SCT ID Helper.");
+    
+    if (m_useHGTD) {
+      if (detStore()->retrieve(m_hgtd_ID, "HGTD_ID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get HGTD ID helper" );
+        return StatusCode::FAILURE;
+      } else 
+        ATH_MSG_INFO("Successfully retrieved HGTD ID Helper.");
+    }
   // success return
   return StatusCode::SUCCESS;
 }
@@ -261,12 +317,51 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree() {
   }
 
   if (m_collectSensitive) {
-    m_sensitiveLayerIndex = new std::vector< int >;
-    m_sensitiveLocalPosX = new std::vector< float >;
-    m_sensitiveLocalPosY = new std::vector< float >;
-    m_tree->Branch("SensitiveLayerIndex", m_sensitiveLayerIndex);
-    m_tree->Branch("SensitiveLocalPosX", m_sensitiveLocalPosX);
-    m_tree->Branch("SensitiveLocalPosY", m_sensitiveLocalPosY);
+    m_sensitiveLayerIndex      = new std::vector< int >;
+    m_sensitiveSurfaceType     = new std::vector< int >;
+    m_sensitiveCenterPosX      = new std::vector< float >;
+    m_sensitiveCenterPosY      = new std::vector< float >;
+    m_sensitiveCenterPosZ      = new std::vector< float >;
+    m_sensitiveCenterPosR      = new std::vector< float >;
+    m_sensitiveLocalPosX       = new std::vector< float >;
+    m_sensitiveLocalPosY       = new std::vector< float >;
+    m_sensitiveLocalPosR       = new std::vector< float >;
+    m_sensitiveLocalPosPhi     = new std::vector< float >;
+    m_sensitiveDetector         = new std::vector< int >; 
+    m_sensitiveIsInnermost     = new std::vector< int >;
+    m_sensitiveIsNextToInnermost = new std::vector< int >;
+    m_sensitiveBarrelEndcap    = new std::vector< int >;
+    m_sensitiveLayerDisc       = new std::vector< int >;
+    m_sensitiveEtaModule       = new std::vector< int >;
+    m_sensitivePhiModule       = new std::vector< int >;
+    m_sensitiveSide            = new std::vector< int >;
+    m_sensitiveNearBondGap     = new std::vector< int >;
+    m_sensitiveisInside        = new std::vector< int >;
+    m_sensitiveisInsideBound   = new std::vector< int >;        
+    m_materialtInX0AccumulatedUpTo  = new std::vector< float >;
+
+    m_tree->Branch("SensitiveLayerIndex"  ,  m_sensitiveLayerIndex);
+    m_tree->Branch("SensitiveSurfaceType" ,  m_sensitiveSurfaceType);
+    m_tree->Branch("SensitiveCenterPosX"  ,  m_sensitiveCenterPosX);
+    m_tree->Branch("SensitiveCenterPosY"  ,  m_sensitiveCenterPosY);
+    m_tree->Branch("SensitiveCenterPosZ"  ,  m_sensitiveCenterPosZ);
+    m_tree->Branch("SensitiveCenterPosR"  ,  m_sensitiveCenterPosR);
+    m_tree->Branch("SensitiveLocalPosX"   ,  m_sensitiveLocalPosX);
+    m_tree->Branch("SensitiveLocalPosY"   ,  m_sensitiveLocalPosY);
+    m_tree->Branch("SensitiveLocalPosR"   ,  m_sensitiveLocalPosR);
+    m_tree->Branch("SensitiveLocalPosPhi" ,  m_sensitiveLocalPosPhi);
+    m_tree->Branch("SensitiveDetector"    ,  m_sensitiveDetector);
+    m_tree->Branch("SensitiveIsInnermost" ,  m_sensitiveIsInnermost);
+    m_tree->Branch("SensitiveIsNextToInnermost" ,  m_sensitiveIsNextToInnermost);
+    m_tree->Branch("SensitiveBarrelEndcap",  m_sensitiveBarrelEndcap);
+    m_tree->Branch("SensitiveLayerDisc"   ,  m_sensitiveLayerDisc);
+    m_tree->Branch("SensitiveEtaModule"   ,  m_sensitiveEtaModule);
+    m_tree->Branch("SensitivePhiModule"   ,  m_sensitivePhiModule);
+    m_tree->Branch("SensitiveSide"        ,  m_sensitiveSide);
+    m_tree->Branch("SensitiveNearBondGap"  , m_sensitiveNearBondGap);
+    m_tree->Branch("SensitiveisInside"     , m_sensitiveisInside);
+    m_tree->Branch("SensitiveisInsideBound", m_sensitiveisInsideBound);
+    m_tree->Branch("MaterialtInX0AccumulatedUpTo"        ,  m_materialtInX0AccumulatedUpTo);
   }
 
 

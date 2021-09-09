@@ -11,7 +11,8 @@ log = logging.getLogger(__name__)
 class ThrType( Enum ):
 
     # run 3 calo and muon thresholds
-    eEM = 1; eTAU = 2; jJ = 3; gJ = 4; gXE = 5; jXE = 6; MU = 7 # noqa: E702
+    # cTau is the combined taus computed in the L1Topo multiplicity board matching eTAU and jTAU
+    eEM = 1; eTAU = 2; jTAU = 3; cTAU=4; jJ = 5; gJ = 6; gXE = 7; jXE = 8; MU = 9 # noqa: E702
 
     # NIM thresholds
     BCM = 21; BCMCMB = 22; LUCID = 23; ZDC = 24; BPTX = 25; CALREQ = 26; MBTS = 27; MBTSSI = 28; NIM = 29 # noqa: E702
@@ -34,7 +35,7 @@ class ThrType( Enum ):
     
     @staticmethod
     def Run3Types():
-        return [ ThrType.MU, ThrType.eEM, ThrType.eTAU, ThrType.jJ, ThrType.gJ, ThrType.gXE, ThrType.jXE ]
+        return [ ThrType.MU, ThrType.eEM, ThrType.eTAU, ThrType.jTAU, ThrType.cTAU, ThrType.jJ, ThrType.gJ, ThrType.gXE, ThrType.jXE ]
     
     @staticmethod
     def NIMTypes():

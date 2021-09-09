@@ -75,7 +75,7 @@ QList<VP1StdCollection*> VP1MissingEtHandle::createCollections(IVP1System*sys)
 class VP1MissingEtHandle::Imp {
 public:
   QString key;
-  const MissingET* met;
+  const MissingET* met = nullptr;
   //Classification (purely for where/how the handle is displayed in
   //the collection widget and for the default colour):
   enum TYPE { NORMAL, OBJECTBASED, OTHER };

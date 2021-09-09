@@ -31,7 +31,6 @@
 // From Dan Levin: MDT 
 // linear density of wire: lambda=wireLinearDensity=19.3 [gm/cm^3] * PI*
 //(25 *10^-4 )^2 [CLHEP::cm^2] = 378.954 microgram/CLHEP::cm
-#define linearDensity 378.954
 // From Dan Levin: MDT
 // wireTen=350 for most chambers,  285 gm for some NIKHEF chambers (BOL ?),
 
@@ -51,7 +50,8 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  static constexpr unsigned int const maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+  static constexpr double linearDensity = 378.954;
 }
 
 namespace MuonGM {

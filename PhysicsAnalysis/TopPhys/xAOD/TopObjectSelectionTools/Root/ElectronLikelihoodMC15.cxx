@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
@@ -73,14 +73,6 @@ namespace top {
     m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
     top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
-
-  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
-                                                 const double ptcut, const bool vetoCrack,
-                                                 const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                                 const bool applyTTVACut, const bool applyChargeIDCut) :
-    ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
-                                                   operatingPointLoose, isolation, applyTTVACut, applyChargeIDCut) {}
 
   bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint)) return false;

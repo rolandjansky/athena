@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOLMT_H
@@ -66,6 +66,8 @@ namespace ISF {
 
     /** Register the TrackRecordCollection pointer for a layer */
     virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) override final;
+
+    virtual void setupEvent() override { return; }
 
   private:
     /** GeoIDSvc will be used to determine the entry layer surface, the particle is on */

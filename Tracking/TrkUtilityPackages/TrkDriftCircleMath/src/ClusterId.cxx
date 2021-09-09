@@ -4,16 +4,18 @@
 
 #include "TrkDriftCircleMath/ClusterId.h"
 
-
 namespace TrkDriftCircleMath {
 
-std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::ClusterId& id )
-{
-  if( id.isTgc() ) os << "TGC";
-  else os << "RPC";
-  if( id.measuresPhi() ) os << " phi";
-  else os << " eta";
-  return os;
-}
+    std::ostream& operator<<(std::ostream& os, const TrkDriftCircleMath::ClusterId& id) {
+        if (id.isTgc())
+            os << "TGC";
+        else
+            os << "RPC";
+        if (id.measuresPhi())
+            os << " phi";
+        else
+            os << " eta";
+        return os;
+    }
 
-} // namespace TrkDriftCircleMath
+}  // namespace TrkDriftCircleMath

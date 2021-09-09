@@ -65,11 +65,11 @@ namespace LAr {
           
     private:
       // ------------- private methods -----------------------------------------
-      void printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) const;
+      static void printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) ;
 
-      void printInfo(GeoPVConstLink pv, int gen=-1) const;
-      void printChildren(GeoPVConstLink pv, int gen, int igen, Amg::Transform3D tr) const;
-      GeoPVConstLink getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const;
+      void printInfo(const GeoPVConstLink& pv, int gen=-1) const;
+      void printChildren(const GeoPVConstLink& pv, int gen, int igen, const Amg::Transform3D& tr) const;
+      GeoPVConstLink getChild(const GeoPVConstLink& mother, const std::string& name, Amg::Transform3D& trIn) const;
 
       void throwIntoGarbage(const Trk::Material* mat) const;
 
@@ -84,18 +84,6 @@ namespace LAr {
                                         const double radmax, 
                                         double& z, 
                                         double& depth) const;
-      /** associates volumes to layers,
-          defines a sensitive volume around a layer **/
-      void associateVolumeToPositiveLayer(const std::vector<const Trk::Layer*>, 
-                                          const std::vector<const Trk::Volume*>) const;
-      /** associates volumes to layers,
-          defines a sensitive volume around a layer **/
-      void associateVolumeToNegativeLayer(const std::vector<const Trk::Layer*>, 
-                                          const std::vector<const Trk::Volume*>) const;
-      /** associates cylindrical volumes to layers 
-          defines a sensitive volume around a layer **/
-      void associateCylVolumeToLayer(const std::vector<const Trk::Layer*> matLayers, 
-                                     const std::vector<const Trk::Volume*> sensitiveVolumes) const;
 
       // ------------- private members -----------------------------------------
                                      

@@ -103,11 +103,9 @@ ActsTrackingGeometrySvc::initialize()
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
       Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
-      jsonGeoConvConfig.name = "MaterialMapJsonConverter";
-      jsonGeoConvConfig.logger = makeActsAthenaLogger(this, "MaterialMapJsonConverter");
       // Set up the json-based decorator
       matDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
-          jsonGeoConvConfig, m_materialMapInputFile, true, true);
+          jsonGeoConvConfig, m_materialMapInputFile, Acts::Logging::INFO);
     }
     tgbConfig.materialDecorator = matDeco;
   }  

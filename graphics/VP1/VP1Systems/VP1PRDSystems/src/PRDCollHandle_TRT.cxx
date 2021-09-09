@@ -26,20 +26,20 @@ class PRDCollHandle_TRT::Imp {
 public:
   //Keep specific lists of handles here... i.e. those with a HT for instance
   //   std::vector<PRDHandle_TRT*> prdhandles;
-  bool attempted_detmgrload;
+  bool attempted_detmgrload = false;
 
   //We only load these on demand!
-  const InDetDD::TRT_DetectorManager* trtdetmgr;
-  const TRT_ID * idhelper;
+  const InDetDD::TRT_DetectorManager* trtdetmgr = nullptr;
+  const TRT_ID * idhelper = nullptr;
 
   PRDCommonFlags::InDetPartsFlags indetpartsflags;
-  double minToT;
-  double maxToT;
-  int minLE;
-  int maxLE;
-  bool needToTCheck;
-  bool needLECheck;
-  bool requireHT;
+  double minToT = 0.0;
+  double maxToT = 0.0;
+  int minLE = 0;
+  int maxLE = 0;
+  bool needToTCheck = false;
+  bool needLECheck = false;
+  bool requireHT = false;
 };
 
 //____________________________________________________________________

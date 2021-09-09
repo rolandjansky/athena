@@ -61,8 +61,6 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
       
      /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
       
      /** form JEMEtSums from JetElements */
     virtual void formJEMEtSums(const DataVector<xAOD::JetElement>* jetElementVec,

@@ -58,7 +58,6 @@ StatusCode eFEXFPGA::initialize()
   ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
   ATH_CHECK(m_l1MenuKey.initialize());
 
-  //ATH_CHECK(m_eFEXFPGA_eFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
 }
   
@@ -79,7 +78,7 @@ void eFEXFPGA::reset(){
 
 }
 
-StatusCode eFEXFPGA::execute(){
+StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
   m_emTobwords.clear();
   m_tauTobwords.clear();
@@ -89,21 +88,6 @@ StatusCode eFEXFPGA::execute(){
     ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
-    
-  eFEXOutputCollection* eFEXOutputs;
-
-  // To be replaced soon but left here commented for information
-  /*
-  SG::ReadHandle<eFEXOutputCollection> jk_eFEXFPGA_eFEXOutputCollection(m_eFEXFPGA_eFEXOutputCollectionKey,ctx);
-  if(!jk_eFEXFPGA_eFEXOutputCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eFEXOutputCollection " << m_eFEXFPGA_eFEXOutputCollectionKey.key() );
-    return StatusCode::FAILURE;
-  }
-  */
-  
-  StatusCode sc_tobs = evtStore()->retrieve(eFEXOutputs, "eFEXOutputCollection");
-  if(sc_tobs == StatusCode::SUCCESS){ }
-  else if(sc_tobs == StatusCode::FAILURE) {ATH_MSG_DEBUG("\n---- eFEXegAlgo --------- Failed to find eFEXOutputCollection in eFEXFPGA"); }
 
   // Retrieve the L1 menu configuration
   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
@@ -195,29 +179,31 @@ StatusCode eFEXFPGA::execute(){
       tmp_tob->setPhi(iphi);
 
       // for plotting
-      eFEXOutputs->addeFexNumber(m_efexid);
-      eFEXOutputs->addEMtob(tobword);
-      eFEXOutputs->addValue_eg("WstotNum", tmp_tob->getWstotNum());
-      eFEXOutputs->addValue_eg("WstotDen", tmp_tob->getWstotDen());
-      eFEXOutputs->addValue_eg("RetaNum", tmp_tob->getRetaNum());
-      eFEXOutputs->addValue_eg("RetaDen", tmp_tob->getRetaDen());
-      eFEXOutputs->addValue_eg("RhadNum", tmp_tob->getRhadNum());
-      eFEXOutputs->addValue_eg("RhadDen", tmp_tob->getRhadDen());
-      eFEXOutputs->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
-      eFEXOutputs->addValue_eg("ET", m_eFEXegAlgoTool->getET());
-      float eta = 9999;
-      m_eFEXegAlgoTool->getRealEta(eta);
-      eFEXOutputs->addValue_eg("eta", eta);
-      float phi = 9999;
-      m_eFEXegAlgoTool->getRealPhi(phi);
-      eFEXOutputs->addValue_eg("phi", phi);
-      unsigned int em_et = 9999; 
-      m_eFEXegAlgoTool->getCoreEMTowerET(em_et);
-      eFEXOutputs->addValue_eg("em", em_et);
-      unsigned int had_et = 9999;
-      m_eFEXegAlgoTool->getCoreHADTowerET(had_et);
-      eFEXOutputs->addValue_eg("had", had_et);
-      eFEXOutputs->fill_eg();
+      if (inputOutputCollection->getdooutput()) {
+        inputOutputCollection->addeFexNumber(m_efexid);
+        inputOutputCollection->addEMtob(tobword);
+        inputOutputCollection->addValue_eg("WstotNum", tmp_tob->getWstotNum());
+        inputOutputCollection->addValue_eg("WstotDen", tmp_tob->getWstotDen());
+        inputOutputCollection->addValue_eg("RetaNum", tmp_tob->getRetaNum());
+        inputOutputCollection->addValue_eg("RetaDen", tmp_tob->getRetaDen());
+        inputOutputCollection->addValue_eg("RhadNum", tmp_tob->getRhadNum());
+        inputOutputCollection->addValue_eg("RhadDen", tmp_tob->getRhadDen());
+        inputOutputCollection->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
+        inputOutputCollection->addValue_eg("ET", m_eFEXegAlgoTool->getET());
+        float eta = 9999;
+        m_eFEXegAlgoTool->getRealEta(eta);
+        inputOutputCollection->addValue_eg("eta", eta);
+        float phi = 9999;
+        m_eFEXegAlgoTool->getRealPhi(phi);
+        inputOutputCollection->addValue_eg("phi", phi);
+        unsigned int em_et = 9999; 
+        m_eFEXegAlgoTool->getCoreEMTowerET(em_et);
+        inputOutputCollection->addValue_eg("em", em_et);
+        unsigned int had_et = 9999;
+        m_eFEXegAlgoTool->getCoreHADTowerET(had_et);
+        inputOutputCollection->addValue_eg("had", had_et);
+        inputOutputCollection->fill_eg();
+      }
 
     }
   }
@@ -256,16 +242,18 @@ StatusCode eFEXFPGA::execute(){
       if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
 
       // for plotting
-      eFEXOutputs->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
-      eFEXOutputs->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
-      eFEXOutputs->addValue_tau("Eta", ieta);
-      eFEXOutputs->addValue_tau("Phi", iphi);
-      const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
-      eFEXOutputs->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
-      eFEXOutputs->addValue_tau("FloatPhi", centerTower->phi());
-      eFEXOutputs->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
-      
-      eFEXOutputs->fill_tau();
+      if (inputOutputCollection->getdooutput()) {
+        inputOutputCollection->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
+        inputOutputCollection->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
+        inputOutputCollection->addValue_tau("Eta", ieta);
+        inputOutputCollection->addValue_tau("Phi", iphi);
+        const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+        inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
+        inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
+        inputOutputCollection->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
+        
+        inputOutputCollection->fill_tau();
+      }
     }
   }
 

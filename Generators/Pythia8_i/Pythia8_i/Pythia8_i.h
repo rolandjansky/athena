@@ -109,7 +109,7 @@ private:
   std::vector<std::string> m_commands;
   std::vector<std::string> m_userParams;
   std::vector<std::string> m_userModes;
-  
+
   enum PDGID {PROTON=2212, ANTIPROTON=-2212, LEAD=1000822080, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
 
   double m_collisionEnergy;

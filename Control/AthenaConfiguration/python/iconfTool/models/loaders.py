@@ -138,7 +138,16 @@ def renameComps(dic, args) -> Dict:
     })
 
     def rename_comps(comp_name):
-        return componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
+        """Renames component if it is in the dict or, when name fragment is in the dict
+        The later is for cases like: ToolSvc.ToolA.X.Y is renamed to ToolSvc.ToolB.X.Y
+        """
+        renamed = componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
+        if renamed != comp_name: 
+            return renamed
+        for k,v in componentRenamingDict.items():
+            if f"{k}." in comp_name or f".{k}" in comp_name:
+                return v.replace(k, v)
+        return comp_name
 
     conf = {}
     for (key, value) in dic.items():

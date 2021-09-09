@@ -205,11 +205,11 @@ namespace Trk {
                            - it checks whether there is a sub-structure (i.e. GlueVolumeDescriptor exists)
                              and adds either the volume itself or the associated subvolume
                            - volumes on glueVols level are all on navigation level*/
-        void fillGlueVolumes ATLAS_NOT_THREAD_SAFE(
+        static void fillGlueVolumes ATLAS_NOT_THREAD_SAFE(
           const std::vector<const TrackingVolume*>& topLevelVolumes,
           const std::vector<const TrackingVolume*>& envelopeFaceVolumes,
           BoundarySurfaceFace glueFace,
-          std::vector<const Trk::TrackingVolume*>& glueVols) const;
+          std::vector<const Trk::TrackingVolume*>& glueVols) ;
 
         /** Execute the glueing  - the input volumes are all on navigation level */
         void glueTrackingVolumes ATLAS_NOT_THREAD_SAFE(

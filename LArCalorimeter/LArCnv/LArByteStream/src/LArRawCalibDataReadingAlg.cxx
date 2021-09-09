@@ -76,6 +76,19 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
 
   ATH_CHECK(m_CLKey.initialize());
 
+
+  //Fill FT list if only Barrel/EC and side is given:
+  if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() &&  m_vFTPreselection.size()==0) {
+    std::set<unsigned> fts;
+    if (std::find(m_vBEPreselection.begin(),m_vBEPreselection.end(),0)!=m_vBEPreselection.end()) { //Barrel selected
+      fts.insert({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
+    }
+    if (std::find(m_vBEPreselection.begin(),m_vBEPreselection.end(),1)!=m_vBEPreselection.end()) { //Endcap selected
+      fts.insert({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24});
+    }
+    m_vFTPreselection.value().insert(m_vFTPreselection.begin(),fts.begin(),fts.end());
+  }
+
   //Build list of preselected Feedthroughs
   if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
     ATH_MSG_INFO("Building list of selected feedthroughs");

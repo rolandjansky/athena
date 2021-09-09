@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,10 +20,10 @@
 
 #include "AthenaKernel/IEvtIdModifierSvc.h"
 
-static EventInfoCnv_p4   TPconverter_p4;
-static EventInfoCnv_p3   TPconverter_p3;
-static EventInfoCnv_p2   TPconverter_p2;
-static EventInfoCnv_p1   TPconverter_p1;
+static const EventInfoCnv_p4   TPconverter_p4;
+static const EventInfoCnv_p3   TPconverter_p3;
+static const EventInfoCnv_p2   TPconverter_p2;
+static const EventInfoCnv_p1   TPconverter_p1;
 
 EventInfoCnv::EventInfoCnv(ISvcLocator* svcloc) 
   : 
@@ -49,45 +49,45 @@ EventInfoCnv::EventInfoCnv(ISvcLocator* svcloc)
 
 EventInfo_PERS* EventInfoCnv::createPersistent(EventInfo* transObj) {
     MsgStream log(msgSvc(), "EventInfoCnv" ); 
-    EventInfo_PERS *persObj = TPconverter_p4.createPersistent( transObj, log );
+    EventInfo_PERS *persObj = TPconverter_p4.createPersistentConst( transObj, log );
     log << MSG::DEBUG << "EventInfo write Success" << endmsg;
     return persObj; 
 }
     
 EventInfo* EventInfoCnv::createTransient() {
 
-    static pool::Guid   p4_guid("C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7");
-    static pool::Guid   p3_guid("3E240CA8-5124-405B-9059-FAFC4C5954C6");
-    static pool::Guid   p2_guid("22006E19-F0DA-4EFB-AF55-6FBDA421BF06");
-    static pool::Guid   p1_guid("A3053CD9-47F4-4C0F-B73A-A6F93F5CC7B7");
-    static pool::Guid   p0_guid("380D8BB9-B34F-470F-92CC-06C3D60F7BE4");
+    static const pool::Guid   p4_guid("C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7");
+    static const pool::Guid   p3_guid("3E240CA8-5124-405B-9059-FAFC4C5954C6");
+    static const pool::Guid   p2_guid("22006E19-F0DA-4EFB-AF55-6FBDA421BF06");
+    static const pool::Guid   p1_guid("A3053CD9-47F4-4C0F-B73A-A6F93F5CC7B7");
+    static const pool::Guid   p0_guid("380D8BB9-B34F-470F-92CC-06C3D60F7BE4");
     if( compareClassGuid(p4_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< EventInfo_p4 > col_vect( poolReadObject< EventInfo_p4 >() );
         MsgStream log(msgSvc(), "EventInfoCnv" );
         //log << MSG::DEBUG << "Reading EventInfo_p4" << endmsg; 
-        return massageEventInfo(TPconverter_p4.createTransient( col_vect.get(), log ));
+        return massageEventInfo(TPconverter_p4.createTransientConst( col_vect.get(), log ));
     }
     else if( compareClassGuid(p3_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< EventInfo_p3 > col_vect( poolReadObject< EventInfo_p3 >() );
         MsgStream log(msgSvc(), "EventInfoCnv" );
         //log << MSG::DEBUG << "Reading EventInfo_p3" << endmsg; 
-        return massageEventInfo(TPconverter_p3.createTransient( col_vect.get(), log ));
+        return massageEventInfo(TPconverter_p3.createTransientConst( col_vect.get(), log ));
     }
     else if( compareClassGuid(p2_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< EventInfo_p2 > col_vect( poolReadObject< EventInfo_p2 >() );
         MsgStream log(msgSvc(), "EventInfoCnv" );
         // log << MSG::DEBUG << "ILIJA Reading EventInfo_p2" << endmsg; 
-        return massageEventInfo(TPconverter_p2.createTransient( col_vect.get(), log ));
+        return massageEventInfo(TPconverter_p2.createTransientConst( col_vect.get(), log ));
     }
     else if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< EventInfo_p1 > col_vect( poolReadObject< EventInfo_p1 >() );
         MsgStream log(msgSvc(), "EventInfoCnv" );
         //log << MSG::DEBUG << "Reading EventInfo_p1" << endmsg; 
-        return massageEventInfo(TPconverter_p1.createTransient( col_vect.get(), log ));
+        return massageEventInfo(TPconverter_p1.createTransientConst( col_vect.get(), log ));
     }
     else if( compareClassGuid(p0_guid) ) {
         // regular object from before TP separation, just return it

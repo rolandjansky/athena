@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ StatusCode DerivationFramework::TrackParametersAtPV::addBranches() const
     return StatusCode::FAILURE;
   }
 
-  const xAOD::Vertex* pv(0);
+  const xAOD::Vertex* pv(nullptr);
   for (const xAOD::Vertex* vx : *vertices) {
     if (vx->vertexType() == xAOD::VxType::PriVtx) {
       pv = vx;

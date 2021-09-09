@@ -228,10 +228,11 @@ class TriggerConfigGetter(Configured):
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services (just producing menu data)
-                from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+                from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
                 from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-                svcMgr += getL1ConfigSvc(ConfigFlags)
-                svcMgr += getHLTConfigSvc(ConfigFlags)
+                from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,HLTConfigSvcCfg
+                CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+                CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
                 svcMgr += TrigConfigSvc("TrigConfigSvc")
                 svcMgr.TrigConfigSvc.UseNewConfig = True
 

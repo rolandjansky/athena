@@ -40,6 +40,7 @@ electronSuperClusterBuilder::initialize()
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   ATH_CHECK(m_electronSuperRecCollectionKey.initialize());
   ATH_CHECK(m_outputElectronSuperClustersKey.initialize());
+  ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
 
   // Additional Window we search in
   m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
@@ -76,6 +77,14 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   SG::WriteHandle<EgammaRecContainer> newEgammaRecs(
     m_electronSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
+
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  if (!m_precorrClustersKey.empty()) {
+    precorrClustersH.emplace (m_precorrClustersKey, ctx);
+    ATH_CHECK( precorrClustersH->record
+               (std::make_unique<xAOD::CaloClusterContainer>(),
+                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+  }
 
   // The calo Det Descr manager
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
@@ -148,7 +157,8 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
-                       xAOD::EgammaParameters::electron);
+                       xAOD::EgammaParameters::electron,
+                       precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
     if (!newCluster) {
       ATH_MSG_DEBUG("Creating a new cluster failed");

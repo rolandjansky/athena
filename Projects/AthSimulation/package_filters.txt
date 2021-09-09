@@ -16,6 +16,7 @@
 + Calorimeter/CaloCondBlobObjs
 + Calorimeter/CaloConditions
 + Calorimeter/CaloDetDescr
++ Calorimeter/CaloDetDescrUtils
 + Calorimeter/CaloDmDetDescr
 + Calorimeter/CaloG4Sim
 + Calorimeter/CaloGeoHelpers

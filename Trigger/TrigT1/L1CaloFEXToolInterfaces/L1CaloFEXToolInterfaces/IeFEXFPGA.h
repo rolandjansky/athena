@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODTrigger/eFexEMRoI.h"
+#include "L1CaloFEXSim/eFEXOutputCollection.h"
 
 namespace LVL1 {
   
@@ -30,7 +31,7 @@ Interface definition for eFEXFPGA
 
     virtual StatusCode init(int id, int efexid) = 0;
 
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(eFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void reset() = 0;
 

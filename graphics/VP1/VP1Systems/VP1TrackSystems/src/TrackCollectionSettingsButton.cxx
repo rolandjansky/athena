@@ -40,7 +40,7 @@ public:
   }
   TrackCollectionSettingsButton * theclass;
   QWidget * editwindow;
-  Ui::TrackCollectionSettingsForm editwindow_ui;
+  Ui::TrackCollectionSettingsForm editwindow_ui{};
   
   VP1MaterialButton* matButton;
   

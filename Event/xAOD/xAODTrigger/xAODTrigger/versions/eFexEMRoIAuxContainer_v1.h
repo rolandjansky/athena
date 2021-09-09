@@ -37,10 +37,8 @@ namespace xAOD {
       eFexEMRoIAuxContainer_v1();
 
    private:
-      std::vector< uint32_t > Word0;
-      std::vector< uint32_t > Word1;
-      std::vector< uint8_t >  eFexNumber;
-      std::vector< uint8_t >  shelfNumber;
+      std::vector< uint32_t > word0;
+      std::vector< uint32_t > word1;
       std::vector< uint16_t > RetaEnv;
       std::vector< uint16_t > RetaCore;
       std::vector< uint16_t > RhadHad;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -859,7 +859,8 @@ void TrackHandleBase::Imp::convertLineSetToCylinders(SoLineSet*line,SoSeparator*
       m.multRight(m3);
       //m is the transform we need in front of our cylinder. 
       //However, we need to first add the inverse of all previous transforms.
-      SbMatrix mat(m);
+      SbMatrix mat;
+      mat = m;
       mat.multRight(lastTransf.inverse());
       SoMatrixTransform * mt = new SoMatrixTransform;
       mt->matrix.setValue(mat);
@@ -1969,7 +1970,7 @@ void TrackHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) 
   m_d->m_objBrowseTree->setText(1, l );
 
   if (!visible()) {
-    m_d->m_objBrowseTree->setFlags(nullptr); // not selectable, not enabled
+    m_d->m_objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
   listOfItems << browserTreeItem();
 }
@@ -1985,7 +1986,7 @@ void TrackHandleBase::visibleStateChanged()
   }
 
   if (!visible()) {
-    browserTreeItem()->setFlags(nullptr); // not selectable, not enabled
+    browserTreeItem()->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   } else {
     browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }

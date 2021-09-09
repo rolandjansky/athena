@@ -66,8 +66,10 @@ if "__main__" == __name__:
 
   cfg.merge(alignCondAlgCfg)
 
-  cfg.merge(ActsMaterialTrackWriterSvcCfg("ActsMaterialTrackWriterSvc",
+  cfg.merge(ActsMaterialTrackWriterSvcCfg(ConfigFlags,
+                                          "ActsMaterialTrackWriterSvc",
                                           "MaterialTracks_mapped.root"))
+
   print('DEF WRITER : ')
   extrapol = ActsExtrapolationToolCfg(ConfigFlags,
                                       InteractionMultiScatering = True,

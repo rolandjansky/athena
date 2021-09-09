@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTPCnv/LArDigitContainerCnv_p1.h"
@@ -11,7 +11,7 @@
 
 void
 LArDigitContainerCnv_p1::persToTrans(const LArDigitContainer_p1* pers, 
-				     LArDigitContainer* trans, MsgStream &log)
+				     LArDigitContainer* trans, MsgStream &log) const
 {
   const unsigned nDigits=pers->m_channelID.size();
   if (nDigits != pers->m_gain.size() || nDigits != pers->m_nSamples.size()) {
@@ -44,7 +44,7 @@ LArDigitContainerCnv_p1::persToTrans(const LArDigitContainer_p1* pers,
 
 void
 LArDigitContainerCnv_p1::transToPers(const LArDigitContainer* trans, 
-				     LArDigitContainer_p1* pers, MsgStream &/*log*/)
+				     LArDigitContainer_p1* pers, MsgStream &/*log*/) const
 {
   
   unsigned int nDigits=trans->size();

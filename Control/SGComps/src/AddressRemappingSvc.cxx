@@ -363,7 +363,7 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
         if (strncmp (a_renamed.c_str(), tad->name().c_str(), namelen) == 0 &&
             a_renamed[namelen] == '.')
         {
-          a_renamed = name_renamed + a_renamed.substr (namelen, std::string::npos);
+            a_renamed = name_renamed + a_renamed.substr (namelen, std::string::npos);
         }
           
         newAliases.insert (a_renamed);
@@ -455,7 +455,7 @@ void AddressRemappingSvc::initDeletes()
 
       for (const DataObjID& dobj : alg->outputDataObjs()) {
         static const std::string pref = "StoreGateSvc+";
-        if (dobj.key().substr (0, pref.size()) == pref) {
+        if (dobj.key().compare (0, pref.size(), pref)==0) {
           std::string key = dobj.key().substr (pref.size());
           m_deletes.emplace (key, dobj.clid());
 

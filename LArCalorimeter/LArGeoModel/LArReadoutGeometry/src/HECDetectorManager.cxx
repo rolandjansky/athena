@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetDescr.h"
@@ -12,6 +12,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "LArReadoutGeometry/HECDetectorManager.h"
 #include "LArHV/LArHVManager.h"
@@ -26,36 +27,49 @@ HECDetectorManager::HECDetectorManager(const HECHVManager* hvManager, bool isTes
   setName("LArHEC");
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
-  IRDBAccessSvc* rdbAccess;
-  IGeoModelSvc * geoModel;
-  
-  if (svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+  IRDBAccessSvc *rdbAccess{nullptr};
+  IGeoModelSvc  *geoModel{nullptr};
+  IGeoDbTagSvc  *geoDbTagSvc{nullptr};
+
+  if(svcLocator->service("GeoModelSvc",geoModel) == StatusCode::FAILURE)
     throw std::runtime_error("Error in HECDetectorManager, cannot access GeoModelSvc");
 
-  if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
+  if(svcLocator->service("GeoDbTagSvc",geoDbTagSvc) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoDbTagSvc");
+
+  if(svcLocator->service(geoDbTagSvc->getParamSvcName(),rdbAccess) == StatusCode::FAILURE)
     throw std::runtime_error("Error in HECDetectorManager, cannot access RDBAccessSvc");
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
-  IRDBRecordset_ptr hecLongBlock          = rdbAccess->getRecordsetPtr("HecLongitudinalBlock", larVersionKey.tag(),larVersionKey.node());
-  IRDBRecordset_ptr hecPad                = rdbAccess->getRecordsetPtr("HecPad", larVersionKey.tag(),larVersionKey.node());
-  IRDBRecordset_ptr hadronicEndcap        = rdbAccess->getRecordsetPtr("HadronicEndcap", larVersionKey.tag(), larVersionKey.node());
-
-  if(hecLongBlock->size()==0)
-  {
-    hecLongBlock          = rdbAccess->getRecordsetPtr("HecLongitudinalBlock", "HecLongitudinalBlock-00");
-    if (hecLongBlock->size()==0)         throw std::runtime_error("Error getting HecLongitudinalBlock table");
+  std::string larKey, larNode;
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
+    larKey  = larVersionKey.tag();
+    larNode = larVersionKey.node();
   }
 
-  if(hecPad->size()==0)
-  {
-    hecPad                = rdbAccess->getRecordsetPtr("HecPad","HecPad-00");
-    if (hecPad->size()==0)               throw std::runtime_error("Error getting HecPad table");
+  IRDBRecordset_ptr hecLongBlock          = rdbAccess->getRecordsetPtr("HecLongitudinalBlock",larKey,larNode);
+  IRDBRecordset_ptr hecPad                = rdbAccess->getRecordsetPtr("HecPad",larKey,larNode);
+  IRDBRecordset_ptr hadronicEndcap        = rdbAccess->getRecordsetPtr("HadronicEndcap",larKey,larNode);
+
+  if(hecLongBlock->size()==0) {
+    hecLongBlock = rdbAccess->getRecordsetPtr("HecLongitudinalBlock", "HecLongitudinalBlock-00");
+    if (hecLongBlock->size()==0) {
+      throw std::runtime_error("Error getting HecLongitudinalBlock table");
+    }
   }
 
-  if(hadronicEndcap->size()==0)
-  {
-    hadronicEndcap        = rdbAccess->getRecordsetPtr("HadronicEndcap","HadronicEndcap-00");
-    if (hadronicEndcap->size()==0)       throw std::runtime_error("Error getting HadronicEndcap table");
+  if(hecPad->size()==0) {
+    hecPad = rdbAccess->getRecordsetPtr("HecPad","HecPad-00");
+    if (hecPad->size()==0) {
+      throw std::runtime_error("Error getting HecPad table");
+    }
+  }
+
+  if(hadronicEndcap->size()==0) {
+    hadronicEndcap = rdbAccess->getRecordsetPtr("HadronicEndcap","HadronicEndcap-00");
+    if (hadronicEndcap->size()==0) {
+      throw std::runtime_error("Error getting HadronicEndcap table");
+    }
   }
 
   if (hecPad->size()!=hecLongBlock->size()) throw std::runtime_error("Error.  Hec[LongitudinalBlock,Pad] size discrepancy");

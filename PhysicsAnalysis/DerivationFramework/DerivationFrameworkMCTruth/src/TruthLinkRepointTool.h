@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_TruthLinkRepointTool_H
@@ -32,7 +32,7 @@ namespace DerivationFramework {
       /// Parameter: target collection
       std::vector<std::string> m_targetKeys;
       // Helper function for finding matching truth particle and warning consistently
-      int find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const;
+      static int find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) ;
   }; 
 }
 

@@ -64,7 +64,7 @@
 //____________________________________________________________________
 class VertexCollHandle::Imp {
 public:
-  VertexCollHandle * theclass;
+  VertexCollHandle * theclass = nullptr;
 
   //Vector of iParticle handles:
   std::vector<VertexHandle*> handles;
@@ -76,7 +76,7 @@ public:
   std::vector<VertexHandle*>::iterator itHandlesEnd;
 
   //Extra widgets;
-  VertexCollectionSettingsButton* collSettingsButton;
+  VertexCollectionSettingsButton* collSettingsButton = nullptr;
   
   // int updateGUICounter;
   //

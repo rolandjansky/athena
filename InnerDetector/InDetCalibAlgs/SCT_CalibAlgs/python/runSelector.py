@@ -165,7 +165,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
                 if 'Project tag:' in line and runPro=='':
                     runPro = line.split('\'')[1]
                 if runNum!='' and runPro!='':
-                    if 'data15_cos' in runPro or 'data15_13TeV' in runPro or 'data15_hi' in runPro or 'data15_5TeV' in runPro:
+                    if 'data' in runPro:
                         runList.append(runNum)
                         runDict[runNum] = runPro
                     runNum=''

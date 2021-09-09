@@ -27,21 +27,31 @@ def openDatabase(dbstring):
       print(e)
       sys.exit(-1)
   return db
-  
-#def formIov(runNumber):
-#  s,u=(runNumber << 32), ((runNumber + 1) << 32) - 1
-#  print ("formIOV: ", s, u)
-#  return s,u
-  
-#CS: this version is needed if previous runs are processed (make sure runNumberSave is small enough)
+
 def formIov(runNumber):
-  #runNumberSave = 364160
-  #runNumberSave = 364076
-  #runNumberSave = 359398
-  runNumberSave = 364214
-  s,u=(runNumberSave << 32), ((runNumber + 1) << 32) - 1
+  s,u=((runNumber-1 ) << 32), ((runNumber + 1) << 32) - 1
+  print ("formIOV: ", s, u)
   return s,u
 
+def formIovFromTo(runNumberStart, runNumber):
+  s,u=((runNumberStart ) << 32), ((runNumber + 1) << 32) - 1
+  print ("formIOV: ", s, u)
+  return s,u
+  
+#CS this modification checks which was the k-last run before the processed one
+def getRunNumberStart(runNumber, k):
+    runlistfile = open("/afs/cern.ch/user/s/sctcalib/public/runlist.txt", "r")
+    content = runlistfile.read()
+    runlistfile.close()
+    content_list = content.split("\n")
+    content_list = [line for line in content_list if line.strip()]
+    integer_int_list = list(map(int, content_list))
+    if (runNumber >= integer_int_list[-1]):
+        RNS = integer_int_list[len(integer_int_list)-k]
+    else:
+        RNS = integer_int_list[integer_int_list.index(runNumber)-k]
+    return RNS
+  
 #############################################################################################
 def GetRunList(dbstring, folder, tag, runNumber, k):
     db=openDatabase(dbstring)
@@ -56,7 +66,9 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     print('    taglist=myfolder.listTags()')
     for i in taglist: print(i)
     
-    iovSince, iovUntil = formIov(runNumber)
+    runNumberStart = getRunNumberStart(runNumber, k)
+    
+    iovSince, iovUntil = formIovFromTo(runNumberStart,runNumber)
  
     temp=[]
     objs=myfolder.browseObjects(iovSince,iovUntil,cool.ChannelSelection.all(),tag)
@@ -77,10 +89,10 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     #ls.append(Temp[len(Temp)-1])
     print(ls)
 
-    list=[]
-    for i in range(k): list.append( ls[len(ls)-i-1] )
+    mylist=[]
+    for i in range(k): mylist.append( ls[len(ls)-i-1] )
         
-    return list
+    return mylist
 
 #############################################################################################
 def GetNumNoisyMods(dbstring, folder, tag, runNumber):
