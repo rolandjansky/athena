@@ -505,31 +505,41 @@ class SCTCalibExecutor( athenaExecutor ):
                 rootBSerrFiles.append(inputFileName)
 
         if runArgs['splitHitMap']._value ==2 :
-            if len(rootBSerrFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
-
+            
+            if len(rootHitmapFiles) > 0 :
+                
                 fileutil.remove('SCTHitMaps.root')
-                fileutil.remove('SCTLB.root')
-                fileutil.remove('SCTBSErrors.root')
 
                 cmd = "cp -v $ROOTSYS/bin/hadd . \n"
-                cmd += "hadd SCTHitMaps.root " 
+                cmd += "hadd -n 10 SCTHitMaps.root " 
                 for inputFileName in rootHitmapFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTLB.root "
+            
+                print (cmd)
+                self._echologger.info('Merging Hitmap files!')
+                retcode=1
+                try:
+                    retcode = os.system(cmd)
+                except (OSError, e):
+                    retcode = 1
+                if retcode == 0:
+                    self._echologger.info('Root merge successful')
+                else:
+                    self._echologger.error("FAILED to merge root files")
+            
+            if ( len(rootLbFiles) > 0 and (len(rootLbFiles) == len(rootHitmapFiles)) ):
+                
+                fileutil.remove('SCTLB.root')
+
+                cmd = "cp -v $ROOTSYS/bin/hadd . \n"
+                cmd += "hadd -n 10 SCTLB.root " 
                 for inputFileName in rootLbFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTBSErrors.root "
-                for inputFileName in rootBSerrFiles :
-                    cmd += "%s " %(inputFileName)
-                cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
             
                 print (cmd)
-                self._echologger.info('Merging Hitmap, LB and BSerr files!')
+                self._echologger.info('Merging LBHitmap files!')
                 retcode=1
                 try:
                     retcode = os.system(cmd)
@@ -540,25 +550,18 @@ class SCTCalibExecutor( athenaExecutor ):
                 else:
                     self._echologger.error("FAILED to merge root files")
 
-            elif len(rootLbFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
+            if ( len(rootBSerrFiles) > 0 and (len(rootBSerrFiles) == len(rootHitmapFiles)) ):
 
-                fileutil.remove('SCTHitMaps.root')
-                fileutil.remove('SCTLB.root')
+                fileutil.remove('SCTBSErrors.root')
 
                 cmd = "cp -v $ROOTSYS/bin/hadd . \n"
-                cmd += "hadd SCTHitMaps.root " 
-                for inputFileName in rootHitmapFiles :
+                cmd += "hadd -n 10 SCTBSErrors.root " 
+                for inputFileName in rootBSerrFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
-                cmd += "hadd SCTLB.root "
-                for inputFileName in rootLbFiles :
-                    cmd += "%s " %(inputFileName)
-                cmd += "\n"
-#                cmd += " >> /dev/null 2>&1 \n"
             
                 print (cmd)
-                self._echologger.info('Merging Hitmap and LB files!')
+                self._echologger.info('Merging BSerr files!')
                 retcode=1
                 try:
                     retcode = os.system(cmd)

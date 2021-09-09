@@ -14,7 +14,7 @@ import os,sys,time,glob,fnmatch
 import AthenaCommon.AtlasUnixStandardJob
 
 #--- McEventSelector
-if runArgs.InputType is not 'RAW':
+if runArgs.InputType != 'RAW':
     import AthenaCommon.AtlasUnixGeneratorJob
 
 #--- get a handle to the default top-level algorithm sequence
@@ -75,36 +75,16 @@ if hasattr( runArgs, 'maxEvents' ) :
     EvtMax = runArgs.maxEvents
 
 #--- Setting output prefix
-if hasattr( runArgs, 'prefix' ) and runArgs.prefix is not '' :
+if hasattr( runArgs, 'prefix' ) and runArgs.prefix != '' :
     prefix = runArgs.prefix+'.'
 else :
     prefix=''
     
 
-if hasattr( runArgs, 'InputType' ) and runArgs.InputType is 'RAW' :
+if hasattr( runArgs, 'InputType' ) and runArgs.InputType == 'RAW' :
     ReadBS = True
 else :
     ReadBS = False
-
-if hasattr( runArgs, 'splitHitMap' ) :
-    if runArgs.splitHitMap == 0:
-      DoHitMapsLB = True
-      DoHitMaps   = True
-      ReadHitMaps = False
-    elif runArgs.splitHitMap == 1:
-      DoHitMapsLB = True
-      DoHitMaps   = True
-      ReadHitMaps = True
-    elif runArgs.splitHitMap == 2:
-      DoHitMapsLB = False
-      DoHitMaps   = False
-      ReadHitMaps = True
-      if EvtMax != 1 :
-        print("WARNING! EvtMax is not 1, although HitMap analysis is run!")
-else :
-      DoHitMapsLB = False
-      DoHitMaps   = False
-      ReadHitMaps = False
     
 
 #--- Setting which algorithms to be run
@@ -155,6 +135,32 @@ if hasattr( runArgs, 'part' ) :
         DoLorentzAngle = False
 
 
+if hasattr( runArgs, 'splitHitMap' ) :
+    if runArgs.splitHitMap == 0 :
+        if DoNoisyStrip :
+            DoHitMapsLB = True
+        else :
+            DoHitMapsLB = False
+        DoHitMaps   = True
+        ReadHitMaps = False
+    elif runArgs.splitHitMap == 1:
+        if DoNoisyStrip:
+            DoHitMapsLB = True
+        else :
+            DoHitMapsLB = False
+        DoHitMaps   = True
+        ReadHitMaps = True
+    elif runArgs.splitHitMap == 2:
+      DoHitMapsLB = False
+      DoHitMaps   = False
+      ReadHitMaps = True
+      if EvtMax != 1 :
+        print("WARNING! EvtMax is not 1, although HitMap analysis is run!")
+else :
+      DoHitMapsLB = False
+      DoHitMaps   = False
+      ReadHitMaps = False
+
 #--------------------------------------------------------------
 # Read start/end time stamp and LB for HIST
 #--------------------------------------------------------------
@@ -166,12 +172,12 @@ DAQConfig = ''
 
 if os.path.exists("./runInfo.txt") :
     runInfo = open( './runInfo.txt', 'r' ).read()
-    list  = runInfo.split( ' ' )
-    ProjTag   = list[1]
-    SORTime   = list[2]
-    EORTime   = list[3]
-    nLB       = list[4]
-    DAQConfig = list[5]
+    RIlist  = runInfo.split( ' ' )
+    ProjTag   = RIlist[1]
+    SORTime   = RIlist[2]
+    EORTime   = RIlist[3]
+    nLB       = RIlist[4]
+    DAQConfig = RIlist[5]
 else :
     ProjTag   = 'cannot retrieve ProjTag'
     SORTime   = 'cannot retrieve SORTime'
@@ -183,7 +189,7 @@ else :
 #--------------------------------------------------------------
 # Set up RunNo/initial timestamp when running over HIST
 #--------------------------------------------------------------
-if runArgs.InputType is not 'RAW':
+if runArgs.InputType != 'RAW':
     ServiceMgr.EventSelector.RunNumber         = runArgs.RunNumber
     ServiceMgr.EventSelector.FirstEvent        = runArgs.EventNumber
     ServiceMgr.EventSelector.FirstLB           = 0
@@ -526,11 +532,11 @@ SCTCalib.DoBSErrors       = DoBSErrors       # True  in default
 SCTCalib.ReadBS         = ReadBS
 #--- Input files
 if hasattr( runArgs, 'InputType' ) :
-    if runArgs.InputType is 'RAW' :
+    if runArgs.InputType == 'RAW' :
         ServiceMgr.EventSelector.Input = runArgs.inputNames
-    elif runArgs.InputType is 'NTUP_TRKVALID' :
+    elif runArgs.InputType == 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
-    elif runArgs.InputType is 'HIST' :
+    elif runArgs.InputType == 'HIST' :
         SCTCalib.InputHist                         = runArgs.inputNames
 else :
     if DoNoisyStrip or DoHV or DoDeadStrip or DoDeadChip :
