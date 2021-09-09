@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: eFexEMRoIAuxContainer_v1.cxx  2019-07-01 13:04:25Z watsona $
-
+// Updated 2021-09-08 for (hopefully) final TOB formats
 // Local include(s):
 #include "xAODTrigger/versions/eFexEMRoIAuxContainer_v1.h"
 
@@ -12,10 +12,8 @@ namespace xAOD {
    eFexEMRoIAuxContainer_v1::eFexEMRoIAuxContainer_v1()
       : AuxContainerBase() {
 
-      AUX_VARIABLE( Word0);
-      AUX_VARIABLE( Word1);
-      AUX_VARIABLE( eFexNumber);
-      AUX_VARIABLE( shelfNumber);
+      AUX_VARIABLE( word0);
+      AUX_VARIABLE( word1);
       AUX_VARIABLE( RetaEnv);
       AUX_VARIABLE( RetaCore);
       AUX_VARIABLE( RhadHad);
