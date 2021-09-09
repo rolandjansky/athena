@@ -302,13 +302,14 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     SkimmingTools = [BPHY9_SelectEvent])
 
 #====================================================================
-# JetTagNonPromptLepton decorations
+# LeptonTaggers decorations
 #====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 # Build AntiKt4PV0TrackJets and run b-tagging
-JetTagConfig.ConfigureAntiKt4PV0TrackJets(BPHY9Seq, 'BPHY9')
+LepTagConfig.ConfigureAntiKt4PV0TrackJets(BPHY9Seq, 'BPHY9')
 # Add BDT decoration algs
-BPHY9Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+BPHY9Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
+BPHY9Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 DerivationFrameworkJob += BPHY9Seq
 
 #====================================================================
@@ -335,7 +336,8 @@ BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets',
 
 extraJetVariables = '.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m'\
                    +'.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt'\
-                   +'.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF'
+                   +'.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF'\
+                   +'.GhostAntiKt2TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTrackCount.GhostTrackPt'
 
 BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets'+extraJetVariables,
                                       'AntiKt4EMTopoJets'+extraJetVariables,
@@ -359,6 +361,9 @@ BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets'+extraJetVariables,
                                       'PrimaryVertices'+'.x'
                                                        +'.y']
 
+BPHY9SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD()
+BPHY9SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
+
 BPHY9Stream.StaticContent = []
 
 # Slimming for truth content
@@ -372,10 +377,12 @@ if is_MC:
 
   BPHY9SlimmingHelper.ExtraVariables += ['CombinedMuonTrackParticles'+'.truthOrigin'
                                                                      +'.truthType'
-                                                                     +'.truthParticleLink',
+                                                                     +'.truthParticleLink'
+                                                                     +'.truthMatchProbability',
                                          'Electrons'+'.truthOrigin'
                                                     +'.truthType'
                                                     +'.truthParticleLink'
+                                                    +'.truthMatchProbability'
                                                     +'.bkgTruthType'
                                                     +'.bkgTruthOrigin'
                                                     +'.bkgTruthParticleLink'
@@ -383,10 +390,12 @@ if is_MC:
                                                     +'.deltaPhi1',
                                          'InDetTrackParticles'+'.truthOrigin'
                                                               +'.truthType'
-                                                              +'.truthParticleLink',
+                                                              +'.truthParticleLink'
+                                                              +'.truthMatchProbability',
                                          'MuonTruthParticles'+'.truthOrigin'
                                                              +'.truthType'
-                                                             +'.truthParticleLink']
+                                                             +'.truthParticleLink'
+                                                             +'.truthMatchProbability']
 
   BPHY9SlimmingHelper.StaticContent += ['xAOD::TruthParticleContainer#TruthMuons',
                                         'xAOD::TruthParticleAuxContainer#TruthMuonsAux.',
