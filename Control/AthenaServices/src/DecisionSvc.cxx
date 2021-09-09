@@ -259,7 +259,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
   if(itAlgs != m_stream_accept.end()){
     found_accept = true;
     // get a handle of the streams' algos vector
-    auto vecAlgs = itAlgs->second;
+    const auto &vecAlgs = itAlgs->second;
     // Loop over all Algorithms in the list to see
     // whether any have been executed and have their filter
     // passed flag set. Any match causes the event to be
@@ -283,7 +283,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
   if(itAlgs != m_stream_require.end()){
     found_require = true;
     // get a handle of the streams' algos vector
-    auto vecAlgs = itAlgs->second;
+    const auto &vecAlgs = itAlgs->second;
     // Loop over all Algorithms in the list to see
     // whether any have been executed and have their filter
     // passed flag set. Any match causes the event to be
@@ -306,7 +306,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
   if(itAlgs != m_stream_veto.end()){
     found_veto = true;
     // get a handle of the streams' algos vector
-    auto vecAlgs = itAlgs->second;
+    const auto &vecAlgs = itAlgs->second;
     // Loop over all Algorithms in the list to see
     // whether any have been executed and have their filter
     // passed flag set. Any match causes the event to be
@@ -370,59 +370,66 @@ void DecisionSvc::DeclareToCutFlowSvc()
   // Loop over all streams
   for(auto ait  = m_streamNames.begin();
            ait != m_streamNames.end(); ++ait) {
-    std::string streamName=*ait;
-    std::vector<std::string> accFilt;
-    std::vector<std::string> reqFilt;
-    std::vector<std::string> vetFilt;
-    std::vector< std::vector<std::string>* > totFilt;
-    if (m_stream_accept.find(streamName) != m_stream_accept.end())  {
-      accFilt = m_stream_accept[streamName];
-      totFilt.push_back(&accFilt);
+    const std::string &streamName=*ait;
+    const std::vector<std::string> *accFilt=nullptr;
+    const std::vector<std::string> *reqFilt=nullptr;
+    const std::vector<std::string> *vetFilt=nullptr;
+    std::vector< const std::vector<std::string>* > totFilt;
+    if (auto itr = m_stream_accept.find(streamName); itr != m_stream_accept.end())  {
+      accFilt = &itr->second;
+      totFilt.push_back(accFilt);
     }
-    if (m_stream_require.find(streamName)!= m_stream_require.end()) {
-      reqFilt = m_stream_require[streamName];
-      totFilt.push_back(&reqFilt);
+    if (auto itr = m_stream_require.find(streamName); itr != m_stream_require.end()) {
+      reqFilt = &itr->second;
+      totFilt.push_back(reqFilt);
     }
-    if (m_stream_veto.find(streamName)   != m_stream_veto.end())    {
-      vetFilt = m_stream_veto[streamName];
-      totFilt.push_back(&vetFilt);
+    if (auto itr = m_stream_veto.find(streamName); itr != m_stream_veto.end())    {
+      vetFilt = &itr->second;
+      totFilt.push_back(vetFilt);
     }
 
     // Now build logicalKey as string of filt ||, &&, ! based on 
     // whether it is accept, require, veto
     std::string accstring(""), reqstring(""), vetstring("");
-    for (auto it = accFilt.begin(); it != accFilt.end(); ++it) {
-      if(accstring.size()>0) accstring += "||";
-      else accstring += '(';
-      accstring+=*it;
+    if(accFilt){
+       for (auto it = accFilt->begin(); it != accFilt->end(); ++it) {
+         if(!accstring.empty()) accstring += "||";
+         else accstring += '(';
+         accstring+=*it;
+       }
     }
-    for (auto it = reqFilt.begin(); it != reqFilt.end(); ++it) {
-      if(reqstring.size()>0) reqstring += "&&";
-      else reqstring += '(';
-      reqstring+=*it;
+    if(reqFilt){
+       for (auto it = reqFilt->begin(); it != reqFilt->end(); ++it) {
+         if(!reqstring.empty()) reqstring += "&&";
+         else reqstring += '(';
+         reqstring+=*it;
+       }
     }
-    for (auto it = vetFilt.begin(); it != vetFilt.end(); ++it) {
-      if(vetstring.size()>0) vetstring += "||";
-      else vetstring += '(';
-      vetstring+=*it;
+    if(vetFilt){
+       for (auto it = vetFilt->begin(); it != vetFilt->end(); ++it) {
+         if(!vetstring.empty()) vetstring += "||";
+         else vetstring += '(';
+         vetstring+=*it;
+       }
     }
     std::string logicalKey("");
-    if(accstring.size()>0) {
+    if(!accstring.empty()) {
       accstring += ')';
       logicalKey += accstring;
     }
-    if(reqstring.size()>0) {
+    if(!reqstring.empty()) {
       reqstring += ')';
-      if (logicalKey.size()>0) logicalKey += "&&";
+      if (!logicalKey.empty()) logicalKey += "&&";
       logicalKey += reqstring;
     }
-    if(vetstring.size()>0) {
+    if(!vetstring.empty()) {
       vetstring += ')';
-      if (logicalKey.size()>0) logicalKey += "&&";
-      logicalKey = logicalKey + "!" + vetstring;
+      if (!logicalKey.empty()) logicalKey += "&&";
+      logicalKey += '!';
+      logicalKey += vetstring;
     }
     // If no filters, mark as PasThru
-    if (logicalKey.size()==0) logicalKey="PassThru";
+    if (logicalKey.empty()) logicalKey="PassThru";
     ATH_MSG_DEBUG("stream " << streamName << " uses logic " << logicalKey);
 
     // Now actually declare to the cutflowsvc
