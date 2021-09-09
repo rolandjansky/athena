@@ -28,10 +28,10 @@ namespace LVL1{
       virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int, int)  = 0;    
 //      virtual float testfakePhi() =0;
 
-      virtual float globalPhi(int , int ) =0;
-      virtual float globalEta(int , int ) =0;
-      virtual unsigned int localPhi(int , int ) =0;
-      virtual unsigned int localEta(int , int ) =0;
+      virtual float globalPhi(int , int, const LVL1::jTowerContainer& ) const =0;
+      virtual float globalEta(int , int, const LVL1::jTowerContainer& ) const =0;
+      virtual unsigned int localPhi(int , int, const LVL1::jTowerContainer& ) const =0;
+      virtual unsigned int localEta(int , int, const LVL1::jTowerContainer& ) const =0;
       virtual unsigned int getTTowerET(int, int) =0;
       virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() =0;
       virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() =0;
