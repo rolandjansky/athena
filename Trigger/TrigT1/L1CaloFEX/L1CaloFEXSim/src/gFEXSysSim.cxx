@@ -75,6 +75,7 @@ namespace LVL1 {
       m_allgRhoTobs.clear();
       m_allgBlockTobs.clear();
       m_allgJetTobs.clear();
+      m_allgGlobalTobs.clear();
 
 
       // int centralNphi = 32;
@@ -229,6 +230,7 @@ namespace LVL1 {
       m_allgRhoTobs = m_gFEXSimTool->getgRhoTOBs();
       m_allgBlockTobs = m_gFEXSimTool->getgBlockTOBs();
       m_allgJetTobs = m_gFEXSimTool->getgJetTOBs();
+      m_allgGlobalTobs = m_gFEXSimTool->getgGlobalTOBs();
       m_gFEXSimTool->reset();
 
 
@@ -244,6 +246,10 @@ namespace LVL1 {
       m_gJetAuxContainer = std::make_unique<xAOD::gFexJetRoIAuxContainer> ();
       m_gJetContainer->setStore(m_gJetAuxContainer.get());
 
+      m_gGlobalContainer = std::make_unique<xAOD::gFexGlobalRoIContainer> ();
+      m_gGlobalAuxContainer = std::make_unique<xAOD::gFexGlobalRoIAuxContainer> ();
+      m_gGlobalContainer->setStore(m_gGlobalAuxContainer.get());
+
       //iterate over all gRho Tobs and fill EDM with them
       for(auto &tob : m_allgRhoTobs){
          ATH_CHECK(fillgRhoEDM(tob));
@@ -257,6 +263,10 @@ namespace LVL1 {
       for(auto &tob : m_allgJetTobs){
          ATH_CHECK(fillgJetEDM(tob));
       }
+      //iterate over all Global Tobs and fill EDM with them
+      for(auto &tob : m_allgGlobalTobs){
+         ATH_CHECK(fillgGlobalEDM(tob));
+      }
 
       SG::WriteHandle<xAOD::gFexJetRoIContainer> outputgFexJetHandle(m_gFexJetOutKey/*, ctx*/);
       ATH_MSG_DEBUG("   write: " << outputgFexJetHandle.key() << " = " << "..." );
@@ -266,36 +276,39 @@ namespace LVL1 {
    }
 
    StatusCode gFEXSysSim::fillgRhoEDM(uint32_t tobWord){
-      xAOD::gFexJetRoI* myEDM = new xAOD::gFexJetRoI();
-      m_gRhoContainer->push_back( myEDM );
-      myEDM->initialize(tobWord);
-      ATH_MSG_DEBUG(" setting gRho : " << myEDM->tobEt()  );
+
+      std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
+      m_gRhoContainer->push_back(std::move(myEDM));
+      m_gRhoContainer->back()->initialize(tobWord);
 
       return StatusCode::SUCCESS;
-
    }
 
    StatusCode gFEXSysSim::fillgBlockEDM(uint32_t tobWord){
-      xAOD::gFexJetRoI* myEDM = new xAOD::gFexJetRoI();
-      m_gBlockContainer->push_back( myEDM );
 
-      myEDM->initialize(tobWord);
-      ATH_MSG_DEBUG(" setting gBlock et: " << myEDM->tobEt() << " eta: " << myEDM->iEta() <<   " phi: " << myEDM->iPhi() );
+      std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
+      m_gBlockContainer->push_back(std::move(myEDM));
+      m_gBlockContainer->back()->initialize(tobWord);
 
       return StatusCode::SUCCESS;
-
    }
 
    StatusCode gFEXSysSim::fillgJetEDM(uint32_t tobWord){
 
-      xAOD::gFexJetRoI* myEDM = new xAOD::gFexJetRoI();
-      m_gJetContainer->push_back( myEDM );
-
-      myEDM->initialize(tobWord);
-      ATH_MSG_DEBUG(" setting gJet et: " << myEDM->tobEt() << " eta: " << myEDM->iEta() <<   " phi: " << myEDM->iPhi() );
+      std::unique_ptr<xAOD::gFexJetRoI> myEDM (new xAOD::gFexJetRoI());
+      m_gJetContainer->push_back(std::move(myEDM));
+      m_gJetContainer->back()->initialize(tobWord);
 
       return StatusCode::SUCCESS;
+   }
 
+   StatusCode gFEXSysSim::fillgGlobalEDM(uint32_t tobWord){
+
+      std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
+      m_gGlobalContainer->push_back(std::move(myEDM));
+      m_gGlobalContainer->back()->initialize(tobWord);
+
+      return StatusCode::SUCCESS;
    }
 
 
