@@ -43,7 +43,7 @@
 
 std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 						       , IMessageSvc* msgSvc
-						       , const GeoAlignmentStore* /*geoAlignStore*/
+						       , const GeoAlignmentStore* geoAlignStore
 						       , const CaloRec::CaloCellPositionShift* /*cellPosShift*/)
 {
   MsgStream log(msgSvc, "buildCaloDetDescr"); 
@@ -138,7 +138,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					  , embRegion->getSamplingIndex()
 					  , embRegion->getRegionIndex());
 
-      EMBDescriptor* embDescr = new EMBDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,embRegion);
+      EMBDescriptor* embDescr = new EMBDescriptor(regId
+						  , (AtlasDetectorID *)cell_id
+						  , cell_id
+						  , embRegion
+						  , geoAlignStore);
       caloMgr->add(embDescr);
 
       double phi_min = 0.;
@@ -176,7 +180,8 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 								  , embDescr
 								  , cellPtr
 								  , embRegion
-								  , isTestBeam);
+								  , isTestBeam
+								  , geoAlignStore);
 	  if(iPhi==embRegion->beginPhiIndex()) {
 	    phi_min = embElement->phi() - 0.5*embElement->dphi();
 	  }
@@ -296,7 +301,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					  , emecRegion->getSamplingIndex()
 					  , emecRegion->getRegionIndex());
 
-      EMECDescriptor* emecDescr = new EMECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,emecRegion);
+      EMECDescriptor* emecDescr = new EMECDescriptor(regId
+						     , (AtlasDetectorID *)cell_id
+						     , cell_id
+						     , emecRegion
+						     , geoAlignStore);
       caloMgr->add(emecDescr);
 
       double phi_min = 0.;
@@ -332,7 +341,8 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 								     , emecDescr
 								     , cellPtr
 								     , emecRegion
-								     , isTestBeam);
+								     , isTestBeam
+								     , geoAlignStore);
 	  if(iPhi==emecRegion->beginPhiIndex()) {
 	    phi_min = emecElement->phi() - 0.5*emecElement->dphi();
 	  }
@@ -424,7 +434,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					   , hecregion->getSamplingIndex()
 					   , hecregion->getRegionIndex());
 
-      HECDescriptor* hecDescr = new HECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,hecregion);
+      HECDescriptor* hecDescr = new HECDescriptor(regId
+						  , (AtlasDetectorID *)cell_id
+						  , cell_id
+						  , hecregion
+						  , geoAlignStore);
       caloMgr->add(hecDescr);
 
       double phi_min = 0.;
@@ -462,7 +476,8 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 								    , hecDescr
 								    , cellPtr
 								    , hecregion
-								    , isTestBeam);
+								    , isTestBeam
+								    , geoAlignStore);
 	    if(iPhi==hecregion->beginPhiIndex()) {
 	      phi_min = hecElement->phi() - 0.5*hecElement->dphi();
 	    }
@@ -557,9 +572,10 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
       Identifier regId = fcal_id->module_id(pos_neg,(int)fcalmodule->getModuleIndex());
 
       FCALDescriptor* fcalDescr = new FCALDescriptor(regId
-						     ,(AtlasDetectorID *)cell_id
-						     ,cell_id
-						     ,fcalmodule);
+						     , (AtlasDetectorID *)cell_id
+						     , cell_id
+						     , fcalmodule
+						     , geoAlignStore);
       caloMgr->add(fcalDescr);
 
       double eta_min = 10000.;
@@ -591,7 +607,8 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 								   , fcalDescr
 								   , &(*fcaltileIt)
 								   , fcalmodule
-								   , isTestBeam);
+								   , isTestBeam
+								   , geoAlignStore);
 	// calculate cell volume
 	double tubeSpacing = cellVol.getFcalTubeSpacing((int)fcalmodule->getModuleIndex());
 	unsigned int numTubes = fcaltileIt->getNumTubes();
