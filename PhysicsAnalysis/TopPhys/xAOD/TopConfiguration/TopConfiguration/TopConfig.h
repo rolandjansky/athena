@@ -1717,22 +1717,6 @@ namespace top {
 
     // -----------------------------------------------]]]
 
-    /// HL LHC studies
-    inline virtual void HLLHC(const bool s) {
-      if (!m_configFixed) {
-        m_HLLHC = s;
-      }
-    }
-
-    inline virtual bool HLLHC() const {return m_HLLHC;}
-    inline virtual void HLLHCFakes(const bool s) {
-      if (!m_configFixed) {
-        m_HLLHCFakes = s;
-      }
-    }
-
-    inline virtual bool HLLHCFakes() const {return m_HLLHCFakes;}
-
     void setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet = false);
 
     inline virtual std::set<std::string>  btagging_namedSysts(std::string WP) const {return bTag_named_systs.at(WP);}
@@ -2497,10 +2481,6 @@ namespace top {
 
 
     // -----------------------------------------------]]]
-
-    // Options for upgrade studies
-    bool m_HLLHC;
-    bool m_HLLHCFakes;
 
     // Boosted jet taggers requested by user
     std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;

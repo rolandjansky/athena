@@ -112,19 +112,6 @@ namespace top {
      */
     virtual bool applyParticleLevel(const top::ParticleLevelEvent& plEvent);
 
-    /*!
-     * @brief Execute the event selection using the Upgrade Level data.
-     *
-     * This uses the same event selection objects as the reco level (nominal)
-     * selection. The function is almost a carbon copy of the apply(top::Event&)
-     * variant.
-     *
-     * @param upgradeEvent The upgrade level event in question.
-     * @return Returns true if the event passes at least one selection for which
-     * SAVE is requested (for saving events to trees).
-     */
-    virtual bool applyUpgradeLevel(const top::ParticleLevelEvent& upgradeEvent);
-
     /**
      * @brief Call finalise on each tool.
      *

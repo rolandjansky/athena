@@ -17,8 +17,6 @@
 
 
 namespace top {
-// fwd declare upgrade class
-  class UpgradeEvent;
 
 /**
  * @brief Some code that writes out a 'standard' flat ntuple.  This can be
@@ -102,22 +100,6 @@ namespace top {
                                                                                       // variables
     virtual void fillParticleLevelEvent(); // calls tree->Fill
 
-    /*!
-     * @brief Store the upgrade event's content in the upgrade
-     * TTree as flat n-tuple.
-     *
-     * This function shall be executed once for each event which is intended for
-     * storage. It writes out the pass/fail results of all EventSelection chains
-     * that have been applied to that specific event object.
-     *
-     * @param upgradeEvent The upgrade event whose data content will be
-     * written to the output.
-     */
-    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent) override; // calls the three next functions
-    virtual void cleanUpgradeEvent(); // (re-)initialise all relevant variables to default (dummy) values
-    virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant variables
-    virtual void fillUpgradeEvent(); // calls tree->Fill
-
     /**
      * @brief Not used by the flat ntuple code yet, but needed by the xAOD code.
      */
@@ -152,14 +134,6 @@ namespace top {
      */
     std::shared_ptr<top::TreeManager> particleLevelTreeManager();
 
-    /*!
-     * @brief Return a shared pointer to the top::TreeManager object that is
-     * used for the upgrade level output tree.
-     * @returns A shared pointer to the top::TreeManager object that is used to
-     * write out the upgrade level event data.
-     */
-    std::shared_ptr<top::TreeManager> upgradeTreeManager();
-
     /**
      * @brief Return a shared pointer to the top::ScaleFactorRetriever object
      * which allows us to easily access the SF decorations
@@ -180,11 +154,6 @@ namespace top {
      */
     void setupParticleLevelTreeManager(/*const top::ParticleLevelEvent& plEvent*/);
 
-    /*!
-     * @brief Internal function which configures the upgrade tree manager.
-     * It does branch setup etc.
-     */
-    void setupUpgradeTreeManager(/*const top::UpgradeEvent& upgradeEvent*/);
   private:
     /**
      * @brief For each selection that we run in the top-xaod code, we "decorate"
@@ -247,10 +216,6 @@ namespace top {
     ///    .first  --- The name of the selection
     ///    .second --- The variable used for storing into the TTree
     std::vector< std::pair<std::string, int> > m_particleLevel_SelectionDecisions;
-    std::vector< std::pair<std::string, int> > m_upgrade_SelectionDecisions;
-
-    /// TreeManager for upgrade analysis data output
-    std::shared_ptr<top::TreeManager> m_upgradeTreeManager;
 
     ///names of the passed / failed branches.
     std::vector<std::string> m_extraBranches;
@@ -668,10 +633,6 @@ namespace top {
     std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_d0;
     std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_z0;
     std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_qOverP;
-
-    // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
-    std::vector<float> m_jet_mv1eff;
-    std::vector<float> m_jet_isPileup;
 
     //large-R jets
     std::vector<float> m_ljet_pt;
@@ -1231,9 +1192,6 @@ namespace top {
                                                                                                                    // WP
                                                                                                                    // is
                                                                                                                    // used
-    // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
-    const std::vector<float>& jet_mv1eff() const {return m_jet_mv1eff;}
-    const std::vector<float>& jet_isPileup() const {return m_jet_isPileup;}
 
     // fail-JVT jets
     const std::vector<float>& failJvt_jet_pt() const {return m_failJvt_jet_pt;}
