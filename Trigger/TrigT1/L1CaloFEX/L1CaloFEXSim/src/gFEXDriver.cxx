@@ -11,6 +11,7 @@
 #include "L1CaloFEXSim/gFEXSim.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include "L1CaloFEXSim/gFEXJetTOB.h"
+#include "L1CaloFEXSim/gFEXJwoJTOB.h"
 
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -83,7 +84,7 @@ StatusCode gFEXDriver::initialize()
   //STEP 1 - Do some monitoring
   gFEXOutputCollection* my_gFEXOutputCollection = new gFEXOutputCollection();
   ATH_CHECK( evtStore()->record(my_gFEXOutputCollection,"gFEXOutputCollection") );
-  
+
   // SG::WriteHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionSG(m_gFEXOutputCollectionSGKey);
   // ATH_CHECK(gFEXOutputCollectionSG.record(std::move(my_gFEXOutputCollection)));
 
