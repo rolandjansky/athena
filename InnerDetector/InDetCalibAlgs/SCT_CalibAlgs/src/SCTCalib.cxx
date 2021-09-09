@@ -695,11 +695,11 @@ StatusCode SCTCalib::getDeadStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SC
    unsigned int minStat{busyStream ? static_cast<unsigned int>(m_deadStripMinStatBusy) : static_cast<unsigned int>(m_deadStripMinStat)};
    if (m_doDeadStrip and m_numberOfEvents<minStat) {
       ATH_MSG_WARNING("required minimum statistics is " << minStat/1E3 << "k events for DeadStrip search with this stream");
-      m_doDeadStrip = false;
+      m_doDeadStrip = true; // CS: do it anyway
    }
    if (m_doDeadChip and m_numberOfEvents<m_deadChipMinStat) {
       ATH_MSG_WARNING("required minimum statistics is " << static_cast<unsigned int>(m_deadChipMinStat) << " events for DeadChip search");
-      m_doDeadChip = false;
+      m_doDeadChip = true; // CS: do it anyway
    }
    if (m_doDeadStrip==false and m_doDeadChip==false) {
       ATH_MSG_ERROR("Number of events "  << m_numberOfEvents << " is less than the required minimum number of events... exit getDeadStrip()");
