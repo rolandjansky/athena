@@ -20,6 +20,7 @@ StatusCode MonitorElectronAlgorithm::initialize() {
     ATH_CHECK( AthMonitorAlgorithm::initialize() );
     ATH_CHECK( m_ParticleContainerKey.initialize() );
     ATH_CHECK( m_ElectronIsolationKey.initialize() );
+
     return StatusCode::SUCCESS;
 }
 
@@ -75,7 +76,7 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto f1_barrel = Monitored::Scalar<Float_t>("F1inBARREL",0.0);
     auto f2_barrel = Monitored::Scalar<Float_t>("F2inBARREL",0.0);
     auto f3_barrel = Monitored::Scalar<Float_t>("F3inBARREL",0.0);
-    auto re233e237_barrel = Monitored::Scalar<Float_t>("Re233e337inBARREL",0.0);
+    auto re233e237_barrel = Monitored::Scalar<Float_t>("Re233e237inBARREL",0.0);
     auto re237e277_barrel = Monitored::Scalar<Float_t>("Re237e277inBARREL",0.0);
     auto nofblayerhits_barrel = Monitored::Scalar<u_int8_t>("NOfBLayerHitsinBARREL",0);
     auto nofpixelhits_barrel = Monitored::Scalar<u_int8_t>("NOfPixelHitsinBARREL",0);
@@ -95,12 +96,12 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto ehad1_endcap = Monitored::Scalar<Float_t>("Ehad1inENDCAP",0.0);
     auto eoverp_endcap = Monitored::Scalar<Float_t>("EoverPinENDCAP",0.0);
     auto coreem_endcap = Monitored::Scalar<Float_t>("CoreEMinENDCAP",0.0);
-    auto f0_endcap = Monitored::Scalar<Float_t>("F0_endcapinENDCAP",0.0);
-    auto f1_endcap = Monitored::Scalar<Float_t>("F1_endcapinENDCAP",0.0);
-    auto f2_endcap = Monitored::Scalar<Float_t>("F2_endcapinENDCAP",0.0);
-    auto f3_endcap = Monitored::Scalar<Float_t>("F3_endcapinENDCAP",0.0);
-    auto re233e237_endcap = Monitored::Scalar<Float_t>("Re233e337_endcapinENDCAP",0.0);
-    auto re237e277_endcap = Monitored::Scalar<Float_t>("Re237e277_endcapinENDCAP",0.0);
+    auto f0_endcap = Monitored::Scalar<Float_t>("F0inENDCAP",0.0);
+    auto f1_endcap = Monitored::Scalar<Float_t>("F1inENDCAP",0.0);
+    auto f2_endcap = Monitored::Scalar<Float_t>("F2inENDCAP",0.0);
+    auto f3_endcap = Monitored::Scalar<Float_t>("F3inENDCAP",0.0);
+    auto re233e237_endcap = Monitored::Scalar<Float_t>("Re233e237inENDCAP",0.0);
+    auto re237e277_endcap = Monitored::Scalar<Float_t>("Re237e277inENDCAP",0.0);
     auto nofblayerhits_endcap = Monitored::Scalar<u_int8_t>("NOfBLayerHitsinENDCAP",0);
     auto nofpixelhits_endcap = Monitored::Scalar<u_int8_t>("NOfPixelHitsinENDCAP",0);
     auto nofscthits_endcap = Monitored::Scalar<u_int8_t>("NOfSCTHitsinENDCAP",0);
@@ -123,7 +124,7 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto f1_crack = Monitored::Scalar<Float_t>("F1inCRACK",0.0);
     auto f2_crack = Monitored::Scalar<Float_t>("F2inCRACK",0.0);
     auto f3_crack = Monitored::Scalar<Float_t>("F3inCRACK",0.0);
-    auto re233e237_crack = Monitored::Scalar<Float_t>("Re233e337inCRACK",0.0);
+    auto re233e237_crack = Monitored::Scalar<Float_t>("Re233e237inCRACK",0.0);
     auto re237e277_crack = Monitored::Scalar<Float_t>("Re237e277inCRACK",0.0);
     auto nofblayerhits_crack = Monitored::Scalar<u_int8_t>("NOfBLayerHitsinCRACK",0);
     auto nofpixelhits_crack = Monitored::Scalar<u_int8_t>("NOfPixelHitsinCRACK",0);
@@ -134,20 +135,57 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto deltaphi2_crack = Monitored::Scalar<Float_t>("DeltaPhi2inCRACK",0.0);
     auto trackd0_crack = Monitored::Scalar<Float_t>("Trackd0inCRACK",0.0);
 
+
+    auto is_pt_gt_4gev_barrel = Monitored::Scalar<bool>("is_pt_gt_4gevBARREL",false);    
+    auto is_pt_gt_4gev_endcap = Monitored::Scalar<bool>("is_pt_gt_4gevENDCAP",false);
+    auto is_pt_gt_4gev_crack = Monitored::Scalar<bool>("is_pt_gt_4gevCRACK",false);
+
+    auto is_pt_gt_2_5gev_barrel = Monitored::Scalar<bool>("is_pt_gt_2_5gevBARREL",false);    
+    auto is_pt_gt_2_5gev_endcap = Monitored::Scalar<bool>("is_pt_gt_2_5gevENDCAP",false);
+    auto is_pt_gt_2_5gev_crack = Monitored::Scalar<bool>("is_pt_gt_2_5gevCRACK",false);
+
+    auto is_pt_gt_20gev_barrel = Monitored::Scalar<bool>("is_pt_gt_20gevBARREL",false);    
+    auto is_pt_gt_20gev_endcap = Monitored::Scalar<bool>("is_pt_gt_20gevENDCAP",false);
+    auto is_pt_gt_20gev_crack = Monitored::Scalar<bool>("is_pt_gt_20gevCRACK",false);
+
     // Set the values of the monitored variables for the event
 
     u_int16_t mylb = GetEventInfo(ctx)->lumiBlock();
     lbNCandidates = mylb;
 
     u_int16_t mynp = 0;
+    u_int16_t mynp_barrel = 0;
+    u_int16_t mynp_crack = 0;
+    u_int16_t mynp_endcap = 0;
+
     for (const auto *const e_iter : *electrons) {
-      // Check that the electron meets our requirements
+ 
+    // Check that the electron meets our requirements
       bool isGood;
       if (! e_iter->passSelection(isGood,m_RecoName)) {
         ATH_MSG_WARNING("Misconfiguration: " << m_RecoName << " is not a valid working point for electrons");
         break; // no point in continuing
       }
-      if(isGood) {mynp++;}
+      if(isGood) {
+	mynp++;
+	Float_t myetaloc = e_iter->eta();
+	auto regionloc = GetRegion(myetaloc);
+        ATH_MSG_DEBUG("Test electron in region : " << regionloc);
+	switch(regionloc){
+        case BARREL :
+	  mynp_barrel++;
+	  break;
+        case CRACK :
+	  mynp_crack++;
+	  break;
+	case ENDCAP : 
+	  mynp_endcap++;
+	  break;
+	default :
+	  ATH_MSG_DEBUG("Found an electron out the acceptance region : " << regionloc);
+	  break;
+	}
+      }
       else continue;
 
       // do specific stuff with electrons
@@ -156,9 +194,25 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
       Float_t myeta = e_iter->eta();
       Float_t myphi = e_iter->phi();
 
-      is_pt_gt_2_5gev = myet > 2500. ;
-      is_pt_gt_4gev = myet > 4000. ;
-      is_pt_gt_20gev = myet > 20000. ;
+      bool myis_pt_gt_2_5gev = myet > 2500. ;
+      bool myis_pt_gt_4gev = myet > 4000. ;
+      bool myis_pt_gt_20gev = myet > 20000. ;
+
+      is_pt_gt_2_5gev = myis_pt_gt_2_5gev ;
+      is_pt_gt_4gev = myis_pt_gt_4gev ;
+      is_pt_gt_20gev = myis_pt_gt_20gev ;
+
+      is_pt_gt_4gev_barrel = myis_pt_gt_4gev ;
+      is_pt_gt_4gev_endcap = myis_pt_gt_4gev ;
+      is_pt_gt_4gev_crack = myis_pt_gt_4gev ;
+
+      is_pt_gt_2_5gev_barrel = myis_pt_gt_2_5gev ;
+      is_pt_gt_2_5gev_endcap = myis_pt_gt_2_5gev ;
+      is_pt_gt_2_5gev_crack = myis_pt_gt_2_5gev ;
+
+      is_pt_gt_20gev_barrel = myis_pt_gt_20gev ;
+      is_pt_gt_20gev_endcap = myis_pt_gt_20gev ;
+      is_pt_gt_20gev_crack = myis_pt_gt_20gev ;
 
       // Isolation Energy
       Float_t mytopoetcone40 = -999.;
@@ -247,51 +301,54 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
 
       // Fill per region histograms
       auto region = GetRegion(myeta);
+
+      //ATH_MSG_INFO("Test electron in region : " << region);
+
       switch(region){
-        case BARREL :
-          nofblayerhits_barrel = mynofblayerhits; nofpixelhits_barrel = mynofpixelhits ; nofscthits_barrel = mynofscthits ;
-          noftrthits_barrel = mynoftrthits ; noftrthighthresholdhits_barrel = mynoftrthighthresholdhits;
-          fill("MonitorElectron",nofblayerhits_barrel, nofpixelhits_barrel,noftrthits_barrel,noftrthighthresholdhits_barrel,is_pt_gt_4gev);
-          deltaeta1_barrel = mydeltaeta1; deltaphi2_barrel = mydeltaphi2; trackd0_barrel = mytrackd0;
-          eoverp_barrel = myeoverp;
-          fill("MonitorElectron",deltaeta1_barrel, deltaphi2_barrel,trackd0_barrel,eoverp_barrel,is_pt_gt_4gev);
-          np_barrel = mynp; et_barrel = myet ; eta_barrel = myeta ; phi_barrel = myphi ;
-          fill("MonitorElectron",np_barrel,et_barrel,eta_barrel,phi_barrel,is_pt_gt_4gev);
-          time_barrel = mytime; ehad1_barrel = myehad1; coreem_barrel = myecore;
-          fill("MonitorElectron",time_barrel, ehad1_barrel,coreem_barrel,is_pt_gt_4gev);
-          f0_barrel = myf0; f1_barrel = myf1; f2_barrel = myf2; f3_barrel = myf3; re233e237_barrel = myre233e237; re237e277_barrel = myre237e277;
-          fill("MonitorElectron",f0_barrel,f1_barrel,f2_barrel, f3_barrel,re233e237_barrel,re237e277_barrel,is_pt_gt_4gev);
-          break;
-        case ENDCAP :
-          nofblayerhits_endcap = mynofblayerhits; nofpixelhits_endcap = mynofpixelhits ; nofscthits_endcap = mynofscthits ;
-          noftrthits_endcap = mynoftrthits ; noftrthighthresholdhits_endcap = mynoftrthighthresholdhits;
-          fill("MonitorElectron",nofblayerhits_endcap, nofpixelhits_endcap,noftrthits_endcap,noftrthighthresholdhits_endcap,is_pt_gt_4gev);
-          deltaeta1_endcap = mydeltaeta1; deltaphi2_endcap = mydeltaphi2; trackd0_endcap = mytrackd0;
-          eoverp_endcap = myeoverp;
-          fill("MonitorElectron",deltaeta1_endcap, deltaphi2_endcap,trackd0_endcap,eoverp_endcap,is_pt_gt_4gev);
-          np_endcap = mynp ; et_endcap = myet ; eta_endcap = myeta ; phi_endcap = myphi ;
-          fill("MonitorElectron",np_endcap,et_endcap,eta_endcap,phi_endcap,is_pt_gt_4gev);
-          time_endcap = mytime; ehad1_endcap = myehad1; coreem_endcap = myecore;
-          fill("MonitorElectron",time_endcap, ehad1_endcap,coreem_endcap,is_pt_gt_4gev);
-          f0_endcap = myf0; f1_endcap = myf1; f2_endcap = myf2; f3_endcap = myf3; re233e237_endcap = myre233e237; re237e277_endcap = myre237e277;
-          fill("MonitorElectron",f0_endcap,f1_endcap,f2_endcap,f3_endcap,re233e237_endcap,re237e277_endcap,is_pt_gt_4gev);
-          break;
-        case CRACK :
-          nofblayerhits_crack = mynofblayerhits; nofpixelhits_crack = mynofpixelhits ; nofscthits_crack = mynofscthits ;
-          noftrthits_crack = mynoftrthits ; noftrthighthresholdhits_crack = mynoftrthighthresholdhits;
-          fill("MonitorElectron",nofblayerhits_crack, nofpixelhits_crack,noftrthits_crack,noftrthighthresholdhits_crack,is_pt_gt_4gev);
-          deltaeta1_crack = mydeltaeta1; deltaphi2_crack = mydeltaphi2; trackd0_crack = mytrackd0;
-          eoverp_barrel = myeoverp;
-          fill("MonitorElectron",deltaeta1_crack, deltaphi2_crack,trackd0_crack,eoverp_crack,is_pt_gt_4gev);
-          np_crack = mynp ; et_crack = myet ; eta_crack = myeta ; phi_crack = myphi ;
-          fill("MonitorElectron",np_crack,et_crack,eta_crack,phi_crack,is_pt_gt_4gev);
-          time_crack = mytime; ehad1_crack = myehad1; coreem_crack = myecore;
-          fill("MonitorElectron",time_crack, ehad1_crack,coreem_crack,is_pt_gt_4gev);
-          f0_crack = myf0; f1_crack = myf1; f2_crack = myf2; f3_crack = myf3; re233e237_crack = myre233e237; re237e277_crack = myre237e277;
-          fill("MonitorElectron",f0_crack,f1_crack,f2_crack,f3_crack,re233e237_crack,re237e277_crack,is_pt_gt_4gev);
-          break;
+
+      case BARREL :
+	nofblayerhits_barrel = mynofblayerhits ; nofpixelhits_barrel = mynofpixelhits ; nofscthits_barrel = mynofscthits ;
+	noftrthits_barrel = mynoftrthits ; noftrthighthresholdhits_barrel = mynoftrthighthresholdhits;
+	deltaeta1_barrel = mydeltaeta1; deltaphi2_barrel = mydeltaphi2; trackd0_barrel = mytrackd0;
+	eoverp_barrel = myeoverp;
+	et_barrel = myet ; eta_barrel = myeta ; phi_barrel = myphi ;
+	time_barrel = mytime; ehad1_barrel = myehad1; coreem_barrel = myecore;
+	f0_barrel = myf0; f1_barrel = myf1; f2_barrel = myf2; f3_barrel = myf3; re233e237_barrel = myre233e237; re237e277_barrel = myre237e277;
+	fill("MonitorElectron",np_barrel, nofblayerhits_barrel, nofpixelhits_barrel, nofscthits_barrel, noftrthits_barrel, noftrthighthresholdhits_barrel, 
+	     deltaeta1_barrel, deltaphi2_barrel,trackd0_barrel,eoverp_barrel,
+	     et_barrel,eta_barrel,phi_barrel, time_barrel, ehad1_barrel,coreem_barrel, f0_barrel,f1_barrel,f2_barrel, f3_barrel,
+	     re233e237_barrel,re237e277_barrel,is_pt_gt_4gev_barrel,is_pt_gt_2_5gev_barrel,is_pt_gt_20gev_barrel);
+	break;
+
+      case ENDCAP :
+	nofblayerhits_endcap = mynofblayerhits; nofpixelhits_endcap = mynofpixelhits ; nofscthits_endcap = mynofscthits ;
+	noftrthits_endcap = mynoftrthits ; noftrthighthresholdhits_endcap = mynoftrthighthresholdhits;
+	deltaeta1_endcap = mydeltaeta1; deltaphi2_endcap = mydeltaphi2; trackd0_endcap = mytrackd0;
+	eoverp_endcap = myeoverp;
+	et_endcap = myet ; eta_endcap = myeta ; phi_endcap = myphi ;
+	time_endcap = mytime; ehad1_endcap = myehad1; coreem_endcap = myecore;
+	f0_endcap = myf0; f1_endcap = myf1; f2_endcap = myf2; f3_endcap = myf3; re233e237_endcap = myre233e237; re237e277_endcap = myre237e277;
+	fill("MonitorElectron",np_endcap,nofblayerhits_endcap,nofpixelhits_endcap,nofscthits_endcap,noftrthits_endcap,noftrthighthresholdhits_endcap,
+	     deltaeta1_endcap, deltaphi2_endcap,trackd0_endcap,eoverp_endcap,et_endcap,eta_endcap,phi_endcap,
+	     time_endcap, ehad1_endcap,coreem_endcap,
+	     f0_endcap,f1_endcap,f2_endcap,f3_endcap,re233e237_endcap,re237e277_endcap,is_pt_gt_4gev_endcap,is_pt_gt_2_5gev_endcap,is_pt_gt_20gev_endcap);
+	break;
+
+      case CRACK :
+	nofblayerhits_crack = mynofblayerhits; nofpixelhits_crack = mynofpixelhits ; nofscthits_crack = mynofscthits ;
+	noftrthits_crack = mynoftrthits ; noftrthighthresholdhits_crack = mynoftrthighthresholdhits;
+	deltaeta1_crack = mydeltaeta1; deltaphi2_crack = mydeltaphi2; trackd0_crack = mytrackd0;
+	eoverp_crack = myeoverp;
+	et_crack = myet ; eta_crack = myeta ; phi_crack = myphi ;
+	time_crack = mytime; ehad1_crack = myehad1; coreem_crack = myecore;
+	f0_crack = myf0; f1_crack = myf1; f2_crack = myf2; f3_crack = myf3; re233e237_crack = myre233e237; re237e277_crack = myre237e277;
+	fill("MonitorElectron",np_crack,nofblayerhits_crack, nofpixelhits_crack,nofscthits_crack,noftrthits_crack,noftrthighthresholdhits_crack,
+	     deltaeta1_crack, deltaphi2_crack,trackd0_crack,eoverp_crack,et_crack,eta_crack,phi_crack,
+	     time_crack, ehad1_crack,coreem_crack,f0_crack,f1_crack,f2_crack,f3_crack,re233e237_crack,re237e277_crack,is_pt_gt_4gev_crack,is_pt_gt_2_5gev_crack,is_pt_gt_20gev_crack);
+	break;
+
         default :
-          //ATH_MSG_WARNING("found an electron outside the |eta| > 2.47 acceptance");
+          ATH_MSG_DEBUG("found an electron outside the |eta| > 2.47 acceptance");
           break;
       }
 
@@ -303,7 +360,11 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     }
 
     np = mynp;
-    fill("MonitorElectron",np);
+    np_barrel = mynp_barrel;
+    np_endcap = mynp_endcap;
+    np_crack = mynp_crack;
+
+    fill("MonitorElectron",np,np_barrel,np_endcap,np_crack);
 
     return StatusCode::SUCCESS;
 }
