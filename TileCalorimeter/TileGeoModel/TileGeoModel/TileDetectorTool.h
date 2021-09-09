@@ -6,6 +6,7 @@
 #define TileDetectorTool_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
+#include "TileGeoModel/TileSwitches.h"
 
 #include <string>
 
@@ -26,27 +27,17 @@ class TileDetectorTool final : public GeoModelTool
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
-  bool isTestBeam() const { return m_testBeam; }
-  bool isAddPlates() const { return m_addPlates; }
-  int uShape() const { return m_uShape; }
-  int csTube() const { return m_csTube; }
-  int glue() const { return m_glue; }
+  bool isTestBeam() const { return m_switches.testBeam; }
+  bool isAddPlates() const { return m_switches.addPlatesToCell; }
+  int uShape() const { return m_switches.uShape; }
 
  private:
 
   StatusCode initIds();
   StatusCode createElements();
+  void setSwitch(int & param, int value, const char * name);
 
-
-  bool m_testBeam;
-  bool m_addPlates;
-  int  m_uShape;
-
-  /** 0: glue layer is removed and replaced by iron,
-      1: simulation with glue,
-      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
-  int m_glue;
-  int m_csTube;
+  TileSwitches m_switches;
 
   bool m_not_locked;
   bool m_useNewFactory;

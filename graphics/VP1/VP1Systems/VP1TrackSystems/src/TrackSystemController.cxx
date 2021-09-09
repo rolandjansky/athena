@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -70,6 +70,7 @@
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QtCoreVersion>
 
 
 
@@ -146,7 +147,7 @@ public:
   Ui::TrackSysSettingsCutsForm ui_cuts{};
   Ui::TrackSysSettingsAscObjsForm ui_ascobjs{};
   Ui::TrackSysShiftMuonChambersForm ui_shiftmuonchambers{};
-  Ui::ObjectBrowser ui_objBrowser{};
+  Ui::TrackObjectBrowser ui_objBrowser{};
   
   static bool extrapolatorsCreated;
   static void ensureExtrapolatorsCreated(IVP1System *);
@@ -202,7 +203,12 @@ void TrackSystemController::Imp::ensureExtrapolatorsCreated(IVP1System * sys) {
   delete availTools;
 
   VP1ToolAccessHelper toolaccess(sys);
-  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',QString::SkipEmptyParts)) {
+#if QTCORE_VERSION >= 0x050E00
+  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',Qt::SkipEmptyParts))
+#else
+  foreach (QString key,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS").split(';',QString::SkipEmptyParts))
+#endif
+  {
     if (existingExtrapolators.contains(key))
       continue;
     sys->messageDebug("Attempting creation of fitter with tooltype/key "+key);
@@ -234,7 +240,12 @@ void TrackSystemController::Imp::ensureFittersCreated(IVP1System * sys) {
   delete availTools;
 
   VP1ToolAccessHelper toolaccess(sys);
-  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',QString::SkipEmptyParts)) {
+#if QTCORE_VERSION >= 0x050E00
+  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',Qt::SkipEmptyParts))
+#else
+  foreach (QString instance,VP1QtUtils::environmentVariableValue("VP1_JOBCFG_EXTRA_VP1_FITTERS").split(';',QString::SkipEmptyParts))
+#endif
+  {
     if (existingFitters.contains(instance))
       continue;
     sys->messageDebug("Attempting creation of fitter with tooltype/key "+instance);

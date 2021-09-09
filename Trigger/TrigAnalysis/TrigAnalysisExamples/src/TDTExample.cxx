@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDTExample.cxx 779433 2016-10-20 15:22:56Z rwhite $
 // Updated August 2016 for Trigger for Physics Workshop by rwhite
 //
 // STL include(s):
@@ -41,8 +40,6 @@
  *
  * @author Tomasz Bold     <tomasz.bold@cern.ch>     - UC Irvine, AGH-UST Krakow
  *
- * $Revision: 779433 $
- * $Date: 2016-10-20 17:22:56 +0200 (Thu, 20 Oct 2016) $
  */
 class JetInfo {
   
@@ -74,7 +71,6 @@ StatusCode Trig::TDTExample::initialize() {
 
    // Retrieve the TDT:
    CHECK( m_trigDec.retrieve() );
-   m_trigDec->ExperimentalAndExpertMethods()->enable();
 
    CHECK( m_tah.retrieve() );
    ATH_MSG_INFO( "Initialization successful" );
@@ -130,9 +126,6 @@ StatusCode Trig::TDTExample::checkTriggerDecision(){
     // passedBits fully define the trigger decision of a particular chain
     // More details see inside the definition of Chain
     // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Trigger/TrigAnalysis/TrigDecisionTool/Root/ChainGroup.cxx
-    // Expert methods updates the cache object
-    ExpertMethods *em = m_trigDec->ExperimentalAndExpertMethods();
-    
     for(const auto& chain:m_cfg_chains){
         //  By default, this returns the "Physics condition
         ATH_MSG_INFO(chain << " Passed " << m_trigDec->isPassed(chain));
@@ -173,7 +166,7 @@ StatusCode Trig::TDTExample::checkTriggerDecision(){
         ATH_MSG_INFO(chain << " ============= ");
 
         // Create a Chain object from configuration
-        const HLT::Chain *aChain=em->getChainDetails(chain);
+        const HLT::Chain *aChain=m_trigDec->ExperimentalAndExpertMethods().getChainDetails(chain);
         if(!aChain) 
             ATH_MSG_WARNING("Cannot create chain object");
         else
@@ -256,7 +249,7 @@ StatusCode Trig::TDTExample::printChainConfiguration() {
     // See TrigConfHLTData/HLTChain.h
     for(const std::string& trigger : m_cfg_chains){
 
-        const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+        const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger);
         ATH_MSG_INFO("Chain passes " << m_trigDec->isPassed(trigger));
         if(!trig_conf) {
             ATH_MSG_WARNING("Cannot retrieve trigger configuration for " << trigger << " " << typeid(trigger).name());

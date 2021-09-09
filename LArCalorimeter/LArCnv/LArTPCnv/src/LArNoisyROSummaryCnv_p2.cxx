@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArTPCnv/LArNoisyROSummaryCnv_p2.h"
 
-void LArNoisyROSummaryCnv_p2::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p2* pers, MsgStream & log) 
+void LArNoisyROSummaryCnv_p2::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p2* pers, MsgStream & log) const
 {
   //typedef std::vector< std::pair<HWIdentifier, std::vector<int> > > PAcont;
   log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p2::transToPers " << endmsg;
@@ -31,7 +31,7 @@ void LArNoisyROSummaryCnv_p2::transToPers(const LArNoisyROSummary* trans, LArNoi
   pers->m_SatTightFlaggedPartitions = trans->SatTightFlaggedPartitions();
 }
 
-void LArNoisyROSummaryCnv_p2::persToTrans(const LArNoisyROSummary_p2* pers, LArNoisyROSummary* trans, MsgStream & log ) 
+void LArNoisyROSummaryCnv_p2::persToTrans(const LArNoisyROSummary_p2* pers, LArNoisyROSummary* trans, MsgStream & log ) const
 {
   log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p2::persToTrans " << endmsg;
   trans->clear();

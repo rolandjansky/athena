@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBDETECTORREGION_H
@@ -21,6 +21,8 @@
  *	description of an EMB region positioned within ATLAS.
  *	It provides access to the EMB Cells.
  */
+
+class GeoAlignmentStore;
 
 class EMBDetectorRegion : public GeoVDetectorElement  
 {
@@ -83,21 +85,12 @@ class EMBDetectorRegion : public GeoVDetectorElement
   /**
    *    @brief Returns the absolute transform of this element.
    */
-  const Amg::Transform3D  getAbsoluteTransformAmg () const;
+  const Amg::Transform3D&  getAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
 
   /**
    *    @brief Returns the absolute transform of this element.
    */
-  const Amg::Transform3D  getDefAbsoluteTransformAmg () const;
-  /**
-   *    @brief Returns the absolute transform of this element.
-   */
-  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
-   
-  /**
-   *    @brief Returns the absolute transform of this element.
-   */
-  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
+  const Amg::Transform3D&  getDefAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
    
   /**
    *	@brief The endcap index.  0=negative, 1=positive.

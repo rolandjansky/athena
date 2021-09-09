@@ -300,6 +300,9 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
+	    // initializing veto flag for the latter removal step
+	    sectorData->veto(icand,0);
+
 	    for(auto rr : m_overlapHelper->relevant_regions(m_side,sectorName,roiID,isec))
 	    {
 	      // for the barrel-barrel overlap removal, only the muons having the phi-overlap flag are considered
@@ -317,6 +320,7 @@ namespace LVL1MUCTPIPHASE1 {
       unsigned i_notRemove = 0;
       int ptMax = 0;
       for (unsigned i=0;i<candidate_vector.second.size();i++){
+	if( candidate_vector.second[i].first->veto(candidate_vector.second[i].second)==1 ) continue; // skipping already-flagged candidate
 	int pt = candidate_vector.second[i].first->pt(candidate_vector.second[i].second);
 	if(pt > ptMax){
 	  ptMax = pt;
@@ -327,6 +331,7 @@ namespace LVL1MUCTPIPHASE1 {
       //for each candidate except the highest pt, mark them for removal
       for (unsigned i=0;i<candidate_vector.second.size();i++)
       {
+	if( candidate_vector.second[i].first->veto(candidate_vector.second[i].second)==1 ) continue; // skipping already-flagged candidate
 	candidate_vector.second[i].first->veto(candidate_vector.second[i].second, (i==i_notRemove)?0:1 );
       }
     }

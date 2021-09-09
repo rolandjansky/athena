@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/MergedEventInfo.h"
@@ -14,12 +14,12 @@ static const EventIDCnv_p1		idConv;
 static const EventInfoCnv_p1		baseConv;
 
 
-void MergedEventInfoCnv_p1::transToPers(const MergedEventInfo* trans, MergedEventInfo_p1* pers, MsgStream &log) {
+void MergedEventInfoCnv_p1::transToPers(const MergedEventInfo* trans, MergedEventInfo_p1* pers, MsgStream &log) const {
    baseConv.transToPers(trans, pers, log); 
    idConv.transToPers(trans->event_ID(), &pers->m_newEventID, log);
 }
 
-void MergedEventInfoCnv_p1::persToTrans(const MergedEventInfo_p1* pers, MergedEventInfo* trans, MsgStream &log) {
+void MergedEventInfoCnv_p1::persToTrans(const MergedEventInfo_p1* pers, MergedEventInfo* trans, MsgStream &log) const {
    EventInfo base;
    baseConv.persToTrans(pers, &base, log);
    EventID newid;

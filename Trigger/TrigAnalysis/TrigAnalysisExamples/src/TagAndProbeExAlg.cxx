@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 785295 2016-11-19 03:18:52Z ssnyder $
 // Updated to xAOD for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -53,7 +52,6 @@ StatusCode TagAndProbeExAlg::initialize() {
    CHECK( m_matchTool.retrieve() );
    CHECK( m_tah.retrieve() );
    CHECK( m_histSvc.retrieve() );
-   m_trigDec->ExperimentalAndExpertMethods()->enable();
    if(m_flavor=="Electron") m_objType = xAOD::Type::Electron;
    else if(m_flavor=="Muon") m_objType = xAOD::Type::Muon;
    else if(m_flavor=="Tau") m_objType = xAOD::Type::Tau;

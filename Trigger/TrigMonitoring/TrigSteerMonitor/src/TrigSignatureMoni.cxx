@@ -607,7 +607,7 @@ TrigSignatureMoni::RateHistogram::~RateHistogram(){
 }
 
 StatusCode TrigSignatureMoni::RateHistogram::init( const std::string& histoName, const std::string& histoTitle,
-  const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc ){
+  const int x, const int y, const std::string& registerPath, const ServiceHandle<ITHistSvc>& histSvc ){
   std::unique_ptr<TH2> h = std::make_unique<TH2F>(histoName.c_str(), histoTitle.c_str(), x, 1, x + 1, y, 1, y + 1);
   ATH_CHECK( histSvc->regShared( registerPath.c_str(), std::move(h), m_histogram));
   
@@ -642,7 +642,7 @@ void TrigSignatureMoni::RateHistogram::startTimer(unsigned int duration, unsigne
 
 void TrigSignatureMoni::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_timer.reset();
+    m_timer->stop();
     time_t t = time(0);
     unsigned int interval;
     unsigned int duration = m_timeDivider->forcePassed(t, interval);

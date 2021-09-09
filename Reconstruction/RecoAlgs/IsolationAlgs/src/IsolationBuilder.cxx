@@ -13,6 +13,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODEgamma/Electron.h"
 
 IsolationBuilder::IsolationBuilder(const std::string& name,
                                    ISvcLocator* pSvcLocator)
@@ -634,10 +635,18 @@ IsolationBuilder::executeTrackIso(
       const auto * eg = dynamic_cast<const xAOD::Egamma*>(part);
       if (eg) {
         ATH_MSG_DEBUG("Doing track isolation on an egamma particle");
+	std::unique_ptr<xAOD::Vertex> trigVtx = nullptr;
         std::set<const xAOD::TrackParticle*> tracksToExclude;
         if (xAOD::EgammaHelpers::isElectron(eg)) {
           tracksToExclude =
             xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
+	  if (m_isTrigger) {
+	    const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
+	    trigVtx = std::make_unique<xAOD::Vertex>();
+	    trigVtx->makePrivateStore();
+	    trigVtx->setZ(el->trackParticle()->z0() + el->trackParticle()->vz());
+	    ATH_MSG_DEBUG("will use a vertex at z = " << trigVtx->z() << " to compute electron track isolation");
+	  }
         } else {
           if (m_allTrackRemoval) { // New (from ??/??/16) : now this gives all
                                    // tracks
@@ -661,7 +670,7 @@ IsolationBuilder::executeTrackIso(
                                                               *part,
                                                               keys.isoTypes,
                                                               keys.CorrList,
-                                                              nullptr,
+                                                              trigVtx.get(),
                                                               &tracksToExclude);
       } else {
         ATH_MSG_DEBUG("Not doing track isolation on an egamma particle");

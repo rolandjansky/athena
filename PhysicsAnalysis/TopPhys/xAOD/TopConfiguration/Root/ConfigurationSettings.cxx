@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -236,7 +236,7 @@ namespace top {
                       "CategoryJES_FullJER_FullJMS");
     registerParameter("LargeRJetUncertainties_JMR_NPModel",
                       "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
-                      "FullJMR_COMB_newBinning", {"FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB","FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Winter2021");
@@ -349,7 +349,6 @@ namespace top {
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
-    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: True)", "True");
     registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)",
                       "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");

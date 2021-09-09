@@ -53,7 +53,7 @@ public:
 private:
   // Straight line stepper
   Acts::MagneticFieldContext m_magFieldContext;
-  Acts::GeometryContext      m_geoContext;
+  ActsGeometryContext        m_geoContext;
   using SlStepper  = Acts::StraightLineStepper;
   using StraightLinePropagator = Acts::Propagator<SlStepper, Acts::Navigator>;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};

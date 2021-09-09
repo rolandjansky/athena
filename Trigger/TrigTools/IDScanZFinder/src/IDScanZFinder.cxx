@@ -68,7 +68,7 @@ StatusCode IDScanZFinder::initialize()
 
   /// NB: These only have to go here, because they need to write to the msgsvc, and because 
   ///     is rubbish, we can't pass in a pointer to a (non-athena) sub algorithm.
-  if ( m_phiBinSize < ZFinder_MinPhiSliceSize ){
+  if ( m_phiBinSize < ZFinder_MinPhiSliceSize and ! m_forcePhiBinSize ){
     ATH_MSG_WARNING("Requested PhiBinSize of "  << m_phiBinSize
                     << " degrees is smaller than the minimum allowed (" << ZFinder_MinPhiSliceSize
                     << " degrees). Set to the minimum value.");

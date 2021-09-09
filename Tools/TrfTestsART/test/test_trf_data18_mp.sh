@@ -18,7 +18,7 @@ timeout 43200 Reco_tf.py \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
   --autoConfiguration='everything' \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
+  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-07' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
 echo "art-result: $? Reco_tf_data18_mp"

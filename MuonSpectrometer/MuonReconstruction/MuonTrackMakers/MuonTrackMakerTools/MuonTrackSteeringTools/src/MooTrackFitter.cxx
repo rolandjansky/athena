@@ -25,7 +25,7 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/LocPos.h"
+#include "TrkDriftCircleMath/LocVec2D.h"
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/Segment.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -1021,10 +1021,10 @@ namespace Muon {
                 // calculate position fake
                 double lyfake = halfLength - 50.;
 
-                Amg::Vector2D locpos_plus(0., lyfake);
-                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(locpos_plus);
-                Amg::Vector2D locpos_min(0., -lyfake);
-                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(locpos_min);
+                Amg::Vector2D LocVec2D_plus(0., lyfake);
+                const Amg::Vector3D fakePos_plus = meas.associatedSurface().localToGlobal(LocVec2D_plus);
+                Amg::Vector2D LocVec2D_min(0., -lyfake);
+                const Amg::Vector3D fakePos_min = meas.associatedSurface().localToGlobal(LocVec2D_min);
 
                 double phi_min = fakePos_min.phi();
                 double phi_plus = fakePos_plus.phi();
@@ -1055,8 +1055,8 @@ namespace Muon {
         garbage.push_back(fake);
 
         if (msgLvl(MSG::DEBUG)) {
-            Amg::Vector2D locpos(0., fake->localParameters().get(Trk::locY));
-            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(locpos);
+            Amg::Vector2D LocVec2D(0., fake->localParameters().get(Trk::locY));
+            const Amg::Vector3D fakePos = meas.associatedSurface().localToGlobal(LocVec2D);
 
             msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperSvc->toStringChamber(id) << "   locY " << ly
                             << "  errpr " << errPos << " phi " << fakePos.phi() << endmsg;
@@ -2078,8 +2078,8 @@ namespace Muon {
             tubeRadius = detEl->innerTubeRadius();
 
             // calculate local AMDB position
-            Amg::Vector3D locPos = gToStation * mdt->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            Amg::Vector3D LocVec2D = gToStation * mdt->prepRawData()->globalPosition();
+            TrkDriftCircleMath::LocVec2D lpos(LocVec2D.y(), LocVec2D.z());
 
             double r = mdt->localParameters()[Trk::locR];
             double dr = Amg::error(mdt->localCovariance(), Trk::locR);
@@ -2106,7 +2106,7 @@ namespace Muon {
                                            << " local parameters " << lpos.y() << " " << lpos.z() << "  phi " << angleYZ << "  with "
                                            << dcs.size() << " hits  ");
 
-        TrkDriftCircleMath::LocPos segPos(lpos.y(), lpos.z());
+        TrkDriftCircleMath::LocVec2D segPos(lpos.y(), lpos.z());
         TrkDriftCircleMath::Line segPars(segPos, angleYZ);
 
         TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0., 0., 0.), TrkDriftCircleMath::DCOnTrackVec());

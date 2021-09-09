@@ -51,8 +51,7 @@ StatusCode JetMetExAlg::initialize() {
    CHECK( m_matchTool.retrieve() );
    CHECK( m_tah.retrieve() );
    CHECK( m_histSvc.retrieve() );
-   m_trigDec->ExperimentalAndExpertMethods()->enable();
-   
+
    //Setup histograms for trigger decision and prescale
    const int nTrigger = (int) m_hltchainList.size();
    m_h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);

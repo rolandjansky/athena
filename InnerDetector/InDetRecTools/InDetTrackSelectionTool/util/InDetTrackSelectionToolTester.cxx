@@ -32,6 +32,8 @@ struct HistFamily
 public:
   HistFamily(const string&);
   void fill(const xAOD::TrackParticle&, const xAOD::Vertex*);
+  HistFamily(const HistFamily &) = delete;
+  HistFamily & operator =(const HistFamily &) = delete;
 private:
   TH2* h_pt = nullptr; // these show eta dependence
   TH2* h_si_hits_phys = nullptr;

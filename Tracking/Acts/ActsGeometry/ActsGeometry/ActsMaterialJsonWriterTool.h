@@ -12,6 +12,7 @@
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
 
 // PACKAGE
+#include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 
 // ACTS
@@ -35,16 +36,14 @@ public:
 
   virtual
   void
-  write(const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const override;
+  write(const ActsGeometryContext& gctx, const Acts::MaterialMapJsonConverter::DetectorMaterialMaps& detMaterial) const override;
 
   virtual
   void
-  write(const Acts::TrackingGeometry& tGeometry) const override;
+  write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tGeometry) const override;
 
 
 private:
-
-  Acts::MaterialMapJsonConverter::Config m_cfg;
 
   Gaudi::Property<std::string> m_filePath{this, "OutputFile", "material-maps.json", "Output json file for the Material Map"};
   Gaudi::Property<bool> m_processSensitives{this, "processSensitives", true, "Write sensitive surface to the json file"};

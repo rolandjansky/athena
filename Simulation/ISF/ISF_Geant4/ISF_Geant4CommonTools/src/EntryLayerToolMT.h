@@ -67,6 +67,8 @@ namespace ISF {
     /** Register the TrackRecordCollection pointer for a layer */
     virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) override final;
 
+    virtual void setupEvent() { return; }
+
   private:
     /** GeoIDSvc will be used to determine the entry layer surface, the particle is on */
     ServiceHandle<ISF::IGeoIDSvc>             m_geoIDSvc{this, "GeoIDSvc", "GeoIDSvc", "AthenaService used to indentify sub-detector by (x,y,z) coordintes."};

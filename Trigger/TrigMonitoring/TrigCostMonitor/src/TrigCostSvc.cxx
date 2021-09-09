@@ -2,8 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ConcurrencyFlags.h"
-
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigCostSvc.h"
@@ -39,7 +38,7 @@ TrigCostSvc::~TrigCostSvc() {
 
 StatusCode TrigCostSvc::initialize() {
   ATH_MSG_DEBUG("TrigCostSvc initialize()");
-  m_eventSlots = Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
+  m_eventSlots = SG::getNSlots();
   // TODO Remove this when the configuration is correctly propagated in config-then-run jobs
   if (!m_eventSlots) {
     ATH_MSG_WARNING("numConcurrentEvents() == 0. This is a misconfiguration, probably coming from running from pickle. "

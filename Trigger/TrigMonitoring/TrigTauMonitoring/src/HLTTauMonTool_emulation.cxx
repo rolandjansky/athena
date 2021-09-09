@@ -19,7 +19,7 @@ std::string HLTTauMonTool::LowerChain(const std::string& hlt_item){
     const std::string& lower_chain( hlt_chain->lower_chain_name() );
     l1_chain = lower_chain;
   }else{
-    const auto *trig_conf = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(hlt_item);
+    const auto *trig_conf = getTDT()->ExperimentalAndExpertMethods().getChainConfigurationDetails(hlt_item);
     if(trig_conf != nullptr){
       ATH_MSG_DEBUG("TrigConf is available");
       l1_chain = trig_conf->lower_chain_name(); //L1 trigger seed

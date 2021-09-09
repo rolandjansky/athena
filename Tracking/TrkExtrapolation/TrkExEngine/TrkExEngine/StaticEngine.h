@@ -122,10 +122,10 @@ namespace Trk {
                                                            const Surface* sf = 0,
                                                            PropDirection dir=alongMomentum,
                                                            BoundaryCheck bcheck = true) const;
-                                                           
-        ToolHandle<IPropagationEngine>                     m_propagationEngine;        //!< the used propagation engine
-        ToolHandle<INavigationEngine>                      m_navigationEngine;         //!< the navigation engine to resolve the boundary
-        ToolHandle<IMaterialEffectsEngine>                 m_materialEffectsEngine;    //!< the material effects updated
+             
+        ToolHandle<IPropagationEngine>     m_propagationEngine{this, "PropagationEngine", "Trk::PropagationEngine/AtlasStaticPropagation"};        //!< the used propagation engine
+        ToolHandle<INavigationEngine>      m_navigationEngine{this, "NavigationEngine", "Trk::StaticNavigationEngine/AtlasStaticNavigation"};         //!< the navigation engine to resolve the boundary
+        ToolHandle<IMaterialEffectsEngine> m_materialEffectsEngine{this, "MaterialEffectsEngine", "Trk::MaterialEffectsEngine/AtlasStaticNavigationMaterialEffects"};    //!< the material effects updated
             
     };
 

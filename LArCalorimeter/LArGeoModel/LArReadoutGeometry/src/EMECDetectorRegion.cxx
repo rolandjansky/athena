@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
@@ -7,6 +7,7 @@
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 EMECDetectorRegion::EMECDetectorRegion (const GeoVFullPhysVol *physVol
 					, const EMECDetDescr *emecDescriptor
@@ -30,18 +31,6 @@ EMECCellConstLink EMECDetectorRegion::getEMECCell (unsigned int ieta, unsigned i
   return EMECCellConstLink(new EMECCell(m_endcapIndex,m_descriptor,ieta,iphi));
 }
 
-const GeoTrf::Transform3D &  EMECDetectorRegion::getAbsoluteTransform () const
-{
-  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getAbsoluteTransform();
-}
-
-const GeoTrf::Transform3D &  EMECDetectorRegion::getDefAbsoluteTransform () const
-{
-  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
-  return fullPhysVol->getDefAbsoluteTransform();
-}
-
 HepGeom::Point3D<double> EMECDetectorRegion::getRefPlanePos () const
 {
   const GeoVFullPhysVol *physVol = getMaterialGeom();
@@ -63,14 +52,20 @@ HepGeom::Point3D<double> EMECDetectorRegion::getFocalPointPos () const
   return zRef - focalPos;
 }
 
-const Amg::Transform3D  EMECDetectorRegion::getAbsoluteTransformAmg () const
+const Amg::Transform3D&  EMECDetectorRegion::getAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
-  return getAbsoluteTransform();
+  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
+  return alignStore
+    ? fullPhysVol->getCachedAbsoluteTransform(alignStore)
+    : fullPhysVol->getAbsoluteTransform();
 }
 
-const Amg::Transform3D  EMECDetectorRegion::getDefAbsoluteTransformAmg () const
+const Amg::Transform3D&  EMECDetectorRegion::getDefAbsoluteTransform (const GeoAlignmentStore* alignStore) const
 {
-  return getDefAbsoluteTransform();
+  const GeoVFullPhysVol *fullPhysVol = getMaterialGeom();
+  return alignStore
+    ? fullPhysVol->getCachedDefAbsoluteTransform(alignStore)
+    : fullPhysVol->getDefAbsoluteTransform();
 }
 
 Amg::Vector3D EMECDetectorRegion::getRefPlanePosAmg () const

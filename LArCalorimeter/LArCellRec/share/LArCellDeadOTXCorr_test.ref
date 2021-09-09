@@ -367,7 +367,7 @@ RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond
 CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
 DetectorStore     WARNING retrieve(default): No valid proxy for default object 
  of type TileDetDescrManager(CLID 2941)
-CaloMgrDetDescrCnvWARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
+buildCaloDetDescr WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200

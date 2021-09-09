@@ -278,7 +278,9 @@ MsgStream& ReportMessage::doOutput()
   // need to do anything.  But if so, we insert a `: ' after the header.
   if (m_pos != stream().str().size()) {
     std::string tmp1 = stream().str();
-    std::string tmp2 = tmp1.substr(0, m_pos) + ": " + tmp1.substr(m_pos);
+    std::string tmp2 = tmp1.substr(0, m_pos);
+    tmp2 += ": ";
+    tmp2.append( tmp1, m_pos);
     stream().str (tmp2);
   }
   return MsgStream::doOutput();

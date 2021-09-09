@@ -49,6 +49,7 @@ DetFlags.detdescr.Calo_setOn()
 include("RecExCond/AllDet_detDescr.py")
 
 # menu with default configuration for testing
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)

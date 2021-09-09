@@ -2367,7 +2367,7 @@ ManagedMonitorToolBase::
 updateTriggersForGroups(std::vector<std::string>& vTrigChainNames) {
   for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
     std::string& thisName = vTrigChainNames[i];
-    if (thisName.substr(0, 9) == "CATEGORY_") {
+    if (thisName.compare(0, 9, "CATEGORY_") ==0) {
       ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". We will unpack it.");
       std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
       std::ostringstream oss;

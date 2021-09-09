@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -102,8 +102,6 @@ VP1ExtraSepLayerHelper * PhiSectorManager::getSepHelperForNode(VP1GeoFlags::SubS
   SoSwitch * sw = new SoSwitch;
   sw->whichChild = (iphi>=0 ? m_d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!m_d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 
-  if (m_d->iphi2switches.find(iphi)==m_d->iphi2switches.end())
-    m_d->iphi2switches[iphi] = std::set<SoSwitch*>();
   m_d->iphi2switches[iphi].insert(sw);
 
   SoSeparator * sep = new SoSeparator;
@@ -130,8 +128,6 @@ VP1ExtraSepLayerHelper * PhiSectorManager::getLabelSepHelperForNode(VP1GeoFlags:
   SoSwitch * sw = new SoSwitch;
   sw->whichChild = (iphi>=0 ? m_d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!m_d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   
-  if (m_d->iphi2Labelswitches.find(iphi)==m_d->iphi2Labelswitches.end())
-    m_d->iphi2Labelswitches[iphi] = std::set<SoSwitch*>();
   m_d->iphi2Labelswitches[iphi].insert(sw);
   
   SoSeparator * sep = new SoSeparator;

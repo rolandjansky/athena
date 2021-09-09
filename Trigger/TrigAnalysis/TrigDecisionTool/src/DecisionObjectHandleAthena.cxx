@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -21,12 +21,9 @@ TrigDec::TrigDecision const * DecisionObjectHandleAthena::getDecision() const {
     const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecKey, ctx);
     if( ! oldDecisionReadHandle.isValid() ) {
-      static bool warningPrinted = false;
-      if( ! warningPrinted ) {
-         ATH_MSG_WARNING( "TrigDec::TrigDecision is not available on the "
-                          "input" );
-         warningPrinted = true;
-      }
+      [[maybe_unused]] static std::atomic<bool> warningPrinted =
+        [&]() { ATH_MSG_WARNING( "TrigDec::TrigDecision is not available on the input" );
+                return true; }();
       return nullptr;
     }
     m_object = oldDecisionReadHandle.ptr(); 

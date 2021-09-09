@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>ObjectBrowser</class>
- <widget class="QWidget" name="ObjectBrowser" >
+ <class>TrackObjectBrowser</class>
+ <widget class="QWidget" name="TrackObjectBrowser" >
   <property name="geometry" >
    <rect>
     <x>0</x>

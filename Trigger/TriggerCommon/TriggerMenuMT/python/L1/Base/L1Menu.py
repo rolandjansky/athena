@@ -9,6 +9,7 @@ from .Connectors import MenuConnectorsCollection
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 
+from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -84,25 +85,32 @@ class L1Menu(object):
         self.ctp.setupMonitoring(self.items, self.thresholds, self.connectors)
         
     def check(self):
+        log.info("Doing L1 Menu checks")
         from collections import defaultdict as dd
         missing = dd(list)
         allThresholds = set([thr.name for thr in self.thresholds])
         allUsedThresholds = set()
         for item in self.items:
             for thrName in item.thresholdNames():
-                allUsedThresholds.add(thrName)
                 if thrName not in allThresholds:
                     missing[thrName].append(item.name) 
+                else:
+                    allUsedThresholds.add(thrName)
                 
         for thrName in sorted(missing.keys()):
             log.warning("Threshold %s (used by %s) is not defined in the menu", thrName,",".join(missing[thrName]))
 
-        if len(missing)>0:
+        if len(allThresholds)-len(allUsedThresholds)>0:
             unusedThresholds = allThresholds.difference(allUsedThresholds)
             log.info("The following thresholds are unused")
+            log.info("MU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("MU")]))
             log.info("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
             log.info("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
             log.info("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
+            log.info("eFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("e")]))
+            log.info("jFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("j")]))
+            log.info("cTAU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("cTAU")]))
+            log.info("gFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("g")]))
 
     def checkLegacyThresholds(self):
         from collections import defaultdict as dd 
@@ -110,7 +118,7 @@ class L1Menu(object):
         extraThresholds = dd(list)
         for item in self.items:
             for thrName in item.thresholdNames():
-                if thrName[0] not in ('e','j','g') and "TOPO" not in thrName and "MU" not in thrName and "MBTS" not in thrName and "ZB" not in thrName and "ALFA" not in thrName and "ZDC" not in thrName and "AFP" not in thrName and "BCM" not in thrName:
+                if thrName[0] not in ('e','j','g', 'c') and not any(x in thrName for x in ["TOPO", "MU", "MBTS", "ZB", "ALFA", "ZDC", "AFP", "BCM"]):
                     if thrName not in legacyThresholds:
                         extraThresholds[thrName].append(item.name)
 
@@ -118,8 +126,31 @@ class L1Menu(object):
             log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
 
 
+    def checkBoardInputs(self, algo, connDefName, fpgaName ):
+        if 'MuCTPi' in connDefName or 'Legacy' in connDefName:
+            return
+        boardName = connDefName+fpgaName
+
+        allowedInputs = odict()
+        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA1
+        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA2
+        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA1
+        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA2
+        allowedInputs['Topo2El0']  = ['MU',        'eTAU',         'j',      ] # TOPO2, FPGA1
+        allowedInputs['Topo2El1']  = [      'eEM',                 'j',      ] # TOPO2, FPGA2
+        allowedInputs['Topo3El0']  = [      'eEM', 'eTAU',         'j',      ] # TOPO3, FPGA1
+        allowedInputs['Topo3El1']  = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO3, FPGA2
+
+        if boardName not in allowedInputs.keys():
+            raise RuntimeError("Connector name %s not found" % boardName ) 
+
+        if 'Mult_' in algo.name:
+            if not (any(x in algo.threshold for x in allowedInputs[boardName])):
+                raise RuntimeError("Algorithm %s in board %s with threshold %s not allowed" % (algo.name, boardName, algo.threshold )) 
+
+        if 'Mult_' not in algo.name:
+            for algoInput in algo.inputs:
+                if not (any(x in algoInput for x in allowedInputs[boardName])):
+                     raise RuntimeError("Algorithm %s in board %s with input %s not allowed" % (algo.name, boardName, algoInput ))
 
 
-
-
-       

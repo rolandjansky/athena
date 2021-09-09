@@ -267,7 +267,7 @@ StatusCode TrigMuonEFHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& to
       return setOfMuons.size()==comb.size();
     };
   
-    HLT::elementsInUniqueCombinations(passingSelection, passingIndices, notFromSameRoI);
+    HLT::elementsInUniqueCombinations(passingSelection, passingIndices, std::move(notFromSameRoI));
   }
   else{
     HLT::elementsInUniqueCombinations(passingSelection, passingIndices);

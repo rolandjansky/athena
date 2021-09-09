@@ -78,13 +78,11 @@ public:
     return m_chargeDef.charge();
   }
   Amg::Vector3D position() const override{
-    Amg::Vector3D p;
-    p<<1,1,1;
+    Amg::Vector3D p (1, 1, 1);
     return p;
   }
   Amg::Vector3D momentum() const override{
-    Amg::Vector3D p;
-    p<<3,4,5;//45 degree, eta ~0.881374
+    Amg::Vector3D p (3, 4, 5); //45 degree, eta ~0.881374
     return p;
   }
   bool hasSurface() const override{
@@ -146,8 +144,8 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
   }
   BOOST_AUTO_TEST_CASE(Getters){
     //preconstruct required parameters
-    AmgVector(DIM) parameters;
-    parameters << 0.5,1,1.5,2.,2.5;
+    static const double pars[] = {0.5,1,1.5,2.,2.5};
+    AmgVector(DIM) parameters (pars);
     AmgSymMatrix(DIM) m;
     m.setIdentity();
     std::optional<AmgSymMatrix(DIM)> covariance{m};
@@ -164,10 +162,8 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
     const auto expectedLocalPosition=Amg::Vector2D(parameters[Trk::loc1], parameters[Trk::loc2]);
     BOOST_TEST(y.localPosition() == expectedLocalPosition);
     BOOST_TEST(y.charge() == chargeDef.charge());
-    Amg::Vector3D expectedPosition;
-    expectedPosition<<1,1,1;
-    Amg::Vector3D expectedMomentum;
-    expectedMomentum<<3,4,5;
+    Amg::Vector3D expectedPosition (1, 1, 1);
+    Amg::Vector3D expectedMomentum (3, 4, 5);
     BOOST_TEST(y.position() == expectedPosition);
     BOOST_TEST(y.momentum() == expectedMomentum);
     BOOST_TEST(y.hasSurface() == false);
@@ -189,8 +185,8 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
   
   BOOST_AUTO_TEST_CASE(Setters){
     ChargedParametersStub x;
-    AmgVector(DIM) parameters;
-    parameters << 0.5,1,1.5,2.,2.5;
+    static const double pars[] = {0.5,1,1.5,2.,2.5};
+    AmgVector(DIM) parameters (pars);
     BOOST_CHECK_NO_THROW(x.setParameters(parameters));
     BOOST_TEST(x.parameters() == parameters,"Parameters have been set");
     /** set covariance */
@@ -211,8 +207,8 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
   
   BOOST_AUTO_TEST_CASE(CopyEqualityAssignment){
     //preconstruct required parameters
-    AmgVector(DIM) parameters;
-    parameters << 0.5,1,1.5,2.,2.5;
+    static const double pars[] = {0.5,1,1.5,2.,2.5};
+    AmgVector(DIM) parameters (pars);
     AmgSymMatrix(DIM) m;
     m.setIdentity();
     std::optional<AmgSymMatrix(DIM)> covariance{m};

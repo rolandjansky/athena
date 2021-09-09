@@ -31,7 +31,7 @@
  * ++, --, +,-,*,/,%, =, &,|,^,~, >>,<<, !, &&, ||,
  * ==, !=, >, <, >=, <=, =, sizeof and Initialization from brace-enclosed lists
  *
- * Furthemore the GCC and clang>=10 vector types support the ternary operator.
+ * Furthemore the GCC and clang (>=10) vector types support the ternary operator.
  *
  * We also support some additional operations.
  *
@@ -465,7 +465,7 @@ template<typename VEC>
 inline void
 vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 {
-#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {
     dst[i] = mask[i] ? a[i] : b[i];
@@ -483,7 +483,7 @@ template<typename VEC>
 inline void
 vmin(VEC& dst, const VEC& a, const VEC& b)
 {
-#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {
     dst[i] = a[i] < b[i] ? a[i] : b[i];
@@ -501,7 +501,7 @@ template<typename VEC>
 inline void
 vmax(VEC& dst, const VEC& a, const VEC& b)
 {
-#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {
     dst[i] = a[i] > b[i] ? a[i] : b[i];

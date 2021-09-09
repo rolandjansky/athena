@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -163,10 +163,10 @@ def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticl
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
         TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
-        result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
-            name,
-            TrackParticleCreator=TrackParticleCreator,
-        ))
+    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
+        name,
+        TrackParticleCreator=TrackParticleCreator,
+    ))
     return result
 
 def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):

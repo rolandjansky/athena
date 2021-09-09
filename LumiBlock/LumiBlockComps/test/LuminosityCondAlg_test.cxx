@@ -76,7 +76,7 @@ void push_float (float x, std::vector<uint8_t>& data)
   union {
     float f;
     uint32_t i;
-  } cnv;
+  } cnv{};
   cnv.f = x;
   data.push_back (cnv.i & 0xff);
   data.push_back ((cnv.i>>8) & 0xff);

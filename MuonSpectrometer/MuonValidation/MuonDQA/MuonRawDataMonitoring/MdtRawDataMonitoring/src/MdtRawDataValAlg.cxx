@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@
 #include "TrkTrack/Track.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 //root includes
 #include <TH1F.h>
 #include <TH2F.h>
@@ -53,14 +53,14 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int  maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+
+    enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
+    enum {enumBarrel, enumEndCap};
+    enum {enumInner, enumMiddle, enumOuter, enumExtra};
 }
 
-float parESD1, parESD2, parESD3, parESD4;
 
-enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
-enum {enumBarrel, enumEndCap};
-enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
 /////////////////////////////////////////////////////////////////////////////
 // *********************************************************************
@@ -70,7 +70,7 @@ enum {enumInner, enumMiddle, enumOuter, enumExtra};
 MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
- m_masked_tubes(NULL),
+ m_masked_tubes(nullptr),
  m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
@@ -158,7 +158,7 @@ MdtRawDataValAlg::~MdtRawDataValAlg()
   if(m_hist_hash_list) {
     clear_hist_map(0);
   }
-  delete m_masked_tubes; m_masked_tubes = NULL;
+  delete m_masked_tubes; m_masked_tubes = nullptr;
   ATH_MSG_INFO(" deleting MdtRawDataValAlg " );
   delete m_mg;
 

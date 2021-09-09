@@ -43,6 +43,7 @@ svcMgr += cvgsvc
 
 tdt = Trig__TrigDecisionTool('TrigDecisionTool')
 tdt.TrigConfigSvc = cvgsvc
+tdt.OutputLevel = Level
 tdt.NavigationFormat = "TrigComposite"
 ToolSvc += tdt
 

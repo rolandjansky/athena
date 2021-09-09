@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_TGC.h"
@@ -163,7 +163,8 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       std::optional<Amg::Vector2D>localposHIT = m_tgc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance);
       if( !localposHIT )
       {
-        localposHIT = Amg::Vector2D{};
+        localposHIT.emplace();
+        localposHIT->setZero();
         VP1Msg::message("Warning: Local wire position is NULL");
       }
 

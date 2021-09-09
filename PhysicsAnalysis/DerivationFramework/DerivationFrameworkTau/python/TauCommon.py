@@ -165,7 +165,8 @@ def addDiTauLowPt(Seq=None):
     addCHSPFlowObjects()
 
     from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-    addStandardJets("AntiKt", 1.0, "EMPFlow", ptmin=40000, ptminFilter=50000, mods="pflow_ungroomed", calibOpt="none", algseq=Seq, outputGroup="TauCommon")
+    from JetRec.JetRecStandard import jtm
+    addStandardJets("AntiKt", 1.0, "EMPFlow", ptmin=40000, ptminFilter=50000, mods="pflow_ungroomed", calibOpt="none", algseq=Seq, outputGroup="TauCommon", customGetters=jtm.gettersMap["empflow_reduced"])
 
     import DiTauRec.DiTauAlgorithmsHolder as DiTauAlgs
     from DiTauRec.DiTauRecConf import DiTauBuilder

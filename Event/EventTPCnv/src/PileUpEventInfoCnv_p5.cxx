@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/PileUpEventInfo.h"
@@ -8,7 +8,7 @@
 
 static const EventInfoCnv_p4		evInfoConv;
 
-void PileUpEventInfoCnv_p5::transToPers(const PileUpEventInfo* trans, PileUpEventInfo_p5* pers, MsgStream &log) {
+void PileUpEventInfoCnv_p5::transToPers(const PileUpEventInfo* trans, PileUpEventInfo_p5* pers, MsgStream &log) const {
    evInfoConv.transToPers(trans, pers, log); 
 
    pers->m_subEvents.clear();
@@ -29,7 +29,7 @@ void PileUpEventInfoCnv_p5::transToPers(const PileUpEventInfo* trans, PileUpEven
    */
 }
 
-void PileUpEventInfoCnv_p5::persToTrans(const PileUpEventInfo_p5* pers, PileUpEventInfo* trans, MsgStream &log) 
+void PileUpEventInfoCnv_p5::persToTrans(const PileUpEventInfo_p5* pers, PileUpEventInfo* trans, MsgStream &log) const
 {
    *trans = PileUpEventInfo();
    evInfoConv.persToTrans(pers, trans, log); 
@@ -40,8 +40,8 @@ void PileUpEventInfoCnv_p5::persToTrans(const PileUpEventInfo_p5* pers, PileUpEv
                         //p_sub_iter->m_index,
                         static_cast<PileUpTimeEventIndex::PileUpType>(p_sub_iter->m_type),
                         std::unique_ptr<EventInfo>
-                          (evInfoConv.createTransient(&p_sub_iter->m_subEventInfo, log)),
+                          (evInfoConv.createTransientConst(&p_sub_iter->m_subEventInfo, log)),
                         nullptr);
-      p_sub_iter++;
+      ++p_sub_iter;
    }
 }

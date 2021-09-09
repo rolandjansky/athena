@@ -1,6 +1,7 @@
 #!/bin/bash
 # art-description: Generation test Powheg+H7 WW->lvlv 
 # art-include: master/AthGeneration
+# art-include: master--HepMC3/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate

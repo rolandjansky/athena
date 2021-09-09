@@ -71,24 +71,24 @@ def generateChains():
         emptyStep=makeChainStep("Step2_empty", multiplicity=[])
 
         ## single muon trigger  
-        MuonChains += [ makeChain(name='HLT_mu6fast_L1MU6',     L1Thresholds=["MU6"], ChainSteps=[ step1mufast ])]
-        MuonChains += [ makeChain(name='HLT_mu6Comb_L1MU6',     L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb ])]
-        MuonChains += [ makeChain(name='HLT_mu6_L1MU6',         L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
-        MuonChains += [ makeChain(name='HLT_mu6msonly_L1MU6',   L1Thresholds=["MU6"], ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
+        MuonChains += [ makeChain(name='HLT_mu6fast_L1MU5VF',     L1Thresholds=["MU5VF"], ChainSteps=[ step1mufast ])]
+        MuonChains += [ makeChain(name='HLT_mu6Comb_L1MU5VF',     L1Thresholds=["MU5VF"], ChainSteps=[ step1mufast, step2muComb ])]
+        MuonChains += [ makeChain(name='HLT_mu6_L1MU5VF',         L1Thresholds=["MU5VF"], ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
+        MuonChains += [ makeChain(name='HLT_mu6msonly_L1MU5VF',   L1Thresholds=["MU5VF"], ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
 
         # multi muon trigger
         # 2muons symmetric
         step1_2mufast_sym= makeChainStep("Step1_2muFast_sym", [ mufastS], multiplicity=[2])
         step2_2muComb_sym= makeChainStep("Step2_2muComb_sym", [ mucombS], multiplicity=[2])
     
-        MuonChains += [ makeChain(name='HLT_2mu6Comb_L12MU6',  L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
+        MuonChains += [ makeChain(name='HLT_2mu6Comb_L12MU5VF',  L1Thresholds=["MU5VF"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
 
         # 2muons asymmetric (this will change): 2 sequences, 2 seeds
         step1_2mufast_asym= makeChainStep("Step1_2muFast_asym", [ mufastS, mufastS], multiplicity=[1,1])
         step2_2muComb_asym= makeChainStep("Step1_2muComb_asym", [ mucombS, mucombS], multiplicity=[1,1])
     
-        MuonChains += [ makeChain(name='HLT_mu6_mu4_L12MU4',
-                                L1Thresholds=["MU4", "MU6"],
+        MuonChains += [ makeChain(name='HLT_mu6_mu4_L12MU3V',
+                                L1Thresholds=["MU3V", "MU3V"],
                                 ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]        
         
         
@@ -96,7 +96,7 @@ def generateChains():
         # Full scan MS tracking step
         stepFSmuEFSA=makeChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
         stepFSmuEFCB=makeChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-        MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+        MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU5VF', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
         
         testChains += MuonChains
         
@@ -246,11 +246,11 @@ def generateChains():
         steps = [step1_dimufast, step2_dimuComb, step3_dimuEFSA, step4_dimuEFCB]
         
         BphysChains = [
-            makeChain(name='HLT_2mu4_bBmumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
-            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
-            makeChain(name='HLT_2mu4_bJpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps),
-            makeChain(name='HLT_2mu6_bJpsimumu_L12MU6', L1Thresholds=["MU6"], ChainSteps=steps),
-            makeChain(name='HLT_2mu4_bUpsimumu_L12MU4', L1Thresholds=["MU4"], ChainSteps=steps)
+            makeChain(name='HLT_2mu4_bBmumu_L12MU3V', L1Thresholds=["MU3V"], ChainSteps=steps),
+            makeChain(name='HLT_2mu4_bDimu_L12MU3V', L1Thresholds=["MU3V"], ChainSteps=steps),
+            makeChain(name='HLT_2mu4_bJpsimumu_L12MU3V', L1Thresholds=["MU3V"], ChainSteps=steps),
+            makeChain(name='HLT_2mu6_bJpsimumu_L12MU5VF', L1Thresholds=["MU5VF"], ChainSteps=steps),
+            makeChain(name='HLT_2mu4_bUpsimumu_L12MU3V', L1Thresholds=["MU3V"], ChainSteps=steps)
             ]
 
         testChains += BphysChains
@@ -267,7 +267,7 @@ def generateChains():
         comboStep_et_mufast           = makeChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[1,1])
     #   comboStep_mufast_etcut1_step1 = makeChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[1,1])
         
-        comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM7_MU10', L1Thresholds=["EM7", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
+        comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM7_MU8F', L1Thresholds=["EM7", "MU8F"],  ChainSteps=[comboStep_et_mufast ])]
     #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step',   ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
         testChains += comboChains
         

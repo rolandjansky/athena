@@ -107,7 +107,7 @@ StatusCode LumiBlockMetaDataTool::beginInputFile(const SG::SourceID&)
   
   if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_LBColl_name)) {
     ATH_MSG_INFO(" Contains xAOD::LumiBlockRangeContainer " << m_LBColl_name);
-    const xAOD::LumiBlockRangeContainer* lbrange =0;
+    const xAOD::LumiBlockRangeContainer* lbrange =nullptr;
     StatusCode sc = m_pInputStore->retrieve(lbrange,m_LBColl_name);
     if (!sc.isSuccess()) {
       ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
@@ -121,7 +121,7 @@ StatusCode LumiBlockMetaDataTool::beginInputFile(const SG::SourceID&)
   }
   if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_unfinishedLBColl_name)) {
     ATH_MSG_INFO(" Contains xAOD::LumiBlockRangeContainer " << m_unfinishedLBColl_name);
-    const xAOD::LumiBlockRangeContainer* lbrange =0;
+    const xAOD::LumiBlockRangeContainer* lbrange =nullptr;
     StatusCode sc = m_pInputStore->retrieve(lbrange,m_unfinishedLBColl_name);
     if (!sc.isSuccess()) {
       ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
@@ -135,7 +135,7 @@ StatusCode LumiBlockMetaDataTool::beginInputFile(const SG::SourceID&)
   }
   if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_suspectLBColl_name)) {
     ATH_MSG_INFO(" Contains xAOD::LumiBlockRangeContainer " << m_suspectLBColl_name);
-    const xAOD::LumiBlockRangeContainer* lbrange =0;
+    const xAOD::LumiBlockRangeContainer* lbrange =nullptr;
     StatusCode sc = m_pInputStore->retrieve(lbrange,m_suspectLBColl_name);
     if (!sc.isSuccess()) {
       ATH_MSG_INFO( "Could not find suspect xAOD::LumiBlockRangeContainer in input metatdata store" );
@@ -201,7 +201,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
   xAOD::LumiBlockRangeAuxContainer* piovSuspectAux = new xAOD::LumiBlockRangeAuxContainer();
   piovSuspect->setStore( piovSuspectAux );
   
-  if(m_cacheSuspectOutputRangeContainer->size()>0) {
+  if(!m_cacheSuspectOutputRangeContainer->empty()) {
     ATH_MSG_VERBOSE("Suspect OutputRangeCollection with size " << m_cacheSuspectOutputRangeContainer->size());
     for (const auto range : *m_cacheSuspectOutputRangeContainer) {
       auto iovr = std::make_unique<xAOD::LumiBlockRange>(*range);
@@ -209,7 +209,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     }
   }
   
-  if(m_cacheOutputRangeContainer->size()>0) {
+  if(!m_cacheOutputRangeContainer->empty()) {
     ATH_MSG_VERBOSE("OutputRangeCollection with size " << m_cacheOutputRangeContainer->size());
     m_cacheOutputRangeContainer->sort(xAOD::SortLumiBlockRangeByStart());
     
@@ -276,7 +276,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
   }
 
 
-  if(piovComplete->size()>0) {
+  if(!piovComplete->empty()) {
     ATH_MSG_DEBUG( "Number of Complete LumiBlocks:" << piovComplete->size() );
     for (const auto range : *piovComplete) {
       ATH_MSG_INFO("\t [ ("
@@ -289,7 +289,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     }
   }
 
-  if(piovUnfinished->size()>0) {
+  if(!piovUnfinished->empty()) {
     ATH_MSG_DEBUG( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
     for (const auto range : *piovUnfinished) {
       ATH_MSG_INFO("\t [ ("
@@ -301,7 +301,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 		   << " ]");
     }
   }
-  if(piovSuspect->size()>0) {
+  if(!piovSuspect->empty()) {
     ATH_MSG_DEBUG( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
     for (const auto range : *piovSuspect) {
       ATH_MSG_INFO("\t [ ("
@@ -316,19 +316,19 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 
   // Store the LumiBlockRangeContainer in the metadata store
   // =======================================================
-  if(piovComplete->size()>0) {
+  if(!piovComplete->empty()) {
     ATH_MSG_INFO(  "Write Complete LumiBlocks with size  " <<  piovComplete->size());
     ATH_CHECK( m_pMetaDataStore->record( piovComplete, m_LBColl_name ) );
     ATH_CHECK( m_pMetaDataStore->record( piovCompleteAux, m_LBColl_name + "Aux." ) );
   }
   
-  if(piovUnfinished->size()>0) {
+  if(!piovUnfinished->empty()) {
     ATH_MSG_INFO(  "Write Unfinished LumiBlocks with size  " <<  piovUnfinished->size());
     ATH_CHECK( m_pMetaDataStore->record( piovUnfinished, m_unfinishedLBColl_name ) );
     ATH_CHECK( m_pMetaDataStore->record( piovUnfinishedAux, m_unfinishedLBColl_name + "Aux." ) );
   }
 
-  if(piovSuspect->size()>0) {
+  if(!piovSuspect->empty()) {
     ATH_MSG_INFO(  "Write Suspect LumiBlocks with size  " <<  piovSuspect->size());
     ATH_CHECK( m_pMetaDataStore->record( piovSuspect, m_suspectLBColl_name ) );
     ATH_CHECK( m_pMetaDataStore->record( piovSuspectAux, m_suspectLBColl_name + "Aux." ) );

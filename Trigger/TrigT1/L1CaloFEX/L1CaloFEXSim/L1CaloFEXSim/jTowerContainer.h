@@ -27,6 +27,8 @@
 #include "CxxUtils/CachedValue.h"
 #include "AthLinks/tools/findInContainer.h"
 
+#include <unordered_map>
+
 namespace LVL1 {
 
 class jTowerContainer : public DataVector<LVL1::jTower>
@@ -74,7 +76,7 @@ class jTowerContainer : public DataVector<LVL1::jTower>
   IMessageSvc* msgSvc() const;
 
   //* @brief Keeps track of the towerID of each jTower associated to each MAP index *.
-  std::map<int,int> m_map_towerID_containerIndex;
+  std::unordered_map<int,int> m_map_towerID_containerIndex;
 };
 
 }

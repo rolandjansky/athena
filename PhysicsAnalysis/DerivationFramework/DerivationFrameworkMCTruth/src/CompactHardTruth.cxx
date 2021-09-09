@@ -1409,7 +1409,7 @@ bool CompactHardTruth::isParton(HepMC::ConstGenParticlePtr p) {
 // It should have been detached from hadronization vertex.
 bool CompactHardTruth::isFinalParton(HepMC::ConstGenParticlePtr p) {
   if (!isParton(p)) return false;
-  auto *endp = p->end_vertex();
+  auto endp = p->end_vertex();
   return endp == nullptr;
 }
 

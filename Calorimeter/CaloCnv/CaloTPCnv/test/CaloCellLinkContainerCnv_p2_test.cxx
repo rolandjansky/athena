@@ -22,6 +22,7 @@
 #include "TestTools/random.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -31,8 +32,8 @@
 const std::string cont_name = "cells";
 
 
-using Athena_test::randi;
-using Athena_test::randf;
+using Athena_test::randi_seed;
+using Athena_test::randf_seed;
 
 
 struct cell_t
@@ -63,7 +64,8 @@ void CaloCellLinkTest::push (int icell, float weight, const std::string& name)
 }
 
 
-CaloCellLink* make_cluslinks (int ncell_min,
+CaloCellLink* make_cluslinks (uint32_t& seed,
+                              int ncell_min,
                               int ncell_max,
                               int nrange_min,
                               int nrange_max,
@@ -73,16 +75,16 @@ CaloCellLink* make_cluslinks (int ncell_min,
                               float wmax)
 {
   CaloCellLinkTest* lnk = new CaloCellLinkTest;
-  int ncell = randi (ncell_max+1, ncell_min);
+  int ncell = randi_seed (seed, ncell_max+1, ncell_min);
   if (ncell == 0) return lnk;
 
   std::vector<cell_t> cells (ncell);
 
-  int nrange = randi (nrange_max+1, nrange_min);
+  int nrange = randi_seed (seed, nrange_max+1, nrange_min);
   if (nrange < 1) nrange = 1;
   std::vector<int> ranges (nrange);
   for (int i = 0; i < nrange-1; i++)
-    ranges[i] = randi (ncell);
+    ranges[i] = randi_seed (seed, ncell);
   std::sort (ranges.begin(), ranges.end()-1);
   ranges.back() = ncell;
 
@@ -90,7 +92,7 @@ CaloCellLink* make_cluslinks (int ncell_min,
   for (int i = 0; i < nrange; i++) {
     int nthis = ranges[i] - icell;
     assert (nthis >= 0);
-    int istart = randi (200000);
+    int istart = randi_seed (seed, 200000);
     for (int i = 0; i < nthis; i++) {
       assert (icell < ncell);
       cells[icell++].cell = istart + i;
@@ -98,11 +100,11 @@ CaloCellLink* make_cluslinks (int ncell_min,
   }
   assert (icell == ncell);
 
-  nrange = randi (nwrange_max+1, nwrange_min);
+  nrange = randi_seed (seed, nwrange_max+1, nwrange_min);
   if (nrange < 1) nrange = 1;
   ranges.resize (nrange);
   for (int i = 0; i < nrange-1; i++)
-    ranges[i] = randi (ncell);
+    ranges[i] = randi_seed (seed, ncell);
   std::sort (ranges.begin(), ranges.end()-1);
   ranges.back() = ncell;
 
@@ -110,7 +112,7 @@ CaloCellLink* make_cluslinks (int ncell_min,
   for (int i = 0; i < nrange; i++) {
     int nthis = ranges[i] - icell;
     assert (nthis >= 0);
-    float w = randf (wmax, wmin);
+    float w = randf_seed (seed, wmax, wmin);
     for (int i = 0; i < nthis; i++) {
       assert (icell < ncell);
       cells[icell++].weight = w;
@@ -231,7 +233,8 @@ void compare (const CaloCellLinkContainer& c1,
 }
 
 
-void runtest  (int nclus_max,
+void runtest  (uint32_t& seed,
+               int nclus_max,
                int ncell_min,
                int ncell_max,
                int nrange_min,
@@ -249,9 +252,10 @@ void runtest  (int nclus_max,
 
   CaloCellLinkContainer c1;
   CaloCellLinkContainer c1out;
-  int nclus = randi (nclus_max);
+  int nclus = randi_seed (seed, nclus_max);
   for (int i = 0; i < nclus; i++)
-    c1.push_back (make_cluslinks (ncell_min, ncell_max,
+    c1.push_back (make_cluslinks (seed,
+                                  ncell_min, ncell_max,
                                   nrange_min, nrange_max,
                                   nwrange_min, nwrange_max,
                                   wmin, wmax));
@@ -446,7 +450,7 @@ void test_thinning()
 }
 
 
-void tests()
+void tests ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
@@ -458,19 +462,21 @@ void tests()
   ElementLink<CaloCellContainer> dum4 ("cellx", 0);
   ElementLink<CaloCellContainer> dum5 ("", 0);
 
+  uint32_t seed = 1;
+
   {
     Athena_test::Leakcheck check;
-    runtest (10, 100, 100, 4, 4, 4, 4, 0.5, 2);
+    runtest (seed, 10, 100, 100, 4, 4, 4, 4, 0.5, 2);
     std::cout << "test2\n";
-    runtest (10, 100, 100, 1, 1, 1, 1, 1, 1);
+    runtest (seed, 10, 100, 100, 1, 1, 1, 1, 1, 1);
     for (int i = 0; i < 10; i++) {
       std::cout << "test3 " << i << "\n";
-      runtest (10, 100, 10000, 1, 50, 1, 20, 0.5, 2, false);
+      runtest (seed, 10, 100, 10000, 1, 50, 1, 20, 0.5, 2, false);
     }
     std::cout << "test4\n";
-    runtest (10, 20000, 20000, 1, 1, 4, 4, 0.5, 2,  false);
+    runtest (seed, 10, 20000, 20000, 1, 1, 4, 4, 0.5, 2,  false);
     std::cout << "test5\n";
-    runtest (10, 0, 0, 1, 1, 1, 1, 0.5, 2,  false);
+    runtest (seed, 10, 0, 0, 1, 1, 1, 1, 0.5, 2,  false);
 
     test_pack_errors();
     test_unpack_errors();
@@ -480,12 +486,12 @@ void tests()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "CaloTPCnv/CaloCellLinkContainerCnv_p2\n";
 
   errorcheck::ReportMessage::hideErrorLocus();
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
   tests();
   return 0;
 }

@@ -359,10 +359,13 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
         prependList = list()
         appendList = list()
         for alg in condAlgs:
-            for name in dependencies:
-                if str(alg).startswith(name+"("):
-                  prependList.append(alg)
-            appendList.append(alg)
+            prepend = False
+            for name in dependencies:              
+              if str(alg).startswith(name+"("):
+                prependList.append(alg)
+                prepend = True
+            if not prepend:
+              appendList.append(alg)
         prependList.extend(appendList)
         condAlgs = prependList
         result._conditionsAlgs = condAlgs

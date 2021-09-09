@@ -357,7 +357,7 @@ DsoDb::build_repository()
         if ( line.empty() )
           continue;
 
-        else if (line.substr (0, 8) == "Library.") {
+        else if (line.compare (0, 8, "Library.")==0) {
           Strings_t ll;
           boost::algorithm::split(ll, line, 
                                   boost::is_any_of(" "),
@@ -378,8 +378,8 @@ DsoDb::build_repository()
           libname = ::getlibname(libname);
           boost::algorithm::replace_all(dso_key, "Library.", "");
           boost::algorithm::replace_all(dso_key, ":", "");
-          boost::algorithm::replace_all(dso_key, "@", ":");
-          boost::algorithm::replace_all(dso_key, "-", " ");
+          std::replace(dso_key.begin(), dso_key.end(), '@', ':');
+          std::replace(dso_key.begin(), dso_key.end(), '-', ' ');
         }
 
         else if (line[0] == '[') {
@@ -394,26 +394,26 @@ DsoDb::build_repository()
           continue;
         }
 
-        else if (line.substr(0, 8) == "# --End ") {
+        else if (line.compare(0, 8, "# --End ")==0) {
            lastlib.clear();
            continue;
         }
 
-        else if (line.substr(0, 6) == "class ") {
+        else if (line.compare(0, 6, "class ")==0) {
           libname = lastlib;
           line.erase (0, 6);
           dso_key = line;
         }
 
-        else if (is_components && line.substr(0, 3) == "lib") {
+        else if (is_components && line.compare(0, 3, "lib") ==0) {
           std::string::size_type pos = line.find (':');
           if (pos == std::string::npos) continue;
           libname = line.substr(0, pos);
           line.erase (0, pos+1);
           dso_key = line;
 
-          if (dso_key.substr(0, 6) == "_PERS_" ||
-              dso_key.substr(0, 7) == "_TRANS_")
+          if (dso_key.compare(0, 6, "_PERS_")==0 ||
+              dso_key.compare(0, 7, "_TRANS_")==0)
             continue;
 
           if (libname.find ("AthenaPoolPoolCnv") != std::string::npos)

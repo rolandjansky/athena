@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleBase.cxx 
@@ -75,7 +75,7 @@ TruthParticleBase::origin() const
 const ElementLink<VxContainer>& 
 TruthParticleBase::originLink() const
 {
-  static ElementLink<VxContainer> origin;
+  static const ElementLink<VxContainer> origin;
   return origin;
 }
 

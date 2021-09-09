@@ -7,9 +7,10 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 # import the ExtrapolationEngine configurable
-from TrkExEngine.TrkExEngineConf import Trk__ExtrapolationEngine as ExEngine
+ExEngine=CompFactory.Trk.ExtrapolationEngine
 
 def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atlas' ):
     result=ComponentAccumulator()
@@ -18,20 +19,27 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.merge(acc)
 
     # get the correct TrackingGeometry setup
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc = TrackingGeometrySvcCfg(flags)
-    trackingGeomSvc = acc.getPrimary()
-    result.merge(acc)
+    geom_svc=None
+    geom_cond_key=''
+    if not use_tracking_geometry_cond_alg :
+      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+      acc = TrackingGeometrySvcCfg(flags)
+      geom_svc = acc.getPrimary()
+      result.merge(acc)
+    else :
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+      result.merge( TrackingGeometryCondAlgCfg(flags) )
+      geom_cond_key = 'AtlasTrackingGeometry'
        
-    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RkPropagator
-    rungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
-    result.addPublicTool(rungeKuttaPropagator) #TODO remove one day
-      
+    RkPropagator=CompFactory.Trk.RungeKuttaPropagator
+    AtlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
+    result.addPublicTool(AtlasRungeKuttaPropagator) #TODO remove one day
+       
     # from the Propagator create a Propagation engine to handle path length
     Trk__PropagationEngine=CompFactory.Trk.PropagationEngine
     staticPropagator = Trk__PropagationEngine(name = nameprefix+'StaticPropagation')
     # give the tools it needs 
-    staticPropagator.Propagator               = rungeKuttaPropagator
+    staticPropagator.Propagator               = AtlasRungeKuttaPropagator
     # configure output formatting               
     staticPropagator.OutputPrefix             = '[SP] - '
     staticPropagator.OutputPostfix            = ' - '
@@ -52,8 +60,9 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     # give the tools it needs 
     staticNavigator.PropagationEngine        = staticPropagator
     staticNavigator.MaterialEffectsEngine    = materialEffectsEngine
+    staticNavigator.TrackingGeometrySvc         = geom_svc
+    staticNavigator.TrackingGeometryReadKey     = geom_cond_key        
     # Geometry name
-    staticNavigator.TrackingGeometry         = trackingGeomSvc.TrackingGeometryName
     # configure output formatting               
     staticNavigator.OutputPrefix             = '[SN] - '
     staticNavigator.OutputPostfix            = ' - '
@@ -78,7 +87,8 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
                       ExtrapolationEngines   = [ staticExtrapolator ], 
                       PropagationEngine      = staticPropagator, 
                       NavigationEngine       = staticNavigator, 
-                      TrackingGeometrySvc    = trackingGeomSvc, 
+                      TrackingGeometrySvc    = geom_svc, 
+                      TrackingGeometryReadKey = geom_cond_key,
                       OutputPrefix           = '[ME] - ', 
                       OutputPostfix          = ' - ')
     result.addPublicTool(extrapolator, primary=True)

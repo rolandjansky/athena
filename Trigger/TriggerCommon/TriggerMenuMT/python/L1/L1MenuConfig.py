@@ -449,18 +449,31 @@ class L1MenuConfig(object):
                 if currentTopoCategory == AlgCategory.TOPO and connDef["format"] == 'multiplicity':
                     currentTopoCategory = AlgCategory.MULTI
                 algoNames = []
+                algoNbits = []
+                fpgaNames = []
                 if connDef["format"] == 'multiplicity':
                     for thrName in connDef["thresholds"]:
+                        nBits = connDef["nbitsDefault"]
+                        if type(thrName)==tuple:
+                            (thrName,nBits) = thrName
                         algoname = "Mult_" + thrName
                         algoNames += [ algoname ]
+                        algoNbits += [ int(nBits) ]
+                        fpgaNames += ['']
                 elif connDef["format"] == 'topological':
                     for algGrp in connDef["algorithmGroups"]:
                         for topodef in algGrp["algorithms"]:
                             algoNames += [ topodef.algoname ]
-
-                for algoName in algoNames:
+                            algoNbits += [ -1 ]
+                            fpgaNames += [str(algGrp['fpga'])]
+                for algoName, algoBits, fpgaName in zip(algoNames, algoNbits, fpgaNames):
                     algo = self._getTopoAlgo(algoName, currentTopoCategory)
-
+                    # check that the output bits of the multiplicity topo algorithms are as many as the output bits of the associated thresholds
+                    if algoBits>0:
+                        if algoBits != algo.nbits:
+                            msg = "Algorithm %s defined with %i bits, but the associated threshold has %i bits " % (algo.name, algo.nbits, algoBits)
+                            raise RuntimeError(msg)
+                    self.l1menu.checkBoardInputs(algo, connDef["name"], fpgaName)
                     # add the decision algorithms to the menu
                     self.l1menu.addTopoAlgo( algo, category = currentTopoCategory )
 

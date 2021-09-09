@@ -570,15 +570,15 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const EventContext& context,
       ATH_MSG_VERBOSE("nr of quality tracks in jet = " << n_qtrk_injet);
 
       // evaluate BDT
-      (*(const_cast<float*>(m_tmva_n_track_qual.get(context)))) = static_cast<float>(n_qtrk_injet);
-      (*(const_cast<float*>(m_tmva_ly0_sp_frac.get(context))))  = v_ly_sp_frac[0];
-      (*(const_cast<float*>(m_tmva_ly1_sp_frac.get(context))))  = v_ly_sp_frac[1];
-      (*(const_cast<float*>(m_tmva_ly2_sp_frac.get(context))))  = v_ly_sp_frac[2];
-      (*(const_cast<float*>(m_tmva_ly3_sp_frac.get(context))))  = v_ly_sp_frac[3];
-      (*(const_cast<float*>(m_tmva_ly4_sp_frac.get(context))))  = v_ly_sp_frac[4];
-      (*(const_cast<float*>(m_tmva_ly5_sp_frac.get(context))))  = v_ly_sp_frac[5];
-      (*(const_cast<float*>(m_tmva_ly6_sp_frac.get(context))))  = v_ly_sp_frac[6];
-      (*(const_cast<float*>(m_tmva_ly7_sp_frac.get(context))))  = v_ly_sp_frac[7];
+      *m_tmva_n_track_qual.get(context) = static_cast<float>(n_qtrk_injet);
+      *m_tmva_ly0_sp_frac.get(context)  = v_ly_sp_frac[0];
+      *m_tmva_ly1_sp_frac.get(context)  = v_ly_sp_frac[1];
+      *m_tmva_ly2_sp_frac.get(context)  = v_ly_sp_frac[2];
+      *m_tmva_ly3_sp_frac.get(context)  = v_ly_sp_frac[3];
+      *m_tmva_ly4_sp_frac.get(context)  = v_ly_sp_frac[4];
+      *m_tmva_ly5_sp_frac.get(context)  = v_ly_sp_frac[5];
+      *m_tmva_ly6_sp_frac.get(context)  = v_ly_sp_frac[6];
+      *m_tmva_ly7_sp_frac.get(context)  = v_ly_sp_frac[7];
       float bdt_score = (**m_tmva_reader.get(context)).EvaluateMVA("BDT method");
 
       // BDT threshold

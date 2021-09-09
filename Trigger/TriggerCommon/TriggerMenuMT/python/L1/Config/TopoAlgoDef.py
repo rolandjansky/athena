@@ -31,7 +31,6 @@ class TopoAlgoDef:
         # SORT
         alg = AlgConf.eEmSort( name = 'eEMs', inputs = 'eEmTobs', outputs = 'eEMs' )
         alg.addgeneric('InputWidth', HW.InputWidthEM)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
         alg.addvariable('REtaMin',   0)
         alg.addvariable('RHadMin',   0)
@@ -63,7 +62,6 @@ class TopoAlgoDef:
         # SELECT
         alg = AlgConf.eEmSelect( name = 'eEMab', inputs = 'eEmTobs', outputs = 'eEMab' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
         alg.addvariable('MinET',     5*_et_conversion)
         alg.addvariable('REtaMin',   0)
@@ -75,7 +73,6 @@ class TopoAlgoDef:
 
         alg = AlgConf.eEmSelect( name = 'eEMabl', inputs = 'eEmTobs', outputs = 'eEMabl' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
         alg.addvariable('MinET',     8*_et_conversion)
         alg.addvariable('REtaMin',   1)
@@ -87,7 +84,6 @@ class TopoAlgoDef:
 
         alg = AlgConf.eEmSelect( name = 'eEMabm', inputs = 'eEmTobs', outputs = 'eEMabm' )
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
         alg.addvariable('MinET',     8*_et_conversion)
         alg.addvariable('REtaMin',   2)
@@ -108,7 +104,6 @@ class TopoAlgoDef:
         # SORT
         alg = AlgConf.eTauSort( name = 'eTAUsi', inputs = 'eTauTobs', outputs = 'eTAUsi' )
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortTAU)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortTAU)
         alg.addvariable('IsoMask',   2)
         alg.addvariable('MinEta',    0*_eta_conversion)
@@ -147,7 +142,6 @@ class TopoAlgoDef:
         # SORT
         alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs' )
         alg.addgeneric('InputWidth', HW.InputWidthMU)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
         alg.addvariable('MinEta',  0*_eta_conversion)
         alg.addvariable('MaxEta', 25*_eta_conversion)
@@ -156,7 +150,6 @@ class TopoAlgoDef:
         # SELECT
         alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab' )
         alg.addgeneric('InputWidth', HW.InputWidthMU)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
         alg.addvariable('MinET',   4*_et_conversion)
         alg.addvariable('MinEta',  0*_eta_conversion)
@@ -165,7 +158,6 @@ class TopoAlgoDef:
 
         alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab' )
         alg.addgeneric('InputWidth', HW.InputWidthMU)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
         alg.addvariable('MinET',   4*_et_conversion)
         alg.addvariable('MinEta',  0*_eta_conversion)
@@ -175,75 +167,32 @@ class TopoAlgoDef:
         #LATE
         alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs' )
         alg.addgeneric('InputWidth', HW.InputWidthMU)
-        #alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
         alg.addgeneric('nDelayedMuons', 1)
         alg.addvariable('MinEta',  0*_eta_conversion)
         alg.addvariable('MaxEta', 25*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
-        #jJets inputs # TODO: all lists below still to be fixed
-        alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall' ) 
+        #jJets inputs # TODO: switch to new jet TOB list in all algos below
+        alg = AlgConf.JetNoSort( name = 'AjJall', inputs = 'JetTobArray', outputs = 'AjJall' ) 
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
-        alg.addgeneric('JetSize', HW.DefaultJetSize)
         tm.registerTopoAlgo(alg)
 
-        alg = AlgConf.JetNoSort( name = 'AJjall', inputs = 'JetTobArray', outputs = 'AJjall' ) 
-        alg.addgeneric('InputWidth', HW.InputWidthJET)
-        alg.addgeneric('OutputWidth', HW.InputWidthJET)
-        alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
-        tm.registerTopoAlgo(alg)
-
-
-        # for 0MATCH-4AJ20-4AJj15
-        alg = AlgConf.JetNoSortMatch( name = 'AJMatchall', inputs = 'JetTobArray', outputs = 'AJMatchall' ) 
-        alg.addgeneric('InputWidth', HW.InputWidthJET)
-        alg.addgeneric('OutputWidth', HW.InputWidthJET)
-        alg.addgeneric('JetSize', 2 if HW.DefaultJetSize.value==2 else 1)
-        alg.addvariable('MinET1', 15) # 4x4       
-        alg.addvariable('MinET2', 20) # 8x8
-        tm.registerTopoAlgo(alg)        
-
-        # ab J lists:
-        #legacy
-        for jet_type in ['J', 'CJ', 'FJ']:
-            jetabseta = 49
-            _minet = 25
-            _mineta=0
-            if jet_type=='J':
-                jetabseta = 31
-                _minet = 20
-            elif jet_type=='CJ':
-                jetabseta = 26 
-                _minet = 15
-            elif jet_type=='FJ':
-                _mineta = 31
-                _minet = 15
-            alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab' )
-            alg.addgeneric('InputWidth', HW.InputWidthJET)
-            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectJET )            
-            alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
-            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
-            alg.addvariable('MinET', _minet)  
-            alg.addvariable('MinEta', _mineta)
-            alg.addvariable('MaxEta', jetabseta)
-            alg.addgeneric('DoEtaCut', 1)
-            tm.registerTopoAlgo(alg) 
-        #phase1
-        for jet_type in ['jJ']:
-            jetabseta = 49*_eta_conversion
-            minet = 25*_et_conversion
-            mineta=0
-            if jet_type=='J':
-                jetabseta = 31*_eta_conversion
-                minet = 20*_et_conversion
-            elif jet_type=='CJ':
-                jetabseta = 26*_eta_conversion
-                minet = 15*_et_conversion
-            elif jet_type=='FJ':
-                mineta = 31*_eta_conversion
-                minet = 15*_et_conversion
+        # ab jJ lists:
+        for jet_type in ['jJ', 'CjJ', 'FjJ']:
+            jetabseta =      49*_eta_conversion
+            minet =          25*_et_conversion
+            mineta=           0*_eta_conversion
+            if jet_type=='jJ':
+                jetabseta =  31*_eta_conversion
+                minet =      20*_et_conversion
+            elif jet_type=='CjJ':
+                jetabseta =  26*_eta_conversion
+                minet =      15*_et_conversion
+            elif jet_type=='FjJ':
+                mineta =     31*_eta_conversion
+                minet =      15*_et_conversion
             alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab' )
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
@@ -252,76 +201,31 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', jetabseta)
             tm.registerTopoAlgo(alg)
 
-
-        alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs')
+        #input list needed for ATR-18824 (TODO: to be replaced by fwd jEM)
+        alg = AlgConf.JetSort( name = 'FjJjs23ETA49', inputs = 'JetTobArray', outputs = 'FjJjs23ETA49')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-        alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)                
-        alg.addvariable('MinEta', 0)
-        alg.addvariable('MaxEta', 49)
-        alg.addgeneric('DoEtaCut', 0)
-        tm.registerTopoAlgo(alg) 
-
-
-        #input list needed for ATR-18824
-        alg = AlgConf.JetSort( name = 'FJjs23ETA49', inputs = 'JetTobArray', outputs = 'FJjs23ETA49')
-        alg.addgeneric('InputWidth',  HW.InputWidthJET)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
-        alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-        alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
-        alg.addvariable('MinEta', 23)
-        alg.addvariable('MaxEta', 49)
-        alg.addgeneric('DoEtaCut', 1)
+        alg.addvariable('MinEta', 23*_eta_conversion)
+        alg.addvariable('MaxEta', 49*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
-
-        alg = AlgConf.JetSort( name = 'CJsETA21', inputs = 'JetTobArray', outputs = 'CJsETA21')
+        alg = AlgConf.JetSort( name = 'CjJsETA21', inputs = 'JetTobArray', outputs = 'CjJsETA21')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
-        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-        alg.addgeneric('JetSize', HW.DefaultJetSize.value)
-        alg.addvariable('MinEta', 0)
-        alg.addvariable('MaxEta', 21)
+        alg.addvariable('MinEta',  0*_eta_conversion)
+        alg.addvariable('MaxEta', 21*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
         # Sorted J lists:
-        #legacy
-        for jet_type in ['AJ', 'FJ']:
-            jetabseta = 49
-            _minet = 25
-            _mineta = 0
-            if jet_type=='J':
-                jetabseta = 31
-                _minet = 20
-            elif jet_type=='CJ':
-                jetabseta = 26 
-                _minet = 15
-            elif jet_type=='FJ':
-                _mineta = 31
-                _minet = 15
-            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
-            alg.addgeneric('InputWidth',  HW.InputWidthJET)
-            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
-            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-            alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
-            alg.addvariable('MinEta', _mineta)
-            alg.addvariable('MaxEta', jetabseta)
-            if jet_type=='FJ':
-                alg.addgeneric('DoEtaCut', 1)
-            else:
-                alg.addgeneric('DoEtaCut', 0)
-            tm.registerTopoAlgo(alg) 
-        #phase1
-        for jet_type in ['AjJ']:
-            jetabseta = 49*_eta_conversion
-            mineta = 0*_eta_conversion
-            if jet_type=='J':
-                jetabseta = 31*_eta_conversion
-            elif jet_type=='CJ':
-                jetabseta = 26*_eta_conversion
-            elif jet_type=='FJ':
-                mineta = 31*_eta_conversion
+        for jet_type in ['AjJ', 'FjJ']:
+            jetabseta =       49*_eta_conversion
+            mineta =           0*_eta_conversion
+            if jet_type=='jJ':
+                jetabseta =   31*_eta_conversion
+            elif jet_type=='CjJ':
+                jetabseta =   26*_eta_conversion
+            elif jet_type=='FjJ':
+                mineta =      31*_eta_conversion
             alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
@@ -329,33 +233,12 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', jetabseta)
             tm.registerTopoAlgo(alg)
 
-
-        #legacy
-        for jet_type in ['J','CJ']:
-            jetabseta = 49
-            _minet = 25
-            if jet_type=='J':
-                jetabseta = 31
-                _minet = 20
-            elif jet_type=='CJ':
-                jetabseta = 26
-                _minet = 15
-            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
-            alg.addgeneric('InputWidth',  HW.InputWidthJET)
-            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
-            alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-            alg.addgeneric('JetSize', HW.DefaultJetSize.value)
-            alg.addvariable('MinEta', 0)
-            alg.addvariable('MaxEta', jetabseta)
-            alg.addgeneric('DoEtaCut', 1)
-            tm.registerTopoAlgo(alg)
-        #phase1
-        for jet_type in ['jJ']:
-            jetabseta = 49*_eta_conversion
-            if jet_type=='J':
-                jetabseta = 31*_eta_conversion
-            elif jet_type=='CJ':
-                jetabseta = 26*_eta_conversion
+        for jet_type in ['jJ','CjJ']:
+            jetabseta =       49*_eta_conversion
+            if jet_type=='jJ':
+                jetabseta =   31*_eta_conversion
+            elif jet_type=='CjJ':
+                jetabseta =   26*_eta_conversion
             alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
@@ -363,15 +246,14 @@ class TopoAlgoDef:
             alg.addvariable('MaxEta', jetabseta)
             tm.registerTopoAlgo(alg)
 
-
-        alg = AlgConf.METNoSort( name = 'XENoSort', inputs = 'MetTobArray', outputs = 'XENoSort' )
-
+        # TODO: replace to new TOB
+        alg = AlgConf.METNoSort( name = 'jXENoSort', inputs = 'MetTobArray', outputs = 'jXENoSort' )
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerTopoAlgo(alg)
 
-                
-        alg = AlgConf.MetSort( name = 'XE', inputs = 'MetTobArray', outputs = 'XE' )
+        # TODO: replace to new TOB        
+        alg = AlgConf.MetSort( name = 'jXE', inputs = 'MetTobArray', outputs = 'jXE' )
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerTopoAlgo(alg)
@@ -546,11 +428,8 @@ class TopoAlgoDef:
         # added for muon-jet:
         # TODO: to be updated with phase1 muons and jets
         algoList = [
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"}, #0DR04-MU4ab-CJ15ab
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"}, #0DR04-MU4ab-CJ20ab
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 30, "olist2" : "ab"}, #0DR04-MU4ab-CJ30ab
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"}, #0DR04-MU6ab-CJ20ab
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 25, "olist2" : "ab"}, #0DR04-MU6ab-CJ25ab
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CjJ", "ocut2": 15, "olist2" : "ab"}, #0DR04-MU4ab-CJ15ab
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CjJ", "ocut2": 20, "olist2" : "ab"}, #0DR04-MU6ab-CJ20ab
         ]
         for x in algoList:
             class d:
@@ -803,7 +682,7 @@ class TopoAlgoDef:
         alg.addvariable('DRCut', 0) #TODO: conversion needed here?
         tm.registerTopoAlgo(alg)        
 
-        # TODO: to be updated with phase1 met
+        # TODO: to be updated with phase1 met, jets
         xemap = [{"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}]
         for x in xemap:                
             class d:
@@ -811,11 +690,11 @@ class TopoAlgoDef:
             for k in x:
                 setattr (d, k, x[k])            
             log.debug("Define %s", toponame)            
-            inputList = ['XENoSort', 'AJall']
+            inputList = ['jXENoSort', 'AjJall']
             toponames=[]
             for minxe in d.Threlist:
-                toponames.append("KF-XE%s-AJall"  % (minxe))            
-            alg = AlgConf.KalmanMETCorrection( name = "KF-XE-AJall", inputs = inputList, outputs = toponames )
+                toponames.append("KF-jXE%s-AjJall"  % (minxe))            
+            alg = AlgConf.KalmanMETCorrection( name = "KF-jXE-AjJall", inputs = inputList, outputs = toponames )
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('NumResultBits', len(toponames))
             alg.addvariable('MinET', 0)
@@ -853,7 +732,7 @@ class TopoAlgoDef:
         # (ATR-12748) fat jet trigger with Simple Cone algo
         # TODO: to be updated with phase1 jets
         algoList = [
-            {"minHT": 111, "otype" : "CJ", "ocut" : 15, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "oeta" : 26}, #SC111-CJ15abpETA26
+            {"minHT": 111, "otype" : "CjJ", "ocut" : 15, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "oeta" : 26}, #SC111-CjJ15abpETA26
         ]
         for x in algoList:
             class d:
@@ -896,10 +775,10 @@ class TopoAlgoDef:
             tm.registerTopoAlgo(alg)
 
 
-        # added for b-phys, 0DR03-eEM7ab-CJ15ab
+        # added for b-phys, 0DR03-eEM7ab-CjJ15ab
         # TODO: update with phase1 jets
         algoList = [  
-            {"minDr": 0, "maxDr": 3, "otype1" : "eEM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
+            {"minDr": 0, "maxDr": 3, "otype1" : "eEM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CjJ", "ocut2": 15, "olist2" : "ab"} 
         ]
         for x in algoList:
             class d:
@@ -1034,8 +913,8 @@ class TopoAlgoDef:
         # TLA deta
         # TODO: update to phase1 jets
         algoList = [
-            { "minDeta": 0,  "maxDeta": 20, "otype" : "J",  "ocut1" : 50,  "olist" : "s",
-              "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2}, #0DETA20-J50s1-Js2
+            { "minDeta": 0,  "maxDeta": 20, "otype" : "jJ",  "ocut1" : 50,  "olist" : "s",
+              "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2}, #0DETA20-jJ50s1-jJs2
         ]
         for x in algoList:
             class d:
@@ -1124,12 +1003,12 @@ class TopoAlgoDef:
 
         # all-jets items
         # legacy
-        invm_aj_highmass_map = { "algoname": 'INVM_AJ_HighMass', "Threlist": [ 700], "maxInvm": 9999,
-                                 "otype" : "AJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6,
+        invm_aj_highmass_map = { "algoname": 'INVM_AjJ_HighMass', "Threlist": [ 700], "maxInvm": 9999,
+                                 "otype" : "AjJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6,
                                  "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2" : 6}
 
-        invm_aj_lowmass_map = { "algoname": 'INVM_AJ_LowMass',  "Threlist": [ 300], "maxInvm": 9999,
-                                "otype" : "AJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6,
+        invm_aj_lowmass_map = { "algoname": 'INVM_AjJ_LowMass',  "Threlist": [ 300], "maxInvm": 9999,
+                                "otype" : "AjJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6,
                                 "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2" : 6}
 
         for x in [invm_aj_highmass_map, invm_aj_lowmass_map ]:
@@ -1326,10 +1205,10 @@ class TopoAlgoDef:
                 pass
             for k in x:
                 setattr (d, k, x[k])
-            inputList = [d.otype1 + d.olist1, 'FJjs23ETA49']
+            inputList = [d.otype1 + d.olist1, 'FjJjs23ETA49']
             toponames=[]
             for minDphi in d.minDphiList:
-                toponames.append ("%iINVM-%02dDPHI%i-%s%s%s%s-FJj%ss%s%iETA%i"  % (d.minInvm, minDphi, d.maxDphi,
+                toponames.append ("%iINVM-%02dDPHI%i-%s%s%s%s-FjJj%ss%s%iETA%i"  % (d.minInvm, minDphi, d.maxDphi,
                                                                                      d.otype1, str(d.ocut1) , d.olist1, str(d.nleading1) if d.olist1=="s" else "",
                                                                                      str(d.ocut2) , str(d.nleading2) , d.minEta2, d.maxEta2))
             alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = 'ZAFB_DPHI', inputs = inputList, outputs = toponames)
@@ -1507,20 +1386,20 @@ class TopoAlgoDef:
         alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
         tm.registerTopoAlgo(alg)
         
-        # CEP_CJ
+        # CEP_CjJ
         # TODO: update with phase1 jets, what conversion for Xi?
         CEPmap = [
-            {"algoname": 'CEP_CJ', "minETlist": [50, 60]}
+            {"algoname": 'CEP_CjJ', "minETlist": [50, 60]}
         ]
         for x in CEPmap:
             class d:
                 pass
             for k in x:
                 setattr (d, k, x[k])
-            inputList = ['CJs']
+            inputList = ['CjJs']
             toponames=[]
             for minET in d.minETlist:  # noqa: F821
-                toponames.append ("CEP-CJ%is6" % (minET))     # noqa: F821 
+                toponames.append ("CEP-CjJ%is6" % (minET))     # noqa: F821 
             alg = AlgConf.ExclusiveJets( name = d.algoname, inputs = inputList, outputs = toponames) # noqa: F821
             alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
             alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821

@@ -614,7 +614,7 @@ namespace Trk
     std::vector<FitMeasurement*>& measurements,
     const FitParameters& parameters,
     ParticleHypothesis particleHypothesis,
-    const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
+    const Trk::TrackStates& trackStateOnSurfaces) const
   {
     // create vector of any TSOS'es which require fitted alignment corrections
     std::vector<Identifier> misAlignedTSOS;
@@ -622,7 +622,7 @@ namespace Trk
     int misAlignmentNumber = 0;
     int tsos = 0;
     //  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
-    for (DataVector<const TrackStateOnSurface>::const_iterator
+    for (Trk::TrackStates::const_iterator
          i = trackStateOnSurfaces.begin();
          i != trackStateOnSurfaces.end();
          ++i, ++tsos) {
@@ -660,7 +660,7 @@ namespace Trk
     double qOverP = parameters.qOverP();
     const ExtrapolationType type = FittedTrajectory;
     tsos = 0;
-    for (DataVector<const TrackStateOnSurface>::const_iterator
+    for (Trk::TrackStates::const_iterator
          i = trackStateOnSurfaces.begin();
          i != trackStateOnSurfaces.end();
          ++i, ++hit, ++tsos) {
@@ -900,7 +900,7 @@ namespace Trk
     FitState& fitState,
     const ParticleHypothesis particleHypothesis,
     const TrackInfo& trackInfo,
-    const DataVector<const TrackStateOnSurface>* leadingTSOS,
+    const Trk::TrackStates* leadingTSOS,
     const FitQuality* perigeeQuality,
     Garbage_t& garbage) const
   {
@@ -946,23 +946,19 @@ namespace Trk
         if (!parameters->fitMomentum()) { fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack); }
 
         // special check for CaloDeposit - parameters must be inside calorimeter
-        for (DataVector<const TrackStateOnSurface>::const_iterator
-             s = fittedTrack->trackStateOnSurfaces()->begin();
-             s != fittedTrack->trackStateOnSurfaces()->end();
-             ++s) {
-          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) {
+        for (const Trk::TrackStateOnSurface* tsos : *fittedTrack->trackStateOnSurfaces()) {
+          if (!tsos->type(TrackStateOnSurface::CaloDeposit)) {
             continue;
           }
-          if ((**s).trackParameters()) {
-            Amg::Vector3D position = (**s).trackParameters()->position();
+          if (tsos->trackParameters()) {
+            const Amg::Vector3D position = tsos->trackParameters()->position();
             if (!m_indetVolume->inside(position) && m_calorimeterVolume->inside(position)) {
-              break;
+                break;
             }
           }
-
           // something badly wrong: WARN and kill track
           // fail fit as CaloDeposit outside calo volume
-          m_messageHelper->printWarning(20);
+          ATH_MSG_DEBUG("fail fit as CaloDeposit outside calo volume: "<<(*fittedTrack));
           fittedTrack.reset();
           break;
         }
@@ -1084,7 +1080,7 @@ namespace Trk
 
     msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endmsg;
     int tsos = 0;
-    for (DataVector<const TrackStateOnSurface>::const_iterator t = track.trackStateOnSurfaces()->begin();
+    for (Trk::TrackStates::const_iterator t = track.trackStateOnSurfaces()->begin();
          t != track.trackStateOnSurfaces()->end();
          ++t, ++tsos) {
       msg() << std::setiosflags(std::ios::fixed | std::ios::right)

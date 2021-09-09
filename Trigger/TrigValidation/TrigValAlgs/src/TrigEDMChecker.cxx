@@ -244,7 +244,6 @@ StatusCode TrigEDMChecker::initialize() {
 
   if (m_doTDTCheck || m_doDumpTrigCompsiteNavigation) {
     ATH_CHECK( m_trigDec.retrieve() );
-    m_trigDec->ExperimentalAndExpertMethods()->enable();
     ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
   ATH_CHECK(m_muonTracksKey.initialize(m_doTDTCheck));
@@ -1781,6 +1780,9 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
   //DEBUG output for Egamma container
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
+  //
+  static const SG::AuxElement::Accessor< float > accLH("LHValue");
+  static const SG::AuxElement::Accessor< float > accLHCalo("LHCaloValue");
   for (const auto eg : *elCont){
       //REGTEST printout
       if (eg) {
@@ -1811,12 +1813,12 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           if(eg->selectionisEM(isEMbit,"isEMLHTight"))
               ATH_MSG_INFO(" REGTEST: isEMLHTight " << std::hex << isEMbit << std::dec);
           else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
-          if(eg->likelihoodValue(val_float,"LHValue"))
-              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          if(accLH.isAvailable(*eg))
+              ATH_MSG_INFO(" REGTEST: LHValue " << accLH(*eg));
           else
               ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
-          if(eg->likelihoodValue(val_float,"LHCaloValue"))
-              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          if(accLHCalo.isAvailable(*eg))
+              ATH_MSG_INFO(" REGTEST: LHValue " << accLHCalo(*eg));
           else
               ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
           if(eg->passSelection(pid,"LHVLoose"))
@@ -4021,8 +4023,6 @@ StatusCode TrigEDMChecker::dumpTDT() {
   if (chain.empty()) {
     chain = "HLT_.*";
   }
-  if (msgLvl(MSG::VERBOSE)) m_trigDec->setLevel( MSG::VERBOSE );
-  else if (msgLvl(MSG::DEBUG)) m_trigDec->setLevel( MSG::DEBUG );
   std::vector<std::string> confChains = m_trigDec->getListOfTriggers(chain);
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item);
@@ -4239,7 +4239,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   pass = cg->isPassed(TrigDefs::requireDecision);
   std::vector<std::string> chains = cg->getListOfTriggers();
   for (const std::string& chain : chains) {
-    const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain);
+    const TrigConf::HLTChain* hltChain = m_trigDec->ExperimentalAndExpertMethods().getChainConfigurationDetails(chain);
     const HLT::Identifier chainID_tmp( hltChain->chain_name() );
     chainIDs.insert( chainID_tmp.numeric() );
     const std::vector<size_t> legMultiplicites = hltChain->leg_multiplicities();

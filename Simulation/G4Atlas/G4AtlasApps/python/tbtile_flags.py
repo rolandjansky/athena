@@ -82,8 +82,8 @@ class Theta(JobProperty):
         #print (name, n_value)
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
-                if abs(n_value) > 60. and not (abs(abs(n_value)-90.0) < 0.01) :
-                    raise ValueError ('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
+                if abs(n_value) > 70. and not (abs(abs(n_value)-90.0) < 0.01) :
+                    raise ValueError ('THETA MUST BE IN [-70,70] or +/-90 !!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
 

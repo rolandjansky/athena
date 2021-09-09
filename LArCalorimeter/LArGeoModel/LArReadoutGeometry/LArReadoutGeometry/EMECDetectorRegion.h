@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECDETECTORREGION_H
@@ -24,6 +24,7 @@
  * It provides access to the EMEC Cells.
  */
 
+class GeoAlignmentStore;
 
 class EMECDetectorRegion : public GeoVDetectorElement  
 {
@@ -90,17 +91,7 @@ class EMECDetectorRegion : public GeoVDetectorElement
    * @brief	returns the end eta index in the region.
    */
   unsigned int endEtaIndex () const;
-      
-  /**
-   * @brief Returns the absolute transform of this element.
-   */
-  const GeoTrf::Transform3D &  getAbsoluteTransform () const;
-      
-  /**
-   * @brief Returns the absolute transform of this element.
-   */
-  const GeoTrf::Transform3D &  getDefAbsoluteTransform () const;
-      
+            
   /**
    * @brief Returns the position of the center of the reference
    *    plane of the EMEC (back of front tranverse bars).  This
@@ -119,12 +110,12 @@ class EMECDetectorRegion : public GeoVDetectorElement
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const Amg::Transform3D  getAbsoluteTransformAmg () const;
+  const Amg::Transform3D&  getAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
 
   /**
    * @brief Returns the absolute transform of this element.
    */
-  const Amg::Transform3D  getDefAbsoluteTransformAmg () const;
+  const Amg::Transform3D&  getDefAbsoluteTransform (const GeoAlignmentStore* alignStore=nullptr) const;
 
   /**
    * @brief Returns the position of the center of the reference

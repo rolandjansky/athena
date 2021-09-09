@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -9,12 +9,8 @@
 
 #include "TrigNavigation/NavigationInit.h"
 
-//#include "TestTools/initGaudi.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthContainers/DataVector.h"
 #include "GaudiKernel/ClassID.h"
-
 
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
@@ -26,10 +22,7 @@
 #include "TrigMuonEvent/MuonFeature.h"
 #include "TrigMuonEvent/TrigMuonEFContainer.h"
 
-
-
 #include "TrigDecisionTool/TrigDecisionTool.h"
-//#include "TrigDecisionTool/DecisionAccess.h"
 
 using namespace std;
 

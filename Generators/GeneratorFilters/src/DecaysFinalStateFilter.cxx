@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // GeneratorFilters/DecaysFinalStateFilter
@@ -20,12 +20,16 @@
 //   topAlg.DecaysFinalStateFilter.NChargedLeptons = 2
 //   -> allows W(qq)Z(ll) and Z(qq)Z(ll)
 //
+//   topAlg.DecaysFinalStateFilter.PDGAllowedParents = [ 23 ]
+//   topAlg.DecaysFinalStateFilter.NbQuarks = 2
+//   topAlg.DecaysFinalStateFilter.NChargedLeptons = 2
+//   -> allows Z(bb)Z(ll)
+//
 // Authors:
 // Kerim Suruliz Nov 2014
 // Frank Siegert Nov 2014
 
 #include "GeneratorFilters/DecaysFinalStateFilter.h"
-//#include "GaudiKernel/MsgStream.h"
 #include <cmath>
 
 
@@ -35,11 +39,13 @@ DecaysFinalStateFilter::DecaysFinalStateFilter(const std::string& name, ISvcLoca
   declareProperty("PDGAllowedParents", m_PDGAllowedParents);
 
   declareProperty("NQuarks", m_NQuarks = -1);
+  declareProperty("NbQuarks", m_NbQuarks = -1);
   declareProperty("NChargedLeptons", m_NChargedLeptons = -1);
   declareProperty("NNeutrinos", m_NNeutrinos = -1);
   declareProperty("NPhotons", m_NPhotons = -1);
 
   declareProperty("MinNQuarks", m_MinNQuarks = 0);
+  declareProperty("MinNbQuarks", m_MinNbQuarks = 0);
   declareProperty("MinNChargedLeptons", m_MinNChargedLeptons = 0);
   declareProperty("MinNNeutrinos", m_MinNNeutrinos = 0);
   declareProperty("MinNPhotons", m_MinNPhotons = 0);
@@ -49,6 +55,7 @@ DecaysFinalStateFilter::DecaysFinalStateFilter(const std::string& name, ISvcLoca
 StatusCode DecaysFinalStateFilter::filterEvent() {
   int nChargedLeptons = 0;
   int nQuarks = 0;
+  int nbQuarks = 0;
   int nNeutrinos = 0;
   int nPhotons = 0;
 
@@ -70,6 +77,7 @@ StatusCode DecaysFinalStateFilter::filterEvent() {
       for (auto opitr: *(part->end_vertex())) {
         int apid = std::abs(opitr->pdg_id());
         if (apid == 1 || apid == 2 || apid == 3 || apid == 4 || apid ==5) nQuarks++;
+        if (apid == 5) nbQuarks++;
         if (apid == 11 || apid == 13 || apid == 15) nChargedLeptons++;
         if (apid == 12 || apid == 14 || apid == 16) nNeutrinos++;
         if (apid == 22) nPhotons++;
@@ -78,6 +86,9 @@ StatusCode DecaysFinalStateFilter::filterEvent() {
   }
 
   if (nQuarks < m_MinNQuarks || (m_NQuarks != -1 && nQuarks != m_NQuarks)) {
+    setFilterPassed(false);
+  }
+  else if (nbQuarks < m_MinNbQuarks || (m_NbQuarks != -1 && nbQuarks != m_NbQuarks)) {
     setFilterPassed(false);
   }
   else if (nChargedLeptons < m_MinNChargedLeptons || (m_NChargedLeptons != -1 && nChargedLeptons != m_NChargedLeptons)) {
