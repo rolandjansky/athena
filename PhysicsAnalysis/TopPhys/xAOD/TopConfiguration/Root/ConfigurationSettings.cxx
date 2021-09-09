@@ -630,16 +630,6 @@ namespace top {
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
-    registerParameter("HLLHC",
-                      "Set to run HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
-    registerParameter("HLLHCFakes",
-                      "Set to enable Fakes HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
                                               "True or False (default False)", "False");
 

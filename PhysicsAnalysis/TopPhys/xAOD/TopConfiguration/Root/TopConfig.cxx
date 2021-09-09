@@ -321,10 +321,6 @@ namespace top {
     m_truth_jet{25000., 2.5},
     // -----------------------------------------------]]]
 
-    // HL LHC studies
-    m_HLLHC(false),
-    m_HLLHCFakes(false),
-
     // Selections
     m_allSelectionNames(nullptr),
     // Trigger
@@ -1453,17 +1449,6 @@ namespace top {
     this->truth_tau_EtaCut(std::stof(settings->value("TruthTauEta")));
 
     // -----------------------------------------------]]]
-
-    // Upgrade studies
-    if (settings->value("HLLHC") == "True") {
-      this->HLLHC(true);
-      if (settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data") == 0) {
-        ATH_MSG_WARNING("TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default " <<
-          settings->value("TDPPath") << ". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
-        this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
-      }
-    }
-    if (settings->value("HLLHCFakes") == "True") this->HLLHCFakes(true);
 
     // LHAPDF Reweighting configuration
     std::istringstream lha_pdf_ss(settings->value("LHAPDFSets"));
