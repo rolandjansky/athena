@@ -506,9 +506,9 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
@@ -793,7 +793,7 @@ if ( doMonitoring ) :
       os.remove(OutputRootFileDir + "/" +RootHistOutputFileName)
    ServiceMgr += THistSvc()
 
-   ServiceMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
+   ServiceMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"', OPT='RECREATE'"]
 
 
 if (WriteNtuple):

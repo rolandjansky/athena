@@ -30,6 +30,7 @@ DetFlags.digitize.all_setOff()
 #Set up GeoModel (not really needed but crashes without)
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+svcMgr.GeoModelSvc.DetectorTools["LArDetectorToolNV"].ApplyAlignments=False
 
 #Get identifier mapping
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
