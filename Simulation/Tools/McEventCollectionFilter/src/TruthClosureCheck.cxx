@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthClosureCheck.h"
 //
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "StoreGate/ReadHandle.h"
@@ -40,32 +40,28 @@ StatusCode TruthClosureCheck::initialize() {
 
 StatusCode TruthClosureCheck::sanityCheck(const HepMC::GenEvent& event) const {
   //Sanity check
-  HepMC::GenEvent::particle_const_iterator partIter = event.particles_begin();
-  const HepMC::GenEvent::particle_const_iterator partEnd = event.particles_end();
   bool resetProblem(false);
-  while (partIter!=partEnd) {
-    const HepMC::GenParticle& particle(**partIter);
-    if (particle.status()==1) {
-      if (!particle.production_vertex()) {
+  for (auto particle: event) {
+    if (particle->status() == 1) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 1 particle without a production vertex!! " << particle);
         resetProblem = true;
       }
-      if (!m_postSimulation && particle.end_vertex()) {
+      if (!m_postSimulation && particle->end_vertex()) {
         ATH_MSG_ERROR("Status 1 particle with an end vertex!! " << particle);
         resetProblem = true;
       }
     }
-    else if (particle.status()==2) {
-      if (!particle.production_vertex()) {
+    else if (particle->status() == 2) {
+      if (!particle->production_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without a production vertex!! " << particle);
         resetProblem = true;
       }
-      if (!particle.end_vertex()) {
+      if (!particle->end_vertex()) {
         ATH_MSG_ERROR("Status 2 particle without an end vertex!! " << particle);
         resetProblem = true;
       }
     }
-    ++partIter;
   }
   if (resetProblem) {
     return StatusCode::FAILURE;
@@ -74,6 +70,28 @@ StatusCode TruthClosureCheck::sanityCheck(const HepMC::GenEvent& event) const {
   return StatusCode::SUCCESS;
 }
 
+#ifdef HEPMC3
+void TruthClosureCheck::printGenVertex(HepMC::ConstGenVertexPtr origVertex,
+                                       HepMC::ConstGenVertexPtr resetVertex) const
+{
+  ATH_MSG_INFO("----------------------------------");
+  ATH_MSG_INFO("Original Vertex:");
+  ATH_MSG_INFO( origVertex );
+  ATH_MSG_INFO("Particles In:");
+  for (auto originalPartIn: origVertex->particles_in()) ATH_MSG_INFO( originalPartIn );
+  ATH_MSG_INFO("Particles Out:");
+  for (auto originalPartOut: origVertex->particles_out()) ATH_MSG_INFO( originalPartOut );
+  ATH_MSG_INFO("----------------------------------");
+  ATH_MSG_INFO("Reset Vertex:");
+  ATH_MSG_INFO( resetVertex );
+  ATH_MSG_INFO("Particles In:");
+  for (auto resetPartIn: resetVertex->particles_in()) ATH_MSG_INFO( resetPartIn );
+  ATH_MSG_INFO("Particles Out:");
+  for (auto resetPartOut: resetVertex->particles_out()) ATH_MSG_INFO( resetPartOut );
+  ATH_MSG_INFO("----------------------------------");
+  return;
+}
+#else
 
 void TruthClosureCheck::printGenVertex(const HepMC::GenVertex& origVertex,
                                        const HepMC::GenVertex& resetVertex) const
@@ -115,7 +133,69 @@ void TruthClosureCheck::printGenVertex(const HepMC::GenVertex& origVertex,
   ATH_MSG_INFO("----------------------------------");
   return;
 }
+#endif
 
+#ifdef HEPMC3
+StatusCode TruthClosureCheck::compareGenVertex(HepMC::ConstGenVertexPtr origVertex,
+                                               HepMC::ConstGenVertexPtr resetVertex) const
+{
+  if (!origVertex && !resetVertex) return StatusCode::SUCCESS;
+  if (!origVertex || !resetVertex) return StatusCode::FAILURE;
+  bool pass{true};
+
+  if (HepMC::barcode(origVertex) != HepMC::barcode(resetVertex)) {
+    ATH_MSG_ERROR ("vertex barcode differs! Original: "<<HepMC::barcode(origVertex)<<", Reset: "<<HepMC::barcode(resetVertex));
+    pass = false;
+  }
+  if (origVertex->position() != resetVertex->position()) {
+    const HepMC::FourVector& oP = origVertex->position();
+    const HepMC::FourVector& rP = resetVertex->position();
+    ATH_MSG_ERROR("vertex position differs! Original: ("<<oP.x()<<","<<oP.y()<<","<<oP.z()<<","<<oP.t()<<"), Reset: ("<<rP.x()<<","<<rP.y()<<","<<rP.z()<<","<<rP.t()<<")");
+    pass = false;
+  }
+  if (origVertex->particles_in().size() != resetVertex->particles_in().size() ) {
+    ATH_MSG_ERROR ("particles_in_size differs! Original: "<<origVertex->particles_in().size()<<", Reset: "<<resetVertex->particles_in().size());
+    pass = false;
+  }
+  if (origVertex->particles_out().size() != resetVertex->particles_out().size() ) {
+    ATH_MSG_ERROR ("particles_out_size differs! Original: "<<origVertex->particles_out().size()<<", Reset: "<<resetVertex->particles_out().size());
+    pass = false;
+  }
+  std::vector<HepMC::ConstGenParticlePtr> OriginalListOfParticlesIn = origVertex->particles_in();
+  std::vector<HepMC::ConstGenParticlePtr> ResetListOfParticlesIn = resetVertex->particles_in();
+  for ( std::vector<HepMC::ConstGenParticlePtr>::iterator originalPartInIter(OriginalListOfParticlesIn.begin()),resetPartInIter(ResetListOfParticlesIn.begin()); 
+        originalPartInIter != OriginalListOfParticlesIn.end() && resetPartInIter != ResetListOfParticlesIn.end(); 
+        ++originalPartInIter, ++resetPartInIter
+       ) {
+    if (compareGenParticle(*originalPartInIter,*resetPartInIter).isFailure()) {
+      ATH_MSG_ERROR ( "input particle properties differ!" );
+      pass &= false;
+    }
+    ATH_MSG_VERBOSE ( "particles match!" );
+  }
+
+
+  std::vector<HepMC::ConstGenParticlePtr> OriginalListOfParticlesOut = origVertex->particles_out();
+  std::vector<HepMC::ConstGenParticlePtr> ResetListOfParticlesOut = resetVertex->particles_out();
+  std::sort(OriginalListOfParticlesOut.begin(), OriginalListOfParticlesOut.end(), [](auto& a, auto& b) -> bool{return HepMC::barcode(a) > HepMC::barcode(b); });
+  std::sort(ResetListOfParticlesOut.begin(), ResetListOfParticlesOut.end(), [](auto& a, auto& b) -> bool{return HepMC::barcode(a) > HepMC::barcode(b); });
+
+  for ( std::vector<HepMC::ConstGenParticlePtr>::iterator originalPartOutIter(OriginalListOfParticlesOut.begin()), resetPartOutIter(ResetListOfParticlesOut.begin()); 
+        originalPartOutIter != OriginalListOfParticlesOut.end() && resetPartOutIter != ResetListOfParticlesOut.end(); 
+        ++originalPartOutIter, ++resetPartOutIter
+       ) {
+    if (compareGenParticle(*originalPartOutIter,*resetPartOutIter).isFailure()) {
+      ATH_MSG_ERROR ( "output particle properties differ!" );
+      pass &= false;
+    }
+    ATH_MSG_VERBOSE ( "particles match!" );
+  }
+  if(!pass) { return StatusCode::FAILURE; }
+  return StatusCode::SUCCESS;
+}
+
+
+#else
 StatusCode TruthClosureCheck::compareGenVertex(const HepMC::GenVertex& origVertex,
                                                const HepMC::GenVertex& resetVertex) const
 {
@@ -181,6 +261,7 @@ StatusCode TruthClosureCheck::compareGenVertex(const HepMC::GenVertex& origVerte
   if(!pass) { return StatusCode::FAILURE; }
   return StatusCode::SUCCESS;
 }
+#endif
 
 
 StatusCode TruthClosureCheck::compareMomenta(const HepMC::FourVector& origMomenta,
@@ -209,6 +290,37 @@ StatusCode TruthClosureCheck::compareMomenta(const HepMC::FourVector& origMoment
   return StatusCode::SUCCESS;
 }
 
+#ifdef HEPMC3
+StatusCode TruthClosureCheck::compareGenParticle(HepMC::ConstGenParticlePtr origParticle,
+                                                 HepMC::ConstGenParticlePtr resetParticle) const
+{
+  if (!origParticle && !resetParticle) return StatusCode::SUCCESS;
+  if (!origParticle || !resetParticle) return StatusCode::FAILURE;
+  
+  bool pass{true};
+  if (HepMC::barcode(origParticle) != HepMC::barcode(resetParticle)) {
+    ATH_MSG_ERROR ("particle barcode differs! Original: "<<HepMC::barcode(origParticle)<<", Reset: "<<HepMC::barcode(resetParticle));
+    pass &= false;
+  }
+  if (origParticle->status() != resetParticle->status()) {
+    ATH_MSG_ERROR ("particle status differs! Original: "<<origParticle->status()<<", Reset: "<<resetParticle->status());
+    pass &= false;
+  }
+  if (origParticle->pdg_id() != resetParticle->pdg_id()) {
+    ATH_MSG_ERROR ("particle pdg_id differs! Original: "<<origParticle->pdg_id()<<", Reset: "<<resetParticle->pdg_id());
+    pass &= false;
+  }
+  if (compareMomenta(origParticle->momentum(), resetParticle->momentum()).isFailure()) {
+    const HepMC::FourVector& oM = origParticle->momentum();
+    const HepMC::FourVector& rM = resetParticle->momentum();
+    ATH_MSG_DEBUG("particle momentum differs! Original: ("<<oM.x()<<","<<oM.y()<<","<<oM.z()<<","<<oM.t()<<"), Reset: ("<<rM.x()<<","<<rM.y()<<","<<rM.z()<<","<<rM.t()<<")");
+    pass &= false;
+  }
+  if(!pass) { return StatusCode::FAILURE; }
+  return StatusCode::SUCCESS;
+}
+
+#else
 StatusCode TruthClosureCheck::compareGenParticle(const HepMC::GenParticle& origParticle,
                                                  const HepMC::GenParticle& resetParticle) const
 {
@@ -234,6 +346,86 @@ StatusCode TruthClosureCheck::compareGenParticle(const HepMC::GenParticle& origP
   if(!pass) { return StatusCode::FAILURE; }
   return StatusCode::SUCCESS;
 }
+#endif
+
+#ifdef HEPMC3
+//-------------------------------------------------
+StatusCode TruthClosureCheck::execute() {
+//-------------------------------------------------
+
+  ATH_MSG_DEBUG( " execute..... " );
+  SG::ReadHandle<McEventCollection> originalMcEventCollection(m_originalMcEventCollection);
+  if (!originalMcEventCollection.isValid()) {
+    ATH_MSG_ERROR("Could not find original McEventCollection called " << originalMcEventCollection.name() << " in store " << originalMcEventCollection.store() << ".");
+    return StatusCode::FAILURE;
+  }
+  const HepMC::GenEvent& originalEvent(**(originalMcEventCollection->begin()));
+
+  if (sanityCheck(originalEvent).isFailure()) {
+    ATH_MSG_FATAL("Problems in original GenEvent - bailing out.");
+    return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<McEventCollection> resetMcEventCollection(m_resetMcEventCollection);
+  if (!resetMcEventCollection.isValid()) {
+    ATH_MSG_ERROR("Could not find reset McEventCollection called " << resetMcEventCollection.name() << " in store " << resetMcEventCollection.store() << ".");
+    return StatusCode::FAILURE;
+  }
+  const HepMC::GenEvent& resetEvent(**(resetMcEventCollection->begin()));
+
+  if (sanityCheck(resetEvent).isFailure()) {
+    ATH_MSG_FATAL("Problems in reset GenEvent - bailing out.");
+    return StatusCode::FAILURE;
+  }
+
+  if (originalEvent.event_number() != resetEvent.event_number() ) {
+    ATH_MSG_ERROR ("event_number differs! Original: "<<originalEvent.event_number()<<", Reset: "<<resetEvent.event_number());
+  }
+
+  if (HepMC::signal_process_id(originalEvent) != HepMC::signal_process_id(resetEvent) ) {
+    ATH_MSG_ERROR ("signal_process_id differs! Original: "<<HepMC::signal_process_id(originalEvent)<<", Reset: "<<HepMC::signal_process_id(resetEvent));
+  }
+///->
+  std::vector<HepMC::ConstGenParticlePtr> OriginalBeams = originalEvent.beams();
+  std::vector<HepMC::ConstGenParticlePtr> ResetBeams = resetEvent.beams();
+
+  for ( std::vector<HepMC::ConstGenParticlePtr>::iterator originalBeamIter(OriginalBeams.begin()), resetBeamIter(ResetBeams.begin()); 
+        originalBeamIter != OriginalBeams.end() && resetBeamIter != ResetBeams.end(); 
+        ++originalBeamIter, ++resetBeamIter
+       ) {
+    if (compareGenParticle(*originalBeamIter,*resetBeamIter).isFailure()) {
+      ATH_MSG_ERROR ( "Beam particle properties differ!" );
+    }
+///<=
+    if (originalEvent.particles().size() != resetEvent.particles().size() ) {
+      ATH_MSG_ERROR ("particles_size differs! Original: "<<originalEvent.particles().size()<<", Reset: "<<resetEvent.particles().size());
+    }
+
+    if (originalEvent.vertices().size() != resetEvent.vertices().size() ) {
+      ATH_MSG_ERROR ("vertices_size differs! Original: "<<originalEvent.vertices().size()<<", Reset: "<<resetEvent.vertices().size());
+    }
+  }
+
+  //loop over vertices in Background GenEvent
+  std::vector<HepMC::ConstGenVertexPtr> OriginalListOfVertices = originalEvent.vertices();
+  std::vector<HepMC::ConstGenVertexPtr> ResetListOfVertices = resetEvent.vertices();
+
+  for( std::vector<HepMC::ConstGenVertexPtr>::iterator origVertexIter(OriginalListOfVertices.begin()),resetVertexIter(ResetListOfVertices.begin()); 
+       origVertexIter != OriginalListOfVertices.end() && resetVertexIter != ResetListOfVertices.end(); 
+       ++origVertexIter, ++resetVertexIter
+       ) {
+    if (compareGenVertex(*origVertexIter,*resetVertexIter).isFailure()) {
+      ATH_MSG_ERROR ( "vertices differ!" );
+      printGenVertex(*origVertexIter,*resetVertexIter);
+    }
+  }
+  ATH_MSG_INFO( "Completed Truth reset closure check ..... " );
+
+  return StatusCode::SUCCESS;
+
+}
+
+#else
 
 
 //-------------------------------------------------
@@ -318,3 +510,4 @@ StatusCode TruthClosureCheck::execute() {
   return StatusCode::SUCCESS;
 
 }
+#endif
