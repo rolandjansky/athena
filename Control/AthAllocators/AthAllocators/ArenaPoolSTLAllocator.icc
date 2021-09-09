@@ -199,19 +199,6 @@ ArenaPoolSTLAllocator<T, VETO>::address (reference x) const
 
 
 /**
- * @brief Convert a reference to an address.
- */
-template <class T, class VETO>
-inline
-typename ArenaPoolSTLAllocator<T, VETO>::const_pointer
-ArenaPoolSTLAllocator<T, VETO>::address (const_reference x) const
-{
-  return &x;
-}
-
-
-
-/**
  * @brief Allocate new objects.
  * @param n Number of objects to allocate.  Must be 1.
  * @param hint Allocation hint.  Not used.
@@ -276,7 +263,7 @@ template <class... Args>
 inline
 void ArenaPoolSTLAllocator<T, VETO>::construct (pointer p, Args&&... args)
 {
-  new (reinterpret_cast<void*>(p)) T(std::forward<Args>(args)...);
+  new (p) T(std::forward<Args>(args)...);
 }
 
 
