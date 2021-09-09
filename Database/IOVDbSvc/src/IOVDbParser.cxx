@@ -9,7 +9,7 @@
 #include "IOVDbParser.h"
 #include "IOVDbStringFunctions.h"
 
-IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
+IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
   m_msg(log),
   m_valid(true)
 {

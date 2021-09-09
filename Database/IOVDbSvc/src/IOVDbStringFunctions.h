@@ -21,7 +21,7 @@ namespace IOVDbNamespace{
 
   ///Trim leading and trailing spaces,return a new trimmed string
   std::string 
-  spaceStrip(const std::string& input);
+  spaceStrip( std::string_view input);
   
   ///Produce a channel number from the string; default to 'defchan' if empty
   int 

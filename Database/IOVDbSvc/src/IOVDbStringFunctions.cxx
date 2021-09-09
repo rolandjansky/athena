@@ -8,14 +8,14 @@
 
 namespace IOVDbNamespace{
   std::string 
-  spaceStrip(const std::string& input){
+  spaceStrip( std::string_view input){
     // return the input string stripped of leading/trailing spaces
     std::string::size_type idx1=input.find_first_not_of(" \n\r\t");
     std::string::size_type idx2=input.find_last_not_of(" \n\r\t");
     if (idx1==std::string::npos || idx2==std::string::npos) {
       return "";
     } else {
-      return input.substr(idx1,1+idx2-idx1);
+      return std::string(input.substr(idx1,1+idx2-idx1));
     }
   }
   
@@ -85,8 +85,12 @@ namespace IOVDbNamespace{
   
   std::string
   quote(const std::string & sentence){
-    const std::string q("\"");
-    return q+sentence+q;
+    std::string out;
+    out.reserve(sentence.size() + 2);
+    out += '\"';
+    out += sentence;
+    out += '\"';
+    return out;
   }
   
   std::string
@@ -111,7 +115,7 @@ namespace IOVDbNamespace{
   
   std::string
   replaceNULL(const std::string & possibleNULL){
-    std::string original{possibleNULL};
+    const std::string &original{possibleNULL};
     const std::string regex=R"delim( NULL)delim";
     const std::regex nullre(regex);
     const std::string result = std::regex_replace(original,nullre," null");
@@ -168,7 +172,7 @@ namespace IOVDbNamespace{
     //regex: 
     //(anything except colon, multiple times) then _possibly_ (two colons and string of anything except colons)
     // anything except colon) then (colon or end-of-line)
-    std::string linkRegexStr{"([^:]*(::[^:]*)?)(:|$)"};
+    const std::string linkRegexStr{"([^:]*(::[^:]*)?)(:|$)"};
     std::regex linkMatchSpec(linkRegexStr); 
     //give a token iterator using the regex and returning the first substring (i.e. the 
     //bit before a single colon or line end, which would be for example "ALink" or "MyContext::AnotherLink" )
@@ -183,14 +187,16 @@ namespace IOVDbNamespace{
   
   std::pair<std::string, std::string>
   tag2PrefixTarget(const std::vector<std::string> & tagParseResults){
-    std::string prefix{}, target{};
+    std::pair<std::string, std::string> pair;
+    std::string &prefix{pair.first};
+    std::string &target{pair.second};
     if (tagParseResults.size() == 4){ //4 is the size of result set if there is a prefix
       prefix = tagParseResults[2]; //index of first path
       target = tagParseResults[3]; //index of second path
     } else {
       target = tagParseResults[2];
     }
-    return std::make_pair(prefix, target);
+    return pair;
   }
   
   bool

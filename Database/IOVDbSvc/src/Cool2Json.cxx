@@ -43,9 +43,13 @@ namespace {
     for (unsigned int i(0); i<rspec.size();++i){
       if (i==1) sep=", ";
       const auto & f = rspec[i];
-      result+=sep+f.name()+": "+f.storageType().name();
+      result+=sep;
+      result+=f.name();
+      result+=": ";
+      result+=f.storageType().name();
     }
-    result+="\""+cb;
+    result+='\"';
+    result+=cb;
     return result;
   }
 }
@@ -75,7 +79,10 @@ namespace IOVDbNamespace {
   std::string 
   Cool2Json::description() const{
     std::string saneXml=sanitiseXml(m_desc);
-    return "\"node_description\" : \""+saneXml+"\"";
+    std::string out = "\"node_description\" : \"";
+    out += saneXml;
+    out += '\"';
+    return out;
   }
 
   std::string 
@@ -132,9 +139,9 @@ namespace IOVDbNamespace {
         result+=" a_data_value";
       }
       if (sep.empty()) sep=",";
-      result+="}";
+      result+='}';
     }
-    result+="]";
+    result+=']';
     itr->close();
     return result;
   }
@@ -166,14 +173,14 @@ namespace IOVDbNamespace {
     cool::IRecordIterator& pitr=ref.payloadIterator();
     auto pvec=pitr.fetchAllAsVector();
     std::string sep="";
-    os+="[";//vector of vectors
+    os+='[';//vector of vectors
     for (const auto & vitr:*pvec){
       os+=sep;
       const coral::AttributeList& atrlist=(vitr)->attributeList();
       os+=jsonAttributeList(atrlist);
       if (sep.empty()) sep =", ";
     }
-    os+="]";
+    os+=']';
     return os;
   }
   

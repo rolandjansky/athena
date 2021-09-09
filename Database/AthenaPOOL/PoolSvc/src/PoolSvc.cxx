@@ -822,18 +822,18 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
          ATH_MSG_DEBUG("Failed to get ContainerHandle to set POOL property.");
          return(StatusCode::FAILURE);
       }
-      if (contName.find('(') != std::string::npos) {
-         objName = contName.substr(contName.find('(') + 1); // Get BranchName between parenthesis
+      if (auto p = contName.find('('); p != std::string::npos) {
+         objName = contName.substr(p + 1); // Get BranchName between parenthesis
          objName = objName.substr(0, objName.find(')'));
-      } else if (contName.find("::") != std::string::npos) {
-         objName = contName.substr(contName.find("::") + 2); // Split off Tree name
-      } else if (contName.find('_') != std::string::npos) {
-         objName = contName.substr(contName.find('_') + 1); // Split off "POOLContainer"
+      } else if (auto p = contName.find("::"); p != std::string::npos) {
+         objName = contName.substr(p + 2); // Split off Tree name
+      } else if (auto p = contName.find('_'); p != std::string::npos) {
+         objName = contName.substr(p + 1); // Split off "POOLContainer"
          objName = objName.substr(0, objName.find('/')); // Split off key
       }
       std::string::size_type off = 0;
       while ((off = objName.find_first_of("<>/")) != std::string::npos) {
-         objName.replace(off, 1, "_"); // Replace special chars (e.g. templates)
+         objName[off] = '_'; // Replace special chars (e.g. templates)
       }
       if (data[data.size() - 1] == 'L') {
          retError = contH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
@@ -970,11 +970,11 @@ std::unique_ptr<pool::IDatabase> PoolSvc::getDbHandle(unsigned int contextId, co
          return(nullptr);
       }
    }
-   if (dbName.find("PFN:") == 0) {
+   if (dbName.compare(0, 4,"PFN:") == 0) {
       dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::PFN);
-   } else if (dbName.find("LFN:") == 0) {
+   } else if (dbName.compare(0, 4, "LFN:") == 0) {
       dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::LFN);
-   } else if (dbName.find("FID:") == 0) {
+   } else if (dbName.compare(0, 4,"FID:") == 0) {
       dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::FID);
    } else {
       dbH = sesH.databaseHandle(dbName, pool::DatabaseSpecification::PFN);
@@ -1006,11 +1006,12 @@ std::string PoolSvc::poolCondPath(const std::string& leaf) {
    const char* cpath = getenv("ATLAS_POOLCOND_PATH");
    if (cpath && strcmp(cpath, "") != 0) {
       std::string testpath = cpath;
-      testpath += "/" + leaf;
+      testpath += '/';
+      testpath += leaf;
       struct stat stFileInfo;
       // try to retrieve file attribute - success indicates file exists
       if (stat(testpath.c_str(), &stFileInfo) == 0) {
-         respath = testpath;
+         respath = std::move(testpath);
       }
    }
    return(respath);
