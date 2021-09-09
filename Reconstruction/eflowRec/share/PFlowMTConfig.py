@@ -146,7 +146,6 @@ PFClusterMomentsMaker.MomentsNames = [
    ,"FIRST_ENG_DENS"
    ,"SECOND_ENG_DENS"
    ,"ISOLATION"
-   ,"EM_PROBABILITY"
    ,"ENG_POS"
    ,"ENG_BAD_CELLS"
    ,"N_BAD_CELLS"
