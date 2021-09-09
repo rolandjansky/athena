@@ -589,7 +589,7 @@ TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
       // if name starts with EF_ it is replace with HLT_, otherwise HLT_ is prepended
       hltChain->set_level("HLT");
       string oldname = chain->name();
-      unsigned int basepos = (oldname.substr(0,3)=="EF_")?3:0; 
+      unsigned int basepos = (oldname.compare(0,3,"EF_")==0)?3:0;
       hltChain->setName( "HLT_" + oldname.substr(basepos) );
 
       
