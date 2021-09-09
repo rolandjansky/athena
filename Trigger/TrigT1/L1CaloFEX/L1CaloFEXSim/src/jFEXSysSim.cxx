@@ -158,7 +158,8 @@ namespace LVL1 {
     // let's work fully out to in (sort of)
     // Let's go with FCAL2 first
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL;
+    tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.reserve(1600);
 
     // let's try doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
@@ -180,7 +181,7 @@ namespace LVL1 {
         int towerid = initialFCAL2 - (thisCol * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -193,7 +194,7 @@ namespace LVL1 {
         int towerid = initialFCAL1 - ((thisCol-4) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -206,7 +207,7 @@ namespace LVL1 {
         int towerid = initialFCAL0 - ((thisCol-12) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -219,7 +220,7 @@ namespace LVL1 {
         int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -230,7 +231,7 @@ namespace LVL1 {
 	int towerid = initialEMEC - ((thisCol-24) * 64) + thisRow; //note special case -24 rather than -28, this *is* deliberate
 
 	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -240,7 +241,7 @@ namespace LVL1 {
       int towerid = initialTRANS + thisRow;
 
       tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][38] = towerid;
-      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
     // set the EMB part
@@ -250,10 +251,11 @@ namespace LVL1 {
         int towerid = initialEMB - ( (thisCol-39) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
+
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG("CONTENTS OF jFEX " << thisJFEX << " :");
       for (int thisRow=rows-1; thisRow>=0; thisRow--) {
@@ -274,11 +276,11 @@ namespace LVL1 {
     }
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteForwardASide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -299,7 +301,7 @@ namespace LVL1 {
     // jFEX 1
     thisJFEX = 1;
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_1;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_1;
     
     // let's try doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_1 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
@@ -321,7 +323,7 @@ namespace LVL1 {
 	int towerid = initialEMEC - (thisCol * 64) + thisRow;
 	
 	tmp_jTowersIDs_subset_1[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_1.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -332,7 +334,7 @@ namespace LVL1 {
         int towerid = initialTRANS + thisRow;
 
         tmp_jTowersIDs_subset_1[thisRow][9] = towerid;
-        tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_1.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -343,7 +345,7 @@ namespace LVL1 {
             int towerid = initialEMB - ( (thisCol-10) * 64) + thisRow ;
 
             tmp_jTowersIDs_subset_1[thisRow][thisCol] = towerid;
-            tmp_jTowersColl_subset_1.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+            tmp_jTowersColl_subset_1.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
         }
     }
@@ -368,11 +370,11 @@ namespace LVL1 {
     }
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_1));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -393,7 +395,7 @@ namespace LVL1 {
     // jFEX 2
     thisJFEX = 2;
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_2;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_2;
     
     // doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_2 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
@@ -415,7 +417,7 @@ namespace LVL1 {
         int towerid = initialEMEC /*- (thisCol * 64)*/  + thisRow;
 
         tmp_jTowersIDs_subset_2[thisRow][0] = towerid;
-        tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -425,7 +427,7 @@ namespace LVL1 {
         int towerid = initialTRANS + thisRow;
 
         tmp_jTowersIDs_subset_2[thisRow][1] = towerid;
-        tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -439,7 +441,7 @@ namespace LVL1 {
             towerid = tmp_initEMB - ( (thisCol-2) * 64) + thisRow;
             tmp_jTowersIDs_subset_2[thisRow][thisCol] = towerid;
             
-            tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+            tmp_jTowersColl_subset_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
         }
     }
@@ -457,7 +459,7 @@ namespace LVL1 {
             towerid = tmp_initEMB + ( (thisCol-16) * 64) + thisRow;
             tmp_jTowersIDs_subset_2[thisRow][thisCol] = towerid;
 
-            tmp_jTowersColl_subset_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+            tmp_jTowersColl_subset_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
         }
     }
@@ -484,11 +486,11 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_2));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -509,7 +511,7 @@ namespace LVL1 {
     // jFEX 3
     thisJFEX = 3;
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_3;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_3;
     
     // doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_3 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
@@ -536,7 +538,7 @@ namespace LVL1 {
 
         tmp_jTowersIDs_subset_3[thisRow][thisCol] = towerid;
 
-        tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_3.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -554,7 +556,7 @@ namespace LVL1 {
 	
 	tmp_jTowersIDs_subset_3[thisRow][thisCol] = towerid;
 	
-	tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_3.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -564,7 +566,7 @@ namespace LVL1 {
       int towerid = initialTRANS + thisRow;
 
       tmp_jTowersIDs_subset_3[thisRow][22] = towerid;
-      tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+      tmp_jTowersColl_subset_3.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -573,7 +575,7 @@ namespace LVL1 {
       int towerid = initialEMEC + /*( (thisCol-8) * 64)*/ + thisRow;
 
       tmp_jTowersIDs_subset_3[thisRow][23] = towerid;
-      tmp_jTowersColl_subset_3.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+      tmp_jTowersColl_subset_3.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -599,11 +601,11 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_3));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -623,7 +625,7 @@ namespace LVL1 {
     // jFEX 4
     thisJFEX = 4;
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_4;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_4;
     
     // doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_4 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
@@ -644,7 +646,7 @@ namespace LVL1 {
 	int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
 	
 	tmp_jTowersIDs_subset_4[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_4.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -653,7 +655,7 @@ namespace LVL1 {
       int towerid = initialTRANS + thisRow;
       
       tmp_jTowersIDs_subset_4[thisRow][14] = towerid;
-      tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+      tmp_jTowersColl_subset_4.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
       
     }
     // set the EMEC part
@@ -662,7 +664,7 @@ namespace LVL1 {
 	int towerid = initialEMEC + ( (thisCol-15) * 64) + thisRow;
 	
 	tmp_jTowersIDs_subset_4[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_4.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_4.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -689,11 +691,11 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteBarrel(tmp_jTowersIDs_subset_4));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -721,7 +723,7 @@ namespace LVL1 {
     
     
     // decide which subset of towers (and therefore supercells) should go to the jFEX
-    std::map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2;
+    std::unordered_map<int,jTower> tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2;
 
     // let's try doing this with an array initially just containing tower IDs.
     int tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2 [2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
@@ -742,7 +744,7 @@ namespace LVL1 {
         int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -752,7 +754,7 @@ namespace LVL1 {
       int towerid = initialTRANS + thisRow;
 
       tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][6] = towerid;
-      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+      tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
     }
 
@@ -763,7 +765,7 @@ namespace LVL1 {
 	int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow;
 	
 	tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+	tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 	
       }
     }
@@ -775,7 +777,7 @@ namespace LVL1 {
         int towerid = initialEMEC + ((thisCol-7) * 64) + thisRow; //note special case -7 rather than -17, this *is* deliberate
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -789,7 +791,7 @@ namespace LVL1 {
         int towerid = initialFCAL0 + ((thisCol-21) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -803,7 +805,7 @@ namespace LVL1 {
         int towerid = initialFCAL1 + ((thisCol-33) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -817,7 +819,7 @@ namespace LVL1 {
         int towerid = initialFCAL2 + ((thisCol-41) * 64) + thisRow;
 
         tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2[thisRow][thisCol] = towerid;
-        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
+        tmp_jTowersColl_subset_ENDCAP_AND_EMB_AND_FCAL_2.insert( std::unordered_map<int, jTower>::value_type(towerid,  *(this_jTowerContainer->findTower(towerid))));
 
       }
     }
@@ -844,11 +846,11 @@ namespace LVL1 {
 
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->ExecuteForwardCSide(tmp_jTowersIDs_subset_ENDCAP_AND_EMB_AND_FCAL_2));
-    m_allSmallRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
-    m_allLargeRJetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
-    m_alltauTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
-    m_allsumEtTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
-    m_allMetTobs.insert(std::map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
+    m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
+    m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
+    m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
 
     
