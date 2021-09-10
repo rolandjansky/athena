@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
- * InvariantMassThreeTOBsIncl.cxx
+ * InvariantMassThreeTOBsIncl1.cxx
  * Created by Carlos Moreno based on InvariantMassInclusive1 by V Sorin
  * 
  * For questions contact atlas-trig-l1topo-algcom@cern.ch. 
@@ -24,14 +24,14 @@
 #include <sstream>
 #include <vector>
 
-#include "L1TopoAlgorithms/InvariantMassThreeTOBsIncl.h"
+#include "L1TopoAlgorithms/InvariantMassThreeTOBsIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-REGISTER_ALG_TCS(InvariantMassThreeTOBsIncl)
+REGISTER_ALG_TCS(InvariantMassThreeTOBsIncl1)
 
 
-TCS::InvariantMassThreeTOBsIncl::InvariantMassThreeTOBsIncl(const std::string & name) : DecisionAlg(name)
+TCS::InvariantMassThreeTOBsIncl1::InvariantMassThreeTOBsIncl1(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
@@ -59,11 +59,11 @@ TCS::InvariantMassThreeTOBsIncl::InvariantMassThreeTOBsIncl(const std::string & 
    setNumberOutputBits(6);
 }
 
-TCS::InvariantMassThreeTOBsIncl::~InvariantMassThreeTOBsIncl(){}
+TCS::InvariantMassThreeTOBsIncl1::~InvariantMassThreeTOBsIncl1(){}
 
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsIncl::initialize() {
+TCS::InvariantMassThreeTOBsIncl1::initialize() {
   if(parameter("MaxTob").value() > 0) {
       p_NumberLeading1 = parameter("MaxTob").value();
    } else {
@@ -90,8 +90,8 @@ TCS::InvariantMassThreeTOBsIncl::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       std::string hname_accept = "hInvariantMassThreeTOBsIncl_accept_bit"+std::to_string((int)i);
-       std::string hname_reject = "hInvariantMassThreeTOBsIncl_reject_bit"+std::to_string((int)i);
+       std::string hname_accept = "hInvariantMassThreeTOBsIncl1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassThreeTOBsIncl1_reject_bit"+std::to_string((int)i);
        // mass
        bookHist(m_histAccept, hname_accept, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
        bookHist(m_histReject, hname_reject, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
@@ -105,7 +105,7 @@ TCS::InvariantMassThreeTOBsIncl::initialize() {
 
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassThreeTOBsIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
 						 const std::vector<TCS::TOBArray *> & output,
 						 Decision & decision )
 {
@@ -167,7 +167,7 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const std::vector<TCS::TOBAr
          }
    } else {
 
-      TCS_EXCEPTION("InvariantMassThreeTOBsIncl alg must have 1 input list, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassThreeTOBsIncl1 alg must have 1 input list, but got " << input.size());
 
    }
 
@@ -176,7 +176,7 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const std::vector<TCS::TOBAr
 }
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsIncl::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassThreeTOBsIncl1::process( const std::vector<TCS::TOBArray const *> & input,
 					  const std::vector<TCS::TOBArray *> & output,
 					  Decision & decision )
 {
@@ -239,7 +239,7 @@ TCS::InvariantMassThreeTOBsIncl::process( const std::vector<TCS::TOBArray const 
 	 }
    } else {
 
-      TCS_EXCEPTION("InvariantMassThreeTOBsIncl alg must have either 1 input list, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassThreeTOBsIncl1 alg must have either 1 input list, but got " << input.size());
 
    }
 
