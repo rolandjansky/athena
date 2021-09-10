@@ -13,6 +13,7 @@
 #include "GaudiKernel/IAlgTool.h"
 // Trk - enum
 #include "TrkDetDescrUtils/GeometrySignature.h"
+#include "TrkSurfaces/Surface.h"
 // STL
 #include <vector>
 
@@ -22,6 +23,7 @@ namespace Trk {
 
   class TrackingGeometry;
   class TrackingVolume;
+  class Layer;
 
   /** Interface ID for IGeometryBuilders*/  
   static const InterfaceID IID_IGeometryBuilder("IGeometryBuilder", 1, 0);
@@ -55,6 +57,13 @@ namespace Trk {
 
       /** The unique signature */
       virtual GeometrySignature geometrySignature() const = 0;
+      
+      protected:
+      /** Protected method to register the Layer to the Surface */
+      void associateLayer(const Layer& lay, Surface& sf) const
+      {
+        sf.associateLayer(lay);
+      }
       
   };
 

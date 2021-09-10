@@ -95,7 +95,8 @@ namespace InDet {
       std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& dLayers) const;
       
       /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */
-      std::vector< const Trk::DiscLayer* >* createDiscLayers(std::vector<const Trk::DiscLayer* >* dLayers = NULL) const;
+      std::vector< const Trk::DiscLayer* >* createDiscLayers(std::vector<const Trk::DiscLayer* >* dLayers = NULL) const;      
+      std::vector< const Trk::DiscLayer* >* createRingLayers() const;
         
       const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
       const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
@@ -137,7 +138,12 @@ namespace InDet {
       static std::vector<const Trk::DiscLayer*>      s_splitDiscLayers;                 //!< cached SLHC/split disc layers for projective layout
                                                      
       bool                                           m_runGeometryValidation;           //!< run the validation of the geometry ( no empty bins)
-            
+      
+      std::vector<int>                               m_layerIndicesBarrel;
+      std::vector<int>                               m_layerIndicesEndcap;
+      bool                                           m_useRingLayout;   
+      
+      bool                                           m_addMoreSurfaces   ;              //!< to add additional surfaces to the SCT_OverlapDescriptor (used for ITk specific case)
                       
   };
 

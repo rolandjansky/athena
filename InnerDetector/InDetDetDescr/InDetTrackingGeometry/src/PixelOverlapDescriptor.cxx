@@ -42,14 +42,13 @@ InDet::PixelOverlapDescriptor::reachableSurfaces(
     tmp->detectorType() == Trk::DetectorElemType::Silicon
       ? static_cast<const InDetDD::SiDetectorElement*>(tmp)
       : nullptr;
-  // now get the overlap options
   if (sElement) {
     size_t newCapacity = cSurfaces.size();
-    if (m_robustMode) {
-      newCapacity += 8;
-    } else if (m_addMoreSurfaces and sElement->isBarrel()) {
+    if (m_robustMode and m_addMoreSurfaces and sElement->isBarrel()) {
       // sum up the defined slices to evaluate the new capacity
       newCapacity += (2*m_phiSlices+ 2*(m_etaSlices*(2*m_phiSlices+1)));
+    } else if (m_robustMode) {
+      newCapacity += 8;
     } else {
       newCapacity += 1;
       if (sElement->isBarrel()) {
@@ -58,6 +57,7 @@ InDet::PixelOverlapDescriptor::reachableSurfaces(
     }
     cSurfaces.reserve(newCapacity);
 
+    // now get the overlap options
     //!< position phi and surface phi - rescale to 0 -> 2PI
     double surfacePhi = tsf.center().phi() + M_PI;
     double positionPhi = pos.phi() + M_PI;
