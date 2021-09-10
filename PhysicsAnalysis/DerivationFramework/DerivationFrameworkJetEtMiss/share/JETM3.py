@@ -165,7 +165,10 @@ OutputJets["JETM3"] = []
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
-addAntiKt4LowPtJets(DerivationFrameworkJob,"JETM3")
+if DerivationFrameworkIsMonteCarlo:
+  jetList_lowPt = ["AntiKt4EMTopoJets",
+                   "AntiKt4EMPFlowJets"]
+  addAntiKt4LowPtJets(jetList_lowPt,DerivationFrameworkJob,"JETM3")
 
 #====================================================================
 #Jets for R-scan

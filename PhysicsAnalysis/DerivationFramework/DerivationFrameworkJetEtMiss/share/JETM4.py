@@ -164,10 +164,10 @@ applyPFOAugmentation(DerivationFrameworkJob)
 #=======================================
 
 if DerivationFrameworkIsMonteCarlo:
-    addMETTruthMap('AntiKt4EMTopo',"JETMX")
-    addMETTruthMap('AntiKt4LCTopo',"JETMX")
-    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
-    scheduleMETAssocAlg(jetm4Seq,"JETMX")
+    #addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    #addMETTruthMap('AntiKt4LCTopo',"JETMX")
+    #addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    #scheduleMETAssocAlg(jetm4Seq,"JETMX")
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
