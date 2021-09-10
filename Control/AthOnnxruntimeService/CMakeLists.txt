@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package's name.
 atlas_subdir( AthOnnxruntimeService )
@@ -9,7 +9,6 @@ find_package( onnxruntime )
 # Component(s) in the package.
 atlas_add_library( AthOnnxruntimeServiceLib
    AthOnnxruntimeService/*.h Root/*.cxx
-   INTERFACE
    PUBLIC_HEADERS AthOnnxruntimeService
    INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
    LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AsgServicesLib)
