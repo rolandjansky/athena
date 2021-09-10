@@ -79,6 +79,9 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='substep:POSTINCLUDE',
                         help='Python configuration fragment to include after main job options (can be optionally limited ' 
                         'to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+    parser.add_argument('--splitConfig', group = 'Athena', type=argFactory(trfArgClasses.argSubstepString),
+                        metavar='substep:SPLITCONFIG',
+                        help='Configuration file to internally split job into multiple parts (can be optionally limited to a single substep)')
     parser.add_argument('--maxEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep=maxEventsDefaultSubstep), 
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default substep is "{0}")'.format(maxEventsDefaultSubstep))

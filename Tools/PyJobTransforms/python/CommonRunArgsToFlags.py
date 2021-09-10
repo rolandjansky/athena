@@ -24,3 +24,17 @@ def commonRunArgsToFlags(runArgs,configFlags):
 
     if hasattr(runArgs,"concurrentEvents"):
         configFlags.Concurrency.NumConcurrentEvents = runArgs.concurrentEvents
+
+    ## Executor steps
+    if hasattr(runArgs,"totalExecutorSteps"):
+        configFlags.ExecutorSplitting.TotalSteps = runArgs.totalExecutorSteps
+
+    if hasattr(runArgs,"executorStep"):
+        configFlags.ExecutorSplitting.Step = runArgs.executorStep
+
+    if hasattr(runArgs,"executorEventCounts"):
+        configFlags.ExecutorSplitting.TotalEvents = configFlags.Exec.MaxEvents
+        configFlags.Exec.MaxEvents = runArgs.executorEventCounts[configFlags.ExecutorSplitting.Step]
+
+    if hasattr(runArgs,"executorEventSkips"):
+        configFlags.Exec.SkipEvents = runArgs.executorEventSkips[configFlags.ExecutorSplitting.Step]
