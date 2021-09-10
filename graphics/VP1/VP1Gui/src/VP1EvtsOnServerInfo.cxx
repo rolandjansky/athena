@@ -16,6 +16,7 @@
 #include "VP1Gui/VP1MD5Sum.h"
 #include <QFileInfo>
 #include <QTextStream>
+#include <QtCoreVersion>
 #include <map>
 
 
