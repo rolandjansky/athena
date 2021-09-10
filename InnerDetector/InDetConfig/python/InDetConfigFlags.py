@@ -36,6 +36,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doForwardTracks", False) # Turn running of doForwardTracks pass on and off
   icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0", False)
+  icf.addFlag("InDet.doR3LargeD0", True)
+  icf.addFlag("InDet.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
   icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.priVtxCutLevel", 3 ) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 

@@ -112,11 +112,11 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
     if(m_config.doResolutionsPerAuthor &&  m_iDetailLevel >= 200 and (barcode < 200000 and barcode != 0 and prob > 0.5)){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
       
-      bool isSiSpSeededFinder = patternInfo.test(0);
-      bool isInDetExtensionProcessor = patternInfo.test(3);
-      bool isTRTSeededTrackFinder = patternInfo.test(4);
-      bool isTRTStandalone = patternInfo.test(20);
-      bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
+      bool isSiSpSeededFinder = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSPSeededFinder);
+      bool isInDetExtensionProcessor = patternInfo.test(xAOD::TrackPatternRecoInfo::InDetExtensionProcessor);
+      bool isTRTSeededTrackFinder = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
+      bool isTRTStandalone = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTStandalone);
+      bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
 
       if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_resSiSPSeededFinderPlots->fill(particle, truthParticle, weight);
       if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_resInDetExtensionProcessorPlots->fill(particle, truthParticle, weight);

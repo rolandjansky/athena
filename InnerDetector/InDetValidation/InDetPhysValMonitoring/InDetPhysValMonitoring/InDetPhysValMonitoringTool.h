@@ -169,6 +169,8 @@ private:
     BooleanProperty m_fillTruthToRecoNtuple {this, "FillTruthToRecoNtuple", false, "Fill an ntuple with truth and matching reco info for more detailed stuidies"}; 
     BooleanProperty m_useVertexTruthMatchTool {this, "useVertexTruthMatchTool", false, "Use the vertex truth matching tool"}; 
     BooleanProperty m_onlyFillMatched {this, "onlyFillTruthMatched", false, "Only fill truth-to-reco (eff, reso, matched hit) plots"}; 
+    BooleanProperty m_doTRTExtensionPlots {this, "doTRTExtensionPlots", true, "do TRT extension plots"};
+
     FloatProperty m_maxTrkJetDR{this,"maxTrkJetDR",0.4,"the maximum dR to jets to allow for track-in-jet plots"}; 
     StringProperty m_dirName {this, "DirName", "SquirrelPlots/", "Top level directory to write histograms into"}; 
     StringProperty m_folder {this, "SubFolder", "", "Subfolder to add for plots if desired. Used when working with multiple IDPVM tool instances."}; 

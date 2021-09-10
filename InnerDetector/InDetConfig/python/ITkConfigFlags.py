@@ -38,6 +38,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doFastTracking", False) # Turn running of ITk FastTracking on and off
   itkcf.addFlag("ITk.doITkConversionFinding",True) # Turn running of doITkConversionFinding second pass on and off
   itkcf.addFlag("ITk.doITkLargeD0", False)
+  itkcf.addFlag("ITk.storeSeparateLargeD0Container", False)
   itkcf.addFlag("ITk.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   itkcf.addFlag("ITk.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   itkcf.addFlag("ITk.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
