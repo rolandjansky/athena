@@ -22,13 +22,13 @@
 #include "KLFitter/LikelihoodTopLeptonJets_Angular.h"
 #include "KLFitter/LikelihoodTTZTrilepton.h"
 #include "KLFitter/LikelihoodTopAllHadronic.h"
+#include "KLFitter/LikelihoodOneHadronicTop.h"
 #include "KLFitter/BoostedLikelihoodTopLeptonJets.h"
 #include "KLFitter/PhysicsConstants.h"
 #include "KLFitter/LikelihoodBase.h"
 #include "KLFitter/DetectorAtlas_8TeV.h"
 #include "KLFitter/Permutations.h"
-//custom KLFitter packages
-#include "TopEventReconstructionTools/LikelihoodSingleTopAllHadronic.h"
+
 
 // system include(s):
 #include <iostream>
@@ -36,7 +36,7 @@
 #include <vector>
 #include <cmath>
 #include <memory>
-//#include "TBenchmark.h"
+
 
 ///
 /// @author John Morris <john.morris@cern.ch>
@@ -150,7 +150,7 @@ namespace top {
     std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
     std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
     std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
-    std::unique_ptr<KLFitter::LikelihoodSingleTopAllHadronic> m_myLikelihood_SingleTop;
+    std::unique_ptr<KLFitter::LikelihoodOneHadronicTop> m_myLikelihood_SingleTop;
 
     std::unique_ptr<KLFitter::DetectorAtlas_8TeV> m_myDetector;
 
@@ -168,8 +168,6 @@ namespace top {
     /// The KLFitter
     std::unique_ptr<KLFitter::Fitter> m_myFitter;
 
-    /// For testing
-    //    TBenchmark m_benchmark;
   };
 }
 #endif

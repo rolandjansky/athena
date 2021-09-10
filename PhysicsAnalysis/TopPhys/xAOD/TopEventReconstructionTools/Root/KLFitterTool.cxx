@@ -34,8 +34,6 @@ namespace top {
     declareProperty("CustomParameters", m_customParameters = "", "Define the custom parameters");
     declareProperty("SelectionName", m_selectionName = "kUndefined", "Define the name of the selection");
     declareProperty("LHType", m_LHType = "kUndefined", "Define the Likelihood type");
-    //    declareProperty( "CanBeBJets", m_canBeBJets, "Force KLF to run on these (>=2) B jets" );
-    //    declareProperty( "CanBeLFJets", m_canBeLFJets, "Force KLF to run on these (>=4) LF jets" );
     declareProperty("Njcut",m_Njcut=-1,"max number of jets to run on");
     declareProperty("Nb",m_nb=-1,"number of jets that can only be treated as b-jets");
     declareProperty("Delta",m_delta=-1,"number of jets that can be treated both as b and LF jets");
@@ -99,7 +97,7 @@ namespace top {
     m_myLikelihood_BoostedLJets = std::make_unique<KLFitter::BoostedLikelihoodTopLeptonJets>();
 
     // 4) create an instance of the likelihood for ttbar -> allHad (single top fashon)
-    m_myLikelihood_SingleTop = std::make_unique<KLFitter::LikelihoodSingleTopAllHadronic>();
+    m_myLikelihood_SingleTop = std::make_unique<KLFitter::LikelihoodOneHadronicTop>();
 
     // 4.a) SetleptonType
     if (m_LHType != "ttbar_AllHadronic" && m_LHType != "ttbar_AllHadronic_SingleT") { // no lepton type for all hadronic
@@ -410,8 +408,6 @@ namespace top {
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;
  */
 
-    //testing
-    //    m_benchmark.Start(m_selectionName.c_str());
 
     KLFitter::Particles* myParticles = new KLFitter::Particles {};
 
@@ -758,8 +754,6 @@ namespace top {
     delete myParticles;
 
     /// Return gracefully:
-    //    std::cout << "KLFitter Benchmark :: " << m_selectionName << std::endl;
-    //    m_benchmark.Show(m_selectionName.c_str());
     return StatusCode::SUCCESS;
   }
 
@@ -1079,21 +1073,14 @@ namespace top {
       }
       auto jet = event.m_jets.at(bji);
       jet_p4.SetPtEtaPhiE(jet->pt() / 1.e3, jet->eta(), jet->phi(), jet->e() / 1.e3);
-      //should work without this (results to be checked)-->  float eff(0.), ineff(0.); 
       double weight(999);
       HasTag(*jet, weight); 
-      // should work without this (results to be checked)-->      retrieveEfficiencies(*jet, &eff, &ineff);
       inputParticles->AddParticle(&jet_p4, 
 				  jet_p4.Eta(), 
 				  KLFitter::Particles::kParton, 
 				  "", 
 				  bji,
 				  true);
-      /*should work without this (results to be checked)				  , 
-				  eff, 
-				  1./ineff, 
-				  KLFitter::Particles::kNone, 
-				  weight);*/
     }
 
     for(auto qji : LFjetsToRun) {
@@ -1104,21 +1091,14 @@ namespace top {
       auto jet = event.m_jets.at(qji);
       jet_p4.SetPtEtaPhiE(jet->pt() / 1.e3, jet->eta(), jet->phi(), jet->e() / 1.e3);
 
-      //should work without this (results to be checked) --> float eff(0.), ineff(0.); 
       double weight(0);
       HasTag(*jet, weight);
-      //should work without this (results to be checked) -->      retrieveEfficiencies(*jet, &eff, &ineff);
       inputParticles->AddParticle(&jet_p4, 
 				  jet_p4.Eta(), 
 				  KLFitter::Particles::kParton, 
 				  "", 
 				  qji,
 				  false);
-				  /*should work without this (results to be checked)     , 
-				  eff, 
-				  1./ineff, 
-				  KLFitter::Particles::kNone, 
-				  weight);*/
     }
     return true;
   }
@@ -1498,9 +1478,6 @@ namespace top {
 
   /// Function finalizing the tool
   StatusCode KLFitterTool::finalize() {
-
-    //    std::cout << "KLFitter Benchmark FINALIZE :: " << m_selectionName << std::endl;
-    //    m_benchmark.Print(m_selectionName.c_str());
 
     /// Return gracefully:
     return StatusCode::SUCCESS;
