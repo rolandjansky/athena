@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef dqutilsMonitoringFile_h
@@ -183,55 +183,7 @@ namespace dqutils {
     static void MuonTrackPostProcess(std::string inFileName, bool isIncremental = false);
     static void MuonTrack_Main(std::string inFileName, TString dirname);
 
-    //For Muon MDT
-    static void  MDTPostProcess(std::string inFilename, int txtFileOutputType = 0);
-    static void  MDTChamReAlign(std::string inFilename, std::string title="MDT");
-    static void  MDTChamEff(std::string inFilename,  std::string title="MDT", int txtFileOutputType = 0 );
-    static void  MDTChamOcc(std::string inFilename, std::string title="MDT");
-    static void  MDTTDCSum(std::string inFilename, std::string title="MDT");
-    static void  MDTLowStat(std::string inFilename, std::string title="MDT");
-    static bool  MDTCheckAlign(std::string inFilename, std::string title="MDT");
-    static bool  MDTCheck(std::string inFilename);
-    static void MDTTubeEff(const TString & dirName, const TH1F*, const TH1F*, TH1F*, float &countsML1, float &countsML2, float &entriesML1, float &entriesML2);
-    static void MDT2DHWName(TString, TString &, TString &, TString &, TString &, TString &);
-    static void MDTFitTDC(TH1F* h, double &t0, double &t0Err, double &tmax, double &tmaxErr);
-    static void MDTSetMetaData(TDirectory* targetDir, TH1* h1, TH1* h2=0, TH1* h3=0);
-    static void MDTSet2DRangeZ(TH2F* h);
-    static void MDTResetContents(TH2F* h);
-    static void MDTFinalizeWriteTH1FChar(TH1F* h);
-    static double     fittzero(double *, double *);
-    static double     fittmax(double *, double *);
-    static void GetTubeLength(double & tubeLength, TString dirName);
-    static TString returnString(int a);
-    static TString returnString(double a);
-    static TString ConvertTubeVectorToString(std::vector<int> & v, TH1F* h, TString chamber);
-    static TString ConvertLayerVectorToString(std::vector<int> & v, TString chamber);
-    static TString ConvertMezzVectorToString(std::vector<int> & v, TH1F* h, TString chamber);
-    static TString ConvertVectorToString(std::vector<int> & v);
-    static TString TubeID_to_ID_L_ML(int & tubeID, const TString & hardware_name, int totalTubes);
-    static TString Layer_to_L_ML(int & tubeID, const TString & hardware_name);
-    static TString Mezz_to_ML_mezz(int tubeID, const TString & hardware_name, int totalTubes);
-    static bool tdcSort(const TH1* h1, const TH1* h2);
-    class MDTPostProcessor : public TFile { //class to keep keep track of histograms we collect
-    public:
-      MDTPostProcessor(std::string inFilename, std::string name);
-      ~MDTPostProcessor(); //delete all objects accessed from the TFile whose SetDirectory(0)
-
-      //function to automatically getObject, obj->SetDirectory(target), if target==0 save target for future deletion
-      //option to supply baseDir to get object from subdir of TFile rather than from TFile itself
-      //target if nothing is supplied thatn the object will be set to 0 (protects against f->Write() writing unintended copies of your histogram
-      template <class T>
-      void get(const char* namecycle, T* &ptr, TDirectory* baseDir=0, TDirectory* target=0); //use TDirectory->GetObject(const char* namecycle, void* &ptr);
-      void setDirectory(TH1* h, TDirectory* dir = 0);
-      void setDirectory(TH2* h, TDirectory* dir = 0);
-      void setMetaData(TDirectory* targetDir, TH1* h1, TH1* h2=0, TH1* h3=0);
-      void error();//call this function if you want the underlying TFile not to write i.e. recover error in program
-    private:
-      std::set<TObject*> m_garbage;
-      std::string m_name;
-      bool m_error;
-    };
-
+    //For RPC
     static void  RPCPostProcess(std::string inFilename, bool isIncremental = false);
     static bool  RPCCheckHistogram(TFile* f, const char* HistoName);
 

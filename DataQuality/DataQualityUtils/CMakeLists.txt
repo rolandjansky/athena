@@ -22,7 +22,6 @@ atlas_add_library( DataQualityUtils
                    src/MonitoringFile.cxx
                    src/MonitoringFile_CSCPostProcess.cxx
                    src/MonitoringFile_RPCPostProcess.cxx
-                   src/MonitoringFile_MDTPostProcess.cxx
                    src/MonitoringFile_TGCPostProcess.cxx
                    src/MonitoringFile_MDTvsTGCPostProcess.cxx
                    src/MonitoringFile_PPFileWrapper.cxx
