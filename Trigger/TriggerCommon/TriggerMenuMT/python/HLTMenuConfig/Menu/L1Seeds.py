@@ -65,7 +65,8 @@ def getL1BackgroundSeed(menul1items):
         'L1_BCM_Wide_ABORTGAPNOTCALIB',
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB',
         'L1_BCM_Wide_CALIB',
-        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB'
+        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',
+        'L1_J12_EMPTY', 'L1_J12_BGRP12',
         ]
     
     if TriggerFlags.triggerMenuSetup() == 'LS1_v1':
