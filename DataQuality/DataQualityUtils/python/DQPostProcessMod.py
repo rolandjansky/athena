@@ -186,8 +186,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['michele.bianco@le.infn.it', 'monica.verducci@cern.ch']),
                  (mdt_create,
                   ['john.stakely.keller@cern.ch', 'monica.verducci@cern.ch']),
-                 (mf.MDTPostProcess,
-                  ['john.stakely.keller@cern.ch']),
                  (mf.TGCPostProcess,
                   ['lyuan@ihep.ac.cn', 'kingmgl@stu.kobe-u.ac.jp']),
                  (mf.MDTvsTGCPostProcess,
