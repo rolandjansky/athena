@@ -47,6 +47,7 @@ ISF_HitAnalysis.DoAllCells = False
 ISF_HitAnalysis.DoLayers = True
 ISF_HitAnalysis.DoLayerSums = True
 ISF_HitAnalysis.DoG4Hits = doG4Hits
+ISF_HitAnalysis.DoClusterInfo = doClusterInfo
 ISF_HitAnalysis.TimingCut = 999999
 ISF_HitAnalysis.OutputLevel = ERROR
 
