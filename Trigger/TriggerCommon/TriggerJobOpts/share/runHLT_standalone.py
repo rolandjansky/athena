@@ -589,8 +589,7 @@ if opt.doBjetSlice:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
-    alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    alias += ["HLT_AntiKt4EMPFlowJets_subresjesgscIS_b->HLT_AntiKt4EMPFlowJets_subresjesgscIS_b,AntiKt4EMTopo", "HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
+    alias = ["HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
     condSeq += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.Run2TrigTaggers+ConfigFlags.BTagging.Run3NewTrigTaggers, NewChannel = alias)
 
 #-------------------------------------------------------------

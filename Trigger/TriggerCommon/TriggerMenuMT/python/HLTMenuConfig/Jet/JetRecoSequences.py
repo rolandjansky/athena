@@ -18,8 +18,12 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+
 ###############################################################################################
 # Sequences for input information
+
+# prefix used in naming HLT collections
+jetNamePrefix = JetRecoConfiguration.getHLTPrefix() # "HLT_"
 
 # Calo cell unpacking and topocluster reconstruction
 def jetClusterSequence(configFlags, RoIs, clusterCalib):
@@ -109,9 +113,9 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
             PFHLTSequence,
             configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"], cellsin="CaloCellsFS")
         buildSeq += pfseq
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=JetRecoConfiguration.getHLTPrefix())
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=jetNamePrefix)
     else:
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey,prefix=JetRecoConfiguration.getHLTPrefix())
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix)
     
     # chosen jet collection
     jetsFullName = jetDef.fullname()
@@ -201,7 +205,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         # Add the event shape alg if needed for area subtraction
         # WARNING : offline jets use the parameter voronoiRf = 0.9 ! we might want to harmonize this.
         
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, JetRecoConfiguration.getHLTPrefix(), voronoiRf = 1.0 )
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix, voronoiRf = 1.0 )
         recoSeq += conf2toConfigurable(eventShapeAlg)
         # Not currently written because impossible to merge
         # across event views, which is maybe a concern in
@@ -300,7 +304,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
                           OutputContainer=filteredJetsName,
                           PtMin=rcJetPtMin)
 
-    rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict, filteredJetsName, basicJetDef.inputdef.label, JetRecoConfiguration.getHLTPrefix(), '_'+jetRecoDict["jetCalib"])
+    rcJetDef = JetRecoConfiguration.defineReclusteredJets(jetRecoDict, filteredJetsName, basicJetDef.inputdef.label, jetNamePrefix, '_'+jetRecoDict["jetCalib"])
     rcModList = [] # Could set substructure mods
     rcJetDef.modifiers = rcModList
 

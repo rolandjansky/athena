@@ -14,7 +14,7 @@ log.info("Importing %s",__name__)
 
 def generateChainConfigs( chainDict ):
 
-    log.info('bjet full dictionary is: %s\n', pprint.pformat(chainDict))
+    log.debug('bjet full dictionary is: %s\n', pprint.pformat(chainDict))
 
     
     listOfChainDicts = splitChainDict(chainDict)
@@ -31,8 +31,7 @@ def generateChainConfigs( chainDict ):
         if subChainDict['chainParts'][0]['signature'] != 'Bjet':
             listOfChainDefs += [jet]
         else:
-            log.info('jet name is: %s\n', jet_name)
-            #jet_name='' # don't feed in yet
+            log.debug('input jet collection name is: %s\n', jet_name)
             Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
             jet.steps = jet.steps + Bjet.steps
             listOfChainDefs += [ jet ] 

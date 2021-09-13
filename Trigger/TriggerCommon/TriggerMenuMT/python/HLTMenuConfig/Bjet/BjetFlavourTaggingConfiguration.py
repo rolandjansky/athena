@@ -40,7 +40,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
     #Jet Augmenter
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         ConfigFlags,
-        JetCollection=inputJets.replace("bJets","bJets"),
+        JetCollection=inputJets,
         BTagCollection=BTagName,
         Associator="BTagTrackToJetAssociator",
         TrackCollection=inputTracks,
