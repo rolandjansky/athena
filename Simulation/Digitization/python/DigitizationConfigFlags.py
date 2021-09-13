@@ -224,6 +224,10 @@ def pileupRunArgsToFlags(runArgs, flags):
     if hasattr(runArgs, "pileupFinalBunch"):
         flags.Digitization.PU.FinalBunchCrossing = runArgs.pileupFinalBunch
 
+    # sanity check
+    if flags.Digitization.PU.InitialBunchCrossing > flags.Digitization.PU.FinalBunchCrossing:
+        raise ValueError("Initial bunch crossing should not be larger than the final one")
+
     if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
         from Digitization.PileUpUtils import generateBackgroundInputCollections
         flags.Digitization.PU.LowPtMinBiasInputCols = \
