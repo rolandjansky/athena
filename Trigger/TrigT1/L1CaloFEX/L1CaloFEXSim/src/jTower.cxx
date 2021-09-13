@@ -44,9 +44,11 @@ namespace LVL1 {
     m_centre_eta(centre_eta),
     m_centre_phi(centre_phi),
     m_fcal_layer(fcal_layer)
-  {
-    this->clearET();
-  }
+    {   
+        m_centre_phi_toPI = centre_phi;
+        if(centre_phi>M_PI) m_centre_phi_toPI = centre_phi-2*M_PI;
+        this->clearET();
+    }
   
   
   /** Clear and resize ET value vector */
