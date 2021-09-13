@@ -51,30 +51,20 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
   
   // check if SLHC geo is used (TRT not implemented) 
   // if not SLHC, get the TRT Det Descr manager
-  sc = detStore()->retrieve(m_idDictMgr, "IdDict");
-  if (sc.isFailure()) {
-    std::cout << "Could not get IdDictManager !" << std::endl;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK(detStore()->retrieve(m_idDictMgr, "IdDict")) ;
+ 
   const IdDictDictionary* dict = m_idDictMgr->manager()->find_dictionary("InnerDetector");
   if (!dict) {
-    std::cout << " Cannot access InnerDetector dictionary "<< std::endl;
+   ATH_MSG_ERROR( " Cannot access InnerDetector dictionary ");
     return StatusCode::FAILURE;
   }
 
   bool isSLHC = false;
-  // Find value for the field TRT - if not found is SLHC geo
-  //int trtField   = -1;
-  //if (dict->get_label_value("part", "TRT", trtField)) isSLHC=true;
   // Find string SLHC in dictionary file name - if found is SLHC geo
   if (dict->file_name().find("SLHC")!=std::string::npos) isSLHC=true;
 
   //retrieving the various ID helpers
-  
-  if (detStore()->retrieve(m_IDHelper, "AtlasID").isFailure()) {
-    ATH_MSG_FATAL( "Could not get ATLAS ID helper");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK (detStore()->retrieve(m_IDHelper, "AtlasID"));
 
   ATH_CHECK( detStore()->retrieve(m_pixelHelper, "PixelID") );
   ATH_CHECK( detStore()->retrieve(m_SCTHelper, "SCT_ID") );
@@ -268,7 +258,7 @@ InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const Identif
     PixelClusterCollection::const_iterator collIt    = ptr->begin();
     PixelClusterCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
-    for ( ; collIt!=collItEnd; collIt++){
+    for ( ; collIt!=collItEnd; ++collIt){
       if ( (*collIt)->identify()==id ) return *collIt;
     }
   }
@@ -297,7 +287,7 @@ InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const Identifie
     SCT_ClusterCollection::const_iterator collIt    = ptr->begin();
     SCT_ClusterCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
-    for ( ; collIt!=collItEnd; collIt++) {
+    for ( ; collIt!=collItEnd; ++collIt) {
       if ( (*collIt)->identify()==id ) return *collIt;
     }
   }
@@ -326,7 +316,7 @@ InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const Ident
     TRT_DriftCircleCollection::const_iterator collIt    = ptr->begin();
     TRT_DriftCircleCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
-    for ( ; collIt!=collItEnd; collIt++) {
+    for ( ; collIt!=collItEnd; ++collIt) {
       if ( (*collIt)->identify()==id ) return *collIt;
     }
   }
