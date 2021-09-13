@@ -135,13 +135,11 @@ StatusCode jFEXDriver::finalize()
   
 
   // STEP 2 - Make some jTowers and fill the local container
-  ATH_CHECK( m_jTowerBuilderTool.retrieve() );
   m_jTowerBuilderTool->init(local_jTowerContainerRaw);
   local_jTowerContainerRaw->clearContainerMap();
   local_jTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the jTowerContainer
-  ATH_CHECK( m_jSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_jTowerContainerRaw));
 
   ATH_CHECK(m_jSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_jTowerContainerRaw));
@@ -153,7 +151,6 @@ StatusCode jFEXDriver::finalize()
   ATH_CHECK(jTowerContainerSG.record(std::move(/*my_jTowerContainerRaw*/local_jTowerContainerRaw)));
 
   // STEP 5 - Set up the jFEXSysSim
-  ATH_CHECK( m_jFEXSysSimTool.retrieve() );
   m_jFEXSysSimTool->init();
 
   // STEP 6 - Run THE jFEXSysSim

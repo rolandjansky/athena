@@ -66,6 +66,7 @@ StatusCode jFEXFPGA::initialize()
   ATH_CHECK(m_jFEXFPGA_jTowerContainerKey.initialize());
   ATH_CHECK(m_jFEXFPGA_jFEXOutputCollectionKey.initialize());
   ATH_CHECK(m_l1MenuKey.initialize());
+  ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -298,7 +299,6 @@ StatusCode jFEXFPGA::execute() {
 
     //FCAL region algorithm
     if(m_jfexid ==0 || m_jfexid ==5) {
-        ATH_CHECK(m_jFEXForwardJetsAlgoTool->initialize());
         ATH_CHECK(m_jFEXForwardJetsAlgoTool->safetyTest());
         m_jFEXForwardJetsAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         m_jFEXForwardJetsAlgoTool->setup(m_jTowersIDs_Wide,m_jfexid,m_id);
@@ -442,7 +442,6 @@ StatusCode jFEXFPGA::execute() {
                 }
             }
 
-            ATH_CHECK( m_jFEXtauAlgoTool.retrieve());
             ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
             m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
             m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);

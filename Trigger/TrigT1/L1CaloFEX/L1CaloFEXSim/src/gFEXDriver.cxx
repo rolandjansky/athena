@@ -89,13 +89,11 @@ StatusCode gFEXDriver::initialize()
   // ATH_CHECK(gFEXOutputCollectionSG.record(std::move(my_gFEXOutputCollection)));
 
   // STEP 2 - Make some gTowers and fill the local container
-  ATH_CHECK( m_gTowerBuilderTool.retrieve() );
   m_gTowerBuilderTool->init(local_gTowerContainerRaw);
   local_gTowerContainerRaw->clearContainerMap();
   local_gTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the gTowerContainer
-  ATH_CHECK( m_gSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_gTowerContainerRaw));
 
@@ -104,7 +102,6 @@ StatusCode gFEXDriver::initialize()
   ATH_CHECK(gTowerContainerSG.record(std::move(local_gTowerContainerRaw)));
 
   // STEP 5 - Set up the gFEXSysSim
-  ATH_CHECK( m_gFEXSysSimTool.retrieve() );
 
   // STEP 6 - Run the gFEXSysSim
   ATH_CHECK(m_gFEXSysSimTool->execute());
