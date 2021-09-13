@@ -9,7 +9,6 @@
 '''
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-#def BookHistogramsPerRegions(thegroupe,theparttype,thereconame,thewithTrigger,thename,title,path,xbins,xmin,xmax,thetype="TH1F",thecut="is_pt_gt_4gev"):
 def BookHistogramsPerRegions(thegroupe,theparttype,thename,title,path,xbins,xmin,xmax,thetype="TH1F",thecut="is_pt_gt_4gev"):
     '''
     Function to configure the egamma histograms per region (BARREL, CRACK, ENDCAP, FORWARD)
@@ -17,9 +16,11 @@ def BookHistogramsPerRegions(thegroupe,theparttype,thename,title,path,xbins,xmin
     '''
     Regions = ['BARREL', 'CRACK', 'ENDCAP']
     for n in range(len(Regions)):
-        hname = thename + "in" + Regions[n] + ";" + thename + "in" + Regions[n] #+ " " + thepartype + thereconame + thewithTrigger
+        hname = thename + "in" + Regions[n] #+ ";" + thename + "in" + Regions[n] #+ " " + thepartype + thereconame + thewithTrigger
         htitle = title + " " + theparttype + " " + Regions[n]
-        thegroupe.defineHistogram(hname,title=htitle, path=path, xbins=xbins,xmin=xmin,xmax=xmax,type = thetype, cutmask = thecut)
+        thefinalcut = thecut+Regions[n] 
+        thegroupe.defineHistogram(hname,title=htitle, path=path, xbins=xbins,xmin=xmin,xmax=xmax,type = thetype, cutmask = thefinalcut)
+
 
 def BookHistogramsPerForwardRegions(thegroupe,theparttype,thename,title,path,xbins,xmin,xmax,thetype="TH1F",thecut="is_pt_gt_10gev"):
     '''
@@ -28,10 +29,10 @@ def BookHistogramsPerForwardRegions(thegroupe,theparttype,thename,title,path,xbi
     '''
     Regions = ['ENDCAP','FORWARD']
     for n in range(len(Regions)):
-        hname = thename + "in" + Regions[n] + ";" + thename + "in" + Regions[n] #+ " " + thepartype + thereconame + thewithTrigger
+        hname = thename + "in" + Regions[n] # + ";" + thename + "in" + Regions[n] #+ " " + thepartype + thereconame + thewithTrigger
         htitle = title + " " + theparttype + " " + Regions[n]
-        thegroupe.defineHistogram(hname,title=htitle, path=path, xbins=xbins,xmin=xmin,xmax=xmax,type = thetype, cutmask = thecut)
-
+        thefinalcut = thecut+Regions[n] 
+        thegroupe.defineHistogram(hname,title=htitle, path=path, xbins=xbins,xmin=xmin,xmax=xmax,type = thetype, cutmask = thefinalcut)
 
 def BookHistograms(groupe,reconame,particletype,withTrigger=""):
     '''
@@ -47,6 +48,7 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
         if particletype in ["Photon"] :
             prefix = "photon"
             tlabel = "_{#gamma}"
+
         hname = "N"
         htitle = "Number of " + prefix + "s (" + reconame + " " + withTrigger+ ") ; N" + tlabel + " ; N_{event}"
         groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
@@ -54,23 +56,23 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
         if particletype in ["Photon"] :
             hname = "NConv"
             htitle = "Number of converted photons (" + reconame + " " + withTrigger+ ") ; N_{Conv. #gamma} ; N_{event}"
-            groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5,cutmask = 'is_pt_gt_4gevandconv')
+            groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
 
             hname = "NUnconv"
             htitle = "Number of unconverted photons (" + reconame + " " + withTrigger+ ") ; N_{Unconv. #gamma} ; N_{event}"
-            groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5,cutmask = 'is_pt_gt_4gevandunconv')
+            groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
 
-        hname= "Et ;" + prefix + " Et distribution"
+        hname= "Et"
         htitle= particletype + " transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ")" + " ; Et"+ tlabel +" ; N" + tlabel
         groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=2.,xmax=102000.0)
 
         if particletype in ["Photon"] :
 
-            hname= "Et ; Converted photon Et distribution"
+            hname= "EtConv"
             htitle= "Converted #gamma transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ")" + " ; Et" + tlabel + " ; N" + tlabel
             groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=2.,xmax=102000.0, cutmask = 'is_pt_gt_4gevandconv')
 
-            hname= "Et ; Unconverted photon Et distribution"
+            hname= "EtUnconv"
             htitle= "Unconverted #gamma transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ")" + " ; Et" + tlabel + " ; N" + tlabel
             groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=2.,xmax=102000.0, cutmask = 'is_pt_gt_4gevandunconv')
 
@@ -92,50 +94,50 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
         groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2)
 
         if particletype in ["Photon"] :
-            hname= "Phi ; Phi of conv. photons"
+            hname= "PhiConv"
             htitle= "Converted photon #phi" + " (" + reconame + " " + withTrigger + ")" + " ; #phi" + tlabel + " ; N" + tlabel
             groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2,cutmask = 'is_pt_gt_4gevandconv')
 
-            hname= "Phi ; Phi of unconv. photons"
+            hname= "PhiUnconv"
             htitle= "Unconverted photon #phi" + " (" + reconame + " " + withTrigger + ")" + " ; #phi" + tlabel + " ; N" + tlabel
             groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2, cutmask = 'is_pt_gt_4gevandunconv')
 
-        hname= "Eta,Phi;(Eta,Phi) distribution of Pt>2.5GeV"
+        hname= "Eta,Phi;Eta_Phi_with_Pt_gt_2.5GeV"
         htitle= particletype + " #eta,#phi map (candidates with Pt>2.5GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
         groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask = 'is_pt_gt_2_5gev')
 
         if particletype in ["Photon"] :
-            hname= "Eta,Phi;(Eta,Phi) distribution of Conv. photons with Pt>2.5GeV"
+            hname= "Eta,Phi;Eta_Phi_Conv_with_Pt_gt_2.5GeV"
             htitle= "(#eta,#phi) map of Conv. #gamma with Pt>2.5GeV" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2, cutmask = 'is_pt_gt_2_5gevandconv')
 
-            hname= "Eta,Phi;(Eta,Phi) distribution of Unconv. photons with Pt>2.5GeV"
+            hname= "Eta,Phi;Eta_Phi_Unconv_with_Pt.gt.2.5GeV"
             htitle= "(#eta,#phi) map of Unconv. #gamma with Pt>2.5GeV" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2, cutmask = 'is_pt_gt_2_5gevandunconv')
 
-        hname= "Eta,Phi;(Eta,Phi) distribution for "+ prefix +"s with Pt>4GeV"
-        htitle= particletype + " #eta,#phi map (candidates with Pt>4GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
+        hname= "Eta,Phi;Eta_Phi_distribution_with_Pt.gt.4GeV"
+        htitle= particletype + " #eta,#phi map (candidates with Pt>4GeV)" + " (" + reconame + " " + prefix + " " + withTrigger + ") ; #eta ; #phi"
         groupe.defineHistogram(hname,title=htitle,path='',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_4gev')
 
         if particletype in ["Photon"] :
-            hname= "Eta,Phi;(Eta,Phi) distribution for Conv. photons with Pt>4GeV"
+            hname= "Eta,Phi;Eta_Phi_Conv_with_Pt.gt.4GeV"
             htitle= particletype + " #eta,#phi map (candidates with Pt>4GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_4gevandconv')
 
-            hname= "Eta,Phi;(Eta,Phi) distribution of Unconv. photons with Pt>4GeV"
+            hname= "Eta,Phi;Eta_Phi_Unconv_with_Pt.gt.4GeV"
             htitle= particletype + " #eta,#phi map (candidates with Pt>4GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_4gevandunconv')
 
-        hname= "Eta,Phi;(Eta,Phi) distribution for "+ prefix +"s with Pt>20GeV"
+        hname= "Eta,Phi;Eta_Phi_with_Pt.gt.20GeV"
         htitle= particletype + " #eta,#phi map (candidates with Pt>20GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi "
         groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_20gev')
 
         if particletype in ["Photon"] :
-            hname= "Eta,Phi;(Eta,Phi) distribution of Conv. photons with Pt>20GeV"
+            hname= "Eta,Phi;Eta_Phi_distribution_of_Conv._photons_with_Pt.gt.20GeV"
             htitle= particletype + " #eta,#phi map (candidates with Pt>20GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_20gevandconv')
 
-            hname= "Eta,Phi;(Eta,Phi) distribution of Unconv. photons with Pt>20GeV"
+            hname= "Eta,Phi;Eta_Phi_distribution_of_Unconv._photons_with_Pt.gt.20GeV"
             htitle= particletype + " #eta,#phi map (candidates with Pt>20GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
             groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_20gevandunconv')
 
@@ -157,10 +159,6 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
             groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=0.,xmax=800.)
 
         # histograms per region
-        hname = "N"
-        htitle = "Number of " + prefix + "s (" + reconame + " " + withTrigger+ ") ; N" + tlabel +" ; N_{events} "
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname,  title=htitle, path='Expert',xbins=20,xmin=0.0,xmax=20.0)
-
         hname= "Et"
         htitle= particletype + " transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ") ; Et" + tlabel + " ; N" + tlabel
         BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert',xbins=100,xmin=2.,xmax=102000.0,thecut='is_pt_gt_2_5gev')
@@ -198,75 +196,75 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
 
         hname= "Ehad1"
         htitle = particletype + " energy leakage in 1st hadronic sampling " + " (" + reconame + " " + withTrigger + ")" + "; Ehad1 (MeV) ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-1000.,xmax=10000.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-1000.,xmax=10000.)
 
         if particletype in ["Electron"] :
             hname= "EoverP"
             htitle = particletype + " matched track E over P " + " (" + reconame + " " + withTrigger + ")" + "; EoverP ; N" + tlabel
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=5.)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=5.)
 
         hname= "CoreEM"
         htitle = particletype + " core energy in EM calorimeter " + " (" + reconame + " " + withTrigger + ")" + "; E (MeV) ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-5000.,xmax=250000.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-5000.,xmax=250000.)
 
         hname= "F0"
         htitle = particletype + " fractional energy in Presampler " + " (" + reconame + " " + withTrigger + ")" + "; F0 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
         hname= "F1"
         htitle = particletype + " fractional energy in 1st sampling " + " (" + reconame + " " + withTrigger + ")" + "; F1 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
         hname= "F2"
         htitle = particletype + " fractional energy in 2nd sampling " + " (" + reconame + " " + withTrigger + ")" + "; F2 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
         hname= "F3"
         htitle = particletype + " fractional energy in 3rd sampling " + " (" + reconame + " " + withTrigger + ")" + "; F3 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
         hname= "Re233e237"
         htitle = particletype + "  uncor. energy fraction in 3x3/3x7 cells in em sampling 2 " + " (" + reconame + " " + withTrigger + ")" + "; R 3x3/3x7 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=2.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=2.)
 
         hname= "Re237e277"
         htitle = particletype + "  uncor. energy fraction in 3x7/7x7 cells in em sampling 2 " + " (" + reconame + " " + withTrigger + ")" + "; R 3x7/7x7 ; N" + tlabel
-        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=2.)
+        BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=2.)
 
         # Specific plots for electrons (related to electron track) in Expert/Tracks Panel
 
         if particletype in ["Electron"] :
             hname= "NOfBLayerHits"
             htitle = particletype + " NOfBLayerHits (" + reconame + " " + withTrigger + ") ; N_{BlayerHits} ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=6,xmin=-0.5,xmax=5.5)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=6,xmin=-0.5,xmax=5.5)
 
             hname= "NOfPixelHits"
             htitle = particletype + " NOfPixelHits (" + reconame + " " + withTrigger + ") ; N_{PixelHits} ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=6,xmin=-0.5,xmax=5.5)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=6,xmin=-0.5,xmax=5.5)
 
             hname= "NOfSCTHits"
             htitle = particletype + " NOfSCTHits (" + reconame + " " + withTrigger + ") ; N_{SCTHits} ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=25.5)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=25.5)
 
             hname= "NOfTRTHits"
             htitle = particletype + " NOfTRTHits (" + reconame + " " + withTrigger + ") ; N_{TRTHits} ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=50.5)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=50.5)
 
             hname= "NOfTRTHighThresholdHits"
             htitle = particletype + " NOfTRTHighThresholdHits (" + reconame + " " + withTrigger + ") ; N_{TRT HighThres. Hits} ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=50.5)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=50.5)
 
             hname= "DeltaEta1"
             htitle = particletype + " track match #Delta #eta (1st sampling) " + " (" + reconame + " " + withTrigger + ")  ; #Delta #eta ; N_{e} "
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=50,xmin=-0.05,xmax=0.05)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=50,xmin=-0.05,xmax=0.05)
 
             hname= "DeltaPhi2"
             htitle = particletype + " track match #Delta #Phi (2st sampling) " + " (" + reconame + " " + withTrigger + ")  ; #Delta #phi ; N_{e} "
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=50,xmin=-0.15,xmax=0.15)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=50,xmin=-0.15,xmax=0.15)
 
             hname= "Trackd0"
             htitle = particletype + " track d0 " + " (" + reconame + " " + withTrigger + ")  ; d0 ; N_{e}"
-            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=100,xmin=-5.,xmax=5.)
+            BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=100,xmin=-5.,xmax=5.)
 
         # LumiBlock dependant histogram
 
@@ -275,15 +273,15 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
         groupe.defineHistogram(hname,title=htitle,path='byLB',type='TH1F',xbins=2000,xmin=-0.5,xmax=1999.5)
 
         if particletype in ["Photon"] :
-            hname= "LBEvoNPhotonsUnconv ; Number of Unconv. photons vs LB"
+            hname= "LBEvoNPhotonsUnconv;Number_of_Unconv._photons_vs_LB"
             htitle = "Unconverted photon number versus LB " + " (" + reconame + " " + withTrigger + ") ; LB ; N_{Unconv. #gamma}"
             groupe.defineHistogram(hname,title=htitle, path='byLB',xbins=2000,xmin=-0.5,xmax=1999.)
 
-            hname= "LBEvoNPhotonsConv ; Number of Conv. photons vs LB"
+            hname= "LBEvoNPhotonsConv;Number_of_Conv._photons_vs_LB"
             htitle = "Converted photon number versus LB " + " (" + reconame + " " + withTrigger + ") ; LB ; N_{Conv. #gamma}"
             groupe.defineHistogram(hname,title=htitle, path='byLB',xbins=2000,xmin=-0.5,xmax=1999.)
 
-            hname= "is_pt_gt_4gevandconv,LB;Conversion fraction vs LB"
+            hname= "is_pt_gt_4gevandconv,LB;Conversion_fraction_vs_LB"
             htitle = "Converted photon fraction versus LB " + " (" + reconame + " " + withTrigger + ") ; LB ; Conv. #gamma fraction"
             groupe.defineHistogram(hname,title=htitle, path='byLB',type = 'TEfficiency', xbins=2000,xmin=-0.5,xmax=1999.)
 
@@ -298,178 +296,178 @@ def BookTnPHistograms(groupe,reconame,TnPType,MassLowerCut,MassUpperCut):
     tlabel = "_{" + TnPType + "}"
     particletype = 'Electron'
 
-    hname = "LB; Number of " + TnPType + "candidates vs LB"
+    hname = "LB;Number_of_" + TnPType + "_candidates_vs_LB"
     htitle = "Number of " + TnPType +" candidates vs LB ; LB ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=2000,xmin=-0.5,xmax=1999.5)
 
-    hname = "MassZ ;" + TnPType + " candidate mass"
+    hname = "MassZ;" + TnPType + "_candidate_mass"
     htitle = TnPType + " candidate mass ; M_{ee} [MeV/ c^{2}]; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=100,xmin=MassLowerCut,xmax=MassUpperCut)
 
-    hname = "MassZ_BARREL ;" + TnPType + " candidate mass distribution (Lead in Barrel)"
+    hname = "MassZ_BARREL;" + TnPType + "_candidate_mass_distribution_Lead_in_Barrel"
     htitle = TnPType + " candidate mass in Barrel ; M_{ee} [MeV/ c^{2}]; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=100,xmin=MassLowerCut,xmax=MassUpperCut)
 
-    hname = "MassZ_ENDCAP ;" + TnPType + " candidate mass distribution (Lead in EndCap)"
+    hname = "MassZ_ENDCAP;" + TnPType + "_candidate_mass_distribution_Lead_in_EndCap"
     htitle = TnPType + " candidate mass in Barrel ; M_{ee} [MeV/ c^{2}]; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=100,xmin=MassLowerCut,xmax=MassUpperCut)
 
-    hname = "MassZ_CRACK ;" + TnPType + " candidate mass distribution (Lead in Crack)"
+    hname = "MassZ_CRACK;" + TnPType + "_candidate_mass_distribution_Lead_in_Crack"
     htitle = TnPType + " candidate mass in Barrel ; M_{ee} [MeV/ c^{2}]; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=100,xmin=MassLowerCut,xmax=MassUpperCut)
 
     # The next two histos receive 1 entry per leading electron probe candidate
 
-    hname = "EtaZ ; Number of "+ TnPType + " candidates vs eta_leading_e "
+    hname = "EtaZ;Number_of_"+ TnPType + "_candidates_vs_eta_leading_e"
     htitle = "Number of "+ TnPType +" candidates vs #eta of leading e" + " ; #eta_{e_{lead}} ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname = "PhiZ ; Number of "+ TnPType + " candidates vs phi_leading_e "
+    hname = "PhiZ;Number_of_"+ TnPType + "_candidates_vs_phi_leading_e"
     htitle = "Number of "+ TnPType +" candidates vs #phi of e" + " ; #phi_{e_{lead}} ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='TnPCandidate',xbins=64,xmin=-3.2,xmax=3.2)
 
     # EFFICIENCIES IN EFFICIENCIES PANEL
 
-    hname= "is_Tight,Etprobe; Tag & Probe ID efficiency vs etprobe"
+    hname = "is_Tight,Etprobe;TnP_ID_efficiency_vs_etprobe"
     htitle = "Tag & Probe  ID efficiency vs Et_{e} [MeV] ; Et_{e} [MeV] ; LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=100,xmin=0.,xmax=250000.)
 
-    hname= "is_Tight,Etaprobe; Tag & Probe ID efficiency vs etaprobe"
+    hname = "is_Tight,Etaprobe;TnP_ID_efficiency_vs_etaprobe"
     htitle = "Tag & Probe  ID efficiency vs #eta ; #eta _{e} ; LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "is_Tight,Phiprobe; Tag & Probe ID efficiency vs phiprobe"
+    hname = "is_Tight,Phiprobe;TnP_ID_efficiency_vs_phiprobe"
     htitle = "Tag & Probe  ID efficiency vs #eta ; #phi _{e} ; LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "is_Iso,Etprobe; Tag & Probe  Calo Iso efficiency vs etprobe"
+    hname = "is_Iso,Etprobe;TnP_Calo_Iso_efficiency_vs_etprobe"
     htitle = "Tag & Probe  Calo. Isolation efficiency vs Et _{e} [MeV] ; Et_{e} [MeV] ; Calo Iso Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=100,xmin=0.,xmax=250000.)
 
-    hname= "is_Iso,Etaprobe; Tag & Probe Calo Iso efficiency vs etaprobe"
+    hname = "is_Iso,Etaprobe;TnP_Calo_Iso_efficiency_vs_etaprobe"
     htitle = "Tag & Probe  Calo. Isolation efficiency vs #eta_{e} ; #eta_{e} ; Calo. Iso Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "is_Iso,Phiprobe; Tag & Probe Calo Iso efficiency vs phiprobe"
+    hname = "is_Iso,Phiprobe;TnP_Calo_Iso_efficiency_vs_phiprobe"
     htitle = "Tag & Probe Calo. Isolation efficiency vs #phi_{e} ; #phi_{e}; Calo Iso. Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "is_IsoandTight,Etprobe; Tag & Probe Calo Iso + LHTight efficiency vs etprobe"
+    hname = "is_IsoandTight,Etprobe;TnP_Calo_Iso_and_LHTight_efficiency_vs_etprobe"
     htitle = "Tag & Probe (Isolation & LHTight ID) efficiency vs Et_{e} [MeV] ; Et_{e} [MeV] ; Calo Iso & LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=100,xmin=0.,xmax=250000.)
 
-    hname= "is_IsoandTight,Etaprobe; Tag & Probe Calo Iso + LHTight efficiency vs etaprobe"
+    hname = "is_IsoandTight,Etaprobe;TnP_Calo_Iso_and_LHTight_efficiency_vs_etaprobe"
     htitle = "Tag & Probe (Isolation & LHTight ID) efficiency vs #eta ; #eta _{e} ; Calo. Iso & LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "is_IsoandTight,Phiprobe; Tag & Probe Calo Iso + LHTight ID efficiency vs phiprobe"
+    hname = "is_IsoandTight,Phiprobe;TnP_Calo_Iso_and_LHTight_ID_efficiency_vs_phiprobe"
     htitle = "Tag & Probe (Isolation & LHTight ID) efficiency vs #phi_{e} ; #phi_{e} ; Calo Iso & LHTight ID Eff. "
     groupe.defineHistogram(hname,title=htitle, path='Efficiencies',type = 'TEfficiency', xbins=64,xmin=-3.2,xmax=3.2)
 
 
     # Probe electron candidate distributions
 
-    hname = "Etprobe ;Etprobe distribution"
+    hname = "Etprobe;Etprobe_distribution"
     htitle = "Number of "+ TnPType +" candidates vs of leading e ; Et_{probe} ; N_{e_ {probe}}"
     groupe.defineHistogram(hname,title=htitle, path='ElectronProbes',xbins=100,xmin=-1000.0,xmax=200000.0)
 
-    hname= "Etaprobe ;Etaprobe distribution"
+    hname = "Etaprobe;Etaprobe_distribution"
     htitle = "#eta distribution of probe candidates ; #eta_{e_{probe}} ; N_{e_ {probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname = "Phiprobe ;Phiprobe distribution"
+    hname = "Phiprobe;Phiprobe_distribution"
     htitle = "#phi distribution of probe candidates ; #phi_{e_{probe}} ; N_{e_ {probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "Etaprobe,Phiprobe;(Eta,Phi) map of electron probes for T&P "+ TnPType
+    hname = "Etaprobe,Phiprobe;Eta_Phi_map_of_electron_probes_for_T_and_P_"+ TnPType
     htitle= "Concerted photons #eta,#phi map (candidates with Pt>4GeV)" + " ; #eta_{e} ; #phi_{e}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2)
 
-    hname= "Timeprobe ;Time of electron probe"
+    hname = "Timeprobe;Time_of_electron_probe"
     htitle = "Time distribution of probe candidates ; Time_{e_{probe}} [ns] ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes',xbins=90,xmin=-30.,xmax=60.)
 
-    hname= "TopoEtCone40probe; TopoEtCone40 of electron probe"
+    hname = "TopoEtCone40probe;TopoEtCone40_of_electron_probe"
     htitle = "Electron probe Topocluster Isolation Energy ; TopoEtCone40 [MeV] ; N_{e_{probe}} "
     groupe.defineHistogram(hname,title=htitle, path='ElectronProbes',xbins=100,xmin=-10000.,xmax=40000.)
 
-    hname= "PtCone20probe; PtCone20 of electron probe"
+    hname = "PtCone20probe;PtCone20_of_electron_probe"
     htitle = "Electron probe Track Isolation Pt [MeV]; PtCone20 [MeV] ; N_{e_{probe}} "
     groupe.defineHistogram(hname,title=htitle, path='ElectronProbes',xbins=64,xmin=-10000.,xmax=40000.)
 
     # Track distributions
 
-    hname= "NOfBLayerHits"
+    hname = "NOfBLayerHitsProbe"
     htitle = "Electron probe NOfBLayerHits ; N_{BlayerHits} ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=6,xmin=-0.5,xmax=5.5)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=6,xmin=-0.5,xmax=5.5)
 
-    hname= "NOfPixelHits"
+    hname = "NOfPixelHitsProbe"
     htitle = "Electron probe NOfPixelHits ; N_{PixelHits} ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=6,xmin=-0.5,xmax=5.5)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=6,xmin=-0.5,xmax=5.5)
 
-    hname= "NOfSCTHits"
+    hname = "NOfSCTHitsProbe"
     htitle = "Electron probe NOfSCTHits ; N_{SCTHits} ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=25.5)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=25.5)
 
-    hname= "NOfTRTHits"
+    hname = "NOfTRTHitsProbe"
     htitle = "Electron probe NOfTRTHits ; N_{TRTHits} ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=50.5)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=50.5)
 
-    hname= "NOfTRTHighThresholdHits"
+    hname = "NOfTRTHighThresholdHitsProbe"
     htitle = "Electron probe NOfTRTHighThresholdHits ; N_{TRT HighThres. Hits} ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=26,xmin=-0.5,xmax=50.5)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=26,xmin=-0.5,xmax=50.5)
 
-    hname= "DeltaEta1"
+    hname = "DeltaEta1Probe"
     htitle = "Electron probe track match #Delta #eta (1st sampling) ; #Delta #eta ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=50,xmin=-0.05,xmax=0.05)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=50,xmin=-0.05,xmax=0.05)
 
-    hname= "DeltaPhi2"
+    hname = "DeltaPhi2Probe"
     htitle = "Electron probe track match #Delta #Phi (2st sampling) ; #Delta #phi ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=50,xmin=-0.15,xmax=0.15)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=50,xmin=-0.15,xmax=0.15)
 
-    hname= "Trackd0"
+    hname = "Trackd0Probe"
     htitle = "Electron probe track d0 ; d0 ; N_{e_{probe}}"
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/Tracks',xbins=100,xmin=-5.,xmax=5.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Tracks',xbins=100,xmin=-5.,xmax=5.)
 
     # ID distributions
 
-    hname= "Ehad1"
+    hname = "Ehad1Probe"
     htitle = "Electron probe energy leakage in 1st hadronic sampling ; Ehad1 (MeV) ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-1000.,xmax=10000.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-1000.,xmax=10000.)
 
-    hname= "EoverP"
+    hname = "EoverPProbe"
     htitle = "Electron probe matched track E over P ; EoverP ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=5.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=5.)
 
-    hname= "CoreEM"
+    hname = "CoreEMProbe"
     htitle = "Electron probe core energy in EM calorimeter ; E (MeV) ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-5000.,xmax=250000.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-5000.,xmax=250000.)
 
-    hname= "F0"
+    hname = "F0Probe"
     htitle = "Electron probe fractional energy in Presampler ; F0 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
-    hname= "F1"
+    hname = "F1Probe"
     htitle = "Electron probe fractional energy in 1st sampling ; F1 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
-    hname= "F2"
+    hname = "F2Probe"
     htitle = "Electron probe fractional energy in 2nd sampling ; F2 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
-    hname= "F3"
+    hname = "F3Probe"
     htitle = "Electron probe fractional energy in 3rd sampling ; F3 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=-0.2,xmax=1.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=-0.2,xmax=1.)
 
-    hname= "Re233e237"
+    hname = "Re233e237Probe"
     htitle = "Electron probe  uncor. energy fraction in 3x3/3x7 cells in em sampling ; R 3x3/3x7 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=2.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=2.)
 
-    hname= "Re237e277"
+    hname = "Re237e277Probe"
     htitle = "Electron probe  uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ; R 3x7/7x7 ; N_{e_{probe}} "
-    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert/ID',xbins=50,xmin=0.,xmax=2.)
+    BookHistogramsPerRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='ID',xbins=50,xmin=0.,xmax=2.)
 
-    hname= "LBEvoN"
+    hname = "LBEvoNProbe"
     htitle= "Number of " + TnPType + " electron probe per LB ; LB ; N_{e_{probe}} "
     groupe.defineHistogram(hname,title=htitle,path='byLB',type='TH1F',xbins=2000,xmin=-0.5,xmax=1999.5)
 
@@ -489,7 +487,15 @@ def BookFwdElectronHistograms(groupe,reconame,particletype,withTrigger=""):
     htitle = "Number of " + prefix + "s (" + reconame + " " + withTrigger+ ") ; N" + tlabel + " ; N_{event}"
     groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
 
-    hname= "Et ;" + prefix + " Et distribution"
+    hname = "NinENDCAP"
+    htitle = "Number of " + prefix + "s in ENDCAP (" + reconame + " " + withTrigger+ ") ; N" + tlabel + " ; N_{event}"
+    groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
+
+    hname = "NinFORWARD"
+    htitle = "Number of " + prefix + "s in FORWARD (" + reconame + " " + withTrigger+ ") ; N" + tlabel + " ; N_{event}"
+    groupe.defineHistogram(hname,title=htitle, path='',xbins=20,xmin=-0.5,xmax=19.5)
+
+    hname= "Et" 
     htitle= particletype + " transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ")" + " ; Et"+ tlabel +" ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=2.,xmax=102000.0)
 
@@ -501,41 +507,41 @@ def BookFwdElectronHistograms(groupe,reconame,particletype,withTrigger=""):
     htitle= particletype + " #phi" + " (" + reconame + " " + withTrigger + ")" + " ; #phi" + tlabel + " ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2)
 
-    hname= "Eta,Phi;(Eta,Phi) distribution of Pt>2.5GeV"
+    hname= "Eta,Phi;Eta_Phi_distribution_Pt_gt_2.5GeV"
     htitle= particletype + " #eta,#phi map (candidates with Pt>2.5GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi"
     groupe.defineHistogram(hname,title=htitle,path='Expert',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask = 'is_pt_gt_2_5gev')
 
-    hname= "Eta,Phi;(Eta,Phi) distribution for "+ prefix +"s with Pt>10GeV"
+    hname= "Eta,Phi;Eta_Phi_distributionf_Pt_gt_10GeV"
     htitle= particletype + " #eta,#phi map (candidates with Pt>10GeV)" + " (" + reconame + " " + withTrigger + ") ; #eta ; #phi "
     groupe.defineHistogram(hname,title=htitle,path='',type='TH2F',xbins=64,xmin=-3.2,xmax=3.2,ybins=64,ymin=-3.2,ymax=3.2,cutmask='is_pt_gt_10gev')
 
     # shower variables
 
-    hname= "EnergyDensity ; Fwd Electron first moment energy density distribution"
+    hname= "EnergyDensity"
     htitle= "Fwd electron 1st Moment Energy Density" + " (" + reconame + " " + withTrigger + ")" + " ; firstENGdensity ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=200,xmin=0.,xmax=2.0)
 
-    hname= "FracMax ; Fwd Electron fraction of most energetic cell distribution"
+    hname= "FracMax"
     htitle= "Fwd electron fraction of most energetic cell distribution" + " (" + reconame + " " + withTrigger + ")" + " ; lateral moment ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=50,xmin=0.,xmax=1.0)
 
-    hname= "Lateral ; Fwd Electron normalized lateral moment distribution"
+    hname= "Lateral"
     htitle= "Fwd electron lateral moment distribution" + " (" + reconame + " " + withTrigger + ")" + " ; lateral moment ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=0.,xmax=1.0)
 
-    hname= "Longitudinal ; Fwd Electron normalized longitudinal moment distribution"
+    hname= "Longitudinal"
     htitle= "Fwd electron longitudinal moment distribution" + " (" + reconame + " " + withTrigger + ")" + " ; longitudinal moment ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=100,xmin=0.,xmax=1.0)
 
-    hname= "SecondLambda ; Fwd Electron second R moment distribution"
+    hname= "SecondLambda"
     htitle= "Fwd electron lambda second moment distribution" + " (" + reconame + " " + withTrigger + ")" + " ; Second#Lambda ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=500,xmin=0.,xmax=10000.0)
 
-    hname= "SecondR ; Fwd Electron second R moment distribution"
-    htitle= "Fwd electron lateral moment distribution" + " (" + reconame + " " + withTrigger + ")" + " ; SecondR ; N" + tlabel
+    hname= "SecondR"
+    htitle= "Fwd electron SecondR lateral moment distribution" + " (" + reconame + " " + withTrigger + ")" + " ; SecondR ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=500,xmin=0.,xmax=20000.0)
 
-    hname= "CenterLambda ; Fwd Electron shower center from calo front face distribution"
+    hname= "CenterLambda"
     htitle= "Fwd Electron shower center from calo front face distribution" + " (" + reconame + " " + withTrigger + ")" + " ; Center lambda ; N" + tlabel
     groupe.defineHistogram(hname,title=htitle, path='',xbins=500,xmin=0.,xmax=2000.0)
 
@@ -546,10 +552,6 @@ def BookFwdElectronHistograms(groupe,reconame,particletype,withTrigger=""):
     # info per forward region
 
     # histograms per region
-    hname = "N"
-    htitle = "Number of " + prefix + "s (" + reconame + " " + withTrigger+ ") ; N" + tlabel +" ; N_{events} "
-    BookHistogramsPerForwardRegions(thegroupe = groupe, theparttype = particletype, thename = hname,  title=htitle, path='Expert',xbins=20,xmin=0.0,xmax=20.0)
-
     hname= "Et"
     htitle= particletype + " transverse energy [MeV]" + " (" + reconame + " " + withTrigger + ") ; Et" + tlabel + " ; N" + tlabel
     BookHistogramsPerForwardRegions(thegroupe = groupe, theparttype = particletype, thename = hname, title=htitle, path='Expert',xbins=100,xmin=2.,xmax=102000.0,thecut='is_pt_gt_2_5gev')
@@ -578,7 +580,7 @@ def MonitorElectronConfig(inputFlags):
 
     ### STEP 2 ###
 
-    SpareElectronMonitoringGroups = [ "CBTightTrig" ]
+    SpareElectronMonitoringGroups = [ ]
 
     MonitorElectronAlgorithm=CompFactory.MonitorElectronAlgorithm
     elLHTightMonAlg = helper.addAlgorithm(MonitorElectronAlgorithm,'elLHTightMonAlg')
@@ -667,17 +669,17 @@ def MonitorElectronConfig(inputFlags):
     BookHistograms(GroupElectronLHTightTriggered,"LHTightTrig","Electron","WithTrigger")
     # LHLoose Electrons
     BookHistograms(GroupElectronLHLoose,"LHLoose","Electron")
-    BookHistograms(GroupElectronLHLooseTriggered,"LHLooseTrig","Electron","withTrigger")
+    BookHistograms(GroupElectronLHLooseTriggered,"LHLooseTrig","Electron","WithTrigger")
     # Cut Based Tight Electrons
     if ("CBTight" in SpareElectronMonitoringGroups) :
         BookHistograms(GroupElectronCBTight,"CBTight","Electron")
     if ("CBTightTrig" in SpareElectronMonitoringGroups) :
-        BookHistograms(GroupElectronCBTightTriggered,"CBTightTrig","Electron","withTrigger")
+        BookHistograms(GroupElectronCBTightTriggered,"CBTightTrig","Electron","WithTrigger")
     # Cut Based Loose Electrons
     if ("CBLoose" in SpareElectronMonitoringGroups) :
         BookHistograms(GroupElectronCBLoose,"CBLoose","Electron")
     if ("CBLooseTrig" in SpareElectronMonitoringGroups) :
-        BookHistograms(GroupElectronCBLooseTriggered,"CBLooseTrig","Electron","withTrigger")
+        BookHistograms(GroupElectronCBLooseTriggered,"CBLooseTrig","Electron","WithTrigger")
 
     ### STEP 6 ###
     return helper.result()
@@ -760,9 +762,10 @@ def MonitorTnPConfig(inputFlags):
 
     ### STEP 2 ###
 
-    MonitorTnPAlgorithm=CompFactory.MonitorTnPAlgorithm
+    MonitorTnPAlgorithm = CompFactory.MonitorTnPAlgorithm
     ZeeMonAlg = helper.addAlgorithm(MonitorTnPAlgorithm,'TnPZeeMonAlg')
     JPsiMonAlg = helper.addAlgorithm(MonitorTnPAlgorithm,'TnPJpsiMonAlg')
+
 
     ### STEP 3 ###
     # Edit properties of algorithms
@@ -782,10 +785,10 @@ def MonitorTnPConfig(inputFlags):
     JPsiMonAlg.ParticleContainerName = "Electrons"
     JPsiMonAlg.RecoName = "LHLoose"
     JPsiMonAlg.ParticlePrefix = "electron"
-    JPsiMonAlg.MassPeak = 3097
-    JPsiMonAlg.ElectronEtCut = 3000
-    JPsiMonAlg.MassLowerCut = 2500
-    JPsiMonAlg.MassUpperCut = 3500
+    JPsiMonAlg.MassPeak = 3097.
+    JPsiMonAlg.ElectronEtCut = 3000.
+    JPsiMonAlg.MassLowerCut = 2500.
+    JPsiMonAlg.MassUpperCut = 3500.
     JPsiMonAlg.TnPType = "JPsi"
     JPsiMonAlg.TriggerChain =egammaConf.monitoring_Jpsiee[0]
 
@@ -880,7 +883,6 @@ def MonitorForwardElectronConfig(inputFlags):
         # to enable a trigger filter, for example:
         fwdelCBLooseTrigMonAlg.TriggerChain = egammaConf.primary_single_ele[0]
 
-
     ### STEP 4 ###
 
     #GroupFwdElectronLHTight = helper.addGroup(fwdelLHTightMonAlg, 'MonitorFwdElectron', 'egamma/LHTightFwdElectrons/')
@@ -900,21 +902,21 @@ def MonitorForwardElectronConfig(inputFlags):
     # Configure histograms
 
     # LHTight FwdElectrons
-    #BookHistograms(GroupFwdElectronLHTight,"LHTight","FwdElectron")
-    #BookHistograms(GroupFwdElectronLHTightTriggered,"LHTightTrig","FwdElectron","WithTrigger")
+    #BookFwdHistograms(GroupFwdElectronLHTight,"LHTight","FwdElectron")
+    #BookFwdHistograms(GroupFwdElectronLHTightTriggered,"LHTightTrig","FwdElectron","WithTrigger")
     # LHLoose FwdElectrons
-    #BookHistograms(GroupFwdElectronLHLoose,"LHLoose","FwdElectron")
-    #BookHistograms(GroupFwdElectronLHLooseTriggered,"LHLooseTrig","FwdElectron","withTrigger")
+    #BookFwdHistograms(GroupFwdElectronLHLoose,"LHLoose","FwdElectron")
+    #BookFwdHistograms(GroupFwdElectronLHLooseTriggered,"LHLooseTrig","FwdElectron","WithTrigger")
     # Cut Based Tight FwdElectrons
     if ("CBFwdTight" in SpareFwdElectronMonitoringGroups) :
         BookFwdElectronHistograms(GroupFwdElectronCBTight,"CBTight","FwdElectron")
     if ("CBFwdTightTrig" in SpareFwdElectronMonitoringGroups) :
-        BookFwdElectronHistograms(GroupFwdElectronCBTightTriggered,"CBTightTrig","FwdElectron","withTrigger")
+        BookFwdElectronHistograms(GroupFwdElectronCBTightTriggered,"CBTightTrig","FwdElectron","WithTrigger")
     # Cut Based Loose FwdElectrons
     if ("CBFwdLoose" in SpareFwdElectronMonitoringGroups) :
         BookFwdElectronHistograms(GroupFwdElectronCBLoose,"CBLoose","FwdElectron")
     if ("CBFwdLooseTrig" in SpareFwdElectronMonitoringGroups) :
-        BookFwdElectronHistograms(GroupFwdElectronCBLooseTriggered,"CBLooseTrig","FwdElectron","withTrigger")
+        BookFwdElectronHistograms(GroupFwdElectronCBLooseTriggered,"CBLooseTrig","FwdElectron","WithTrigger")
 
     ### STEP 6 ###
     return helper.result()
@@ -934,9 +936,14 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
+
     ConfigFlags.Input.Files = [nightly+file]
+#    ConfigFlags.Input.Files = 'AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'MonitorEgammaOutput.root'
+#    ConfigFlags.Output.HISTFileName = 'MonitorEgammaOutput.root'
+
+# To produce WebDisplay, filename must follow a certain format
+    ConfigFlags.Output.HISTFileName = 'data16_13TeV.00311321.physics_Main.merge.HIST.f1156_h347._0002.1.root'
 
     ConfigFlags.lock()
 
@@ -959,12 +966,18 @@ if __name__=='__main__':
     cfg.merge(MonitorFwdElectronAcc)
 
     # If you want to turn on more detailed messages ...
-    #MonitorTnPAcc.getEventAlgo('TnPZeeMonAlg').OutputLevel = 2 # DEBUG
-    #MonitorFwdElectronAcc.getEventAlgo('fwdelCBTightMonAlg').OutputLevel = 2 # DEBUG
+
+    #MonitorElectronAcc.getEventAlgo('elLHLooseMonAlg').OutputLevel = 2 # 2 = DEBUG
+    #MonitorPhotonAcc.getEventAlgo('phCBLooseMonAlg').OutputLevel = 2 # 2 = DEBUG
+    #MonitorTnPAcc.getEventAlgo('TnPZeeMonAlg').OutputLevel = 2 # 2 = DEBUG
+    #MonitorFwdElectronAcc.getEventAlgo('fwdelCBTightMonAlg').OutputLevel = 2 # 2 = DEBUG
+
+    MonitorFwdElectronAcc = MonitorForwardElectronConfig(ConfigFlags)
+    cfg.merge(MonitorFwdElectronAcc)
 
     cfg.printConfig(withDetails=False) # set True for exhaustive info
     #cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    #cfg.run(2)
-    cfg.run(-1)
-    #cfg.run(600) #use cfg.run(20) to only run on first 20 events
+    #cfg.run(10)
+    cfg.run(-1)  # the one to process all events  
+    #cfg.run(600) # use cfg.run(20) to only run on first 20 events

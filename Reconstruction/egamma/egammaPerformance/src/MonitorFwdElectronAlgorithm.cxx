@@ -49,11 +49,14 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
 
     // Particle variables to be monitored
     auto np = Monitored::Scalar<int>("N",0.0);
+    auto np_endcap = Monitored::Scalar<int>("NinENDCAP",0.0);
+    auto np_forward = Monitored::Scalar<int>("NinFORWARD",0.0);
     auto et = Monitored::Scalar<Float_t>("Et",0.0);
     auto eta = Monitored::Scalar<Float_t>("Eta",0.0);
     auto phi = Monitored::Scalar<Float_t>("Phi",0.0);
     auto is_pt_gt_2_5gev = Monitored::Scalar<bool>("is_pt_gt_2_5gev",false);
     auto is_pt_gt_10gev = Monitored::Scalar<bool>("is_pt_gt_10gev",false);
+
     auto time = Monitored::Scalar<Float_t>("Time",0.0);
 
     auto firstENGdens = Monitored::Scalar<Float_t>("EnergyDensity",0.0);
@@ -70,18 +73,20 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
     // variables per Region
 
     // ENDCAP
-    auto np_endcap = Monitored::Scalar<int>("NinENDCAP",0.0);
     auto et_endcap = Monitored::Scalar<Float_t>("EtinENDCAP",0.0);
     auto eta_endcap = Monitored::Scalar<Float_t>("EtainENDCAP",0.0);
     auto phi_endcap = Monitored::Scalar<Float_t>("PhiinENDCAP",0.0);
     auto time_endcap = Monitored::Scalar<Float_t>("TimeinENDCAP",0.0);
+    auto is_pt_gt_2_5gev_endcap = Monitored::Scalar<bool>("is_pt_gt_2_5gevENDCAP",false);
+    auto is_pt_gt_10gev_endcap = Monitored::Scalar<bool>("is_pt_gt_10gevENDCAP",false);
 
     // FORWARD
-    auto np_forward = Monitored::Scalar<int>("NinFORWARD",0.0);
     auto et_forward = Monitored::Scalar<Float_t>("EtinFORWARD",0.0);
     auto eta_forward = Monitored::Scalar<Float_t>("EtainFORWARD",0.0);
     auto phi_forward = Monitored::Scalar<Float_t>("PhiinFORWARD",0.0);
     auto time_forward = Monitored::Scalar<Float_t>("TimeinFORWARD",0.0);
+    auto is_pt_gt_2_5gev_forward = Monitored::Scalar<bool>("is_pt_gt_2_5gevFORWARD",false);
+    auto is_pt_gt_10gev_forward = Monitored::Scalar<bool>("is_pt_gt_10gevFORWARD",false);
 
     // Set the values of the monitored variables for the event
 
@@ -109,8 +114,12 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
       Float_t myeta = e_iter->eta();
       Float_t myphi = e_iter->phi();
 
-      is_pt_gt_2_5gev = myet > 2500. ;
-      is_pt_gt_10gev = myet > 10000. ;
+      bool myis_pt_gt_2_5gev = myet > 2500. ;
+      bool myis_pt_gt_10gev = myet > 10000. ;
+
+      is_pt_gt_2_5gev = myis_pt_gt_2_5gev ;
+      is_pt_gt_10gev = myis_pt_gt_10gev ;
+
 
       // Associated cluster details
       // Shower shape variable details
@@ -153,14 +162,13 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
           mynp_endcap++;
           et_endcap = myet ; eta_endcap = myeta ;
           phi_endcap = myphi ; time_endcap = mytime;
-          fill("MonitorFwdElectron",et_endcap,eta_endcap,phi_endcap,time_endcap,is_pt_gt_10gev);
+          fill("MonitorFwdElectron",et_endcap,eta_endcap,phi_endcap,time_endcap,is_pt_gt_2_5gev_endcap,is_pt_gt_10gev_endcap);
           break;
         case FORWARD :
           mynp_forward++;
-          mynp_forward++;
           et_forward = myet ; eta_forward = myeta ;
           phi_forward = myphi ; time_forward = mytime;
-          fill("MonitorFwdElectron",et_forward,eta_forward,phi_forward,time_forward,is_pt_gt_10gev);
+          fill("MonitorFwdElectron",et_forward,eta_forward,phi_forward,time_forward,is_pt_gt_2_5gev_forward,is_pt_gt_10gev_forward);
           break;
         default :
           //ATH_MSG_WARNING("found an electron outside the |eta| > 2.47 acceptance");
@@ -179,7 +187,7 @@ StatusCode MonitorFwdElectronAlgorithm::fillHistograms( const EventContext& ctx 
     }
 
     np = mynp; np_endcap = mynp_endcap ; np_forward = mynp_forward ;
-    fill("MonitorFwdElectron",np,np_endcap,np_forward,is_pt_gt_10gev);
+    fill("MonitorFwdElectron",np,np_endcap);
 
     return StatusCode::SUCCESS;
 }
