@@ -23,13 +23,7 @@
 #include <string>
 
 using namespace InDetDD;
-// or just the ones we need.
-// using InDetDD::SiDetectorManager;
-// using InDetDD::SiDetectorElement;
-// using InDetDD::SiDetectorElementCollection;
-// using InDetDD::SiLocalPosition;
-// using InDetDD::SiCellId;
-// using InDetDD::SiIntersect;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -563,7 +557,7 @@ ReadSiDetectorElements::printDifference() const {
   SiDetectorElementCollection::const_iterator elementC = elementsC->begin();
   SiDetectorElementCollection::const_iterator elementM = elementsM->begin();
   SiDetectorElementCollection::const_iterator elementMe = elementsM->end();
-  for (; elementM!=elementMe; elementC++, elementM++) {
+  for (; elementM!=elementMe; ++elementC, ++elementM) {
     auto diff = (*elementC)->center()-(*elementM)->center();
     if (diff[0]!=0. or diff[1]!=0. or diff[2]!=0.) {
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -693,8 +687,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       ATH_MSG_ALWAYS(" Near bond gap: (tolerance = " << tolerance/CLHEP::mm << " mm) : " 
                      <<  element->nearBondGap(globalPos, tolerance));
       SiCellId returnedCellId = element->cellIdOfPosition(localPosNew);
-      //     ATH_MSG_ALWAYS(" Returned cell Id (phiIndex,etaIndex) = " 
-      //     << returnedCellId.phiIndex() << ", " << returnedCellId.etaIndex()); 
+
       ATH_MSG_ALWAYS(" Returned cell Id [phiIndex.etaIndex] = " 
                      << returnedCellId); 
       ATH_MSG_ALWAYS(" using global position sin(tilt), tilt (deg), sin(stereo), stereo (deg) = "
