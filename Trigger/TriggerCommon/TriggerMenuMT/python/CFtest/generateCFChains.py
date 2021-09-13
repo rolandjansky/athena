@@ -2,11 +2,15 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+
 ##########################################
-# This is the menu:
+# generateCFChains generates some menu-like chains, outside the menu generation framework,  
+# using the Control-flow framework alone
 ###########################################
 
-def generateChains():
+
+
+def generateCFChains(opt):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
     from DecisionHandling.TestUtils import makeChain, makeChainStep
     
@@ -20,8 +24,8 @@ def generateChains():
         electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
         precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
         
-        FastCaloStep = makeChainStep("ElectronFastCaloStep", [fastCaloSeq])
-        FastElectronStep = makeChainStep("ElectronFastTrackStep", [electronSeq])
+        FastCaloStep      = makeChainStep("ElectronFastCaloStep", [fastCaloSeq])
+        FastElectronStep  = makeChainStep("ElectronFastTrackStep", [electronSeq])
         PrecisionCaloStep = makeChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
         
         electronChains  = [
@@ -33,12 +37,12 @@ def generateChains():
         testChains += electronChains
 
         from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
-        fastPhotonSeq = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
+        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
+        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
         precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
         
-        FastCaloStep = makeChainStep("PhotonFastCaloStep", [fastCaloSeq])
-        fastPhotonStep = makeChainStep("PhotonStep2", [fastPhotonSeq])
+        FastCaloStep            = makeChainStep("PhotonFastCaloStep", [fastCaloSeq])
+        fastPhotonStep          = makeChainStep("PhotonStep2", [fastPhotonSeq])
         precisionCaloPhotonStep = makeChainStep("precisionCaloPhotonStep", [precisionCaloPhotonSeq])
         
         photonChains = [
@@ -270,40 +274,4 @@ def generateChains():
         comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM7_MU8F', L1Thresholds=["EM7", "MU8F"],  ChainSteps=[comboStep_et_mufast ])]
     #   comboChains += [Chain(name='HLT_mu8fast_e8_etcut1step',   ChainSteps=[ comboStep_mufast_etcut1_step1 ])]
         testChains += comboChains
-        
-
-### commands here:
-
-from AthenaCommon.Logging import logging
-__log = logging.getLogger('full_menu')
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-createHLTMenuExternally=True # menu will be build up explicitly here 
-doWriteRDOTrigger = False
-doWriteBS = False
-forceEnableAllChains=True
-TriggerFlags.triggerMenuSetup = "LS2_v1"
-
-include("TriggerJobOpts/runHLT_standalone.py")
-
-# make menu manually here:
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-
-generateChains()
-makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
-
-from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
-checkL1HLTConsistency()
-       
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
-generateJSON()
-
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
-generatePrescaleJSON()
    
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
-generateDefaultMonitoringJSON()
-
-from AthenaCommon.AlgSequence import dumpSequence
-dumpSequence(topSequence)

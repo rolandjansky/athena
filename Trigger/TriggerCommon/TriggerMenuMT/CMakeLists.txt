@@ -100,25 +100,28 @@ atlas_install_python_modules( python/*.py
                               python/L1
                               python/HLTMenuConfig
                               python/TriggerAPI
+                              python/CFtest
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
-                       scripts/verify_menu_config.py
-                       scripts/test_full_menu_cf.py
+                       scripts/verify_menu_config.py                       
                        scripts/generateBunchGroupSetFromOldKey.py
                        scripts/trigmenu_modify_prescale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
-                       scripts/generateUnprescaledLists.py
+                       scripts/generateUnprescaledLists.py                       
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:
 atlas_install_scripts( scripts/generateL1MenuMT.sh
                        scripts/trigL1MenuMigrationCheck.sh
                        scripts/test_HLTmenu.sh
-		       scripts/test_slice_independence.sh )
+                       scripts/test_slice_independence.sh
+                       scripts/test_manual_menu_cf.sh
+                       scripts/test_emu_step_menu_processing_cf.sh
+                       scripts/test_emu_step_processing_cf.sh )
 
 atlas_install_joboptions( share/*.py
                           POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
@@ -136,11 +139,14 @@ atlas_add_test( generateMenuMT
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( full_menu_cf
-                SCRIPT scripts/test_full_menu_cf.sh
-                PRIVATE_WORKING_DIRECTORY
-                PROPERTIES TIMEOUT 500
-                POST_EXEC_SCRIPT nopost.sh )
+# control flow tests
+foreach(test manual_menu_cf emu_step_processing_cf emu_step_menu_processing_cf)
+                atlas_add_test( ${test}                
+                SCRIPT scripts/test_${test}.sh
+                LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+                PRIVATE_WORKING_DIRECTORY )
+endforeach()
+
 
 # Unit tests:
 atlas_add_test( ViewCFTest
@@ -163,6 +169,7 @@ atlas_add_test( RecoFragmentsPool
 #
 # Temporary copy of LVL1 XML DTD (remove this and the file once XML menu is deprecated)
 atlas_install_xmls( share/*.dtd )
+atlas_install_data( share/*.ref)
 
 # List of XML menus to be created:
 atlas_build_lvl1_trigger_menu( Physics_pp_run3_v1 )
