@@ -95,6 +95,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
 
+  const unsigned int eFexstep = 25;
   const unsigned int eFexTobstep = 100;
 
   for(int ieta = 1; ieta < 5; ieta++) {
@@ -119,12 +120,13 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int ptMinToTopoCounts = 0;
       ptMinToTopoCounts = thr_eEM.ptMinToTopoCounts(); 
 
-      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV?
+      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in 1 MeV scale
       unsigned int eEMTobEt = 0;
       eEMTobEt = m_eFEXegAlgoTool->getET();
+      
       unsigned int eEMTobEtCounts = 0;
-      eEMTobEtCounts = eEMTobEt/eFexTobstep;//steps of 100 MeV for the TOB
-
+      eEMTobEtCounts = eEMTobEt*eFexstep/eFexTobstep; //rescale from 25 MeV eFEX steps to 100 MeV for the TOB
+      
       // thresholds from Trigger menu
       auto iso_loose  = thr_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
       auto iso_medium = thr_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);

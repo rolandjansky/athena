@@ -142,7 +142,7 @@ StatusCode eFEXDriver::finalize()
         int slotcount = 0;
         for (int layer = 0; layer<=4; layer++){
           std::vector<Identifier> scIDs = (*thistower)->getLayerSCIDs(layer);
-          std::vector<int> splits = (*thistower)->getETSplits();
+          std::vector<unsigned int> splits = (*thistower)->getETSplits();
           for (long unsigned int ncell = 0; ncell < scIDs.size(); ncell++){
             sc_tower_map << (*thistower)->id() << "," << scIDs[ncell] << "," << slotcount << "," << splits[slotcount] << "\n";
             slotcount++;
