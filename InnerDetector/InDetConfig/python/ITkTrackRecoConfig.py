@@ -262,6 +262,14 @@ def ITkTrackRecoCfg(flags):
 
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
+
+    from InDetConfig.TrackingCutsFlags import createITkTrackingFlags
+    createTrackingFlags = createITkTrackingFlags
+    if flags.ITk.doFastTracking:
+        from InDetConfig.TrackingCutsFlags import createITkFastTrackingFlags
+        createTrackingFlags = createITkFastTrackingFlags
+    flags.addFlagsCategory ("ITk.Tracking", createTrackingFlags, prefix=True)
+
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
     result.merge(ITkTrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
     result.merge(ITkTrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
