@@ -151,7 +151,7 @@ Token& Token::fromString(const std::string& source)    {
             }
             if (!p3) p3 = source.c_str() + source.size();
             m_auxString.append (p1, p3-p1);
-            m_auxString += "]";
+            m_auxString += ']';
          }
       }
    }

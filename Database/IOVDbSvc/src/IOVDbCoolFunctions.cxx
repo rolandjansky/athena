@@ -151,7 +151,7 @@ namespace IOVDbNamespace{
     multiversion=(fldPtr->versioningMode()==cool::FolderVersioning::MULTI_VERSION);
     // read and process description string
     folderdesc=fldPtr->description();
-    return std::make_pair(multiversion, folderdesc);
+    return std::make_pair(multiversion, std::move(folderdesc));
   }
   
   
@@ -180,7 +180,7 @@ namespace IOVDbNamespace{
     } else {
       channelNumbers=fldPtr->listChannels();
     }
-    return std::make_pair(channelNumbers, channelNames);
+    return std::make_pair(std::move(channelNumbers), std::move(channelNames));
   }
   
 }

@@ -1471,11 +1471,10 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
   std::string idname;
   StatusCode sc = m_pCLIDSvc->getTypeNameOfID(id, idname);
   if (sc.isFailure() || idname.empty() ) { 
-    std::ostringstream ost;
-    ost << id;
-    idname = ost.str();
+    idname = std::to_string(id);
   }
-  idname = idname + '/' + key;
+  idname += '/';
+  idname += key;
 
   DataObject* obj = SG::asStorable(dho);
   
@@ -1714,7 +1713,7 @@ CLID SGImplSvc::clid( const std::string& key ) const
 std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
 {
   lock_t lock (m_mutex);
-  std::list<CLID> clids;
+  std::vector<CLID> clids;
   SG::DataStore::ConstStoreIterator s_iter, s_end;
   store()->tRange(s_iter, s_end).ignore();
   
@@ -1724,7 +1723,7 @@ std::vector<CLID> SGImplSvc::clids( const std::string& key ) const
     }
   }
   
-  return std::vector<CLID>(clids.begin(), clids.end());
+  return clids;
 }
 
 
