@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: ESD->HIST, R22 data ESD
+# art-description: ESD->HIST, R22 Run 2 data ESD
 # art-type: grid
 # art-memory: 4096
 # art-include: master/Athena
