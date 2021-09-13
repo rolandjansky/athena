@@ -93,18 +93,6 @@ HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j180XXj80_L1J100:
   eventCount: 0
 HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j225XXj100_L1J100:
   eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j135XXj60_L1J100:
-  eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j180XXj80_L1J100:
-  eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j225XXj100_L1J100:
-  eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j135XXj60_L1J100:
-  eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j180XXj80_L1J100:
-  eventCount: 0
-HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_presel2j225XXj100_L1J100:
-  eventCount: 0
 HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
 HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1SC111-CJ15:
@@ -273,14 +261,14 @@ HLT_2mu4_noL2Comb_bJpsimumu_L12MU3V:
   stepFeatures:
     0: 2
     1: 2
-HLT_2mu50_msonly_L1MU14FCH:
-  eventCount: 0
-HLT_2mu6_10invm70_L1MU5VF:
+HLT_2mu4_os_dRAA12_L1BPH-0DR12C-2MU3V:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu50_msonly_L1MU14FCH:
+  eventCount: 0
 HLT_2mu6_10invmAA70_L1MU5VF:
   eventCount: 0
   stepCounts:
@@ -387,6 +375,10 @@ HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r77_L13J35p0ETA23:
 HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r77_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_3j65_0eta290_020jvt_pf_ftf_bdl1r85_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
+HLT_3mu4_L1BPH-0M10-3MU3V:
+  eventCount: 0
+HLT_3mu4_L1BPH-0M10C-3MU3V:
   eventCount: 0
 HLT_3mu4_bDimu2700_L13MU3V:
   eventCount: 0
@@ -608,6 +600,8 @@ HLT_e120_lhvloose_L1EM22VHI:
   eventCount: 0
 HLT_e12_lhloose_2mu10_L12MU8F:
   eventCount: 0
+HLT_e12_lhtight_mu11_dRAB15_invmAB10_L1LFV-eEM8L-MU8VF:
+  eventCount: 0
 HLT_e140_dnnloose_L1EM22VHI:
   eventCount: 0
 HLT_e140_gsf_dnnloose_L1EM22VHI:
@@ -627,6 +621,8 @@ HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12:
   stepFeatures:
     0: 6
 HLT_e14_lhtight_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM12:
+  eventCount: 0
+HLT_e14_lhtight_mu6_dRAB15_invmAB10_L1LFV-eEM12L-MU5VF:
   eventCount: 0
 HLT_e14_lhtight_noringer_e4_etcut_1invmAB5_L1JPSI-1M5-EM12:
   eventCount: 0
@@ -2726,11 +2722,13 @@ HLT_mu10_L1MU8F:
     0: 5
 HLT_mu10_ivarmedium_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
-HLT_mu10_ivarmedium_mu10_10invm70_L12MU8F:
+HLT_mu10_ivarmedium_mu10_10invmAB70_L12MU8F:
   eventCount: 0
 HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM:
   eventCount: 0
-HLT_mu10_lateMu_L1LATE-MU8F_XE50:
+HLT_mu10_lateMu_L1LATE-MU8F_J50:
+  eventCount: 0
+HLT_mu10_lateMu_L1LATE-MU8F_XE30:
   eventCount: 0
 HLT_mu11_mu6_bBmumu_L1LFV-MU8VF:
   eventCount: 0
@@ -2920,7 +2918,7 @@ HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_mu20_ivarmedium_mu4noL1_10invm70_L1MU14FCH:
+HLT_mu20_ivarmedium_mu4noL1_10invmAB70_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -3346,13 +3344,23 @@ HLT_mu6_mu4_L12MU3V:
     0: 1
   stepFeatures:
     0: 4
+HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-C-MU5VFMU3V:
+  eventCount: 0
 HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-C-MU5VFMU3V:
   eventCount: 0
 HLT_mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-MU5VFMU3V:
   eventCount: 0
+HLT_mu6_mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-C-MU5VFMU3V:
+  eventCount: 0
 HLT_mu6_mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-MU5VFMU3V:
   eventCount: 0
+HLT_mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-C-MU5VFMU3V:
+  eventCount: 0
 HLT_mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_bDimu_L1BPH-2M9-0DR15-C-MU5VFMU3V:
   eventCount: 0
 HLT_mu6_mu4_bDimu_L1BPH-2M9-0DR15-MU5VFMU3V:
   eventCount: 0
@@ -3362,7 +3370,11 @@ HLT_mu6_mu4_bDimu_L1MU5VF_2MU3V:
     0: 1
   stepFeatures:
     0: 4
+HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-C-MU5VFMU3V:
+  eventCount: 0
 HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-C-MU5VFMU3V:
   eventCount: 0
 HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-MU5VFMU3V:
   eventCount: 0

@@ -326,6 +326,38 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
             tm.registerTopoAlgo(alg)
 
+        # dimu DR with opposite charge, ATR-23073, ATR-21566
+        # TODO: udpate with phase1 muons
+        listofalgos=[
+            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU", "ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, #0DR12C-2MU4ab 
+        ]
+        for x in listofalgos:
+            class d:
+                pass
+            for k in x:
+                setattr (d, k, x[k])
+            obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype1, str(d.ocut1), d.olist)
+            obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist)
+            toponame = "%iDR%iC-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
+            log.debug("Define %s", toponame)
+            inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
+            algoname = AlgConf.DeltaRSqrIncl1Charge if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaRSqrIncl2
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
+            if (d.mult>1 or d.otype1==d.otype2):
+                alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+                alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+                alg.addgeneric('RequireOneBarrel', d.onebarrel)
+            else:
+                alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
+                alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
+                alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
+                alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET1',    d.ocut1*_et_conversion)
+            alg.addvariable('MinET2',    d.ocut2*_et_conversion)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
+            tm.registerTopoAlgo(alg)
             
         # deta-dphi with ab+ab
         # TODO: udpate with phase1 muons
@@ -1142,6 +1174,19 @@ class TopoAlgoDef:
         alg.addvariable('MinET1',      4*_et_conversion)
         tm.registerTopoAlgo(alg)
 
+        #ATR-19638, 3muon, not all with the same charge
+        # TODO: to be updated with phase1 muons
+        toponame = "0INVM10C-3MU4ab"
+        log.debug("Define %s", toponame)
+        inputList = 'MUab'
+        alg = AlgConf.InvariantMassThreeTOBsIncl1Charge( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr',     0*_et_conversion*_et_conversion)
+        alg.addvariable('MaxMSqr', 10*10*_et_conversion*_et_conversion)
+        alg.addvariable('MinET1',      4*_et_conversion)
+        tm.registerTopoAlgo(alg)
 
         #ATR-18815
         # TODO: to be updated with phase1 muons
@@ -1352,6 +1397,23 @@ class TopoAlgoDef:
         alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
         tm.registerTopoAlgo(alg)
 
+        #ATR-19639, L1_BPH-2M9-0DR15-C-MU6MU4, with opposite charge
+        # TODO: update with phase1 muons
+        toponame = "2INVM9-0DR15-C-MU6ab-MU4ab"
+        log.debug("Define %s", toponame)
+        inputList = ['MUab']
+        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr',     2*2*_et_conversion*_et_conversion)
+        alg.addvariable('MaxMSqr',     9*9*_et_conversion*_et_conversion)
+        alg.addvariable('MinET1',        6*_et_conversion)
+        alg.addvariable('MinET2',        4*_et_conversion)
+        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
+        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
+        tm.registerTopoAlgo(alg)
+
         #ATR-19720, L1_BPH-8M15-0DR22-MU6MU4-BO
         # TODO: update with phase1 muons
         toponame = "8INVM15-0DR22-MU6ab-MU4ab"
@@ -1385,7 +1447,10 @@ class TopoAlgoDef:
         alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
         alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
         tm.registerTopoAlgo(alg)
-        
+       
+
+
+ 
         # CEP_CjJ
         # TODO: update with phase1 jets, what conversion for Xi?
         CEPmap = [

@@ -67,11 +67,6 @@ class ThresholdDef:
         MuonThreshold( "MU8EOF"   ).setThrValue( thr=8  ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
-        # special threshold for magnet-off menu
-        MuonThreshold( "MU0").setThrValue( thr=0 )
-
-
-
         # EM 
         for thrV in [3, 5, 8, 15, 20, 22]:
             #EMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)

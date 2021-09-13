@@ -318,7 +318,7 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
-    'invMassInfo'    : ['10invm70', 'invmJPsi'],
+    'invMassInfo'    : ['invmJPsi'],
     'msonlyInfo'     : ['msonly'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan","os"],
     'topo'           : AllowedTopos_mu,
@@ -1034,10 +1034,11 @@ UnconventionalTrackingChainParts_Default = {
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = [
-    '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
     '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
+    'invmAB10', '10invmAB70',
     ]
 
 # ---- Combined Dictionary of all allowed Values ----

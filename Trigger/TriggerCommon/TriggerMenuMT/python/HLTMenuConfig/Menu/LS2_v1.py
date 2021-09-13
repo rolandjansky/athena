@@ -86,10 +86,11 @@ def setupMenu():
 
         ChainProp(name='HLT_mu6_msonly_L1MU5VF',     groups=SingleMuonGroup, monGroups=['muonMon:shifter','muonMon:val','idMon:t0']),
 
-        ChainProp(name='HLT_2mu6_10invm70_L1MU5VF', groups=SingleMuonGroup),
-        # Using generic hypo
         ChainProp(name='HLT_2mu6_10invmAA70_L1MU5VF', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_XE50', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+
+        # LATE
+        ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_J50', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU3V',  l1SeedThresholds=['MU3V']*2, groups=MultiMuonGroup),
@@ -154,6 +155,13 @@ def setupMenu():
         ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarmedium_probe_L1MU14FCH', l1SeedThresholds=['MU14FCH','PROBEMU3V'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_ivarmedium_mu6_ivarperf_probe_L1MU14FCH', l1SeedThresholds=['MU14FCH','PROBEMU3V'], groups=MultiMuonGroup),
 
+        # 3mu inv mass (ATR-19355, ATR-19638), TODO: HLT invm to be added and moved to BLS signature
+        ChainProp(name='HLT_3mu4_L1BPH-0M10-3MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_3mu4_L1BPH-0M10C-3MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+
+        #ATR-21566, di-muon TLA, TODO: TLA implementation and change stream
+        ChainProp(name='HLT_2mu4_os_dRAA12_L1BPH-0DR12C-2MU3V', l1SeedThresholds=['MU3V'], groups=MultiMuonGroup),
+ 
    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -931,6 +939,16 @@ def setupMenu():
 
         # RCP multiple candidate
         ChainProp(name='HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM', l1SeedThresholds=['MU10BOM']*2, stream=["BphysDelayed"], groups=BphysicsGroup),
+
+        # mu6+mu4 chains with L1 charge cut (ATR-19639)
+        ChainProp(name='HLT_mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bDimu_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
@@ -1104,7 +1122,11 @@ def setupMenu():
         #ATR-23156
         ChainProp(name='HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V_J15', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
         ChainProp(name='HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
-        
+    
+        #ATR-23394
+        ChainProp(name='HLT_e14_lhtight_mu6_dRAB15_invmAB10_L1LFV-eEM12L-MU5VF', l1SeedThresholds=['eEM10L','MU5VF'], stream=[PhysicsStream], groups=BphysicsGroup), #TODO: eEM12L->eEM10L in HLT seeding to fix
+        ChainProp(name='HLT_e12_lhtight_mu11_dRAB15_invmAB10_L1LFV-eEM8L-MU8VF', l1SeedThresholds=['eEM8L','MU8VF'], stream=[PhysicsStream], groups=BphysicsGroup),    
+
         ]
 
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
