@@ -77,17 +77,17 @@ class TrigInDetReco(ExecStep):
         flags = ''
         for i in self.slices:
             if (i=='L2muonLRT') :
-                chains += "'HLT_mu24_LRT_idperf_L1MU20',"
-                chains += "'HLT_mu6_LRT_idperf_L1MU6',"
-                chains += "'HLT_mu6_idperf_L1MU6',"
+                chains += "'HLT_mu24_LRT_idperf_L1MU14FCH',"
+                chains += "'HLT_mu6_LRT_idperf_L1MU5VF',"
+                chains += "'HLT_mu6_idperf_L1MU5VF',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
                 chains += "'HLT_unconvtrk0_fslrt_L1All',"
                 flags  += 'doUnconventionalTrackingSlice=True;'
             if (i=='muon') :
-                chains += "'HLT_mu6_idperf_L1MU6',"
-                chains += "'HLT_mu24_idperf_L1MU20',"
-                chains += "'HLT_mu26_ivarperf_L1MU20',"
+                chains += "'HLT_mu6_idperf_L1MU5VF',"
+                chains += "'HLT_mu24_idperf_L1MU14FCH',"
+                chains += "'HLT_mu26_ivarperf_L1MU14FCH',"
                 flags += 'doMuonSlice=True;'
             if (i=='L2electronLRT') :
                 chains += "'HLT_e5_idperf_loose_lrtloose_L1EM3',"
@@ -122,11 +122,11 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
             if (i=='cosmic') :
-                chains += "'HLT_mu4_cosmic_L1MU4'"
+                chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
             if (i=='bphys') :
-                chains += "'HLT_mu6_idperf_L1MU6',"
-                chains += "'HLT_2mu4_bBmumux_BsmumuPhi_L12MU4',"
+                chains += "'HLT_mu6_idperf_L1MU5VF',"
+                chains += "'HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V',"
                 flags += 'doMuonSlice=True;doBphysicsSlice=True;'
         if ( flags=='' ) : 
             print( "ERROR: no chains configured" )
