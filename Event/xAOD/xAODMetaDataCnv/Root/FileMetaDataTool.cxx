@@ -18,11 +18,9 @@ namespace xAODMaker {
 
 FileMetaDataTool::FileMetaDataTool(const std::string& name)
     : asg::AsgMetadataTool(name) {
-  declareProperty("InputKey", m_inputKey = "FileMetaData",
-                  "Key of xAOD::FileMetaData object in input");
-
-  declareProperty("OutputKey", m_outputKey = "FileMetaData",
-                  "Key of xAOD::FileMetaData in MetaDataStore");
+       declareProperty( "Keys", m_keys = {},
+             "List of keys to propogate from input to output - all if empty "
+             "(default: empty)");
 #ifndef XAOD_STANDALONE
       declareInterface< ::IMetaDataTool >(this);
 #endif  // XAOD_STANDALONE
@@ -38,50 +36,46 @@ StatusCode
       return StatusCode::SUCCESS;
     }
 
-#ifndef XAOD_STANDALONE
-StatusCode
-    FileMetaDataTool::endInputFile(const SG::SourceID&) {
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-    }
-
-StatusCode
-    FileMetaDataTool::beginInputFile(const SG::SourceID&) {
-      return beginInputFile();
-    }
-#endif  // XAOD_STANDALONE
-
-StatusCode
-    FileMetaDataTool::endInputFile() {
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-    }
-
 StatusCode
     FileMetaDataTool::beginInputFile() {
       // Previous input file has been processed
       std::lock_guard lock(m_toolMutex);
 
+      // get the keys for all metadata in input
+      if (m_keys.empty()) {
+         inputMetaStore()->keys<xAOD::FileMetaData>(m_keys);
+      }
+
+      // Now copy all object to MetaDataStore
+      for(const std::string& key : m_keys) {
+         ASG_CHECK(copy(key));
+      }
+
+      return StatusCode::SUCCESS;
+    }
+
+StatusCode
+    FileMetaDataTool::copy(const std::string& key) {
+      ATH_MSG_DEBUG("Copying \"" << key << "\" from InputMetaDataStore");
       // Quit gracefully if there is nothing to do
-      if (!inputMetaStore()->contains< xAOD::FileMetaData >(m_inputKey)) {
-        ATH_MSG_INFO("No xAOD::FileMetaData in the input file");
+      if (!inputMetaStore()->contains< xAOD::FileMetaData >(key)) {
+        ATH_MSG_INFO("No \"" << key << "\" in the input file");
         return StatusCode::SUCCESS;
       }
 
       // Get the FileMetaData object from the input file
       const xAOD::FileMetaData * input = nullptr;
-      ASG_CHECK(inputMetaStore()->retrieve(input, m_inputKey));
+      ASG_CHECK(inputMetaStore()->retrieve(input, key));
 
       // Emit a warning if the FileMetaData from previous files does not
       // match that of the new input file
 #ifdef XAOD_STANDALONE
-      if (outputMetaStore()->contains< xAOD::FileMetaData >(m_outputKey)) {
+      if (outputMetaStore()->contains< xAOD::FileMetaData >(key)) {
         xAOD::FileMetaData * output = nullptr;
-        ASG_CHECK(
-            outputMetaStore()->retrieve(output, m_outputKey));
+        ASG_CHECK(outputMetaStore()->retrieve(output, key));
 #else
-      if (m_metaDataSvc->contains< xAOD::FileMetaData >(m_outputKey)) {
-        const auto *output = m_metaDataSvc->tryConstRetrieve< xAOD::FileMetaData >(m_outputKey);
+      if (m_metaDataSvc->contains< xAOD::FileMetaData >(key)) {
+        const auto *output = m_metaDataSvc->tryConstRetrieve< xAOD::FileMetaData >(key);
         if (!output) return StatusCode::FAILURE;
 #endif  // XAOD_STANDALONE
 
@@ -104,30 +98,25 @@ StatusCode
 #ifdef XAOD_STANDALONE
       ASG_CHECK(
           outputMetaStore()->record< xAOD::FileMetaData >(
-              std::move(output), m_outputKey));
+              std::move(output), key));
 
       ASG_CHECK(
           outputMetaStore()->record< xAOD::FileMetaDataAuxInfo >(
-              std::move(outputAux), m_outputKey + "Aux."));
+              std::move(outputAux), key + "Aux."));
 #else
       ASG_CHECK(
           m_metaDataSvc->record< xAOD::FileMetaData >(
-              std::move(output), m_outputKey));
+              std::move(output), key));
 
       ASG_CHECK(
           m_metaDataSvc->record< xAOD::FileMetaDataAuxInfo >(
-              std::move(outputAux), m_outputKey + "Aux."));
+              std::move(outputAux), key + "Aux."));
 #endif  // XAOD_STANDALONE
 
-      ATH_MSG_INFO("Copied xAOD::FileMetaData to MetaDataStore");
+      ATH_MSG_INFO("Copied \"" << key << "\" to MetaDataStore");
 
       // Return gracefully:
       return StatusCode::SUCCESS;
     }
 
-StatusCode
-    FileMetaDataTool::metaDataStop() {
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-    }
 }  // namespace xAODMaker

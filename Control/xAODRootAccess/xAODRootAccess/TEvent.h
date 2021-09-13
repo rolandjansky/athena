@@ -284,6 +284,11 @@ namespace xAOD {
                                   const std::type_info& ti,
                                   bool silent = false ) override;
 
+      /// Function determining the list keys associated with a type name
+      void getNames(const std::string& targetClassName,
+                    std::vector<std::string>& vkeys,
+                    bool metadata = false) const override;
+
       /// @}
 
       /// @name Functions implementing the IProxyDict interface
