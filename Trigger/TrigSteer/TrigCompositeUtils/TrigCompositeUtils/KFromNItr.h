@@ -72,7 +72,7 @@ namespace TrigCompositeUtils {
 
   private:
     /// The number of indices
-    std::size_t m_N;
+    std::size_t m_N{0};
     /// The current combination
     std::vector<std::size_t> m_current;
   }; //> end class KFromNItr

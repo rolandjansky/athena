@@ -82,7 +82,7 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   typedef std::array<std::array<TH2F*, SCT_Monitoring::N_ENDCAPS>, SCT_Monitoring::N_REGIONS> TH2FArrayLayer;
 
   /** Method to cut on track or hit variables and automatize DEBUG statements */
-  StatusCode failCut(bool value, std::string name) const;
+  StatusCode failCut(bool value, const std::string & name) const;
 
   /** Method to compute incident angle of track to wafer */
   StatusCode findAnglesToWaferSurface(const Amg::Vector3D& mom, const Identifier id,

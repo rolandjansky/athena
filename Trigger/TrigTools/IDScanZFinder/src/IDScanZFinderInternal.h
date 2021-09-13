@@ -100,7 +100,8 @@ protected:  // data members
   double m_invPhiSliceSize;     // the inverse size of the phi slices 
   long   m_NumPhiSlices;        // the number of phi slices, given the width of the RoI 
   
-  double m_phiBinSize;          // the size of the phi slices 
+  double m_phiBinSize;          // the size of the phi slices
+  bool   m_forcePhiBinSize;     // forces the phi bin size to be be used as configured even if below reasonable limit 
   double m_usedphiBinSize;      // the size of the phi slices 
   double m_ROIphiWidth;         // the phi width of the ROI 
   double m_usedROIphiWidth;     // the phi width of the ROI 
@@ -174,6 +175,7 @@ IDScanZFinderInternal<SpacePoint>::IDScanZFinderInternal( const std::string& typ
   m_Name = name;
   
   m_phiBinSize       = 0.2   ;
+  m_forcePhiBinSize  = false ;
   m_usedphiBinSize   = m_phiBinSize   ;
   m_pixOnly          = false ;
   m_ROIphiWidth      = 0.2   ;
@@ -234,7 +236,7 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
   
   // from IDScanZFinder::initialize
   m_usedphiBinSize = m_phiBinSize;
-  if ( m_usedphiBinSize < ZFinder_MinPhiSliceSize ) m_usedphiBinSize = ZFinder_MinPhiSliceSize;
+  if ( m_usedphiBinSize < ZFinder_MinPhiSliceSize and ! m_forcePhiBinSize) m_usedphiBinSize = ZFinder_MinPhiSliceSize;
   if ( m_dphideta > 0 )                             m_dphideta *= -m_dphideta;
   
   m_invPhiSliceSize = 180./(M_PI*m_usedphiBinSize);

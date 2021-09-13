@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -35,7 +35,6 @@
 #include "TopDataPreparation/SampleXsection.h"
 
 namespace top {
-  class AodMetaDataAccess;
   class ConfigurationSettings;
 
   class TopConfig final {
@@ -170,30 +169,6 @@ namespace top {
       }
     }
 
-    // Generators name
-    inline std::string getGenerators() const {return m_generators;}
-    inline void setGenerators(const std::string value) {
-      if (!m_configFixed) {
-        m_generators = value;
-      }
-    }
-
-    // AMITag
-    inline std::string getAMITag() const {return m_AMITag;}
-    inline void setAMITag(const std::string& value) {
-      if (!m_configFixed) {
-        m_AMITag = value;
-      }
-    }
-
-    // Is this a Primary xAOD?
-    inline bool isPrimaryxAOD() const {return m_isPrimaryxAOD;}
-    inline void setIsPrimaryxAOD(const bool value) {
-      if (!m_configFixed) {
-        m_isPrimaryxAOD = value;
-      }
-    }
-
     // Is this a Truth DxAOD?
     inline bool isTruthDxAOD() const {return m_isTruthDxAOD;}
     inline void setIsTruthDxAOD(const bool value) {
@@ -209,10 +184,6 @@ namespace top {
         m_derivationStream = value;
       }
     }
-
-    // AMI tag from metadata
-    std::string const& getAmiTag() const;
-    void setAmiTag(std::string const& amiTag);
 
     inline unsigned int getDSID() const {return m_DSID;}
     inline void setDSID(unsigned int value) {
@@ -381,12 +352,6 @@ namespace top {
     inline std::string nominalWeightName() const {return m_nominalWeightName;}
     inline size_t nominalWeightIndex() const {return m_nominalWeightIndex;}
     inline bool forceNominalWeightFallbackIndex() const {return m_forceWeightIndex;}
-
-    inline void setMCweightsVectorSize(size_t weights_size) {
-      m_MCweightsSize = weights_size;
-    }
-
-    inline size_t MCweightsVectorSize() const {return m_MCweightsSize;}
 
     // Top Parton History
     inline bool doTopPartonHistory() const {return m_doTopPartonHistory;}
@@ -1752,22 +1717,6 @@ namespace top {
 
     // -----------------------------------------------]]]
 
-    /// HL LHC studies
-    inline virtual void HLLHC(const bool s) {
-      if (!m_configFixed) {
-        m_HLLHC = s;
-      }
-    }
-
-    inline virtual bool HLLHC() const {return m_HLLHC;}
-    inline virtual void HLLHCFakes(const bool s) {
-      if (!m_configFixed) {
-        m_HLLHCFakes = s;
-      }
-    }
-
-    inline virtual bool HLLHCFakes() const {return m_HLLHCFakes;}
-
     void setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet = false);
 
     inline virtual std::set<std::string>  btagging_namedSysts(std::string WP) const {return bTag_named_systs.at(WP);}
@@ -2008,9 +1957,6 @@ namespace top {
     unsigned int ttreeIndex(const std::size_t hash) const;
     unsigned int ttreeIndexLoose(const std::size_t hash) const;
 
-    AodMetaDataAccess& aodMetaData();
-    AodMetaDataAccess const& aodMetaData() const {return *m_aodMetaData;}
-
     // Function to handle release series such that it can be cleaner to update in the future
     void setReleaseSeries();
     inline int getReleaseSeries() const {return m_release_series;}
@@ -2065,6 +2011,10 @@ namespace top {
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
 
     inline const std::unordered_map<std::string, std::string>& GetMCMCTranslator() const {return m_showerMCMCtranslator;}
+
+    // Private function only to simplify the setting of AFII values
+    void ReadIsAFII(top::ConfigurationSettings* const& settings);
+    
     
   private:
     // Prevent any more configuration
@@ -2143,12 +2093,8 @@ namespace top {
     bool m_isDataOverlay;
     std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches, m_filterNominalBranches;
     std::string m_generators;
-    std::string m_AMITag;
-    bool m_isPrimaryxAOD;
     bool m_isTruthDxAOD = false;
     std::string m_derivationStream;
-    std::string m_amiTag;
-    int m_amiTagSet = 0;
 
     // Do fakes MM weights calculation? - only for data loose
     bool m_doFakesMMWeightsIFF;
@@ -2217,7 +2163,6 @@ namespace top {
     std::vector<std::string> m_nominalWeightNames;
     std::string m_nominalWeightName;
     size_t m_nominalWeightIndex;
-    size_t m_MCweightsSize;
     bool m_forceWeightIndex; // to force useage of index instead of metadata
 
     // Top Parton History
@@ -2537,10 +2482,6 @@ namespace top {
 
     // -----------------------------------------------]]]
 
-    // Options for upgrade studies
-    bool m_HLLHC;
-    bool m_HLLHCFakes;
-
     // Boosted jet taggers requested by user
     std::vector<std::pair<std::string, std::string> > m_chosen_boostedJetTaggers;
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
@@ -2712,9 +2653,6 @@ namespace top {
     // Number of events to skip (for testing)
     unsigned int m_numberOfEventsToSkip;
 
-    // AOD meta-data access service
-    AodMetaDataAccess* m_aodMetaData;
-
     // Systematics
     std::size_t m_nominalHashValue;
 
@@ -2834,9 +2772,6 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, unsigned int> > m_systAllTTreeIndex;
     std::shared_ptr<std::unordered_map<std::size_t, unsigned int> > m_systAllTTreeLooseIndex;
 
-    // Private function only to simplify the setting of AFII values
-    void ReadIsAFII(top::ConfigurationSettings* const& settings);
-    
     // Private function only to simplify the setting of DataOverlay values
     void ReadIsDataOverlay(top::ConfigurationSettings* const& settings);
 

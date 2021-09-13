@@ -50,10 +50,6 @@ if nThreads >=1 :
 
 theApp.EvtMax = 20
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-xAODMaker__EventInfoCnvAlg.AODKey="EventInfo"
-topSequence+=xAODMaker__EventInfoCnvAlg()
-
 #---------------------------------------------------------------------------------#
 # NEW Conditions access infrastructure
 #
@@ -84,6 +80,13 @@ import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
+
+#If old style ESD with old EventInfo, we will convert it
+if (objKeyStore.isInInput("EventInfo") and not objKeyStore.isInInput( "xAOD::EventInfo")):
+   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+   topSequence+=xAODMaker__EventInfoCnvAlg()
+
+import EventInfoMgt.EventInfoMgtInit
 
 from PyUtils.MetaReaderPeeker import convert_itemList
 objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
@@ -169,11 +172,13 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
 from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+#Second True disables EventInfoTagBuilder
+StreamESD=createOutputStream("StreamESD","myESD.pool.root",True,True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList
+StreamESD.ItemList+=["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
 
 printfunc (StreamESD.ItemList)
 

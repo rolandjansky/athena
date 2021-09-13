@@ -31,7 +31,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonGeoModelTest/PerfUtils.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include <boost/format.hpp>
 
 #include <fstream>
@@ -40,9 +40,9 @@
 typedef std::istringstream mystream;
 
 namespace {
-  static constexpr double const& invRad = 180/M_PI;
+  constexpr double const invRad = 180./M_PI;
   // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 using namespace MuonGM;

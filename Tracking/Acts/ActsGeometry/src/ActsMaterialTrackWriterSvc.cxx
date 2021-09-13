@@ -3,6 +3,7 @@
 */
 
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 #include "GaudiKernel/IInterface.h"
 
 #include "TTree.h"
@@ -22,7 +23,8 @@ using namespace Acts::VectorHelpers;
 #include <thread>
 
 ActsMaterialTrackWriterSvc::ActsMaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc )
-: base_class(name, svc) {
+: base_class(name, svc),
+  m_trackingGeometrySvc("ActsTrackingGeometrySvc", name) {
 }
 
 StatusCode
@@ -276,8 +278,10 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
       const Acts::Surface* surface = mint.surface;
       Acts::GeometryIdentifier layerID;
       if (surface) {
+        auto gctx = std::make_unique<ActsGeometryContext>();
+        gctx->alignmentStore = m_trackingGeometrySvc->getNominalAlignmentStore();
         auto sfIntersection = surface->intersect(
-            Acts::GeometryContext(), mint.position, mint.direction, true);
+            gctx->context(), mint.position, mint.direction, true);
         layerID = surface->geometryId();
         m_sur_id.push_back(layerID.value());
         m_sur_type.push_back(surface->type());

@@ -133,28 +133,31 @@ JetChainParts = {
     'trkpresel'    : # Tracking preselection
       ['nopresel',
        #Loose
-       'preselj20',  #L1J15, L1J20
-       'preselj60',  #L1J30
-       'preselj135', #L1J50, #L1J100
-       'presel2j135', #L1J50, L1J100
-       'presel4j33', #L13J50
-       'presel5j24', #L14J15
-       'presel6j36', #L14J15
-       'presel7j21', #L14J15
+       'preselj20',        #L1J15, L1J20
+       'preselj60',        #L1J30
+       'preselj135',       #L1J50, #L1J100
+       'presel2j135',      #L1J50, L1J100
+       'presel2j135XXj60', #L1J50, L1J100
+       'presel4j33',       #L13J50
+       'presel5j24',       #L14J15
+       'presel6j36',       #L14J15
+       'presel7j21',       #L14J15
        #Medium
-       'preselj180',  #L1J100
-       'presel2j180', #L1J100
-       'presel4j55',  #L13J50
-       'presel5j35',  #L14J15
-       'presel6j40',  #L14J15
-       'presel7j28',  #L14J15
+       'preselj180',       #L1J100
+       'presel2j180',      #L1J100
+       'presel2j180XXj80', #L1J100
+       'presel4j55',       #L13J50
+       'presel5j35',       #L14J15
+       'presel6j40',       #L14J15
+       'presel7j28',       #L14J15
        #Tight
-       'preselj225', #L1J100
-       'presel2j225', #L1J100
-       'presel4j85', #L13J50
-       'presel5j50', #L14J15
-       'presel6j45', #L14J15
-       'presel7j35', #L14j15
+       'preselj225',        #L1J100
+       'presel2j225',       #L1J100
+       'presel2j225XXj100', #L1J100
+       'presel4j85',        #L13J50
+       'presel5j50',        #L14J15
+       'presel6j45',        #L14J15
+       'presel7j35',        #L14j15
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -206,6 +209,7 @@ JetChainParts = {
                       'DIJET35j12ptXX700djmass',
                       'DIJET35j12ptXX500djmass',
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
+                      'HT0',
                       'HT1000',
                       'HT300',
                       'HT500',
@@ -775,10 +779,11 @@ StreamingChainParts = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'jettauetmiss', 'larcells','laser', 'CIS',
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
-                        'zb', 'l1calo', 'l1topo','ftk'],
+    # No effect on configuration, used in special cases for
+    # disambiguation or to allow events from the same L1 seed
+    # to be written to different streams
+    # New cases should be discussed with Menu Coordinators
+    'streamingInfo'  : ['laser', 'CIS','idmon'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
@@ -1029,8 +1034,8 @@ UnconventionalTrackingChainParts_Default = {
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = [
-    '03dRAB','03dRAB30','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
-    '1invmAB3','50invmAB130', # Jpsiee, Zee/Zeg
+    '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
     ]

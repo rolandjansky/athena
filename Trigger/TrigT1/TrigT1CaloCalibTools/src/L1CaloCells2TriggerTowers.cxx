@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
+#include "StoreGate/ReadCondHandle.h"
 
 namespace LVL1{
   L1CaloCells2TriggerTowers::L1CaloCells2TriggerTowers(const std::string& name) : 
@@ -11,7 +12,6 @@ namespace LVL1{
     m_lvl1Helper(nullptr),
     m_tileID(nullptr),
     m_caloCellHelper(nullptr),
-    m_larCablingSvc(nullptr),
     m_tileCablingService(nullptr),
     m_ttSvc(nullptr),
     m_bInitialized(false),
@@ -174,13 +174,12 @@ namespace LVL1{
         sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
         if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve CaloTriggerTowerService Tool");return sc;}
         
-        sc = toolSvc->retrieveTool("LArCablingLegacyService", m_larCablingSvc);
-        if(sc.isFailure()){ATH_MSG_ERROR("Could not retrieve LArCablingService");return sc;}
-
       }
       else{ATH_MSG_ERROR("Could not retrieve ToolSvc");return sc;}
 
       m_tileCablingService = TileCablingService::getInstance();
+
+      ATH_CHECK( m_cablingKey.initialize() );
 
       return sc;
   }
@@ -190,6 +189,8 @@ namespace LVL1{
   }
 
   bool L1CaloCells2TriggerTowers::initCaloCellsTriggerTowers(const CaloCellContainer& cellContainer) {
+
+          SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
 
 	  this->resetCaloCells();
 
@@ -209,7 +210,7 @@ namespace LVL1{
 		  Identifier ttId1;
 		  Identifier ttId2;
 
-		  this->matchCell2Tower(caloCell, ttId1, ttId2);
+		  this->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
 		  if (ttId1 != invalidId) {
 			  m_mTTCaloCells[ttId1.get_identifier32().get_compact()].push_back(caloCell);
@@ -224,8 +225,14 @@ namespace LVL1{
 	  return m_bInitialized;
   }
 
-  void L1CaloCells2TriggerTowers::matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const {
-
+  void L1CaloCells2TriggerTowers::matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const
+  {
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
+    matchCell2Tower (**cabling, caloCell, ttId1, ttId2);
+  }
+  void L1CaloCells2TriggerTowers::matchCell2Tower(const LArOnOffIdMapping& cabling,
+                                                  const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const
+  {
 	  const Identifier invalidId(0);
 	  ttId1 = invalidId;
 	  ttId2 = invalidId;
@@ -284,8 +291,8 @@ namespace LVL1{
 
 		  if(lvl1) {
 			  // check if the channel is connected
-			  HWIdentifier channelID = m_larCablingSvc->createSignalChannelID(cellId);
-			  if(m_larCablingSvc->isOnlineConnected(channelID)) {
+			  HWIdentifier channelID = cabling.createSignalChannelID(cellId);
+			  if(cabling.isOnlineConnected(channelID)) {
 
 				  // As we don't want the layer information embedded in the identifier, we recreate a tower Id
 				  ttId1 = m_lvl1Helper->tower_id( m_lvl1Helper->pos_neg_z(layerId), m_lvl1Helper->sampling(layerId), m_lvl1Helper->region(layerId), m_lvl1Helper->eta(layerId), m_lvl1Helper->phi(layerId));
@@ -298,6 +305,8 @@ namespace LVL1{
   bool L1CaloCells2TriggerTowers::initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer) {
 
 	  this->resetLArDigits();
+
+      SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
 
       std::vector<Identifier>::const_iterator it_towerId    = m_lvl1Helper->tower_begin();
 	  std::vector<Identifier>::const_iterator it_towerEnd = m_lvl1Helper->tower_end();
@@ -313,9 +322,9 @@ namespace LVL1{
 		  const LArDigit * larDigit= *itLArDigit;
 		  const HWIdentifier larDigitChannelID = larDigit->channelID();
 
-		  if(m_larCablingSvc->isOnlineConnected(larDigitChannelID)) {
+		  if(cabling->isOnlineConnected(larDigitChannelID)) {
 			  // convert HWID to ID
-			  Identifier larDigitID = m_larCablingSvc->cnvToIdentifier(larDigitChannelID);
+			  Identifier larDigitID = cabling->cnvToIdentifier(larDigitChannelID);
 
 			  //whichTTID ttId returns a layer_id, not a tower_id !
 			  const Identifier layerId(m_ttSvc->whichTTID(larDigitID));
@@ -603,6 +612,7 @@ namespace LVL1{
 
   void L1CaloCells2TriggerTowers::dump(const std::vector<const LArDigit*>& vLArDigits) const {
 
+    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
 
     ATH_MSG_INFO( "ncells: "<< vLArDigits.size() );
     std::vector<const LArDigit*>::const_iterator itLArDigits = vLArDigits.begin();
@@ -610,7 +620,7 @@ namespace LVL1{
 
       const LArDigit* larDigit= *itLArDigits;
       HWIdentifier hwId = larDigit->channelID();
-      Identifier larDigitID = m_larCablingSvc->cnvToIdentifier(hwId);
+      Identifier larDigitID = cabling->cnvToIdentifier(hwId);
 
       ATH_MSG_INFO( "pos_neg: " << m_caloCellHelper->pos_neg(larDigitID)<<", sampling: "<< m_caloCellHelper->sampling(larDigitID)<<", region: "<< m_caloCellHelper->region(larDigitID)<<", eta: "<< m_caloCellHelper->eta(larDigitID)<<", phi: "<< m_caloCellHelper->phi(larDigitID) );
             std::vector<short> vADC= larDigit->samples();

@@ -346,7 +346,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
   "METAssoc_AnalysisMET.",
   "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights",
-  "EventInfo.hardScatterVertexLink"
+  "EventInfo.hardScatterVertexLink.RandomRunNumber"
   ]
 
 if DerivationFrameworkIsMonteCarlo:

@@ -20,8 +20,6 @@ namespace Trig
   {
     ATH_MSG_INFO("Initializing " << name());
     ATH_CHECK(m_tdt.retrieve());
-    // We need the expert methods for the navigation
-    m_tdt->ExperimentalAndExpertMethods()->enable();
     return StatusCode::SUCCESS;
   }
 
@@ -63,7 +61,7 @@ namespace Trig
       TrigCompositeUtils::Combinations trigCombinations = TrigCompositeUtils::buildCombinations(
           name,
           features,
-          m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(name),
+          m_tdt->ExperimentalAndExpertMethods().getChainConfigurationDetails(name),
           TrigCompositeUtils::FilterType::UniqueObjects);
       // Copy the combinations into the output vector
       for (const VecLinkInfo_t &combo : trigCombinations)

@@ -1,5 +1,5 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
-athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.recon.ESD.e3569_s3170_r12310_r12253_r12310/ESD.23850840._000295.pool.root.1"]
+athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PFlowTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_e5984_s3170_r12674/ESD.25732025._000034.pool.root.1"]
 
 #Disable reco of trigger, egamma, muons and taus
 from RecExConfig.RecFlags import rec
@@ -29,3 +29,5 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 #Add decoration to output item list
 StreamAOD.ItemList+=['xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.+calfe_NLeadingTruthParticleBarcodeEnergyPairs']
 StreamAOD.ItemList+=['xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.SECOND_R.SECOND_LAMBDA.CENTER_MAG.CENTER_LAMBDA.ISOLATION.ENG_BAD_CELLS.N_BAD_CELLS.BADLARQ_FRAC.ENG_POS.AVG_LAR_Q.AVG_TILE_Q.EM_PROBABILITY.BadChannelList.calclus_NLeadingTruthParticleBarcodeEnergyPairs']
+#Update the name of the FlowElement container to use (not needed in newest ESD because the string used in the c++ matches what is stored in those - this test uses an older ESD which contains old container names)
+topSequence.PFlowCalibPFODecoratorAlgorithm.PFOWriteDecorHandleKey_NLeadingTruthParticles="JetETMissNeutralFlowElements.calpfo_NLeadingTruthParticleBarcodeEnergyPairs"

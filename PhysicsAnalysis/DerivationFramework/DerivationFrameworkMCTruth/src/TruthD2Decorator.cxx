@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ namespace DerivationFramework {
       }
 
       // loop over jet collection
-      for( auto jet: *largeRjets){
+      for( const auto *jet: *largeRjets){
         //get ECF
         float ecf1 = jet->getAttribute<float>("ECF1");
         float ecf2 = jet->getAttribute<float>("ECF2");

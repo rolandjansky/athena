@@ -37,12 +37,12 @@ def addTruthJetsIfNotExising(truth_jets_name):
             alg_param_str = extract_alg.group(2)
         else:
             alg_type = 'AntiKt'
-            alg_param_str = 4
+            alg_param_str = "4"
 
         jet_finder_alg_name = "jetalg"+alg_type+alg_param_str+'TruthJets'
 
         # add the jet finder unless it exists already in the alg sequence
-        from InDetPhysValDecoration import findAlg, findMonMan
+        from InDetPhysValMonitoring.InDetPhysValDecoration import findAlg, findMonMan
         alg_pos = findAlg([jet_finder_alg_name])
         if alg_pos is None:
             from JetRec.JetRecStandard import jtm

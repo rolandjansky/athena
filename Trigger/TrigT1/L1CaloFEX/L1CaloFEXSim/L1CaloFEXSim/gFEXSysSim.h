@@ -20,6 +20,10 @@
 #include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/gFexJetRoIAuxContainer.h"
 
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+
 namespace LVL1 {
 
   //Doxygen class description below:
@@ -56,6 +60,8 @@ namespace LVL1 {
 
     virtual StatusCode fillgJetEDM(uint32_t tobWord) override ;
 
+    virtual StatusCode fillgGlobalEDM(uint32_t tobWord) override ;
+
     /** Internal data */
   private:
     std::unique_ptr< xAOD::gFexJetRoIContainer > m_gRhoContainer;
@@ -67,6 +73,10 @@ namespace LVL1 {
     std::unique_ptr< xAOD::gFexJetRoIContainer > m_gJetContainer;
     std::unique_ptr< xAOD::gFexJetRoIAuxContainer > m_gJetAuxContainer;
 
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gGlobalContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gGlobalAuxContainer;
+
+
     std::vector<gFEXSim*> m_gFEXCollection;
 
     ToolHandle<IgFEXSim> m_gFEXSimTool       {this, "gFEXSimTool",    "LVL1::gFEXSim",    "Tool that creates the gFEX Simulation"};
@@ -75,10 +85,12 @@ namespace LVL1 {
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexJetOutputContainer","L1_gJetRoI","Output gFexJet container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gFexGlobalOutKey {this,"Key_gFexGlobalOutputContainer","L1_gJetRoI","Output gFexGlobal container"};
 
     std::vector<uint32_t>  m_allgRhoTobs;
     std::vector<uint32_t>  m_allgBlockTobs;
     std::vector<uint32_t>  m_allgJetTobs;
+    std::vector<uint32_t>  m_allgGlobalTobs;
 
   };
 

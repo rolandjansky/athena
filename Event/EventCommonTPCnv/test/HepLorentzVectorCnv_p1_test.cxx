@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file EventCommonTPCnv/test/HepLorentzVectorCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -38,7 +37,7 @@ void testit (const CLHEP::HepLorentzVector& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -49,7 +48,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "HepLorentzVectorCnv_p1_test\n";
   test1();

@@ -3,7 +3,7 @@
 */
 
 #include "MuonGeoModel/MultiLayer.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoGenericFunctions/AbsFunction.h"
@@ -49,7 +49,7 @@ using namespace GeoXF;
 
 namespace {
     // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-    static constexpr unsigned int const maxNTubesPerLayer = 120;
+    constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 } // namespace
 
 namespace MuonGM {

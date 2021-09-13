@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -12,7 +12,7 @@
 
 #include "LArTPCnv/LArRawChannelContainerCnv_p4.h"
 
-void LArRawChannelContainerCnv_p4::transToPers(const LArRawChannelContainer* transCont, LArRawChannelContainer_p4* persCont, MsgStream &log) 
+void LArRawChannelContainerCnv_p4::transToPers(const LArRawChannelContainer* transCont, LArRawChannelContainer_p4* persCont, MsgStream &log) const
 {
 //  std::cout << " *** Write LArRawChannelContainer_p4 " << std::endl;
   std::size_t nChannels=transCont->size();
@@ -23,7 +23,7 @@ void LArRawChannelContainerCnv_p4::transToPers(const LArRawChannelContainer* tra
   log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer_p4" << endmsg;
 }
 
-void LArRawChannelContainerCnv_p4::persToTrans(const LArRawChannelContainer_p4* persCont, LArRawChannelContainer* transCont, MsgStream &log) 
+void LArRawChannelContainerCnv_p4::persToTrans(const LArRawChannelContainer_p4* persCont, LArRawChannelContainer* transCont, MsgStream &log) const
 {
 //  std::cout << " *** Read LArRawChannelContainer_p4 " << std::endl;
   std::size_t nChannels=persCont->m_channels.size();

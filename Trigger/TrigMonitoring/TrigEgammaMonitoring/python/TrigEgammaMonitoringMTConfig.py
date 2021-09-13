@@ -14,14 +14,24 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
 
 
+
 if 'DQMonFlags' not in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
 
+#
+def treat_list_of_chains_by_name( list_of_chains, part_name=None):
+    if part_name:
+        final_list = []
+        for chain in list_of_chains:
+            if part_name in chain:
+                final_list.append(chain)
+        return final_list
+    else:
+        return list_of_chains
+
+
 
 class TrigEgammaMonAlgBuilder:
-
-  _configured = False
-  _get_monitoring_mode_success = False
   
   data_type = ''
   pp_mode = False
@@ -40,20 +50,6 @@ class TrigEgammaMonAlgBuilder:
   tpList = []
   jpsiList = []
 
-  # Monitoring algorithms
-  zeeMonAlg = None
-  jpsieeMonAlg = None
-  elMonAlg = None
-  phMonAlg = None
-
-  
-  # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath','emulation']
-  emulation = False
-  derivation = False
-  detailedHistograms = False
-  basePath = 'HLT/EgammaMon'
-
 
   isemnames = ["tight", "medium", "loose"]
   lhnames   = ["lhtight", "lhmedium", "lhloose","lhvloose"]
@@ -61,25 +57,28 @@ class TrigEgammaMonAlgBuilder:
 
  
 
-  def __init__(self, helper, runflag, **kwargs):
+
+  def __init__(self, helper, runflag, emulator=None, 
+                                      derivation=False,
+                                      detailedHistograms = False,
+                                      basePath = 'HLT/EgammaMon'):
  
     from AthenaCommon.Logging import logging
     self.__logger = logging.getLogger( 'TrigEgammaMonAlgBuilder' )
     self.runFlag = runflag
     self.helper = helper
-    if not self._configured:
-      for key,value in kwargs.items():
-        if key in self.__acceptable_keys_list:
-          setattr(self,key,value)
-      self.configureMode()
+    self.derivation = derivation
+    self.emulator = emulator
+    self.basePath = basePath
+    self.detailedHistograms = detailedHistograms
+    self.configureMode()
 
 
 
   def configureMode(self):
 
     self.__logger.info("TrigEgammaMonToolBuilder.configureMode()")
-    self._get_monitoring_mode_success = self.get_monitoring_mode()
-    if self._get_monitoring_mode_success is False:
+    if not self.get_monitoring_mode():
       self.__logger.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
     else:
       self.__logger.info("Configuring for %s", self.data_type)
@@ -87,15 +86,15 @@ class TrigEgammaMonAlgBuilder:
     # Since we load the tools by name below 
     # Need to ensure the correct tools are configured 
     # for each monitoring mode
-    if self.mc_mode is True or self.pp_mode is True:
-      if(self.derivation is True or self.emulation is True):
+    if self.mc_mode or self.pp_mode:
+      if(self.derivation):
         self.activate_zee = True
       else:
         self.activate_zee=True
         self.activate_jpsiee=True 
         self.activate_electron=True
         self.activate_photon=True
-    elif self.HI_mode is True or self.pPb_mode is True or self.cosmic_mode is True:
+    elif self.HI_mode or self.pPb_mode or self.cosmic_mode:
       self.activate_electron=True
       self.activate_photon=True
     else:
@@ -106,7 +105,9 @@ class TrigEgammaMonAlgBuilder:
 
  
 
-
+  #
+  # Configure everything
+  #
   def configure(self):
     self.setProperties()
     self.configureMonitor()
@@ -116,7 +117,6 @@ class TrigEgammaMonAlgBuilder:
 
   def get_monitoring_mode(self):
 
-    # Implementation of https://its.cern.ch/jira/browse/ATR-13200
     self.__logger.info("TrigEgammaMonToolBuilder.get_monitoring_mode()")
     self.data_type = dqflags.monManDataType()
     if self.data_type == 'monteCarlo': 
@@ -141,15 +141,15 @@ class TrigEgammaMonAlgBuilder:
     self.__logger.info("TrigEgammaMonToolBuilder.setProperties()")
     self.basePath = 'HLT/EgammaMon'
    
-    if self.pp_mode is True:
+    if self.pp_mode:
       self.setDefaultProperties()
-    elif self.cosmic_mode is True:
+    elif self.cosmic_mode:
       # This should be change in future
       self.setDefaultProperties()
-    elif self.HI_mode is True or self.pPb_mode is True:
+    elif self.HI_mode or self.pPb_mode:
       # This should be change in future
       self.setDefaultProperties()
-    elif self.mc_mode is True:
+    elif self.mc_mode:
       # This should be change in future
       self.setDefaultProperties()
     else:
@@ -167,17 +167,20 @@ class TrigEgammaMonAlgBuilder:
    
     from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron,validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee
     
-    if self.pp_mode is True:
+    if self.pp_mode:
         self.electronList = monitoring_electron
-        self.photonList  = monitoring_photon
+        self.photonList   = monitoring_photon
         self.tpList       = monitoringTP_electron
-    elif self.mc_mode is True:
+        self.tagItems     = [] # monitoring_tags
+    elif self.mc_mode:
         self.electronList = validation_electron + validation_Zee
         self.photonList   = validation_photon
         self.tpList       = validationTP_electron
         self.jpsiList     = validation_jpsi
-        self.jpsitagItems =  validationTP_jpsiee
-        self.tagItems     = [] #monitoring_tags     
+        self.jpsitagItems = validationTP_jpsiee
+        self.tagItems     = [] #monitoring_tags    
+
+ 
   #
   # Create all minitor algorithms
   #
@@ -227,8 +230,11 @@ class TrigEgammaMonAlgBuilder:
     acc.addPublicTool(MediumDNNElectronSelector)
     acc.addPublicTool(TightDNNElectronSelector)
 
+    if self.runFlag == '2022':
+      raise RuntimeError( '2022 (Run 3) configuration not available yet' )
+
   
-    if self.runFlag == '2018':
+    elif self.runFlag == '2018':
       # cut based
       LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
       MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
@@ -272,18 +278,11 @@ class TrigEgammaMonAlgBuilder:
     
 
 
-    if self.emulation:
-      from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfigMT import TrigEgammaEmulationToolConfig
-      triggerList = self.tpList
-      emulator = TrigEgammaEmulationToolConfig("EgammaEmulationTool", triggerList)
-      acc.addPublicTool(emulator())
-
-    
-
     if self.activate_zee:
-
-      self.__logger.info( "Creating the Zee monitor algorithm...")
-      self.zeeMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Zee" )
+      tpList = treat_list_of_chains_by_name(self.tpList, 'lh') # Only LH chains
+      tagItems = treat_list_of_chains_by_name(self.tagItems, 'lh') # Only LH chains
+      self.__logger.info( "Creating the Zee monitor algorithm LH only...")
+      self.zeeMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Zee_LH" )
       self.zeeMonAlg.Analysis='Zee'
       self.zeeMonAlg.MatchTool = EgammaMatchTool
       self.zeeMonAlg.TPTrigger=False
@@ -293,7 +292,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.DNNResultNames=self.dnnnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
-      self.zeeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
+      self.zeeMonAlg.ElectronDNNSelectorTool =[TightDNNElectronSelector,MediumDNNElectronSelector,LooseDNNElectronSelector]
       self.zeeMonAlg.ZeeLowerMass=80
       self.zeeMonAlg.ZeeUpperMass=100
       self.zeeMonAlg.OfflineTagMinEt=25
@@ -301,12 +300,48 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.OfflineProbeSelector='lhloose'
       self.zeeMonAlg.OppositeCharge=True
       self.zeeMonAlg.RemoveCrack=False
-      self.zeeMonAlg.TagTriggerList=self.tagItems
-      self.zeeMonAlg.TriggerList=self.tpList
+      self.zeeMonAlg.TagTriggerList=tagItems
+      self.zeeMonAlg.TriggerList=tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
-      if self.emulation:
+      self.zeeMonAlg.DoEmulation = False
+
+
+      # Separated TaP tool configuration
+      tpList = treat_list_of_chains_by_name(self.tpList, 'dnn') # get only dnn chains
+      tagItems = treat_list_of_chains_by_name(self.tagItems, 'dnn')
+      self.__logger.info( "Creating the Zee monitor algorithm DNN only...")
+      self.zeeMonAlg_dnn = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Zee_DNN" )
+      self.zeeMonAlg_dnn.Analysis='Zee_DNN'
+      self.zeeMonAlg_dnn.MatchTool = EgammaMatchTool
+      self.zeeMonAlg_dnn.TPTrigger=False
+      self.zeeMonAlg_dnn.ElectronKey = 'Electrons'
+      self.zeeMonAlg_dnn.isEMResultNames=self.isemnames
+      self.zeeMonAlg_dnn.LHResultNames=self.lhnames
+      self.zeeMonAlg_dnn.DNNResultNames=self.dnnnames
+      self.zeeMonAlg_dnn.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
+      self.zeeMonAlg_dnn.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
+      self.zeeMonAlg_dnn.ElectronDNNSelectorTool =[TightDNNElectronSelector,MediumDNNElectronSelector,LooseDNNElectronSelector]
+      self.zeeMonAlg_dnn.ZeeLowerMass=80
+      self.zeeMonAlg_dnn.ZeeUpperMass=100
+      self.zeeMonAlg_dnn.OfflineTagMinEt=25
+      self.zeeMonAlg_dnn.OfflineTagSelector='dnntight'
+      self.zeeMonAlg_dnn.OfflineProbeSelector='dnnloose'
+      self.zeeMonAlg_dnn.OppositeCharge=True
+      self.zeeMonAlg_dnn.RemoveCrack=False
+      self.zeeMonAlg_dnn.TagTriggerList=tagItems
+      self.zeeMonAlg_dnn.TriggerList=tpList 
+      self.zeeMonAlg_dnn.DetailedHistograms=self.detailedHistograms
+      self.zeeMonAlg_dnn.DoEmulation = False
+
+      if self.emulator: # turn on emulator
+        self.emulator.TriggerList += self.tpList
         self.zeeMonAlg.DoEmulation = True
-        self.zeeMonAlg.EmulationTool = emulator()
+        self.zeeMonAlg.EmulationTool = self.emulator.core()
+        self.zeeMonAlg_dnn.DoEmulation = True
+        self.zeeMonAlg_dnn.EmulationTool = self.emulator.core()
+
+
+
 
     if self.activate_jpsiee:
 
@@ -353,7 +388,12 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
-      self.elMonAlg.DoEmulation = False
+      if self.emulator:
+        self.elMonAlg.DoEmulation = True
+        self.emulator.TriggerList += self.electronList
+        self.elMonAlg.EmulationTool = self.emulator.core()
+      else:
+        self.elMonAlg.DoEmulation = False
 
     if self.activate_photon:
 
@@ -368,28 +408,43 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
       self.phMonAlg.ForcePidSelection=True
-      self.phMonAlg.DoEmulation = False
+      if self.emulator:
+        self.phMonAlg.DoEmulation = True
+        self.emulator.TriggerList += self.photonList
+        self.phMonAlg.EmulationTool = self.emulator.core()
+      else:
+        self.phMonAlg.DoEmulation = False
 
 
 
   
   def configureHistograms(self):
+    
+    self.setBinning()
 
-    if self.activate_zee and self.zeeMonAlg:
-      self.setBinning()
+    if self.activate_zee:
+
+      # LH plots
       self.bookEvent( self.zeeMonAlg, self.zeeMonAlg.Analysis , True)
       triggers = self.zeeMonAlg.TriggerList; triggers.extend( self.zeeMonAlg.TagTriggerList )
       self.bookExpertHistograms( self.zeeMonAlg, triggers )
-    if self.activate_jpsiee and self.jpsieeMonAlg:
+
+      # dnn plots
+      self.bookEvent( self.zeeMonAlg_dnn, self.zeeMonAlg_dnn.Analysis , True)
+      triggers = self.zeeMonAlg_dnn.TriggerList; triggers.extend( self.zeeMonAlg_dnn.TagTriggerList )
+      self.bookExpertHistograms( self.zeeMonAlg_dnn, triggers )
+
+    if self.activate_jpsiee:
       self.setBinning(True)
       self.bookEvent( self.jpsieeMonAlg, self.jpsieeMonAlg.Analysis, True )
       triggers = self.jpsieeMonAlg.TriggerList; triggers.extend( self.jpsieeMonAlg.TagTriggerList )
       self.bookExpertHistograms( self.jpsieeMonAlg, triggers )
     
+    # back to default bin configuration
     self.setBinning()
-    if self.activate_electron and self.elMonAlg:
+    if self.activate_electron:
       self.bookExpertHistograms( self.elMonAlg, self.elMonAlg.TriggerList )
-    if self.activate_photon and self.phMonAlg:
+    if self.activate_photon:
       self.bookExpertHistograms( self.phMonAlg, self.phMonAlg.TriggerList )
   
   # If we've already defined the group, return the object already defined
@@ -466,7 +521,7 @@ class TrigEgammaMonAlgBuilder:
         #
         # Emulation
         #
-        if self.emulation:
+        if self.emulator:
           self.bookEfficiencies( monAlg, trigger, "L1Calo" , doEmulation=True)
           self.bookEfficiencies( monAlg, trigger, "FastCalo" , doEmulation=True)
           self.bookEfficiencies( monAlg, trigger, "PrecisionCalo" , doEmulation=True)

@@ -83,8 +83,6 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
     return false;
   }
 
-  if(m_checkOvlp && input.isOverlapping) return false;
-
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(m_type);
     if (!tr) {
@@ -181,8 +179,19 @@ StatusCode TrigMuonEFHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const 
   return StatusCode::SUCCESS;
 }
 StatusCode TrigMuonEFHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolInput) const{
-  for (auto& tool : toolInput){
+  for (uint i=0; i<toolInput.size(); i++){
+    auto& tool = toolInput.at(i);
     if(TrigCompositeUtils::passed(m_decisionId.numeric(), tool.previousDecisionIDs)){
+      bool overlap = false;
+      if(m_checkOvlp){
+	for(uint j=i+1; j<toolInput.size();j++){
+	  auto& tool2 = toolInput.at(j);
+	  if(TrigCompositeUtils::passed(m_decisionId.numeric(), tool2.previousDecisionIDs))
+	    if(tool2.muon->p4()==tool.muon->p4()) overlap=true;
+	}
+      }
+      if(overlap) continue;
+
       if(decideOnSingleObject(tool, 0)==true){
         if(m_nscan){
         ATH_MSG_DEBUG("Applying narrow-scan selection");
@@ -258,7 +267,7 @@ StatusCode TrigMuonEFHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& to
       return setOfMuons.size()==comb.size();
     };
   
-    HLT::elementsInUniqueCombinations(passingSelection, passingIndices, notFromSameRoI);
+    HLT::elementsInUniqueCombinations(passingSelection, passingIndices, std::move(notFromSameRoI));
   }
   else{
     HLT::elementsInUniqueCombinations(passingSelection, passingIndices);

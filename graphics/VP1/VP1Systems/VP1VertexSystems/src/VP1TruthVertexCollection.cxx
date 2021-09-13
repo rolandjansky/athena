@@ -59,8 +59,8 @@ public:
     return std::sqrt( v.x()*v.x() + v.y()*v.y() + v.z()*v.z() );
   }
   QString key;
-  VP1TruthVertexCollection * theclass;
-  VertexSysController*controller;
+  VP1TruthVertexCollection * theclass = nullptr;
+  VertexSysController*controller = nullptr;
   std::map <SoNode *, HepMC::ConstGenVertexPtr> nodeToVertexMap;
   SoLineSet * createCross(const double& x, const double& y, const double& z, const double& extent = 10*Gaudi::Units::mm ); // 10*CLHEP::mm );
 

@@ -37,6 +37,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # i.e. this is far from complete, but is better than what was there before.
 
   # beampipe
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  result.merge(BeamPipeGeometryCfg(flags))
   InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilderCond
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder'+nameSuffix)
 
@@ -83,9 +85,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     # is identical to the IOV of the tracking geoemtry cond alg
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
     result.merge(PixelDetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0  else [],
-                                                TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0  else [],
-                                                SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT and flags.Concurrency.NumThreads > 0  else []))
+                                                MuonManagerKey    = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Detector.GeometryMuon else [],
+                                                TRT_DetEltContKey = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT  else [],
+                                                SCTAlignmentStore = ["SCTAlignmentStore"]       if flags.Detector.GeometrySCT  else []))
 
   if flags.Detector.GeometrySCT:
     # for SCT DetectorElement conditions data :
@@ -124,10 +126,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(flags,
-                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and flags.Concurrency.NumThreads > 0 else [],
-    
-                                                TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT and flags.Concurrency.NumThreads > 0 else [],
-                                                PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel and flags.Concurrency.NumThreads > 0 else []))
+                                                MuonManagerKey      = ["MuonDetectorManager"]     if flags.Muon.enableAlignment and  flags.Detector.GeometryMuon else [],
+                                                TRT_DetEltContKey   = ["TRT_DetElementContainer"] if flags.Detector.GeometryTRT   else [],
+                                                PixelAlignmentStore = ["PixelAlignmentStore"]   if flags.Detector.GeometryPixel else []))
 
   if flags.Detector.GeometryTRT:
     # for TRT DetectorElement conditions data :
@@ -212,12 +213,16 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix='',nameSuffix=''):
   # The following replaces LArCalorimeter/LArTrackingGeometry/python/ConfiguredLArVolumeBuilder.py
+  from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+  result.merge(LArGMCfg(flags))
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
   lArVolumeBuilder = LAr__LArVolumeBuilder(namePrefix+'LArVolumeBuilder'+nameSuffix,
                                            TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
+  from TileGeoModel.TileGMConfig import TileGMCfg
+  result.merge(TileGMCfg(flags))
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
   tileVolumeBuilder = Tile__TileVolumeBuilder( namePrefix+'TileVolumeBuilder'+nameSuffix,
                                                TrackingVolumeHelper = trackingVolumeHelper,)
@@ -312,6 +317,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     
       atlas_geometry_builder.MuonTrackingGeometryBuilder = muonTrackingGeometryBuilder
     
+
     # Now set up processors
     atlas_geometry_processors=[]
     
@@ -338,6 +344,31 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
                                     TrackingGeometryWriteKey = atlas_tracking_geometry_name,
                                     GeometryProcessors = PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary = True)
+    
+    # Hack for Single Threaded Athena: manually move dependencies of SCT_DetectorElementCondAlg
+    # and PixelDetectorElementCondAlg such that these are executed after their dependencies.
+
+    if flags.Concurrency.NumThreads <= 0:
+        condAlgs = result._conditionsAlgs
+        dependencies = {"PixelAlignCondAlg",
+                        "SCT_AlignCondAlg",
+                        "TRTAlignCondAlg",
+                        "MuonAlignmentCondAlg",
+                        "MuonDetectorCondAlg",
+                        "CondInputLoader"}
+        prependList = list()
+        appendList = list()
+        for alg in condAlgs:
+            prepend = False
+            for name in dependencies:              
+              if str(alg).startswith(name+"("):
+                prependList.append(alg)
+                prepend = True
+            if not prepend:
+              appendList.append(alg)
+        prependList.extend(appendList)
+        condAlgs = prependList
+        result._conditionsAlgs = condAlgs
 
     return result
         

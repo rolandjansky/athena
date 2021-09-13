@@ -24,15 +24,12 @@ class TrigMuonEFHypoAlg
 
   private:
  
-    bool checkOvlp(const xAOD::Muon *mu, std::vector<TrigMuonEFHypoTool::MuonEFInfo> toolInput) const;
     ToolHandleArray<TrigMuonEFHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{
 	this, "MuonDecisions", "MuonEFCombiner_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
     Gaudi::Property<bool> m_mapToPrevDec{
       this, "MapToPreviousDecisions", false, "Map to decisions from previous decisions (needed if IM has mergeUsingFeature=True)"};
-    Gaudi::Property< bool > m_checkOvlp {
-      this, "DoOverlapRemoval", true, "Check for overlapping muons"};
 
 
 };

@@ -117,6 +117,12 @@ m_athenaTool("")
   ATH_MSG_INFO("XML Path is " + xmlpath());
 
   m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
+#ifdef HEPMC3
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Pythia8"),py8version(),std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +450,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   evt->set_event_number(m_internal_event_number);
 
   // if using "getGroupWeight" and | lhastrategy | = 4, then need to convert mb to pb ( done otherwise when calling info.weight(), [...] )
-  if( m_internal_event_number == 1 && abs(m_pythia->info.lhaStrategy()) == 4 ) {
+  if( m_internal_event_number == 1 && std::abs(m_pythia->info.lhaStrategy()) == 4 ) {
      m_conversion = ( (double) PYTHIA8_CONVERSION);
      ATH_MSG_DEBUG(" LHA strategy needs a conversion to fix Pythia8 shower weights bug(s) equal to " << m_conversion);
   }
@@ -557,6 +563,7 @@ std::to_string(iw);
   if(m_internal_event_number == 1){
     std::vector<std::string> names;
     for (auto w: fWeights)   names.push_back(w.first);
+    if (!evt->run_info()) evt->set_run_info(m_runinfo);
     evt->run_info()->set_weight_names(names);
   }
   for (auto w: fWeights) {evt->weight(w.first)=w.second;}
@@ -629,7 +636,7 @@ StatusCode Pythia8_i::genFinalize(){
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
 
 #ifdef HEPMC3
-  HepMC::GenEvent *procEvent = new HepMC::GenEvent();
+  HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
   // Adding the LHE event to the HepMC results in undecayed partons in the event record.
   // Pythia's HepMC converter throws up undecayed partons, so we ignore that

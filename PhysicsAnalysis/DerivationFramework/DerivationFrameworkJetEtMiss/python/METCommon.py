@@ -125,7 +125,7 @@ def scheduleCustomVtxMETContent(vxColl, jetColl, constituentColl="", sequence=De
             'AntiKt4LCTopo':'LCJet',
             'AntiKt4EMPFlow':'PFlowJet',
             'AntiKt4PFlowCustomVtx':'PFlowJet'}
-        associators = [AssocConfig(jettype[jetColl]),
+        associators = [AssocConfig(jettype[jetColl],jetColl+'Jets'),
                 AssocConfig('Muon'),
                 AssocConfig('Ele'),
                 AssocConfig('Gamma'),

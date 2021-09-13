@@ -390,7 +390,7 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
         ATH_MSG_INFO("--> found : "<< layers.size() << "confined Layers");
         // the iterator over the vector
         // loop over layers
-        for (const auto & layer : layers) {
+        for (const Trk::Layer* layer : layers) {
             // assign the material and output
             if (layer && (*layer).layerIndex().value() ) {
                 ATH_MSG_INFO("  > LayerIndex: "<< (*layer).layerIndex() );
@@ -401,7 +401,7 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
                     if (curIt != propSet->end()) {
                         ATH_MSG_INFO("LayerMaterial assigned for Layer with index: "<< (*layer).layerIndex() );
                         // set it to the layer
-                        (*layer).assignMaterialProperties(*((*curIt).second), 1.);
+                        (const_cast<Trk::Layer*>(layer))->assignMaterialProperties(*((*curIt).second), 1.);
                     }
                 }
             }

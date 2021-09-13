@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file LumiBlockComps/src/LuminosityCondAlg.h
@@ -24,6 +24,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "CoralBase/Blob.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 /**
@@ -143,6 +144,14 @@ private:
   Gaudi::Property<bool> m_expectInvalid
     { this, "ExpectInvalid", false, "Flag to control printouts when invalid data are encountered: True suppresses messages, False (default) leaves them in" };
 
+  // following properties are for MC
+  Gaudi::Property<bool> m_isMC
+    { this, "IsMC", false, "Set to true when running on MC instead of data" };
+
+  Gaudi::Property<float> m_muToLumi
+    { this, "MCMuToLumi", 0.140569, "mu to lumi conversion factor in MC (80 mb/LHC rev freq)" };
+
+
   SG::ReadCondHandleKey<CondAttrListCollection> m_luminosityFolderInputKey
   { this, "LuminosityFolderInputKey", "/TRIGGER/OFLLUMI/LBLESTOFL",
     "Input luminosity COOL folder." };
@@ -162,6 +171,22 @@ private:
   SG::ReadCondHandleKey<FillParamsCondData> m_fillParamsInputKey
   { this, "FillParamsInputKey", "",
     "Input luminous bunch data.  Only used for Run 1." };
+
+  // the following are for MC
+  SG::ReadCondHandleKey<AthenaAttributeList> m_mcDigitizationInputKey
+  { this, "DigitizationFolderInputKey", "/Digitization/Parameters",
+    "Digitization parameters metadata folder." };
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey 
+  { this, "EventInfoKey", "EventInfo", "EventInfo key, used to read in simulated mu in MC" };
+
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_actualMuKey 
+  { this, "actualMuKey", "EventInfo.actualInteractionsPerCrossing",
+    "Decoration for Actual Interaction Per Crossing, for MC" };
+
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_averageMuKey 
+  { this, "averageMuKey", "EventInfo.averageInteractionsPerCrossing",
+    "Decoration for Average Interaction Per Crossing" };
 
   /// Output conditions object.
   SG::WriteCondHandleKey<LuminosityCondData> m_luminosityOutputKey

@@ -1000,8 +1000,8 @@ StatusCode IOVDbSvc::setupFolders() {
 
     for (auto& folderdata : allFolderdata) {
       const std::string& ifname=folderdata.folderName();
-      if (ifname.substr(0,prefix.size())==prefix && 
-          (ifname.size()==prefix.size() || ifname.substr(prefix.size(),1)=="/")) {
+      if (ifname.compare(0,prefix.size(), prefix)==0 && 
+          (ifname.size()==prefix.size() || ifname[prefix.size()]=='/')) {
         //Match! 
         folderdata.applyOverrides(keys,msg());
       }// end if
@@ -1090,7 +1090,7 @@ StatusCode IOVDbSvc::setupFolders() {
     }
     for (const auto & thisFolder : m_foldermap) {
       IOVDbFolder* fptr=thisFolder.second;
-      if ((fptr->folderName()).substr(0,match.size())==match) {
+      if ((fptr->folderName()).compare(0,match.size(), match)==0) {
         fptr->setWriteMeta();
         ATH_MSG_INFO( "Folder " << fptr->folderName() << " will be written to file metadata" );
       }

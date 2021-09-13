@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -94,10 +94,10 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
         //The map from the HepMC record pairs the weight names with a corresponding index,
         //it is not guaranteed that the indices are ascending when iterating over the map
         std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
-                  [&](std::string i, std::string j){return weight_name_map.at(i) < weight_name_map.at(j);});
+                  [&](const std::string& i, const std::string& j){return weight_name_map.at(i) < weight_name_map.at(j);});
 
         md->setMcChannelNumber(mcChannelNumber);
-        md->setWeightNames( std::move(orderedWeightNameVec) );
+        md->setWeightNames( orderedWeightNameVec );
 
         // Shamelessly stolen from the file meta data tool
         const CondAttrListCollection* tagInfo(nullptr);

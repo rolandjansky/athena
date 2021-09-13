@@ -42,8 +42,8 @@ class LumiCalibrator {
   float m_muToLumi;
   std::vector<float> m_parVec;
 
-  float getMuVis(float rawPerBX, float sigo, float siga) const;
-  float getMuVis2(float rawPerBX, float sigo, float siga) const;
+  static float getMuVis(float rawPerBX, float sigo, float siga) ;
+  static float getMuVis2(float rawPerBX, float sigo, float siga) ;
 
 };
 

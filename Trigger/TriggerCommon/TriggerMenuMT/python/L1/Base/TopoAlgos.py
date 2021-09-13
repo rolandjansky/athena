@@ -285,7 +285,7 @@ class MultiplicityAlgo(TopoAlgo):
 
 
 class EMMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, name, algoId, threshold, nbits, classtype = "EMMultiplicity" ):
+    def __init__(self, name, algoId, threshold, nbits, classtype ):
         super(EMMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                  algoId=algoId, 
                                                  threshold = threshold, 
@@ -294,22 +294,25 @@ class EMMultiplicityAlgo(MultiplicityAlgo):
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",threshold).groupdict()
         self.input = mres["type"]
 
-
 class TauMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, name, algoId, threshold, nbits, classtype = "TauMultiplicity" ):
+    def __init__(self, name, algoId, threshold, nbits, classtype ):
         super(TauMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
                                                   input=None, output="%s" % threshold,
                                                   nbits=nbits)
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[HLMT]*)",threshold).groupdict()
+        self.input = mres["type"]
 
 class JetMultiplicityAlgo(MultiplicityAlgo):
-    def __init__(self, name, algoId, threshold, nbits, classtype = "JetMultiplicity" ):
+    def __init__(self, name, algoId, threshold, nbits, classtype ):
         super(JetMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
                                                   input=None, output="%s" % threshold,
                                                   nbits=nbits)
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[A-z]*)",threshold).groupdict()
+        self.input = mres["type"]
 
 class XEMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype = "EnergyThreshold"):

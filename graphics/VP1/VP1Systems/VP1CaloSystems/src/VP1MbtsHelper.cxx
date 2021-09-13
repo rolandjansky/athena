@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloSystems/VP1MbtsHelper.h"
@@ -28,10 +28,10 @@ class VP1MbtsHelper::Clockwork
 {
  public:
   // ID helper
-  const TileTBID* tiletb_id;
+  const TileTBID* tiletb_id = nullptr;
 
   // Event data
-  const TileCellContainer* mbts_container;
+  const TileCellContainer* mbts_container = nullptr;
 
   // VP1Mbts objects of this event
   std::vector<VP1Mbts*> vp1_mbts;
@@ -41,9 +41,9 @@ class VP1MbtsHelper::Clockwork
   VP1CC_SoNode2MbtsMap   node2mbtsMap;
 
   // Separator helper
-  SoSeparator* separator;
+  SoSeparator* separator = nullptr;
   
-	VP1CaloCellController* controller;
+	VP1CaloCellController* controller = nullptr;
 };
 
 
@@ -286,11 +286,9 @@ void VP1MbtsHelper::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator* root)
     throw std::runtime_error("Unable to retrieve MBTS Container");
   }
 
-  TileCellContainer::const_iterator it = m_clockwork->mbts_container->begin();
-
-  for(; it!=m_clockwork->mbts_container->end(); it++)
+  for (const TileCell* cell : *m_clockwork->mbts_container)
   {
-    VP1Mbts* mbts = new VP1Mbts(*it,m_clockwork->tiletb_id,root,m_run2Geo);
+    VP1Mbts* mbts = new VP1Mbts(cell,m_clockwork->tiletb_id,root,m_run2Geo);
     m_clockwork->vp1_mbts.push_back(mbts);
   }
 }
@@ -356,7 +354,7 @@ void VP1MbtsHelper::outlineUpdate(const bool& outline)
 {
   m_outline = outline;
   VP1CC_SoNode2MbtsMap::iterator it = m_clockwork->node2mbtsMap.begin();
-  for(; it!=m_clockwork->node2mbtsMap.end(); it++) {
+  for(; it!=m_clockwork->node2mbtsMap.end(); ++it) {
     SoGenericBox* genBox = dynamic_cast<SoGenericBox*>(it->first);
     if(genBox)
       genBox->drawEdgeLines = m_outline;

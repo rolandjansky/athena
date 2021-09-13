@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
@@ -18,7 +18,7 @@ TElectronMCShifterTool::TElectronMCShifterTool():
 TElectronMCShifterTool::~TElectronMCShifterTool(){}
 //---------------------------------------------------------------------------------------
 // Gets the Et bin given the et (MeV)
-unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) const {
+unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) {
   const unsigned int nEtBins = 6;
   const double GeV = 1000;
   const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};
@@ -33,7 +33,7 @@ unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) const {
 
 //---------------------------------------------------------------------------------------
 // Gets the Eta bin [0-8] given the eta
-unsigned int TElectronMCShifterTool::getShifterEtaBin(double eta) const{
+unsigned int TElectronMCShifterTool::getShifterEtaBin(double eta) {
   const unsigned int nEtaBins = 9;
   const double etaBins[nEtaBins] = {0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
 

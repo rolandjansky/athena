@@ -339,7 +339,7 @@ LVL1::EFexEMClusterTool::addOnce(const CaloCell* inputCell, std::vector<const Ca
    bool alreadyThere = false;
    for (auto oCell : outputVector){
       if (oCell==nullptr) ATH_MSG_WARNING ( "nullptr cell in vector");
-      if (inputCell->ID() == oCell->ID()) alreadyThere=true;
+      else if (inputCell->ID() == oCell->ID()) alreadyThere=true;
    }
    if (!alreadyThere) outputVector.push_back(inputCell);
 }

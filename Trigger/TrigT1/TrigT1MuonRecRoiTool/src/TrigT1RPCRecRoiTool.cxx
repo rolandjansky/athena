@@ -45,6 +45,10 @@ namespace LVL1 {
 
     SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
     const RpcCablingCondData* rpcCab{*rpcReadHandle};
+    if (rpcCab==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read RpcCablingCondData conditions object.");
+      return data;
+    }
     
     if(rpcCab->give_RoI_borders_id(data.side(), data.sector(), data.roi(),
 				      EtaLowBorder_id, EtaHighBorder_id,
@@ -174,6 +178,10 @@ namespace LVL1 {
 
     SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
     const RpcCablingCondData* rpcCab{*rpcReadHandle};
+    if (rpcCab==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read RpcCablingCondData conditions object.");
+      return false;
+    }
 
     if(!rpcCab->give_LowPt_borders_id(data.side(), data.sector(), data.roi(),
                                        EtaLowBorder_id, EtaHighBorder_id,
@@ -220,6 +228,10 @@ namespace LVL1 {
 
     SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
     const RpcCablingCondData* rpcCab{*rpcReadHandle};
+    if (rpcCab==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read RpcCablingCondData conditions object.");
+      return false;
+    }
 
     if(!rpcCab->give_HighPt_borders_id(data.side(), data.sector(), data.roi(),
 					EtaLowBorder_id, EtaHighBorder_id,

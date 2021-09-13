@@ -22,7 +22,7 @@ namespace
     printable_vector (const std::vector<T>& v) : std::vector<T>(v) {}
   };
 
-  printable_vector<printable_vector<std::size_t>> allCombos(KFromNItr itr)
+  printable_vector<printable_vector<std::size_t>> allCombos(const KFromNItr& itr)
   {
     printable_vector<printable_vector<std::size_t>> ret;
     std::copy(itr, KFromNItr(), std::back_inserter(ret));

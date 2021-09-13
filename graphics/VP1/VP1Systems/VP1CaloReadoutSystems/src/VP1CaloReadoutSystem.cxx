@@ -73,118 +73,118 @@ class VP1CaloReadoutSystem::Clockwork
 {
 public:
 
-  SoSeparator       *volatileSeparator;
+  SoSeparator       *volatileSeparator = nullptr;
 
   QMap<QString,SoSwitch*>    switchMap;
 
   // Two maps for controller check boxes
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
-  SoPickStyle *pickStyle;
+  SoPickStyle *pickStyle = nullptr;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *fcalHVSwitch[3];   // FCAL
-  SoSwitch          *fcalNormalSwitch[3];
-  SoSwitch          *fcalBadSwitch[3];
-  SoSwitch          *fcalMissingSwitch[3];
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *fcalHVSwitch[3]{};   // FCAL
+  SoSwitch          *fcalNormalSwitch[3]{};
+  SoSwitch          *fcalBadSwitch[3]{};
+  SoSwitch          *fcalMissingSwitch[3]{};
 
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *hecHVSwitch[4];    // HEC
-  SoSwitch          *hecNormalSwitch[4];
-  SoSwitch          *hecBadSwitch[4];
-  SoSwitch          *hecMissingSwitch[4];
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *hecHVSwitch[4]{};    // HEC
+  SoSwitch          *hecNormalSwitch[4]{};
+  SoSwitch          *hecBadSwitch[4]{};
+  SoSwitch          *hecMissingSwitch[4]{};
 
-  SoSwitch          *embSwitch[4];      // EMB
-  SoSwitch          *embHVSwitch;
-  SoSwitch          *embModsSwitch;
-  SoSwitch          *embNormalSwitch;
-  SoSwitch          *embBadSwitch;
-  SoSwitch          *embMissingSwitch;
-  SoSwitch          *embPreHVSwitch;    
-  SoSwitch          *embPreModsSwitch;  
-  SoSwitch          *embPreNormalSwitch;
-  SoSwitch          *embPreBadSwitch;     
-  SoSwitch          *embPreMissingSwitch; 
+  SoSwitch          *embSwitch[4]{};      // EMB
+  SoSwitch          *embHVSwitch = nullptr;
+  SoSwitch          *embModsSwitch = nullptr;
+  SoSwitch          *embNormalSwitch = nullptr;
+  SoSwitch          *embBadSwitch = nullptr;
+  SoSwitch          *embMissingSwitch = nullptr;
+  SoSwitch          *embPreHVSwitch = nullptr;    
+  SoSwitch          *embPreModsSwitch = nullptr;  
+  SoSwitch          *embPreNormalSwitch = nullptr;
+  SoSwitch          *embPreBadSwitch = nullptr;     
+  SoSwitch          *embPreMissingSwitch = nullptr; 
 
-  SoSwitch          *emecPreHVSwitch;    
-  SoSwitch          *emecPreModsSwitch;  
-  SoSwitch          *emecPreNormalSwitch;
-  SoSwitch          *emecPreBadSwitch;     
-  SoSwitch          *emecPreMissingSwitch; 
-
-
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *emecHVSwitch;    // EMB
-  SoSwitch          *emecModsSwitch;
-  SoSwitch          *emecNormalSwitch;
-  SoSwitch          *emecBadSwitch;
-  SoSwitch          *emecMissingSwitch;
-
-  SoSeparator          *fcalSeparator[3];      // FCAL
-  SoSeparator          *hecSeparator [4];      // HEC
-  SoSeparator          *emecSeparator[4];      // EMEC
-  SoSeparator          *embSeparator [4];      // EMB
+  SoSwitch          *emecPreHVSwitch = nullptr;    
+  SoSwitch          *emecPreModsSwitch = nullptr;  
+  SoSwitch          *emecPreNormalSwitch = nullptr;
+  SoSwitch          *emecPreBadSwitch = nullptr;     
+  SoSwitch          *emecPreMissingSwitch = nullptr; 
 
 
-  SoSeparator          *fcalHVSeparator[3];
-  SoSeparator          *hecHVSeparator[4];
-  SoSeparator          *embPreHVSeparator;
-  SoSeparator          *emecPreHVSeparator;
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *emecHVSwitch = nullptr;    // EMB
+  SoSwitch          *emecModsSwitch = nullptr;
+  SoSwitch          *emecNormalSwitch = nullptr;
+  SoSwitch          *emecBadSwitch = nullptr;
+  SoSwitch          *emecMissingSwitch = nullptr;
 
-  SoSeparator          *embHVSeparator;
-  SoSeparator          *emecHVSeparator;
-  SoSeparator          *embModsSeparator;
-  SoSeparator          *embPreModsSeparator;
-  SoSeparator          *emecPreModsSeparator;
-  SoSeparator          *emecModsSeparator;
-
-  SoSwitch             *embSubSwitch[4][NPHISECTORS];
-  SoSwitch             *emecSubSwitch[4][NPHISECTORS];
-  SoSwitch             *hecSubSwitch[4][NPHISECTORS];
-
-  SoSeparator             *embSubSep[4][NPHISECTORS];
-  SoSeparator             *emecSubSep[4][NPHISECTORS];
-  SoSeparator             *hecSubSep[4][NPHISECTORS];
-  SoSeparator             *fcalSubSep[3];
-
-  SoSeparator             *fcalNormalSep[3];
-  SoSeparator             *fcalMissingSep[3];
-  SoSeparator             *fcalBadSep[3];
-
-  SoSeparator             *hecNormalSep[4];
-  SoSeparator             *hecMissingSep[4];
-  SoSeparator             *hecBadSep[4];
-
-  SoSeparator             *embNormalSep;
-  SoSeparator             *embMissingSep;
-  SoSeparator             *embBadSep;
-
-  SoSeparator             *embPreNormalSep;
-  SoSeparator             *embPreMissingSep;
-  SoSeparator             *embPreBadSep;
-
-  SoSeparator             *emecPreNormalSep;
-  SoSeparator             *emecPreMissingSep;
-  SoSeparator             *emecPreBadSep;
-
-  SoSeparator             *emecNormalSep;
-  SoSeparator             *emecMissingSep;
-  SoSeparator             *emecBadSep;
+  SoSeparator          *fcalSeparator[3]{};      // FCAL
+  SoSeparator          *hecSeparator [4]{};      // HEC
+  SoSeparator          *emecSeparator[4]{};      // EMEC
+  SoSeparator          *embSeparator [4]{};      // EMB
 
 
-  SoSwitch                *accordionSubSwitch[NPHISECTORS];
-  SoSeparator             *accordionSubSep[NPHISECTORS];
+  SoSeparator          *fcalHVSeparator[3]{};
+  SoSeparator          *hecHVSeparator[4]{};
+  SoSeparator          *embPreHVSeparator = nullptr;
+  SoSeparator          *emecPreHVSeparator = nullptr;
+
+  SoSeparator          *embHVSeparator = nullptr;
+  SoSeparator          *emecHVSeparator = nullptr;
+  SoSeparator          *embModsSeparator = nullptr;
+  SoSeparator          *embPreModsSeparator = nullptr;
+  SoSeparator          *emecPreModsSeparator = nullptr;
+  SoSeparator          *emecModsSeparator = nullptr;
+
+  SoSwitch             *embSubSwitch[4][NPHISECTORS]{};
+  SoSwitch             *emecSubSwitch[4][NPHISECTORS]{};
+  SoSwitch             *hecSubSwitch[4][NPHISECTORS]{};
+
+  SoSeparator             *embSubSep[4][NPHISECTORS]{};
+  SoSeparator             *emecSubSep[4][NPHISECTORS]{};
+  SoSeparator             *hecSubSep[4][NPHISECTORS]{};
+  SoSeparator             *fcalSubSep[3]{};
+
+  SoSeparator             *fcalNormalSep[3]{};
+  SoSeparator             *fcalMissingSep[3]{};
+  SoSeparator             *fcalBadSep[3]{};
+
+  SoSeparator             *hecNormalSep[4]{};
+  SoSeparator             *hecMissingSep[4]{};
+  SoSeparator             *hecBadSep[4]{};
+
+  SoSeparator             *embNormalSep = nullptr;
+  SoSeparator             *embMissingSep = nullptr;
+  SoSeparator             *embBadSep = nullptr;
+
+  SoSeparator             *embPreNormalSep = nullptr;
+  SoSeparator             *embPreMissingSep = nullptr;
+  SoSeparator             *embPreBadSep = nullptr;
+
+  SoSeparator             *emecPreNormalSep = nullptr;
+  SoSeparator             *emecPreMissingSep = nullptr;
+  SoSeparator             *emecPreBadSep = nullptr;
+
+  SoSeparator             *emecNormalSep = nullptr;
+  SoSeparator             *emecMissingSep = nullptr;
+  SoSeparator             *emecBadSep = nullptr;
 
 
-  SoSwitch          *emecFocalSwitch;
-  SoSwitch          *hecFocalSwitch;
-  SoSwitch          *embAccViewSwitch;
+  SoSwitch                *accordionSubSwitch[NPHISECTORS]{};
+  SoSeparator             *accordionSubSep[NPHISECTORS]{};
 
-  SoMaterial        *embMaterial;
-  SoMaterial        *emecMaterial;
-  SoMaterial        *hecMaterial;
-  SoMaterial        *fcalMaterial;
-  SoMaterial        *embAccMaterial;
+
+  SoSwitch          *emecFocalSwitch = nullptr;
+  SoSwitch          *hecFocalSwitch = nullptr;
+  SoSwitch          *embAccViewSwitch = nullptr;
+
+  SoMaterial        *embMaterial = nullptr;
+  SoMaterial        *emecMaterial = nullptr;
+  SoMaterial        *hecMaterial = nullptr;
+  SoMaterial        *fcalMaterial = nullptr;
+  SoMaterial        *embAccMaterial = nullptr;
 
   std::map < SoNode *, const FCALTile *>   TileMap;
   std::map < SoNode *, HECCellConstLink>   HECMap;
@@ -198,9 +198,9 @@ public:
 
   VP1CaloReadoutSystem::POSITION pos;
 
-  Ui::CaloReadoutSystemControllerForm ui;
-  bool hvInit;
-  bool permInit;
+  Ui::CaloReadoutSystemControllerForm ui{};
+  bool hvInit = false;
+  bool permInit = false;
   QVector<bool> currentlyEnabledPhiSectors;
 };
 
@@ -1165,7 +1165,7 @@ void VP1CaloReadoutSystem::createHV() {
 	  const FCALDetectorManager *fcalManager=VP1DetInfo::fcalDetMgr();
 	  if (fcalManager) {
 	    FCALDetectorManager::ConstIterator e;
-	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  e++) {
+	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  ++e) {
 	      
 	      const FCALModule *fcalMod = *e;
 	      const HepGeom::Transform3D &xf =  Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1178,7 +1178,7 @@ void VP1CaloReadoutSystem::createHV() {
 	      int cc=0;
 	      
 	      FCALModule::ConstIterator   t;
-	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 		
 		double zf = fcalMod->getEndcapIndex()== 0 ?  +fcalMod->getFullDepthZ(*t)/2.0 : -fcalMod->getFullDepthZ(*t)/2.0;
 		//		    double zc = 0;
@@ -1225,7 +1225,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMBDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMBDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
@@ -1325,7 +1325,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMECDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 
@@ -1407,7 +1407,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       HECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 
 
 	const HECDetectorRegion *region = *e;
@@ -1494,7 +1494,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
    const FCALDetectorManager * manager=VP1DetInfo::fcalDetMgr();
    if (manager) {
      FCALDetectorManager::ConstIterator e;
-     for (e=manager->beginFCAL();e!=manager->endFCAL();  e++) {
+     for (e=manager->beginFCAL();e!=manager->endFCAL();  ++e) {
 
        const FCALModule *fcalMod = *e;
        const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1506,7 +1506,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
        SoSeparator *sep = new SoSeparator();
        sep->addChild(XF);
        FCALModule::ConstIterator   t;
-       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 	 double x = t->getX();
 	 double y = t->getY();
 	 double dx = fcalMod->getFullWidthX(*t)/2.0;

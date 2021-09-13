@@ -2,6 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
+
+
 #include "TrigTauMonitorAlgorithm.h"
 
 TrigTauMonitorAlgorithm::TrigTauMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -44,7 +48,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   ATH_MSG_DEBUG("Executing TrigTauMonitorAlgorithm");
 
-  if(m_trigDecTool->ExperimentalAndExpertMethods()->isHLTTruncated()){
+  if(m_trigDecTool->ExperimentalAndExpertMethods().isHLTTruncated()){
     ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
     return StatusCode::SUCCESS; 
   }
@@ -60,7 +64,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     const TrigInfo info = getTrigInfo(trigger);
 
-    if ( executeNavigation( ctx, info.trigName,pairObjs).isFailure() || pairObjs.size()==0)                
+    if ( executeNavigation( ctx, info.trigName,pairObjs).isFailure() || pairObjs.empty())                
     {            
        ATH_MSG_WARNING("executeNavigation failed");                                                                                                       
        return StatusCode::SUCCESS;                                                                                                                         
@@ -94,7 +98,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
 
 StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx, 
-                                                       const std::string trigItem,
+                                                       const std::string& trigItem,
                                                        std::vector<std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision* >> &pairObjs) const
 {
 
@@ -116,7 +120,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   }else if(trigItem.find("ptonly") != std::string::npos) 
      tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
-  for(const auto Tau : *offTaus ){
+  for(const auto *const Tau : *offTaus ){
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
 
@@ -143,7 +147,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, float HLTthr) const
+void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, float HLTthr) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillDistributions");
 
@@ -172,7 +176,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     }
   }
   // Offline
-  if( offline_for_hlt_tau_vec_1p.size() != 0){
+  if( !offline_for_hlt_tau_vec_1p.empty()){
     if(info.isRNN){
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
@@ -181,7 +185,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, false);
   }
 
-  if( offline_for_hlt_tau_vec_mp.size() != 0){ 
+  if( !offline_for_hlt_tau_vec_mp.empty()){ 
     if(info.isRNN){
       fillRNNInputVars( trigger, offline_for_hlt_tau_vec_mp,"MP", false );
       fillRNNTrack( trigger, offline_for_hlt_tau_vec_mp, false );
@@ -217,7 +221,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   }
 
   // file information for online 1 prong taus 
-  if(online_tau_vec_1p.size()!=0){
+  if(!online_tau_vec_1p.empty()){
      fillbasicVars( trigger, online_tau_vec_1p, true);
      if(info.isRNN){
          fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
@@ -230,7 +234,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   }          
  
   // file information for online multiprong prong taus 
-  if(online_tau_vec_mp.size()!=0){
+  if(!online_tau_vec_mp.empty()){
      fillbasicVars( trigger, online_tau_vec_mp, true);
      if(info.isRNN){
          fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
@@ -252,7 +256,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   online_tau_vec_all.clear();
 }
 
-void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger,  const std::string trigL1Item, float L1thr) const
+void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger,  const std::string& trigL1Item, float L1thr) const
 {
     ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillL1Distributions");
 
@@ -283,7 +287,7 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::
         return;
     }
 
-    for(auto EmTauRoI : *EmTauRoIs)
+    for(const auto *EmTauRoI : *EmTauRoIs)
     {
         // select only the ROIs with eT greater than the threshold
         if( EmTauRoI->eT()/1e3 > L1thr){
@@ -299,7 +303,7 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::
     L1rois.clear();
 }
 
-void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const
+void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec, const std::string& nProng) const
 {
   ATH_MSG_DEBUG("Fill HLT efficiencies: " << trigger);
 
@@ -315,7 +319,7 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
  
   bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
 
-  for(auto offline_tau : offline_tau_vec){
+  for(const auto *offline_tau : offline_tau_vec){
 
        tauPt = offline_tau->pt()/1e3;
        tauEta = offline_tau->eta();
@@ -331,7 +335,7 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
 
 }
 
-void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , std::vector<const xAOD::TauJet*> offline_tau_vec, std::string nProng, const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois) const
+void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& L1rois) const
 {
   ATH_MSG_DEBUG("Fill L1 efficiencies: " << trigL1Item);
   std::string monGroupName = trigL1Item+"_L1_Efficiency_"+nProng;
@@ -346,14 +350,14 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , std:
   auto averageMu = Monitored::Scalar<float>(monGroupName+"_averageMu",0.0);
   auto L1_match = Monitored::Scalar<bool>(monGroupName+"_L1pass",false);
 
-  for(auto offline_tau : offline_tau_vec){
+  for(const auto *offline_tau : offline_tau_vec){
        tauPt = offline_tau->pt()/1e3;
        tauEta = offline_tau->eta();
        tauPhi = offline_tau->phi();
        averageMu = lbAverageInteractionsPerCrossing(ctx);
   
        L1_match = false;
-       for( auto L1roi : L1rois){
+       for( const auto *L1roi : L1rois){
            L1_match = L1Matching(offline_tau, L1roi, 0.3 );
            if( L1_match ){
               matched_L1rois.push_back(L1roi);
@@ -369,7 +373,7 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , std:
 
 } 
 
-void TrigTauMonitorAlgorithm::fillL1(const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois, std::string nProng)  const
+void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& L1rois, const std::string& nProng)  const
 {
    ATH_MSG_DEBUG("Fill L1: " << trigL1Item);
 
@@ -391,7 +395,7 @@ void TrigTauMonitorAlgorithm::fillL1(const std::string trigL1Item, std::vector<c
 
 }
 
-void TrigTauMonitorAlgorithm::fillBDTOut(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const
+void TrigTauMonitorAlgorithm::fillBDTOut(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string& nProng) const
 {
   ATH_MSG_DEBUG("Fill BDT output: " << trigger);
 
@@ -408,7 +412,7 @@ void TrigTauMonitorAlgorithm::fillBDTOut(const std::string trigger, std::vector<
   ATH_MSG_DEBUG("AFTER BDT output: " << trigger);
 }
 
-void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const
+void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string nProng) const
 {
   ATH_MSG_DEBUG("Fill BDT non Corrected: " << trigger);
 
@@ -477,7 +481,7 @@ void TrigTauMonitorAlgorithm::fillBDTNoCorr(const std::string trigger, std::vect
 }
 
 
-void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng, bool online) const
+void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string nProng, bool online) const
 {
   ATH_MSG_DEBUG("Fill RNN input variables: " << trigger);
 
@@ -541,7 +545,7 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
   
 }
 
-void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const
+void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, bool online) const
 {
   ATH_MSG_DEBUG("Fill RNN input Track: " << trigger);
   
@@ -551,7 +555,7 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
   auto track_pt_jetseed_log           = Monitored::Collection("track_pt_jetseed_log", tau_vec,  [] (const xAOD::TauJet* tau){ return TMath::Log10( tau->ptJetSeed());});
   fill(monGroup,track_pt_jetseed_log);
   
-    for(auto tau: tau_vec){
+    for(const auto *tau: tau_vec){
       // Don't call ->allTracks() unless the element links are valid
       static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TauTrackContainer>> > tauTrackAcc("tauTrackLinks");
       bool linksValid = true;
@@ -622,13 +626,13 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
   
 }
 
-void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const
+void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, bool online) const
 {
   ATH_MSG_DEBUG("Fill RNN input Cluster: " << trigger << " for online/offline " << online);
   
   auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputCluster" : "_RNN_Offline_InputCluster"));
   
-  for(auto tau: tau_vec){
+  for(const auto *tau: tau_vec){
 
     auto cluster_pt_jetseed_log = Monitored::Collection("cluster_pt_jetseed_log", tau_vec,  [] (const xAOD::TauJet* tau){ return TMath::Log10( tau->ptJetSeed());});
 
@@ -641,8 +645,9 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
     }
 
     const xAOD::Jet *jetSeed = tau->jet();
-    if (!jetSeed) {
+    if (jetSeed==nullptr) {
       ATH_MSG_ERROR("Tau jet link is invalid.");
+      continue;
     } 
 
     if(!jetSeed->getConstituents().isValid()) {
@@ -651,10 +656,11 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
 
     ATH_MSG_DEBUG("Link to constituents is valid");
 
-    for (const auto jc : jetSeed->getConstituents()) {
-      auto cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
+    for (const auto *const jc : jetSeed->getConstituents()) {
+      const auto *cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
       if (!cl) {
-	ATH_MSG_ERROR("Calorimeter cluster is invalid.");
+        ATH_MSG_ERROR("Calorimeter cluster is invalid.");
+        continue;
       }
 
       const auto lc_p4 = tau->p4(xAOD::TauJetParameters::DetectorAxis);
@@ -702,7 +708,7 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
   ATH_MSG_DEBUG("After fill  RNN input Cluster: " << trigger);
 }
 
-void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,bool online) const
+void TrigTauMonitorAlgorithm::fillbasicVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,bool online) const
 {
   ATH_MSG_DEBUG("Fill Basic Variables: " << trigger); 
 
@@ -736,12 +742,12 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
 
 }
 
-TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string trigger) const{ 
+TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string& trigger) const{ 
   return m_trigInfo.at(trigger); 
 }
 
 
-void TrigTauMonitorAlgorithm::setTrigInfo(const std::string trigger)
+void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 { 
 
   std::string idwp="",type="",l1item="",l1type="";
@@ -749,14 +755,14 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string trigger)
   bool isRNN=false,isBDT=false,isPerf=false,isL1=false;
 
   size_t l=trigger.length();
-  size_t pos=trigger.find("_");
+  size_t pos=trigger.find('_');
   std::string substr =trigger.substr(pos+1,l);
   std::vector<std::string> names;
   names.push_back(trigger.substr(0,pos));
 
-  while(substr.find("_")!=std::string::npos)
+  while(substr.find('_')!=std::string::npos)
   {
-    pos = substr.find("_");
+    pos = substr.find('_');
     names.push_back(substr.substr(0,pos));
     substr = substr.substr(pos+1,substr.length());    
   }

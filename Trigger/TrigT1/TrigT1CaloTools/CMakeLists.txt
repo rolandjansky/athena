@@ -13,7 +13,7 @@ atlas_add_component( TrigT1CaloTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps CaloIdentifier 
-                     CaloTriggerToolLib CxxUtils EventInfo GaudiKernel PathResolver StoreGateLib LumiBlockData
+                     CaloTriggerToolLib CxxUtils GaudiKernel PathResolver StoreGateLib LumiBlockData
                      TrigConfInterfaces TrigConfData TrigConfL1Data TrigT1CaloCalibConditions
                      TrigT1CaloCalibToolInterfaces TrigT1CaloCondSvcLib TrigT1CaloEventLib TrigT1CaloToolInterfaces 
                      TrigT1CaloUtilsLib TrigT1Interfaces xAODEventInfo xAODTrigL1Calo )

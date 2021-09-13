@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
@@ -106,7 +106,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     }
 
     // Check HLTResult
-    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }

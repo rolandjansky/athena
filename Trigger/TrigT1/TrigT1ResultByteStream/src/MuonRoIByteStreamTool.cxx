@@ -30,6 +30,9 @@ StatusCode MuonRoIByteStreamTool::initialize() {
   ATH_CHECK(m_roiWriteKey.initialize(!m_roiWriteKey.empty()));
   ATH_CHECK(m_roiReadKey.initialize(!m_roiReadKey.empty()));
 
+  ATH_MSG_DEBUG((m_roiWriteKey.empty() ? "Encoding" : "Decoding") << " ROB IDs: "
+                << MSG::hex << m_robIds.value() << MSG::dec);
+
   CHECK( m_rpcTool.retrieve() );
   CHECK( m_tgcTool.retrieve() );
   CHECK( m_thresholdTool.retrieve() );

@@ -51,25 +51,28 @@ StatusCode TrigHitDVHypoAlg::initialize()
 
    if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
-   m_tmva_reader = new TMVA::Reader( "!Color:!Silent" );
-   m_tmva_reader->AddVariable("n_track_qual", &m_tmva_n_track_qual);
-   m_tmva_reader->AddVariable("ly0_sp_frac",  &m_tmva_ly0_sp_frac);
-   m_tmva_reader->AddVariable("ly1_sp_frac",  &m_tmva_ly1_sp_frac);
-   m_tmva_reader->AddVariable("ly2_sp_frac",  &m_tmva_ly2_sp_frac);
-   m_tmva_reader->AddVariable("ly3_sp_frac",  &m_tmva_ly3_sp_frac);
-   m_tmva_reader->AddVariable("ly4_sp_frac",  &m_tmva_ly4_sp_frac);
-   m_tmva_reader->AddVariable("ly5_sp_frac",  &m_tmva_ly5_sp_frac);
-   m_tmva_reader->AddVariable("ly6_sp_frac",  &m_tmva_ly6_sp_frac);
-   m_tmva_reader->AddVariable("ly7_sp_frac",  &m_tmva_ly7_sp_frac);
+   for (size_t slot = 0; slot < SG::getNSlots(); ++slot) {
+      EventContext dummyContext(/*dummyEventNumber*/0, slot);
+      m_tmva_reader.get(dummyContext)->reset( new TMVA::Reader( "!Color:!Silent" ) );
+      (**m_tmva_reader.get(dummyContext)).AddVariable("n_track_qual", m_tmva_n_track_qual.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly0_sp_frac",  m_tmva_ly0_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly1_sp_frac",  m_tmva_ly1_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly2_sp_frac",  m_tmva_ly2_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly3_sp_frac",  m_tmva_ly3_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly4_sp_frac",  m_tmva_ly4_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly5_sp_frac",  m_tmva_ly5_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly6_sp_frac",  m_tmva_ly6_sp_frac.get(dummyContext));
+      (**m_tmva_reader.get(dummyContext)).AddVariable("ly7_sp_frac",  m_tmva_ly7_sp_frac.get(dummyContext));
 
-   // --- Book the MVA methods
-   const std::string tuningVer  = "v21a";
-   const std::string methodName = "BDT method";
+      // --- Book the MVA methods
+      const std::string tuningVer  = "v21a";
+      const std::string methodName = "BDT method";
 
-   std::string file = "TrigHitDVHypo/HitDV.BDT.weights." + tuningVer + ".xml";
-   std::string weightfile = PathResolver::find_calib_file(file.c_str());
-   ATH_MSG_DEBUG("opening weightfile = " << weightfile);
-   m_tmva_reader->BookMVA(methodName, weightfile); 
+      std::string file = "TrigHitDVHypo/HitDV.BDT.weights." + tuningVer + ".xml";
+      std::string weightfile = PathResolver::find_calib_file(file.c_str());
+      ATH_MSG_DEBUG("opening weightfile = " << weightfile);
+      (**m_tmva_reader.get(dummyContext)).BookMVA(methodName, weightfile); 
+   }
 
    return StatusCode::SUCCESS;
 }
@@ -154,7 +157,7 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
    float averageMu = 0;
    if( m_isMC ) {
       if( m_lumiBlockMuTool ) {
-	 averageMu = (float)m_lumiBlockMuTool->averageInteractionsPerCrossing();
+	 averageMu = static_cast<float>(m_lumiBlockMuTool->averageInteractionsPerCrossing());
 	 ATH_MSG_DEBUG( "offline averageMu = " << averageMu );
       }
    }
@@ -190,12 +193,12 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
 
    int n_passed_jet = 0;
    int seed_type = 0;
-   ATH_CHECK( calculateBDT(hitDVSPsContainer, hitDVTrksContainer, jetSeeds_pt, jetSeeds_eta, jetSeeds_phi, preselBDTthreshold, seed_type, dvContainer, n_passed_jet) );
+   ATH_CHECK( calculateBDT(context, hitDVSPsContainer, hitDVTrksContainer, jetSeeds_pt, jetSeeds_eta, jetSeeds_phi, preselBDTthreshold, seed_type, dvContainer, n_passed_jet) );
 
    int n_passed_sp = 0;
    std::vector<float> void_pt;
    seed_type = 1;
-   ATH_CHECK( calculateBDT(hitDVSPsContainer, hitDVTrksContainer, void_pt, spSeeds_eta, spSeeds_phi, preselBDTthreshold, seed_type, dvContainer, n_passed_sp) );
+   ATH_CHECK( calculateBDT(context, hitDVSPsContainer, hitDVTrksContainer, void_pt, spSeeds_eta, spSeeds_phi, preselBDTthreshold, seed_type, dvContainer, n_passed_sp) );
 
    ATH_MSG_DEBUG( "nr of dv container / jet-seeded / sp-seed candidates = " << dvContainer->size() << " / " << n_passed_jet << " / " << n_passed_sp );
 
@@ -268,7 +271,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
 
    // if Pixel/SCT barrel, layer number is as it is
    if( 0<=layer && layer <=7 ) {
-      ATH_MSG_DEBUG("layer=" << layer << ", eta=" << abseta);
+      ATH_MSG_VERBOSE("layer=" << layer << ", eta=" << abseta);
       return layer;
    }
 
@@ -286,7 +289,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // Pixel Endcap #1
    base = 8;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC1, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC1, eta=" << abseta);
       if( abseta > PixBR2limit ) return 2;
       return 3;
    }
@@ -294,7 +297,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // Pixel Endcap #2
    base = 9;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC2, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC2, eta=" << abseta);
       if( abseta > PixBR2limit ) return 2;
       return 3;
    }
@@ -302,14 +305,14 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // Pixel Endcap #3
    base = 10;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Pix EC3, eta=" << abseta);
+      ATH_MSG_VERBOSE("Pix EC3, eta=" << abseta);
       return 3;
    }
 
    // SCT Endcap #1
    base = 11;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC1, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC1, eta=" << abseta);
       if( abseta < PixBR6limit )      return 7;
       else if( abseta < PixBR5limit ) return 6;
       return 5;
@@ -318,7 +321,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #2
    base = 12;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC2, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC2, eta=" << abseta);
       if( abseta < PixBR5limit )      return 7;
       else if( abseta < PixBR4limit ) return 6;
       return 4;
@@ -327,7 +330,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #3
    base = 13;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC3, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC3, eta=" << abseta);
       if( abseta < PixBR4limit ) return 7;
       return 5;
    }
@@ -335,7 +338,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #4
    base = 14;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC4, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC4, eta=" << abseta);
       if( abseta < PixBR4limit ) return 6;
       else if( abseta < PixBR3limit ) return 6;
       return 4;
@@ -344,7 +347,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #5
    base = 15;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC5, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC5, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 5;
    }
@@ -352,7 +355,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #6
    base = 16;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC6, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC6, eta=" << abseta);
       if( abseta < PixBR3limit ) return 6;
       return 4;
    }
@@ -360,7 +363,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #7
    base = 17;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC7, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC7, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 5;
    }
@@ -368,7 +371,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #8
    base = 18;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC8, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC8, eta=" << abseta);
       if( abseta < PixBR3limit ) return 7;
       return 6;
    }
@@ -376,7 +379,7 @@ int TrigHitDVHypoAlg::getSPLayer(int layer, float eta) const
    // SCT Endcap #9
    base = 19;
    if( layer==base || layer==(base+12) ) {
-      ATH_MSG_DEBUG("Sct EC9, eta=" << abseta);
+      ATH_MSG_VERBOSE("Sct EC9, eta=" << abseta);
       return 7;
    }
 
@@ -483,9 +486,11 @@ StatusCode TrigHitDVHypoAlg::doMonitor(const xAOD::TrigCompositeContainer* dvCon
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
-StatusCode TrigHitDVHypoAlg::calculateBDT(const xAOD::TrigCompositeContainer* spsContainer,
+StatusCode TrigHitDVHypoAlg::calculateBDT(const EventContext& context,
+					  const xAOD::TrigCompositeContainer* spsContainer,
 					  const xAOD::TrigCompositeContainer* trksContainer,
-					  const std::vector<float>& seeds_pt, const std::vector<float>& seeds_eta, const std::vector<float>& seeds_phi,
+					  const std::vector<float>& seeds_pt, 
+					  const std::vector<float>& seeds_eta, const std::vector<float>& seeds_phi,
 					  const float& cutBDTthreshold, const int seed_type,
 					  xAOD::TrigCompositeContainer* dvContainer, int& n_passed) const
 {
@@ -497,7 +502,7 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const xAOD::TrigCompositeContainer* sp
       float seed_eta = seeds_eta[iseed];
       float seed_phi = seeds_phi[iseed];
 
-      ATH_MSG_DEBUG("+++++ seed eta: " << seed_eta << ", phi:" << seed_phi << " +++++");
+      ATH_MSG_VERBOSE("+++++ seed eta: " << seed_eta << ", phi:" << seed_phi << " +++++");
 
       // loop on space points
       const int   N_LAYER = 8;
@@ -539,13 +544,13 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const xAOD::TrigCompositeContainer* sp
 	    }
 	 }
       }
-      ATH_MSG_DEBUG("nr of SPs in jet: usedByTrk / all = " << n_sp_injet_usedByTrk << " / " << n_sp_injet);
+      ATH_MSG_VERBOSE("nr of SPs in jet: usedByTrk / all = " << n_sp_injet_usedByTrk << " / " << n_sp_injet);
       float v_ly_sp_frac[N_LAYER];
       for(int i=0; i<N_LAYER; i++) {
 	 float frac = 0.;
-	 if( v_n_sp_injet[i] > 0 ) frac = 1.0 - (float)v_n_sp_injet_usedByTrk[i] / (float)v_n_sp_injet[i];
+	 if( v_n_sp_injet[i] > 0 ) frac = 1.0 - static_cast<float>(v_n_sp_injet_usedByTrk[i]) / static_cast<float>(v_n_sp_injet[i]);
 	 v_ly_sp_frac[i] = frac;
-	 ATH_MSG_DEBUG("Layer " << i << ": frac=" << v_ly_sp_frac[i] << ", n used / all = " << v_n_sp_injet_usedByTrk[i] << " / " << v_n_sp_injet[i]);
+	 ATH_MSG_VERBOSE("Layer " << i << ": frac=" << v_ly_sp_frac[i] << ", n used / all = " << v_n_sp_injet_usedByTrk[i] << " / " << v_n_sp_injet[i]);
       }
 
       // loop on tracks
@@ -562,25 +567,25 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const xAOD::TrigCompositeContainer* sp
 	 if( dr > DR_TO_REF_CUT )  continue;
 	 n_qtrk_injet++;
       }
-      ATH_MSG_DEBUG("nr of quality tracks in jet = " << n_qtrk_injet);
+      ATH_MSG_VERBOSE("nr of quality tracks in jet = " << n_qtrk_injet);
 
       // evaluate BDT
-      m_tmva_n_track_qual = (float)n_qtrk_injet;
-      m_tmva_ly0_sp_frac  = v_ly_sp_frac[0];
-      m_tmva_ly1_sp_frac  = v_ly_sp_frac[1];
-      m_tmva_ly2_sp_frac  = v_ly_sp_frac[2];
-      m_tmva_ly3_sp_frac  = v_ly_sp_frac[3];
-      m_tmva_ly4_sp_frac  = v_ly_sp_frac[4];
-      m_tmva_ly5_sp_frac  = v_ly_sp_frac[5];
-      m_tmva_ly6_sp_frac  = v_ly_sp_frac[6];
-      m_tmva_ly7_sp_frac  = v_ly_sp_frac[7];
-      float bdt_score = m_tmva_reader->EvaluateMVA("BDT method");
+      *m_tmva_n_track_qual.get(context) = static_cast<float>(n_qtrk_injet);
+      *m_tmva_ly0_sp_frac.get(context)  = v_ly_sp_frac[0];
+      *m_tmva_ly1_sp_frac.get(context)  = v_ly_sp_frac[1];
+      *m_tmva_ly2_sp_frac.get(context)  = v_ly_sp_frac[2];
+      *m_tmva_ly3_sp_frac.get(context)  = v_ly_sp_frac[3];
+      *m_tmva_ly4_sp_frac.get(context)  = v_ly_sp_frac[4];
+      *m_tmva_ly5_sp_frac.get(context)  = v_ly_sp_frac[5];
+      *m_tmva_ly6_sp_frac.get(context)  = v_ly_sp_frac[6];
+      *m_tmva_ly7_sp_frac.get(context)  = v_ly_sp_frac[7];
+      float bdt_score = (**m_tmva_reader.get(context)).EvaluateMVA("BDT method");
 
       // BDT threshold
       if( bdt_score < cutBDTthreshold ) continue;
 
       // passed selection
-      ATH_MSG_DEBUG("Passed selection");
+      ATH_MSG_VERBOSE("Passed selection");
       n_passed++;
 
       // create EDM object
@@ -605,7 +610,7 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const xAOD::TrigCompositeContainer* sp
       dv->setDetail<float>("hitDV_ly7_sp_frac",  v_ly_sp_frac[7]);
       dv->setDetail<float>("hitDV_bdt_score",    bdt_score);
 
-      ATH_MSG_DEBUG("Created a new entry EDM");
+      ATH_MSG_VERBOSE("Created a new entry EDM");
    }
    ATH_MSG_DEBUG("nr of BDT passed = " << n_passed);
 
@@ -625,26 +630,26 @@ StatusCode TrigHitDVHypoAlg::findJetSeeds(const xAOD::JetContainer* jetsContaine
    auto mon_jet_eta = Monitored::Collection("jet_eta", mnt_jet_eta);
    auto monitorIt   = Monitored::Group( m_monTool, mon_jet_pt, mon_jet_eta );
 
-   ATH_MSG_DEBUG("looking for jet seed with pt cut=" << cutJetPt << ", eta cut=" << cutJetEta);
+   ATH_MSG_VERBOSE("looking for jet seed with pt cut=" << cutJetPt << ", eta cut=" << cutJetEta);
    for ( const xAOD::Jet* jet : *jetsContainer ) {
-      float jet_pt  = (float)jet->pt() / 1000.0;
+      float jet_pt  = static_cast<float>(jet->pt() / 1000.0 );
       mnt_jet_pt.push_back(jet_pt);
       if( jet_pt < cutJetPt ) {
-	 ATH_MSG_DEBUG("Fails jet pt cut, pt = " << jet_pt);
+	 ATH_MSG_VERBOSE("Fails jet pt cut, pt = " << jet_pt);
 	 continue;
       }
-      float jet_eta = (float)jet->eta();
+      float jet_eta = static_cast<float>(jet->eta());
       mnt_jet_eta.push_back(jet_eta);
       if( std::fabs(jet_eta) > cutJetEta ) {
-	 ATH_MSG_DEBUG("Fails jet eta cut, eta = " << jet_eta);
+	 ATH_MSG_VERBOSE("Fails jet eta cut, eta = " << jet_eta);
 	 continue;
       }
-      float jet_phi = (float)jet->phi();
+      float jet_phi = static_cast<float>(jet->phi());
       jetSeeds_pt.push_back(jet_pt);
       jetSeeds_eta.push_back(jet_eta);
       jetSeeds_phi.push_back(jet_phi);
    }
-   ATH_MSG_DEBUG("nr of jet seeds=" << jetSeeds_eta.size());
+   ATH_MSG_VERBOSE("nr of jet seeds=" << jetSeeds_eta.size());
 
    return StatusCode::SUCCESS;
 }
@@ -653,7 +658,7 @@ StatusCode TrigHitDVHypoAlg::findJetSeeds(const xAOD::JetContainer* jetsContaine
 // ------------------------------------------------------------------------------------------------
 
 StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* spsContainer,
-					   std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
+					  std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
 {
    seeds_eta.clear();
    seeds_phi.clear();
@@ -712,7 +717,7 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
       }
    }
 
-   ATH_MSG_DEBUG("looking for ly6/ly6 doublet seeds");
+   ATH_MSG_VERBOSE("looking for ly6/ly6 doublet seeds");
 
    // (idx, sort/weight, eta, phi)
    std::vector<std::tuple<int,float,float,float>> QT;
@@ -752,7 +757,7 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
 	 QT.push_back(std::make_tuple(-1,w,weta,wphi));
       }
    }
-   ATH_MSG_DEBUG("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
+   ATH_MSG_VERBOSE("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
 
    // sort
    std::sort(QT.begin(), QT.end(),
@@ -817,7 +822,7 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
       if( phi >  TMath::Pi() ) phi = -2*TMath::Pi() + phi;
       seeds_phi[i] = phi;
    }
-   ATH_MSG_DEBUG("after clustering, nr of seeds = " << seeds_eta.size());
+   ATH_MSG_VERBOSE("after clustering, nr of seeds = " << seeds_eta.size());
 
    // delete overlap (can happen at phi=-Pi/Pi bounadry)
    std::vector<unsigned int> idx_to_delete;
@@ -833,7 +838,7 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
 	 if( dr < CLUSTCUT_DIST ) idx_to_delete.push_back(j);
       }
    }
-   ATH_MSG_DEBUG("nr of duplicated seeds to be removed = " << idx_to_delete.size());
+   ATH_MSG_VERBOSE("nr of duplicated seeds to be removed = " << idx_to_delete.size());
    if( idx_to_delete.size() > 0 ) {
       std::sort(idx_to_delete.begin(),idx_to_delete.end());
       for(unsigned int j=idx_to_delete.size(); j>0; j--) {
@@ -843,7 +848,7 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const xAOD::TrigCompositeContainer* sp
       }
    }
 
-   ATH_MSG_DEBUG("nr of ly6/ly7 seeds=" << seeds_eta.size());
+   ATH_MSG_VERBOSE("nr of ly6/ly7 seeds=" << seeds_eta.size());
 
    // return
    return StatusCode::SUCCESS;

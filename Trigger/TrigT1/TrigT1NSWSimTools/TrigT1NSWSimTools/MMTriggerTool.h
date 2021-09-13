@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMTRIGGERTOOL_H
@@ -11,8 +11,7 @@
 
 //local includes
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
-
-
+#include "MMT_Diamond.h"
 
 //forward declarations
 class IIncidentSvc;
@@ -45,6 +44,8 @@ namespace NSWL1 {
     MMT_Parameters *m_par_large;
     MMT_Parameters *m_par_small;
 
+    MMT_Diamond *diamond;
+
     //MMT_Loader stuff end
 
     MMTriggerTool(const std::string& type,
@@ -57,7 +58,9 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode runTrigger();
+    StatusCode initDiamondAlgorithm();
+    StatusCode runTrigger(const bool do_MMDiamonds);
+    StatusCode finalizeDiamondAlgorithm(const bool do_MMDiamonds);
 
   private:
 
@@ -72,6 +75,7 @@ namespace NSWL1 {
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fillNtuple(const MMLoadVariables& loadedVariables);
 
+    void storeEventProperties(const unsigned int iterator); //!< Store event variable for Diamond Road algorithm
 
     // properties: container and service names
     StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
@@ -79,6 +83,31 @@ namespace NSWL1 {
     BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
 
     TTree* m_tree;                                          //!< ntuple for analysis
+    std::vector<unsigned int>* m_trigger_diamond_ntrig;
+    std::vector<int>* m_trigger_diamond_bc;
+    std::vector<char>* m_trigger_diamond_sector;
+    std::vector<int>* m_trigger_diamond_stationPhi;
+    std::vector<unsigned int>* m_trigger_diamond_totalCount;
+    std::vector<unsigned int>* m_trigger_diamond_realCount;
+    std::vector<int>* m_trigger_diamond_iX;
+    std::vector<int>* m_trigger_diamond_iU;
+    std::vector<int>* m_trigger_diamond_iV;
+    std::vector<unsigned int>* m_trigger_diamond_XbkgCount;
+    std::vector<unsigned int>* m_trigger_diamond_UVbkgCount;
+    std::vector<unsigned int>* m_trigger_diamond_XmuonCount;
+    std::vector<unsigned int>* m_trigger_diamond_UVmuonCount;
+    std::vector<double>* m_trigger_diamond_age;
+    std::vector<double>* m_trigger_diamond_Xavg;
+    std::vector<double>* m_trigger_diamond_Uavg;
+    std::vector<double>* m_trigger_diamond_Vavg;
+    std::vector<double>* m_trigger_diamond_mxl;
+    std::vector<double>* m_trigger_diamond_theta;
+    std::vector<double>* m_trigger_diamond_eta;
+    std::vector<double>* m_trigger_diamond_dtheta;
+    std::vector<double>* m_trigger_diamond_phi;
+    std::vector<double>* m_trigger_diamond_phiShf;
+
+    std::vector<double>* m_trigger_RZslopes;
     std::vector<double>* m_trigger_fitThe;
     std::vector<double>* m_trigger_fitPhi;
     std::vector<double>* m_trigger_fitDth;
@@ -95,6 +124,9 @@ namespace NSWL1 {
     std::vector<double>* m_trigger_large_fitDth;
     std::vector<double>* m_trigger_large_trueEtaRange;
     std::vector<double>* m_trigger_large_truePtRange;
+    std::vector<double>* m_trigger_large_trueThe;
+    std::vector<double>* m_trigger_large_truePhi;
+    std::vector<double>* m_trigger_large_trueDth;
     std::vector<double>* m_trigger_large_fitEtaRange;
     std::vector<double>* m_trigger_large_fitPtRange;
     std::vector<double>* m_trigger_large_resThe;
@@ -106,6 +138,9 @@ namespace NSWL1 {
     std::vector<double>* m_trigger_small_fitDth;
     std::vector<double>* m_trigger_small_trueEtaRange;
     std::vector<double>* m_trigger_small_truePtRange;
+    std::vector<double>* m_trigger_small_trueThe;
+    std::vector<double>* m_trigger_small_truePhi;
+    std::vector<double>* m_trigger_small_trueDth;
     std::vector<double>* m_trigger_small_fitEtaRange;
     std::vector<double>* m_trigger_small_fitPtRange;
     std::vector<double>* m_trigger_small_resThe;

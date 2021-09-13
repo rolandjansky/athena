@@ -15,6 +15,13 @@
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkGeometry/Layer.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "HGTD_Identifier/HGTD_ID.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::runTestT() {
   // ----------------- creation of the surfaces & track parameters -------------
@@ -78,8 +85,27 @@ template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::runTestT(
 
     if (m_collectSensitive) {
       m_sensitiveLayerIndex->clear();
+      m_sensitiveSurfaceType->clear();
+      m_sensitiveCenterPosX->clear();
+      m_sensitiveCenterPosY->clear();
+      m_sensitiveCenterPosZ->clear();
+      m_sensitiveCenterPosR->clear();
       m_sensitiveLocalPosX->clear();
       m_sensitiveLocalPosY->clear();
+      m_sensitiveLocalPosR->clear();
+      m_sensitiveLocalPosPhi->clear();
+      m_sensitiveDetector->clear();
+      m_sensitiveIsInnermost->clear();
+      m_sensitiveIsNextToInnermost->clear();
+      m_sensitiveBarrelEndcap->clear();
+      m_sensitiveLayerDisc->clear();
+      m_sensitiveEtaModule->clear();
+      m_sensitivePhiModule->clear();
+      m_sensitiveSide->clear();
+      m_sensitiveNearBondGap->clear();
+      m_sensitiveisInside->clear();
+      m_sensitiveisInsideBound->clear();
+      m_materialtInX0AccumulatedUpTo->clear();
     }
 
     for (size_t ip = 0; ip < m_parameterNames.size(); ++ip) {
@@ -336,12 +362,74 @@ template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::fillStepI
       // check this
       if (ip == 0 && m_collectSensitive) {
         // fill the layer index and the local variables
-        int idx = parameters->associatedSurface().associatedLayer() ?
-                  parameters->associatedSurface().associatedLayer()->layerIndex().value() : 0;
+        int idx = parameters->associatedSurface().associatedLayer() ? 
+            parameters->associatedSurface().associatedLayer()->layerIndex().value() : -1;
         m_sensitiveLayerIndex->push_back(idx);
-        // loc X and loc Y
-        m_sensitiveLocalPosX->push_back(parameters->localPosition().x());
-        m_sensitiveLocalPosY->push_back(parameters->localPosition().y());
+        int type = int(parameters->associatedSurface().type());
+        m_sensitiveSurfaceType->push_back(type);
+        m_sensitiveLocalPosX->push_back(parameters->localPosition()[Trk::loc1]);
+        m_sensitiveLocalPosY->push_back(parameters->localPosition()[Trk::loc2]); 
+           
+        if (parameters->associatedSurface().associatedDetectorElement()) {
+          Identifier id = parameters->associatedSurface().associatedDetectorElement()->identify();
+          
+          m_sensitiveCenterPosX->push_back(parameters->associatedSurface().associatedDetectorElement()->center().x());
+          m_sensitiveCenterPosY->push_back(parameters->associatedSurface().associatedDetectorElement()->center().y());
+          m_sensitiveCenterPosZ->push_back(parameters->associatedSurface().associatedDetectorElement()->center().z());
+          m_sensitiveCenterPosR->push_back(parameters->associatedSurface().associatedDetectorElement()->center().perp());
+          
+          bool isHGTD = false;
+          if (m_idHelper->is_pixel(id)) {
+            // save pixel info
+            m_sensitiveDetector->push_back(0);
+            m_sensitiveIsInnermost->push_back(m_pixel_ID->layer_disk(id)==0);
+            m_sensitiveIsNextToInnermost->push_back(m_pixel_ID->layer_disk(id)==1);
+            m_sensitiveBarrelEndcap->push_back(m_pixel_ID->barrel_ec(id));
+            m_sensitiveLayerDisc->push_back(m_pixel_ID->layer_disk(id));
+            m_sensitiveEtaModule->push_back(m_pixel_ID->eta_module(id));
+            m_sensitivePhiModule->push_back(m_pixel_ID->phi_module(id));
+            m_sensitiveSide->push_back(0);
+          } else if (m_idHelper->is_sct(id)) {
+            // save sct info 
+            m_sensitiveDetector->push_back(1);
+            m_sensitiveIsInnermost->push_back(0);
+            m_sensitiveIsNextToInnermost->push_back(0);
+            m_sensitiveBarrelEndcap->push_back(m_sct_ID->barrel_ec(id));
+            m_sensitiveLayerDisc->push_back(m_sct_ID->layer_disk(id));
+            m_sensitiveEtaModule->push_back(m_sct_ID->eta_module(id));
+            m_sensitivePhiModule->push_back(m_sct_ID->phi_module(id));
+            m_sensitiveSide->push_back(m_sct_ID->side(id));
+          } else if (m_useHGTD and m_idHelper->is_hgtd(id)) {
+            // save hgtd info 
+            m_sensitiveDetector->push_back(2);
+            m_sensitiveIsInnermost->push_back(0);
+            m_sensitiveIsNextToInnermost->push_back(0);
+            m_sensitiveBarrelEndcap->push_back(m_hgtd_ID->endcap(id));
+            m_sensitiveLayerDisc->push_back(m_hgtd_ID->layer(id));
+            m_sensitiveEtaModule->push_back(m_hgtd_ID->eta_module(id));
+            m_sensitivePhiModule->push_back(m_hgtd_ID->phi_module(id));
+            m_sensitiveSide->push_back(0);
+            isHGTD = true;
+          }
+          
+          if (not isHGTD) {
+            const InDetDD::SiDetectorElement* siElement = dynamic_cast<const InDetDD::SiDetectorElement*> (parameters->associatedSurface().associatedDetectorElement());
+            double phitol = 2.5; double etatol = 5.0;               
+            bool nearGap = siElement->nearBondGap(parameters->localPosition(), etatol);
+            InDetDD::SiIntersect siIn = siElement->inDetector(parameters->localPosition(), phitol, etatol);
+            bool isInside = siIn.in();
+            m_sensitiveNearBondGap->push_back(nearGap ? 1 : 0);
+            m_sensitiveisInside->push_back(isInside ? 1 : 0);
+            auto& pBounds = parameters->associatedSurface().bounds();
+            bool isInsideBounds = pBounds.inside(parameters->localPosition(),phitol,etatol);
+            m_sensitiveisInsideBound->push_back(isInsideBounds ? 1 : 0);
+          } else {
+            m_sensitiveNearBondGap->push_back(-1);
+            m_sensitiveisInside->push_back(-1);
+            m_sensitiveisInsideBound->push_back(-1);
+          }
+        }
+        m_materialtInX0AccumulatedUpTo->push_back(m_materialThicknessInX0Accumulated->empty() ? 0. : m_materialThicknessInX0Accumulated->back());
       }
 
       // collect the material if configured to do so
@@ -405,9 +493,9 @@ template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::fillStepI
         } else if (es.surface && es.surface->type() == Trk::SurfaceType::Plane) {
           m_materialThicknessInX0Plane += tInX0;
         }
-        // delete the parameters if there are any there
-        delete parameters;
       }
+      // delete the parameters if there are any there
+      delete parameters;
     }
   }
 

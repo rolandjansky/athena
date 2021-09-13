@@ -37,8 +37,6 @@ StatusCode TrigEgammaEmulationToolTest::initialize() {
   ATH_CHECK(m_matchTool.retrieve());
   ATH_CHECK(m_emulatorTool.retrieve());
 
-  m_trigdec->ExperimentalAndExpertMethods()->enable();
-
   m_accept.addCut("L1Calo","");
   m_accept.addCut("L2Calo","");
   m_accept.addCut("L2","");
@@ -96,7 +94,8 @@ StatusCode TrigEgammaEmulationToolTest::fillHistograms( const EventContext &ctx 
       }
 
       auto accept = setAccept(dec, info);
-      auto emu_accept = m_emulatorTool->emulate( dec, info.trigger );
+      bool valid=false;
+      auto emu_accept = m_emulatorTool->emulate( dec, info.trigger, valid );
 
       ATH_MSG_DEBUG( "trigger : " << info.trigger << " (tdt/emu)");
       ATH_MSG_DEBUG( "L1Calo  : " << accept.getCutResult(0) << " / " << emu_accept.getCutResult(0));

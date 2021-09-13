@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventStreamInfoCnv_p2.cxx
@@ -16,7 +16,7 @@
 
 static const EventTypeCnv_p1 typeConv;
 
-void EventStreamInfoCnv_p2::persToTrans(const EventStreamInfo_p2* pers, EventStreamInfo* trans, MsgStream &log)  {
+void EventStreamInfoCnv_p2::persToTrans(const EventStreamInfo_p2* pers, EventStreamInfo* trans, MsgStream &log) const {
    *trans = EventStreamInfo();
    trans->addEvent (pers->m_numberOfEvents);
    for (unsigned int rn : pers->m_runNumbers)
@@ -29,12 +29,12 @@ void EventStreamInfoCnv_p2::persToTrans(const EventStreamInfo_p2* pers, EventStr
      trans->insertItemList (p.first, p.second);
    for (const EventType_p1& ptype : pers->m_eventTypes)
    {
-      std::unique_ptr<EventType> p (typeConv.createTransient(&ptype, log));
+      std::unique_ptr<EventType> p (typeConv.createTransientConst(&ptype, log));
       trans->insertEventType(*p);
    }
 }
 
-void EventStreamInfoCnv_p2::transToPers(const EventStreamInfo* trans, EventStreamInfo_p2* pers, MsgStream &log) {
+void EventStreamInfoCnv_p2::transToPers(const EventStreamInfo* trans, EventStreamInfo_p2* pers, MsgStream &log) const {
    pers->m_numberOfEvents = trans->getNumberOfEvents();
 
    pers->m_runNumbers.assign (trans->getRunNumbers().begin(),

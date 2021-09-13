@@ -11,11 +11,13 @@
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
+#include "TrigConfData/L1Menu.h"
 #include <memory>
 #include <vector>
 #include <set>
@@ -34,6 +36,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     std::vector<TVector3> extVec;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
+    std::set<TString> matchedL1Items;
     bool matchedL1Charge{};
     bool passBW3Coin{};
     bool passInnerCoin{};
@@ -45,6 +48,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
       extVec.clear();
       matchedL1ThrExclusive.clear();
       matchedL1ThrInclusive.clear();
+      matchedL1Items.clear();
     }
   };
   struct TgcHit{
@@ -129,6 +133,11 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+  SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey {this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","L1 Menu key"};
+  SG::ReadDecorHandleKey<xAOD::MuonRoIContainer> m_thresholdPatternsKey{this,"MuRoIThresholdPatternsKey","LVL1MuonRoIs.thresholdPatterns","Name of the muon RoI container decoration for the threshold patterns"};
+  BooleanProperty m_monitorThresholdPatterns{this,"MonitorThresholdPatterns",true,"start monitoring tirgger threshold patterns"};
+  StringProperty m_thrPatternList{this,"ThrPatternList","MU4,MU6,MU10,MU11,MU20,MU21","list of single L1MU items to be monitored by the threshold pattern"};
+
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey{this,"MuonContainerName","Muons","Offline muon track container"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey{this,"MuonRoIContainerName","LVL1MuonRoIs","L1 muon RoI container"};
   
@@ -169,6 +178,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   std::vector<double> m_extZposition;
   std::vector<CtpDecMonObj> m_CtpDecMonObj;
+  std::set<TString> m_thrMonList;
 
   using MonVariables=std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >>;
   void fillTgcCoin(const std::vector<TgcTrig>&, const std::string& ) const;

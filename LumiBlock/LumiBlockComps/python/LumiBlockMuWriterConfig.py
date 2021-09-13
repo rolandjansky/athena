@@ -13,7 +13,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter'):
     result = ComponentAccumulator()
 
-    if configFlags.Beam.Type == 'cosmics':
+    if (configFlags.Beam.Type == 'cosmics' or configFlags.Input.isMC):
         condkey = ''
     else:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg

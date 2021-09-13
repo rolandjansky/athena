@@ -29,20 +29,20 @@
 //____________________________________________________________________
 class CaloClusterSysController::Imp {
 public:
-  Ui::VP1CaloClusterControllerForm ui;
-  Ui::CaloClusterSysSettingsCutsForm ui_cuts;
-  Ui::CaloClusterSysSettingsInteractionsForm ui_int;
-  Ui::CaloClusterSysSettingsDisplayForm ui_display;
-  VP1CollectionWidget * collWidget;
+  Ui::VP1CaloClusterControllerForm ui{};
+  Ui::CaloClusterSysSettingsCutsForm ui_cuts{};
+  Ui::CaloClusterSysSettingsInteractionsForm ui_int{};
+  Ui::CaloClusterSysSettingsDisplayForm ui_display{};
+  VP1CollectionWidget * collWidget = nullptr;
 
-  double gui_mostEnergetic;
+  double gui_mostEnergetic = 0.0;
 
   QPair<bool,double> last_scale;
   VP1Interval last_cutAllowedEnergies;
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;//All off: empty list. All on: list with one entry: ]-inf,inf[
-  bool last_showVolumeOutLines;
-  bool last_useTransverseEnergies;
+  bool last_showVolumeOutLines = false;
+  bool last_useTransverseEnergies = false;
 };
 
 //____________________________________________________________________

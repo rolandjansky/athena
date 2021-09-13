@@ -46,7 +46,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorPhotonAlgorithm");
 
 
-    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }

@@ -51,6 +51,7 @@ class TrigData{
     bool isPassed( const xAOD::Electron *el , float avgmu, std::string pidname ) const;
     bool isPassed( const xAOD::TrigRingerRings *rings , float avgmu, std::string pidname ) const;
 
+    
 
   public:
 
@@ -104,7 +105,7 @@ class TrigEgammaEmulationToolMT: public asg::AsgTool
 
     StatusCode initialize();
 
-    asg::AcceptData emulate(const TrigCompositeUtils::Decision *dec, std::string trigger) const;
+    asg::AcceptData emulate(const TrigCompositeUtils::Decision *dec, std::string trigger, bool &valid) const;
     
     bool match( const TrigCompositeUtils::Decision *dec , Trig::TrigData &, unsigned int condition=TrigDefs::includeFailedDecisions ) const;
 

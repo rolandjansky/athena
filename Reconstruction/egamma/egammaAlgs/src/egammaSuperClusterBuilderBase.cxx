@@ -100,6 +100,113 @@ etaphi_range(const CaloDetDescrManager& dd_man,
   dphi = 2 * std::max(dphi_l, dphi_r);
 }
 
+/** Function to decorate the calo cluster with position variables.
+ * Filling eta phi in calo-frame:
+ * - xAOD::CaloCluster::ETACALOFRAME
+ * - xAOD::CaloCluster::PHICALOFRAME
+ * - xAOD::CaloCluster::ETA2CALOFRAME
+ * - xAOD::CaloCluster::PHI2CALOFRAME
+ * - xAOD::CaloCluster::ETA1CALOFRAME
+ * - xAOD::CaloCluster::PHI1CALOFRAME
+ */
+
+void
+fillPositionsInCalo(xAOD::CaloCluster* cluster, const CaloDetDescrManager& mgr)
+{
+  const bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
+  CaloCell_ID::CaloSample sample =
+    isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
+  // eta and phi of the cluster in the calorimeter frame
+  double eta;
+  double phi;
+  CaloCellDetPos::getDetPosition(
+    mgr, sample, cluster->eta(), cluster->phi(), eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME, eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME, phi);
+  //  eta in the second sampling
+  CaloCellDetPos::getDetPosition(
+    mgr, sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME, eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME, phi);
+  //  eta in the first sampling
+  sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
+  CaloCellDetPos::getDetPosition(
+    mgr, sample, cluster->etaBE(1), cluster->phiBE(1), eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME, eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME, phi);
+}
+
+/** functions to make 1st sampling (strips) specific corrections*/
+void
+makeCorrection1(xAOD::CaloCluster* cluster,
+                const CaloDetDescrManager& mgr,
+                const CaloSampling::CaloSample sample)
+{
+  // Protections.
+  if (cluster->etamax(sample) == -999. || cluster->phimax(sample) == -999.) {
+    return;
+  }
+  if (std::abs(cluster->etamax(sample)) < 1E-6 &&
+      std::abs(cluster->phimax(sample)) < 1E-6) {
+    return;
+  }
+  // Get the hottest in raw co-ordinates
+  // We have two kinds of enums ...
+  CaloCell_ID::CaloSample xsample =
+    (sample == CaloSampling::EMB1) ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
+  //
+  const CaloDetDescrElement* dde =
+    mgr.get_element(xsample, cluster->etamax(sample), cluster->phimax(sample));
+  if (!dde) {
+    return;
+  }
+  //
+  double etamax = dde->eta_raw();
+  double phimax = dde->phi_raw();
+  // now Locate the +-1 range
+  double detastr(-999);
+  double dphistr(-999);
+  // Raw co-ordinates used here
+  etaphi_range(mgr, etamax, phimax, xsample, detastr, dphistr);
+  //
+  // Given the range refine the position employing the smaller window
+  if (detastr > 0 && dphistr > 0) {
+    CaloLayerCalculator helper;
+    const auto* const cellLink = cluster->getCellLinks();
+    helper.fill(cellLink->begin(),
+                cellLink->end(),
+                etamax,
+                phimax,
+                detastr,
+                dphistr,
+                sample);
+
+    // Here is where we (re-)fill the eta in the 1st sampling
+    if (helper.etam() != -999.) {
+      // This is "real" atlas co-ordinates
+      cluster->setEta(sample, helper.etam());
+    }
+  }
+}
+
+/** function to refine position in eta1*/
+void
+refineEta1Position(xAOD::CaloCluster* cluster, const CaloDetDescrManager& mgr)
+{
+  // This only makes sense if we have cells there
+  if (!cluster->hasSampling(CaloSampling::EMB1) &&
+      !cluster->hasSampling(CaloSampling::EME1)) {
+    return;
+  }
+  // Now calculare the position using cells in barrel or endcap or both
+  const double aeta = std::abs(cluster->etaBE(2));
+  if (aeta < 1.6 && cluster->hasSampling(CaloSampling::EMB1)) {
+    makeCorrection1(cluster, mgr, CaloSampling::EMB1);
+  }
+  if (aeta > 1.3 && cluster->hasSampling(CaloSampling::EME1)) {
+    makeCorrection1(cluster, mgr, CaloSampling::EME1);
+  }
+}
 /** Find the reference position (eta, phi) relative to which cells are
    restricted.
 */
@@ -251,7 +358,8 @@ egammaSuperClusterBuilderBase::createNewCluster(
   const EventContext& ctx,
   const std::vector<const xAOD::CaloCluster*>& clusters,
   const CaloDetDescrManager& mgr,
-  xAOD::EgammaParameters::EgammaType egType) const
+  xAOD::EgammaParameters::EgammaType egType,
+  xAOD::CaloClusterContainer* precorrClusters) const
 {
 
   const auto acSize = clusters.size();
@@ -343,7 +451,7 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // Apply correction calibration
-  if (calibrateCluster(ctx, newCluster.get(), mgr, egType).isFailure()) {
+  if (calibrateCluster(ctx, newCluster.get(), mgr, egType, precorrClusters).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
     return nullptr;
   }
@@ -609,135 +717,29 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   const EventContext& ctx,
   xAOD::CaloCluster* newCluster,
   const CaloDetDescrManager& mgr,
-  const xAOD::EgammaParameters::EgammaType egType) const
+  const xAOD::EgammaParameters::EgammaType egType,
+  xAOD::CaloClusterContainer* precorrClusters) const
 {
 
-  ATH_CHECK(refineEta1Position(newCluster, mgr));
+  refineEta1Position(newCluster, mgr);
   // Save the state before the corrections
   newCluster->setAltE(newCluster->e());
   newCluster->setAltEta(newCluster->eta());
   newCluster->setAltPhi(newCluster->phi());
   // first do the corrections
+  if (precorrClusters) {
+    precorrClusters->push_back (std::make_unique<xAOD::CaloCluster>());
+    *precorrClusters->back() = *newCluster;
+  }
   ATH_CHECK(m_clusterCorrectionTool->execute(
     ctx, newCluster, egType, xAOD::EgammaHelpers::isBarrel(newCluster)));
   newCluster->setRawE(newCluster->e());
   newCluster->setRawEta(newCluster->eta());
   newCluster->setRawPhi(newCluster->phi());
   //
-  ATH_CHECK(fillPositionsInCalo(newCluster, mgr));
+  fillPositionsInCalo(newCluster, mgr);
   ATH_CHECK(m_MVACalibSvc->execute(*newCluster, egType));
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-egammaSuperClusterBuilderBase::fillPositionsInCalo(
-  xAOD::CaloCluster* cluster,
-  const CaloDetDescrManager& mgr) const
-{
-  const bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
-  CaloCell_ID::CaloSample sample =
-    isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
-  // eta and phi of the cluster in the calorimeter frame
-  double eta;
-  double phi;
-  m_caloCellDetPos.getDetPosition(
-    mgr, sample, cluster->eta(), cluster->phi(), eta, phi);
-  cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME, eta);
-  cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME, phi);
-  //  eta in the second sampling
-  m_caloCellDetPos.getDetPosition(
-    mgr, sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
-  cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME, eta);
-  cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME, phi);
-  //  eta in the first sampling
-  sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
-  m_caloCellDetPos.getDetPosition(
-    mgr, sample, cluster->etaBE(1), cluster->phiBE(1), eta, phi);
-  cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME, eta);
-  cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME, phi);
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-egammaSuperClusterBuilderBase::refineEta1Position(
-  xAOD::CaloCluster* cluster,
-  const CaloDetDescrManager& mgr) const
-{
-
-  // This only makes sense if we have cells there
-  if (!cluster->hasSampling(CaloSampling::EMB1) &&
-      !cluster->hasSampling(CaloSampling::EME1)) {
-    return StatusCode::SUCCESS;
-  }
-  // Now calculare the position using cells in barrel or endcap or both
-  const double aeta = std::abs(cluster->etaBE(2));
-  if (aeta < 1.6 && cluster->hasSampling(CaloSampling::EMB1)) {
-    ATH_CHECK(makeCorrection1(cluster, mgr, CaloSampling::EMB1));
-  }
-  if (aeta > 1.3 && cluster->hasSampling(CaloSampling::EME1)) {
-    ATH_CHECK(makeCorrection1(cluster, mgr, CaloSampling::EME1));
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-egammaSuperClusterBuilderBase::makeCorrection1(
-  xAOD::CaloCluster* cluster,
-  const CaloDetDescrManager& mgr,
-  const CaloSampling::CaloSample sample) const
-{
-  // Protections.
-  if (cluster->etamax(sample) == -999. || cluster->phimax(sample) == -999.) {
-    return StatusCode::SUCCESS;
-  }
-  if (std::abs(cluster->etamax(sample)) < 1E-6 &&
-      std::abs(cluster->phimax(sample)) < 1E-6) {
-    return StatusCode::SUCCESS;
-  }
-  // Get the hottest in raw co-ordinates
-  // We have two kinds of enums ...
-  CaloCell_ID::CaloSample xsample =
-    (sample == CaloSampling::EMB1) ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
-  //
-  const CaloDetDescrElement* dde =
-    mgr.get_element(xsample, cluster->etamax(sample), cluster->phimax(sample));
-  if (!dde) {
-    ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for: "
-                    "cluster->etamax(sample): "
-                    << cluster->etamax(sample)
-                    << " cluster->phimax(sample): " << cluster->phimax(sample)
-                    << " will not refine the position in layer1");
-    return StatusCode::SUCCESS;
-  }
-  //
-  double etamax = dde->eta_raw();
-  double phimax = dde->phi_raw();
-  // now Locate the +-1 range
-  double detastr(-999);
-  double dphistr(-999);
-  // Raw co-ordinates used here
-  etaphi_range(mgr, etamax, phimax, xsample, detastr, dphistr);
-  //
-  // Given the range refine the position employing the smaller window
-  if (detastr > 0 && dphistr > 0) {
-    CaloLayerCalculator helper;
-    const auto* const cellLink = cluster->getCellLinks();
-    helper.fill(cellLink->begin(),
-                cellLink->end(),
-                etamax,
-                phimax,
-                detastr,
-                dphistr,
-                sample);
-
-    // Here is where we (re-)fill the eta in the 1st sampling
-    if (helper.etam() != -999.) {
-      // This is "real" atlas co-ordinates
-      cluster->setEta(sample, helper.etam());
-    }
-  }
   return StatusCode::SUCCESS;
 }
 

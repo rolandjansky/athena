@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
   if (std::string::npos!=m_recoKey.find("Electron")){
     const DataHandle<xAOD::ElectronContainer> inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
-    for (auto input : *inputCont){
+    for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input); 
       int index = -1;
       for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
@@ -68,7 +68,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
   } else if (std::string::npos!=m_recoKey.find("Photon")){
     const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
-    for (auto input : *inputCont){
+    for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = -1;
       for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
@@ -87,7 +87,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
   } else if (std::string::npos!=m_recoKey.find("Muon")){
     const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
-    for (auto input : *inputCont){
+    for (const auto *input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
       int index = -1;
       for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
@@ -109,7 +109,7 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 }
 
 // Find a match by barcode in a different container
-int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const
+int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) 
 {
   // See if it's already gone
   if (!p) return -1;

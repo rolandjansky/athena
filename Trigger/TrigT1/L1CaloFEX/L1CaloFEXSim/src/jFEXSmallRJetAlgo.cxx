@@ -69,12 +69,12 @@ int LVL1::jFEXSmallRJetAlgo::realValue(int ID, int eta){
 
 //Gets the ET for the TT. This ET is EM + HAD
 unsigned int LVL1::jFEXSmallRJetAlgo::getTTowerET(unsigned int TTID ) {
-    if(TTID == 0) {
+   if(TTID == 0) {
         return 0;
     } 
     
     if(m_map_Etvalues.find(TTID) != m_map_Etvalues.end()) {
-        return m_map_Etvalues[TTID][0];
+       return m_map_Etvalues[TTID][0];
     }
     
     //we shouldn't arrive here
@@ -110,69 +110,68 @@ void LVL1::jFEXSmallRJetAlgo::buildSeeds()
 
     m_seedSet = false;
     m_LMDisplaced = false;
-
     for(int mphi = 1; mphi < 6; mphi++) {
         for(int meta = 1; meta< 6; meta++) {
             int et_tmp = 0;
             int seedTotalET = 0;
-            for(int ieta = -1; ieta < 2; ieta++) {
-                for(int iphi = -1; iphi < 2; iphi++) {
+            for(int iphi = -1; iphi < 2; iphi++) {
+                for(int ieta = -1; ieta < 2; ieta++) {
                     //for that TT, build the seed
                     //here we sum TT ET to calculate seed
-                    et_tmp = getTTowerET(m_jFEXalgoTowerID[meta + ieta][mphi + iphi]);
+                    et_tmp = getTTowerET(m_jFEXalgoTowerID[mphi + iphi][meta + ieta]);
                     seedTotalET += et_tmp;
                 }
             }
-            m_jFEXalgoSearchWindowSeedET[meta -1][mphi -1] = seedTotalET;
+            m_jFEXalgoSearchWindowSeedET[mphi -1][meta -1] = seedTotalET;
         }
-
     }
 
     int centralTT_ET = getTTowerET(m_jFEXalgoTowerID[3][3]);
     if(centralTT_ET==m_jFEXalgoSearchWindowSeedET[3][3]) {
         m_LMDisplaced = true;
     }
-
     m_seedSet = true;
 }
 
 
 //check if central TT is a local maxima
-bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
-{
+bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima() {
+    
+    
     if(m_seedSet == false) {
         ATH_MSG_DEBUG("Local Maxima not checked due to seed not calculated.");
     }
-    if(m_seedSet == true) {
+    else {
 
-        //here put the 24 conditions to determine if the [2][2] TT seed is a local maxima.
-
+        //here put the 24 conditions to determine if the TT seed is a local maxima.
         int central_seed = m_jFEXalgoSearchWindowSeedET[2][2];
-        for (int ieta = 0; ieta < 5; ieta++) {
-            for (int iphi = 0; iphi < 5; iphi++) {
+        for (int iphi = 0; iphi < 5; iphi++) {
+            for (int ieta = 0; ieta < 5; ieta++) {
                 //avoid comparing central seed to itself
-                if ((ieta == 2) && (iphi == 2)) { 
+                if ((ieta == 2) && (iphi == 2)) {
                     continue;
                 }
                 //strictly less than central
                 if( (iphi >= ieta) && !(ieta == 3 && iphi == 3) && !(ieta == 4 && iphi == 4) ) {
-                    if(central_seed<m_jFEXalgoSearchWindowSeedET[ieta][iphi]) {
+                    if(central_seed<m_jFEXalgoSearchWindowSeedET[iphi][ieta]) {
                         return false;
                     }
                 }
                 //less than or equal to central
                 if((ieta > iphi) || (ieta == 3 && iphi == 3) || (ieta == 4 && iphi == 4)) {
-                    if(central_seed<= m_jFEXalgoSearchWindowSeedET[ieta][iphi]) {
+                    if(central_seed<= m_jFEXalgoSearchWindowSeedET[iphi][ieta]) {
                         return false;
-                     }
-              }
+                    }
+                }
             }
-        } 
+        }
     }
-    
+
     return true;
 
 }
+
+
 bool LVL1::jFEXSmallRJetAlgo::checkDisplacedLM()
 {
    return m_LMDisplaced;
@@ -180,30 +179,21 @@ bool LVL1::jFEXSmallRJetAlgo::checkDisplacedLM()
 
 
 //in this clustering func, the central TT in jet is the parameters
-unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET(){
+unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET() {
 
-
-  //first summing search window (25 TTs)
-  unsigned int searchWindowET = 0;
-  for(int neta = 0; neta< 7; neta++){ 
-    for(int nphi = 0; nphi< 7; nphi++){
-      searchWindowET += getTTowerET(m_jFEXalgoTowerID[neta][nphi]);
+    int SRJetClusterET = 0;
+    for(int nphi = -3; nphi< 4; nphi++) {
+        for(int neta = -3; neta< 4; neta++) {
+            
+            int DeltaRSquared = std::pow(nphi,2)+std::pow(neta,2);
+            if(DeltaRSquared < 16) {
+                SRJetClusterET += getTTowerET(m_jFEXalgoTowerID[3+nphi][3+neta]);
+            }
+        }
     }
-  } 
-
-  //corners removed in 7x7 window to obtain SmallRJetCluser ET;
-  int cornersET = 0;  
-
-  cornersET += getTTowerET(m_jFEXalgoTowerID[0][0]);
-  cornersET += getTTowerET(m_jFEXalgoTowerID[6][6]);
-  cornersET += getTTowerET(m_jFEXalgoTowerID[0][6]);
-  cornersET += getTTowerET(m_jFEXalgoTowerID[6][0]);
-
-  //SR Jet Energy cluster
-  int SRJetClusterET = searchWindowET + cornersET;
-
-  return SRJetClusterET;
+    return SRJetClusterET;
 }
+
 
 unsigned int LVL1::jFEXSmallRJetAlgo::getSmallETRing(){
   int SmallETRing = getSmallClusterET() - m_jFEXalgoSearchWindowSeedET[3][3];   

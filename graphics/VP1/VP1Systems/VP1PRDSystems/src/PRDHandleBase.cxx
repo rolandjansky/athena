@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandleBase.h"
@@ -289,7 +289,7 @@ Amg::Vector3D PRDHandleBase::Imp::positionPRD(const Trk::PrepRawData* prd)
 {
   if (!prd)
     return Amg::Vector3D(0,0,0);
-  if (!prd||!prd->detectorElement())
+  if (!prd->detectorElement())
     return Amg::Vector3D(0.0,0.0,0.0);
   const Trk::Surface& theSurface = prd->detectorElement()->surface(prd->identify());
 

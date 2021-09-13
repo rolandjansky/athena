@@ -18,7 +18,6 @@
 #include "TrigT1CaloUtils/CPMTobAlgorithm.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -86,8 +85,7 @@ namespace LVL1
       virtual CPMTobAlgorithm formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice = -1) const override;
             
     private:
-      
-      /** pointer to LVL1ConfigSvc */
+
       const TrigConf::L1Menu * m_l1menu{nullptr};
 
       /** Utility for decoding RoI words */

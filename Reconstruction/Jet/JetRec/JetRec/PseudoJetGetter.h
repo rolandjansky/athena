@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Implementations of concrete input-to-PseudoJet conversions
@@ -112,19 +112,39 @@ namespace PseudoJetGetter {
   struct PFlowRejecter{
 
     bool skipNegativeEnergy{false};
-  
-    PFlowRejecter(bool skip): skipNegativeEnergy(skip){
+    bool useChargedPFOs{true};
+    bool useNeutralPFOs{true};
+    bool useChargedPV{true};
+    bool useChargedPUsideband{false};
+
+    PFlowRejecter(bool skip, bool useCharged, bool useNeutral, bool chargedPV, bool chargedPUsideband): 
+      skipNegativeEnergy(skip),
+      useChargedPFOs(useCharged),
+      useNeutralPFOs(useNeutral),
+      useChargedPV(chargedPV),
+      useChargedPUsideband(chargedPUsideband){
     }
 
     bool operator()(const xAOD::IParticle* ip){
+      
+      bool reject = false;
 
       if(ip->type() == xAOD::Type::FlowElement){
         const xAOD::FlowElement* pfo = dynamic_cast<const xAOD::FlowElement*>(ip);
+
+	reject = (skipNegativeEnergy && pfo->e()<FLT_MIN);
+
         if( pfo->isCharged() ){
+	  if(!useChargedPFOs) reject = true;
           const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
-	        return !PVMatchedAcc(*pfo);
+	  if(useChargedPV && !PVMatchedAcc(*pfo)) reject = true;
+          const static SG::AuxElement::ConstAccessor<char> PUsidebandMatchedAcc("matchedToPUsideband");
+          if (useChargedPUsideband && !PUsidebandMatchedAcc(*pfo)) reject = true;
         }
-        return skipNegativeEnergy && pfo->e()<FLT_MIN;
+	else{
+          if(!useNeutralPFOs) reject = true;
+        }
+        return reject;
       }
     
       const xAOD::PFO* pfo = dynamic_cast<const xAOD::PFO*>(ip);
@@ -135,21 +155,27 @@ namespace PseudoJetGetter {
       // showers, but need to be present for overlap removal, because they 
       // don't retain these weights when added to the TST      
 
+      reject = (skipNegativeEnergy && pfo->e()<FLT_MIN);
+
       if( pfo->isCharged() ) {
-	    const static SG::AuxElement::ConstAccessor<char> 
-	    PVMatchedAcc("matchedToPV");
-	    return  !PVMatchedAcc(*pfo);
+	if(!useChargedPFOs) reject = true;
+	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	if(useChargedPV && !PVMatchedAcc(*pfo)) reject = true;
+	const static SG::AuxElement::ConstAccessor<char> PUsidebandMatchedAcc("matchedToPUsideband");
+	if (useChargedPUsideband && !PUsidebandMatchedAcc(*pfo)) reject = true;
       }
-    
-      return skipNegativeEnergy && pfo->e()<FLT_MIN;
+      else{
+	if(!useNeutralPFOs) reject = true;
+      }
+      return reject;
     }
   };
 
 
   std::vector<fastjet::PseudoJet> 
-  PFlowsToPJs(const xAOD::IParticleContainer& ips, bool skipNegativeEnergy) {
+  PFlowsToPJs(const xAOD::IParticleContainer& ips, bool skipNegativeEnergy, bool useChargedPFOs, bool useNeutralPFOs, bool useChargedPV, bool useChargedPUsideband) {
 
-    PFlowRejecter rejecter(skipNegativeEnergy);
+    PFlowRejecter rejecter(skipNegativeEnergy, useChargedPFOs, useNeutralPFOs, useChargedPV, useChargedPUsideband);
     std::vector<fastjet::PseudoJet> vpj;
     int index = -1;
 

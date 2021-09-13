@@ -51,7 +51,6 @@ class CPAlgorithm;
 
 
 //class TriggerTower;
-class IL1EmTauTools;
 class IL1CPCMXTools;
 class IL1CPMTools;
 class ITrigT1CaloMonErrorTool; 
@@ -136,7 +135,6 @@ class TrigT1CaloLWHistogramTool;
  *
  *  <table>
  *  <tr><th> Tool                               </th><th> Description           </th></tr>
- *  <tr><td> @c LVL1::IL1EmTauTools             </td><td> @copydoc m_emTauTool  </td></tr>
  *  <tr><td> @c LVL1::IL1CPCMXTools             </td><td> @copydoc m_cpCmxTool  </td></tr>
  *  <tr><td> @c LVL1::ITrigT1CaloMonErrorTool   </td><td> @copydoc m_errorTool  </td></tr>
  *  <tr><td> @c LVL1::TrigT1CaloLWHistogramTool </td><td> @copydoc m_histTool   </td></tr>
@@ -146,7 +144,6 @@ class TrigT1CaloLWHistogramTool;
  *
  *  <table>
  *  <tr><th> Property                   </th><th> Description                        </th></tr>
- *  <tr><td> @c EmTauTool               </td><td> @copydoc m_emTauTool               </td></tr>
  *  <tr><td> @c CPCMXTool               </td><td> @copydoc m_cpCmxTool               </td></tr>
  *  <tr><td> @c ErrorTool               </td><td> @copydoc m_errorTool               </td></tr>
  *  <tr><td> @c HistogramTool           </td><td> @copydoc m_histTool                </td></tr>
@@ -269,8 +266,6 @@ private:
   /// Check if LimitedRoISet bit is set
   bool  limitedRoiSet(int crate);
 
-  /// CP RoI simulation tool
-  ToolHandle<LVL1::IL1EmTauTools>        m_emTauTool;
   /// CP-CMX simulation tool
   ToolHandle<LVL1::IL1CPCMXTools>        m_cpCmxTool;
   /// CP simulation tool

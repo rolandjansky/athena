@@ -89,23 +89,23 @@ public:
     map<string,vector<string> >::const_iterator itr;
     unsigned int iv;
     for (itr=m_dat.begin(); itr != m_dat.end(); ++itr) {
-      if (x.length() > 1) { x+= ","; }
+      if (x.length() > 1) { x+= ','; }
       x += "\"" + itr->first + "\":";
       vector<string> v = itr->second;
-      if (v.size() > 1) { x += "["; }
+      if (v.size() > 1) { x += '['; }
       for (iv = 0; iv < v.size(); ++iv) {
-	if (iv > 0) { x += ","; }
-	if (v[iv].substr(0,1) == "{") {
+	if (iv > 0) { x += ','; }
+	if (v[iv][0] == '{') {
 	  x += v[iv];
-	} else if (v[iv].substr(0,1) == II) {
-	  x += v[iv].substr(1,v[iv].length());
+	} else if (v[iv].compare(0,1, II)==0) {
+	  x.append( v[iv], 1,v[iv].length());
 	} else {
 	  x += "\"" + v[iv] + "\"";
 	}
       }
-      if (v.size() > 1) { x += "]"; }
+      if (v.size() > 1) { x += ']'; }
     }
-    x += "}";
+    x += '}';
     return x;
   }
 

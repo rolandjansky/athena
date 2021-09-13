@@ -10,7 +10,7 @@ using std::memset;
 
 bool TrigInDetTrackFitParCnv_p2 :: calculateSquareRoot(const TrigInDetTrackFitPar* p, TrigInDetTrackFitPar_p2* pP)
 {
-  int i,j,idx=0;
+  int i{0},j{0},idx{0};
   double a[5][5];
   float L[5][5];
 
@@ -49,7 +49,7 @@ std::unique_ptr<std::vector<double> >
 TrigInDetTrackFitParCnv_p2 :: restoreCovariance(const TrigInDetTrackFitPar_p2* pP)
 {
 
-  int i,j,k,idx=0;
+  int i{0},j{0},k{0},idx{0};
   float L[5][5], LT[5][5];
   if(pP->m_cov[0]<0.0)
     {
@@ -86,8 +86,8 @@ TrigInDetTrackFitParCnv_p2 :: restoreCovariance(const TrigInDetTrackFitPar_p2* p
 bool TrigInDetTrackFitParCnv_p2 :: CholeskyDecomposition(double a[5][5], float L[5][5])
 {
 
-  int i,j,k;
-  double sum;
+  int i{0},j{0},k{0};
+  double sum{0};
   float p[5];
 
   for(i=0;i<5;i++)

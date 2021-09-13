@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompactHardTruth.h
@@ -93,20 +93,20 @@ class CompactHardTruth
   std::string m_thinnedMcEventsName;
 
   // Variables
-  int m_evtCount;
-  int m_missCount;
+  int m_evtCount = 0;
+  int m_missCount = 0;
   float m_partonCut;
   float m_hardCut;
 
-  int m_dangleFound;
-  int m_dangleRemoved;
-  float m_danglePtMax;
+  int m_dangleFound = 0;
+  int m_dangleRemoved = 0;
+  float m_danglePtMax = 0.0F;
   float m_danglePtCut;
 
   int m_maxCount;
 
-  int m_thinParticles;
-  int m_thinVertices;
+  int m_thinParticles = 0;
+  int m_thinVertices = 0;
 
 }; 
 

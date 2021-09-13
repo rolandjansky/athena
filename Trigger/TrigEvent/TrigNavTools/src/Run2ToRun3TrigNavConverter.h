@@ -61,18 +61,20 @@ private:
     std::set<std::string> m_setChainName;
     std::vector<std::string> m_setRoiName;
 
-    using DecisionObjMap = std::map<uint32_t,std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>>; // decisionFeature, decision
-    using TEObjMap = std::map<const HLT::TriggerElement*,std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>>; // decisionFeature, decision
+    using DecisionPair = std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>;
+    using DecisionObjMap = std::map<uint32_t,DecisionPair>; // decisionFeature, decision
+    using DecisionObjStringMap = std::map<std::string,DecisionPair>; // decisionFeature, decision but key=string
+    using TEObjMap = std::map<const HLT::TriggerElement*,DecisionPair>; // decisionFeature, decision
     using FElessObjMap = std::map<TrigCompositeUtils::Decision*,std::pair<TrigCompositeUtils::Decision*,const HLT::TriggerElement*>>; // decisionFeature-H no FE ->, decision,TEptr
     using L1ObjMap = std::map<uint32_t,TrigCompositeUtils::Decision*>; // L1decision
     using TEMap = std::map<const HLT::TriggerElement*, bool>; // map of TEs (true FE, false FE-less)
 
     std::tuple<uint32_t,CLID,std::string> getSgKey(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const;
-    StatusCode addTEfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, std::pair<TrigCompositeUtils::Decision*,TrigCompositeUtils::Decision*>&  decisionPtr, int idx, DecisionObjMap* om) const;
+    StatusCode addTEfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, DecisionPair&  decisionPtr, int idx, DecisionObjMap* om) const;
     StatusCode addTEROIfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr) const;
     StatusCode addROIfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr, int idx, L1ObjMap* om) const;
     StatusCode addTRACKfeatures(const HLT::TrigNavStructure &navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper, TrigCompositeUtils::Decision*&  decisionPtr, ElementLink<TrigRoiDescriptorCollection>& rLink) const;
-    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const;
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder, bool filterOnCLID=true) const;
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const;
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> getROIfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder) const;
     const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTRACKfeatures(const HLT::TriggerElement *te_ptr) const;
@@ -88,6 +90,7 @@ private:
     CLID m_CaloClusterContainerCLID { 0 };
     CLID m_TrackParticleContainerCLID { 0 };
     CLID m_TauTrackContainerCLID { 0 };
+
 
     using TE_Decision_map = std::map<HLT::TriggerElement*, std::vector<TrigCompositeUtils::Decision*>>;
     StatusCode printFeatures(const HLT::TrigNavStructure& ) const;

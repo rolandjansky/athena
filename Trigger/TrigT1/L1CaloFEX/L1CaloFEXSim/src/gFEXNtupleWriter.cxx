@@ -12,6 +12,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "L1CaloFEXSim/gFEXJetTOB.h"
 #include "L1CaloFEXSim/gFEXJetAlgo.h"
+#include "L1CaloFEXSim/gFEXJwoJTOB.h"
+#include "L1CaloFEXSim/gFEXJwoJAlgo.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include <vector>
 #include "TTree.h"
@@ -51,6 +53,15 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_myTree->Branch ("jet_TOB_Status",  &m_jet_TOB_Status);
   m_myTree->Branch ("jet_nTOBs",  &m_jet_nTOBs);
 
+  m_myTree->Branch ("global_TOB", &m_global_TOB);
+  m_myTree->Branch ("global_TOB_Quantity1", &m_global_TOB_Quantity1);
+  m_myTree->Branch ("global_TOB_Quantity2", &m_global_TOB_Quantity2);
+  m_myTree->Branch ("global_TOB_Saturation", &m_global_TOB_Saturation);
+  m_myTree->Branch ("global_TOB_ID",  &m_global_TOB_ID);
+  m_myTree->Branch ("global_TOB_Status1",  &m_global_TOB_Status1);
+  m_myTree->Branch ("global_TOB_Status2",  &m_global_TOB_Status2);
+  m_myTree->Branch ("global_nTOBs",  &m_global_nTOBs);
+
   return StatusCode::SUCCESS;
 }
 
@@ -65,6 +76,8 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   if (m_load_truth_jet){
     CHECK(loadTruthJets());
   }
+
+  CHECK(loadGlobalAlgoVariables());
 
   m_myTree->Fill();
   return StatusCode::SUCCESS;
@@ -84,8 +97,8 @@ StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables() {
   m_jet_TOB_Status.clear();
 
 
-  m_jet_nTOBs = m_gFEXOutputCollection->size();
-  for (int i = 0; i < m_gFEXOutputCollection->size(); i++)
+  m_jet_nTOBs = m_gFEXOutputCollection->jetsSize();
+  for (int i = 0; i < m_gFEXOutputCollection->jetsSize(); i++)
   {
     uint32_t TOB = m_gFEXOutputCollection->getJetTob()[i];
     m_jet_TOB.push_back(TOB);
@@ -100,6 +113,30 @@ StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode LVL1::gFEXNtupleWriter::loadGlobalAlgoVariables() {
+  m_global_TOB.clear();
+  m_global_TOB_Quantity1.clear();
+  m_global_TOB_Quantity2.clear();
+  m_global_TOB_Saturation.clear();
+  m_global_TOB_ID.clear();
+  m_global_TOB_Status1.clear();
+  m_global_TOB_Status2.clear();
+
+  m_global_nTOBs = m_gFEXOutputCollection->globalsSize();
+  for (int i = 0; i < m_gFEXOutputCollection->globalsSize(); i++)
+  {
+    uint32_t TOB = m_gFEXOutputCollection->getGlobalTob()[i];
+    m_global_TOB.push_back(TOB);
+    std::unordered_map<std::string, float> gFEXglobalvalue = (m_gFEXOutputCollection->getGlobal(i));
+    m_global_TOB_Quantity1.push_back(gFEXglobalvalue["GlobalQuantity1"]);
+    m_global_TOB_Quantity2.push_back(gFEXglobalvalue["GlobalQuantity2"]);
+    m_global_TOB_Saturation.push_back(gFEXglobalvalue["SaturationGlobal"]);
+    m_global_TOB_ID.push_back(gFEXglobalvalue["TobIDJet"]);
+    m_global_TOB_Status1.push_back(gFEXglobalvalue["GlobalStatus1"]);
+    m_global_TOB_Status2.push_back(gFEXglobalvalue["GlobalStatus2"]);
+  }
+  return StatusCode::SUCCESS;
+}
 
 StatusCode LVL1::gFEXNtupleWriter::loadTruthJets() {
   m_truth_jet_eta.clear();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
@@ -7,7 +7,7 @@
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include <string>
 #include <limits>
 
@@ -15,7 +15,7 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 // construction/destruction

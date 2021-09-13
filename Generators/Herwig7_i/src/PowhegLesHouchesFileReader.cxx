@@ -256,8 +256,8 @@ void powhegLesHouchesFileReader::doinit() {
 	  temp >> id >> mass;
 	  // skip resetting masses on SM particles
 	  // as it can cause problems later on in event generation
-	  if(abs(id)<=6 || (abs(id)>=11 && abs(id)<=16) ||
-	     abs(id)==23 || abs(id)==24) {
+	  if(std::abs(id) <= 6 || (std::abs(id) >= 11 && std::abs(id) <= 16) ||
+	     std::abs(id) == 23 || std::abs(id) == 24) {
 	    block = StringUtils::cdr(block,"\r\n");
 	    line = StringUtils::car(block,"\r\n");
 	    continue;
@@ -295,11 +295,11 @@ void powhegLesHouchesFileReader::doinit() {
 	    << parent << " does not exist. " << Exception::runerror;
 	  return;
 	}
-	if ( abs(inpart->id()) == 6 || 
-	     abs(inpart->id()) == 15 || 
-	     abs(inpart->id()) == 23 || 
-	     abs(inpart->id()) == 24 || 
-	     abs(inpart->id()) == 25 ) {
+	if ( std::abs(inpart->id()) == 6 || 
+	     std::abs(inpart->id()) == 15 || 
+	     std::abs(inpart->id()) == 23 || 
+	     std::abs(inpart->id()) == 24 || 
+	     std::abs(inpart->id()) == 25 ) {
 	  Throw<SetupException>() << "\n"
 	    "************************************************************************\n"
 	    "* Your LHE file changes the width of " << inpart->PDGName() << ".\n"
@@ -346,7 +346,7 @@ void powhegLesHouchesFileReader::doinit() {
 	    long t;
 	    is >> t;
 	    if( is.fail() ) break; 
-	    if( t == abs(parent) )
+	    if( t == std::abs(parent) )
 	      throw SetupException() 
 		<< "An error occurred while read a decay of the " 
 		<< inpart->PDGName() << ". One of its products has the same PDG code "

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,15 +54,8 @@ using CLHEP::TeV;
 typedef long double efloat_t;
 
 
-SG::Arena* arena = 0;
-
-CaloDetDescrManager* g_mgr = 0;
-IToolSvc* g_toolsvc = 0;
-ISvcLocator* g_svcloc = 0;
-
-
 #undef CHECK
-#define CHECK(s) do { if (!(s).isSuccess()) {printf("error: %s\n", #s);exit(1);}} while(0)
+#define CHECK(s) do { if (!(s).isSuccess()) {printf("error: %s\n", #s);std::abort();}} while(0)
 
 
 // Dufus-quality RNG, using LCG.  Constants from numerical recipies.
@@ -162,32 +155,45 @@ CaloIdManager* make_idmgr (const CaloCell_ID* cellhelper,
 }
 
 
-typedef std::map<Identifier, CaloDetDescriptor*> ddmap_t;
-ddmap_t ddmap_ol;
-ddmap_t ddmap_sc;
-CaloDetDescriptor* find_dd (int hashid,
-                            const CaloDetDescrManager_Base* mgr)
+class DDLookup
 {
-  const CaloCell_Base_ID* helper = mgr->getCaloCell_ID();
-  Identifier id = helper->cell_id (hashid);
+public:
+  DDLookup (const CaloDetDescrManager_Base* mgr);
+  CaloDetDescriptor* find (int hashid);
+
+private:
+  typedef std::map<Identifier, CaloDetDescriptor*> ddmap_t;
+  ddmap_t m_ddmap;
+  const CaloCell_Base_ID* m_helper;
+};
+
+
+DDLookup::DDLookup (const CaloDetDescrManager_Base* mgr)
+  : m_helper (mgr->getCaloCell_ID())
+{
+}
+
+
+CaloDetDescriptor* DDLookup::find (int hashid)
+{
+  Identifier id = m_helper->cell_id (hashid);
   Identifier reg_id;
-  int subcalo = helper->sub_calo (id);
+  int subcalo = m_helper->sub_calo (id);
   if (subcalo == CaloCell_ID::TILE) {
-    int section = helper->section (id);
-    int side = helper->side (id);
-    reg_id = helper->region_id (subcalo, section, side, 0);
+    int section = m_helper->section (id);
+    int side = m_helper->side (id);
+    reg_id = m_helper->region_id (subcalo, section, side, 0);
   }
   else {
-    int sampling = helper->sampling (id);
-    int posneg = helper->pos_neg (id);
-    int region = helper->region (id);
-    reg_id = helper->region_id (subcalo, posneg, sampling, region);
+    int sampling = m_helper->sampling (id);
+    int posneg = m_helper->pos_neg (id);
+    int region = m_helper->region (id);
+    reg_id = m_helper->region_id (subcalo, posneg, sampling, region);
   }
-  ddmap_t& ddmap = helper->is_supercell(id) ? ddmap_sc : ddmap_ol;
-  CaloDetDescriptor* dd = ddmap[reg_id];
+  CaloDetDescriptor* dd = m_ddmap[reg_id];
   if (!dd) {
-    dd = new CaloDetDescriptor (reg_id, helper->tile_idHelper(), helper);
-    ddmap[reg_id] = dd;
+    dd = new CaloDetDescriptor (reg_id, m_helper->tile_idHelper(), m_helper);
+    m_ddmap[reg_id] = dd;
   }
   return dd;
 }
@@ -195,9 +201,10 @@ CaloDetDescriptor* find_dd (int hashid,
 
 CaloCell* make_cell (int hashid,
                      CaloDetDescrManager* mgr,
+                     DDLookup& ddlookup,
                      URNG& rng)
 {
-  CaloDetDescriptor* descr = find_dd (hashid, mgr);
+  CaloDetDescriptor* descr = ddlookup.find (hashid);
   CaloDetDescrElement* dde = new DummyDetDescrElement (hashid -
                                                         descr->caloCellMin(),
                                                        0,
@@ -313,13 +320,14 @@ CaloCell* make_cell (int hashid,
 
 
 std::vector<CaloCell*> make_cells (CaloDetDescrManager* mgr,
+                                   DDLookup& ddlookup,
                                    URNG& rng)
 {
   size_t hashmax = mgr->getCaloCell_ID()->calo_cell_hash_max(); 
  std::vector<CaloCell*> v;
   v.reserve (hashmax);
   for (size_t i = 0; i < hashmax; i++)
-    v.push_back (make_cell (i, mgr, rng));
+    v.push_back (make_cell (i, mgr, ddlookup, rng));
 
   // Give a few cells off-scale energies, to test saturation.
   IdentifierHash tilemin, tilemax;
@@ -397,15 +405,19 @@ CaloCellContainer* fill_cells (int n,
 }
 
 
-CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
+CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells,
+                                    ISvcLocator* svcloc)
 {
   CaloCellContainer* cont = new CaloCellContainer;
 
+  IToolSvc* toolsvc = 0;
+  CHECK( svcloc->service ("ToolSvc", toolsvc, true) );
+
   ICaloSuperCellIDTool* sctool = 0;
-  CHECK( g_toolsvc->retrieveTool ("CaloSuperCellIDTool", sctool) );
+  CHECK( toolsvc->retrieveTool ("CaloSuperCellIDTool", sctool) );
 
   StoreGateSvc* detstore = 0;
-  CHECK( g_svcloc->service ("DetectorStore", detstore) );
+  CHECK( svcloc->service ("DetectorStore", detstore) );
   const CaloIdManager* idmgr = 0;
   CHECK( detstore->retrieve (idmgr, "CaloIdManager") );
   const CaloCell_SuperCell_ID* schelper =
@@ -413,6 +425,8 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
 
   CaloSuperCellDetDescrManager* scmgr = 0;
   CHECK( detstore->retrieve (scmgr, "CaloSuperCellMgr") );
+
+  DDLookup ddlookup (scmgr);
 
   std::vector<CaloCell*> scells (schelper->calo_cell_hash_max());
   for (const CaloCell* cell : cells) {
@@ -423,7 +437,7 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
     if (scells[hash] == 0) {
       const CaloDetDescrElement* dde = scmgr->get_element (hash);
       if (!dde) {
-        CaloDetDescriptor* descr = find_dd (hash, scmgr);
+        CaloDetDescriptor* descr = ddlookup.find (hash);
         CaloDetDescrElement* dde_nc =
           new DummyDetDescrElement (hash -
                                       descr->caloCellMin(),
@@ -778,6 +792,7 @@ void test_one (int n,
                const std::vector<CaloCell*>& cells,
                CaloCompactCellTool& tool,
                URNG& rng,
+               SG::Arena& arena,
                bool clustery = false,
                bool dump = false,
                bool ordered = true,
@@ -796,7 +811,7 @@ void test_one (int n,
     dump_packed (ccc);
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
-  SG::Arena::Push push (*arena);
+  SG::Arena::Push push (arena);
   assert (tool.getTransient (ccc, cont2));
 
   if (dump)
@@ -810,23 +825,25 @@ void test_one (int n,
   delete cont;
   delete cont2;
 
-  arena->reset();
+  arena.reset();
 }
 
 
 void test_supercells (int version,
                       const std::vector<CaloCell*>& cells,
-                      CaloCompactCellTool& tool)
+                      CaloCompactCellTool& tool,
+                      SG::Arena& arena,
+                      ISvcLocator* svcloc)
 {
   printf ("*** test SC %d\n", version);
-  CaloCellContainer* cont = fill_supercells (cells);
+  CaloCellContainer* cont = fill_supercells (cells, svcloc);
   //dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
   assert (tool.getPersistent (*cont, &ccc, nullptr, version));
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
-  SG::Arena::Push push (*arena);
+  SG::Arena::Push push (arena);
   assert (tool.getTransient (ccc, cont2));
   //dump_cells (*cont2);
 
@@ -834,7 +851,7 @@ void test_supercells (int version,
 
   delete cont;
   delete cont2;
-  arena->reset();
+  arena.reset();
 }
 
 
@@ -850,60 +867,74 @@ public:
 
   static
   void test_fin (const CaloCompactCellContainer& ccc,
-                 CaloCompactCellTool& tool);
+                 CaloCompactCellTool& tool,
+                 SG::Arena& arena);
 
   static
   void test_err1 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
   static
   void test_err2 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err3 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err4 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err5 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err6 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err7 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err8 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err9 (const CaloCompactCellContainer& ccc,
-                  CaloCompactCellTool& tool);
+                  CaloCompactCellTool& tool,
+                  SG::Arena& arena);
 
   static
   void test_err10 (const CaloCompactCellContainer& ccc,
-                   CaloCompactCellTool& tool);
+                   CaloCompactCellTool& tool,
+                   SG::Arena& arena,
+                   CaloDetDescrManager* mgr);
 
   static
   void test_err11 (const CaloCompactCellContainer& ccc,
-                   CaloCompactCellTool& tool);
+                   CaloCompactCellTool& tool,
+                   SG::Arena& arena);
 };
 
 
 void
 CaloCellPacker_400_500_test::test_fin (const CaloCompactCellContainer&
                                        ccc2,
-                                       CaloCompactCellTool& tool)
+                                       CaloCompactCellTool& tool,
+                                       SG::Arena& arena)
 {
   CaloCellContainer cont2 (SG::VIEW_ELEMENTS);
-  SG::Arena::Push push (*arena);
+  SG::Arena::Push push (arena);
   assert (tool.getTransient (ccc2, &cont2));
 }
 
@@ -911,117 +942,125 @@ CaloCellPacker_400_500_test::test_fin (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err1 (const CaloCompactCellContainer&
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err1\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   header.m_ncells_larhec = 1000000;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err2 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err2\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   header.m_seq_larem = 1000000;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err3 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err3\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   header.m_seq_larem = 10000;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err4 (const CaloCompactCellContainer&
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err4\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   vec.resize (vec.size() + 100);
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err5 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err5\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   vec.resize (vec.size() - 100);
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err6 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err6\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   vec.resize (vec.size() - 100);
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   value_type val = vec[header.m_length];
   vec[header.m_length] = (10000<<2) | (val & 0xffff0003);
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err7 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err7\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   vec.resize (vec.size() - 100);
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   value_type val = vec[header.m_length];
   int newhash = 200000;
   vec[header.m_length] = (newhash>>16) | ((newhash&0xffff)<<16) | (val&0xfffc);
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err8 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err8\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t* header = reinterpret_cast<header_t*> (&*vec.begin());
   vec.insert (vec.begin() + header->m_length, 10, 0);
   header = reinterpret_cast<header_t*> (&*vec.begin());
   header->m_length += 10;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
@@ -1029,57 +1068,63 @@ CaloCellPacker_400_500_test::test_err8 (const CaloCompactCellContainer&
 void
 CaloCellPacker_400_500_test::test_err9 (const CaloCompactCellContainer& 
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err9\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t* header = reinterpret_cast<header_t*> (&*vec.begin());
   vec.erase (vec.begin() + header->m_length-1);
   header = reinterpret_cast<header_t*> (&*vec.begin());
   --header->m_length;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err10(const CaloCompactCellContainer&
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena,
+                                        CaloDetDescrManager* mgr)
 {
   printf (" --- err10\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   value_type val = vec[header.m_length];
   int nseq = (val & 0xfffc) >> 2;
   int hash = (val & 3) << 16 | ((val & 0xffff0000)>>16);
   int target = hash + std::min (10, nseq);
 
-  CaloDetDescrElement* dde = g_mgr->release_element (target);
-  test_fin (ccc2, tool);
-  g_mgr->add (dde);
+  CaloDetDescrElement* dde = mgr->release_element (target);
+  test_fin (ccc2, tool, arena);
+  mgr->add (dde);
 }
 
 
 void
 CaloCellPacker_400_500_test::test_err11(const CaloCompactCellContainer&
                                         ccc,
-                                        CaloCompactCellTool& tool)
+                                        CaloCompactCellTool& tool,
+                                        SG::Arena& arena)
 {
   printf (" --- err11\n");
   CaloCompactCellContainer ccc2 = ccc;
-  vec_t& vec = const_cast<vec_t&>(ccc2.getData());
+  vec_t& vec = ccc2.getData();
   header_t& header = *reinterpret_cast<header_t*> (&*vec.begin());
   header.m_lengthProvenance = 9999999;
-  test_fin (ccc2, tool);
+  test_fin (ccc2, tool, arena);
 }
 
 
 // Test handling of corrupt data.
 void test_errs (const std::vector<CaloCell*>& cells,
                 CaloCompactCellTool& tool,
-                URNG& rng)
+                URNG& rng,
+                SG::Arena& arena,
+                CaloDetDescrManager* mgr)
 {
   printf ("*** test_errs\n");
   CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
@@ -1088,17 +1133,17 @@ void test_errs (const std::vector<CaloCell*>& cells,
 
   typedef CaloCellPacker_400_500_test T;
 
-  T::test_err1  (ccc, tool);
-  T::test_err2  (ccc, tool);
-  T::test_err3  (ccc, tool);
-  T::test_err4  (ccc, tool);
-  T::test_err5  (ccc, tool);
-  T::test_err6  (ccc, tool);
-  T::test_err7  (ccc, tool);
-  T::test_err8  (ccc, tool);
-  T::test_err9  (ccc, tool);
-  T::test_err10 (ccc, tool);
-  T::test_err11 (ccc, tool);
+  T::test_err1  (ccc, tool, arena);
+  T::test_err2  (ccc, tool, arena);
+  T::test_err3  (ccc, tool, arena);
+  T::test_err4  (ccc, tool, arena);
+  T::test_err5  (ccc, tool, arena);
+  T::test_err6  (ccc, tool, arena);
+  T::test_err7  (ccc, tool, arena);
+  T::test_err8  (ccc, tool, arena);
+  T::test_err9  (ccc, tool, arena);
+  T::test_err10 (ccc, tool, arena, mgr);
+  T::test_err11 (ccc, tool, arena);
 
   // Unordered
   printf (" --- err unordered\n");
@@ -1106,7 +1151,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   CaloCellContainer* cont2 = fill_cells (10000, cells, true, false, rng);
   CaloCompactCellContainer ccc2;
   assert (tool.getPersistent (*cont2, &ccc2, nullptr, CaloCompactCellTool::VERSION_500));
-  T::test_fin (ccc2, tool);
+  T::test_fin (ccc2, tool, arena);
 
   delete cont;
 }
@@ -1115,19 +1160,20 @@ void test_errs (const std::vector<CaloCell*>& cells,
 //============================================================================
 
 
-std::vector<CaloCell*> init (IdDictParser* parser, URNG& rng)
+std::vector<CaloCell*> init (IdDictParser* parser,
+                             URNG& rng,
+                             ISvcLocator*& svcloc,
+                             CaloDetDescrManager*& mgr)
 {
-  ISvcLocator* svcloc;
   if (!Athena_test::initGaudi("CaloCompactCellTool_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
-    exit(0);
+    std::abort();
   }  
-  g_svcloc = svcloc;
 
   CaloCell_ID* helper = make_helper ();
   CaloCell_SuperCell_ID* schelper = make_sc_helper (parser);
   CaloIdManager* idmgr = make_idmgr (helper, schelper);
-  CaloDetDescrManager* mgr = new CaloDetDescrManager;
+  mgr = new CaloDetDescrManager;
   mgr->set_helper (helper);
   mgr->initialize();
 
@@ -1135,11 +1181,8 @@ std::vector<CaloCell*> init (IdDictParser* parser, URNG& rng)
   scmgr->set_helper (schelper);
   scmgr->initialize();
 
-  std::vector<CaloCell*> cells = make_cells (mgr, rng);
-
-  IToolSvc* toolsvc = 0;
-  CHECK( svcloc->service ("ToolSvc", toolsvc, true) );
-  g_toolsvc = toolsvc;
+  DDLookup ddlookup (mgr);
+  std::vector<CaloCell*> cells = make_cells (mgr, ddlookup, rng);
 
   StoreGateSvc* detstore = 0;
   CHECK( svcloc->service ("DetectorStore", detstore) );
@@ -1150,10 +1193,6 @@ std::vector<CaloCell*> init (IdDictParser* parser, URNG& rng)
   CHECK( detstore->record (helper, "CaloCell_ID") );
   CHECK( detstore->record (schelper, "CaloCell_SuperCell_ID") );
 
-  arena = new SG::Arena ("arena");
-
-  g_mgr = mgr;
-
   return cells;
 }
 
@@ -1162,88 +1201,91 @@ void runtests (IdDictParser* parser)
 {
   Athena_test::URNG rng;
   CaloCompactCellTool tool;
-  std::vector<CaloCell*> cells = init (parser, rng);
+  ISvcLocator* svcloc = nullptr;
+  CaloDetDescrManager* mgr = nullptr;
+  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr);
+  auto arena = std::make_unique<SG::Arena> ("arena");
 
   rng.seed = 10;
-  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, false, true);
-  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, true, true);
-  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng, true);
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena, true, true);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_400, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_400, cells, tool, rng, *arena);
 
   rng.seed = 20;
-  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng, false, true);
-  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng,  true, true);
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena, false, true);
+  test_one (400, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena, true, true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng, true);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_500, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_500, cells, tool, rng, *arena);
 
   rng.seed = 40;
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, false);
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng,  true);
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena, false);
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng, true);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena);
 
   // Unordered
-  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, false,
+  test_one (400, CaloCompactCellTool::VERSION_501, cells, tool, rng, *arena, false,
             true, false);
 
   rng.seed = 50;
-  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng, false);
-  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng,  true);
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena, false);
+  test_one (400, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng, true);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_502, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_502, cells, tool, rng, *arena);
 
   rng.seed = 60;
-  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng, false);
-  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng,  true);
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena, false);
+  test_one (400, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng, true);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_503, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_503, cells, tool, rng, *arena);
 
   rng.seed = 70;
-  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng, false);
-  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng,  true);
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena, false);
+  test_one (400, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena,  true);
 
-  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng);
-  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng, true);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena);
+  test_one (10000, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena, true);
 
-  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng);
-  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng, true);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena);
+  test_one (100000, CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena, true);
 
-  test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool, rng);
+  test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena);
 
   rng.seed = 80;
-  test_supercells (CaloCompactCellTool::VERSION_504, cells, tool);
+  test_supercells (CaloCompactCellTool::VERSION_504, cells, tool, *arena, svcloc);
 
   rng.seed = 30;
-  test_errs (cells, tool, rng);
+  test_errs (cells, tool, rng, *arena, mgr);
 
   // Test thinning.
   rng.seed = 100;
@@ -1253,7 +1295,7 @@ void runtests (IdDictParser* parser)
     if ((i%3) == 0) dec.thin (i);
   }
   test_one (cells.size(), CaloCompactCellTool::VERSION_501, cells, tool, rng,
-            false, false, true, &dec);
+            *arena, false, false, true, &dec);
 }
 
 
@@ -1267,7 +1309,9 @@ void timetests (IdDictParser* parser, int nrep)
 {
   Athena_test::URNG rng;
   CaloCompactCellTool tool;
-  std::vector<CaloCell*> cells = init (parser, rng);
+  ISvcLocator* svcloc = nullptr;
+  CaloDetDescrManager* mgr = nullptr;
+  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr);
   CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
 
   rusage ru0, ru1, ru2, ru3;
@@ -1278,6 +1322,7 @@ void timetests (IdDictParser* parser, int nrep)
     assert (tool.getPersistent (*cont, &ccc, nullptr));
   getrusage (RUSAGE_SELF, &ru1);
 
+  auto arena = std::make_unique<SG::Arena> ("arena");
   SG::Arena::Push push (*arena);
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   getrusage (RUSAGE_SELF, &ru2);

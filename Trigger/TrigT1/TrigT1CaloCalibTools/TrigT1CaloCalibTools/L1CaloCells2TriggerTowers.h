@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H_
-#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H_
+#ifndef TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H
+#define TRIGT1CALOCALIBTOOLS_L1CALOCELLS2TRIGGERTOWERS_H
 
 // Athena Includes
 #include "AsgTools/AsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CxxUtils/checker_macros.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Calo includes
 #include "CaloIdentifier/CaloIdManager.h"
@@ -22,7 +21,7 @@
 // LAr includes
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArDigit.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"
@@ -49,7 +48,7 @@
 
 namespace LVL1 {
 
-class ATLAS_NOT_THREAD_SAFE   // use of LArCablingBase
+class
 L1CaloCells2TriggerTowers final : virtual public IL1CaloCells2TriggerTowers, public asg::AsgTool
 {
   /// Create a proper constructor for Athena
@@ -65,57 +64,58 @@ public:
   L1CaloCells2TriggerTowers(L1CaloCells2TriggerTowers&& rhs) = delete;
   L1CaloCells2TriggerTowers& operator=(const L1CaloCells2TriggerTowers& rhs) = delete;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // To associate CaloCell to the trigger tower they belong to
   // This method must be called before any other method in order
   // to setup correctly the CaloCell-TT map
-  bool initCaloCellsTriggerTowers(const CaloCellContainer& cellContainer);
-  bool initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer);
-  bool initTileDigitsTriggerTowers(const TileDigitsContainer& tileDigitsContainer);
+  virtual bool initCaloCellsTriggerTowers(const CaloCellContainer& cellContainer) override;
+  virtual bool initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer) override;
+  virtual bool initTileDigitsTriggerTowers(const TileDigitsContainer& tileDigitsContainer) override;
 
   // John Morris <john.morris@cern.ch> 15/2/2011
   // Moving most useful functions to the top of this file for clarity
-  std::vector<const CaloCell*> caloCells(const Identifier& ttId) const;
-  std::vector<std::vector<const CaloCell*> > caloCellsByLayer(const Identifier& ttId) const;
-  virtual std::vector<int> layerNames(const Identifier& ttID) const;
-  virtual int layerNames(const CaloCell* cell) const;
-  virtual float energy(const std::vector<const CaloCell*> &cells) const;
-  virtual float et(const std::vector<const CaloCell*> &cells) const;
-  virtual float energy(const Identifier& ttId) const;
-  virtual float et(const Identifier& ttId) const;
+  virtual std::vector<const CaloCell*> caloCells(const Identifier& ttId) const override;
+  virtual std::vector<std::vector<const CaloCell*> > caloCellsByLayer(const Identifier& ttId) const override;
+  virtual std::vector<int> layerNames(const Identifier& ttID) const override;
+  virtual int layerNames(const CaloCell* cell) const override;
+  virtual float energy(const std::vector<const CaloCell*> &cells) const override;
+  virtual float et(const std::vector<const CaloCell*> &cells) const override;
+  virtual float energy(const Identifier& ttId) const override;
+  virtual float et(const Identifier& ttId) const override;
 
-  void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const;
+  virtual void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const override;
+  virtual void matchCell2Tower(const LArOnOffIdMapping& cabling, const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const override;
 
   // Return a vector digits belonging the to requested trigger tower
-  std::vector<double> samples(const Identifier& ttId) const;
-  std::vector<const LArDigit*> larDigits(const Identifier& ttId) const;
-  std::vector<const TileDigits*> tileDigits(const Identifier& ttId) const;
+  virtual std::vector<double> samples(const Identifier& ttId) const override;
+  virtual std::vector<const LArDigit*> larDigits(const Identifier& ttId) const override;
+  virtual std::vector<const TileDigits*> tileDigits(const Identifier& ttId) const override;
 
-  void dumpCaloCells() const;
-  void dumpCaloCells(const Identifier& ttId) const;
+  virtual void dumpCaloCells() const override;
+  virtual void dumpCaloCells(const Identifier& ttId) const override;
 
-  void dumpDigits(const Identifier& ttId) const;
+  virtual void dumpDigits(const Identifier& ttId) const override;
 
-  void dumpLArDigits(const Identifier& ttId) const; /* ttId must be a LAr TTId */
-  void dumpLArDigits() const;
+  virtual void dumpLArDigits(const Identifier& ttId) const override; /* ttId must be a LAr TTId */
+  virtual void dumpLArDigits() const override;
 
-  void dumpTileDigits(const Identifier& ttId) const; /* ttId must be a Tile TTId */
-  void dumpTileDigits() const;
+  virtual void dumpTileDigits(const Identifier& ttId) const override; /* ttId must be a Tile TTId */
+  virtual void dumpTileDigits() const override;
 
 protected:
-  float calcEnergyOrEt(const std::vector<const CaloCell*> &cells, const unsigned int mode) const;
+  virtual float calcEnergyOrEt(const std::vector<const CaloCell*> &cells, const unsigned int mode) const override;
 
-  void reset();
-  void resetCaloCells();
-  void resetLArDigits();
-  void resetTileDigits();
+  virtual void reset() override;
+  virtual void resetCaloCells() override;
+  virtual void resetLArDigits() override;
+  virtual void resetTileDigits() override;
 
 
-  void dump(const std::vector<const CaloCell*>& vCells) const;
-  void dump(const std::vector<const LArDigit*>& vCells) const;
-  void dump(const std::vector<const TileDigits*>& vCells) const;
+  virtual void dump(const std::vector<const CaloCell*>& vCells) const override;
+  virtual void dump(const std::vector<const LArDigit*>& vCells) const override;
+  virtual void dump(const std::vector<const TileDigits*>& vCells) const override;
 
 private:
 
@@ -128,7 +128,8 @@ private:
   const CaloCell_ID* m_caloCellHelper;
 
   // Services
-  LArCablingLegacyService* m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const TileCablingService * m_tileCablingService;
   CaloTriggerTowerService* m_ttSvc;
 

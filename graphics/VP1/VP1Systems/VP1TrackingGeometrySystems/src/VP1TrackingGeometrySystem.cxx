@@ -47,211 +47,211 @@
 
 struct VP1TrackingGeometrySystem::Imp
 {
-  bool retrieveSuccess;
+  bool retrieveSuccess = false;
 
   // for signal handling
-  bool senderMapFilled;
+  bool senderMapFilled = false;
   std::map<QObject*,std::pair<SoSwitch*,bool> >   checkBoxSwitchMap;
   std::vector<VP1ExtraSepLayerHelper*>            sepHelperContainer;
 
   // Tracking volumes 
-  SoSwitch* volswitch;
-  VP1ExtraSepLayerHelper * sephelper_vol;
+  SoSwitch* volswitch = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_vol = nullptr;
   
   // Beam pipe
-  SoSwitch* beamPipeSwitch;
-  VP1ExtraSepLayerHelper* sephelper_beamPipe;
+  SoSwitch* beamPipeSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_beamPipe = nullptr;
   
   // Pixel section
-  SoSwitch* pixSurfBarrelSwitch;
-  SoSwitch* pixSurfECASwitch;
-  SoSwitch* pixSurfECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_pixSurfBarrel;
-  VP1ExtraSepLayerHelper* sephelper_pixSurfECA;
-  VP1ExtraSepLayerHelper* sephelper_pixSurfECC;               
+  SoSwitch* pixSurfBarrelSwitch = nullptr;
+  SoSwitch* pixSurfECASwitch = nullptr;
+  SoSwitch* pixSurfECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixSurfBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixSurfECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixSurfECC = nullptr;               
 
-  SoSwitch* pixLayBarrelSwitch;
-  SoSwitch* pixLayECASwitch;
-  SoSwitch* pixLayECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_pixLayBarrel;
-  VP1ExtraSepLayerHelper* sephelper_pixLayECA;
-  VP1ExtraSepLayerHelper* sephelper_pixLayECC;               
+  SoSwitch* pixLayBarrelSwitch = nullptr;
+  SoSwitch* pixLayECASwitch = nullptr;
+  SoSwitch* pixLayECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixLayBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixLayECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_pixLayECC = nullptr;               
   
   // SCT section
-  SoSwitch* sctSurfBarrelSwitch;
-  SoSwitch* sctSurfECASwitch;
-  SoSwitch* sctSurfECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_sctSurfBarrel;
-  VP1ExtraSepLayerHelper* sephelper_sctSurfECA;
-  VP1ExtraSepLayerHelper* sephelper_sctSurfECC;               
+  SoSwitch* sctSurfBarrelSwitch = nullptr;
+  SoSwitch* sctSurfECASwitch = nullptr;
+  SoSwitch* sctSurfECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctSurfBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctSurfECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctSurfECC = nullptr;               
 
-  SoSwitch* sctLayBarrelSwitch;
-  SoSwitch* sctLayECASwitch;
-  SoSwitch* sctLayECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_sctLayBarrel;
-  VP1ExtraSepLayerHelper* sephelper_sctLayECA;
-  VP1ExtraSepLayerHelper* sephelper_sctLayECC;               
+  SoSwitch* sctLayBarrelSwitch = nullptr;
+  SoSwitch* sctLayECASwitch = nullptr;
+  SoSwitch* sctLayECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctLayBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctLayECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_sctLayECC = nullptr;               
 
   // TRT section
-  SoSwitch* trtSurfBarrelSwitch;
-  SoSwitch* trtSurfECASwitch;
-  SoSwitch* trtSurfECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_trtSurfBarrel;
-  VP1ExtraSepLayerHelper* sephelper_trtSurfECA;
-  VP1ExtraSepLayerHelper* sephelper_trtSurfECC;               
+  SoSwitch* trtSurfBarrelSwitch = nullptr;
+  SoSwitch* trtSurfECASwitch = nullptr;
+  SoSwitch* trtSurfECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtSurfBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtSurfECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtSurfECC = nullptr;               
 
-  SoSwitch* trtLayBarrelSwitch;
-  SoSwitch* trtLayECASwitch;
-  SoSwitch* trtLayECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_trtLayBarrel;
-  VP1ExtraSepLayerHelper* sephelper_trtLayECA;
-  VP1ExtraSepLayerHelper* sephelper_trtLayECC;    
+  SoSwitch* trtLayBarrelSwitch = nullptr;
+  SoSwitch* trtLayECASwitch = nullptr;
+  SoSwitch* trtLayECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtLayBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtLayECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_trtLayECC = nullptr;    
   
   // Passive layers           
-  SoSwitch* passiveLayBarrelSwitch;
-  SoSwitch* passiveLayECASwitch;
-  SoSwitch* passiveLayECCSwitch;
-  VP1ExtraSepLayerHelper* sephelper_passiveLayBarrel;
-  VP1ExtraSepLayerHelper* sephelper_passiveLayECA;
-  VP1ExtraSepLayerHelper* sephelper_passiveLayECC;    
+  SoSwitch* passiveLayBarrelSwitch = nullptr;
+  SoSwitch* passiveLayECASwitch = nullptr;
+  SoSwitch* passiveLayECCSwitch = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_passiveLayBarrel = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_passiveLayECA = nullptr;
+  VP1ExtraSepLayerHelper* sephelper_passiveLayECC = nullptr;    
 
   
-  SoSwitch* clipswitch;
-  SoSwitch* msBswitch;
-  SoSwitch* msIswitch;
-  SoSwitch* msOswitch;
-  SoSwitch* msBIswitch;
-  SoSwitch* msBMswitch;
-  SoSwitch* msBOswitch;
-  SoSwitch* msEIswitch;
-  SoSwitch* msEMswitch;
-  SoSwitch* msEOswitch;
-  SoSwitch* msCSswitch;
-  SoSwitch* msTGswitch;
-  SoSwitch* msBIlayswitch;
-  SoSwitch* msBMlayswitch;
-  SoSwitch* msBOlayswitch;
-  SoSwitch* msEIlayswitch;
-  SoSwitch* msEMlayswitch;
-  SoSwitch* msEOlayswitch;
-  SoSwitch* msCSlayswitch;
-  SoSwitch* msTGlayswitch;
-  SoSwitch* msBTenvswitch;
-  SoSwitch* msETenvswitch;
-  SoSwitch* msShenvswitch;
-  SoSwitch* msFeenvswitch;
-  SoSwitch* msRaenvswitch;
-  SoSwitch* msBTdlswitch;
-  SoSwitch* msETdlswitch;
-  SoSwitch* msShdlswitch;
-  SoSwitch* msFedlswitch;
-  SoSwitch* msRadlswitch;
+  SoSwitch* clipswitch = nullptr;
+  SoSwitch* msBswitch = nullptr;
+  SoSwitch* msIswitch = nullptr;
+  SoSwitch* msOswitch = nullptr;
+  SoSwitch* msBIswitch = nullptr;
+  SoSwitch* msBMswitch = nullptr;
+  SoSwitch* msBOswitch = nullptr;
+  SoSwitch* msEIswitch = nullptr;
+  SoSwitch* msEMswitch = nullptr;
+  SoSwitch* msEOswitch = nullptr;
+  SoSwitch* msCSswitch = nullptr;
+  SoSwitch* msTGswitch = nullptr;
+  SoSwitch* msBIlayswitch = nullptr;
+  SoSwitch* msBMlayswitch = nullptr;
+  SoSwitch* msBOlayswitch = nullptr;
+  SoSwitch* msEIlayswitch = nullptr;
+  SoSwitch* msEMlayswitch = nullptr;
+  SoSwitch* msEOlayswitch = nullptr;
+  SoSwitch* msCSlayswitch = nullptr;
+  SoSwitch* msTGlayswitch = nullptr;
+  SoSwitch* msBTenvswitch = nullptr;
+  SoSwitch* msETenvswitch = nullptr;
+  SoSwitch* msShenvswitch = nullptr;
+  SoSwitch* msFeenvswitch = nullptr;
+  SoSwitch* msRaenvswitch = nullptr;
+  SoSwitch* msBTdlswitch = nullptr;
+  SoSwitch* msETdlswitch = nullptr;
+  SoSwitch* msShdlswitch = nullptr;
+  SoSwitch* msFedlswitch = nullptr;
+  SoSwitch* msRadlswitch = nullptr;
 
 
-  VP1ExtraSepLayerHelper * sephelper_msB;
-  VP1ExtraSepLayerHelper * sephelper_msI;
-  VP1ExtraSepLayerHelper * sephelper_msO;
-  VP1ExtraSepLayerHelper * sephelper_msBI;
-  VP1ExtraSepLayerHelper * sephelper_msBM;
-  VP1ExtraSepLayerHelper * sephelper_msBO;
-  VP1ExtraSepLayerHelper * sephelper_msEI;
-  VP1ExtraSepLayerHelper * sephelper_msEM;
-  VP1ExtraSepLayerHelper * sephelper_msEO;
-  VP1ExtraSepLayerHelper * sephelper_msCS;
-  VP1ExtraSepLayerHelper * sephelper_msTG;
-  VP1ExtraSepLayerHelper * sephelper_msBIlay;
-  VP1ExtraSepLayerHelper * sephelper_msBMlay;
-  VP1ExtraSepLayerHelper * sephelper_msBOlay;
-  VP1ExtraSepLayerHelper * sephelper_msEIlay;
-  VP1ExtraSepLayerHelper * sephelper_msEMlay;
-  VP1ExtraSepLayerHelper * sephelper_msEOlay;
-  VP1ExtraSepLayerHelper * sephelper_msCSlay;
-  VP1ExtraSepLayerHelper * sephelper_msTGlay;
-  VP1ExtraSepLayerHelper * sephelper_msBTenv;
-  VP1ExtraSepLayerHelper * sephelper_msETenv;
-  VP1ExtraSepLayerHelper * sephelper_msShenv;
-  VP1ExtraSepLayerHelper * sephelper_msFeenv;
-  VP1ExtraSepLayerHelper * sephelper_msRaenv;
-  VP1ExtraSepLayerHelper * sephelper_msBTdl;
-  VP1ExtraSepLayerHelper * sephelper_msETdl;
-  VP1ExtraSepLayerHelper * sephelper_msShdl;
-  VP1ExtraSepLayerHelper * sephelper_msFedl;
-  VP1ExtraSepLayerHelper * sephelper_msRadl;
+  VP1ExtraSepLayerHelper * sephelper_msB = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msI = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msO = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBI = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBM = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBO = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEI = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEM = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEO = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msCS = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msTG = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBIlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBMlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBOlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEIlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEMlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msEOlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msCSlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msTGlay = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBTenv = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msETenv = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msShenv = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msFeenv = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msRaenv = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msBTdl = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msETdl = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msShdl = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msFedl = nullptr;
+  VP1ExtraSepLayerHelper * sephelper_msRadl = nullptr;
 
-  TrackingVolumeToSoNode* trackvol2sonode;
-  SurfaceToSoNode*        surface2sonode;
+  TrackingVolumeToSoNode* trackvol2sonode = nullptr;
+  SurfaceToSoNode*        surface2sonode = nullptr;
 
   // widgets for the sidepane
-  QLineEdit*   lineEdit_TrackingGeometrySvcName;
-  QLineEdit*   lineEdit_TrackingGeometryName;
+  QLineEdit*   lineEdit_TrackingGeometrySvcName = nullptr;
+  QLineEdit*   lineEdit_TrackingGeometryName = nullptr;
   
-  QPushButton* pushButton_Retrieve;
-  QCheckBox*   checkBox_TrackingVolumes;
+  QPushButton* pushButton_Retrieve = nullptr;
+  QCheckBox*   checkBox_TrackingVolumes = nullptr;
 
-  QCheckBox*   checkBox_pixSurfBarrel;
-  QCheckBox*   checkBox_pixSurfECA;
-  QCheckBox*   checkBox_pixSurfECC;               
-  QCheckBox*   checkBox_sctSurfBarrel;
-  QCheckBox*   checkBox_sctSurfECA;
-  QCheckBox*   checkBox_sctSurfECC;
-  QCheckBox*   checkBox_trtSurfBarrel;
-  QCheckBox*   checkBox_trtSurfECA;
-  QCheckBox*   checkBox_trtSurfECC;
+  QCheckBox*   checkBox_pixSurfBarrel = nullptr;
+  QCheckBox*   checkBox_pixSurfECA = nullptr;
+  QCheckBox*   checkBox_pixSurfECC = nullptr;               
+  QCheckBox*   checkBox_sctSurfBarrel = nullptr;
+  QCheckBox*   checkBox_sctSurfECA = nullptr;
+  QCheckBox*   checkBox_sctSurfECC = nullptr;
+  QCheckBox*   checkBox_trtSurfBarrel = nullptr;
+  QCheckBox*   checkBox_trtSurfECA = nullptr;
+  QCheckBox*   checkBox_trtSurfECC = nullptr;
                
-  QCheckBox*   checkBox_beamPipe;
-  QCheckBox*   checkBox_pixLayBarrel;
-  QCheckBox*   checkBox_pixLayECA;
-  QCheckBox*   checkBox_pixLayECC;               
-  QCheckBox*   checkBox_sctLayBarrel;
-  QCheckBox*   checkBox_sctLayECA;
-  QCheckBox*   checkBox_sctLayECC;
-  QCheckBox*   checkBox_trtLayBarrel;
-  QCheckBox*   checkBox_trtLayECA;
-  QCheckBox*   checkBox_trtLayECC;
-  QCheckBox*   checkBox_passiveLayBarrel;
-  QCheckBox*   checkBox_passiveLayECA;
-  QCheckBox*   checkBox_passiveLayECC;
+  QCheckBox*   checkBox_beamPipe = nullptr;
+  QCheckBox*   checkBox_pixLayBarrel = nullptr;
+  QCheckBox*   checkBox_pixLayECA = nullptr;
+  QCheckBox*   checkBox_pixLayECC = nullptr;               
+  QCheckBox*   checkBox_sctLayBarrel = nullptr;
+  QCheckBox*   checkBox_sctLayECA = nullptr;
+  QCheckBox*   checkBox_sctLayECC = nullptr;
+  QCheckBox*   checkBox_trtLayBarrel = nullptr;
+  QCheckBox*   checkBox_trtLayECA = nullptr;
+  QCheckBox*   checkBox_trtLayECC = nullptr;
+  QCheckBox*   checkBox_passiveLayBarrel = nullptr;
+  QCheckBox*   checkBox_passiveLayECA = nullptr;
+  QCheckBox*   checkBox_passiveLayECC = nullptr;
 
   std::vector<std::string>      surfacesNames;
   
-  QCheckBox*   checkBox_ClipPlane;
-  QCheckBox*   checkBox_MuonStaticFrameB;
-  QCheckBox*   checkBox_MuonStaticFrameI;
-  QCheckBox*   checkBox_MuonStaticFrameO;
-  QCheckBox*   checkBox_msBIvol;
-  QCheckBox*   checkBox_msBIlay;
-  QCheckBox*   checkBox_msBMvol;
-  QCheckBox*   checkBox_msBMlay;
-  QCheckBox*   checkBox_msBOvol;
-  QCheckBox*   checkBox_msBOlay;
-  QCheckBox*   checkBox_msEIvol;
-  QCheckBox*   checkBox_msEIlay;
-  QCheckBox*   checkBox_msEMvol;
-  QCheckBox*   checkBox_msEMlay;
-  QCheckBox*   checkBox_msEOvol;
-  QCheckBox*   checkBox_msEOlay;
-  QCheckBox*   checkBox_msCSvol;
-  QCheckBox*   checkBox_msCSlay;
-  QCheckBox*   checkBox_msTGvol;
-  QCheckBox*   checkBox_msTGlay;
-  QCheckBox*   checkBox_msBTenv;
-  QCheckBox*   checkBox_msETenv;
-  QCheckBox*   checkBox_msShenv;
-  QCheckBox*   checkBox_msFeenv;
-  QCheckBox*   checkBox_msRaenv;
-  QCheckBox*   checkBox_msBTdl;
-  QCheckBox*   checkBox_msETdl;
-  QCheckBox*   checkBox_msShdl;
-  QCheckBox*   checkBox_msFedl;
-  QCheckBox*   checkBox_msRadl;
+  QCheckBox*   checkBox_ClipPlane = nullptr;
+  QCheckBox*   checkBox_MuonStaticFrameB = nullptr;
+  QCheckBox*   checkBox_MuonStaticFrameI = nullptr;
+  QCheckBox*   checkBox_MuonStaticFrameO = nullptr;
+  QCheckBox*   checkBox_msBIvol = nullptr;
+  QCheckBox*   checkBox_msBIlay = nullptr;
+  QCheckBox*   checkBox_msBMvol = nullptr;
+  QCheckBox*   checkBox_msBMlay = nullptr;
+  QCheckBox*   checkBox_msBOvol = nullptr;
+  QCheckBox*   checkBox_msBOlay = nullptr;
+  QCheckBox*   checkBox_msEIvol = nullptr;
+  QCheckBox*   checkBox_msEIlay = nullptr;
+  QCheckBox*   checkBox_msEMvol = nullptr;
+  QCheckBox*   checkBox_msEMlay = nullptr;
+  QCheckBox*   checkBox_msEOvol = nullptr;
+  QCheckBox*   checkBox_msEOlay = nullptr;
+  QCheckBox*   checkBox_msCSvol = nullptr;
+  QCheckBox*   checkBox_msCSlay = nullptr;
+  QCheckBox*   checkBox_msTGvol = nullptr;
+  QCheckBox*   checkBox_msTGlay = nullptr;
+  QCheckBox*   checkBox_msBTenv = nullptr;
+  QCheckBox*   checkBox_msETenv = nullptr;
+  QCheckBox*   checkBox_msShenv = nullptr;
+  QCheckBox*   checkBox_msFeenv = nullptr;
+  QCheckBox*   checkBox_msRaenv = nullptr;
+  QCheckBox*   checkBox_msBTdl = nullptr;
+  QCheckBox*   checkBox_msETdl = nullptr;
+  QCheckBox*   checkBox_msShdl = nullptr;
+  QCheckBox*   checkBox_msFedl = nullptr;
+  QCheckBox*   checkBox_msRadl = nullptr;
 
   // variables keeping some defaults
   QString initialTrackingGeometrySvcName;
   QString initialTrackingGeometryName;
 
   // global stuff
-  StoreGateSvc* detStore;
-  SoSeparator*  root;
+  StoreGateSvc* detStore = nullptr;
+  SoSeparator*  root = nullptr;
 
   ColorCodeConverter colorCodeConverter;
 };
@@ -1062,7 +1062,7 @@ void VP1TrackingGeometrySystem::processTrkVolume(const Trk::TrackingVolume* tvol
                   surfaceSepHelper = m_d->sephelper_pixSurfECC;
               }
            }    
-        } else if (volumeName.contains("SCT") > 0) {
+        } else if ((volumeName.contains("SCT") > 0) or (volumeName.contains("Strip") > 0)) {
             // SCT sector
             if ( volumeName.contains("Barrel") > 0 ){
                 // sct barrel surfaces & layers

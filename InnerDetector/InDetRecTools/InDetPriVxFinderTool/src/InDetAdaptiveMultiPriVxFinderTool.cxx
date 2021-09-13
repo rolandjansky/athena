@@ -758,8 +758,8 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
             hepVectorPosition[0] = deltaPosition.x();
             hepVectorPosition[1] = deltaPosition.y();
             hepVectorPosition[2] = deltaPosition.z();
-            dependence = std::sqrt(
-              hepVectorPosition.dot(sumCovariances * hepVectorPosition));
+            double interim=hepVectorPosition.dot(sumCovariances * hepVectorPosition);
+            if(interim>0.)dependence = std::sqrt(interim);
         } }
         if (dependence < m_cutVertexDependence) {
           deleteLastVertex = true;

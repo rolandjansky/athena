@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -123,7 +123,7 @@ private:
    std::string m_l1caloRunParametersFolderName;
    StatusCode GetDatabaseHandle(std::string folderName);
    
-   void SetTimingRegime(std::string regime);
+   void SetTimingRegime(const std::string& regime);
    
    /////////////////////////////////////////////////
    // Calo access tools

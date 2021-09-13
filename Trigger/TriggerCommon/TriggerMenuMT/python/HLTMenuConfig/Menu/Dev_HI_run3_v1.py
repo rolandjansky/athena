@@ -33,11 +33,11 @@ def setupMenu():
     
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #-- 1 mu
-        ChainProp(name='HLT_mu8_L1MU6', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu8_L1MU5VF', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
             
         #-- 2 mu
-        ChainProp(name='HLT_2mu4_L12MU4', stream=[HardProbesStream], groups=MultiMuonGroup+PrimaryL1MuGroup),
-        ChainProp(name='HLT_mu4_mu4noL1_L1MU4', stream=[HardProbesStream], l1SeedThresholds=['MU4','FSNOSEED'], groups=MultiMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_2mu4_L12MU3V', stream=[HardProbesStream], groups=MultiMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu4_mu4noL1_L1MU3V', stream=[HardProbesStream], l1SeedThresholds=['MU3V','FSNOSEED'], groups=MultiMuonGroup+PrimaryL1MuGroup),
 
      ]
 

@@ -48,7 +48,7 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    if (m_evtDecoName == "") {
+    if (m_evtDecoName.empty()) {
       ATH_MSG_ERROR("Hardscatter decoration name cannot be empty!");
       return StatusCode::FAILURE;
     }

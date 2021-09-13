@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMuon/Muon.h"
@@ -45,7 +45,7 @@ void DerivationFramework::ClustersInCone::select(const xAOD::Egamma* particle,
     
 //Helper for the muon overload
 bool DerivationFramework::ClustersInCone::GetExtrapEtaPhi(const xAOD::Muon* mu, float& eta, float& phi){
-  auto cluster = mu->cluster();
+  const auto *cluster = mu->cluster();
   if(cluster){
     float etaT = 0, phiT = 0;
     int nSample = 0;

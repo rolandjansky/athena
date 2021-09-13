@@ -17,8 +17,7 @@
 
 // #define _DEBUG
 
-#include <stdint.h>
-#include <string>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -26,19 +25,26 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" // needed, template class
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 #include "PixelByteStreamModuleMask.h"
-#include "InDetIdentifier/PixelID.h"
+
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include <cstdint>
+#include <string>
+
+class PixelID;
+
+namespace InDetDD{
+  class PixelDetectorManager;
+}
 
 class PixelRawContByteStreamTool: public AthAlgTool {
 
@@ -74,9 +80,9 @@ class PixelRawContByteStreamTool: public AthAlgTool {
     ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
     { this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
-    const PixelID* m_PixelID;
+    const PixelID* m_PixelID{};
 
-    const InDetDD::PixelDetectorManager* m_pixelManager;
+    const InDetDD::PixelDetectorManager* m_pixelManager{};
 
     unsigned short m_RodBlockVersion;
     int m_BCs_per_LVL1ID;

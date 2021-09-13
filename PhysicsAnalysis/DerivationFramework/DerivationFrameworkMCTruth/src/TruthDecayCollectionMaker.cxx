@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -46,17 +46,17 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
 
-    if (m_particlesKey=="") {
+    if (m_particlesKey.empty()) {
         ATH_MSG_FATAL("No truth particle collection provided to use as a basis for new collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Using " << m_particlesKey << " as the source collections for new truth collections");}
 
-    if (m_collectionName=="") {
+    if (m_collectionName.empty()) {
         ATH_MSG_FATAL("No key provided for the new truth particle collections");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
 
-    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepCHadrons && !m_keepBSM) {
+    if (m_pdgIdsToKeep.empty() && !m_keepBHadrons && !m_keepCHadrons && !m_keepBSM) {
         ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons or BSM particles -- what do you want?");
         return StatusCode::FAILURE;
     }
@@ -95,7 +95,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     // barcodes of particles that we are *not* going to keep
     std::vector<int> seen_particles;
     // Go through that list of particles!
-    for (auto * part : *importedTruthParticles){
+    for (const auto * part : *importedTruthParticles){
         // If this passes my cuts, keep it
         if (id_ok(*part)){
             addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
@@ -211,10 +211,9 @@ bool DerivationFramework::TruthDecayCollectionMaker::id_ok( const xAOD::TruthPar
         } // Found a particle of interest!
     } // Loop over the PDG IDs we want to keep
     // Also check functions for B/C/BSM
-    if ((m_keepBHadrons && part.isBottomHadron()) ||
+    return (m_keepBHadrons && part.isBottomHadron()) ||
+
         (m_keepCHadrons && part.isCharmHadron()) ||
-        (m_keepBSM && part.isBSM()) ){
-        return true;
-    }
-    return false;
+
+        (m_keepBSM && part.isBSM());
 }

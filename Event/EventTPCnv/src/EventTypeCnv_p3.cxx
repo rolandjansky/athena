@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/EventType.h"
 #include "EventTPCnv/EventTypeCnv_p3.h"
-
-void EventTypeCnv_p3::transToPers(const EventType* trans, EventType_p3* pers, MsgStream &log)
-{
-  const EventTypeCnv_p3* cthis = this;
-  cthis->transToPers (trans, pers, log);
-}
 
 void EventTypeCnv_p3::transToPers(const EventType* trans, EventType_p3* pers, MsgStream &) const {
    pers->m_bit_mask          = trans->bit_mask();
@@ -23,12 +17,6 @@ void EventTypeCnv_p3::transToPers(const EventType* trans, EventType_p3* pers, Ms
    }
    pers->m_mc_channel_number = trans->mc_channel_number();
    pers->m_mc_event_number   = trans->mc_event_number();
-}
-
-void EventTypeCnv_p3::persToTrans(const EventType_p3* pers, EventType* trans, MsgStream &log)
-{
-  const EventTypeCnv_p3* cthis = this;
-  cthis->persToTrans (pers, trans, log);
 }
 
 void EventTypeCnv_p3::persToTrans(const EventType_p3* pers, EventType* trans, MsgStream &) const {
@@ -49,13 +37,7 @@ void EventTypeCnv_p3::persToTrans(const EventType_p3* pers, EventType* trans, Ms
     trans->set_mc_event_number   (pers->m_mc_event_number);
 }
 
-EventType* EventTypeCnv_p3::createTransient (const EventType_p3* persObj, MsgStream& log)
-{
-  const EventTypeCnv_p3* cthis = this;
-  return cthis->createTransient (persObj, log);
-}
-
-EventType* EventTypeCnv_p3::createTransient (const EventType_p3* persObj, MsgStream& log) const
+EventType* EventTypeCnv_p3::createTransientConst (const EventType_p3* persObj, MsgStream& log) const
 {
   auto trans = std::make_unique<EventType>();
   persToTrans(persObj, trans.get(), log);

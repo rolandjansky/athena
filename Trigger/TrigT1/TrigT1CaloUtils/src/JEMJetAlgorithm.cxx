@@ -221,8 +221,9 @@ void LVL1::JEMJetAlgorithm::passesTrigger() {
 
   sizeSmall = 4; // not part of the new menu
   sizeLarge = 8; // not part of the new menu
-  threshSmall = m_l1menu->thrExtraInfo().JET().ptMinToTopoSmallWindowCounts();
-  threshLarge = m_l1menu->thrExtraInfo().JET().ptMinToTopoLargeWindowCounts();
+  float scale = m_l1menu->thrExtraInfo().JET().jetScale();
+  threshSmall = m_l1menu->thrExtraInfo().JET().ptMinToTopoSmallWindowCounts()*scale;
+  threshLarge = m_l1menu->thrExtraInfo().JET().ptMinToTopoLargeWindowCounts()*scale;
 
   int etLarge = m_ET8x8;
   if (sizeLarge == 6)      etLarge = m_ET6x6;

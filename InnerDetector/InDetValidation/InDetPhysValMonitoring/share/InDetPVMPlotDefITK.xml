@@ -5,6 +5,7 @@
 <!ENTITY PI "3.1415926">
 <!-- eta coverage of the tracker -->
 <!ENTITY ETA "4.0">
+<!ENTITY NETA "100">
 <!-- min eta covered by pix. endcaps -->
 <!ENTITY ETAPixECMin "1.5">
 <!-- eta coverage of sct -->
@@ -13,6 +14,30 @@
 <!ENTITY ETASctECMin "1.0">
 <!-- term used for innermost pixel barrel layer in histogram text -->
 <!ENTITY L0PixBarr "Pix. Barr. layer0">
+<!-- bins for hits -->
+<!ENTITY PIXHIT "20">
+<!ENTITY SCTHIT "20">
+<!-- bins for resolutions -->
+<!ENTITY D0RES "2.00">
+<!ENTITY Z0RES "10.0">
+<!ENTITY PTQOPTRES "2.00">
+<!ENTITY THETARES "0.10">
+<!ENTITY PHIRES "0.010">
+<!ENTITY Z0SINRES "1.00">
+<!-- bins for parameters -->
+<!ENTITY D0PARA "20.0">
+<!ENTITY Z0PARA "250.0">
+<!ENTITY QOPPARA "5.0e-3">
+<!ENTITY Z0SINPARA "40.0">
+<!-- dR plots for tracks in jets -->
+<!ENTITY DRMAX "0.4">
+<!ENTITY SMALLDRMAX "0.1">
+<!-- Number of tracks vs MU -->
+<!ENTITY NmuBINS "26">
+<!ENTITY EXPMU "260">
+<!ENTITY EXPTRK "2000">
+<!ENTITY ETABINS2D "256">
+<!ENTITY PHIBINS2D "160">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
@@ -21,5 +46,316 @@
   <!-- Plots common to Run2 and ITK -->
   &Common;
   <!-- ITK-specific plots -->
-</hdef>
+  <!--
+      =======================================================
+      efficiency vs mu plots [InDetPerfPlot_Eff]:
+      =======================================================
+  -->
+  <h id="eff_vs_mu" type="TEfficiency" title="efficiency vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_mu2" type="TEfficiency" title="efficiency vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_mu3" type="TEfficiency" title="efficiency vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_muTotal" type="TEfficiency" title="efficiency vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <!--
+      =======================================================
+      end of efficiency vs mu plots [InDetPerfPlot_Eff]
+      =======================================================
+  -->
+  <h id="mu" type="TH1F" title="#mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <!--
+      =======================================================
+      differential inclusive track rates
+      (n_selected_reco_tracks/n_selected_truth_tracks):
+      =======================================================
+  -->
+  <!-- vs pt -->
+  <h id="nRecTrk_vs_eta_pt1" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_eta_pt2" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_eta_pt5" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt1" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt2" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt5" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt1" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt2" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt5" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <!-- vs mu -->
+  <h id="nRecTrk_vs_mu_etalt2p7" type="TH1F" title="# reco tracks vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etagt2p7_lt3p5" type="TH1F" title="# reco tracks vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etagt3p5" type="TH1F" title="# reco tracks vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etaTotal" type="TH1F" title="# reco tracks vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etalt2p7" type="TH1F" title="# truth tracks vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etagt2p7_lt3p5" type="TH1F" title="# truth tracks vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etagt3p5" type="TH1F" title="# truth tracks vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etaTotal" type="TH1F" title="# truth tracks vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etalt2p7" type="TH1F" title="inclusive track rate vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etagt2p7_lt3p5" type="TH1F" title="inclusive track rate vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etagt3p5" type="TH1F" title="inclusive track rate vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etaTotal" type="TH1F" title="inclusive track rate vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&EXPMU;"/>
+    <y title="reco/truth"/>
+  </h>
+  <!--
+      =======================================================
+      end differential inclusive track rates
+      =======================================================
+  -->
 
+  <!--
+   =======================================================
+   hit efficiency plots:
+   * filled by InDetPerfPlot_hitEff
+   * currently these plots will only get filled for ESD.
+   Reason:contents are created by InDetPhysHitDecoratorTool
+   and require unlsimmed Trk::Track collection.
+   ========================================================
+  -->
+
+  <!--Splitting all layers-->
+
+<h id="eff_hit_vs_eta_pix_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_innermost" type="TEfficiency" title="Cluster Efficiency: Pixel Innermost Layer">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_nextToInnermost" type="TEfficiency" title="Cluster Efficiency: Pixel Next-To-Innermost Layer">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_others" type="TEfficiency" title="Cluster Efficiency: Pixel All Other Layers">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_pix_barrel_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 4">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_pix_endcap_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 4">
+  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 0">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 0">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 1">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 1">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 2">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 2">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="eff_hit_vs_eta_sct_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 3">
+  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+<h id="eff_hit_vs_eta_sct_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 3">
+  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
+  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<!--
+   =======================================================
+   end of hit efficiency plots
+   ======================================================
+-->
+
+<!--
+   =======================================================
+   hit residuals & cluster width plots:
+   * filled by InDetPerfPlot_hitResidual
+   * currently these plots will only get filled for ESD.
+   Not filled in xAOD/DxAOD.
+   Reason:contents are created by InDetPhysHitDecoratorTool
+   and require unlsimmed Trk::Track collection.
+   ========================================================
+  -->
+<!-- hitResidual plots -->
+<!-- innermost, next-to-innetmost, others -->
+<!-- x residuals -->
+<h id="residualx_pixel" type="TH1F" title="Residual: Pixel X">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_1hit" type="TH1F" title="Residual: Pixel X 1 hit">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualx_pixel_2ormorehits" type="TH1F" title="Residual: Pixel X &gt;=2 hits">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<!-- y residuals -->
+<h id="residualy_pixel" type="TH1F" title="Residual: Pixel Y">
+  <x title="y residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_1hit" type="TH1F" title="Residual: Pixel Y 1 hit">
+  <x title="y residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<h id="residualy_pixel_2ormorehits" type="TH1F" title="Residual: Pixel Y &gt;=2 hits">
+  <x title="x residual(#mum)" n="1000" lo="-500" hi="500"/>
+  <y title="Entries"/>
+</h>
+<!-- pulls -->
+<h id="residualpullx_pixel" type="TH1F" title="Residualpull: Pixel X">
+  <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<h id="residualpully_pixel" type="TH1F" title="Residualpull: Pixel Y">
+  <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
+  <y title="Entries"/>
+</h>
+<!-- cluster width plots -->
+<h id="clusterPhiWidth_pixel" type="TH1F" title="Cluster width in phi: Pixel">
+  <x title="Pixels" n="10" lo="0" hi="10"/>
+  <y title="Entries"/>
+</h>
+<h id="clusterEtaWidth_pixel" type="TH1F" title="Cluster width in eta: Pixel">
+  <x title="Pixels" n="20" lo="0" hi="20"/>
+  <y title="Entries"/>
+</h>
+<!-- cluster width vs eta plots -->
+<h id="clusterPhiWidth_eta_pixel" type="TProfile" title="Cluster width in phi vs eta: Pixel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in phi"/>
+</h>
+<h id="clusterEtaWidth_eta_pixel" type="TProfile" title="Cluster width in eta vs eta: Pixel">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Cluster width in eta"/>
+</h>
+
+<!--
+=======================================================
+end of hit residuals & cluster width plots
+=======================================================
+  -->
+
+</hdef>

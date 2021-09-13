@@ -132,7 +132,7 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::initialize()
     ATH_MSG_FATAL("Failed to retrieve tool: " << m_trigDecisionTool);
     return StatusCode::FAILURE;
   }
-  if (!m_triggers.size()) m_triggers.push_back(m_defaultTrigger);
+  if (m_triggers.empty()) m_triggers.push_back(m_defaultTrigger);
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
   ////////////////////////////
   //
@@ -279,9 +279,9 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutLArError() const {
 bool DerivationFramework::SkimmingToolHIGG1::SubcutTrigger() const {
 
   //just for counting purposes
-  m_e_passTrigger = m_reqTrigger ? false : true;
+  m_e_passTrigger = !m_reqTrigger;
   
-  if(m_triggers.size()==0) m_e_passTrigger = true;
+  if(m_triggers.empty()) m_e_passTrigger = true;
 
   for (unsigned int i = 0; i < m_triggers.size(); i++) {
     ATH_MSG_DEBUG("TRIGGER = " << m_triggers.at(i));
@@ -479,7 +479,7 @@ void DerivationFramework::SkimmingToolHIGG1::GetDiphotonVertex() const {
 }
 
 //// THIS IS A PLACEHOLDER!!
-double DerivationFramework::SkimmingToolHIGG1::CorrectedEnergy(const xAOD::Photon *ph) const {
+double DerivationFramework::SkimmingToolHIGG1::CorrectedEnergy(const xAOD::Photon *ph) {
 
   return ph->e();
 
@@ -506,7 +506,7 @@ double DerivationFramework::SkimmingToolHIGG1::CorrectedEta(const xAOD::Photon *
 }
 
 
-double DerivationFramework::SkimmingToolHIGG1::ReturnRZ_1stSampling_cscopt2(double eta1) const {
+double DerivationFramework::SkimmingToolHIGG1::ReturnRZ_1stSampling_cscopt2(double eta1) {
 
   float abs_eta1 = std::abs(eta1);
 
@@ -559,14 +559,14 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOneMergedElectron() const {
   SG::ReadHandle<xAOD::ElectronContainer> electrons (m_electronKey);
 
   int nEle(0);
-  for(const auto el: *electrons){
+  for(const auto *const el: *electrons){
     if( el->pt() < m_minElectronPt)
       continue;
     //Count the number of Si tracks matching the electron
     int nSiTrack(0);
     int z0_1 = 1;
     for( unsigned int trk_i(0); trk_i < el->nTrackParticles(); ++trk_i){
-      auto ele_tp =  el->trackParticle(trk_i);
+      const auto *ele_tp =  el->trackParticle(trk_i);
       if(!ele_tp){
         continue;
       }
@@ -731,7 +731,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonMergedElectrons() co
 
 
   bool passTrigger=false;
-  if(m_mergedtriggers.size()!=0) {
+  if(!m_mergedtriggers.empty()) {
     for (unsigned int i = 0; i < m_mergedtriggers.size(); i++) {
       ATH_MSG_DEBUG("TRIGGER = " << m_mergedtriggers.at(i));
       if(m_trigDecisionTool->isPassed(m_mergedtriggers.at(i)))
@@ -752,9 +752,9 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonMergedElectrons() co
 
   bool passSelection = false;
 
-  for(auto el : *electrons){
+  for(const auto *el : *electrons){
     if(MergedElectronPreselect(el)){
-      for(auto ph: *photons){
+      for(const auto *ph: *photons){
         if(PhotonPreselect(ph)){
           passSelection = true;
           auto eph = ph->p4() + el->p4();

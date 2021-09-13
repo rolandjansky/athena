@@ -29,7 +29,7 @@ def test_trigP1_preload(menu):
     ex_dump.type = 'athenaHLT'
     ex_dump.job_options = 'TriggerJobOpts/runHLT_standalone.py'
     ex_dump.input = 'data'
-    ex_dump.args = f'-M --dump-config-exit -c "setMenu=\'{menu}\';forceConditions=True"'
+    ex_dump.args = f'-M --dump-config-exit -c "setMenu=\'{menu}\';forceConditions=True;forceAFPLinkNum=True;"'
     ex_dump.perfmon = False
 
     # 4) Fix the Json produced in the previous step

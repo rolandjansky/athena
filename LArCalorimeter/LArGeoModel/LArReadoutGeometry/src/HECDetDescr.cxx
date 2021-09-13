@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetDescr.h"
@@ -11,6 +11,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 HECDetDescr::HECDetDescr (const HECDetectorManager *detManager
@@ -29,17 +30,27 @@ HECDetDescr::HECDetDescr (const HECDetectorManager *detManager
 {
   // This will soon be unnecessary (when the wheels are divided!
   ISvcLocator *svcLocator = Gaudi::svcLocator();
-  IRDBAccessSvc* rdbAccess;
-  IGeoModelSvc * geoModel;
-  
-  if (svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in HECDetDescr, cannot access GeoModelSvc");
+  IRDBAccessSvc *rdbAccess{nullptr};
+  IGeoModelSvc  *geoModel{nullptr};
+  IGeoDbTagSvc  *geoDbTagSvc{nullptr};
 
-  if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in HECDetDescr, cannot access RDBAccessSvc");
+  if(svcLocator->service("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoModelSvc");
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
-  IRDBRecordset_ptr hadronicEndcap        = rdbAccess->getRecordsetPtr("HadronicEndcap", larVersionKey.tag(), larVersionKey.node());
+  if(svcLocator->service("GeoDbTagSvc",geoDbTagSvc) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoDbTagSvc");
+
+  if(svcLocator->service(geoDbTagSvc->getParamSvcName(),rdbAccess) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access RDBAccessSvc");
+
+  std::string larKey, larNode;
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
+    larKey  = larVersionKey.tag();
+    larNode = larVersionKey.node();
+  }
+
+IRDBRecordset_ptr hadronicEndcap = rdbAccess->getRecordsetPtr("HadronicEndcap", larKey, larNode);
 
   if (hadronicEndcap->size()==0)       throw std::runtime_error("Error getting HadronicEndcap table");
   // End of soon-to-be-unnecessary part.

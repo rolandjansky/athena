@@ -195,7 +195,7 @@ void test1 (ISvcLocator* svcloc)
 
   CondCont<TrigLiveFractionCondData>* ccout = nullptr;
   assert( conditionStore->retrieve (ccout, "TrigLiveFractionCondData").isSuccess() );
-  const TrigLiveFractionCondData* data = 0;
+  const TrigLiveFractionCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
   assert (rangeout->start().time_stamp() == timestamp(0).time_stamp());

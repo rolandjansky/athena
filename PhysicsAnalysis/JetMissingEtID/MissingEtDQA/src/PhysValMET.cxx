@@ -1027,11 +1027,13 @@ for(const auto& it : corrTrk_names) {
 	}
       }
 
-      (m_MET_dPhi_Ref[type]).at(0)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Ref[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Ref[type]).at(3)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ), weight );
-      (m_MET_dPhi_Ref[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ), weight );
-    
+      if(m_doMETRefPlots){
+	(m_MET_dPhi_Ref[type]).at(0)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Ref[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Ref[type]).at(3)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ), weight );
+	(m_MET_dPhi_Ref[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ), weight );
+      }
+
       (m_MET_dPhi_Reb[type]).at(0)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
       (m_MET_dPhi_Reb[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ), weight );
       (m_MET_dPhi_Reb[type]).at(3)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ), weight );

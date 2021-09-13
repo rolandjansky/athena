@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,16 +15,13 @@
 #include "StoreGate/DataHandle.h"
 
 #include "TrigDecisionTool/EventPtrDef.h"
-#include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "EventInfo/EventInfo.h"
-#include "AsgMessaging/AsgMessaging.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
 class TriggerInfo;
 class EventInfo;
-class StoreGateSvc;
 
 namespace Trig {
   /**

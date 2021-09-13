@@ -49,6 +49,11 @@ HLTMonManager = CfgMgr.AthenaMonManager( "HLTMonManager")
 algseq += HLTMonManager
 # HLTMonManager = algseq.HLTMonManager
 
+doTier0Mon = False
+
+if 'doTIDATier0' in locals():
+  doTier0Mon = doTIDATier0
+
 
 
 ############ TrigIDtrkMonitoring part ################################
@@ -59,7 +64,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if ( False ) :
+if doTier0Mon :
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 

@@ -37,8 +37,8 @@ int main ATLAS_NOT_THREAD_SAFE () {
   errorcheck::ReportMessage::hideFunctionNames (true);
 
   // initialize Gaudi, SG
-  ISvcLocator* pSvcLoc;
-  Athena_test::initGaudi(pSvcLoc); 
+  ISvcLocator* pSvcLoc{nullptr};
+  assert( Athena_test::initGaudi(pSvcLoc) );
   StoreGateSvc* pSG(nullptr);
   assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );
 
@@ -452,19 +452,17 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
 
   // Collect statistics from before thinning
-  size_t muf_n, mu_n, muem_n, em_n, all_n, muf_e, mu_e, muem_e, em_e, all_e = 0;
+  size_t muf_n = graph_HLT_mufast_chain.nodes();
+  size_t mu_n = graph_HLT_mu_chain.nodes();
+  size_t muem_n = graph_HLT_mu_em_chain.nodes();
+  size_t em_n = graph_HLT_em_chain.nodes();
+  size_t all_n = graph_HLT_all.nodes();
 
-  muf_n = graph_HLT_mufast_chain.nodes();
-  mu_n = graph_HLT_mu_chain.nodes();
-  muem_n = graph_HLT_mu_em_chain.nodes();
-  em_n = graph_HLT_em_chain.nodes();
-  all_n = graph_HLT_all.nodes();
-
-  muf_e = graph_HLT_mu_chain.edges();
-  mu_e = graph_HLT_mu_chain.edges();
-  muem_e = graph_HLT_mu_em_chain.edges();
-  em_e = graph_HLT_em_chain.edges();
-  all_e = graph_HLT_all.edges();
+  size_t muf_e = graph_HLT_mu_chain.edges();
+  size_t mu_e = graph_HLT_mu_chain.edges();
+  size_t muem_e = graph_HLT_mu_em_chain.edges();
+  size_t em_e = graph_HLT_em_chain.edges();
+  size_t all_e = graph_HLT_all.edges();
 
   // Do the thinning
   graph_HLT_mufast_chain.thin();

@@ -76,7 +76,7 @@ namespace JiveXML {
     //Loop over all collections in the container and count the clusters
     unsigned long NClusterTotal = 0;
     InDet::SiClusterContainer::const_iterator SiClusterCollItr = SiClusterCont->begin();
-    for (; SiClusterCollItr!= SiClusterCont->end(); SiClusterCollItr++)
+    for (; SiClusterCollItr!= SiClusterCont->end(); ++SiClusterCollItr)
       NClusterTotal += (**SiClusterCollItr).size();
   
     //Now prepare the output data vectors
@@ -98,7 +98,7 @@ namespace JiveXML {
     DataVect side; side.reserve(NClusterTotal);
 
     //Loop over all cluster collections in the container
-    for (SiClusterCollItr = SiClusterCont->begin(); SiClusterCollItr!= SiClusterCont->end(); SiClusterCollItr++){
+    for (SiClusterCollItr = SiClusterCont->begin(); SiClusterCollItr!= SiClusterCont->end(); ++SiClusterCollItr){
 
       //Get the collection
       const InDet::SiClusterCollection* SiClusterColl = (*SiClusterCollItr);
@@ -110,7 +110,7 @@ namespace JiveXML {
 
       //Now loop over all clusters in that collection 
       InDet::SiClusterCollection::const_iterator SiClusterItr = SiClusterColl->begin();
-      for (; SiClusterItr!=SiClusterColl->end(); SiClusterItr++){ 
+      for (; SiClusterItr!=SiClusterColl->end(); ++SiClusterItr){ 
 
         //Get the cluster
         const InDet::SiCluster* cluster = (*SiClusterItr);

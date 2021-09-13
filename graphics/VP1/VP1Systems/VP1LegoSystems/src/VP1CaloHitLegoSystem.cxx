@@ -29,14 +29,14 @@ public:
   QMap<QString,QCheckBox*>   checkBoxMap;
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
 
-  SoSwitch          *fcalSwitch[3];     // FCAL
-  SoSwitch          *hecSwitch[4];      // HEC
-  SoSwitch          *emecSwitch[4];     // EMEC
-  SoSwitch          *embSwitch[4];      // EMB
+  SoSwitch          *fcalSwitch[3]{};     // FCAL
+  SoSwitch          *hecSwitch[4]{};      // HEC
+  SoSwitch          *emecSwitch[4]{};     // EMEC
+  SoSwitch          *embSwitch[4]{};      // EMB
 
-  double lowThresholdEnergy;
-  double highThresholdEnergy;
-  double larEnergyScale;
+  double lowThresholdEnergy = 0.0;
+  double highThresholdEnergy = 0.0;
+  double larEnergyScale = 0.0;
 };
 
 VP1CaloHitLegoSystem::VP1CaloHitLegoSystem()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -12,6 +12,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
@@ -32,7 +33,7 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
     for (unsigned int s=0;s<4;s++) {
       for (unsigned int io=0;io<2;io++) {
 	for (unsigned int e=0;e<2;e++) {
-	  m_DetRegionsRandom[r][s][io][e]=NULL;
+	  m_DetRegionsRandom[r][s][io][e]=nullptr;
 	}
       }
     }
@@ -43,17 +44,27 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
 
   // The EMEC gets and managers certain arrays needed to build descriptors.  Here is that:
   ISvcLocator *svcLocator = Gaudi::svcLocator();
-  IRDBAccessSvc* rdbAccess;
-  IGeoModelSvc * geoModel;
-  
-  if (svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in LArDetectorFactoryH62002, cannot access GeoModelSvc");
+  IRDBAccessSvc *rdbAccess{nullptr};
+  IGeoModelSvc  *geoModel{nullptr};
+  IGeoDbTagSvc  *geoDbTagSvc{nullptr};
 
-  if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in LArDetectorFactoryH62002, cannot access RDBAccessSvc");
+  if(svcLocator->service("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoModelSvc");
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
-  IRDBRecordset_ptr emecSamplingSep       = rdbAccess->getRecordsetPtr("EmecSamplingSep", larVersionKey.tag(),larVersionKey.node());
+  if(svcLocator->service("GeoDbTagSvc",geoDbTagSvc) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoDbTagSvc");
+
+  if(svcLocator->service(geoDbTagSvc->getParamSvcName(),rdbAccess) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access RDBAccessSvc");
+
+  std::string larKey, larNode;
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
+    larKey  = larVersionKey.tag();
+    larNode = larVersionKey.node();
+  }
+
+  IRDBRecordset_ptr emecSamplingSep       = rdbAccess->getRecordsetPtr("EmecSamplingSep", larKey, larNode);
   if (emecSamplingSep->size()==0)   throw std::runtime_error("Error getting EmecSamplingSep table");
 
   const IRDBRecord *ess = (*emecSamplingSep)[0];
@@ -61,17 +72,18 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
   for (int j=0;j<44;j++) m_zsep12.push_back(ess->getDouble("ZSEP12",j)*Gaudi::Units::cm);
   for (int j=0;j<22;j++) m_zsep23.push_back(ess->getDouble("ZSEP23",j)*Gaudi::Units::cm);
 
-  IRDBRecordset_ptr emecMagicNumbers       = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larVersionKey.tag(),larVersionKey.node());
+  IRDBRecordset_ptr emecMagicNumbers       = rdbAccess->getRecordsetPtr("EmecMagicNumbers", larKey, larNode);
   if (emecMagicNumbers->size()==0) {
     emecMagicNumbers       = rdbAccess->getRecordsetPtr("EmecMagicNumbers", "EmecMagicNumbers-00");
-    if (emecMagicNumbers->size()==0) throw std::runtime_error("Error getting EmecMagicNumbers table");
+    if (emecMagicNumbers->size()==0) {
+      throw std::runtime_error("Error getting EmecMagicNumbers table");
+    }
   }
   m_MagicNumbers->focalToRef        =(*emecMagicNumbers)[0]->getDouble("FOCALTOREF")*Gaudi::Units::mm;
   m_MagicNumbers->refToActive       =(*emecMagicNumbers)[0]->getDouble("REFTOACTIVE")*Gaudi::Units::mm;
   m_MagicNumbers->activeLength      =(*emecMagicNumbers)[0]->getDouble("ACTIVELENGTH")*Gaudi::Units::mm;
   m_MagicNumbers->refToPresampler   =(*emecMagicNumbers)[0]->getDouble("REFTOPRESAMPLER")*Gaudi::Units::mm;
   m_MagicNumbers->presamplerLength  =(*emecMagicNumbers)[0]->getDouble("PRESAMPLERLENGTH")*Gaudi::Units::mm;
-  
 }
 
 

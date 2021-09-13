@@ -83,7 +83,7 @@ int LVL1::jFEXForwardJetsInfo::getSeedET()
 
 void LVL1::jFEXForwardJetsInfo::addToFirstEnergyRingET(int firstER_ET)
 {
-  m_firstEnergyRing_ET  = firstER_ET;
+  m_firstEnergyRing_ET  += firstER_ET;
 }
 int LVL1::jFEXForwardJetsInfo::getFirstEnergyRingET()
 {
@@ -99,7 +99,6 @@ std::vector<int> LVL1::jFEXForwardJetsInfo::getTTIDinFirstER()
   return m_firstEnergyRing_TTIDs;
 }
 
-
 void LVL1::jFEXForwardJetsInfo::includeTTIDinSecondER(int secondER_TTID)
 {
   m_secondEnergyRing_TTIDs.push_back(secondER_TTID);
@@ -111,7 +110,7 @@ std::vector<int> LVL1::jFEXForwardJetsInfo::getTTIDinSecondER()
 
 void LVL1::jFEXForwardJetsInfo::addToSecondEnergyRingET(int secondER_ET)
 {
-  m_secondEnergyRing_ET  = secondER_ET;
+  m_secondEnergyRing_ET  += secondER_ET;
 }
 
 int LVL1::jFEXForwardJetsInfo::getSecondEnergyRingET()
@@ -119,4 +118,19 @@ int LVL1::jFEXForwardJetsInfo::getSecondEnergyRingET()
   return m_secondEnergyRing_ET;
 }
 
+void LVL1::jFEXForwardJetsInfo::includeTTinSearchWindow(int TT_ID){
+    m_TTsInSearchWindow.push_back(TT_ID);
+}
+
+std::vector<int> LVL1::jFEXForwardJetsInfo::getTTinSearchWindow(){
+    return m_TTsInSearchWindow;
+}
+
+void LVL1::jFEXForwardJetsInfo::addToSearchWindowET(int et){
+    m_SearchWindow_ET += et;
+}
+
+int LVL1::jFEXForwardJetsInfo::getSearchWindowET(){
+    return m_SearchWindow_ET;
+}
 

@@ -17,6 +17,8 @@
 #include "L1CaloFEXSim/gFEXFPGA.h"
 #include "L1CaloFEXSim/gFEXJetAlgo.h"
 #include "L1CaloFEXSim/gFEXJetTOB.h"
+#include "L1CaloFEXSim/gFEXJwoJAlgo.h"
+#include "L1CaloFEXSim/gFEXJwoJTOB.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 
 
@@ -39,13 +41,9 @@ namespace LVL1 {
     /** Destructor */
     virtual ~gFEXSim();
 
-    //virtual void init (int id) override ;
-
     virtual void reset () override ;
 
     virtual void execute() override ;
-
-    //virtual int ID() override {return m_id;}
 
     virtual StatusCode executegFEXSim(gTowersIDs tmp) override;
 
@@ -54,6 +52,8 @@ namespace LVL1 {
     virtual std::vector<uint32_t> getgBlockTOBs() const override;
 
     virtual std::vector<uint32_t> getgJetTOBs() const override;
+
+    virtual std::vector<uint32_t> getgGlobalTOBs() const override;
 
     /** Internal data */
   private:
@@ -68,15 +68,15 @@ namespace LVL1 {
 
     std::vector<uint32_t>  m_gJetTobWords;
 
-    // std::array<uint32_t>  m_gRhoTobWords;
+    std::vector<uint32_t>  m_gGlobalTobWords;
 
-    // std::array<uint32_t>  m_gBlockTobWords;
 
-    // std::array<uint32_t>  m_gJetTobWords;
 
     ToolHandle<IgFEXFPGA> m_gFEXFPGA_Tool {this, "gFEXFPGATool", "LVL1::gFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     ToolHandle<IgFEXJetAlgo> m_gFEXJetAlgoTool {this, "gFEXJetAlgoTool", "LVL1::gFEXJetAlgo", "Tool that runs the gFEX jet algorithm"};
+
+    ToolHandle<IgFEXJwoJAlgo> m_gFEXJwoJAlgoTool {this, "gFEXJwoJAlgoTool", "LVL1::gFEXJwoJAlgo", "Tool that runs the gFEX Jets without Jets algorithm"};
   };
 
 } // end of namespace

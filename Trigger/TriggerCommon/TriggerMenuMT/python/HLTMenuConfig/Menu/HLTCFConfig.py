@@ -193,6 +193,16 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # B) Then (if true), we run the accepted event algorithms.
     # Add any required algs to hltFinalizeSeq here
 
+    from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
+    from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+    recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
+    endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
+    endOfEventAlg.RoIs = [LArNBRoIs]
+    hltFinalizeSeq += endOfEventAlg
+    acceptedEventSeq = parOR('acceptedEventSeq')
+    acceptedEventSeq += conf2toConfigurable(recoSeq)
+    hltFinalizeSeq += conf2toConfigurable(acceptedEventSeq)
+    
     # More collections required to configure the algs below
     decObj = collectDecisionObjects( hypos, filters, hltSeeding, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)

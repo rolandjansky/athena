@@ -119,7 +119,7 @@
               <property name="smallDecimalPoint" >
                <bool>true</bool>
               </property>
-              <property name="numDigits" >
+              <property name="digitCount" >
                <number>3</number>
               </property>
              </widget>
@@ -202,7 +202,7 @@
               <property name="smallDecimalPoint" >
                <bool>true</bool>
               </property>
-              <property name="numDigits" >
+              <property name="digitCount" >
                <number>3</number>
               </property>
              </widget>
@@ -243,7 +243,7 @@
               <property name="smallDecimalPoint" >
                <bool>true</bool>
               </property>
-              <property name="numDigits" >
+              <property name="digitCount" >
                <number>3</number>
               </property>
              </widget>

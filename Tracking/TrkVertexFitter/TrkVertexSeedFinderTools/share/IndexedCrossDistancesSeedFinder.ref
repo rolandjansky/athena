@@ -1,5 +1,72 @@
 [ TrackingGeometrySvc ]     base material tag :  AtlasLayerMat_v21_
 [ TrackingGeometrySvc ]     translated to COOL:  /GLOBAL/TrackingGeo/LayerMaterialV2<tag>TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas</tag>
+Modified SCT_DetectorElementCondAlg
+/***** Algorithm SCT_DetectorElementCondAlg/SCT_DetectorElementCondAlg *****************************
+|-AuditAlgorithms            = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Blocking                   = False
+|-Cardinality                = 0
+|-CondSvc                    = ServiceHandle('CondSvc')
+|-DetManagerName             = 'SCT'
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-MonitorService             = 'MonitorSvc'
+|-MuonManagerKey             = []  (default: [])
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-PixelAlignmentStore        = ['PixelAlignmentStore']  (default: [])
+|-ReadKey                    = DataHandle('ConditionStore+SCTAlignmentStore','R','GeoAlignmentStore')
+|-RegisterForContextService  = False
+|-TRT_DetEltContKey          = []  (default: [])
+|-Timeline                   = True
+|-WriteKey                   = DataHandle('ConditionStore+SCT_DetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
+\----- (End of Algorithm SCT_DetectorElementCondAlg/SCT_DetectorElementCondAlg) --------------------
+Modified PixelDetectorElementCondAlg
+/***** Algorithm PixelDetectorElementCondAlg/PixelDetectorElementCondAlg ***************************
+|-AuditAlgorithms            = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Blocking                   = False
+|-Cardinality                = 0
+|-CondSvc                    = ServiceHandle('CondSvc')
+|-DetManagerName             = 'Pixel'
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-MonitorService             = 'MonitorSvc'
+|-MuonManagerKey             = []  (default: [])
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-PixelAlignmentStore        = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
+|-ReadKey                    = DataHandle('ConditionStore+PixelAlignmentStore','R','GeoAlignmentStore')
+|-RegisterForContextService  = False
+|-SCTAlignmentStore          = ['SCTAlignmentStore']  (default: [])
+|-TRT_DetEltContKey          = []  (default: [])
+|-Timeline                   = True
+|-WriteKey                   = DataHandle('ConditionStore+PixelDetectorElementCollection','W','InDetDD::SiDetectorElementCollection')
+\----- (End of Algorithm PixelDetectorElementCondAlg/PixelDetectorElementCondAlg) ------------------
 [ TrackingGeometryCondAlg ]     base material tag :  AtlasLayerMat_v21_
 [ TrackingGeometryCondAlg ]     translated to COOL:  /GLOBAL/TrackingGeo/LayerMaterialV2<tag>TagInfoMajor/AtlasLayerMat_v21_/GeoAtlas</tag>
 indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0 min/max 2 13 values  2 4 5 7 10 11 12 13 indexes  0 0 1 2 0 3 0 0 4 5 6 7 indices  8 prev  0 next  0 mode  enumerated  cont mode  none  

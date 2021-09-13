@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file AthMonitorCfgHelper.py
@@ -64,17 +64,19 @@ class AthMonitorCfgHelper(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
-        algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
+        if self.inputFlags.DQ.useTrigger:
+            algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
         algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
-        if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
+        if self.inputFlags.DQ.enableLumiAccess:
             algObj.EnableLumi = True
             from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
-            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
-            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
             self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
-            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
-            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+            if not self.inputFlags.Input.isMC:
+                from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+                from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+                self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+                self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
         self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)

@@ -254,7 +254,7 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->retrieve( muons, "Muons") );
     
     
-    for( const auto& muon : *muons ) {
+    for( const auto muon : *muons ) {
       const auto* trk = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       
       if( !trk ) continue;
@@ -279,7 +279,7 @@ namespace VKalVrtAthena {
     const xAOD::ElectronContainer *electrons( nullptr );
     ATH_CHECK( evtStore()->retrieve( electrons, "Electrons" ) );
     
-    for( const auto& electron : *electrons ) {
+    for( const auto electron : *electrons ) {
       if( 0 == electron->nTrackParticles() ) continue;
       
       // The first track is the best-matched track

@@ -32,14 +32,8 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
   ATH_CHECK(m_electronLHTool.retrieve());
   ATH_CHECK(m_electronDNNTool.retrieve());
 
-  m_trigdec->ExperimentalAndExpertMethods()->enable();
-
-  
-
-  for(const auto& cut:m_trigLevel) 
+  for(const auto& cut:m_trigLevel)
     m_accept.addCut(cut,cut);
-
-
 
   return StatusCode::SUCCESS;
 }
@@ -787,7 +781,7 @@ std::string TrigEgammaMonitorBaseAlgorithm::getProbePid(const std::string& pidty
 
 
 std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(const std::string& trigger) const{
-    const auto *trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+    const auto *trig_conf = m_trigdec->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");

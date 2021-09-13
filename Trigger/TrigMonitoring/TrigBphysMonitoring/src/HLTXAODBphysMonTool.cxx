@@ -336,7 +336,7 @@ StatusCode HLTXAODBphysMonTool::fill()
     ATH_MSG_DEBUG ("fill... ");
     
     // Check HLTResult
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip event");
         return StatusCode::SUCCESS;
         //return false;
@@ -1816,6 +1816,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                                              const std::string & prefix,const std::string & path, const std::string & chainName, const bool fullSetOfHists) {
     if (!bphysItem) {
         ATH_MSG_WARNING("fillTrigBphysHists null pointer provided");
+        return;
     }
     ATH_MSG_DEBUG("fillTrigBphysHists for: " <<  bphysItem << " " <<  groupName << " "
                   << prefix << " " <<path << " " <<chainName );

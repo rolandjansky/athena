@@ -187,6 +187,21 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    m_gJetTobWords[2] = BTOB1_dat[3];//leading gJet in FPGA B, eta bins (0--5)
    m_gJetTobWords[3] = BTOB2_dat[3];//leading gJet in FPGA B, eta bins (6--11)
 
+
+   // Retrieve the gFEXJetAlgoTool
+   ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+   std::array<uint32_t, 4> outTOB = {0};
+
+   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
+
+   m_gGlobalTobWords.resize(4);
+
+//Placing the global TOBs into a dedicated array
+   m_gGlobalTobWords[0] = outTOB[0];//
+   m_gGlobalTobWords[1] = outTOB[1];//
+   m_gGlobalTobWords[2] = outTOB[2];//
+   m_gGlobalTobWords[3] = outTOB[3];//
+
    gFEXOutputCollection* gFEXOutputs;
    ATH_CHECK(evtStore()->retrieve(gFEXOutputs, "gFEXOutputCollection"));
 
@@ -202,9 +217,22 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
 
    }
 
+   for (int i = 0; i <4; i++){
+     gFEXOutputs->addGlobalTob(global_tobs[i]->getWord());
+     gFEXOutputs->addValueGlobal("GlobalQuantity1", global_tobs[i]->getQuantity1());
+     gFEXOutputs->addValueGlobal("GlobalQuantity2", global_tobs[i]->getQuantity2());
+     gFEXOutputs->addValueGlobal("SaturationGlobal", global_tobs[i]->getSaturation());
+     gFEXOutputs->addValueGlobal("TobIDGlobal", global_tobs[i]->getTobID());
+     gFEXOutputs->addValueGlobal("GlobalStatus1", global_tobs[i]->getStatus1());
+     gFEXOutputs->addValueGlobal("GlobalStatus2", global_tobs[i]->getStatus2());
+     gFEXOutputs->fillGlobal();
+
+   }
+
     return StatusCode::SUCCESS;
 
 }
+
 
 std::vector<uint32_t> gFEXSim::getgRhoTOBs() const
 {
@@ -219,6 +247,11 @@ std::vector<uint32_t> gFEXSim::getgBlockTOBs() const
 std::vector<uint32_t> gFEXSim::getgJetTOBs() const
 {
   return m_gJetTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgGlobalTOBs() const
+{
+  return m_gGlobalTobWords;
 }
 
 

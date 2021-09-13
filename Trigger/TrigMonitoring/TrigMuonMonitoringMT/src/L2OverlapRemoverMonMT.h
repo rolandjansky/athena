@@ -30,8 +30,8 @@ class L2OverlapRemoverMonMT : public TrigMuonMonitorAlgorithm{
   template<class T>
   StatusCode fillVariablesOverlapRemoverPlots(const std::string &chain, std::string &&trigstep) const;
 
-  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2) const;
-  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer> muEL1, const ElementLink<xAOD::L2CombinedMuonContainer> muEL2) const;
+  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer>& muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer>& muEL2) const;
+  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer>& muEL1, const ElementLink<xAOD::L2CombinedMuonContainer>& muEL2) const;
 
   /**
    * @brief Function that choose best muon.
@@ -42,7 +42,7 @@ class L2OverlapRemoverMonMT : public TrigMuonMonitorAlgorithm{
   StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
   StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
 
-  float calcinvMass(double m1, double pt1, double eta1, double phi1, double m2, double pt2, double eta2, double phi2) const;
+  static float calcinvMass(double m1, double pt1, double eta1, double phi1, double m2, double pt2, double eta2, double phi2) ;
   static inline std::tuple<float,float,float> L2ORPosForMatchFunc(const xAOD::L2StandAloneMuon *trig);
   static inline std::tuple<float,float,float> L2ORPosForMatchFunc(const xAOD::L2CombinedMuon *trig);
 

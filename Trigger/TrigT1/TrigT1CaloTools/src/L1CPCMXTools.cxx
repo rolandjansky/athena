@@ -16,7 +16,6 @@
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloEvent/EmTauROI.h"
 #include "L1CPCMXTools.h"
-#include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
@@ -31,89 +30,20 @@ namespace LVL1 {
 L1CPCMXTools::L1CPCMXTools(const std::string &type, const std::string &name,
                            const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), m_crates(4),
+      m_crates(4),
       m_modules(14), m_maxTobs(5), m_sysCrate(3), m_debug(false) {
   declareInterface<IL1CPCMXTools>(this);
 
-  declareProperty("LVL1ConfigSvc", m_configSvc, "Trigger Config Service");
 }
-
-/** Destructor */
-
-L1CPCMXTools::~L1CPCMXTools() {}
 
 /** Initialisation */
 
 StatusCode L1CPCMXTools::initialize() {
   m_debug = msgLvl(MSG::DEBUG);
 
-  // Connect to the TrigConfigSvc for the trigger configuration:
+  ATH_CHECK( m_L1MenuKey.initialize() );
 
-  StatusCode sc = m_configSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                    << endmsg;
-    return sc;
-  } else if (m_debug) {
-    msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
-  }
-
-  msg(MSG::INFO) << "Initialization completed" << endmsg;
-
-  return sc;
-}
-
-/** Finalisation */
-
-StatusCode L1CPCMXTools::finalize() { return StatusCode::SUCCESS; }
-
-/** CPAlgorithm to CPMTobRoI conversion */
-
-void L1CPCMXTools::formCPMTobRoI(const DataVector<CPAlgorithm> *cpAlgorithmVec,
-                                 DataVector<CPMTobRoI> *cpmRoiVec) const {
-  std::set<uint32_t> sorted;
-  DataVector<CPAlgorithm>::const_iterator pos = cpAlgorithmVec->begin();
-  DataVector<CPAlgorithm>::const_iterator pose = cpAlgorithmVec->end();
-  for (; pos != pose; ++pos) {
-    // CPMTobRoI* roi = new CPMTobRoI((*pos)->RoIWord());
-    // cpmRoiVec->push_back(roi);
-    const EmTauROI *etRoi = (*pos)->produceExternal();
-    const std::pair<uint32_t, uint32_t> words = roiWord(etRoi);
-    if (words.first)
-      sorted.insert(words.first);
-    if (words.second)
-      sorted.insert(words.second);
-  }
-  std::set<uint32_t>::const_iterator siter = sorted.begin();
-  std::set<uint32_t>::const_iterator siterE = sorted.end();
-  for (; siter != siterE; ++siter) {
-    CPMTobRoI *roi = new CPMTobRoI(*siter);
-    cpmRoiVec->push_back(roi);
-  }
-}
-
-/** EmTauROI to CPMTobRoI conversion */
-
-void L1CPCMXTools::formCPMTobRoI(const DataVector<EmTauROI> *emTauRoiVec,
-                                 DataVector<CPMTobRoI> *cpmRoiVec) const {
-  std::set<uint32_t> sorted;
-  DataVector<EmTauROI>::const_iterator pos = emTauRoiVec->begin();
-  DataVector<EmTauROI>::const_iterator pose = emTauRoiVec->end();
-  for (; pos != pose; ++pos) {
-    // CPMTobRoI* roi = new CPMTobRoI((*pos)->roiWord());
-    // cpmRoiVec->push_back(roi);
-    const std::pair<uint32_t, uint32_t> words = roiWord(*pos);
-    if (words.first)
-      sorted.insert(words.first);
-    if (words.second)
-      sorted.insert(words.second);
-  }
-  std::set<uint32_t>::const_iterator siter = sorted.begin();
-  std::set<uint32_t>::const_iterator siterE = sorted.end();
-  for (; siter != siterE; ++siter) {
-    CPMTobRoI *roi = new CPMTobRoI(*siter);
-    cpmRoiVec->push_back(roi);
-  }
+  return StatusCode::SUCCESS;
 }
 
 /** Temporary for testing until CPAlgorithm and EmTauROI are updated */
@@ -375,16 +305,16 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
   // Get thresholds from menu
   L1DataDef def;
   const std::string thrType = (type == 0) ? def.emType() : def.tauType();
-  std::vector<TrigConf::TriggerThreshold *> thresholds;
-  // Get EM and TAU trigger thresholdsf
-  std::vector<TrigConf::TriggerThreshold *> allThresholds =
-      m_configSvc->ctpConfig()->menu().thresholdVector();
+  // Get EM and TAU trigger thresholds
+  auto l1Menu = SG::makeHandle( m_L1MenuKey );
 
-  for (std::vector<TrigConf::TriggerThreshold *>::const_iterator it =
-           allThresholds.begin();
-       it != allThresholds.end(); ++it) {
-    if ((*it)->type() == thrType) {
-      thresholds.push_back(*it);
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> allThresholds = l1Menu->thresholds();
+  std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds;
+  thresholds.reserve(16);
+
+  for ( const auto& thresh : allThresholds ) {
+    if (thresh->type() == thrType) {
+      thresholds.push_back(thresh);
     }
   }
 
@@ -410,12 +340,10 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
         new CPMTobRoI(crate, cpm, chip, loc, type, et, isol));
 
     /* Now get the hit information using RecEmTauroI */
-    RecEmTauRoI recRoI(roi->roiWord(), &thresholds);
+    RecEmTauRoI recRoI(roi->roiWord(), &(*l1Menu));
     auto mask = recRoI.thresholdPattern();
     for (auto threshold : thresholds) {
-      auto numThresh = threshold->thresholdNumber();
-      // if (!recRoI.passedThreshold(numThresh))
-      //   continue;
+      auto numThresh = threshold->mapping();
       if (!recRoI.isValidThreshold(numThresh) ||
           (((1 << numThresh) & mask) == 0)) {
         continue;

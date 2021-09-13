@@ -19,7 +19,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if usePrdAssociationTool:
-        prefix = 'InDet'
+        prefix = 'ITk'
         suffix = flags.ITk.Tracking.extension
     #
     # --- Space points seeds maker, use different ones for cosmics and collisions
@@ -41,8 +41,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
 
     if usePrdAssociationTool:
         # not all classes have that property !!!
-        kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+ suffix \
-                                            if usePrdAssociationTool else '')
+        kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+ suffix)
     if not flags.Beam.Type == 'cosmics':
         kwargs.setdefault("maxRadius1", 0.75*flags.ITk.Tracking.radMax)
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.radMax)
@@ -155,7 +154,8 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     if flags.ITk.Tracking.useITkPixel:
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksPixelCondAlg",
                                                                                 ReadKey  = "ITkPixelDetectorElementCollection",
-                                                                                WriteKey = "ITkPixelDetElementBoundaryLinks_xk") )
+                                                                                WriteKey = "ITkPixelDetElementBoundaryLinks_xk",
+                                                                                ITkGeometry = True ) )
     if flags.ITk.Tracking.useITkStrip:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "ITkSiDetElementsRoadCondAlg_xk",
                                                                       PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
@@ -163,7 +163,8 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
 
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksSCTCondAlg",
                                                                                 ReadKey  = "ITkStripDetectorElementCollection",
-                                                                                WriteKey = "ITkStripDetElementBoundaryLinks_xk") )
+                                                                                WriteKey = "ITkStripDetElementBoundaryLinks_xk",
+                                                                                ITkGeometry = True ) )
 
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
@@ -248,7 +249,7 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if usePrdAssociationTool:
-        prefix = 'InDet'
+        prefix = 'ITk'
         suffix = flags.ITk.Tracking.extension
 
     ITkSiTrackMaker = acc.popToolsAndMerge(ITkSiTrackMaker_xkCfg(flags,
@@ -401,7 +402,7 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     kwargs.setdefault("SplitProbTool", ITkNnPixelClusterSplitProbTool if flags.ITk.doPixelClusterSplitting else None,)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationToolNotGanged", ITkPRDtoTrackMapTool)
-    kwargs.setdefault("AssociationMapName", 'PRDToTrackMap'+flags.ITk.Tracking.extension)
+    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.extension)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.extension)
 
@@ -551,7 +552,7 @@ def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackColl
     # --- configure Ambiguity (score) solver
     #
     kwargs.setdefault("TrackInput" , [ InputTrackCollection ])
-    kwargs.setdefault("TrackOutput", 'ScoredMap'+'InDetAmbiguityScore'+ flags.ITk.Tracking.extension)
+    kwargs.setdefault("TrackOutput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.extension)
     kwargs.setdefault("AmbiguityScoreProcessor" ,  ITkAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
 
     ITkAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.ITk.Tracking.extension, **kwargs)
@@ -600,7 +601,7 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if usePrdAssociationTool:
-        prefix = 'InDet'
+        prefix = 'ITk'
         suffix = flags.ITk.Tracking.extension
         acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,namePrefix = prefix,
                                                 nameSuffix = suffix,

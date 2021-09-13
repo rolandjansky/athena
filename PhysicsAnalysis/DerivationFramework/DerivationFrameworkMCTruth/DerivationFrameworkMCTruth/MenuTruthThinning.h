@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,8 +42,8 @@ namespace DerivationFramework {
         bool isLeptonFromTau(const xAOD::TruthParticle*) const;
         bool isFromTau(const xAOD::TruthParticle*,
                        std::unordered_set<int>& barcode_trace) const;
-        bool isBSM(const xAOD::TruthParticle*) const;
-        bool isttHFHadron(const xAOD::TruthParticle*) const;
+        static bool isBSM(const xAOD::TruthParticle*) ;
+        static bool isttHFHadron(const xAOD::TruthParticle*) ;
         bool isBoson(const xAOD::TruthParticle*) const;
         bool isFsrFromLepton(const xAOD::TruthParticle*) const;
 	bool parentIsLongLived(const xAOD::TruthParticle*) const;
@@ -142,7 +142,7 @@ namespace DerivationFramework {
         // counters
         mutable std::atomic<unsigned int> m_totpart;
         mutable std::atomic<unsigned int> m_removedpart;
-        mutable std::atomic<int> m_eventCount;
+        mutable std::atomic<int> m_eventCount{};
         
 
         /// Parameter: simulation barcode offset

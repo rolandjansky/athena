@@ -46,7 +46,7 @@ public:
   QMap<QCheckBox*,QString>   checkBoxNamesMap;
   QMap<QString,QCheckBox*>   checkBoxMap;
   QSet<QString>              hitsThisEvent;
-  StoreGateSvc * sg;
+  StoreGateSvc * sg = nullptr;
 };
 
 VP1SimHitSystem::VP1SimHitSystem()

@@ -63,10 +63,10 @@ Trk::Segment::Segment(const Trk::Segment& seg)
 // move constructor
 Trk::Segment::Segment(Trk::Segment&& seg) noexcept
   : Trk::MeasurementBase(seg)
+  , m_fitQuality (std::move(seg.m_fitQuality))
+  , m_containedMeasBases (std::move(seg.m_containedMeasBases))
   , m_author(seg.m_author)
 {
-  m_fitQuality = std::move(seg.m_fitQuality);
-  m_containedMeasBases = std::move(seg.m_containedMeasBases);
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Segment, so increment total count
 #endif

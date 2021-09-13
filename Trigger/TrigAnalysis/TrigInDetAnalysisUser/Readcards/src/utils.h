@@ -42,6 +42,7 @@ void removespace(std::string& s, const std::string& s2=" \t");
 
 // replaces whitespace
 void replace(std::string& s, const std::string& s2=" \t", const std::string& s3="-");
+void replace(std::string& s, char c1, char c2) noexcept;
 
 // chops s1 to the first not of s2
 std::string chopfirst(std::string& s1, const std::string& s2="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.:/");

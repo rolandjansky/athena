@@ -24,7 +24,6 @@ namespace LVL1
 {
 
 class CMMCPHits;
-class CPAlgorithm;
 class CPMHits;
 class CPMRoI;
 class EmTauROI;
@@ -58,9 +57,6 @@ class L1CPHitsTools : virtual public IL1CPHitsTools, public AthAlgTool
      /** standard Athena-Algorithm method */
     virtual StatusCode finalize  ();
       
-     /** CPAlgorithm to CPMRoI conversion */
-    virtual void formCPMRoI(const DataVector<CPAlgorithm>* cpAlgorithmVec,
-                                  DataVector<CPMRoI>*      cpmRoiVec) const;
      /** EmTauROI to CPMRoI conversion */
     virtual void formCPMRoI(const DataVector<EmTauROI>* emTauRoiVec,
                                   DataVector<CPMRoI>*   cpmRoiVec) const;

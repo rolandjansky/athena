@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -13,39 +13,44 @@
 
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h" 
 #include "LArReadoutGeometry/EMBBasicReadoutNumbers.h"
 
 EMBBasicReadoutNumbers::EMBBasicReadoutNumbers()
 {
-
-
   // The EMB gets and managers certain arrays needed to build descriptors.  Here is that:
   ISvcLocator *svcLocator = Gaudi::svcLocator();
-  IRDBAccessSvc* rdbAccess;
-  IGeoModelSvc * geoModel;
-  
-  if (svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in LArDetectorFactoryH62002, cannot access GeoModelSvc");
+  IRDBAccessSvc *rdbAccess{nullptr};
+  IGeoModelSvc  *geoModel{nullptr};
+  IGeoDbTagSvc  *geoDbTagSvc{nullptr};
 
-  if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
-    throw std::runtime_error("Error in LArDetectorFactoryH62002, cannot access RDBAccessSvc");
+  if(svcLocator->service("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoModelSvc");
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
+  if(svcLocator->service("GeoDbTagSvc",geoDbTagSvc) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access GeoDbTagSvc");
 
-  IRDBRecordset_ptr barrelLongDiv       = rdbAccess->getRecordsetPtr("BarrelLongDiv", larVersionKey.tag(),larVersionKey.node());
-  if (barrelLongDiv->size()==0)   throw std::runtime_error("Error getting BarrelLongDiv table");
+  if(svcLocator->service(geoDbTagSvc->getParamSvcName(),rdbAccess) == StatusCode::FAILURE)
+    throw std::runtime_error("Error in HECDetectorManager, cannot access RDBAccessSvc");
 
+  std::string larKey, larNode;
+  if(geoDbTagSvc->getSqliteReader()==nullptr) {
+    DecodeVersionKey larVersionKey(geoModel, "LAr");
+    larKey  = larVersionKey.tag();
+    larNode = larVersionKey.node();
+  }
 
-  IRDBRecordset_ptr barrelGeometry       = rdbAccess->getRecordsetPtr("BarrelGeometry", larVersionKey.tag(),larVersionKey.node());
-  if (barrelGeometry->size()==0)   throw std::runtime_error("Error getting BarrelGeometry table");
+  IRDBRecordset_ptr barrelLongDiv = rdbAccess->getRecordsetPtr("BarrelLongDiv", larKey, larNode);
+  if (barrelLongDiv->size()==0) throw std::runtime_error("Error getting BarrelLongDiv table");
 
+  IRDBRecordset_ptr barrelGeometry = rdbAccess->getRecordsetPtr("BarrelGeometry", larKey, larNode);
+  if (barrelGeometry->size()==0) throw std::runtime_error("Error getting BarrelGeometry table");
 
-  IRDBRecordset_ptr presamplerGeometry       = rdbAccess->getRecordsetPtr("PresamplerGeometry", larVersionKey.tag(),larVersionKey.node());
-  if (presamplerGeometry->size()==0)   throw std::runtime_error("Error getting PresamplerGeometry table");
+  IRDBRecordset_ptr presamplerGeometry = rdbAccess->getRecordsetPtr("PresamplerGeometry", larKey, larNode);
+  if (presamplerGeometry->size()==0) throw std::runtime_error("Error getting PresamplerGeometry table");
 
- 
-  IRDBRecordset_ptr embSampSep = rdbAccess->getRecordsetPtr("EMBSampSep", larVersionKey.tag(),larVersionKey.node());
+  IRDBRecordset_ptr embSampSep = rdbAccess->getRecordsetPtr("EMBSampSep", larKey, larNode);
   if (embSampSep->size()==0) {
     embSampSep = rdbAccess->getRecordsetPtr("EMBSampSep", "EMBSampSep-00");
     if (embSampSep->size()==0) {

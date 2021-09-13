@@ -315,15 +315,21 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     ATH_CHECK(m_ioCompMgr->io_finalize());
 
     // Verify that there are no other open ROOT files (e.g. from dual-use tools).
-    // Temporary hack for "expert-monitoring.root" as the THistSvc does not
-    // implement io_finalize correctly and the ROOT file stays open.
-    if ( gROOT->GetListOfFiles()->GetSize() > 1 ) {
+    if ( !gROOT->GetListOfFiles()->IsEmpty() ) {
       std::unordered_map<std::string, size_t> dups;
-      for (const auto f : *gROOT->GetListOfFiles()) dups[f->GetName()]++;
-      dups.erase("expert-monitoring.root");
-      msg() << MSG::ERROR << "The following ROOT files (with #instances) have not been closed yet: ";
-      for (const auto& [n,c] : dups) msg() << n << "(x" << c << ") ";
-      msg() << endmsg;
+      for (const auto f : *gROOT->GetListOfFiles()) {
+        ++dups[f->GetName()];
+      }
+      // Exception for THistSvc files as those will remain open
+      auto histsvc = serviceLocator()->service("THistSvc", false).as<IIoComponent>();
+      for (const std::string& histfile : m_ioCompMgr->io_retrieve(histsvc.get())) {
+        dups.erase(histfile);
+      }
+      if (!dups.empty()) {
+        msg() << MSG::ERROR << "The following ROOT files (with #instances) have not been closed yet: ";
+        for (const auto& [n,c] : dups) msg() << n << "(x" << c << ") ";
+        msg() << endmsg;
+      }
     }
 
     // close open DB connections

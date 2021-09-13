@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_STRUCT_H
@@ -14,7 +14,9 @@
 
 #include "AthenaBaseComps/AthMessaging.h"
 
-#include "TLorentzVector.h"
+#include <Math/Vector2D.h>
+#include <Math/Vector3D.h>
+#include <Math/Vector4D.h>
 #include "TMath.h"
 
 //flags
@@ -56,7 +58,7 @@ public:
       scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)*(1./std::log(2.))) );
     }
     //=== return input value with fixed point precision
-    return ::roundf(m_fixp_content * std::pow(2., scale)) / std::pow(2., scale);
+    return std::roundf(m_fixp_content * std::pow(2., scale)) / std::pow(2., scale);
 
   }
 
@@ -115,7 +117,7 @@ struct std_align{
   //so let's do show the correspondence between par_cor_mis and this new std_align, struct (we only do the back quadruplet)
   //(--,-dy,dz;dt,--,dp)=(s,z,t;gamma,beta,alpha)
   //our internal stuff will still match the (x,y,z) coordinate scheme used in the algorithm; we will just translate results into the standard coordinates for plots, etc.
-  std_align(int qcm=0,const TVector3& trans=TVector3(),const TVector3& ang=TVector3());
+  std_align(int qcm=0,const ROOT::Math::XYZVector& trans=ROOT::Math::XYZVector(),const ROOT::Math::XYZVector& ang=ROOT::Math::XYZVector());
   std::string par_title(int par_num,bool small_unit=false) const;
   std::string par_name(int par_num) const;
   std::string par_title_val(int par_num)const;
@@ -129,7 +131,7 @@ struct std_align{
 
   //members
   int type;//corresponds to qcm; 0 (nominal case: no misal/correction), 1 (misalignment), 2 (correction), 3 (sim_correction; do corrections based on simulation results)
-  TVector3 translate,rotate;
+  ROOT::Math::XYZVector translate,rotate;
 
 };
 
@@ -217,8 +219,6 @@ class MMT_Parameters : public AthMessaging {
   par_par param_par() const;
   double y_from_eta_wedge(double eta,int plane)const;
   double eta_wedge_from_y(double y,int plane)const;
-  int ybin(float32fixed<18> y,int plane=0)const;
-  int ybin(float32fixed<yzdex> y,int plane=0)const;
   int ybin(double y,int plane=0)const;
 
   //fill the tables
@@ -230,6 +230,7 @@ class MMT_Parameters : public AthMessaging {
   void fill_crep_table(const std::string&dir,const std::string&tag);
   void fill_yzmod();
   void index_key_test();
+  char getSector() const { return sector; }
 
   //eta-phi stuff
   int eta_bin(double theta) const;
@@ -255,16 +256,16 @@ class MMT_Parameters : public AthMessaging {
   std::string bool_to_hit_str(const std::vector<bool>&track)const;
 
   //table
-  std::map<std::vector<int>,std::pair<float32fixed<2>,float32fixed<2> > > AB_k_local;
-  std::vector<std::vector<std::vector<float32fixed<zbardex> > > > Ak_local_slim;//[x_hit combo][ybin][case #]
-  std::vector<std::vector<std::vector<float32fixed<bkdex> > > > Bk_local_slim;//[x_hit combo][ybin][case #]
-  std::vector<std::vector<std::vector<float32fixed<4> > > > Slope_to_ROI;
-  std::vector<std::vector<float32fixed<2> > > DT_Factors;
+  std::map<std::vector<int>,std::pair<double,double > > AB_k_local;
+  std::vector<std::vector<std::vector<double > > > Ak_local_slim;//[x_hit combo][ybin][case #]
+  std::vector<std::vector<std::vector<double > > > Bk_local_slim;//[x_hit combo][ybin][case #]
+  std::vector<std::vector<std::vector<double > > > Slope_to_ROI;
+  std::vector<std::vector<double > > DT_Factors;
   //theta, phi, hit code, theta/phi/dtheta
   //hit code: binary stuff....
   //old hit code...%mis X, %mis UV: 2-4 X, 1-4 UV possible fractions: 0,1/2,1/3,2/3,1/4,(3/4,not possible with only one misaligned multiplet), 1: 0,3,4,6,8,12
   std::vector<std::vector<std::vector<std::vector<float> > > >crep_table;
-  std::vector<std::vector<std::vector<float32fixed<yzdex> > > >ymod,zmod;
+  std::vector<std::vector<std::vector<double > > >ymod,zmod;
 
   //a toggle
   bool fill0;
@@ -274,12 +275,13 @@ class MMT_Parameters : public AthMessaging {
   std::vector<double>m_etabins,m_phibins;
   //currently configurable parameters
   bool diag,dlm_new;
-  float32fixed<2> h;
+  double h;
   int CT_x,CT_uv;
-  float32fixed<2> uv_error;
+  double uv_error;
   double dtheta_cut;
   std::string setup;
   bool islarge,genbg;
+  char sector;
   double chargeThreshold;
   //new, standardized, misalignment and correction information
   std_align misal,correct;
@@ -289,42 +291,42 @@ class MMT_Parameters : public AthMessaging {
   bool misalign,val_tbl;
 
   //dimensions
-  float32fixed<18> w1, w2, w3, h1, h2, h3, H, Hnom, L, wedge_opening_angle;
-  float32fixed<4> strip_width;
-  float32fixed<4> stereo_degree;
+  double w1, w2, w3, h1, h2, h3, H, Hnom, L, wedge_opening_angle;
+  double strip_width;
+  double stereo_degree;
   double stereo_strip_separation_top;
   double stereo_strip_separation_bottom;
 
-  std::vector<float32fixed<18> > z_nominal;
-  std::vector<std::vector<float32fixed<18> > > z_large;//[y bin][plane]
-  std::vector<std::vector<float32fixed<18> > > ybases;//by stationEta--saved from file, hardcoded, alternative is equally spaced, in MMT_Loader::Get_Strip_Id
-  float32fixed<2> m_x_min,m_x_max,m_y_min,m_y_max,h_mx, h_my;
+  std::vector<double > z_nominal;
+  std::vector<std::vector<double > > z_large;//[y bin][plane]
+  std::vector<std::vector<double > > ybases;//by stationEta--saved from file, hardcoded, alternative is equally spaced, in MMT_Loader::Get_Strip_Id
+  double m_x_min,m_x_max,m_y_min,m_y_max,h_mx, h_my;
   int n_x,n_y;
 
-  float32fixed<3> slope_min, slope_max;
-  float32fixed<2> x_error;
+  double slope_min, slope_max;
+  double x_error;
   int CT, CT_u, CT_v;
 
-  float32fixed<4> minimum_large_theta, maximum_large_theta;
-  float32fixed<4> minimum_large_phi, maximum_large_phi;
+  double minimum_large_theta, maximum_large_theta;
+  double minimum_large_phi, maximum_large_phi;
 
   int n_theta_rois, n_phi_rois, BC_window;
 
-  float32fixed<18> mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
-  float32fixed<4> vertical_strip_width_UV;
+  double mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
+  double vertical_strip_width_UV;
 };
 
 struct mm_digit_entry{
-  int multiplet,gas_gap;
-  double global_time,time;
-  TVector2 local_pos, stripl_pos;
-  TVector3 stripg_pos;
-  double charge;
+  int multiplet{0},gas_gap{0};
+  double global_time{0.},time{0.};
+  ROOT::Math::XYVector local_pos{0.,0.}, stripl_pos{0.,0.};
+  ROOT::Math::XYZVector stripg_pos{0.,0.,0.};
+  double charge{0.};
 };
 
 struct evInf_entry{
   evInf_entry(int event=0,int pdg=0,double e=0,double p=0,double ieta=0,double peta=0,double eeta=0,double iphi=0,double pphi=0,double ephi=0,
-	      double ithe=0,double pthe=0,double ethe=0,double dth=0,int trn=0,int mun=0,const TVector3& tex=TVector3(),
+	      double ithe=0,double pthe=0,double ethe=0,double dth=0,int trn=0,int mun=0,const ROOT::Math::XYZVector& tex=ROOT::Math::XYZVector(),
 	      int troi=0,int antev=0,int postv=0,int nxh=0,int nuvh=0,int nxbg=0,int nuvbg=0,double adt=0,int difx=0,
 	      int difuv=0,bool cut=false,bool bad=false);
   void print() const;
@@ -332,7 +334,7 @@ struct evInf_entry{
   int athena_event,pdg_id;
   double E,pt,eta_ip,eta_pos,eta_ent,phi_ip,phi_pos,phi_ent,theta_ip,theta_pos,theta_ent,dtheta;
   int truth_n,mu_n;
-  TVector3 vertex;
+  ROOT::Math::XYZVector vertex;
   int truth_roi;
   int N_hits_preVMM,N_hits_postVMM/*<--true*/;
   int N_X_hits,N_UV_hits;//signal pre vmm; the X and UV hits that count in efficiency denominator
@@ -368,18 +370,18 @@ struct hitData_key{
 };
 
 struct evFit_entry{
-  evFit_entry(int event=0,float32fixed<4> fthe=0.,float32fixed<4> fphi=0.,
-	      float32fixed<2> fdth=0.,int roi=-1,int xhit=false,int uvhit=false,
-	      int bgx=false,int bguv=false,float32fixed<2> dth_nd=0.,int hc=0,int tph=0,
+  evFit_entry(int event=0,double fthe=0.,double fphi=0.,
+	      double fdth=0.,int roi=-1,int xhit=false,int uvhit=false,
+	      int bgx=false,int bguv=false,double dth_nd=0.,int hc=0,int tph=0,
 	      int bgph=0);
 
   void print() const;
 
   int athena_event;
-  float32fixed<4> fit_theta,fit_phi;
-  float32fixed<2> fit_dtheta;
+  double fit_theta,fit_phi;
+  double fit_dtheta;
   int fit_roi,X_hits_in_fit,UV_hits_in_fit,bg_X_fit,bg_UV_fit;
-  float32fixed<2> dtheta_nodiv;
+  double dtheta_nodiv;
   int hcode,truth_planes_hit,bg_planes_hit;
   std::vector<hitData_key> fit_hit_keys;
 
@@ -387,15 +389,15 @@ struct evFit_entry{
 };
 
 struct evAna_entry{
-  int athena_event;
-  double theta_err,phi_err,dtheta_err;
-  bool qualified_event, fit, good_fit;
-  int X_hits_in_fit,UV_hits_in_fit;
-  int bg_X_fit,bg_UV_fit;
+  int athena_event{0};
+  double theta_err{0.},phi_err{0.},dtheta_err{0.};
+  bool qualified_event{false}, fit{false}, good_fit{false};
+  int X_hits_in_fit{0},UV_hits_in_fit{0};
+  int bg_X_fit{0},bg_UV_fit{0};
 };
 
 struct hitData_info{
-  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const TVector3& tru,double tpos,double ppos);
+  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const ROOT::Math::XYZVector& tru,double tpos,double ppos);
   hitData_info(int the_pl=0,double the_y=0,double the_z=-999);
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   std::string hdr()const;
@@ -405,8 +407,8 @@ struct hitData_info{
 
   //members
   int plane;
-  float32fixed<yzdex> y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
-  float32fixed<2> slope;
+  double y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
+  double slope;
 
 };
 
@@ -423,29 +425,29 @@ struct Hit{
 };
 
 struct hitData_entry{
-  hitData_entry(int ev=0, double gt=0, double q=0, int vmm=0, int pl=0, int st=0, int est=0, double tr_the=0, double tru_phi=0,
-	     bool q_tbg=0, int bct=0, double time=0,const TVector3& tru=TVector3(), const TVector3& rec=TVector3(),
+  hitData_entry(int ev=0, double gt=0, double q=0, int vmm=0, int mmfe=0, int pl=0, int st=0, int est=0, int phi=0, int mult=0, int gg=0, double locX=0, double tr_the=0, double tru_phi=0,
+	     bool q_tbg=0, int bct=0, double time=0,const ROOT::Math::XYZVector& tru=ROOT::Math::XYZVector(), const ROOT::Math::XYZVector& rec=ROOT::Math::XYZVector(),
 	     double fit_the=0, double fit_phi=0, double fit_dth=0, double tru_dth=0,// double tru_thl=0, double tru_thg=0,
 	     double mxg=0, double mug=0, double mvg=0, double mxl=0, double the_mx=0, double the_my=0, int the_roi=0);
 
   Hit entry_hit(MMT_Parameters *m_par)const;
   hitData_key entry_key() const;
   hitData_info entry_info(MMT_Parameters *m_par)const;
-  void fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg=0., float32fixed<2> mug=0., float32fixed<2> mvg=0., float32fixed<2> mxl=0., float32fixed<2> m_x=0., float32fixed<2> m_y=0., int king=0);
+  void fit_fill(double fthe,double fphi, double fdth, double mxg=0., double mug=0., double mvg=0., double mxl=0., double m_x=0., double m_y=0., int king=0);
   void print() const;
 
   int event;
   double gtime,charge;
-  int VMM_chip,plane,strip,station_eta;
-  double tru_theta_ip,tru_phi_ip;
+  int VMM_chip,MMFE_VMM,plane,strip,station_eta,station_phi,multiplet,gasgap;
+  double localX,tru_theta_ip,tru_phi_ip;
   bool truth_nbg;//truth (i.e. not bg) if true,
   int BC_time;/*fit theta, phi, dtheta originally here*/
   double time;
-  TVector3 truth,recon;
-  float32fixed<4> fit_theta,fit_phi;
-  float32fixed<2> fit_dtheta;
+  ROOT::Math::XYZVector truth,recon;
+  double fit_theta,fit_phi;
+  double fit_dtheta;
   double tru_dtheta;//,tru_theta_local,tru_theta_global;
-  float32fixed<2> M_x_global,M_u_global,M_v_global,M_x_local,mx,my;
+  double M_x_global,M_u_global,M_v_global,M_x_local,mx,my;
   int roi;
 
 
@@ -469,50 +471,52 @@ struct ROI{
   ROI(double the_theta, double the_phi, double the_m_x, double the_m_y, int the_roi);
 
   //the members:
-  float32fixed<4> theta,phi;
-  float32fixed<2> m_x,m_y;
+  double theta,phi;
+  double m_x,m_y;
   int roi;
 };
 
 struct athena_header{
   //make a well-behaved constructor
-  athena_header(const TLorentzVector& par=TLorentzVector(), int tpn=0, double etp=0, double ete=0, double php=0, double phe=0, int mun=0, const TVector3& ver=TVector3());
+  athena_header(const ROOT::Math::PtEtaPhiEVector& par=ROOT::Math::PtEtaPhiEVector(), int tpn=0, double etp=0, double ete=0, double php=0, double phe=0, int mun=0, const ROOT::Math::XYZVector& ver=ROOT::Math::XYZVector());
 
   //the members:
-  TLorentzVector the_part;
+  ROOT::Math::PtEtaPhiEVector the_part;
   int trupart_n;
   double etapos,etaent,phipos,phient;
   int muent_n;
-  TVector3 vertex;
+  ROOT::Math::XYZVector vertex;
 };
 
 struct digitWrapper{
   digitWrapper(const MmDigit* digit=0,
+               const std::string& stationName=std::string(),
                double tmpGTime=0,
-               const TVector3& truthLPos=TVector3(),
-               const TVector3& stripLPos=TVector3(),
-               const TVector3& stripGPos=TVector3()
+               const ROOT::Math::XYZVector& truthLPos=ROOT::Math::XYZVector(),
+               const ROOT::Math::XYZVector& stripLPos=ROOT::Math::XYZVector(),
+               const ROOT::Math::XYZVector& stripGPos=ROOT::Math::XYZVector()
                );
 
 
   const MmDigit* digit;
+  std::string stName;
   double gTime;
 
-  TVector3 truth_lpos;//4,5
-  TVector3 strip_lpos;
-  TVector3 strip_gpos;//6-11
+  ROOT::Math::XYZVector truth_lpos;//4,5
+  ROOT::Math::XYZVector strip_lpos;
+  ROOT::Math::XYZVector strip_gpos;//6-11
 
-  inline Identifier id(){ return digit->identify(); };
+  inline Identifier id() const { return digit->identify(); };
 
 };
 
 struct track_address{//cartesian_hit_rot entry
-  track_address(int bct=0,bool big=false,int wed=0,int pl=-1,int sh=0,const TVector3& chr=TVector3());
+  track_address(int bct=0,bool big=false,int wed=0,int pl=-1,int sh=0,const ROOT::Math::XYZVector& chr=ROOT::Math::XYZVector());
 
   int BC;
   bool islarge;
   int wedge,plane,strip_hit;
-  TVector3 cart_hit;
+  ROOT::Math::XYZVector cart_hit;
 };
 
 #endif

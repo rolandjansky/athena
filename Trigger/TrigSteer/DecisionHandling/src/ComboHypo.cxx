@@ -26,7 +26,7 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
   ATH_MSG_INFO( "with these inputs: ");
-  for (auto inp:m_inputs){
+  for (const auto& inp:m_inputs){
     ATH_MSG_INFO("-- "<< inp.key());
   }
   
@@ -40,8 +40,9 @@ StatusCode ComboHypo::initialize() {
   
   // find max inputs size
   auto maxMultEl = std::max_element( m_multiplicitiesReqMap.begin(), m_multiplicitiesReqMap.end(),  
-    []( Combo::MultiplicityReqMap::value_type a, Combo::MultiplicityReqMap::value_type b ){ return a.second.size() < b.second.size(); }
-    ); 
+    []( const Combo::MultiplicityReqMap::value_type& a, const Combo::MultiplicityReqMap::value_type& b ){
+      return a.second.size() < b.second.size();
+    });
   
   const size_t maxMult = maxMultEl->second.size();
 
@@ -229,7 +230,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       // Finally, the same behaviour may also be triggered by the HypoAlg adding an an int32_t decoration called "noCombo" with value 1
       // to the Decision Object.
 
-      for (const ElementLink<DecisionContainer> dEL : it->second){
+      for (const ElementLink<DecisionContainer>& dEL : it->second){
         uint32_t featureKey = 0, roiKey = 0; // The container hash of the DecisionObject's most-recent feature, and its initial ROI
         uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
         bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
@@ -440,8 +441,8 @@ StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
   }
 
   // Try and get seeding ROI data too.
-  uint32_t roiClid; // Unused
-  const Decision* roiSource; // Unused
+  uint32_t roiClid{0}; // Unused
+  const Decision* roiSource{nullptr}; // Unused
   const bool foundROI = typelessFindLink(subGraph, initialRoIString(), roiKey, roiClid, roiIndex, roiSource);
   if (foundROI) {
     ElementLink<TrigRoiDescriptorCollection> roiEL(roiKey, roiIndex);
@@ -509,7 +510,7 @@ StatusCode ComboHypo::fillDecisionsMap( Combo::LegDecisionsMap &  dmap, const Ev
       ATH_MSG_DEBUG("leg ["<<legCount<<"]: ");
       const ElementLinkVector<DecisionContainer>& decisions = entry.second;
       ATH_MSG_DEBUG(" ++++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
-      for (const ElementLink<DecisionContainer> d : decisions){
+      for (const ElementLink<DecisionContainer>& d : decisions){
         ATH_MSG_DEBUG("     Decision: (ContainerKey:"<<d.dataID()<<", DecisionElementIndex:"<<d.index()<<")");
       }
       legCount++;

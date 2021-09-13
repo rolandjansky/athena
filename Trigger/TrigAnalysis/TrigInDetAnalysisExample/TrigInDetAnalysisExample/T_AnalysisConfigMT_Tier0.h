@@ -453,7 +453,7 @@ protected:
     }
     
 
-    //    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+    //    if ( (*m_tdt)->ExperimentalAndExpertMethods().isHLTTruncated() ) {
     //    m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
     //   return;
     //  }

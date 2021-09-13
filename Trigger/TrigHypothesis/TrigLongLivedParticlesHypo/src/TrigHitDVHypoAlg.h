@@ -4,11 +4,13 @@
 #ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H
 #define TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H
 
-#include "Gaudi/Property.h"
-
 #include <string>
-#include "TrigHitDVHypoTool.h"
+
+#include "Gaudi/Property.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "DecisionHandling/HypoBase.h"
+#include "TrigHitDVHypoTool.h"
+
 #include "xAODJet/JetContainer.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
@@ -41,7 +43,7 @@ private:
    // Luminosity related
    ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
    // Property: Per-bunch luminosity data (data only) conditions input)
-   SG::ReadCondHandleKey<LuminosityCondData>        m_lumiDataKey {this, "LuminosityCondDataKey", "LuminosityCondData", ""};
+   SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey {this, "LuminosityCondDataKey", "LuminosityCondData", ""};
    // Property; MC flag.
    Gaudi::Property<bool> m_isMC {this, "isMC", false, "Real data or MC"};
 
@@ -54,21 +56,21 @@ private:
    int        getSPLayer(int, float) const;
    StatusCode findSPSeeds( const xAOD::TrigCompositeContainer*, std::vector<float>&, std::vector<float>& ) const;
    StatusCode findJetSeeds(const xAOD::JetContainer*, const float, const float, std::vector<float>&, std::vector<float>&, std::vector<float>&) const;
-   StatusCode calculateBDT(const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
+   StatusCode calculateBDT(const EventContext&, const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
 			   const std::vector<float>&, const std::vector<float>&, const std::vector<float>&,
 			   const float&, const int, xAOD::TrigCompositeContainer*, int&) const;
 
    // BDT
-   TMVA::Reader* m_tmva_reader;
-   mutable float m_tmva_n_track_qual ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly2_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly3_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly4_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_n_track_qual ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly2_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly3_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly4_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<float> m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
 }; 
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H

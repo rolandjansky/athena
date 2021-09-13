@@ -8,6 +8,7 @@
 #include "ValAlgVariables.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 
 #include <vector>
 
@@ -15,36 +16,14 @@ class CSCRDOVariables : public ValAlgVariables
 {
  public:
  CSCRDOVariables(StoreGateSvc* evtStore,
-		const MuonGM::MuonDetectorManager* detManager,
-		const MuonIdHelper* idhelper,
-		TTree* tree,
-	 	std::string containername,
-	 	MSG::Level msglvl) :
-    ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_CscIdHelper(0),
-    m_Csc_nrdo(0),
-    m_Csc_rdo_stationName(0),
-    m_Csc_rdo_stationEta(0),
-    m_Csc_rdo_stationPhi(0),
-    m_Csc_rdo_channel(0),
-    m_Csc_rdo_chamberLayer(0),
-    m_Csc_rdo_wireLayer(0),
-    m_Csc_rdo_strip(0),
-    m_Csc_rdo_measuresPhi(0),
-    m_Csc_rdo_time(0),
-    m_Csc_rdo_localPosX(0),
-    m_Csc_rdo_localPosY(0),
-    m_Csc_rdo_globalPosX(0),
-    m_Csc_rdo_globalPosY(0),
-    m_Csc_rdo_globalPosZ(0)
-  {
-    setHelper(idhelper);
-  }
-
-  ~CSCRDOVariables()
-  {
-    deleteVariables();
-  }
+		            const MuonGM::MuonDetectorManager* detManager,
+		            const MuonIdHelper* idhelper,
+                TTree* tree,
+                std::string containername,
+                MSG::Level msglvl,     
+                const Muon::ICSC_RDO_Decoder* rdo_decoder);
+  
+  ~CSCRDOVariables() =default;
 
   StatusCode initializeVariables();
   StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
@@ -53,18 +32,19 @@ class CSCRDOVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_CscIdHelper = dynamic_cast<const CscIdHelper*>(idhelper);
-    if(m_CscIdHelper == 0) {
-       ATH_MSG_ERROR("casting IdHelper to CscIdHelper failed");
-       throw;
+    if(!m_CscIdHelper) {
+       throw std::runtime_error("casting IdHelper to CscIdHelper failed");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const CscIdHelper* m_CscIdHelper;
+  const CscIdHelper* m_CscIdHelper{nullptr};
+  const Muon::ICSC_RDO_Decoder*  m_rdo_decoder{nullptr};
 
-  int m_Csc_nrdo;
+
+  int m_Csc_nrdo{0};
   std::vector<std::string> m_Csc_rdo_stationName;
   std::vector<int> m_Csc_rdo_stationEta;
   std::vector<int> m_Csc_rdo_stationPhi;

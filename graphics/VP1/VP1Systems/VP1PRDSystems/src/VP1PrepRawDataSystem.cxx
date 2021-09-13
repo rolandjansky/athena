@@ -51,18 +51,18 @@
 //____________________________________________________________________
 class VP1PrepRawDataSystem::Imp {
 public:
-  VP1PrepRawDataSystem * theclass;
-  PRDSysCommonData * common;
-  PRDSystemController * controller;
-  SoCooperativeSelection * selNode_click;
-  SoCooperativeSelection * selNode_highlight;
+  VP1PrepRawDataSystem * theclass = nullptr;
+  PRDSysCommonData * common = nullptr;
+  PRDSystemController * controller = nullptr;
+  SoCooperativeSelection * selNode_click = nullptr;
+  SoCooperativeSelection * selNode_highlight = nullptr;
   
   InDetProjFlags::InDetProjPartsFlags idprojflags_pixel;
   InDetProjFlags::InDetProjPartsFlags idprojflags_sct;
   InDetProjFlags::InDetProjPartsFlags idprojflags_trt;
-  int appropriatemdtprojection;
+  int appropriatemdtprojection = 0;
   
-  SoSeparator * multisel_sep;
+  SoSeparator * multisel_sep = nullptr;
   void clearMultiSelLine() {
     while (multisel_sep&&multisel_sep->getNumChildren()>2)
       multisel_sep->removeChild(2);

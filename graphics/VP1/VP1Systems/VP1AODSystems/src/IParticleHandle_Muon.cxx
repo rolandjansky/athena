@@ -47,12 +47,12 @@
 //____________________________________________________________________
 class IParticleHandle_Muon::Imp {
 public:
-  IParticleHandle_Muon * theclass;
-  const xAOD::Muon * muon;
-  IParticleCollHandle_Muon* collHandle;
+  IParticleHandle_Muon * theclass = nullptr;
+  const xAOD::Muon * muon = nullptr;
+  IParticleCollHandle_Muon* collHandle = nullptr;
   
-  SoSeparator * sep; // everything hangs from this.
-  SoLineSet * line;//This represents the line(s) representing the trackparticle. Can be interpolated.
+  SoSeparator * sep = nullptr; // everything hangs from this.
+  SoLineSet * line = nullptr;//This represents the line(s) representing the trackparticle. Can be interpolated.
   QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache 
 };
 

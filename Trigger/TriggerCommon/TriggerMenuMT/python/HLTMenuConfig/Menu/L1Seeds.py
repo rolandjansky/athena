@@ -53,56 +53,89 @@ def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
 # define the various seeds
 ##############################
 def getL1BackgroundSeed(menul1items):        
-    l1background_seeds = 'L1_BCM_AC_CA_BGRP0,L1_BCM_Wide_EMPTY,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_J30p31ETA49_UNPAIRED_ISO,L1_J12_UNPAIRED_ISO,L1_J12_UNPAIRED_NONISO,L1_J12_ABORTGAPNOTCALIB,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO,L1_J30p31ETA49_UNPAIRED_NONISO,L1_BCM_AC_ABORTGAPNOTCALIB,L1_BCM_CA_ABORTGAPNOTCALIB,L1_BCM_Wide_ABORTGAPNOTCALIB,L1_BCM_AC_CALIB,L1_BCM_CA_CALIB,L1_BCM_Wide_CALIB,L1_J50_UNPAIRED_ISO,L1_J50_UNPAIRED_NONISO,L1_J50_ABORTGAPNOTCALIB'
+    l1bgditems = [
+        'L1_BCM_AC_CA_BGRP0',
+        'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
+        'L1_J30p31ETA49_UNPAIRED_ISO',
+        'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
+        'L1_BCM_AC_UNPAIRED_ISO', 'L1_BCM_CA_UNPAIRED_ISO',
+        'L1_BCM_AC_UNPAIRED_NONISO', 'L1_BCM_CA_UNPAIRED_NONISO',
+        'L1_J30p31ETA49_UNPAIRED_NONISO',
+        'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB',
+        'L1_BCM_Wide_ABORTGAPNOTCALIB',
+        'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB',
+        'L1_BCM_Wide_CALIB',
+        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',
+        'L1_J12_EMPTY', 'L1_J12_BGRP12',
+        ]
     
     if TriggerFlags.triggerMenuSetup() == 'LS1_v1':
-        l1background_seeds = 'L1_BCM_AC_CA_BGRP0,L1_BCM_AC_CA_UNPAIRED_ISO,L1_BCM_Wide_EMPTY,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_EM3_UNPAIRED_ISO,L1_FJ30_UNPAIRED_ISO,L1_J10_UNPAIRED_ISO,L1_J10_UNPAIRED_NONISO,L1_LUCID_A_C_EMPTY,L1_LUCID_A_C_UNPAIRED_ISO,L1_LUCID_A_C_UNPAIRED_NONISO,L1_LUCID_EMPTY,L1_LUCID_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_LUCID_COMM_UNPAIRED_ISO,L1_LUCID_COMM_EMPTY'
+        l1bgditems = [
+            'L1_BCM_AC_CA_BGRP0','L1_BCM_AC_CA_UNPAIRED_ISO',
+            'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
+            'L1_EM3_UNPAIRED_ISO','L1_FJ30_UNPAIRED_ISO',
+            'L1_J10_UNPAIRED_ISO','L1_J10_UNPAIRED_NONISO',
+            'L1_LUCID_A_C_EMPTY','L1_LUCID_A_C_UNPAIRED_ISO','L1_LUCID_A_C_UNPAIRED_NONISO',
+            'L1_LUCID_EMPTY','L1_LUCID_UNPAIRED_ISO',
+            'L1_MU3V_UNPAIRED_ISO',
+            'L1_LUCID_COMM_UNPAIRED_ISO','L1_LUCID_COMM_EMPTY'
+        ]
         
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = l1background_seeds.split(',')
     for item in l1bgditems:
         if item not in menul1items:
             log.error('L1 item %s from background seeds is not in current L1 menu', item)
-            
+
+    l1background_seeds = ','.join(l1bgditems)
     return l1background_seeds
 
 ##############################
 def getL1_ALFA_Diff_Phys_Seeds(menul1items):        
-    # comma separated list fo l1 seeds
-    l1_seeds = 'L1_ALFA_SDIFF5,L1_ALFA_SDIFF6,L1_ALFA_SDIFF7,L1_ALFA_SDIFF8,L1_MBTS_1_A_ALFA_C,L1_MBTS_1_C_ALFA_A,L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO,L1_MBTS_2_A_ALFA_C,L1_MBTS_2_C_ALFA_A,L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO,L1_LUCID_A_ALFA_C,L1_LUCID_C_ALFA_A,L1_LUCID_A_ALFA_C_UNPAIRED_ISO,L1_LUCID_C_ALFA_A_UNPAIRED_ISO,L1_EM3_ALFA_ANY,L1_EM3_ALFA_ANY_UNPAIRED_ISO,L1_TE5_ALFA_ANY,L1_TE5_ALFA_ANY_UNPAIRED_ISO'
+    # list of l1 seeds
+    l1items = [
+        'L1_ALFA_SDIFF5','L1_ALFA_SDIFF6','L1_ALFA_SDIFF7','L1_ALFA_SDIFF8',
+        'L1_MBTS_1_A_ALFA_C','L1_MBTS_1_C_ALFA_A',
+        'L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO',
+        'L1_MBTS_2_A_ALFA_C','L1_MBTS_2_C_ALFA_A',
+        'L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO',
+        'L1_LUCID_A_ALFA_C','L1_LUCID_C_ALFA_A',
+        'L1_LUCID_A_ALFA_C_UNPAIRED_ISO','L1_LUCID_C_ALFA_A_UNPAIRED_ISO',
+        'L1_EM3_ALFA_ANY','L1_EM3_ALFA_ANY_UNPAIRED_ISO',
+        'L1_TE5_ALFA_ANY','L1_TE5_ALFA_ANY_UNPAIRED_ISO'
+    ]
      
     # check if all the l1 background seeds given are in the current L1 menu
-    l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
             log.error('L1 item %s from background seeds is not in current L1 menu', item)
-            
+
+    l1_seeds = ','.join(l1items)
     return l1_seeds
 
 ##############################
 def getL1_ALFA_CDiff_Phys_Seeds (menul1items):        
-    # comma separated list fo l1 seeds
-    l1_seeds = 'L1_EM3_ALFA_EINE,L1_TE5_ALFA_EINE'
+    # list of l1 seeds
+    l1items = ['L1_EM3_ALFA_EINE','L1_TE5_ALFA_EINE']
      
     # check if all the l1 background seeds given are in the current L1 menu
-    l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
             log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
+    l1_seeds = ','.join(l1items)
     return l1_seeds
 
 ##############################
 def getL1_ALFA_Jet_Phys_Seeds (menul1items):        
-    # comma separated list fo l1 seeds
-    l1_seeds = 'L1_J12_ALFA_ANY,L1_J12_ALFA_ANY_UNPAIRED_ISO'
+    # list of l1 seeds
+    l1items = ['L1_J12_ALFA_ANY','L1_J12_ALFA_ANY_UNPAIRED_ISO']
      
     # check if all the l1 background seeds given are in the current L1 menu
-    l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
             log.error('L1 item %s from background seeds is not in current L1 menu', item)
-            
+
+    l1_seeds = ','.join(l1items)
     return l1_seeds
 
 ##############################
@@ -135,13 +168,13 @@ def getL1TauSeed(l1items):
 
 ##############################
 def getL1BSSeed(menul1items):
-    l1_seeds = 'L1_J15,L1_3J15,L1_3J10,L1_4J10'
+    l1items = ['L1_J15','L1_3J15','L1_3J10','L1_4J10']
     # check if all the l1 background seeds given are in the current L1 menu
-    l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
             log.error('L1 item %s from beamspot seeds is not in current L1 menu', item)
             
+    l1_seeds = ','.join(l1items)
     return l1_seeds
 
 ##############################
@@ -173,126 +206,183 @@ def getL1MuonSeed(l1seed, l1object):
 def getEBnoL1PSSeed(l1items, l1seedname):
 
     # All of these L1 items must be PS=1 for an EB campaign
-    noL1PS_seeds = ''
+    l1EBitems = []
     if ('L1_PhysicsHigh' in l1seedname):
-      #noL1PS_seeds = 'L1_MU6_3MU4,L1_EM15HI_2TAU12IM_J25_3J12,L1_EM15HI_2TAU12IM_XE35,L1_EM15HI_TAU40_2TAU15,L1_EM15VH_MU10,L1_EM15VH_3EM7,L1_EM22VHI,L1_2EM8VH_MU10,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM_XE35,L1_MU10_TAU20IM,L1_4J15,L1_XE50,L1_2J15_XE55,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_TAU20IM_2TAU12IM_XE35,L1_TAU20IM_2J20_XE45,L1_MU20,L1_MU6_J30.0ETA49_2J20.0ETA49,L1_MU10_3J20,L1_J40.0ETA25_2J15.31ETA49,L1_3MU6,L1_MU10_2J15_J20,L1_J40.0ETA25_2J25_J20.31ETA49,L1_2MU6_3MU4,L1_MU11_2MU6'
-      noL1PS_seeds = 'L1_MU6_3MU4,L1_EM15VH_MU10,L1_EM22VHI,L1_2EM8VH_MU10,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM_XE35,L1_MU10_TAU20IM,L1_4J15,L1_XE50,L1_2J15_XE55,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_TAU20IM_2TAU12IM_XE35,L1_TAU20IM_2J20_XE45,L1_MU20,L1_MU10_3J20,L1_J40p0ETA25_2J15p31ETA49,L1_3MU6,L1_MU10_2J15_J20,L1_J40p0ETA25_2J25_J20p31ETA49,L1_2MU6_3MU4,L1_MU11_2MU6'
+      l1EBitems = [
+        'L1_MU5VF_3MU3V',
+        'L1_EM15VH_MU8F','L1_EM22VHI','L1_2EM8VH_MU8F',
+        'L1_MU8F_TAU12IM_J25_2J12','L1_MU8F_TAU12IM_XE35','L1_MU8F_TAU20IM',
+        'L1_4J15','L1_XE50','L1_2J15_XE55',
+        'L1_TAU60','L1_TAU20IM_2TAU12IM_J25_2J20_3J12','L1_TAU20IM_2TAU12IM_XE35','L1_TAU20IM_2J20_XE45',
+        'L1_MU14FCH','L1_MU8F_3J20',
+        'L1_J40p0ETA25_2J15p31ETA49',
+        'L1_3MU5VF','L1_MU8F_2J15_J20',
+        'L1_J40p0ETA25_2J25_J20p31ETA49',
+        'L1_2MU5VF_3MU3V','L1_MU8VF_2MU5VF'
+        ]
     elif ('L1_PhysicsVeryHigh' in l1seedname):
-      #noL1PS_seeds = 'L1_XE80,L1_J100.31ETA49,L1_J400,L1_6J15'
-      noL1PS_seeds = 'L1_XE60,L1_J400,L1_6J15'
+      l1EBitems = ['L1_XE60', 'L1_J400', 'L1_6J15']
     elif ('L1_EMPTY' in l1seedname):
-      noL1PS_seeds = 'L1_J12_EMPTY,L1_MU11_EMPTY,L1_TAU8_EMPTY,L1_TAU40_EMPTY,L1_EM7_EMPTY'
+      l1EBitems = ['L1_J12_EMPTY', 'L1_MU8VF_EMPTY', 'L1_TAU8_EMPTY', 'L1_TAU40_EMPTY', 'L1_EM7_EMPTY']
     elif ('L1_FIRSTEMPTY' in l1seedname):
-      #noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_MU20_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
-      noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
+      l1EBitems = ['L1_J12_FIRSTEMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_EM7_FIRSTEMPTY']
     elif ('L1_UNPAIRED_ISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_ISO,L1_J15p31ETA49_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_EM7_UNPAIRED_ISO,L1_TAU8_UNPAIRED_ISO,L1_TAU40_UNPAIRED_ISO'
+      l1EBitems = [
+        'L1_J12_UNPAIRED_ISO', 'L1_J15p31ETA49_UNPAIRED_ISO',
+        'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_AC_UNPAIRED_ISO', 'L1_BCM_CA_UNPAIRED_ISO',
+        'L1_MU3V_UNPAIRED_ISO', 'L1_EM7_UNPAIRED_ISO', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_UNPAIRED_ISO'
+        ]
     elif ('L1_UNPAIRED_NONISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_NONISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO'
+      l1EBitems = [
+        'L1_J12_UNPAIRED_NONISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
+        'L1_BCM_AC_UNPAIRED_NONISO', 'L1_BCM_CA_UNPAIRED_NONISO'
+      ]
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
-      noL1PS_seeds = 'L1_J12_ABORTGAPNOTCALIB'
+      l1EBitems = ['L1_J12_ABORTGAPNOTCALIB']
     else:
       log.error('Do not know how to supply EnhancedBias L1 seeds for %s', l1seedname)
 
     # check if all the l1 seeds given are in the current L1 menu
-    l1EBitems = noL1PS_seeds.split(',')
     for item in l1EBitems:
         if item not in l1items:
             log.error('L1 item %s from %s seed is not in current L1 menu (EnhancedBias)', item, l1seedname)
             
+    noL1PS_seeds = ','.join(l1EBitems)
     return noL1PS_seeds
 
 ##############################
 def getL1_ALFA_Phys(l1seed):
 
-    L1ALFA_Phys_seeds = 'L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
+    l1bgditems = [
+        'L1_ALFA_ELAST1',  'L1_ALFA_ELAST2',
+        'L1_ALFA_ELAST11', 'L1_ALFA_ELAST12', 
+        'L1_ALFA_ELAST13', 'L1_ALFA_ELAST14',
+        'L1_ALFA_ELAST15', 'L1_ALFA_ELAST16',
+        'L1_ALFA_ELAST17', 'L1_ALFA_ELAST18',
+        'L1_ALFA_SHOWSYST5',
+        'L1_ALFA_ANY_A_EMPTY', 'L1_ALFA_ANY_C_EMPTY'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_Phys_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_Phys seeds is not in current L1 menu', item)
             
+    L1ALFA_Phys_seeds = ','.join(l1bgditems)
     return L1ALFA_Phys_seeds
 
 ##############################
 def getL1_ALFA_Phys_Any(l1seed):
 
-    L1ALFA_Phys_Any_seeds = 'L1_ALFA_ANY,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10'
+    l1bgditems = [
+        'L1_ALFA_ANY', 'L1_ALFA_ANY_EMPTY', 'L1_ALFA_ANY_FIRSTEMPTY',
+        'L1_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ANY_UNPAIRED_NONISO', 'L1_ALFA_ANY_BGRP10'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_Phys_Any_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_Phys_Any_seeds seeds is not in current L1 menu', item)
             
+    L1ALFA_Phys_Any_seeds = ','.join(l1bgditems)
     return L1ALFA_Phys_Any_seeds
 
 ##############################
 def getL1ALFA_Calib(l1seed):
 
-    L1ALFA_Calib_seeds = 'L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L'
-        #ATR-13743 'L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,L1_ALFA_BGT,L1_ALFA_BGT_UNPAIRED_ISO,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,
-           #L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
+    l1bgditems = [
+        'L1_ALFA_B7L1U', 'L1_ALFA_B7L1L',
+        'L1_ALFA_A7L1U', 'L1_ALFA_A7L1L',
+        'L1_ALFA_A7R1U', 'L1_ALFA_A7R1L',
+        'L1_ALFA_B7R1U', 'L1_ALFA_B7R1L'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_Calib_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_Calib_seeds seeds is not in current L1 menu', item)
             
+    L1ALFA_Calib_seeds = ','.join(l1bgditems)
     return L1ALFA_Calib_seeds
 
 ##############################
 def getL1ALFA_CEP(l1seed):
 
-    L1ALFA_CEP_seeds = 'L1_ALFA_ELAST15,L1_ALFA_ELAST18,L1_ALFA_SYST17,L1_ALFA_SYST18,L1_ALFA_ELASTIC_UNPAIRED_ISO,L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO'
+    l1bgditems = [
+        'L1_ALFA_ELAST15', 'L1_ALFA_ELAST18',
+        'L1_ALFA_SYST17',  'L1_ALFA_SYST18',
+        'L1_ALFA_ELASTIC_UNPAIRED_ISO', 'L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_CEP_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_CEP_seeds seeds is not in current L1 menu', item)
             
+    L1ALFA_CEP_seeds = ','.join(l1bgditems)
     return L1ALFA_CEP_seeds
 
 ##############################
 def getL1ALFA_SYS(l1seed):
 
-    L1ALFA_SYS_seeds = 'L1_ALFA_SYST9,L1_ALFA_SYST10,L1_ALFA_SYST11,L1_ALFA_SYST12,L1_ALFA_SYST17,L1_ALFA_SYST18'
+    l1bgditems = [
+        'L1_ALFA_SYST9',  'L1_ALFA_SYST10', 'L1_ALFA_SYST11',
+        'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_SYS_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_SYS_seeds seeds is not in current L1 menu', item)
             
+    L1ALFA_SYS_seeds = ','.join(l1bgditems)
     return L1ALFA_SYS_seeds
 
 ##############################
 def getL1ALFA_ELAS(l1seed):
 
-    L1ALFA_ELAS_seeds = 'L1_ALFA_ELAST1,L1_ALFA_ELAST2,L1_ALFA_ELAST11,L1_ALFA_ELAST12,L1_ALFA_ELAST13,L1_ALFA_ELAST14,L1_ALFA_ELAST15,L1_ALFA_ELAST16,L1_ALFA_ELAST17,L1_ALFA_ELAST18'
+    l1bgditems = [
+        'L1_ALFA_ELAST1',  'L1_ALFA_ELAST2',
+        'L1_ALFA_ELAST11', 'L1_ALFA_ELAST12',
+        'L1_ALFA_ELAST13', 'L1_ALFA_ELAST14',
+        'L1_ALFA_ELAST15', 'L1_ALFA_ELAST16',
+        'L1_ALFA_ELAST17', 'L1_ALFA_ELAST18'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1ALFA_ELAS_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1ALFA_ELAS_seeds seeds is not in current L1 menu', item)
             
+    L1ALFA_ELAS_seeds = ','.join(l1bgditems)
     return L1ALFA_ELAS_seeds
 
 #####################################
 def getL1LowLumi(l1seed):
 
-    L1LowLumi_seeds = 'L1_EM20VH,L1_2EM10VH,L1_MU15,L1_2MU6,L1_3MU4,L1_EM15VH_MU10,L1_EM15I_MU4,L1_EM7_MU10,L1_2EM8VH_MU10,L1_TAU60,L1_TAU20IM_2TAU12IM_J25_2J20_3J12,L1_EM15HI_2TAU12IM_XE35,L1_MU10_TAU12IM_XE35,L1_TAU20_2TAU12_XE35,L1_TAU20IM_2TAU12IM_XE35,L1_EM15HI_2TAU12IM,L1_EM15HI_2TAU12IM_J25_3J12,L1_EM15HI_TAU40_2TAU15,L1_MU10_TAU12IM_J25_2J12,L1_MU10_TAU12IM,L1_J75,L1_4J15,L1_XE50,L1_3J25p0ETA23,L1_3J40,L1_2J15_XE55,L1_MU6_J40,L1_J75p31ETA49'
+    l1bgditems = [
+        'L1_EM20VH', 'L1_2EM10VH',
+        'L1_2MU5VF', 'L1_3MU3V',
+        'L1_EM15VH_MU8F', 'L1_EM15I_MU3V',
+        'L1_EM7_MU8F', 'L1_2EM8VH_MU8F',
+        'L1_TAU60', 'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
+        'L1_EM15HI_2TAU12IM_XE35', 'L1_MU8F_TAU12IM_XE35',
+        'L1_TAU20_2TAU12_XE35', 'L1_TAU20IM_2TAU12IM_XE35',
+        'L1_EM15HI_2TAU12IM', 'L1_EM15HI_2TAU12IM_J25_3J12',
+        'L1_EM15HI_TAU40_2TAU15', 'L1_MU8F_TAU12IM_J25_2J12',
+        'L1_MU8F_TAU12IM',
+        'L1_J75', 'L1_4J15',
+        'L1_XE50', 'L1_3J25p0ETA23',
+        'L1_3J40', 'L1_2J15_XE55',
+        'L1_MU5VF_J40', 'L1_J75p31ETA49'
+    ]
 
     # check if all the l1 background seeds given are in the current L1 menu
-    l1bgditems = L1LowLumi_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
             log.error('L1 item %s from L1LowLumi_seeds seeds is not in current L1 menu', item)
             
+    L1LowLumi_seeds = ','.join(l1bgditems)
     return L1LowLumi_seeds
         
 #####################################

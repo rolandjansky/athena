@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile HLTMuonMonTool.cxx
@@ -45,7 +45,6 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
                                const IInterface* parent)
   //initialization of common parameters
   :IHLTMonTool(type, name, parent),
-   m_ExpertMethods(0),
    m_nullstr("null"),  // yy added
    m_bunchTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
    //   m_muonSelectorTool("Rec::MuonSelectorTool") // YY added -> removed
@@ -187,10 +186,6 @@ StatusCode HLTMuonMonTool::init()
   }
 
   */
-
-  m_ExpertMethods = getTDT()->ExperimentalAndExpertMethods();
-  if (m_ExpertMethods) m_ExpertMethods->enable();
-  else ATH_MSG_ERROR("No expert Methods for Trigger Descision Tool are found!");
 
   // chainAnalysis chains
 
@@ -1127,12 +1122,11 @@ StatusCode HLTMuonMonTool::proc()
 
 const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const HLT::TriggerElement *te, std::string step, std::string chainname){
 
-  //m_ExpertMethods->enable();
   std::string hyponame = "";
   if(step=="L2MuonSA") hyponame = m_hypomapL2SA[chainname];
   if(step=="L2muComb") hyponame = m_hypomapL2CB[chainname];
   const HLT::TriggerElement *hypote = NULL;
-  std::vector<HLT::TriggerElement*> TEsuccessors = m_ExpertMethods->getNavigation()->getDirectSuccessors(te);
+  std::vector<HLT::TriggerElement*> TEsuccessors = getTDT()->ExperimentalAndExpertMethods().getNavigation()->getDirectSuccessors(te);
   for(auto te2 : TEsuccessors){
     ATH_MSG_VERBOSE("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
     if(Trig::getTEName(*te2)==hyponame){

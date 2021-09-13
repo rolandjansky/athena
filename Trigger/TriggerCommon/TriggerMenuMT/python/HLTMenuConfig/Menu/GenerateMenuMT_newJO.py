@@ -185,7 +185,7 @@ def generateMenu(flags):
 if __name__ == "__main__":
     assert getGenerator("muon") is not None, "Can not get basic generator"
     chainsInMenu = [dictFromChainName("HLT_e10_L1EM7"), dictFromChainName("HLT_e12_L1EM10"),
-                    dictFromChainName("HLT_e10_mu6_L1EM7_MU4")]
+                    dictFromChainName("HLT_e10_mu6_L1EM7_MU3V")]
     sigMap = {}
     fillAllGeneratorsMap(chainsInMenu, sigMap)
     assert "Muon" in sigMap, "Muons missing"

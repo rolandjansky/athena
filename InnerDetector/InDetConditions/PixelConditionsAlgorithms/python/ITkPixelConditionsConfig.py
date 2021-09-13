@@ -157,7 +157,7 @@ def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **
     DetDescrVersion = flags.GeoModel.AtlasVersion
     ctag = 'PixelITkError_v4_' + DetDescrVersion
     cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-    acc.merge( addFoldersSplitOnline(flags,'PIXEL',[cfoldertag],[cfoldertag],splitMC=True) )
+    acc.merge( addFoldersSplitOnline(flags,'PIXEL',[cfoldertag],[cfoldertag],splitMC=True,className="CondAttrListCollection") )
 
     kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
     kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")

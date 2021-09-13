@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -7,7 +7,13 @@ RegionCreator=CompFactory.RegionCreator
 # Beampipe Regions
 def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'BeampipeFwdCut')
-    volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
+    volumeList = []
+    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+        volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
+    else:
+        volumeList = ['BeamPipe::SectionF198', 'BeamPipe::SectionF199', 'BeamPipe::SectionF200']
+        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+            print('BeampipeFwdCutPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
 
     if ConfigFlags.Sim.BeamPipeSimMode == "FastSim":
@@ -34,7 +40,12 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
 
 def FWDBeamLinePhysicsRegionToolCfg(ConfigFlags, name='FWDBeamLinePhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'FWDBeamLine')
-    volumeList = ['BeamPipe::SectionF46']
+    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+        volumeList = ['BeamPipe::SectionF46']
+    else:
+        volumeList = ['BeamPipe::SectionF197']
+        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+            print('FWDBeamLinePhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
     return RegionCreator(name, **kwargs)
 
@@ -64,9 +75,8 @@ def PixelPhysicsRegionToolCfg(ConfigFlags, name='PixelPhysicsRegionTool', **kwar
 
 def SCTPhysicsRegionToolCfg(ConfigFlags, name='SCTPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'SCT')
-    volumeList = ['SCT::BRLSensor', 'SCT::BRLSensorSS', 'SCT::BRLSensorMS',
-                   'SCT::ECSensor0', 'SCT::ECSensor1', 'SCT::ECSensor2',
-                   'SCT::ECSensor3', 'SCT::ECSensor4', 'SCT::ECSensor5']
+    volumeList = ['SCT::BRLSensor', 'SCT::ECSensor0', 'SCT::ECSensor1', 
+                  'SCT::ECSensor2','SCT::ECSensor3']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
@@ -84,7 +94,7 @@ def ITkPixelPhysicsRegionToolCfg(ConfigFlags, name='ITkPixelPhysicsRegionTool', 
 
 def ITkStripPhysicsRegionToolCfg(ConfigFlags, name='ITkStripPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'ITkStrip')
-    volumeList = ['ITkStrip::BRLSensor', 'ITkStrip::BRLSensorSS', 'ITkStrip::BRLSensorMS',
+    volumeList = ['ITkStrip::BRLSensorSS', 'ITkStrip::BRLSensorMS',
                    'ITkStrip::ECSensor0', 'ITkStrip::ECSensor1', 'ITkStrip::ECSensor2',
                    'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5']
     kwargs.setdefault("VolumeList",  volumeList)
@@ -209,8 +219,14 @@ def PreSampLArPhysicsRegionToolCfg(ConfigFlags, name='PreSampLArPhysicsRegionToo
 def DeadMaterialPhysicsRegionToolCfg(ConfigFlags, name='DeadMaterialPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'DeadMaterial')
     volumeList = []
-    sectionList = list(range(16,49)) # does not include 49
-    sectionList += [ 51, 52, 53, 54 ]
+    sectionList = []
+    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+        sectionList = list(range(16,49)) # does not include 49
+        sectionList += [ 51, 52, 53, 54 ]
+    else:
+        sectionList = list(range(191,200)) # does not include 200
+        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+            print('DeadMaterialPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]
     volumeList += ['LArMgr::LAr::Endcap::Cryostat::Cylinder',

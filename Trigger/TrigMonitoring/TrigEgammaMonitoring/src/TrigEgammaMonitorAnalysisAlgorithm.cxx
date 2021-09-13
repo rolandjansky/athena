@@ -53,6 +53,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
 
   for( auto pairObj : pairObjs ){
 
+
     if(pairObj.first->type()==xAOD::Type::Electron){
       const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
       float et = getEt(el)/Gaudi::Units::GeV;
@@ -71,6 +72,24 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
     } // Offline photon
   
 
+    
+    // Good pair to be measure
+    if(m_doEmulation){ // Emulation
+        bool valid=false;
+        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigName , valid);
+        // skip this probe since the emulation is not possible. Avoid diff denominators between emulation and efficiecy
+        if(!valid) {
+            ATH_MSG_WARNING("Emulation fail. Skip this probe...");
+            continue;
+        } 
+        emu_accept_vec.push_back( acceptData );
+        if( pairObj.first->auxdecor<bool>("Isolated") ){
+            emu_accept_iso_vec.push_back(acceptData);
+        }
+    }
+
+
+
     // Good pair to be measure
     { // Efficiency
         pair_vec.push_back(pairObj);
@@ -82,15 +101,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
         }
     }
 
-    
-    // Good pair to be measure
-    if(m_doEmulation){ // Emulation
-        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigName );
-        emu_accept_vec.push_back( acceptData );
-        if( pairObj.first->auxdecor<bool>("Isolated") ){
-            emu_accept_iso_vec.push_back(acceptData);
-        }
-    }
 
   }
 
@@ -126,7 +136,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
 
     // Fill emulator efficiency plots
     if ( m_doEmulation ){
-        ATH_MSG_INFO("Fill emulation...");
         dirname= "Emulation";
         if (info.trigL1){
             fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);

@@ -31,7 +31,7 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
       // Look for a specific View, keyed by the View's SG key
       const std::vector<LinkInfo<ViewContainer>> myViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::allFeaturesOfType);
       bool found = false;
-      for(LinkInfo<ViewContainer> v : myViews){
+      for(const LinkInfo<ViewContainer>& v : myViews){
         if(v.link.dataID() == m_viewToFetchFrom){
           found = true;
           viewToFetchFrom = v;

@@ -101,7 +101,7 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    const xAOD::TruthParticleContainer* truthPC = 0;
+    const xAOD::TruthParticleContainer* truthPC = nullptr;
     if (evtStore()->retrieve(truthPC,m_mcName).isFailure()) {
       ATH_MSG_ERROR("WARNING could not retrieve TruthParticleContainer " <<m_mcName);
       return StatusCode::FAILURE;
@@ -124,7 +124,7 @@ namespace DerivationFramework {
 
   StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const {
     // Get jet container out
-    const xAOD::JetContainer* truthjets = 0;
+    const xAOD::JetContainer* truthjets = nullptr;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
       ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key " << m_truthJetsName );
       return StatusCode::FAILURE;
@@ -132,7 +132,7 @@ namespace DerivationFramework {
 
     // Get HT
     genFiltHT = 0.;
-    for (const auto tj : *truthjets) {
+    for (const auto *const tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
         ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
                         << ", eta " << tj->eta()
@@ -144,7 +144,7 @@ namespace DerivationFramework {
 
     // Get MET and add leptons to HT
     float MEx(0.), MEy(0.);
-    for (const auto tp : *tpc){
+    for (const auto *const tp : *tpc){
       int pdgid = tp->pdgId();
       if (tp->barcode() >= m_SimBarcodeOffset) continue; // Particle is from G4
       if (pdgid==21 && tp->e()==0) continue; // Work around for an old generator bug
@@ -212,13 +212,13 @@ namespace DerivationFramework {
 
    //Get FatJ
    // Get correct jet container
-   const xAOD::JetContainer* truthjets10 = 0;
+   const xAOD::JetContainer* truthjets10 = nullptr;
    if ( evtStore()->retrieve( truthjets10, "AntiKt10TruthJets").isFailure() || !truthjets10 ){
      ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key AntiKt10TruthJets" );
      return StatusCode::FAILURE;
    }
    genFiltFatJ=0.;
-   for (const auto j : *truthjets10) {
+   for (const auto *const j : *truthjets10) {
      if (j->pt()>genFiltFatJ) genFiltFatJ=j->pt();
    }
 

@@ -731,8 +731,7 @@ bool TrigNavStructure::getTopologicallySpannedBy( const TriggerElement* te, cons
     return false;
   }
 
-  unsigned i;
-  for ( i = 0 ; i < types.size(); ++i ) {
+  for ( unsigned i = 0 ; i < types.size(); ++i ) {
     TriggerElement* child = const_cast<TriggerElement*>(getSuccessor( getDirectPredecessors(te)[i], types[i]));
     if(child!=0) {
       if(activeOnly && !child->getActiveState()) {
@@ -850,10 +849,10 @@ bool TrigNavStructure::getFeatureAccessorsSingleTE( const TriggerElement* te, cl
   //remove unused warning
   (void)(with_cache_recording);
   
-  int size = te->getFeatureAccessHelpers().size(), it;
+  int size = te->getFeatureAccessHelpers().size();
   
   // loop the feature access helper in order depending of type of request (i.e. if single featyure needed then loop from back, if all then loop from the front)
-  for ( it = ( only_single_feature ? size-1 : 0 ); it != (only_single_feature ? -1 : size ); only_single_feature ? it--: it++ ) {
+  for ( int it = ( only_single_feature ? size-1 : 0 ); it != (only_single_feature ? -1 : size ); only_single_feature ? it--: it++ ) {
     auto& fea = te->getFeatureAccessHelpers().at(it);
     //ATH_MSG_VERBOSE("getFeatureAccessors: in a loop over FeatureAccessHelpers got ObjectIndex " << fea);
 

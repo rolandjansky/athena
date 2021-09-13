@@ -19,6 +19,8 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "MuonSimEvent/CscHitIdHelper.h"
@@ -33,7 +35,7 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer ia encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  static constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 //================ Constructor =================================================

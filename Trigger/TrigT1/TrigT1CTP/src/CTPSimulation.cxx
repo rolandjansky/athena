@@ -142,7 +142,7 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
       { "te", {"TE"} },
       { "xs", {"XS"} },
       { "em", {"EM", "eEM"} },
-      { "tau", {"TAU", "eTAU"} }
+      { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
    std::vector<TrigConf::L1Threshold> thrV;
    for( const std::string & t : typeMapping[type] ) {
@@ -165,7 +165,7 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
       { "te", {"TE"} },
       { "xs", {"XS"} },
       { "em", {"EM", "eEM"} },
-      { "tau", {"TAU", "eTAU"} }
+      { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
    std::vector<TrigConf::L1Threshold> thrV;
    for( const std::string & t : typeMapping[type] ) {
@@ -740,12 +740,12 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
          rhk = & m_iKeyGFexJets;
       } else if( confThr.name().find("jL") == 0 ) {
          rhk = & m_iKeyJFexLJets;
-      } else if( confThr.name().find("j") == 0 ) {
+      } else if( confThr.name().find('j') == 0 ) {
          rhk = & m_iKeyJFexJets;
       } else {
          ATH_MSG_ERROR( "Unexpected threshold name " << confThr.name() << ". Should start with j, jL, g, or J.");
       }
-      if(!rhk->empty()) {
+      if(rhk!=nullptr && !rhk->empty()) {
          auto jets = SG::makeHandle( *rhk, context );
          if ( jets.isValid() ) {
             auto pt = confThr.getAttribute<unsigned int>("pt");
@@ -1012,7 +1012,7 @@ LVL1CTP::CTPSimulation::calculateMultiplicity( const TrigConf::L1Threshold & con
          multiplicity = calculateMuonMultiplicity( confThr, l1menu, context );
       } else if ( confThr.type() == "TOPO" ) {
          multiplicity = calculateTopoMultiplicity( confThr, l1menu, context );
-      } else if ( confThr.type()[0] == 'e' || confThr.type()[0] == 'j' || confThr.type()[0] == 'g' ){
+      } else if ( confThr.type()[0] == 'e' || confThr.type()[0] == 'c' || confThr.type()[0] == 'j' || confThr.type()[0] == 'g' ){
       	 multiplicity = calculateTopoOptMultiplicity( confThr, l1menu, context );
 	 //ATH_MSG_INFO("confThr.type() " << confThr.type() << " " << "mult:" << multiplicity);  
       }
@@ -1147,7 +1147,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       auto hist = * get2DHist( "/multi/all/R3Mult" );
-      std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
+      std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();

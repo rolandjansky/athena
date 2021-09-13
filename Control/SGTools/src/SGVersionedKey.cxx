@@ -26,7 +26,7 @@ VersionedKey::isVersionedKey(const std::string& vkey) {
 
 bool 
 VersionedKey::isAuto(const std::string& vkey) {
-  return (vkey.substr(0,4) == VersionedKey::autoVS());
+  return (vkey.compare(0,4, VersionedKey::autoVS())==0);
 }
 
 VersionedKey::VersionedKey(const char* key, unsigned char version) {

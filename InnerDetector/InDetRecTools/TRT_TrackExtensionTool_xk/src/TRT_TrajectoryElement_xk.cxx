@@ -90,41 +90,51 @@ bool InDet::TRT_TrajectoryElement_xk::initiateForTRTSeed
 bool InDet::TRT_TrajectoryElement_xk::boundaryTest
 (double dw, std::pair<Amg::Vector3D,double>& gp)
 {
-  if(!m_detelement) return false;
+  if (!m_detelement){
+    return false;
+  }
 
-  double x                = gp.first.x  ();
-  double y                = gp.first.y  ();
-  double z                = gp.first.z  ();
+  double x = gp.first.x();
+  double y = gp.first.y();
+  double z = gp.first.z();
 
-  const Amg::Vector3D&     C = m_detelement->center  ();
+  const Amg::Vector3D& C = m_detelement->center();
 
   // Test track position
   //
-  const Trk::RectangleBounds* rb = nullptr;
-  const Trk::DiscBounds*      db = nullptr;
-
-  if     ((rb=dynamic_cast<const Trk::RectangleBounds*>(&m_detelement->bounds()))) {
-
+  const Trk::SurfaceBounds& surfBounds = m_detelement->bounds();
+  if (surfBounds.type() == Trk::SurfaceBounds::Rectangle) {
+    const Trk::RectangleBounds* rb =
+      static_cast<const Trk::RectangleBounds*>(&surfBounds);
     // Barrel
     //
-    m_barrel = true                   ;
-    m_z      = z                      ;
-    m_zMin   = C.z()-rb->halflengthY();
-    m_zMax   = C.z()+rb->halflengthY();
-    double d = fabs(z - C.z()); if( d > rb->halflengthY()+dw) return false;
-  }
-  else if((db=dynamic_cast<const Trk::DiscBounds*>     (&m_detelement->bounds()))) {
-
+    m_barrel = true;
+    m_z = z;
+    m_zMin = C.z() - rb->halflengthY();
+    m_zMax = C.z() + rb->halflengthY();
+    double d = std::abs(z - C.z());
+    if (d > rb->halflengthY() + dw) {
+      return false;
+    }
+  } else if (surfBounds.type() == Trk::SurfaceBounds::Disc) {
+    const Trk::DiscBounds* db =
+      static_cast<const Trk::DiscBounds*>(&surfBounds);
     // Endcap
     //
-    m_barrel    = false        ;
-    m_radius    = sqrt(x*x+y*y);
-    m_z         = z            ;
-    m_radiusMin = db->rMin()   ;
-    m_radiusMax = db->rMax()   ;
+    m_barrel = false;
+    m_radius = std::sqrt(x * x + y * y);
+    m_z = z;
+    m_radiusMin = db->rMin();
+    m_radiusMax = db->rMax();
 
-    double d = m_radius-m_radiusMin;  if(d < -dw) return false;
-    d        = m_radiusMax-m_radius;  if(d < -dw) return false;
+    double d = m_radius - m_radiusMin;
+    if (d < -dw) {
+      return false;
+    }
+    d = m_radiusMax - m_radius;
+    if (d < -dw) {
+      return false;
+    }
   }
   return true;
 }
@@ -133,120 +143,146 @@ bool InDet::TRT_TrajectoryElement_xk::boundaryTest
 // Initiate trajectory element links to straws for precision  seed
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
-(InDet::TRT_DriftCircleCollection::const_iterator& sb,
- InDet::TRT_DriftCircleCollection::const_iterator& se,
- std::pair<Amg::Vector3D,double>&                  gp,
- const double* dir,double width2)
+void
+InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed(
+  InDet::TRT_DriftCircleCollection::const_iterator& sb,
+  InDet::TRT_DriftCircleCollection::const_iterator& se,
+  std::pair<Amg::Vector3D, double>& gp,
+  const double* dir,
+  double width2)
 {
-  m_status     =-1           ;
-  m_bestlink   =-1           ;
-  m_nlinks     = 0           ;
-  double x     = gp.first.x();
-  double y     = gp.first.y();
-  double z     = gp.first.z();
+  m_status = -1;
+  m_bestlink = -1;
+  m_nlinks = 0;
+  double x = gp.first.x();
+  double y = gp.first.y();
+  double z = gp.first.z();
 
   const Amg::Transform3D& T = m_detelement->surface().transform();
 
-  double step = fabs(dir[0]*T(0,2)+dir[1]*T(1,2)+dir[2]*T(2,2));
-  step  > .05 ? step = 1./step : step = 20.;
+  double step = std::abs(dir[0] * T(0, 2) + dir[1] * T(1, 2) + dir[2] * T(2, 2));
+  step > .05 ? step = 1. / step : step = 20.;
 
-  int Nstraws = 0;
-  const InDetDD::TRT_BarrelElement* be = dynamic_cast<const InDetDD::TRT_BarrelElement*>(m_detelement);
-  if(be) Nstraws = be->nStraws();
-  else   {
-    const InDetDD::TRT_EndcapElement* ne = dynamic_cast<const InDetDD::TRT_EndcapElement*>(m_detelement);
-    if(ne) Nstraws = ne->nStraws();
-  }
+  int Nstraws = m_detelement->nStraws();
 
-  if(be) {
+  if (m_detelement->type() == InDetDD::TRT_BaseElement::BARREL) {
 
-    for(int ns=0; ns!=Nstraws; ++ns) {
+    for (int ns = 0; ns != Nstraws; ++ns) {
 
       const Amg::Transform3D& t = m_detelement->strawTransform(ns);
 
-      double xs    = t(0,3);
-      double ys    = t(1,3);
-      double dx    = x-xs  ;
-      double dy    = y-ys  ;
-      double d     = dx*dx+dy*dy;
-      if(d > width2) continue;
+      double xs = t(0, 3);
+      double ys = t(1, 3);
+      double dx = x - xs;
+      double dy = y - ys;
+      double d = dx * dx + dy * dy;
+      if (d > width2) {
+        continue;
+      }
 
-      double Az[3] = {t(0,2),t(1,2),t(2,2)};
-      double D     = dir[0]*Az[0]+dir[1]*Az[1]+dir[2]*Az[2];
-      double A     = (1.-D)*(1.+D);
-      double dz    = z-t(2,3);
-      double S     = (dx*(D*Az[0]-dir[0])+dy*(D*Az[1]-dir[1])+dz*(D*Az[2]-dir[2]))/A;
-      dx          +=(dir[0]*S);
-      dy          +=(dir[1]*S);
-      dz          +=(dir[2]*S);
-      double Bx    = Az[1]*dir[2]-Az[2]*dir[1];
-      double By    = Az[2]*dir[0]-Az[0]*dir[2];
-      double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
-      double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
-      double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second;
-      d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S);
-      if(++m_nlinks==24) break;
+      double Az[3] = { t(0, 2), t(1, 2), t(2, 2) };
+      double D = dir[0] * Az[0] + dir[1] * Az[1] + dir[2] * Az[2];
+      double A = (1. - D) * (1. + D);
+      double dz = z - t(2, 3);
+      double S = (dx * (D * Az[0] - dir[0]) + dy * (D * Az[1] - dir[1]) +
+                  dz * (D * Az[2] - dir[2])) /
+                 A;
+      dx += (dir[0] * S);
+      dy += (dir[1] * S);
+      dz += (dir[2] * S);
+      double Bx = Az[1] * dir[2] - Az[2] * dir[1];
+      double By = Az[2] * dir[0] - Az[0] * dir[2];
+      double Bz = Az[0] * dir[1] - Az[1] * dir[0];
+      double im =
+        (dx * Bx + dy * By + dz * Bz) / std::sqrt(Bx * Bx + By * By + Bz * Bz);
+      double zl = dx * Az[0] + dy * Az[1] + dz * Az[2];
+      S += gp.second;
+      d = std::abs(im);
+      if (y * xs - x * ys > 0.) {
+        d = -d;
+      }
+      m_link[m_nlinks].set(ns, d, im, zl, S);
+      if (++m_nlinks == 24) {
+        break;
+      }
     }
-  }
-  else {
+  } else {
 
-    for(int ns=0; ns!=Nstraws; ++ns) {
+    for (int ns = 0; ns != Nstraws; ++ns) {
 
       const Amg::Transform3D& t = m_detelement->strawTransform(ns);
 
-      double xs    = t(0,3);
-      double ys    = t(1,3);
-      double as    = m_radius/sqrt(xs*xs+ys*ys);
-      double dx    = x-xs*as;
-      double dy    = y-ys*as;
-      double d     = dx*dx+dy*dy;
-      if(d > width2) continue;
+      double xs = t(0, 3);
+      double ys = t(1, 3);
+      double as = m_radius / std::sqrt(xs * xs + ys * ys);
+      double dx = x - xs * as;
+      double dy = y - ys * as;
+      double d = dx * dx + dy * dy;
+      if (d > width2) {
+        continue;
+      }
 
-      double zs    = t(2,3);
-      double Az[3] = {t(0,2),t(1,2),t(2,2)};
-      double D     = dir[0]*Az[0]+dir[1]*Az[1]+dir[2]*Az[2];
-      double A     = (1.-D)*(1.+D);
-      dx           = x-xs;
-      dy           = y-ys;
-      double dz    = z-zs;
-      double S     =(dx*(D*Az[0]-dir[0])+dy*(D*Az[1]-dir[1])+dz*(D*Az[2]-dir[2]))/A;
-      dx          +=(dir[0]*S);
-      dy          +=(dir[1]*S);
-      dz          +=(dir[2]*S);
-      double Bx    = Az[1]*dir[2]-Az[2]*dir[1];
-      double By    = Az[2]*dir[0]-Az[0]*dir[2];
-      double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
-      double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
-      double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second;
-      d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S);
-      if(++m_nlinks==24) break;
+      double zs = t(2, 3);
+      double Az[3] = { t(0, 2), t(1, 2), t(2, 2) };
+      double D = dir[0] * Az[0] + dir[1] * Az[1] + dir[2] * Az[2];
+      double A = (1. - D) * (1. + D);
+      dx = x - xs;
+      dy = y - ys;
+      double dz = z - zs;
+      double S = (dx * (D * Az[0] - dir[0]) + dy * (D * Az[1] - dir[1]) +
+                  dz * (D * Az[2] - dir[2])) /
+                 A;
+      dx += (dir[0] * S);
+      dy += (dir[1] * S);
+      dz += (dir[2] * S);
+      double Bx = Az[1] * dir[2] - Az[2] * dir[1];
+      double By = Az[2] * dir[0] - Az[0] * dir[2];
+      double Bz = Az[0] * dir[1] - Az[1] * dir[0];
+      double im =
+        (dx * Bx + dy * By + dz * Bz) / std::sqrt(Bx * Bx + By * By + Bz * Bz);
+      double zl = dx * Az[0] + dy * Az[1] + dz * Az[2];
+      S += gp.second;
+      d = std::abs(im);
+      if (y * xs - x * ys > 0.) {
+        d = -d;
+      }
+      m_link[m_nlinks].set(ns, d, im, zl, S);
+      if (++m_nlinks == 24) {
+        break;
+      }
     }
   }
   m_dpositive = 1000.;
-  m_dnegative =-1000.;
-  if(m_isCluster && m_nlinks) {
+  m_dnegative = -1000.;
+  if (m_isCluster && m_nlinks) {
 
     bool nl = false;
-    for(; sb!=se; ++sb) {
+    for (; sb != se; ++sb) {
 
-      int  ns = m_trtid->straw((*sb)->identify());
+      int ns = m_trtid->straw((*sb)->identify());
 
-      for(int l=0; l!=m_nlinks; ++l) {
-	if(ns!=m_link[l].number()) continue;
-	nl=true; m_link[l].set((*sb));
+      for (int l = 0; l != m_nlinks; ++l) {
+        if (ns != m_link[l].number()) {
+          continue;
+        }
+        nl = true;
+        m_link[l].set((*sb));
 
-	double d = m_link[l].distance();
-	if(d >= 0.) {if(d < m_dpositive) m_dpositive = d;}
-	else        {if(d > m_dnegative) m_dnegative = d;}
-	break;
+        double d = m_link[l].distance();
+        if (d >= 0.) {
+          if (d < m_dpositive)
+            m_dpositive = d;
+        } else {
+          if (d > m_dnegative) {
+            m_dnegative = d;
+          }
+        }
+        break;
       }
     }
-    if(!nl) m_isCluster = false;
+    if (!nl) {
+      m_isCluster = false;
+    }
   }
 }
 
@@ -260,131 +296,155 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
  std::pair<Amg::Vector3D,double>&                  gp,
  const double* dir,double width2)
 {
-  m_status     =-1           ;
-  m_bestlink   =-1           ;
-  m_nlinks     = 0           ;
-  double x     = gp.first.x();
-  double y     = gp.first.y();
-  double z     = gp.first.z();
+  m_status = -1;
+  m_bestlink = -1;
+  m_nlinks = 0;
+  double x = gp.first.x();
+  double y = gp.first.y();
+  double z = gp.first.z();
 
   const Amg::Transform3D& T = m_detelement->surface().transform();
 
-  double step = fabs(dir[0]*T(0,2)+dir[1]*T(1,2)+dir[2]*T(2,2));
-  step  > .05 ? step = 1./step : step = 20.;
+  double step =
+    std::abs(dir[0] * T(0, 2) + dir[1] * T(1, 2) + dir[2] * T(2, 2));
+  step > .05 ? step = 1. / step : step = 20.;
 
-  int Nstraws = 0;
-  const InDetDD::TRT_BarrelElement* be = dynamic_cast<const InDetDD::TRT_BarrelElement*>(m_detelement);
-  if(be) Nstraws = be->nStraws();
-  else   {
-    const InDetDD::TRT_EndcapElement* en = dynamic_cast<const InDetDD::TRT_EndcapElement*>(m_detelement);
-    if(en) Nstraws = en->nStraws();
-  }
-  if(be) {
+  int Nstraws = m_detelement->nStraws();
+  if (m_detelement->type() == InDetDD::TRT_BaseElement::BARREL) {
 
-    for(int ns=0; ns!=Nstraws; ++ns) {
+    for (int ns = 0; ns != Nstraws; ++ns) {
 
       const Amg::Transform3D& t = m_detelement->strawTransform(ns);
 
-      double xs    = t(0,3);
-      double ys    = t(1,3);
-      double dx    = x-xs  ;
-      double dy    = y-ys  ;
-      double d     = dx*dx+dy*dy;
-      if(d > width2) continue;
+      double xs = t(0, 3);
+      double ys = t(1, 3);
+      double dx = x - xs;
+      double dy = y - ys;
+      double d = dx * dx + dy * dy;
+      if (d > width2){
+        continue;
+      }
 
-      double Az[3] = {t(0,2),t(1,2),t(2,2)};
-      double D     = dir[0]*Az[0]+dir[1]*Az[1]+dir[2]*Az[2];
-      double A     = (1.-D)*(1.+D);
-      double dz    = z-t(2,3);
-      double S     = (dx*(D*Az[0]-dir[0])+dy*(D*Az[1]-dir[1])+dz*(D*Az[2]-dir[2]))/A;
-      dx          +=(dir[0]*S);
-      dy          +=(dir[1]*S);
-      dz          +=(dir[2]*S);
-      double Bx    = Az[1]*dir[2]-Az[2]*dir[1];
-      double By    = Az[2]*dir[0]-Az[0]*dir[2];
-      double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
-      double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
-      double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second;
-      d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S);
-      if(++m_nlinks==24) break;
+      double Az[3] = { t(0, 2), t(1, 2), t(2, 2) };
+      double D = dir[0] * Az[0] + dir[1] * Az[1] + dir[2] * Az[2];
+      double A = (1. - D) * (1. + D);
+      double dz = z - t(2, 3);
+      double S = (dx * (D * Az[0] - dir[0]) + dy * (D * Az[1] - dir[1]) +
+                  dz * (D * Az[2] - dir[2])) /
+                 A;
+      dx += (dir[0] * S);
+      dy += (dir[1] * S);
+      dz += (dir[2] * S);
+      double Bx = Az[1] * dir[2] - Az[2] * dir[1];
+      double By = Az[2] * dir[0] - Az[0] * dir[2];
+      double Bz = Az[0] * dir[1] - Az[1] * dir[0];
+      double im =
+        (dx * Bx + dy * By + dz * Bz) / std::sqrt(Bx * Bx + By * By + Bz * Bz);
+      double zl = dx * Az[0] + dy * Az[1] + dz * Az[2];
+      S += gp.second;
+      d = std::abs(im);
+      if (y * xs - x * ys > 0.){
+        d = -d;
+      }
+      m_link[m_nlinks].set(ns, d, im, zl, S);
+      if (++m_nlinks == 24){
+        break;
+      }
     }
-  }
-  else {
+  } else {
 
-    double ri = 1./m_radius;
-    double ax = x*ri;
-    double ay = y*ri;
+    double ri = 1. / m_radius;
+    double ax = x * ri;
+    double ay = y * ri;
 
-    for(int ns=0; ns!=Nstraws; ++ns) {
+    for (int ns = 0; ns != Nstraws; ++ns) {
 
       const Amg::Transform3D& t = m_detelement->strawTransform(ns);
 
-      double xs    = t(0,3);
-      double ys    = t(1,3);
-      double as    = m_radius/sqrt(xs*xs+ys*ys);
-      double dx    = x-xs*as;
-      double dy    = y-ys*as;
-      double d     = dx*dx+dy*dy;
-      if(d > width2) continue;
+      double xs = t(0, 3);
+      double ys = t(1, 3);
+      double as = m_radius / std::sqrt(xs * xs + ys * ys);
+      double dx = x - xs * as;
+      double dy = y - ys * as;
+      double d = dx * dx + dy * dy;
+      if (d > width2){
+        continue;
+      }
 
-      double zs    = t(2,3);
-      double Az[3] = {t(0,2),t(1,2),t(2,2)};
-      double D     = dir[0]*Az[0]+dir[1]*Az[1]+dir[2]*Az[2];
-      double A     = 1./((1.-D)*(1.+D));
-      dx           = x-xs;
-      dy           = y-ys;
-      double dz    = z-zs;
-      double Dx    = (D*Az[0]-dir[0]);
-      double Dy    = (D*Az[1]-dir[1]);
-      double S     =(dx*Dx+dy*Dy+dz*(D*Az[2]-dir[2]))*A;
-      dx          +=(dir[0]*S);
-      dy          +=(dir[1]*S);
-      dz          +=(dir[2]*S);
-      double Bx    = Az[1]*dir[2]-Az[2]*dir[1];
-      double By    = Az[2]*dir[0]-Az[0]*dir[2];
-      double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
-      double B     = 1./sqrt(Bx*Bx+By*By+Bz*Bz);
-      double im    = (dx*Bx+dy*By+dz*Bz)*B;
-      double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
+      double zs = t(2, 3);
+      double Az[3] = { t(0, 2), t(1, 2), t(2, 2) };
+      double D = dir[0] * Az[0] + dir[1] * Az[1] + dir[2] * Az[2];
+      double A = 1. / ((1. - D) * (1. + D));
+      dx = x - xs;
+      dy = y - ys;
+      double dz = z - zs;
+      double Dx = (D * Az[0] - dir[0]);
+      double Dy = (D * Az[1] - dir[1]);
+      double S = (dx * Dx + dy * Dy + dz * (D * Az[2] - dir[2])) * A;
+      dx += (dir[0] * S);
+      dy += (dir[1] * S);
+      dz += (dir[2] * S);
+      double Bx = Az[1] * dir[2] - Az[2] * dir[1];
+      double By = Az[2] * dir[0] - Az[0] * dir[2];
+      double Bz = Az[0] * dir[1] - Az[1] * dir[0];
+      double B = 1. / std::sqrt(Bx * Bx + By * By + Bz * Bz);
+      double im = (dx * Bx + dy * By + dz * Bz) * B;
+      double zl = dx * Az[0] + dy * Az[1] + dz * Az[2];
 
       // d(im)/dr calculation for endcap
       //
-      double dS    =(ax*Dx+ay*Dy)*A   ;
-      double sx    = ax+dir[0]*dS     ;
-      double sy    = ay+dir[1]*dS     ;
-      double sd    =(sx*Bx+sy*By)*B   ;
-      double sz    = sx*Az[0]+sy*Az[1];
-      S           +=gp.second;
-      if( y*xs-x*ys > 0.) {d =-fabs(im); sd =-fabs(im+sd)-d;}
-      else                {d = fabs(im); sd = fabs(im+sd)-d;}
+      double dS = (ax * Dx + ay * Dy) * A;
+      double sx = ax + dir[0] * dS;
+      double sy = ay + dir[1] * dS;
+      double sd = (sx * Bx + sy * By) * B;
+      double sz = sx * Az[0] + sy * Az[1];
+      S += gp.second;
+      if (y * xs - x * ys > 0.) {
+        d = -std::abs(im);
+        sd = -std::abs(im + sd) - d;
+      } else {
+        d = std::abs(im);
+        sd = std::abs(im + sd) - d;
+      }
 
-      m_link[m_nlinks].set(ns,d,im,zl,S,sd,sz);
-      if(++m_nlinks==24) break;
+      m_link[m_nlinks].set(ns, d, im, zl, S, sd, sz);
+      if (++m_nlinks == 24){
+        break;
+      }
     }
   }
 
   m_dpositive = 1000.;
-  m_dnegative =-1000.;
-  if(m_isCluster && m_nlinks) {
+  m_dnegative = -1000.;
+  if (m_isCluster && m_nlinks) {
 
     bool nl = false;
-    for(; sb!=se; ++sb) {
+    for (; sb != se; ++sb) {
 
-      int  ns = m_trtid->straw((*sb)->identify());
+      int ns = m_trtid->straw((*sb)->identify());
 
-      for(int l=0; l!=m_nlinks; ++l) {
-	if(ns!=m_link[l].number()) continue;
-	nl=true; m_link[l].set((*sb));
+      for (int l = 0; l != m_nlinks; ++l) {
+        if (ns != m_link[l].number())
+          continue;
+        nl = true;
+        m_link[l].set((*sb));
 
-	double d = m_link[l].distance();
-	if(d >= 0.) {if(d < m_dpositive) m_dpositive = d;}
-	else        {if(d > m_dnegative) m_dnegative = d;}
-	break;
+        double d = m_link[l].distance();
+        if (d >= 0.) {
+          if (d < m_dpositive){
+            m_dpositive = d;
+          }
+        } else {
+          if (d > m_dnegative){
+            m_dnegative = d;
+          }
+        }
+        break;
       }
     }
-    if(!nl) m_isCluster = false;
+    if (!nl){
+      m_isCluster = false;
+    }
   }
 }
 
@@ -404,7 +464,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForPrecisionSeed
 
     double v  = (a*m_link[l].way()+b)*m_link[l].way();
     double d  = m_link[l].distance()-v;
-    double ad = fabs(d);
+    double ad = std::abs(d);
 
     if(ad > 2.05) continue;
 
@@ -420,7 +480,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForPrecisionSeed
     if(!useDriftTime) return true;
 
     double r = m_link[l].cluster()->localPosition()[Trk::driftRadius];
-    double e = m_scale_error*sqrt(m_link[l].cluster()->localCovariance()(0,0));
+    double e = m_scale_error*std::sqrt(m_link[l].cluster()->localCovariance()(0,0));
 
     if(r > 2.05) r = 2.05;
     double r2 = r+e; if(r2 > 2.05) r2 = 2.05;
@@ -448,7 +508,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForTRTSeed
 
   double v  = (a*m_link[l].way()+b)*m_link[l].way();
   double d  = m_link[l].distance()-v;
-  double ad = fabs(d);
+  double ad = std::abs(d);
 
   if(ad > 2.05) return false;
 
@@ -463,7 +523,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForTRTSeed
   if(!useDriftTime) return true;
 
   double r = m_link[l].cluster()->localPosition()[Trk::driftRadius];
-  double e = m_scale_error*sqrt(m_link[l].cluster()->localCovariance()(0,0));
+  double e = m_scale_error*std::sqrt(m_link[l].cluster()->localCovariance()(0,0));
 
   if(r > 2.05) r = 2.05;
   double r2 = r+e; if(r2 > 2.05) r2 = 2.05;
@@ -485,7 +545,7 @@ double InDet::TRT_TrajectoryElement_xk::findCloseLink
   for(int l=0; l < m_nlinks; ++l) {
 
     double v  = (a*m_link[l].way()+b)*m_link[l].way();
-    double d  = fabs(m_link[l].distance()-v);
+    double d  = std::abs(m_link[l].distance()-v);
 
     if(d < dm) {dm=d;  m_bestlink=l;}
   }
@@ -592,9 +652,9 @@ bool InDet::TRT_TrajectoryElement_xk::trajectoryGlobalPosition
 
   double Bx,By;
 
-  if(fabs(Az[2]) > .7) {              // Barrel
+  if(std::abs(Az[2]) > .7) {              // Barrel
 
-    double Ri = 1./sqrt(Rc[0]*Rc[0]+Rc[1]*Rc[1]);
+    double Ri = 1./std::sqrt(Rc[0]*Rc[0]+Rc[1]*Rc[1]);
     Bx =-Az[2]*Rc[1]*Ri; By = Az[2]*Rc[0]*Ri;
   }
   else if(Rc[2] > 0. ) {             // Positive endcap
@@ -641,7 +701,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
     double dy = Gp[1][1]-Gp[0][1];
     Gp[2][0]  = 0.;
     Gp[2][1]  = 0.;
-    Gp[2][2]  = Gp[0][2]-(Gp[1][2]-Gp[0][2])*sqrt((Gp[0][0]*Gp[0][0]+Gp[0][1]*Gp[0][1])/(dx*dx+dy*dy));
+    Gp[2][2]  = Gp[0][2]-(Gp[1][2]-Gp[0][2])*std::sqrt((Gp[0][0]*Gp[0][0]+Gp[0][1]*Gp[0][1])/(dx*dx+dy*dy));
     Wa[2]     = 0.;
     mode      = 2 ;
   }
@@ -652,7 +712,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double y1 = Gp[1][1]-y0            ;
   double x2 = Gp[2][0]-x0            ;
   double y2 = Gp[2][1]-y0            ;
-  double r1 = sqrt(x1*x1+y1*y1)      ;
+  double r1 = std::sqrt(x1*x1+y1*y1)      ;
   double u1 = 1./r1                  ;
   double r2 = 1./(x2*x2+y2*y2)       ;
   double a  = x1*u1                  ;
@@ -661,7 +721,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double v2 = (a*y2-b*x2)*r2         ;
   double A  = v2/(u2-u1)             ;
   double B  = 2.*(v2-A*u2)           ;
-  double C  = B/sqrt(1.+A*A)         ;
+  double C  = B/std::sqrt(1.+A*A)         ;
 
   double f,TP[3];
 
@@ -695,7 +755,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   //
   double Cm = 1.         ;
   double T2 = TP[0]*TP[0];
-  if(fabs(Hz)>1.e-9) {Cm = 1./(300.*Hz*sqrt(1.+T2)); P[4] = -C*Cm;}
+  if(std::abs(Hz)>1.e-9) {Cm = 1./(300.*Hz*std::sqrt(1.+T2)); P[4] = -C*Cm;}
 
   // Covariance of track parameters estimation
   //
@@ -738,7 +798,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double dy = Gp[2][1]-Gp[1][1];
   Gp[0][0]  = 0.;
   Gp[0][1]  = 0.;
-  Gp[0][2]  = Gp[1][2]-(Gp[2][2]-Gp[1][2])*sqrt((Gp[1][0]*Gp[1][0]+Gp[1][1]*Gp[1][1])/(dx*dx+dy*dy));
+  Gp[0][2]  = Gp[1][2]-(Gp[2][2]-Gp[1][2])*std::sqrt((Gp[1][0]*Gp[1][0]+Gp[1][1]*Gp[1][1])/(dx*dx+dy*dy));
   Wa[0]     = 0.;
 
   double x0 = Gp[0][0]               ;
@@ -747,7 +807,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double y1 = Gp[1][1]-y0            ;
   double x2 = Gp[2][0]-x0            ;
   double y2 = Gp[2][1]-y0            ;
-  double r1 = sqrt(x1*x1+y1*y1)      ;
+  double r1 = std::sqrt(x1*x1+y1*y1)      ;
   double u1 = 1./r1                  ;
   double r2 = 1./(x2*x2+y2*y2)       ;
   double a  = x1*u1                  ;
@@ -756,7 +816,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double v2 = (a*y2-b*x2)*r2         ;
   double A  = v2/(u2-u1)             ;
   double B  = 2.*(v2-A*u2)           ;
-  double C  = B/sqrt(1.+A*A)         ;
+  double C  = B/std::sqrt(1.+A*A)         ;
 
   double f,TP[3];
 
@@ -782,7 +842,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   //
   double Cm =          1.;
   double T2 = TP[0]*TP[0];
-  if(fabs(Hz)>1.e-9) {Cm = 1./(300.*Hz*sqrt(1.+T2)); P[4] = -C*Cm;}
+  if(std::abs(Hz)>1.e-9) {Cm = 1./(300.*Hz*std::sqrt(1.+T2)); P[4] = -C*Cm;}
 
   // Covariance of track parameters estimation
   //
@@ -820,7 +880,7 @@ void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
   double dx = G1[0]-G0[0]           ;
   double dy = G1[1]-G0[1]           ;
   double dz = G1[2]-G0[2]           ;
-  double dr = sqrt(dx*dx+dy*dy)     ;
+  double dr = std::sqrt(dx*dx+dy*dy)     ;
   double rc = dr*C                  ;
   Tp[0]     = dz/(dr*(1.+.04*rc*rc));
 
@@ -861,7 +921,7 @@ void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
     else if(  m_barrel )   { //---------------------------->BE
 
       double T2 = Tp[0]*Tp[0]                ;
-      double dr = sqrt(r1)-sqrt(r0)          ;
+      double dr = std::sqrt(r1)-std::sqrt(r0)          ;
       Tp[1]     = dr*dr*VZ*VZ/r1             ;
       Tp[2]     = (VZ*VZ)/((1.+T2)*r1)       ;
 

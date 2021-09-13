@@ -19,7 +19,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPEtSumsTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -62,8 +61,6 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
       
      /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
       
      /** form JEMEtSums from JetElements */
     virtual void formJEMEtSums(const DataVector<xAOD::JetElement>* jetElementVec,

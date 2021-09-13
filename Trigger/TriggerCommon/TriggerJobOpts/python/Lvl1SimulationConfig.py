@@ -9,7 +9,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import seqAND
 from AthenaCommon import CfgMgr
 
-def Lvl1SimulationSequence_Common( ConfigFlags ):
+def Lvl1SimulationSequence( ConfigFlags ):
     """ 
     Configure L1 simulation for Athena MT data jobs on MC or data (data only with rerun L1)
     """
@@ -111,10 +111,10 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
         l1CaloSimSeq.jFEXDriver.jSuperCellTowerMapperTool.SCell=SCellType
         l1CaloSimSeq.jFEXDriver.jFEXSysSimTool.SCell=SCellType
 
-        l1CaloSimSeq += CfgMgr.LVL1__gFEXDriver('gFEXDriver',
-            SCell=SCellType )
-        l1CaloSimSeq.gFEXDriver.gSuperCellTowerMapperTool.SCell=SCellType
-        l1CaloSimSeq.gFEXDriver.gFEXSysSimTool.SCell=SCellType
+        #l1CaloSimSeq += CfgMgr.LVL1__gFEXDriver('gFEXDriver',
+        #    SCell=SCellType )
+        #l1CaloSimSeq.gFEXDriver.gSuperCellTowerMapperTool.SCell=SCellType
+        #l1CaloSimSeq.gFEXDriver.gFEXSysSimTool.SCell=SCellType
 
     ##################################################
     # Muons
@@ -189,28 +189,6 @@ def Lvl1SimulationSequence_Common( ConfigFlags ):
             l1SimSeq += [subSystemSimSeq]
     return l1SimSeq
 
-
-def Lvl1SimulationSequence( ConfigFlags ):
-    """ 
-    Configure L1 simulation for Athena MT jobs
-    """
-
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-
-    # this configuration of the LVL1ConfigSvc is only temporary
-    TriggerFlags.readLVL1configFromXML = True
-    TriggerFlags.outputLVL1configFile = None
-    svcMgr += conf2toConfigurable(getL1ConfigSvc(ConfigFlags))
-
-    l1SimSeq = Lvl1SimulationSequence_Common( ConfigFlags )
-
-    return l1SimSeq
-
-
-
 def Lvl1SimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -253,6 +231,7 @@ if __name__ == '__main__':
     flags.Scheduler.ShowDataDeps=True
     flags.Scheduler.CheckDependencies=True
     flags.Scheduler.ShowDataFlow=True
+    flags.Trigger.enableL1MuonPhase1=True
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg(flags)

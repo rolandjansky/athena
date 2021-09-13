@@ -27,7 +27,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
 //  const EventContext& ctx{Gaudi::Hive::currentContext()};
 //  bool useByteStream = (SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI4() || SG::ReadCondHandle<PixelModuleData>(m_configKey,ctx)->getUseByteStreamErrFEI3());
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
 //  ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(m_BSErrContReadKey.initialize(useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
@@ -108,6 +108,7 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
 
   if (!m_useByteStreamFEI4 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) { return 0; }
   if (!m_useByteStreamFEI3 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI3) { return 0; }
+  if (!m_useByteStreamRD53 && p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) { return 0; }
 
   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   const auto *idcCachePtr = getCacheEntry(ctx)->IDCCache;
@@ -191,7 +192,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
   if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
@@ -212,7 +213,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
   // Here, 52736 is a separator beween error flags and isActive flags.
-  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3);
+  bool useByteStream = (m_useByteStreamFEI4 || m_useByteStreamFEI3 || m_useByteStreamRD53);
   if (useByteStream && getBSErrorWord(moduleHash,moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);

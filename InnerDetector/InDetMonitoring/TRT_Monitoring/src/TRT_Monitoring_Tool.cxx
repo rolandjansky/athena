@@ -2085,11 +2085,11 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 					if (m_doChips) m_hHitHMapC[ibe][iphi_module]->Fill(chip - 1);
 
-					if (is_middleHTbit_high) {
-						if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
+					
+					if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-						if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(chip - 1);
-					}
+					if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(chip - 1);
+					
 				}
 
 				if (firstBinHigh || lastBinHigh || driftTimeBin > 0 || trailingEdge < 23) {

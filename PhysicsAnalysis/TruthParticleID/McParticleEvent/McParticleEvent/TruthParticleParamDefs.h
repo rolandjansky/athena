@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -36,7 +36,7 @@ namespace TruthParticleParameters {
   /// The actual definition of delta R cuts for each cone
   inline
   double coneCut( const TruthParticleParameters::ConeSize idx ) {
-    static ConeCuts_t coneCuts = { 
+    static const ConeCuts_t coneCuts = { 
       {
 	0.10, // TruthParticleParameters::etcone10
 	0.20, // TruthParticleParameters::etcone20

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_TGC.h"
@@ -163,7 +163,8 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       std::optional<Amg::Vector2D>localposHIT = m_tgc->detectorElement()->surface( id ).Trk::Surface::globalToLocal(globalposHIT,tolerance);
       if( !localposHIT )
       {
-        localposHIT = Amg::Vector2D{};
+        localposHIT.emplace();
+        localposHIT->setZero();
         VP1Msg::message("Warning: Local wire position is NULL");
       }
 
@@ -175,14 +176,12 @@ void PRDHandle_TGC::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
       transparent->transparency.setValue(0.5);
       rdos->addChild( transparent );
       Amg::Vector2D localposOLD = *localposHIT;
-      std::vector<Identifier>::const_iterator st = rdolist.begin();
-      std::vector<Identifier>::const_iterator en = rdolist.end();
-      for( std::vector<Identifier>::const_iterator it = st; it!=en; it++)
+      for (const Identifier& rdo_id : rdolist)
       {
-        if (*it == id )
+        if (rdo_id == id )
           continue;
-        const Amg::Vector3D& globalposRDO = m_tgc->detectorElement()->channelPos( *it );
-        std::optional<Amg::Vector2D> localposRDO = m_tgc->detectorElement()->surface( *it ).Trk::Surface::globalToLocal(globalposRDO,tolerance);
+        const Amg::Vector3D& globalposRDO = m_tgc->detectorElement()->channelPos( rdo_id );
+        std::optional<Amg::Vector2D> localposRDO = m_tgc->detectorElement()->surface( rdo_id ).Trk::Surface::globalToLocal(globalposRDO,tolerance);
         if (!localposRDO)
         {
           VP1Msg::message("Warning: Local wire position is NULL");

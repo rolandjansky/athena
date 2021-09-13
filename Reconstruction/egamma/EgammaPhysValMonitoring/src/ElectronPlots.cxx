@@ -47,7 +47,7 @@ void ElectronPlots::initializePlots(){
   nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + " electrons;Events", 15, 0, 15.);
  }
 
-  void ElectronPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) {
+  void ElectronPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const {
 
   m_oKinAllRecoPlots.fill(electron,eventInfo);
   m_oShowerShapesAllRecoPlots.fill(electron,eventInfo);

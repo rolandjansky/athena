@@ -294,7 +294,7 @@ public:
   /**
      ...
   */
-  bool HasKey(std::string);
+  bool HasKey(const std::string&) const;
 
   /**
      ...
@@ -317,7 +317,7 @@ public:
      Creates a string summarizing what is being done at this sub-level
      @return the string
   */
-  std::string GetOptString();
+  std::string GetOptString() const;
 
   /**
      ...

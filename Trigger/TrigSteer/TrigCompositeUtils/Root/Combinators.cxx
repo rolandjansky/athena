@@ -126,7 +126,7 @@ void NestedUniqueCombinationGenerator::cache() {
 
 namespace {
   
-  void combMaker( const Index2DVec& indices, std::function<void (const Index1DVec&) > handle, std::function<bool (const Index1DVec&) > filter, size_t rank=0, Index1DVec combination={} ) {
+  void combMaker( const Index2DVec& indices, std::function<void (const Index1DVec&) >&& handle, std::function<bool (const Index1DVec&) >&& filter, size_t rank=0, Index1DVec combination={} ) {
 
     for ( auto position: indices[rank] ) {
       // found an element matching to this combination
@@ -143,7 +143,7 @@ namespace {
 	  if ( filter( combination ) )
 	    handle( combination );	  
 	} else {
-	  combMaker( indices, handle, filter, rank+1, combination);
+	  combMaker( indices, std::move(handle), std::move(filter), rank+1, combination);
 	}
       }      
     }    
@@ -151,17 +151,13 @@ namespace {
 }
 
 namespace HLT {
-  void elementsInUniqueCombinations( const Index2DVec& indices,  std::set<size_t>& participants, std::function<bool(const Index1DVec&)> filter ) {
+  void elementsInUniqueCombinations( const Index2DVec& indices,  std::set<size_t>& participants, std::function<bool(const Index1DVec&)>&& filter ) {
     auto handle = [&](const Index1DVec& combination ) {  for ( auto el: combination ) participants.insert(participants.begin(), el); };
-    combMaker( indices, handle, filter );
+    combMaker( indices, std::move(handle), std::move(filter) );
   }
   
-  void findUniqueCombinations( const Index2DVec& indices,  std::vector<std::vector<size_t> >& combinations, std::function<bool(const Index1DVec&)> filter ) {
+  void findUniqueCombinations( const Index2DVec& indices,  std::vector<std::vector<size_t> >& combinations, std::function<bool(const Index1DVec&)>&& filter ) {
     auto handle = [&](const Index1DVec& combination ) {  combinations.push_back( combination ); };
-    combMaker( indices, handle, filter );  
+    combMaker( indices, std::move(handle), std::move(filter) );
   }
 }
-
-
-
-

@@ -106,6 +106,12 @@ private:
     "output calo cluster container"
   };
 
+  /** @brief Optional key for pre-correction clusters */
+  SG::WriteHandleKey<xAOD::CaloClusterContainer>
+    m_precorrClustersKey{ this,
+                          "precorrClustersName",
+                          "",
+                          "optional pre-correction clusters" };
 };
 
 #endif

@@ -17,9 +17,8 @@
  *****************************************************************************/
 
 #include "AthenaKernel/IOVTime.h"
-#include <iostream>
 #include <string>
-#include <sstream>
+#include <iosfwd>
 
 class MsgStream;
 class EventIDRange;
@@ -69,11 +68,5 @@ inline bool operator!=(const IOVRange& lhs, const IOVRange& rhs) {
   return ! (lhs == rhs);
 }
 
-
-inline IOVRange::operator std::string () const {
-  std::ostringstream os;
-  os << "{" << m_start << " - " << m_stop << "}";
-  return os.str();
-}
 
 #endif

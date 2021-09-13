@@ -113,7 +113,7 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
-    if not ConfigFlags.Beam.Type == 'cosmics':
+    if not ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.CavernBG != 'Read':
         toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
         manipulators.append(toolVertexPositioner)
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation

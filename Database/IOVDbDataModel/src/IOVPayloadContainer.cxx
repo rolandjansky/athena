@@ -87,12 +87,12 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
             // Reject insertion of the new one.
 
             // We must save start/stop, reset, and set start/stop
-            const IOVTime& startPrev = (*itPrev)->minRange().start();
-            const IOVTime& stopPrev  = (*itPrev)->minRange().stop();
-            const IOVTime& startNew  = attrListColl->minRange().start();
-            const IOVTime& stopNew   = attrListColl->minRange().stop();
-            const IOVTime  start = (startPrev < startNew) ? startPrev : startNew;
-            const IOVTime  stop  = (stopPrev  > stopNew)  ? stopPrev  : stopNew;
+            const IOVTime  startPrev = (*itPrev)->minRange().start();
+            const IOVTime  stopPrev  = (*itPrev)->minRange().stop();
+            const IOVTime  startNew  = attrListColl->minRange().start();
+            const IOVTime  stopNew   = attrListColl->minRange().stop();
+            IOVTime  start = (startPrev < startNew) ? startPrev : startNew;
+            IOVTime  stop  = (stopPrev  > stopNew)  ? stopPrev  : stopNew;
             (*itPrev)->resetMinRange();
             (*itPrev)->addNewStart(start);
             (*itPrev)->addNewStop(stop);
@@ -126,7 +126,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
                 }
                 else if ((*it)->minRange().start() < stop) {
                     // Must truncate old IOV: reset old start to new stop
-                    const IOVTime&  oldStop = (*it)->minRange().stop();
+                    const IOVTime  oldStop = (*it)->minRange().stop();
                     (*it)->resetMinRange();
                     (*it)->addNewStart(stop);
                     (*it)->addNewStop(oldStop);
@@ -171,7 +171,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
                                      << std::endl;
             }
 
-            const IOVTime&  oldStart = prevColl->minRange().start();
+            const IOVTime oldStart = prevColl->minRange().start();
             prevColl->resetMinRange();
             prevColl->addNewStart(oldStart);
             prevColl->addNewStop(attrListColl->minRange().start());
@@ -215,7 +215,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
                 CondAttrListCollection* old = *it;
                 delete old;
                 (*it) = attrListColl;
-                const IOVTime& stop  = attrListColl->minRange().stop();
+                const IOVTime stop  = attrListColl->minRange().stop();
 
                 if (debug) std::cout <<  "IOVPayloadContainer::merge - isSameButMinRange with later stop -> replace " << (*it)->minRange() << std::endl;
 
@@ -246,7 +246,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
                     }
                     else if ((*it)->minRange().start() < stop) {
                         // Must truncate old IOV: reset old start to new stop
-                        const IOVTime&  oldStop = (*it)->minRange().stop();
+                        const IOVTime  oldStop = (*it)->minRange().stop();
                         (*it)->resetMinRange();
                         (*it)->addNewStart(stop);
                         (*it)->addNewStop(oldStop);
@@ -344,7 +344,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
         // the new start (i.e. truncate the old IOV)
         if ((*itStart)->minRange().start() < newStart && newStart < (*itStart)->minRange().stop() ) {
 //        if ((*itStart)->minRange().start() < newStart) {
-            const IOVTime&  oldStart = (*itStart)->minRange().start();
+            const IOVTime  oldStart = (*itStart)->minRange().start();
             (*itStart)->resetMinRange();
             (*itStart)->addNewStart(oldStart);
             (*itStart)->addNewStop(newStart);
@@ -388,7 +388,7 @@ IOVPayloadContainer::merge(CondAttrListCollection* attrListColl)
             }
             else if ((*it)->minRange().start() < newStop) {
                 // Must truncate old IOV: reset old start to new stop
-                const IOVTime&  oldStop = (*it)->minRange().stop();
+                const IOVTime  oldStop = (*it)->minRange().stop();
                 (*it)->resetMinRange();
                 (*it)->addNewStart(newStop);
                 (*it)->addNewStop(oldStop);

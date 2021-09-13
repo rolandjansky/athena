@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -15,7 +15,7 @@
 //#include "LArTPCnv/LArRawChannelCollection_p2.h"
 //#include "DataModel/DataPool.h"
 
-void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*transCont*/, LArRawChannelContainer_p2* /*persCont*/, MsgStream &log) 
+void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*transCont*/, LArRawChannelContainer_p2* /*persCont*/, MsgStream &log) const
 {
 
   log << MSG::ERROR << "Writing LArRawChannelContainer_p2 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
@@ -74,7 +74,7 @@ void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*t
 */
 
 
-void LArRawChannelContainerCnv_p2::persToTrans(const LArRawChannelContainer_p2* persCont, LArRawChannelContainer* transCont, MsgStream &log) 
+void LArRawChannelContainerCnv_p2::persToTrans(const LArRawChannelContainer_p2* persCont, LArRawChannelContainer* transCont, MsgStream &log) const
 {
     //LArRawChannelContainer_Cnvp1_base_t::persToTrans(pers,trans,log);
 

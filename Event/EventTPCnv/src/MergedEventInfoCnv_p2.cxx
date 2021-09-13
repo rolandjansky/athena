@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfo/MergedEventInfo.h"
@@ -13,7 +13,7 @@
 static const EventIDCnv_p2		idConv;
 static const EventInfoCnv_p3		baseConv;
 
-void MergedEventInfoCnv_p2::persToTrans(const MergedEventInfo_p2* pers, MergedEventInfo* trans, MsgStream &log) {
+void MergedEventInfoCnv_p2::persToTrans(const MergedEventInfo_p2* pers, MergedEventInfo* trans, MsgStream &log) const {
    EventInfo base;
    baseConv.persToTrans(pers, &base, log);
    std::vector<unsigned int>::const_iterator i=pers->m_newEventIDdata.begin();
@@ -25,7 +25,7 @@ void MergedEventInfoCnv_p2::persToTrans(const MergedEventInfo_p2* pers, MergedEv
                              newid.time_stamp());
 }
 
-void MergedEventInfoCnv_p2::transToPers(const MergedEventInfo* trans, MergedEventInfo_p2* pers, MsgStream &log) {
+void MergedEventInfoCnv_p2::transToPers(const MergedEventInfo* trans, MergedEventInfo_p2* pers, MsgStream &log) const {
 	baseConv.transToPers(trans, pers, log); 
 	idConv.transToPers(trans->event_ID(), pers->m_newEventIDdata);
 }

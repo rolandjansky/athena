@@ -81,16 +81,22 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.Truth_on():
         StreamRDO_ItemList+=["McEventCollection#*"]
         StreamRDO_ItemList+=["TrackRecordCollection#*"]
+
+        prefix = ''
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            prefix = overlayFlags.bkgPrefix()
+
         if 'PileUpAntiKt4TruthJets' in digitizationFlags.experimentalDigi():
-            StreamRDO_ItemList+=["xAOD::JetContainer#InTimeAntiKt4TruthJets"]
-            StreamRDO_ItemList+=["xAOD::AuxContainerBase!#InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
-            StreamRDO_ItemList+=["xAOD::JetContainer#OutOfTimeAntiKt4TruthJets"]
-            StreamRDO_ItemList+=["xAOD::AuxContainerBase!#OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}InTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}InTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}OutOfTimeAntiKt4TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}OutOfTimeAntiKt4TruthJetsAux.-constituentLinks.-constituentWeights"]
         if 'PileUpAntiKt6TruthJets' in digitizationFlags.experimentalDigi():
-            StreamRDO_ItemList+=["xAOD::JetContainer#InTimeAntiKt6TruthJets"]
-            StreamRDO_ItemList+=["xAOD::AuxContainerBase!#InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
-            StreamRDO_ItemList+=["xAOD::JetContainer#OutOfTimeAntiKt6TruthJets"]
-            StreamRDO_ItemList+=["xAOD::AuxContainerBase!#OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}InTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}InTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
+            StreamRDO_ItemList+=[f"xAOD::JetContainer#{prefix}OutOfTimeAntiKt6TruthJets"]
+            StreamRDO_ItemList+=[f"xAOD::AuxContainerBase!#{prefix}OutOfTimeAntiKt6TruthJetsAux.-constituentLinks.-constituentWeights"]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             StreamRDO_ItemList+=["xAOD::TruthParticleContainer#*"]
             StreamRDO_ItemList+=["xAOD::TruthParticleAuxContainer#*"]

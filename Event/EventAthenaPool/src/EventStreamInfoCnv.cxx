@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventStreamInfoCnv.cxx
@@ -27,9 +27,9 @@ EventStreamInfo_PERS* EventStreamInfoCnv::createPersistent(EventStreamInfo* tran
 }
 //______________________________________________________________________________
 EventStreamInfo* EventStreamInfoCnv::createTransient() {
-   static pool::Guid p3_guid("11DF1B8C-0DEE-4687-80D7-E74B520ACBB4");
-   static pool::Guid p2_guid("9AD4889D-C8EB-4F3B-9920-D37FF092CAB6");
-   static pool::Guid p1_guid("9998C282-403B-4EA5-A795-C8C9BA9909C3");
+   static const pool::Guid p3_guid("11DF1B8C-0DEE-4687-80D7-E74B520ACBB4");
+   static const pool::Guid p2_guid("9AD4889D-C8EB-4F3B-9920-D37FF092CAB6");
+   static const pool::Guid p1_guid("9998C282-403B-4EA5-A795-C8C9BA9909C3");
    if (compareClassGuid(p3_guid)) {
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr<EventStreamInfo_p3> esi_p3(poolReadObject<EventStreamInfo_p3>());

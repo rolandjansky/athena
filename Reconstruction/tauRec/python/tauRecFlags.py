@@ -128,14 +128,14 @@ class tauRecMvaTESConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='MvaTES_R22_Round2.5.root'
+    StoredValue='MvaTES_R22_Round3.root'
 
 class tauRec0pMvaTESConfig(JobProperty):
     """Config file for 0p taus for MvaTESEvaluator
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue='MvaTES_0p_R22_Round2.5_v2.root'
+    StoredValue='MvaTES_0p_R22_Round3.root'
 
 class tauRecCombinedTESConfig(JobProperty):
     """Config file for TauCombinedTES
@@ -198,14 +198,14 @@ class tauRecMinPt(JobProperty):
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=7.*Units.GeV
+    StoredValue=6.75*Units.GeV
 
 class tauRec0pMinPt(JobProperty):
     """ minimum tau pt for 0p taus (MVA TES calibration)
     """
     statusOn=True
     allowedTypes=['float']
-    StoredValue=9*Units.GeV
+    StoredValue=9.25*Units.GeV
 
 class tauRecMaxNTracks(JobProperty):
     """ maximum number of classifiedCharged tracks for a tau candidate

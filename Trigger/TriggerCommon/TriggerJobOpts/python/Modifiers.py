@@ -387,7 +387,11 @@ class forceAFPLinkNum(_modifier):
         from AthenaCommon.CFElements import findAlgorithm
         AFPRecoSeq = AthSequencer("AFPRecoSeq")
         AFP_RawDataProv = findAlgorithm(AFPRecoSeq, "AFP_RawDataProvider")
-        AFP_RawDataProv.ProviderTool.AFP_ByteStream2RawCnv.AFP_WordReadOut.AFP_LinkNumTranslator.ForceRunConfig = 2
+        if AFP_RawDataProv:
+            AFP_RawDataProv.ProviderTool.AFP_ByteStream2RawCnv.AFP_WordReadOut.AFP_LinkNumTranslator.ForceRunConfig = 2
+        else:
+            log.info('The forceAFPLinkNum Modifier has no effect because AFP_RawDataProvider is not configured to run')
+
 
 ###############################################################
 # Algorithm modifiers

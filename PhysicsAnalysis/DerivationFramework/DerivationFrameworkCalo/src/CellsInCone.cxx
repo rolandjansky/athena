@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloCellList.h"
@@ -45,7 +45,7 @@ void DerivationFramework::CellsInCone::egammaSelect(xAOD::CaloCluster* inputCl,
      cells.insert(cells.end(), myList.begin(), myList.end());
    }
 
-   for ( auto cell : cells ) {
+   for ( const auto *cell : cells ) {
      if( !cell || !cell->caloDDE() ) continue;
      int index = inputcells->findIndex(cell->caloDDE()->calo_hash());
      if( index == -1 ) continue;

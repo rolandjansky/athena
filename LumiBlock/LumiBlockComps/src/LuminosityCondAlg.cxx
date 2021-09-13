@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file LumiBlockComps/src/LuminosityCondAlg.cxx
@@ -25,6 +25,33 @@ const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
 const EventIDRange fullrange (EventIDBase (0, UNDEFEVT, 0, 0, 0),
                               EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM-1, 0, 0));
 
+
+// from from BunchCrossingCondAlg, decodes bunch pattern from metadata string
+std::vector<float> tokenize( const std::string& pattern ) {
+
+  if (pattern == "None") {
+    return std::vector<float>(LuminosityCondData::TOTAL_LHC_BCIDS, 1.); 
+  }
+
+  std::vector< float > result;
+  const char* c= pattern.data();
+  const char* cEnd= c + pattern.size();
+  while(c<cEnd) {
+    //This loop swallows actually any string containing numbers
+    //separated by non-numbers
+    char* end;
+    float f=std::strtof(c,&end);
+    if (c==end) {//Can't convert, try next
+      c++;
+    }
+    else { //got a value
+      result.push_back(f);
+      c=end;
+    }
+  }//end while loop
+  return result;
+}
+
 } // anonymous namespace
 
 
@@ -37,8 +64,14 @@ LuminosityCondAlg::initialize()
   ATH_CHECK( m_luminosityOutputKey.initialize() );
 
   // May be empty if configured for MC.
-  ATH_CHECK( m_luminosityFolderInputKey.initialize(SG::AllowEmpty) );
-  ATH_CHECK( m_onlineLumiCalibrationInputKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_onlineLumiCalibrationInputKey.initialize(!m_isMC) );
+  ATH_CHECK( m_luminosityFolderInputKey.initialize(!m_isMC) );
+
+  // May be empty if configured for data.
+  ATH_CHECK( m_mcDigitizationInputKey.initialize(m_isMC) );
+  ATH_CHECK( m_eventInfoKey.initialize(m_isMC) );
+  ATH_CHECK( m_actualMuKey.initialize(m_isMC) );
+  ATH_CHECK( m_averageMuKey.initialize(m_isMC) );
 
   // Only used for run1.
   ATH_CHECK( m_bunchLumisInputKey.initialize(SG::AllowEmpty) );
@@ -58,9 +91,43 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
   auto lumi = std::make_unique<LuminosityCondData>();
   EventIDRange range;
 
-  if (m_luminosityFolderInputKey.empty()) {
+  if (m_isMC) {
     // MC case.
-    range = fullrange;
+    const auto* eventinfo = SG::get(m_eventInfoKey, ctx);
+    // define a range for this one LB with one second validity
+    range = EventIDRange(EventIDBase(eventinfo->runNumber(),
+                                     EventIDBase::UNDEFEVT,
+                                     eventinfo->timeStamp(),
+                                     eventinfo->timeStampNSOffset(),
+                                     eventinfo->lumiBlock()),
+                         EventIDBase(eventinfo->runNumber(),
+                                     EventIDBase::UNDEFEVT,
+                                     eventinfo->timeStamp()+1,
+                                     eventinfo->timeStampNSOffset(),
+                                     eventinfo->lumiBlock()+1));
+
+    SG::ReadCondHandle<AthenaAttributeList> digitizationFolder(m_mcDigitizationInputKey, ctx);
+
+    const float avgMu = eventinfo->averageInteractionsPerCrossing();
+    const auto& attr = (**digitizationFolder)[std::string("BeamIntensityPattern")];
+    const std::string& sbunches = attr.data<std::string>();
+    std::vector<float> bunchpattern = tokenize(sbunches);
+    
+    if (bunchpattern.size() != LuminosityCondData::TOTAL_LHC_BCIDS) {
+      ATH_MSG_ERROR("Decoding MC bunch structure failed, improper number of LHC BCIDs");
+      bunchpattern = std::vector<float>(LuminosityCondData::TOTAL_LHC_BCIDS, 1.);
+    }
+
+    float totintensity = 0.;
+    for (size_t i = 0; i < bunchpattern.size(); ++i) {
+      totintensity += bunchpattern[i];
+      bunchpattern[i] *= (avgMu*m_muToLumi);
+    }
+
+    lumi->setLbAverageInteractionsPerCrossing(avgMu);
+    lumi->setLbAverageLuminosity(totintensity*avgMu*m_muToLumi);
+    lumi->setLbLuminosityPerBCIDVector(std::move(bunchpattern));
+    lumi->setMuToLumi(m_muToLumi);
   }
   else {
     SG::ReadCondHandle<CondAttrListCollection> luminosityFolder

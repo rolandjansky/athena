@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_SCT.h"
@@ -68,14 +68,12 @@ void PRDHandle_SCT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
     transparent->transparency.setValue(0.5);
     rdos->addChild( transparent );
     Amg::Vector2D localposOLD = localposHIT;
-    std::vector<Identifier>::const_iterator st = rdolist.begin();
-    std::vector<Identifier>::const_iterator en = rdolist.end();
-    for( std::vector<Identifier>::const_iterator it = st; it!=en; it++)
+    for (const Identifier& rdo_id : rdolist)
     {
-      if (*it == m_cluster->identify() )
+      if (rdo_id == m_cluster->identify() )
         continue;
 
-      const Amg::Vector2D& localposRDO = m_cluster->detectorElement()->rawLocalPositionOfCell(*it); // Lorentz shift is not corrected because this class cannot use SiLorentzAngleTool
+      const Amg::Vector2D& localposRDO = m_cluster->detectorElement()->rawLocalPositionOfCell(rdo_id); // Lorentz shift is not corrected because this class cannot use SiLorentzAngleTool
 
       SoTranslation * localtrans = new SoTranslation;
       localtrans->translation.setValue(localposRDO[Trk::locX]-localposOLD[Trk::locX],localposRDO[Trk::locY]-localposOLD[Trk::locY],0);

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/AnalysisTrackingHelper.h"
@@ -132,7 +132,6 @@ namespace top {
     {
       // Store metadata of inputs:
       out << json_dump("inputConfig") << ": {\n";
-      out << " " << json_dump("amiTag") << ": " << json_dump(m_topConfig->getAmiTag()) << ",\n";
       out << " " << json_dump("derivationFormat") << ": " << json_dump(m_topConfig->getDerivationStream()) << ",\n";
       out << " " << json_dump("dsid") << ": " << json_dump(m_topConfig->getDSID()) << ",\n";
       out << " " << json_dump("isMC") << ": " << json_dump(m_topConfig->isMC()) << ",\n";

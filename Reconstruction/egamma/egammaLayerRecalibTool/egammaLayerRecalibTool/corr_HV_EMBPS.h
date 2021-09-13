@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORR_HV_EMBPS_H
@@ -44,19 +44,19 @@ class corr_HV_EMBPS {
 
    // response factor as computed in reconstruction
    //   (E measured = E nominalHV * response factor(HV)
-   float getRecoCorrection(float hv,float eta) const;
+   static float getRecoCorrection(float hv,float eta) ;
    // functions to computed scale factor as in reconstruction
-   float Respo(float e, float e_nominal,float tempe) const;
-   float InvCharge(float e) const;
-   float vdrift(float e, float tempe) const;
+   static float Respo(float e, float e_nominal,float tempe) ;
+   static float InvCharge(float e) ;
+   static float vdrift(float e, float tempe) ;
 
    // extra response factor derive from latest data 
    //   (E measured data) = (E corrected by reconstruction)* extra response factor (HV)  for run >=211670
-   float getDataCorrection(float hv,float eta) const;
+   static float getDataCorrection(float hv,float eta) ;
 
    // change to extra response factor to apply to data before run 211670 for HV<1600 to account for the fact that
    // OFC and Mphys/Mcal where changed at run 211670 to be computed with HV=1200 instead of HV=2000
-   float getExtraScaleFactor() const;
+   static float getExtraScaleFactor() ;
 
    // store HV corrections for 6 periods, and 2 sides
    // each histogram has 8 bins in eta (deltaEta=0.4) and 32 bins in phi (2pi/32)

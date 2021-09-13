@@ -567,8 +567,11 @@ void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollecti
 {
   MagField::AtlasFieldCache fieldCache;
 
-  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldCondObj{m_fieldCondObjInputKey, ctx};
+  if (!fieldCondObj.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
 
   fieldCondObj->getInitializedCache (fieldCache);
   fittedTracks.reserve(inputTracks.size());
@@ -887,8 +890,11 @@ StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT,
 
   MagField::AtlasFieldCache fieldCache;
 
-  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldCondObj{m_fieldCondObjInputKey, ctx};
+  if (!fieldCondObj.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return StatusCode::FAILURE;
+  }
 
   fieldCondObj->getInitializedCache (fieldCache);
   std::vector<Trk::TrkBaseNode*> vpTrkNodes;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header for this module
@@ -8,9 +8,9 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "EventInfo/EventInfo.h"        // For setting the weight
 #include "EventInfo/EventType.h"        // From event info - the real holder of the event weight
+#include "GaudiKernel/PhysicalConstants.h"
 
 
 // Pt  High --> Low
@@ -28,22 +28,29 @@ VBFMjjIntervalFilter::VBFMjjIntervalFilter(const std::string& name, ISvcLocator*
     m_norm(1.) //< @todo Scalefactor always set to 1.0! Remove?
 {
   declareProperty("RapidityAcceptance", m_yMax = 5.0);
-  declareProperty("MinSecondJetPT", m_pTavgMin = 15.0*CLHEP::GeV);
-  declareProperty("MinOverlapPT", m_olapPt = 15.0*CLHEP::GeV);
+  declareProperty("MinSecondJetPT", m_pTavgMin = 15.0*Gaudi::Units::GeV);
+  declareProperty("MinOverlapPT", m_olapPt = 15.0*Gaudi::Units::GeV);
   declareProperty("TruthJetContainerName", m_TruthJetContainerName = "AntiKt4TruthJets");
   //declareProperty("DoShape", m_doShape = true);
   declareProperty("NoJetProbability", m_prob0 = 0.0002);
   declareProperty("OneJetProbability", m_prob1 = 0.001);
   declareProperty("LowMjjProbability", m_prob2low = 0.005);
   declareProperty("HighMjjProbability", m_prob2high = 1.0);
-  declareProperty("LowMjj", m_mjjlow=100.0*CLHEP::GeV);
+  declareProperty("LowMjj", m_mjjlow=100.0*Gaudi::Units::GeV);
   declareProperty("TruncateAtLowMjj", m_truncatelowmjj = false);
-  declareProperty("HighMjj", m_mjjhigh=800.0*CLHEP::GeV);
+  declareProperty("HighMjj", m_mjjhigh=800.0*Gaudi::Units::GeV);
   declareProperty("TruncateAtHighMjj", m_truncatehighmjj = false);
   declareProperty("PhotonJetOverlapRemoval", m_photonjetoverlap = false);
   declareProperty("ElectronJetOverlapRemoval", m_electronjetoverlap = true);
   declareProperty("TauJetOverlapRemoval", m_taujetoverlap = false);
   declareProperty("Alpha",m_alpha=log(m_prob2low/m_prob2high)/log(m_mjjlow/m_mjjhigh));
+  declareProperty("ApplyNjet",m_ApplyNjet=false); 
+  declareProperty("Njets", m_NJetsMin=2);  
+  declareProperty("NjetsMax",m_NJetsMax=-1);
+  declareProperty("ApplyWeighting",m_ApplyWeighting=true);
+  declareProperty("ApplyDphi",m_applyDphi=false);
+  declareProperty("dphijjMax",m_dphijj=2.5); 
+
 }
 
 
@@ -82,7 +89,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   // Find overlap objects
   std::vector<HepMC::ConstGenParticlePtr> MCTruthPhotonList;
   std::vector<HepMC::ConstGenParticlePtr> MCTruthElectronList;
-  std::vector<CLHEP::HepLorentzVector> MCTruthTauList;
+  std::vector<TLorentzVector> MCTruthTauList;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (auto pitr: *genEvt) {
@@ -115,12 +122,12 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 	  }
 	  
 	  if (leptonic == 0) {
-	    CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
-	    CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
-									  tau->momentum().py()-nutau.py(),
-									  tau->momentum().pz()-nutau.pz(),
-									  tau->momentum().e()-nutau.e());
-	    if (tauvis.vect().perp() >= m_olapPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_yMax) {
+	    TLorentzVector nutau = sumDaughterNeutrinos( tau );
+	    TLorentzVector tauvis = TLorentzVector(tau->momentum().px()-nutau.Px(),
+					           tau->momentum().py()-nutau.Py(),
+			        	           tau->momentum().pz()-nutau.Pz(),
+			       			   tau->momentum().e()-nutau.E());
+	    if (tauvis.Vect().Perp() >= m_olapPt && std::abs(tauvis.Vect().PseudoRapidity()) <= m_yMax) {
 	      MCTruthTauList.push_back(tauvis);
 	    }
 	  }
@@ -154,42 +161,65 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
   filteredJets.sort(High2LowByJetClassPt());
 
-  double eventWeight = 1.0;
-  eventWeight = getEventWeight(&filteredJets);
-  double rnd = rndm->flat();
-  if (1.0/eventWeight < rnd) {
-    setFilterPassed(false);
-    ATH_MSG_DEBUG("Event failed weighting. Weight is " << eventWeight);
-    return StatusCode::SUCCESS;
-  }
+  if(m_ApplyWeighting){
 
-  // Get MC event collection for setting weight
-  const DataHandle<McEventCollection> mecc = 0;
-  if ( evtStore()->retrieve( mecc ).isFailure() || !mecc ){
-    setFilterPassed(false);
-    ATH_MSG_ERROR("Could not retrieve MC Event Collection - weight might not work");
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_INFO("Event passed.  Will weight events " << eventWeight*m_norm);
-  McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
-  for (unsigned int i = 0; i < mec->size(); ++i) {
-    if (!(*mec)[i]) continue;
-    double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
-    if ((*mec)[i]->weights().size()>0) {
-      (*mec)[i]->weights()[0] = existingWeight*eventWeight*m_norm;
-    } else {
-      (*mec)[i]->weights().push_back( eventWeight*m_norm*existingWeight );
+    double eventWeight = 1.0;
+    eventWeight = getEventWeight(&filteredJets);
+    double rnd = rndm->flat();
+    if (1.0/eventWeight < rnd) {
+      setFilterPassed(false);
+      ATH_MSG_DEBUG("Event failed weighting. Weight is " << eventWeight);
+      return StatusCode::SUCCESS;
     }
-  }
 
+    // Get MC event collection for setting weight
+    const DataHandle<McEventCollection> mecc = 0;
+    if ( evtStore()->retrieve( mecc ).isFailure() || !mecc ){
+      setFilterPassed(false);
+      ATH_MSG_ERROR("Could not retrieve MC Event Collection - weight might not work");
+      return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_INFO("Event passed.  Will weight events " << eventWeight*m_norm);
+    McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
+    for (unsigned int i = 0; i < mec->size(); ++i) {
+      if (!(*mec)[i]) continue;
+      double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
+      if ((*mec)[i]->weights().size()>0) {
+        (*mec)[i]->weights()[0] = existingWeight*eventWeight*m_norm;
+      } else {
+        (*mec)[i]->weights().push_back( eventWeight*m_norm*existingWeight );
+      }
+  } 
+ }//Apply weighting 
+  else {
+    //just compute mjj, dphi etc 
+    bool pass = ApplyMassDphi(&filteredJets);
+    if(!pass){
+      setFilterPassed(false);
+      ATH_MSG_DEBUG("Event failed filter");
+      return StatusCode::SUCCESS; 
+    }
+    if(m_ApplyNjet){
+      if(filteredJets.size()<m_NJetsMin){
+	setFilterPassed(false);
+	return StatusCode::SUCCESS;
+      }
+      if(m_NJetsMax>0){
+	if(filteredJets.size()>m_NJetsMax){
+	  setFilterPassed(false);
+	  return StatusCode::SUCCESS;
+	}
+      }//Njets < 
+    }//Apply Njets filter 
+  }
   // Made it to the end - success!
   setFilterPassed(true);
   return StatusCode::SUCCESS;
 }
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepMC::ConstGenParticlePtr> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, const std::vector<HepMC::ConstGenParticlePtr> &list ) {
   for (size_t i = 0; i < list.size(); ++i) {
     double pt = list[i]->momentum().perp();
     if (pt > m_olapPt) {
@@ -207,13 +237,13 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
 
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHEP::HepLorentzVector> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, const std::vector<TLorentzVector> &list ) {
   for (size_t i = 0; i < list.size(); ++i) {
-    double pt = list[i].vect().perp();
+    double pt = list[i].Vect().Perp();
     if (pt > m_olapPt) {
       /// @todo Provide a helper function for this (and similar)
-      double dphi = phi-list[i].phi();
-      double deta = eta-list[i].vect().pseudoRapidity();
+      double dphi = phi-list[i].Phi();
+      double deta = eta-list[i].Vect().PseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
       double dr = std::sqrt(deta*deta+dphi*dphi);
@@ -223,8 +253,18 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHE
   return false;
 }
 
-
-
+bool VBFMjjIntervalFilter::ApplyMassDphi(xAOD::JetContainer *jets){
+  if(jets->size()<2) return false; 
+  double mjj = (jets->at(0)->p4() + jets->at(1)->p4()).M();
+  double dphi = std::abs(jets->at(0)->p4().DeltaPhi(jets->at(1)->p4()));
+  ATH_MSG_INFO("mjj " << mjj << " dphi " << dphi); 
+  bool pass = true; 
+  if(mjj<m_mjjlow)pass=false; 
+  if(mjj>m_mjjhigh)pass=false;
+  if(m_applyDphi && dphi > m_dphijj) pass = false; 
+  
+  return pass; 
+}
 
 double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
   double weight = 1.0;
@@ -259,14 +299,14 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 }
 
 
-CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
-  CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
+ TLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
+  TLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
-    nu.setPx(part->momentum().px());
-    nu.setPy(part->momentum().py());
-    nu.setPz(part->momentum().pz());
-    nu.setE(part->momentum().e());
+    nu.SetPx(part->momentum().px());
+    nu.SetPy(part->momentum().py());
+    nu.SetPz(part->momentum().pz());
+    nu.SetE(part->momentum().e());
     return nu;
   }
 
