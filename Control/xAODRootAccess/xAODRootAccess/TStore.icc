@@ -5,6 +5,8 @@
 #ifndef XAODROOTACCESS_TSTORE_ICC
 #define XAODROOTACCESS_TSTORE_ICC
 
+#include "AthContainers/normalizedTypeinfoName.h"
+
 // ROOT include(s):
 #include <TError.h>
 
@@ -133,6 +135,12 @@ namespace xAOD {
       THolder* hldr = new TCDVHolderT< T >( obj, ti );
       return record( hldr, key );
    }
+
+   template< typename T >
+   void TStore::keys( std::vector< std::string >& vkeys ) const {
+      getNames( SG::normalizedTypeinfoName( typeid( T ) ), vkeys );
+   }
+
 
 } // namespace xAOD
 

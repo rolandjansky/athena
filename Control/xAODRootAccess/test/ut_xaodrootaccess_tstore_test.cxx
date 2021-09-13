@@ -205,6 +205,27 @@ int main() {
    SIMPLE_ASSERT( APP_NAME,
                   store.isConst< DV_t >( "ConstDataVector" ) == kTRUE );
 
+   { // test getting a list of keys
+      store.clear();
+      std::string key = "MyObjA";
+      std::string postfix = "12345";
+      for ( const char &c : postfix ) {
+         key.push_back(c);
+         std::unique_ptr< ClassA > objA = std::make_unique< ClassA >();
+         RETURN_CHECK( APP_NAME, store.record( std::move( objA ), key ) );
+         key.pop_back();
+      }
+
+      std::vector< std::string > keys;
+      store.keys< ClassA >(keys);
+      if (keys.size() != postfix.size()) {
+         ::Error( APP_NAME, XAOD_MESSAGE( "store.keys< ClassA > size = %u (!=%u)" ),
+                                          static_cast< uint32_t >(keys.size()),
+                                          static_cast< uint32_t >(postfix.size()) );
+         return 1;
+      }
+   }
+
    // Return gracefully:
    return 0;
 }
