@@ -27,7 +27,7 @@ class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     def __init__(self, cpp_type, name=None):
         super(AppendListSemantics, self).__init__(cpp_type, name)
 
-    def merge(self,a,b):
+    def merge(self,b,a):
         a.extend(b)
         return a
 
@@ -67,7 +67,7 @@ class VarHandleArraySematics(GaudiConfig2.semantics.PropertySemantics):
         super(VarHandleArraySematics,self).__init__(cpp_type, name)
         pass
 
-    def merge(self,aa,bb):
+    def merge(self,bb,aa):
         for b in bb:
             if b not in aa:
                 aa.append(b)
@@ -84,7 +84,7 @@ class ToolHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
         super(ToolHandleSemantics, self).__init__(cpp_type,name)
         
 
-    def merge(self,a,b):
+    def merge(self,b,a):
         #Deal with 'None'
         if a is None or a=='': return b
         if b is None or b=='': return a
@@ -159,7 +159,7 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         return copy.copy(value)
         
 
-    def merge(self,aa,bb):
+    def merge(self,bb,aa):
         for b in bb:
             if b not in aa:
                 aa.append(b)
@@ -185,7 +185,7 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
             value=PrivateToolHandleArray(value)
         return value
 
-    def merge(self,a,b):
+    def merge(self,b,a):
         for bTool in b:
             try:
                 #If a tool with that name exists in a, we'll merge it
