@@ -37,7 +37,7 @@ namespace {
 namespace MuonGM {
 
 
-  RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+  RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 				       int zi, int fi, bool is_mirrored,
 				       MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
@@ -676,7 +676,7 @@ namespace MuonGM {
   {
     return localToGlobalTransf(id).inverse();
   }
-  const Amg::Vector3D RpcReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+  const Amg::Vector3D RpcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
   {
     return globalToLocalTransf(id)*x;
   }

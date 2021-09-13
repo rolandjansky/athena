@@ -24,6 +24,8 @@
 
 #include <TString.h> // for Form
 
+#include <utility>
+
 #ifndef SIMULATIONBASE
 #include "MuonCondSvc/NSWCondUtils.h"
 #endif
@@ -259,7 +261,7 @@ void MuonDetectorManager::addMuonStation (MuonStation* mst)
 }
 
 std::string
-MuonDetectorManager::muonStationKey(std::string stName, int statEtaIndex, int statPhiIndex) const
+MuonDetectorManager::muonStationKey(const std::string& stName, int statEtaIndex, int statPhiIndex) const
 {
     std::string key;
     if (statEtaIndex<0)
@@ -274,7 +276,7 @@ MuonDetectorManager::muonStationKey(std::string stName, int statEtaIndex, int st
 }
 
 const MuonStation*
-MuonDetectorManager::getMuonStation(std::string stName, int stEtaIndex, int stPhiIndex) const
+MuonDetectorManager::getMuonStation(const std::string &stName, int stEtaIndex, int stPhiIndex) const
 {
 
     std::string key = muonStationKey(stName, stEtaIndex, stPhiIndex);
@@ -285,7 +287,7 @@ MuonDetectorManager::getMuonStation(std::string stName, int stEtaIndex, int stPh
 }
 
 MuonStation*
-MuonDetectorManager::getMuonStation(std::string stName, int stEtaIndex, int stPhiIndex)
+MuonDetectorManager::getMuonStation(const std::string &stName, int stEtaIndex, int stPhiIndex)
 {
 
     std::string key = muonStationKey(stName, stEtaIndex, stPhiIndex);

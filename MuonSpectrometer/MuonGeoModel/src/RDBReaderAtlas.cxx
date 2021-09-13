@@ -19,7 +19,7 @@
 
 namespace MuonGM {
 
-    RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc *pRDBAccess, std::string geoTag, std::string geoNode, bool dumpAlinesFromOracle,
+    RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc *pRDBAccess, const std::string& geoTag, const std::string& geoNode, bool dumpAlinesFromOracle,
                                    bool useCscInternalAlinesFromOracle, bool dumpCscInternalAlinesFromOracle, const std::map<std::string, std::string> *asciiFileDBMap)
         : DBReader(pDetStore), m_controlCscIntAlines(0), m_dhdbam(nullptr), m_dbam(nullptr), m_dhatyp(nullptr), m_atyp(nullptr), m_dhasmp(nullptr), m_asmp(nullptr),
           m_dhalmn(nullptr), m_almn(nullptr), m_dhaptp(nullptr), m_aptp(nullptr), m_dhwrpc(nullptr), m_wrpc(nullptr), m_dhwtgc(nullptr), m_wtgc(nullptr), m_dhacut(nullptr),

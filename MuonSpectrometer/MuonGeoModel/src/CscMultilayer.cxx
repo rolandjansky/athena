@@ -25,6 +25,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 class GeoMaterial;
@@ -35,7 +36,7 @@ namespace MuonGM {
 
 namespace MuonGM {
 
-    CscMultiLayer::CscMultiLayer(std::string n) : DetectorElement(n), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
+    CscMultiLayer::CscMultiLayer(std::string n) : DetectorElement(std::move(n)), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
         MYSQL *amdb = MYSQL::GetPointer();
         CSC *md = (CSC *)amdb->GetTechnology(name);
         nrOfLayers = md->numOfLayers;
@@ -49,7 +50,7 @@ namespace MuonGM {
         return build(cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *CscMultiLayer::build(int /*cutoutson*/, std::vector<Cutout *> /*vcutdef*/) {
+    GeoVPhysVol *CscMultiLayer::build(int /*cutoutson*/, const std::vector<Cutout *>& /*vcutdef*/) {
         MYSQL *amdb = MYSQL::GetPointer();
         CSC *md = (CSC *)amdb->GetTechnology(name);
 

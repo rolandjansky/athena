@@ -19,7 +19,7 @@ namespace MuonGM {
 
     class RDBReaderAtlas : public DBReader {
       public:
-        RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc *m_pRDBAccess, std::string geoTag, std::string geoNode, bool dumpAlines, bool dumpICSCAlines, bool useICSCAlines,
+        RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc *m_pRDBAccess, const std::string& geoTag, const std::string& geoNode, bool dumpAlines, bool dumpICSCAlines, bool useICSCAlines,
                        const std::map<std::string, std::string> *asciiFileDBMap = 0);
         ~RDBReaderAtlas();
         StatusCode ProcessDB();

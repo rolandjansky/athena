@@ -57,7 +57,7 @@ namespace MuonGM {
     };
 
     
-    MuonClusterReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+    MuonClusterReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 			      int zi, int fi, bool is_mirrored,
 			      MuonDetectorManager* mgr);
     

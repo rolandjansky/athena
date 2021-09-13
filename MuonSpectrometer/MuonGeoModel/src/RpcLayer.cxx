@@ -22,6 +22,7 @@
 
 #include <TString.h> // for Form
 #include <iomanip>
+#include <utility>
 
 namespace {
     static constexpr double const &rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
@@ -34,7 +35,7 @@ namespace {
 
 namespace MuonGM {
 
-    RpcLayer::RpcLayer(std::string s, Rpc *t) : DetectorElement(s), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
+    RpcLayer::RpcLayer(std::string s, Rpc *t) : DetectorElement(std::move(s)), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
 
     GeoVPhysVol *RpcLayer::build() {
         std::vector<Cutout *> vcutdef;
