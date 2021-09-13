@@ -28,7 +28,7 @@ def LArDelay_OFCCaliCfg(flags):
 
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag))
+    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag, className="LArPedestalComplete"))
     result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=acTag))
     
 
@@ -161,3 +161,4 @@ if __name__ == "__main__":
     cfg.merge(LArDelay_OFCCaliCfg(ConfigFlags))
     print("Start running...")
     cfg.run()
+
