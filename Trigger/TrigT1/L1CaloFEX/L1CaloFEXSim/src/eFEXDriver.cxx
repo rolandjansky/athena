@@ -120,13 +120,11 @@ StatusCode eFEXDriver::finalize()
   std::unique_ptr<eTowerContainer> local_eTowerContainerRaw = std::make_unique<eTowerContainer>();
 
   // STEP 1 - Make some eTowers and fill the local container
-  ATH_CHECK( m_eTowerBuilderTool.retrieve() );
   m_eTowerBuilderTool->init(local_eTowerContainerRaw);
   local_eTowerContainerRaw->clearContainerMap();
   local_eTowerContainerRaw->fillContainerMap();
 
   // STEP 2 - Do the supercell-tower mapping - put this information into the eTowerContainer
-  ATH_CHECK( m_eSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_eTowerContainerRaw));
   ATH_CHECK(m_eSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_eTowerContainerRaw));
 
@@ -168,7 +166,6 @@ StatusCode eFEXDriver::finalize()
   ATH_CHECK(eTowerContainerSG.record(std::move(/*my_eTowerContainerRaw*/local_eTowerContainerRaw)));
 
   // STEP 4 - Set up the eFEXSysSim
-  ATH_CHECK( m_eFEXSysSimTool.retrieve() );
   m_eFEXSysSimTool->init();
 
   // STEP 5 - Do some monitoring

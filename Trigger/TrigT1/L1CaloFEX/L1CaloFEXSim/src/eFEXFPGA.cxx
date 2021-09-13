@@ -56,6 +56,10 @@ StatusCode eFEXFPGA::initialize()
 {
 
   ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+  ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
+  ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
+  
+  
   ATH_CHECK(m_l1MenuKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -106,8 +110,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         {m_eTowersIDs[iphi+1][ieta-1], m_eTowersIDs[iphi+1][ieta], m_eTowersIDs[iphi+1][ieta+1]},
       };
 
-      ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
-  
       ATH_CHECK( m_eFEXegAlgoTool->safetyTest() );
       m_eFEXegAlgoTool->setup(tobtable);
 
@@ -224,8 +226,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         {m_eTowersIDs[iphi+1][ieta-1], m_eTowersIDs[iphi+1][ieta], m_eTowersIDs[iphi+1][ieta+1]},
       };
       
-      ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
-  
       ATH_CHECK( m_eFEXtauAlgoTool->safetyTest() );
       m_eFEXtauAlgoTool->setup(tobtable);
 

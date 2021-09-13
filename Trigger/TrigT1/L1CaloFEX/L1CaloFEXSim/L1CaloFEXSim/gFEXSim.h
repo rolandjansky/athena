@@ -45,6 +45,8 @@ namespace LVL1 {
 
     virtual void execute() override ;
 
+    virtual StatusCode initialize() override ;
+
     virtual StatusCode executegFEXSim(gTowersIDs tmp) override;
 
     virtual std::vector<uint32_t> getgRhoTOBs() const override;
