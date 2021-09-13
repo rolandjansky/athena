@@ -18,11 +18,29 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
 
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
+### old TDT configuration - LEAVE THIS HERE FOR TH TIME BEING
+### this will be removed once we kow that the nightly tests are 
+### all working again...
+### from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+### ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
 
-from TrigEDMConfig.TriggerEDM import EDMLibraries
-ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+### from TrigEDMConfig.TriggerEDM import EDMLibraries
+### ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
+
+### from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+### myAlg.TrigDecisionTool = conf2toConfigurable(tdtAcc.getPrimary())
+
+from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+Configurable.configurableRun3Behavior+=1
+tdtAcc = getTrigDecisionTool(ConfigFlags)
+Configurable.configurableRun3Behavior-=1
+appendCAtoAthena( tdtAcc )
+
+
+
 
 from AthenaCommon.AppMgr import topSequence
 
@@ -32,11 +50,11 @@ from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
 cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
 ToolSvc += cfgtool
 
-tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-tdt.ConfigTool = cfgtool
-tdt.NavigationFormat = "TrigComposite"
+## tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+## tdt.ConfigTool = cfgtool
+## tdt.NavigationFormat = "TrigComposite"
 
-tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+## tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
