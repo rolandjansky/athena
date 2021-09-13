@@ -32,7 +32,7 @@ def generateChainConfigs( chainDict ):
             listOfChainDefs += [jet]
         else:
             log.info('jet name is: %s\n', jet_name)
-            jet_name='' # don't feed in yet
+            #jet_name='' # don't feed in yet
             Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
             jet.steps = jet.steps + Bjet.steps
             listOfChainDefs += [ jet ] 
