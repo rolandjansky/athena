@@ -116,9 +116,9 @@ unsigned int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
     return 0;
 }
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists() {
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists() {
 
-    std::map<int, jFEXForwardJetsInfo> FCALJetTowerIDLists;
+    std::unordered_map<int, jFEXForwardJetsInfo> FCALJetTowerIDLists;
 
     std::vector<int> lower_centre_neta;
     std::vector<int> upper_centre_neta;
@@ -236,10 +236,10 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
 
 
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima() {
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima() {
     //std::vector<int> localMaximas;
-    std::map<int, jFEXForwardJetsInfo> localMaximaCandidates = FcalJetsTowerIDLists();
-    std::map<int, jFEXForwardJetsInfo> localMaximaList ;
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximaCandidates = FcalJetsTowerIDLists();
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximaList ;
     SG::ReadHandle<jTowerContainer> my_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
 
     size_t isLocalMaxima = 0;
@@ -320,7 +320,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
 }
 
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() {
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() {
     
     // setting the lower/upper eta range for the FCAL 2 and 3 since they are not added in the seed information yet 
     int lowerFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_lowerFCAL_eta;
@@ -331,7 +331,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() 
         upperFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_upperFCAL_eta;
     } 
     // Adding the FCAL 2 and 3 TT in the seed, 1st and 2nd energy rings
-    std::map<int, jFEXForwardJetsInfo> localMaximas = isSeedLocalMaxima();
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximas = isSeedLocalMaxima();
     for(std::pair<int, jFEXForwardJetsInfo> element : localMaximas) {
         jFEXForwardJetsInfo myFCALJetInfoClass = element.second;
 
@@ -381,7 +381,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() 
 }
 
 
-void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

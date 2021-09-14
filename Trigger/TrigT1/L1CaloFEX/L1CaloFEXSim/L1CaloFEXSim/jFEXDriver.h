@@ -61,7 +61,7 @@ class jFEXDriver : public AthAlgorithm
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};
   ToolHandle<IjFEXSysSim> m_jFEXSysSimTool {this, "jFEXSysSimTool", "LVL1::jFEXSysSim", "Tool that creates the jFEX System Simulation"};
 
-  std::map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
+  std::unordered_map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
 
 };
 

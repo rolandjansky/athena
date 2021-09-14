@@ -220,7 +220,7 @@ unsigned int LVL1::jFEXSmallRJetAlgo::getTTIDcentre(){
 }
 
 
-void LVL1::jFEXSmallRJetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXSmallRJetAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

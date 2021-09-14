@@ -305,7 +305,7 @@ StatusCode jFEXFPGA::execute() {
 
         m_FCALJets =  m_jFEXForwardJetsAlgoTool->calculateJetETs();
 
-        for(std::map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it) {
+        for(std::unordered_map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it) {
 
             jFEXForwardJetsInfo FCALJets = it->second;
             int iphi = FCALJets.getCentreLocalTTPhi();

@@ -48,17 +48,17 @@ namespace LVL1 {
     virtual unsigned int localPhi(int nphi, int neta) override;
     virtual unsigned int localEta(int nphi, int neta) override;
     virtual unsigned int getTTowerET(int nphi, int neta) override; 
-    virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
-    virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
-    virtual std::map<int, jFEXForwardJetsInfo> calculateJetETs() override;
-    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
+    virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
+    virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
+    virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
 
   protected:
 
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXForwardJetsAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         int m_jFEXalgoTowerID[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
-        std::map<int,std::vector<int> > m_map_Etvalues;
+        std::unordered_map<int,std::vector<int> > m_map_Etvalues;
         int m_lowerEM_eta;
         int m_upperEM_eta;
         int m_jfex;

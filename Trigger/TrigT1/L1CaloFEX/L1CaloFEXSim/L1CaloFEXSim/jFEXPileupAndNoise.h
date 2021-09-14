@@ -40,9 +40,9 @@ namespace LVL1 {
     virtual void setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
     virtual void setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;    
     
-    virtual std::map<int,std::vector<int> > GetEt_values() override;
-    virtual std::map<int,std::vector<int> > Get_EM_Et_values() override;
-    virtual std::map<int,std::vector<int> > Get_HAD_Et_values() override;
+    virtual std::unordered_map<int,std::vector<int> > GetEt_values() override;
+    virtual std::unordered_map<int,std::vector<int> > Get_EM_Et_values() override;
+    virtual std::unordered_map<int,std::vector<int> > Get_HAD_Et_values() override;
     
     /** Destructor **/
     virtual ~jFEXPileupAndNoise();
@@ -90,7 +90,7 @@ protected:
         
         void reset_conters();
         void SubtractPileup();
-        void ApplyNoiseCuts(std::map<int,std::vector<int> > & map_Etvalues, int Jet_NoiseCut, int Met_NoiseCut);
+        void ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues, int Jet_NoiseCut, int Met_NoiseCut);
 
         // SG information
         int getTTowerEta(unsigned int TTID ); 

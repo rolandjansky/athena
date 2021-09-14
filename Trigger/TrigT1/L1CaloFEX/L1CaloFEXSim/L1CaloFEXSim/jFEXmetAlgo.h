@@ -50,7 +50,7 @@ namespace LVL1 {
     virtual int GetMetXComponent()  override;
     virtual int GetMetYComponent()  override;
     virtual int getTTowerET(unsigned int TTID ) override; 
-    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
     
     virtual std::unique_ptr<jFEXmetTOB> getmetTOBs() override;
     
@@ -71,7 +71,7 @@ protected:
         virtual void buildMetXComponent();
         virtual void buildMetYComponent();        
         
-        std::map<int,std::vector<int> > m_map_Etvalues;
+        std::unordered_map<int,std::vector<int> > m_map_Etvalues;
   };
 
 
