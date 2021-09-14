@@ -114,13 +114,13 @@ namespace LVL1 {
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
-    std::map<int,jTower> m_jTowersColl;
-    std::map<int,std::vector<int> > m_map_Etvalues_FPGA;
-    std::map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
-    std::map<int,std::vector<int> > m_map_EM_Etvalues_FPGA;
+    std::unordered_map<int,jTower> m_jTowersColl;
+    std::unordered_map<int,std::vector<int> > m_map_Etvalues_FPGA;
+    std::unordered_map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
+    std::unordered_map<int,std::vector<int> > m_map_EM_Etvalues_FPGA;
     
 
-    std::map<int, jFEXForwardJetsInfo> m_FCALJets; 
+    std::unordered_map<int, jFEXForwardJetsInfo> m_FCALJets; 
 
     int m_SRJetET;
     int m_LRJetET;

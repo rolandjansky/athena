@@ -51,7 +51,7 @@ namespace LVL1 {
     virtual int getClusterEt() override;
     virtual int getIsLocalMaxima() override;
     virtual int getFirstEtRing()  override;
-    virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  override;
+    virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  override;
     
     
     virtual std::unique_ptr<jFEXtauTOB> getTauTOBs(int mphi, int meta) override;
@@ -76,7 +76,7 @@ protected:
 	    bool m_seedSet=false;
 	    bool m_isLocalMaxima=false;
           
-        std::map<int,std::vector<int> > m_map_Etvalues;
+        std::unordered_map<int,std::vector<int> > m_map_Etvalues;
 
         struct color {
             std::string RED      ="\033[1;31m";

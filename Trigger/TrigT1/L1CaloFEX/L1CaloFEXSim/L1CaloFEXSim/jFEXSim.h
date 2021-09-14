@@ -73,7 +73,7 @@ namespace LVL1 {
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
 
-    std::map<int,jTower> m_jTowersColl;
+    std::unordered_map<int,jTower> m_jTowersColl;
     CaloCellContainer m_sCellsCollection;
     std::vector<jFEXFPGA*> m_jFEXFPGACollection;
    

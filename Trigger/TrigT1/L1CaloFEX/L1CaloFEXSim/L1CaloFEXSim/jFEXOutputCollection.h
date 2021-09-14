@@ -38,19 +38,19 @@ namespace LVL1 {
     int LRsize();
     int tausize();
     int pileupsize();
-    std::map<std::string, int>* get_smallRJet(int);
-    std::map<std::string, int>* get_largeRJet(int);
-    std::map<std::string, int>* get_tau(int);
-    std::map<std::string, int>* get_pileup(int);
+    std::unordered_map<std::string, int>* get_smallRJet(int);
+    std::unordered_map<std::string, int>* get_largeRJet(int);
+    std::unordered_map<std::string, int>* get_tau(int);
+    std::unordered_map<std::string, int>* get_pileup(int);
   private:
-    std::map<std::string, int> m_values_tem_smallRJet;
-    std::vector<std::map<std::string, int>*> m_allvalues_smallRJet;
-    std::map<std::string, int> m_values_tem_largeRJet;
-    std::vector<std::map<std::string, int>*> m_allvalues_largeRJet;
-    std::map<std::string, int> m_values_tem_tau;
-    std::vector<std::map<std::string, int>*> m_allvalues_tau;
-    std::map<std::string, int> m_values_tem_pileup;
-    std::vector<std::map<std::string, int>*> m_allvalues_pileup;
+    std::unordered_map<std::string, int> m_values_tem_smallRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_smallRJet;
+    std::unordered_map<std::string, int> m_values_tem_largeRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_largeRJet;
+    std::unordered_map<std::string, int> m_values_tem_tau;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_tau;
+    std::unordered_map<std::string, int> m_values_tem_pileup;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_pileup;
   };
 }
 CLASS_DEF(LVL1::jFEXOutputCollection, 1317184196 , 1 )

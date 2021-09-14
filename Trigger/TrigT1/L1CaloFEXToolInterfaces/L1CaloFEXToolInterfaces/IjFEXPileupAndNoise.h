@@ -29,9 +29,9 @@ class IjFEXPileupAndNoise : virtual public IAlgTool {
         virtual void setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) =0;
         virtual void setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) =0;        
         
-        virtual std::map<int,std::vector<int> > GetEt_values() =0;        
-        virtual std::map<int,std::vector<int> > Get_EM_Et_values() =0;        
-        virtual std::map<int,std::vector<int> > Get_HAD_Et_values() =0;        
+        virtual std::unordered_map<int,std::vector<int> > GetEt_values() =0;        
+        virtual std::unordered_map<int,std::vector<int> > Get_EM_Et_values() =0;        
+        virtual std::unordered_map<int,std::vector<int> > Get_HAD_Et_values() =0;        
         
         virtual std::vector<int> CalculatePileup() =0;
         virtual void ApplyPileupJets() =0;

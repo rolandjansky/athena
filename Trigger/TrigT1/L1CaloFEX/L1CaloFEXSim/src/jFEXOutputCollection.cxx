@@ -69,28 +69,28 @@ void LVL1::jFEXOutputCollection::addValue_pileup(std::string key, int value)
 
 void LVL1::jFEXOutputCollection::fill_smallRJet()
 {
-  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_smallRJet);
+  std::unordered_map<std::string, int>* values_local = new std::unordered_map<std::string, int>(m_values_tem_smallRJet);
   m_allvalues_smallRJet.push_back(values_local);
   m_values_tem_smallRJet.clear();
 
 }
 void LVL1::jFEXOutputCollection::fill_largeRJet()
 {
-  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_largeRJet);
+  std::unordered_map<std::string, int>* values_local = new std::unordered_map<std::string, int>(m_values_tem_largeRJet);
   m_allvalues_largeRJet.push_back(values_local);
   m_values_tem_largeRJet.clear();
 
 }
 void LVL1::jFEXOutputCollection::fill_tau()
 {
-  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_tau);
+  std::unordered_map<std::string, int>* values_local = new std::unordered_map<std::string, int>(m_values_tem_tau);
   m_allvalues_tau.push_back(values_local);
   m_values_tem_tau.clear();
 
 }
 void LVL1::jFEXOutputCollection::fill_pileup()
 {
-  std::map<std::string, int>* values_local = new std::map<std::string, int>(m_values_tem_pileup);
+  std::unordered_map<std::string, int>* values_local = new std::unordered_map<std::string, int>(m_values_tem_pileup);
   m_allvalues_pileup.push_back(values_local);
   m_values_tem_pileup.clear();
 
@@ -115,19 +115,19 @@ int LVL1::jFEXOutputCollection::pileupsize()
   return m_allvalues_pileup.size();
 }
 
-std::map<std::string, int>* LVL1::jFEXOutputCollection::get_smallRJet(int location)
+std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_smallRJet(int location)
 {
   return m_allvalues_smallRJet[location];
 }
-std::map<std::string, int>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
+std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_largeRJet(int location)
 {
   return m_allvalues_largeRJet[location];
 }
-std::map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int location)
+std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_tau(int location)
 {
   return m_allvalues_tau[location];
 }
-std::map<std::string, int>* LVL1::jFEXOutputCollection::get_pileup(int location)
+std::unordered_map<std::string, int>* LVL1::jFEXOutputCollection::get_pileup(int location)
 {
   return m_allvalues_pileup[location];
 }
