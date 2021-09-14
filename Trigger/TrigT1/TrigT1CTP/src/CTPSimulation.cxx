@@ -134,7 +134,6 @@ StatusCode
 LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigned int maxMult ) const {
 
    StatusCode sc;
-
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
       { "jet", {"JET", "jJ", "gJ"} },
@@ -167,16 +166,22 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
       { "em", {"EM", "eEM"} },
       { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
+
+
    std::vector<TrigConf::L1Threshold> thrV;
    for( const std::string & t : typeMapping[type] ) {
-      auto hist = get2DHist( "/multi/" + type + "/" + t + "Mult" );
-      auto & thrV = l1menu.thresholds(t);
-      while( hist->GetNbinsX() < (int)thrV.size() ) {
-         hist->LabelsInflate("xaxis");
-      }
-      for(auto thr : thrV) {
-         hist->GetXaxis()->SetBinLabel(thr->mapping()+1, thr->name().c_str() );
-      }
+     try {
+       auto hist = get2DHist( "/multi/" + type + "/" + t + "Mult" );
+       auto & thrV = l1menu.thresholds(t);
+       while( hist->GetNbinsX() < (int)thrV.size() ) {
+	 hist->LabelsInflate("xaxis");
+       }
+       for(auto thr : thrV) {
+	 hist->GetXaxis()->SetBinLabel(thr->mapping()+1, thr->name().c_str() );
+       }
+     } catch (std::exception & ex) {
+       ATH_MSG_DEBUG("Caught exception when setting new JSON MultiplicityHistLabel " << t << " : " << ex.what());
+     }
    }
    return sc;
 }
