@@ -43,6 +43,8 @@
 #include "TrigMultiTrkComboHypoTool.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
+#include "AthViews/View.h"
+
 namespace Trk {
 class IVKalState;
 }
@@ -53,34 +55,66 @@ class IVKalState;
  * @brief State class for TrigMultiTrkComboHypo algorithm
  */
 
-class TrigMultiTrkState: public ::ITrigBphysState {
+class TrigMultiTrkStateBase: public ::ITrigBphysState {
  public:
-  virtual ~TrigMultiTrkState();
-  const EventContext* context;
-  const TrigCompositeUtils::DecisionContainer* previousDecisions;
-  TrigCompositeUtils::DecisionContainer* decisions;
-  xAOD::TrigBphysContainer* trigBphysCollection;
-  std::vector<ElementLink<xAOD::TrackParticleContainer>> tracks;
-  int isEventAccepted;
-  std::vector<std::vector<size_t>> trigBphysIndices;
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t) =0 ;
-  virtual TrigCompositeUtils::DecisionIDContainer& getDecisionID(size_t) =0 ;
+  TrigMultiTrkStateBase() = delete;
+  TrigMultiTrkStateBase(const EventContext& context,
+                        const TrigCompositeUtils::DecisionContainer& previousDecisions,
+                        TrigCompositeUtils::DecisionContainer& decisions,
+                        xAOD::TrigBphysContainer* trigBphysCollection = nullptr,
+                        const InDet::BeamSpotData* beamSpotData = nullptr)
+      : ITrigBphysState(context, previousDecisions, decisions, trigBphysCollection, beamSpotData),
+        m_isEventAccepted(0) {}
+  virtual ~TrigMultiTrkStateBase() = default;
+  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t) = 0;
+  virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t) = 0;
+  virtual void addTrigBphysObject(xAOD::TrigBphys*, const std::vector<size_t>& legIndices) = 0;
+
+  void setEventAccepted(bool flag = true) { m_isEventAccepted = (flag ? 1 : 0); }
+  inline int isEventAccepted() const { return m_isEventAccepted; }
+  inline std::vector<std::vector<size_t>>& trigBphysLegIndices() { return m_trigBphysLegIndices; }
+  inline std::vector<size_t>& getTrigBphysLegIndices(size_t idx) { return m_trigBphysLegIndices[idx]; }
+  inline std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracks() { return m_tracks; }
+
+ private:
+  int m_isEventAccepted;
+  std::vector<std::vector<size_t>> m_trigBphysLegIndices;
+  std::vector<ElementLink<xAOD::TrackParticleContainer>> m_tracks;
 };
 
+
 template<typename CONTAINER>
-class TrigMultiTrkStateCand : public TrigMultiTrkState{
+class TrigMultiTrkState : public TrigMultiTrkStateBase {
  public:
-  virtual ~TrigMultiTrkStateCand() = default;
-  struct LEG {
+  TrigMultiTrkState() = delete;
+  TrigMultiTrkState(const EventContext& context,
+                    const TrigCompositeUtils::DecisionContainer& previousDecisions,
+                    TrigCompositeUtils::DecisionContainer& decisions,
+                    xAOD::TrigBphysContainer* trigBphysCollection = nullptr,
+                    const InDet::BeamSpotData* beamSpotData = nullptr)
+      : TrigMultiTrkStateBase(context, previousDecisions, decisions, trigBphysCollection, beamSpotData) {}
+  virtual ~TrigMultiTrkState() = default;
+
+  struct LEPTON {
     ElementLink<CONTAINER> link;
     ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;
     TrigCompositeUtils::DecisionIDContainer decisionIDs;
   };
-  std::vector<LEG> LegList;
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t i)  override 
-  { return LegList.at(i).decisionLinks; }
-  virtual TrigCompositeUtils::DecisionIDContainer& getDecisionID(size_t i)  override
-  { return LegList.at(i).decisionIDs; }
+
+  std::vector<LEPTON>& leptons() { return m_leptons; }
+  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t i) override final {
+    return m_leptons.at(i).decisionLinks;
+  }
+  virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t i) override final {
+    return m_leptons.at(i).decisionIDs;
+  }
+  virtual void addTrigBphysObject(xAOD::TrigBphys* trigBphysObject, const std::vector<size_t>& legIndices) override final {
+    trigBphysCollection().push_back(trigBphysObject);
+    trigBphysLegIndices().push_back(legIndices);
+  }
+
+ private:
+  std::vector<LEPTON> m_leptons;
 };
 
 
@@ -95,32 +129,88 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
 
  private:
 
-  void              FillState(TrigMultiTrkState* state,
-                       const EventContext* context,
-                       const TrigCompositeUtils::DecisionContainer* previousDecisions,
-                       TrigCompositeUtils::DecisionContainer* decisions,
-                       xAOD::TrigBphysContainer* trigBphysCollection) const;
+  /**
+   * @brief Go through state.previousDecisions() and fetch xAOD::TrackParticle objects associated with the nearest SG::View.
+   * Enable overlap removal to get collection of unique objects at state.tracks().
+   */
+  StatusCode mergeTracksFromViews(TrigMultiTrkStateBase&) const;
 
-  template<typename T>
-  StatusCode mergeFromDecisions(TrigMultiTrkStateCand<T>&) const;
+  /**
+   * @brief Go through state.previousDecisions(), fetch xAOD::Muons/xAOD::Electron objects attached to decisions
+   * and save links to the their xAOD::TrackParticle objects in state.tracks().
+   */
+  template<typename CONTAINER>
+  StatusCode mergeTracksFromDecisions(TrigMultiTrkStateBase&) const;
 
-  StatusCode mergeTracksFromViews(TrigMultiTrkState&) const;
-  StatusCode mergeTracksFromDecisions(TrigMultiTrkState&) const;
-  StatusCode filterTrackCombinations(TrigMultiTrkState&) const;
-  StatusCode copyDecisionObjects(TrigMultiTrkState&) const;
-  
-  template<typename T>
-  StatusCode findDiTrackCandidates(TrigMultiTrkStateCand<T>&) const;
+  /**
+   * @brief Go through state.previousDecisions(), fetch xAOD::Muons/xAOD::Electron objects attached to decisions
+   * and save links to them in state.leptons().
+   */
+  template<typename CONTAINER>
+  StatusCode mergeLeptonsFromDecisions(TrigMultiTrkState<CONTAINER>&) const;
 
-  StatusCode createDecisionObjects(TrigMultiTrkState&) const;
+  /**
+   * @brief Make all possible combinations from state.leptons(), fit tracks to the common vertex,
+   * create xAOD::TrigBphys objects and put them into state.trigBphysCollection()
+   *
+   * combination is a selection of items from a collection, such that the order of items does not matter
+   * leptons/tracks have already been sorted over pT, the algorithm will keep this order in created subsets of tracks, i.e.
+   * for nTrk = 2 combinations are [0, 1], [0, 2], ..., [1, 2], [1, 3], ...
+   * for nTrk = 3 combinations are [0, 1, 2], [0, 1, 3], ..., [0, 2, 3], [0, 2, 4], ..., [1, 2, 3], [1, 2, 4], ...
+   */
+  template<typename CONTAINER>
+  StatusCode findMultiLeptonCandidates(TrigMultiTrkState<CONTAINER>&) const;
 
-  xAOD::Vertex* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist, Trk::IVKalState*) const;
-  xAOD::TrigBphys* makeTrigBPhys(xAOD::Vertex* vertex, Trk::IVKalState* fitterState, const Amg::Vector3D& beamspot) const;
+  /**
+   * @brief Make all possible combinations from state.tracks(), fit tracks to the common vertex
+   * and set state.isEventAccepted to true if at least one good combination is found;
+   * no xAOD::TrigBphys objects will be created.
+   */
+  StatusCode filterTrackCombinations(TrigMultiTrkStateBase&) const;
+
+  /**
+   * @brief Make all possible combinations from electrons originating from the same BPH-0DR3-EM7J15 cluster,
+   * only one track should pass e5_lhvloose requirements;
+   * initialRoI word will be saved into xAOD::TrigBphys objects.
+   */
+  StatusCode processMergedElectrons(TrigMultiTrkState<xAOD::ElectronContainer>&) const;
+
+  /**
+   * @brief All appropriate decisions from state.previousDecisions() will be copied to state.decisions()
+   * if flag state.isEventAccepted() is set by filterTrackCombinations() method;
+   * to be used only in Streamer mode.
+   */
+  StatusCode copyDecisionObjects(TrigMultiTrkStateBase&) const;
+
+  /**
+   * @brief For chains from CombinedSlice (similar to 'HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu4_L1BPH-0M9-EM7-EM5_MU6')
+   * we have decisionsInput().size() > 1, so that we should copy decisions created by EmptySteps from muon part.
+   */
+  StatusCode copyAdditionalDecisionObjects(TrigMultiTrkStateBase&) const;
+
+  /**
+   * @brief Create a decision for each xAOD::TrigBphys object from state.trigBphysCollection() and save it to state.decisions();
+   * use hypoTools() to assign correct decisionIDs, not compatible with Streamer mode.
+   */
+  StatusCode createDecisionObjects(TrigMultiTrkStateBase&) const;
+
+
+  std::unique_ptr<xAOD::Vertex> fit(
+      const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+      const std::vector<double>& particleMasses,
+      Trk::IVKalState& fitterState) const;
+
+  xAOD::TrigBphys* makeTrigBPhys(
+      const xAOD::Vertex& vertex,
+      const std::vector<double>& particleMasses,
+      const Amg::Vector3D& beamSpot,
+      const Trk::IVKalState& fitterState) const;
+
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
   bool isIdenticalTracks(const xAOD::Electron* lhs, const xAOD::Electron* rhs) const;
   bool isInMassRange(double mass) const;
-  float Lxy(const xAOD::TrigBphys*, const Amg::Vector3D&) const;
+  float Lxy(const xAOD::TrigBphys& vertex, const Amg::Vector3D& beamSpot) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
     m_trackParticleContainerKey {this, "TrackCollectionKey", "Tracks", "input TrackParticle container name"};
@@ -131,16 +221,28 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   SG::ReadCondHandleKey<InDet::BeamSpotData>
     m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
-  Gaudi::Property<unsigned int> m_nTrk {this, "nTracks", 2, "number of tracks in the vertex"};
-  Gaudi::Property<std::vector<double>> m_trkMass {this, "trackMasses", {105.6583745, 105.6583745}, "track masses for vertex reco (one per track)"};
-  Gaudi::Property<std::vector<float>> m_trkPt {this, "trkPtThresholds", {3650., 3650.} ,"minimum track pTs (one per track, sorted descending)"};
-  Gaudi::Property<std::vector<std::pair<double, double>>> m_massRange {this, "massRanges", { {0., 100000.} }, "mass ranges"};
-  Gaudi::Property<float> m_deltaR {this, "deltaR", 0.01, "minimum deltaR between same-sign tracks (overlap removal)"};
-  Gaudi::Property<float> m_chi2 {this, "chi2", 150., "chi2 cut for the fitted vertex"};
-
-  Gaudi::Property<bool> m_isStreamer {this, "isStreamer", false, "if true we do not create trigger objects, just copy all appropriate decisions to the next step or break the chain"};
-  Gaudi::Property<bool> m_doElectrons {this, "doElectrons", false, "use electrons instead of muons"};
-  Gaudi::Property<std::string> m_trigLevel {this, "trigLevel", "EF", "trigger Level to set for created TrigBphys objects"};
+  Gaudi::Property<std::vector<unsigned int>> m_nTrk {this, "nTracks", {2},
+    "number of tracks to be fitted into the common vertex"};
+  Gaudi::Property<std::vector<std::vector<double>>> m_trkMass {this, "trackMasses", {},
+    "track masses for vertex reco (one per track); muon mass is used by default"};
+  Gaudi::Property<std::vector<std::vector<double>>> m_trkPt {this, "trackPtThresholds", { {3650., 3650.} },
+    "minimum track transverse momenta (one per track, sorted descending)"};
+  Gaudi::Property<std::vector<std::pair<double, double>>> m_massRange {this, "massRange", { {0., 100000.} },
+    "range of the invariant mass of the track combinations"};
+  Gaudi::Property<bool> m_applyOverlapRemoval {this, "applyOverlapRemoval", true,
+    "apply overlap removal for the close-by same-sign objects from different views"};
+  Gaudi::Property<float> m_deltaR {this, "deltaR", 0.01,
+    "minimum deltaR between same-sign tracks (overlap removal)"};
+  Gaudi::Property<float> m_chi2 {this, "chi2", 150.,
+    "chi2 cut for the fitted vertex"};
+  Gaudi::Property<bool> m_isStreamer {this, "isStreamer", false,
+    "if true we do not create trigger objects, just copy all appropriate decisions to the next step or break the chain"};
+  Gaudi::Property<bool> m_doElectrons {this, "doElectrons", false,
+    "use electrons if true, otherwise use muons"};
+  Gaudi::Property<std::string> m_trigLevel {this, "trigLevel", "EF",
+    "trigger Level to set for created TrigBphys objects: L2, L2IO or EF"};
+  Gaudi::Property<std::vector<std::string>> m_mergedElectronChains {this, "mergedElectronChains", {"BPH-0DR3-EM7J15"},
+    "patterns for BPH-0DR3-EM7J15 like chains"};
 
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this, "VertexPointEstimator", "", "tool to find starting point for the vertex fitter"};
   ToolHandle<Trk::TrkVKalVrtFitter> m_vertexFitter {this, "VertexFitter", "", "VKalVrtFitter tool to fit tracks into the common vertex"};
@@ -148,6 +250,11 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "monitoring tool"};
 
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
+  TrigCompositeUtils::DecisionIDContainer m_resolvedElectronIDs;
+  TrigCompositeUtils::DecisionIDContainer m_mergedElectronIDs;
+
+  double m_trkPtMin;
+
 };
 
 #endif  // TRIG_TrigMultiTrkComboHypo_H
