@@ -80,17 +80,23 @@ def BmumuxComboHypoCfg(name):
         LambdaBToMuMuProtonKaon_dimuonMassRange = (2500., 4300.),
         LambdaBToMuMuProtonKaon_massRange = (4800., 6400.),
         LambdaBToMuMuProtonKaon_chi2 = 60.,
-        # Bc -> J/psi D+ (-> phi pi)
-        BcToDsMuMuPhiPi = True,
-        Bc_DsMuMuKaon_minKaonPt = 1000,
-        Bc_rangePhiDs_MassCut = (980, 1080),
-        Bc_rangeDs_MassCut  = (1600, 2400),
-        Bc_DsMuMu_chi2 = 60,
-        # Bc -> J/psi D+ (-> K pi pi)
-        BcToDpMuMuPhiPi = True,
-        Bc_DpMuMuKaon_minKaonPt = 1000,
-        Bc_rangeDp_MassCut = (1500, 2300),
-        Bc_DpMuMu_chi2  = 60,
+        # B_c+ -> J/psi(-> mu+ mu-) D_s+(->phi(-> K+ K-) pi+)
+        BcToDsMuMu = True,
+        BcToDsMuMu_minKaonPt = 1000.,
+        BcToDsMuMu_minPionPt = 1000.,
+        BcToDsMuMu_massRange = (5500., 7300.),
+        BcToDsMuMu_dimuonMassRange = (2500., 4300.),
+        BcToDsMuMu_phiMassRange = (940., 1100.),
+        BcToDsMuMu_DsMassRange = (1850., 2100.),
+        BcToDsMuMu_chi2 = 60.,
+        # B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+)
+        BcToDplusMuMu = True,
+        BcToDplusMuMu_minKaonPt = 1000.,
+        BcToDplusMuMu_minPionPt = 1000.,
+        BcToDplusMuMu_massRange = (5500., 7300.),
+        BcToDplusMuMu_dimuonMassRange = (2500., 4300.),
+        BcToDplusMuMu_DplusMassRange = (1750., 2000.),
+        BcToDplusMuMu_chi2 = 60.,
         MonTool = TrigBmumuxComboHypoMonitoring('TrigBmumuxComboHypoMonitoring'))
 
     return hypo
