@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlock_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaBlock_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -86,7 +84,7 @@ void test1()
   SG::ArenaBlock* bl = SG::ArenaBlock::newBlock (20, elt_size, nullptr);
   assert (SG::ArenaBlock::nactive() == 1);
   assert (bl->overhead() > 0 && bl->overhead() < 100);
-  assert (bl->size() == 20);
+  assert (bl->size() >= 20);
   assert (bl->eltSize() == elt_size);
   word(bl, 0) = 0;
   word(bl, 1) = 0;
@@ -108,6 +106,10 @@ void test2()
                                                  Payload::constructor);
   SG::ArenaBlock* b3 = SG::ArenaBlock::newBlock (20, elt_size,
                                                  Payload::constructor);
+  assert (b1->size() >= 20);
+  assert (b2->size() >= 20);
+  assert (b3->size() >= 20);
+
   int i = 0;
   for (size_t j = 0; j < b1->size(); j++) {
     assert (payload(b1, j).x == i);
@@ -117,8 +119,8 @@ void test2()
   b1->link() = b2;
   SG::ArenaBlock::appendList (&b1, b3);
   assert (payload(b1).x == 0);
-  assert (payload(b1->link()).x == 20);
-  assert (payload(b1->link()->link()).x == 40);
+  assert (payload(b1->link()).x == static_cast<int>(b1->size()));
+  assert (payload(b1->link()->link()).x == static_cast<int>(b1->size() + b2->size()));
   assert(b1->link()->link()->link() == nullptr);
   SG::ArenaBlock* bb = nullptr;
   SG::ArenaBlock::appendList (&bb, b1);
@@ -126,17 +128,17 @@ void test2()
 
   Payload::v.clear();
   SG::ArenaBlock::applyList (b1, Payload::scan, 10);
-  assert (Payload::v.size() == 50);
+  assert (Payload::v.size() == 10 + b2->size() + b3->size());
   for (size_t j = 0; j < 10; ++j) {
     assert (Payload::v[j] == (int)j);
   }
   for (size_t j = 10; j < Payload::v.size(); ++j) {
-    assert (Payload::v[j] == (int)j+10);
+    assert (Payload::v[j] == static_cast<int>(j+(b1->size()-10)));
   }
 
   Payload::v.clear();
   SG::ArenaBlock::destroyList (b1, Payload::destructor);
-  assert (Payload::v.size() == 60);
+  assert (Payload::v.size() == b1->size() + b2->size() + b3->size());
   for (size_t j = 0; j < Payload::v.size(); ++j) {
     assert (Payload::v[j] == -(int)j);
   }

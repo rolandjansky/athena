@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaSharedHeapSTLAllocator_test.cxx 470825 2011-11-25 23:20:57Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaSharedHeapSTLAllocator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -130,11 +128,11 @@ void test1()
   }
 
   assert (a2.stats().elts.inuse == 1);
-  assert (a2.stats().elts.total == 100);
+  assert (a2.stats().elts.total >= 100);
 
   a2.reset();
   assert (a2.stats().elts.inuse == 0);
-  assert (a2.stats().elts.total == 100);
+  assert (a2.stats().elts.total >= 100);
 
   a2.erase();
   assert (a2.stats().elts.inuse == 0);
@@ -142,7 +140,7 @@ void test1()
 
   a2.reserve(5000);
   assert (a2.stats().elts.inuse == 0);
-  assert (a2.stats().elts.total == 5000);
+  assert (a2.stats().elts.total >= 5000);
 
   assert (Payload::n == 2);
   assert (Payload::v.size() == 0);
@@ -153,11 +151,11 @@ void test1()
 
   Payload* p1 = a2.allocate (1);
   assert (a2.stats().elts.inuse == 1);
-  assert (a2.stats().elts.total == 5000);
+  assert (a2.stats().elts.total >= 5000);
 
   Payload* p2 = a3.allocate (1);
   assert (a3.stats().elts.inuse == 2);
-  assert (a3.stats().elts.total == 5000);
+  assert (a3.stats().elts.total >= 5000);
 
   SG::ArenaSharedHeapSTLAllocator<int> a4 (a2);
   assert (a4.nblock() == 100);
@@ -165,9 +163,9 @@ void test1()
 
   int* p3 = a4.allocate(1);
   assert (a3.stats().elts.inuse == 2);
-  assert (a3.stats().elts.total == 5000);
+  assert (a3.stats().elts.total >= 5000);
   assert (a4.stats().elts.inuse == 1);
-  assert (a4.stats().elts.total == 100);
+  assert (a4.stats().elts.total >= 100);
 
   a2.deallocate (p1, 1);
   a3.deallocate (p2, 1);
@@ -210,24 +208,24 @@ void test3()
   Payload* pp[10];
   pp[0] = b1.allocate(1);
   assert (b1.stats().elts.inuse == 1);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
 
   SG::ArenaSharedHeapSTLAllocator<Payload> b2 (b1);
   assert (b2.nblock() == 100);
   assert (b2.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   pp[1] = b2.allocate(1);
   assert (b1.stats().elts.inuse == 2);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   assert (b2.stats().elts.inuse == 2);
-  assert (b2.stats().elts.total == 100);
+  assert (b2.stats().elts.total >= 100);
 
   b1 = b2;
   assert (b1.nblock() == 100);
   assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 2);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   assert (b2.stats().elts.inuse == 2);
-  assert (b2.stats().elts.total == 100);
+  assert (b2.stats().elts.total >= 100);
 
   SG::ArenaSharedHeapSTLAllocator<Payload> b3 (100);
   EXPECT_EXCEPTION (SG::ExcDifferentArenas, b3 = b2);
@@ -238,16 +236,16 @@ void test3()
   assert (b4.nblock() == 100);
   assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 2);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   assert (b4.stats().elts.inuse == 2);
-  assert (b4.stats().elts.total == 100);
+  assert (b4.stats().elts.total >= 100);
   b4.deallocate (pp[0], 1);
   pp[1] = b4.allocate(1);
   pp[2] = b4.allocate(1);
   assert (b4.stats().elts.inuse == 3);
-  assert (b4.stats().elts.total == 100);
+  assert (b4.stats().elts.total >= 100);
   assert (b1.stats().elts.inuse == 3);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
 
   b1 = std::move(b4);
   assert (b1.nblock() == 100);
@@ -255,16 +253,16 @@ void test3()
   assert (b4.nblock() == 100);
   assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b4.stats().elts.inuse == 3);
-  assert (b4.stats().elts.total == 100);
+  assert (b4.stats().elts.total >= 100);
   assert (b1.stats().elts.inuse == 3);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   b1.deallocate (pp[0], 1);
   pp[3] = b1.allocate(1);
   pp[0] = b1.allocate(1);
   assert (b4.stats().elts.inuse == 4);
-  assert (b4.stats().elts.total == 100);
+  assert (b4.stats().elts.total >= 100);
   assert (b1.stats().elts.inuse == 4);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
 
   b1.swap(b4);
   assert (b1.nblock() == 100);
@@ -272,9 +270,9 @@ void test3()
   assert (b4.nblock() == 100);
   assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 4);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   assert (b4.stats().elts.inuse == 4);
-  assert (b4.stats().elts.total == 100);
+  assert (b4.stats().elts.total >= 100);
 
   b4.swap (b3);
   assert (b4.nblock() == 100);
@@ -282,7 +280,7 @@ void test3()
   assert (b3.nblock() == 100);
   assert (b3.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b3.stats().elts.inuse == 4);
-  assert (b3.stats().elts.total == 100);
+  assert (b3.stats().elts.total >= 100);
 
   assert (b1 == b1);
   assert (b1 == b2);
@@ -310,7 +308,7 @@ void test4()
   assert (list.size() == 10);
   SG::ArenaAllocatorBase::Stats stats;
   stats = list.get_allocator().totstats();
-  assert (stats.elts.total == 500);
+  assert (stats.elts.total >= 500);
   assert (stats.elts.inuse == 10);
 
   for (list_t::iterator i = list.begin();
@@ -323,7 +321,7 @@ void test4()
 
   assert (list.size() == 5);
   stats = list.get_allocator().totstats();
-  assert (stats.elts.total == 500);
+  assert (stats.elts.total >= 500);
   assert (stats.elts.inuse == 5);
 
   list_t list2 (allo);
@@ -338,7 +336,7 @@ void test4()
   list.clear();
   assert (list.size() == 0);
   stats = list.get_allocator().totstats();
-  assert (stats.elts.total == 500);
+  assert (stats.elts.total >= 500);
   assert (stats.elts.inuse == 2);
 
   list2.clear();
@@ -351,7 +349,7 @@ void test4()
 
   list.get_allocator().reset();
   stats = list.get_allocator().totstats();
-  assert (stats.elts.total == 500);
+  assert (stats.elts.total >= 500);
   assert (stats.elts.inuse == 0);
 
   list.push_back(1);
@@ -387,58 +385,58 @@ void test5()
     list.push_back (i);
 
   assert (list.size() == 10);
-  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.total >= 500);
   assert (list.get_allocator().totstats().elts.inuse == 10);
 
   list_t list2 = list;
   assert (list.size() == 10);
-  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.total >= 500);
   assert (list.get_allocator().totstats().elts.inuse == 20);
 
   assert (list2.size() == 10);
-  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.total >= 500);
   assert (list2.get_allocator().totstats().elts.inuse == 20);
 
   list_t list3;
   list3 = list;
   assert (list.size() == 10);
-  assert (list.get_allocator().totstats().elts.total == 500);
+  assert (list.get_allocator().totstats().elts.total >= 500);
   assert (list.get_allocator().totstats().elts.inuse == 20);
 
   assert (list3.size() == 10);
-  assert (list3.get_allocator().totstats().elts.total == 1000);
+  assert (list3.get_allocator().totstats().elts.total >= 1000);
   assert (list3.get_allocator().totstats().elts.inuse == 10);
 
   list_t list4 (std::move (list2));
   assert (list4.size() == 10);
-  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.total >= 500);
   assert (list4.get_allocator().totstats().elts.inuse == 20);
   assert (list2.size() == 0);
-  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.total >= 500);
   assert (list2.get_allocator().totstats().elts.inuse == 20);
 
   list2 = std::move(list4);
   assert (list2.size() == 10);
-  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.total >= 500);
   assert (list2.get_allocator().totstats().elts.inuse == 20);
   assert (list4.size() == 0);
-  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.total >= 500);
   assert (list4.get_allocator().totstats().elts.inuse == 20);
 
   list2.swap (list4);
   assert (list4.size() == 10);
-  assert (list4.get_allocator().totstats().elts.total == 500);
+  assert (list4.get_allocator().totstats().elts.total >= 500);
   assert (list4.get_allocator().totstats().elts.inuse == 20);
   assert (list2.size() == 0);
-  assert (list2.get_allocator().totstats().elts.total == 500);
+  assert (list2.get_allocator().totstats().elts.total >= 500);
   assert (list2.get_allocator().totstats().elts.inuse == 20);
 
   list3.swap (list4);
   assert (list3.size() == 10);
-  assert (list3.get_allocator().totstats().elts.total == 500);
+  assert (list3.get_allocator().totstats().elts.total >= 500);
   assert (list3.get_allocator().totstats().elts.inuse == 20);
   assert (list4.size() == 10);
-  assert (list4.get_allocator().totstats().elts.total == 1000);
+  assert (list4.get_allocator().totstats().elts.total >= 1000);
   assert (list4.get_allocator().totstats().elts.inuse == 10);
 }
 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolAllocator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaPoolAllocator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +17,10 @@
 #include <algorithm>
 #include <iostream>
 #include <atomic>
+#include <unistd.h>
+
+
+static const size_t pageSize = sysconf (_SC_PAGESIZE);
 
 
 //==========================================================================
@@ -33,6 +35,7 @@ struct Payload
 
   int x;
   int y;
+  char pad[40-2*sizeof(int)];
   static std::atomic<int> n;
   static std::vector<int> v ATLAS_THREAD_SAFE;
 };
@@ -74,6 +77,7 @@ void test1()
   assert (apa.stats().blocks.free == 0);
   assert (apa.stats().blocks.total == 0);
   assert (apa.params().eltSize == sizeof (Payload));
+  const size_t elt_size = apa.params().eltSize;
 
   int nptr = 987;
   std::vector<Payload*> ptrs;
@@ -83,25 +87,30 @@ void test1()
     ptrs.push_back (p);
     p->y = 2*p->x;
   }
-  assert  (Payload::v.size() == 1000);
-  for (int i=0; i < 1000; ++i) {
-    assert (Payload::v[i] == i);
+  const size_t nelt = Payload::v.size();
+  assert  (nelt >= 1000);
+  for (size_t i=0; i < nelt; ++i) {
+    assert (Payload::v[i] == static_cast<int>(i));
   }
+
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks = (1000 + elts_per_block-1) / elts_per_block;
+
   assert (apa.stats().elts.inuse == 987);
-  assert (apa.stats().elts.free == 13);
-  assert (apa.stats().elts.total == 1000);
-  assert (apa.stats().blocks.inuse == 10);
+  assert (apa.stats().elts.free == nelt - 987);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == nblocks);
   assert (apa.stats().blocks.free == 0);
-  assert (apa.stats().blocks.total == 10);
+  assert (apa.stats().blocks.total == nblocks);
 
   Payload::v.clear();
   apa.reset();
   assert (apa.stats().elts.inuse == 0);
-  assert (apa.stats().elts.free == 1000);
-  assert (apa.stats().elts.total == 1000);
+  assert (apa.stats().elts.free == nelt);
+  assert (apa.stats().elts.total == nelt);
   assert (apa.stats().blocks.inuse == 0);
-  assert (apa.stats().blocks.free == 10);
-  assert (apa.stats().blocks.total == 10);
+  assert (apa.stats().blocks.free == nblocks);
+  assert (apa.stats().blocks.total == nblocks);
 
   for (int i=0; i < 300; i++) {
     Payload* p = reinterpret_cast<Payload*> (apa.allocate());
@@ -111,11 +120,11 @@ void test1()
   }
   assert (Payload::v.size() == 0);
   assert (apa.stats().elts.inuse == 300);
-  assert (apa.stats().elts.free == 700);
-  assert (apa.stats().elts.total == 1000);
-  assert (apa.stats().blocks.inuse == 3);
-  assert (apa.stats().blocks.free == 7);
-  assert (apa.stats().blocks.total == 10);
+  assert (apa.stats().elts.free == nelt - 300);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == (300 + elts_per_block-1) / elts_per_block);
+  assert (apa.stats().blocks.free  ==  nblocks - apa.stats().blocks.inuse);
+  assert (apa.stats().blocks.total == nblocks);
 
   apa.allocate();
   std::vector<int> vv;
@@ -168,52 +177,50 @@ void test1()
   }
   assert (Payload::v.size() == 0);
   assert (apa.stats().elts.inuse == 400);
-  assert (apa.stats().elts.free == 600);
-  assert (apa.stats().elts.total == 1000);
-  assert (apa.stats().blocks.inuse == 4);
-  assert (apa.stats().blocks.free == 6);
-  assert (apa.stats().blocks.total == 10);
+  assert (apa.stats().elts.free == nelt - 400);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == (400 + elts_per_block-1) / elts_per_block);
+  assert (apa.stats().blocks.free  ==  nblocks - apa.stats().blocks.inuse);
+  assert (apa.stats().blocks.total == nblocks);
 
   Payload::v.clear();
   apa.reserve (550);
   assert (apa.stats().elts.inuse == 400);
-  assert (apa.stats().elts.free == 200);
-  assert (apa.stats().elts.total == 600);
-  assert (apa.stats().blocks.inuse == 4);
-  assert (apa.stats().blocks.free == 2);
-  assert (apa.stats().blocks.total == 6);
-  assert (Payload::v.size() == 400);
+  assert (apa.stats().elts.total == ((550 + elts_per_block-1) / elts_per_block) * elts_per_block);
+  assert (apa.stats().elts.free == apa.stats().elts.total - 400);
+  assert (apa.stats().blocks.inuse == (400 + elts_per_block-1) / elts_per_block);
+  assert (apa.stats().blocks.total == (550 + elts_per_block-1) / elts_per_block);
+  assert (apa.stats().blocks.free  ==  apa.stats().blocks.total - apa.stats().blocks.inuse);
+  const size_t freed_blocks = (nelt - 550)/elts_per_block;
+  assert (Payload::v.size() == freed_blocks * elts_per_block);
   std::sort (Payload::v.begin(), Payload::v.end());
-  for (size_t i=0; i < 100; i++) {
-    assert (Payload::v[i] == (int)i-799);
-  }
-  for (size_t i=100; i < Payload::v.size(); i++) {
-    assert (Payload::v[i] == (int)i-799);
+  const size_t max_del = (apa.stats().blocks.inuse + freed_blocks)*elts_per_block-1;
+  for (size_t i=0; i < Payload::v.size(); i++) {
+    assert (Payload::v[i] == static_cast<int>(i-max_del));
   }
 
   Payload::v.clear();
-  apa.reserve (950);
+  const size_t nelt2 = apa.stats().elts.total;
+  apa.reserve (nelt2 + elts_per_block / 2);
   assert (apa.stats().elts.inuse == 400);
-  assert (apa.stats().elts.free == 550);
-  assert (apa.stats().elts.total == 950);
-  assert (apa.stats().blocks.inuse == 4);
-  assert (apa.stats().blocks.free == 3);
-  assert (apa.stats().blocks.total == 7);
-  assert (Payload::v.size() == 350);
+  assert (apa.stats().elts.total == nelt2 + elts_per_block);
+  assert (apa.stats().elts.free == apa.stats().elts.total - apa.stats().elts.inuse);
+  assert (apa.stats().blocks.inuse == (400 + elts_per_block-1) / elts_per_block);
+  assert (apa.stats().blocks.total == (550 + elts_per_block-1) / elts_per_block + 1);
+  assert (apa.stats().blocks.free  ==  apa.stats().blocks.total - apa.stats().blocks.inuse);
+  assert (Payload::v.size() == elts_per_block);
   std::sort (Payload::v.begin(), Payload::v.end());
   for (size_t i=0; i < Payload::v.size(); i++) {
-    assert (Payload::v[i] == (int)i+1000);
+    assert (Payload::v[i] == static_cast<int>(i+nelt));
   }
 
+  
   Payload::v.clear();
   apa.erase();
-  assert (Payload::v.size() == 950);
+  assert (Payload::v.size() == nelt2 + elts_per_block);
   std::sort (Payload::v.begin(), Payload::v.end());
-  for (size_t i=0; i < 550; i++) {
-    assert (Payload::v[i] == (int)i-1349);
-  }
-  for (size_t i=550; i < Payload::v.size(); i++) {
-    assert (Payload::v[i] == (int)i-949);
+  for (size_t i=0; i < Payload::v.size() ; i++) {
+    assert (Payload::v[i] <= 0);
   }
   assert (apa.stats().elts.inuse == 0);
   assert (apa.stats().elts.free == 0);
@@ -233,35 +240,42 @@ void test2()
   for (int i=0; i < 150; i++) {
     apa.allocate();
   }
-  assert (Payload::v.size() == 200);
+
+  assert (Payload::v.size() >= 150);
+
   SG::ArenaPoolAllocator::pointer p = apa.allocate();
-  assert (Payload::v.size() == 200);
+  assert (Payload::v.size() >= 151);
   for (int i=0; i < 150; i++) {
     apa.allocate();
   }
-  assert (Payload::v.size() == 400);
-  assert (apa.stats().elts.inuse == 301);
-  assert (apa.stats().elts.free == 99);
-  assert (apa.stats().elts.total == 400);
-  assert (apa.stats().blocks.inuse == 4);
-  assert (apa.stats().blocks.free  == 0);
-  assert (apa.stats().blocks.total == 4);
+  const size_t nelt = Payload::v.size();
+  assert (nelt >= 301);
+  const size_t elt_size = apa.params().eltSize;
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks1 = (150 + elts_per_block-1) / elts_per_block;
+  const size_t nblocks2 = (301 + elts_per_block-1) / elts_per_block;
 
-  size_t elt_size = apa.params().eltSize;
-  size_t block_ov = SG::ArenaBlock::overhead();
+  assert (apa.stats().elts.inuse == 301);
+  assert (apa.stats().elts.free == nelt - 301);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == nblocks2);
+  assert (apa.stats().blocks.free  == 0);
+  assert (apa.stats().blocks.total == nblocks2);
+
+  const size_t block_ov = SG::ArenaBlock::overhead();
 
   apa.resetTo (p);
 
   assert (apa.stats().elts.inuse == 150);
-  assert (apa.stats().elts.free == 250);
-  assert (apa.stats().elts.total == 400);
-  assert (apa.stats().blocks.inuse == 2);
-  assert (apa.stats().blocks.free  == 2);
-  assert (apa.stats().blocks.total == 4);
+  assert (apa.stats().elts.free == nelt - 150);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == nblocks1);
+  assert (apa.stats().blocks.free  == nblocks2 - nblocks1);
+  assert (apa.stats().blocks.total == nblocks2);
 
-  assert (apa.stats().bytes.inuse == (150 * elt_size + 2 * block_ov));
-  assert (apa.stats().bytes.free == (250 * elt_size + 2 * block_ov));
-  assert (apa.stats().bytes.total == (400 * elt_size + 4 * block_ov));
+  assert (apa.stats().bytes.inuse == (150 * elt_size + nblocks1 * block_ov));
+  assert (apa.stats().bytes.free == ((nelt - 150) * elt_size + (nblocks2-nblocks1) * block_ov));
+  assert (apa.stats().bytes.total == (nelt * elt_size + nblocks2 * block_ov));
 }
 
 
@@ -276,14 +290,19 @@ void test3()
     apa.allocate();
   }
 
+  const size_t nelt = Payload::v.size();
+  const size_t elt_size = apa.params().eltSize;
+  const size_t elts_per_block = (pageSize - SG::ArenaBlockBodyOffset) / elt_size;
+  const size_t nblocks = (150 + elts_per_block-1) / elts_per_block;
+
   assert (apa.name() == "bar");
   assert (apa.params().name == "bar");
   assert (apa.stats().elts.inuse == 150);
-  assert (apa.stats().elts.free == 50);
-  assert (apa.stats().elts.total == 200);
-  assert (apa.stats().blocks.inuse == 2);
+  assert (apa.stats().elts.free == nelt - 150);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == nblocks);
   assert (apa.stats().blocks.free  == 0);
-  assert (apa.stats().blocks.total == 2);
+  assert (apa.stats().blocks.total == nblocks);
 
   SG::ArenaPoolAllocator apa2 (std::move (apa));
   assert (apa.name() == "bar");
@@ -291,11 +310,11 @@ void test3()
   assert (apa2.name() == "bar");
   assert (apa2.params().name == "bar");
   assert (apa2.stats().elts.inuse == 150);
-  assert (apa2.stats().elts.free == 50);
-  assert (apa2.stats().elts.total == 200);
-  assert (apa2.stats().blocks.inuse == 2);
+  assert (apa2.stats().elts.free == nelt - 150);
+  assert (apa2.stats().elts.total == nelt);
+  assert (apa2.stats().blocks.inuse == nblocks);
   assert (apa2.stats().blocks.free  == 0);
-  assert (apa2.stats().blocks.total == 2);
+  assert (apa2.stats().blocks.total == nblocks);
   assert (apa.stats().elts.inuse == 0);
   assert (apa.stats().elts.free == 0);
   assert (apa.stats().elts.total == 0);
@@ -309,11 +328,11 @@ void test3()
   assert (apa2.name() == "bar");
   assert (apa2.params().name == "bar");
   assert (apa.stats().elts.inuse == 150);
-  assert (apa.stats().elts.free == 50);
-  assert (apa.stats().elts.total == 200);
-  assert (apa.stats().blocks.inuse == 2);
+  assert (apa.stats().elts.free == nelt - 150);
+  assert (apa.stats().elts.total == nelt);
+  assert (apa.stats().blocks.inuse == nblocks);
   assert (apa.stats().blocks.free  == 0);
-  assert (apa.stats().blocks.total == 2);
+  assert (apa.stats().blocks.total == nblocks);
   assert (apa2.stats().elts.inuse == 0);
   assert (apa2.stats().elts.free == 0);
   assert (apa2.stats().elts.total == 0);
@@ -327,11 +346,11 @@ void test3()
   assert (apa2.name() == "bar");
   assert (apa2.params().name == "bar");
   assert (apa2.stats().elts.inuse == 150);
-  assert (apa2.stats().elts.free == 50);
-  assert (apa2.stats().elts.total == 200);
-  assert (apa2.stats().blocks.inuse == 2);
+  assert (apa2.stats().elts.free == nelt - 150);
+  assert (apa2.stats().elts.total == nelt);
+  assert (apa2.stats().blocks.inuse == nblocks);
   assert (apa2.stats().blocks.free  == 0);
-  assert (apa2.stats().blocks.total == 2);
+  assert (apa2.stats().blocks.total == nblocks);
   assert (apa.stats().elts.inuse == 0);
   assert (apa.stats().elts.free == 0);
   assert (apa.stats().elts.total == 0);

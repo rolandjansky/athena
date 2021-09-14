@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlockAllocatorBase.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file  AthAllocators/src/ArenaBlockAllocatorBase.cxx
  * @author scott snyder
@@ -127,7 +125,7 @@ void ArenaBlockAllocatorBase::reserve (size_t size)
     // Update statistics (others are derived in stats()).
     ++m_stats.blocks.free;
     ++m_stats.blocks.total;
-    m_stats.elts.total += sz;
+    m_stats.elts.total += newblock->size();
 
     // Add to the free list.
     newblock->link() = m_freeblocks;
@@ -235,7 +233,7 @@ ArenaBlock* ArenaBlockAllocatorBase::getBlock()
     // Otherwise, we need to make a new block.
     newblock = ArenaBlock::newBlock (m_params.nblock, m_params.eltSize,
                                      m_params.constructor);
-    m_stats.elts.total += m_params.nblock;
+    m_stats.elts.total += newblock->size();
     ++m_stats.blocks.total;
   }
   // Finish updating statistics.

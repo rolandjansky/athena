@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlockAllocatorBase_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaBlockAllocatorBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,8 @@
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <atomic>
+#include <vector>
+#include <iostream>
 
 
 struct Payload
@@ -27,20 +27,21 @@ struct Payload
 
   int x;
   int y;
+  char pad[40-2*sizeof(int)];
   static std::atomic<int> n;
-  //static std::vector<int> v;
+  static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
 Payload::Payload()
 {
   x = n++;
   y = 0;
-  //v.push_back (x);
+  v.push_back (x);
 }
 
 Payload::~Payload()
 {
-  //v.push_back (-x);
+  v.push_back (-x);
 }
 
 void Payload::clear ()
@@ -49,7 +50,7 @@ void Payload::clear ()
 }
 
 std::atomic<int> Payload::n;
-//std::vector<int> Payload::v;
+std::vector<int> Payload::v;
 
 
 class TestAlloc
@@ -92,25 +93,32 @@ void test1()
   test_stats (bab, 0, 0);
 
   bab.reserve (1000);
-  test_stats (bab, 1, 1000);
+  const size_t nelt1 = Payload::v.size();
+  assert (nelt1 >= 1000);
+  test_stats (bab, 1, nelt1);
 
   bab.reserve (500);
-  test_stats (bab, 1, 1000);
+  test_stats (bab, 1, nelt1);
 
   bab.reserve (0);
   test_stats (bab, 0, 0);
 
+  Payload::v.clear();
   bab.reserve (500);
-  test_stats (bab, 1, 500);
+  const size_t nelt2 = Payload::v.size();
+  assert (nelt2 >= 500);
+  test_stats (bab, 1, nelt2);
   bab.reserve (1000);
-  test_stats (bab, 2, 1000);
+  const size_t nelt3 = Payload::v.size();
+  assert (nelt3 >= 1000);
+  test_stats (bab, 2, nelt3);
   bab.reserve (500);
-  test_stats (bab, 1, 500);
+  test_stats (bab, 1, nelt2);
   bab.erase();
   test_stats (bab, 0, 0);
 
   bab.reserve (500);
-  test_stats (bab, 1, 500);
+  test_stats (bab, 1, nelt2);
   SG::ArenaBlock* blocks = bab.m_blocks;
   SG::ArenaBlock* freeblocks = bab.m_freeblocks;
   TestAlloc bab2 (std::move (bab));
@@ -119,7 +127,7 @@ void test1()
   assert (bab2.name() == "foo");
   assert (bab2.params().name == "foo");
   test_stats (bab, 0, 0);
-  test_stats (bab2, 1, 500);
+  test_stats (bab2, 1, nelt2);
   assert (bab.m_blocks == nullptr);
   assert (bab.m_freeblocks == nullptr);
   assert (bab2.m_blocks == blocks);
@@ -131,7 +139,7 @@ void test1()
   assert (bab2.name() == "foo");
   assert (bab2.params().name == "foo");
   test_stats (bab2, 0, 0);
-  test_stats (bab, 1, 500);
+  test_stats (bab, 1, nelt2);
   assert (bab2.m_blocks == nullptr);
   assert (bab2.m_freeblocks == nullptr);
   assert (bab.m_blocks == blocks);
@@ -143,7 +151,7 @@ void test1()
   assert (bab2.name() == "foo");
   assert (bab2.params().name == "foo");
   test_stats (bab, 0, 0);
-  test_stats (bab2, 1, 500);
+  test_stats (bab2, 1, nelt2);
   assert (bab.m_blocks == nullptr);
   assert (bab.m_freeblocks == nullptr);
   assert (bab2.m_blocks == blocks);
