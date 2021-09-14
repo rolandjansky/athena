@@ -208,8 +208,6 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['m.neumann@cern.ch']),
                  (mf.L1CaloPostProcess,
                   ['ivana.hristova@cern.ch', 'pjwf@hep.ph.bham.ac.uk']),
-                 (mf.SCTPostProcess,
-                  ['masaki.endo@cern.ch']),
                  (mf.PixelPostProcess,
                   ['daiki.yamaguchi@cern.ch']),
                  (mf.MuonTrackPostProcess,

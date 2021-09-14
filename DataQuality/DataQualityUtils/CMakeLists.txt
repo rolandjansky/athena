@@ -38,7 +38,6 @@ atlas_add_library( DataQualityUtils
                    src/MonitoringFile_HLTJetPostProcess.cxx
                    src/MonitoringFile_HLTMinBiasMonPostProcess.cxx
                    src/MonitoringFile_PixelPostProcess.cxx
-                   src/MonitoringFile_SCTPostProcess.cxx
                    src/MonitoringFile_MuonTrackPostProcess.cxx
                    src/MonitoringFile_MergeAlgs.cxx
                    src/StatusFlagCOOL.cxx

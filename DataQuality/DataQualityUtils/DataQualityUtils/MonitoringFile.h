@@ -297,9 +297,8 @@ namespace dqutils {
                                         const TString& nameDen, const TString& nameEff,
 				        int items, double threshold, int binSkip);
 
-    // SCT
+    // Pixel
     static void PixelPostProcess(std::string inFilename, bool isIncremental = false);
-    static void SCTPostProcess(std::string inFilename, bool isIncremental = false);
  
     // Other helper methods
     // Compute Bin Errors a la Ullrich, Paterno, Xu (see source file for more details)
