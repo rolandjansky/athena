@@ -3,7 +3,6 @@
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
-//#include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/Vertex.h"
 
@@ -207,7 +206,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackBegin=tracks.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
     {
       perigeeList.push_back(&((*trackIter)->definingParameters()));
     }
@@ -332,7 +331,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const xAOD::TrackParticle*>::const_iterator trackBegin=tracks.begin();
     std::vector<const xAOD::TrackParticle*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
       {
 	perigeeList.push_back(&((*trackIter)->perigeeParameters()));
       }
