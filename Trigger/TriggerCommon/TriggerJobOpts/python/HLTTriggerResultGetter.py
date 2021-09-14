@@ -381,7 +381,10 @@ class HLTTriggerResultGetter(Configured):
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
           
-            svc = navigationThinningSvc ({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
+            # TimM Sep 2021: In MT the 'reload' slimming option in the R2 navigation thinning service was found to be creating
+            # AODs which would crash when trying to return features. We therefore remove this option by using the added 'cleanup_noreload'
+            # configuration, see ATR-24141 for details. 
+            svc = navigationThinningSvc ({'name':'HLTNav_%s'%stream, 'mode':'cleanup_noreload', 
                                           'result':'HLTResult_HLT',
                                           'features':edmlist})
 
