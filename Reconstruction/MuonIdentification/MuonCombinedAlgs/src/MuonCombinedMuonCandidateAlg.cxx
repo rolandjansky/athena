@@ -5,7 +5,7 @@
 #include "MuonCombinedMuonCandidateAlg.h"
 
 MuonCombinedMuonCandidateAlg::MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator) {}
+    AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonCombinedMuonCandidateAlg::initialize() {
     ATH_CHECK(m_muonCandidateTool.retrieve());
@@ -15,9 +15,9 @@ StatusCode MuonCombinedMuonCandidateAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonCombinedMuonCandidateAlg::execute() {
+StatusCode MuonCombinedMuonCandidateAlg::execute(const EventContext& ctx) const {
     // retrieve MuonSpectrometer tracks
-    SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
+    SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation, ctx);
     if (!muonTrackParticles.isValid()) {
         ATH_MSG_ERROR("Could not read " << m_muonTrackParticleLocation);
         return StatusCode::FAILURE;
@@ -26,11 +26,11 @@ StatusCode MuonCombinedMuonCandidateAlg::execute() {
         ATH_MSG_WARNING(m_muonTrackParticleLocation << " not present");
         return StatusCode::SUCCESS;
     }
-    SG::WriteHandle<MuonCandidateCollection> muonCandidates(m_candidateCollectionName);
+    SG::WriteHandle<MuonCandidateCollection> muonCandidates(m_candidateCollectionName, ctx);
     ATH_CHECK(muonCandidates.record(std::make_unique<MuonCandidateCollection>()));
-    SG::WriteHandle<TrackCollection> msOnlyTracks(m_msOnlyTracks);
+    SG::WriteHandle<TrackCollection> msOnlyTracks(m_msOnlyTracks, ctx);
     ATH_CHECK(msOnlyTracks.record(std::make_unique<TrackCollection>()));
-    m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks);
+    m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks,ctx);
 
     return StatusCode::SUCCESS;
 }
