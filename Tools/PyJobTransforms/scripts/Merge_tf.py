@@ -49,7 +49,7 @@ def getTransform():
                                    inData = ['AOD_MRG'], outData = ['TAG'],))
     executorSet.add(tagMergeExecutor(name = 'TAGFileMerge', exe = 'CollAppend', inData = set(['TAG']), outData = set(['TAG_MRG'])))
     executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD', 'HIST_AOD'), 'HIST'], outData = ['HIST_MRG']))
-    executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+    executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
                                    inData = ['RDO'], outData = ['RDO_MRG']))
     executorSet.add(bsMergeExecutor(name = 'RAWFileMerge', exe = 'file_merging', inData = set(['BS']), outData = set(['BS_MRG'])))
     executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
@@ -139,6 +139,9 @@ def addMyArgs(parser):
     parser.add_argument('--outputRDO_MRGFile', '--outputRDOFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
                         help='Output merged RDO file', group='RDOMerge_tf')
+    parser.add_argument('--PileUpPresampling',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool),
+                        help='Run digitization with pile-up presampling configuration.', group='RDOMerge_tf')
 
     parser.defineArgGroup('RAWMerge_tf', 'RAWMerge specific options')
     parser.add_argument('--inputBSFile', nargs='+', 

@@ -1469,7 +1469,7 @@ class argRDOFile(argPOOLFile):
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
                                   conf=myMergeConf, 
                                   inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
