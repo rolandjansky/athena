@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -211,6 +211,11 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
 
       if (0 != pEvt) {
         auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        // Be sure to update m_extBarcode before m_ptrs;
+        // otherwise, the logic in eventIndex() won't work correctly.
+        if (position != ExtendedBarCode::UNDEFINED) {
+          m_extBarcode.makeIndex (pEvt->event_number(), position);
+        }
         if (pp) {
 #ifdef HEPMC3
           m_ptrs.set (sg, pp.get());
@@ -219,9 +224,6 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
           m_ptrs.set (sg, pp);
           p=pp;
 #endif
-        }
-        if (position != ExtendedBarCode::UNDEFINED) {
-          m_extBarcode.makeIndex (pEvt->event_number(), position);
         }
       } else {
         MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
@@ -343,17 +345,21 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
       if (pEvt) {
         const int event_number = pEvt->event_number();
         auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        // Be sure to update m_extBarcode before m_ptrs.
+        // Otherwise, if two threads run this method simultaneously,
+        // one thread could see index == UNDEFINED, but where m_ptr
+        // is already updated so we get nullptr back for sg.
+        if(event_number>-1) {
+          index = static_cast<index_type>(event_number);
+          m_extBarcode.makeIndex (index, position);
+          return index;
+        }
         if (pp) {
 #ifdef HEPMC3
           m_ptrs.set (sg, pp.get());
 #else
           m_ptrs.set (sg, pp);
 #endif
-        }
-        if(event_number>-1) {
-          index = static_cast<index_type>(event_number);
-          m_extBarcode.makeIndex (index, position);
-          return index;
         }
       }
     }
