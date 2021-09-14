@@ -45,7 +45,7 @@ namespace MuonGM {
   MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 				     int zi, int fi, int mL, bool is_mirrored,
 				     MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+    : MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr),
       m_BLinePar(nullptr)
   {
     m_rots = 0.;
@@ -62,7 +62,7 @@ namespace MuonGM {
     setCachingFlag(mgr->cachingFlag());
 
     std::string vName = pv->getLogVol()->getName();
-    std::string sName = vName.substr(vName.find("-")+1);
+    std::string sName = vName.substr(vName.find('-')+1);
     std::string fixName = (sName[2]=='L') ? "MML" : "MMS";
 
     setStationName(fixName);
@@ -316,7 +316,7 @@ namespace MuonGM {
     return true;
   }
 
-  Amg::Vector3D MMReadoutElement::localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const
+  Amg::Vector3D MMReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const
   {
     int gg = manager()->mmIdHelper()->gasGap(id);
     

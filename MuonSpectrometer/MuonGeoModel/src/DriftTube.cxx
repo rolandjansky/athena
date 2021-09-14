@@ -20,11 +20,12 @@
 #include <GaudiKernel/MsgStream.h>
 #include <iostream>
 #include <string>
+#include <utility>
 
 namespace MuonGM {
 
     DriftTube::DriftTube(std::string n)
-        : DetectorElement(n), length(0.) // length is set in MultiLayer.cxx
+        : DetectorElement(std::move(n)), length(0.) // length is set in MultiLayer.cxx
     {
         gasMaterial = "muo::ArCO2";
         tubeMaterial = "std::Aluminium";

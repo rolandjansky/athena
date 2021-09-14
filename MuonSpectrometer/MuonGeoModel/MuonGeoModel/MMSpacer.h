@@ -28,7 +28,7 @@ namespace MuonGM {
 
         MMSpacer(Component *s);
         GeoPhysVol *build(int minimalgeo);
-        GeoPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
+        GeoPhysVol *build(int minimalgeo, int cutoutson, const std::vector<Cutout *>&);
         void print();
 
       private:

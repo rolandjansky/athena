@@ -37,7 +37,7 @@ namespace Trk {
 
 namespace MuonGM {
 
-CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
@@ -113,7 +113,7 @@ CscReadoutElement::~CscReadoutElement()
 }
 
 
-const Amg::Vector3D CscReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D CscReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     const Amg::Vector3D gasgapP = localWireLayerPos(id);
     const Amg::Translation3D xfp(gasgapP.x(),gasgapP.y(), gasgapP.z());
@@ -133,7 +133,7 @@ const Amg::Transform3D CscReadoutElement::localToGlobalTransf(Identifier id) con
     return absTransform()*xfp;    
 }
 
-const Amg::Vector3D CscReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D CscReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     return localToGlobalTransf(id).inverse()*x;    
 }
@@ -527,7 +527,7 @@ const Amg::Vector3D CscReadoutElement::localClusterPos(int eta, int wireLayer,
 }
 
 //****************************************************************************
-const Amg::Vector3D CscReadoutElement::localPos(Amg::Vector3D globalP) const
+const Amg::Vector3D CscReadoutElement::localPos(const Amg::Vector3D& globalP) const
 {
   // localP is a local position
   const Amg::Transform3D cscTrans = absTransform();
@@ -535,7 +535,7 @@ const Amg::Vector3D CscReadoutElement::localPos(Amg::Vector3D globalP) const
 }
 
 //****************************************************************************
-const Amg::Vector3D CscReadoutElement::nominalGlobalPos(Amg::Vector3D localP) const
+const Amg::Vector3D CscReadoutElement::nominalGlobalPos(const Amg::Vector3D& localP) const
 {
   // globalP is a global position
   const Amg::Transform3D cscTrans = absTransform();
@@ -543,7 +543,7 @@ const Amg::Vector3D CscReadoutElement::nominalGlobalPos(Amg::Vector3D localP) co
 }
 
 //****************************************************************************
-const Amg::Vector3D CscReadoutElement::globalPos(Amg::Vector3D localP) const
+const Amg::Vector3D CscReadoutElement::globalPos(const Amg::Vector3D &localP) const
 {
   return nominalGlobalPos(localP);
 }

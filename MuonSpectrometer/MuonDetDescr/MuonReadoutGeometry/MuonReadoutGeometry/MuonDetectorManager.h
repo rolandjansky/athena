@@ -288,10 +288,10 @@ namespace MuonGM {
 
     // Add a MuonStation to the list
     void addMuonStation(MuonStation* mst);
-    const MuonStation* getMuonStation (std::string stName, int eta, int phi) const;
-    MuonStation* getMuonStation (std::string stName, int eta, int phi);
+    const MuonStation* getMuonStation (const std::string &stName, int eta, int phi) const;
+    MuonStation* getMuonStation (const std::string &stName, int eta, int phi);
     //<! access to the MuonStation by StationName, Jzz, Jff (amdb indices!!!! not stationPhi and Eta)
-    std::string muonStationKey(std::string stName, int statEtaIndex, int statPhiIndex) const;
+    std::string muonStationKey(const std::string& stName, int statEtaIndex, int statPhiIndex) const;
 
     void clearCache();
     void refreshCache();
@@ -517,7 +517,7 @@ namespace MuonGM {
 
   void
     MuonDetectorManager::setGeometryVersion(std::string version)
-  {m_geometryVersion = version;}
+  {m_geometryVersion = std::move(version);}
 
   std::string MuonDetectorManager::get_DBMuonVersion() const
     {return m_DBMuonVersion;}

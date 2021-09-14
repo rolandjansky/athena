@@ -65,7 +65,7 @@ namespace MuonGM {
 
   public:
 
-    CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+    CscReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 		      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
 
     virtual ~CscReadoutElement();
@@ -171,9 +171,9 @@ namespace MuonGM {
     const Amg::Vector3D stripPos(Identifier id) const;       /**< takes into account internal alignment parameters, hence gives accurate answer */
     const Amg::Vector3D stripPos(int eta, int chamberLayer, int wireLayer,
 					    int measPhi, int channel) const;  /**< takes into account internal alignment parameters, hence gives accurate answer */
-    const Amg::Vector3D nominalGlobalPos(Amg::Vector3D localP) const; /**<  ignores internal alignment parameters, hence gives generally incorrect answer */
-    const Amg::Vector3D globalPos(Amg::Vector3D localP) const;        /**<  station-level method: does not depend on the strip view/layer, hence it cannot account for internal alignment parameters */
-    const Amg::Vector3D localPos(Amg::Vector3D globalP) const;        /**<  station-level method: does not depend on the strip view/layer, hence it cannot account for internal alignment parameters  */
+    const Amg::Vector3D nominalGlobalPos(const Amg::Vector3D& localP) const; /**<  ignores internal alignment parameters, hence gives generally incorrect answer */
+    const Amg::Vector3D globalPos(const Amg::Vector3D &localP) const;        /**<  station-level method: does not depend on the strip view/layer, hence it cannot account for internal alignment parameters */
+    const Amg::Vector3D localPos(const Amg::Vector3D& globalP) const;        /**<  station-level method: does not depend on the strip view/layer, hence it cannot account for internal alignment parameters  */
     const Amg::Vector3D nominalLocalStripPos(Identifier id) const; /**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame, coherent with the gas gas frames) */
     //const Amg::Vector3D nominalLocalStripPos(IdentifierHash id) const;/**< ignores internal alignment parameters, hence gives generally incorrect answer (local here is the station frame, coherent with the gas gas frames) */
     const Amg::Vector3D nominalLocalStripPos(int eta, int chamberLayer, int wireLayer,
@@ -212,11 +212,11 @@ namespace MuonGM {
       @param[in]  x  local coordinates of the point in the gas gap = sensitive volume
     */
     //local to global and viceversa
-    const Amg::Vector3D localToGlobalCoords(Amg::Vector3D x, Identifier id) const; //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+    const Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const; //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
     const Amg::Transform3D localToGlobalTransf(Identifier id) const; //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
     const Amg::Transform3D localToGlobalTransf(int gasGap) const;    //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
     // global to local
-    const Amg::Vector3D globalToLocalCoords(Amg::Vector3D x, Identifier id) const; //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
+    const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const; //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
     const Amg::Transform3D globalToLocalTransf(Identifier id) const;           //**< localToGlobalCoords and Transf relates gas-gap frame (SensitiveDetectors) to the Global Frame  */
 
     // modifiers

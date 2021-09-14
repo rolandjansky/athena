@@ -118,7 +118,7 @@ namespace MuonGM {
     void spacePointPosition( const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos ) const;
 
     /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only      */
-    Amg::Vector3D localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const;
+    Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const;
 
     /** @brief function to fill tracking cache */
     virtual void         fillCache() override final;

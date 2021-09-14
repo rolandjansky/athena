@@ -37,13 +37,14 @@
 #include <memory>
 #include <cmath>
 #include <stdexcept>
+#include <utility>
 
 namespace MuonGM {
 
   sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 					 int zi, int fi, int mL, bool is_mirrored,
 					 MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+    : MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr),
       m_BLinePar(nullptr)
   {
     m_rots = 0.;
@@ -60,7 +61,7 @@ namespace MuonGM {
     setCachingFlag(mgr->cachingFlag());
 
     std::string vName = pv->getLogVol()->getName();
-    std::string sName = vName.substr(vName.find("-")+1);
+    std::string sName = vName.substr(vName.find('-')+1);
     std::string fixName = (sName[1]=='L') ? "STL" : "STS";
 	
     setStationName(fixName);
@@ -507,7 +508,7 @@ namespace MuonGM {
   }
 
 
-  Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const
+  Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const
   {
     int gg = manager()->stgcIdHelper()->gasGap(id);
     int channelType = manager()->stgcIdHelper()->channelType(id);

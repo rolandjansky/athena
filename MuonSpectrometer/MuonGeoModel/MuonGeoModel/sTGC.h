@@ -30,7 +30,7 @@ namespace MuonGM {
 
         sTGC(Component *s);
         GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
+        GeoFullPhysVol *build(int minimalgeo, int cutoutson, const std::vector<Cutout *>&);
         void print();
 
       private:

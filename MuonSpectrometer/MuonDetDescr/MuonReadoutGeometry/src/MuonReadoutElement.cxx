@@ -91,7 +91,7 @@ namespace MuonGM {
     return (!largeSector());
   }
 
-  void MuonReadoutElement::setParentStationPV(PVConstLink x)
+  void MuonReadoutElement::setParentStationPV(const PVConstLink& x)
   {
     m_parentStationPV = x;
     setIndexOfREinMuonStation();

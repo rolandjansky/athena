@@ -55,7 +55,7 @@ namespace MuonGM {
     }
 
     // Start building the physical volume of the quadruplet
-    GeoFullPhysVol *sTGC::build(int minimalgeo, int, std::vector<Cutout *>) {
+    GeoFullPhysVol *sTGC::build(int minimalgeo, int, const std::vector<Cutout *>&) {
         AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
         sTGCDetectorHelper stgcHelper;
         sTGCDetectorDescription *stgc_descr = stgcHelper.Get_sTGCDetectorSubType(m_component->subType);
