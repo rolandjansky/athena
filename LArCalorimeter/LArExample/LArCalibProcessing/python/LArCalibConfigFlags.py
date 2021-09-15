@@ -41,6 +41,7 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.Input.RunNumbers",[])
     flags.addFlag("LArCalib.Input.Type","calibration_LArElec-Pedestal")
     flags.addFlag("LArCalib.Input.Files",_getInputFiles)
+    flags.addFlag("LArCalib.Input.SubDet","") #EM, HEC or FCAL 
     
     flags.addFlag("LArCalib.Input.Database","LAR_OFL") #In practice, a sqlite file
 
