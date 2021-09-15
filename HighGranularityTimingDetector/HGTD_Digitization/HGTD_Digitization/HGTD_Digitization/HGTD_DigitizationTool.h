@@ -25,7 +25,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-// #include "HGTD_Digitization/IHGTD_SurfaceChargesGenerator.h"
+#include "HGTD_Digitization/IHGTD_SurfaceChargesGenerator.h"
 #include "HGTD_RawData/HGTD_RDOCollection.h"
 #include "HGTD_RawData/HGTD_RDOContainer.h"
 #include "HitManagement/TimedHitCollection.h"
@@ -52,7 +52,7 @@ class HGTD_DigitizationTool : virtual public IPileUpTool,
                               public PileUpToolBase {
 public:
   static const InterfaceID& interfaceID();
-  
+
   HGTD_DigitizationTool(const std::string& type, const std::string& name,
                         const IInterface* parent);
 
@@ -132,11 +132,6 @@ private:
   // FIXME is this meant as a "keapalive" vector?
   std::vector<SiHitCollection*> m_hit_coll_ptrs;
 
-  /** @brief This collection stores the energy deposits in their
-   * digitized form, all the tools are run over it. */
-  // TODO: maybe this can be a local member??
-  // std::unique_ptr<SiChargedDiodeCollection> m_charged_diodes;
-
   /** @brief Only SiHits within the defined time window are processed in the
    * digitization procedure, the rest is discarded. Given in ns.*/
   float m_active_time_window;
@@ -145,7 +140,7 @@ private:
 
   CLHEP::HepRandomEngine* m_rndm_engine;
 
-  // ToolHandle<IHGTD_SurfaceChargesGenerator> m_hgtd_surf_charge_gen;
+  ToolHandle<IHGTD_SurfaceChargesGenerator> m_hgtd_surf_charge_gen;
 
   ToolHandle<IFrontEnd> m_hgtd_front_end_tool;
 

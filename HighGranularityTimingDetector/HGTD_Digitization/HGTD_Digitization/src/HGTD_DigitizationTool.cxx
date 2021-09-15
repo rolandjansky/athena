@@ -41,7 +41,7 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
       m_active_time_window(10000),
       m_rndm_svc("AtRndmGenSvc", name),
       m_rndm_engine(nullptr),
-      // m_hgtd_surf_charge_gen("HGTD_SurfaceChargesGenerator", this),
+      m_hgtd_surf_charge_gen("HGTD_SurfaceChargesGenerator", this),
       m_hgtd_front_end_tool("HGTD_FrontEndTool", this) {
 
   declareProperty("MergeSvc", m_merge_svc,
@@ -52,8 +52,8 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
                   "Hits within this time window are used for digitization");
   declareProperty("RndmSvc", m_rndm_svc,
                   "Random Number Service used in HGTD & Pixel digitization");
-  // declareProperty("HGTD_SurfaceChargesGenerator", m_hgtd_surf_charge_gen,
-  // "Choice of using a more detailed charge drift model");
+  declareProperty("HGTD_SurfaceChargesGenerator", m_hgtd_surf_charge_gen,
+                  "Choice of using a more detailed charge drift model");
   declareProperty("HGTD_FrontEndTool", m_hgtd_front_end_tool,
                   "Tool for pulse shape simulation");
   declareProperty("OutputSDOName", m_output_sdo_coll_name = "HGTD_SDO_Map",
@@ -72,8 +72,7 @@ StatusCode HGTD_DigitizationTool::initialize() {
 
   m_rndm_engine = m_rndm_svc->GetEngine("HGTD_Digitization");
 
-  // ATH_CHECK(m_hgtd_surf_charge_gen.retrieve());
-  // m_hgtd_surf_charge_gen->setRandomEngine(m_rndm_engine);
+  ATH_CHECK(m_hgtd_surf_charge_gen.retrieve());
 
   ATH_CHECK(m_hgtd_front_end_tool.retrieve());
   m_hgtd_front_end_tool->setRandomEngine(m_rndm_engine);
@@ -230,9 +229,8 @@ StatusCode HGTD_DigitizationTool::retrieveHitCollection() {
 
     m_timed_hit_coll->insert(coll_itr->first, collection);
 
-    ATH_MSG_DEBUG("SiTrackerHitCollection found with"
-                  << collection->size()
-                  << " hits"); // loop on the hit collections
+    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << collection->size()
+                                                      << " hits");
     ++coll_itr;
   }
   return StatusCode::SUCCESS;
@@ -265,10 +263,6 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
     // FIXME (init once outside the while loop and use clear and set det elem??)
     std::unique_ptr<SiChargedDiodeCollection> charged_diode_coll =
         std::make_unique<SiChargedDiodeCollection>(det_elem);
-    // charged_diode_coll->setDetectorElement(det_elem);
-
-    // set the current detector element for the charge generator
-    // m_hgtd_surf_charge_gen->setDetectorElement(det_elem);
 
     ///////////////// LOOP TO FILL A COLLECTION /////////////////
     // Loop over the hits on the selected detector element and created charged
@@ -285,14 +279,14 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
 
       // use the surface charge generator to produce the charged diode
       // and add it to the charged diode collection
-      // m_hgtd_surf_charge_gen->createSurfaceChargesFromHit(
-      //     current_hit, charged_diode_coll.get());
+      m_hgtd_surf_charge_gen->createSurfaceChargesFromHit(
+          current_hit, charged_diode_coll.get(), det_elem, m_rndm_engine);
 
     } // END LOOP over hits
     ////////////////////////////////////////////////////////////////
     // now that the charges have been built, apply all digitization tools
     applyProcessorTools(charged_diode_coll.get());
-    // TODO: at this point, the RDOs and SDOs need to be created!!!
+    // at this point, the RDOs and SDOs need to be created!!!
     std::unique_ptr<HGTD::HGTD_RDOCollection> rdo_collection =
         createRDOCollection(charged_diode_coll.get());
 
@@ -300,8 +294,6 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
 
     createAndStoreSDO(charged_diode_coll.get());
 
-    // done with this detector element
-    // charged_diode_coll->clear(); //might be needed when moving ptr out
     ATH_MSG_DEBUG("charges filled for module " << id);
   } // END LOOP over detector elements
 
@@ -446,13 +438,12 @@ void HGTD_DigitizationTool::createAndStoreSDO(
 
       // if the charge has already hit the Diode add it to the deposit
       if (theDeposit != depositsR_end) {
-        // (*theDeposit).second += charge_list_itr->charge();
         (*theDeposit).second += charge_list_itr->time();
       } else { // create a new deposit
         InDetSimData::Deposit deposit(trkLink, charge_list_itr->charge());
         deposits.push_back(deposit);
       }
-    } //END LOOP charges within diode
+    } // END LOOP charges within diode
 
     // add the simdata object to the map if the deposit originated from a
     // particle to which the truth information was kept. Can be HS and PU.
@@ -466,5 +457,5 @@ void HGTD_DigitizationTool::createAndStoreSDO(
       m_sdo_collection->insert(std::make_pair(
           id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));
     }
-  } //END LOOP charged diodes
+  } // END LOOP charged diodes
 }
