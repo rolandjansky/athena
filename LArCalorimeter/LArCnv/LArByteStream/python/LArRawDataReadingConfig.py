@@ -8,8 +8,8 @@ LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
 def LArRawDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    acc.merge(DetDescrCnvSvcCfg(configFlags))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    acc.merge(LArGMCfg(configFlags))
     acc.merge(ByteStreamReadCfg(configFlags))
 
     if configFlags.Overlay.DataOverlay:
@@ -42,8 +42,6 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     acc = MainServicesCfg( ConfigFlags )
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    acc.merge(AtlasGeometryCfg(ConfigFlags))
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     
     DumpLArRawChannels=CompFactory.DumpLArRawChannels
