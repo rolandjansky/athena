@@ -6,7 +6,6 @@
 #define TRT_PAI_element_h
 
 #include <string>
-#include <iostream>
 #include <vector>
 
 /**
@@ -28,7 +27,7 @@ public:
    * \param Z:  atomic Z
    * \param A:  atomic A
    */
-  TRT_PAI_element(std::string nm,
+  TRT_PAI_element(const std::string & nm,
 		  const float *E,
 		  const float *S,
 		  int N,
