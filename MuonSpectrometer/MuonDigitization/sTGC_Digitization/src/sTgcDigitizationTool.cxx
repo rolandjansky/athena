@@ -433,9 +433,9 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
       Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
 
-      ATH_MSG_VERBOSE("Local Z " << LOCAL_Z );
-      ATH_MSG_VERBOSE("Local Direction " << LOCDIRE );
-      ATH_MSG_VERBOSE("Local Position " << LPOS );
+      ATH_MSG_VERBOSE("Local Z: (" << LOCAL_Z.x() << ", " << LOCAL_Z.y() << ", " << LOCAL_Z.y() <<")" );
+      ATH_MSG_VERBOSE("Local Direction: (" << LOCDIRE.x() << ", " << LOCDIRE.y() << ", " << LOCDIRE.z() << ")" );
+      ATH_MSG_VERBOSE("Local Position: (" << LPOS.x() << ", " << LPOS.y() << ", " << LPOS.z() << ")" );
 
       double e = 1e-5;
 
@@ -459,8 +459,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
       Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
 
-      ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
-      ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
+      ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << HITONSURFACE_WIRE.x() << ", " << HITONSURFACE_WIRE.y() << ", " << HITONSURFACE_WIRE.z() << ")"  );
+      ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << G_HITONSURFACE_WIRE.x() << ", " << G_HITONSURFACE_WIRE.y() << ", " << G_HITONSURFACE_WIRE.z() << ")" );
 
       ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
 
@@ -529,7 +529,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         if(eventId != 0)  //hit not from the main signal subevent
           isPileup = 1;
 
-        ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
         sTgcDigit newDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);
         ATH_MSG_VERBOSE("Unmerged Digit") ;
