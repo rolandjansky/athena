@@ -32,8 +32,8 @@
 
 #include "StoreGate/ReadCondHandle.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <string>
 #include <vector>
 
 /** Constructor */
@@ -255,7 +255,7 @@ void GetDetectorPositions::writeSimpleTRTPositions(){
   std::vector<Identifier>::const_iterator trtStrawLayIt = m_TRTHelper->straw_layer_begin();
   std::vector<Identifier>::const_iterator trtStrawLayItE = m_TRTHelper->straw_layer_end();
 
-  for(; trtStrawLayIt != trtStrawLayItE; trtStrawLayIt++  ) {
+  for(; trtStrawLayIt != trtStrawLayItE; ++trtStrawLayIt  ) {
     writeTRTPositions(*trtStrawLayIt);
   }
 

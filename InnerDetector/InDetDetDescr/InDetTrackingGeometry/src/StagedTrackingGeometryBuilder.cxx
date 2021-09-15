@@ -592,7 +592,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
             if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
             else {
               std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
-              while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) lit++;
+              while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) ++lit;
               ringSet.insert(lit,ring);  
             }   
           }
