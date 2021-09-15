@@ -235,6 +235,7 @@ class TrigInDetRdictStep(Step):
             os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-TnP.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline-rzMatcher.dat &> /dev/null' )
