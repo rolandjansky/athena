@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Service designed to read in calibration files to the cool database. Can also read them
@@ -326,7 +326,7 @@ namespace MuonCalib {
 
       //Store the pointers in maps for easy lookup later
       m_parNameMap[name] = coll;
-      m_parSGKeyMap[sgKey] = coll;
+      m_parSGKeyMap[sgKey].first = coll;
       
       if( name == "rms" ) m_rmsCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( m_pslopeFromDB && name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
@@ -340,7 +340,8 @@ namespace MuonCalib {
         if( !m_statusCondData ) ATH_MSG_WARNING("Wrong data type for status bit " << dataType);
       }else  ATH_MSG_WARNING("Data type not cached, a direct access should be provided " << name);
       
-      const DataHandle<CondAttrListCollection> & dataHandle = coll->atrcHandle();
+      
+      const DataHandle<CondAttrListCollection> & dataHandle = m_parSGKeyMap[sgKey].second;
 
       //Registering callback function. The callback funciton will now be called
       //whenever the parameter in question is altered. i.e. whenever it goes
@@ -804,7 +805,7 @@ namespace MuonCalib {
   {
     if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Caching parameter " << parKey);
     ///*****//
-    std::map<std::string, CscCondDataCollectionBase*>::iterator collItr = m_parSGKeyMap.find(parKey);
+    auto collItr = m_parSGKeyMap.find(parKey);
 
     if(collItr == m_parSGKeyMap.end())
     {
@@ -813,7 +814,7 @@ namespace MuonCalib {
       return StatusCode::RECOVERABLE;
     }
 
-    CscCondDataCollectionBase * coll = dynamic_cast<CscCondDataCollectionBase *>( collItr->second);
+    CscCondDataCollectionBase * coll = dynamic_cast<CscCondDataCollectionBase *>( collItr->second.first);
 
     coll->reset(); //Clear vector and set to size dictated by maxIndex
 
@@ -823,7 +824,7 @@ namespace MuonCalib {
     const unsigned int & numCoolChannels = coll->getNumCoolChan();
 
 
-    const CondAttrListCollection * atrc = &*(coll->atrcHandle());
+    const CondAttrListCollection * atrc = &*(collItr->second.second);
 
     //now cycle through all chambers in database;
     unsigned int numCoolChannelsFound = 0;
