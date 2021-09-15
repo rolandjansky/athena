@@ -145,7 +145,8 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(PoolWriteCfg(ConfigFlags))
+    # force TreeAutoFlush=1 as events will be accessed randomly
+    cfg.merge(PoolWriteCfg(ConfigFlags, forceTreeAutoFlush=1))
 
     # add LArHitFilter + AddressRemappingSvc
     if ConfigFlags.Detector.EnableLAr:
@@ -217,11 +218,6 @@ def fromRunArgs(runArgs):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
-
-    # FIXME hack because deduplication is broken
-    PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-    PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
-    cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

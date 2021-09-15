@@ -73,9 +73,4 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True) )
         cfg.getEventAlgo("OutputStreamEVNT_TR").AcceptAlgs=[AcceptAlgName]
 
-    # FIXME hack because deduplication is broken
-    PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-    PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
-    cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
-
     return cfg
