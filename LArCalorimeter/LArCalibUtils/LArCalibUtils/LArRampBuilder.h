@@ -92,7 +92,6 @@ private:
   ToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool;
   ToolHandle<LArShapePeakRecoTool>    m_peakShapeTool;
   ToolHandle<LArOFPeakRecoTool>       m_peakOFTool;
-  ToolHandle<ICaloSuperCellIDTool> m_sc2ccMappingTool;
 
   unsigned m_event_counter; 
   int m_delay;
@@ -125,7 +124,6 @@ private:
   UnsignedIntegerProperty m_minDAC;
 
   int m_DeadChannelCut;
-  std::string m_folderName;
   int m_shapeMethodDAC;
   unsigned int m_DAC0;
 
