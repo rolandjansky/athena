@@ -410,7 +410,7 @@ StatusCode TrigMultiTrkComboHypo::mergeTracksFromDecisions(TrigMultiTrkStateBase
     if (!trackEL.isValid()) continue;
     if (!m_applyOverlapRemoval ||
         std::find_if(tracks.begin(), tracks.end(),
-                     [this, track = *trackEL](const auto& x){ return isIdenticalTracks(track, *x); }) == tracks.end()) {
+                     [this, track = *trackEL](const auto& x){ return this->isIdenticalTracks(track, *x); }) == tracks.end()) {
       tracks.emplace_back(trackEL);
     }
   }
