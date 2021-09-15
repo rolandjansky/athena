@@ -51,7 +51,9 @@ def getBJetSequence(jc_name):
     InputMakerAlg.PlaceJetInView = True
 
     # Output container names as defined in TriggerEDMRun3
-    jc_key = f'{jc_name}_'if jc_name else 'HLT_'
+    if not jc_name:
+        raise ValueError("jet collection name is empty - pass the full HLT jet collection name to getBJetSequence().")
+    jc_key = f'{jc_name}_'
     InputMakerAlg.InViewJets = recordable( f'{jc_key}bJets' )
     BTagName = recordable(f'{jc_key}BTagging')
 
