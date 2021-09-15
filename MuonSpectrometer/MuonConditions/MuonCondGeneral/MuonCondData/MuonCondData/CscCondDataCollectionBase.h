@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCONDDATACOLLECTIONBASE_H 
@@ -15,7 +15,6 @@
 **/
 
 #include "AthContainers/DataVector.h"
-#include "StoreGate/DataHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondData/CscCondData.h"
 
@@ -75,10 +74,6 @@ namespace MuonCalib {
       //Get size
       virtual size_t getSize() const = 0; 
 
-      const DataHandle<CondAttrListCollection> & atrcHandle() const {
-        return m_atrcHandle;
-      }
-
       //record an entry to the DataVector 
       virtual StatusCode recordFromSS(std::istringstream & ss, const unsigned int & index) = 0;
 
@@ -104,8 +99,6 @@ namespace MuonCalib {
 
       int m_numBits;
       int m_bitOffset;
-      
-      const DataHandle<CondAttrListCollection> m_atrcHandle;
   };
 
 
