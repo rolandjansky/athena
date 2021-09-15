@@ -225,8 +225,13 @@ bool PadTrig_ROD_Decoder::extractBit(OFFLINE_FRAGMENTS_NAMESPACE::PointerType da
 uint8_t PadTrig_ROD_Decoder::extractByte(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t index) const
 {
   // Swap to big endian, so byte extracted will match the byte at the given index in the contiguous packet
-  const uint32_t word = data[index / 4];
-  return reinterpret_cast<const uint8_t*>(&word)[index % 4];
+  union Conv
+  {
+    uint32_t u32;
+    uint8_t u8[4];
+  } c;
+  c.u32 = data[index / 4];
+  return c.u8[index % 4];
 }
 
 }  // namespace Muon
