@@ -4,7 +4,6 @@
 
 #include "InDetMultipleVertexSeedFinder/HistogrammingMultiSeedFinder.h"
 #include "TrkTrack/Track.h"
-//#include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -264,7 +263,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackBegin=tracks.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
     {
       perigeeList.push_back(&((*trackIter)->definingParameters()));
     }
@@ -434,7 +433,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const xAOD::TrackParticle*>::const_iterator trackBegin=tracks.begin();
     std::vector<const xAOD::TrackParticle*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
     {
       perigeeList.push_back(&((*trackIter)->perigeeParameters()));
     }

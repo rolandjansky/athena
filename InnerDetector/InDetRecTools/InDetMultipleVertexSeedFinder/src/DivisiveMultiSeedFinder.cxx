@@ -4,7 +4,6 @@
 
 #include "InDetMultipleVertexSeedFinder/DivisiveMultiSeedFinder.h"
 #include "TrkTrack/Track.h"
-//#include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
@@ -151,7 +150,6 @@ namespace InDet
     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
   
-//    double currentTrackZ0 = preselectedTracks[indexOfSorted[i]]->perigeeParameters()->parameters()[Trk::z0];
    
     if(fabs(currentTrackZ0 - lastTrackZ0)<m_sepDistance)
     {
@@ -269,7 +267,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackBegin=tracks.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const Trk::TrackParticleBase*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
     {
       perigeeList.push_back(&((*trackIter)->definingParameters()));
     }
@@ -284,7 +282,6 @@ namespace InDet
 
   }
 
- // std::cout<<"Number after pre-selection : "<<preselectedTracks.size()<<std::endl;
   
 //step 2: sorting in z0
 //output container  
@@ -439,9 +436,7 @@ namespace InDet
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   beamposition->setPosition(beamSpotHandle->beamVtx().position());
   beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
-  // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
-  // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
-  //Trk::Vertex* beamposition=&beamrecposition;
+
 
    for (std::vector<const xAOD::TrackParticle*>::const_iterator itr  = tracks.begin(); itr != tracks.end(); ++itr) {
      if (m_trkFilter->decision(**itr,beamposition)) preselectedTracks.push_back(*itr);
@@ -452,7 +447,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> perigeeList;
     std::vector<const xAOD::TrackParticle*>::const_iterator trackBegin=tracks.begin();
     std::vector<const xAOD::TrackParticle*>::const_iterator trackEnd=tracks.end();
-    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;trackIter++)
+    for (std::vector<const xAOD::TrackParticle*>::const_iterator trackIter=trackBegin;trackIter!=trackEnd;++trackIter)
     {
       perigeeList.push_back(&((*trackIter)->perigeeParameters()));
     }
@@ -471,7 +466,6 @@ namespace InDet
 	    beamposition->setCovariancePosition(myVertex->covariancePosition());
 	  }
 
- // std::cout<<"Number after pre-selection : "<<preselectedTracks.size()<<std::endl;
   
 //step 2: sorting in z0
 //output container  
@@ -621,128 +615,5 @@ namespace InDet
   return result;
     
   }
-  /*
-  std::vector<int> DivisiveMultiSeedFinder::m_z0sort(std::vector<const xAOD::TrackParticle*>& tracks,xAOD::Vertex * reference) const
-  {
-    
-    // std::vector<int> no_perigee(0);
-    std::map<double, int> mapOfZ0; 
-    std::vector<const xAOD::TrackParticle*>::const_iterator tb = tracks.begin();
-    std::vector<const xAOD::TrackParticle*>::const_iterator te = tracks.end();
-    unsigned int j=0;
-    
-    for(;tb != te ;++tb)
-      {
-	const Trk::TrackParameters * perigee = 0;
-	
-	
-	//here we want to make an extrapolation    
-	Trk::PerigeeSurface perigeeSurface(reference->position());
-	perigee = m_extrapolator->extrapolate(**tb,
-					      perigeeSurface,
-					      Trk::anyDirection,true, Trk::pion);  
-	
-	if(perigee)
-	  {
-	    double trkZ0 = perigee->parameters()[Trk::z0];
-	    mapOfZ0.insert(std::map<double, int>::value_type(trkZ0,j)); 
-	    delete perigee;
-	    perigee =0;
-	    
-	  }else{
-	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
-	  //    no_perigee.push_back(j);
-	}//end of perigee existance check
-	++j;
-      }//end of loop over all track particle base's
-    
-    //creating an output vector, filling it and returning
-    std::vector<int> result(0);
-    
-    //sorted part  
-    std::map<double, int>::const_iterator mb = mapOfZ0.begin();
-    std::map<double, int>::const_iterator me = mapOfZ0.end(); 
-    for(;mb!=me;++mb) result.push_back((*mb).second);
-    
-    //part failed sorting
-    //  std::vector<int>::const_iterator ib = no_perigee.begin();
-    //  std::vector<int>::const_iterator ie = no_perigee.end();
-    //  for(;ib!=ie;++ib) result.push_back(*ib);  
-    return result;
-  }
-  */
-  /*
-  std::pair<std::vector<const Trk::TrackParameters *>, 
-	    std::vector<const xAOD::TrackParticle *> > DivisiveMultiSeedFinder::m_clusterAndOutliers(std::vector<const xAOD::TrackParticle *> cluster, xAOD::Vertex * reference) const
-	    {
-	      
-	      std::vector<const Trk::TrackParameters*> clusterSeed(0);
-	      std::vector<const xAOD::TrackParticle*> outliers(0);
-	      
-	      double z_center = 0;
-	      
-	      std::vector<const xAOD::TrackParticle*>::const_iterator inb = cluster.begin();
-	      std::vector<const xAOD::TrackParticle*>::const_iterator ine = cluster.end();
-	      
-	      unsigned int cluster_size = 0;
-	      
-	      msg(MSG::DEBUG)<<"Receiving a cluster of size: "<< cluster.size()<<endmsg;
-	      
-	      Trk::PerigeeSurface perigeeSurface(reference->position());
-	      
-	      //first getting the cluster center  
-	      for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
-		{
-		  const Trk::TrackParameters * perigee(0);
-	  
-		  perigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
-		  
-		  if(perigee)
-		    { 
-		      z_center += perigee->parameters()[Trk::z0];
-		      msg(MSG::DEBUG)<<"Adding parameters: "<<perigee->parameters()[Trk::z0] <<endmsg;
-		      ++cluster_size;
-		    }else{
-		    msg(MSG::WARNING)<<" The TrackParticleBase provided does not contain perigee parameters"<<endmsg;
-		  }//end of perigee security check
-		}//end of loop definig the center of a cluster
-	      msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endmsg;
-	      
-	      z_center = z_center/cluster_size;
-	      
-	      msg(MSG::DEBUG)<<"Looping over the cluster" <<endmsg;
-	      
-	      for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
-		{
-		  const Trk::TrackParameters * measPerigee(0);
-		  measPerigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
-		  
-		  if(0!=measPerigee)
-		    {
-		      double z0 = measPerigee->parameters()[Trk::z0];
-		      const AmgSymMatrix(5) * cov = measPerigee->covariance();    
-		      double sigma_z0 = Amg::error(*cov,Trk::z0);
-		      
-		      msg(MSG::DEBUG)<<"Perigee Z0 and corresponding sigma "<<z0<<" "<<sigma_z0<<endmsg;
-		      msg(MSG::DEBUG)<<"Center of the cluster "<<z_center<<endmsg;
-		      msg(MSG::DEBUG)<<"Offset "<<3.0<<endmsg;
-		      msg(MSG::DEBUG)<<"discriminant "<<fabs(z_center-z0)<<" "<< sigma_z0*3.0 <<endmsg;
-		      
-		      //if the track is closer than several standard deviations, keep it    
-		      if(fabs(z_center-z0)< sigma_z0*3.0) clusterSeed.push_back(&((*i)->perigeeParameters())); 
-		      
-		      //declare it an outlier otherwise
-		      else outliers.push_back(*i);
-		    }else{
-		    outliers.push_back(*i);
-		    msg(MSG::WARNING)  << "This track has no meas perigee. Regarded as outlyer" << endmsg;
-		  }//end of measured perigee check
-		}//end of separation loop
-	      
-	      std::pair<std::vector<const Trk::TrackParameters *>, 
-		std::vector<const xAOD::TrackParticle *> > result(clusterSeed, outliers);
-	      return result;
-	      
-	    }
-  */  
+ 
 }//end of namespace definitions
