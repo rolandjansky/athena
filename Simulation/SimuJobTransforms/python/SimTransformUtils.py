@@ -191,7 +191,8 @@ def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep,
 
 def addStandardHITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                              tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
+                                   skeletonCA = 'SimuJobTransforms.HITSMerge_Skeleton',
+                                   tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
 
 def addAFII_HITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',

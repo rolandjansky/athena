@@ -97,26 +97,11 @@ def fromRunArgs(runArgs):
     else:
         raise RuntimeError('No input HITS file defined')
 
-    if hasattr(runArgs, 'detectors'):
-        detectors = runArgs.detectors
-    else:
-        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
-        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
-
-    # Support switching on Forward Detectors
-    if hasattr(runArgs, 'LucidOn'):
-        detectors = detectors+['Lucid']
-    if hasattr(runArgs, 'ZDCOn'):
-        detectors = detectors+['ZDC']
-    if hasattr(runArgs, 'AFPOn'):
-        detectors = detectors+['AFP']
-    if hasattr(runArgs, 'ALFAOn'):
-        detectors = detectors+['ALFA']
-    if hasattr(runArgs, 'FwdRegionOn'):
-        detectors = detectors+['FwdRegion']
-
-    # Setup common simulation flags
-    defaultFilterHitFlags(ConfigFlags, detectors)
+    # Generate detector list and setup detector flags
+    from SimuJobTransforms.SimulationHelpers import getDetectorsFromRunArgs
+    detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
     ## from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
     ## HitsFilePeeker(runArgs, filterHitLog)
@@ -128,7 +113,7 @@ def fromRunArgs(runArgs):
         else:
             ConfigFlags.Output.HITSFileName  = runArgs.outputHITS_FILTFile
     else:
-        raise RuntimeError('No outputHITSFile defined')
+        raise RuntimeError('No outputHITS_FILTFile defined')
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
