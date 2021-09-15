@@ -17,6 +17,6 @@ atlas_add_component( HGTD_Digitization
                   LINK_LIBRARIES ${CLHEP_LIBRARIES} PileUpToolsLib HGTD_RawData
                   HitManagement AthenaBaseComps ReadoutGeometryBase SiDigitization
                   HGTD_Identifier HGTD_ReadoutGeometry GeneratorObjects GaudiKernel
-                  InDetSimData InDetSimEvent AthenaKernel)
+                  InDetSimData InDetSimEvent AthenaKernel AtlasCLHEP_RandomGenerators)
 
 atlas_install_headers( HGTD_Digitization )
