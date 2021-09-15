@@ -20,6 +20,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 
 from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, PRWEntries, urlType, ROOTGetSize
 from PyJobTransforms.trfUtils import call
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
 from PyJobTransforms.trfAMI import getAMIClient
@@ -1933,7 +1934,9 @@ class argSubstep(argument):
             name = exe.name
             substep = exe.substep
             first = exe.conf.firstExecutor
-            
+
+        name = commonExecutorStepName(name)
+
         value = None
         ## @note First we see if we have an explicit name or substep match, then a special 'first' or 'default' match
         if name in self._value:

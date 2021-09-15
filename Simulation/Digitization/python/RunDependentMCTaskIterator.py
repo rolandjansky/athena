@@ -11,7 +11,7 @@ import itertools
 import random
 from operator import itemgetter
 
-def getRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False):
+def getRunLumiInfoFragment(jobnumber,task,maxEvents,totalEvents,skipEvents,sequentialEventNumbers=False):
     """Calculate the specific configuration of the current job in the digi
     task. Try to make each fragment utilize the same amount of CPU and
     Cache resources.  Exploits the fact that the task when sorted by
@@ -35,11 +35,11 @@ def getRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False
     
     fragment=sorted(sum([hi_mu_frag,lo_mu_frag],[]),key=lambda job: job['run'])
     if sequentialEventNumbers:
-        return defineSequentialEventNumbers(jobnumber,fragment,maxEvents)
+        return defineSequentialEventNumbers(jobnumber,fragment,totalEvents,skipEvents)
     else:
         return fragment
 
-def getRandomlySampledRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False):
+def getRandomlySampledRunLumiInfoFragment(jobnumber,task,maxEvents,totalEvents,skipEvents,sequentialEventNumbers=False):
     """Calculate the specific configuration of the current job in the digi
     task. Sample the mu values randomly.
     """
@@ -52,7 +52,7 @@ def getRandomlySampledRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEve
 
     # sample mu profile
     new_frag = []
-    evt_nbr = jobnumber * maxEvents
+    evt_nbr = jobnumber * totalEvents + skipEvents
     for i in range(maxEvents):
         evt_nbr += 1
 
@@ -160,11 +160,11 @@ def taskLookupTable(task):
             table.append(i)
     return table
 
-def defineSequentialEventNumbers(jobnumber,fragment,maxEvents):
+def defineSequentialEventNumbers(jobnumber,fragment,totalEvents,skipEvents):
     """ Calculate sequential event numbers for the defined getFragment.
     """
     new_frag = []
-    evt_nbr = jobnumber * maxEvents
+    evt_nbr = jobnumber * totalEvents + skipEvents
     for t in fragment:
         for i in range(t['evts']):
             evt_nbr += 1

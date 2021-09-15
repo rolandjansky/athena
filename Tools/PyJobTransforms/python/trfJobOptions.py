@@ -15,6 +15,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 import PyJobTransforms.trfExceptions as trfExceptions
+from PyJobTransforms.trfExeStepTools import getExecutorStepEventCounts
 from PyJobTransforms.trfExitCodes import trfExit
 
 from PyJobTransforms.trfUtils import findFile
@@ -208,6 +209,21 @@ class JobOptionsTemplate(object):
                         print(f"AthenaMPJobProps.AthenaMPFlags.UseSharedWriter={self._exe.conf.argdict['sharedWriter'].value}", file=runargsFile)
                     if 'parallelCompression' in self._exe.conf.argdict:
                         print(f"AthenaMPJobProps.AthenaMPFlags.UseParallelCompression={self._exe.conf.argdict['parallelCompression'].value}", file=runargsFile)
+
+                # Executor substeps
+                print(os.linesep, '# Executor flags', file=runargsFile)
+                msg.debug('Adding runarg {0!s}={1!r}'.format('totalExecutorSteps', self._exe.conf.totalExecutorSteps))
+                print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'totalExecutorSteps', self._exe.conf.totalExecutorSteps), file=runargsFile)
+                if self._exe.conf.executorStep >= 0:
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('executorStep', self._exe.conf.executorStep))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'executorStep', self._exe.conf.executorStep), file=runargsFile)
+                    executorEventCounts, executorEventSkips = getExecutorStepEventCounts(self._exe)
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('executorEventCounts', executorEventCounts))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'executorEventCounts', executorEventCounts), file=runargsFile)
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('executorEventSkips', executorEventSkips))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'executorEventSkips', executorEventSkips), file=runargsFile)
+
+                # CA
                 if self._exe._isCAEnabled():
                     print(os.linesep, '# Threading flags', file=runargsFile)
                     #Pass the number of threads
@@ -223,7 +239,7 @@ class JobOptionsTemplate(object):
                     print('fromRunArgs({0})'.format(self._runArgsName),file=runargsFile)
 
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
-                
+
             except (IOError, OSError) as e:
                 errMsg = 'Got an error when writing JO template {0}: {1}'.format(self._runArgsFile, e)
                 msg.error(errMsg)
@@ -251,7 +267,9 @@ class JobOptionsTemplate(object):
     #  @param input Input file list
     #  @param output Output file list
     #  @return List of runargs and skeletons to be processed by athena
-    def getTopOptions(self, input = dict(), output = dict()): 
+    def getTopOptions(self, input = dict(), output = dict()):
+        # Update the output name
+        self._runArgsFile = 'runargs.' + self._exe.name + '.py'
         # First Make the runArgs file:
         self.writeRunArgs(input = input, output = output)
         # Make sure runArgs and skeleton are valid

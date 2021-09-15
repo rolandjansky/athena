@@ -23,8 +23,12 @@ def _createCfgFlags():
     from AthenaCommon.Constants import INFO
     acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
     acf.addFlag('Exec.MaxEvents',-1) 
-    acf.addFlag("Exec.SkipEvents",0)
-    acf.addFlag("Exec.DebugStage","")
+    acf.addFlag('Exec.SkipEvents',0)
+    acf.addFlag('Exec.DebugStage','')
+
+    acf.addFlag('ExecutorSplitting.TotalSteps', 0)
+    acf.addFlag('ExecutorSplitting.Step', -1)
+    acf.addFlag('ExecutorSplitting.TotalEvents', -1)
 
     #Flags describing the input data 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
