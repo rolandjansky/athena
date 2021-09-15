@@ -1,32 +1,36 @@
 // emacs: this is -*- c++ -*-
 
-#include "TIDAdata_cuts-offline.dat"
+#include "TIDAdata_cuts.dat"
 
 ZmassMin = 0.0;
 ZmassMax = 110.0;
 
 doTnPHistos = 1;
 
-//refChain = "Truth";
-refChain = "Offline";
+
+refChain = "Truth";
+//refChain = "Offline";
 //refChain = "Electrons";
 //refChain = "Muons";
 //refChain = "Taus";
 
+
 MinVertices = 0;
 
-/// do not loadthe chains for the TnP analyses
-/// #include "TIDAdata-chains-run3.dat"
+
+// #include "TIDAdata-chains-run3.dat"
 
 testChains = {};
 
+
+InitialiseFirstEvent = 1;
+
 outputFile = "data-output.root";
 DataFiles = { "TrkNtuple-0000.root"};
-//DataSets = {"/eos/atlas/atlascerngroupdisk/trig-id/data18_13TeV/muon-tnp/user.maparo.00363979.physics_Main.merge.AOD.f1002_m2037-20191004-141732_EXT0"};
-//DataSets = {"/eos/atlas/atlascerngroupdisk/trig-id/data18_13TeV/muon-tnp/user.maparo.00358395.physics_Main.merge.AOD.f961_m2015-20191004-141716_EXT0"};
+//DataSets = {"./"}
+
 
 #include "TIDAbeam.dat"
-
 
 TagnProbe = {
         "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:0",
