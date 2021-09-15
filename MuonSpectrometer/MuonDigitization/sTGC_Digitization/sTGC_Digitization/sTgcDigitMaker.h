@@ -20,6 +20,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "Identifier/Identifier.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -33,7 +34,6 @@ namespace MuonGM {
 class sTgcDigitCollection;
 class sTgcHitIdHelper;
 class sTgcIdHelper;
-class sTGCSimHit; 
 
 //--- class description
 class sTgcDigitMaker {
@@ -76,6 +76,16 @@ class sTgcDigitMaker {
     OFFSET_CHANNELTYPE = 0
   };
 
+  /** Parameters of a gamma probability distribution function, required for 
+   *  estimating wire digit's time of arrival.
+   *  More detail in the dat file.
+   */
+  struct GammaParameter {
+    double lowEdge; // low side of the interval in ns
+    double kParameter;
+    double thetaParameter;
+    double mostProbableTime;
+  };
 
   /**
      Reads parameters for intrinsic time response from timejitter.dat.
@@ -108,6 +118,8 @@ class sTgcDigitMaker {
   void readFileOfTimeWindowOffset();
   /** Read share/sTGC_Digitization_alignment.dat file */
   //void readFileOfAlignment();
+  /** Read share/sTGC_Digitization_timeArrival.dat */
+  void readFileOfTimeArrival();
   ///** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
@@ -121,6 +133,19 @@ class sTgcDigitMaker {
   /** Ad hoc implementation of detector position shift */
   //void adHocPositionShift(const std::string stationName, int stationEta, int stationPhi,
   //                        const Amg::Vector3D direCos, Amg::Vector3D &localPos) const;
+
+  /** Compute the distance between a track segment and a wire. 
+   *  Expected distance is between zero and half of wire pitch (i.e. 0.9 mm),
+   *  but can be greater if particle passes through the edge of a chamber.
+   *  Assumig the hit is near wire k, the sign of the distance returned is:
+   *   - negative if particle crosses the wire surface between wire k and wire k-1
+   *   + positive if particle crosses the wire surface between wire k and wire k+1
+   *  In case of error, the function returns -9.99.
+   */
+  double distanceToWire(Amg::Vector3D& position, Amg::Vector3D& direction, Identifier id, int wire_number) const;
+
+  /** Find the gamma pdf parameters of a given distance */
+  GammaParameter getGammaParameter(double distance) const;
 
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP][N_CHANNELTYPE]{};
@@ -142,6 +167,9 @@ class sTgcDigitMaker {
   //double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
 
   std::vector<std::vector<float> > m_vecAngle_Time;
+
+  // Parameters of the gamma pdf required for determining digit time
+  std::vector<GammaParameter> m_gammaParameter;
 
   CLHEP::HepRandomEngine* m_engine{}; // not owned here
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
