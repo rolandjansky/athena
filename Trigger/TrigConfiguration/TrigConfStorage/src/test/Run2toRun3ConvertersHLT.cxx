@@ -81,6 +81,35 @@ bool convertHLTMenu(const TrigConf::HLTFrame* frame, TrigConf::HLTMenu& menu) {
 
       pChain.add_child("groups", asArray(cptr->groups()));
 
+      // Signature data
+      // Note: This is run-2 only.
+      // It is propagated here to allow legacy trigger feature access.
+      std::vector<uint32_t> counters;
+      std::vector<int> logics;
+      std::vector<std::string> labels;
+      ptree outputTEs_outerArray; // outputTEs is a std::vector<std::vector<std::string>>
+
+      for(auto& signature : cptr->signatureList() ){
+         uint32_t cntr = signature->signature_counter();
+         counters.push_back(cntr);
+         logics.push_back(signature->logic());
+         labels.push_back(signature->label());
+         ptree outputTEs_innerArray;
+         for(auto& outputTE : signature->outputTEs()){
+            outputTEs_innerArray.push_back( ptree::value_type("", outputTE->name()) );
+         }
+         outputTEs_outerArray.push_back( ptree::value_type("", outputTEs_innerArray) );
+      }
+
+      ptree pSig; 
+      pSig.add_child("counters", asArray(counters));
+      pSig.add_child("logics", asArray(logics));
+      pSig.add_child("outputTEs", outputTEs_outerArray);
+      pSig.add_child("labels", asArray(labels));
+
+      pChain.add_child("signature", pSig);
+      // End of signature data
+
       pChains.push_back(std::make_pair(cptr->chain_name(), pChain));
    }
    ptree pStreams;
@@ -99,6 +128,32 @@ bool convertHLTMenu(const TrigConf::HLTFrame* frame, TrigConf::HLTMenu& menu) {
    ptree pSequencers;
    pSequencers.add_child("missing", asArray(std::vector<std::string>({""})));
    top.add_child("sequencers", pSequencers);
+
+   // Set run2 sequence information:
+   const TrigConf::HLTSequenceList& sequenceList = frame->getHLTSequenceList();
+   std::vector<std::string> outputTEs;
+   ptree inputTEs_outerArray;  // sequenceInputTEs is a std::vector<std::vector<std::string>>
+   ptree algorithms_outerArray;  // sequenceAlgorithms is a std::vector<std::vector<std::string>>
+   for(auto& seq : sequenceList){
+      outputTEs.push_back(seq->outputTE()->name());
+
+      ptree inputTEs_innerArray;
+      for(auto& input : seq->inputTEs()) {
+         inputTEs_innerArray.push_back( ptree::value_type("", input->name()) );
+      }
+      inputTEs_outerArray.push_back( ptree::value_type("", inputTEs_innerArray) );
+
+      ptree algorithms_innerArray;
+      for(const std::string& alg : seq->algorithms()) {
+         algorithms_innerArray.push_back( ptree::value_type("", alg) );
+      }
+      algorithms_outerArray.push_back( ptree::value_type("", algorithms_innerArray) );
+   }
+   ptree pSequence;
+   pSequence.add_child("outputTEs", asArray(outputTEs));
+   pSequence.add_child("inputTEs", inputTEs_outerArray);
+   pSequence.add_child("algorithms", algorithms_outerArray);
+   top.add_child("sequence_run2", pSequence);
 
    menu.setData(std::move(top));
    menu.setSMK(frame->smk());
