@@ -5,7 +5,7 @@
 #ifndef MUONCOMBINEDALGS_MUONSEGMENTAGALG_H
 #define MUONCOMBINEDALGS_MUONSEGMENTAGALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
@@ -15,14 +15,14 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 
-class MuonSegmentTagAlg : public AthAlgorithm {
+class MuonSegmentTagAlg : public AthReentrantAlgorithm {
 public:
     MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     ~MuonSegmentTagAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute();
+    StatusCode initialize()override;
+    StatusCode execute(const EventContext& ctx) const ;
 
 private:
     ToolHandle<MuonCombined::IMuonSegmentTagTool> m_muonSegmentTagTool{
