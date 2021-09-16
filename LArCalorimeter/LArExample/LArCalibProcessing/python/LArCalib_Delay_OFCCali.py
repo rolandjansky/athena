@@ -42,12 +42,14 @@ def LArDelay_OFCCaliCfg(flags):
     result.merge(LArFebErrorSummaryMakerCfg(flags))
     result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
 
-    from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
-    result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
+    
+    if flags.LArCalib.Input.SubDet == "EM":
+        from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
+        result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
     
     
-    theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
-    result.addEventAlgo(theLArCalibShortCorrector)
+        theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
+        result.addEventAlgo(theLArCalibShortCorrector)
 
 
     theLArCaliWaveBuilder = CompFactory.LArCaliWaveBuilder()
