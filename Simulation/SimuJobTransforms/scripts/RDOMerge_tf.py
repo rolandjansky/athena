@@ -13,12 +13,11 @@ from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
-from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--DBRelease', '--FwdRegionOn', '--LucidOn', '--ZDCOn', '--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputRDOFile', '--maxEvents', '--noimf', '--notcmalloc', '--outputRDO_MRGFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation']
+ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--DBRelease', '--FwdRegionOn', '--LucidOn', '--ZDCOn', '--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputRDOFile', '--maxEvents', '--noimf', '--notcmalloc', '--outputRDO_MRGFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -36,7 +35,8 @@ def main():
 
 def getTransform():
     executorSet = set()
-    executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+    executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
+                                   skeletonCA = 'SimuJobTransforms.RDOMerge_Skeleton',
                                    inData = ['RDO'], outData = ['RDO_MRG']))
 
     trf = transform(executor = executorSet)
@@ -44,7 +44,6 @@ def getTransform():
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
     addForwardDetTrfArgs(trf.parser)
-    addCommonRecTrfArgs(trf.parser)
     addMyArgs(trf.parser)
     return trf
 

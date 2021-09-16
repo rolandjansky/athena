@@ -1397,6 +1397,7 @@ class argHITSFile(argPOOLFile):
                             'HITS_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
+                                  skeletonCA = 'SimuJobTransforms.HITSMerge_Skeleton',
                                   conf=myMergeConf, 
                                   inData=set(['HITS']), outData=set(['HITS_MRG']),
                                   disableMT=True, disableMP=True)
@@ -1473,7 +1474,8 @@ class argRDOFile(argPOOLFile):
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'SimuJobTransforms/skeleton.RDOMerge.py',
+                                  skeletonCA = 'SimuJobTransforms.RDOMerge_Skeleton',
                                   conf=myMergeConf, 
                                   inData=set(['RDO']), outData=set(['RDO_MRG']),
                                   disableMT=True, disableMP=True)
