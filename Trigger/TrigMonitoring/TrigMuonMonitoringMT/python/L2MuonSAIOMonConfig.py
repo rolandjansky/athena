@@ -9,7 +9,7 @@ def L2MuonSAIOMonConfig(helper):
     GroupName = 'L2MuonSAIO'
 
     monAlg = helper.addAlgorithm(CompFactory.L2MuonSAIOMonMT,'L2MuonSAIOMonMT')
-    monAlg.MonitoredChains = ['HLT_2mu6_l2io_L12MU6', 'HLT_2mu14_l2io_L12MU10']
+    monAlg.MonitoredChains = ['HLT_2mu6_l2io_L12MU5VF', 'HLT_2mu14_l2io_L12MU8F']
     monAlg.Group = GroupName
 
     for chain in monAlg.MonitoredChains:

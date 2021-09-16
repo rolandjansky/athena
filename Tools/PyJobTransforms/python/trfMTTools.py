@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfMTTools
 #
@@ -12,6 +12,7 @@ import os
 import logging
 msg = logging.getLogger(__name__)
 
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName
 from PyJobTransforms.trfExitCodes import trfExit
 
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -22,6 +23,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 def detectAthenaMTThreads(argdict = {}, currentSubstep = '', legacyThreadingRelease = False):
     athenaMTThreads = 0
     athenaConcurrentEvents = 0
+    currentSubstep = commonExecutorStepName(currentSubstep)
 
     if legacyThreadingRelease:
         return athenaMTThreads, athenaConcurrentEvents

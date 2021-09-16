@@ -35,7 +35,7 @@ namespace LVL1{
       virtual bool checkDisplacedLM() = 0;
       virtual std::unique_ptr<jFEXSmallRJetTOB> getSmallRJetTOBs() = 0; 
       virtual unsigned int getTTIDcentre() =0;
-      virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)   =0;
+      virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)   =0;
 
    private:
 

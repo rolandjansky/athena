@@ -12,13 +12,15 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include <GaudiKernel/IMessageSvc.h>
 
+#include <utility>
+
 namespace MuonGM {
 
 TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float WireSp, const float NCHRNG,
                                      const float* NWGS, const float* IWGS1, const float* IWGS2,
                                      const float* IWGS3, const float* ROFFST, const float* NSPS,
 				   const float* POFFST)
-  :m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version),
+  :m_chamberName(std::move(name)), m_chamberType(iCh), m_readoutVersion(Version),
    m_wirePitch(WireSp), m_nPhiChambers((int)NCHRNG), m_physicalDistanceFromBase(-9999.)
 {
 
@@ -55,7 +57,7 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
                                    const float* NWGS, const float* IWGS1, const float* IWGS2, const float* IWGS3,
                                    float PDIST, const float* SLARGE, const float* SSHORT, 
                                    const float* ROFFST, const float* NSPS, const float* POFFST)
-  : m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version),
+  : m_chamberName(std::move(name)), m_chamberType(iCh), m_readoutVersion(Version),
     m_wirePitch(WireSp), m_nPhiChambers(NCHRNG)
 {
   for (int iGap = 0; iGap < MaxNGaps; ++iGap) {

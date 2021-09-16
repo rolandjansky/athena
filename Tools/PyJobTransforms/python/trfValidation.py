@@ -22,6 +22,7 @@ msg = logging.getLogger(__name__)
 
 from PyUtils import RootUtils
 
+from PyJobTransforms.trfExeStepTools import getExecutorStepEventCounts
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfArgClasses import argFile
@@ -988,6 +989,12 @@ class eventMatch(object):
                     self._maxEvents = None
             else:
                 self._maxEvents = None
+
+            # Executor substeps handling
+            if self._executor.conf.totalExecutorSteps > 1 and self._executor.conf.executorStep < self._executor.conf.totalExecutorSteps - 1:
+                executorEventCounts, executorEventSkips = getExecutorStepEventCounts(self._executor)
+                self._maxEvents = executorEventCounts[self._executor.conf.executorStep]
+                self._skipEvents = executorEventSkips[self._executor.conf.executorStep]
 
             # Global eventAcceptanceEfficiency set?
             if "eventAcceptanceEfficiency" in self._executor.conf.argdict:

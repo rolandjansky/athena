@@ -238,7 +238,6 @@ class ItemDef:
 
         # MUON ctpid=[0x20;0x2f]
         # RUn3 thresholds
-        MenuItem('L1_MU0'        ).setLogic( d.MU0        & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU3V'       ).setLogic( d.MU3V       & physcond).setTriggerType(TT.muon) # ~ Run2 MU4 eff
         MenuItem('L1_MU5VF'      ).setLogic( d.MU5VF      & physcond).setTriggerType(TT.muon) # ~ Run2 MU6
         MenuItem('L1_MU8F'       ).setLogic( d.MU8F       & physcond).setTriggerType(TT.muon) # ~ Run2 MU10
@@ -253,9 +252,6 @@ class ItemDef:
         MenuItem('L1_MU10BOM'    ).setLogic( d.MU10BOM    & physcond).setTriggerType(TT.muon) # Barrel-only close-by muons
         MenuItem('L1_MU20FC'     ).setLogic( d.MU20FC     & physcond).setTriggerType(TT.muon) # alignment with toroid off
   
-        MenuItem('L1_2MU0'         ).setLogic( d.MU0.x(2)              & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU5VF_2MU0'   ).setLogic( d.MU5VF & d.MU0.x(2)    & physcond).setTriggerType(TT.muon)
-
         MenuItem('L1_2MU3V'        ).setLogic( d.MU3V.x(2)             & physcond).setTriggerType(TT.muon)
         MenuItem('L1_2MU5VF'       ).setLogic( d.MU5VF.x(2)            & physcond).setTriggerType(TT.muon)
         MenuItem('L1_2MU8F'        ).setLogic( d.MU8F.x(2)             & physcond).setTriggerType(TT.muon)
@@ -293,14 +289,8 @@ class ItemDef:
         MenuItem('L1_MU3V_TE30p24ETA49' ).setLogic( d.MU3V  & d.TE3024ETA49 & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU3V_TE35p24ETA49' ).setLogic( d.MU3V  & d.TE3524ETA49 & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU3V_TE40p24ETA49' ).setLogic( d.MU3V  & d.TE4024ETA49 & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU0_VTE50'  ).setLogic( d.MU0      & Not(d.TE50) & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU3V_VTE50' ).setLogic( d.MU3V     & Not(d.TE50) & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU5VF_VTE50').setLogic( d.MU5VF    & Not(d.TE50) & physcond).setTriggerType(TT.muon)
-
-        MenuItem('L1_MU0_UNPAIRED_ISO'   ).setLogic(d.MU0 & unpaired_isocond   ).setTriggerType( TT.muon )
-        MenuItem('L1_MU0_UNPAIRED_NONISO').setLogic(d.MU0 & unpaired_nonisocond).setTriggerType( TT.muon )
-        MenuItem('L1_MU0_EMPTY'          ).setLogic(d.MU0 & cosmiccond).setTriggerType( TT.muon )
-        MenuItem('L1_MU0_FIRSTEMPTY'     ).setLogic(d.MU0 & firstempty).setTriggerType( TT.muon )
 
         MenuItem('L1_MU3V_UNPAIRED_ISO'   ).setLogic(d.MU3V  & unpaired_isocond   ).setTriggerType( TT.muon )
         MenuItem('L1_MU3V_UNPAIRED_NONISO').setLogic(d.MU3V  & unpaired_nonisocond).setTriggerType( TT.muon )
@@ -312,7 +302,6 @@ class ItemDef:
         MenuItem('L1_MU8VF_EMPTY'         ).setLogic(d.MU8VF & cosmiccond).setTriggerType( TT.muon )
         MenuItem('L1_MU14FCH_FIRSTEMPTY'  ).setLogic(d.MU14FCH  & firstempty).setTriggerType(TT.muon)
         MenuItem('L1_MU14FCHR_FIRSTEMPTY' ).setLogic(d.MU14FCHR & firstempty).setTriggerType(TT.muon)
-        MenuItem('L1_2MU0_EMPTY'            ).setLogic(d.MU0.x(2)   & cosmiccond).setTriggerType( TT.muon )
         MenuItem('L1_2MU3V_EMPTY'           ).setLogic(d.MU3V.x(2)  & cosmiccond).setTriggerType( TT.muon )
         MenuItem('L1_2MU5VF_UNPAIRED_ISO'   ).setLogic(d.MU5VF.x(2) & unpaired_isocond).setTriggerType( TT.muon )
         MenuItem('L1_2MU5VF_UNPAIRED_NONISO').setLogic(d.MU5VF.x(2) & unpaired_nonisocond).setTriggerType( TT.muon )
@@ -1466,30 +1455,38 @@ class ItemDef:
 
             # Phase-1:
             MenuItem('L1_LAR-ZEE-eEM').setLogic( d.TOPO_ZEE_eEM20sm2 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-23403)
-            MenuItem('L1_LATE-MU8F_XE50').setLogic( d.TOPO_LATE_MU10s1 & d.XE50 & physcond)
-            MenuItem('L1_LATE-MU8F_XE40').setLogic( d.TOPO_LATE_MU10s1 & d.XE40 & physcond)
+            MenuItem('L1_LATE-MU8F_XE30').setLogic( d.TOPO_LATE_MU10s1 & d.XE30 & physcond)
             MenuItem('L1_LATE-MU8F_J50' ).setLogic( d.TOPO_LATE_MU10s1 & d.J50 & physcond)
             MenuItem('L1_LFV-MU8VF').setLogic( d.TOPO_0DR15_2MU6ab & d.MU8VF & d.MU5VF.x(2) & physcond)
             MenuItem('L1_LFV-MU5VF' ).setLogic( d.TOPO_0DR15_2MU6ab & d.MU5VF.x(2) & physcond)
             MenuItem('L1_LFV-eEM8L-MU8VF' ).setLogic( d.TOPO_0INVM10_0DR15_eEM8abl_MU10ab & d.MU8VF & physcond)
             MenuItem('L1_LFV-eEM12L-MU5VF' ).setLogic( d.TOPO_0INVM10_0DR15_eEM12abl_MU6ab & physcond)
-            MenuItem('L1_LFV-eEM8L').setLogic( d.TOPO_0DETA04_eEM8abl_MU10ab & d.TOPO_0DPHI03_eEM8abl_MU10ab & d.MU8F & physcond) #ATR-14282
-            MenuItem('L1_LFV-eEM15L').setLogic( d.TOPO_0DETA04_eEM15abl_MUab & d.TOPO_0DPHI03_eEM15abl_MUab & physcond) #ATR-14282
+
+            #BLS
             #ATR-19720
-            MenuItem('L1_BPH-8M15-0DR22-2MU5VF'     ).setLogic( d.TOPO_8INVM15_0DR22_2MU6ab & d.MU5VF.x(2) & physcond)
-            MenuItem('L1_BPH-8M15-0DR22-MU5VFMU3V-BO').setLogic( d.TOPO_8INVM15_0DR22_MU6ab_MU4ab & d.TOPO_MULT_CMU4ab.x(2) & d.TOPO_MULT_CMU6ab & d.MU5VF & physcond)
-            MenuItem('L1_BPH-2M9-2DR15-2MU5VF'      ).setLogic( d.TOPO_2INVM9_2DR15_2MU6ab & d.MU5VF.x(2) & physcond)
-            MenuItem('L1_BPH-2M9-0DR15-MU5VFMU3V'    ).setLogic( d.TOPO_2INVM9_0DR15_MU6ab_MU4ab & d.MU5VF & physcond)
-            MenuItem('L1_BPH-2M9-0DR15-2MU3V'       ).setLogic( d.TOPO_2INVM9_0DR15_2MU4ab & physcond)
+            MenuItem('L1_BPH-2M9-0DR15-2MU3V'         ).setLogic( d.TOPO_2INVM9_0DR15_2MU4ab & physcond)
+            MenuItem('L1_BPH-2M9-0DR15-MU5VFMU3V'     ).setLogic( d.TOPO_2INVM9_0DR15_MU6ab_MU4ab & d.MU5VF & physcond)
+            MenuItem('L1_BPH-2M9-2DR15-2MU5VF'        ).setLogic( d.TOPO_2INVM9_2DR15_2MU6ab & d.MU5VF.x(2) & physcond)
+            MenuItem('L1_BPH-8M15-0DR22-MU5VFMU3V-BO' ).setLogic( d.TOPO_8INVM15_0DR22_MU6ab_MU4ab & d.TOPO_MULT_CMU4ab.x(2) & d.TOPO_MULT_CMU6ab & d.MU5VF & physcond)
+            MenuItem('L1_BPH-8M15-0DR22-2MU5VF'       ).setLogic( d.TOPO_8INVM15_0DR22_2MU6ab & d.MU5VF.x(2) & physcond)
+            #ATR-19355
+            MenuItem('L1_BPH-0M10-3MU3V'              ).setLogic( d.TOPO_0INVM10_3MU4ab & physcond)
+            #ATR-19638
+            MenuItem('L1_BPH-0M10C-3MU3V'             ).setLogic( d.TOPO_0INVM10C_3MU4ab & physcond)
+            #ATR-19639
+            MenuItem('L1_BPH-2M9-0DR15-C-MU5VFMU3V'   ).setLogic( d.TOPO_2INVM9_0DR15_C_MU6ab_MU4ab & d.MU5VF & physcond)        
+            # ATR-21566
+            MenuItem('L1_BPH-0DR12C-2MU3V').setLogic( d.TOPO_0DR12C_2MU4ab & physcond)
+            # Barrel only, maybe needed?
             MenuItem("L1_2MU3V-BO"  ).setLogic( d.TOPO_MULT_CMU4ab.x(2) & physcond)
             MenuItem("L1_2MU5VF-BO"  ).setLogic( d.TOPO_MULT_CMU6ab.x(2) & d.MU5VF.x(2) & physcond)
             MenuItem("L1_MU5VFMU3V-BO").setLogic( d.TOPO_MULT_CMU4ab.x(2) & d.TOPO_MULT_CMU6ab & d.MU5VF & physcond)
-            #ATR-19355
-            MenuItem('L1_BPH-0M10-3MU3V' ).setLogic( d.TOPO_0INVM10_3MU4ab & physcond)
-            # ATR-19510
+
+            # ATR-19510, SM Low-mass DY
             MenuItem('L1_DY-BOX-2MU3V' ).setLogic( d.TOPO_5DETA99_5DPHI99_2MU4ab & d.MU3V.x(2) & physcond)
             MenuItem('L1_DY-BOX-MU5VFMU3V').setLogic( d.TOPO_5DETA99_5DPHI99_MU6ab_MU4ab & d.MU5VF & physcond)
             MenuItem('L1_DY-BOX-2MU5VF').setLogic( d.TOPO_5DETA99_5DPHI99_2MU6ab & d.MU5VF.x(2) & physcond)
+
             #ATR-17320
             MenuItem('L1_CEP-CjJ60').setLogic( d.TOPO_CEP_CjJ60s6 & physcond )
             MenuItem('L1_CEP-CjJ50').setLogic( d.TOPO_CEP_CjJ50s6 & physcond )
@@ -1508,7 +1505,6 @@ class ItemDef:
 
             # subset of legacy chains migrated phase1 boards
             MenuItem('L1_BPH-0M9-eEM7-eEM5').setLogic( d.TOPO_0INVM9_eEM7ab_eEMab & physcond)
-
             MenuItem('L1_BPH-0M9-eEM7-eEM5_MU5VF').setLogic( d.MU5VF & d.TOPO_0INVM9_eEM7ab_eEMab & physcond)
             MenuItem('L1_BPH-0M9-eEM7-eEM5_2MU3V').setLogic( d.MU3V.x(2) & d.TOPO_0INVM9_eEM7ab_eEMab & physcond)
             MenuItem('L1_BPH-0DR3-eEM7jJ15').setLogic( d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond)
@@ -1547,35 +1543,9 @@ class ItemDef:
             MenuItem('L1_DPHI-2eEM3_VTE5p24ETA49_ALFA_EINE').setLogic( d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE524ETA49) & ALFA_EINE & physcond).setTriggerType(TT.alfa)
             MenuItem('L1_DPHI-2eEM3_VTE10').setLogic( d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE10) & physcond).setTriggerType(TT.calo)
             MenuItem('L1_DPHI-2eEM8_VTE50').setLogic( d.eEM8.x(2) & d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE50) & physcond).setTriggerType(TT.calo)
-            
-            #needed?
             MenuItem('L1_BTAG-MU3VjJ15').setLogic( d.TOPO_0DR04_MU4ab_CjJ15ab & physcond)
             MenuItem('L1_BTAG-MU5VFjJ20').setLogic( d.TOPO_0DR04_MU6ab_CjJ20ab & d.MU5VF & physcond)
-            #needed?
-            MenuItem('L1_BPH-2M8-2MU3V_BPH-0DR15-2MU3V'     ).setLogic( d.TOPO_2INVM8_2MU4ab & d.TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
-            MenuItem('L1_BPH-2M9-2MU3V_BPH-0DR15-2MU3V'     ).setLogic( d.TOPO_2INVM9_2MU4ab & d.TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
-            MenuItem('L1_BPH-7M15-2MU3V_BPH-0DR24-2MU3V'    ).setLogic( d.TOPO_7INVM15_2MU4ab & d.TOPO_0DR24_2MU4ab & physcond)           # 78% for Upsi
-            MenuItem('L1_BPH-2M8-MU5VFMU3V_BPH-0DR15-MU5VFMU3V' ).setLogic( d.TOPO_2INVM8_MU6ab_MU4ab & d.TOPO_0DR15_MU6ab_MU4ab & d.MU5VF & physcond)  # 86% for Bs,J/psi
-            MenuItem('L1_BPH-2M9-MU5VFMU3V_BPH-0DR15-MU5VFMU3V' ).setLogic( d.TOPO_2INVM9_MU6ab_MU4ab & d.TOPO_0DR15_MU6ab_MU4ab & d.MU5VF & physcond)
-            MenuItem('L1_BPH-8M15-MU5VFMU3V_BPH-0DR22-MU5VFMU3V').setLogic( d.TOPO_8INVM15_MU6ab_MU4ab & d.TOPO_0DR22_MU6ab_MU4ab & d.MU5VF & physcond) # 86% for Upsi
-            MenuItem('L1_BPH-2M9-2MU5VF_BPH-2DR15-2MU5VF'     ).setLogic( d.TOPO_2INVM9_2MU6ab & d.TOPO_2DR15_2MU6ab & d.MU5VF.x(2) & physcond)            # 96% for Bs,J/psi
-            MenuItem('L1_BPH-2M9-2MU5VF'                      ).setLogic( d.TOPO_2INVM9_2MU6ab & d.MU5VF.x(2) & physcond)
-            MenuItem('L1_BPH-8M15-2MU5VF_BPH-0DR22-2MU5VF'    ).setLogic( d.TOPO_8INVM15_2MU6ab & d.TOPO_0DR22_2MU6ab & d.MU5VF.x(2) & physcond)           # 96% for Upsi
             MenuItem('L1_BPH-8M15-2MU3V-BO'    ).setLogic( d.TOPO_8INVM15_2CMU4ab & physcond)           # 96% for Upsi
-            # Barrel and BarrelOnly items w/o topo selection
-            MenuItem('L1_2MU3V-B'      ).setLogic( d.MU3V.x(2) & d.TOPO_MULT_CMU4ab & physcond)              # 2MU4_Barrel
-            MenuItem('L1_2MU5VF-B'    ).setLogic( d.MU5VF.x(2) & d.TOPO_MULT_CMU6ab & physcond)              # 2MU6_Barrel
-            MenuItem('L1_MU5VF_2MU3V-B').setLogic( d.MU5VF & d.MU3V.x(2) & d.TOPO_MULT_CMU4ab & physcond)        # MU6_2MU4_Barrel,
-            # Barrel and BarrelOnly variants of L1Topo items
-            MenuItem('L1_BPH-2M8-2MU3V-B_BPH-0DR15-2MU3V'     ).setLogic( d.TOPO_2INVM8_CMU4ab_MU4ab & d.TOPO_0DR15_2MU4ab & physcond)                # 78% for Bs,J/psi + OneBarrel
-            MenuItem('L1_BPH-7M15-2MU3V_BPH-0DR24-2MU3V-B'    ).setLogic( d.TOPO_7INVM15_2MU4ab & d.TOPO_0DR24_2MU4ab & d.TOPO_MULT_CMU4ab & physcond) # 78% for Upsi + OneBarrel
-            MenuItem('L1_BPH-7M15-2MU3V_BPH-0DR24-2MU3V-BO'   ).setLogic( d.TOPO_7INVM15_2MU4ab & d.TOPO_0DR24_2CMU4ab & physcond)                    # 78% for Upsi + BarrelOnly
-            MenuItem('L1_BPH-2M8-MU5VFMU3V-B_BPH-0DR15-MU5VFMU3V' ).setLogic( d.TOPO_2INVM8_ONEBARREL_MU6ab_MU4ab & d.TOPO_0DR15_MU6ab_MU4ab & d.MU5VF & physcond)  # 86% for Bs,J/psi + OneBarrel
-            MenuItem('L1_BPH-8M15-MU5VFMU3V_BPH-0DR22-MU5VFMU3V-B').setLogic( d.TOPO_8INVM15_MU6ab_MU4ab & d.TOPO_0DR22_MU6ab_MU4ab & d.TOPO_MULT_CMU4ab & d.MU5VF & physcond)
-            MenuItem('L1_BPH-8M15-MU5VFMU3V_BPH-0DR22-MU5VFMU3V-BO').setLogic( d.TOPO_8INVM15_MU6ab_MU4ab & d.TOPO_0DR22_MU6ab_MU4ab & d.TOPO_MULT_CMU4ab.x(2) & d.TOPO_MULT_CMU6ab & d.MU5VF & physcond)
-            MenuItem('L1_BPH-2M8-2MU3V').setLogic( d.TOPO_2INVM8_2MU4ab & physcond)                  # backup 71% for Bs,J/psi
-            MenuItem('L1_BPH-8M15-MU5VFMU3V').setLogic( d.TOPO_8INVM15_MU6ab_MU4ab & d.MU5VF & physcond) # backup 71% for Upsi
-            MenuItem('L1_BPH-8M15-2MU5VF').setLogic( d.TOPO_8INVM15_2MU6ab & d.MU5VF.x(2) & physcond)   # backup 95% for Upsi 
 
         except NameError as ex:
             exc_type, exc_value, exc_traceback = sys.exc_info()

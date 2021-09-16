@@ -34,7 +34,7 @@ namespace MuonGM {
       public: // methods
         CscMultiLayer(std::string n);
         GeoVPhysVol *build();
-        GeoVPhysVol *build(int cutoutson, std::vector<Cutout *> vcutdef);
+        GeoVPhysVol *build(int cutoutson, const std::vector<Cutout *>& vcutdef);
         void print();
     };
 

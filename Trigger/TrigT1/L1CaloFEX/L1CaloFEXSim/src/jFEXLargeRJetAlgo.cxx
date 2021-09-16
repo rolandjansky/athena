@@ -102,7 +102,7 @@ int LVL1::jFEXLargeRJetAlgo::getTTowerET(unsigned int TTID ) {
 }
 
 
-void LVL1::jFEXLargeRJetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXLargeRJetAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

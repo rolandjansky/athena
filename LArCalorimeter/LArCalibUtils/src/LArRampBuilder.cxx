@@ -23,8 +23,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   : AthAlgorithm(name, pSvcLocator),
     m_peakParabolaTool("LArParabolaPeakRecoTool"),
     m_peakShapeTool("LArShapePeakRecoTool"),
-    m_peakOFTool("LArOFPeakRecoTool"),
-    m_sc2ccMappingTool("CaloSuperCellIDTool"),
+    m_peakOFTool(this),
     m_event_counter(0),
     m_recoType(OF),
     m_onlineHelper(),
@@ -37,12 +36,11 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("SubtractDac0",    m_dac0sub=true);
   declareProperty("StoreRawRamp",    m_saveRawRamp=false);
   declareProperty("StoreRecRamp",    m_saveRecRamp=true);
-  declareProperty("FolderName",      m_folderName="LArElecCalibTB04");
   declareProperty("Polynom",         m_degree=1);
   declareProperty("RampRange",       m_maxADC=0);
   declareProperty("doSatSlope",      m_satSlope=true);
   declareProperty("ConsecutiveADCs", m_consADC=50);
-  declareProperty("RecoType",        m_recoTypeProp=std::string("Parabola")) ;
+  declareProperty("RecoType",        m_recoTypeProp=std::string("OF")) ;
   declareProperty("correctBias",     m_correctBias=false);
   declareProperty("ShapeMethodDAC",  m_shapeMethodDAC=400);
   declareProperty("DAC0",            m_DAC0=0); 

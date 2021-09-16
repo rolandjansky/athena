@@ -44,6 +44,21 @@ def ITkStripHitAnalysisCfg(flags):
     return acc
 
 
+def HGTD_HitAnalysisCfg(flags):
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
+    acc = HGTD_GeometryCfg(flags)
+
+    alg = CompFactory.SiHitAnalysis('HGTD_HitAnalysis')
+    alg.CollectionName = 'HGTD_Hits'
+    alg.HistPath='/SiHitAnalysis/Histos/'
+    alg.NtupleFileName='/SiHitAnalysis/Ntuples/'
+    acc.addEventAlgo(alg)
+
+    acc.merge(SiHitAnalysisOutputCfg(flags))
+
+    return acc
+
+
 def SiHitAnalysisCfg(flags):
     acc = ComponentAccumulator()
 
@@ -52,5 +67,8 @@ def SiHitAnalysisCfg(flags):
     
     if flags.Detector.EnableITkStrip:
         acc.merge(ITkStripHitAnalysisCfg(flags))
+
+    if flags.Detector.EnableHGTD:
+        acc.merge(HGTD_HitAnalysisCfg(flags))
 
     return acc

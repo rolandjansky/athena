@@ -6,6 +6,10 @@
 
 #include "AthContainers/AuxTypeRegistry.h"
 
+#include "GaudiKernel/AttribStringParser.h"
+#include "boost/algorithm/string/case_conv.hpp"
+#include "TROOT.h"
+
 const std::string AthAnalysisHelper::UNDEFINED = "__UNDEFINED__";
 
 ServiceHandle<Gaudi::Interfaces::IOptionsSvc> AthAnalysisHelper::joSvc = ServiceHandle<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc","AthAnalysisHelper");
@@ -93,4 +97,38 @@ void AthAnalysisHelper::dumpProperties(const IProperty& component) {
   for(auto p : component.getProperties()) {
     std::cout << p->name() << " = " << p->toString() << std::endl;
   }
+}
+
+
+TFile* AthAnalysisHelper::getOutputFile(const std::string& streamName) {
+  ServiceHandle<IProperty> histSvc("THistSvc","");
+  auto& prop = histSvc->getProperty("Output");
+
+  std::vector<std::string> outputs;
+  if( Gaudi::Parsers::parse(outputs,prop.toString()).isFailure() ) {
+    return nullptr;
+  }
+
+  //extract the DATAFILE part of the string
+  std::string fileName="";
+  for(std::string& output : outputs) {
+    if( output.substr(0,output.find(" "))!=streamName ) continue;
+
+    //got here .. means we found the stream ...
+    for(auto attrib : Gaudi::Utils::AttribStringParser(output.substr(output.find(" ")+1))) {
+      auto TAG = boost::algorithm::to_upper_copy(attrib.tag);
+
+      if(TAG=="FILE" || TAG=="DATAFILE") {
+	fileName = attrib.value;
+	break;
+      }
+
+    }
+    if(fileName.length()) {
+      return static_cast<TFile*>(gROOT->GetListOfFiles()->FindObject(fileName.c_str()));
+    }
+
+  }
+  return 0;
+
 }

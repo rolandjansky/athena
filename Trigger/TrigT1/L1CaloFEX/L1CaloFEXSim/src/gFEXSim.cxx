@@ -45,6 +45,12 @@ namespace LVL1 {
    gFEXSim::~gFEXSim(){
    }
 
+   StatusCode gFEXSim::initialize(){
+      ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
+      ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
+      return StatusCode::SUCCESS;
+   }
+
  void gFEXSim::execute(){
 
  }
@@ -65,7 +71,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    gTowersForward CNtwr = {{{0}}};
 
 
-   ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
 
    //FPGA A----------------------------------------------------------------------------------------------------------------------------------------------
    gTowersCentral tmp_gTowersIDs_subset_centralFPGA;
@@ -155,7 +160,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    std::array<uint32_t, 7> BTOB2_dat = {0};
 
    // Retrieve the gFEXJetAlgoTool
-   ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
 
    // Pass the energy matrices to the algo tool, and run the algorithms
    auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,

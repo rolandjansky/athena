@@ -1454,7 +1454,7 @@ namespace MuonGM {
         return ptrd;
     }
 
-    void MuonChamber::setCscReadoutGeom(CscReadoutElement *re, const CscComponent *cc, const Position &ip, std::string /*gVersion*/, std::string /*stName*/) {
+    void MuonChamber::setCscReadoutGeom(CscReadoutElement *re, const CscComponent *cc, const Position &ip, const std::string& /*gVersion*/, const std::string& /*stName*/) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setCscReadoutGeom");
 
         re->m_Ssize = cc->dx1;
@@ -1555,7 +1555,7 @@ namespace MuonGM {
         }
     }
 
-    void MuonChamber::setRpcReadoutGeom(RpcReadoutElement *re, const RpcComponent *cc, const Position &ip, std::string /*gVersion*/, MuonDetectorManager *manager) {
+    void MuonChamber::setRpcReadoutGeom(RpcReadoutElement *re, const RpcComponent *cc, const Position &ip, const std::string& /*gVersion*/, MuonDetectorManager *manager) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setRpcReadoutGeom");
         re->m_Ssize = cc->dx1;
         re->m_LongSsize = cc->dx2;
@@ -1642,7 +1642,7 @@ namespace MuonGM {
         }
     }
 
-    void MuonChamber::setTgcReadoutGeom(TgcReadoutElement *re, const TgcComponent *cc, const Position &ip, std::string /*gVersion*/, std::string stName) {
+    void MuonChamber::setTgcReadoutGeom(TgcReadoutElement *re, const TgcComponent *cc, const Position &ip, const std::string& /*gVersion*/, const std::string& stName) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setTgcReadoutGeom");
 
         re->m_Ssize = cc->dx1;
@@ -1714,7 +1714,7 @@ namespace MuonGM {
         log << MSG::INFO << "MuonChamber " << name << " :" << endmsg;
     }
 
-    int MuonChamber::stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry_version) const {
+    int MuonChamber::stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version) const {
         std::string stName3 = stName.substr(0, 3);
         int stphi = 0;
 

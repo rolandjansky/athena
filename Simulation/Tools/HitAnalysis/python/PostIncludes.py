@@ -14,3 +14,14 @@ def ITkHitAnalysis(flags):
         result.merge(ITkStripHitAnalysisCfg(flags))
 
     return result
+
+def HGTDHitAnalysis(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from HitAnalysis.SiHitAnalysis import HGTD_HitAnalysisCfg
+
+    result = ComponentAccumulator()
+
+    if flags.Detector.EnableHGTD:
+        result.merge(HGTD_HitAnalysisCfg(flags))
+
+    return result

@@ -34,6 +34,7 @@ namespace LVL1 {
 
   StatusCode jFEXSim::initialize()
   {
+    ATH_CHECK( m_jFEXFPGATool.retrieve() );
     return StatusCode::SUCCESS;
   }
 
@@ -115,8 +116,6 @@ namespace LVL1 {
   // 0.8 -> 4.0 [core is 1.6 to 3.2] // FPGA 1
   // 2.4 -> 5.6 [core is 3.2 to 4.8] // FPGA 2
   // 4.0 -> 0.8 [core is 4.8 to 6.4] // FPGA 3
-
-  ATH_CHECK( m_jFEXFPGATool.retrieve() );
 
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
@@ -361,8 +360,6 @@ namespace LVL1 {
     // 2.4 -> 5.6 [core is 3.2 to 4.8] // FPGA 2
     // 4.0 -> 0.8 [core is 4.8 to 6.4] // FPGA 3
 
-    ATH_CHECK( m_jFEXFPGATool.retrieve() );
-
     //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
     memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
     // 5.6 -> 2.4 [core is 0.0 to 1.6]
@@ -595,7 +592,6 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
 
   int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
 
-  ATH_CHECK( m_jFEXFPGATool.retrieve() );
   
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);

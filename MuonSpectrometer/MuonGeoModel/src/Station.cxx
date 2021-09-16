@@ -17,10 +17,11 @@
 #include <cassert>
 #include <iostream>
 #include <limits>
+#include <utility>
 
 namespace MuonGM {
 
-    Station::Station(std::string s) : m_name(s) {
+    Station::Station(std::string s) : m_name(std::move(s)) {
         m_amdbOrigine_along_length = 0;
         m_amdbOrigine_along_thickness = 0;
 

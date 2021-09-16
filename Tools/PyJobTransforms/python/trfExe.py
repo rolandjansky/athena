@@ -26,6 +26,7 @@ from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, asetupReleaseIsOlderThan, unpackDBRelease, setupDBRelease, \
     cvmfsDBReleaseCheck, forceToAlphaNum, \
     ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic, reportEventsPassedSimFilter
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName, executorStepSuffix
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -64,7 +65,9 @@ class executorConfig(object):
         self._argdict = argdict
         self._dataDictionary = dataDictionary
         self._firstExecutor = firstExecutor
-       
+        self._executorStep = -1
+        self._totalExecutorSteps = 0
+
     @property
     def argdict(self):
         return self._argdict
@@ -88,7 +91,23 @@ class executorConfig(object):
     @firstExecutor.setter
     def firstExecutor(self, value):
         self._firstExecutor = value
-        
+
+    @property
+    def executorStep(self):
+        return self._executorStep
+
+    @executorStep.setter
+    def executorStep(self, value):
+        self._executorStep = value
+
+    @property
+    def totalExecutorSteps(self):
+        return self._totalExecutorSteps
+
+    @totalExecutorSteps.setter
+    def totalExecutorSteps(self, value):
+        self._totalExecutorSteps = value
+
     ## @brief Set configuration properties from the parent transform
     #  @note  It's not possible to set firstExecutor here as the transform holds
     #  the name of the first executor, which we don't know... (should we?)
@@ -190,7 +209,11 @@ class transformExecutor(object):
     @property
     def name(self):
         return self._name
-    
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
     @property
     def substep(self):
         if '_substep' in dir(self):
@@ -833,6 +856,7 @@ class athenaExecutor(scriptExecutor):
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
     #  @param memMonitor Enable subprocess memory monitoring
+    #  @param disableMT Ensure that AthenaMT is not used
     #  @param disableMP Ensure that AthenaMP is not used
     #  @note The difference between @c extraRunargs, @c runtimeRunargs and @c literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
@@ -842,7 +866,7 @@ class athenaExecutor(scriptExecutor):
                  inData = set(), outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], 
                  substep = None, inputEventTest = True, perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
-                 manualDataDictionary = None, memMonitor = True, disableMP = False):
+                 manualDataDictionary = None, memMonitor = True, disableMT = False, disableMP = False):
         
         self._substep = forceToAlphaNum(substep)
         self._inputEventTest = inputEventTest
@@ -853,6 +877,7 @@ class athenaExecutor(scriptExecutor):
         self._dataArgs = dataArgs
         self._errorMaskFiles = errorMaskFiles
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
+        self._disableMT = disableMT
         self._disableMP = disableMP
         self._skeletonCA=skeletonCA
 
@@ -897,6 +922,14 @@ class athenaExecutor(scriptExecutor):
     @disableMP.setter
     def disableMP(self, value):
         self._disableMP = value
+    
+    @property
+    def disableMT(self):
+        return self._disableMT
+    
+    @disableMT.setter
+    def disableMT(self, value):
+        self._disableMT = value
         
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
@@ -972,6 +1005,9 @@ class athenaExecutor(scriptExecutor):
             # Try to detect AthenaMP mode and number of workers
             self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
 
+        if self._disableMT:
+            self._athenaMT = 0
+
         if self._disableMP:
             self._athenaMP = 0
         else:
@@ -981,7 +1017,17 @@ class athenaExecutor(scriptExecutor):
                 msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
                 self._disableMP = True
                 self._athenaMP = 0
-            
+
+        # Handle executor steps
+        if self.conf.totalExecutorSteps > 1:
+            for dataType in output:
+                if self.conf._dataDictionary[dataType].originalName:
+                    self.conf._dataDictionary[dataType].value[0] = self.conf._dataDictionary[dataType].originalName
+                else:
+                    self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
+                self.conf._dataDictionary[dataType].value[0] += "_{0}{1}".format(executorStepSuffix, self.conf.executorStep)
+                msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
+
         # And if this is (still) athenaMP, then set some options for workers and output file report
         if self._athenaMP:
             self._athenaMPWorkerTopDir = 'athenaMP-workers-{0}-{1}'.format(self._name, self._substep)
@@ -1021,7 +1067,8 @@ class athenaExecutor(scriptExecutor):
             # so that the mother process output file (if it exists) can be used directly
             # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
             for dataType in output:
-                self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
+                if self.conf.totalExecutorSteps <= 1:
+                    self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
                 if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value is False:
                     if 'sharedWriter' in self.conf.argdict and self.conf.argdict['sharedWriter'].value:
                         msg.info("SharedWriter: not updating athena output filename for {0}".format(dataType))
@@ -1040,12 +1087,13 @@ class athenaExecutor(scriptExecutor):
             outputFiles = dict()
             for dataType in output:
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
-                
+
             # See if we have any 'extra' file arguments
+            nameForFiles = commonExecutorStepName(self._name)
             for dataType, dataArg in self.conf.dataDictionary.items():
-                if dataArg.io == 'input' and self._name in dataArg.executor:
+                if dataArg.io == 'input' and nameForFiles in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
-                
+
             msg.debug('Input Files: {0}; Output Files: {1}'.format(inputFiles, outputFiles))
             
             # Get the list of top options files that will be passed to athena (=runargs file + all skeletons)
@@ -1105,8 +1153,34 @@ class athenaExecutor(scriptExecutor):
     def postExecute(self):
         super(athenaExecutor, self).postExecute()
 
+        # Handle executor substeps
+        if self.conf.totalExecutorSteps > 1:
+            if self._athenaMP:
+                outputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._output ])
+                athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, False, self.conf.argdict)
+            if self.conf.executorStep == self.conf.totalExecutorSteps - 1:
+                # first loop over datasets for the output
+                for dataType in self._output:
+                    newValue = []
+                    if self._athenaMP:
+                        # assume the same number of workers all the time
+                        for i in range(self.conf.totalExecutorSteps):
+                            for v in self.conf.dataDictionary[dataType].value:
+                                newValue.append(v.replace('_{0}{1}_'.format(executorStepSuffix, self.conf.executorStep),
+                                                          '_{0}{1}_'.format(executorStepSuffix, i)))
+                    else:
+                        self.conf.dataDictionary[dataType].multipleOK = True
+                        # just combine all executors
+                        for i in range(self.conf.totalExecutorSteps):
+                            newValue.append(self.conf.dataDictionary[dataType].originalName + '_{0}{1}'.format(executorStepSuffix, i))
+                    self.conf.dataDictionary[dataType].value = newValue
+
+                    # do the merging if needed
+                    if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
+                        self._smartMerge(self.conf.dataDictionary[dataType])
+
         # If this was an athenaMP run then we need to update output files
-        if self._athenaMP:
+        elif self._athenaMP:
             outputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._output ])
             ## @note Update argFile values to have the correct outputs from the MP workers
             skipFileChecks=False
@@ -1262,8 +1336,9 @@ class athenaExecutor(scriptExecutor):
         # Find options for the current substep. Name is prioritised (e.g. RAWtoESD) over alias (e.g. r2e). Last look for 'all'
         currentSubstep = None
         if 'athenaopts' in self.conf.argdict:
-            if self.name in self.conf.argdict['athenaopts'].value:
-                currentSubstep = self.name
+            currentName = commonExecutorStepName(self.name)
+            if currentName in self.conf.argdict['athenaopts'].value:
+                currentSubstep = currentName
                 if self.substep in self.conf.argdict['athenaopts'].value:
                     msg.info('Athenaopts found for {0} and {1}, joining options. '
                              'Consider changing your configuration to use just the name or the alias of the substep.'
@@ -1340,13 +1415,13 @@ class athenaExecutor(scriptExecutor):
             msg.info('Skipping test for "--drop-and-reload" in this executor')
             
         # For AthenaMT apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multithreaded
-        if self._athenaMT != 0 :
+        if self._athenaMT != 0 and not self._disableMT:
             if not ('athenaopts' in self.conf.argdict and
                 any('--threads' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
                 self._cmd.append('--threads=%s' % str(self._athenaMT))
 
-        # For AthenaMP apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multiprocess
-        if (self._athenaMP !=0 and not self._disableMP):
+        # For AthenaMP apply --nprocs=N if threads have been configured via ATHENA_CORE_NUMBER + multiprocess
+        if self._athenaMP != 0 and not self._disableMP:
             if not ('athenaopts' in self.conf.argdict and
                 any('--nprocs' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
                 self._cmd.append('--nprocs=%s' % str(self._athenaMP))
@@ -1403,6 +1478,8 @@ class athenaExecutor(scriptExecutor):
                     print('export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig')), file=wrapper)
                     print('export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin')), file=wrapper)
                     print('DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot), file=wrapper)
+                if self._disableMT:
+                    print("# AthenaMT explicitly disabled for this executor", file=wrapper)
                 if self._disableMP:
                     print("# AthenaMP explicitly disabled for this executor", file=wrapper)
                 if self._envUpdate.len > 0:

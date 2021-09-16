@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: AOD->HIST, R22 data AOD
+# art-description: AOD->HIST, R22 Run 2 data AOD
 # art-type: grid
 # art-include: master/Athena
 # art-include: 22.0-mc20/Athena

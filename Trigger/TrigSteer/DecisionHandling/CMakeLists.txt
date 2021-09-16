@@ -31,17 +31,10 @@ atlas_add_component( DecisionHandling
                      LINK_LIBRARIES DecisionHandlingLib AthenaKernel xAODTrigCalo AthViews xAODTracking xAODJet )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
+#atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref)
-atlas_install_scripts( test/test_emu_step_menu_processing.sh )
 
 # Tests
-foreach(test emu_step_processing emu_step_menu_processing)
-    atlas_add_test( ${test}
-        SCRIPT test/test_${test}.sh
-        LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-        PRIVATE_WORKING_DIRECTORY )
-endforeach()
 
 atlas_add_test( test_ComboHypoTool
     SOURCES test/test_ComboHypoTool.cxx

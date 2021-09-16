@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromRDB.h"
@@ -89,7 +89,7 @@ using namespace AmdcDb_detail;
 namespace {
 
 
-VarDesc AMDC_Vars[] = {
+const VarDesc AMDC_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::String, "VNAME", "NAME"},
   {VarDesc::Int, "LENAMDC", "STRING LENGTH"},
@@ -97,7 +97,7 @@ VarDesc AMDC_Vars[] = {
   {VarDesc::String, "DATA", "(NLINE)-ASCII"},
 };
 
-VarDesc AGDD_Vars[] = {
+const VarDesc AGDD_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::String, "VNAME", "NAME"},
   {VarDesc::Int, "LENAGDD", "STRING LENGTH"},
@@ -105,7 +105,7 @@ VarDesc AGDD_Vars[] = {
   {VarDesc::String, "DATA", "(NLINE)-ASCII"},
 };
 
-VarDesc ATYP_Vars[] = {
+const VarDesc ATYP_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JTYP", "AMDB STATION TYPE"},
   {VarDesc::String, "TYP", "AMDB STATION NAME"},
@@ -114,7 +114,7 @@ VarDesc ATYP_Vars[] = {
 };
 
 
-VarDesc ACUT_Vars[] = {
+const VarDesc ACUT_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "I", "INDEX"},
   {VarDesc::Int, "ICUT", "CUT-OUT INDEX"},
@@ -122,7 +122,7 @@ VarDesc ACUT_Vars[] = {
 };
 
 
-VarDesc WRPC_Vars[] = {
+const VarDesc WRPC_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   //DRING: What is it?       						        
   {VarDesc::Int, "NVRS", "VERSION OF RPC TECHNOLOGY"},
@@ -148,7 +148,7 @@ VarDesc WRPC_Vars[] = {
 };
 
 
-VarDesc AWLN_Vars[] = {
+const VarDesc AWLN_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "JSTA TYPE NUMBER"},
   {VarDesc::FloatCM, "SPITCH", "S-STRIPS PITCH"},
@@ -164,7 +164,7 @@ VarDesc AWLN_Vars[] = {
 };
 
 
-VarDesc WTGC_Vars[] = {
+const VarDesc WTGC_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "JSTA INDEX"},
   {VarDesc::Int, "NBEVOL", "NUMBER OF DETAILS"},
@@ -184,7 +184,7 @@ VarDesc WTGC_Vars[] = {
 };
 
 
-VarDesc GGLN_Vars[] = {
+const VarDesc GGLN_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "JSTA INDEX"},
   {VarDesc::Int, "NWGS_0", "N OF GROUPS OF WIRES (GANG) PER CH. IN E"},
@@ -219,7 +219,7 @@ VarDesc GGLN_Vars[] = {
 };
 
 
-VarDesc ATLN_Vars[] = {
+const VarDesc ATLN_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "I", "INDEX"},
   {VarDesc::Int, "ICOVOL", "MATERIAL CODE"},
@@ -230,7 +230,7 @@ VarDesc ATLN_Vars[] = {
 };
 
 
-VarDesc WCSC_Vars[] = {
+const VarDesc WCSC_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "JSTA TYPE NUMBER"},
   {VarDesc::Int, "LAYCSC", "NBER OF CSCS LAYERS"},
@@ -261,7 +261,7 @@ VarDesc WCSC_Vars[] = {
 };
 
 
-VarDesc DBAM_Vars[] = {
+const VarDesc DBAM_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "NVRS", "VERSION OF READING"},
   {VarDesc::String, "AMDB", "AMDB NAME"},
@@ -272,7 +272,7 @@ VarDesc DBAM_Vars[] = {
 };
 
 
-VarDesc ASMP_Vars[] = {
+const VarDesc ASMP_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "INDX", "STATION NUMBER (INSIDE TYPE)"},
   {VarDesc::Int, "N", "NUMBER OF ELEMENTS"},
@@ -280,7 +280,7 @@ VarDesc ASMP_Vars[] = {
 };
 
 
-VarDesc WDED_Vars[] = {
+const VarDesc WDED_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NB", "NUMBER OF DETAILS"},
@@ -290,7 +290,7 @@ VarDesc WDED_Vars[] = {
 };
 
 
-VarDesc WLBI_Vars[] = {
+const VarDesc WLBI_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NUM", "NUMBER OF OBJECTS"},
@@ -301,7 +301,7 @@ VarDesc WLBI_Vars[] = {
 };
 
 
-VarDesc WCRO_Vars[] = {
+const VarDesc WCRO_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NUM", "NUMBER OF OBJECTS"},
@@ -311,7 +311,7 @@ VarDesc WCRO_Vars[] = {
 };
 
 
-VarDesc WCMI_Vars[] = {
+const VarDesc WCMI_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NUM", "NUMBER OF OBJECTS"},
@@ -321,7 +321,7 @@ VarDesc WCMI_Vars[] = {
 };
 
 
-VarDesc WCHV_Vars[] = {
+const VarDesc WCHV_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NUM", "NUMBER OF OBJECTS"},
@@ -331,7 +331,7 @@ VarDesc WCHV_Vars[] = {
 };
 
 
-VarDesc WSUP_Vars[] = {
+const VarDesc WSUP_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "INDEX"},
   {VarDesc::Int, "NXXSUP", "MAX NB. FOR X FRAGMENTS"},
@@ -349,7 +349,7 @@ VarDesc WSUP_Vars[] = {
 };
 
 
-VarDesc WSPA_Vars[] = {
+const VarDesc WSPA_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "JSTA", "JSTA INDEX"},
   {VarDesc::Int, "NB", "NUMBER OF DETAILS"},
@@ -358,7 +358,7 @@ VarDesc WSPA_Vars[] = {
 };
 
 
-VarDesc WMDT_Vars[] = {
+const VarDesc WMDT_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::String, "TYP", "NAME"},
   {VarDesc::Int, "IW", "INDEX"},
@@ -380,7 +380,7 @@ VarDesc WMDT_Vars[] = {
 };
 
 
-VarDesc ALIN_Vars[] = {
+const VarDesc ALIN_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::FloatCM, "DX", "X RELATIVE POSITION OF THE SUB-CUT"},
   {VarDesc::FloatCM, "DY", "Y RELATIVE POSITION OF THE SUB-CUT"},
@@ -396,7 +396,7 @@ VarDesc ALIN_Vars[] = {
 };
 
 
-VarDesc ALMN_Vars[] = {
+const VarDesc ALMN_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::Int, "I", "ELEMENT NUMBER"},
   {VarDesc::FloatCM, "DX", "X RELATIVE POSITION OF THE OBJECT"},
@@ -420,7 +420,7 @@ VarDesc ALMN_Vars[] = {
 };
 
 
-VarDesc APTP_Vars[] = {
+const VarDesc APTP_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   //DRING: What is it?
   {VarDesc::Int, "LINE", "LINE NUMBER"},
@@ -446,7 +446,7 @@ VarDesc APTP_Vars[] = {
 };
 
 
-VarDesc ASZT_Vars[] = {
+const VarDesc ASZT_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::String, "TYP", "STATION TYPE"},
   {VarDesc::Int, "JFF", "PHI POSITION"},
@@ -461,7 +461,7 @@ VarDesc ASZT_Vars[] = {
 };
 
 
-VarDesc ISZT_Vars[] = {
+const VarDesc ISZT_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
   {VarDesc::String, "TYP", "STATION TYPE"},
   {VarDesc::Int, "JFF", "PHI POSITION"},
@@ -477,7 +477,7 @@ VarDesc ISZT_Vars[] = {
 };
 
 
-VarDesc HwSwId_Vars[] = {
+const VarDesc HwSwId_Vars[] = {
   {VarDesc::String, "HARDNAME", "Hard name"},
   {VarDesc::String, "SOFTNAME", "Soft name"},
   {VarDesc::Int, "SOFTOCTANT", "Soft octant"},
@@ -485,7 +485,7 @@ VarDesc HwSwId_Vars[] = {
 };
 
 
-VarDesc Xtomo_Vars[] = {
+const VarDesc Xtomo_Vars[] = {
   {VarDesc::String, "XtomoChberName", "XtomoChberName"},
   {VarDesc::String, "XtomoSite", "XtomoSite     "},
   {VarDesc::Int, "XtomoSiteId", "XtomoSiteId   "},

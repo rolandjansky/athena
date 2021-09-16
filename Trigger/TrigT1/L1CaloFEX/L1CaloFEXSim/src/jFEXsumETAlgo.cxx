@@ -196,7 +196,7 @@ int LVL1::jFEXsumETAlgo::getTTowerET(unsigned int TTID ) {
 }
 
 
-void LVL1::jFEXsumETAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXsumETAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

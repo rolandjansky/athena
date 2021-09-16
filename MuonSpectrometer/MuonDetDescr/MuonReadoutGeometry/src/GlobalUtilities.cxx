@@ -36,7 +36,7 @@ std::string buildString(int i, int ncha)
     
 
 
-int strtoint(std::string str, unsigned int istart, unsigned int length)
+int strtoint(const std::string& str, unsigned int istart, unsigned int length)
 {
   std::string s(str.substr(istart,length));
   int result = std::stoi(s);
@@ -45,7 +45,7 @@ int strtoint(std::string str, unsigned int istart, unsigned int length)
 
 
 
-int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry_version) 
+int stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version) 
 {
     // fi and zi_imput are the amdb indices (1, ... 8) and (-8, 8) are their ranges
     std::string stName3 = stName.substr(0,3);

@@ -3,6 +3,7 @@
 */
 
 // System include(s):
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <string>
@@ -65,6 +66,17 @@ public:
    float m_var4;
    
 }; // class ClassB
+
+// some dummz definitions to test TEvent::keys
+namespace xAOD {
+   // a test for metadata
+   class FileMetaData_v1 { int m_a, m_e; };
+   typedef FileMetaData_v1 FileMetaData;
+
+   // a test for event payload
+   class TrackParticle_v1 { int m_a, m_e; };
+   typedef TrackParticle_v1 TrackParticle;
+}
 
 int main() {
 
@@ -192,6 +204,40 @@ int main() {
    if( event.retrieve( cdv4, "ConstDataVector" ).isSuccess() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Problem detected" ) );
       return 1;
+   }
+
+   // test listing object keys
+   {
+      std::vector<std::string> keys;
+      event.keys<xAOD::FileMetaData>(keys, true);
+      if (keys.size() != 1) {
+         ::Error( APP_NAME,
+               XAOD_MESSAGE( "keys<xAOD::FileMetaData>(true).size = %u (!=1)" ),
+               static_cast<unsigned>(keys.size()) );
+         return 1;
+      }
+
+      keys.clear();
+      keys.reserve(6);
+      event.keys<DataVector< xAOD::TrackParticle > >(keys);
+      if (keys.size() != 6) {
+         ::Error( APP_NAME,
+               XAOD_MESSAGE( "keys<xAOD::TrackParticle >().size = %u (!=6)" ),
+               static_cast<unsigned>(keys.size()) );
+         return 1;
+      }
+
+      auto begin = keys.begin();
+      auto end = keys.end();
+      if (std::find(begin, end, "InDetTrackParticles") == end) {
+         ::Error( APP_NAME,
+               XAOD_MESSAGE( "keys<xAOD::TrackParticle >() did not find "
+                             "\"InDetTrackParticles\"" ) );
+         return 1;
+      }
+
+      // $TODO: test scanning through output
+
    }
 
    // Create another TEvent instance to test the file writing capabilities of

@@ -51,27 +51,24 @@ class FileMetaDataTool
   StatusCode beginInputFile() override;
 
   /// Does nothing
-  StatusCode endInputFile() override;
+  StatusCode endInputFile() override {return StatusCode::SUCCESS;};
 
 #ifndef XAOD_STANDALONE
   /// Collecting file metadata from input and write to output
-  StatusCode beginInputFile(const SG::SourceID&) override;
+  StatusCode beginInputFile(const SG::SourceID&) override {return beginInputFile();};
 
   /// Does nothing
-  StatusCode endInputFile(const SG::SourceID&) override;
+  StatusCode endInputFile(const SG::SourceID&) override {return StatusCode::SUCCESS;};
 #endif
 
   /// Does nothing
-  StatusCode metaDataStop() override;
+  StatusCode metaDataStop() override {return StatusCode::SUCCESS;};
 
   /// @}
 
  private:
-  /// Key of the metadata object in the input file
-  std::string m_inputKey;
-
-  /// Key of the metadata object for the output file
-  std::string m_outputKey;
+  /// list of keys to propogate from input to output
+  std::vector< std::string > m_keys;
 
 #ifndef XAOD_STANDALONE
   /// Get a handle on the metadata store for the job
@@ -80,6 +77,9 @@ class FileMetaDataTool
 
   // To lock/unlock the tool
   std::mutex m_toolMutex;
+
+  // implementation of individual object copy
+  StatusCode copy(const std::string&);
 };  // class FileMetaDataTool
 
 }  // namespace xAODMaker

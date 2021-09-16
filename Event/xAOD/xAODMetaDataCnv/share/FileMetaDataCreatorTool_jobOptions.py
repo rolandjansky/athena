@@ -39,8 +39,6 @@ svcMgr.EventSelector.InputCollections = ["/cvmfs/atlas-nightlies.cern.ch/repo/da
 # propogate xAOD::EventFormat from InputMetaDataStore to MetaDataStore
 ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool(
     "FileMetaDataTool",
-    InputKey="FileMetaData",
-    OutputKey="FileMetaData",
     OutputLevel=DEBUG,
 )
 svcMgr.MetaDataSvc.MetaDataTools += [ToolSvc.FileMetaDataTool]

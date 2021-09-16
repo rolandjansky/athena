@@ -426,6 +426,7 @@ def createITkFastTrackingFlags():
     icf.nHolesGapMax          = [1]
     icf.minPTSeed             = 1.0 * Units.GeV
     icf.maxZImpactSeed        = 150.0 * Units.mm
+    icf.useITkStripSeeding    = False
 
     return icf
 

@@ -16,7 +16,7 @@ namespace MuonGM {
 
     FPVMAP::FPVMAP() { m_nreused = 0; }
 
-    GeoVPhysVol *FPVMAP::GetDetector(std::string name) {
+    GeoVPhysVol *FPVMAP::GetDetector(const std::string& name) {
         if (m_Detectors.find(name) != m_Detectors.end()) {
             m_nreused++;
             // std::cout<<"FPVMAP:: the pointer to "<<name
@@ -26,7 +26,7 @@ namespace MuonGM {
             return 0;
     }
 
-    void FPVMAP::StoreDetector(GeoVPhysVol *s, std::string name) {
+    void FPVMAP::StoreDetector(GeoVPhysVol *s, const std::string& name) {
         // std::cout<<"FPVMAP:: store the pointer to "<<name<<std::endl;
         m_Detectors[name] = s;
     }

@@ -63,7 +63,7 @@ def StreamerDimuEFComboHypoCfg(name):
         trigSequenceName = 'StreamerDimu',
         trigLevel = 'EF')
     hypo.chi2 = 20.
-    hypo.massRanges = [ (100., 6000.) ]
+    hypo.massRange = [ (100., 6000.) ]
     return hypo
 
 def StreamerDiElecFastComboHypoCfg(name):
@@ -73,6 +73,18 @@ def StreamerDiElecFastComboHypoCfg(name):
     hypo = config.ConfigurationComboHypo(
         isStreamer = True,
         trigSequenceName = 'DiElecFast',
+        trigLevel = 'L2',
+        doElectrons = True,
+        trackCollection='HLT_IDTrack_Electron_FTF')
+    return hypo
+
+def StreamerNoMuonDiElecFastComboHypoCfg(name):
+    log.debug('StreamerNoMuonDiElecFastComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = True,
+        trigSequenceName = 'NoMuonDiElecFast',
         trigLevel = 'L2',
         doElectrons = True,
         trackCollection='HLT_IDTrack_Electron_FTF')
@@ -90,6 +102,17 @@ def DiElecPrecisionComboHypoCfg(name):
         outputTrigBphysCollection = 'HLT_DiElecPrecision')
     return hypo
 
+def NoMuonDiElecPrecisionComboHypoCfg(name):
+    log.debug('NoMuonDiElecPrecisionComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'NoMuonDiElecPrecision',
+        trigLevel = 'EF',
+        doElectrons = True,
+        outputTrigBphysCollection = 'HLT_NoMuonDiElecPrecision')
+    return hypo
 
 def TrigMultiTrkComboHypoToolFromDict(chainDict):
     config = TrigMultiTrkComboHypoConfig()
@@ -125,15 +148,14 @@ class TrigMultiTrkComboHypoConfig(object):
             MaxChi2OfVtxEstimation = 2000.)
 
         if doElectrons:
-            trackMasses = [0.511,0.511]
             tool = CompFactory.TrigMultiTrkComboHypo(
               name = baseName+'ComboHypo',
               isStreamer = isStreamer,
               doElectrons = True,
               trigLevel = trigLevel,
-              nTracks = 2,
-              trackMasses = trackMasses,
-              massRanges = [ (100., 20000.) ],
+              nTracks = [ 2 ],
+              massRange = [ (100., 20000.) ],
+              trackPtThresholds = [ [ 4000., 4000. ] ],
               TrackCollectionKey = trackCollection,
               TrigBphysCollectionKey = outputTrigBphysCollection,
               VertexFitter = VertexFitter,
@@ -146,8 +168,8 @@ class TrigMultiTrkComboHypoConfig(object):
             name = baseName+'ComboHypo',
             isStreamer = isStreamer,
             trigLevel = trigLevel,
-            nTracks = 2,
-            massRanges = [ (100., 20000.) ],
+            nTracks = [ 2 ],
+            massRange = [ (100., 20000.) ],
             TrackCollectionKey = trackCollection,
             TrigBphysCollectionKey = outputTrigBphysCollection,
             VertexFitter = VertexFitter,
@@ -178,6 +200,13 @@ class TrigMultiTrkComboHypoConfig(object):
 
         if 'Lxy0' in chainDict['topo']:
             tool.LxyCut = 0.0
+
+        if 'BPH-0DR3-EM7J15' in chainDict['L1item']:
+            tool.isMergedElectronChain = True
+
+        signatures = chainDict['signatures']
+        tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))
+        tool.legMultiplicities = chainDict['chainMultiplicities']
 
         tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -27,20 +27,14 @@
 #include "EventTPCnv/PileUpEventInfo_p5.h"
 #include "EventTPCnv/PileUpEventInfoCnv_p5.h"
 
-// the latest persistent representation type of PileUpEventInfo
-typedef  PileUpEventInfo_p5  PileUpEventInfo_PERS;
+typedef T_AthenaPoolTPCnvCnv<PileUpEventInfo,
+                             PileUpEventInfoCnv_p5,
+                             PileUpEventInfoCnv_p4,
+                             PileUpEventInfoCnv_p3,
+                             PileUpEventInfoCnv_p2,
+                             PileUpEventInfoCnv_p1,
+                             T_TPCnvNull<PileUpEventInfo> >
+  PileUpEventInfoCnv;
 
-typedef  T_AthenaPoolCustomCnv<PileUpEventInfo, PileUpEventInfo_PERS >   PileUpEventInfoCnvBase;
-
-class PileUpEventInfoCnv : public PileUpEventInfoCnvBase {
-friend class CnvFactory<PileUpEventInfoCnv >;
-protected:
-public:
-  PileUpEventInfoCnv (ISvcLocator* svcloc) : PileUpEventInfoCnvBase(svcloc) {}
-protected:
-  virtual PileUpEventInfo_PERS*   createPersistent (PileUpEventInfo* transObj);
-  virtual PileUpEventInfo*        createTransient ();
-};
 
 #endif
-

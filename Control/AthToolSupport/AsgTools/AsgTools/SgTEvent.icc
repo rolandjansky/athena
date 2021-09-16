@@ -163,6 +163,15 @@ namespace asg {
       return StatusCode::FAILURE;
    }
 
+   template< typename T >
+   void SgTEvent::keys( std::vector< std::string >& vkeys ) const {
+      if ( m_ptds ) {
+         m_ptds->keys< T >(vkeys);
+      } else if ( m_pevm ) {
+         m_pevm->keys< T >(vkeys);
+      }
+   }
+
 } // namespace asg
 
 #endif // ASGTOOLS_SGTEVENT_ICC

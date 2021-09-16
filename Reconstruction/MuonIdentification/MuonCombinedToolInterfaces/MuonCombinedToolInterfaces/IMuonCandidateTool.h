@@ -28,10 +28,7 @@ namespace MuonCombined {
         virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                             TrackCollection& outputTracks, const EventContext& ctx) const = 0;
 
-        /// Old method to maintain backwards compabilitiy
-        virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
-                            TrackCollection& outputTracks) const = 0;
-
+       
         virtual ~IMuonCandidateTool() = default;
     };
 

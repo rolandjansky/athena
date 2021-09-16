@@ -1,9 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgScheduler import AlgScheduler
-from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
-from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, HLTSeeding
+from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
@@ -20,44 +19,31 @@ def thresholdToChains( chains ):
 
 ###########################################################################    
 def generateHLTSeedingAndChainsManually(topSequence):
+    log.info( "generateHLTSeedingAndChainsManually")
     generateEmuEvents()
-    from AthenaCommon.CFElements import seqOR,parOR
-    hltTop = seqOR("HLTTop")
-    hltBeginSeq = parOR("HLTBeginSeq")
-    hltTop += hltBeginSeq
-    topSequence += hltTop
-    hltSeeding = generateHLTSeeding()
-    hltBeginSeq += hltSeeding
+    emulateHLTSeeding(topSequence)
     generateChainsManually()
-    from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-    makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
     
 
 ###########################################################################    
 def generateHLTSeedingAndChainsByMenu(topSequence):
+    log.info("generateHLTSeedingAndChainsByMenu")
     generateEmuEvents()
-    from AthenaCommon.CFElements import seqOR,parOR
-    hltTop = seqOR("HLTTop")
-    hltBeginSeq = parOR("HLTBeginSeq")
-    hltTop += hltBeginSeq
-    topSequence += hltTop
-    hltSeeding = generateHLTSeeding()
-    hltBeginSeq += hltSeeding
-    hltSeeding = generateHLTSeeding()
+    emulateHLTSeeding(topSequence)
     generateEmuMenu()
 
 
 
 ###########################################################################    
-def generateEmuMenu():    
+def generateEmuMenu(): 
+    """ 
+     set Emu menu and reproduce generateMT
+    """
+    log.info("generateEmuMenu")  
     from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1
     from TriggerMenuMT.HLTMenuConfig.Menu import LS2_emu_v1 
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger('EmuMenuTest')
-    log.debug("generateEmuMenu")
+    from TriggerJobOpts.TriggerFlags import TriggerFlags  
 
     # overwrite LS2_v1 
     LS2_v1.setupMenu = LS2_emu_v1.setupMenu
@@ -70,13 +56,15 @@ def generateEmuMenu():
 
     # Generate the menu    
     menu = GenerateMenuMT()
-    menu.overwriteSignaturesWith(signaturesToGenerate)    
-    menu.generateMT()
+    menu.overwriteSignaturesWith(signaturesToGenerate)
+    menu.generateAllChainConfigs()    
+    #menu.generateMT()
 
 
 
 ###########################################################################    
 def generateEmuEvents():
+    log.info("generateEmuEvents")
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataFlow( True )
 
@@ -179,6 +167,7 @@ def generateEmuEvents():
 
 ###########################################################################    
 def generateChainsManually():
+    log.info("generateChainsManually")
     from DecisionHandling.TestUtils import makeChain, makeChainStep    
     doMuon     = True
     doElectron = True
@@ -338,12 +327,12 @@ def generateChainsManually():
 
 
 ########################## L1 #################################################        
-def generateHLTSeeding():
-
-    L1UnpackingSeq = parOR("L1UnpackingSeq")
-
-    hltSeeding = HLTSeeding( RoIBResult="", L1TriggerResult="" )
-    hltSeeding.HLTSeedingSummaryKey = "HLTSeedingSummary"
+def emulateHLTSeeding(topSequence):
+    log.info("emulateHLTSeeding")
+    
+    # modify hltSeeding already in the Tree
+    hltSeeding=topSequence.HLTTop.HLTBeginSeq.HLTSeeding    
+    
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     hltSeeding.ctpUnpacker = ctpUnpacker
 
@@ -353,16 +342,10 @@ def generateHLTSeeding():
     hltSeeding.prescaler = psEmulation
 
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
-
     emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", InputFilename="l1emroi.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM"), ThresholdPrefix="EM" )
-
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
 
     hltSeeding.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
-    L1UnpackingSeq += hltSeeding
-    log.debug(L1UnpackingSeq)
-
-    return hltSeeding
 
 

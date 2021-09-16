@@ -20,6 +20,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 
 from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, PRWEntries, urlType, ROOTGetSize
 from PyJobTransforms.trfUtils import call
+from PyJobTransforms.trfExeStepTools import commonExecutorStepName
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
 from PyJobTransforms.trfAMI import getAMIClient
@@ -1359,7 +1360,8 @@ class argPOOLFile(argAthenaFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), disableMP=True)
+                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1396,7 +1398,8 @@ class argHITSFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['HITS']), outData=set(['HITS_MRG']), disableMP=True)
+                                  inData=set(['HITS']), outData=set(['HITS_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['HITS']), output=set(['HITS_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1434,7 +1437,8 @@ class argEVNT_TRFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.EVNT_TRMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['EVNT_TR']), outData=set(['EVNT_TR_MRG']), disableMP=True)
+                                  inData=set(['EVNT_TR']), outData=set(['EVNT_TR_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['EVNT_TR']), output=set(['EVNT_TR_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1471,7 +1475,8 @@ class argRDOFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                   conf=myMergeConf, 
-                                  inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
+                                  inData=set(['RDO']), outData=set(['RDO_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1508,7 +1513,8 @@ class argEVNTFile(argPOOLFile):
         myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']), disableMP=True)
+                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']),
+                                  disableMT=True, disableMP=True)
         myMerger.doAll(input=set(['EVNT']), output=set(['EVNT_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1928,7 +1934,9 @@ class argSubstep(argument):
             name = exe.name
             substep = exe.substep
             first = exe.conf.firstExecutor
-            
+
+        name = commonExecutorStepName(name)
+
         value = None
         ## @note First we see if we have an explicit name or substep match, then a special 'first' or 'default' match
         if name in self._value:

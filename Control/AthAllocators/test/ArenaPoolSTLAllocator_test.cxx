@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthAllocators/test/ArenaPoolAllocator_test.cxx
@@ -138,11 +138,11 @@ void test1()
   }
 
   assert (a4.stats().elts.inuse == 10);
-  assert (a4.stats().elts.total == 100);
+  assert (a4.stats().elts.total >= 100);
 
   a4.reset();
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 100);
+  assert (a4.stats().elts.total >= 100);
 
   a4.erase();
   assert (a4.stats().elts.inuse == 0);
@@ -150,7 +150,7 @@ void test1()
 
   a4.reserve(5000);
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 5000);
+  assert (a4.stats().elts.total >= 5000);
 
   assert (Payload::n == 2);
   assert (Payload::v.size() == 0);
@@ -175,7 +175,7 @@ void test2()
 
   (void)a3.allocate (1);
   assert (a3.stats().elts.inuse == 1);
-  assert (a3.stats().elts.total == 1000);
+  assert (a3.stats().elts.total >= 1000);
 
   Payload** p = a4.allocate (2);
   a4.deallocate (p, 2);
@@ -214,16 +214,16 @@ void test3()
 
   (void)a3.allocate (1);
   assert (a3.stats().elts.inuse == 1);
-  assert (a3.stats().elts.total == 1000);
+  assert (a3.stats().elts.total >= 1000);
 
   assert (a4.stats().elts.inuse == 1);
-  assert (a4.stats().elts.total == 1000);
+  assert (a4.stats().elts.total >= 1000);
 
   CTest c4 (a4);
   auto a4_nc = SG::ArenaPoolSTLAllocator<int>::get_allocator (c4);
   a4_nc.reset();
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
+  assert (a4.stats().elts.total >= 1000);
 
   a4_nc.erase();
   assert (a4.stats().elts.inuse == 0);
@@ -231,15 +231,15 @@ void test3()
 
   a4_nc.reserve(1000);
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
+  assert (a4.stats().elts.total >= 1000);
 
   int* p = a4.allocate (2);
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
+  assert (a4.stats().elts.total >= 1000);
 
   a4.deallocate (p, 2);
   assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
+  assert (a4.stats().elts.total >= 1000);
 
   assert (Payload::n == 0);
   assert (Payload::v.size() == 0);
@@ -259,7 +259,7 @@ void test4()
 
   (void)b1.allocate(1);
   assert (b1.stats().elts.inuse == 1);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
 
   SG::ArenaPoolSTLAllocator<Payload, int> b2 (std::move (b1));
   assert (b1.nblock() == 100);
@@ -269,10 +269,10 @@ void test4()
   assert (b1.stats().elts.inuse == 0);
   assert (b1.stats().elts.total == 0);
   assert (b2.stats().elts.inuse == 1);
-  assert (b2.stats().elts.total == 100);
+  assert (b2.stats().elts.total >= 100);
   (void)b2.allocate(1);
   assert (b2.stats().elts.inuse == 2);
-  assert (b2.stats().elts.total == 100);
+  assert (b2.stats().elts.total >= 100);
 
   b1 = std::move(b2);
   assert (b1.nblock() == 100);
@@ -282,10 +282,10 @@ void test4()
   assert (b2.stats().elts.inuse == 0);
   assert (b2.stats().elts.total == 0);
   assert (b1.stats().elts.inuse == 2);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
   (void)b1.allocate(1);
   assert (b1.stats().elts.inuse == 3);
-  assert (b1.stats().elts.total == 100);
+  assert (b1.stats().elts.total >= 100);
 
   b1.swap(b2);
   assert (b1.nblock() == 100);
@@ -295,7 +295,7 @@ void test4()
   assert (b1.stats().elts.inuse == 0);
   assert (b1.stats().elts.total == 0);
   assert (b2.stats().elts.inuse == 3);
-  assert (b2.stats().elts.total == 100);
+  assert (b2.stats().elts.total >= 100);
 
   assert (b1 == b1);
   assert (!(b1 != b1));
@@ -366,31 +366,31 @@ void test6()
     map[i] = i;
 
   assert (map.size() == 10);
-  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.total >= 500);
   assert (map.get_allocator().stats().elts.inuse == 10);
 
   map_t map2 = map;
   assert (map.size() == 10);
-  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.total >= 500);
   assert (map.get_allocator().stats().elts.inuse == 10);
 
   assert (map2.size() == 10);
-  assert (map2.get_allocator().stats().elts.total == 500);
+  assert (map2.get_allocator().stats().elts.total >= 500);
   assert (map2.get_allocator().stats().elts.inuse == 10);
 
   map_t map3;
   map3 = map;
   assert (map.size() == 10);
-  assert (map.get_allocator().stats().elts.total == 500);
+  assert (map.get_allocator().stats().elts.total >= 500);
   assert (map.get_allocator().stats().elts.inuse == 10);
 
   assert (map3.size() == 10);
-  assert (map3.get_allocator().stats().elts.total == 1000);
+  assert (map3.get_allocator().stats().elts.total >= 1000);
   assert (map3.get_allocator().stats().elts.inuse == 10);
 
   map_t map4 (std::move (map2));
   assert (map4.size() == 10);
-  assert (map4.get_allocator().stats().elts.total == 500);
+  assert (map4.get_allocator().stats().elts.total >= 500);
   assert (map4.get_allocator().stats().elts.inuse == 10);
   assert (map2.size() == 0);
   assert (map2.get_allocator().stats().elts.total == 0);
@@ -398,7 +398,7 @@ void test6()
 
   map2 = std::move(map4);
   assert (map2.size() == 10);
-  assert (map2.get_allocator().stats().elts.total == 500);
+  assert (map2.get_allocator().stats().elts.total >= 500);
   assert (map2.get_allocator().stats().elts.inuse == 10);
   assert (map4.size() == 0);
   assert (map4.get_allocator().stats().elts.total == 0);
@@ -406,7 +406,7 @@ void test6()
 
   map2.swap (map4);
   assert (map4.size() == 10);
-  assert (map4.get_allocator().stats().elts.total == 500);
+  assert (map4.get_allocator().stats().elts.total >= 500);
   assert (map4.get_allocator().stats().elts.inuse == 10);
   assert (map2.size() == 0);
   assert (map2.get_allocator().stats().elts.total == 0);

@@ -15,8 +15,8 @@
 namespace MuonGM 
 {
     std::string buildString(int i, int ncha);
-    int strtoint(std::string str, unsigned int istart, unsigned int length);
-    int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry_version);
+    int strtoint(const std::string& str, unsigned int istart, unsigned int length);
+    int stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version);
 }
 
 #endif // MUONREADOUTGEOMETRY_GLOBALUTILITIES_H

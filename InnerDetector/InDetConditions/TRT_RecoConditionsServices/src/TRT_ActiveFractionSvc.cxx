@@ -19,6 +19,7 @@
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "StoreGate/ReadCondHandle.h"
+#include <cmath>
 
 //////
 /// Constructor
@@ -144,7 +145,7 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
     double rMinEndcap = 617.; 
     double rMaxEndcap = 1106.;
     int countAll(0), countDead(0), countSaved(0), countPhiSkipped(0), countEtaSkipped(0), countInvalidEtaValues(0); 
-    for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end(); it++  ) {
+    for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end(); ++it  ) {
       int nStrawsInLayer = TRTHelper->straw_max(*it);
       for (int i=0; i<=nStrawsInLayer; i++) { 
 
@@ -156,23 +157,23 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         countAll++; if (status) countDead++;
 
         const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
-        double phi = atan2( strawPosition.y(), strawPosition.x() );
+        double phi = std::atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = findPhiBin( phi );
 	if (phiBin<0) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc::handle phiBin<0: " << phi << " " << phiBin << endmsg; countPhiSkipped++; continue; }
 
 	// calculate etaMin, etaMax
 	int side = TRTHelper->barrel_ec(id);
-        double z = fabs( strawPosition.z() );
+        double z = std::abs( strawPosition.z() );
 	double thetaMin(0.), thetaMax(0.);
 	if (abs(side)==1) { // barrel
           double zRange = 360.; // straw length / 2  
 	  if ( TRTHelper->layer_or_wheel(id) == 0 && TRTHelper->straw_layer(id) < 9 ) zRange = 160.;  // short straws
-	  double r = sqrt( pow(strawPosition.x(), 2) + pow(strawPosition.y(), 2) );
-	  thetaMin = atan( r / (z+zRange) );
-	  thetaMax = ((z-zRange)>0.) ? atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
+	  double r = std::sqrt( std::pow(strawPosition.x(), 2) + std::pow(strawPosition.y(), 2) );
+	  thetaMin = std::atan( r / (z+zRange) );
+	  thetaMax = ((z-zRange)>0.) ? std::atan( r / (z-zRange) ) : 1.57; // M_PI_2 - epsilon
 	} else { // endcap
-	  thetaMin = atan( rMinEndcap / z );		
-	  thetaMax = atan( rMaxEndcap / z );	
+	  thetaMin = std::atan( rMinEndcap / z );		
+	  thetaMax = std::atan( rMaxEndcap / z );	
 	}
         if (side<0) { // theta -> M_PI - theta
           double thetaDummy = thetaMin;
@@ -184,14 +185,13 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         double etaCheck[] = {0., 0.};
         for (int ti=0; ti<2; ti++) {
           if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta " << ti << " " << thetaCheck[ti] << endmsg;
-          double tanTheta = tan(thetaCheck[ti]/2.);
+          double tanTheta = std::tan(thetaCheck[ti]/2.);
           if (tanTheta<=0.) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta tan " << ti << " " << tanTheta << endmsg; countInvalidEtaValues++; continue; }
-          etaCheck[ti] = -log( tanTheta );
+          etaCheck[ti] = -std::log( tanTheta );
         }
        double etaMin = etaCheck[0];
        double etaMax = etaCheck[1];
-//	double etaMin =  -log( tan( thetaMax / 2.) ); // eta goes in the other ways as theta!! etaMIN = f(thetaMAX) 
-//        double etaMax =  -log( tan( thetaMin / 2.) );
+
 	int etaMinBin = findEtaBin( etaMin );
 	int etaMaxBin = findEtaBin( etaMax ); 
         if (etaMin>=etaMax) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax << endmsg;

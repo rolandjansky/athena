@@ -49,7 +49,7 @@ namespace MuonGM {
         return build(minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Micromegas::build(int minimalgeo, int, std::vector<Cutout *>) {
+    GeoFullPhysVol *Micromegas::build(int minimalgeo, int, const std::vector<Cutout *>&) {
         AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
         MMDetectorHelper mmHelper;
         MMDetectorDescription *mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);

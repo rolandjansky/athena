@@ -30,7 +30,7 @@ namespace MuonGM {
         double tubelenStepSize;
         double tubePitch;
 
-        Mdt(Component *s1, std::string s2);
+        Mdt(Component *s1, const std::string& s2);
         ~Mdt();
         MultiLayer *layer;
         GeoFullPhysVol *build();

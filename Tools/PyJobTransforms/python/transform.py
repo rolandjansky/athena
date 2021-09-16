@@ -8,6 +8,7 @@
 #
 
 import argparse
+import copy
 import os
 import os.path as path
 import re
@@ -24,6 +25,7 @@ from PyJobTransforms.trfSignal import setTrfSignalHandlers, resetTrfSignalHandle
 from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArguments, addValidationArguments
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
+from PyJobTransforms.trfExeStepTools import executorStepSuffix, getTotalExecutorSteps
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
 from PyJobTransforms.trfUtils import isInteractiveEnv, calcCpuTime, calcWallTime
@@ -436,6 +438,9 @@ class transform(object):
                             msg.debug('Did not find any argument matching data type {0} - setting to plain argFile: {1}'.format(dataType, self._dataDictionary[dataType]))
                     self._dataDictionary[dataType].name = fileName
 
+            # Do splitting if required
+            self.setupSplitting()
+
             # Now we can set the final executor configuration properly, with the final dataDictionary
             for executor in self._executors:
                 executor.conf.setFromTransform(self)
@@ -517,6 +522,37 @@ class transform(object):
         self._executorGraph = executorGraph(self._executors, self._inputData, self._outputData)
         self._executorGraph.doToposort()
     
+    ## @brief Setup executor splitting
+    def setupSplitting(self):
+        if 'splitConfig' not in self._argdict:
+            return
+
+        split = []
+        for executionStep in self._executorPath:
+            baseStepName = executionStep['name']
+            if baseStepName in split:
+                continue
+
+            baseExecutor = self._executorDictionary[baseStepName]
+            splitting = getTotalExecutorSteps(baseExecutor, argdict=self._argdict)
+            if splitting <= 1:
+                continue
+
+            msg.info('Splitting {0} into {1} substeps'.format(executionStep, splitting))
+            index = self._executorPath.index(executionStep)
+            baseStep = self._executorPath.pop(index)
+            for i in range(splitting):
+                name = baseStepName + executorStepSuffix + str(i)
+                step = copy.deepcopy(baseStep)
+                step['name'] = name
+                self._executorPath.insert(index + i, step)
+                executor = copy.deepcopy(baseExecutor)
+                executor.name = name
+                executor.conf.executorStep = i
+                executor.conf.totalExecutorSteps = splitting
+                self._executors.add(executor)
+                self._executorDictionary[name] = executor
+                split.append(name)
     
     ## @brief Trace the path through the executor graph
     #  @note This function might need to be called again when the number of 'substeps' is unknown

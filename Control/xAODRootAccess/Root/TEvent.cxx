@@ -1619,6 +1619,123 @@ namespace xAOD {
       return dummy;
    }
 
+   void TEvent::getNames(const std::string& targetClassName,
+                         std::vector<std::string>& vkeys,
+                         bool metadata) const {
+      // The results go in here
+      std::set<std::string> keys;
+
+      // Check input objects
+      TTree * tree = ( metadata ? m_inMetaTree : m_inTree );
+      if (tree) {
+         const TObjArray * in = tree->GetListOfBranches();
+         ::Info("xAOD::TEvent::getNames", "scanning input objects");
+
+         for ( Int_t index = 0; index < in->GetEntriesFast(); ++index ) {
+            const TObject * obj = in->At(index);
+            if ( ! obj ) continue;
+            const TBranch * element = dynamic_cast<const TBranch*>(obj);
+            if (!obj) {
+               ::Error("xAOD::TEvent::getNames", "Failure inspecting input objects");
+               break;
+            }
+            std::string objClassName = element->GetClassName();
+            std::string key = obj->GetName();
+            ::Info("xAOD::TEvent::getNames",
+                   "Inspecting %s / %s",
+                   objClassName.c_str(), key.c_str());
+            if (objClassName == targetClassName) {
+               ::Info("xAOD::TEvent::getNames",
+                     "Matched %s to key %s",
+                     targetClassName.c_str(), key.c_str());
+               keys.insert(key);
+            }
+         }
+      }
+
+      const Object_t& inAux = ( metadata ?
+                                m_inputMetaObjects : m_inputObjects );
+
+      ::Info("xAOD::TEvent::getNames",
+             "scanning input Aux objects for %s", targetClassName.c_str());
+      for( const auto& object : inAux ) {
+         // All metadata objects should be held by TObjectManager objects.
+         // Anything else is an error.
+         TObjectManager* mgr = dynamic_cast< TObjectManager* >( object.second );
+         if ( ! mgr ) continue;
+         const std::string& objClassName = mgr->holder()->getClass()->GetName();
+         const std::string& key = object.first;
+         ::Info("xAOD::TEvent::getNames",
+                "Inspecting %s / %s",
+                objClassName.c_str(), key.c_str());
+         if (objClassName == targetClassName) {
+            ::Info("xAOD::TEvent::getNames",
+                   "Matched %s to key %s",
+                   targetClassName.c_str(), key.c_str());
+            keys.insert(key);
+         }
+      }
+
+
+      // check output objects
+      tree = ( metadata ? nullptr : m_outTree );
+      if (tree) {
+         const TObjArray * out = tree->GetListOfBranches();
+         ::Info("xAOD::TEvent::getNames", "scanning output objects");
+
+         for ( Int_t index = 0; index < out->GetEntriesFast(); ++index ) {
+            const TObject * obj = out->At(index);
+            if ( ! obj ) continue;
+            const TBranch * element = dynamic_cast<const TBranch*>(obj);
+            if (!obj) {
+               ::Error("xAOD::TEvent::getNames", "Failure inspecting input objects");
+               break;
+            }
+            std::string objClassName = element->GetClassName();
+            std::string key = obj->GetName();
+            ::Info("xAOD::TEvent::getNames",
+                   "Inspecting %s / %s",
+                   objClassName.c_str(), key.c_str());
+            if (objClassName == targetClassName) {
+               ::Info("xAOD::TEvent::getNames",
+                     "Matched %s to key %s",
+                     targetClassName.c_str(), key.c_str());
+               keys.insert(key);
+            }
+         }
+      } else {
+         ::Info("xAOD::TEvent::getNames", "no output tree connected");
+      }
+
+
+      const Object_t& outAux = ( metadata ?
+                                 m_outputMetaObjects : m_outputObjects );
+
+      // Search though EventFormat for entries where class matches the provided
+      // typeName
+      ::Info("xAOD::TEvent::getNames",
+             "scanning output Aux objects for %s", targetClassName.c_str());
+      for( const auto& object : outAux ) {
+         // All metadata objects should be held by TObjectManager objects.
+         // Anything else is an error.
+         TObjectManager* mgr = dynamic_cast< TObjectManager* >( object.second );
+         if ( ! mgr ) continue;
+         const std::string& objClassName = mgr->holder()->getClass()->GetName();
+         const std::string& key = object.first;
+         ::Info("xAOD::TEvent::getNames",
+                "Inspecting %s / %s",
+                objClassName.c_str(), key.c_str());
+         if (objClassName == targetClassName) {
+            ::Info("xAOD::TEvent::getNames",
+                   "Matched %s to key %s",
+                   targetClassName.c_str(), key.c_str());
+            keys.insert(key);
+         }
+      }
+
+      vkeys.insert(vkeys.end(), keys.begin(), keys.end());
+   }
+
    /// This function is used primarily when getting the string key of
    /// a smart pointer that we read in from a file, or access it in memory.
    ///

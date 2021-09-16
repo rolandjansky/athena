@@ -30,7 +30,7 @@ namespace Trk {
 
 namespace MuonGM {
 
-TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
@@ -66,7 +66,7 @@ const Amg::Transform3D TgcReadoutElement::localToGlobalTransf(Identifier id) con
   return absTransform()*xfp;
 }
 
-const Amg::Vector3D TgcReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D TgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D gasgapP = localGasGapPos(id);
   const Amg::Translation3D xfp(gasgapP.x(),gasgapP.y(), gasgapP.z());
@@ -78,7 +78,7 @@ const Amg::Transform3D TgcReadoutElement::globalToLocalTransf(Identifier id) con
   return localToGlobalTransf(id).inverse();
 }
 
-const Amg::Vector3D TgcReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D TgcReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   return globalToLocalTransf(id)*x;
 }
@@ -766,7 +766,7 @@ int TgcReadoutElement::findGang(int gasGap, Amg::Vector3D localPos) const
 }
 
 int TgcReadoutElement::findStrip(int gasGap,
-                                 Amg::Vector3D localPos, Amg::Vector3D /*globalPos*/) const
+                                 Amg::Vector3D localPos, const Amg::Vector3D& /*globalPos*/) const
 {
     if(! validGap(gasGap) ) throw;
 
@@ -798,7 +798,7 @@ int TgcReadoutElement::gapVolume(int gasGap) const
     throw;
 }
 
-bool TgcReadoutElement::isAgap(std::string volumeMaterial) const
+bool TgcReadoutElement::isAgap(const std::string& volumeMaterial) const
 {
     return ("TGCGas" == volumeMaterial);
 }

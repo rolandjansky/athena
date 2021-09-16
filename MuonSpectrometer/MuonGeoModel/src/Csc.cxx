@@ -22,6 +22,7 @@
 #include <GeoModelKernel/GeoShape.h>
 #include <GeoModelKernel/GeoVPhysVol.h>
 #include <string>
+#include <utility>
 
 class GeoMaterial;
 
@@ -91,7 +92,7 @@ namespace MuonGM {
         if (minimalgeo == 1)
             return pcsc;
 
-        GeoVPhysVol *lay = layer->build(cutoutson, vcutdef);
+        GeoVPhysVol *lay = layer->build(cutoutson, std::move(vcutdef));
         if (!skip_csc)
             pcsc->add(lay);
 

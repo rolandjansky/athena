@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSTREAMINFOCNV_H
@@ -11,28 +11,20 @@
  *  $Id: EventStreamInfoCnv.h,v 1.3 2009-03-18 17:48:04 gemmeren Exp $
  **/
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 #include "EventInfo/EventStreamInfo.h"
-#include "EventTPCnv/EventStreamInfo_p3.h"
+#include "EventTPCnv/EventStreamInfoCnv_p1.h"
+#include "EventTPCnv/EventStreamInfoCnv_p2.h"
+#include "EventTPCnv/EventStreamInfoCnv_p3.h"
 
-/// the latest persistent representation type of EventStreamInfo
-typedef EventStreamInfo_p3 EventStreamInfo_PERS;
-typedef T_AthenaPoolCustomCnv<EventStreamInfo, EventStreamInfo_PERS> EventStreamInfoCnvBase;
 
-/** @class EventStreamInfoCnv
- *  @brief This class provides a converter for the EventStreamInfo class.
- **/
-class EventStreamInfoCnv : public EventStreamInfoCnvBase {
+typedef T_AthenaPoolTPCnvCnv<EventStreamInfo,
+                             EventStreamInfoCnv_p3,
+                             EventStreamInfoCnv_p2,
+                             EventStreamInfoCnv_p1,
+                             T_TPCnvNull<EventStreamInfo> >
+  EventStreamInfoCnv;
 
-friend class CnvFactory<EventStreamInfoCnv>;
-
-protected:
-public:
-   EventStreamInfoCnv(ISvcLocator* svcloc) : EventStreamInfoCnvBase(svcloc) {}
-protected:
-
-   virtual EventStreamInfo_PERS* createPersistent(EventStreamInfo* transObj);
-   virtual EventStreamInfo* createTransient();
-};
 
 #endif

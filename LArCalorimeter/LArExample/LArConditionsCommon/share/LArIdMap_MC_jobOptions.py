@@ -12,8 +12,11 @@ from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg,
 
 larCondFlags.config_idmap_MC() 
 
-from Digitization.DigitizationFlags import digitizationFlags
-isPileUpDigi = digitizationFlags.doXingByXingPileUp()
+isPileUpDigi = False
+from PyUtils.moduleExists import moduleExists
+if moduleExists ('Digitization'):
+  from Digitization.DigitizationFlags import digitizationFlags
+  isPileUpDigi = digitizationFlags.doXingByXingPileUp()
 
 LArDBConnection = ""
 LArDB = "LAR_OFL"

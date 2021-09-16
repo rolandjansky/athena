@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/PhysicalConstants.h"
@@ -75,8 +75,8 @@ StatusCode WZtoLeptonFilter::filterFinalize() {
                "0 for more leptons ( difficult to recon ) : " << m_reconeffi << "\n" <<
                "Etacut_electron : " << m_Eta_e << "\n"                               <<
                "Etacut_muon     : " << m_Eta_mu << "\n"                              <<
-               "Ptcut_electron (GeV) : " << m_Pt_e/Gaudi::Units::GeV << "\n"                       <<
-               "Ptcut_muon           : " << m_Pt_mu/Gaudi::Units::GeV);
+               "Ptcut_electron (GeV) : " << m_Pt_e*Gaudi::Units::GeV << "\n"                       <<
+               "Ptcut_muon           : " << m_Pt_mu*Gaudi::Units::GeV);
 
   if (m_AthenaCalls == 0) {
     ATH_MSG_INFO(" ERROR, Your filter is not interfaced/called at all " << "################   WZtoLeptonFilter Finished  ##############");

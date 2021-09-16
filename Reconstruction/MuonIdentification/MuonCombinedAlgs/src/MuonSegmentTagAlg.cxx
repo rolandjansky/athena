@@ -6,7 +6,7 @@
 
 #include "xAODMuon/MuonSegmentContainer.h"
 
-MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
+MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonSegmentTagAlg::initialize() {
     ATH_CHECK(m_muonSegmentTagTool.retrieve());
@@ -17,8 +17,8 @@ StatusCode MuonSegmentTagAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonSegmentTagAlg::execute() {
-    SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName);
+StatusCode MuonSegmentTagAlg::execute(const EventContext& ctx) const  {
+    SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName, ctx);
     if (!indetCandidateCollection.isValid()) {
         ATH_MSG_ERROR("Could not read " << m_indetCandidateCollectionName);
         return StatusCode::FAILURE;
@@ -28,7 +28,7 @@ StatusCode MuonSegmentTagAlg::execute() {
         return StatusCode::SUCCESS;
     }
 
-    SG::ReadHandle<xAOD::MuonSegmentContainer> segments(m_muonSegmentCollectionName);
+    SG::ReadHandle<xAOD::MuonSegmentContainer> segments(m_muonSegmentCollectionName, ctx);
     if (!segments.isPresent()) {
         ATH_MSG_WARNING(m_muonSegmentCollectionName << " not found in StoreGate");
         return StatusCode::SUCCESS;
@@ -38,10 +38,10 @@ StatusCode MuonSegmentTagAlg::execute() {
         return StatusCode::FAILURE;
     }
 
-    SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap);
+    SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap, ctx);
     ATH_CHECK(tagMap.record(std::make_unique<MuonCombined::InDetCandidateToTagMap>()));
 
-    m_muonSegmentTagTool->tag(*indetCandidateCollection, *segments, tagMap.ptr());
+    m_muonSegmentTagTool->tag(ctx, *indetCandidateCollection, *segments, tagMap.ptr());
 
     return StatusCode::SUCCESS;
 }

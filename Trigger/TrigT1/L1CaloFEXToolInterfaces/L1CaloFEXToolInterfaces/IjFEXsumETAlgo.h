@@ -33,7 +33,7 @@ class IjFEXsumETAlgo : virtual public IAlgTool {
         virtual void buildFWDSumET()  =0;
         virtual int getETlowerEta(uint )  =0;
         virtual int getETupperEta(uint )  =0;
-        virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)  =0;
+        virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)  =0;
         
 
         virtual std::unique_ptr<jFEXsumETTOB> getsumETTOBs() = 0;

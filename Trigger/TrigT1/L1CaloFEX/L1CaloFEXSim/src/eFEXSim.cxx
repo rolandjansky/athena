@@ -33,6 +33,7 @@ namespace LVL1 {
 
   StatusCode eFEXSim::initialize()
   {
+    ATH_CHECK( m_eFEXFPGATool.retrieve() );
     return StatusCode::SUCCESS;
   }
 
@@ -82,7 +83,6 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputColl
 
   int tmp_eTowersIDs_subset_FPGA[10][6];
 
-  ATH_CHECK( m_eFEXFPGATool.retrieve() );
   
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_eTowersIDs_subset_FPGA, 0, sizeof tmp_eTowersIDs_subset_FPGA);

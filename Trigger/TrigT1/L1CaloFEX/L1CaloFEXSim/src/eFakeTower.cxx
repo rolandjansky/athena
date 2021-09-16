@@ -232,7 +232,7 @@ std::vector<int>* LVL1::eFakeTower::loadBlock(std::string inputfile, int eventnu
         if (eventnumber == 0) {
           output->push_back(std::stoi(temvalue));
         } else {
-          int et = eFEXCompression::Expand(int(strtoull(temvalue.c_str(), nullptr, 16)));
+          int et = eFEXCompression::expand(int(strtoull(temvalue.c_str(), nullptr, 16)));
           output->push_back(et);
         }
       }

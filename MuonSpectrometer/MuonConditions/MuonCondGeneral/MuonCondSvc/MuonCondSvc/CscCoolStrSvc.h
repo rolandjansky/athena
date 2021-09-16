@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCOOLSTRSVC_H
@@ -181,7 +181,8 @@ namespace MuonCalib {
 
     /**Map is an easier way to reference parameters by name than the dbCache*/
     std::map<std::string, CscCondDataCollectionBase*> m_parNameMap;
-    std::map<std::string, CscCondDataCollectionBase*> m_parSGKeyMap;
+    std::map<std::string, std::pair<CscCondDataCollectionBase*,
+                                    const DataHandle<CondAttrListCollection> > > m_parSGKeyMap;
 
     const CscCondDataCollection<float>* m_rmsCondData;
     const CscCondDataCollection<float>* m_slopeCondData;

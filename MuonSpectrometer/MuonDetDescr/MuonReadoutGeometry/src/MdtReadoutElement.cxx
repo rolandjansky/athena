@@ -27,6 +27,7 @@
 #include "MuonAlignmentData/BLinePar.h"
 
 #include <limits>
+#include <utility>
 
 // From Dan Levin: MDT 
 // linear density of wire: lambda=wireLinearDensity=19.3 [gm/cm^3] * PI*
@@ -56,7 +57,7 @@ namespace {
 
 namespace MuonGM {
 
-MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr),
@@ -224,7 +225,7 @@ double MdtReadoutElement::tubeLength(Identifier id) const
   return getTubeLength(layer, tube);
 }
 
-double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
+double MdtReadoutElement::distanceFromRO(const Amg::Vector3D &x, Identifier id) const
 {
   // x is given in the global reference frame
   const MdtIdHelper* idh = manager()->mdtIdHelper();
@@ -256,7 +257,7 @@ double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
 
 
 double 
-MdtReadoutElement::distanceFromRO(Amg::Vector3D x, int multilayer, int tubelayer, int tube) const
+MdtReadoutElement::distanceFromRO(const Amg::Vector3D &x, int multilayer, int tubelayer, int tube) const
 {
   // x is given in the global reference frame
   const MdtIdHelper* idh = manager()->mdtIdHelper();
@@ -265,7 +266,7 @@ MdtReadoutElement::distanceFromRO(Amg::Vector3D x, int multilayer, int tubelayer
 }
 
 
-int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifier id) const
+int MdtReadoutElement::isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, Identifier id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     int tubel = idh->tubeLayer(id);
@@ -288,7 +289,7 @@ int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifi
         return -1;
     }
 }
-int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, int ml, int tubel, int tube) const
+int MdtReadoutElement::isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, int ml, int tubel, int tube) const
 {
     double distance = distanceFromRO(GlobalHitPosition, ml, tubel, tube);
     if (distance < 0) {
@@ -661,7 +662,7 @@ const Amg::Transform3D  MdtReadoutElement::nodeform_tubeToMultilayerTransf(Ident
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D tp = nodeform_localTubePos(id);
   const Amg::Translation3D xfp(-tp.x(), -tp.y(), -tp.z());
@@ -670,7 +671,7 @@ MdtReadoutElement::multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::nodeform_multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::nodeform_multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const
 {
   const Amg::Vector3D tp = nodeform_localTubePos(id);
   const Amg::Translation3D xfp(-tp.x(), -tp.y(), -tp.z());
@@ -692,7 +693,7 @@ const Amg::Transform3D  MdtReadoutElement::nodeform_multilayerToTubeTransf(Ident
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
+MdtReadoutElement::localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const
 {
   return transform(id)*x;
 }
@@ -756,13 +757,13 @@ MdtReadoutElement::nodeform_globalToLocalTransf(Identifier id) const
   return mytransf;
 }
 
-const Amg::Vector3D MdtReadoutElement::globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D MdtReadoutElement::globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     const Amg::Transform3D mytransf = globalToLocalTransf(id);
     Amg::Vector3D xx = mytransf * x;
     return xx;
 }
-const Amg::Vector3D MdtReadoutElement::nodeform_globalToLocalCoords(Amg::Vector3D x, Identifier id) const
+const Amg::Vector3D MdtReadoutElement::nodeform_globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const
 {
     const Amg::Transform3D mytransf = nodeform_globalToLocalTransf(id);
     Amg::Vector3D xx = mytransf * x;
@@ -1006,7 +1007,7 @@ MdtReadoutElement::deformedTransform (int multilayer, int tubelayer, int tube) c
 
 
 Amg::Vector3D
-MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const
+MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D& fixedPoint) const
 {
 
   double height = m_inBarrel ? m_Zsize : m_Rsize;
@@ -1050,7 +1051,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
     double width_narrow, double width_wide, double height, double thickness,
     double /*bz*/, double /*bp*/, double /*bn*/, double sp, double sn, double tw,
     double /*pg*/, double /*tr*/, double eg, double ep, double en, 
-    const Amg::Vector3D fixedPoint) const
+    const Amg::Vector3D& fixedPoint) const
 {
   // S.Spagnolo Feb.6, 2011, modified by P.F Giraud, 2015-01-17
   // This version does not implement deformations modifying only the second

@@ -66,12 +66,4 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doRobustReco", False) # Switch for running Robust settings
   itkcf.addFlag("ITk.useNewSiSPSeededTF", False ) # Switch for using new SiSPSeededTrackFinder strategy
 
-  from InDetConfig.TrackingCutsFlags import createITkTrackingFlags, createITkLargeD0TrackingFlags, createITkConversionFindingTrackingFlags, createITkFastTrackingFlags, createITkLargeD0FastTrackingFlags
-
-  itkcf.addFlagsCategory ("ITk.Tracking", createITkTrackingFlags, prefix=True)
-  itkcf.addFlagsCategory ("ITk.LargeD0Tracking", createITkLargeD0TrackingFlags, prefix=True)
-  itkcf.addFlagsCategory ("ITk.ConversionFindingTracking", createITkConversionFindingTrackingFlags, prefix=True)
-  itkcf.addFlagsCategory ("ITk.FastTracking", createITkFastTrackingFlags, prefix=True)
-  itkcf.addFlagsCategory ("ITk.LargeD0FastTracking", createITkLargeD0FastTrackingFlags, prefix=True)
-
   return itkcf

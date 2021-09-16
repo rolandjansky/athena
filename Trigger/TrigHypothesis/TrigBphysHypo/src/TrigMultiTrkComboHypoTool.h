@@ -50,9 +50,14 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
   Gaudi::Property<int> m_totalCharge {this, "totalCharge", 0, "magnitude of the total charge to accept, negative is none" };
   Gaudi::Property<std::pair<double, double>> m_massRange {this, "massRange", {-99., -9.}, "range for the fitted mass, no selection applied if negative"};
   Gaudi::Property<float> m_chi2 {this, "chi2", -99. , "Chi2 cut for vertex (0 < chi2 < cut), no selection applied if negative" };
-  Gaudi::Property<bool> m_acceptAll {this, "AcceptAll", false, "if AcceptAll flag is set to true, no selection will be applied for xAOD::TrigBphys object" };
+  Gaudi::Property<bool> m_acceptAll {this, "AcceptAll", false, "if AcceptAll flag is set to true, no selection will be applied for xAOD::TrigBphys object"};
   Gaudi::Property<float> m_LxyCut {this, "LxyCut", -999., "Applies an Lxy Cut if set > -999"};
-  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
+  Gaudi::Property<bool> m_isCombinedChain {this, "isCombinedChain", false, "true for chains with different signatures, e.g. HLT_e9_mu6"};
+  Gaudi::Property<bool> m_isMergedElectronChain {this, "isMergedElectronChain", false, "true for close-by electrons, e.g. HLT_e5_lhvloose_L1BPH-0DR3-EM7J15"};
+  Gaudi::Property<std::vector<unsigned int>> m_legMultiplicities {this, "legMultiplicities", {2}, "taken from dict[chainMultiplicities]"};
+  ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool" };
+
+  std::vector<TrigCompositeUtils::DecisionID> m_legDecisionIDs;
 };
 
 #endif  // TRIG_TrigMultiTrkComboHypoTool_H

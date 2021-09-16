@@ -36,12 +36,12 @@ Release = "current"
 GridFiles = True
 preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO 
 
-Jobs = [( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root -p 11" ),
+Jobs = [( "Truth",       " TIDAdata-run3-TnP.dat                    -o data-hists.root -p 11" ),
         ( "Offline",     " TIDAdata-run3-offline-TnP.dat -r Offline -o data-hists-offline.root" )] 
  
-Comp = [( "L2ele",              "L2electron",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
+Comp = [( "L2ele",              "L2electronTnP",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
         ( "L2eleoffline",       "L2electronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel-TnP.dat  -d HLTL2-plots-offline " ),
-        ( "EFele",              "EFelectron",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTEF-plots " ),
+        ( "EFele",              "EFelectronTnP",      "data-hists.root",         " -c TIDAhisto-panel.dat      -d HLTEF-plots " ),
         ( "EFeleoffline",       "EFelectronTnP",      "data-hists-offline.root", " -c TIDAhisto-panel-TnP.dat  -d HLTEF-plots-offline " ) ]
 
 

@@ -33,10 +33,10 @@ namespace LVL1{
       virtual unsigned int localPhi(int , int ) =0;
       virtual unsigned int localEta(int , int ) =0;
       virtual unsigned int getTTowerET(int, int) =0;
-      virtual std::map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() =0;
-      virtual std::map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() =0;
-      virtual std::map<int, jFEXForwardJetsInfo> calculateJetETs() =0;
-      virtual void setFPGAEnergy(std::map<int,std::vector<int> > et_map)   =0;
+      virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() =0;
+      virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() =0;
+      virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() =0;
+      virtual void setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map)   =0;
 
    private:
 
