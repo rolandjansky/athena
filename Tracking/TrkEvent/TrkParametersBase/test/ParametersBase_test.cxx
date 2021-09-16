@@ -197,6 +197,7 @@ BOOST_AUTO_TEST_SUITE(ParametersBaseTest)
     BOOST_TEST(*(x.covariance()) == *covariance,"Covariance has been set");
     //update both
     AmgVector(DIM) otherParameters;
+    otherParameters.setZero();
     std::optional<AmgSymMatrix(DIM)> otherCovariance{2.*m};
     x.updateParameters(otherParameters, *otherCovariance);
     const bool test = (x.parameters() == otherParameters) and (*(x.covariance()) == *otherCovariance);
