@@ -99,6 +99,8 @@ void LArWheelCalculator::fill_sincos_parameterization()
       m_cos_parametrization[i] = cos_parametrization[S][i];
     }
 
+    // Parameterization for the vectorized sincos calculation
+    // see ATLASSIM-4753 for details
     // s4, s5, c4, c5
     // s2, s3, c2, c3
     // s0, s1, c0, c1
@@ -155,6 +157,8 @@ void LArWheelCalculator::fill_sincos_parameterization()
     cos_parametrization[S][i] = params_cos[i];
   }
 
+  // Parameterization for the vectorized sincos calculation
+  // see ATLASSIM-4753 for details
   // s4, s5, c4, c5
   // s2, s3, c2, c3
   // s0, s1, c0, c1
@@ -191,8 +195,12 @@ void LArWheelCalculator::fill_sincos_parameterization()
     parameterized_sincos(r, sin_a, cos_a);
     m_vsincos_par.eval(r, sin_a_v, cos_a_v);
 #if DEBUGPRINT
-    std::cout << "default: " << r << " " << sin_a << " " << cos_a << std::endl;
+    std::streamsize ss = std::cout.precision();
+    std::cout.precision(16);
+    std::cout << "def: " << r << " " << sin_a << " " << cos_a << std::endl;
     std::cout << "vec: " << r << " " << sin_a_v << " " << cos_a_v << std::endl;
+    std::cout << "dif: " << r << " " << (sin_a - sin_a_v) / sin_a << " " << (cos_a - cos_a_v) / cos_a << std::endl;
+    std::cout.precision(ss);
 #endif
     double ds = fabs(scalpha.sn - sin_a);
     if(ds > dsin){
