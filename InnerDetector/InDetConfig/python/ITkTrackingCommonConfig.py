@@ -25,13 +25,9 @@ def stripArgs(kwargs, copy_list) :
 
 def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
     acc = ComponentAccumulator()
-    the_name = makeName(name, kwargs)
+    the_name = name + flags.ITk.Tracking.extension
 
     cuts = flags.ITk.Tracking
-    if flags.ITk.Tracking.extension == "ITkLargeD0Tracking":
-        cuts = flags.ITk.LargeD0Tracking
-    elif flags.ITk.Tracking.extension == "ITkConversionFindingTracking":
-        cuts = flags.ITk.ConversionFindingTracking        
 
     kwargs.setdefault("etaBins",              cuts.etaBins)
     kwargs.setdefault("etaWidthBrem",         cuts.etaWidthBrem)
@@ -846,9 +842,10 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"))
+        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.extension))
 
-    acc.addPublicTool(CompFactory.InDet.InDetAmbiScoringTool(name = name, **kwargs), primary=True)
+    the_name = name + flags.ITk.Tracking.extension
+    acc.addPublicTool(CompFactory.InDet.InDetAmbiScoringTool(name = the_name, **kwargs), primary=True)
     return acc
 
 def ITkCosmicsScoringToolBaseCfg(flags, name='ITkCosmicsScoringTool', **kwargs) :

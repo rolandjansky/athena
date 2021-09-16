@@ -374,7 +374,7 @@ def createTrackingFlags():
 ### ITk mode ####################
 def createITkTrackingFlags():
     icf = createTrackingFlags()   
-    icf.extension               = "ITk"
+    icf.extension               = ""
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0, 2.0, 2.6, 4.0]
@@ -434,7 +434,7 @@ def createITkFastTrackingFlags():
 def createITkLargeD0TrackingFlags():
 
     icf = createTrackingFlags()
-    icf.extension               = "ITkLargeD0"
+    icf.extension               = "LargeD0"
 
     icf.useEtaDepCuts      = True
     icf.maxPT              = [1.0 * Units.TeV]
@@ -654,7 +654,7 @@ def createLowPtTrackingFlags():
 ## ITkConversionFinding mode ########################
 def createITkConversionFindingTrackingFlags(): #To be updated
     icf = createTrackingFlags()
-    icf.extension               = "ITkConversionFinding"
+    icf.extension               = "ConversionFinding"
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0,4.0]

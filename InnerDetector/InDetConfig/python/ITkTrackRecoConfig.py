@@ -179,10 +179,29 @@ def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTra
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
-def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
+def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, **kwargs):
+    result = ComponentAccumulator()
+
+    kwargs.setdefault("TracksLocation", InputCombinedTracks)
+    kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
+    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
+    ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
+    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')
+    kwargs.setdefault("UpdateSharedHits", True)
+    kwargs.setdefault("UpdateAdditionalInfo", True)
+    from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+    kwargs.setdefault("SummaryTool", TrackSummaryTool)
+
+    result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
+    return result
+
+def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContainerName="CombinedITkTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("ConvertTracks", True)
     kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
@@ -263,16 +282,23 @@ def ITkTrackRecoCfg(flags):
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
 
-    from InDetConfig.TrackingCutsFlags import createITkTrackingFlags
-    createTrackingFlags = createITkTrackingFlags
     if flags.ITk.doFastTracking:
-        from InDetConfig.TrackingCutsFlags import createITkFastTrackingFlags
-        createTrackingFlags = createITkFastTrackingFlags
-    flags.addFlagsCategory ("ITk.Tracking", createTrackingFlags, prefix=True)
+        flags = flags.cloneAndReplace("ITk.Tracking","ITk.FastTracking")
 
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
     result.merge(ITkTrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
-    result.merge(ITkTrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
+    InputCombinedITkTracks = ["ResolvedTracks"]
+
+    # LRT
+    if flags.ITk.doITkLargeD0:
+        flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0Tracking")
+        if flags.ITk.doFastTracking:
+            flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0FastTracking")
+        result.merge(ITkTrackingSiPatternCfg(flagsLRT, ['ResolvedTracks'], "ResolvedLargeD0Tracks", "SiSPSeededLargeD0Tracks"))
+        InputCombinedITkTracks += ["ResolvedLargeD0Tracks"]
+
+    result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
+    result.merge(ITkTrackParticleCnvAlgCfg(flags))
 
     if flags.ITk.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
