@@ -65,8 +65,9 @@ StatusCode TgcDigitizationTool::initialize()
   if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
-  // Initialize ReadHandleKey
+  // Initialize Read(Cond)HandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_readCondKey_ASDpos.initialize(!m_readCondKey_ASDpos.empty()));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -102,7 +103,7 @@ StatusCode TgcDigitizationTool::initialize()
   m_digitizer = new TgcDigitMaker(m_hitIdHelper,
                                   m_mdManager,
                                   runperiod);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
 
   ATH_CHECK(m_digitizer->initialize());
@@ -130,7 +131,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
 					  bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.empty()) {
+            hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -282,6 +283,13 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
   // get the iterator pairs for this DetEl
   //iterate over hits and fill id-keyed drift time map
   IdContext tgcContext = m_idHelper->module_context();
+
+  // Read needed conditions data
+  const TgcDigitASDposData *ASDpos{};
+  if (!m_readCondKey_ASDpos.empty()) {
+    SG::ReadCondHandle<TgcDigitASDposData> readHandle_ASDpos{m_readCondKey_ASDpos, ctx};
+    ASDpos = readHandle_ASDpos.cptr();
+  }
   
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
   while(m_thpcTGC->nextDetectorElement(i, e)) {
@@ -293,7 +301,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, rndmEngine);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, rndmEngine);
 
       if(!digiHits) continue;
 
