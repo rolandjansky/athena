@@ -30,6 +30,7 @@
 #include "G4Positron.hh"
 #include "G4ProcessManager.hh"
 #include "G4ProcessVector.hh"
+#include "G4GammaGeneralProcess.hh"
 #include "G4NistManager.hh"
 
 //stl includes
@@ -186,8 +187,22 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
             m_phot = (*pVec)[ip];
             break;
           }
+        if((*pVec)[ip]->GetProcessName()=="GammaGeneralProc")
+          {
+            G4GammaGeneralProcess *genproc = static_cast<G4GammaGeneralProcess*>((*pVec)[ip]);
+            G4VEmProcess *proc = genproc->GetEmProcess("phot");
+            if (proc && proc->GetProcessName()=="phot")
+              {
+                m_phot = proc;
+                break;
+              }
+          }
       }
   }
+  if(!m_phot) {
+    G4cout << GetName() << "ERROR Did not find the photoelectic process!!!" << G4endl;
+  }
+
 
   if (!m_HitColl.isValid()) m_HitColl = std::make_unique<TRTUncompressedHitCollection>();
 
