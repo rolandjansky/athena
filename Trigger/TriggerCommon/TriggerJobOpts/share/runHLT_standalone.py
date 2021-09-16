@@ -590,6 +590,7 @@ if opt.doBjetSlice:
     condSeq = AthSequencer("AthCondSeq")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
+    alias += ["HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
     condSeq += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.Run2TrigTaggers+ConfigFlags.BTagging.Run3NewTrigTaggers, NewChannel = alias)
 
 #-------------------------------------------------------------
