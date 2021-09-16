@@ -736,6 +736,14 @@ class TRTRangeCut(JobProperty):
     StoredValue=0.05
 
 #
+class UseUpdatedTGCConditions(JobProperty):
+    """ Temporary flag for TGC conditions
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
 class PileUpPresampling(JobProperty):
     """ Run pile-up presampling
     """
@@ -834,7 +842,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPresampling,doBeamSpotSizeReweighting,OldBeamSpotZSize]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,UseUpdatedTGCConditions,PileUpPresampling,doBeamSpotSizeReweighting,OldBeamSpotZSize]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

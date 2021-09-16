@@ -6,6 +6,7 @@
 #include "MuonCondAlg/MuonAlignmentErrorDbAlg.h"
 #include "MuonCondAlg/RpcCondDbAlg.h"
 #include "MuonCondAlg/TgcCondDbAlg.h"
+#include "MuonCondAlg/TgcDigitASDposCondAlg.h"
 
 DECLARE_COMPONENT(CscCondDbAlg)
 DECLARE_COMPONENT(MdtCondDbAlg)
@@ -15,3 +16,4 @@ DECLARE_COMPONENT(MuonAlignmentErrorDbAlg)
 DECLARE_COMPONENT(MuonAlignmentCondAlg)
 DECLARE_COMPONENT(MdtCalibDbAlg)
 DECLARE_COMPONENT(MdtCalibFormatAlgTest)
+DECLARE_COMPONENT(TgcDigitASDposCondAlg)
