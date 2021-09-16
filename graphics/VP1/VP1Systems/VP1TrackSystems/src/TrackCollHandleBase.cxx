@@ -318,7 +318,6 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
    if (m_cut_etaptphi_allwillfail)
     return false;
 
-  // messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
   if (mightHaveSubSystemHitInfo()&&!m_cut_requiredNHits.isEmpty()&&handle->hasSubSystemHitInfo()) {
     //assert(m_cut_requiredNHits.count()==4); // for old code
     assert(m_cut_requiredNHits.count()==5);
