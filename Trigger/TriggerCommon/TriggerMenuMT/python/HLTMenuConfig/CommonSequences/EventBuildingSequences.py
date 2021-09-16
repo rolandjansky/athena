@@ -143,6 +143,11 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.MUON_CSC_ENDCAP_A_SIDE,
             SubDetector.MUON_CSC_ENDCAP_C_SIDE
          ])
+    elif 'ZDCPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_ZDC,
+                         SubDetector.TDAQ_CTP
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
