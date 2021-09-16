@@ -115,6 +115,7 @@ std::pair<double, double> AFPFastReco::linReg(std::vector<std::pair<double, doub
 		denumerator += dx * dx;
 	}
 
+	if(denumerator==0.0) denumerator=1e-6;
 	const double slope    = numerator / denumerator;
 	const double position = meany - slope * meanx;
 
