@@ -69,6 +69,7 @@ class opt:
     enabledSignatures = []
     disabledSignatures = []
     selectChains      = []
+    disableChains     = []
 
 
 #
@@ -508,6 +509,8 @@ if not opt.createHLTMenuExternally:
 
     if (opt.selectChains):
         menu.selectChainsForTesting = opt.selectChains
+    elif (opt.disableChains):
+        menu.disableChains = opt.disableChains
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
