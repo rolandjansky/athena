@@ -54,6 +54,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.chainsInMenu = []
         self.listOfErrorChainDefs = []
         self.selectChainsForTesting = []
+        self.disableChains = []
         
         self.allChainsForAlignment = []
         self.chainDicts = []
@@ -357,6 +358,18 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 missingNames = [name for name in self.selectChainsForTesting if name not in selectedNames]
                 log.error("The following chains were specified in selectChainsForTesting but were not found in the menu: %s", str(missingNames))
                 raise Exception("[getChainsFromMenu] Cannot test one or more requested chains, exiting.")
+            chains = selectedChains
+
+        if self.disableChains:
+            if self.selectChainsForTesting:
+                log.error("Either select chains or disable chains, not both. Will not proceed.")
+                raise Exception("[getChainsFromMenu] Both selectChains and disableChains options provided -- potential conflict!")
+            log.info("Eliminating chains from the menu")
+            chainNames = [ch.name for ch in chains]
+            missingNames = [ch for ch in self.disableChains if ch not in chainNames]
+            if missingNames:
+                log.warning("The following chains were specified in disableChains but were not found in the menu: %s", str(missingNames))
+            selectedChains = [ch for ch in chains if ch.name not in self.disableChains]
             chains = selectedChains
 
         if len(chains) == 0:
