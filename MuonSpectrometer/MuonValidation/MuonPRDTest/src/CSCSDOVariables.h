@@ -48,14 +48,12 @@ class CscSDOVariables : public ValAlgVariables
   std::vector<int> m_csc_sdo_chamberLayer;
   std::vector<int> m_csc_sdo_wireLayer;
   std::vector<int> m_csc_sdo_Strip;
-
   std::vector<int>    m_csc_sdo_word;
   std::vector<int>    m_csc_sdo_barcode;
   std::vector<double> m_csc_sdo_globalPosX;
   std::vector<double> m_csc_sdo_globalPosY;
   std::vector<double> m_csc_sdo_globalPosZ;
-  std::vector<double> m_csc_sdo_globaltime;
-
+  std::vector<double> m_csc_sdo_charge;
   std::vector<double> m_csc_sdo_localPosX;
   std::vector<double> m_csc_sdo_localPosY;
 

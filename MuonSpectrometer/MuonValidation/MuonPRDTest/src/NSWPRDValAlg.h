@@ -24,6 +24,7 @@
 #include "RPCSDOVariables.h"
 #include "RPCDigitVariables.h"
 #include "CSCSimHitVariables.h"
+#include "CSCSDOVariables.h"
 #include "CSCDigitVariables.h"
 #include "CSCRDOVariables.h"
 #include "CSCPRDVariables.h"
@@ -93,6 +94,7 @@ class NSWPRDValAlg: public AthAlgorithm
    Gaudi::Property<bool>  m_doMMRDO{this, "doMMRDO", false};            // switch on the output of the MicroMegas RDO
    Gaudi::Property<bool>  m_doMMPRD{this, "doMMPRD", false};            // switch on the output of the MicroMegas prepdata
    Gaudi::Property<bool>  m_doCSCHit{this, "doCSCHit", false};           // switch on the output of the CSC simulated hits
+   Gaudi::Property<bool>  m_doCSCSDO{this, "doCSCSDO", false};           // switch on the output of the CSC SDO
    Gaudi::Property<bool>  m_doCSCDigit{this, "doCSCDigit", false};         // switch on the output of the CSC digitization
    Gaudi::Property<bool>  m_doCSCRDO{this, "doCSCRDO", false};           // switch on the output of the CSC RDO
    Gaudi::Property<bool>  m_doCSCPRD{this, "doCSCPRD", false};           // switch on the output of the CSC prepdata
@@ -127,6 +129,7 @@ class NSWPRDValAlg: public AthAlgorithm
   Gaudi::Property<std::string> m_NSWMM_PRDContainerName{this, "NSWMM_PRDContainerName", "MM_Measurements"};
 
   Gaudi::Property<std::string> m_CSC_SimContainerName{this,"CSC_SimContainerName", "CSC_Hits"};
+  Gaudi::Property<std::string> m_CSC_SDOContainerName{this,"CSC_SDOContainerName",  "CSCSDO"};
   Gaudi::Property<std::string> m_CSC_DigitContainerName{this, "CSC_DigitContainerName", "CSC_DIGITS"};
   Gaudi::Property<std::string> m_CSC_RDOContainerName{this,"CSC_RDOContainerName",  "CSCRDO"};
   Gaudi::Property<std::string> m_CSC_PRDContainerName{this,"CSC_PRDContainerName", "CSC_Clusters"  };
