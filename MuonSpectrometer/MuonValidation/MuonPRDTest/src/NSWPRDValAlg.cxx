@@ -129,6 +129,10 @@ StatusCode NSWPRDValAlg::initialize() {
      m_testers.emplace_back( std::make_unique<CSCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
                                              &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel()));
   }
+  if (m_doCSCSDO){
+     m_testers.emplace_back(std::make_unique<CscSDOVariables>(evtStore().get(), m_muonDetMgrDS,
+                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SDOContainerName, msgLevel()));
+  }
   if (m_doCSCDigit){
      m_testers.emplace_back( std::make_unique<CSCDigitVariables>(evtStore().get(), m_muonDetMgrDS,
                                                 &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_DigitContainerName, msgLevel()));
