@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaBlockAllocatorBase.h 470529 2011-11-24 23:54:22Z ssnyder $
-
 /**
  * @file  AthAllocators/ArenaBlockAllocatorBase.h
  * @author scott snyder
@@ -125,6 +121,24 @@ public:
   const Params& params() const;
 
 
+  /**
+   * @brief Write-protect the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to allow writes.
+   */
+  void unprotect();
+
+
 protected:
   /**
    * @brief Return an empty block, either newly-allocated or from the
@@ -143,6 +157,9 @@ protected:
 
   /// The statistics structure.
   ArenaAllocatorBase::Stats m_stats;
+
+  /// Flag whether the arena has been protected.
+  bool m_protected;
 };
 
 

@@ -11,6 +11,7 @@
 
 #include "AthAllocators/ArenaBlockAllocatorBase.h"
 #include "AthAllocators/ArenaBlock.h"
+#include "AthAllocators/exceptions.h"
 
 
 namespace SG {
@@ -25,7 +26,8 @@ ArenaBlockAllocatorBase::ArenaBlockAllocatorBase (const Params& params)
   : m_params (params),
     m_blocks (nullptr),
     m_freeblocks (nullptr),
-    m_stats()
+    m_stats(),
+    m_protected (false)
 {
 }
 
@@ -50,11 +52,13 @@ ArenaBlockAllocatorBase::ArenaBlockAllocatorBase
     : m_params (other.m_params),
       m_blocks (other.m_blocks),
       m_freeblocks (other.m_freeblocks),
-      m_stats (other.m_stats)
+      m_stats (other.m_stats),
+      m_protected (other.m_protected)
 {
   other.m_blocks = nullptr;
   other.m_freeblocks = nullptr;
   other.m_stats.clear();
+  other.m_protected = false;
 }
 
 
@@ -71,9 +75,11 @@ ArenaBlockAllocatorBase::operator=
     m_blocks = other.m_blocks;
     m_freeblocks = other.m_freeblocks;
     m_stats = other.m_stats;
+    m_protected = other.m_protected;
     other.m_blocks = nullptr;
     other.m_freeblocks = nullptr;
     other.m_stats.clear();
+    other.m_protected = false;
   }
   return *this;
 }
@@ -89,6 +95,7 @@ void ArenaBlockAllocatorBase::swap (ArenaBlockAllocatorBase& other)
     std::swap (m_blocks, other.m_blocks);
     std::swap (m_freeblocks, other.m_freeblocks);
     std::swap (m_stats, other.m_stats);
+    std::swap (m_protected, other.m_protected);
   }
 }
 
@@ -112,6 +119,9 @@ void ArenaBlockAllocatorBase::swap (ArenaBlockAllocatorBase& other)
  */
 void ArenaBlockAllocatorBase::reserve (size_t size)
 {
+  if (m_protected) {
+    throw SG::ExcProtected();
+  }
   if (size > m_stats.elts.total) {
     // Growing the pool.
     // Make a new block of the required size (but not less than nblock).
@@ -164,6 +174,9 @@ void ArenaBlockAllocatorBase::reserve (size_t size)
  */
 void ArenaBlockAllocatorBase::erase()
 {
+  if (m_protected) {
+    throw SG::ExcProtected();
+  }
   // Do we need to run clear() on the allocated elements?
   // If so, do so via reset().
   if (m_params.mustClear && m_params.clear) {
@@ -223,6 +236,10 @@ ArenaBlockAllocatorBase::params() const
  */
 ArenaBlock* ArenaBlockAllocatorBase::getBlock()
 {
+  if (m_protected) {
+    throw SG::ExcProtected();
+  }
+
   ArenaBlock* newblock = m_freeblocks;
   if (newblock) {
     // There's something on the free list.  Remove it and update statistics.
@@ -244,6 +261,34 @@ ArenaBlock* ArenaBlockAllocatorBase::getBlock()
   newblock->link() = m_blocks;
   m_blocks = newblock;
   return newblock;
+}
+
+
+/**
+ * @brief Write-protect the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to disallow writes.
+ */
+void ArenaBlockAllocatorBase::protect()
+{
+  SG::ArenaBlock::protectList (m_blocks);
+  m_protected = true;
+}
+
+
+/**
+ * @brief Write-enable the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to allow writes.
+ */
+void ArenaBlockAllocatorBase::unprotect()
+{
+  if (m_protected) {
+    SG::ArenaBlock::unprotectList (m_blocks);
+    m_protected = false;
+  }
 }
 
 
