@@ -172,10 +172,11 @@ def generateCFChains(opt):
 
         jetSeq_a4_tc_em_presel, jetDef, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
         jetSeq_a4_tc_em_gsc_ftf, jetDef = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
+        jc_name = "HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf"
         
         step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
         step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
-        step3 = makeChainStep("Step3_bjet", [getBJetSequence('')])
+        step3 = makeChainStep("Step3_bjet", [getBJetSequence(jc_name)])
         
         bjetChains  = [
             makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
