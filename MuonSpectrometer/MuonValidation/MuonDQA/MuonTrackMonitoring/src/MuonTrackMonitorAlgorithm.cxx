@@ -328,13 +328,9 @@ StatusCode	MuonTrackMonitorAlgorithm::plotResonanceCandidates(std::string resona
 
 	/// Declaring all variables that are initialized via Python will be plotted
 	auto tool = getGroup("MuonTrackMonitorAlgorithm");
-	auto Sector = Monitored::Scalar<float>((resonanceName+"Sector").c_str(), 0);
-	auto Chamber = Monitored::Scalar<float>((resonanceName+"Chamber").c_str(), 0);
-	auto SectorEff = Monitored::Scalar<float>((resonanceName+"SectorEff").c_str(), 0);
-	auto ChamberEff = Monitored::Scalar<float>((resonanceName+"ChamberEff").c_str(), 0);
 	auto Eta = Monitored::Scalar<float>((resonanceName+"Eta").c_str(), 0);
 	auto Mass = Monitored::Scalar<float>((resonanceName+"Mass").c_str(), 0);
-	auto MuonLumiBlock = Monitored::Scalar<float>((resonanceName+"MuonLumiBlock").c_str(), 0);	
+	auto MuonLumiBlock = Monitored::Scalar<float>((resonanceName+"_MuonLumiBlock").c_str(), 0);	
     auto muMinusEta = Monitored::Scalar<float>("muMinusEta", -9);
     auto muPlusEta = Monitored::Scalar<float>("muPlusEta", -9);
     auto Eta2D = Monitored::Scalar<const char*>("Eta2D", "");
@@ -406,14 +402,14 @@ StatusCode	MuonTrackMonitorAlgorithm::plotResonanceCandidates(std::string resona
             Mass = resonance_Mass;
             Eta = resonance_Eta;
 			fill(tool, Mass, Eta, Eta2D, muMinusEta, muPlusEta);
-			
+		
 			MuonLumiBlock =  lumiBlockID;
 			fill(tool, MuonLumiBlock);			
 		}
     }
 
 	/// Fill the relevant Muon Information for each Z Boson Candidate Muon
-	ATH_CHECK( FillMuonInformation("Z", vecMuons) );		
+	ATH_CHECK( FillMuonInformation(resonanceName, vecMuons) );		
 
 	return StatusCode::SUCCESS;
 }
@@ -424,7 +420,6 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseResonanceCandidates(const xAOD::Muo
 	std::vector<const xAOD::Muon*>	vecMuons_ZBoson_Candidates;
 	std::vector<const xAOD::Muon*>	vecMuons_JPsi_Candidates;
 
-	
 	/// Select Muons Relevant for Z
 	for(const auto muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
@@ -455,6 +450,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseResonanceCandidates(const xAOD::Muo
 			}
 		}
 	}
+
     ATH_CHECK( plotResonanceCandidates("Z", vecMuons_ZBoson_Candidates, lumiBlockID) );
     ATH_CHECK( plotResonanceCandidates("JPsi", vecMuons_JPsi_Candidates, lumiBlockID) );
 
