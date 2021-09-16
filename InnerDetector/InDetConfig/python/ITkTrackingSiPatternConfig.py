@@ -10,8 +10,8 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     # --- decide if use the association tool
     #
     if (len(InputCollections) > 0) and \
-        (flags.ITk.Tracking.extension == "ITkLargeD0" \
-         or flags.ITk.Tracking.extension == "ITkConversionFinding"):
+        (flags.ITk.Tracking.extension == "LargeD0" \
+         or flags.ITk.Tracking.extension == "ConversionFinding"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -47,7 +47,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.radMax)
         kwargs.setdefault("maxRadius3", flags.ITk.Tracking.radMax)
 
-    if flags.ITk.Tracking.extension == "ITkLargeD0":
+    if flags.ITk.Tracking.extension == "LargeD0":
         kwargs.setdefault("maxSeedsForSpacePoint", 5)
         kwargs.setdefault("isLRT", True)
         kwargs.setdefault("maxZPPP", flags.ITk.Tracking.maxZSpacePointsPPPSeeds)
@@ -56,9 +56,8 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     if flags.ITk.doFastTracking :
         kwargs.setdefault("useFastTracking", True)
         kwargs.setdefault("maxSeedsForSpacePoint", 3)
-        if flags.ITk.Tracking.extension == "ITk":
-            kwargs.setdefault("useSCT", False)
-        elif flags.ITk.Tracking.extension == "ITkLargeD0":
+        kwargs.setdefault("useSCT", False)
+        if flags.ITk.Tracking.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
 
     ITkSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.ITk.Tracking.extension, **kwargs)
@@ -148,7 +147,7 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
 
 def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.ITk.Tracking.extension == "ITk"
+    useBremMode = flags.ITk.Tracking.extension == "" #Disabled for second passes in reco
     ITkSiDetElementsRoadMaker = acc.popToolsAndMerge(ITkSiDetElementsRoadMaker_xkCfg(flags))
 
     if flags.ITk.Tracking.useITkPixel:
@@ -171,7 +170,7 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "ITkLargeD0" or flags.ITk.Tracking.extension == "ITkConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "LargeD0" or flags.ITk.Tracking.extension == "ConversionFinding"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -212,10 +211,10 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     elif flags.ITk.doHeavyIon:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_HeavyIon')
 
-    elif flags.ITk.Tracking.extension == "ITkConversionFinding":
+    elif flags.ITk.Tracking.extension == "ConversionFinding":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_SLHCConversionTracks')
 
-    elif flags.ITk.Tracking.extension == "ITkLargeD0":
+    elif flags.ITk.Tracking.extension == "LargeD0":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LargeD0')
 
     else:
@@ -241,7 +240,7 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "ITkLargeD0" or flags.ITk.Tracking.extension == "ITkConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "LargeD0" or flags.ITk.Tracking.extension == "ConversionFinding"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -294,7 +293,7 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
 
         if 'InDetEtaDependentCutsSvc' not in kwargs :
             acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
-            kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"))
+            kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.extension))
 
     ITkSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.ITk.Tracking.extension, **kwargs)
     acc.addEventAlgo(ITkSiSPSeededTrackFinder)
@@ -360,7 +359,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"))
+        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.extension))
 
     if flags.ITk.doTIDE_Ambi:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool
@@ -416,7 +415,7 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
 def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
 
-    useBremMode = flags.ITk.Tracking.extension == "ITk"
+    useBremMode = flags.ITk.Tracking.extension == "" #Disabled for second passes in reco
 
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -492,7 +491,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
 def ITkSimpleAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.ITk.Tracking.extension == "ITk"
+    useBremMode = flags.ITk.Tracking.extension == "" #Disabled for second passes in reco
 
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -593,7 +592,7 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "ITkLargeD0" or flags.ITk.Tracking.extension == "ITkConversionFinding"):
+    if (len(InputCollections) > 0) and (flags.ITk.Tracking.extension == "LargeD0" or flags.ITk.Tracking.extension == "ConversionFinding"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
