@@ -105,7 +105,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    //Use a matrix with 32 rows, even if FPGA-C (positive) mostly deals with regions of 16 bins in phi.
    //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
    //but we fill half of it in the region 2.8<|eta|<4.8.
-   // int tmp_gTowersIDs_subset_forwardFPGA[32][7];
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA;
    memset(&tmp_gTowersIDs_subset_forwardFPGA, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA);
    for (int myrow = 0; myrow<32; myrow++){
@@ -129,7 +128,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    //Use a matrix with 32 rows, even if FPGA-C (negative) mostly deals with regions of 16 bins in phi.
    //However, one small region in eta (2.5<|eta|<2.8) has 32 bins in phi. So we use a matrix 32x14
    //but we fill half of it in the region 2.8<|eta|<4.8.
-   // int tmp_gTowersIDs_subset_forwardFPGA[32][7];
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA_N;
    memset(&tmp_gTowersIDs_subset_forwardFPGA_N, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA_N);
    for (int myrow = 0; myrow<16; myrow++){
@@ -196,11 +194,15 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
    std::array<uint32_t, 4> outTOB = {0};
 
+   m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
+                                       FEXAlgoSpaceDefs::aFPGA_B, FEXAlgoSpaceDefs::bFPGA_B,
+                                       FEXAlgoSpaceDefs::gblockThreshold);
+
    auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
 
    m_gGlobalTobWords.resize(4);
 
-//Placing the global TOBs into a dedicated array
+   //Placing the global TOBs into a dedicated array
    m_gGlobalTobWords[0] = outTOB[0];//
    m_gGlobalTobWords[1] = outTOB[1];//
    m_gGlobalTobWords[2] = outTOB[2];//

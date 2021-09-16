@@ -106,10 +106,8 @@ namespace LVL1 {
 
 
       // Since gFEX consists of a single module, here we are just (re)assigning the gTowerID
-      std::map<int,gTower> tmp_gTowersColl_subset;
 
       // Defining a matrix 32x38 corresponding to the gFEX structure (32 phi x 38 eta in the most general case - forward region has 16 phi bins)
-      // int tmp_gTowersIDs_subset [32][38];
       typedef  std::array<std::array<int, 38>, 32> gTowersIDs;
       gTowersIDs tmp_gTowersIDs_subset;
 
@@ -121,8 +119,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows/2; thisRow++){
             int towerid = initialFCAL - ((thisCol) * 16) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -131,8 +127,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows/2; thisRow++){
             int towerid = initialTRANSFCAL - ((thisCol-4) * 16) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -141,8 +135,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows; thisRow++){
             int towerid = initialEMEC - ((thisCol-6) * 32) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -151,8 +143,6 @@ namespace LVL1 {
          int thisCol = 11;
          int towerid = initialTRANSEMB + thisRow;
          tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-         tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
       }
 
       // set the EMB negative part
@@ -160,8 +150,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows; thisRow++){
            int towerid = initialEMB - ( (thisCol-12) * 32) + thisRow;
            tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-           tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -170,8 +158,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows; thisRow++){
             int towerid = initialposEMB + ( (thisCol-19) * 32) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -180,16 +166,12 @@ namespace LVL1 {
          int thisCol = 26;
          int towerid = initialposTRANSEMB + thisRow;
          tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-         tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
       }
       // set the EMEC positive part
       for(int thisCol=27; thisCol<32; thisCol++){
          for(int thisRow=0; thisRow<rows; thisRow++){
             int towerid = initialposEMEC + ((thisCol-27) * 32) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -198,8 +180,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows/2; thisRow++){
             int towerid = initialposTRANSFCAL + ((thisCol-32) * 16) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 
@@ -208,8 +188,6 @@ namespace LVL1 {
          for(int thisRow=0; thisRow<rows/2; thisRow++){
             int towerid = initialposFCAL + ((thisCol-34) * 16) + thisRow;
             tmp_gTowersIDs_subset[thisRow][thisCol] = towerid;
-            tmp_gTowersColl_subset.insert( std::map<int, gTower>::value_type(towerid,   *(this_gTowerContainer->findTower(towerid))));
-
          }
       }
 

@@ -56,21 +56,21 @@ namespace LVL1 {
     virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
     virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
-                           unsigned short & MHT_x, unsigned short & MHT_y,
-                           unsigned short & MST_x, unsigned short & MST_y,
-                           unsigned short & MET_x, unsigned short & MET_y);
+                           unsigned int & MHT_x, unsigned int & MHT_y,
+                           unsigned int & MST_x, unsigned int & MST_y,
+                           unsigned int & MET_x, unsigned int & MET_y);
 
-    virtual void metTotal(unsigned short A_MET_x, unsigned short A_MET_y,
-                          unsigned short B_MET_x, unsigned short B_MET_y,
-                          unsigned short & MET_x, unsigned short & MET_y, unsigned short & MET);
+    virtual void metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
+                          unsigned int B_MET_x, unsigned int B_MET_y,
+                          unsigned int & MET_x, unsigned int & MET_y, unsigned int & MET);
 
     virtual void sumEtFPGA(gTowersCentral twrs, unsigned int & partial_sumEt);
 
     virtual void sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned int & total_sumEt);
 
-    virtual unsigned short sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
+    virtual unsigned int sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
 
-    virtual unsigned short cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
+    virtual unsigned int cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
 
 
   };

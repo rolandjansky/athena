@@ -47,7 +47,7 @@ void gFEXJwoJAlgo::setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
 
 
 std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
-                                                                std::array<uint32_t, 4> & outTOB) {
+                                                                 std::array<uint32_t, 4> & outTOB) {
 
 
   // find gBlocks
@@ -59,29 +59,29 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   gBlockAB(Btwr, gBLKB);
 
   //FPGA A observables
-  unsigned short A_MHT_x = 0x0;
-  unsigned short A_MHT_y = 0x0;
-  unsigned short A_MST_x = 0x0;
-  unsigned short A_MST_y = 0x0;
-  unsigned short A_MET_x = 0x0;
-  unsigned short A_MET_y = 0x0;
+  unsigned int A_MHT_x = 0x0;
+  unsigned int A_MHT_y = 0x0;
+  unsigned int A_MST_x = 0x0;
+  unsigned int A_MST_y = 0x0;
+  unsigned int A_MET_x = 0x0;
+  unsigned int A_MET_y = 0x0;
 
   unsigned int A_sumEt = 0x0;
 
   //FPGA B observables
-  unsigned short B_MHT_x = 0x0;
-  unsigned short B_MHT_y = 0x0;
-  unsigned short B_MST_x = 0x0;
-  unsigned short B_MST_y = 0x0;
-  unsigned short B_MET_x = 0x0;
-  unsigned short B_MET_y = 0x0;
+  unsigned int B_MHT_x = 0x0;
+  unsigned int B_MHT_y = 0x0;
+  unsigned int B_MST_x = 0x0;
+  unsigned int B_MST_y = 0x0;
+  unsigned int B_MET_x = 0x0;
+  unsigned int B_MET_y = 0x0;
 
   unsigned int B_sumEt = 0x0;
 
   //Global observables
-  unsigned short MET_x = 0x0;
-  unsigned short MET_y = 0x0;
-  unsigned short MET = 0x0;
+  unsigned int MET_x = 0x0;
+  unsigned int MET_y = 0x0;
+  unsigned int MET = 0x0;
 
   unsigned int total_sumEt = 0x0;
   unsigned int MHT_x = 0x0;
@@ -227,13 +227,12 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
 
 void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
-                           unsigned short & MHT_x, unsigned short & MHT_y,
-                           unsigned short & MST_x, unsigned short & MST_y,
-                           unsigned short & MET_x, unsigned short & MET_y){
+                           unsigned int & MHT_x, unsigned int & MHT_y,
+                           unsigned int & MST_x, unsigned int & MST_y,
+                           unsigned int & MET_x, unsigned int & MET_y){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
-
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       if(gBlkSum[irow][jcolumn] > m_gBlockthreshold){
@@ -246,15 +245,15 @@ void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
       }
     }
   }
-
   MET_x = m_aFPGA_A * MHT_x + m_bFPGA_A * MST_x;
   MET_y = m_aFPGA_B * MHT_y + m_bFPGA_B * MST_y;
 
+
 }
 
-void gFEXJwoJAlgo::metTotal(unsigned short A_MET_x, unsigned short A_MET_y,
-                            unsigned short B_MET_x, unsigned short B_MET_y,
-                            unsigned short & MET_x, unsigned short & MET_y, unsigned short & MET){
+void gFEXJwoJAlgo::metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
+                            unsigned int B_MET_x, unsigned int B_MET_y,
+                            unsigned int & MET_x, unsigned int & MET_y, unsigned int & MET){
 
   MET_x = A_MET_x + B_MET_x;
   MET_y = A_MET_y + B_MET_y;
@@ -285,25 +284,25 @@ void gFEXJwoJAlgo::sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned 
 //----------------------------------------------------------------------------------
 // bitwise simulation of sine LUT in firmware
 //----------------------------------------------------------------------------------
-unsigned short gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
+unsigned int gFEXJwoJAlgo::sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
   float rad = 2*M_PI*c;
   float rsin = sin(rad);
 
-  return static_cast<unsigned short>(round((pow(2.0,dw-1)-1.0)*rsin));
+  return static_cast<unsigned int>(round((pow(2.0,dw-1)-1.0)*rsin));
 }
 
 //----------------------------------------------------------------------------------
 // bitwise simulation cosine LUT in firmware
 //----------------------------------------------------------------------------------
-unsigned short gFEXJwoJAlgo::cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
+unsigned int gFEXJwoJAlgo::cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw)
 {
   float c = ((float)phiIDX)/pow(2,aw);
   float rad = 2*M_PI*c;
   float rcos = cos(rad);
 
-  return static_cast<unsigned short>(round((pow(2.0,dw-1)-1.0)*rcos));
+  return static_cast<unsigned int>(round((pow(2.0,dw-1)-1.0)*rcos));
 }
 
 

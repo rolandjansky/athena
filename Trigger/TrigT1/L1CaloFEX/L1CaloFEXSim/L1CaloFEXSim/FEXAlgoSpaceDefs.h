@@ -86,6 +86,13 @@ namespace LVL1 {
     constexpr static bool ENABLE_INTER_C = false;
     constexpr static int gJetTOBfib = 4;
     constexpr static int BTOBFIB = 6;
+    //define constants needed by gFEX JwoJ algorithm
+    constexpr static unsigned int aFPGA_A = 1;
+    constexpr static unsigned int bFPGA_A = 1;
+    constexpr static unsigned int aFPGA_B = 1;
+    constexpr static unsigned int bFPGA_B = 1;
+    constexpr static int gblockThreshold = 25000;//MeV
+
 
   };
 

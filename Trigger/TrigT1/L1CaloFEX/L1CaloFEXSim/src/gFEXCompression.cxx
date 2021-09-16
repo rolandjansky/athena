@@ -11,8 +11,8 @@
 
 namespace LVL1 {
 
-const int gFEXCompression::s_steps[] = {12800, 50, 25, 50, 100, 25600};
-const int gFEXCompression::s_minET[] = {-101200, -50000, -12800, 12800, 51200, 200000};
+const int gFEXCompression::s_steps[] = {12800, 50, 25, 50, 100, 25600};//MeV
+const int gFEXCompression::s_minET[] = {-101200, -50000, -12800, 12800, 51200, 200000};//MeV
 const int gFEXCompression::s_minCode[] = {2, 6, 750, 1774, 2542, 4030};
 
 
