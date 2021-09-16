@@ -193,6 +193,16 @@ HLT_2mu4_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_L1BPH-0M16-15DR99-2MU3V:
+  eventCount: 0
+HLT_2mu4_L1BPH-0M16-20DR99-2MU3V:
+  eventCount: 0
+HLT_2mu4_L1BPH-8M15-15DR99-2MU3V:
+  eventCount: 0
+HLT_2mu4_L1BPH-8M15-20DR99-2MU3V:
+  eventCount: 0
+HLT_2mu4_L1BPH-8M15-20DR99-C-2MU3V:
+  eventCount: 0
 HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU3V:

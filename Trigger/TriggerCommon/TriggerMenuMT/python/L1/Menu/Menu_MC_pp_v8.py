@@ -317,7 +317,11 @@ def defineMenu():
         'L1_BPH-0M10C-3MU3V',
         #ATR-21566 
         'L1_BPH-0DR12C-2MU3V',
-         
+
+        #ATR-22782
+        'L1_BPH-0M16-20DR99-2MU3V', 'L1_BPH-0M16-15DR99-2MU3V',
+        'L1_BPH-8M15-20DR99-C-2MU3V', 'L1_BPH-8M15-20DR99-2MU3V', 'L1_BPH-8M15-15DR99-2MU3V',          
+
         # INVM + DPHI 
         'L1_jMJJ-400-NFF-0DPHI22',
         'L1_jMJJ-400-NFF-0DPHI24',

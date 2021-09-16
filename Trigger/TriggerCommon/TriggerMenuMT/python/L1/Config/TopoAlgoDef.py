@@ -1346,109 +1346,71 @@ class TopoAlgoDef:
         tm.registerTopoAlgo(alg)
 
 
-        #ATR-19720, L1_BPH-8M15-0DR22-2MU6
+        #ATR-19720 and ATR-22782, BPH DR+M dimuon, 1 input list
         # TODO: update with phase1 muons
-        toponame = "8INVM15-0DR22-2MU6ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     8*8*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',   15*15*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        6*_et_conversion)
-        alg.addvariable('MinET2',        6*_et_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 22*22*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
+        listofalgos=[
+            {"minInvm": 8, "maxInvm": 15, "minDr": 0, "maxDr": 22, "mult": 2, "otype" : "MU", "ocut1": 6,  "olist" : "ab", "ocut2": 6,}, #8INVM15-0DR22-2MU6ab 
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 2, "maxDr": 15, "mult": 2, "otype" : "MU", "ocut1": 6,  "olist" : "ab", "ocut2": 6,}, #2INVM9-2DR15-2MU6ab 
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0, "maxDr": 15, "mult": 1, "otype" : "MU", "ocut1": 6,  "olist" : "ab", "ocut2": 4,}, #2INVM9-0DR15-MU6ab-MU4ab 
+            {"minInvm": 8, "maxInvm": 15, "minDr": 0, "maxDr": 22, "mult": 1, "otype" : "MU", "ocut1": 6,  "olist" : "ab", "ocut2": 4,}, #8INVM15-0DR22-MU6ab-MU4ab
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0, "maxDr": 15, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #2INVM9-0DR15-2MU4ab
 
-        #ATR-19720, L1_BPH-2M9-2DR15-2MU6
+            {"minInvm": 0, "maxInvm": 16, "minDr": 20, "maxDr": 99, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #0INVM16-20DR99-2MU4ab
+            {"minInvm": 0, "maxInvm": 16, "minDr": 15, "maxDr": 99, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #0INVM16-15DR99-2MU4ab
+            {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #8INVM15-20DR99-2MU4ab
+            {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #8INVM15-15DR99-2MU4ab
+        ]
+        for x in listofalgos:
+            class d:
+                pass
+            for k in x:
+                setattr (d, k, x[k])
+            obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype, str(d.ocut1), d.olist)
+            obj2 = "-%s%s%s" % (d.otype, str(d.ocut2), d.olist)
+            toponame = "%iINVM%i-%iDR%i-%s%s"  % (d.minInvm, d.maxInvm, d.minDr, d.maxDr, obj1, "" if d.mult>1 else obj2)
+            log.debug("Define %s", toponame)
+            inputList = [d.otype + d.olist] 
+            algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET1',    d.ocut1*_et_conversion)
+            alg.addvariable('MinET2',    d.ocut2*_et_conversion)
+            alg.addvariable('MinMSqr',   d.minInvm*d.minInvm*_et_conversion*_et_conversion)
+            alg.addvariable('MaxMSqr',   d.maxInvm*d.maxInvm*_et_conversion*_et_conversion)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
+            tm.registerTopoAlgo(alg)
+
+        #ATR-19639 and ATR-22782, BPH DR+M+OS dimuon, 1 input list
         # TODO: update with phase1 muons
-        toponame = "2INVM9-2DR15-2MU6ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     2*2*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',     9*9*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        6*_et_conversion)
-        alg.addvariable('MinET2',        6*_et_conversion)
-        alg.addvariable('DeltaRMin',   2*2*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-
-        #ATR-19720, L1_BPH-2M9-0DR15-MU6MU4
-        # TODO: update with phase1 muons
-        toponame = "2INVM9-0DR15-MU6ab-MU4ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     2*2*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',     9*9*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        6*_et_conversion)
-        alg.addvariable('MinET2',        4*_et_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-
-        #ATR-19639, L1_BPH-2M9-0DR15-C-MU6MU4, with opposite charge
-        # TODO: update with phase1 muons
-        toponame = "2INVM9-0DR15-C-MU6ab-MU4ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     2*2*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',     9*9*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        6*_et_conversion)
-        alg.addvariable('MinET2',        4*_et_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-
-        #ATR-19720, L1_BPH-8M15-0DR22-MU6MU4-BO
-        # TODO: update with phase1 muons
-        toponame = "8INVM15-0DR22-MU6ab-MU4ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     8*8*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',   15*15*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        6*_et_conversion)
-        alg.addvariable('MinET2',        4*_et_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 22*22*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-
-        #ATR-19720, L1_BPH-2M9-0DR15-2MU4
-        # TODO: update with phase1 muons
-        toponame = "2INVM9-0DR15-2MU4ab"
-        log.debug("Define %s", toponame)
-        inputList = ['MUab']
-        alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame )
-        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
-        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinMSqr',     2*2*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',     9*9*_et_conversion*_et_conversion)
-        alg.addvariable('MinET1',        4*_et_conversion)
-        alg.addvariable('MinET2',        4*_et_conversion)
-        alg.addvariable('DeltaRMin',     0*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', 15*15*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-       
-
+        listofalgos=[
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0, "maxDr": 15, "mult": 1, "otype" : "MU", "ocut1": 6,  "olist" : "ab", "ocut2": 4,}, #2INVM9-0DR15-C-MU6ab-MU4ab 
+            {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype" : "MU", "ocut1": 4,  "olist" : "ab", "ocut2": 4,}, #8INVM15-20DR99-C-2MU4ab
+        ]
+        for x in listofalgos:
+            class d:
+                pass
+            for k in x:
+                setattr (d, k, x[k])
+            obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype, str(d.ocut1), d.olist)
+            obj2 = "-%s%s%s" % (d.otype, str(d.ocut2), d.olist)
+            toponame = "%iINVM%i-%iDR%i-C-%s%s"  % (d.minInvm, d.maxInvm, d.minDr, d.maxDr, obj1, "" if d.mult>1 else obj2)
+            log.debug("Define %s", toponame)
+            inputList = [d.otype + d.olist]
+            algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET1',    d.ocut1*_et_conversion)
+            alg.addvariable('MinET2',    d.ocut2*_et_conversion)
+            alg.addvariable('MinMSqr',   d.minInvm*d.minInvm*_et_conversion*_et_conversion)
+            alg.addvariable('MaxMSqr',   d.maxInvm*d.maxInvm*_et_conversion*_et_conversion)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
+            tm.registerTopoAlgo(alg)
 
  
         # CEP_CjJ
