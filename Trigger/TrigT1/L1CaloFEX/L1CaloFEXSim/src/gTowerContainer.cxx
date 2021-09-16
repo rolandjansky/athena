@@ -35,22 +35,45 @@ void gTowerContainer::print() const {
 
 const LVL1::gTower * gTowerContainer::findTower(int towerID) const
 {
-  int container_index = -1;
-  container_index = m_map_towerID_containerIndex.find(towerID)->second;
-  if(container_index >= 0){
-    return (*this)[container_index];
+
+  const auto it = m_map_towerID_containerIndex.find(towerID);
+
+  if (it == m_map_towerID_containerIndex.end()) {
+    REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "gTowerContainer") << "Requested tower ID "
+                                                                  << towerID
+                                                                  << " not found in container.";
+    return nullptr;
   }
-  return nullptr;
+
+  const int container_index = it->second;
+
+  if (container_index < 0) {
+    return nullptr;
+  }
+
+  return (*this)[container_index];
 }
+
 
 LVL1::gTower * gTowerContainer::findTower(int towerID)
 {
- int container_index = -1;
- container_index = m_map_towerID_containerIndex.find(towerID)->second;
- if(container_index >= 0){
-   return (*this)[container_index];
- }
- return nullptr;
+
+  const auto it = m_map_towerID_containerIndex.find(towerID);
+
+  if (it == m_map_towerID_containerIndex.end()) {
+    REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "gTowerContainer") << "Requested tower ID "
+                                                                  << towerID
+                                                                  << " not found in container.";
+    return nullptr;
+  }
+
+  const int container_index = it->second;
+
+  if (container_index < 0) {
+    return nullptr;
+  }
+
+  return (*this)[container_index];
 }
 
 void gTowerContainer::clearContainerMap()
