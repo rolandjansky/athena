@@ -11,6 +11,10 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( GTest )
 find_package( GMock )
 find_package( Eigen )
+set( extra_libs )
+if( NOT SIMULATIONBASE )
+   set( extra_libs EventBookkeeperToolsLib )
+endif()
 
 # Component(s) in the package:
 atlas_add_component( ISF_Algorithms
@@ -19,7 +23,8 @@ atlas_add_component( ISF_Algorithms
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel
    AthenaBaseComps StoreGateLib AtlasDetDescr GeneratorObjects HepMC_InterfacesLib
    ISF_Event ISF_InterfacesLib ISF_HepMC_Interfaces PmbCxxUtils InDetSimEvent
-   CaloSimEvent LArSimEvent TileSimEvent MuonSimEvent TrackRecordLib RecEvent )
+   CaloSimEvent LArSimEvent TileSimEvent MuonSimEvent TrackRecordLib RecEvent
+   ${extra_libs} )
 
 atlas_add_test( CollectionMerger_test
    SOURCES test/CollectionMerger_test.cxx src/CollectionMerger.h
