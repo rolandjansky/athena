@@ -43,8 +43,8 @@ public:
     void setChannelT0Phase(IdentifierHash, bool );
 
     void setDeadChannelHash(IdentifierHash);
-    void setDeadLayer     (std::string, Identifier);
-    void setDeadStation   (std::string, Identifier);
+    void setDeadLayer     (std::string_view, Identifier);
+    void setDeadStation   (std::string_view, Identifier);
    
     const std::vector<std::string>& getDeadLayers     () const;
     const std::vector<std::string>& getDeadStations   () const;

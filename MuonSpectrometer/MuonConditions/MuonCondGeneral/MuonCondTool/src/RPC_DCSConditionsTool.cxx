@@ -197,17 +197,16 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if( m_debug )  m_log << MSG::DEBUG <<  "panel_off "<< panel_off << endmsg;
       if( m_debug )  m_log << MSG::DEBUG <<  "panel_reason "<< panel_reason_off << endmsg;
  
-      std::string delimiter = ",";
-      std::vector<std::string> info_panel;
-      MuonCalib::MdtStringUtils::tokenize(panel_off,info_panel,delimiter);
+      char delimiter = ',';
+      const auto info_panel = MuonCalib::MdtStringUtils::tokenize(panel_off,delimiter);
    
       Identifier PanelId;
     
       for(unsigned int i=0; i<info_panel.size();i++){
-        const char* ch_tmp= (info_panel[i].c_str());
-        if( m_debug )  m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endmsg; 
+        const std::string_view &ch_tmp= info_panel[i];
+        if( m_debug )  m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<MuonCalib::MdtStringUtils::atoi(ch_tmp)<< endmsg; 
       
-        PanelId= atoi(ch_tmp);
+        PanelId= MuonCalib::MdtStringUtils::atoi(ch_tmp);
     
         if(PanelId.get_compact()){
           if( m_debug )  m_log << MSG::DEBUG << "OFFPANEL "<<m_rpcIdHelper->show_to_string(PanelId) << endmsg;
@@ -274,17 +273,16 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if( m_debug ) m_log << MSG::DEBUG <<  "panel_dead "<< panel_dead << endmsg;
       if( m_debug ) m_log << MSG::DEBUG <<  "panel_reason "<< panel_reason_dead << endmsg;
  
-      std::string delimiter = ",";
-      std::vector<std::string> info_panel;
-      MuonCalib::MdtStringUtils::tokenize(panel_dead,info_panel,delimiter);
+      char delimiter = ',';
+      const auto info_panel = MuonCalib::MdtStringUtils::tokenize(panel_dead,delimiter);
     
       Identifier PanelId;
     
       for(unsigned int i=0; i<info_panel.size();i++){
-        const char* ch_tmp= (info_panel[i].c_str());
-        if( m_debug ) m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<atoi(ch_tmp)<< endmsg; 
+        const auto &ch_tmp= info_panel[i];
+        if( m_debug ) m_log << MSG::DEBUG << " info_panel " << ch_tmp << " "<<MuonCalib::MdtStringUtils::atoi(ch_tmp)<< endmsg; 
       
-        PanelId= atoi(ch_tmp);
+        PanelId= MuonCalib::MdtStringUtils::atoi(ch_tmp);
     
         if(PanelId.get_compact()){
           if( m_debug ) m_log << MSG::DEBUG << "DEADPANEL "<<  m_rpcIdHelper->show_to_string(PanelId) << endmsg;

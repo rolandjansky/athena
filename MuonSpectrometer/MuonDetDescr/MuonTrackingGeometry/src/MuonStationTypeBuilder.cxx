@@ -148,9 +148,9 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
         vol = new Trk::Volume(new Amg::Transform3D(transf), volBounds);
         ATH_MSG_VERBOSE("subvolume center:" << vol->center().x() << "," << vol->center().y() << "," << vol->center().z());
         std::string cname = clv->getName();
-        std::string vname = mv->getLogVol()->getName();
+        const std::string &vname = mv->getLogVol()->getName();
         int nameSize = vname.size() - 8;
-        if (cname.substr(0, nameSize) == vname.substr(0, nameSize)) cname = cname.substr(nameSize, cname.size() - nameSize);
+        if (cname.compare(0, nameSize, vname, 0, nameSize) == 0) cname = cname.substr(nameSize, cname.size() - nameSize);
         // order in X
         if (compVol.empty() || vol->center()[0] >= compVol.back()->center()[0]) {
             compVol.push_back(vol);
@@ -220,7 +220,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
         if (uppX > maxX) ATH_MSG_WARNING(" clash between component and envelope:" << compName[i] << "upper:" << uppX << ">" << maxX);
 
         // close Rpc if no further components
-        if (openRpc && compName[i].substr(0, 3) != "RPC" && compName[i].substr(0, 3) != "Ded") {
+        if (openRpc && compName[i].compare(0, 3, "RPC") != 0 && compName[i].compare(0, 3, "Ded") != 0) {
             // low edge of current volume
             double Xcurr = compVol[i]->center()[0] - compBounds->halflengthX();
             if (Xcurr >= currX + rpclowXsize + rpcuppXsize) {
@@ -238,7 +238,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
             }
         }
         // close spacer if no further components
-        if (openSpacer && compName[i].substr(0, 1) != "C" && compName[i].substr(0, 2) != "LB") {
+        if (openSpacer && compName[i].compare(0, 1, "C") != 0 && compName[i].compare(0, 2, "LB") != 0) {
             // low edge of current volume
             double Xcurr = compVol[i]->center()[0] - compBounds->halflengthX();
             if (Xcurr - currX - (spacerlowXsize + spaceruppXsize) >= -tolerance) {
@@ -253,7 +253,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
                 ATH_MSG_WARNING("clash in spacer definition!");
             }
         }
-        if (compName[i].substr(0, 3) == "RPC" || compName[i].substr(0, 3) == "Ded") {
+        if (compName[i].compare(0, 3, "RPC") == 0 || compName[i].compare(0, 3, "Ded") == 0) {
             if (!openRpc) {
                 openRpc = true;
                 geoRpc.clear();
@@ -276,7 +276,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
             }
             comp_processed = true;
         }
-        if (compName[i].substr(0, 1) == "C" || compName[i].substr(0, 2) == "LB") {
+        if (compName[i].compare(0, 1, "C") == 0 || compName[i].compare(0, 2, "LB") == 0) {
             if (!openSpacer) {
                 openSpacer = true;
                 geoSpacer.clear();
@@ -304,7 +304,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
             }
             comp_processed = true;
         }
-        if (compName[i].substr(0, 3) == "MDT") {
+        if (compName[i].compare(0, 3, "MDT") == 0) {
             Trk::Volume* mdtVol;
             Trk::CuboidVolumeBounds* mdtBounds = nullptr;
             // remove z shift in transform !! bugfix !!
@@ -327,9 +327,9 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
             }
             double shiftSign = 1.;
             if (std::abs(zShift) > 0.) {
-                std::string stName = mv->getLogVol()->getName();
-                if (stName.substr(0, 4) == "BIR3" || stName.substr(0, 4) == "BIR5" || stName.substr(0, 4) == "BIR7" ||
-                    stName.substr(0, 5) == "BIR10")
+                const std::string &stName = mv->getLogVol()->getName();
+                if (stName.compare(0, 4, "BIR3") == 0 || stName.compare(0, 4, "BIR5") == 0 || stName.compare(0, 4, "BIR7") == 0 ||
+                    stName.compare(0, 5, "BIR10") == 0)
                     shiftSign = -1.;
             }
             const Trk::TrackingVolume* mdtTrkVol =
@@ -440,7 +440,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
         } else {
             double xSize = get_x_size(cv);
             // printChildren(cv);
-            if (clv->getName().substr(0, 1) != "C" && clv->getName().substr(0, 2) != "LB")
+            if (clv->getName().compare(0, 1, "C") != 0 && clv->getName().compare(0, 2, "LB") != 0)
                 transf *= Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) * Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.));
             volBounds =
                 new Trk::TrapezoidVolumeBounds(envelope->minHalflengthX(), envelope->maxHalflengthX(), envelope->halflengthY(), xSize);
@@ -449,7 +449,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
         std::string cname = clv->getName();
         std::string vname = mv->getLogVol()->getName();
         int nameSize = vname.size() - 8;
-        if (cname.substr(0, nameSize) == vname.substr(0, nameSize)) cname = cname.substr(nameSize, cname.size() - nameSize);
+        if (cname.compare(0, nameSize, vname, 0, nameSize) == 0) cname = cname.substr(nameSize, cname.size() - nameSize);
         // order in X
         if (compVol.empty() || vol->center()[0] >= compVol.back()->center()[0]) {
             compVol.push_back(vol);
@@ -520,7 +520,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
             return nullptr;
         }
         // close spacer if no further components
-        if (openSpacer && compName[i].substr(0, 1) != "C" && compName[i].substr(0, 2) != "LB") {
+        if (openSpacer && compName[i].compare(0, 1, "C") !=0  && compName[i].compare(0, 2, "LB") != 0) {
             if (Xcurr - currX - (spacerlowXsize + spaceruppXsize) >= -tolerance) {
                 Trk::TrapezoidVolumeBounds* spacerBounds = new Trk::TrapezoidVolumeBounds(envX1, envX2, envY, 0.5 * (Xcurr - currX));
                 Amg::Transform3D tr(Amg::Translation3D(currX + spacerBounds->halflengthZ(), 0., 0.) *
@@ -540,10 +540,10 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
                 std::cout << "clash in spacer definition!" << std::endl;
             }
         }
-        if (compName[i].substr(0, 3) == "RPC" || compName[i].substr(0, 3) == "Ded") {
+        if (compName[i].compare(0, 3, "RPC") == 0 || compName[i].compare(0, 3, "Ded") == 0) {
             std::cout << " RPC components for endcaps not coded " << std::endl;
         }
-        if (compName[i].substr(0, 1) == "C" || compName[i].substr(0, 2) == "LB") {
+        if (compName[i].compare(0, 1, "C") == 0 || compName[i].compare(0, 2, "LB") == 0) {
             if (!openSpacer) {
                 openSpacer = true;
                 geoSpacer.clear();
@@ -585,7 +585,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
             }
             comp_processed = true;
         }
-        if (compName[i].substr(0, 3) == "MDT") {
+        if (compName[i].compare(0, 3, "MDT") == 0) {
             Trk::Volume* mdtVol = nullptr;
             Trk::TrapezoidVolumeBounds* mdtBounds = nullptr;
             if (lowX == currX) {
@@ -670,7 +670,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
         Trk::MaterialProperties* mdtMat = nullptr;
         double xv = 0.;
         int active = 0;
-        if ((clv->getName()).substr(0, 3) == "MDT") {
+        if ((clv->getName()).compare(0, 3, "MDT") == 0) {
             xv = 13.0055;  // the half-thickness
             if (!cache.m_mdtTubeMat) {
                 const GeoTube* tube = dynamic_cast<const GeoTube*>(clv->getShape());
@@ -825,7 +825,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
             if (x1v == x2v) xv = x1v;
         }
         Trk::MaterialProperties* mdtMat = nullptr;
-        if ((clv->getName()).substr(0, 3) == "MDT") {
+        if ((clv->getName()).compare(0, 3, "MDT") == 0) {
             xv = 13.0055;  // the half-thickness
             if (!cache.m_mdtTubeMat) {
                 const GeoTube* tube = dynamic_cast<const GeoTube*>(clv->getShape());
@@ -968,7 +968,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
             Amg::Transform3D cTr(transfc[ic] * Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) *
                                  Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.)));
             Trk::MaterialProperties rpcMat(0., 10.e10, 10.e10, 13., 26., 0.);  // default
-            if ((glv->getName()).substr(0, 3) == "Ded") {
+            if ((glv->getName()).compare(0, 3, "Ded") == 0) {
                 // find if material exists already
                 bool found = false;
                 for (unsigned int i = 0; i < cache.m_rpcDed.size(); i++) {
@@ -999,7 +999,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
             layer = new Trk::PlaneLayer(cTr, bounds, rpcMaterial, thickness, od);
             layers.push_back(layer);
             // make preliminary identification of active layers
-            if ((glv->getName()).substr(0, 3) != "Ded") {
+            if ((glv->getName()).compare(0, 3, "Ded") != 0) {
                 layer->setLayerType(1);
             } else {
                 layer->setLayerType(0);
@@ -1021,7 +1021,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
                 Amg::Transform3D cTr(transfc[ic] * Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) *
                                      Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.)));
                 Trk::MaterialProperties rpcMat(0., 10.e10, 10.e10, 13., 26., 0.);  // default
-                if ((glv->getName()).substr(0, 3) == "Ded") {
+                if ((glv->getName()).compare(0, 3, "Ded") == 0) {
                     // find if material exists already
                     bool found = false;
                     for (unsigned int i = 0; i < cache.m_rpcDed.size(); i++) {
@@ -1065,7 +1065,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
                         double gy = gtrd->getYHalfLength1();
                         double gz = gtrd->getZHalfLength();
 
-                        if ((gclv->getName()).substr(0, 6) == "RPC_AL") {
+                        if ((gclv->getName()).compare(0, 6, "RPC_AL") == 0) {
                             if (std::abs(gx - 5.0) < 0.001) {
                                 if (!cache.m_rpcExtPanel) {
                                     double volc = 8 * gx * gy * gz;
@@ -1792,7 +1792,7 @@ void Muon::MuonStationTypeBuilder::collectMaterial(const GeoVPhysVol* pv, Trk::M
     std::string nm = lv->getName();
     if (nm.empty()) nm = "Spacer";
 
-    if (lv->getMaterial()->getName() != "Air" && nm.substr(0, 1) != "T") {
+    if (lv->getMaterial()->getName() != "Air" && nm.compare(0, 1,"T") != 0) {
         // get material properties from GeoModel
         Trk::Material newMP = m_materialConverter->convert(lv->getMaterial());
         // current volume
@@ -1872,7 +1872,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
     double maxX = compBounds->maxHalflengthX();
     double halfY = compBounds->halflengthY();
     double halfZ = compBounds->halflengthZ();
-    if (name.substr(name.size() - 5, 5) == "CSC01") {
+    if (name.compare(name.size() - 5, 5, "CSC01") == 0) {
         if (!cache.m_matCSC01) {
             double vol = (minX + maxX) * 2 * halfY * thickness;
             cache.m_matCSC01 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv, vol, thickness));
@@ -1998,7 +1998,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
     double halfY1 = compBounds->halflengthY1();
     double halfY2 = compBounds->halflengthY2();
     double halfZ = compBounds->halflengthZ();
-    if (name.substr(name.size() - 5, 5) == "CSC02") {
+    if (name.compare(name.size() - 5, 5, "CSC02") == 0) {
         if (!cache.m_matCSC02) {
             double vol = ((minX + medX) * 2 * halfY1 + (medX + maxX) * 2 * halfY2) * thickness;
             cache.m_matCSC02 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv, vol, thickness));

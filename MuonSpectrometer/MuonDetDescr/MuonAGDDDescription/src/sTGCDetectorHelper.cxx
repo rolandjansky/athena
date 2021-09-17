@@ -100,13 +100,28 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(const std::string& type)
 {
-	if (m_sTGCList.find(type) != m_sTGCList.end()) return m_sTGCList[type];
+	if (auto itr = m_sTGCList.find(type); itr != m_sTGCList.end()) return itr->second;
 	return nullptr;
 }
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorSubType(const std::string& type)
 {
-	if (m_sTGCListSubType.find(type) != m_sTGCListSubType.end()) return m_sTGCListSubType[type];
+	if (auto itr = m_sTGCListSubType.find(type); itr != m_sTGCListSubType.end()) return itr->second;
 	return nullptr;
 }
 
+sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(std::string_view type)
+{
+	for(const auto &pair : m_sTGCList){
+     if(pair.first == type) return pair.second;
+	}
+	return nullptr;
+}
+
+sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorSubType(std::string_view type)
+{
+	for(const auto &pair : m_sTGCListSubType){
+     if(pair.first == type) return pair.second;
+	}
+	return nullptr;
+}

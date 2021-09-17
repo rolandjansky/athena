@@ -17,7 +17,7 @@ namespace MuonGM {
 
     void DBReader::setGeometryVersion(std::string geoVersion) { m_version = std::move(geoVersion); }
 
-    std::string DBReader::getGeometryVersion() const { return m_version; }
+    const std::string& DBReader::getGeometryVersion() const { return m_version; }
 
     std::string DBReader::TGCreadoutName(int ichtyp) {
         MsgStream log(Athena::getMessageSvc(), "DBReader::TGCreadoutName");

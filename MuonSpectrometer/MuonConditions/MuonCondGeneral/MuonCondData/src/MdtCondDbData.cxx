@@ -10,33 +10,33 @@ MdtCondDbData::MdtCondDbData(const MdtIdHelper& id_helper):
     m_id_helper(id_helper){}
 // setDeadTube
 void
-MdtCondDbData::setDeadTube(const std::string& id_name, Identifier Id){
+MdtCondDbData::setDeadTube(std::string_view id_name, Identifier Id){
     if(std::find(m_cachedDeadTubesId.begin(), m_cachedDeadTubesId.end(), Id)!=m_cachedDeadTubesId.end()) return;
-    m_cachedDeadTubes  .push_back(id_name);
+    m_cachedDeadTubes  .push_back(std::string(id_name));
     m_cachedDeadTubesId.push_back(Id  );
 }
 
 // setDeadLayer
 void
-MdtCondDbData::setDeadLayer(const std::string& id_name, Identifier Id){
+MdtCondDbData::setDeadLayer(std::string_view id_name, Identifier Id){
     if(std::find(m_cachedDeadLayersId.begin(), m_cachedDeadLayersId.end(), Id)!=m_cachedDeadLayersId.end()) return;
-    m_cachedDeadLayers  .push_back(id_name);
+    m_cachedDeadLayers  .push_back(std::string(id_name));
     m_cachedDeadLayersId.push_back(Id  );
 }
 
 // setDeadMultilayer
 void
-MdtCondDbData::setDeadMultilayer(const std::string& id_name, Identifier Id){
+MdtCondDbData::setDeadMultilayer(std::string_view id_name, Identifier Id){
     if(std::find(m_cachedDeadMultilayersId.begin(), m_cachedDeadMultilayersId.end(), Id)!=m_cachedDeadMultilayersId.end()) return;
-    m_cachedDeadMultilayers  .push_back(id_name);
+    m_cachedDeadMultilayers  .push_back(std::string(id_name));
     m_cachedDeadMultilayersId.push_back(Id  );
 }
 
 // setDeadStation (= a chamber dead by itself)
 void
-MdtCondDbData::setDeadStation(const std::string& id_name, Identifier Id){
+MdtCondDbData::setDeadStation(std::string_view id_name, Identifier Id){
     if(std::find(m_cachedDeadStationsId.begin(), m_cachedDeadStationsId.end(), Id)!=m_cachedDeadStationsId.end()) return;
-    m_cachedDeadStations  .push_back(id_name);
+    m_cachedDeadStations  .push_back(std::string(id_name));
     m_cachedDeadStationsId.push_back(Id  );
 }
 

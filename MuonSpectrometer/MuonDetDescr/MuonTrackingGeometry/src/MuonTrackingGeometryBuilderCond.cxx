@@ -165,7 +165,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Muon::MuonTrackingGeometry
 
     if (inertObjs && m_blendInertMaterial && m_removeBlended) {
         while (m_inertPerm < inertObjs->size() &&
-               (*inertObjs)[m_inertPerm]->name().substr((*inertObjs)[m_inertPerm]->name().size() - 4, 4) == "PERM")
+               (*inertObjs)[m_inertPerm]->name().compare((*inertObjs)[m_inertPerm]->name().size() - 4, 4, "PERM") == 0)
             m_inertPerm++;
     }
 
@@ -2017,7 +2017,7 @@ std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonTrackingGeometryBuild
                     } else
                         accepted = true;
                     if (accepted) {
-                        bool perm = inert->name().substr(inert->name().size() - 4, 4) == "PERM";
+                        bool perm = inert->name().compare(inert->name().size() - 4, 4, "PERM") == 0;
                         if (!m_blendInertMaterial || !m_removeBlended || perm) detached.push_back(inert);
                         if (m_blendInertMaterial && !perm) blendVols.push_back(inert);
                         ATH_MSG_VERBOSE(" Inert volume accepted by rLimit " << inert->name() << " zMin " << zMin << " zMax " << zMax

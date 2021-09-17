@@ -206,7 +206,7 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   else
     if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
- 
+   using namespace MuonCalib;
   CondAttrListCollection::const_iterator itr;
  
   for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
@@ -220,21 +220,18 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     list_layer=*(static_cast<const std::string*>((atr["Dead_layer"]).addressOfData()));
     list_tube=*(static_cast<const std::string*>((atr["Dead_tube"]).addressOfData()));
     
-    std::string delimiter = " ";
-    std::vector<std::string> tokens;
-    std::vector<std::string> tokens_mlayer;
-    std::vector<std::string> tokens_layer;
+    char delimiter = ' ';
     Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
-    MuonCalib::MdtStringUtils::tokenize(list_tube,tokens,delimiter);
-    MuonCalib::MdtStringUtils::tokenize(list_mlayer,tokens_mlayer,delimiter);
-    MuonCalib::MdtStringUtils::tokenize(list_layer,tokens_layer,delimiter);
+    const auto tokens = MuonCalib::MdtStringUtils::tokenize(list_tube,delimiter);
+    const auto tokens_mlayer = MuonCalib::MdtStringUtils::tokenize(list_mlayer,delimiter);
+    const auto tokens_layer = MuonCalib::MdtStringUtils::tokenize(list_layer,delimiter);
     
     for (unsigned int i=0; i<tokens.size(); i++) {
       if(tokens[i]!="0"){
         
-	int ml = atoi((tokens[i].substr(0,1)).c_str());
-	int layer= atoi((tokens[i].substr(1,2)).c_str());
-	int tube= atoi((tokens[i].substr(2)).c_str());
+	int ml = MdtStringUtils::atoi(tokens[i][0]);
+	int layer= MdtStringUtils::atoi(tokens[i].substr(1,2));
+	int tube= MdtStringUtils::atoi(tokens[i].substr(2));
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,tube); 
 	m_cachedDeadTubesId.push_back(ChannelId);
@@ -245,7 +242,7 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     for (unsigned int i=0; i<tokens_mlayer.size(); i++) {
       if(tokens_mlayer[i]!="0"){
         
-	int ml = atoi((tokens_mlayer[i].substr(0)).c_str());
+	int ml = MdtStringUtils::atoi(tokens_mlayer[i].substr(0));
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,1,1); 
 	m_cachedDeadMultiLayersId.push_back(ChannelId);
@@ -256,8 +253,8 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     for (unsigned int i=0; i<tokens_layer.size(); i++) {
       if(tokens_layer[i]!="0"){
         
-	int ml = atoi((tokens_layer[i].substr(0,1)).c_str());
-	int layer = atoi((tokens_layer[i].substr(1)).c_str());
+	int ml = MdtStringUtils::atoi(tokens_layer[i].substr(0,1));
+	int layer = MdtStringUtils::atoi(tokens_layer[i].substr(1));
 		
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,1); 
 	m_cachedDeadLayersId.push_back(ChannelId);
@@ -275,7 +272,7 @@ StatusCode MDT_DQConditionsTool::loadDeadChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	
 StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-
+  using namespace MuonCalib;
   m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE; 
@@ -318,21 +315,18 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     list_layer=*(static_cast<const std::string*>((atr["Noisy_layer"]).addressOfData()));
     list_tube=*(static_cast<const std::string*>((atr["Noisy_tube"]).addressOfData()));
     
-    std::string delimiter = " ";
-    std::vector<std::string> tokens;
-    std::vector<std::string> tokens_mlayer;
-    std::vector<std::string> tokens_layer;
+    char delimiter = ' ';
     Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
-    MuonCalib::MdtStringUtils::tokenize(list_tube,tokens,delimiter);
-    MuonCalib::MdtStringUtils::tokenize(list_mlayer,tokens_mlayer,delimiter);
-    MuonCalib::MdtStringUtils::tokenize(list_layer,tokens_layer,delimiter);
+    auto tokens = MuonCalib::MdtStringUtils::tokenize(list_tube,delimiter);
+    auto tokens_mlayer = MuonCalib::MdtStringUtils::tokenize(list_mlayer,delimiter);
+    auto tokens_layer = MuonCalib::MdtStringUtils::tokenize(list_layer,delimiter);
     
     for (unsigned int i=0; i<tokens.size(); i++) {
       if(tokens[i]!="0"){
         
-	int ml = atoi((tokens[i].substr(0,1)).c_str());
-	int layer= atoi((tokens[i].substr(1,2)).c_str());
-	int tube= atoi((tokens[i].substr(2)).c_str());
+	int ml = MdtStringUtils::atoi(tokens[i][0]);
+	int layer= MdtStringUtils::atoi(tokens[i].substr(1,2));
+	int tube= MdtStringUtils::atoi(tokens[i].substr(2));
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,tube); 
 	m_cachedNoisyTubesId.push_back(ChannelId);
@@ -343,7 +337,7 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (unsigned int i=0; i<tokens_mlayer.size(); i++) {
       if(tokens_mlayer[i]!="0"){
         
-	int ml = atoi((tokens_mlayer[i].substr(0)).c_str());
+	int ml = MdtStringUtils::atoi(tokens_mlayer[i].substr(0));
 	
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,1,1); 
 	m_cachedNoisyMultiLayersId.push_back(ChannelId);
@@ -354,8 +348,8 @@ StatusCode MDT_DQConditionsTool::loadNoisyChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (unsigned int i=0; i<tokens_layer.size(); i++) {
       if(tokens_layer[i]!="0"){
         
-	int ml = atoi((tokens_layer[i].substr(0,1)).c_str());
-	int layer = atoi((tokens_layer[i].substr(1)).c_str());
+	int ml = MdtStringUtils::atoi(tokens_layer[i].substr(0,1));
+	int layer = MdtStringUtils::atoi(tokens_layer[i].substr(1));
 		
 	Identifier ChannelId =m_mdtIdHelper->channelID(ChamberId,ml,layer,1); 
 	m_cachedNoisyLayersId.push_back(ChannelId);

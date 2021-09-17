@@ -891,7 +891,7 @@ Identifier sTgcIdHelper::elementID(int stationName, int stationEta, int stationP
     return result;
 }
 /*******************************************************************************/
-Identifier sTgcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier sTgcIdHelper::elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
     Identifier id;
     int stationName = stationNameIndex(stationNameStr);
     id = elementID(stationName, stationEta, stationPhi, check, isValid);

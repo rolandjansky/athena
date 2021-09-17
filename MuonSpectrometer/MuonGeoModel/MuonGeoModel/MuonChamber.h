@@ -34,7 +34,7 @@ namespace MuonGM {
 
         double rotangle[10];
 
-        int stationPhiTGC(const std::string& stName, int fi, int zi, const std::string& geometry_version) const;
+        int stationPhiTGC(std::string_view stName, int fi, int zi, std::string_view geometry_version) const;
         inline void setFineClashFixingFlag(int value);
 
         MuonChamber(Station *s);

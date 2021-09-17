@@ -147,17 +147,17 @@ CscCondDbData::setDeadChannelHash(IdentifierHash hash){
 
 // setDeadLayer
 void
-CscCondDbData::setDeadLayer(std::string name, Identifier Id){
+CscCondDbData::setDeadLayer(std::string_view name, Identifier Id){
     if(std::find(m_cachedDeadLayersId.begin(), m_cachedDeadLayersId.end(), Id)!=m_cachedDeadLayersId.end()) return;
-    m_cachedDeadLayers  .push_back(name);
+    m_cachedDeadLayers  .push_back(std::string(name));
     m_cachedDeadLayersId.push_back(Id  );
 }
 
 // setDeadStation
 void
-CscCondDbData::setDeadStation(std::string name, Identifier Id){
+CscCondDbData::setDeadStation(std::string_view name, Identifier Id){
     if(std::find(m_cachedDeadStationsId.begin(), m_cachedDeadStationsId.end(), Id)!=m_cachedDeadStationsId.end()) return;
-    m_cachedDeadStations  .push_back(name);
+    m_cachedDeadStations  .push_back(std::string(name));
     m_cachedDeadStationsId.push_back(Id  );
 }
 

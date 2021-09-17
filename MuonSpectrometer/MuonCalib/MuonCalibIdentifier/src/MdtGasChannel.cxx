@@ -44,16 +44,13 @@ bool MdtGasChannel::readFile()
 		lnstr>>chan;
 		if(lnstr.eof()) continue;
 		lnstr>>stations;
-		if((pos=chan.find("/"))==std::string::npos) continue;
+		if((pos=chan.find('/'))==std::string::npos) continue;
 		chan[pos]=' ';
 		std::istringstream chanstr(chan);
 		GasChannel c;
 		chanstr>>c.first;
 		chanstr>>c.second;
-		while((pos=stations.find(","))!=std::string::npos)
-			{
-			stations[pos]=' ';
-			}
+		std::replace(stations.begin(), stations.end(), ',', ' ');
 		std::istringstream st_stream(stations);
 		std::string station;
 		while(1)

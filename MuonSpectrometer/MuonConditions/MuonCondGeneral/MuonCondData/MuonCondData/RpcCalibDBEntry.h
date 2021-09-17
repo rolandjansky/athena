@@ -27,8 +27,8 @@ namespace MuonCalib{
     {
         public:
             RpcCalibDBEntry(){};
-            RpcCalibDBEntry(Identifier gapID, std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2);
-            RpcCalibDBEntry(Identifier gapID, std::string payload);
+            RpcCalibDBEntry(Identifier gapID, const std::string& etaRec, const std::string& etaDet, const std::string& phiRec1, const std::string& phiRec2, const std::string& phiDet1, const std::string& phiDet2);
+            RpcCalibDBEntry(Identifier gapID, std::string_view payload);
 
 	    void getColumns(std::string &recEta, std::string &detEta,std::string &recPhi1,std::string &recPhi2,std::string &detPhi1,std::string &detPhi2) const;  
 

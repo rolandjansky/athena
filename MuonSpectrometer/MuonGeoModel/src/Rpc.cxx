@@ -113,7 +113,7 @@ namespace MuonGM {
         if (minimalgeo == 1)
             return prpc;
 
-        if (geometry_version.substr(0, 1) != "M") {
+        if (geometry_version.compare(0, 1,"M") != 0) {
             // here layout P and following (hopefully!)
             if (idiv * jdiv != 1)
                 assert(0);

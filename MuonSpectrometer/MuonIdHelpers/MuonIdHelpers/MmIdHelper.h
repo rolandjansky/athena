@@ -70,7 +70,7 @@ public:
 
     // Identifier builders
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check = false,
