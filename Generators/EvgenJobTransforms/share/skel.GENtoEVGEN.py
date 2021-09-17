@@ -595,7 +595,6 @@ if hasattr(runArgs, "postExec"):
 ##==============================================================
 acas.dumpMasterSequence()
 
-
 ##==============================================================
 ## Input file arg handling
 ##==============================================================
@@ -797,15 +796,15 @@ if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
     print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
 elif hasattr(runArgs, "inputGeneratorFile"):
-    # counting the number of events in LHE output
+    # counting the number of events in LHE input
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
     print "MetaData: %s = %s" % ("Number of input LHE events ", count_ev)
 
 if _checkattr("description", required=True):
