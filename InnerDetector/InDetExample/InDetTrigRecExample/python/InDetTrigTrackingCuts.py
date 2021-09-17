@@ -61,6 +61,7 @@ class InDetTrigTrackingCuts :
 
     # --- this is for the TRT-extension + segements and backtracking
     self.__minTRTonTrk               = 9
+    self.__minTRTPrecFrac            = 0.3
     self.__useParameterizedTRTCuts   = False
     self.__useNewParameterizationTRT = False
 
@@ -535,6 +536,9 @@ class InDetTrigTrackingCuts :
 
   def minTRTonTrk( self ) :
     return self.__minTRTonTrk
+
+  def minTRTPrecFrac( self ) :
+    return self.__minTRTPrecFrac
 
   def useParameterizedTRTCuts( self ) :
     return self.__useParameterizedTRTCuts
