@@ -17,8 +17,7 @@
 // athena
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-//#include "TrkParameters/MeasuredTrackParameters.h"
-//#include "TrkParameters/Perigee.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/Surface.h"
@@ -371,8 +370,8 @@ void TRTTrackHoleSearchTool::dump_bad_straw_log() const {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::dump_bad_straw_log" );
 	std::ofstream out("TRT_ConditionsSummarySvc_bad_straws.log");
 	out << "# id  barrel_ec  phi_module  layer_or_wheel  straw_layer  straw" << std::endl;
-	for(std::vector<Identifier>::const_iterator it = m_TRT_ID->straw_layer_begin(); it != m_TRT_ID->straw_layer_end(); it++) {
-		for(int i=0; i<= m_TRT_ID->straw_max(*it); i++) {
+	for(std::vector<Identifier>::const_iterator it = m_TRT_ID->straw_layer_begin(); it != m_TRT_ID->straw_layer_end(); ++it) {
+		for(int i=0; i<= m_TRT_ID->straw_max(*it); ++i) {
 			Identifier id = m_TRT_ID->straw_id(*it, i);
 			if(!m_conditions_svc->isGood(id)) {
 				out << id.getString()
@@ -420,8 +419,8 @@ TRTTrackHoleSearchTool::find_last_hit_before_trt(const DataVector<const Trk::Tra
 	if(track_states.size() < 2 || track_state == track_states.begin()) {
 		return track_states.end();
 	}
-	track_state--; // step back and look for last measurement before the TRT hit
-	for(; track_state != track_states.begin(); track_state--) {
+	--track_state; // step back and look for last measurement before the TRT hit
+	for(; track_state != track_states.begin(); --track_state) {
 		if((*track_state)->type(Trk::TrackStateOnSurface::Measurement)) {
 			break;
 		}

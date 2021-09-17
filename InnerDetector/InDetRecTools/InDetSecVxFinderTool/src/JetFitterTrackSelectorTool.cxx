@@ -59,7 +59,7 @@ using namespace InDet;
       std::vector<const xAOD::IParticle*>::const_iterator   trk_end = inputTracks.end();  
 
       int counter = 0;
-      for ( ; trk_iter != trk_end; trk_iter++ ) {
+      for ( ; trk_iter != trk_end; ++trk_iter ) {
 	// Convert xAOD::IParticle to xAOD::TrackParticle
 	const xAOD::TrackParticle * tmp = dynamic_cast< const xAOD::TrackParticle* > ( *trk_iter );
 	assert( tmp != nullptr ); // in principle should really check that inputTracks only contains TrackParticle objects
