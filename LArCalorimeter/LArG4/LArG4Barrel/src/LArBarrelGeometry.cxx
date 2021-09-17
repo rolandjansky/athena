@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -78,7 +78,7 @@ namespace LArG4 {
       // initialize the geometry.
       // Access source of detector parameters.
 
-      LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+      const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
       // number of straight sections (should be 14)
       m_Nbrt = (int) (parameters->GetValue("LArEMBnoOFAccZigs"));
@@ -330,7 +330,7 @@ namespace LArG4 {
       static bool FILL = true;
       if (FILL) {
 
-        LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+        const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
         // maximum eta barrel 1.475 (at r=1500.024)
         Eta_max = parameters->GetValue("LArEMBMaxEtaAcceptance");

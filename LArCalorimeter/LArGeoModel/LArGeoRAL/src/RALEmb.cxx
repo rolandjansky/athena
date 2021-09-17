@@ -148,7 +148,7 @@ double LArGeo::RALEmb::GetValue(const std::string& a_name,
                                 const int /*a1*/,
                                 const int /*a2*/,
                                 const int /*a3*/,
-                                const int /*a4*/ ) 
+                                const int /*a4*/ ) const
 {
   
   std::ostringstream A0STR;
