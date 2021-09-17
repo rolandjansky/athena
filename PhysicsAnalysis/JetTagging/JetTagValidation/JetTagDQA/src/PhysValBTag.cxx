@@ -268,6 +268,9 @@ namespace JetTagDQA {
           // fill discriminant related vars
           (plot_i->second).fillDiscriminantVariables(btag, jet, jet_Lxy, truth_label, contains_muon, m_onZprime, nJetsThatPassedWPCuts, event);
         }
+        else{
+          ATH_MSG_WARNING("btag (obtained by xAOD::BTaggingUtilities::getBTagging(*jet)) is a null pointer.");
+        }
       }
 
       // fill multiplicities
