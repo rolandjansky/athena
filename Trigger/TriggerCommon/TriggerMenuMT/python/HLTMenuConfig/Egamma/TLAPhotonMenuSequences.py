@@ -55,7 +55,7 @@ def TLAPhotonAthSequence(flags, photonsIn, HLT_threshold):
     tlaPhotonViewsMakerAlg.ViewFallThrough = True
     tlaPhotonViewsMakerAlg.RequireParentView = True
     tlaPhotonViewsMakerAlg.Views = "TLAPhotonsViews"
-    tlaPhotonViewsMakerAlg.mergeUsingFeature = True
+    tlaPhotonViewsMakerAlg.mergeUsingFeature = False
 
     tlaPhotonViewsMakerAlg.ViewNodeName = "tlaPhotonInViewAlgs"
 
