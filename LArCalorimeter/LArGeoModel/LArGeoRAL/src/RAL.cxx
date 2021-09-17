@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoRAL/RAL.h"
@@ -35,7 +35,7 @@ namespace LArGeo {
 			   const int a1,
 			   const int a2,
 			   const int a3,
-			   const int a4 ) 
+			   const int a4 ) const
   {
 
     // Call the appropriate GetValue() based on the contents of the

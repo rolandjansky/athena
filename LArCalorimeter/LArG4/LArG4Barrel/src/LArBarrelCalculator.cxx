@@ -87,7 +87,7 @@ StatusCode LArBarrelCalculator::initialize()
   }
 
   // Access source of detector parameters.
-  LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
+  const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
   // Get the out-of-time cut from the detector parameters routine.
   m_OOTcut = parameters->GetValue("LArExpHallOutOfTimeCut"); //FIXME should be done via configurables
