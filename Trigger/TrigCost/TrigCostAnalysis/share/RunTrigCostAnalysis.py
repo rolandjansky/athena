@@ -67,7 +67,6 @@ def readMCpayload(args):
 
 # Read algorithm and class names from HLTJobOptions file
 def readHashes(joFileName="", smk=0, dbAlias=""):
-
   joData = {}
 
   try:
@@ -139,26 +138,6 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
   else:
     log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
 
-    if not smk or not dbAlias:
-      # Try to read keys from COOL (for P1 data)
-      from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
-      dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
-      runNumber = GetFileMD(ConfigFlags.Input.Files)['runNumbers'][0]
-      configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
-
-      if configKeys and runNumber in configKeys.keys():
-        if not smk:
-          smk = configKeys[runNumber]['SMK']
-
-        if not dbAlias:
-          # For example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
-          dbAlias = configKeys[runNumber]['DB'].split(";")[0]
-
-      else:
-        log.error("Menu not found!")
-
-    log.debug("Config keys are SMK: {0} DB alias: {1}".format(smk, dbAlias))
-
     hltConfigSvc.InputType = "DB"
     hltConfigSvc.JsonFileName = ""
     hltConfigSvc.TriggerDB = dbAlias
@@ -167,6 +146,29 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
   acc.addService(hltConfigSvc, False, True)
 
   return acc
+
+
+def readConfigFromCool(smk, dbAlias):
+  # Try to read keys from COOL (for P1 data)
+  from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
+  dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
+  runNumber = GetFileMD(ConfigFlags.Input.Files)['runNumbers'][0]
+  configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
+
+  if configKeys and runNumber in configKeys.keys():
+    if not smk:
+      smk = configKeys[runNumber]['SMK']
+
+    if not dbAlias:
+      # For example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
+      dbAlias = configKeys[runNumber]['DB'].split(";")[0]
+
+    log.debug("Config keys are SMK: {0} DB alias: {1}".format(smk, dbAlias))
+
+  else:
+    log.error("Configuration keys not found!")
+
+  return (smk, dbAlias)
 
 
 # Get HLT Menu from json file or from DB
@@ -235,6 +237,10 @@ if __name__=='__main__':
   histSvc = CompFactory.THistSvc()
   histSvc.Output += ["COSTSTREAM DATAFILE='" + args.outputHist + "' OPT='RECREATE'"]
   cfg.addService(histSvc)
+
+  # Retrieve config from cool database
+  if not args.smk or not args.dbAlias:
+    (args.smk, args.dbAlias) = readConfigFromCool(args.smk, args.dbAlias)
 
   cfg.merge(hltConfigSvcCfg(ConfigFlags, args.smk, args.dbAlias))
   cfg.merge(trigCostAnalysisCfg(ConfigFlags, args, ConfigFlags.Input.isMC))
