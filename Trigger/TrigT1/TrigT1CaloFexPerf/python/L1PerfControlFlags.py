@@ -29,6 +29,13 @@ class SCellType(JobProperty):
     StoredValue = "BCID"
 _caloflags.append(SCellType)
 
+class isMC(JobProperty):
+    """ String that contains the info whether data or MC are used """
+    statusOn = True
+    allowedType = ['bool']
+    StoredValue = True
+_caloflags.append(isMC)
+
 
 class QualBitMask(JobProperty):
     """ int bitmask to be used for quality requirements

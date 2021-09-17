@@ -23,9 +23,11 @@
 #include "../EFexEMClusterTool.h"
 
 #include "../SCEmulation.h"
+#include "../SCEmulationData.h"
 #include "../FwdCellReader.h"
 
 DECLARE_ALGORITHM_FACTORY(LVL1::SCEmulation)
+DECLARE_ALGORITHM_FACTORY(LVL1::SCEmulationData)
 
 DECLARE_ALGORITHM_FACTORY(LVL1::JGTowerMaker)
 DECLARE_ALGORITHM_FACTORY(LVL1::METNoiseCutPerfFex)
@@ -69,4 +71,5 @@ DECLARE_FACTORY_ENTRIES(TrigT1CaloFexPerf)
   DECLARE_TOOL(LVL1::EFexEMEnergyWeightedClusterTool)
   DECLARE_TOOL(LVL1::EFexEMClusterTool)
   DECLARE_ALGORITHM(LVL1::SCEmulation)
+  DECLARE_ALGORITHM(LVL1::SCEmulationData)
 }

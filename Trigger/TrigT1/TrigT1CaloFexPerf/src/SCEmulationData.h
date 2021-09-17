@@ -2,8 +2,8 @@
  * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef TRIGT1CALOFEXPERF_SCEMULATION_H
-#define TRIGT1CALOFEXPERF_SCEMULATION_H
+#ifndef TRIGT1CALOFEXPERF_SCEMULATIONDATA_H
+#define TRIGT1CALOFEXPERF_SCEMULATIONDATA_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -25,11 +25,11 @@
 
 namespace LVL1
 {
-  class SCEmulation : public AthAlgorithm
+  class SCEmulationData : public AthAlgorithm
   {
   public:
-    SCEmulation(const std::string &name, ISvcLocator *pSvcLocator);
-    virtual ~SCEmulation() override;
+    SCEmulationData(const std::string &name, ISvcLocator *pSvcLocator);
+    virtual ~SCEmulationData() override;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
@@ -69,7 +69,7 @@ namespace LVL1
     std::size_t getEtaIndex(CaloSampling::CaloSample sample, float eta);
     std::size_t getEIndex(CaloSampling::CaloSample sample, float e);
 
-  }; //> end class SCEmulation
+  }; //> end class SCEmulationData
 } // namespace LVL1
 
-#endif //> !TRIGT1CALOFEXPERF_SCEMULATION_H
+#endif //> !TRIGT1CALOFEXPERF_SCEMULATIONDATA_H

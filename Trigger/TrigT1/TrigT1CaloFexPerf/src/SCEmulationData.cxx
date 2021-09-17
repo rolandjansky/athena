@@ -2,7 +2,7 @@
  * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "SCEmulation.h"
+#include "SCEmulationData.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "PathResolver/PathResolver.h"
@@ -83,7 +83,7 @@ namespace
 
 namespace LVL1
 {
-  SCEmulation::SCEmulation(const std::string &name, ISvcLocator *pSvcLocator)
+  SCEmulationData::SCEmulationData(const std::string &name, ISvcLocator *pSvcLocator)
       : AthAlgorithm(name, pSvcLocator),
         m_noiseTool("CaloNoiseToolDefault")
   {
@@ -98,9 +98,9 @@ namespace LVL1
     declareProperty("CellTimingFile", m_cellTimingFile = "/afs/cern.ch/user/l/lbaltes/public/cellfile.0.root");
   }
 
-  SCEmulation::~SCEmulation() {}
+  SCEmulationData::~SCEmulationData() {}
 
-  StatusCode SCEmulation::initialize()
+  StatusCode SCEmulationData::initialize()
   {
     ATH_MSG_INFO("Initializing " << name() << "...");
     if (m_useNoise)
@@ -221,7 +221,7 @@ namespace LVL1
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SCEmulation::execute()
+  StatusCode SCEmulationData::execute()
   {
     const EventContext &ctx = Gaudi::Hive::currentContext();
 
@@ -288,9 +288,9 @@ namespace LVL1
       bool isTile = cdde->is_tile();
       if (cell->provenance() & 0x2000)
       {
-        if (std::abs(cell->energy()) > (3*m_noiseTool->totalNoiseRMS(cell)))
+	if (cell->time() != 0)
         {
-          // We have the timing values correctly for above 3*cellnoise
+          // If the cell timing in data is not available it is set to 0 (integer)
           timeDef[scIDHash] |= true;
 	  enForTime[scIDHash] += cell->energy();
 	  enTime[scIDHash] += cell->energy() * cell->time();
@@ -406,7 +406,7 @@ namespace LVL1
     return StatusCode::SUCCESS;
   }
 
-  std::size_t SCEmulation::getEtaIndex(CaloSampling::CaloSample sample, float eta)
+  std::size_t SCEmulationData::getEtaIndex(CaloSampling::CaloSample sample, float eta)
   {
     bool warn = false;
     std::size_t idx = getIndex(m_etaBins.at(sample), eta, warn);
@@ -415,7 +415,7 @@ namespace LVL1
     return idx;
   }
 
-  std::size_t SCEmulation::getEIndex(CaloSampling::CaloSample sample, float e)
+  std::size_t SCEmulationData::getEIndex(CaloSampling::CaloSample sample, float e)
   {
     bool warn = false;
     std::size_t idx = getIndex(m_eBins.at(sample), e, warn);
