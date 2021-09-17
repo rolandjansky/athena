@@ -28,7 +28,7 @@ def fastPhotonCaloSequenceCfg( flags ):
     return fastCaloMenuSequence('Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
-    return fastPhotonMenuSequence()
+    return fastPhotonMenuSequence( flags )
 
 def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     photonsIn = "HLT_egamma_Photons"
