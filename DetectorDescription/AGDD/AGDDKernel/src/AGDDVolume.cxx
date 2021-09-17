@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDVolumeStore.h"
@@ -7,7 +7,7 @@
 #include "AGDDKernel/AGDDSection.h"
 #include "AGDDKernel/AGDDVolume.h"
 
-AGDDVolume::AGDDVolume(std::string n,bool v):m_name(n),m_theSolid(0),m_theVolume(0),m_isSensitive(v)
+AGDDVolume::AGDDVolume(const std::string& n,bool v):m_name(n),m_theSolid(0),m_theVolume(0),m_isSensitive(v)
 {
 	AGDDVolumeStore::GetVolumeStore()->RegisterVolume(this);
 	AGDDSectionStore *ss=AGDDSectionStore::GetSectionStore();

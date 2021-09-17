@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDGvxy_H
@@ -13,7 +13,7 @@
 
 class AGDDGvxy: public AGDDVolume {
 public:
-	AGDDGvxy(std::string s):AGDDVolume(s),m_dz(0) {}
+	AGDDGvxy(const std::string& s):AGDDVolume(s),m_dz(0) {}
 	void SetDz(double v) 
 	{
 		m_dz=v;
@@ -23,11 +23,11 @@ public:
 //		std::cout<<" GVXY setting point "<<p.x()<<" "<<p.y()<<std::endl;
 		m_points.push_back(p);
 	}
-	int NrOfPoints() {return m_points.size();}
-	TwoPoint GetPoint(int i) {return m_points[i];}
-	double GetDz() {return m_dz;}
-	void CreateVolume();
-	void CreateSolid();
+	int NrOfPoints() const {return m_points.size();}
+	TwoPoint GetPoint(int i) const {return m_points[i];}
+	double GetDz() const {return m_dz;}
+        virtual void CreateVolume (const AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 	double m_dz;
 	std::vector<TwoPoint> m_points;
