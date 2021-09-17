@@ -184,6 +184,7 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
 def addReSimulationSubstep(executorSet):
     SimExe = athenaExecutor(name = 'ReSim',
                             skeletonFile = 'SimuJobTransforms/skeleton.ReSim.py',
+                            skeletonCA = 'SimuJobTransforms.ReSimulation_Skeleton',
                             substep = 'rsm',
                             tryDropAndReload = False,
                             perfMonFile = 'ntuple.pmon.gz',

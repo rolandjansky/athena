@@ -69,7 +69,7 @@ then
     status=$rc2
     mv log.EVNTtoHITS log.EVNTtoHITS.CG
 fi
-echo "art-result: $rc1 simulation CG"
+echo "art-result: $rc2 simulation CG"
 
 rc3=-9999
 if [ $rc2 -eq 0 ]
