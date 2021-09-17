@@ -88,6 +88,8 @@ def createDigitizationCfgFlags():
     # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
     flags.addFlag("Digitization.TRTRangeCut",
                   lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
+    # Temporary TGC flag
+    flags.addFlag("Digitization.UseUpdatedTGCConditions", False)
     # Write out truth information?
     flags.addFlag("Digitization.TruthOutput", False)
     # Write out calorimeter digits

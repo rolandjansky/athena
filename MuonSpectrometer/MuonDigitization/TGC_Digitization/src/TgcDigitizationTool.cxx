@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -65,8 +65,9 @@ StatusCode TgcDigitizationTool::initialize()
   if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
-  // Initialize ReadHandleKey
+  // Initialize Read(Cond)HandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_readCondKey_ASDpos.initialize(!m_readCondKey_ASDpos.empty()));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -102,7 +103,7 @@ StatusCode TgcDigitizationTool::initialize()
   m_digitizer = new TgcDigitMaker(m_hitIdHelper,
                                   m_mdManager,
                                   runperiod);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
 
   ATH_CHECK(m_digitizer->initialize());
@@ -130,7 +131,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
 					  bSubEvents, eSubEvents).isSuccess()) &&
-        hitCollList.size() == 0) {
+            hitCollList.empty()) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
@@ -142,7 +143,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList::iterator endColl(hitCollList.end());
 
   // Iterating over the list of collections
-  for( ; iColl != endColl; iColl++){
+  for( ; iColl != endColl; ++iColl){
 
     TGCSimHitCollection *hitCollPtr = new TGCSimHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
@@ -168,7 +169,7 @@ StatusCode TgcDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
-  m_thpcTGC = 0;
+  m_thpcTGC = nullptr;
 
   std::list<TGCSimHitCollection*>::iterator TGCHitColl    = m_TGCHitCollList.begin();
   std::list<TGCSimHitCollection*>::iterator TGCHitCollEnd = m_TGCHitCollList.end();
@@ -191,7 +192,7 @@ StatusCode TgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
-  m_thpcTGC = 0;
+  m_thpcTGC = nullptr;
   return StatusCode::SUCCESS;
 }
 
@@ -200,7 +201,7 @@ StatusCode TgcDigitizationTool::finalize() {
   ATH_MSG_DEBUG("finalize.");
 
   delete m_digitizer;
-  m_digitizer = 0;
+  m_digitizer = nullptr;
 
   return StatusCode::SUCCESS;
 }
@@ -213,7 +214,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
   m_thpcTGC = nullptr;
   
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<TGCSimHitCollection>::type;
   
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
@@ -238,7 +239,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
     ATH_MSG_FATAL("Could not fill TimedHitCollList"); 
     return StatusCode::FAILURE;
   }
-  if(hitCollList.size()==0) {
+  if(hitCollList.empty()) {
     ATH_MSG_FATAL("TimedHitCollList has size 0"); 
     return StatusCode::FAILURE;
   } else {
@@ -282,6 +283,13 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
   // get the iterator pairs for this DetEl
   //iterate over hits and fill id-keyed drift time map
   IdContext tgcContext = m_idHelper->module_context();
+
+  // Read needed conditions data
+  const TgcDigitASDposData *ASDpos{};
+  if (!m_readCondKey_ASDpos.empty()) {
+    SG::ReadCondHandle<TgcDigitASDposData> readHandle_ASDpos{m_readCondKey_ASDpos, ctx};
+    ASDpos = readHandle_ASDpos.cptr();
+  }
   
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
   while(m_thpcTGC->nextDetectorElement(i, e)) {
@@ -293,7 +301,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, rndmEngine);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, rndmEngine);
 
       if(!digiHits) continue;
 
@@ -355,7 +363,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 			    << m_idHelper->show_to_string(newDigiId, &context) 
 			    << " BC tag = " << newBcTag);  
 	      delete newDigit; 
-	      newDigit = 0;
+	      newDigit = nullptr;
 	      break;
 	    }
 	  }
@@ -397,7 +405,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 	
       }
       delete digiHits;
-      digiHits = 0;
+      digiHits = nullptr;
     }//while(i != e)
   }//while(m_thpcTGC->nextDetectorElement(i, e))
 
