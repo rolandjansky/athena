@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromAmdc.h"
@@ -203,7 +203,7 @@ if (Ifound == 1 ){
 
       DbVar = "JTYP"    ; DbVarComment="AMDB STATION TYPE"                  ; iDbVal = DB_JTYP                                    ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "TYP"     ; DbVarComment="AMDB STATION NAME"	            ; sDbVal = sDbVal = pAmdcsimrec->StationName(DB_JTYP) ; pAmdcDbRecord->addString(DbVar,DbVarComment,sDbVal);
+      DbVar = "TYP"     ; DbVarComment="AMDB STATION NAME"	            ; sDbVal = pAmdcsimrec->StationName(DB_JTYP) ; pAmdcDbRecord->addString(DbVar,DbVarComment,sDbVal);
 
 //DRING: What is it? This a guess     						        
       DbVar = "NSTA"    ; DbVarComment="NUMBER OF STATIONS OF THIS TYPE"    ; iDbVal = iDbVal_NSTA                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
