@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,7 @@ RpcConditionPar::RpcConditionPar()
 RpcConditionPar::~RpcConditionPar()
 { }
 
-void RpcConditionPar::setParametersPanel(std::string info_panel, std::string info_strip)
+void RpcConditionPar::setParametersPanel(const std::string& info_panel, const std::string& info_strip)
 {
   m_info_panel	= info_panel;
   m_info_strip	= info_strip;
