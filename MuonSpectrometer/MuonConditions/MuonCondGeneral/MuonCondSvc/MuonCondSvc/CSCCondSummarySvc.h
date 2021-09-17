@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCONDSUMMARYSVC_H
@@ -22,7 +22,7 @@
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 
-class CSCCondSummarySvc: virtual public ICSCConditionsSvc, public AthService {
+class ATLAS_NOT_THREAD_SAFE CSCCondSummarySvc: virtual public ICSCConditionsSvc, public AthService {
   friend class SvcFactory<CSCCondSummarySvc>;
 public:
 

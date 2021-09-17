@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_TRIGGERCOOLSVC_H
@@ -31,7 +31,7 @@
 template <class TYPE> class SvcFactory;
 namespace MuonCalib {
 
-  class TriggerCoolSvc : public AthService, virtual public ITriggerCoolSvc
+  class ATLAS_NOT_THREAD_SAFE TriggerCoolSvc : public AthService, virtual public ITriggerCoolSvc
 {
   
  friend class SvcFactory<TriggerCoolSvc>; 
@@ -65,16 +65,9 @@ namespace MuonCalib {
   StoreGateSvc* p_detstore;
   
  
-  mutable MsgStream m_log;
-  
   /**Cool folder name*/
   std::string m_etafolder;
   std::string m_phifolder;
-
-  bool m_debugLevel;
-  
-    
-  
 };
 
 

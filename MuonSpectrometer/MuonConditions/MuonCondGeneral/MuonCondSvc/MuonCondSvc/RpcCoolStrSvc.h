@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCCOOLSTRSVC_H
@@ -41,7 +41,7 @@ namespace MuonCalib {
 
   class RpcCalibDBEntry;
 
-  class RpcCoolStrSvc : public AthService, virtual public RpcICoolStrSvc
+  class ATLAS_NOT_THREAD_SAFE RpcCoolStrSvc : public AthService, virtual public RpcICoolStrSvc
   {
    friend class SvcFactory<RpcCoolStrSvc>;
 

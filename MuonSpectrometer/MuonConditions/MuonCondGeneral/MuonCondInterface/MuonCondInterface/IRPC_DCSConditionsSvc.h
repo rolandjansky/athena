@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IRPC_DCSCONDITIONSSVC_H
@@ -21,7 +21,7 @@ class StatusCode;
 
 
 
-class IRPC_DCSConditionsSvc : virtual public IRPCConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE IRPC_DCSConditionsSvc : virtual public IRPCConditionsSvc {
   
 
 public:
