@@ -18,6 +18,7 @@ def SimEventFilterCfg(flags, name="ISF_SimEventFilter", sequenceName='SimSequenc
     return result
 
 def InvertedSimEventFilterCfg(flags, name="ISF_InvertedSimEventFilter", sequenceName='CopyHitSequence', **kwargs):
+    kwargs.setdefault("FilterKey", "ISF_InvertedSimEventFilter")
     kwargs.setdefault("InvertFilter", True)
     return SimEventFilterCfg(flags, name, sequenceName, **kwargs)
 

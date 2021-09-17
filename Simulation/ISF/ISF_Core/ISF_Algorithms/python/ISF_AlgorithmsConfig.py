@@ -60,6 +60,7 @@ def getSimEventFilter(name="ISF_SimEventFilter", **kwargs):
     return simEventFilter
 
 def getInvertedSimEventFilter(name="ISF_InvertedSimEventFilter", **kwargs):
+    kwargs.setdefault("FilterKey", "ISF_InvertedSimEventFilter")
     kwargs.setdefault("InvertFilter", True)
     return getSimEventFilter(name, **kwargs)
 
