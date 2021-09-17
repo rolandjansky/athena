@@ -1142,6 +1142,7 @@ QStringList AscObj_TSOS::clicked()
       std::ostringstream s;
       s << *(surface());
       l << QString(s.str().c_str()).split('\n');
+      s << "Identfier:"<<surface()->associatedDetectorElementIdentifier();
     }
   }
 

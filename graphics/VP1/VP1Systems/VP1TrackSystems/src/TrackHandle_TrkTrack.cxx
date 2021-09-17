@@ -387,3 +387,28 @@ const Trk::FitQuality* TrackHandle_TrkTrack::getFitQuality() const {
   return m_trk ? m_trk->fitQuality ():nullptr;
 }
 
+bool TrackHandle_TrkTrack::containsDetElement(const QString &id) const
+{
+  VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement looking for " + id);
+  IDENTIFIER_TYPE tmpInt = id.toLong(nullptr,10);
+  IDENTIFIER_TYPE tmpInt2 = id.toLong(nullptr,16);
+
+  VP1Msg::messageVerbose("TrackHandle_TrkTrack::looping over TSOS ");
+
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trkTrackPointer()->trackStateOnSurfaces()->begin(),
+                                                             itE = trkTrackPointer()->trackStateOnSurfaces()->end();
+  for (; it != itE; ++it)
+  {
+    // Still debugging, so leaving this in for now...
+    // std::cout<<(*it)->surface().associatedDetectorElementIdentifier()<<std::endl;      
+    if ((*it)->surface().associatedDetectorElementIdentifier()==tmpInt) {
+      VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement FOUND " + id + "!");
+      return true;  
+    }
+    if ((*it)->surface().associatedDetectorElementIdentifier()==tmpInt2) {
+      VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement FOUND 2 " + id + "!");
+      return true;  
+    }
+  }
+  return false;
+}
