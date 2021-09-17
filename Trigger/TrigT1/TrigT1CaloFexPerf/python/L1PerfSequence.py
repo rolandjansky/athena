@@ -125,7 +125,13 @@ def setupRun3L1CaloPerfSequence(skipCTPEmulation = False,  useAlgSequence=True, 
         svcMgr.ToolSvc += theBCIDTool
         #from TrigT1CaloFexPerf.TrigT1CaloFexPerfConf SCEmulation
         import AthenaCommon.CfgMgr as CfgMgr
-        l1simAlgSeq +=  CfgMgr.LVL1__SCEmulation(OutputSuperCells = "SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool)
+        # run different SCEmulation algorithm depending whether data or MC are run (only small difference in 
+        if (simflags.Calo.isMC):
+            l1simAlgSeq +=  CfgMgr.LVL1__SCEmulation(OutputSuperCells = "SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool)
+            print "Running emulation on MC."
+        else:
+            l1simAlgSeq +=  CfgMgr.LVL1__SCEmulationData(OutputSuperCells = "SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool)
+            print "Running emulation on data."
         SCIn="SimpleSCellNoBCID"
         if(simflags.Calo.ApplyEmulatedPedestal() == True):
             from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SuperCellBCIDEmAlg
