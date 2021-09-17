@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
@@ -98,6 +98,24 @@ void LArWheelCalculator::fill_sincos_parameterization()
       m_sin_parametrization[i] = sin_parametrization[S][i];
       m_cos_parametrization[i] = cos_parametrization[S][i];
     }
+
+    // Parameterization for the vectorized sincos calculation
+    // see ATLASSIM-4753 for details
+    // s4, s5, c4, c5
+    // s2, s3, c2, c3
+    // s0, s1, c0, c1
+    m_vsincos_par.param_0[0] = m_sin_parametrization[4];
+    m_vsincos_par.param_0[1] = m_sin_parametrization[5];
+    m_vsincos_par.param_0[2] = m_cos_parametrization[4];
+    m_vsincos_par.param_0[3] = m_cos_parametrization[5];
+    m_vsincos_par.param_1[0] = m_sin_parametrization[2];
+    m_vsincos_par.param_1[1] = m_sin_parametrization[3];
+    m_vsincos_par.param_1[2] = m_cos_parametrization[2];
+    m_vsincos_par.param_1[3] = m_cos_parametrization[3];
+    m_vsincos_par.param_2[0] = m_sin_parametrization[0];
+    m_vsincos_par.param_2[1] = m_sin_parametrization[1];
+    m_vsincos_par.param_2[2] = m_cos_parametrization[0];
+    m_vsincos_par.param_2[3] = m_cos_parametrization[1];
     return;
   }
 
@@ -139,6 +157,23 @@ void LArWheelCalculator::fill_sincos_parameterization()
     cos_parametrization[S][i] = params_cos[i];
   }
 
+  // Parameterization for the vectorized sincos calculation
+  // see ATLASSIM-4753 for details
+  // s4, s5, c4, c5
+  // s2, s3, c2, c3
+  // s0, s1, c0, c1
+  m_vsincos_par.param_0[0] = m_sin_parametrization[4];
+  m_vsincos_par.param_0[1] = m_sin_parametrization[5];
+  m_vsincos_par.param_0[2] = m_cos_parametrization[4];
+  m_vsincos_par.param_0[3] = m_cos_parametrization[5];
+  m_vsincos_par.param_1[0] = m_sin_parametrization[2];
+  m_vsincos_par.param_1[1] = m_sin_parametrization[3];
+  m_vsincos_par.param_1[2] = m_cos_parametrization[2];
+  m_vsincos_par.param_1[3] = m_cos_parametrization[3];
+  m_vsincos_par.param_2[0] = m_sin_parametrization[0];
+  m_vsincos_par.param_2[1] = m_sin_parametrization[1];
+  m_vsincos_par.param_2[2] = m_cos_parametrization[0];
+  m_vsincos_par.param_2[3] = m_cos_parametrization[1];
   filled[S] = true;
 
   // FIXME: nothing below is needed unless debug printing
@@ -156,7 +191,17 @@ void LArWheelCalculator::fill_sincos_parameterization()
   for(double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.){
     CxxUtils::sincos scalpha(parameterized_slant_angle(r));
     double sin_a, cos_a;
+    double sin_a_v, cos_a_v;
     parameterized_sincos(r, sin_a, cos_a);
+    m_vsincos_par.eval(r, sin_a_v, cos_a_v);
+#if DEBUGPRINT
+    std::streamsize ss = std::cout.precision();
+    std::cout.precision(16);
+    std::cout << "def: " << r << " " << sin_a << " " << cos_a << std::endl;
+    std::cout << "vec: " << r << " " << sin_a_v << " " << cos_a_v << std::endl;
+    std::cout << "dif: " << r << " " << (sin_a - sin_a_v) / sin_a << " " << (cos_a - cos_a_v) / cos_a << std::endl;
+    std::cout.precision(ss);
+#endif
     double ds = fabs(scalpha.sn - sin_a);
     if(ds > dsin){
       dsin = ds;
