@@ -67,11 +67,11 @@ namespace Muon {
             return StatusCode::SUCCESS;
         }
 
-        std::string truthSegmentContainerName = m_muonTruthSegmentContainerName.key();
-        int ppos = truthSegmentContainerName.find(".");
+        std::string truthSegmentContainerName (m_muonTruthSegmentContainerName.key());
+        int ppos = truthSegmentContainerName.find('.');
         truthSegmentContainerName = truthSegmentContainerName.substr(0, ppos);
-        std::string segmentCollectionName = m_muonSegmentCollectionName.key();
-        ppos = segmentCollectionName.find(".");
+        std::string segmentCollectionName( m_muonSegmentCollectionName.key());
+        ppos = segmentCollectionName.find('.');
         segmentCollectionName = segmentCollectionName.substr(0, ppos);
 
         std::vector<const Muon::MuonSegment*> muonSegments;

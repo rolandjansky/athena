@@ -29,10 +29,10 @@ public:
     
     virtual ~MdtCondDbData() = default;
 
-    void setDeadTube      (const std::string&, Identifier);
-    void setDeadLayer     (const std::string&, Identifier);
-    void setDeadMultilayer(const std::string&, Identifier);
-    void setDeadStation   (const std::string&, Identifier);
+    void setDeadTube      (std::string_view, Identifier);
+    void setDeadLayer     (std::string_view, Identifier);
+    void setDeadMultilayer(std::string_view, Identifier);
+    void setDeadStation   (std::string_view, Identifier);
     void setDeadChamber   (Identifier);
 
     void setNoisyTube      (Identifier);

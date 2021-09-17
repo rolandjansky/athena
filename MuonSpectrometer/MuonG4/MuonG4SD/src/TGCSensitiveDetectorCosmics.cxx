@@ -102,7 +102,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       } else {
         zside = -1;
       }
-      if (stationName.substr(2,1) == "F") {
+      if (stationName.compare(2,1, "F") == 0) {
 
         stationPhi    = (abs(volCopyNo%100)-1)*3;
         if (abs(volCopyNo/100) > 3) {
@@ -116,8 +116,8 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
           stationPhi = 24 - stationPhi;
         }
 
-      } else if (stationName.substr(2,1) == "E") {
-        if (stationName.substr(1,1) == "4") {
+      } else if (stationName.compare(2,1,"E") == 0) {
+        if (stationName.compare(1,1,"4") == 0) {
 
           stationPhi = (abs(volCopyNo%100)-1)*3+abs(volCopyNo/100);
 
@@ -168,7 +168,6 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
 
-      std::string currentTech = volName.substr(0,4);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
 
       if (volCopyNo != 0)

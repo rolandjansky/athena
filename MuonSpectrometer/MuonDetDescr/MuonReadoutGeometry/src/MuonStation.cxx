@@ -18,12 +18,12 @@
 
 namespace MuonGM {
 
-MuonStation::MuonStation(std::string stName,
+MuonStation::MuonStation(std::string_view stName,
                          double Ssize, double Rsize, double Zsize,
                          double LongSsize, double LongRsize, double LongZsize, int zi, int fi, 
                          bool descratzneg)
 {
-  m_statname    = std::move(stName);
+  m_statname    = std::string(stName);
   m_Ssize       = Ssize      ;
   m_Rsize       = Rsize      ;
   m_Zsize       = Zsize      ;

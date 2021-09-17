@@ -69,11 +69,11 @@ public:
     // Identifier builders
 
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
     Identifier elementID(const Identifier& channelID) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int gasGap, int isStrip, int channel, bool check = false,
                          bool* isValid = 0) const;
-    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
+    Identifier channelID(std::string_view stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
                          bool check = false, bool* isValid = 0) const;
     Identifier channelID(const Identifier& id, int gasGap, int isStrip, int channel, bool check = false, bool* isValid = 0) const;
 

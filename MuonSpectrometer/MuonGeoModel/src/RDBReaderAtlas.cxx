@@ -460,29 +460,29 @@ namespace MuonGM {
                 Component *c = station->GetComponent(ic);
                 if (c == NULL)
                     continue;
-                std::string cname = c->name;
+                const std::string &cname = c->name;
 
-                if (cname.substr(0, 3) == "CSC")
+                if (cname.compare(0, 3, "CSC") == 0)
                     MuonGM::ProcessCSC(m_dhwcsc, m_wcsc, cname);
-                else if (cname.substr(0, 3) == "MDT")
+                else if (cname.compare(0, 3, "MDT") == 0)
                     MuonGM::ProcessMDT(m_dhwmdt, m_wmdt, cname);
-                else if (cname.substr(0, 3) == "RPC")
+                else if (cname.compare(0, 3, "RPC") == 0)
                     MuonGM::ProcessRPC(m_dhwrpc, m_wrpc, m_dhwrpcall, m_wrpcall, cname);
-                else if (cname.substr(0, 3) == "TGC")
+                else if (cname.compare(0, 3, "TGC") == 0)
                     MuonGM::ProcessTGC(m_dhwtgc, m_wtgc, m_dhwtgcall, m_wtgcall, cname);
-                else if (cname.substr(0, 3) == "SPA")
+                else if (cname.compare(0, 3, "SPA") == 0)
                     MuonGM::ProcessSPA(m_dhwspa, m_wspa, cname);
-                else if (cname.substr(0, 3) == "DED")
+                else if (cname.compare(0, 3, "DED") == 0)
                     MuonGM::ProcessDED(m_dhwded, m_wded, cname);
-                else if (cname.substr(0, 3) == "SUP")
+                else if (cname.compare(0, 3, "SUP") == 0)
                     MuonGM::ProcessSUP(m_dhwsup, m_wsup, cname);
-                else if (cname.substr(0, 3) == "CHV" && have_spa_details)
+                else if (cname.compare(0, 3, "CHV") == 0 && have_spa_details)
                     MuonGM::ProcessCHV(m_dhwchv, m_wchv, cname);
-                else if (cname.substr(0, 3) == "CRO" && have_spa_details)
+                else if (cname.compare(0, 3, "CRO") == 0 && have_spa_details)
                     MuonGM::ProcessCRO(m_dhwcro, m_wcro, cname);
-                else if (cname.substr(0, 3) == "CMI" && have_spa_details)
+                else if (cname.compare(0, 3, "CMI") == 0 && have_spa_details)
                     MuonGM::ProcessCMI(m_dhwcmi, m_wcmi, cname);
-                else if (cname.substr(0, 2) == "LB" && have_spa_details)
+                else if (cname.compare(0, 2, "LB") == 0 && have_spa_details)
                     MuonGM::ProcessLBI(m_dhwlbi, m_wlbi, cname);
             }
         }
@@ -520,9 +520,8 @@ namespace MuonGM {
                     std::vector<float> iwgs1(180), iwgs2(180), iwgs3(180);
 
                     for (int i = 0; i < 3; i++) {
-                        std::ostringstream Astr;
-                        Astr << "_" << i;
-                        std::string A = Astr.str();
+                        std::string A("_");
+                        A+= std::to_string(i);
                         nwgs.push_back((*ggcd)[ich]->getDouble("NWGS" + A));
                         roffst.push_back((*ggcd)[ich]->getDouble("ROFFST" + A));
                         poffst.push_back((*ggcd)[ich]->getDouble("POFFST" + A));
@@ -530,24 +529,21 @@ namespace MuonGM {
                     }
 
                     for (int i = 0; i < nwgs[0]; i++) {
-                        std::ostringstream Astr;
-                        Astr << "_" << i;
-                        std::string A = Astr.str();
+                        std::string A("_");
+                        A+= std::to_string(i);
                         // float xxx = (*ggcd)[ich]->getDouble("IWGS1"+A);
                         iwgs1[i] = (float)(*ggcd)[ich]->getDouble("IWGS1" + A);
                     }
 
                     for (int i = 0; i < nwgs[1]; i++) {
-                        std::ostringstream Astr;
-                        Astr << "_" << i;
-                        std::string A = Astr.str();
+                        std::string A("_");
+                        A+= std::to_string(i);
                         iwgs2[i] = (float)(*ggcd)[ich]->getDouble("IWGS2" + A);
                     }
 
                     for (int i = 0; i < nwgs[2]; i++) {
-                        std::ostringstream Astr;
-                        Astr << "_" << i;
-                        std::string A = Astr.str();
+                        std::string A("_");
+                        A+= std::to_string(i);
                         iwgs3[i] = (float)(*ggcd)[ich]->getDouble("IWGS3" + A);
                     }
 
@@ -597,9 +593,8 @@ namespace MuonGM {
                 std::vector<float> iwgs1(130), iwgs2(130), iwgs3(130), slarge(33), sshort(33);
 
                 for (int i = 0; i < 3; i++) {
-                    std::ostringstream Astr;
-                    Astr << "_" << i;
-                    std::string A = Astr.str();
+                    std::string A("_");
+                    A+= std::to_string(i);
                     nwgs.push_back((*ggln)[ich]->getInt("NWGS" + A));
                     roffst.push_back((*ggln)[ich]->getInt("ROFFST" + A));
                     // poffst.push_back((*ggln)[ich]->getInt("POFFST"+A));
@@ -608,24 +603,21 @@ namespace MuonGM {
                 }
 
                 for (int i = 0; i < nwgs[0]; i++) {
-                    std::ostringstream Astr;
-                    Astr << "_" << i;
-                    std::string A = Astr.str();
+                    std::string A("_");
+                    A+= std::to_string(i);
                     // float xxx = (*ggln)[ich]->getInt("IWGS1"+A);
                     iwgs1[i] = (float)(*ggln)[ich]->getInt("IWGS1" + A);
                 }
 
                 for (int i = 0; i < nwgs[1]; i++) {
-                    std::ostringstream Astr;
-                    Astr << "_" << i;
-                    std::string A = Astr.str();
+                    std::string A("_");
+                    A+= std::to_string(i);
                     iwgs2[i] = (float)(*ggln)[ich]->getInt("IWGS2" + A);
                 }
 
                 for (int i = 0; i < nwgs[2]; i++) {
-                    std::ostringstream Astr;
-                    Astr << "_" << i;
-                    std::string A = Astr.str();
+                    std::string A("_");
+                    A+= std::to_string(i);
                     iwgs3[i] = (float)(*ggln)[ich]->getInt("IWGS3" + A);
                 }
 
@@ -633,9 +625,8 @@ namespace MuonGM {
                 float pdist = (*ggln)[ich]->getFloat("PDIST");
 
                 for (int i = 0; i < nsps[0] + 1; i++) {
-                    std::ostringstream Astr;
-                    Astr << "_" << i;
-                    std::string A = Astr.str();
+                    std::string A("_");
+                    A+= std::to_string(i);
                     slarge[i] = (float)(*ggln)[ich]->getFloat("SLARGE" + A);
                     sshort[i] = (float)(*ggln)[ich]->getFloat("SHORT" + A);
                 }

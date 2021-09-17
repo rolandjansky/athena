@@ -262,12 +262,12 @@ int TgcReadoutElement::chamberType() const
 
 bool TgcReadoutElement::endcap() const
 {
-    return ("E" == stationType().substr(2,1));
+    return (0 == stationType().compare(2,1,"E"));
 }
 
 bool TgcReadoutElement::forward() const
 {
-    return ("F" == stationType().substr(2,1));
+    return (0 == stationType().compare(2,1,"F"));
 }
 
 bool TgcReadoutElement::doublet() const
@@ -484,7 +484,7 @@ float TgcReadoutElement::stripDeltaPhi(int gasGap) const
   float dphi;
 
   int iStation = atoi(getStationType().substr(1,1).c_str());
-  if (iStation != 4 || "E" != getStationType().substr(2,1)) { // except for station T4E
+  if (iStation != 4 || 0 != getStationType().compare(2,1,"E")) { // except for station T4E
     dphi = 360.*CLHEP::degree/((float) getNPhiChambers())/nDivInChamberPhi[iStation-1];
   }
   else { // T4E

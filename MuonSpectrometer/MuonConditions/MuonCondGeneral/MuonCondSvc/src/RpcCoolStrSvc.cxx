@@ -23,6 +23,7 @@
 #include "MuonCondData/RpcCalibDBEntry.h"
 #include "MuonCondData/RpcCalibDataContainer.h"
 #include "MuonCondSvc/RpcCoolStrSvc.h"
+#include "MuonCondSvc/MdtStringUtils.h"
 
 namespace MuonCalib {
 
@@ -130,9 +131,10 @@ namespace MuonCalib {
 
     while (getline(in, theLine)) { // Reads all lines
 
-      int delimiter=theLine.find(";");
-      Identifier gapID(atoi(theLine.substr(0,delimiter).c_str()));
-      std::string payLoad=theLine.substr(delimiter+2,theLine.size()-delimiter-2);
+      int delimiter=theLine.find(';');
+      std::string_view lineview(theLine);
+      Identifier gapID(MuonCalib::MdtStringUtils::atoi(lineview.substr(0,delimiter)));
+      std::string_view payLoad=lineview.substr(delimiter+2,theLine.size()-delimiter-2);
 
 
       const RpcCalibDBEntry* newEntry=new RpcCalibDBEntry(gapID, payLoad);

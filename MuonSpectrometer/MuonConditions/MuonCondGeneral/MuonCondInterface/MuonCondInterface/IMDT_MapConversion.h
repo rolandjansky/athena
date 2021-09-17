@@ -27,7 +27,7 @@ class IMDT_MapConversion: virtual public IAlgTool{
    static const InterfaceID& interfaceID() {return IID_IMDT_MapConversion;};
 
  
-   virtual const Identifier& ConvertToOffline(const std::string &OnlineId,
+   virtual const Identifier& ConvertToOffline(std::string_view OnlineId,
                                               bool quiet = false) const =0;
   
 };

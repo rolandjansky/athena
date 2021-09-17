@@ -6,7 +6,7 @@
 
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-
+#include "MuonCondSvc/MdtStringUtils.h"
 
 //Tool to impliment a set of cuts on an Identifier, and then determine if a given ID is in that set
 
@@ -72,15 +72,15 @@ StatusCode MuonIdCutTool::initialize() {
   int max = m_EELList.size();
   
   for(int i=0;i<max;i++){
-    std::string cut = m_EELList[i];
+    std::string_view cut = m_EELList[i];
     ATH_MSG_DEBUG( "EEL String: "  << cut  );
     size_t length = cut.size();
     size_t loc = cut.find('/');
     if (loc!=std::string::npos){
-      std::string etaString = cut.substr(0,loc);
-      std::string sectorString = cut.substr(loc+1,length-loc-1);
-      int eta = atoi(etaString.c_str());
-      int sector = atoi(sectorString.c_str());
+      std::string_view etaString = cut.substr(0,loc);
+      std::string_view sectorString = cut.substr(loc+1,length-loc-1);
+      int eta =   MuonCalib::MdtStringUtils::atoi(etaString);
+      int sector =  MuonCalib::MdtStringUtils::atoi(sectorString);
 
       ATH_MSG_DEBUG( "EEL eta/phi string: "<< etaString << " " << sectorString  );
       ATH_MSG_DEBUG( "EEL eta/phi int: "<< eta << " " << sector  );

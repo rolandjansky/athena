@@ -117,7 +117,7 @@ namespace MuonGM {
       public:
         virtual StatusCode ProcessDB() { return StatusCode::SUCCESS; };
         void setGeometryVersion(std::string s);
-        std::string getGeometryVersion() const;
+        const std::string& getGeometryVersion() const;
         void setManager(MuonDetectorManager *detmgr) { m_mgr = detmgr; };
 
         virtual ~DBReader(){};
@@ -161,7 +161,7 @@ namespace MuonGM {
         nmdt++;
 
         for (unsigned int i = 0; i < dhwmdt->size(); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wmdt[i].iw, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wmdt[i].iw, 2)) == 0) {
                 mdt->numOfLayers = wmdt[i].laymdt;
                 mdt->innerRadius = wmdt[i].tubrad * Gaudi::Units::cm;
                 mdt->totalThickness = wmdt[i].tubsta * Gaudi::Units::cm;
@@ -263,7 +263,7 @@ namespace MuonGM {
         int nStruct = dhwrpc->size();
         bool done = false;
         for (unsigned int i = 0; (i < dhwrpc->size() && !done); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wrpc[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wrpc[i].jsta, 2)) == 0) {
                 if (RPCprint) {
                     log << MSG::INFO << " ProcessRPC " << s << " index " << i << " jsta =" << wrpc[i].jsta << " strings comparison:: <" << s.substr(3, s.size() - 3) << ">=<"
                         << MuonGM::buildString(wrpc[i].jsta, 2) << ">" << endmsg;
@@ -328,7 +328,7 @@ namespace MuonGM {
         double p, t;
 
         for (unsigned int i = 0; i < dhwtgcall->size(); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wtgcall[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3,MuonGM::buildString(wtgcall[i].jsta, 2)) ==0 ) {
                 tgc->nlayers = wtgcall[i].nbevol;
                 tgc->thickness = wtgcall[i].widchb * Gaudi::Units::cm;
                 tgc->frame_h = wtgcall[i].fwirch * Gaudi::Units::cm;
@@ -388,7 +388,7 @@ namespace MuonGM {
         std::string tname = s;
         while (tname != "XXXXX") {
             for (unsigned int i = 0; i < dhwcsc->size(); i++) {
-                if (tname.substr(3, s.size() - 3) == MuonGM::buildString(wcsc[i].jsta, 2)) {
+                if (tname.compare(3, s.size() - 3, MuonGM::buildString(wcsc[i].jsta, 2)) == 0) {
                     csc->numOfLayers = wcsc[i].laycsc;
                     csc->totalThickness = wcsc[i].ttotal * Gaudi::Units::cm;
                     csc->thickness = csc->totalThickness;
@@ -478,7 +478,7 @@ namespace MuonGM {
         nspa++;
 
         for (unsigned int i = 0; i < dhwspa->size(); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wspa[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wspa[i].jsta, 2)) == 0) {
                 spa->thickness = wspa[i].tckspa * Gaudi::Units::cm;
             }
         }
@@ -494,10 +494,10 @@ namespace MuonGM {
         nsup++;
 
         for (unsigned int i = 0; i < dhwsup->size(); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wsup[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wsup[i].jsta, 2)) == 0) {
                 sup->alFlangeThickness = wsup[i].xxsup[0] * Gaudi::Units::cm;
 
-                if (s.substr(3, s.size() - 3) == "03") {
+                if (s.compare(3, s.size() - 3, "03") == 0) {
                     sup->alHorFlangeLength = (fabs)(wsup[i].zzsup[1]) * Gaudi::Units::cm;
                     sup->alVerFlangeLength = wsup[i].xxsup[1] * Gaudi::Units::cm - wsup[i].xxsup[0] * Gaudi::Units::cm;
                     sup->alVerProfileThickness = wsup[i].zzsup[3] * Gaudi::Units::cm;
@@ -544,7 +544,7 @@ namespace MuonGM {
         nded++;
 
         for (unsigned int i = 0; i < dhwded->size(); i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wded[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wded[i].jsta, 2)) == 0) {
                 // a lot of confusion in the various versions of the geometry in nova
                 ded->AlThickness = 0.3 * Gaudi::Units::mm;
                 ded->thickness = (wded[i].auphcb) * Gaudi::Units::cm;
@@ -565,7 +565,7 @@ namespace MuonGM {
         nchv++;
 
         for (int i = 0; i < nStruct; i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wchv[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wchv[i].jsta, 2)) == 0) {
                 chv->thickness = wchv[i].thickness * Gaudi::Units::cm;
                 chv->largeness = wchv[i].largeness * Gaudi::Units::cm;
                 chv->height = wchv[i].heightness * Gaudi::Units::cm;
@@ -584,7 +584,7 @@ namespace MuonGM {
         ncro++;
 
         for (int i = 0; i < nStruct; i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wcro[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wcro[i].jsta, 2)) == 0) {
                 cro->thickness = wcro[i].thickness * Gaudi::Units::cm;
                 cro->largeness = wcro[i].largeness * Gaudi::Units::cm;
                 cro->height = wcro[i].heightness * Gaudi::Units::cm;
@@ -603,7 +603,7 @@ namespace MuonGM {
         ncmi++;
 
         for (int i = 0; i < nStruct; i++) {
-            if (s.substr(3, s.size() - 3) == MuonGM::buildString(wcmi[i].jsta, 2)) {
+            if (s.compare(3, s.size() - 3, MuonGM::buildString(wcmi[i].jsta, 2)) == 0) {
                 cmi->thickness = wcmi[i].thickness * Gaudi::Units::cm;
                 cmi->largeness = wcmi[i].largeness * Gaudi::Units::cm;
                 cmi->height = wcmi[i].heightness * Gaudi::Units::cm;
@@ -622,7 +622,7 @@ namespace MuonGM {
         nlbi++;
 
         for (int i = 0; i < nStruct; i++) {
-            if (s.substr(2, s.size() - 2) == MuonGM::buildString(wlbi[i].jsta, 2)) {
+            if (s.compare(2, s.size() - 2, MuonGM::buildString(wlbi[i].jsta, 2)) == 0) {
                 lbi->thickness = wlbi[i].thickness * Gaudi::Units::cm;
                 lbi->height = wlbi[i].height * Gaudi::Units::cm;
                 lbi->lowerThickness = wlbi[i].lowerThickness * Gaudi::Units::cm;
@@ -708,7 +708,7 @@ namespace MuonGM {
                 halfpitch = default_halfpitch;
                 for (int icomp = 0; icomp < stat->GetNrOfComponents(); ++icomp) {
                     const Component *c = stat->GetComponent(icomp);
-                    if (c->name.substr(0, 3) != "MDT")
+                    if (c->name.compare(0, 3,"MDT") != 0)
                         continue;
                     MDT *mdtobj = (MDT *)mysql->GetATechnology(c->name);
                     if (!mdtobj) {
@@ -733,7 +733,7 @@ namespace MuonGM {
                 p.phi = aptp[ipos].dphi + double(phiindex) * 45.;
                 p.radius = aptp[ipos].r * Gaudi::Units::cm;
                 p.z = aptp[ipos].z * Gaudi::Units::cm;
-                if (p.zindex < 0 && name.substr(0, 1) == "B" && hasMdts)
+                if (p.zindex < 0 && name.compare(0, 1,"B") == 0 && hasMdts)
                     p.z = p.z - halfpitch;
                 p.shift = aptp[ipos].s * Gaudi::Units::cm;
                 if (verbose_posmap) {
@@ -954,7 +954,7 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcStations");
         log << MSG::INFO << " Processing Stations and Components" << endmsg;
 
-        std::string cartyp, cartec;
+        std::string  cartec;
         Station *stat = NULL, *previous_stat = NULL, *previous_stored = NULL;
 
         // control on new stations/subtypes
@@ -1037,7 +1037,7 @@ namespace MuonGM {
                 c = new TgcComponent;
             } else if (cartec == "CRO" || cartec == "CMI" || cartec == "CHV") {
                 c = new CbmComponent;
-            } else if (cartec.substr(0, 2) == "LB") {
+            } else if (cartec.compare(0, 2, "LB") == 0) {
                 c = new LbiComponent;
             } else {
                 c = new StandardComponent;
@@ -1074,7 +1074,7 @@ namespace MuonGM {
             } else if (cartec == "SPA") {
                 SpaComponent *derc = (SpaComponent *)c;
                 derc->maxwdy = derc->dy;
-                if (jtech == 6 && name.substr(0, 3) == "CSL") {
+                if (jtech == 6 && name.compare(0, 3, "CSL") == 0) {
                     derc->dy = 1129.20 * Gaudi::Units::mm; // AMDB-Q and CTB
                 }
             } else if (cartec == "MDT") {
@@ -1094,9 +1094,9 @@ namespace MuonGM {
                 // DHW 4 Feb 09 : no longer needed, read in above:   derc->iswap = 1;
             } else if (cartec == "DED") {
 
-            } else if (cartec == "SUP" || cartec == "TGC" || cartec == "CHV" || cartec == "CRO" || cartec == "CMI" || cartec.substr(0, 2) == "LB") {
+            } else if (cartec == "SUP" || cartec == "TGC" || cartec == "CHV" || cartec == "CRO" || cartec == "CMI" || cartec.compare(0, 2, "LB") == 0) {
 
-                if (cartec.substr(0, 2) == "LB") {
+                if (cartec.compare(0, 2, "LB") == 0) {
                     LbiComponent *derc = (LbiComponent *)c;
                     derc->associated_CMIsubtype = "";
                     if ((name == "BMF1" || name == "BMF2" || name == "BMF3" || name == "BMF4" || name == "BMF5" || name == "BMF6") && derc->name == "LB02") {

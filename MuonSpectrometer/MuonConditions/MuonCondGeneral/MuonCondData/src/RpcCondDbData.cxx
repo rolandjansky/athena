@@ -37,7 +37,7 @@ RpcCondDbData::setDeadStripInt(Identifier chamberId, int striplist){
 void
 RpcCondDbData::setDeadStripList(Identifier chamberId, std::string striplist){
     if(m_cachedDeadStripList.count(chamberId)) return;
-    m_cachedDeadStripList[chamberId] = striplist;
+    m_cachedDeadStripList[chamberId] = std::move(striplist);
 }
 
 // setEfficiency
@@ -115,7 +115,7 @@ RpcCondDbData::setProjectedTrack(Identifier chamberId, int projectedTracks){
 void
 RpcCondDbData::setStripTime(Identifier stripId, std::vector<double> time){
     if(m_cachedStripTime.count(stripId)) return;
-    m_cachedStripTime[stripId] = time;
+    m_cachedStripTime[stripId] = std::move(time);
 }
 
 
