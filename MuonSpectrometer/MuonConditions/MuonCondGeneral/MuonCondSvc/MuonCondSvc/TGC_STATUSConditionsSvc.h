@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_TGC_STATUSCONDITIONSSVC_H
@@ -38,7 +38,7 @@ class ITGC_STATUSConditionsTool;
 class IIOVSvc;
 
 
-class TGC_STATUSConditionsSvc : public AthService, virtual public ITGC_STATUSConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE TGC_STATUSConditionsSvc : public AthService, virtual public ITGC_STATUSConditionsSvc {
 
   friend class SvcFactory<TGC_STATUSConditionsSvc>;   
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ICSC_DCSCONDITIONSSVC_H
@@ -19,7 +19,7 @@ class IdentifierHash;
 class StatusCode;
 
 
-class ICSC_DCSConditionsSvc : virtual public ICSCConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE ICSC_DCSConditionsSvc : virtual public ICSCConditionsSvc {
 
 public:
 

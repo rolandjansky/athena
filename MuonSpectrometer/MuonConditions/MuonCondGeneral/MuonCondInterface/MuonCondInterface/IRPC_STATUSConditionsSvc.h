@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IRPC_STATUSCONDITIONSSVC_H
@@ -18,7 +18,7 @@ class Identifier;
 class IdentifierHash;
 class StatusCode;
 
-class IRPC_STATUSConditionsSvc : virtual public IRPCConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE IRPC_STATUSConditionsSvc : virtual public IRPCConditionsSvc {
   
 
 public:

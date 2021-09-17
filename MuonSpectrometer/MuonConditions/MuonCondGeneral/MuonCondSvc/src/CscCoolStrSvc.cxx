@@ -1008,13 +1008,12 @@ namespace MuonCalib {
           // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
           bool isValid = true;
           chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
-          static bool conversionFailPrinted = false;
+          static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
           if (!isValid) {
-            if (!conversionFailPrinted) {
+            if (!conversionFailPrinted.test_and_set()) {
               ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << asmIDstr
                                     << ". This is likely due to the fact that the CSCCool database contains more entries than "
                                     << "the detector layout.");
-              conversionFailPrinted = true;
             }
             continue;
           }
@@ -1197,13 +1196,12 @@ namespace MuonCalib {
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
     channelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
-    static bool conversionFailPrinted = false;
+    static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
     if (!isValid) {
-      if (!conversionFailPrinted) {
+      if (!conversionFailPrinted.test_and_set()) {
         ATH_MSG_WARNING("Failed to retrieve offline identifier from online identifier " << onlineId
                               << ". This is likely due to the fact that the CSCCool database contains more entries than "
                               << "the detector layout.");
-        conversionFailPrinted = true;
       }
       return StatusCode::FAILURE;
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCICOOLSTRSVC_H
@@ -13,6 +13,7 @@
 
 #include <string>
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace MuonCalib {
@@ -20,7 +21,7 @@ namespace MuonCalib {
     class RpcCalibData;
     class RpcCondParType;
 
-    class RpcICoolStrSvc : virtual public IInterface {
+    class ATLAS_NOT_THREAD_SAFE RpcICoolStrSvc : virtual public IInterface {
 
         public:
             static const InterfaceID& interfaceID();

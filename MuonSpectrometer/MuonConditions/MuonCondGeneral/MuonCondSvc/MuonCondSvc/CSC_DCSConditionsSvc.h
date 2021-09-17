@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSC_DCSCONDITIONSSVC_H
@@ -30,7 +30,7 @@ class StatusCode;
 class ICSC_DCSConditionsTool;
 class IIOVSvc;
 
-class CSC_DCSConditionsSvc : public AthService, virtual public ICSC_DCSConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE CSC_DCSConditionsSvc : public AthService, virtual public ICSC_DCSConditionsSvc {
 friend class SvcFactory<CSC_DCSConditionsSvc>;   
  public:
   CSC_DCSConditionsSvc (const std::string& name, ISvcLocator* pSvcLocator);
