@@ -31,9 +31,10 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
   ATH_CHECK(m_electronDNNTool.retrieve());
-
   for(const auto& cut:m_trigLevel)
     m_accept.addCut(cut,cut);
+
+
 
   return StatusCode::SUCCESS;
 }
@@ -629,59 +630,6 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::splitTriggerName(const std::string& trigger, 
-                                                  std::string &p1trigger, 
-                                                  std::string &p2trigger) const {
-
-  p1trigger="";
-  p2trigger="";
-
-  std::string hltinfo=trigger;
-  if(boost::contains(hltinfo,"HLT")) hltinfo.erase(0,4);
-  std::vector<std::string> strs;
-  boost::split(strs,hltinfo,boost::is_any_of("_"));
-
-  if((strs.at(0))[0]=='2'){
-    ((p1trigger+=("HLT_"+((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_"));
-
-    for(unsigned int i=1; i<strs.size();i++){
-      if(strs.at(i)=="Jpsiee") continue;
-      (p1trigger+="_")+=strs.at(i);
-    }
-
-    p2trigger=p1trigger;
-    return true;
-  }
-  else{
-
-    if(strs.size()<4){
-      return false;
-    }
-
-    int index=-1;
-    p1trigger+=("HLT_"+strs.at(0));
-
-    for(int i=1; index<0;i++)
-      {
-        (p1trigger+="_")+=strs.at(i);
-
-        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
-      }
-
-    p2trigger+=("HLT_"+strs.at(index));
-
-    for(unsigned int i=index+1; i< strs.size();i++){
-      if(strs.at(i)=="Jpsiee") continue;
-      (p2trigger+="_")+=strs.at(i);
-    }
-    return true;
-  }
-
-
-}
-
-
-
 void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string& trigger, 
                                                   const std::string& defaultPid,
                                                   bool &isL1,
@@ -748,7 +696,6 @@ void TrigEgammaMonitorBaseAlgorithm::parseTriggerName(const std::string& trigger
         }
 
         //Get the L1 information
-
         if(boost::contains(strs.back(),"L1")){
             std::string l1info = strs.back();
             l1info.erase(0,4);
@@ -791,17 +738,17 @@ std::string TrigEgammaMonitorBaseAlgorithm::getL1Item(const std::string& trigger
 }
 
 
+bool TrigEgammaMonitorBaseAlgorithm::isHLTTruncated() const {
+    return m_trigdec->ExperimentalAndExpertMethods().isHLTTruncated();
+}
+
+
 
 
 
 const std::vector<std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLevel = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};
 
-const std::map<std::string,std::string> TrigEgammaMonitorBaseAlgorithm::m_trigLvlMap = {{"L1Calo","Trigger L1Calo step"},
-                                                                                        {"L2Calo","Trigger L2Calo step"},
-                                                                                        {"L2","Trigger L2 step"},
-                                                                                        {"EFCalo","Trigger EFCalo step"},
-                                                                                        {"EFTrack","Trigger EFTrack step"},
-                                                                                        {"HLT","Trigger HLT accept"}};
+
 
 const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMap = { {"vloose"   , "loose"   },
                                                                                       {"loose"    , "loose"   },
@@ -818,5 +765,34 @@ const std::map<std::string, std::string> TrigEgammaMonitorBaseAlgorithm::m_pidMa
                                                                                       {"dnnmedium" , "dnnmedium"},
                                                                                       {"dnntight"  , "dnntight" } };
 
+//!=============================================================================
 
+// Define the parser
+#include "GaudiKernel/ParsersFactory.h"
+
+namespace Gaudi
+{
+  namespace Parsers
+  {
+    // Parse function... nothing special, but it must be done explicitely.
+    StatusCode parse( VecDict_t& result, const std::string& input ) { return parse_( result, input ); }
+  }
+}
+
+// We also need to be able to print an object of our type as a string that both
+// Python and our parser can understand,
+#include "GaudiKernel/ToStream.h"
+namespace std
+{
+  // This is an example valid for any mapping type.
+  ostream& operator<<( ostream& s, const Gaudi::Parsers::VecDict_t& vecDict )
+  {
+    s << '{';
+    for ( const auto& dict : vecDict ) {
+      Gaudi::Utils::toStream( dict, s );
+    }
+    s << '}';
+    return s;
+  }
+}
 
