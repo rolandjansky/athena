@@ -476,7 +476,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 178309087 || clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
+      if (clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
          toolInstName += "_" + keyName;
       }
       bool foundTool = false;
@@ -494,7 +494,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 178309087 || clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
+         if (clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
             IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
             if (property == nullptr) {
                ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
