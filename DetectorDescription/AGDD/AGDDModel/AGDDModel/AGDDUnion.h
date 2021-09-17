@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDUnion_H
@@ -12,9 +12,9 @@
 
 class AGDDUnion: public AGDDVolume {
 public:
-	AGDDUnion(std::string s):AGDDVolume(s) {}
-	void CreateVolume();
-	void CreateSolid();
+	AGDDUnion(const std::string& s):AGDDVolume(s) {}
+        virtual void CreateVolume (const AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 };
 

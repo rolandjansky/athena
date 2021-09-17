@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDBase/AGDDMicromegas.h"
@@ -26,14 +26,14 @@
 
 using MuonGM::MYSQL;
 
-AGDDMicromegas::AGDDMicromegas(std::string s): 
+AGDDMicromegas::AGDDMicromegas(const std::string& s): 
 	MMDetectorDescription(s),AGDDVolume(s,true)
 {
 	s_current=this;
 	Register();
 }
 
-void AGDDMicromegas::CreateSolid() 
+void AGDDMicromegas::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 //	std::cout<<"this is AGDDMicromegas::CreateSolid()"<<std::endl;
 //	void *p=GetSolid();
@@ -47,7 +47,7 @@ void AGDDMicromegas::CreateSolid()
 
 }
 
-void AGDDMicromegas::CreateVolume() 
+void AGDDMicromegas::CreateVolume (const AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMicromegas::CreateVolume()"<<std::endl;
 	
@@ -61,7 +61,7 @@ void AGDDMicromegas::CreateVolume()
 	MuonGM::Micromegas *cham=new MuonGM::Micromegas(mm_comp);
 	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
 
-	CreateSolid();
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{
