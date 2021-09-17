@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -233,13 +233,13 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
         // add holeIdentifiers - fill vector
 
-        const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack( *track );
+        std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack( *track ));
         if ( holes==0 ) continue; // no holes found
-        for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = holes->begin(); trackStatesIt != holes->end(); ++trackStatesIt ) {
+        for (const Trk::TrackStateOnSurface* trackStates : *holes) {
 
-            if ( !(*trackStatesIt)->type(   Trk::TrackStateOnSurface::Hole  )  ) { ATH_MSG_ERROR( "m_trt_hole_finder returned something that is not a hole" ); continue; }
+            if ( !trackStates->type(   Trk::TrackStateOnSurface::Hole  )  ) { ATH_MSG_ERROR( "m_trt_hole_finder returned something that is not a hole" ); continue; }
 
-            const Trk::TrackParameters* track_parameters = (*trackStatesIt)->trackParameters();
+            const Trk::TrackParameters* track_parameters = trackStates->trackParameters();
             if (!track_parameters) { ATH_MSG_WARNING( "m_trt_hole_finder track_parameters missing" ); continue; }
 
             Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
