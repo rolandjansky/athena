@@ -49,7 +49,7 @@ StatusCode SCTExtensionAlg::execute(const EventContext& ctx) const {
   int n_tracks=0;
   int n_tracklets=0;
 
-  for (mytracklet = tracklets->begin(); mytracklet != tracklets->end(); mytracklet++) // Loop over tracklets
+  for (mytracklet = tracklets->begin(); mytracklet != tracklets->end(); ++mytracklet) // Loop over tracklets
     { 
       n_tracklets++;
       int nSharedHits=0;
@@ -80,7 +80,7 @@ StatusCode SCTExtensionAlg::execute(const EventContext& ctx) const {
         } // End: tracklet_Measurements
   
       xAOD::TrackParticleContainer::const_iterator mytrack;
-      for (mytrack = trks->begin(); mytrack != trks->end(); mytrack++) // Loop over tracks for each tracklet
+      for (mytrack = trks->begin(); mytrack != trks->end(); ++mytrack) // Loop over tracks for each tracklet
         { 
           n_tracks++;
           const xAOD::TrackParticle* trackParticle = *mytrack;

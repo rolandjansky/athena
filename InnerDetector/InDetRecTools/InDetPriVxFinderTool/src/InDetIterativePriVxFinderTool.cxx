@@ -168,7 +168,7 @@ InDetIterativePriVxFinderTool::findVertex(const EventContext& ctx,
 
   bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end();
-       itr++) {
+       ++itr) {
 
     if (m_useBeamConstraint && beamSpot != nullptr) {
       Trk::RecVertex beamPosition{ beamSpot->beamVtx() };
@@ -1032,7 +1032,8 @@ InDetIterativePriVxFinderTool::removeCompatibleTracks(
     const Trk::TrackParameters* myPerigee = (*perigeesToFitIter);
 
     if (myPerigee == nullptr) {
-      ATH_MSG_ERROR(" Cast to perigee gives 0 pointer ");
+      ATH_MSG_ERROR(" Cast to perigee gives null pointer ");
+      return;
     }
 
     double chi2 = compatibility(*myPerigee, *myxAODVertex);
