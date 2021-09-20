@@ -197,13 +197,14 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
 #==========================================================
 # Use ZLIB for compression of all temporary outputs
 #==========================================================
-if hasattr(runArgs, "outputESDFile") and ('_000' in runArgs.outputESDFile or 'tmp.' in runArgs.outputESDFile):
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+if hasattr(runArgs, "outputESDFile") and (runArgs.outputESDFile.endswith('_000') or runArgs.outputESDFile.startswith('tmp.')):
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolESDOutput(), 1 ) ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolESDOutput(), 1 ) ]
 
-if hasattr(runArgs, "outputAODFile") and ('_000' in runArgs.outputAODFile or 'tmp.' in runArgs.outputAODFile):
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+if hasattr(runArgs, "outputAODFile") and (runArgs.outputAODFile.endswith('_000') or runArgs.outputAODFile.startswith('tmp.')):
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolAODOutput(), 1 ) ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolAODOutput(), 1 ) ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
