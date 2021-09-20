@@ -9,6 +9,8 @@ def MC20a(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
+    flags.Digitization.UseUpdatedTGCConditions = True
+
     LArConfigRun2PileUp(flags)
     flags.Digitization.HighGainEMECIW = True
 
@@ -36,6 +38,8 @@ def MC20d(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
+    flags.Digitization.UseUpdatedTGCConditions = True
+
     LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
@@ -62,6 +66,8 @@ def MC20e(flags):
     flags.Beam.NumberOfCollisions = 20.
     flags.Digitization.InputBeamSigmaZ = 42
 
+    flags.Digitization.UseUpdatedTGCConditions = True
+
     LArConfigRun2PileUp(flags)
 
     flags.Tile.BestPhaseFromCOOL = False
@@ -87,6 +93,8 @@ def MC20NoPileUp(flags):
     """MC20e flags for MC without pile-up"""
     flags.Beam.NumberOfCollisions = 0
     flags.Digitization.InputBeamSigmaZ = 42
+
+    flags.Digitization.UseUpdatedTGCConditions = True
 
     LArConfigRun2NoPileUp(flags)
 
