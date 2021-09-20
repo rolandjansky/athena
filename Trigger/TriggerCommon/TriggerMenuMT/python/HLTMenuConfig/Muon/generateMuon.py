@@ -32,7 +32,7 @@ from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDe
 from TrigMuonEF.TrigMuonEFConfig_newJO import TrigMuonEFTrackIsolationAlgCfg, MuonFilterAlgCfg, MergeEFMuonsAlgCfg
 from AthenaCommon.CFElements import seqAND, parOR, seqOR
 
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -42,6 +42,7 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
+@AccumulatorCache
 def EFMuonCBViewDataVerifierCfg(flags, name):
     EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon_"+name)
     EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
@@ -186,6 +187,7 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     result.addEventAlgo( trackcnv, primary=True )
     return result
 
+@AccumulatorCache
 def decodeCfg(flags, RoIs):
     acc = ComponentAccumulator()
 
@@ -275,7 +277,8 @@ def efMuIsoHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     efHypo.EFMuonsName = inputMuons
     return efHypo
 
-def muFastStep(flags, chainDict):
+@AccumulatorCache
+def _muFastStepSeq(flags):
     # Step 1 (L2MuonSA)
     selAcc = SelectionCA("L2MuFastReco")
     # Set EventViews for L2MuonSA step
@@ -302,9 +305,16 @@ def muFastStep(flags, chainDict):
     l2muFastSequence = MenuSequenceCA(selAcc, 
                                       HypoToolGen = TrigMufastHypoToolFromDict )
 
+    return (selAcc , l2muFastSequence)
+
+def muFastStep(flags, chainDict):
+
+    selAcc , l2muFastSequence = _muFastStepSeq(flags)
+
     return ChainStep( name=selAcc.name, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
-def muCombStep(flags, chainDict):
+@AccumulatorCache
+def _muCombStepSeq(flags):
     ### Set muon step2 - L2muComb ###
     selAccL2CB = SelectionCA("L2MuonCB")
 
@@ -327,9 +337,16 @@ def muCombStep(flags, chainDict):
     l2muCombSequence = MenuSequenceCA(selAccL2CB,
                                       HypoToolGen = TrigmuCombHypoToolFromDict)
 
+    return (selAccL2CB , l2muCombSequence)
+
+def muCombStep(flags, chainDict):
+
+    selAccL2CB , l2muCombSequence = _muCombStepSeq(flags)
+
     return ChainStep( name=selAccL2CB.name, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
-def muEFSAStep(flags, chainDict, name='RoI'):
+@AccumulatorCache
+def _muEFSAStepSeq(flags, name='RoI'):
     #EF MS only
     selAccMS = SelectionCA('EFMuMSReco_'+name)
     
@@ -387,9 +404,16 @@ def muEFSAStep(flags, chainDict, name='RoI'):
     efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
+    return (selAccMS , efmuMSSequence)
+
+def muEFSAStep(flags, chainDict, name='RoI'):
+
+    selAccMS , efmuMSSequence = _muEFSAStepSeq(flags, name)
+
     return ChainStep( name=selAccMS.name, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
-def muEFCBStep(flags, chainDict, name='RoI'):
+@AccumulatorCache
+def _muEFCBStepSeq(flags, name='RoI'):
     #EF combined muons
     selAccEFCB = SelectionCA("EFCBMuon_"+name)
 
@@ -469,10 +493,17 @@ def muEFCBStep(flags, chainDict, name='RoI'):
 
     efmuCBSequence = MenuSequenceCA(selAccEFCB,
                                     HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
+   
+    return (selAccEFCB , efmuCBSequence)
+
+def muEFCBStep(flags, chainDict, name='RoI'):
+
+    selAccEFCB , efmuCBSequence = _muEFCBStepSeq(flags, name)
     
     return ChainStep( name=selAccEFCB.name, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
 
-def muEFIsoStep(flags, chainDict):
+@AccumulatorCache
+def _muEFIsoStepSeq(flags):
     #Track isolation
     selAccEFIso = SelectionCA("EFIsoMuon")
 
@@ -508,8 +539,12 @@ def muEFIsoStep(flags, chainDict):
     efmuIsoSequence = MenuSequenceCA(selAccEFIso,
                                      HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict)
     
-    return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )
+    return (selAccEFIso , efmuIsoSequence)
 
+def muEFIsoStep(flags, chainDict):
+    selAccEFIso , efmuIsoSequence = _muEFIsoStepSeq(flags)
+    
+    return ChainStep( name=selAccEFIso.name, Sequences=[efmuIsoSequence], chainDicts=[chainDict] )
 
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
