@@ -373,8 +373,9 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
         if inputtype == "TruthWZ":
             addStandardJets(jetalg, radius, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
         elif inputtype == "LCTopo":
-            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_reduced",
-                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
+            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
+                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none",
+                            algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["lctopo_reduced"])
 
 ##################################################################
 
