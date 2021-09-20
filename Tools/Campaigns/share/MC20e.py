@@ -5,6 +5,7 @@ bf.Beam.numberOfCollisions.set_Value_and_Lock(20.0)
 
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.OldBeamSpotZSize = 42
+digitizationFlags.UseUpdatedTGCConditions = True
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun2Old.py')
