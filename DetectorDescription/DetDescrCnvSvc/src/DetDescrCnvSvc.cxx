@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -121,6 +121,15 @@ DetDescrCnvSvc::initialize()     {
     } else {
 	log << MSG::INFO << "Found DetectorStore service" << endmsg;
     }
+
+    // Working around Gaudi Issue https://gitlab.cern.ch/gaudi/Gaudi/issues/82
+    if (m_detStore->FSMState() < Gaudi::StateMachine::INITIALIZED) {
+      log << MSG::INFO << "Explicitly initializing DetDescrCnvSvc" << endmsg;
+      if (m_detStore->sysInitialize().isFailure()) {
+	log << MSG::FATAL << "Error initializing DetectorStore !" << endmsg;
+	return StatusCode::FAILURE;
+      }
+    } 
 
     // fill in the Addresses for Transient Detector Store objects
 
