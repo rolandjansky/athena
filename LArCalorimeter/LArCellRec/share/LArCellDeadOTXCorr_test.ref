@@ -311,7 +311,6 @@ LArIdMgrDetDesc...   INFO Set LArOnlineID helper in LArIdMgr
 LArIdMgrDetDesc...   INFO Set LArHVLineID helper in LArIdMgr 
 LArIdMgrDetDesc...   INFO Set LArElectrodeID helper in LArIdMgr 
 LArIdMgrDetDesc...   INFO Set CaloCell_ID helper in LArIdMgr 
-LArIdMgrDetDesc...   INFO Initializing LArIdMgr from values in LArIdMgrDetDescrCnv 
 ToolSvc.CaloTri...   INFO  ====> ...CaloTriggerTowerService::init() OK 
 ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for module ALL
 ToolSvc.tool2        INFO Initializing LArCellDeadOTXCorr
