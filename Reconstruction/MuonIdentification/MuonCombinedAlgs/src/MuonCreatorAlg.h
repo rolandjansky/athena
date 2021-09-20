@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -25,14 +26,15 @@
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-class MuonCreatorAlg : public AthAlgorithm {
+class MuonCreatorAlg : public AthReentrantAlgorithm {
 public:
     MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     ~MuonCreatorAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
+    
 
 private:
     ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool{this, "MuonCreatorTool", "MuonCombined::MuonCreatorTool/MuonCreatorTool",
