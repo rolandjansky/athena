@@ -6,17 +6,17 @@
 Input: [ 
          #Commented plots are not ready as input
          #'(?P<dir>run_\d*)/SCT/SCT(?P<sec>[A-E]*)/Noise/noiseoccupancymaptrigger(?P<sec2>[ECm,ECp]*)_(?P<L>\d)_(?P<S>\d)',
-         '(?P<dir>run_\d*)/SCT/SCT(?P<sec>[A-E]*)/eff/ineff.*_(?P<L>\d)_(?P<S>\d)',
+         'SCT/SCT(?P<sec>[A-E]*)/eff/ineff.*_(?P<L>\d)_(?P<S>\d)',
          #'(?P<dir>run_\d*)/SCT/SCT(?P<sec>[A-E]*)/errors/Errors/SCT_NumberOfErrors(?P=sec)_(?P<L>\d)_(?P<S>\d)',
          #'(?P<dir>run_\d*)/SCT/GENERAL/errors/Masked\ Links',
          #'GENERAL/errors/Flagged\ Links', #Location of this hist yet to be defined
 ]
-Output: [ '{dir}/SCT/GENERAL/Conf/SCTConfNew' ]
+Output: [ 'SCT/GENERAL/Conf/SCTConfNew' ]
 Function: SCT_Monitoring.SCTPostProcessing.conf
 Parameters: { label: ['Noisy','Inefficieny','Errors','Masked Links','Flagged Links'], thr: [150,0.1,0.7] }
 Description: SCTCONF
 ---
-Input: [ '(?P<dir>run_\d*)/SCT/SCT(?P<sec>[EC,B,EA]*)/eff/[m_,p_]*eff_(?P<L>\d)_(?P<S>\d)$' ]
-Output: [ '{dir}/SCT/GENERAL/eff/SctEfficiencyDistribution' ]
+Input: [ 'SCT/SCT(?P<sec>[EC,B,EA]*)/eff/[m_,p_]*eff_(?P<L>\d)_(?P<S>\d)$' ]
+Output: [ 'SCT/GENERAL/eff/SctEfficiencyDistribution' ]
 Function: SCT_Monitoring.SCTPostProcessing.effcomb
 Description: Combining
