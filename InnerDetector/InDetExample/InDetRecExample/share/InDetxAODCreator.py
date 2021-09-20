@@ -204,7 +204,7 @@ if not InDetFlags.doVertexFinding():
             topSequence += xAODVertexCnvAlgDBM
 
 #For forward tracks, no separate collection for ITK, since they are already merged
-if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation() and not InDetFlags.doSLHC()) or doConversion:
+if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation()) or doConversion:
     if doCreation :
         createTrackParticles(InDetKeys.ResolvedForwardTracks(), InDetKeys.ResolvedForwardTracksTruth(), InDetKeys.xAODForwardTrackParticleContainer(),topSequence)
     if doConversion :

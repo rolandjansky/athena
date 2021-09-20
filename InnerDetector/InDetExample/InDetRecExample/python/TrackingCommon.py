@@ -121,8 +121,6 @@ def getInDetNewTrackingCuts() :
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
     elif InDetFlags.doHeavyIon():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
-    elif InDetFlags.doSLHC():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
     elif InDetFlags.doIBL():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
     elif InDetFlags.doHighPileup():
@@ -386,9 +384,9 @@ def getInDetPixelClusterOnTrackToolBase(name, **kwargs) :
     kwargs = setDefaults(kwargs,
                          DisableDistortions       = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                          applyNNcorrection        = ( InDetFlags.doPixelClusterSplitting() and
-                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                          NNIBLcorrection          = ( InDetFlags.doPixelClusterSplitting() and
-                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                      InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + split_cluster_map_extension,
                          RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi() )
 
@@ -1015,7 +1013,7 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if not DetFlags.haveRIO.TRT_on() or InDetFlags.doSLHC() or InDetFlags.doHighPileup() \
+    if not DetFlags.haveRIO.TRT_on() or InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
@@ -1032,7 +1030,7 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doSLHC() or  InDetFlags.doHighPileup() \
+    if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doHighPileup() \
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
@@ -1570,8 +1568,6 @@ def combinedClusterSplitProbName() :
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
       elif InDetFlags.doHeavyIon():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
-      elif InDetFlags.doSLHC():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
       elif InDetFlags.doIBL():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
       elif InDetFlags.doHighPileup():
@@ -1625,22 +1621,6 @@ def combinedClusterSplitProbName() :
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsVeryLowPt.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doTRTStandalone():
-      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-    if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-      if InDetFlags.doSLHCVeryForward():
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks")
-         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-      else:
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-        InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
-        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
-      if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
-        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
       CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doBeamGas():
       if ('InDetNewTrackingCutsBeamGas' not in dir()):
