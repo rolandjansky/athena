@@ -15,8 +15,6 @@ from AthenaCommon import AthenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 
 # TODO: ELLI: remove this once the envelopes are stored in the DDDB
 #             -> currently a fallback python definition is used
@@ -139,8 +137,9 @@ if nThreads > 0:
         svcMgr+=ThreadPoolSvc("ThreadPoolSvc")
     svcMgr.ThreadPoolSvc.ThreadInitTools+=["G4ThreadInitTool"]
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg")
+if not ISF_Flags.ReSimulation():
+    from AthenaCommon.CfgGetter import getAlgorithm
+    topSeq += getAlgorithm("BeamEffectsAlg")
 
 #--------------------------------------------------------------
 # ISF kernel configuration
