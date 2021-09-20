@@ -35,7 +35,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::CLUSTER;
 
-   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" )
+   if ( input == "eTAU" || input == "eTauTobArray" || input == "eTauTobs" )
       return TCS::ETAU;
 
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
@@ -44,7 +44,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;
 
-   if ( input == "jJet" || input == "jJetTobArray" || input == "jJetTobs" )
+   if ( input == "jJ" || input == "jJetTobArray" || input == "jJetTobs" )
       return TCS::JJET;
 
    if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" )

@@ -284,9 +284,9 @@ class MultiplicityAlgo(TopoAlgo):
         return confObj
 
 
-class EMMultiplicityAlgo(MultiplicityAlgo):
+class eEmMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype ):
-        super(EMMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
+        super(eEmMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                  algoId=algoId, 
                                                  threshold = threshold, 
                                                  input=None, output="%s" % threshold,

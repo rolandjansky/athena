@@ -3,10 +3,10 @@
 */
 //  EmMultiplicity.h
 //  TopoCore
-//  Created by Carlos Moreno on 05/05/20.
+//  Created by Carlos Moreno on 17/09/21.
 
-#ifndef __TopoCore__EMMultiplicity__
-#define __TopoCore__EMMultiplicity__
+#ifndef __TopoCore__eTauMultiplicity__
+#define __TopoCore__eTauMultiplicity__
 
 #include <iostream>
 #include <vector>
@@ -19,10 +19,10 @@ class TH2;
 
 namespace TCS { 
   
-   class EMMultiplicity : public CountingAlg {
+   class eTauMultiplicity : public CountingAlg {
    public:
-      EMMultiplicity(const std::string & name);
-      virtual ~EMMultiplicity();
+      eTauMultiplicity(const std::string & name);
+      virtual ~eTauMultiplicity();
 
       virtual StatusCode initialize() override;
 
