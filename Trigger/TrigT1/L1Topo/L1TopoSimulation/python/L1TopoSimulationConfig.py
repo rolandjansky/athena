@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv, LVL1__MuonInputProviderLegacy
+from L1TopoSimulation.L1TopoSimulationConf import LVL1__L1TopoSimulation, LVL1__RoiB2TopoInputDataCnv
 
 class L1TopoSimulation ( LVL1__L1TopoSimulation ):
 
@@ -18,11 +18,6 @@ class RoiB2TopoInputDataCnv ( LVL1__RoiB2TopoInputDataCnv ):
 
     def __init__( self, name = "RoiB2TopoInputDataCnv" ):
         super( RoiB2TopoInputDataCnv, self ).__init__( name )
-
-class MuonInputProviderLegacy ( LVL1__MuonInputProviderLegacy ):
-
-    def __init__( self, name = "MuonInputProviderLegacy" ):
-        super( MuonInputProviderLegacy, self ).__init__( name )
 
 def L1LegacyTopoSimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -107,7 +102,6 @@ def L1TopoSimulationCfg(flags):
     return acc
 
 def L1TopoSimulationOldStyleCfg(flags, isLegacy):
-    from AthenaCommon.AppMgr import ToolSvc
     from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
     key = 'Legacy' if isLegacy else 'Phase1'
     topoSimSeq = L1TopoSimulation('L1'+key+'TopoSimulation')
@@ -123,14 +117,9 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         # Need further test from inputs.
         topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
 
-    # Muon inputs
-    from L1TopoSimulation.L1TopoSimulationConfig import MuonInputProviderLegacy
-    ToolSvc += MuonInputProviderLegacy('MuonInputProviderLegacy')
-
     if flags.Trigger.doLVL1:
         # TODO: the legacy simulation should not need to deal with muon inputs
         topoSimSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
-        ToolSvc.MuonInputProviderLegacy.ROIBResultLocation = "" #disable input from RoIBResult
 
     if flags.Trigger.enableL1MuonPhase1: 
         from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
