@@ -190,8 +190,8 @@ Trk::TrackInfo::dumpInfo() const
                      ? "SiSpacePointsSeedMaker_VeryLowMomentum; "
                      : "");
     authorInfo << (m_patternRecognition.test(
-                     Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks)
-                     ? "SiSpacePointsSeedMaker_SLHCConversionTracks; "
+                     Trk::TrackInfo::SiSpacePointsSeedMaker_ITkConversionTracks)
+                     ? "SiSpacePointsSeedMaker_ITkConversionTracks; "
                      : "");
     authorInfo << (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0)
                      ? "SiSpacePointsSeedMaker_LargeD0; "

@@ -38,9 +38,8 @@ if InDetFlags.doxAOD():
     prefix=extractCollectionPrefix(col)
     InDetAODList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
-  if not InDetFlags.doSLHC():
-   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
-   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
+  InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]

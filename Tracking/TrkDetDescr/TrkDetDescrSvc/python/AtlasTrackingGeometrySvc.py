@@ -69,12 +69,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
               if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
                   InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
           else:
-              if not TrkDetFlags.SLHC_Geometry() and not TrkDetFlags.InDetStagedGeometryBuilder():
-                  from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-              elif not TrkDetFlags.SLHC_Geometry() :   
-                  from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
-              else :
-                  from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
               InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
                 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
@@ -140,12 +135,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
                     print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection        )
                 # make sure that the pool files are in the catalog
-            elif TrkDetFlags.SLHC_Geometry() :
-                # set the folder to the SLHC location        
-                CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
-                ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-                cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-                conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
             else :
                 print ('[ TrackingGeometrySvc ]     base material tag : ', AtlasMaterialTag)
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'

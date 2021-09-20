@@ -181,8 +181,8 @@ namespace xAOD {
     SiSPSeededFinderSimple                 = 48,
     // Large d0 for displaced vertex searches
     SiSpacePointsSeedMaker_LargeD0         = 49,
-    // SLHCConversion Track flag
-    SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+    // ITkConversion Track flag
+    SiSpacePointsSeedMaker_ITkConversionTracks = 50,
     // Pseudotracking
     Pseudotracking			   = 51,
      ///maximum number of enums

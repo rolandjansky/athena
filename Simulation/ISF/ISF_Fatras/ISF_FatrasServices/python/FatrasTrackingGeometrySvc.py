@@ -56,13 +56,7 @@ class FatrasTrackingGeometryCondAlg:
                 print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection        )
             # make sure that the pool files are in the catalog
             #from PoolSvc.PoolSvcConf import PoolSvc
-            #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]                
-        elif TrkDetFlags.SLHC_Geometry() :
-            # set the folder to the SLHC location
-            CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-            ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-            cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
+            #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]
         else :
             # load the right folders (preparation for calo inclusion)
             cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
@@ -88,21 +82,13 @@ class FatrasTrackingGeometryCondAlg:
     # (ID) 
     if DetFlags.ID_on() :
       # get hand on the ID Tracking Geometry Builder
-      if not TrkDetFlags.SLHC_Geometry() :
-        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-      else :
-        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
-      if not TrkDetFlags.SLHC_Geometry() :   
-        self.__InDetTrackingGeometryBuilder__ = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder',
-                                                         namePrefix = 'Fatras',
-                                                         setLayerAssociation = False,
-                                                         buildTrtStrawLayers = True)
-        self.__InDetTrackingGeometryBuilder__.VolumeEnclosureOuterR = 1148.
-      else :   
-        self.__InDetTrackingGeometryBuilder__ = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder',
-                                                         namePrefix = 'Fatras',
-                                                         setLayerAssociation = False)
-        self.__InDetTrackingGeometryBuilder__.VolumeEnclosureOuterR = 1148.
+      from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+
+      self.__InDetTrackingGeometryBuilder__ = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder',
+                                                                namePrefix = 'Fatras',
+                                                                setLayerAssociation = False,
+                                                                buildTrtStrawLayers = True)
+      self.__InDetTrackingGeometryBuilder__.VolumeEnclosureOuterR = 1148.
 
       # make a public tool out of it
       ToolSvc += self.__InDetTrackingGeometryBuilder__

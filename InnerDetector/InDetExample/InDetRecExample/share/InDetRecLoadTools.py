@@ -19,7 +19,7 @@ if use_broad_cluster_sct is None :
 use_broad_cluster_any = use_broad_cluster_pix or use_broad_cluster_sct
 
 # load common NN tools for clustering and ROT creation
-if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
+if InDetFlags.doPixelClusterSplitting():
 
     #
     # --- Neutral Network version ?
