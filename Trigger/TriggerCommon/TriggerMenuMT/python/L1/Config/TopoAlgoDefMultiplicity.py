@@ -3,7 +3,7 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-from ..Base.TopoAlgos import EMMultiplicityAlgo, TauMultiplicityAlgo, JetMultiplicityAlgo, XEMultiplicityAlgo
+from ..Base.TopoAlgos import eEmMultiplicityAlgo, TauMultiplicityAlgo, JetMultiplicityAlgo, XEMultiplicityAlgo
 
 class TopoAlgoDefMultiplicity(object):
     """
@@ -23,16 +23,16 @@ class TopoAlgoDefMultiplicity(object):
         ]
 
         for em in emThresholds_3bits:
-            alg = EMMultiplicityAlgo( name = em,
+            alg = eEmMultiplicityAlgo( name = em,
                                       algoId = currentAlgoId,
                                       threshold = em,
-                                      nbits = 3, classtype='EMMultiplicity')
+                                      nbits = 3, classtype='eEmMultiplicity')
             tm.registerTopoAlgo(alg)
         for em in emThresholds_2bits:
-            alg = EMMultiplicityAlgo( name = em,
+            alg = eEmMultiplicityAlgo( name = em,
                                       algoId = currentAlgoId,
                                       threshold = em,
-                                      nbits = 2, classtype='EMMultiplicity')
+                                      nbits = 2, classtype='eEmMultiplicity')
             tm.registerTopoAlgo(alg)
                 
         etauThresholds_3bits = [ 'eTAU8', 'eTAU12', ]

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
- * EMMultiplicity.cpp
- * Created by Carlos Moreno on 05/06/20.
+ * jJetMultiplicity.cpp
+ * Created by Carlos Moreno on 17/09/21.
  *
  * @brief algorithm that computes the multiplicity for a specified list and ET threshold
  * line 1: 0 or 1, line 1 and 2 : 2 or more, uses 2 bits
@@ -14,20 +14,20 @@
 
 #include <cmath>
 
-#include "L1TopoAlgorithms/EMMultiplicity.h"
+#include "L1TopoAlgorithms/jJetMultiplicity.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Count.h"
 
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/eEmTOBArray.h"
+#include "L1TopoEvent/jJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 
-REGISTER_ALG_TCS(EMMultiplicity)
+REGISTER_ALG_TCS(jJetMultiplicity)
 
 using namespace std;
 
 
-TCS::EMMultiplicity::EMMultiplicity(const std::string & name) : CountingAlg(name)
+TCS::jJetMultiplicity::jJetMultiplicity(const std::string & name) : CountingAlg(name)
 {
    
    
@@ -35,19 +35,19 @@ TCS::EMMultiplicity::EMMultiplicity(const std::string & name) : CountingAlg(name
 
 }
 
-TCS::EMMultiplicity::~EMMultiplicity(){}
+TCS::jJetMultiplicity::~jJetMultiplicity(){}
 
 
 TCS::StatusCode
-TCS::EMMultiplicity::initialize() { 
+TCS::jJetMultiplicity::initialize() { 
 
   m_threshold = getThreshold();
 
   // book histograms
-  std::string hname_accept = "hEMMultiplicity_accept_"+m_threshold->name();
+  std::string hname_accept = "hjJetMultiplicity_accept_"+m_threshold->name();
   bookHist(m_histAccept, hname_accept, "eta vs pT", 150, -100, 100, 30, 0., 20.);
 
-  hname_accept = "hEMMultiplicity_accept_counts_"+m_threshold->name();
+  hname_accept = "hjJetMultiplicity_accept_counts_"+m_threshold->name();
   bookHist(m_histAccept, hname_accept, "Counts", 15, 0., 10. );
 
   return StatusCode::SUCCESS;
@@ -56,7 +56,7 @@ TCS::EMMultiplicity::initialize() {
 
 
 TCS::StatusCode
-TCS::EMMultiplicity::processBitCorrect( const TCS::InputTOBArray & input,
+TCS::jJetMultiplicity::processBitCorrect( const TCS::InputTOBArray & input,
 					 Count & count)
 
 {
@@ -64,31 +64,29 @@ TCS::EMMultiplicity::processBitCorrect( const TCS::InputTOBArray & input,
 }
 
 TCS::StatusCode
-TCS::EMMultiplicity::process( const TCS::InputTOBArray & input,
+TCS::jJetMultiplicity::process( const TCS::InputTOBArray & input,
 			       Count & count )
 {
 
+  cout << "CARLOS: processing threshold " << m_threshold->name() << endl;
+
   // Grab the threshold and cast it into the right type
-  auto eEMThr = dynamic_cast<const TrigConf::L1Threshold_eEM &>(*m_threshold);
+  auto jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*m_threshold);
 
   // Grab inputs
-  const eEmTOBArray & eems = dynamic_cast<const eEmTOBArray&>(input);
+  const jJetTOBArray & jjets = dynamic_cast<const jJetTOBArray&>(input);
 
   int counting = 0; 
   
   // loop over input TOBs
-  for(eEmTOBArray::const_iterator eem = eems.begin();
-      eem != eems.end();
-      ++eem ) {
+  for(jJetTOBArray::const_iterator jjet = jjets.begin();
+      jjet != jjets.end();
+      ++jjet ) {
     
-    const GenericTOB gtob(**eem);
+    const GenericTOB gtob(**jjet);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= eEMThr.thrValueCounts(gtob.eta()/4);
-
-    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.reta()), gtob.Reta()) ) {continue;}
-    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.rhad()), gtob.Rhad()) ) {continue;}
-    if ( !isocut(TrigConf::Selection::wpToString(eEMThr.wstot()), gtob.Wstot()) ) {continue;}
+    bool passed = gtob.Et() >= jJThr.thrValueCounts(gtob.eta()/4);
 
     if (passed) {
       counting++; 
