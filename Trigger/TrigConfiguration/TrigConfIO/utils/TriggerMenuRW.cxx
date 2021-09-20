@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -13,6 +13,7 @@
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
 #include "TrigConfIO/TrigDBHLTPrescalesSetLoader.h"
 #include "TrigConfIO/TrigDBL1BunchGroupSetLoader.h"
+#include "TrigConfIO/TrigDBCTPFilesLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1PrescalesSet.h"
@@ -26,7 +27,7 @@ public:
    ~Config(){}
    Config(){}
 
-   std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "Write", "W", "help", "h", "detail", "d" };
+   std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "Write", "W", "help", "h", "detail", "d", "ctp", "c" };
 
    // parameters
    // input
@@ -36,6 +37,7 @@ public:
    unsigned int hltpsk { 0 };
    unsigned int bgsk { 0 };
    std::string  dbalias { "TRIGGERDBDEV1" };
+   bool doCtp { false }; // flag to read CTP files
 
    // output
    bool         write { false }; // flag to enable writing
@@ -59,25 +61,26 @@ public:
 
 void Config::usage() {
 
-  cout << "The program needs to be run with the following specifications:\n\n";
-  cout << "TriggerMenuRW <options>\n";
-  cout << "\n";
-  cout << "[Input options]\n";
-  cout << "  -f|--file             file1 [file2 [file3 ...]]     ... one or multiple json files\n";
-  cout << "  --smk                 smk                           ... smk \n";
-  cout << "  --l1psk               l1psk                         ... the L1 prescale key \n";
-  cout << "  --hltpsk              hltpsk                        ... the HLT prescale key \n";
-  cout << "  --bgsk                bgsk                          ... the bunchgroup key \n";
-  cout << "  --db                  dbalias                       ... dbalias (default " << dbalias << ") \n";
-  cout << "[Output options]\n";
-  cout << "  -w|--write            [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
-  cout << "  -W|--Write            [base]                        ... to write out json files from the internal structure (only for L1Menu), e.g. L1menu[_<base>].json. base is optional.\n";
-  cout << "[Other options]\n";
-  cout << "  -h|--help                                           ... this help\n";
-  cout << "  -d|--detail                                         ... prints detailed job options\n";
-  cout << "\n\n";
-  cout << "Examples\n";
-  cout << "  --file L1menu.json HLTMenu.json                     ... read L1Menu.json and HLTMenu.json and show some basic statistics\n";
+   cout << "The program needs to be run with the following specifications:\n\n";
+   cout << "TriggerMenuRW <options>\n";
+   cout << "\n";
+   cout << "[Input options]\n";
+   cout << "  -f|--file             file1 [file2 [file3 ...]]     ... one or multiple json files\n";
+   cout << "  --smk                 smk                           ... smk \n";
+   cout << "  --l1psk               l1psk                         ... the L1 prescale key \n";
+   cout << "  --hltpsk              hltpsk                        ... the HLT prescale key \n";
+   cout << "  --bgsk                bgsk                          ... the bunchgroup key \n";
+   cout << "  --db                  dbalias                       ... dbalias (default " << dbalias << ") \n";
+   cout << "  -c|--ctp                                            ... if provided together with the SMK and DB then will read only CTP files from the DB and not the rest of the menu\n";
+   cout << "[Output options]\n";
+   cout << "  -w|--write            [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
+   cout << "  -W|--Write            [base]                        ... to write out json files from the internal structure (only for L1Menu), e.g. L1menu[_<base>].json. base is optional.\n";
+   cout << "[Other options]\n";
+   cout << "  -h|--help                                           ... this help\n";
+   cout << "  -d|--detail                                         ... prints detailed job options\n";
+   cout << "\n\n";
+   cout << "Examples\n";
+   cout << "  --file L1menu.json HLTMenu.json                     ... read L1Menu.json and HLTMenu.json and show some basic statistics\n";
 
 }
 
@@ -109,6 +112,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
          if(paramName == "d" || paramName == "detail" ) { detail = true; continue; }
          if(paramName == "w" || paramName == "write" ) { write = true; }
          if(paramName == "W" || paramName == "Write" ) { writeFromDataStructure = true; }
+         if(paramName == "c" || paramName == "ctp" ) { doCtp = true; }
          currentParameter = paramName;
          continue;
       }
@@ -273,7 +277,7 @@ int main(int argc, char** argv) {
       }
    }
 
-   if( cfg.smk != 0 ) {
+   if( cfg.smk != 0 && !cfg.doCtp ) {
       // load config from DB
 
       // db menu loader
@@ -333,6 +337,12 @@ int main(int argc, char** argv) {
       }
    }
 
+   if( cfg.smk != 0 && cfg.doCtp ) {
+      TrigConf::TrigDBCTPFilesLoader dbloader(cfg.dbalias);
+      TrigConf::L1CTPFiles ctpfiles;
+      dbloader.loadHardwareFiles(cfg.smk, ctpfiles, 0x0F, outputFileName("CTPFiles", cfg));
+      ctpfiles.print();
+   }
 
    if( cfg.l1psk != 0 ) {
       // load L1 prescales set from DB
