@@ -19,11 +19,12 @@ def create_rhadron_particles_file(input_param_card='SLHA_INPUT.DAT',spectrum=1):
 def create_rhadron_pdgtable(input_param_card='SLHA_INPUT.DAT',spectrum=1):
     """Add lines to the PDG table"""
 
-    import ExtraParticles.PDGHelpers
-
-    # Update the PDG table using our helper function
-    from RHadrons.RHadronMasses import update_PDG_table
-    update_PDG_table('SLHA_INPUT.DAT','PDGTABLE.MeV',spectrum)
+    from G4AtlasApps.SimFlags import simFlags
+    from ExtraParticles.PDGHelpers import getPDGTABLE
+    if getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value()):
+        # Update the PDG table using our helper function
+        from RHadrons.RHadronMasses import update_PDG_table
+        update_PDG_table('SLHA_INPUT.DAT','PDGTABLE.MeV',spectrum)
 
 
 def addLineToPhysicsConfiguration(KEY, VALUE):
