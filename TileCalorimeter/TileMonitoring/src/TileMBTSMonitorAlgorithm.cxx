@@ -11,6 +11,7 @@
 
 #include "StoreGate/ReadHandle.h"
 
+#include "TrigT1Result/CTP_Decoder.h"
 
 StatusCode TileMBTSMonitorAlgorithm::initialize() {
 
@@ -68,9 +69,63 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
     m_pulseGroups = Monitored::buildToolMap<int>(m_tools, "TileAveragePulseMBTS", MAX_MBTS_COUNTER);
   }
 
+  if (m_useTrigger && (m_ctpID.size() != MAX_MBTS_COUNTER)) {
+    if (m_l1Triggers.size() != MAX_MBTS_COUNTER) {
+      int numberOfCounters{MAX_MBTS_COUNTER};
+      ATH_MSG_WARNING("Names are not provided for all ("
+                      << numberOfCounters << ") L1 MBTS triggers. Provided only "
+                      << m_l1Triggers.size() << " L1 MBTS");
+
+      ATH_MSG_WARNING("Autoconfiguration of CTP ID to L1 MBTS mapping is not possible: force useTrigger=false");
+      m_useTrigger = false;
+    } else {
+      ATH_CHECK( m_L1MenuKey.initialize() );
+    }
+  }
+
+  ATH_CHECK( m_ctpRdoKey.initialize(m_useTrigger) );
+  if (m_useTrigger) {
+    m_energyTrigGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyTrigMBTS", MAX_MBTS_COUNTER);
+    m_energyTrigLBGroups = Monitored::buildToolMap<int>(m_tools, "TileEnergyTrigLBMBTS", MAX_MBTS_COUNTER);
+    m_timeTrigGroups = Monitored::buildToolMap<int>(m_tools, "TileTimeTrigMBTS", MAX_MBTS_COUNTER);
+    m_pulseTrigGroups = Monitored::buildToolMap<int>(m_tools, "TileAveragePulseTrigMBTS", MAX_MBTS_COUNTER);
+    m_effTrigGroups = Monitored::buildToolMap<int>(m_tools, "TileEfficiencyTrigMBTS", MAX_MBTS_COUNTER);
+
+    int nTriggers = 3;
+    m_trigGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_Triggers", nTriggers);
+    m_trigInWinGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_TriggersInWindow", nTriggers);
+    m_trigSumGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_TriggersSum", nTriggers);
+    m_coinTrigGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_CoincidentTriggers", nTriggers);
+    m_deltaBCIDSumGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_DeltaBCID_Summary", nTriggers);
+    m_deltaBCIDGroups = Monitored::buildToolMap<std::vector<int>>(m_tools, "MBTS_DeltaBCID", nTriggers, MAX_MBTS_COUNTER);
+  }
+
   return StatusCode::SUCCESS;
 }
 
+StatusCode TileMBTSMonitorAlgorithm::start() {
+
+  if (m_useTrigger && (m_ctpID.size() != MAX_MBTS_COUNTER)) {
+    m_ctpID.value().resize(MAX_MBTS_COUNTER, -1);
+    ATH_MSG_INFO("Try to autoconfigure CTP ID to L1 MBTS trigger mapping from L1 menu");
+    SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
+    if( l1MenuHandle.isValid() ) {
+      for (const TrigConf::L1Item& item: *l1MenuHandle) {
+        auto it = std::find(m_l1Triggers.begin(), m_l1Triggers.end(), item.name());
+        if (it != m_l1Triggers.end()) {
+          unsigned int counter = std::distance(m_l1Triggers.begin(), it);
+          m_ctpID[counter] = item.ctpId();
+          ATH_MSG_DEBUG("Found in L1 Menu: " << item.name() << ", CTP ID: " << item.ctpId() << ", counter: " << counter);
+        }
+      }
+    } else {
+      ATH_MSG_WARNING("L1 menu is not available: force useTrigger=false");
+      m_useTrigger = false;
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
@@ -96,6 +151,119 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   double timeA(0.0);
   double timeC(0.0);
 
+  //  unsigned int l1aBCID(0);
+  std::vector<bool> hasTBP(MAX_MBTS_COUNTER, false);
+
+  if (m_useTrigger) {
+    SG::ReadHandle<CTP_RDO> ctpRdoContainer(m_ctpRdoKey, ctx);
+    ATH_CHECK( ctpRdoContainer.isValid() );
+
+    uint32_t nBunches(0);
+    CTP_Decoder ctpDecoder;
+
+    ctpDecoder.setRDO(ctpRdoContainer.get());
+    nBunches = ctpRdoContainer->getNumberOfBunches();
+
+    if (nBunches > 0) {
+      short l1aBunch = ctpRdoContainer->getL1AcceptBunchPosition();
+      const std::vector<CTP_BC>& ctpBunchCrossings = ctpDecoder.getBunchCrossings();
+      const CTP_BC & bunch = ctpBunchCrossings[l1aBunch];
+      auto  l1aBCID = Monitored::Scalar<unsigned int>("bcid", bunch.getBCID());
+      unsigned int bcid;
+      auto triggerMultiplicityA = Monitored::Scalar<int>("multiplicityA", 0);
+      auto triggerMultiplicityC = Monitored::Scalar<int>("multiplicityC", 0);
+
+      const std::bitset<512> currentTBP(bunch.getTBP());
+      for (size_t counter = 0; counter < m_ctpID.size(); ++counter) {
+        if (m_ctpID[counter] < 0) continue;
+        if (currentTBP.test(m_ctpID[counter])) {
+          hasTBP[counter] = true;
+          if (counter < 16) {
+            ++triggerMultiplicityA;
+          } else {
+            ++triggerMultiplicityC;
+          }
+        }
+      }
+
+      fill("TileTriggerMultiplicityMBTSA", l1aBCID, triggerMultiplicityA);
+      fill("TileTriggerMultiplicityMBTSC", l1aBCID, triggerMultiplicityC);
+      fill("TileTriggerMultiplicityPerSideMBTS", triggerMultiplicityA, triggerMultiplicityC);
+
+      std::vector<int> triggerTypes; // A-Inner, A-Outer, A-Total, C-Inner, C-Outer, C-Total
+      std::vector<int> triggerCounters;
+      std::vector<int> triggerInWindowCounters;
+      std::vector<int> deltaBCIDs;
+
+      //int deltaBCID;
+      // Loop over bunch crossings in CTP window
+      for (const CTP_BC& ctpBunchCrossing : ctpBunchCrossings) {
+        bcid = ctpBunchCrossing.getBCID();
+        int deltaBCID = l1aBCID - bcid;
+
+        std::vector<std::reference_wrapper<const std::bitset<512>>> triggers;
+        triggers.push_back(ctpBunchCrossing.getTBP());
+        triggers.push_back(ctpBunchCrossing.getTAP());
+        triggers.push_back(ctpBunchCrossing.getTAV());
+
+        int triggerIdx = 0;
+        for (const std::bitset<512>& currentTrigger : triggers) {
+          triggerTypes.clear();
+          triggerCounters.clear();
+          triggerInWindowCounters.clear();
+          deltaBCIDs.clear();
+
+          for (size_t counter = 0; counter < m_ctpID.size(); ++counter) {
+            if (m_ctpID[counter] < 0) continue;
+            if (currentTrigger.test(m_ctpID[counter])) {
+              triggerInWindowCounters.push_back(counter);
+              deltaBCIDs.push_back(deltaBCID);
+              auto monDeltaBCID = Monitored::Scalar<float>("DeltaBCID", deltaBCID);
+              fill(m_tools[m_deltaBCIDGroups[triggerIdx][counter]], monDeltaBCID);
+              if (bcid == l1aBCID) {
+                triggerCounters.push_back(counter);
+                int mbtsType = counter / 8; // A-Inner, A-Outer, C-Inner, C-Outer
+                if (counter > 15) {
+                  mbtsType += 1; // Shift C-Side to allow A-Total
+                }
+                triggerTypes.push_back(mbtsType);
+                triggerTypes.push_back(counter < 16 ? 2 : 5); // A-Total, C-Total
+              }
+            }
+          }
+
+          auto monTriggerInWindowCounter = Monitored::Collection("TriggerCounter", triggerInWindowCounters);
+          fill(m_tools[m_trigInWinGroups[triggerIdx]], monTriggerInWindowCounter);
+
+          auto monDeltaBCID = Monitored::Collection("DeltaBCID", deltaBCIDs);
+          fill(m_tools[m_deltaBCIDSumGroups[triggerIdx]], monTriggerInWindowCounter, monDeltaBCID);
+
+          if (bcid == l1aBCID) {
+            auto monTriggerType = Monitored::Collection("TriggerType", triggerTypes);
+            fill(m_tools[m_trigSumGroups[triggerIdx]], monTriggerType);
+
+            auto monTriggerCounter = Monitored::Collection("TriggerCounter", triggerCounters);
+            fill(m_tools[m_trigGroups[triggerIdx]], monTriggerCounter);
+
+            std::vector<int> coincidentTriggers1;
+            std::vector<int> coincidentTriggers2;
+            for (int counter1 : triggerCounters) {
+              for (int counter2 : triggerCounters) {
+                coincidentTriggers1.push_back(counter1);
+                coincidentTriggers2.push_back(counter2);
+              }
+            }
+            auto monCoincidentTrigger1 = Monitored::Collection("CoincidentTrigger1", coincidentTriggers1);
+            auto monCoincidentTrigger2 = Monitored::Collection("CoincidentTrigger2", coincidentTriggers2);
+            fill(m_tools[m_coinTrigGroups[triggerIdx]], monCoincidentTrigger1, monCoincidentTrigger2);
+          }
+          ++triggerIdx;
+        }
+      }
+
+    }
+  }
+
   auto monEnergy = Monitored::Scalar<float>("Energy", 0.0F);
   auto monTime = Monitored::Scalar<float>("Time", 0.0F);
 
@@ -113,7 +281,14 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   std::vector<float> times;
   auto monSummaryTime = Monitored::Collection("SummaryTime", times);
 
+  std::vector<float> triggerEnergies;
+  auto monTriggerSummaryEnergy = Monitored::Collection("SummaryEnergy", triggerEnergies);
+
+  std::vector<float> triggerTimes;
+  auto monTriggerSummaryTime = Monitored::Collection("SummaryTime", triggerTimes);
+
   std::vector<int> energyHitCounters;
+  std::vector<int> triggerHitCounters;
 
   SG::ReadHandle<TileCellContainer> mbtsContainer(m_mbtsCellContainerKey, ctx);
   ATH_CHECK( mbtsContainer.isValid() );
@@ -152,6 +327,21 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       fill(m_tools[m_energyLBGroups[counter]], lumiBlock, monEnergy);
     }
 
+    if (m_useTrigger) {
+      auto monEfficiency = Monitored::Scalar<float>("Efficiency", 0.0F);
+      if (hasTBP[counter]) {
+        monEfficiency = 1.0F;
+        triggerHitCounters.push_back(counter);
+        triggerEnergies.push_back(energy);
+        triggerTimes.push_back(time);
+
+        fill(m_tools[m_energyTrigGroups[counter]], monEnergy);
+        fill(m_tools[m_energyTrigLBGroups[counter]], lumiBlock, monEnergy);
+        fill(m_tools[m_timeTrigGroups[counter]], monTime);
+      }
+      fill(m_tools[m_effTrigGroups[counter]], monEnergy, monEfficiency);
+    }
+
     if (energy > m_energyCut[counter]) {
 
       timeCounters.push_back(counter);
@@ -181,6 +371,13 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   fill("TileEnergySummaryMBTS", monEnergyCounter, monSummaryEnergy);
 
   fill("TileTimeSummaryMBTS", monTimeCounter, monSummaryTime);
+
+  if (m_useTrigger) {
+    auto monTriggerHitCounter = Monitored::Collection("HitCounter", triggerHitCounters);
+    fill("TileTriggerOccupancyMBTS", monTriggerHitCounter);
+    fill("TileTriggerEnergySummaryMBTS", monTriggerHitCounter, monTriggerSummaryEnergy);
+    fill("TileTriggerTimeSummaryMBTS", monTriggerHitCounter, monTriggerSummaryTime);
+  }
 
   if (nHitsA > 0) {
     timeA /= nHitsA;
@@ -321,6 +518,9 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
                   auto monSampleNumbers = Monitored::Collection("SampleNumbers", sampleNumbers);
 
                   fill(m_tools[m_pulseGroups[counter]], monSampleNumbers, monSamples);
+                  if (hasTBP[counter]) {
+                    fill(m_tools[m_pulseTrigGroups[counter]], monSampleNumbers, monSamples);
+                  }
                 }
 
                 sampleMean /= nSamples;
