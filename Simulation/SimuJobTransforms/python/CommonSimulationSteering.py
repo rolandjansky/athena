@@ -53,10 +53,7 @@ def CommonSimulationCfg(ConfigFlags, log):
     # add the ISF_MainConfig
         from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
         cfg.merge(ISF_KernelCfg(ConfigFlags))
-        if 'MT' in  ConfigFlags.Sim.ISF.Simulator:
-            AcceptAlgName = 'SimKernelMT'
-        else:
-            AcceptAlgName = 'SimKernel'
+        AcceptAlgName = 'ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator
     else:
         AcceptAlgName = 'G4AtlasAlg'
         #add the G4AtlasAlg
