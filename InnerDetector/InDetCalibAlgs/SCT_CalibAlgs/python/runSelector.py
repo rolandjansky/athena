@@ -36,7 +36,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
     runQuery  = 'AtlRunQuery.py '
     runQuery += '--run \"' + str(Run0) + '\" '
 
-    if 'cos' not in Stream:
+    if 'cos' not in Stream and 'idcomm' not in Stream:
         runQuery += '--lhc \"stablebeams TRUE\" '
 
     runQuery += '--partition \"ATLAS\" '
@@ -47,12 +47,10 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         runQuery += '--projecttag \"data*_*eV\" '
     elif 'hi' in Stream:
         runQuery += '--projecttag \"data*_hi\" '
-    else:
+    elif 'cos' in Stream:
         runQuery += '--projecttag \"data*_cos\" '
-    # if 'cos' not in Stream:
-    #     runQuery += '--projecttag \"data*_*eV\" '
-    # else:
-    #     runQuery += '--projecttag \"data*_cos\" '
+    else:
+        runQuery += '--projecttag \"data*_idcom\" '
 
     if pType == 'doNoisyStrip':
         runQuery += '--streams \"*calibration_SCTNoise 10000+\" '
@@ -77,7 +75,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
     print(Run0)
 
 #    --- Check stable beam flag if stream _is not_ cosmics
-    if 'cos' not in Stream:
+    if 'cos' not in Stream and 'idcomm' not in Stream:
     
         StableBeam = False
         if os.path.exists('./data/MyLBCollection.xml'):
@@ -127,7 +125,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         runQuery += '--run \"' + str(RunLast[:-1]) + '+\" '
 
 #        if 'cos' not in Stream:
-        if 'cos' not in Stream:
+        if 'cos' not in Stream and 'idcomm' not in Stream:
             runQuery += '--lhc \"stablebeams TRUE\" '
         runQuery += '--partition \"ATLAS\" '
         runQuery += '--detmaskin \"240A\" '
@@ -136,8 +134,10 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
             runQuery += '--projecttag \"data*_*eV\" '
         elif 'hi' in Stream:
             runQuery += '--projecttag \"data*_hi\" '
-        else:
+        elif 'cos' in Stream:
             runQuery += '--projecttag \"data*_cos\" '
+        else:
+            runQuery += '--projecttag \"data*_idcomm\" '
         # if 'cos' not in Stream:
         #     runQuery += '--projecttag \"data*_*eV\" '
         # else:
