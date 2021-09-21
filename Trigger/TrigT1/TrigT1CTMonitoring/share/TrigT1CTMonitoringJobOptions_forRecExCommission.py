@@ -188,12 +188,8 @@ else:
         from AthenaCommon.AlgSequence import AthSequencer
         CTPMonSeq=CfgMgr.AthSequencer('CTPMonSeq')
 
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_Data
-            CTPMonSeq += L1MuctpiPhase1_on_Data()
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
-            CTPMonSeq += L1Muctpi_on_Data()
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_Data
+        CTPMonSeq += L1MuctpiPhase1_on_Data()
 
         from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
         CTPMonSeq += DeriveSimulationInputs(do_MuCTPI_input=True,
