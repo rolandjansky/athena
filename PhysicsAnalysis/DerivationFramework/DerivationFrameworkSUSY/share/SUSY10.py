@@ -42,7 +42,16 @@ DerivationFrameworkJob += SeqSUSY10
 #triggerRegEx = ['HLT_xe.*','HLT_e.*','HLT_mu.*']
 from DerivationFrameworkSUSY.SUSY10TriggerList import *
 
-SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10ThinTriggers )
+# We have to turn off the trigger navigation thinning for 2018 data (see https://its.cern.ch/jira/browse/ATR-19385)
+# First, figure out whether we're in 2018 data. Thanks to Eirik for this code
+isData18 = False
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary is not None:
+    if (inputFileSummary['tag_info']['project_name']=='data18_13TeV'): 
+        isData18 = True
+
+if (not isData18):
+    SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10ThinTriggers )
 SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 
 
@@ -150,20 +159,31 @@ if DerivationFrameworkIsMonteCarlo:
 #=======================================
 # now done in ExtendedJetCommon
 #applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY10)
-jetsDefinition = ' (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8) '
+applyJetCalibration_xAODColl("AntiKt4EMPFlow", SeqSUSY10)
+updateJVT_xAODColl("AntiKt4EMPFlow", SeqSUSY10)
+jetsDefinition = ' (AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8) '
 
 #====================================================================
 # SKIMMING SELECTION
 #====================================================================
 
-# TRIGGER SELECTION
-expression = '('+' || '.join(SUSY10AllTriggers)+')'
-
 # OBJECT SELECTION
-expression += ' && ( count('+jetsDefinition+')>=4 ) '
+expression = '( count('+jetsDefinition+')>=4 ) '
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-SUSY10SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "SUSY10SkimmingTool", expression = expression)
+SUSY10SkimmingORTool = DerivationFramework__xAODStringSkimmingTool(name = "SUSY10SkimmingORTool", expression = expression)
+ToolSvc += SUSY10SkimmingORTool
+
+# TRIGGER SELECTION
+# Because of the hyphen in b-jet HT trigger names, have to use a different tool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+SUSY10trigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY10trigSkimmingTool",
+                                                                  TriggerListOR = SUSY10AllTriggers)
+ToolSvc += SUSY10trigSkimmingTool
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+SUSY10SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY10SkimmingTool",
+                                                              FilterList = [SUSY10SkimmingORTool, SUSY10trigSkimmingTool])
 ToolSvc += SUSY10SkimmingTool
 
 #=======================================
@@ -247,9 +267,9 @@ SUSY10SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_An
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "BTagging_AntiKt4EMTopo_201810",
                                          "InDetTrackParticles", "PrimaryVertices",
-                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-# BTagging_AntiKt4Track no longer supported in R21, replaced with BTagging_AntiKt2Track for now
-SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets",  "MET_Track"]#"BTagging_AntiKt2Track",
+                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                         "HLT_xAOD__BTaggingContainer_HLTBjetFex"]# BTagging_AntiKt4Track no longer supported in R21, replaced with BTagging_AntiKt2Track for now
+SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets",  "MET_Track", "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex"]#"BTagging_AntiKt2Track",
 SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                        "Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.HadronConeExclTruthLabelID.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
@@ -270,9 +290,9 @@ SUSY10SlimmingHelper.IncludeEGammaTriggerContent = True
 SUSY10SlimmingHelper.IncludeEtMissTriggerContent = True
 #Triggers removed
 SUSY10SlimmingHelper.IncludeBPhysTriggerContent = False
-SUSY10SlimmingHelper.IncludeJetTriggerContent   = False
+SUSY10SlimmingHelper.IncludeJetTriggerContent   = True
 SUSY10SlimmingHelper.IncludeTauTriggerContent   = False
-SUSY10SlimmingHelper.IncludeBJetTriggerContent  = False
+SUSY10SlimmingHelper.IncludeBJetTriggerContent  = True
 
 if DerivationFrameworkIsMonteCarlo:
 
