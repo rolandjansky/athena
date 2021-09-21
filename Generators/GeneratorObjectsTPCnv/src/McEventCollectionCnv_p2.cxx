@@ -288,6 +288,7 @@ McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
 
   // fillin' the flow
   const unsigned int nFlow = persPart.m_flow.size();
+  p->m_flow.clear();
   for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow ) {
     p->m_flow.set_icode( persPart.m_flow[iFlow].first,
                          persPart.m_flow[iFlow].second );
