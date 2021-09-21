@@ -55,7 +55,7 @@ StatusCode TrigMultiTrkComboHypoTool::initialize() {
   else {  // chain with symmetric legs, as HLT_2mu4_bDimu_L12MU4
     m_legDecisionIDs.insert(m_legDecisionIDs.end(), m_legMultiplicities[0], decisionId().numeric());
   }
-  ATH_CHECK( m_nTrk <= m_legDecisionIDs.size() || m_isMergedElectronChain );
+  ATH_CHECK( m_nTrk <= m_legDecisionIDs.size() || m_isMergedElectronChain || m_isMuonTrkPEB );
 
   if (!m_monTool.empty()) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -116,7 +116,7 @@ StatusCode TrigMultiTrkComboHypoTool::decideOnSingleObject(Decision* decision, c
   auto trigBphysEL = decision->objectLink<xAOD::TrigBphysContainer>(TrigCompositeUtils::featureString());
   ATH_CHECK( trigBphysEL.isValid() );
 
-  if (previousDecisionIDs.size() != (m_isMergedElectronChain ? 1 : m_nTrk.value())) {
+  if (previousDecisionIDs.size() != (m_isMergedElectronChain || m_isMuonTrkPEB ? 1 : m_nTrk.value())) {
     return StatusCode::SUCCESS;
   }
 
@@ -144,9 +144,9 @@ bool TrigMultiTrkComboHypoTool::checkPreviousDecisionIDs(const std::vector<const
   // trigger with asymmetric legs (like HLT_mu6_2mu4_bDimu_L1MU6_3MU4) is treated in a specific way:
   // all 6 possible combinations should be checked: {leg0, leg1}, {leg0, leg2}, {leg1, leg0}, {leg1, leg2}, {leg2, leg0}, {leg2, leg1}
 
-  if (m_isMergedElectronChain) {
+  if (m_isMergedElectronChain || m_isMuonTrkPEB) {
     if (!TrigCompositeUtils::passed(m_legDecisionIDs.at(0), *previousDecisionIDs[0])) {
-      ATH_MSG_DEBUG( "Trigger for close-by electrons didn't pass previous decision" );
+      ATH_MSG_DEBUG( "Trigger for " << (m_isMergedElectronChain ? "close-by electrons" : "muon+track") << " didn't pass previous decision" );
       return false;
     }
     return true;

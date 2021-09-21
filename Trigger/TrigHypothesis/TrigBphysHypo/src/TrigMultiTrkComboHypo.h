@@ -176,6 +176,12 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   StatusCode processMergedElectrons(TrigMultiTrkState<xAOD::ElectronContainer>&) const;
 
   /**
+   * @brief Build J/psi candidates from muon from SG::View and tracks from the same SG::View,
+   * to be used for Tag-and-Probe PEB chains (similar to HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF)
+   */
+  StatusCode findMuTrkCandidates(TrigMultiTrkState<xAOD::MuonContainer>&) const;
+
+  /**
    * @brief All appropriate decisions from state.previousDecisions() will be copied to state.decisions()
    * if flag state.isEventAccepted() is set by filterTrackCombinations() method;
    * to be used only in Streamer mode.
@@ -237,6 +243,8 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
     "chi2 cut for the fitted vertex"};
   Gaudi::Property<bool> m_isStreamer {this, "isStreamer", false,
     "if true we do not create trigger objects, just copy all appropriate decisions to the next step or break the chain"};
+  Gaudi::Property<bool> m_isMuTrkMode {this, "isMuTrkMode", false,
+    "make pairs between muon from SG::View and tracks from the same SG::View"};
   Gaudi::Property<bool> m_doElectrons {this, "doElectrons", false,
     "use electrons if true, otherwise use muons"};
   Gaudi::Property<std::string> m_trigLevel {this, "trigLevel", "EF",
