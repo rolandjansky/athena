@@ -52,7 +52,7 @@ class MMT_Hit : public AthMessaging {
     void setYZSlope(double slope) { m_YZslope = slope; }
     void setY(double y) { m_Y = y; }
     void setZ(double z) { m_Z = z; }
-    void updateHitProperties(const MMT_Parameters *par);
+    void updateHitProperties(std::shared_ptr<MMT_Parameters> par);
     bool verifyHit();
 
   private:

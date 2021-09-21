@@ -95,7 +95,6 @@ namespace NSWL1 {
     
     if(m_doMM ){
       ATH_CHECK(m_mmtrigger.retrieve());
-      if(m_doMMDiamonds) ATH_CHECK( m_mmtrigger->initDiamondAlgorithm() );
     }
 
     // Connect to Monitoring Service
@@ -162,7 +161,6 @@ namespace NSWL1 {
     for ( auto& mon :  m_monitors ) {
       ATH_CHECK(mon->finalHists());
     }
-    if(m_doMM) ATH_CHECK( m_mmtrigger->finalizeDiamondAlgorithm(m_doMMDiamonds) );
     return StatusCode::SUCCESS;
   }
 
