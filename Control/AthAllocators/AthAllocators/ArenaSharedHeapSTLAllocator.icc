@@ -340,13 +340,14 @@ ArenaSharedHeapSTLAllocator<T>::max_size() const throw()
 /**
  * @brief Call the @c T constructor.
  * @param p Location of the memory.
- * @param val Parameter to pass to the constructor.
+ * @param args Arguments to pass to the constructor.
  */
 template <class T>
+template <class... Args>
 inline
-void ArenaSharedHeapSTLAllocator<T>::construct (pointer p, const T& val)
+void ArenaSharedHeapSTLAllocator<T>::construct (pointer p, Args&&... args)
 {
-  new (reinterpret_cast<void*>(p)) T(val);
+  new (reinterpret_cast<void*>(p)) T(std::forward<Args>(args)...);
 }
 
 
