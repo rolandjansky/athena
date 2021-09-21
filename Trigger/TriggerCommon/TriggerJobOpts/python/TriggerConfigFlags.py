@@ -25,7 +25,7 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
-    # Enable Run-3 LVL1 muon simulation and/or decoding
+    # Enable Run-3 LVL1 muon decoding
     flags.addFlag('Trigger.enableL1MuonPhase1', False)
 
     # Enable Run-3 LVL1 calo simulation and/or decoding
