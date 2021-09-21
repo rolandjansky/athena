@@ -585,6 +585,7 @@ SCTCalib.NoisyWaferThrECC       = NoisyWaferThrECC
 SCTCalib.NoisyWaferFraction     = NoisyWaferFraction
 SCTCalib.NoisyChipFraction      = NoisyChipFraction
 SCTCalib.NoisyUploadTest        = NoisyUploadTest
+SCTCalib.NoisyStripAverageInDB  = NoisyStripAverageInDB
 SCTCalib.NoisyModuleAverageInDB = NoisyModuleAverageInDB
 SCTCalib.NoisyStripLastRunInDB  = NoisyStripLastRunInDB
 SCTCalib.NoisyModuleList        = NoisyModuleList
