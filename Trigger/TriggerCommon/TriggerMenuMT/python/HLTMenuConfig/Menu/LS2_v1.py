@@ -969,11 +969,11 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bBmumux_BpmumuKp_L1BPH-2M9-0DR15-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFBPhysL1MuGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFBPhysL1MuGroup),
 
-        # supplementary PEB triggers, temporarily commented out due to ATR-23615 to make ART back for Bphysics slice
-        #ChainProp(name='HLT_mu4_bJpsi_MuonTrkPEB_L1MU3V', stream =['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
-        #ChainProp(name='HLT_mu6_bJpsi_MuonTrkPEB_L1MU5VF', stream =['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
-        #ChainProp(name='HLT_mu10_bJpsi_MuonTrkPEB_L1MU8F', stream =['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
-        #ChainProp(name='HLT_mu20_bJpsi_MuonTrkPEB_L1MU14FCH', stream =['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
+        # supplementary PEB triggers
+        ChainProp(name='HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3V', stream=['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF', stream=['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu10_bJpsimutrk_MuonTrkPEB_L1MU8F', stream=['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
+        ChainProp(name='HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU14FCH', stream=['BphysPEB'], groups=BphysicsGroup+['PS:Online']),
 
         # RCP multiple candidate
         ChainProp(name='HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM', l1SeedThresholds=['MU10BOM']*2, stream=["BphysDelayed"], groups=BphysicsGroup),

@@ -7,18 +7,18 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMultiTrkComboHypoConfig')
 
 trigMultiTrkComboHypoToolDict = {
-    'bJpsimumu'     : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
-    'bJpsi'         : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
-    'bJpsimumul2io' : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
-    'bUpsimumu'     : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
-    'bUpsi'         : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
-    'bDimu'         : { 'massRange' : (1500., 14000.), 'chi2' : 20. },
-    'bDimu2700'     : { 'massRange' : ( 100.,  2700.), 'chi2' : 20. },
-    'bDimu6000'     : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
-    'bBmumu'        : { 'massRange' : (4000.,  8500.), 'chi2' : 20. },
-    'bPhi'          : { 'massRange' : ( 940.,  1100.), 'chi2' : 10. },
-    'bTau'          : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
-    'bBeeM6000'     : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+    'bJpsimumu'  : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsi'      : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsimutrk' : { 'massRange' : (2600.,  3600.), 'chi2' : 20. },
+    'bUpsimumu'  : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bUpsi'      : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bDimu'      : { 'massRange' : (1500., 14000.), 'chi2' : 20. },
+    'bDimu2700'  : { 'massRange' : ( 100.,  2700.), 'chi2' : 20. },
+    'bDimu6000'  : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+    'bBmumu'     : { 'massRange' : (4000.,  8500.), 'chi2' : 20. },
+    'bPhi'       : { 'massRange' : ( 940.,  1100.), 'chi2' : 10. },
+    'bTau'       : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
+    'bBeeM6000'  : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
 }
 
 
@@ -114,6 +114,22 @@ def NoMuonDiElecPrecisionComboHypoCfg(name):
         outputTrigBphysCollection = 'HLT_NoMuonDiElecPrecision')
     return hypo
 
+def BmutrkComboHypoCfg(name):
+    log.debug('BmutrkComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'Bmutrk',
+        trigLevel = 'EF',
+        trackCollection='HLT_IDTrack_Bmumux_IDTrig',
+        outputTrigBphysCollection = 'HLT_Bmutrk')
+    hypo.isMuTrkMode = True
+    hypo.chi2 = 20.
+    hypo.massRange = [ (2500., 4400.) ]
+    hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
+    return hypo
+
 def TrigMultiTrkComboHypoToolFromDict(chainDict):
     config = TrigMultiTrkComboHypoConfig()
     tool = config.ConfigurationComboHypoTool(chainDict)
@@ -203,6 +219,10 @@ class TrigMultiTrkComboHypoConfig(object):
 
         if 'BPH-0DR3-EM7J15' in chainDict['L1item']:
             tool.isMergedElectronChain = True
+
+        if 'bJpsimutrk' in chainDict['topo']:
+            tool.isMuonTrkPEB = True
+            tool.totalCharge = -100
 
         signatures = chainDict['signatures']
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))
