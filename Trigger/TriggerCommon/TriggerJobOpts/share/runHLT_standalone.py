@@ -509,7 +509,7 @@ if not opt.createHLTMenuExternally:
 
     if (opt.selectChains):
         menu.selectChainsForTesting = opt.selectChains
-    elif (opt.disableChains):
+    if (opt.disableChains):
         menu.disableChains = opt.disableChains
 
     # generating the HLT structure requires
