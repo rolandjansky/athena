@@ -6,7 +6,6 @@ Trk__TrackingGeometrySvc=CompFactory.Trk.TrackingGeometrySvc
 Trk__GeometryBuilder=CompFactory.Trk.GeometryBuilder
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
-from AthenaCommon.Constants import VERBOSE
 
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 
@@ -18,18 +17,29 @@ def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
     
     # the tag names
     materialTagBase = 'AtlasLayerMat_v'
-    version = 21
+    version = 21 
     sub_version = ''
     
     AtlasMaterialTag = materialTagBase+str(version)+sub_version+'_'
+    if flags.Detector.GeometryITk:
+      AtlasMaterialTag = flags.ITk.trackingGeometry.materialTag+str(flags.ITk.trackingGeometry.version)+'_'
     cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
-
+    
+    
+    if flags.Detector.GeometryITk and flags.ITk.trackingGeometry.loadLocalDbForMaterialMaps:
+        DataBaseName=flags.ITk.trackingGeometry.localDatabaseName
+        
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        result.merge(addFolders(flags,"/GLOBAL/TrackingGeo/LayerMaterialITK",detDb=DataBaseName, tag=AtlasMaterialTag))
+        cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'</tag>'
+    
     # if not quiet:
     #   print('[ TrackingGeometrySvc ]     base material tag : ' + AtlasMaterialTag)
     #   print('[ TrackingGeometrySvc ]     translated to COOL: ' + cfolder)
 
     # load the right folders
     result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True) )
+    
     return result
     
 def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', setLayerAssociation = True, buildTrtStrawLayers = False):
@@ -189,14 +199,14 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   # beampipe        
   InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilder
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder')
-  beamPipeBuilder.OutputLevel=VERBOSE
+  beamPipeBuilder.BeamPipeMaterialBinsZ              = flags.ITk.trackingGeometry.beampipeMatZbins
+
   result.addPublicTool(beamPipeBuilder)
   BeamPipeBinning = 2  
   
   Trk__LayerProvider=CompFactory.Trk.LayerProvider
   beamPipeProvider = Trk__LayerProvider(name=namePrefix+'BeamPipeProvider')
   beamPipeProvider.LayerBuilder = beamPipeBuilder
-  beamPipeProvider.OutputLevel=VERBOSE
   result.addPublicTool(beamPipeProvider)  
   
   layerProviders = [beamPipeProvider]
@@ -213,13 +223,12 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     PixelLayerBuilderInner.SiDetManagerLocation = 'ITkPixel'
     PixelLayerBuilderInner.LayerIndicesBarrel   = [0,1]
     PixelLayerBuilderInner.LayerIndicesEndcap   = [0,1,2]
-    PixelLayerBuilderInner.UseRingLayout=True
+    PixelLayerBuilderInner.UseRingLayout        = True
     # Pixel barrel specifications
-    PixelLayerBuilderInner.BarrelLayerBinsZ     = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderInner.BarrelLayerBinsPhi   = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderInner.EndcapLayerBinsR     = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderInner.EndcapLayerBinsPhi   = 1 #TODO Update with meaningful bins
-    #PixelLayerBuilderInner.OutputLevel=VERBOSE
+    PixelLayerBuilderInner.BarrelLayerBinsZ     = flags.ITk.trackingGeometry.pixelBarrelMatZbins
+    PixelLayerBuilderInner.BarrelLayerBinsPhi   = flags.ITk.trackingGeometry.pixelBarrelMatPhiBins
+    PixelLayerBuilderInner.EndcapLayerBinsR     = flags.ITk.trackingGeometry.pixelEndcapMatRbins
+    PixelLayerBuilderInner.EndcapLayerBinsPhi   = flags.ITk.trackingGeometry.pixelEndcapMatPhiBins
     
     # set the layer association
     PixelLayerBuilderInner.SetLayerAssociation  = setLayerAssociation
@@ -231,7 +240,6 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     
     pixelProviderInner = Trk__LayerProvider(name=namePrefix+'PixelProviderInner')
     pixelProviderInner.LayerBuilder = PixelLayerBuilderInner
-    #pixelProviderInner.OutputLevel=VERBOSE
     result.addPublicTool(pixelProviderInner)
     # put them to the caches
     layerProviders  += [pixelProviderInner]
@@ -246,12 +254,10 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     PixelLayerBuilderOuter.LayerIndicesBarrel   = [2,3,4]
     PixelLayerBuilderOuter.LayerIndicesEndcap   = [3,4,5,6,7,8]
     PixelLayerBuilderOuter.UseRingLayout=True
-    # Pixel barrel specifications
-    PixelLayerBuilderOuter.BarrelLayerBinsZ     = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderOuter.BarrelLayerBinsPhi   = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderOuter.EndcapLayerBinsR     = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderOuter.EndcapLayerBinsPhi   = 1 #TODO Update with meaningful bins
-    PixelLayerBuilderOuter.OutputLevel=VERBOSE
+    PixelLayerBuilderOuter.BarrelLayerBinsZ     = flags.ITk.trackingGeometry.pixelBarrelMatZbins
+    PixelLayerBuilderOuter.BarrelLayerBinsPhi   = flags.ITk.trackingGeometry.pixelBarrelMatPhiBins
+    PixelLayerBuilderOuter.EndcapLayerBinsR     = flags.ITk.trackingGeometry.pixelEndcapMatRbins
+    PixelLayerBuilderOuter.EndcapLayerBinsPhi   = flags.ITk.trackingGeometry.pixelEndcapMatPhiBins
     
     # set the layer association
     PixelLayerBuilderOuter.SetLayerAssociation  = setLayerAssociation
@@ -263,7 +269,6 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     
     pixelProviderOuter = Trk__LayerProvider(name=namePrefix+'PixelProviderOuter')
     pixelProviderOuter.LayerBuilder = PixelLayerBuilderOuter
-    pixelProviderOuter.OutputLevel=VERBOSE
     result.addPublicTool(pixelProviderOuter)
     # put them to the caches
     layerProviders  += [pixelProviderOuter]
@@ -279,12 +284,10 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
     SCT_LayerBuilder.Identification                  = 'ITkStrip'
     SCT_LayerBuilder.SiDetManagerLocation            = 'ITkStrip'
     SCT_LayerBuilder.AddMoreSurfaces                 = True
-    # additionall layers - handle with care !
-    SCT_LayerBuilder.BarrelLayerBinsZ                = 1 #TODO Update with meaningful bins
-    SCT_LayerBuilder.BarrelLayerBinsPhi              = 1 #TODO Update with meaningful bins
-    # SCT endcap specifications                          
-    SCT_LayerBuilder.EndcapLayerBinsR                = 1 #TODO Update with meaningful bins
-    SCT_LayerBuilder.EndcapLayerBinsPhi              = 1 #TODO Update with meaningful bins
+    SCT_LayerBuilder.BarrelLayerBinsZ                = flags.ITk.trackingGeometry.stripBarrelMatZbins
+    SCT_LayerBuilder.BarrelLayerBinsPhi              = flags.ITk.trackingGeometry.stripBarrelMatPhiBins
+    SCT_LayerBuilder.EndcapLayerBinsR                = flags.ITk.trackingGeometry.stripEndcapMatRbins
+    SCT_LayerBuilder.EndcapLayerBinsPhi              = flags.ITk.trackingGeometry.stripEndcapMatPhiBins
     # set the layer association                   
     SCT_LayerBuilder.SetLayerAssociation             = setLayerAssociation        
     # the binning type of the layer     
@@ -318,6 +321,11 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   # helpers for the InDetTrackingGeometry Builder : tracking volume helper for gluing
   Trk__TrackingVolumeHelper=CompFactory.Trk.TrackingVolumeHelper
   InDetTrackingVolumeHelper                             = Trk__TrackingVolumeHelper(name ='InDetTrackingVolumeHelper')
+  InDetTrackingVolumeHelper.BarrelLayerBinsZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins
+  InDetTrackingVolumeHelper.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
+  InDetTrackingVolumeHelper.EndcapLayerBinsR   = flags.ITk.trackingGeometry.passiveEndcapMatRbins
+  InDetTrackingVolumeHelper.EndcapLayerBinsPhi = flags.ITk.trackingGeometry.passiveEndcapMatPhiBins
+  
   # the material bins - assume defaults
   # add to ToolSvc
   result.addPublicTool(InDetTrackingVolumeHelper)  
@@ -329,6 +337,9 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
   InDetCylinderVolumeCreator.LayerArrayCreator = InDetLayerArrayCreator
   InDetCylinderVolumeCreator.TrackingVolumeArrayCreator = InDetTrackingVolumeArrayCreator
   InDetCylinderVolumeCreator.TrackingVolumeHelper       = InDetTrackingVolumeHelper
+  InDetCylinderVolumeCreator.PassiveLayerThickness      = 1. ## mm
+  InDetCylinderVolumeCreator.PassiveLayerBinsRZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins
+  InDetCylinderVolumeCreator.PassiveLayerBinsPhi  = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
         
   # specifiy the binning, passive layers, entry layers - assume defaults
   # add to ToolSvc
@@ -345,11 +356,10 @@ def _getITkTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, na
                                               TrackingVolumeCreator     = InDetCylinderVolumeCreator,
                                               LayerArrayCreator         = InDetLayerArrayCreator,
                                               CheckForRingLayout        = True,
-                                              MinimalRadialGapForVolumeSplit = 2.,
+                                              MinimalRadialGapForVolumeSplit = flags.ITk.trackingGeometry.minimalRadialGapForVolumeSplit,
                                               ReplaceAllJointBoundaries = True,
                                               BuildBoundaryLayers=True,
-                                              ExitVolumeName='InDet::Containers::InnerDetector',
-                                              OutputLevel=VERBOSE)
+                                              ExitVolumeName='InDet::Containers::InnerDetector')
   
 # Replaces https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloTrackingGeometry/python/ConfiguredCaloTrackingGeometryBuilder.py
 def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, trackingVolumeHelper, namePrefix=''):
@@ -448,14 +458,19 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
     atlas_geometry_processors=[]
     
     if flags.TrackingGeometry.MaterialSource == 'COOL':
-       CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialV2' # Was from TrkDetFlags.MaterialStoreGateKey()
-       # the material provider
-       Trk__LayerMaterialProvider=CompFactory.Trk.LayerMaterialProvider
-       atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder, LayerMaterialMapKey='')
-       atlas_geometry_processors += [ atlasMaterialProvider ]
-
-       # Setup DBs
-       result.merge(_setupCondDB(flags, CoolDataBaseFolder))
+      
+      CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialV2'
+      if flags.Detector.GeometryITk:
+        CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
+      
+      # the material provider
+      Trk__LayerMaterialProvider=CompFactory.Trk.LayerMaterialProvider
+      atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder, LayerMaterialMapKey='')
+      atlas_geometry_processors += [ atlasMaterialProvider ]
+        
+      # Setup DBs
+      result.merge(_setupCondDB(flags, CoolDataBaseFolder))
+       
     elif  flags.TrackingGeometry.MaterialSource == 'Input':
       Trk__InputLayerMaterialProvider=CompFactory.Trk.InputLayerMaterialProvider
       atlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
