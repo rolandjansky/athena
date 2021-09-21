@@ -441,9 +441,6 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 if opt.setMenu:
     ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
-TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
-TriggerFlags.readLVL1configFromXML = False
-TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
 generateL1Menu(ConfigFlags)
