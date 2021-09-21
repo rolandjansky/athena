@@ -24,11 +24,9 @@ def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
     if flags.Detector.GeometryITk:
       AtlasMaterialTag = flags.ITk.trackingGeometry.materialTag+str(flags.ITk.trackingGeometry.version)+'_'
     cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
-    
-    
+        
     if flags.Detector.GeometryITk and flags.ITk.trackingGeometry.loadLocalDbForMaterialMaps:
         DataBaseName=flags.ITk.trackingGeometry.localDatabaseName
-        
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         result.merge(addFolders(flags,"/GLOBAL/TrackingGeo/LayerMaterialITK",detDb=DataBaseName, tag=AtlasMaterialTag))
         cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'</tag>'
