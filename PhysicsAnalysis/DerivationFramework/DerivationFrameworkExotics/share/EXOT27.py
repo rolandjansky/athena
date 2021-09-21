@@ -256,10 +256,6 @@ for extra in HbbCommon.xbbTaggerExtraVariables:
   partition = extra.partition('.')
   EXOT27ExtraVariables[partition[0]].update(partition[2].split('.') )
 
-# Augment AntiKt4 jets with QG tagging variables
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=EXOT27Seq,algname="QGTaggerToolPFAlg")
-
 ################################################################################
 # Setup augmentation (add new decorations to objects)
 ################################################################################
@@ -624,9 +620,6 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
-
-EXOT27SlimmingHelper.ExtraVariables  += ["AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
-
 
 matching_helper.add_to_slimming(EXOT27SlimmingHelper)
 
