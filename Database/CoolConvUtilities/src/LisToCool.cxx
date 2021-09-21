@@ -90,7 +90,7 @@ LisToCool::LisToCool(const std::string& lisdb, const std::string& lisfolder,
     m_lisfolder << std::endl;
   std::cout << "Write to COOL DB: " << m_cooldbstr << " folder " <<
     m_coolfolder << std::endl;
-  std::string smode="Undefined";
+  std::string_view smode="Undefined";
   if (m_mode==1) smode="CondDBTable";
   if (m_mode==11) smode="CondDBTable compressed";
   if (m_mode==2) smode="Blob with Tags";
@@ -275,16 +275,18 @@ void LisToCool::copyCondTable(bool compress) {
   // from each folder)
   std::vector<std::string> newcolname;
   // set folder description string for single channel folder in Athena
-  std::string timestr;
+  std::string_view timestr;
   if (m_runevent) {
     timestr="<timeStamp>run-event</timeStamp>";
   } else {
     timestr="<timeStamp>time</timeStamp>";
   }
   if (m_channel==-1) {
-    m_cooldesc=timestr+"<addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>";
+    m_cooldesc=std::string(timestr);
+    m_cooldesc+="<addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>";
   } else {
-    m_cooldesc=timestr+"<addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+    m_cooldesc=std::string(timestr);
+    m_cooldesc+="<addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
     std::cout << "Data will be written in COOL channel " << m_channel 
 	      << std::endl;
     // setup list of column names from tagprefix string (reused)
