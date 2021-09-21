@@ -40,11 +40,8 @@ namespace NSWL1 {
     //load event stuff
     std::vector<hitData_entry> event_hitDatas(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
     std::vector<hitData_key> event_hitData_keys(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
-    MMT_Parameters *m_par;
-    MMT_Parameters *m_par_large;
-    MMT_Parameters *m_par_small;
-
-    MMT_Diamond *diamond;
+    std::shared_ptr<MMT_Parameters> m_par_large;
+    std::shared_ptr<MMT_Parameters> m_par_small;
 
     //MMT_Loader stuff end
 
@@ -58,13 +55,10 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode initDiamondAlgorithm();
     StatusCode runTrigger(const bool do_MMDiamonds);
-    StatusCode finalizeDiamondAlgorithm(const bool do_MMDiamonds);
 
   private:
 
-    std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
@@ -74,8 +68,6 @@ namespace NSWL1 {
     StatusCode book_branches();                             //!< book the branches
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fillNtuple(const MMLoadVariables& loadedVariables);
-
-    void storeEventProperties(const unsigned int iterator); //!< Store event variable for Diamond Road algorithm
 
     // properties: container and service names
     StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink

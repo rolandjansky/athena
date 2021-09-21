@@ -45,8 +45,6 @@ namespace NSWL1 {
     declareInterface<NSWL1::IMMTriggerTool>(this);
     declareProperty("MM_DigitContainerName", m_MmDigitContainer = "MM_DIGITS", "the name of the MM digit container");
     declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
-
-    diamond = nullptr;
   }
 
   MMTriggerTool::~MMTriggerTool() {
@@ -107,29 +105,12 @@ namespace NSWL1 {
     }
 
     //Calculate and retrieve wedge geometry, defined in MMT_struct
+    const par_par standard = par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
+    const par_par xxuvuvxx = par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
+    const par_par xxuvuvxx_uvroads = par_par(0.0009,4,4,0.0035,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
-    const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
-    const par_par xxuvuvxx=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
-    const par_par xxuvuvxx_uvroads=par_par(0.0009,4,4,0.0035,"xxuvuvxx",true,true); //.0035 for uv_tol before...
-
-    // par_par pars=dlm;
-    m_par_large = new MMT_Parameters(xxuvuvxx,'L', m_detManager); // Need to figure out where to delete this!! It's needed once per run
-    m_par_small = new MMT_Parameters(xxuvuvxx,'S', m_detManager); // Need to figure out where to delete this!! It's needed once per run
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MMTriggerTool::initDiamondAlgorithm() {
-    diamond = new MMT_Diamond(m_detManager);
-    diamond->setTrapezoidalShape(true);
-    diamond->setXthreshold(2);
-    diamond->setUV(true);
-    diamond->setUVthreshold(2);
-    diamond->setRoadSize(8);
-    diamond->setRoadSizeUpX(4);
-    diamond->setRoadSizeDownX(0);
-    diamond->setRoadSizeUpUV(4);
-    diamond->setRoadSizeDownUV(0);
+    m_par_large = std::make_shared<MMT_Parameters>(xxuvuvxx,'L', m_detManager);
+    m_par_small = std::make_shared<MMT_Parameters>(xxuvuvxx,'S', m_detManager);
 
     return StatusCode::SUCCESS;
   }
@@ -150,22 +131,37 @@ namespace NSWL1 {
     const MmDigitContainer *nsw_MmDigitContainer = nullptr;
     ATH_CHECK( evtStore()->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
 
-    std::map<std::string, MMT_Parameters*> pars;
+    std::map<std::string, std::shared_ptr<MMT_Parameters> > pars;
     pars["MML"] = m_par_large;
     pars["MMS"] = m_par_small;
-    MMLoadVariables load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, pars);
+    MMLoadVariables load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper);
 
     std::map<std::pair<int, unsigned int>,std::vector<digitWrapper> > entries;
-    std::map<std::pair<int, unsigned int>,map<hitData_key,hitData_entry> > Hits_Data_Set_Time;
+    std::map<std::pair<int, unsigned int>,std::map<hitData_key,hitData_entry> > Hits_Data_Set_Time;
     std::map<std::pair<int, unsigned int>,evInf_entry> Event_Info;
-    ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info) );
+    ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info, pars) );
     this->fillNtuple(load);
 
     unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
 
     if (entries.empty()) {
-      ATH_MSG_ERROR("No entries available, something is going wrong");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING("No digits available for processing, exiting");
+      Hits_Data_Set_Time.clear();
+      Event_Info.clear();
+      return StatusCode::SUCCESS;
+    }
+
+    auto diamond = std::unique_ptr<MMT_Diamond>(new MMT_Diamond(m_detManager));
+    if (do_MMDiamonds) {
+      diamond->setTrapezoidalShape(true);
+      diamond->setXthreshold(2);
+      diamond->setUV(true);
+      diamond->setUVthreshold(2);
+      diamond->setRoadSize(8);
+      diamond->setRoadSizeUpX(4);
+      diamond->setRoadSizeDownX(0);
+      diamond->setRoadSizeUpUV(4);
+      diamond->setRoadSizeDownUV(0);
     }
 
     for (unsigned int i=0; i<particles; i++) {
@@ -183,10 +179,10 @@ namespace NSWL1 {
           m_trigger_truePtRange->push_back(trupt);
 
           tpos=truth_info.theta_pos;
-          m_trigger_trueThe->push_back(truth_info.theta_ip);
+          m_trigger_trueThe->push_back(truth_info.theta_ent);
 
           ppos=truth_info.phi_pos;
-          m_trigger_truePhi->push_back(truth_info.phi_ip);
+          m_trigger_truePhi->push_back(ppos);
 
           dt=truth_info.dtheta;
           m_trigger_trueDth->push_back(dt);
@@ -208,7 +204,7 @@ namespace NSWL1 {
       if (reco_it != Hits_Data_Set_Time.end()) {
         if (!reco_it->second.empty()) {
           std::vector<hitData_entry> hitDatas;
-          for (auto hit_it = reco_it->second.begin(); hit_it != reco_it->second.end(); hit_it++) hitDatas.push_back(hit_it->second);
+          for (const auto &hit_it : reco_it->second) hitDatas.push_back(hit_it.second);
           if (do_MMDiamonds) {
             /*
              * Filling hits for each event: a new class, MMT_Hit, is called in
@@ -221,10 +217,10 @@ namespace NSWL1 {
               else if (hitDatas[ihds].BC_time < smallest_bc) smallest_bc = hitDatas[ihds].BC_time;
 
               // The PrintHits function below gives identical results to the following one: hitDatas[ihds].print();
-	      m_trigger_VMM->push_back(hitDatas[ihds].VMM_chip);
-	      m_trigger_plane->push_back(hitDatas[ihds].plane);
-	      m_trigger_station->push_back(hitDatas[ihds].station_eta);
-	      m_trigger_strip->push_back(hitDatas[ihds].strip);
+              m_trigger_VMM->push_back(hitDatas[ihds].VMM_chip);
+              m_trigger_plane->push_back(hitDatas[ihds].plane);
+              m_trigger_station->push_back(hitDatas[ihds].station_eta);
+              m_trigger_strip->push_back(hitDatas[ihds].strip);
             }
             diamond->printHits(i-nskip);
             std::vector<double> slopes = diamond->getHitSlopes();
@@ -236,7 +232,34 @@ namespace NSWL1 {
              */
             if (diamond->getHitVector(i-nskip).size() >= (diamond->getXthreshold()+diamond->getUVthreshold())) {
               diamond->findDiamonds(i-nskip, smallest_bc, event);
-              storeEventProperties(i-nskip);
+
+              if (!diamond->getSlopeVector(i-nskip).empty()) {
+                m_trigger_diamond_ntrig->push_back(diamond->getSlopeVector(i-nskip).size());
+                for (const auto &slope : diamond->getSlopeVector(i-nskip)) {
+                  m_trigger_diamond_stationPhi->push_back(diamond->getDiamond(i-nskip).phi);
+                  m_trigger_diamond_sector->push_back(diamond->getDiamond(i-nskip).sector);
+                  m_trigger_diamond_bc->push_back(slope.BC);
+                  m_trigger_diamond_totalCount->push_back(slope.totalCount);
+                  m_trigger_diamond_realCount->push_back(slope.realCount);
+                  m_trigger_diamond_XbkgCount->push_back(slope.xbkg);
+                  m_trigger_diamond_UVbkgCount->push_back(slope.uvbkg);
+                  m_trigger_diamond_XmuonCount->push_back(slope.xmuon);
+                  m_trigger_diamond_UVmuonCount->push_back(slope.uvmuon);
+                  m_trigger_diamond_iX->push_back(slope.iRoad);
+                  m_trigger_diamond_iU->push_back(slope.iRoadu);
+                  m_trigger_diamond_iV->push_back(slope.iRoadv);
+                  m_trigger_diamond_age->push_back(slope.age);
+                  m_trigger_diamond_Xavg->push_back(slope.xavg);
+                  m_trigger_diamond_Uavg->push_back(slope.uavg);
+                  m_trigger_diamond_Vavg->push_back(slope.vavg);
+                  m_trigger_diamond_mxl->push_back(slope.mxl);
+                  m_trigger_diamond_theta->push_back(slope.theta);
+                  m_trigger_diamond_eta->push_back(slope.eta);
+                  m_trigger_diamond_dtheta->push_back(slope.dtheta);
+                  m_trigger_diamond_phi->push_back(slope.phi);
+                  m_trigger_diamond_phiShf->push_back(slope.phiShf);
+                }
+              } else ATH_MSG_WARNING("No output slopes to store");
             }
           } else {
             //////////////////////////////////////////////////////////////
@@ -246,18 +269,18 @@ namespace NSWL1 {
             //////////////////////////////////////////////////////////////
 
             //Initialization of the finder: defines all the roads
-	    MMT_Finder find = MMT_Finder(pars[station], 1);
-	    ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find.get_roads()  );
+            auto find = std::unique_ptr<MMT_Finder>(new MMT_Finder(pars[station], 1));
+            ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find->get_roads()  );
 
             std::map<pair<int,int>,finder_entry> hitBuffer;
-            for (auto hit_it = reco_it->second.begin(); hit_it != reco_it->second.end(); hit_it++) {
-              find.fillHitBuffer( hitBuffer, hit_it->second.entry_hit(pars[station]) ); // Hit object, Map (road,plane) -> Finder entry
+            for (const auto &hit_it : reco_it->second) {
+              find->fillHitBuffer( hitBuffer, hit_it.second.entry_hit(pars[station]), pars[station] ); // Hit object, Map (road,plane) -> Finder entry
   
-              hitData_info hitInfo = hit_it->second.entry_hit(pars[station]).info;
-              m_trigger_VMM->push_back(hit_it->second.VMM_chip);
-              m_trigger_plane->push_back(hit_it->second.plane);
-              m_trigger_station->push_back(hit_it->second.station_eta);
-              m_trigger_strip->push_back(hit_it->second.strip);
+              hitData_info hitInfo = hit_it.second.entry_hit(pars[station]).info;
+              m_trigger_VMM->push_back(hit_it.second.VMM_chip);
+              m_trigger_plane->push_back(hit_it.second.plane);
+              m_trigger_station->push_back(hit_it.second.station_eta);
+              m_trigger_strip->push_back(hit_it.second.strip);
               m_trigger_slope->push_back(hitInfo.slope);
             }
             if (reco_it->second.size() > 7) {
@@ -273,18 +296,18 @@ namespace NSWL1 {
               }
             }
 
-            //////////////////////////////////////////////////////////////
-            //                                                          //
-            //                 Fitter Applied Here                      //
-            //                                                          //
-            //////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////
+            ////                                                          //
+            ////                 Fitter Applied Here                      //
+            ////                                                          //
+            ////////////////////////////////////////////////////////////////
 
-            MMT_Fitter fit = MMT_Fitter(pars[station]);
+            auto fit = std::unique_ptr<MMT_Fitter>(new MMT_Fitter());
 
             //First loop over the roads and planes and apply the fitter
             int fits_occupied = 0;
             const int nfit_max = 1;  //MOVE THIS EVENTUALLY
-            int nRoads = find.get_roads();
+            int nRoads = find->get_roads();
 
             vector<evFit_entry> road_fits = vector<evFit_entry>(nRoads,evFit_entry());
 
@@ -300,23 +323,24 @@ namespace NSWL1 {
               vector<Hit> track;
 
               //Check if there are hits in the buffer
-              find.checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
-                                        track,        // Empty, To be filled by function.
-                                        iRoad,        // roadID
-                                        hitBuffer     // All hits. Map ( (road,plane) -> finder_entry  )
+              find->checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
+                                         track,        // Empty, To be filled by function.
+                                         iRoad,        // roadID
+                                         hitBuffer,    // All hits. Map ( (road,plane) -> finder_entry  )
+                                         pars[station] // Pointer to geometrical info class
                                       );
 
               //Look for coincidences
-              int road_num = find.Coincidence_Gate(plane_is_hit);
+              int road_num = find->Coincidence_Gate(plane_is_hit, pars[station]);
               if (road_num > 0) {
                 if (fits_occupied >= nfit_max) break;
 
                 //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
-                evFit_entry candidate = fit.fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
+                evFit_entry candidate = fit->fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal,pars[station]);
 
                 ATH_MSG_DEBUG( "THETA " << candidate.fit_theta << " PHI " << candidate.fit_phi << " DTH " << candidate.fit_dtheta );
                 road_fits[iRoad] = candidate;
-                fillmxl = mxl; 
+                fillmxl = mxl;
                 fits_occupied++;
               }
               road_fits[iRoad].hcode = road_num;
@@ -397,50 +421,6 @@ namespace NSWL1 {
     Hits_Data_Set_Time.clear();
     Event_Info.clear();
     if(do_MMDiamonds) diamond->clearEvent();
-
-    return StatusCode::SUCCESS;
-  }
-
-  void MMTriggerTool::storeEventProperties(const unsigned int iterator) {
-    if (diamond->getDiamond(iterator).wedgeCounter == iterator) {
-      if (diamond->getSlopeVector(iterator).empty()) return;
-      m_trigger_diamond_ntrig->push_back(diamond->getSlopeVector(iterator).size());
-
-      for (const auto &slope : diamond->getSlopeVector(iterator)) {
-        m_trigger_diamond_stationPhi->push_back(diamond->getDiamond(iterator).phi);
-        m_trigger_diamond_sector->push_back(diamond->getDiamond(iterator).sector);
-        m_trigger_diamond_bc->push_back(slope.BC);
-        m_trigger_diamond_totalCount->push_back(slope.totalCount);
-        m_trigger_diamond_realCount->push_back(slope.realCount);
-        m_trigger_diamond_XbkgCount->push_back(slope.xbkg);
-        m_trigger_diamond_UVbkgCount->push_back(slope.uvbkg);
-        m_trigger_diamond_XmuonCount->push_back(slope.xmuon);
-        m_trigger_diamond_UVmuonCount->push_back(slope.uvmuon);
-        m_trigger_diamond_iX->push_back(slope.iRoad);
-        m_trigger_diamond_iU->push_back(slope.iRoadu);
-        m_trigger_diamond_iV->push_back(slope.iRoadv);
-        m_trigger_diamond_age->push_back(slope.age);
-        m_trigger_diamond_Xavg->push_back(slope.xavg);
-        m_trigger_diamond_Uavg->push_back(slope.uavg);
-        m_trigger_diamond_Vavg->push_back(slope.vavg);
-        m_trigger_diamond_mxl->push_back(slope.mxl);
-        m_trigger_diamond_theta->push_back(slope.theta);
-        m_trigger_diamond_eta->push_back(slope.eta);
-        m_trigger_diamond_dtheta->push_back(slope.dtheta);
-        m_trigger_diamond_phi->push_back(slope.phi);
-        m_trigger_diamond_phiShf->push_back(slope.phiShf);
-      }
-    }
-    else ATH_MSG_FATAL( "Iterators don't match! Cannot retrieve corresponding variables" );
-  }
-
-  StatusCode MMTriggerTool::finalizeDiamondAlgorithm(const bool do_MMDiamonds) {
-   /*
-    * Place here all the cleaning stuff: pointer deletion etc...
-    */
-    if(do_MMDiamonds) delete diamond;
-    delete m_par_large;
-    delete m_par_small;
 
     return StatusCode::SUCCESS;
   }

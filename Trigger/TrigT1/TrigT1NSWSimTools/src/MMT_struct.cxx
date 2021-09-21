@@ -333,7 +333,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_top_mult1.dlStereoTop << " " << roParam_top_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Top, Bottom, Height) : (" << roParam_top_mult1.activeTopLength << ", " << roParam_top_mult1.activeBottomLength << ", " << roParam_top_mult1.activeH << ")");
   } else if (sector == 'S') {
-    ATH_MSG_INFO("SM2 " <<
+    ATH_MSG_INFO("SM2 \n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_top_mult1.nMissedTopEta << " - BottomEta: " << roParam_top_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_top_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_top_mult1.nMissedBottomStereo << "\n" <<
                  "\t\t\t\t (Top, Bottom, Length): (" << mm_top_mult1->lWidth() << ", " << mm_top_mult1->sWidth() << ", " << mm_top_mult1->Length() << ")\n" <<
@@ -1084,7 +1084,7 @@ void hitData_key::print()const{
 }
 
 
-hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *par,const ROOT::Math::XYZVector &tru,double tpos,double ppos):plane(pl){
+hitData_info::hitData_info(int pl,int station_eta,int strip,std::shared_ptr<MMT_Parameters> par,const ROOT::Math::XYZVector &tru,double tpos,double ppos):plane(pl){
   (void) tru;
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in par), and misalignment based on position.
   //We start by assigning the plane dependent strip width (the stereo planes come in skew and so get divided by cos(stereo_angle)
@@ -1120,7 +1120,7 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *par,
   slope =  (zflt!=0.) ? yflt / zflt : 0.;
 }
 
-double hitData_info::mis_dy(int plane,MMT_Parameters *par,double tpos,double ppos)const{
+double hitData_info::mis_dy(int plane,std::shared_ptr<MMT_Parameters> par,double tpos,double ppos)const{
   if(par->misal.type!=1 || plane>3) return 0.;
   double zplane=par->z_nominal[plane];
   double base=par->ybases[plane].front();
@@ -1208,14 +1208,14 @@ hitData_entry::hitData_entry(int ev, double gt, double q, int vmm, int mmfe, int
   event(ev),gtime(gt),charge(q),VMM_chip(vmm),MMFE_VMM(mmfe),plane(pl),strip(st),station_eta(est),station_phi(phi),multiplet(mult),gasgap(gg),localX(locX),tru_theta_ip(tr_the),tru_phi_ip(tru_phi),truth_nbg(q_tbg),BC_time(bct),time(t),truth(tru),recon(rec),fit_theta(fit_the),fit_phi(fit_ph),fit_dtheta(fit_dth),tru_dtheta(tru_dth),
   /*tru_theta_local(tru_thl),tru_theta_global(tru_thg),*/M_x_global(mxg),M_u_global(mug),M_v_global(mvg),M_x_local(mxl),mx(the_mx),my(the_my),roi(the_roi) {}
 
-Hit hitData_entry::entry_hit(MMT_Parameters *par)const{
+Hit hitData_entry::entry_hit(std::shared_ptr<MMT_Parameters> par)const{
   return Hit(entry_key(),entry_info(par));
 }
 hitData_key hitData_entry::entry_key() const{
   return hitData_key(BC_time,time,gtime,VMM_chip,event);
 }
 
-hitData_info hitData_entry::entry_info(MMT_Parameters *par)const{
+hitData_info hitData_entry::entry_info(std::shared_ptr<MMT_Parameters> par)const{
   hitData_info spade(plane,station_eta,strip,par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
   return spade;
 }
