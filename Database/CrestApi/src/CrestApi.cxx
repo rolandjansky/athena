@@ -2190,7 +2190,7 @@ namespace Crest {
     struct tm tstruct;
     char buf[80];
 
-    tstruct = *localtime(&now);
+    localtime_r(&now, &tstruct);
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
     return buf;
   }
