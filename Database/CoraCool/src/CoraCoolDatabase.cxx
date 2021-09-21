@@ -79,13 +79,13 @@ bool CoraCoolDatabase::disconnect() {
   return m_connected;
 }
 
-bool CoraCoolDatabase::extractCoralConStr(const std::string& coolstr) {
+bool CoraCoolDatabase::extractCoralConStr(const std::string_view coolstr) {
   // extract CORAL database string from COOL one
   bool dbok=false;
   // first check for initial colon - if so, technology-specific string
   std::string::size_type c1=coolstr.find(':');
   if (c1!=std::string::npos) {
-    std::string techno,server,schema,user,passwd;
+    std::string_view techno,server,schema;
     techno=coolstr.substr(0,c1);
     std::string::size_type c2;
     c2=coolstr.find(';');
@@ -101,25 +101,30 @@ bool CoraCoolDatabase::extractCoralConStr(const std::string& coolstr) {
     if (c1!=std::string::npos) {
       c2=coolstr.find(';',c1+7);
       if (c2==std::string::npos) c2=coolstr.size();
-      m_dbname=coolstr.substr(c1+7,c2-c1-7);
+      m_dbname=std::string(coolstr.substr(c1+7,c2-c1-7));
     }
     // construct the connection string
     if (techno=="oracle" || techno=="mysql" || techno=="frontier") {
       if (!server.empty() && !schema.empty()) {
-        m_dbconn=techno+"://"+server+"/"+schema;
+        m_dbconn=std::string(techno);
+        m_dbconn+= "://";
+        m_dbconn+=server;
+        m_dbconn+='/';
+        m_dbconn+=schema;
 	dbok=true;
       }
     } else if (techno=="sqlite") {
       if (!schema.empty()) {
-	m_dbconn="sqlite_file:"+schema;
+	m_dbconn="sqlite_file:";
+        m_dbconn+=schema;
 	dbok=true;
       }
     }
   } else {
     c1=coolstr.find('/');
     if (c1!=std::string::npos) {
-      m_dbconn=coolstr.substr(0,c1);
-      m_dbname=coolstr.substr(c1+1);
+      m_dbconn=std::string(coolstr.substr(0,c1));
+      m_dbname=std::string(coolstr.substr(c1+1));
       dbok=true;
     }
   }
@@ -136,8 +141,10 @@ std::string CoraCoolDatabase::encodeAttrSpec(
   unsigned int n=spec.size();
   for (unsigned int i=0;i<n;++i) {
     const cool::IFieldSpecification& field=spec[i];
-    result+=field.name()+":"+field.storageType().name();
-    if (i<n-1) result+=",";
+    result+=field.name();
+    result+=':';
+    result+=field.storageType().name();
+    if (i<n-1) result+=',';
   }
   return result;
 }
@@ -210,12 +217,19 @@ CoraCoolFolderPtr CoraCoolDatabase::createFolder(const std::string& coolpath,
   p1=description.find("<coracool>");
   p2=description.find("</coracool>");
   if (p1!=std::string::npos && p2!=std::string::npos) {
-    newdesc=description.substr(0,p1)+description.substr(p2+11);
+    newdesc=description.substr(0,p1);
+    newdesc.append(description, p2+11);
   }
   // COOL foreign key column is name of COOL payload attribute
-  newdesc=newdesc+"<coracool>"+coraltable+":"+
-    fkspec[0].name()+":"+
-    coralfk+":"+coralpk+"</coracool>";
+  newdesc+="<coracool>";
+  newdesc+=coraltable;
+  newdesc+=':';
+  newdesc+=fkspec[0].name();
+  newdesc+=':';
+  newdesc+= coralfk;
+  newdesc+=':';
+  newdesc+=coralpk;
+  newdesc+="</coracool>";
   m_log << coral::Debug << "Created new description: " << newdesc << 
     coral::MessageStream::endmsg;
 
@@ -335,7 +349,9 @@ bool CoraCoolDatabase::parseFolderDescription(const std::string& folderdesc,
   c2=folderdesc.find(':',c1+1);
   if (c2==std::string::npos) return false;
 
-  tablename=m_dbname+"_"+folderdesc.substr(p1+10,c1-p1-10);
+  tablename=m_dbname;
+  tablename+= '_';
+  tablename.append(folderdesc,p1+10,c1-p1-10);
   keycolcool=folderdesc.substr(c1+1,c2-c1-1);
   fkeycolcoral=folderdesc.substr(c2+1,p2-c2-1);
   // check for third colon to specify separate primary key

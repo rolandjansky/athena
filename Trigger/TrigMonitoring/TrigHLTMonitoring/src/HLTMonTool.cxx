@@ -492,8 +492,8 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
  
   // christos (Nov-14): is there a reason to still check these flags???
   unsigned int cond = isHLTChain ? TrigDefs::EF_passedRaw : TrigDefs::L2_passedRaw;
-  results["RAW"] = getTDT()->isPassed(chain, cond);
-  results["PS"] = results["RAW"] && (getTDT()->getPrescale(chain) != 1);
+  bool raw = results["RAW"] = getTDT()->isPassed(chain, cond);
+  results["PS"] = raw && (getTDT()->getPrescale(chain) != 1);
   results["PT"] = getTDT()->isPassed(chain, TrigDefs::eventAccepted);
   
   //set up iterators and such
