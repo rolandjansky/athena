@@ -202,8 +202,8 @@ void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
     }
   }
 
-  output.push_back(numer);
   output.push_back(den);
+  output.push_back(numer);
 
 }
 
@@ -239,8 +239,8 @@ std::unique_ptr<eFEXegTOB> LVL1::eFEXegAlgo::geteFEXegTOB() {
   std::vector<unsigned int> temvector;
   getWstot(temvector);
 
-  out->setWstotNum(temvector[0]);
-  out->setWstotDen(temvector[1]);
+  out->setWstotNum(temvector[1]);
+  out->setWstotDen(temvector[0]);
   getRhad(temvector);
   out->setRhadNum(temvector[1]);
   out->setRhadDen(temvector[0] + temvector[1]);

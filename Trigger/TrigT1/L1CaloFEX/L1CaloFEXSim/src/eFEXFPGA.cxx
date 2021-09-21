@@ -29,7 +29,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
 #include "TrigConfData/L1Menu.h"
-
+#include <unordered_map>
 
 #include <iostream>
 #include <fstream>
@@ -165,9 +165,15 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RetaWP = 0;
       unsigned int RhadWP = 0;
       unsigned int WstotWP = 0;
-      SetIsoWP(RetaCoreEnv,threshReta,RetaWP);
-      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP);
-      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP);
+      
+      // bitshifts for the different iso vars
+      unsigned int RetaBitS = 3;
+      unsigned int RhadBitS = 3;
+      unsigned int WstotBitS = 5;
+      
+      SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
+      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
@@ -340,7 +346,8 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
 }
 
 
-void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint) {
+void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint, unsigned int & bitshift) {
+  // Working point evaluted by Core * 2^bitshift > Threshold * Environment conditions
 
   bool CoreOverflow = false;
   bool EnvOverflow = false;
@@ -348,7 +355,9 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
   bool ThrEnvOverflowM = false;
   bool ThrEnvOverflowT = false;
 
-  if (CoreEnv[0] > 0xffff) CoreOverflow = true;
+  std::unordered_map<unsigned int, unsigned int> bsmap { {3, 8}, {5, 32}};
+
+  if (CoreEnv[0]*bsmap[bitshift] > 0xffff) CoreOverflow = true;
   if (CoreEnv[1] > 0xffff) EnvOverflow = true;
   if (CoreEnv[1]*thresholds[0] > 0xffff) ThrEnvOverflowL = true;
   if (CoreEnv[1]*thresholds[1] > 0xffff) ThrEnvOverflowM = true;
@@ -356,13 +365,13 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
   if (CoreOverflow == false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
 	workingPoint = 1;
       } 
-      else if ( (CoreEnv[0] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
 	workingPoint = 2;
       } 
-      else if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
 	workingPoint = 3;
       }
       else { 
