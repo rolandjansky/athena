@@ -144,11 +144,9 @@ namespace MuonCalib {
     //initialize all strings with metadata. Right now, the only meta data is the
     //version number of the string. Eventually we may add extra data such as 
     //category and such
-    std::vector<std::string>::iterator strItr = strVec.begin();
-    std::vector<std::string>::iterator strEnd = strVec.end();
-    for(; strItr != strEnd ; strItr++) {
-      *strItr += version_number;
-      *strItr += " <BEGIN_DATA>";
+    for (std::string& s : strVec) {
+      s += version_number;
+      s += " <BEGIN_DATA>";
     }
 
     std::vector<bool> chansToUpdate(maxCoolChan,false);
@@ -361,7 +359,6 @@ namespace MuonCalib {
 
 
     //Now end each string, and submit it to the database;
-    strItr = strVec.begin();
     for(unsigned int coolChan =1; coolChan <= maxCoolChan ; coolChan++) {
       //If we don't have new data for this channel, don't update it.
       if(!chansToUpdate.at(coolChan-1))

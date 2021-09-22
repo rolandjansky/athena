@@ -723,16 +723,12 @@ namespace MuonCalib {
 
     ATH_MSG_DEBUG("Merging provided csc conditions data into the COOL data string for writing to database.");
     //CscCondDataContainer mergedContainer
-    CscCondDataContainer::const_iterator newItr = newCont->begin();
-    CscCondDataContainer::const_iterator endItr = newCont->end();
-    for(; newItr != endItr ; newItr++) {
-      if(!(*newItr))
+    for (const CscCondDataCollectionBase * newColl : *newCont) {
+      if(!newColl)
       {
         ATH_MSG_ERROR("Empty element in container with new data. Can't merge");
         return StatusCode::RECOVERABLE;
       }
-
-      const CscCondDataCollectionBase * newColl = *newItr;
 
       std::string parName = newColl->getParName();
       std::map<std::string, CscCondDataCollectionBase*>::const_iterator refItr =  
@@ -788,11 +784,9 @@ namespace MuonCalib {
   /** callback functions called whenever a database folder goes out of date*/
   StatusCode CscCoolStrSvc::callback( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys))
   { //IOVSVC_CALLBACK_ARGS is (int& idx, std::list<std::string>& keylist)
-    std::list<std::string>::const_iterator keyItr = keys.begin();
-    std::list<std::string>::const_iterator keyEnd = keys.end();
-    for(; keyItr != keyEnd; keyItr++) {
-      if(!cacheParameter(*keyItr).isSuccess()) {
-        ATH_MSG_WARNING("Failed at caching key " << (*keyItr));
+    for (const std::string& key : keys) {
+      if(!cacheParameter(key).isSuccess()) {
+        ATH_MSG_WARNING("Failed at caching key " << key);
       }
     } 
     return StatusCode::SUCCESS;
