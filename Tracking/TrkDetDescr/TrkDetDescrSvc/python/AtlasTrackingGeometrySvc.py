@@ -69,7 +69,10 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
               if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
                   InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
           else:
-              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
+              if not TrkDetFlags.InDetStagedGeometryBuilder():
+                  from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+              else:
+                  from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
               InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
                 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
