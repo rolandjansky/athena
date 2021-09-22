@@ -1091,8 +1091,17 @@ class athenaExecutor(scriptExecutor):
             # See if we have any 'extra' file arguments
             nameForFiles = commonExecutorStepName(self._name)
             for dataType, dataArg in self.conf.dataDictionary.items():
-                if dataArg.io == 'input' and nameForFiles in dataArg.executor:
-                    inputFiles[dataArg.subtype] = dataArg
+                if isinstance(dataArg, list) and dataArg:
+                    if self.conf.totalExecutorSteps <= 1:
+                        raise ValueError('Multiple input arguments provided but only running one substep')
+                    if self.conf.totalExecutorSteps != len(dataArg):
+                        raise ValueError(f'{len(dataArg)} input arguments provided but running {self.conf.totalExecutorSteps} substeps')
+
+                    if dataArg[self.conf.executorStep].io == 'input' and nameForFiles in dataArg[self.conf.executorStep].executor:
+                        inputFiles[dataArg[self.conf.executorStep].subtype] = dataArg
+                else:
+                    if dataArg.io == 'input' and nameForFiles in dataArg.executor:
+                        inputFiles[dataArg.subtype] = dataArg
 
             msg.debug('Input Files: {0}; Output Files: {1}'.format(inputFiles, outputFiles))
             

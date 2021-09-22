@@ -157,6 +157,8 @@ class trfJobReport(trfReport):
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
         for dataType, dataArg in self._trf._dataDictionary.items():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
                 continue
             if fileReport[dataArg.io]:
@@ -266,6 +268,8 @@ class trfJobReport(trfReport):
 
         # Now add information about output files
         for dataArg in self._trf._dataDictionary.values():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
