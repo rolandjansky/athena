@@ -58,7 +58,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
       std::vector<jetVariable> jets;
         
       // features that will be used by the onnx tool
-      std::vector<std::vector<float> > node_feat; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
+      std::vector<std::vector<float> > node_feat;
         
       unsigned int njets;
 
@@ -234,6 +234,9 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   std::string m_pathToONNX;
   /// tagging strategy is required to do TT with GNN, when we don't want to truth tag all the jets (eg. 'leading2SignalJets')          
   std::string m_taggingStrategy;            
+  /// will be set according to m_taggingStrategy
+  enum NjetsTagStrategy {AllJets=-1, Leading2SignalJets=2, Leading3SignalJets=3};
+  NjetsTagStrategy m_njetsTagStrategy;
 
   //*********************************//
   // Prop. of BTaggingSelectionTool  //
