@@ -152,7 +152,7 @@ class DecisionAlgo(TopoAlgo):
         # variable parameters
         confObj["variableParameters"] = list()
         _emscale_for_decision = self.getScaleToCountsEM() # for legacy algos
-        _mu_for_decision= 10 # MU4->3GeV, MU6->5GeV, MU10->9GeV because selection is done by pt>X in 100 MeV units for Run3 muons
+        _mu_for_decision= 1 # MU4->3GeV, MU6->5GeV, MU10->9GeV because selection is done by pt>X in 100 MeV units for Run3 muons
         if "MUCTP-" in self.name:
             _mu_for_decision= 1 
         for (pos, variable) in enumerate(self.variables):
@@ -204,10 +204,10 @@ class MultiplicityAlgo(TopoAlgo):
         confObj["nbits"] = self.nbits
         return confObj
 
-
-class eEmMultiplicityAlgo(MultiplicityAlgo):
+# eEM and jEM
+class EMMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype ):
-        super(eEmMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
+        super(EMMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                  algoId=algoId, 
                                                  threshold = threshold, 
                                                  input=None, output="%s" % threshold,
@@ -215,6 +215,7 @@ class eEmMultiplicityAlgo(MultiplicityAlgo):
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",threshold).groupdict()
         self.input = mres["type"]
 
+# eTAU, jTAU, cTAU
 class TauMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype ):
         super(TauMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
@@ -225,6 +226,7 @@ class TauMultiplicityAlgo(MultiplicityAlgo):
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[HLMT]*)",threshold).groupdict()
         self.input = mres["type"]
 
+# jJ and jLJ
 class JetMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype ):
         super(JetMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
@@ -235,14 +237,26 @@ class JetMultiplicityAlgo(MultiplicityAlgo):
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[A-z]*)",threshold).groupdict()
         self.input = mres["type"]
 
+# all XE and TE flavours
 class XEMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, name, algoId, threshold, nbits, classtype = "EnergyThreshold"):
         super(XEMultiplicityAlgo, self).__init__( classtype = classtype, name=name, 
                                                   algoId = algoId, 
-                                                  threshold = threshold, 
+                                                  threshold = threshold,
                                                   input=None, output="%s" % threshold,
                                                   nbits=nbits)
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[A-z]*)",threshold).groupdict()
+        self.input = mres["type"]
+        self.flavour = mres["type"]
 
+    def json(self):
+        confObj = super(XEMultiplicityAlgo, self).json()
+        confObj["threshold"] = self.threshold
+        confObj["input"] = self.input
+        confObj["output"] = self.outputs
+        confObj["flavour"] = self.flavour
+        confObj["nbits"] = self.nbits
+        return confObj
 
 class MuMultiplicityAlgo(MultiplicityAlgo):
     def __init__(self, classtype, name, algoId, input, output, nbits):

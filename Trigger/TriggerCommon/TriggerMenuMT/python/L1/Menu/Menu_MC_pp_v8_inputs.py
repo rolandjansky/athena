@@ -82,7 +82,7 @@ def defineInputsMenu():
         "nbitsDefault" : 2,
         "type" : "optical",
         "legacy" : False,
-        "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gFex 
+        "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gJ, gLJ 
             ('eEM3',3), ('eEM5',3), ('eEM8',3), ('eEM8L',3), 
             'eEM8M', 'eEM10L', 'eEM15', 'eEM15L', 'eEM15M',
             'eEM20', 'eEM20L', 'eEM20M', 
@@ -97,7 +97,7 @@ def defineInputsMenu():
         "type" : "optical",
         "fpga" : 0,
         "legacy" : False,
-        "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gFex 
+        "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gJ, gLJ
              ('eTAU8',3), ('eTAU12',3), 'eTAU12L', 'eTAU12M', 'eTAU20',
              'eTAU25', 'eTAU30H', 'eTAU40', 'eTAU60', 'eTAU100',
         ]
@@ -106,13 +106,19 @@ def defineInputsMenu():
     topoBoards["Topo1"]["connectors"].append({ # third optical connector
         "name" : "Topo1Opt2",
         "format" : "multiplicity",
-        "nbitsDefault" : 3,
+        "nbitsDefault" : 2,
         "type" : "optical",
         "fpga" : 1,
         "legacy" : False,
         "thresholds" : [ # Topo1B: jFex small-R jet, jFex large-R jet, combined eFex/jFex TAU, gFex+jFex EX, gFex+jFex SumET, jFex TAU
-            ('gXERHO20',1),  ('gXERHO30',1),  ('gXERHO35',1),  ('gXERHO40',1),  ('gXERHO45',1),  ('gXERHO50',1),
-            ('gXEPUFIT20',1),  ('gXEPUFIT50',1),  ('gXE50',1),
+            'jLJ80', 'jLJ100', 'jLJ140', 'jLJ160', 
+
+            'jEM15', 'jEM15M', 'jEM18M', 
+
+            ('gXERHO30',1),  ('gXERHO50',1),
+            ('gXEPUFIT30',1),  ('gXEPUFIT50',1),  
+            ('gXE30',1), ('gXE40',1), ('gXE50',1),
+            ('gTE50',1),
         ]
     })
 
@@ -131,7 +137,10 @@ def defineInputsMenu():
             'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA20', 'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
             'jJ85', 'jJ100', 'jJ120', 'jJ400',
 
-            ('jXE50',1),
+            ('jXE30',1), ('jXE35',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
+            # test thresholds
+            ('jXEC50',1),
+            ('jTE100',1), ('jTEC100',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1)
         ]
     })
 

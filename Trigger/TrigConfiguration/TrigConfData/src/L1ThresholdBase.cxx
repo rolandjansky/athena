@@ -49,6 +49,9 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "eEM" )
       return std::make_shared<L1Threshold_eEM>( name, type, extraInfo, data );
 
+   if( type == "jEM" )
+      return std::make_shared<L1Threshold_jEM>( name, type, extraInfo, data );
+
    if( type == "eTAU" )
       return std::make_shared<L1Threshold_eTAU>( name, type, extraInfo, data );
 
@@ -60,6 +63,21 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "jJ" )
       return std::make_shared<L1Threshold_jJ>( name, type, extraInfo, data );
+
+   if( type == "jLJ" )
+      return std::make_shared<L1Threshold_jLJ>( name, type, extraInfo, data );
+
+   if( type == "jXE" )
+      return std::make_shared<L1Threshold_jXE>( name, type, extraInfo, data );
+
+   if( type == "jTE" )
+      return std::make_shared<L1Threshold_jTE>( name, type, extraInfo, data );
+
+   if( type == "gXE" )
+      return std::make_shared<L1Threshold_gXE>( name, type, extraInfo, data );
+
+   if( type == "gTE" )
+      return std::make_shared<L1Threshold_gTE>( name, type, extraInfo, data );
 
    if( type == "MU" )
       return std::make_shared<L1Threshold_MU>( name, type, extraInfo, data );
@@ -75,12 +93,6 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
-
-   static const std::string caloBaseImp[] = { "gXE", "jXE" };
-   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) != std::end(caloBaseImp);
-
-   if( useCaloBaseClass )
-      return std::make_shared<L1Threshold_Calo>( name, type, extraInfo, data );
 
    static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA"};
    bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) != std::end(noSpecialImp);
