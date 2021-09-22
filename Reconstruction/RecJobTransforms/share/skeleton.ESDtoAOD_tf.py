@@ -126,9 +126,10 @@ if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):
 #==========================================================
 # Use ZLIB for compression of all temporary outputs
 #==========================================================
-if hasattr(runArgs, "outputAODFile") and ('_000' in runArgs.outputAODFile or 'tmp.' in runArgs.outputAODFile):
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+if hasattr(runArgs, "outputAODFile") and (runArgs.outputAODFile.endswith('_000') or runArgs.outputAODFile.startswith('tmp.')):
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolAODOutput(), 1 ) ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolAODOutput(), 1 ) ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
