@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -157,6 +157,12 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// Set the number of messages for the event-level report
   Gaudi::Property<uint64_t> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
+  /// Exclude some common components from monitoring
+  /// In the future this might be converted to a inclusion set
+  /// which would allow user to monitor only a set of algorithms...
+  const std::set<std::string> m_exclusionSet = {"AthMasterSeq", "AthAlgEvtSeq", "AthAllAlgSeq", "AthAlgSeq", "AthOutSeq",
+    "AthCondSeq", "AthBeginSeq", "AthEndSeq", "AthenaEventLoopMgr", "AthenaHiveEventLoopMgr", "PerfMonMTSvc"};
+
   /// Snapshots data
   std::vector<PMonMT::MeasurementData> m_snapshotData;
   std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "Execute", "Finalize"};
@@ -174,7 +180,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   // Instant event-loop report counter
   std::atomic<uint64_t> m_eventLoopMsgCounter;
 
-  /* 
+  /*
    * Data structure  to store component level measurements
    * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
    */
