@@ -101,25 +101,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return (self.HLTPrescales)
 
 
-    def generateLVL1(self):
-        """
-        == Generates the LVL1 menu
-        """
-        if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 configuration for %s', TriggerFlags.triggerMenuSetup() )
-            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
-            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
-            # build the menu structure
-            self.trigConfL1.generateMenu()
-            log.debug('Menu has %i items', len(self.trigConfL1.menu.items) )
-            # write xml file
-            self.trigConfL1.writeXML()
-        elif TriggerFlags.readLVL1configFromXML():
-            log.info("ReadingLVL1cofnigFromXML currently not implemented")
-        else:
-            log.info("Doing nothing with L1 menu configuration...")
-    
-
     def getChainDicts(self):
         chainCounter = 0
         all_chain_dicts = []
@@ -529,14 +510,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
         log.info('Starting menu generation')
-
-        # --------------------------------------------------------------------
-        # L1 menu generation
-        # - from the code, from DB and from xmls (if we want to maintain this)
-        # currently implementing the generation from configuration code
-        # --------------------------------------------------------------------
-        #generateLVL1()
-
 
         # --------------------------------------------------------------------
         # HLT menu generation

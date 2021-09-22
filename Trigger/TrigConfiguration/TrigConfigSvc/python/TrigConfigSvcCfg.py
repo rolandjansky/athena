@@ -193,19 +193,8 @@ def L1ConfigSvcCfg( flags ):
     l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        # Run 2 configuration
-        l1ConfigSvc.ConfigSource = "XML"
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
-        # check if file exists in this directory otherwise add the package to aid path resolution
-        # also a '/' in the file name indicates that no package needs to be added
-        import os.path
-        if not ( "/" in l1XMLFile or os.path.isfile(l1XMLFile) ):
-            l1XMLFile = "TriggerMenuMT/" + l1XMLFile
-        l1ConfigSvc.XMLMenuFile = l1XMLFile
-        log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
-        # Run 3 configuration
         generatedFile, generatedBgsFile = generateL1Menu( flags )
+        l1ConfigSvc.ConfigSource = "none"
         l1ConfigSvc.InputType = "file"
         l1ConfigSvc.JsonFileName = generatedFile
         l1ConfigSvc.JsonFileNameBGS = generatedBgsFile
@@ -234,7 +223,7 @@ def HLTConfigSvcCfg( flags ):
 
     if cfg["SOURCE"] == "FILE":
         hltXMLFile = "None"
-        hltConfigSvc.ConfigSource = "None"
+        hltConfigSvc.ConfigSource = "none"
         hltConfigSvc.XMLMenuFile = hltXMLFile
         hltConfigSvc.InputType = "file"
         hltJsonFileName = getHLTMenuFileName( flags )

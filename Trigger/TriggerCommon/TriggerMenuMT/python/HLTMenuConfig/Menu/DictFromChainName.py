@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -39,26 +39,10 @@ def getOverallL1item(chainName):
     if l1seed in ['L1_Bkg', 'L1_Standby', 'L1_Calo', 'L1_Calo_EMPTY', 'L1_PhysicsHigh_noPS', 'L1_PhysicsVeryHigh_noPS',
         'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS'] :
         # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
-        # During the transition period to the new menu format it is important to pick the correct kind based
-        # on the temporary TriggerFlag readLVL1FromJSON.
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.readLVL1FromJSON:
-            lvl1name = getL1MenuFileName(ConfigFlags)
-            lvl1access = L1MenuAccess(lvl1name)
-            itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
-        else:
-            from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
-            fileName = TriggerFlags.inputLVL1configFile()
-            l1menu = L1MenuXMLReader(fileName)
-            l1items = l1menu.getL1Items()
-            itemsDict = {}
-            for item in l1items:
-                itemsDict[item['name']] = {
-                    'name' : item['name'],
-                    'ctpid' : item['ctpid'],
-                    'triggerType' : item['trigger_type'],
-                }
+        lvl1name = getL1MenuFileName(ConfigFlags)
+        lvl1access = L1MenuAccess(lvl1name)
+        itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
         l1seedlist = getSpecificL1Seeds(l1seed, itemsDict)
         return l1seedlist
 

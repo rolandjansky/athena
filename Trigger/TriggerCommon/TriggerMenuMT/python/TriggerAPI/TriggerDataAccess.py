@@ -304,7 +304,7 @@ def getHLTmap_fromTM(period, release):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.triggerMenuSetup = menu
-    TriggerFlags.readLVL1configFromXML = True
+    TriggerFlags.readLVL1configFromXML = False
     TriggerFlags.outputLVL1configFile = None
     
     mutelog = logging.getLogger(__name__)
