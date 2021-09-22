@@ -8,8 +8,10 @@ from math import sqrt
 import numpy as np
 
 def make_hits_per_evt(inputs):
-   EvtOccBCap = inputs[0][1][1].Clone()
-   EvtOccECap = inputs[0][1][2].Clone()
+   inputs=list(inputs)
+   i01 = inputs[0][1]
+   EvtOccBCap = i01[1].Clone()
+   EvtOccECap = i01[2].Clone()
    EvtOccBCap.Reset()
    EvtOccECap.Reset()
    EvtOccBCap.SetName("HitsPerEvtInBarrelPerChamber_ADCCut")
@@ -17,8 +19,8 @@ def make_hits_per_evt(inputs):
    EvtOccECap.SetName("HitsPerEvtInEndCapPerChamber_ADCCut")
    EvtOccECap.SetTitle("Avg # hits/evt Endcap, ADCCut")
    
-   VolumeMapBCap = inputs[0][1][1].Clone()
-   VolumeMapECap = inputs[0][1][2].Clone()
+   VolumeMapBCap = i01[1].Clone()
+   VolumeMapECap = i01[2].Clone()
    VolumeMapBCap.Reset()
    VolumeMapECap.Reset()
    VolumeMapBCap.SetName("VolumeMapBarrel")
@@ -27,10 +29,7 @@ def make_hits_per_evt(inputs):
    VolumeMapECap.SetTitle("Volume Map (#tubes*tubeVol in m^3) Endcap")
 
    size = len(inputs)
-   chamberHits_vec = []
-   for i in range(size):
-      hi = inputs[i][1][0].Clone()
-      chamberHits_vec.append(hi.GetEntries())
+   chamberHits_vec = [_[1][0].GetEntries() for _ in inputs]
 
    sorted_chamberHits_vec = np.sort(chamberHits_vec)
    medianChamberHits = 0
@@ -40,9 +39,11 @@ def make_hits_per_evt(inputs):
    elif(size > 0):
       medianChamberHits = sorted_chamberHits_vec[den]
 
+   h_trigger = inputs[0][1][3]
+   nTriggers = int(h_trigger.GetEntries())
    for i in range(size):
       hvOff = False
-      hi = inputs[i][1][0].Clone()
+      hi = inputs[i][1][0]
       name = hi.GetName()
       xAxis = name[0]+name[4]+name[3]
       yAxis = name[1]+name[5]+name[6]
@@ -65,9 +66,6 @@ def make_hits_per_evt(inputs):
             hvOff = True
       elif(nhits < 0.07 * medianChamberHits + 0.1):
          hvOff = True
-
-      h_trigger = inputs[0][1][3]
-      nTriggers = int(h_trigger.GetEntries())
 
       tubeRadiusScale = 1
       tubeLength =      getTubeLength(name)
@@ -107,12 +105,13 @@ def make_eff_histo(inputs, ec):
    ecap_fullStr_lower = "mdt"+ecap_str
    heff = TH1F(ecap_fullStr_lower+"_TUBE_eff",ecap_fullStr_lower+"_TUBE_eff",100,0,1)
 
-   size = len(inputs)
    dencut = 10
 
-   for i in range(size): 
-      hi_num = inputs[i][1][0].Clone()
-      hi_den = inputs[i][1][1].Clone()
+   for itr in inputs: 
+      if itr is None:
+         continue
+      hi_num = itr[1][0]
+      hi_den = itr[1][1]
       nbin=hi_den.GetNbinsX()
       for ibin in range(nbin):
          if( hi_den.At(ibin) > dencut ):
@@ -121,7 +120,8 @@ def make_eff_histo(inputs, ec):
    return [heff]
 
 def make_eff_histo_perML(inputs, ec):
-
+   if inputs[0] is None:
+      return []
    ecap = ["BA", "BC", "EA", "EC"]
    ecap_str= ecap[ec]
    heff_outer = inputs[0][1][2].Clone()
@@ -149,11 +149,12 @@ def make_eff_histo_perML(inputs, ec):
    heff_extra.SetTitle("effsIn"+ecap_str+"ExtraPerMultiLayer, ADCCut")
    heff_extra_N = heff_extra.Clone()
 
-   size = len(inputs)
-   for i in range(size):
-      hi_num = inputs[i][1][0].Clone()
+   for itr in inputs:
+      if itr is None:
+         continue
+      hi_num = itr[1][0]
       name_num = hi_num.GetName()
-      hi_den = inputs[i][1][1].Clone()
+      hi_den = itr[1][1]
       name=name_num[0:7]
       countsML1, countsML2, entriesML1, entriesML2 = MDTTubeEff(name,hi_num,hi_den)
       ch_name = name[0:7]
@@ -226,11 +227,10 @@ def drift_time_monitoring(inputs, ec):
    sumtdrift.SetAxisRange(0,1200,"y")
    sumtdrift.Reset()
 
-   h=TH1F()
    
    for i in range(size):
       currentbin=i+1
-      h = inputs[i][1][0].Clone()
+      h = inputs[i][1][0]
       t0, t0err, tmax, tmaxerr = MDTFitTDC(h)
 
       layer=""

@@ -489,15 +489,10 @@ from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
 ConfigFlags = getNewConfigFlags()
 
-ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
-ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
-
-ConfigFlags.Output.HISTFileName=DQMonFlags.histogramFile()
 ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
 ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
 ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
 ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
-ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
 ConfigFlags.DQ.isReallyOldStyle=False
 
 from AthenaConfiguration import ComponentAccumulator

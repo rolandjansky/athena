@@ -353,7 +353,7 @@ def _py_init_THistSvc():
 
     # save original regXYZ methods: we'll use some modified ones
     # to improve look-up time from python
-    for n in ('Hist', 'Graph', 'Tree'):
+    for n in ('Hist', 'Graph', 'Efficiency', 'Tree'):
         code = "ITHistSvc._cpp_reg%s = ITHistSvc.reg%s" % (n,n)
         exec (code, globals(),locals())
 
@@ -395,6 +395,8 @@ def _py_init_THistSvc():
                 meth = '_cpp_regHist'
             elif isinstance(obj, (ROOT.TGraph,)):
                 meth = '_cpp_regGraph'
+            elif isinstance(obj, (ROOT.TEfficiency,)):
+                meth = '_cpp_regEfficiency'
             elif isinstance(obj, (ROOT.TTree,)):
                 meth = '_cpp_regTree'
             else:
@@ -431,8 +433,7 @@ def _py_init_THistSvc():
         except KeyError:
             pass
         def _get_helper(klass, hsvc, meth, oid, update_cache=True):
-            import cppyy
-            makeNullPtr = cppyy.libPyROOT.MakeNullPointer
+            makeNullPtr = ROOT.MakeNullPointer
             o = makeNullPtr(klass)
             if meth(oid, o).isSuccess():
                 if update_cache:
@@ -446,6 +447,8 @@ def _py_init_THistSvc():
                 return _get_helper(klass, self, self.getHist, oid)
             if issubclass(klass, (ROOT.TGraph,)):
                 return _get_helper(klass, self, self.getGraph, oid)
+            if issubclass(klass, (ROOT.TEfficiency,)):
+                return _get_helper(klass, self, self.getEfficiency, oid)
             if issubclass(klass, (ROOT.TTree,)):
                 return _get_helper(klass, self, self.getTree, oid)
             raise RuntimeError('unsupported type [%r]'%klass)
@@ -464,11 +467,14 @@ def _py_init_THistSvc():
                 obj = _get_helper(klass, self, self.getHist, name)
 
         # then graphs
-        ## FIXME: no 'ITHistSvc::getGraphs' method !!
-        ## https://savannah.cern.ch/bugs/index.php?36379
-##         oids = [n for n in self.getGraphs() if not n in self._py_cache.keys()]
-##         for name in oids:
-##             _get_helper(ROOT.TGraph, self, self.getGraph, name)
+        oids = [n for n in self.getGraphs() if n not in self._py_cache.keys()]
+        for name in oids:
+            _get_helper(ROOT.TGraph, self, self.getGraph, name)
+
+        # then efficiencies
+        oids = [n for n in self.getEfficiencies() if n not in self._py_cache.keys()]
+        for name in oids:
+            _get_helper(ROOT.TEfficiency, self, self.getEfficiency, name)
         
         # finally try ttrees
         oids = [n for n in self.getTrees() if n not in self._py_cache.keys()]
@@ -501,7 +507,7 @@ def _py_init_THistSvc():
     del setitem
 
     ## ties some loose ends
-    for n in ('Hist', 'Graph', 'Tree'):
+    for n in ('Hist', 'Graph', 'Efficiency', 'Tree'):
         code = """\
 def reg%s(self, oid, oid_type=None):
     if not (oid_type is None):
@@ -521,9 +527,10 @@ del reg%s""" % (n,n,n,n,n)
         its type. `oid_type' is a string whose value is either:
          - 'hist',  to load any THx and TProfiles
          - 'tree',  to load TTrees
+         - 'efficiency', to load TEfficiency
          - 'graph', to load TGraph and TGraphErrors
         """
-        _allowed_values = ('hist','tree','graph')
+        _allowed_values = ('hist','tree','efficiency','graph')
         if oid_type not in _allowed_values:
             raise ValueError(
                 'oid_type (=%r) MUST be one of %r'%(oid_type,
