@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDDController.h"
@@ -80,15 +80,15 @@ IAGDDParser* AGDDController::GetParser()
 {
 	return m_theParser;
 }
-void AGDDController::AddFile(std::string fName) 
+void AGDDController::AddFile(const std::string& fName) 
 {
 	m_filesToParse.push_back(fName);
 }
-void AGDDController::AddSection(std::string section) 
+void AGDDController::AddSection(const std::string& section) 
 {
 	m_sectionsToBuild.push_back(section);
 }
-void AGDDController::AddVolume(std::string section) 
+void AGDDController::AddVolume(const std::string& section) 
 {
 	m_volumesToBuild.push_back(section);
 }
@@ -129,13 +129,13 @@ void AGDDController::PrintSections() const
   	ss->PrintAllSections();
 }
 
-void AGDDController::ParseString(std::string s)
+void AGDDController::ParseString(const std::string& s)
 {
 	if (!m_theParser) m_theParser=new XercesParser;
 	m_theParser->ParseStringAndNavigate(s);
 }
 
-bool AGDDController::WriteAGDDtoDBFile(std::string s)
+bool AGDDController::WriteAGDDtoDBFile(const std::string& s)
 {
 	if (!m_theParser)
 	{
@@ -148,13 +148,7 @@ bool AGDDController::WriteAGDDtoDBFile(std::string s)
 	}
 }
 
-AGDDController* AGDDController::GetController()
-{
-	static AGDDController* theController=new AGDDController;
-	return theController;
-}
-
-void AGDDController::UseGeoModelDetector(std::string name)
+void AGDDController::UseGeoModelDetector(const std::string& name)
 {
 	StoreGateSvc* pDetStore=0;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -180,7 +174,7 @@ void AGDDController::UseGeoModelDetector(std::string name)
 
 }
 
-void AGDDController::PrintVolumeHierarchy(std::string name, int ilevel)
+void AGDDController::PrintVolumeHierarchy(const std::string& name, int ilevel)
 {
 	AGDDVolumeStore *vs=AGDDVolumeStore::GetVolumeStore();
 	AGDDVolume *vol=vs->GetVolume(name);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/importHandler.h"
@@ -9,7 +9,10 @@
 #include <iostream>
 
 
-importHandler::importHandler(std::string s):XMLHandler(s)
+importHandler::importHandler(const std::string& s,
+                             AGDDController& controller)
+  : XMLHandler(s),
+    m_controller (controller)
 {
 }
 
@@ -17,5 +20,5 @@ void importHandler::ElementHandle()
 {
 	std::string filename=getAttributeAsString("filename");
 	std::cout<<" trying to parse file "<<filename<<std::endl;
-	(AGDDController::GetController()->GetParser())->ParseFileAndNavigate(filename);
+	m_controller.GetParser()->ParseFileAndNavigate(filename);
 }

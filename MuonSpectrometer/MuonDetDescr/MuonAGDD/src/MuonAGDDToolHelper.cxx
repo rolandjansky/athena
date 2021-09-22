@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDToolHelper.h"
@@ -16,7 +16,7 @@
 #include "AGDDControl/AGDDController.h"
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
-#include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
 #include "AGDDKernel/AliasStore.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"

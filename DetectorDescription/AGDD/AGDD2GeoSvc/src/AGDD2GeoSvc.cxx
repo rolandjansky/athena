@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDD2GeoSvc/AGDD2GeoSvc.h"
-#include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
 
 #include "AGDDControl/IAGDDToolBase.h"
 #include "AGDDControl/AGDDTokenizer.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDKernel/AliasStore.h"
 
 #include <iostream>
@@ -89,7 +90,7 @@ void AGDDtoGeoSvc::localInitialization()
 	addHandler(new unionHandler("union"));
 	addHandler(new varHandler("var"));
 	addHandler(new versionHandler("version"));
-	addHandler(new importHandler("import"));
+	addHandler(new importHandler("import", m_controller));
 	
 	addHandler(new chamberPositionerHandler("chamberPosition"));
 
@@ -129,4 +130,18 @@ void AGDDtoGeoSvc::localInitialization()
 	AliasStore::GetAliasList()->AddAlias("PolyBoronB2O3","shield::PolyboronB2O3");
 	AliasStore::GetAliasList()->AddAlias("PolyBoronH3B03","shield::PolyboronH3B03");
 	AliasStore::GetAliasList()->AddAlias("PolyBoron207HD5","shield::Polyboron207HD5");
+}
+
+
+void AGDDtoGeoSvc::addHandler (XMLHandler* v)
+{
+  std::scoped_lock lock (m_mutex);
+  m_handlerVector.push_back(v);
+}
+
+
+IAGDDtoGeoSvc::LockedController AGDDtoGeoSvc::getController()
+{
+  std::unique_lock lock (m_mutex);
+  return LockedController (m_controller, std::move (lock));
 }
