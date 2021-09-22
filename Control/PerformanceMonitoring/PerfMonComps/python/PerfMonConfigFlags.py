@@ -8,5 +8,6 @@ def createPerfMonConfigFlags():
     # Two basic flags for PerfMonMT
     pcf.addFlag('PerfMon.doFastMonMT', False)
     pcf.addFlag('PerfMon.doFullMonMT', False)
+    pcf.addFlag('PerfMon.OutputJSON', 'perfmonmt.json')
     
     return pcf
