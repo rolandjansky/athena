@@ -1,0 +1,33 @@
+#
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile Raw channel noise monitoring
+## Separate blocks with ---
+Input: [ 'Tile/RawChannelNoise/LBA/(?P<module>LBA[0-6]\d{1})/TileRawChannelNoise_(?P=module)_[ABCDE]\d[0-5\*]?_ch_(?P<channel>\d{1,2})_HG' ]
+Output: [ 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RMS_LBA', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Sigma_LBA',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Chi2_LBA', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Probability_LBA',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RmsOverSigma_LBA']
+Function: TileMonitoring.TilePostProcessing.getTilePartitionRawChannelNoise
+Description: Produces 2D histograms with Tile raw channel noise for LBA partition
+---
+Input: [ 'Tile/RawChannelNoise/LBC/(?P<module>LBC[0-6]\d{1})/TileRawChannelNoise_(?P=module)_[ABCDE]\d[0-5\*]?_ch_(?P<channel>\d{1,2})_HG' ]
+Output: [ 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RMS_LBC', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Sigma_LBC',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Chi2_LBC', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Probability_LBC',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RmsOverSigma_LBC' ]
+Function: TileMonitoring.TilePostProcessing.getTilePartitionRawChannelNoise
+Description: Produces 2D histograms with Tile raw channel noise for LBC partition
+---
+Input: [ 'Tile/RawChannelNoise/EBA/(?P<module>EBA[0-6]\d{1})/TileRawChannelNoise_(?P=module)_[ABCDE]\d[0-5\*]?_ch_(?P<channel>\d{1,2})_HG' ]
+Output: [ 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RMS_EBA', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Sigma_EBA',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Chi2_EBA', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Probability_EBA',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RmsOverSigma_EBA' ]
+Function: TileMonitoring.TilePostProcessing.getTilePartitionRawChannelNoise
+Description: Produces 2D histograms with Tile raw channel noise for EBA partition
+---
+Input: [ 'Tile/RawChannelNoise/EBC/(?P<module>EBC[0-6]\d{1})/TileRawChannelNoise_(?P=module)_[ABCDE]\d[0-5\*]?_ch_(?P<channel>\d{1,2})_HG' ]
+Output: [ 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RMS_EBC', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Sigma_EBC',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Chi2_EBC', 'Tile/RawChannelNoise/Summary/TileRawChannelNoise_Probability_EBC',
+          'Tile/RawChannelNoise/Summary/TileRawChannelNoise_RmsOverSigma_EBC' ]
+Function: TileMonitoring.TilePostProcessing.getTilePartitionRawChannelNoise
+Description: Produces 2D histograms with Tile raw channel noise for EBC partition
+

@@ -46,7 +46,7 @@ class OHInputModule(InputModule):
             raise ValueError("Must specify 'source' as an "
                              "option to OHInputModule")
         self.source = options['source']
-        self.partition, self.server, self.provider = self.source.split(':')
+        self.partition, self.server, self.provider = self.source.split(';')
         self.prefix = options.get('prefix', '')
         if not IPCPartition(self.partition).isValid():
             raise ValueError(f'Input partition {self.partition} does not exist')
@@ -134,7 +134,7 @@ class OHOutputModule(OutputModule):
             raise ValueError("Must specify 'target' as an option "
                              "to OHInputModule")
         self.target = options['target']
-        self.partition, self.server, self.provider = self.target.split(':')
+        self.partition, self.server, self.provider = self.target.split(';')
         self.partition = ispy.IPCPartition(self.partition)
         if not self.partition.isValid():
             raise ValueError(f'Output partition {self.partition.name()} is not valid')
