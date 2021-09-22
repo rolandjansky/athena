@@ -242,6 +242,7 @@ if __name__ == '__main__':
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
     ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-RUN2-03"
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -266,4 +267,4 @@ if __name__ == '__main__':
     ServiceMgr.Dump = False
 
     cfg.merge(TRTMonitoringRun3Acc)
-    cfg.run(100)
+    cfg.run(200)
