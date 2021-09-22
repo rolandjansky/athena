@@ -34,7 +34,6 @@
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 //
 // ........ Event Header Files:

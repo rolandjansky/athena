@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTLARDETDESCR_TESTCALODDE_H
@@ -21,7 +21,6 @@ PURPOSE:  provide example to retreive CaloDetDescr manager and
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 class CaloIdManager;
-class LArIdManager;
 class CaloDetDescrManager;
 #include "CaloIdentifier/CaloCell_ID.h"
 class ICaloRecoMaterialTool;
@@ -60,7 +59,6 @@ class TestCaloDDE : public AthAlgorithm
   
   const CaloIdManager*  m_calo_id_man;
   const CaloDetDescrManager*  m_calo_dd_man;
-  const LArIdManager* m_lar_id_man;
 
   // Simplified geometry :
   ICaloRecoMaterialTool* m_lar_mat;

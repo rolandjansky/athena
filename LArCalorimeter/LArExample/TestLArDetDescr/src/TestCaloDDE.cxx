@@ -16,7 +16,6 @@
 // specific :
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "LArIdentifier/LArIdManager.h"
 
 #include "CaloDetDescr/CaloSubdetNames.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -40,7 +39,6 @@ TestCaloDDE::TestCaloDDE(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_calo_id_man(0),
   m_calo_dd_man(0),
-  m_lar_id_man(0),
   m_lar_mat(0),
   m_lar_simplegeom(0)
 {}
@@ -55,9 +53,6 @@ StatusCode TestCaloDDE::initialize()
   ATH_CHECK( detStore()->retrieve(m_calo_id_man) );
   ATH_MSG_DEBUG ( "Successfully retrieved CaloIdManager from DetectorStore" );
   
-  ATH_CHECK( detStore()->retrieve(m_lar_id_man) );
-  ATH_MSG_DEBUG ( "Successfully retrieved LArIdManager from DetectorStore" );
-
   ATH_CHECK( detStore()->retrieve(m_calo_dd_man) );
   ATH_MSG_DEBUG ( "Successfully retrieved CaloDetDescrManager from DetectorStore" );
 
@@ -477,8 +472,7 @@ TestCaloDDE::print_elt_HW(bool em, bool hec, bool fcal)
 		  << "calo-hash=" << (unsigned int) idcalohash 
 		  << " sub-hash=" << i << " region: "
 		  << help_em->sampling(id)<< " " 
-		  << help_em->region(id)<< " "
-		   << " online id " <<  m_lar_id_man->get_HWId(idcalohash)
+		  << help_em->region(id)
 		  << std::endl;
 		  }
       
@@ -508,8 +502,7 @@ TestCaloDDE::print_elt_HW(bool em, bool hec, bool fcal)
 		   << "calo-hash=" << (unsigned int) idcalohash 
 		   << " sub-hash=" << i << " region: "
 		   << help_hec->sampling(id)<< " " 
-		   << help_hec->region(id)<< " "
-		   << " online id " <<  m_lar_id_man->get_HWId(idcalohash)
+		   << help_hec->region(id)
 		   << std::endl;
       }
     }
@@ -537,8 +530,7 @@ TestCaloDDE::print_elt_HW(bool em, bool hec, bool fcal)
      	std::cout  << std::setw(9) << std::setprecision(4) 
 		   << "calo-hash=" << (unsigned int) idcalohash 
 		  << " sub-hash=" << i << " region: "
-		  << help_fcal-> module(id)<< " " 
-		   << " online id " <<  m_lar_id_man->get_HWId(idcalohash)
+		  << help_fcal-> module(id)
 		  << std::endl;
 
       }
