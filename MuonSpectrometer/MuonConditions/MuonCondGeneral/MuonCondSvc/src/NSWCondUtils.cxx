@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
