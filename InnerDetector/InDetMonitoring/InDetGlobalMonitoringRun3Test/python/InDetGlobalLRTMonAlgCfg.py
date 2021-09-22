@@ -17,10 +17,9 @@ def InDetGlobalLRTMonAlgCfg(helper, alg, **kwargs):
     m_nBinsEta = 50
     m_nBinsPhi = 50
     m_trackBin = 75
-    m_c_etaRange = 2.5
+    m_c_etaRange = 3
     m_c_etaRangeTRT = 2.0
     m_c_range_LB = 3000
-    m_trackMax = 75
 
     # this creates a "lrtGroup" called "alg" which will put its histograms into the subdirectory "Track"
     lrtGroup = helper.addGroup(alg, 'LRT')
@@ -30,12 +29,12 @@ def InDetGlobalLRTMonAlgCfg(helper, alg, **kwargs):
 
     varName = 'm_nBase;nCOMBtrks' #done
     title = 'Track multiplicity (baseline tracks);Track multiplicity;Events'
-    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=m_trackBin, xmin=-5, xmax=m_trackMax + 0.5)
+    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=m_trackBin, xmin=-5, xmax=10 + 0.5)
 
 
     varName = 'm_d0_perigee;trkD' #done 
     title = 'd_{0} ;d_{0} (mm)'
-    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=20, xmin=-300, xmax=300)
+    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=20, xmin=-325, xmax=325)
 
     varName = 'm_z0_perigee;trkZ' #done 
     title = 'z_{0} ;z_{0} (mm);'
@@ -54,7 +53,7 @@ def InDetGlobalLRTMonAlgCfg(helper, alg, **kwargs):
 
     varName = 'm_phi_perigee1;trkPhi' #done 
     title = ' #varphi of all tracks; #varphi (rad);'
-    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=m_nBinsPhi, xmin=-M_PI, xmax=M_PI)
+    lrtGroup.defineHistogram(varName, type='TH1F', path=pathtrack, title=title, xbins=m_nBinsPhi, xmin=-3.2, xmax=3.2)
 
     varName = 'm_trkPt;trkPt' #done
     title = 'Track Pt;p_{T} (GeV);'
