@@ -1123,6 +1123,9 @@ namespace top {
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
+    inline virtual void muonBreakDownSystematics(const bool flag) {m_muonBreakDownSystematics = flag;}
+    inline virtual bool muonBreakDownSystematics() {return m_muonBreakDownSystematics;}
+
     std::string const& muonSFCustomInputFolder() const {return m_muonSFCustomInputFolder;}
     void muonSFCustomInputFolder(const std::string& s) {
       if (!m_configFixed) {
@@ -2495,6 +2498,7 @@ namespace top {
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
 
     //Soft muon configuration

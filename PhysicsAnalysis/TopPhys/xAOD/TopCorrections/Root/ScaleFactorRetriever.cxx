@@ -897,12 +897,117 @@ namespace top {
       decoration += "_SYST_LOWPT_DOWN";
       break;
 
+    case top::topSFSyst::MU_SF_ID_BKG_FRACTION_UP:
+      decoration += "_BKG_FRACTION_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BKG_FRACTION_DOWN:
+      decoration += "_BKG_FRACTION_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_FIT_MODEL_LOWPT_UP:
+      decoration += "_FIT_MODEL_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_FIT_MODEL_LOWPT_DOWN:
+      decoration += "_FIT_MODEL_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_LUMI_UNCERT_UP:
+      decoration += "_LUMI_UNCERT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_LUMI_UNCERT_DOWN:
+      decoration += "_LUMI_UNCERT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_UP:
+      decoration += "_MATCHING_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_DOWN:
+      decoration += "_MATCHING_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_LOWPT_UP:
+      decoration += "_MATCHING_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_LOWPT_DOWN:
+      decoration += "_MATCHING_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MC_XSEC_UP:
+      decoration += "_MC_XSEC_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MC_XSEC_DOWN:
+      decoration += "_MC_XSEC_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_PT_DEPENDENCY_UP:
+      decoration += "_PT_DEPENDENCY_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_PT_DEPENDENCY_DOWN:
+      decoration += "_PT_DEPENDENCY_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_QCD_TEMPLATE_UP:
+      decoration += "_QCD_TEMPLATE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_QCD_TEMPLATE_DOWN:
+      decoration += "_QCD_TEMPLATE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SUPRESSION_SCALE_UP:
+      decoration += "_SUPRESSION_SCALE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SUPRESSION_SCALE_DOWN:
+      decoration += "_SUPRESSION_SCALE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SYS_UP:
+      decoration += "_SYS_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SYS_DOWN:
+      decoration += "_SYS_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_UP:
+      decoration += "_TRUTH_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_DOWN:
+      decoration += "_TRUTH_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_LOWPT_UP:
+      decoration += "_TRUTH_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_LOWPT_DOWN:
+      decoration += "_TRUTH_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BAD_MUON_VETO_UP:
+      decoration += "_BAD_MUON_VETO_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BAD_MUON_VETO_DOWN:
+      decoration += "_BAD_MUON_VETO_DOWN";
+      break;
+
     default:
       // Do nothing, we have the decoration already
       break;
     }
 
     if (!x.isAvailable<float>(decoration)) {
+      ATH_MSG_INFO("Muon is not decorated with requested ID SF: " << decoration << ". 1.0 will be returned.");
       return 1.0;
     } else {
       return x.auxdataConst<float>(decoration);
@@ -1044,13 +1149,53 @@ namespace top {
       decoration += "_SYST_DOWN";
       break;
 
+    case top::topSFSyst::MU_SF_TTVA_LUMI_UNCERT_UP:
+      decoration += "_LUMI_UNCERT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_LUMI_UNCERT_DOWN:
+      decoration += "_LUMI_UNCERT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_BKG_FRACTION_UP:
+      decoration += "_BKG_FRACTION_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_BKG_FRACTION_DOWN:
+      decoration += "_BKG_FRACTION_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_MC_XSEC_UP:
+      decoration += "_MC_XSEC_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_MC_XSEC_DOWN:
+      decoration += "_MC_XSEC_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_QCD_TEMPLATE_UP:
+      decoration += "_QCD_TEMPLATE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_QCD_TEMPLATE_DOWN:
+      decoration += "_QCD_TEMPLATE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_SUPRESSION_SCALE_UP:
+      decoration += "_SUPRESSION_SCALE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_SUPRESSION_SCALE_DOWN:
+      decoration += "_SUPRESSION_SCALE_DOWN";
+      break;
+
     default:
       // Do nothing, we have the decoration already
       break;
     }
 
     if (!(x.isAvailable<float>(decoration))) {
-      ATH_MSG_INFO("Muon is not decorated with requested TTVA SF. 1.0 will be returned.");
+      ATH_MSG_INFO("Muon is not decorated with requested TTVA SF: " << decoration << ". 1.0 will be returned.");
       return 1.0;
     }
 

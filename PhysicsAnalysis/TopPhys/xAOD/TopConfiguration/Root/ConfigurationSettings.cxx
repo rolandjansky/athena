@@ -184,6 +184,10 @@ namespace top {
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
                       " ");
 
+    registerParameter("MuonBreakDownSystematics",
+                      "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
+                      "False", {"True", "False"});
+
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
 
