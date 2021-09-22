@@ -250,6 +250,7 @@ namespace top {
     m_muonIsolationSFLoose("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
+    m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
 
     // Soft Muon configuration
@@ -1331,6 +1332,9 @@ namespace top {
       muonDoExtraSmearingHighPt = false;
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
+    bool muonBreakDownSystematics(false);
+    settings->retrieve("MuonBreakDownSystematics", muonBreakDownSystematics);
+    this->muonBreakDownSystematics(muonBreakDownSystematics);
     {
       std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
       this->muonSFCustomInputFolder(customMuonSF);

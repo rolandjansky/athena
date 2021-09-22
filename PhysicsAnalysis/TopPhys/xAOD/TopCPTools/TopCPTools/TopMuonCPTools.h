@@ -54,6 +54,7 @@ namespace top {
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolPromptLeptonIso;
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolBadMuonVeto;
 
     ToolHandle<CP::IMuonSelectionTool> m_softmuonSelectionTool;
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_softmuonEfficiencyCorrectionsTool;
@@ -70,7 +71,7 @@ namespace top {
     setupMuonTrigSFTool(const std::string& name, const std::string& quality);
 
     CP::IMuonEfficiencyScaleFactors*
-    setupMuonSFTool(const std::string& name, const std::string& WP);
+    setupMuonSFTool(const std::string& name, const std::string& WP, const bool isIso);
 
     CP::IMuonCalibrationAndSmearingTool*
       setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearingHighPt, const bool& do2StationsHighPt);
