@@ -225,8 +225,9 @@ namespace ViewHelper
         }
 
         //Declare remapping
+        auto proxy = inputView->proxy( queryHandle.clid(), queryHandle.key() ); //shouldn't need to test validity since queryHandle already used
         m_sg->remap( ClassID_traits< DataVector< T > >::ID(),
-                     inputView->viewKey (queryHandle.name()),
+                     proxy->name(),
                      queryHandle.name(),
                      offset );
         offset += queryHandle->size();
@@ -277,7 +278,9 @@ namespace ViewHelper
   template<typename T>
   ElementLink<T> makeLink( const SG::View* view, const SG::ReadHandle<T>& handle, size_t index )
   {
-    return ElementLink<T>( view->viewKey (handle.key()), index );
+    auto proxy = view->proxy( handle.clid(), handle.key() );
+    if ( proxy == nullptr ) throw std::runtime_error( "Attempting to make element link with invalid key " + handle.key() );
+    return ElementLink<T>( proxy->name(), index );
   }
 
 } // EOF namspace ViewHelper
