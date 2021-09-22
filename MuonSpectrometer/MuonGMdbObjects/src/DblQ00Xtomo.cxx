@@ -110,7 +110,7 @@ DblQ00Xtomo::DblQ00Xtomo(AmdcDb* xtomo) :
 
   int i = -1;
   it = pIRDBRecordset->begin();
-  for( ; it<pIRDBRecordset->end(); it++){
+  for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
      if(pAmdcDbRecord == 0){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
