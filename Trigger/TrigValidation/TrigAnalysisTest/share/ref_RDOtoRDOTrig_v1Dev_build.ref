@@ -9735,9 +9735,109 @@ HLT_noalg_L1eTAU60:
   eventCount: 0
 HLT_noalg_L1eTAU8:
   eventCount: 0
+HLT_noalg_L1gTE50:
+  eventCount: 0
+HLT_noalg_L1gXE30:
+  eventCount: 0
+HLT_noalg_L1gXE40:
+  eventCount: 0
+HLT_noalg_L1gXE50:
+  eventCount: 0
+HLT_noalg_L1gXEPUFIT30:
+  eventCount: 0
+HLT_noalg_L1gXEPUFIT50:
+  eventCount: 0
+HLT_noalg_L1gXERHO30:
+  eventCount: 0
+HLT_noalg_L1gXERHO50:
+  eventCount: 0
+HLT_noalg_L1jEM15:
+  eventCount: 0
+HLT_noalg_L1jEM15M:
+  eventCount: 0
+HLT_noalg_L1jEM18M:
+  eventCount: 0
+HLT_noalg_L1jJ100:
+  eventCount: 0
+HLT_noalg_L1jJ12:
+  eventCount: 0
+HLT_noalg_L1jJ120:
+  eventCount: 0
+HLT_noalg_L1jJ12p0ETA25:
+  eventCount: 0
+HLT_noalg_L1jJ15:
+  eventCount: 0
+HLT_noalg_L1jJ15p0ETA25:
+  eventCount: 0
+HLT_noalg_L1jJ15p31ETA49:
+  eventCount: 0
+HLT_noalg_L1jJ20:
+  eventCount: 0
+HLT_noalg_L1jJ20p31ETA49:
+  eventCount: 0
+HLT_noalg_L1jJ25:
+  eventCount: 0
+HLT_noalg_L1jJ25p0ETA23:
+  eventCount: 0
+HLT_noalg_L1jJ30:
+  eventCount: 0
+HLT_noalg_L1jJ30p31ETA49:
+  eventCount: 0
+HLT_noalg_L1jJ35p0ETA23:
+  eventCount: 0
+HLT_noalg_L1jJ40:
+  eventCount: 0
+HLT_noalg_L1jJ400:
+  eventCount: 0
+HLT_noalg_L1jJ40p0ETA25:
+  eventCount: 0
+HLT_noalg_L1jJ45p0ETA20:
+  eventCount: 0
+HLT_noalg_L1jJ50:
+  eventCount: 0
+HLT_noalg_L1jJ50p31ETA49:
+  eventCount: 0
+HLT_noalg_L1jJ75:
+  eventCount: 0
+HLT_noalg_L1jJ75p31ETA49:
+  eventCount: 0
+HLT_noalg_L1jJ85:
+  eventCount: 0
+HLT_noalg_L1jLJ100:
+  eventCount: 0
+HLT_noalg_L1jLJ140:
+  eventCount: 0
+HLT_noalg_L1jLJ160:
+  eventCount: 0
+HLT_noalg_L1jLJ80:
+  eventCount: 0
 HLT_noalg_L1jTAU12:
   eventCount: 0
 HLT_noalg_L1jTAU12M:
+  eventCount: 0
+HLT_noalg_L1jTE100:
+  eventCount: 0
+HLT_noalg_L1jTEC100:
+  eventCount: 0
+HLT_noalg_L1jTEFWD100:
+  eventCount: 0
+HLT_noalg_L1jTEFWDA100:
+  eventCount: 0
+HLT_noalg_L1jTEFWDC100:
+  eventCount: 0
+HLT_noalg_L1jXE30:
+  eventCount: 0
+HLT_noalg_L1jXE300:
+  eventCount: 0
+HLT_noalg_L1jXE35:
+  eventCount: 0
+HLT_noalg_L1jXE40:
+  eventCount: 0
+HLT_noalg_L1jXE50:
+  eventCount: 0
+HLT_noalg_L1jXE55:
+  eventCount: 0
+HLT_noalg_L1jXEC50:
   eventCount: 0
 HLT_noalg_LArPEBCalib_L1LAR-ZEE:
   eventCount: 1

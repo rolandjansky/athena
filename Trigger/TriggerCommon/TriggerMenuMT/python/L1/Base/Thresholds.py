@@ -279,10 +279,10 @@ class LegacyThreshold( Threshold ):
 
 
 
-class EMThreshold (Threshold):
+class eEMThreshold (Threshold):
     
     def __init__(self, name, ttype = 'eEM', mapping = -1):
-        super(EMThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='eEM' else 2)
+        super(eEMThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='eEM' else 2)
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",name).groupdict()
         self.suffix = mres["suffix"]
         self.rhad = "None"
@@ -337,6 +337,75 @@ class EMThreshold (Threshold):
         confObj["rhad"] = self.rhad
         confObj["reta"] = self.reta
         confObj["wstot"] = self.wstot
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            tvco = odict()
+            tvco["value"] = thrV.value
+            tvco["etamin"] = thrV.etamin
+            tvco["etamax"] = thrV.etamax
+            tvco["priority"] = thrV.priority
+            confObj["thrValues"].append( tvco )
+        return confObj
+
+
+class jEMThreshold (Threshold):
+
+    def __init__(self, name, ttype = 'jEM', mapping = -1):
+        super(jEMThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='jEM' else 2)
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",name).groupdict()
+        self.suffix = mres["suffix"]
+        self.iso = "None"
+        self.frac = "None"
+        self.frac2 = "None"
+
+    def isV(self):
+        return 'V' in self.suffix
+
+    def isI(self):
+        return 'I' in self.suffix
+
+    def isL(self):
+        return 'L' in self.suffix
+
+    def isM(self):
+        return 'M' in self.suffix
+
+    def setIsolation(self, iso = "None", frac = "None", frac2 = "None"):
+        allowed = [ "None", "Loose", "Medium", "Tight" ]
+        if iso not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for iso, must be one of %s", self.name, self.ttype, iso, ', '.join(allowed) )
+        if frac not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for frac, must be one of %s", self.name, self.ttype, frac, ', '.join(allowed) )
+        if frac2 not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for frac2, must be one of %s", self.name, self.ttype, frac2, ', '.join(allowed) )
+        self.iso = iso
+        self.frac = frac
+        self.frac2 = frac2
+        return self
+
+    def addThrValue(self, value, *args, **kwargs):
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+
+        self.thresholdValues.append(thrv)
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["mapping"] = self.mapping
+        confObj["iso"] = self.iso
+        confObj["frac"] = self.frac
+        confObj["frac2"] = self.frac2
         confObj["thrValues"] = []
         for thrV in self.thresholdValues:
             tvco = odict()
@@ -575,36 +644,73 @@ class cTauThreshold( Threshold ):
         confObj["isolation"] = self.isolation
         return confObj
 
-class JetThreshold( Threshold ):
+class jJetThreshold( Threshold ):
 
     def __init__(self, name, ttype = 'jJ', mapping = -1):
-        super(JetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='jJ' else 2)
-        self.pt = None
-        self.ranges = [] # full range if empty
+        super(jJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='jJ' else 2)
 
-    def setPt(self,pt):
-        """sets pt value"""
-        self.pt = pt
-        return self
+    def addThrValue(self, value, *args, **kwargs):
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
 
-    def addRange(self,etamin, etamax):
-        """
-        range for which the pt is valid
-        outside those the threshold is not defined
-        """
-        etamin, etamax = sorted([etamin,etamax])
-        self.ranges += [ odict([("etamin", etamin),("etamax", etamax)]) ]
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+
+        self.thresholdValues.append(thrv)
         return self
 
     def json(self):
         confObj = odict()
-        confObj["value"] = self.pt
         confObj["mapping"] = self.mapping
-        if len(self.ranges)==0:
-            confObj["ranges"] = [ odict([("etamin", -49),("etamax", 49)]) ]
-        else:
-            confObj["ranges"] = self.ranges
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            tvco = odict()
+            tvco["value"] = thrV.value
+            tvco["etamin"] = thrV.etamin
+            tvco["etamax"] = thrV.etamax
+            tvco["priority"] = thrV.priority
+            confObj["thrValues"].append( tvco )
+        return confObj
 
+
+class jLJetThreshold( Threshold ):
+
+    def __init__(self, name, ttype = 'jLJ', mapping = -1):
+        super(jLJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='jLJ' else 2)
+
+    def addThrValue(self, value, *args, **kwargs):
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+
+        self.thresholdValues.append(thrv)
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["mapping"] = self.mapping
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            tvco = odict()
+            tvco["value"] = thrV.value
+            tvco["etamin"] = thrV.etamin
+            tvco["etamax"] = thrV.etamax
+            tvco["priority"] = thrV.priority
+            confObj["thrValues"].append( tvco )
         return confObj
 
 class XEThreshold( Threshold ):
@@ -624,6 +730,22 @@ class XEThreshold( Threshold ):
         confObj["mapping"] = self.mapping
         return confObj
 
+class TEThreshold( Threshold ):
+
+    def __init__(self, name, ttype, mapping = -1):
+        super(TEThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype.startswith('gTE') or ttype.startswith('jTE') else 2)
+        self.xe = None
+
+    def setTE(self, xe):
+        """te value in GeV"""
+        self.xe = xe
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["value"] = self.xe
+        confObj["mapping"] = self.mapping
+        return confObj
 
 class NimThreshold( Threshold ):
 

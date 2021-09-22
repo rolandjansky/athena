@@ -132,10 +132,10 @@ class L1Menu(object):
         boardName = connDefName+fpgaName
 
         allowedInputs = odict()
-        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA1
-        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA2
-        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA1
-        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA2
+        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA1
+        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA2
+        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA1
+        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA2
         allowedInputs['Topo2El0']  = ['MU',        'eTAU',         'j',      ] # TOPO2, FPGA1
         allowedInputs['Topo2El1']  = [      'eEM',                 'j',      ] # TOPO2, FPGA2
         allowedInputs['Topo3El0']  = [      'eEM', 'eTAU',         'j',      ] # TOPO3, FPGA1

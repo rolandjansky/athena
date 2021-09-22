@@ -19,7 +19,7 @@ namespace TrigConf {
     */
    class L1TopoAlgorithm final : public DataStructure {
    public:
-
+      
       enum class AlgorithmType { SORTING, DECISION, MULTIPLICITY, UNKNOWN };
 
       struct VariableParameter {
@@ -107,6 +107,53 @@ namespace TrigConf {
       std::vector<std::string> m_outputs{};
 
       std::vector<VariableParameter> m_parameters;
+
+   };
+
+   class XEFlavour {
+   public:
+      /** DO NOT CHANGE! Need to match with firmware values */
+      enum class FLAV { 
+          jXE     = 0,
+          jXEC    = 1, 
+          jTE     = 2, 
+          jTEC    = 3, 
+          jTEFWD  = 4, 
+          jTEFWDA = 5, 
+          jTEFWDC = 6, 
+          gXE     = 7, 
+          gXERHO  = 8, 
+          gXEPUFIT = 9, 
+          gTE     = 10 };
+
+      static std::string flavourIntToStr(const unsigned int flavInt){
+          if(flavInt==int(FLAV::jXE))     return "jXE";
+          if(flavInt==int(FLAV::jXEC))    return "jXEC";
+          if(flavInt==int(FLAV::jTE))     return "jTE";
+          if(flavInt==int(FLAV::jTEC))    return "jTEC";
+          if(flavInt==int(FLAV::jTEFWD))  return "jTEFWD";
+          if(flavInt==int(FLAV::jTEFWDA)) return "jTEFWDA";
+          if(flavInt==int(FLAV::jTEFWDC)) return "jTEFWDC";
+          if(flavInt==int(FLAV::gXE))     return "gXE";
+          if(flavInt==int(FLAV::gXERHO))  return "gXERHO";
+          if(flavInt==int(FLAV::gXEPUFIT)) return "gXEPUFIT";
+          if(flavInt==int(FLAV::gTE))     return "gTE";
+          throw std::runtime_error("Flavour " + std::to_string(flavInt) + " for EnergyThreshold algorithm not recongnised!");
+      };
+      static unsigned int flavourStrToInt(const std::string & flavStr){
+          if(flavStr=="jXE")     return int(FLAV::jXE);
+          if(flavStr=="jXEC")    return int(FLAV::jXEC);
+          if(flavStr=="jTE")     return int(FLAV::jTE);
+          if(flavStr=="jTEC")    return int(FLAV::jTEC);
+          if(flavStr=="jTEFWD")  return int(FLAV::jTEFWD);
+          if(flavStr=="jTEFWDA") return int(FLAV::jTEFWDA);
+          if(flavStr=="jTEFWDC") return int(FLAV::jTEFWDC);
+          if(flavStr=="gXE")     return int(FLAV::gXE);
+          if(flavStr=="gXERHO")  return int(FLAV::gXERHO);
+          if(flavStr=="gXEPUFIT") return int(FLAV::gXEPUFIT);
+          if(flavStr=="gTE")     return int(FLAV::gTE);
+          throw std::runtime_error("Flavour " + flavStr + " for EnergyThreshold algorithm not recongnised!");
+      };
 
    };
 
