@@ -1016,7 +1016,7 @@ namespace EL {
     const std::string getNickname() {
       const char pyGetNickName[] =
 	"from pandatools import PsubUtils;"
-	"print PsubUtils.getNickname();";
+	"print (PsubUtils.getNickname());";
       return gSystem->GetFromPipe(Form("python -c \"%s\" 2>/dev/null", 
 				       pyGetNickName)).Data();    
     }
@@ -1054,11 +1054,11 @@ namespace EL {
 	<< "            gs.killServer()\n" 
 	<< "            time.sleep(60)\n"      
 	<< "            if not gs.startServer():\n"
-	<< "                print \"Failed to start server\"\n" 
+	<< "                print (\"Failed to start server\")\n" 
 	<< "                exit(0)\n"
-	<< "print gs.sendCmd(\"\"\"\n"
+	<< "print (gs.sendCmd(\"\"\"\n"
 	<< cmd
-	<< "\"\"\")\n"
+	<< "\"\"\"))\n"
 	<< "EOL\n";    
 
       out = gSystem->GetFromPipe(sendCmd.str().c_str()).Data();
