@@ -482,8 +482,8 @@ unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track) const
   ATH_MSG_VERBOSE(  "start hole search for track ( " << track << ")" ) ;
   unsigned int nHoles(0);
 
-  const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack 
-    = m_holeSearchTool->getHolesOnTrack(*track, track->info().particleHypothesis());
+  std::unique_ptr<const Trk::TrackStates> holesOnTrack
+    (m_holeSearchTool->getHolesOnTrack(*track, track->info().particleHypothesis()));
   // loop over holes
   if (!holesOnTrack) {
     ATH_MSG_WARNING(  "HoleSearchTool returned NULL !" ) ;
@@ -501,7 +501,6 @@ unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track) const
       printInfoTSoS( *it );
     } // end loop on holes
   }
-  delete holesOnTrack;
   return nHoles;
 }
 
