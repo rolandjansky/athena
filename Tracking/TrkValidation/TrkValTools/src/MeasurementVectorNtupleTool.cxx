@@ -559,7 +559,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   //----------------------------------------------
   // do hole search if selected
   if (m_doHoleSearch) {
-    const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack = m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis());
+    std::unique_ptr<const Trk::TrackStates> holesOnTrack (m_holeSearchTool->getHolesOnTrack(track, track.info().particleHypothesis()));
     // loop over holes
     if (!holesOnTrack) {
       msg(MSG::WARNING) << "Got no holes on track" << endmsg;
@@ -576,8 +576,6 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
         msg(MSG::WARNING) << "info about TrackState (hole) could not be written to ntuple" << endmsg;
       }
     } // end loop on holes
-    delete holesOnTrack;
-    holesOnTrack = nullptr;
   }
 
   return StatusCode::SUCCESS;
