@@ -50,7 +50,7 @@ if inputFileSummary is not None:
     if (inputFileSummary['tag_info']['project_name']=='data18_13TeV'): 
         isData18 = True
 
-if (not isData18):
+if (globalflags.DataSource() is not "geant4") and (not isData18):
     SUSY10ThinningHelper.TriggerChains = '|'.join( SUSY10ThinTriggers )
 SUSY10ThinningHelper.AppendToStream( SUSY10Stream )
 
