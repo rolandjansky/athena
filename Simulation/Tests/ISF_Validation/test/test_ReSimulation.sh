@@ -1,18 +1,11 @@
 #!/bin/sh
 #
-# art-description: Reading single particle gen events, checking that the SkipEvents argument works, using 2015 geometry and conditions
-# art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
+# art-description: ReSimulation Workflow running with MC16 conditions/geometry
 # art-include: master/Athena
-# art-include: master/AthSimulation
 # art-type: grid
 # art-output: log.*
 # art-output: original.HITS.pool.root
-# art-output: renamed.HITS.pool.root
-# art-output: retest.HITS.pool.root
-# art-output: test.HITS.pool.root
+# art-output: resim.HITS.pool.root
 
 INPUTEVNTFILE="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1"
 #INPUTEVNTFILE='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/pi_E50_eta0-60.evgen.pool.root'
@@ -47,7 +40,7 @@ ReSim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'ReSim:ATLAS-R2-2016-01-00-01' \
 --inputHITSFile "original.HITS.pool.root" \
---outputHITS_RSMFile "retest.HITS.pool.root" \
+--outputHITS_RSMFile "resim.HITS.pool.root" \
 --maxEvents $MAXEVENTS \
 --imf False
 
