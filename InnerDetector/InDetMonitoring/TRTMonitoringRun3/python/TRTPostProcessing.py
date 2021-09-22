@@ -59,7 +59,7 @@ def hHitOnTrackVsAll(inputs):
     if element == 'C':
         name  = 'C'
         titleElement = 'Chips'
-    rh = ROOT.TH1F('hHitOnTrackVsAll' + name, '(Hit on Track) / (Any LL Bit): ' + titleElement, 1, 0, 1)
+    rh = ROOT.TH1F('hHitonTrackVsAll' + name, '(Hit on Track) / (Any LL Bit): ' + titleElement, 1, 0, 1)
     rh.GetXaxis().SetTitle(titleElement[:-1] + ' Number in Stack')
     rh.GetYaxis().SetTitle('Ratio')
     for i in range(len(inputs[0][1])):
