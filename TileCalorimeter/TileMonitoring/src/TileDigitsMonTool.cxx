@@ -76,6 +76,8 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
   declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
+  declareProperty("ZeroLimitHG", m_zeroLimitHG = 0);
+  declareProperty("SaturationLimitHG", m_saturationLimitHG = 1023);
 
   m_path = "/Tile/Digits"; //ROOT file directory
 }
@@ -244,6 +246,17 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       histTitle = sStr.str();
 
       m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, m_i_ADCmax + 1, -0.5, m_i_ADCmax + 0.5));
+
+      //eventnumber % 32 for n/32 gain switch failure
+      sStr.str("");
+      sStr << moduleName << "_ch_" << sCh << gain[gn] << "_evtn_mod32";
+      histName = sStr.str();
+
+      sStr.str("");
+      sStr << moduleName << " CH " << ch << gain[3 + gn] << " event number % 32";
+      histTitle = sStr.str();
+
+      m_data->m_histC[ros][drawer][ch][adc].push_back(book1C(subDir, histName, histTitle, 32, -0.5, 31.5));
 
       // average profile for a given channel/gain
       sStr.str("");
@@ -441,6 +454,8 @@ StatusCode TileDigitsMonTool::fillHists()
       adc_id = tileDigits->adc_HWID();
       int chan = m_tileHWID->channel(adc_id);
       int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
+
+      m_data->m_histC[ros][drawer][chan][gain][0]->Fill(m_nEvents % 32, 1.0);
       
       std::vector<float> vdigits = tileDigits->samples();
       
@@ -631,13 +646,14 @@ StatusCode TileDigitsMonTool::finalHists()
           sStr.str("");
           sStr << moduleName << gain[3 + gn] << " Stuck bits and saturation";
           histTitle = sStr.str();
-          m_data->m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 6, 0., 6.);
+          m_data->m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 7, 0., 7.);
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(1, "SB 0");
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(2, "SB 1,2");
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(3, "SB 3,4");
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(4, "SB 5-9");
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(5, "zeros");
           m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(6, "saturation");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(7, "n % 32");
 
           for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
@@ -729,7 +745,9 @@ StatusCode TileDigitsMonTool::finalHists()
               }
             }
             m_data->m_final_hist1[ros][drawer][adc][3]->SetBinContent(channel + 1, weight);
-            stuckBits_Amp2(hist, adc, m_data->m_final_hist_stucks[ros][drawer][adc], channel, m_data->m_stuck_probs[ros][drawer][channel][adc]);
+            stuckBits_Amp2(hist, m_data->m_histC[ros][drawer][channel][adc][0], adc,
+                           m_data->m_final_hist_stucks[ros][drawer][adc], channel,
+                           m_data->m_stuck_probs[ros][drawer][channel][adc]);
           } // end of loop over channels
 
           // BCID
@@ -1402,7 +1420,7 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
 }
 
 /* version 2. */
-int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch, uint8_t *stuck_probs) {
+int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, TH1C *modhist, int gain, TH2C *outhist, int ch, uint8_t *stuck_probs) {
 
   if (hist->GetEntries() < 1000)  return 0; /* too few events (1000 / N_samples) in histogram, ignore */
 
@@ -1415,6 +1433,9 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
   int f; // flip-flop of non-zero contents of previous bin
   int cm, cp; // previous and next bin contents
   double prob; // probability
+  int zero_limit, saturation_limit;
+  zero_limit = gain ? m_zeroLimitHG : 0;
+  saturation_limit = gain ? m_saturationLimitHG : m_i_ADCmax;
   cp = hist->GetBinContent(1);
   f = !!cp;
   if (f) first_non0 = 0;
@@ -1527,24 +1548,43 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
     outhist->Fill((double) ch, 1., sb_prob[1]);
     outhist->Fill((double) ch, 2., sb_prob[2]);
     outhist->Fill((double) ch, 3., sb_prob[3]);
-    if (first_non0 == m_i_ADCmax)
+    if (first_non0 >= saturation_limit)
       outhist->Fill((double) ch, 5., 100.);
-    else if (last_non0 == m_i_ADCmax) {
+    else if (last_non0 >= saturation_limit) {
       double frac;
-      frac = 100. * (double) hist->GetBinContent(m_i_ADCmax + 1) / hist->GetEntries();
+      int saturation_entries = 0;
+      int maxADC = m_i_ADCmax + 1;
+      for  (i = saturation_limit + 1; i <= maxADC; ++i)
+        saturation_entries += hist->GetBinContent(i);
+      frac = 100. * (double) saturation_entries / hist->GetEntries();
       if (frac > 0. && frac < 1.) frac = 1.;
       if (frac > 99. && frac < 100.) frac = 99.;
       outhist->Fill((double) ch, 5., frac);
     }
-    if (last_non0 == 0)
+    if (last_non0 <= zero_limit)
       outhist->Fill((double) ch, 4., 100.);
-    else if (first_non0 == 0) {
+    else if (first_non0 <= zero_limit) {
       double frac;
-      frac = 100. * (double) hist->GetBinContent(1) / hist->GetEntries();
+      int zero_entries = 0;
+      for  (i = 1; i <= zero_limit + 1; ++i)
+        zero_entries += hist->GetBinContent(i);
+      frac = 100. * (double) zero_entries / hist->GetEntries();
       if (frac > 0. && frac < 1.) frac = 1.;
       if (frac > 99. && frac < 100.) frac = 99.;
       outhist->Fill((double) ch, 4., frac);
     }
+    int mod32empty = 0;
+    int mod32full = 0;
+    for (i = 1; i <= 32; ++i) {
+      if (modhist->GetBinContent(i) == 0)
+        ++mod32empty;
+      else if (modhist->GetBinContent(i) > 20)
+        ++mod32full;
+    }
+    if (mod32empty + mod32full == 32) //skip in the case of small number of events
+      if (mod32empty != 0 && mod32full != 0) //some but not all n%32 positions have events
+        outhist->Fill((double) ch, 6., mod32empty);
+
     outhist->SetMaximum(100.);
   }
   return is_stack;
