@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define FILLEVENTNORMALIZATION(NBINS, MIN, WIDTH, VALUE, VARPASSED, VAR, HISTGROUP) \
@@ -1980,7 +1980,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 
         // Use hole finder to find holes on this track
         if (m_useHoleFinder) {
-            const DataVector<const Trk::TrackStateOnSurface> *holes = m_trt_hole_finder->getHolesOnTrack(**track);
+            std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack(**track));
 
             if (!holes) {
 
@@ -2090,8 +2090,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
                     Efficiency_z0 = 0.0;
                     fill("TRTEfficiencyHistograms", Efficiency_z0_passed, Efficiency_z0);
                 }
-
-                delete holes;
             }
         }
     }
