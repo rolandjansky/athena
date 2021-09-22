@@ -382,4 +382,16 @@ if DQMonFlags.doMonitoring():
          asq = AthSequencer("AthBeginSeq")
          asq += AthenaMonitoringConf.ForceIDConditionsAlg("ForceIDConditionsAlg")
 
+   if DQMonFlags.doPostProcessing():
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      asq = AthSequencer("AthEndSeq")
+      from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
+      ppa = DQPostProcessingAlg("DQPostProcessingAlg")
+      ppa.ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+      ppa.Interval = DQMonFlags.postProcessingInterval()
+      if ConfigFlags.Common.isOnline:
+         ppa.FileKey = ((ConfigFlags.DQ.FileKey + '/') if not ConfigFlags.DQ.FileKey.endswith('/') 
+                        else ConfigFlags.DQ.FileKey) 
+      asq += ppa
+
 del local_logger

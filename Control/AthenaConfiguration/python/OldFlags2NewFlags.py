@@ -16,9 +16,12 @@ def getNewConfigFlags():
         ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput.get_Value()
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
     ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
+    ConfigFlags.Output.HISTFileName = jobproperties.DQMonFlagsCont.histogramFile()
     # Geometry - General
     ConfigFlags.GeoModel.AtlasVersion = jobproperties.Global.DetDescrVersion()
     ConfigFlags.GeoModel.Align.Dynamic = InDetGeometryFlags.useDynamicAlignFolders()
+    # Environment
+    ConfigFlags.Common.isOnline = jobproperties.AthenaCommonFlags.isOnline()
 
     # Concurrency
     from AthenaCommon.ConcurrencyFlags import jobproperties as jp
@@ -60,5 +63,9 @@ def getNewConfigFlags():
     reco_flag_map = { 'BCM':'BCM', 'Pixel':'pixel', 'SCT':'SCT', 'TRT':'TRT'}
     for flag in reco_flag_map:   
         ConfigFlags._set('Detector.Enable'+flag, getattr(DetFlags.haveRIO,reco_flag_map[flag]+'_on')() )
+
+    # miscellaneous settings
+    ConfigFlags.InDet.doTIDE_Ambi=jobproperties.InDetJobProperties.doTIDE_Ambi()
+    ConfigFlags.InDet.useDCS=jobproperties.InDetJobProperties.useDCS()
 
     return ConfigFlags
