@@ -302,11 +302,7 @@ def getHLTmap_fromTM(period, release):
     menu = "Physics_pp_run3_v1"
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.triggerMenuSetup = menu
-    TriggerFlags.readLVL1configFromXML = False
-    TriggerFlags.outputLVL1configFile = None
-    
+
     mutelog = logging.getLogger(__name__)
     mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
 
