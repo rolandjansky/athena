@@ -13,24 +13,26 @@ def load_files_for_fcp_scenario(MASS, CHARGE, X, Y):
     particleLine1="{code}  {intmass}.00  {fcharge}  0.0 # fcp\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
     particleLine2="-{code}  {intmass}.00  -{fcharge}  0.0 # fcpBar\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
 
-    import ExtraParticles.PDGHelpers
+    # retreive the PDGTABLE file
+    from G4AtlasApps.SimFlags import simFlags
+    from ExtraParticles.PDGHelpers import getPDGTABLE
+    if getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value()):
+        f=open('PDGTABLE.MeV','a')
+        f.writelines(str(pdgLine1))
+        f.writelines(str(pdgLine2))
+        f.close()
+        partmod = os.path.isfile('particles.txt')
+        if partmod is True:
+            os.remove('particles.txt')
+        f=open('particles.txt','w')
+        f.writelines(str(particleLine1))
+        f.writelines(str(particleLine2))
+        f.close()
 
-    f=open('PDGTABLE.MeV','a')
-    f.writelines(str(pdgLine1))
-    f.writelines(str(pdgLine2))
-    f.close()
-    partmod = os.path.isfile('particles.txt')
-    if partmod is True:
-        os.remove('particles.txt')
-    f=open('particles.txt','w')
-    f.writelines(str(particleLine1))
-    f.writelines(str(particleLine2))
-    f.close()
-
-    del pdgLine1
-    del pdgLine2
-    del particleLine1
-    del particleLine2
+        del pdgLine1
+        del pdgLine2
+        del particleLine1
+        del particleLine2
 
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
