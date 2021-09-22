@@ -144,16 +144,13 @@ StatusCode MonitorTnPAlgorithm::fillHistograms( const EventContext& ctx ) const 
   bool subl_isLHTight = false;
   if ( !subl_el->passSelection(subl_isLHTight,"LHTight") ) return StatusCode::FAILURE;
 
-  // Use only one electron from a single TnP candidate to avoid introducing correlations in the distributions related to probes
   // If leading electron is LHTight use subleading as probe
-  bool EventZcandidateUsed = false;
   if(lead_isLHTight) {
     ATH_CHECK(fillElectronProbe(subl_el, true, ctx));
-    EventZcandidateUsed = true;
   }
   // If subleading electron is LHTight use leading as probe
   if(subl_isLHTight) {
-    if (!EventZcandidateUsed) ATH_CHECK(fillElectronProbe(lead_el, false, ctx));
+    ATH_CHECK(fillElectronProbe(lead_el, false, ctx));
   }
 
 return StatusCode::SUCCESS;
