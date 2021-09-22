@@ -52,7 +52,9 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
     // Particle variables to be monitored
     auto np = Monitored::Scalar<int>("N",0.0);
     auto et = Monitored::Scalar<Float_t>("Et",0.0);
-    auto eta = Monitored::Scalar<Float_t>("Eta",0.0);
+    // Check if small differences between old and new monitoring are related to rounding effects
+    // auto eta = Monitored::Scalar<Float_t>("Eta",0.0);
+    auto eta = Monitored::Scalar<Double_t>("Eta",0.0);
     auto phi = Monitored::Scalar<Float_t>("Phi",0.0);
     auto is_pt_gt_2_5gev = Monitored::Scalar<bool>("is_pt_gt_2_5gev",false);
     auto is_pt_gt_4gev = Monitored::Scalar<bool>("is_pt_gt_4gev",false);
@@ -168,7 +170,8 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
       }
       if(isGood) {
 	mynp++;
-	Float_t myetaloc = e_iter->eta();
+	//Float_t myetaloc = e_iter->eta();
+	Double_t myetaloc = e_iter->eta();
 	auto regionloc = GetRegion(myetaloc);
         ATH_MSG_DEBUG("Test electron in region : " << regionloc);
 	switch(regionloc){
@@ -191,7 +194,8 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
       // do specific stuff with electrons
 
       Float_t myet = e_iter->pt(); // in MeV (/Gaudi::Units::GeV; // in GeV)
-      Float_t myeta = e_iter->eta();
+      //Float_t myeta = e_iter->eta();
+      Double_t myeta = e_iter->eta();
       Float_t myphi = e_iter->phi();
 
       bool myis_pt_gt_2_5gev = myet > 2500. ;

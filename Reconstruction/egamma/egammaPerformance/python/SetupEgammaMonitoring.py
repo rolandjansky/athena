@@ -80,7 +80,7 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
 
         hname= "Eta"
         htitle= particletype + " #eta" + " (" + reconame + " " + withTrigger + ")"+ " ; #eta" + tlabel + " ; N" + tlabel
-        groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2)
+        groupe.defineHistogram(hname,title=htitle, path='',type = "TH1D", xbins=64,xmin=-3.2,xmax=3.2)
 
         if particletype in ["Photon"] :
             hname= "EtaConv"
@@ -370,15 +370,15 @@ def BookTnPHistograms(groupe,reconame,TnPType,MassLowerCut,MassUpperCut):
     # Probe electron candidate distributions
 
     hname = "Etprobe;Etprobe_distribution"
-    htitle = "Number of "+ TnPType +" candidates vs of leading e ; Et_{probe} ; N_{e_ {probe}}"
+    htitle = "Number of "+ TnPType +" candidates vs of leading e ; Et_{probe} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle, path='ElectronProbes',xbins=100,xmin=-1000.0,xmax=200000.0)
 
     hname = "Etaprobe;Etaprobe_distribution"
-    htitle = "#eta distribution of probe candidates ; #eta_{e_{probe}} ; N_{e_ {probe}}"
+    htitle = "#eta distribution of probe candidates ; #eta_{e_{probe}} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
     hname = "Phiprobe;Phiprobe_distribution"
-    htitle = "#phi distribution of probe candidates ; #phi_{e_{probe}} ; N_{e_ {probe}}"
+    htitle = "#phi distribution of probe candidates ; #phi_{e_{probe}} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
     hname = "Etaprobe,Phiprobe;Eta_Phi_map_of_electron_probes_for_T_and_P_"+ TnPType
