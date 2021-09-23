@@ -2,9 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCalibUtils/LArRampBuilder.h"
+#include "LArRampBuilder.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
-#include "LArCalibTriggerAccumulator.h"
 #include "LArRawConditions/LArRampComplete.h"
 
 
@@ -16,61 +15,6 @@
 
 #include <fstream>
 
-
-#include "LArRawConditions/LArConditionsContainerDB.h"
-
-LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_peakParabolaTool("LArParabolaPeakRecoTool"),
-    m_peakShapeTool("LArShapePeakRecoTool"),
-    m_peakOFTool(this),
-    m_event_counter(0),
-    m_recoType(OF),
-    m_onlineHelper(),
-    m_emId(0),
-    m_groupingType("ExtendedFeedThrough"),
-    m_dd_rinj(0),m_iterate(false)
-{
-  declareProperty("KeyList",         m_keylist);
-  declareProperty("KeyOutput",       m_keyoutput="LArRamp");
-  declareProperty("SubtractDac0",    m_dac0sub=true);
-  declareProperty("StoreRawRamp",    m_saveRawRamp=false);
-  declareProperty("StoreRecRamp",    m_saveRecRamp=true);
-  declareProperty("Polynom",         m_degree=1);
-  declareProperty("RampRange",       m_maxADC=0);
-  declareProperty("doSatSlope",      m_satSlope=true);
-  declareProperty("ConsecutiveADCs", m_consADC=50);
-  declareProperty("RecoType",        m_recoTypeProp=std::string("OF")) ;
-  declareProperty("correctBias",     m_correctBias=false);
-  declareProperty("ShapeMethodDAC",  m_shapeMethodDAC=400);
-  declareProperty("DAC0",            m_DAC0=0); 
-  declareProperty("LongNtuple",      m_longNtuple=false);
-  declareProperty("WithIntercept",   m_withIntercept=true);
-  declareProperty("minDAC",          m_minDAC=0);
-  declareProperty("GroupingType",    m_groupingType);
-  declareProperty("DelayShift",      m_delayShift=23); //Only for OF peak reco
-  declareProperty("PeakOFTool",      m_peakOFTool); 
-  declareProperty("isSC",            m_isSC=false);
-  declareProperty("isHEC",           m_ishec=false);
-  declareProperty("HECKey",          m_hec_key="");
-  declareProperty("CorrectBadChannels",  m_doBadChannelMask = false);
-  declareProperty("Iterate",         m_iterate = false);
-
-  int defaultDeadChannelCut;
-  if (m_dac0sub)
-    defaultDeadChannelCut=300;
-  else
-    defaultDeadChannelCut=1300;
-  declareProperty("DeadChannelCut",m_DeadChannelCut=defaultDeadChannelCut);
-  m_delay=-1;
-  m_ipassShape = 0; // temporary
-  m_ipassPedestal = 0; // temporary
-  m_ramps=NULL; 
-  m_fatalFebErrorPattern=0xffff;
-}
-
-LArRampBuilder::~LArRampBuilder() 
-{}
 
 StatusCode LArRampBuilder::initialize()
 {
@@ -108,18 +52,10 @@ StatusCode LArRampBuilder::initialize()
   ATH_CHECK(m_bcContKey.initialize(m_doBadChannelMask));
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
-  m_ramps=new LArConditionsContainer<ACCRAMP>();
-  //FIXME: Thats probably nonsenes, these raw ramps aren't written to COOL
-  sc=m_ramps->setGroupingType(m_groupingType,msg()); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Failed to set groupingType for intermediate LArRamps object" );
-    return sc;
-  }
-  sc=m_ramps->initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Failed initialize intermediate LArRamps object" );
-    return sc;
-  }
+  //Intermediate ramp object (DAC/ADC pairs)
+  m_ramps=std::make_unique<LArConditionsContainer<ACCRAMP> >();
+  m_ramps->setGroupingType(LArConditionsContainerBase::SingleGroup); 
+  ATH_CHECK(m_ramps->initialize()); 
   
   chooseRecoMode() ;
   m_event_counter=0;
@@ -168,7 +104,8 @@ void LArRampBuilder::chooseRecoMode()  {
       }
       
     }
-    
+    m_peakShapeTool.disable();
+    m_peakOFTool.disable();
     // Shape reconstruction
   } else if (m_recoTypeProp == std::string("Shape") ) {
     m_recoType=SHAPE;
@@ -178,7 +115,8 @@ void LArRampBuilder::chooseRecoMode()  {
       return;
     }
     ATH_MSG_DEBUG("LArShapePeakRecoTool retrieved with success!");
-    
+    m_peakParabolaTool.disable();
+    m_peakOFTool.disable();
     // OFC recontruction 
   } else if ( m_recoTypeProp == std::string("OF") ) {
     m_recoType=OF;
@@ -187,6 +125,8 @@ void LArRampBuilder::chooseRecoMode()  {
       return;
     }
     ATH_MSG_DEBUG("LArOFPeakRecoTool retrieved with success!");
+    m_peakShapeTool.disable();
+    m_peakParabolaTool.disable();
   }
 }
 
@@ -456,23 +396,12 @@ StatusCode LArRampBuilder::stop()
 
   StatusCode sc;
   //Create transient ramp object (to be filled later) (one object for all gains)
-  LArRampComplete* larRampComplete;
+  std::unique_ptr<LArRampComplete> larRampComplete;
   if (m_saveRecRamp){
-    larRampComplete=new LArRampComplete();
-    sc=larRampComplete->setGroupingType(m_groupingType,msg());
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to set groupingType for LArRampComplete object");
-      return sc;
-    }
-    sc=larRampComplete->initialize(); 
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed initialize LArRampComplete object");
-      return sc;
-    }
-    
+    larRampComplete=std::make_unique<LArRampComplete>();
+    ATH_CHECK(larRampComplete->setGroupingType(m_groupingType,msg()));
+    ATH_CHECK(larRampComplete->initialize());
   }
-  else
-    larRampComplete=NULL;
   
   const LArOnOffIdMapping* cabling(0);
   if( m_isSC ){
@@ -710,11 +639,7 @@ StatusCode LArRampBuilder::stop()
 	ramppoint.iMaxSample = iMaxADC;
 	ramppoint.TimeMax    = timepeak;
 	
-	// resize samples to 0 if dont want to make large ntuple
-	if(!m_longNtuple){
-	  ramppoint.Samples.resize(0);
-	  ramppoint.RMS.resize(0);
-	}
+	
 	// only add to rawramp non saturing points (using rawdata information)
 	if( (dac_it->first>= m_minDAC) &&  ramppoint.ADC > -998 
 	    && ((m_maxADC <= 0) || (MaxADC < m_maxADC)) ) {
@@ -804,16 +729,18 @@ StatusCode LArRampBuilder::stop()
     ATH_MSG_INFO( " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 ");
     ATH_MSG_INFO( " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 ");
 
-    sc=detStore()->record(larRampComplete,m_keyoutput);
+
+    const auto *rampPtr=larRampComplete.get(); //Remember ptr for symlink
+    sc=detStore()->record(std::move(larRampComplete),m_keyoutput);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to record LArRampComplete object");
     }
-    sc=detStore()->symLink(larRampComplete, (ILArRamp*)larRampComplete);
+    sc=detStore()->symLink(rampPtr, (const ILArRamp*)rampPtr);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to symlink LArRawRamp object");
     }
   }
-  delete m_ramps;//Not needed any more. Free memory.
+  m_ramps.reset();//Not needed any more. Free memory.
   ATH_MSG_INFO( "LArRampBuilder has finished.");
   return StatusCode::SUCCESS;
 }// end finalize-method.
@@ -857,8 +784,9 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   }
   vSat.push_back(satpoint);
   
-  if (!m_withIntercept) 
+  if (!m_withIntercept) {
     deg--;
+  }
   bool isgood=true;
   if(m_doBadChannelMask && m_bcMask.cellShouldBeMasked(bcCont,chid)) isgood=false;
   if (deg>linRange) {
@@ -871,7 +799,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
     return StatusCode::FAILURE;
   }
   
-  if (data[linRange-1].DAC>0 && data[linRange-1].ADC<m_DeadChannelCut && data[linRange-1].ADC!=-999.) {
+  if (data[linRange-1].DAC>0 && data[linRange-1].ADC<m_deadChannelCut && data[linRange-1].ADC!=-999.) {
     ATH_MSG_ERROR( "DAC= " << data[linRange-1].DAC << " yields ADC= " << data[linRange-1].ADC 
 	   << ". Dead channel?" );
     return StatusCode::FAILURE;
@@ -906,7 +834,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
 	      // all DAC points (same noise). The 100. scale factor is
 	      // there to guarantee the same results with respect to
 	      // previous fits withour errors (having usually 100
-	      // triggers), because of poternaitl numerical
+	      // triggers), because of potential numerical
 	      // differences when inverting the fit matrix even if
 	      // errors are all the same.
 	    if (m_withIntercept) {    

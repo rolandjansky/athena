@@ -20,7 +20,7 @@
 #include "LArCalibUtils/LArPhysWaveShifter.h"
 #include "LArCalibUtils/LArPhysWaveTool.h"
 #include "LArCalibUtils/LArPhysWaveHECTool.h"
-#include "LArCalibUtils/LArRampBuilder.h"
+#include "../LArRampBuilder.h"
 #include "LArCalibUtils/LArRTMParamExtractor.h"
 #include "LArCalibUtils/LArStripsCrossTalkCorrector.h"
 #include "LArCalibUtils/LArTCMFitterTool.h"
