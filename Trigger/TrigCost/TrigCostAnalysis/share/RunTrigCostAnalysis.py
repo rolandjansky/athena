@@ -133,7 +133,6 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
     log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
     hltConfigSvc.InputType = "file"
-    hltConfigSvc.XMLMenuFile = "None"
     hltConfigSvc.JsonFileName = menuFile
   elif smk and dbAlias:
     log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
