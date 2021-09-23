@@ -181,7 +181,7 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
 
   //some sanity check on the OFCs
   if ( ofcSize == 0 || this_OFC_b.size() == 0 ) {
-    ATH_MSG_DEBUG("OFC not found for channel " << m_lar_on_id->channel_name(chID));
+    ATH_MSG_DEBUG("OFC not found for channel " << m_lar_on_id->channel_name(chID) << ", gain=" << usedGain << ", delayIdx=" << delayIdx);
     return result;
   }
 
