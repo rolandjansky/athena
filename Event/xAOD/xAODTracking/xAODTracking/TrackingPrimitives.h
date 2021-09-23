@@ -429,6 +429,62 @@ namespace xAOD {
     numberOfMuonSummaryTypes       = 89
   };
 
+  // Enums for rejection locations
+  enum RejectionStep {
+    // Rejections within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    solveTracks,
+    // Rejections within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    addNewTracks,
+    // Rejections within AmbiguityProcessorBase::refitTrack
+    refitTrack,
+    // Rejections within AmbiguityProcessorBase::addTrack
+    addTrack,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep
+    decideWhichHitsToKeep,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
+    getCleanedOutTrack
+  };
+  enum RejectionReason {
+    acceptedTrack,
+    // Reason for rejection within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    stillBeingProcessed,
+    // Reason for rejection within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    trackScoreZero,
+    duplicateTrack,
+    // Reason for rejection within AmbiguityProcessorBase::refitTrack
+    subtrackCreated,
+    refitFailed,
+    // Reason for rejection within AmbiguityProcessorBase::addTrack
+    bremRefitFailed,
+    bremRefitSubtrackCreated,
+    bremRefitTrackScoreZero,
+    refitTrackScoreZero,
+    // Reason for rejection within decideWhichHitsToKeep
+    TSOSRejectedHit,
+    TSOSOutlierShared,
+    pixelSplitButTooManyShared2Ptc,
+    pixelSplitButTooManyShared3Ptc,
+    tooManySharedRecoverable,
+    tooManySharedNonRecoverable,
+    sharedSCT,
+    sharedHitsBadChi2,
+    sharedHitsNotEnoughUniqueHits,
+    firstHitSharedAndPixIBL,
+    firstHitSharedAndExtraShared,
+    sharedHitsNotEnoughUniqueSiHits,
+    sharedIBLSharedWithNoIBLTrack,
+    sharedPixelSharedWithDifferentIBLTrack,
+    tooManySharedAfterIncreasingShared,
+    // Reason for rejection within getCleanedOutTrack
+    notEnoughSiHits,
+    notEnoughTRTHits,
+    notEnoughUniqueSiHits,
+    tooFewHits,
+    failedSubtrackCreation,
+    subtrackCreatedWithRecoveredShared,
+    other
+  };
+
   /// A convenience namespace to make the client code easier to understand
   namespace VxType {
     /// Vertex types

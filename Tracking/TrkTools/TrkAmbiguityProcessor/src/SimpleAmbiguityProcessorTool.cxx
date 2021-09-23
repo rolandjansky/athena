@@ -213,7 +213,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
     // clean it out to make sure not to many shared hits
     ATH_MSG_VERBOSE ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
     std::unique_ptr<Trk::Track> cleanedTrack;
-    auto [cleanedTrack_tmp,keep_orig] = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), *splitProbContainer, prdToTrackMap);
+    auto [cleanedTrack_tmp,keep_orig] = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), *splitProbContainer, prdToTrackMap, -1, -1);
     cleanedTrack.reset( cleanedTrack_tmp);
     // cleaned track is input track and fitted
     if (keep_orig && atrack.fitted() ){
@@ -230,9 +230,9 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
       // don't forget to drop track from map
       // track can be kept as is, but is not yet fitted
       ATH_MSG_DEBUG ("Good track, but need to fit this track first, score, add it into map again and retry !");
-      auto *pRefittedTrack = refitTrack(atrack.track(), prdToTrackMap, stat);
+      auto *pRefittedTrack = refitTrack(atrack.track(), prdToTrackMap, stat, -1, -1);
       if(pRefittedTrack) {
-         addTrack( pRefittedTrack, true , trackScoreTrackMap, prdToTrackMap, trackDustbin, stat);
+         addTrack( pRefittedTrack, true , trackScoreTrackMap, prdToTrackMap, trackDustbin, stat, -1);    
       }
       if (atrack.newTrack()) {
         trackDustbin.emplace_back(atrack.release());
@@ -249,7 +249,7 @@ Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap
       // statistic
       stat.incrementCounterByRegion(CounterIndex::kNsubTrack,cleanedTrack.get());
       // track needs fitting !
-      addTrack( cleanedTrack.release(), false, trackScoreTrackMap, prdToTrackMap, trackDustbin, stat);
+      addTrack( cleanedTrack.release(), false, trackScoreTrackMap, prdToTrackMap, trackDustbin, stat, -1);
     } else {
       // track should be discarded
       ATH_MSG_DEBUG ("Track "<< atrack.track() << " is excluded, no subtrack, reject");

@@ -25,6 +25,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -80,7 +81,9 @@ namespace InDet
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
                                                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
+                                                            Trk::PRDtoTrackMap &prd_to_track_map,
+                                                            int trackId,
+                                                            int subtrackId) const override;
 
   private:
     
@@ -337,7 +340,8 @@ namespace InDet
                                Trk::PRDtoTrackMap &prd_to_track_map,
                                TrackHitDetails& trackHitDetails,
                                TSoS_Details& tsosDetails,
-                               CacheEntry* ent) const;
+                               CacheEntry* ent,
+                               int trackId) const;
 
     /** Specific logic for identifing conversions with the goal 
      * of passing those tracks through to the final collection 
@@ -435,6 +439,9 @@ namespace InDet
       
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
+    /**Observer tool      This tool is used to observe the tracks and their 'score' */
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
 
     /** some cut values */
     IntegerProperty m_minHits{this, "minHits", 5, "Min Number of hits on track"};

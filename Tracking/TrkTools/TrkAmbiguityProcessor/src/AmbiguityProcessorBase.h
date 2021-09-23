@@ -14,6 +14,8 @@
 #include "TrackPtr.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
+#include "AmbiguityProcessorUtility.h"
 
 #include <vector>
 #include <map> //multimap
@@ -73,7 +75,7 @@ namespace Trk {
     
     /** refit track */
     Track * 
-    refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat) const;
+    refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat, int trackId, int subtrackId) const;
                        
     //refit PRD
     virtual Trk::Track* 
@@ -92,7 +94,8 @@ namespace Trk {
              TrackScoreMap &trackScoreTrackMap,
              Trk::PRDtoTrackMap &prdToTrackMap,
              std::vector<std::unique_ptr<const Trk::Track> >& trackDustbin,
-             Counter &stat) const;
+             Counter &stat,
+             int parentTrackId) const;
                                                  
     const TrackParameters *
     getTrackParameters(const Trk::Track* track) const;
@@ -124,6 +127,8 @@ namespace Trk {
        This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
        @todo The actual tool that is used should be configured through job options*/
     ToolHandle<ITrackScoringTool> m_scoringTool;
+    /**Observer tool      This tool is used to observe the tracks and their 'score' */
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
   private:

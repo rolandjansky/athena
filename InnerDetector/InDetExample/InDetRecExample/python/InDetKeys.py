@@ -604,6 +604,24 @@ class PseudoTracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'InDetPseudoTrackTruthCollection'
 
+class ObservedTracks(JobProperty):
+    """StoreGate key for tracks observed by track observer tool"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ObservedTracksCollection'
+
+class ObservedDetailedTracksTruth(JobProperty):
+    """StoreGate key for DetailedTracksTruth  (ObservedTracks)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'InDetObservedTrackDetailedTruth'
+
+class ObservedTracksTruth(JobProperty):
+    """StoreGate key for TracksTruth  (ObservedTracks)"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'InDetObservedTrackTruthCollection'
+
 class SiSpSeededTracks(JobProperty):
     """ Storegate key for new-tracking SP seeded tracks"""
     statusOn     = True
@@ -944,6 +962,12 @@ class xAODPseudoTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetPseudoTrackParticles"
 
+class xAODObservedTrackParticleContainer(JobProperty):
+    """xAOD Observed TrackParticle"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetObservedTrackParticles"
+
 class xAODPixelTrackParticleContainer(JobProperty):
     """xAOD PixelTrackParticle"""
     statusOn = True
@@ -1072,6 +1096,9 @@ jobproperties.InDetContainerKeys.add_JobProperty(RefittedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(ObservedTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ObservedDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(ObservedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDisappearingTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
@@ -1143,6 +1170,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContain
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLargeD0TrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODObservedTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)

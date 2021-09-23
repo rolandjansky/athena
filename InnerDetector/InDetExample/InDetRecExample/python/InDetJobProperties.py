@@ -1186,6 +1186,11 @@ class doTTVADecos(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
+    """run track monitoring for dense environments"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 ## Decide whether to wrap the new configuration in the old.
 class useNewConfig(JobProperty):
     statusOn=True
@@ -2740,6 +2745,7 @@ _list_InDetJobProperties = [Enabled,
                             writeSeedValNtuple,
                             doTRTPIDNN,
                             doTTVADecos,
+                            doTIDE_AmbiTrackMonitoring,
                             useNewConfig
                            ]
 for j in _list_InDetJobProperties: 

@@ -41,6 +41,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguitySco
   declareProperty("sharedProbCut"        , m_sharedProbCut           = 0.3);
   declareProperty("sharedProbCut2"       , m_sharedProbCut2          = 0.3);
   declareProperty("etaBounds"            , m_etaBounds,"eta intervals for internal monitoring");
+  declareProperty("ObserverTool"         , m_observerTool, "track observer tool");
 
 }
 //==================================================================================================
@@ -63,6 +64,8 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize(){
 
   ATH_CHECK( m_splitClusterMapKey_last.initialize(!m_splitClusterMapKey_last.key().empty()) );
   ATH_CHECK( m_splitClusterMapKey.initialize(!m_splitClusterMapKey.key().empty()) );
+
+  ATH_CHECK(m_observerTool.retrieve(DisableTool{m_observerTool.empty()}));
 
   if (m_etaBounds.size() != Counter::nRegions) {
      ATH_MSG_FATAL("There must be exactly " << (Counter::nRegions) << " eta bounds but "
@@ -173,6 +176,9 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(const TrackColle
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks.size());
   const std::array<ScoreCategory, 3> categoryMapping {ScoreCategory::kNcandScoreZero, ScoreCategory::kNcandDouble, ScoreCategory::kNaccept};
   constexpr bool dropDuplicateTracks{true};
+  int nZeroScore = 0;
+  int nDuplicates = 0;
+  int nToMap = 0;
   for(const Track* pThisTrack : tracks) {
     ATH_MSG_VERBOSE ("Processing track candidate "<<pThisTrack);
     stat.incrementCounterByRegion(ScoreCategory::kNcandidates,pThisTrack); // @TODO should go to the score processor
@@ -183,11 +189,32 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(const TrackColle
     if (category == AmbiguityProcessor::TrackAccepted){
       ATH_MSG_VERBOSE ("Track  ("<< pThisTrack <<") has score "<<score);
       trackScoreTrackMap->push_back(std::make_pair(pThisTrack, -score));
+      if (m_observerTool.isEnabled()) {
+        nToMap++;
+      }
+    } else if (m_observerTool.isEnabled() && category == AmbiguityProcessor::ScoreIsZero){
+      int input_track_uid = AmbiguityProcessor::getUid();
+      m_observerTool->addInputTrack(input_track_uid, *pThisTrack);
+      m_observerTool->updateTrackMap(input_track_uid, static_cast<double>(score), xAOD::RejectionStep::addNewTracks, xAOD::RejectionReason::trackScoreZero);
+      nZeroScore++;
+    } else if (m_observerTool.isEnabled() && category == AmbiguityProcessor::TrackIsDuplicate){
+      int input_track_uid = AmbiguityProcessor::getUid();
+      m_observerTool->addInputTrack(input_track_uid, *pThisTrack);
+      m_observerTool->updateTrackMap(input_track_uid, static_cast<double>(score), xAOD::RejectionStep::addNewTracks, xAOD::RejectionReason::duplicateTrack);
+      nDuplicates++;
     }
   }
   {
      std::lock_guard<std::mutex> lock(m_statMutex);
      m_stat += stat;
+  }
+  if (m_observerTool.isEnabled()){
+    if ((unsigned int) (nZeroScore+nDuplicates+nToMap) != tracks.size()){
+      ATH_MSG_ERROR("(nZeroScore+nDuplicates+nToMap) = "<<nZeroScore+nDuplicates+nToMap<<" but tracks.size() = "<<tracks.size());
+    }
+    else{
+      ATH_MSG_DEBUG("Track observer too sanity check passed!");
+    }
   }
 }
 
@@ -239,7 +266,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
                                                                      Trk::PRDtoTrackMap &prdToTrackMap) const
 {
   const Trk::IPRDtoTrackMapTool *the_asso_tool = (m_assoToolNotGanged.isEnabled() ? &(*m_assoToolNotGanged) : &(*m_assoTool));
-  // Function currnetly does nothing useful expect for printout debug information
+  // Function currently does nothing useful except for printing debug information
   ATH_MSG_DEBUG ("Starting to resolve overlapping tracks");
   // Map to add all pixel clusters on track to
   std::map< const InDet::PixelCluster*, const Trk::TrackParameters* > setOfPixelClustersOnTrack;
@@ -359,5 +386,4 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) cons
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
 }
-
 
