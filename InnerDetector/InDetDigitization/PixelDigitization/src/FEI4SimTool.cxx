@@ -48,7 +48,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
   int maxFEI4SmallHit = 2;
   int overflowToT = moduleData->getFEI4OverflowToT(barrel_ec, layerIndex);
 
-  std::vector<Pixel1RawData*> p_rdo_small_fei4;
+  std::vector<std::unique_ptr<Pixel1RawData>> p_rdo_small_fei4;
   int nSmallHitsFEI4 = 0;
   std::vector<int> row, col;
   const int maxRow = p_design->rowsPerCircuit();
@@ -169,18 +169,17 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
 
     // Front-End simulation
     if (bunch >= 0 && bunch < moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
-      Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch, 0, bunch);
+      auto p_rdo = std::make_unique<Pixel1RawData>(id_readout, nToT, bunch, 0, bunch);
       if (nToT > maxFEI4SmallHit) {
-        rdoCollection.push_back(p_rdo);
+        rdoCollection.push_back(p_rdo.release());
         FEI4Map[iirow][iicol] = 2; //Flag for "big hits"
       } else {
-        p_rdo_small_fei4.push_back(p_rdo);
+        p_rdo_small_fei4.push_back(std::move(p_rdo));
         row.push_back(iirow);
         col.push_back(iicol);
         FEI4Map[iirow][iicol] = 1; //Flag for low hits
         nSmallHitsFEI4++;
       }
-      p_rdo = nullptr;
     }
   }
 
@@ -198,7 +197,7 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
             "rowBig = " << rowBigHit << " colBig = " << colBigHit << " Map Content = " <<
               FEI4Map[rowBigHit][colBigHit]);
           if (FEI4Map[rowBigHit][colBigHit] == 2 && !recorded) {
-            rdoCollection.push_back(p_rdo_small_fei4[ismall]);
+            rdoCollection.push_back(p_rdo_small_fei4[ismall].release());
             recorded = true;
           }
         }
@@ -207,13 +206,13 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
       // Second case: Record small hits which are phi-neighbours with a big hit:
       if (!recorded && row[ismall] < maxRow - 1) {
         if (FEI4Map[row[ismall] + 1][col[ismall]] == 2) {
-          rdoCollection.push_back(p_rdo_small_fei4[ismall]);
+          rdoCollection.push_back(p_rdo_small_fei4[ismall].release());
           recorded = true;
         }
       }
       if (!recorded && row[ismall] != 0) {
         if (FEI4Map[row[ismall] - 1][col[ismall]] == 2) {
-          rdoCollection.push_back(p_rdo_small_fei4[ismall]);
+          rdoCollection.push_back(p_rdo_small_fei4[ismall].release());
           recorded = true;
         }
       }
