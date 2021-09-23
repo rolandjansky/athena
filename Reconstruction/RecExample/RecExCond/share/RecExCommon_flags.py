@@ -673,10 +673,6 @@ if rec.Commissioning():
        from MuonCnvExample.MuonCalibFlags import muonCalibFlags
 
                
-   from AthenaMonitoring.DQMonFlags import DQMonFlags
-   if rec.doESD() and DQMonFlags.doCTPMon() and rec.doTrigger():
-      include("TrigT1CTMonitoring/CTPFlags.py")
-
    # FIXME obsolete flags (should be removed)!!!
    # ------------------------------------
    # import GlobalFlags from RecExCommon
