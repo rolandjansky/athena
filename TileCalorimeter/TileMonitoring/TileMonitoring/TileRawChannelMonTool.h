@@ -64,6 +64,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
 
     bool m_bookAll;
     bool m_book2D;
+    bool m_overlaphists;
     int m_runType;
     std::string m_contName;
     std::string m_contNameDSP;
@@ -170,6 +171,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     const TileInfo* m_tileInfo;
     bool m_is12bit;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
+    int m_intCalibUnit;
 };
 
 #endif
