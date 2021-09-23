@@ -1,6 +1,5 @@
 #include "LArCalibUtils/LArAutoCorrMaker.h"
 #include "LArCalibUtils/LArAutoCorrExtrapolate.h"
-#include "LArCalibUtils/LArAutoCorrBuilder.h"
 #include "LArCalibUtils/LArAutoCorrDecoderTool.h"
 #include "LArCalibUtils/LArCalibDigitMaker.h"
 #include "LArCalibUtils/LArCaliWaveAverage.h"
@@ -15,7 +14,6 @@
 #include "LArCalibUtils/LArOFCAlg.h"
 #include "LArCalibUtils/LArPedestalInPhysicsMaker.h"
 #include "LArCalibUtils/LArPedestalMaker.h"
-#include "LArCalibUtils/LArPedestalBuilder.h"
 #include "LArCalibUtils/LArPhysWaveBuilder.h"
 #include "LArCalibUtils/LArPhysWaveShifter.h"
 #include "LArCalibUtils/LArPhysWaveTool.h"
@@ -62,7 +60,6 @@ typedef LArCalibCopyAlg<LArTdriftComplete> LArTdriftCompleteCopyAlg;
 
 DECLARE_COMPONENT( LArAutoCorrMaker )
 DECLARE_COMPONENT( LArAutoCorrExtrapolate )
-DECLARE_COMPONENT( LArAutoCorrBuilder )
 DECLARE_COMPONENT( LArCalibDigitMaker )
 DECLARE_COMPONENT( LArCaliWaveAverage )
 DECLARE_COMPONENT( LArCaliWaveBuilder )
@@ -74,7 +71,6 @@ DECLARE_COMPONENT( LArMasterWaveBuilder )
 DECLARE_COMPONENT( LArOFCAlg )
 DECLARE_COMPONENT( LArPedestalInPhysicsMaker )
 DECLARE_COMPONENT( LArPedestalMaker )
-DECLARE_COMPONENT( LArPedestalBuilder )
 DECLARE_COMPONENT( LArPedestalAutoCorrBuilder )
 DECLARE_COMPONENT( LArPhysWaveBuilder )
 DECLARE_COMPONENT( LArPhysWaveShifter )
