@@ -246,10 +246,10 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 	std::vector<const xAOD::Muon*>	vecNonCombinedMuonsHighPT;
 	std::vector<const xAOD::Muon*>	vecNonCombinedMuons;
 
-	for(const auto& muon : Muons) {
+	for(const auto muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
-        MuonType = muonType;
-        fill(tool, MuonType);
+                MuonType = muonType;
+                fill(tool, MuonType);
 		if (muonType==xAOD::Muon::Combined) {
 			CBMuonLumiBlock = lumiBlockID;
 			fill(tool, CBMuonLumiBlock);
