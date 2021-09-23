@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
 
 class CaloIdManager;
 
@@ -45,8 +46,6 @@ class gFEXDriver : public AthAlgorithm
 
   //Declare that gFEXDriver class will read an object of type CaloCellContainer, xAOD::gFexJetRoIContainer, xAOD::gFexGlobalRoIContainer
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
-
-  SG::ReadHandleKey<xAOD::gFexJetRoIContainer> m_gJetEDMKey {this, "gJetEDM", "L1_gJetRoI", "Reading container of gFEXJetRoIs"};
 
   ToolHandle<IgTowerBuilder> m_gTowerBuilderTool {this, "gTowerBuilderTool", "LVL1::gTowerBuilder", "Tool that builds gTowers for simulation"};
   ToolHandle<IgSuperCellTowerMapper> m_gSuperCellTowerMapperTool {this, "gSuperCellTowerMapperTool", "LVL1::gSuperCellTowerMapper", "Tool that maps supercells to gTowers"};
