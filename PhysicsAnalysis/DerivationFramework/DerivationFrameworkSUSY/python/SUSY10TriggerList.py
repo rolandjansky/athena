@@ -32,7 +32,6 @@ SUSY10BJetTriggers = [
     'HLT_3j225',
     'HLT_4j120',
     'HLT_4j60_gsc115_boffperf_split',
-    'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
     'HLT_2j35_bmv2c1040_split_2j35_L14J15.0ETA25', #2018
     'HLT_j45_gsc55_bmv2c1050_split_ht700_L1HT190-J15s5.ETA21',
     'HLT_2j45_gsc55_bmv2c1050_split_ht300_L1HT190-J15s5.ETA21'
@@ -47,5 +46,5 @@ SUSY10XETriggers = MET_2015+MET_2016+MET_2017+MET_2018
 SUSY10AllTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers + SUSY10XETriggers + JetTrigger_2016 + MultiBJet_2017 + MultiBJet_2018 + MultiBJet_2016 + MultiBJet_2015 + BJetMET_2018 + BJetMET_2017 + SUSY10BJetTriggers# + SUSY10CombinedXETriggers + SUSY10BjetTriggers + SUSY10RazorTriggers + SUSY10JetTriggers
 
 #just those we need the navigation thinning for
-SUSY10ThinTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers + SUSY10BJetTriggers
+SUSY10ThinTriggers = SUSY10LeptonTriggers + SUSY10PhotonTriggers + SUSY10BJetTriggers + MultiBJet_2015 + MultiBJet_2016 + MultiBJet_2017 + MultiBJet_2018
 
