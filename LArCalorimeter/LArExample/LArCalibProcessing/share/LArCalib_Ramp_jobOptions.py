@@ -622,13 +622,10 @@ theLArRampBuilder.Polynom      = 1
 theLArRampBuilder.RampRange    = RampRangeValue # Check on the raw data ADC sample before ped subtraction
                                                 # and pulse reconstruction to include point in fit
 theLArRampBuilder.correctBias  = CorrectBias
-theLArRampBuilder.ConsecutiveADCs = 0;
 theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
 theLArRampBuilder.KeyOutput = KeyOutput
 theLArRampBuilder.DeadChannelCut = -9999
 theLArRampBuilder.GroupingType = GroupingType
-
-theLArRampBuilder.LongNtuple = SaveAllSamples
 
 theLArRampBuilder.isSC = SuperCells
 

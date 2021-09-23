@@ -48,10 +48,12 @@
 #include "LArRecConditions/LArBadChannelMask.h"
 
 #include "LArRecConditions/LArCalibLineMapping.h"
-#include "CaloDetDescr/ICaloSuperCellIDTool.h"
+
+#include "LArCalibTriggerAccumulator.h"
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 
 class LArOnlineID_Base;
@@ -61,8 +63,8 @@ class LArRampBuilder : public AthAlgorithm//, public IIncidentListener
 {
  
 public:
-  LArRampBuilder(const std::string & name, ISvcLocator * pSvcLocator);
-  ~LArRampBuilder();
+  using AthAlgorithm::AthAlgorithm;
+  ~LArRampBuilder() {};
 
   //standard algorithm methods
   StatusCode initialize();
@@ -86,17 +88,17 @@ private:
 		     const HWIdentifier chid, const LArOnOffIdMapping* cabling,
 		     const LArBadChannelCont* bcCont);
 
-  LArConditionsContainer<ACCRAMP>* m_ramps;
+  std::unique_ptr<LArConditionsContainer<ACCRAMP> > m_ramps;
 
 
-  ToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool;
-  ToolHandle<LArShapePeakRecoTool>    m_peakShapeTool;
-  ToolHandle<LArOFPeakRecoTool>       m_peakOFTool;
+  PublicToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool{this,"LArParabolaPeakRecoTool","LArParabolaPeakRecoTool"};
+  PublicToolHandle<LArShapePeakRecoTool>    m_peakShapeTool{this,"LArShapePeakRecoTool","LArShapePeakRecoTool"};
+  ToolHandle<LArOFPeakRecoTool>       m_peakOFTool{this,"PeakOFTool","LArOFPeakRecoTool"};
 
-  unsigned m_event_counter; 
-  int m_delay;
-  int m_ipassShape; 
-  int m_ipassPedestal; 
+  unsigned m_event_counter=0; 
+  int m_delay=-1;
+  int m_ipassShape=0; 
+  int m_ipassPedestal=0; 
 
   std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs
@@ -107,52 +109,48 @@ private:
 
   std::vector<float> m_thePedestal;    
 
-  std::string m_recoTypeProp; // ( "Parabola", "Shape" or "OF" ) 
+  
   
   enum recoType {PARABOLA,SHAPE,OF};  
-  recoType m_recoType;
+  recoType m_recoType{OF};
 
 
   //Algorithm-Properties:
-  std::vector<std::string> m_keylist;//, m_keylistproperty;
-  std::string m_keyoutput;
+  Gaudi::Property<std::vector<std::string> > m_keylist{this, "KeyList",{},"List if input SG keys"};
+  Gaudi::Property<std::string> m_keyoutput{this,"KeyOutput","LArRamp","SG Key of output object"};
     
-  IntegerProperty m_degree;
-  IntegerProperty m_maxADC;
-  IntegerProperty m_consADC;
-  bool m_dac0sub, m_saveRawRamp,m_saveRecRamp, m_longNtuple, m_satSlope;
-  UnsignedIntegerProperty m_minDAC;
-
-  int m_DeadChannelCut;
-  int m_shapeMethodDAC;
-  unsigned int m_DAC0;
-
-  bool m_correctBias;
-  bool m_withIntercept;
-  float m_delayShift;
-  //  hashID     sample
-  std::vector<std::vector<short> > m_adc0;
-
-  bool m_doBadChannelMask;
+  IntegerProperty m_degree{this,"Polynom",1,"Degree of ramp-polynom"};
+  IntegerProperty m_maxADC{this,"RampRange",0,"Ignore ADC values higher than this (0: do nothing)"};
+  BooleanProperty m_dac0sub{this,"SubtractDac0",true,"Take first DAC value as pedestal"};
+  UnsignedIntegerProperty m_DAC0{this,"DAC0",0,"DAC value considered DAC0"};
+  BooleanProperty m_saveRawRamp{this,"StoreRawRamp",false,"Save raw ramp obj in SG"};
+  BooleanProperty m_saveRecRamp{this,"StoreRecRamp",true,"Save reconstructed ramp obj in SG"};
+  BooleanProperty m_satSlope{this,"doSatSlope","Ignore points subject to saturation"};
+  UnsignedIntegerProperty m_minDAC{this,"minDAC",0,"Ignore DAC values smaller that this"};
+  StringProperty m_recoTypeProp{this,"RecoType","OF","One of 'Parabola', 'Shape' or 'OF'"}; 
+  IntegerProperty m_deadChannelCut{this,"DeadChannelCut",1300,"Complain about channels with max-ADC below this value"};
+  BooleanProperty m_correctBias{this,"correctBias",false,"For Parabola method: Correction yes/no"};
+  BooleanProperty m_withIntercept{this,"WithIntercept",true,"False: Force fit to go through 0/0"};
+  FloatProperty m_delayShift{this,"DelayShift",23};  //Only for OF peak reco
+  
+  Gaudi::Property<bool> m_doBadChannelMask{this,"IgnoreBadChannels",true,"Don't complain about known bad channels"};
   LArBadChannelMask m_bcMask;
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
- 
-  
+  Gaudi::Property<std::string> m_groupingType{this,"GroupingType","ExtendedFeedThrough","Grouping of the output conditions-container"};
+  Gaudi::Property<std::string> m_hec_key{this,"HECKey","","SG Key of injection-resistor obj used for HEC Ramps"};
 
-  const LArOnlineID_Base* m_onlineHelper;
-  const LArEM_Base_ID* m_emId;
+  const LArOnlineID_Base* m_onlineHelper=nullptr;
+  const LArEM_Base_ID* m_emId=nullptr;
 
-  // Grouping type
-  std::string m_groupingType;
 
   const DataHandle<ILArRinj> m_dd_rinj;
-  std::string m_hec_key;
-  bool        m_isSC;
-  bool        m_ishec;
-  bool        m_iterate;
+  
+  Gaudi::Property<bool>  m_isSC{this,"isSC",false,"Processing SC data yes/no"};
+  Gaudi::Property<bool>  m_ishec{this,"isHEC",false,"Processing HEC data yes/no"};
+  Gaudi::Property<bool>  m_iterate{this,"Iterate",false,"Iterative OF peak reco"};
 
-  uint16_t m_fatalFebErrorPattern;
+  uint16_t m_fatalFebErrorPattern=0xffff;
 
 };
 
