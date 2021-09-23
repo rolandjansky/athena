@@ -8,7 +8,6 @@
 
 #ifndef TRKDETDESCRALGS_MATERIALVALIDATION_H
 #define TRKDETDESCRALGS_MATERIALVALIDATION_H
-#define LEGACY_TRKGEOM
 
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"

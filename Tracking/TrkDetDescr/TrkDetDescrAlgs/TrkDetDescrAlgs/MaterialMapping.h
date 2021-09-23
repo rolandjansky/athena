@@ -8,7 +8,6 @@
 
 #ifndef TRKDETDESCRALGS_MATERIALMAPPING_H
 #define TRKDETDESCRALGS_MATERIALMAPPING_H
-#define LEGACY_TRKGEOM
 
 // Athena & Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"

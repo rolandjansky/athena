@@ -81,7 +81,7 @@ def ITkMaterialMappingCfg(flags, name="ITkMaterialMapping", **kwargs):
   result.merge(OutputConditionsAlgCfg(flags, name = "CondAlg_Material",
                                       outputFile="AtlasLayerMaterial.pool.root",
                                       ObjectList=['Trk::LayerMaterialMap#'+LayerMaterialDirectory+LayerMaterialName],
-                                      WriteIOV=True,IOVTagList=[flags.ITk.trackingGeometry.materialTag] ))
+                                      WriteIOV=True,IOVTagList=[flags.ITk.trackingGeometry.materialTag+str(flags.ITk.trackingGeometry.version)] ))
   
   result.addService(CompFactory.IOVRegistrationSvc(RecreateFolders = True))
   
