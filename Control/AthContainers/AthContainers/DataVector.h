@@ -837,6 +837,9 @@ public:
   typedef DataVector base_data_vector;
 
 
+  using Deleter = typename BASE::Deleter;
+
+
   //========================================================================
   /** @name Constructors, destructors, assignment. */
   //@{
@@ -1711,6 +1714,20 @@ public:
 
 
   /**
+   * @brief Erase all the elements in the collection, and change 
+   *        how elements are to be deleted.
+   * @param deleter Object to be used to delete object.
+   *                Passing nullptr will change back to the default.
+   *
+   * If the container owns its elements, then the removed elements
+   * will be deleted.  Any duplicates will be removed in this process,
+   * but don't rely on this.
+   * After the current elements are deleted, the Deleter object is changed.
+   */
+  void clear (std::unique_ptr<Deleter> deleter);
+
+
+  /**
    * @brief Return the DV/DL info struct for this class.
    *
    * This can be used to make sure that it's instantiated.
@@ -2045,6 +2062,22 @@ public:
     reverse_iterator;
 
   typedef DataVector base_data_vector;
+
+
+  /**
+   * @brief Interface to allow customizing how elements are to be deleted.
+   */
+  class Deleter
+  {
+  public:
+    using value_type = DataVector::value_type;
+    using PtrVector = DataVector::PtrVector;
+    virtual ~Deleter() = default;
+    virtual void doDelete (value_type p) = 0;
+    virtual void doDelete (typename PtrVector::iterator first,
+                           typename PtrVector::iterator last) = 0;
+  };
+
 
   //========================================================================
   /** @name Constructors, destructors, assignment. */
@@ -2921,6 +2954,20 @@ public:
 
 
   /**
+   * @brief Erase all the elements in the collection, and change 
+   *        how elements are to be deleted.
+   * @param deleter Object to be used to delete object.
+   *                Passing nullptr will change back to the default.
+   *
+   * If the container owns its elements, then the removed elements
+   * will be deleted.  Any duplicates will be removed in this process,
+   * but don't rely on this.
+   * After the current elements are deleted, the Deleter object is changed.
+   */
+  void clear (std::unique_ptr<Deleter> deleter);
+
+
+  /**
    * @brief Return the DV/DL info struct for this class.
    *
    * This can be used to make sure that it's instantiated.
@@ -3146,6 +3193,22 @@ protected:
              typename PtrVector::iterator last);
 
 
+  /**
+   * @brief Delete an element
+   * @param p The element to delete.
+   */
+  void doDelete (value_type p);
+
+
+  /**
+   * @brief Delete a range of elements
+   * @param first Start of range to delete.
+   * @param last End of range to delete.
+   */
+  void doDelete (typename PtrVector::iterator first,
+                 typename PtrVector::iterator last);
+
+
 protected:
   /// The ownership policy of this container ---
   /// either SG::OWNS_ELEMENTS or SG::VIEW_ELEMENTS.
@@ -3153,6 +3216,12 @@ protected:
 
   /// This actually holds the elements.
   PtrVector m_pCont;
+
+  /// Interface telling us how to delete objects.
+  /// If null, just use the C++ default.
+  // This should really be a unique_ptr --- but that causes problems
+  // with ROOT persistency (even though this is tagged as transient).
+  Deleter* m_deleter = nullptr;
 
 
   /**
@@ -3261,6 +3330,7 @@ public:
 #endif  
    /// Declare the automatically created variable transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_isMostDerived;
+   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_deleter;
 
 };
 
