@@ -9,6 +9,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -106,11 +107,15 @@ namespace Trk {
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
+    /**Observer tool      This tool is used to observe the tracks and their 'score' */
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerToolWriter{this, "TrackObserverToolWriter", "", "track observer writer within ambiguity solver"};
+
     bool m_rejectInvalidTracks{};
     /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 
     /// This is used when we want to use holes from the pattern recognition instead of repeating the hole search
     /// Off by default
-    BooleanProperty m_keepHolesFromBeforeFit{this,"KeepHolesFromBeforeRefit",false,"Restore hole information from input tracks after refit"}; 
+    BooleanProperty m_keepHolesFromBeforeFit{this,"KeepHolesFromBeforeRefit",false,"Restore hole information from input tracks after refit"};
   };
   
   inline std::unique_ptr<Trk::Track>

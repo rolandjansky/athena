@@ -73,6 +73,18 @@ if InDetFlags.doxAOD():
     if InDetFlags.doTruth(): 
       InDetAODList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
+  if InDetFlags.doPseudoTracking():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()+'Aux.' + excludedAuxData]
+    if InDetFlags.doTruth():
+        InDetAODList += ["TrackTruthCollection#"+InDetKeys.PseudoTracksTruth()]
+        InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.PseudoDetailedTracksTruth()]
+  if InDetFlags.doTIDE_Ambi():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODObservedTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODObservedTrackParticleContainer()+'Aux.' + excludedAuxData]
+    if InDetFlags.doTruth():
+      InDetAODList += ["TrackTruthCollection#"+InDetKeys.ObservedTracksTruth()]
+      InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.ObservedDetailedTracksTruth()]
 
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetAODList directly
 StreamAOD.ItemList += InDetAODList 

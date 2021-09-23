@@ -34,6 +34,8 @@ namespace Trk
         @param score the score tha twas given to the input track
         @param prd_to_track_map a map to identify shared hits.
         @param clusterSplitProbMap map which associates pixel cluster to cluster splitting probabilities.
+        @param trackId unique track identifier (used by track observer tool)
+        @param subtrackId unique track identifier for cleaned out track (used by track observer tool)
         @return tuple where the first element is a potiner to a new track or a nullptr and the second element is a flag which is set to false if the input track is to be rejected.
         The second element of the returned tuple is false if the input input track is to be rejected.
         The input track is rejected if it does not fulfil quality criteria or if a new cleaned track is created
@@ -43,7 +45,9 @@ namespace Trk
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
                                                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                            Trk::PRDtoTrackMap &prd_to_track_map) const =0;
+                                                            Trk::PRDtoTrackMap &prd_to_track_map,
+                                                            int trackId,
+                                                            int subtrackId) const =0;
   };
 
 } // end of namespace

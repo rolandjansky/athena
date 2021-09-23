@@ -14,4 +14,4 @@ atlas_add_component( InDetAmbiTrackSelectionTool
    TrkTrack TrkToolInterfaces AthContainers CxxUtils StoreGateLib
    InDetIdentifier InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventUtils
    TrkSurfaces TrkCaloClusterROI TrkMeasurementBase TrkPrepRawData
-   TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters PixelGeoModelLib TrkFitterInterfaces)
+   TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters PixelGeoModelLib TrkFitterInterfaces TrkValInterfaces)

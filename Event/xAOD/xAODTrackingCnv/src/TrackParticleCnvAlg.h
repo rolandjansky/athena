@@ -23,6 +23,8 @@
 #include "Particle/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 
 // Local include(s):
 #include "xAODTrackingCnv/ITrackParticleMonitoring.h"
@@ -103,7 +105,9 @@ namespace xAODMaker {
     bool m_doMonitoring;
     ToolHandle< ITrackParticleMonitoring > m_trackMonitoringTool { this, "MonTool", "", "Tracking Monitoring tool" };
 
-
+    // Augment observed tracks with information from track observer tool map
+    bool m_augmentObservedTracks;
+    SG::ReadHandleKey<ObservedTracksMap> m_tracksMap;
 
     /// toggle on converting AOD track particles to xAOD
     bool m_convertAODTrackParticles;
@@ -112,7 +116,7 @@ namespace xAODMaker {
     bool m_convertTracks;
       
     template <typename CONT, typename TRUTHCONT, typename CONVTOOL>
-    int convert(const CONT&, const TRUTHCONT&, CONVTOOL& tool, SG::WriteHandle<xAOD::TrackParticleContainer>&, const xAODTruthParticleLinkVector*) const;
+    int convert(const CONT&, const TRUTHCONT&, CONVTOOL& tool, SG::WriteHandle<xAOD::TrackParticleContainer>&, const xAODTruthParticleLinkVector*, const ObservedTracksMap* obs_track_map = 0) const;
       
     inline xAOD::TrackParticle* createParticle(xAOD::TrackParticleContainer& xaod, const Rec::TrackParticleContainer& container, const Rec::TrackParticle& tp) ;
     inline xAOD::TrackParticle* createParticle( xAOD::TrackParticleContainer& xaod, const TrackCollection& container, const Trk::Track& tp) ;

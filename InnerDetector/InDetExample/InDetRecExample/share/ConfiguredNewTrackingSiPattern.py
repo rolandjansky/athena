@@ -472,7 +472,14 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minScoreShareTracks   = 0.0
            InDetAmbiTrackSelectionTool.minTRTHits            = 0
            InDetAmbiTrackSelectionTool.sharedProbCut         = 0.1
-        
+
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+           InDetAmbiTrackSelectionTool.ObserverTool = TrackingCommon.getTrackObserverTool()
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiTrackSelectionTool.OutputLevel = VERBOSE
 
@@ -600,7 +607,16 @@ class  ConfiguredNewTrackingSiPattern:
 
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiguityProcessor.OutputLevel = VERBOSE
-         
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+            InDetAmbiguityProcessor.ObserverTool = TrackingCommon.getTrackObserverTool()
+            InDetAmbiguityProcessor.ObserverToolWriter = TrackingCommon.getTrackObserverTool(name = 'TrackObserverToolWriter', write_tracks = True)
+            InDetAmbiguityScoreProcessor.ObserverTool = TrackingCommon.getTrackObserverTool()
+
          ToolSvc += InDetAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetAmbiguityProcessor)
@@ -666,7 +682,22 @@ class  ConfiguredNewTrackingSiPattern:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
-      
+
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+           # add truth and trackParticles
+           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.ObservedTracks(),
+                                                           InDetKeys.ObservedDetailedTracksTruth(),
+                                                           InDetKeys.ObservedTracksTruth())
+           include ("InDetRecExample/ConfiguredxAODTrackParticleCreation.py")
+           InDetxAOD = ConfiguredxAODTrackParticleCreation(InDetKeys.ObservedTracks(),
+                                                           InDetKeys.ObservedTracksTruth(),
+                                                           InDetKeys.xAODObservedTrackParticleContainer())
    def SiTrackCollection ( self ):
       try:
          return self.__SiTrackCollection
