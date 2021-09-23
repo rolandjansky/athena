@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -8,6 +8,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <map>
 
@@ -75,6 +76,9 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
+  // Make sure we make a mixed IOV.
+  writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
+  
   // Add dependency
   writeHandle.addDependency(readHandle);
   // Additional dependencies for IOV range to limit lifetime to TrackingGeometry lifetime
