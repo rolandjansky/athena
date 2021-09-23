@@ -25,7 +25,7 @@ public:
   };
 };
 const std::string pixLayersLabel[PixLayers::COUNT] = {
-  "ECA", "ECC", "B0", "B1", "B2", "IBL"
+  "ECA", "ECC", "BLayer", "Layer1", "Layer2", "IBL"
 };
 const float inv_nmod_per_layer[PixLayers::COUNT] = {
   1. / 144., 1. / 144., 1. / 286., 1. / 494., 1. / 676., 1. / 448.
