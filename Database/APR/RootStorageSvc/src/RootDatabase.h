@@ -60,6 +60,10 @@ namespace pool  {
     int           m_defAutoSave;
     /// Default buffer size parameter for Branches
     int           m_defBufferSize;
+    /// Maximum buffer size parameter for Branches
+    int           m_maxBufferSize;
+    /// Minimum buffer entries parameter for Branches
+    int           m_minBufferEntries;
     /// Default policy mode for keyed objects
     int           m_defWritePolicy;
     /// Offset table length for branches
