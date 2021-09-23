@@ -8,7 +8,6 @@
 
 #ifndef TRKEXENGINE_STATICNAVIGATIONENGINE_H
 #define TRKEXENGINE_STATICNAVIGATIONENGINE_H
-#define LEGACY_TRKGEOM
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"

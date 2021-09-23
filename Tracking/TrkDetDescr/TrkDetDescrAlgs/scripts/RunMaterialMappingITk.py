@@ -59,7 +59,7 @@ if os.path.exists('./PoolFileCatalog.xml') :
 ConfigFlags.Input.isMC             = True
 
 if args.localgeo:
-  configFlags.GeoModel.useLocalGeometry = True
+  ConfigFlags.GeoModel.useLocalGeometry = True
   
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
 detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip']
