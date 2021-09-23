@@ -128,7 +128,7 @@ def _precisionTrackingSeq(flags):
 
     selAcc.mergeReco(precisionInDetReco)
     from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionEtcutHypo')
+    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters')
     selAcc.addHypoAlgo(hypoAlg)
     menuSequence = MenuSequenceCA(selAcc,
                                   HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)

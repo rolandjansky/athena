@@ -168,7 +168,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 }
 
 bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews, const Decision* outputDecision, size_t& cachedIndex) const {
-  if (cachedViews == nullptr) {
+  if (cachedViews == nullptr or m_cacheDisabled) {
     return false; // No cached input configured, which is fine.
   }
   return matchInCollection(cachedViews, outputDecision, cachedIndex);

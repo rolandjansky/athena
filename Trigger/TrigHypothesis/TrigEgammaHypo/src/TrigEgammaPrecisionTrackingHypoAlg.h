@@ -22,7 +22,7 @@ class TrigEgammaPrecisionTrackingHypoAlg : public ::HypoBase {
 
   private: 
     ToolHandleArray< ITrigEgammaPrecisionTrackingHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
-      
+    SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in previous views" };       
 
 }; 
 

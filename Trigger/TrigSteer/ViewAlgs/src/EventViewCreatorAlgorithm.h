@@ -104,6 +104,10 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     Gaudi::Property< bool > m_placeJetInView { this, "PlaceJetInView", false, 
       "Jet slice specific option. Place Jet inside newly spawned View instance. See also InViewJets" };
 
+    //switch off the use of cached EventViews
+     Gaudi::Property< bool > m_cacheDisabled { this, "CacheDisabled", false,
+      "Set whether cached EventViews are to be accessed" };
+
     // TODO. In the next iteration, start to use this. Remove "_PROPERTY" which is there to catch against algs with identical properties
     SG::WriteHandleKey< xAOD::JetContainer > m_inViewJets {this,"InViewJets","", 
       "Name with which the Jet should be inserted into the views"};
