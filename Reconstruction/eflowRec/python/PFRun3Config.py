@@ -9,7 +9,7 @@ def getOfflinePFAlgorithm(inputFlags):
     PFAlgorithm = PFAlgorithm("PFAlgorithm")
 
     from eflowRec.PFCfg import getPFClusterSelectorTool
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")    
 
     from eflowRec.PFCfg import getPFCellLevelSubtractionTool
     PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
@@ -146,10 +146,34 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
-    if(inputFlags.PF.useElPhotMuLinks):
-        from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm,getEGamFlowElementAssocAlgorithm
-        result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+    #Currently we do not have egamma reco in the run 3 config and hence there are no electrons/photons if not running from ESD or AOD
+    if(inputFlags.PF.useElPhotLinks and inputFlags.Input.Format == "POOL" ):
+        from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
         result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
+    
+    #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
+    if(inputFlags.PF.useMuLinks and inputFlags.Input.Format == "POOL" ):
+        from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
+        result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+
+    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
+    toESDAndAOD = ""
+    if(inputFlags.PF.EOverPMode):
+      toESDAndAOD = [f"xAOD::FlowElementContainer#EOverPChargedParticleFlowObjects",f"xAOD::FlowElementAuxContainer#EOverPChargedParticleFlowObjectsAux."]
+      toESDAndAOD += [f"xAOD::FlowElementContainer#EOverPNeutralParticleFlowObjects",f"xAOD::FlowElementAuxContainer#EOverPNeutralParticleFlowObjectsAux."]
+    else:
+      toESDAndAOD = [f"xAOD::FlowElementContainer#JetETMissChargedParticleFlowObjects", f"xAOD::FlowElementAuxContainer#JetETMissChargedParticleFlowObjectsAux."]
+      toESDAndAOD += [f"xAOD::FlowElementContainer#JetETMissNeutralParticleFlowObjects",f"xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.-FEShowerSubtractedClusterLink."]
+      toESDAndAOD += [f"xAOD::FlowElementContainer#JetETMissLCNeutralParticleFlowObjects",f"xAOD::ShallowAuxContainer#JetETMissLCNeutralParticleFlowObjectsAux."]
+
+    #PFlow requires electrons, photons, muons and taus in order to have valid links to them. So lets add these objects to the AOD and ESD
+    toESDAndAOD += [f"xAOD::ElectronContainer#Electrons",f"xAOD::ElectronAuxContainer#ElectronsAux."]
+    toESDAndAOD += [f"xAOD::PhotonContainer#Photons",f"xAOD::PhotonAuxContainer#PhotonsAux."]
+    toESDAndAOD += [f"xAOD::MuonContainer#Muons",f"xAOD::MuonAuxContainer#MuonsAux."]
+    toESDAndAOD += [f"xAOD::TauJetContainer#TauJets",f"xAOD::TauJetAuxContainer#TauJetsAux."]
+  
+    result.merge(addToESD(inputFlags, toESDAndAOD))
+    result.merge(addToAOD(inputFlags, toESDAndAOD))
 
     return result
 
@@ -177,6 +201,6 @@ if __name__=="__main__":
 
     list_remaps=ListRemaps()
     for mapping in list_remaps:
-        cfg.merge(mapping)
+        cfg.merge(mapping)    
 
     cfg.run()
