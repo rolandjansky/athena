@@ -52,10 +52,6 @@ acc = MainServicesCfg(ConfigFlags)
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 acc.merge(PoolReadCfg(ConfigFlags))
 
-if ConfigFlags.Detector.GeometryITk:
-    #Temporary
-    ConfigFlags.TrackingGeometry.MaterialSource = 'Input'
-
 ConfigFlags.lock()
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConfig import InDetPhysValMonitoringCfg
