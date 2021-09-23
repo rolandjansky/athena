@@ -192,7 +192,7 @@ StatusCode ComboHypoToolBase::selectLegs(const Combo::LegDecisionsMap& IDCombMap
     const Combo::LegDecisionsMap::const_iterator it = IDCombMap.find(legIdentifier.numeric());
 
     if (it != IDCombMap.end()) {
-      for (const ElementLink<DecisionContainer>& el : it->second) {
+      for (const ElementLink<DecisionContainer> el : it->second) {
         decisionObjectsOnLeg.emplace_back(legIdentifier, el);
       }
     }
