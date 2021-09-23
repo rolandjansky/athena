@@ -57,9 +57,9 @@ testChains = {
 
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig",
 
-    "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_FTF;DTE",
-    "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FS_FTF;DTE",
-    "HLT_unconvtrk0_fslrt_L1All:HLT_IDTrack_FSLRT_IDTrig;DTE",
+    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FS_FTF;DTE",
+    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FSLRT_IDTrig;DTE",
 
     "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF",
     "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig",
