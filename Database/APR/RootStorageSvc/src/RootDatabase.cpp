@@ -29,8 +29,8 @@
 #include "TFile.h"
 #include "TFileCacheWrite.h"
 #include "TTree.h"
-#include "TSystem.h"
 #include "TTreeCache.h"
+#include "TSystem.h"
 
 using namespace pool;
 using namespace std;
@@ -44,6 +44,8 @@ RootDatabase::RootDatabase() :
         m_defSplitLevel(99),
         m_defAutoSave(16*1024*1024),
         m_defBufferSize(16*1024),
+        m_maxBufferSize(16*1024*1024),
+        m_minBufferEntries(-1),
         m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
         m_branchOffsetTabLen(0),
         m_defTreeCacheLearnEvents(-1),
@@ -422,14 +424,6 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
       else if ( !strcasecmp(n, "DEFAULT_WRITEPOLICY") )   // int
         return opt._setValue(int(m_defWritePolicy));
       break;
-    case 'N':
-      //if ( !strcasecmp(n,"NFREE") )                     // int
-      //  return opt._setValue(int(m_file->GetNfree()));
-      if ( !m_file )
-        return Error;
-      else if ( !strcasecmp(n,"NKEYS") )                  // int
-        return opt._setValue(int(m_file->GetNkeys()));
-      break;
     case 'F':
       if ( !m_file )
         return Error;
@@ -455,28 +449,40 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
     case 'G':
       if ( !m_file )
         return Error;
-      else if ( !strcasecmp(n,"GET_OBJECT") )  {         // void*
+      else if ( !strcasecmp(n,"GET_OBJECT") )  {          // void*
         const char* key = "";
         opt._getValue(key);
         return opt._setValue((void*)m_file->Get(key));
       }
       break;
     case 'I':
-      if ( !strcasecmp(n,"IOBYTES_WRITTEN") )      // int
+      if ( !strcasecmp(n,"IOBYTES_WRITTEN") )             // int
         return opt._setValue((long long int)(byteCount(WRITE_COUNTER)));
-      else if ( !strcasecmp(n,"IOBYTES_READ") )         // int
+      else if ( !strcasecmp(n,"IOBYTES_READ") )           // int
         return opt._setValue((long long int)(byteCount(READ_COUNTER)));
+      break;
+    case 'M':
+      if ( !strcasecmp(n, "MAXIMUM_BUFFERSIZE") )         // int
+        return opt._setValue(int(m_maxBufferSize));
+      else if ( !strcasecmp(n, "MINIMUM_BUFFERENTRIES") ) // int
+        return opt._setValue(int(m_minBufferEntries));
+      break;
+    case 'N':
+      if ( !m_file )
+        return Error;
+      else if ( !strcasecmp(n,"NKEYS") )                  // int
+        return opt._setValue(int(m_file->GetNkeys()));
       break;
     case 'R':
       if ( !m_file )
         return Error;
-      else if ( !strcasecmp(n,"READ_CALLS") )        // int
+      else if ( !strcasecmp(n,"READ_CALLS") )             // int
         return opt._setValue(int(m_file->GetReadCalls()));
       break;
     case 'T':
       if( !strcasecmp(n+5,"BRANCH_OFFSETTAB_LEN") )  {
         return opt._setValue(int(m_branchOffsetTabLen));
-      } else if( !strcasecmp(n,"TFILE") )  {                  // void*
+      } else if( !strcasecmp(n,"TFILE") )  {              // void*
           return opt._setValue((void*)m_file);
       } else if( !strcasecmp(n+5,"MAX_SIZE") )  {
           return opt._setValue((long long int)TTree::GetMaxTreeSize());
@@ -583,6 +589,12 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         m_file->ReadStreamerInfo();
         return Success;
       }
+      break;
+    case 'M':
+      if ( !strcasecmp(n, "MAXIMUM_BUFFERSIZE") )         // int
+        return opt._getValue(m_maxBufferSize);
+      else if ( !strcasecmp(n, "MINIMUM_BUFFERENTRIES") ) // int
+        return opt._getValue(m_minBufferEntries);
       break;
     case 'P':
       if ( !m_file )
@@ -803,7 +815,25 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 DbStatus RootDatabase::transAct(Transaction::Action action)
 {
    // process flush to write file
-   if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) m_file->Write();
+   if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) {
+      m_file->Write();
+      // check all TTrees, if Branch baskets are below max
+      for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
+              mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+         TTree *tree = treeIt->first;
+         TIter next(tree->GetListOfBranches());
+         TBranch * b = nullptr;
+         while((b = (TBranch*)next())){
+            if (b->GetBasketSize() > m_maxBufferSize) {
+               DbPrint log( m_file->GetName() );
+               log << DbPrintLvl::Debug << b->GetName() << " Basket size = " << b->GetBasketSize()
+                   << " reduced to " << m_maxBufferSize
+                   << DbPrint::endmsg;
+               b->SetBasketSize(m_maxBufferSize);
+            }
+         }
+      }
+   }
    // process commits only
    if( action != Transaction::TRANSACT_COMMIT )
       return Success;
@@ -847,6 +877,24 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
                }
             }
             return Error;
+         }
+      }
+   }
+
+   for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
+           mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+      TTree *tree = treeIt->first;
+      if( tree->GetEntries() == m_minBufferEntries ) {
+         TIter next(tree->GetListOfBranches());
+         TBranch * b = nullptr;
+         while((b = (TBranch*)next())){
+            if (b->GetBasketSize() < b->GetTotalSize()) {
+               DbPrint log( m_file->GetName() );
+               log << DbPrintLvl::Debug << b->GetName() << " Initial basket size = " << b->GetBasketSize()
+                   << " increased to " << b->GetBasketSize() * (1 + int(b->GetTotalSize()/b->GetBasketSize()))
+                   << DbPrint::endmsg;
+               b->SetBasketSize(b->GetBasketSize() * (1 + int(b->GetTotalSize()/b->GetBasketSize())));
+            }
          }
       }
    }
