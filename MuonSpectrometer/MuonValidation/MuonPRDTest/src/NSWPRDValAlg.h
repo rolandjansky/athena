@@ -146,7 +146,7 @@ class NSWPRDValAlg: public AthAlgorithm
   Gaudi::Property<std::string> m_TGC_SDOContainerName{this, "TGC_SDOContainerName", "TGC_SDO" };
   Gaudi::Property<std::string> m_TGC_DigitContainerName{this, "TGC_DigitContainerName","TGC_DIGITS"  };
   Gaudi::Property<std::string> m_TGC_RDOContainerName{this,"TGC_RDOContainerName", "TGCRDO" };
-  Gaudi::Property<std::string> m_TGC_PRDContainerName{this, "TGC_PRDContainerName","TGCPRD" };
+  Gaudi::Property<std::string> m_TGC_PRDContainerName{this, "TGC_PRDContainerName","TGC_Measurements" };
 
   // Matching algorithm
  
