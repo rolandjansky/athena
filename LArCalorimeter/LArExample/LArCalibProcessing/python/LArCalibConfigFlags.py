@@ -4,7 +4,7 @@ def addLArCalibFlags(flags):
     
     flags.Input.isMC=False
     flags.addFlag("LArCalib.isSC",False)
-    flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR/COMP200")
+    flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR")
     flags.addFlag("LArCalib.BadChannelTag","-UPD3-00")
 
     #Folders:
@@ -35,6 +35,8 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.Gain",0)
 
     flags.addFlag("LArCalib.doValidation",True)
+
+    flags.addFlag("LArCalib.CorrectBadChannels",True)
 
     #Flags to find the input files/databases
     flags.addFlag("LArCalib.Input.Dir",".")
