@@ -8,6 +8,7 @@ from .Boards import MenuBoardsCollection
 from .Connectors import MenuConnectorsCollection
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
+from .L1MenuFlags import L1MenuFlags
 
 from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
@@ -46,8 +47,7 @@ class L1Menu(object):
 
     @staticmethod
     def partitioning():
-        from Lvl1Flags import Lvl1Flags
-        first = Lvl1Flags.MenuPartitioning()
+        first = L1MenuFlags.MenuPartitioning()
         last = first[1:] + [ Limits.MaxTrigItems ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
         return partitioning

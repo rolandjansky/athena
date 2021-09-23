@@ -240,13 +240,6 @@ class TriggerConfigGetter(Configured):
             # non-MT (Run-2) Trigger Configuration
             self.svc = SetupTrigConfigSvc()
 
-            if 'xml' in self.ConfigSrcList:
-                # sets them if plain XML reading is to be used
-                self.svc.l1XmlFile     = TriggerFlags.outputLVL1configFile()    # generated in python
-                # FW, May 2021: setting of HLT XML file removed
-                if TriggerFlags.readLVL1configFromXML():
-                    self.svc.l1XmlFile  = TriggerFlags.inputLVL1configFile() # given XML
-
             try:
                 self.svc.SetStates( self.ConfigSrcList )
             except Exception:

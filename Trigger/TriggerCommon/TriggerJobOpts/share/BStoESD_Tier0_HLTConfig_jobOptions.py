@@ -62,23 +62,8 @@ if rec.doTrigger():
         from AthenaCommon.Resilience import treatException
         treatException("Could not run TriggerConfigGetter()")
 
-    #---------------------------------------------------------------------------    
-    if tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
-        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2: # Run 1+2 setup, not needed for Run 3 reco
-            tf.readLVL1configFromXML = True # has to use the .xml file used for reco
-            # You have to set the 2 following files to the .xml files you want.
-            # Here are the default files for reprocessing special case with trigger
-            # FW, May 2021: Setting of HLT XML file removed
-            tf.inputLVL1configFile = "LVL1Menu.xml" # Has to be set correctly
-            tf.inputLVL1configFile.lock() # this is needed to not be overwritten by TrigT1CTMonitoring
-
-    #---------------------------------------------------------------------------    
-    elif tf.configForStartup()=="HLTonline": # need to talk to clients using LVL1ConfigSvc and add new folders into
-        #Just to be sure we use no LVL1 xml file and do not forget any clients
-        tf.inputLVL1configFile = "LVL1configDUMMY.xml"
-        tf.inputLVL1configFile.lock()
-        tf.readLVL1configFromXML=False
-        tf.readLVL1configFromXML.lock()
+    #---------------------------------------------------------------------------
+    if tf.configForStartup()=="HLTonline": # need to talk to clients using LVL1ConfigSvc and add new folders into
 
         # do not need thresholds but are using LVL1ConfigSvc
         if not hasattr(ToolSvc,'RecMuCTPIByteStreamTool'):

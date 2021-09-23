@@ -5,7 +5,6 @@ atlas_subdir( TriggerMenuMT )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
-                              python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
                               python/TriggerAPI

@@ -3,26 +3,14 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
-
 #######################################
 # trigger type definitions
 ######################################
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
-run1 = Lvl1Flags.CTPVersion()<=3
-
-if run1:
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDefRun1 import TT
-    rpcout_type = TT.rpcout | TT.phys
-    rpcin_type  = TT.rpcin  | TT.phys             
-else:
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDef import TT
-    rpcout_type = TT.muon   | TT.phys
-    rpcin_type  = TT.muon   | TT.phys             
-
-
-cl_type     = TT.calo      | TT.phys
-mb_type     = TT.minb      | TT.phys
+from TriggerMenuMT.L1.Config.TriggerTypeDef import TT
+rpcout_type = TT.muon | TT.phys
+rpcin_type  = TT.muon | TT.phys
+cl_type     = TT.calo | TT.phys
+mb_type     = TT.minb | TT.phys
 
 
 calo_exceptions = set([])
@@ -52,7 +40,7 @@ def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
 ##############################
 # define the various seeds
 ##############################
-def getL1BackgroundSeed(menul1items):        
+def getL1BackgroundSeed(menul1items, menu_name):
     l1bgditems = [
         'L1_BCM_AC_CA_BGRP0',
         'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
@@ -69,7 +57,7 @@ def getL1BackgroundSeed(menul1items):
         'L1_J12_EMPTY', 'L1_J12_BGRP12',
         ]
     
-    if TriggerFlags.triggerMenuSetup() == 'LS1_v1':
+    if menu_name == 'LS1_v1':
         l1bgditems = [
             'L1_BCM_AC_CA_BGRP0','L1_BCM_AC_CA_UNPAIRED_ISO',
             'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
@@ -388,13 +376,13 @@ def getL1LowLumi(l1seed):
 #####################################
 # assigned the seeds to the L1 names
 #####################################
-def getSpecificL1Seeds(l1seedname, l1itemobject):
+def getSpecificL1Seeds(l1seedname, l1itemobject, menu_name):
     l1items = l1itemobject.keys()
     L1Seed = ''
     if l1seedname == 'L1_J':
         L1Seed = getL1JetBS()
     if (l1seedname == 'L1_Bkg'):
-        L1Seed = getL1BackgroundSeed(l1items)
+        L1Seed = getL1BackgroundSeed(l1items, menu_name)
 #    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
 #        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
 #    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
@@ -485,7 +473,7 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 #####################################
 # map from l1item name to inputTE
 #####################################
-def getInputTEfromL1Item(l1item):
+def getInputTEfromL1Item(l1item, menu_name):
     
     L1Map = {
         'L1_TAU8_EMPTY'          : ['HA8'],
@@ -504,7 +492,7 @@ def getInputTEfromL1Item(l1item):
         'L1_TAU100'              : ['HA100'],
         }
 
-    if TriggerFlags.triggerMenuSetup() == 'LS1_v1': 
+    if menu_name == 'LS1_v1':
         L1Map['L1_CALREQ2']=['NIM30']
     else:
         L1Map['L1_CALREQ2']=['CAL2']

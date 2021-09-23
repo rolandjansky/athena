@@ -43,7 +43,7 @@ def getOverallL1item(chainName):
         lvl1name = getL1MenuFileName(ConfigFlags)
         lvl1access = L1MenuAccess(lvl1name)
         itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
-        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict)
+        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict, ConfigFlags.Trigger.triggerMenuSetup)
         return l1seedlist
 
     return l1seed
