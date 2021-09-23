@@ -35,7 +35,7 @@ def egammaRecBuilderCfg(
         "egammaRecContainer",
         flags.Egamma.Keys.Internal.EgammaRecs)
     kwargs.setdefault(
-        "InputTopoClusterContainerName",
+        "InputClusterContainerName",
         flags.Egamma.Keys.Internal.EgammaTopoClusters)
 
     egrecAlg = egammaRecBuilder(name, **kwargs)

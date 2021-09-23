@@ -28,7 +28,7 @@ StatusCode
 egammaRecBuilder::initialize()
 {
   // First the data handle keys
-  ATH_CHECK(m_inputTopoClusterContainerKey.initialize());
+  ATH_CHECK(m_inputClusterContainerKey.initialize());
   ATH_CHECK(m_egammaRecContainerKey.initialize());
 
   // retrieve track match builder
@@ -86,13 +86,13 @@ egammaRecBuilder::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("Executing egammaRecBuilder");
 
   SG::ReadHandle<xAOD::CaloClusterContainer> topoclusters(
-    m_inputTopoClusterContainerKey, ctx);
+    m_inputClusterContainerKey, ctx);
 
   // validity check is only really needed for serial running. Remove when MT is
   // only way.
   if (!topoclusters.isValid()) {
     ATH_MSG_ERROR("Could not retrieve cluster container:"
-                  << m_inputTopoClusterContainerKey.key());
+                  << m_inputClusterContainerKey.key());
     return StatusCode::FAILURE;
   }
 
