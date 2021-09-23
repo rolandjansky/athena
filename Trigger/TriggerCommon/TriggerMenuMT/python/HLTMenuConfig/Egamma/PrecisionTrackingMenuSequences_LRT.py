@@ -9,7 +9,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
-
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
 
 def precisionTrackSequence_LRT(ConfigFlags):
     """ fourth step:  precision electron....."""
@@ -22,12 +22,10 @@ def precisionTrackSequence_LRT(ConfigFlags):
     precisionTrackViewsMaker.Views = "precisionTrackViews_LRT"
     precisionTrackViewsMaker.ViewFallThrough = True
     precisionTrackViewsMaker.RequireParentView = True
-
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
     
     # calling precision tracking
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingSequences_LRT import precisionTracking_LRT
-    precisionTrackInViewSequence, trackparticles = precisionTracking_LRT(InViewRoIs, precisionCaloMenuDefs_LRT.precisionCaloClusters)
+    precisionTrackInViewSequence, trackparticles = precisionTracking_LRT(InViewRoIs)
     
     precisionTrackInViewAlgs = parOR("precisionTrackInViewAlgs_LRT", [precisionTrackInViewSequence])
     precisionTrackViewsMaker.ViewNodeName = "precisionTrackInViewAlgs_LRT"    
@@ -44,7 +42,8 @@ def precisionTrackingMenuSequence_LRT(name, is_probe_leg=False):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionTrackingHypoAlg
     from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
 
-    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlg(name+"precisionEtcutHypo_LRT")
+    thePrecisionTrackingHypo = TrigEgammaPrecisionTrackingHypoAlg(name+"precisionTrackingHypo_LRT")
+    thePrecisionTrackingHypo.CaloClusters = precisionCaloMenuDefs_LRT.precisionCaloClusters
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionTrackViewsMaker, 

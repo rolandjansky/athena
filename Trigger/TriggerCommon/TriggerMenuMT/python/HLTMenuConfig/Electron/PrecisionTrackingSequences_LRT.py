@@ -9,11 +9,10 @@ import AthenaCommon.CfgMgr as CfgMgr
 #logging
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
-#from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup_LRT import precisionCaloMenuDefs_LRT
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_LRT
 
-def precisionTracking_LRT(RoIs, precisionCaloClusters):
+def precisionTracking_LRT(RoIs):
 ## Taking Fast Track information computed in 2nd step ##
     
     IDTrigConfig = TrigEgammaKeys_LRT.IDTrigConfig_LRT
@@ -22,7 +21,6 @@ def precisionTracking_LRT(RoIs, precisionCaloClusters):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier_LRT")
     
     ViewVerifyTrk.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
-                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloClusters ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' )]
