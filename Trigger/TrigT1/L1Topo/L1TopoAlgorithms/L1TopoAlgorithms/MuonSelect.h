@@ -34,8 +34,14 @@ namespace TCS {
       parType_t      m_numberOfMuons = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
+      parType_t      m_MinEtTGC = { 0 };
+      parType_t      m_MinEtRPC = { 0 };
+      // Default flags setting to use Run2 style MuonSelect
+      parType_t      m_InnerCoinCut   = { 0 };
+      parType_t      m_FullStationCut = { 0 };
+      parType_t      m_GoodMFieldCut  = { 0 };
+      // Tmp, to be removed after new menu is implemented
       parType_t      m_et = { 0 };
-
    };
 
 } // end of namespace TCS
