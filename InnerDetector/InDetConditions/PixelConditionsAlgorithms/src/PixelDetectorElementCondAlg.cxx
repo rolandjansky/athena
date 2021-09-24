@@ -8,6 +8,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <map>
 
@@ -75,6 +76,9 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
     ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_readKey.key());
     return StatusCode::FAILURE;
   }
+  
+  // Make sure we make a mixed IOV.
+  writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
 
   // Add dependency for IOV range
   writeHandle.addDependency(readHandle);
