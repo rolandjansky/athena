@@ -139,7 +139,7 @@ def defineInputsMenu():
 
             ('jXE30',1), ('jXE35',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
             # test thresholds
-            ('jXEC50',1),
+            ('jXEC50',1), ('jXEPerf50',1),
             ('jTE100',1), ('jTEC100',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1)
         ]
     })
@@ -385,3 +385,31 @@ def defineInputsMenu():
     L1MenuFlags.boards().update( ctpinBoards )  # CTPIN/Slot9 NIM1, NIM2, CALREQ
 
     L1MenuFlags.boards().update( alfaBoard )  # ALFA
+
+    #----------------------------------------------
+
+    def remapThresholds():
+        # remap thresholds. TODO: add checks in case the remap does not fulfill HW constraints?
+        for boardName, boardDef in L1MenuFlags.boards().items():
+            if "connectors" in boardDef:
+                for c in boardDef["connectors"]:
+                    if "thresholds" in c:
+                        thresholdsToRemove = []
+                        for thrIndex, thrName in enumerate(c["thresholds"]):
+                            nBits = 0
+                            if type(thrName)==tuple:
+                                (thrName,nBits) = thrName
+                            if thrName in L1MenuFlags.ThresholdMap():
+                                if (L1MenuFlags.ThresholdMap()[thrName] != ''):
+                                    if nBits > 0:
+                                        c["thresholds"][thrIndex] = (L1MenuFlags.ThresholdMap()[thrName],nBits)
+                                    else:
+                                        c["thresholds"][thrIndex] = L1MenuFlags.ThresholdMap()[thrName]
+                                else:
+                                    thresholdsToRemove.append(thrIndex) 
+                        for i in reversed(thresholdsToRemove):
+                            del c["thresholds"][i]
+          
+    #----------------------------------------------
+
+    remapThresholds()

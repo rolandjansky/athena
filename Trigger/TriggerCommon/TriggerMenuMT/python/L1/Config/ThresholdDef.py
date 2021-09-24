@@ -108,23 +108,19 @@ class ThresholdDef:
         # eEM 
         for thrV in [3, 5, 8, 15, 20, 22]:
             #eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
-            ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM%i'% thrV,  'eEM'), pt=thrV,  shift_set = 1 )
+            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%i'% thrV, 'eEM'), pt = thrV, shift_set = 1 )
 
         # L section (used to be VH in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM8L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=8,  shift_set = 1 ) 
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM10L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=10, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM15L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM20L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=20, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22L',  'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ),    pt=22, shift_set = 1 )
+        for thrV in [8,10,15,20,22]:
+            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
 
         # M section (used to be VHI in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold(  'eEM8M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=8,  shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM15M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=15, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM20M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=20, shift_set = 1 )
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22M',  'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt=22, shift_set = 1 )
+        for thrV in [8,15,20,22]:
+            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
 
         # T section (used to be VHIM in Run2)
-        ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM22T',  'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ),    pt=22, shift_set = 1 )
+        for thrV in [22]:
+            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iT' % thrV, 'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt= thrV, shift_set = 1 )
 
         # jEM
         for thrV in [15]:
@@ -193,6 +189,10 @@ class ThresholdDef:
 
         for thrV in [50]:
             XEThreshold('jXEC%i' % thrV, 'jXE').setXE(thrV)
+
+        # ATR-24037
+        for thrV in [50]:
+            XEThreshold('jXEPerf%i' % thrV, 'jXE').setXE(thrV)
 
         # jTE
         for thrV in [100,]:

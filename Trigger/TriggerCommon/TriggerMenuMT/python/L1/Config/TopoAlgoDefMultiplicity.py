@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
@@ -143,6 +143,8 @@ class TopoAlgoDefMultiplicity(object):
 
             'jXEC50', 'jTE100', 'jTEC100', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
             'gTE50',
+
+            'jXEPerf50',
         ]
 
         for XE in XEThresholds:

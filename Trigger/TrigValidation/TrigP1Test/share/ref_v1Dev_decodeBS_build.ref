@@ -4025,6 +4025,8 @@ HLT_noalg_L1jXE55:
   eventCount: 0
 HLT_noalg_L1jXEC50:
   eventCount: 0
+HLT_noalg_L1jXEPerf50:
+  eventCount: 0
 HLT_noalg_LArPEBCalib_L1LAR-ZEE:
   eventCount: 0
 HLT_noalg_LArPEBCalib_L1RD0_BGRP11:
