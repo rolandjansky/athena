@@ -193,7 +193,7 @@ class TopoAlgoDef:
             elif jet_type=='FjJ':
                 mineta =     31*_eta_conversion
                 minet =      15*_et_conversion
-            alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab' )
+            alg = AlgConf.jJetSelect( name = jet_type+'ab', inputs = 'jJetTobs', outputs = jet_type+'ab' )
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
             alg.addvariable('MinET', minet)
@@ -202,14 +202,14 @@ class TopoAlgoDef:
             tm.registerTopoAlgo(alg)
 
         #input list needed for ATR-18824 (TODO: to be replaced by fwd jEM)
-        alg = AlgConf.JetSort( name = 'FjJjs23ETA49', inputs = 'JetTobArray', outputs = 'FjJjs23ETA49')
+        alg = AlgConf.jJetSort( name = 'FjJjs23ETA49', inputs = 'jJetTobs', outputs = 'FjJjs23ETA49')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
         alg.addvariable('MinEta', 23*_eta_conversion)
         alg.addvariable('MaxEta', 49*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
-        alg = AlgConf.JetSort( name = 'CjJsETA21', inputs = 'JetTobArray', outputs = 'CjJsETA21')
+        alg = AlgConf.jJetSort( name = 'CjJsETA21', inputs = 'jJetTobs', outputs = 'CjJsETA21')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
         alg.addvariable('MinEta',  0*_eta_conversion)
@@ -226,7 +226,7 @@ class TopoAlgoDef:
                 jetabseta =   26*_eta_conversion
             elif jet_type=='FjJ':
                 mineta =      31*_eta_conversion
-            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
+            alg = AlgConf.jJetSort( name = jet_type+'s', inputs = 'jJetTobs', outputs = jet_type+'s' )
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
             alg.addvariable('MinEta', mineta)
@@ -239,7 +239,7 @@ class TopoAlgoDef:
                 jetabseta =   31*_eta_conversion
             elif jet_type=='CjJ':
                 jetabseta =   26*_eta_conversion
-            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s' )
+            alg = AlgConf.jJetSort( name = jet_type+'s', inputs = 'jJetTobs', outputs = jet_type+'s' )
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
             alg.addvariable('MinEta', 0*_eta_conversion)
