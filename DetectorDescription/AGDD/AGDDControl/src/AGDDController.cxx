@@ -98,7 +98,7 @@ void AGDDController::ParseFiles()
 {
 	if (!m_theParser) m_theParser=new XercesParser;
 	for (unsigned int i=0;i<m_filesToParse.size();i++) {
-		if (!m_theParser->ParseFileAndNavigate(m_filesToParse[i])) throw std::runtime_error(Form("File: %s, Line: %d\nAGDDController::ParseFiles() - Could parse file %s.", __FILE__, __LINE__, m_filesToParse[i].c_str()));
+		if (!m_theParser->ParseFileAndNavigate(*this, m_filesToParse[i])) throw std::runtime_error(Form("File: %s, Line: %d\nAGDDController::ParseFiles() - Could parse file %s.", __FILE__, __LINE__, m_filesToParse[i].c_str()));
 	}
 }
 
@@ -132,7 +132,7 @@ void AGDDController::PrintSections() const
 void AGDDController::ParseString(const std::string& s)
 {
 	if (!m_theParser) m_theParser=new XercesParser;
-	m_theParser->ParseStringAndNavigate(s);
+	m_theParser->ParseStringAndNavigate(*this, s);
 }
 
 bool AGDDController::WriteAGDDtoDBFile(const std::string& s)

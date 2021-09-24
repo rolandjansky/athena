@@ -1,24 +1,28 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/chamberPositionerHandler.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
 #include "AGDDKernel/AGDDDetector.h"
+#include "AGDDControl/AGDDController.h"
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
-chamberPositionerHandler::chamberPositionerHandler(std::string s):XMLHandler(s)
+chamberPositionerHandler::chamberPositionerHandler(const std::string& s,
+                                                   AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void chamberPositionerHandler::ElementHandle()
+void chamberPositionerHandler::ElementHandle(AGDDController& c,
+                                             xercesc::DOMNode *t)
 {
-	std::string volume=getAttributeAsString("volume");
+	std::string volume=getAttributeAsString(c, t, "volume");
 
 	AGDDDetector* mCham=(AGDDDetectorStore::GetDetectorStore())->GetDetector(volume);
 	std::string subType;
@@ -31,18 +35,18 @@ void chamberPositionerHandler::ElementHandle()
 	else
 		subType=mCham->subType();
 	
-	double radius=getAttributeAsDouble("radius");
-	double zPos=getAttributeAsDouble("zPos");
+	double radius=getAttributeAsDouble(c, t, "radius");
+	double zPos=getAttributeAsDouble(c, t, "zPos");
 	
-	double phi0=getAttributeAsDouble("phi0",0.);
-	int iWedge=getAttributeAsInt("wedge_number",8);
+	double phi0=getAttributeAsDouble(c, t, "phi0",0.);
+	int iWedge=getAttributeAsInt(c, t, "wedge_number",8);
 	
-	std::string zLayout=getAttributeAsString("zLayout","Z_SYMMETRIC");
-	std::string type=getAttributeAsString("type","BARREL");
-	std::string chType=getAttributeAsString("chamberType");
-	std::string iSectors=getAttributeAsString("iSectors","11111111");
-	std::string detectorType=getAttributeAsString("detectorType","MDT");
-	int etaIndex=getAttributeAsInt("etaIndex",0);
+	std::string zLayout=getAttributeAsString(c, t, "zLayout","Z_SYMMETRIC");
+	std::string type=getAttributeAsString(c, t, "type","BARREL");
+	std::string chType=getAttributeAsString(c, t, "chamberType");
+	std::string iSectors=getAttributeAsString(c, t, "iSectors","11111111");
+	std::string detectorType=getAttributeAsString(c, t, "detectorType","MDT");
+	int etaIndex=getAttributeAsInt(c, t, "etaIndex",0);
 	
 	double dPhi=360./iWedge;
 	if (iSectors.size()!= (unsigned int) iWedge) throw;

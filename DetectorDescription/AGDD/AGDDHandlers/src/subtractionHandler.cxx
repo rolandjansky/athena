@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/subtractionHandler.h"
 #include "AGDDControl/XercesParser.h"
 #include "AGDDModel/AGDDSubtraction.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AGDDVolumeStore.h"
@@ -12,16 +13,19 @@
 
 using namespace xercesc;
 
-subtractionHandler::subtractionHandler(std::string s):XMLHandler(s)
+subtractionHandler::subtractionHandler(const std::string& s,
+                                       AGDDController& c)
+  : XMLHandler(s, c)
 {
 //	std::cout<<"Creating handler for composition"<<std::endl;
 }
 
-void subtractionHandler::ElementHandle()
+void subtractionHandler::ElementHandle(AGDDController& c,
+                                       xercesc::DOMNode *t)
 {
 	bool res;
-	std::string name=getAttributeAsString("name",res);
-	AGDDSubtraction *c=new AGDDSubtraction(name);
+	std::string name=getAttributeAsString(c, t, "name",res);
+	AGDDSubtraction *s=new AGDDSubtraction(name);
 	
 	AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
 	
@@ -31,11 +35,10 @@ void subtractionHandler::ElementHandle()
 
         int before=pS->NrOfPositioners();
 
-        const DOMNode* cElement=XercesParser::GetCurrentElement();
-        for (child=cElement->getFirstChild();child!=0;child=child->getNextSibling())
+        for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
         {
                if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-               XercesParser::elementLoop(child);
+                 XercesParser::elementLoop(c, child);
                }
         }
 
@@ -44,10 +47,10 @@ void subtractionHandler::ElementHandle()
 	{
 		AGDDPositioner *posit=pS->GetPositioner(i);
 		if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
-			c->AddDaughter(posit);
+			s->AddDaughter(posit);
 	}
 	
-	std::string col=getAttributeAsString("color",res);
+	std::string col=getAttributeAsString(c, t, "color",res);
 	if (res)
-		c->SetColor(col);
+		s->SetColor(col);
 }
