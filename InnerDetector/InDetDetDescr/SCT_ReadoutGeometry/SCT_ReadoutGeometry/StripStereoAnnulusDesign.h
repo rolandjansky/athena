@@ -204,6 +204,11 @@ StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
     double pitch(const SiCellId &cellId) const;
     double stripLength(const SiCellId &cellId) const;
 
+    double minR() const;
+    double maxR() const;
+    double phiWidth() const;
+    double stereo() const;
+
     // Give upper and lower boundaries, and length, of dead area
     double deadAreaUpperBoundary() const;
     double deadAreaLowerBoundary() const;
@@ -299,6 +304,24 @@ inline SiReadoutCellId StripStereoAnnulusDesign::readoutIdOfCell(const SiCellId 
     int row = cellId.etaIndex();
 
     return SiReadoutCellId(strip, row);
+}
+
+
+inline double StripStereoAnnulusDesign::minR() const {
+    return m_stripStartRadius[0];
+}
+
+inline double StripStereoAnnulusDesign::maxR() const {
+    return m_stripEndRadius.back();
+}
+
+
+inline double StripStereoAnnulusDesign::phiWidth() const {
+    return m_nStrips[0] * m_pitch[0];
+}
+
+inline double StripStereoAnnulusDesign::stereo() const {
+    return m_stereo;
 }
 
 inline int StripStereoAnnulusDesign::row(int stripId1Dim) const {

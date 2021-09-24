@@ -479,11 +479,12 @@ void StripGmxInterface::addSplitSensor(std::string typeName,
     splitTypeName += "_" + std::to_string(updatedIndex["side"]);
   }
 
-  const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
-  if (design == nullptr) {
+  auto it = m_geometryMap.find(splitTypeName);
+  if(it == m_geometryMap.end() || it->second == nullptr) {
     ATH_MSG_ERROR("addSplitSensor: Error: Readout sensor type " << typeName << " not found.");
     throw std::runtime_error("readout sensor type " + typeName + " not found.");
   }
+  const InDetDD::SiDetectorDesign *design = it->second;
 
   m_detectorManager->addDetectorElement(new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems));
 
@@ -540,11 +541,12 @@ void StripGmxInterface::addSensor(std::string typeName,
   //
   // Create the detector element and add to the DetectorManager
   //
-  const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
-  if (design == nullptr) {
+  auto it = m_geometryMap.find(typeName);
+  if(it == m_geometryMap.end() || it->second == nullptr) {
     ATH_MSG_ERROR("addSensor: Error: Readout sensor type " << typeName << " not found.");
     throw std::runtime_error("readout sensor type " + typeName + " not found.");
   }
+  const InDetDD::SiDetectorDesign *design = it->second;
 
   m_detectorManager->addDetectorElement(new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems));
 
