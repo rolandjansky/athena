@@ -14,6 +14,7 @@
 namespace Muon {
 class NSW_PadTriggerDataContainer : public IdentifiableContainer<NSW_PadTriggerData> {
 public:
+    static constexpr std::size_t HASH_MAX{32};
     NSW_PadTriggerDataContainer();
     NSW_PadTriggerDataContainer(unsigned int hashMax);
     

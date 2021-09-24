@@ -141,6 +141,9 @@ StatusCode PadTriggerLookupTool::expandCoincidenceTable(){//There we append 3o4s
             int phiid=kv.second.second;
             for(const int& in : innerIndices ){
                 std::vector<int> pattern=kv.first;//copy
+                if(pattern.at(in)==nullPadNumber || pattern.at(in+4)==nullPadNumber){
+                    continue;
+                }
                 pattern.at(in)=nullPadNumber;
                 for(const int& out :outerIndices){
                     int thispattern=pattern.at(out);
