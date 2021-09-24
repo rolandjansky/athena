@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XMLHandlerStore_H
 #define XMLHandlerStore_H
 
 class XMLHandler;
+class AGDDController;
 
 #include <map>
 #include <string>
@@ -21,7 +22,7 @@ public:
 	static XMLHandlerStore* GetHandlerStore();
 	void RegisterHandler(XMLHandler*);
 	XMLHandler* GetHandler(xercesc::DOMNode *);
-	void Handle(xercesc::DOMNode *);
+	void Handle(AGDDController& c, xercesc::DOMNode *);
 private:
 	XMLHandlerStore();
 	static XMLHandlerStore *s_theStore;

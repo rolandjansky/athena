@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef msgHandler_H
@@ -10,8 +10,10 @@
 
 class msgHandler:public XMLHandler {
 public:
-	msgHandler(std::string);
-	void ElementHandle();
+	msgHandler(const std::string&,
+                   AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 
 };
 

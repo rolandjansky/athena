@@ -41,58 +41,58 @@ AGDDtoGeoSvc::initialize()
 #include "AGDDHandlers/HandlerList.h"
 void AGDDtoGeoSvc::localInitialization()
 {
-	addHandler(new AGDDHandler("AGDD"));
-	addHandler(new BoltHandler("Bolt"));
-	addHandler(new IbeamHandler("Ibeam"));
-	addHandler(new UbeamHandler("Ubeam"));
-	addHandler(new addmaterialHandler("addmaterial"));
-	addHandler(new aliasHandler("alias"));
-	addHandler(new arrayHandler("array"));
-	addHandler(new boxHandler("box"));
-	addHandler(new colorHandler("color"));
+	addHandler(new AGDDHandler("AGDD", m_controller));
+	addHandler(new BoltHandler("Bolt", m_controller));
+	addHandler(new IbeamHandler("Ibeam", m_controller));
+	addHandler(new UbeamHandler("Ubeam", m_controller));
+	addHandler(new addmaterialHandler("addmaterial", m_controller));
+	addHandler(new aliasHandler("alias", m_controller));
+	addHandler(new arrayHandler("array", m_controller));
+	addHandler(new boxHandler("box", m_controller));
+	addHandler(new colorHandler("color", m_controller));
 	
-	addHandler(new compositeHandler("composite"));
-	addHandler(new compositionHandler("composition"));
-	addHandler(new consHandler("cons"));
-	addHandler(new defaultsHandler("defaults"));
-	addHandler(new elcylHandler("elcyl"));
-	addHandler(new elementHandler("element"));
-	addHandler(new foreachHandler("foreach"));
-	addHandler(new fractionmassHandler("fractionmass"));
-	addHandler(new gvxyHandler("gvxy"));
+	addHandler(new compositeHandler("composite", m_controller));
+	addHandler(new compositionHandler("composition", m_controller));
+	addHandler(new consHandler("cons", m_controller));
+	addHandler(new defaultsHandler("defaults", m_controller));
+	addHandler(new elcylHandler("elcyl", m_controller));
+	addHandler(new elementHandler("element", m_controller));
+	addHandler(new foreachHandler("foreach", m_controller));
+	addHandler(new fractionmassHandler("fractionmass", m_controller));
+	addHandler(new gvxyHandler("gvxy", m_controller));
 	
-	addHandler(new gvxysxHandler("gvxysx"));
-	addHandler(new gvxy_pointHandler("gvxy_point"));
-	addHandler(new gvxysxyHandler("gvxysxy"));
-	addHandler(new intersectionHandler("intersection"));
-	addHandler(new materialHandler("material"));
-	addHandler(new materialsHandler("materials"));
-	addHandler(new mposPhiHandler("mposPhi"));
-	addHandler(new mposWedgeHandler("mposWedge"));
+	addHandler(new gvxysxHandler("gvxysx", m_controller));
+	addHandler(new gvxy_pointHandler("gvxy_point", m_controller));
+	addHandler(new gvxysxyHandler("gvxysxy", m_controller));
+	addHandler(new intersectionHandler("intersection", m_controller));
+	addHandler(new materialHandler("material", m_controller));
+	addHandler(new materialsHandler("materials", m_controller));
+	addHandler(new mposPhiHandler("mposPhi", m_controller));
+	addHandler(new mposWedgeHandler("mposWedge", m_controller));
 	
-	addHandler(new msgHandler("msg"));
-	addHandler(new natomsHandler("natoms"));
-	addHandler(new pconHandler("pcon"));
-	addHandler(new pgonHandler("pgon"));
-	addHandler(new polyplaneHandler("polyplane"));
-	addHandler(new posRPhiZHandler("posRPhiZ"));
-	addHandler(new posXYZHandler("posXYZ"));
-	addHandler(new ringHandler("ring"));
+	addHandler(new msgHandler("msg", m_controller));
+	addHandler(new natomsHandler("natoms", m_controller));
+	addHandler(new pconHandler("pcon", m_controller));
+	addHandler(new pgonHandler("pgon", m_controller));
+	addHandler(new polyplaneHandler("polyplane", m_controller));
+	addHandler(new posRPhiZHandler("posRPhiZ", m_controller));
+	addHandler(new posXYZHandler("posXYZ", m_controller));
+	addHandler(new ringHandler("ring", m_controller));
 	
 	
-	addHandler(new sectionHandler("section"));
-	addHandler(new sectorHandler("sector"));
-	addHandler(new snakeHandler("snake"));
-	addHandler(new snake_pointHandler("snake_point"));
-	addHandler(new subtractionHandler("subtraction"));
-	addHandler(new trdHandler("trd"));
-	addHandler(new tubsHandler("tubs"));
-	addHandler(new unionHandler("union"));
-	addHandler(new varHandler("var"));
-	addHandler(new versionHandler("version"));
+	addHandler(new sectionHandler("section", m_controller));
+	addHandler(new sectorHandler("sector", m_controller));
+	addHandler(new snakeHandler("snake", m_controller));
+	addHandler(new snake_pointHandler("snake_point", m_controller));
+	addHandler(new subtractionHandler("subtraction", m_controller));
+	addHandler(new trdHandler("trd", m_controller));
+	addHandler(new tubsHandler("tubs", m_controller));
+	addHandler(new unionHandler("union", m_controller));
+	addHandler(new varHandler("var", m_controller));
+	addHandler(new versionHandler("version", m_controller));
 	addHandler(new importHandler("import", m_controller));
 	
-	addHandler(new chamberPositionerHandler("chamberPosition"));
+	addHandler(new chamberPositionerHandler("chamberPosition", m_controller));
 
 	AliasStore::GetAliasList()->AddAlias("Aluminium1","std::Aluminium");
 	AliasStore::GetAliasList()->AddAlias("Aluminium2","std::Aluminium");
