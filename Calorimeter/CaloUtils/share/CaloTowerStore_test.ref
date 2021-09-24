@@ -255,6 +255,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events p
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[0,l:0] - [INVALID]}
+CaloAlignCondAlg     INFO recorded new CaloDetDescr Manager condition object with key CaloDetDescrManager and range {[0,t:0,l:0] - [INVALID]}
 test1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...

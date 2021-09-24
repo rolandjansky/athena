@@ -126,13 +126,16 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
   } // Loop over Align Names
 
   // Fill the caches of Full Physical Volumes
-  for(const std::string& alignName : m_alignNames) {
-    if(detStore->contains<StoredPhysVol>(alignName)) {
-      StoredPhysVol* storedPV{nullptr};
-      if(detStore->retrieve(storedPV,alignName).isSuccess()) {
-	storedPV->getPhysVol()->getAbsoluteTransform(alignmentStore);
-	storedPV->getPhysVol()->getDefAbsoluteTransform(alignmentStore);
-      }
+  //
+  // !!! NB! The code assumes that StoredPhysVol-s are used only by LAr
+  //         This has been true ever since the StorePhysVol-s were invented.
+  //
+  for(const std::string& key : detStore->keys<StoredPhysVol>()) {
+    StoredPhysVol* storedPV = detStore->tryRetrieve<StoredPhysVol>(key);
+    ATH_MSG_DEBUG("Building position caches for StoredPhysVol :" << key);
+    if(storedPV) {
+      storedPV->getPhysVol()->getAbsoluteTransform(alignmentStore);
+      storedPV->getPhysVol()->getDefAbsoluteTransform(alignmentStore);
     }
   }
 
