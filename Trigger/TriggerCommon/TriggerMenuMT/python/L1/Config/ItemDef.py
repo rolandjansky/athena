@@ -701,6 +701,7 @@ class ItemDef:
         MenuItem('L1_jXE300').setLogic( d.jXE300 & physcond).setTriggerType(TT.calo)
 
         MenuItem('L1_jXEC50' ).setLogic( d.jXEC50 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXEPerf50' ).setLogic( d.jXEPerf50 & physcond).setTriggerType(TT.calo)
 
         # phase1 TE
         MenuItem('L1_gTE50'      ).setLogic( d.gTE50 & physcond).setTriggerType(TT.calo)
