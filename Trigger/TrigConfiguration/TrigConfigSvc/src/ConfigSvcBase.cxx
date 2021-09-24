@@ -6,7 +6,6 @@
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/StorageMgr.h"
-#include "TrigConfStorage/XMLStorageMgr.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -29,9 +28,7 @@ ConfigSvcBase::~ConfigSvcBase()
 void
 ConfigSvcBase::declareCommonProperties() {
    declareProperty( "ConfigSource",     m_configSourceString,
-                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\", or \"none\"");
-   declareProperty( "XMLMenuFile",      m_xmlFile,
-                    "XML file containing the trigger configuration.");
+                    "Source of trigger configuration; can be \"MySQL\", \"Oracle\", \"DBLookup\", or \"none\"");
    declareProperty( "DBServer",         m_dbServer,
                     "Database server to use.");
    declareProperty( "DBUser",           m_dbUser,
@@ -61,7 +58,6 @@ ConfigSvcBase::initialize ATLAS_NOT_THREAD_SAFE () {
 
    if (s == "none") {
       ATH_MSG_INFO("Old style menu has been disabled");
-      m_xmlFile = "";
    } else if(s != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
       if (s == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }
@@ -80,9 +76,7 @@ ConfigSvcBase::initialize ATLAS_NOT_THREAD_SAFE () {
    }
 
    ATH_MSG_INFO("    ConfigSource        = " << m_configSourceString);
-   if(m_dbconfig==nullptr) {
-      ATH_MSG_INFO("    XMLMenuFile         = " << m_xmlFile);
-   } else {
+   if(m_dbconfig!=nullptr) {
       ATH_MSG_INFO("    DB Server           = " << m_dbServer);
       ATH_MSG_INFO("    DB User             = " << m_dbUser);
       ATH_MSG_INFO("    DB Table            = " << m_dbTable);
@@ -117,18 +111,6 @@ ConfigSvcBase::initStorageMgr() {
       sm->setConnectionTimeout( 0 );
 
       m_storageMgr = sm;
-   } else {
-      if (m_xmlFile == "") {
-         ATH_MSG_ERROR("If you need the configuration and ConfigSource is 'XML', you need to specify a menu xml file");
-         return StatusCode::FAILURE;
-      }
-      std::string resolvedXMLfile(m_xmlFile);
-      if( boost::algorithm::ends_with(m_xmlFile, ".xml") && ! boost::algorithm::starts_with(m_xmlFile, "./")  ) {
-         resolvedXMLfile = PathResolver::find_file( m_xmlFile, "XMLPATH" );
-      }
-      ATH_MSG_INFO("Unresolved XML file: " << m_xmlFile);
-      ATH_MSG_INFO("Resolved XML file: " << resolvedXMLfile);
-      m_storageMgr = new XMLStorageMgr( { resolvedXMLfile } );
    }
    return StatusCode::SUCCESS;
 }

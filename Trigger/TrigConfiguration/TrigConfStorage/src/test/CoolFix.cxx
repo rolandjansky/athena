@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -17,8 +17,6 @@
 // for test purposes
 //
 //////////////////////////////////////////////////////////////////////
-
-#include "./Helper.h"
 
 #include "TrigConfBase/MsgStream.h"
 

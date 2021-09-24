@@ -163,7 +163,6 @@ TrigConf::LVL1ConfigSvc::initializeRun2StyleMenu() {
 
    if ( m_configSourceString == "none" ) {
       ATH_MSG_INFO("Run 2 style menu has been disabled");
-      m_xmlFile = "";
       return StatusCode::SUCCESS;
    } else if( m_configSourceString != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
@@ -181,22 +180,18 @@ TrigConf::LVL1ConfigSvc::initializeRun2StyleMenu() {
    ATH_MSG_INFO("Run 2 style menu");
    ATH_MSG_INFO("    Run 2 config source  = " << m_configSourceString);
    if( m_configSourceString != "none" ) {
-      if( m_configSourceString == "xml" ) {
-         ATH_MSG_INFO("    Run 2 Input file     = " << m_xmlFile);
-      } else {
-         ATH_MSG_INFO("    Run 2 DB Server      = " << m_dbServer);
-         ATH_MSG_INFO("    Run 2 DB User        = " << m_dbUser);
-         ATH_MSG_INFO("    Run 2 DB Table       = " << m_dbTable);
-         ATH_MSG_INFO("    Run 2 DB connection  = " << m_dbconfig->toString());
-         ATH_MSG_INFO("    Run 2 SMK            = " << m_dbSMKey);
-         ATH_MSG_INFO("    Run 2 L1 PSK         = " << m_prescaleSetID);
-         ATH_MSG_INFO("    Run 2 BGSK           = " << m_bunchgroupSetID);
-         ATH_MSG_INFO("    UseFrontier          = " << m_useFrontier.value());
-      }
+      ATH_MSG_INFO("    Run 2 DB Server      = " << m_dbServer);
+      ATH_MSG_INFO("    Run 2 DB User        = " << m_dbUser);
+      ATH_MSG_INFO("    Run 2 DB Table       = " << m_dbTable);
+      ATH_MSG_INFO("    Run 2 DB connection  = " << m_dbconfig->toString());
+      ATH_MSG_INFO("    Run 2 SMK            = " << m_dbSMKey);
+      ATH_MSG_INFO("    Run 2 L1 PSK         = " << m_prescaleSetID);
+      ATH_MSG_INFO("    Run 2 BGSK           = " << m_bunchgroupSetID);
+      ATH_MSG_INFO("    UseFrontier          = " << m_useFrontier.value());
    }
 
-   if( m_dbconfig==nullptr && m_xmlFile=="NONE" ) {
-      ATH_MSG_INFO("xml file set to NONE, will not load LVL1 Menu");
+   if( m_dbconfig==nullptr ) {
+      ATH_MSG_INFO("will not load legacy LVL1 Menu");
    } else {
       CHECK( loadRun2StyleMenu() );
    }
