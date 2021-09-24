@@ -1513,26 +1513,27 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, TH1C *modhist, int gain, TH2C
     if ((ba0[b] == 0 || ba1[b] == 0) && bac[b] > 2 && (ba0[b] + ba1[b] >= bac[b] / 2 || ba0[b] + ba1[b] > 2)) {
       is_stack = 1;
       if (outhist != NULL) {
-	  sb_prob[sb_map[b]] = 100.;
+        sb_prob[sb_map[b]] = 1.;
       }
       if (stuck_probs != NULL)
-	stuck_probs[b] = ba0[b] == 0 ? 100u : 200u;
+        stuck_probs[b] = ba0[b] == 0 ? 100u : 200u;
       continue;
     }
     double bs1 = std::fabs(bs[b]) - sqrt(std::fabs(bs[b]));
     if (bs1 < 0.) bs1 = 0.;
     if ((bs1 > 0.5 * bc[b]) || (bc[b] > 7 && bs1 * 3 > bc[b])) is_stack = 1;
     if (outhist != NULL && bc[b] > 0) {
-      if (sb_prob[sb_map[b]] < 100. * bs1 / bc[b]) sb_prob[sb_map[b]] = 100. * bs1 / bc[b];
+      // if (sb_prob[sb_map[b]] < 100. * bs1 / bc[b]) sb_prob[sb_map[b]] = 100. * bs1 / bc[b];
+      sb_prob[sb_map[b]] = 1. - (1. - sb_prob[sb_map[b]]) * (1. - 1. * bs1 / bc[b]); // prod of probs. of not-stuck
     }
     if (stuck_probs != NULL)
     {
       stuck_probs[b] = (uint8_t) (100. * bs1 / bc[b]);
       if (bs[b] > 0)
       {
-	stuck_probs[b] += 100u;
-	if (stuck_probs[b] == 100u)
-	  stuck_probs[b] = 0u;
+        stuck_probs[b] += 100u;
+        if (stuck_probs[b] == 100u)
+          stuck_probs[b] = 0u;
       }
     }
   }
@@ -1540,14 +1541,16 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, TH1C *modhist, int gain, TH2C
       || (last_non0 == (m_i_ADCmax + 1) / 2 - 1 && hist->GetBinContent(last_non0) > 3)) {
     is_stack = 1;
     sb_prob[3] = 100.;
+    sb_prob[3] = 1.;
     if (stuck_probs != NULL)
       stuck_probs[9] = first_non0 >= 512 ? 200u : 100u;
   }
   if (outhist != NULL) {
-    outhist->Fill((double) ch, 0., sb_prob[0]);
-    outhist->Fill((double) ch, 1., sb_prob[1]);
-    outhist->Fill((double) ch, 2., sb_prob[2]);
-    outhist->Fill((double) ch, 3., sb_prob[3]);
+    outhist->Fill((double) ch, 0., 100. * sb_prob[0]);
+    outhist->Fill((double) ch, 1., 100. * sb_prob[1]);
+    outhist->Fill((double) ch, 2., 100. * sb_prob[2]);
+    outhist->Fill((double) ch, 3., 100. * sb_prob[3]);
+
     if (first_non0 >= saturation_limit)
       outhist->Fill((double) ch, 5., 100.);
     else if (last_non0 >= saturation_limit) {
@@ -1573,15 +1576,27 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, TH1C *modhist, int gain, TH2C
       if (frac > 99. && frac < 100.) frac = 99.;
       outhist->Fill((double) ch, 4., frac);
     }
+    double entries, empty_cut, full_cut;
     int mod32empty = 0;
     int mod32full = 0;
+    bool enough = false;
+    entries = modhist -> GetEntries();
+    empty_cut = entries < 4096. ? entries / (32 * 4) : 32.;
+    full_cut = entries / 32.;
+    if (full_cut > 126.)
+      full_cut = 126.;
+    if (full_cut - empty_cut < 1.)
+      full_cut = empty_cut + 1.;
+
     for (i = 1; i <= 32; ++i) {
-      if (modhist->GetBinContent(i) == 0)
+      if (modhist->GetBinContent(i) <= empty_cut)
         ++mod32empty;
-      else if (modhist->GetBinContent(i) > 20)
+      else if (modhist->GetBinContent(i) > full_cut)
         ++mod32full;
+      if (modhist->GetBinContent(i) > 64)
+       enough = true;
     }
-    if (mod32empty + mod32full == 32) //skip in the case of small number of events
+    if (mod32empty + mod32full == 32 || enough) //skip in the case of small number of events
       if (mod32empty != 0 && mod32full != 0) //some but not all n%32 positions have events
         outhist->Fill((double) ch, 6., mod32empty);
 
