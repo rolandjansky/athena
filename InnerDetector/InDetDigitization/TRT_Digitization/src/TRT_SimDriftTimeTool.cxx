@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////
@@ -71,10 +71,10 @@ StatusCode TRT_SimDriftTimeTool::initialize()
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
 
-  std::vector<ITRT_DriftTimeData*> pDTData;
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,0)); // Xe straws
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,1)); // Kr straws
-  pDTData.push_back(new TRT_BarrelDriftTimeData(m_digversion,2)); // Ar straws
+  std::vector<std::unique_ptr<ITRT_DriftTimeData>> pDTData;
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,0)); // Xe straws
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,1)); // Kr straws
+  pDTData.emplace_back(std::make_unique<TRT_BarrelDriftTimeData>(m_digversion,2)); // Ar straws
 
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
