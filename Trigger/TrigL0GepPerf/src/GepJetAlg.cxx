@@ -8,7 +8,7 @@
 #include "TrigL0GepPerf/IJetMaker.h"
 
 // *** Include derived jet algorithm classes ***
-
+#include "TrigL0GepPerf/ModAntikTJetMaker.h"
 
 
 #include "xAODEventInfo/EventInfo.h"
@@ -62,7 +62,11 @@ StatusCode GepJetAlg::execute() {
 
 
   // *** instantiate custom jet algorithm classes ***
-
+  if ( m_jetAlg=="ModAntikT" ) {
+    auto customJetAlg = std::make_unique<Gep::ModAntikTJetMaker>();
+    jetMaker = std::move(customJetAlg);
+  }
+  
 
 
   if( !jetMaker ){

@@ -49,8 +49,6 @@ def setupL0GepSimulationSequence(
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
     topSequence+=ClusterCreator("CaloCluster2xAOD")
 
-
-
     for topoMaker in topoclAlgs:
 
         # topoclusters
