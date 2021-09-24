@@ -42,6 +42,10 @@ streamLogic       = 'Or'#HAS TO BE OR AT ALL TIMES WHEN SPECIFYING A CERTAIN STR
 
 useAtlantisEmon   = False
 
+# Set a unique group name for ED jobs so that: Events are distributed between ED jobs with the same groupName
+# and shared between different (non ED) groups.
+groupName         = "EventDisplaysOnline"
+
 
 ## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
 publishName     = 'EventDisplays'
