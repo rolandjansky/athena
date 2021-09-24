@@ -41,6 +41,7 @@ atlas_add_library( ActsGeometryLib
                    PRIVATE_LINK_LIBRARIES
                    StoreGateLib
                    TRT_ReadoutGeometry
+                   SCT_ReadoutGeometry
                    TrkGeometry
                    TrkSurfaces
                    TrkFitterUtils

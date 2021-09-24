@@ -13,6 +13,7 @@
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 #include "ActsGeometryInterfaces/IActsTrackingVolumeBuilder.h"
+#include "ActsGeometry/ActsLayerBuilder.h"
 
 // STL
 #include <map>
@@ -60,8 +61,12 @@ public:
   getNominalAlignmentStore() const override;
 
 private:
+  ActsLayerBuilder::Config
+  makeLayerBuilderConfig(const InDetDD::InDetDetectorManager* manager);
+
   std::shared_ptr<const Acts::ILayerBuilder>
-  makeLayerBuilder(const InDetDD::InDetDetectorManager* manager);
+  makeStrawLayerBuilder(const InDetDD::InDetDetectorManager* manager);
+
 
   std::shared_ptr<Acts::TrackingVolume>
   makeSCTTRTAssembly(const Acts::GeometryContext& gctx, const Acts::ILayerBuilder& sct_lb,
@@ -72,6 +77,8 @@ private:
   const InDetDD::SiDetectorManager* p_pixelManager;
   const InDetDD::SiDetectorManager* p_SCTManager;
   const InDetDD::TRT_DetectorManager* p_TRTManager;
+  const InDetDD::SiDetectorManager* p_ITkPixelManager;
+  const InDetDD::SiDetectorManager* p_ITkStripManager;
 
   std::shared_ptr<std::vector<std::shared_ptr<const ActsDetectorElement>>> m_elementStore;
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
@@ -81,6 +88,7 @@ private:
   std::unique_ptr<const ActsAlignmentStore> m_nominalAlignmentStore{nullptr};
 
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
+  Gaudi::Property<bool> m_objDebugOutput{this, "ObjDebugOutput", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
