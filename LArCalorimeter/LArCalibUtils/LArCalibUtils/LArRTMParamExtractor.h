@@ -27,8 +27,9 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "tbb/blocked_range.h"
 #include "LArRawConditions/LArWFParams.h"
+#include "LArRawConditions/LArCaliWave.h"
+#include <memory>
 
-class LArCaliWave;
 class LArWFParamTool;
 
 class LArRTMParamExtractor : public AthAlgorithm
@@ -90,17 +91,14 @@ class LArRTMParamExtractor : public AthAlgorithm
 
   class helperParams {
   public:
-    helperParams(const LArCaliWave* cw,
-		 LArCaliWave* os, LArCaliWave* rO0, LArCaliWave* rO1,
-		 const HWIdentifier id, const unsigned g) : 
-      caliWave(cw), omegaScan(os), resOscill0(rO0), resOscill1(rO1),
-      chid(id),gain(g) {};
+    helperParams(const LArCaliWave* cw, const HWIdentifier id, const unsigned g) : 
+      caliWave(cw), chid(id),gain(g) {};
 
-    const LArCaliWave* caliWave;  //Input object
-    LArCaliWave* omegaScan;       //optional output object
-    LArCaliWave* resOscill0;	  //optional output object		
-    LArCaliWave* resOscill1;      //optional output object
-    LArWFParams wfParams;         //Outut object
+    const LArCaliWave* caliWave;                  //Input object
+    std::optional<LArCaliWave> omegaScan;       //optional output object
+    std::optional<LArCaliWave> resOscill0;	  //optional output object		
+    std::optional<LArCaliWave> resOscill1;      //optional output object
+    LArWFParams wfParams;                         //Outut object
     HWIdentifier chid;
     unsigned gain;
     bool success=true;

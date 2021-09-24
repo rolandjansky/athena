@@ -94,10 +94,11 @@ StatusCode LArDeltaRespPredictor::stop()
 	if ( larCaliWave.getFlag() != LArWave::dac0 ) { // skip dac0 waves
 	  // Get the waveform parameters
           LArWFParams wfParams;
+          std::optional<LArCaliWave> nullwave;
           StatusCode sc = larWFParamTool->getLArWaveParams(larCaliWave,
                                                            itVec.channelId(),
                                                            (CaloGain::CaloGain)gain,
-                                                           wfParams, cabling);
+                                                           wfParams, cabling,nullwave,nullwave,nullwave);
           if (sc.isFailure()) { // bad parameters
             ATH_MSG_INFO ( "Bad parameters for channel " << 
                            (itVec.channelId()) );

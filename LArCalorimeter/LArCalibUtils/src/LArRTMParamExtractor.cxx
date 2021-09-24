@@ -4,10 +4,6 @@
 
 #include "LArCalibUtils/LArRTMParamExtractor.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "LArCalibUtils/LArWFParamTool.h"
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
@@ -263,9 +259,9 @@ StatusCode LArRTMParamExtractor::stop()
 
   // create and initialize new complete objects
   // ------------------------------------------
-  LArCaliPulseParamsComplete* newCaliPulseParams = new LArCaliPulseParamsComplete() ;
+  std::unique_ptr<LArCaliPulseParamsComplete> newCaliPulseParams=std::make_unique<LArCaliPulseParamsComplete>() ;
 
-    sc=newCaliPulseParams->setGroupingType(m_groupingType,msg());
+  sc=newCaliPulseParams->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to set groupingType for LArCaliPulseParams object" );
     return sc;
@@ -276,7 +272,7 @@ StatusCode LArRTMParamExtractor::stop()
     return sc;
   }
 
-  LArDetCellParamsComplete*   newDetCellParams   = new LArDetCellParamsComplete();
+  std::unique_ptr<LArDetCellParamsComplete> newDetCellParams   = std::make_unique<LArDetCellParamsComplete>();
   sc=newDetCellParams->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to set groupingType for LArDetCellParamsComplete object" );
@@ -290,9 +286,9 @@ StatusCode LArRTMParamExtractor::stop()
 
   // needed for omega scan dump:
   // use LArCaliWave container to store frequency spectra
-  LArCaliWaveContainer* omegaScanContainer = NULL ;
+  std::unique_ptr<LArCaliWaveContainer> omegaScanContainer;
   if ( m_dumpOmegaScan ) {
-    omegaScanContainer = new LArCaliWaveContainer();
+    omegaScanContainer = std::make_unique<LArCaliWaveContainer>();
     sc=omegaScanContainer->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to set groupingType for LArCaliWaveContainer object" );
@@ -306,11 +302,11 @@ StatusCode LArRTMParamExtractor::stop()
   }// end if m_dumpOmegaScan
 
   // needed for residual oscillation dump:
-  LArCaliWaveContainer* resOscillContainerBefore = NULL;
-  LArCaliWaveContainer* resOscillContainerAfter  = NULL;
+  std::unique_ptr<LArCaliWaveContainer> resOscillContainerBefore;
+  std::unique_ptr<LArCaliWaveContainer> resOscillContainerAfter;
   if ( m_dumpResOscill ) {
-    resOscillContainerBefore = new LArCaliWaveContainer();
-    resOscillContainerAfter  = new LArCaliWaveContainer();
+    resOscillContainerBefore = std::make_unique<LArCaliWaveContainer>();
+    resOscillContainerAfter  = std::make_unique<LArCaliWaveContainer>();
     if(resOscillContainerBefore->setGroupingType(m_groupingType,msg()).isFailure()) {
       ATH_MSG_ERROR( "Failed to set groupingType for LArCaliWaveContainer object" );
       return StatusCode::FAILURE;
@@ -331,8 +327,6 @@ StatusCode LArRTMParamExtractor::stop()
   }
 
   // needed for existence checks:
-  //static const LArCaliPulseParamsP emptyCaliPulse ;
-  //static const LArDetCellParamsP   emptyDetCell ;
   static const LArCaliPulseParamsComplete::LArCondObj emptyCaliPulse ;
   static const LArDetCellParamsComplete::LArCondObj   emptyDetCell ;
 
@@ -461,23 +455,10 @@ StatusCode LArRTMParamExtractor::stop()
 	  if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
 	    ATH_MSG_INFO( "Ingesting calibration waveform number " << nchannel);
 
-	  LArCaliWave* omegaScan = NULL ;
-	  if ( omegaScanContainer ) {
-	    omegaScan = new LArCaliWave() ;
-	  }
-	  
-	  LArCaliWave* resOscill0 = NULL ;
-	  if ( resOscillContainerBefore ) {
-	    resOscill0 = new LArCaliWave() ;
-	  }
-	  
-	  LArCaliWave* resOscill1 = NULL ;
-	  if ( resOscillContainerAfter ) {
-	    resOscill1 = new LArCaliWave() ;
-	  }
-	  
-
-	  inputParams.emplace_back(&larCaliWave,omegaScan,resOscill0,resOscill1,chid,gain);
+	  inputParams.emplace_back(&larCaliWave,chid,gain);
+          if ( omegaScanContainer ) inputParams.back().omegaScan.emplace();
+          if ( resOscillContainerBefore ) inputParams.back().resOscill0.emplace();
+          if ( resOscillContainerAfter ) inputParams.back().resOscill1.emplace();
 	  LArWFParams& wfParams=inputParams.back().wfParams ;
 	  float retrievedParam ;
 
@@ -597,7 +578,7 @@ StatusCode LArRTMParamExtractor::stop()
   }
 
   //Loop over inputParams to collect output:
-  for (const helperParams& params : inputParams) {
+  for (helperParams& params : inputParams) {
     if (!params.success) { // bad parameters
       ATH_MSG_WARNING( "Bad parameters for channel " << onlineHelper->channel_name(params.chid) << MSG::dec 
 		       << " gain=" << params.gain << " DAC=" << params.caliWave->getDAC() ) ;
@@ -607,9 +588,6 @@ StatusCode LArRTMParamExtractor::stop()
     const HWIdentifier& chid=params.chid;
     const unsigned& gain=params.gain;
     const LArCaliWave& larCaliWave=*(params.caliWave);
-    const LArCaliWave* omegaScan = params.omegaScan; 
-    const LArCaliWave* resOscill0 = params.resOscill0;
-    const LArCaliWave* resOscill1 = params.resOscill1;
 
     ATH_MSG_VERBOSE( "parameters extracted for channel " << MSG::hex << chid << MSG::dec 
 		     << " gain=" << gain << " DAC=" << larCaliWave.getDAC() ) ;
@@ -640,8 +618,7 @@ StatusCode LArRTMParamExtractor::stop()
     // collect this omega scan
     if ( omegaScanContainer ) {
       LArCaliWaveContainer::LArCaliWaves& dacScans = omegaScanContainer->get(chid, gain);
-      dacScans.push_back( *omegaScan ) ;
-      delete omegaScan; omegaScan=0; //copied to caliwave container
+      dacScans.push_back( *params.omegaScan);
       ATH_MSG_VERBOSE( "omega scan added to container, channel=" << MSG::hex << chid << MSG::dec 
 		       << " gain=" << gain ) ;
     }
@@ -649,8 +626,7 @@ StatusCode LArRTMParamExtractor::stop()
     // collect this residual oscillation before Taur extraction
     if ( resOscillContainerBefore ) {
       LArCaliWaveContainer::LArCaliWaves& dacResOsc0 = resOscillContainerBefore->get(chid, gain);
-      dacResOsc0.push_back( *resOscill0 ) ;
-      delete resOscill0; resOscill0=0; //copied to caliwave container
+      dacResOsc0.push_back( *params.resOscill0) ;
       ATH_MSG_VERBOSE( "residual oscillation before Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
 		<< " gain=" << gain ) ;
     }
@@ -658,8 +634,7 @@ StatusCode LArRTMParamExtractor::stop()
     // collect this residual oscillation after Taur extraction
     if ( resOscillContainerAfter ) {
       LArCaliWaveContainer::LArCaliWaves& dacResOsc1 = resOscillContainerAfter->get(chid, gain);
-      dacResOsc1.push_back( *resOscill1 ) ;
-      delete resOscill1; resOscill1=0; //copied to caliwave container
+      dacResOsc1.push_back( *params.resOscill1 ) ;
       ATH_MSG_VERBOSE( "residual oscillation after Taur extraction added to container, channel=" << MSG::hex << chid << MSG::dec 
 		       << " gain=" << gain ) ;
     }
@@ -680,10 +655,12 @@ StatusCode LArRTMParamExtractor::stop()
   ATH_MSG_INFO( " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " );
   ATH_MSG_INFO( " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " );
   ATH_MSG_INFO( " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " );
-	  
+
+
   // record extracted LArCaliPulseParamsComplete to detStore
   ATH_MSG_INFO( "...recording LArCaliPulseParams into det.store, key=" << m_keyExtractedCaliPulse ) ;
-  if ( StatusCode::FAILURE == ( detStore()->record(newCaliPulseParams, m_keyExtractedCaliPulse ) ) ) {
+  const LArCaliPulseParamsComplete* paramsPtr=newCaliPulseParams.get(); // remember ptr for 
+  if ( StatusCode::FAILURE == ( detStore()->record(std::move(newCaliPulseParams), m_keyExtractedCaliPulse ) ) ) {
     ATH_MSG_ERROR( "Could not record LArCaliPulseParams into det.store!" ) ;
     return StatusCode::FAILURE ;
   }
@@ -691,7 +668,7 @@ StatusCode LArRTMParamExtractor::stop()
   // Symlink LArCaliPulseParamsComplete to ILArCaliPulseParams for further use
   ATH_MSG_DEBUG( "Trying to symlink ILArCaliPulseParams with LArCaliPulseParamsComplete...");
   ILArCaliPulseParams *larCaliPulseParams = NULL;
-  sc = detStore()->symLink(newCaliPulseParams,larCaliPulseParams);
+  sc = detStore()->symLink(paramsPtr,larCaliPulseParams);
   if (sc.isFailure()) {
     ATH_MSG_FATAL( "Could not symlink ILArCaliPulseParams with LArCaliPulseParamsComplete." );
     return StatusCode::FAILURE;
@@ -700,7 +677,8 @@ StatusCode LArRTMParamExtractor::stop()
 
   // record extracted LArDetCellParamsComplete to detStore
   ATH_MSG_INFO( "...recording LArDetCellParams into det.store, key=" << m_keyExtractedDetCell) ;
-  if ( StatusCode::FAILURE == ( detStore()->record(newDetCellParams, m_keyExtractedDetCell ) ) ) {
+  const LArDetCellParamsComplete* detcellPtr=newDetCellParams.get();
+  if ( StatusCode::FAILURE == ( detStore()->record(std::move(newDetCellParams), m_keyExtractedDetCell ) ) ) {
     ATH_MSG_ERROR( "Could not record LArDetCellParams into det.store!" ) ;
     return StatusCode::FAILURE ;
   }
@@ -708,7 +686,7 @@ StatusCode LArRTMParamExtractor::stop()
   // Symlink LArDetCellParamsComplete to ILArDetCellParams for further use
   ATH_MSG_DEBUG( "Trying to symlink ILArDetCellParams with LArDetCellParamsComplete...");
   ILArDetCellParams *lArDetCellParams = NULL;
-  sc = detStore()->symLink(newDetCellParams,lArDetCellParams);
+  sc = detStore()->symLink(detcellPtr,lArDetCellParams);
   if (sc.isFailure()) {
     ATH_MSG_FATAL( "Could not symlink ILArDetCellParams with LArDetCellParamsComplete." );
     return StatusCode::FAILURE;
@@ -717,7 +695,7 @@ StatusCode LArRTMParamExtractor::stop()
 
   if ( omegaScanContainer ) {
     ATH_MSG_INFO( "Recording omega scan container into det.store, key=" << m_omegaScanKey ) ;
-    if ( StatusCode::FAILURE == ( detStore()->record(omegaScanContainer, m_omegaScanKey ) ) ) {
+    if ( StatusCode::FAILURE == ( detStore()->record(std::move(omegaScanContainer), m_omegaScanKey ) ) ) {
       ATH_MSG_WARNING( "Could not record omega scan container into DetStore!" ) ;
       // return StatusCode::FAILURE ;
     }
@@ -725,7 +703,7 @@ StatusCode LArRTMParamExtractor::stop()
 
   if ( resOscillContainerBefore ) {
     ATH_MSG_INFO( "Recording residual oscillation (before Taur extraction) container into DetStore, key = " << m_resOscillKeyBefore ) ;
-    if ( StatusCode::FAILURE == ( detStore()->record(resOscillContainerBefore, m_resOscillKeyBefore ) ) ) {
+    if ( StatusCode::FAILURE == ( detStore()->record(std::move(resOscillContainerBefore), m_resOscillKeyBefore ) ) ) {
       ATH_MSG_WARNING( "Could not record residual oscillation (before Taur extraction) container into DetStore!" ) ;
       // return StatusCode::FAILURE ;
     }
@@ -733,7 +711,7 @@ StatusCode LArRTMParamExtractor::stop()
 
   if ( resOscillContainerAfter ) {
     ATH_MSG_INFO( "Recording residual oscillation (after Taur extraction) container into DetStore, key = " << m_resOscillKeyAfter ) ;
-    if ( StatusCode::FAILURE == ( detStore()->record(resOscillContainerAfter, m_resOscillKeyAfter ) ) ) {
+    if ( StatusCode::FAILURE == ( detStore()->record(std::move(resOscillContainerAfter), m_resOscillKeyAfter ) ) ) {
       ATH_MSG_WARNING( "Could not record residual oscillation (after Taur extraction) container into DetStore!" ) ;
       // return StatusCode::FAILURE ;
     }
@@ -756,7 +734,8 @@ void LArRTMParamExtractor::Looper::operator() (const tbb::blocked_range<size_t>&
 					     m_cabling,
 					     p.omegaScan,
 					     p.resOscill0,
-					     p.resOscill1 );	
+					     p.resOscill1
+                                             );	
 
     p.success=sc.isSuccess() ;
 
