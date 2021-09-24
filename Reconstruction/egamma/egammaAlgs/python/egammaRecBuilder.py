@@ -15,7 +15,7 @@ from egammaTools.egammaToolsFactories import \
 egammaRecBuilder = AlgFactory(
     egammaAlgsConf.egammaRecBuilder,
     name='egammaRecBuilder',
-    InputTopoClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+    InputClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
     egammaRecContainer=egammaKeys.EgammaRecKey(),
     # Builder tools
     TrackMatchBuilderTool=EMTrackMatchBuilder,
