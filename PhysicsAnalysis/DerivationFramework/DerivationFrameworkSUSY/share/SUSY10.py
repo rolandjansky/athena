@@ -159,9 +159,7 @@ if DerivationFrameworkIsMonteCarlo:
 #=======================================
 # now done in ExtendedJetCommon
 #applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY10)
-applyJetCalibration_xAODColl("AntiKt4EMPFlow", SeqSUSY10)
-updateJVT_xAODColl("AntiKt4EMPFlow", SeqSUSY10)
-jetsDefinition = ' (AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8) '
+jetsDefinition = ' (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8) '
 
 #====================================================================
 # SKIMMING SELECTION
