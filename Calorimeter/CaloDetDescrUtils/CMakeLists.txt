@@ -7,4 +7,5 @@ atlas_subdir( CaloDetDescrUtils )
 atlas_add_library( CaloDetDescrUtils
 		   src/*.cxx
 		   PUBLIC_HEADERS CaloDetDescrUtils
-		   PRIVATE_LINK_LIBRARIES GaudiKernel CaloIdentifier GeoModelUtilities LArReadoutGeometry TileDetDescr StoreGateLib RDBAccessSvcLib )
+		   PRIVATE_LINK_LIBRARIES GaudiKernel CaloIdentifier CaloConditions GeoModelUtilities
+		                          LArReadoutGeometry TileDetDescr StoreGateLib RDBAccessSvcLib )

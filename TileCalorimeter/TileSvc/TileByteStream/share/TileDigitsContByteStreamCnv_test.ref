@@ -399,6 +399,7 @@ IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TileOfl02Stat
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TileOfl02TimeChanneloffsetPhy-000-00 for folder /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
 LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[177530,l:0] - [INVALID]}
+CaloAlignCondAlg     INFO recorded new CaloDetDescr Manager condition object with key CaloDetDescrManager and range {[177530,t:0,l:0] - [INVALID]}
 TileBadChannels...   INFO Updating TileBchStatus::isBad() definition from DB
 TileBadChannels...   INFO Updating TileBchStatus::isNoisy() definition from DB
 TileBadChannels...   INFO No TileBchStatus::isNoGainL1() definition found in DB, using defaults
@@ -980,7 +981,7 @@ TileSampleNoiseCon...TileCondProxyCool_NoiseSample           0    INFO Creating 
 TileTimingCondAlg.TileCondProxyCool_AdcOffset                0    INFO Creating TileCondProxyCool(TileTimingCondAlg.TileCondProxyCool_AdcOffset) for folder: "/TILE/OFL02/TIME/CHANNELOFFSET/PHY"
 ThreadPoolSvc                                                0    INFO no thread init tools attached
 AvalancheSchedulerSvc                                        0    INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                                        0    INFO Found 16 algorithms
+AvalancheSchedulerSvc                                        0    INFO Found 17 algorithms
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
 AvalancheSchedulerSvc                                        0    INFO    o  ( 'TileDigitsContainer' , 'StoreGateSvc+MuRcvDigitsCnt' )     required by Algorithm: 
 AvalancheSchedulerSvc                                        0    INFO        * MuRcvDigitsCntDumper

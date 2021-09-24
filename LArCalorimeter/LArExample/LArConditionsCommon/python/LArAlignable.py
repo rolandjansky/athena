@@ -27,3 +27,5 @@ if activateCondAlgs:
   if not hasattr(condSeq,"LArAlignCondAlg"):
     from LArAlignmentAlgs.LArAlignmentAlgsConf import LArAlignCondAlg
     condSeq += LArAlignCondAlg("LArAlignCondAlg")
+    from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloAlignCondAlg
+    condSeq += CaloAlignCondAlg("CaloAlignCondAlg")

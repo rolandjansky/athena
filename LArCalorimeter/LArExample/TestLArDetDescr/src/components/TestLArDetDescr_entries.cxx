@@ -1,4 +1,4 @@
-#include "TestLArDetDescr/TestCaloDDE.h"
+#include "../TestCaloDDE.h"
 #include "TestLArDetDescr/TestCaloGeom.h"
 #include "TestLArDetDescr/TestLArTT.h"
 #include "TestLArDetDescr/TestLArMaterial.h"
