@@ -16,9 +16,11 @@
 // are stored from the simulation's geometry and hit-calculation
 // routines.
 
-#ifndef __LArGeo_VDetectorParameters_h_
-#define __LArGeo_VDetectorParameters_h_
+#ifndef LARGEOCODE_VDETECTORPARAMETERS_H
+#define LARGEOCODE_VDETECTORPARAMETERS_H
 
+#include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <limits.h>
 
@@ -37,8 +39,8 @@ namespace LArGeo {
     // Thereafter, any routine in the simulation can use the result of
     // "GetInstance" to find out how to get its parameters.
 
-    static void SetInstance(VDetectorParameters*);
-    static VDetectorParameters* GetInstance();
+    static void SetInstance(std::unique_ptr<VDetectorParameters>);
+    static const VDetectorParameters* GetInstance();
 
     // This is the general access method for obtaining valued from
     // some source of detector parameters.  THe paramter is identified
@@ -59,10 +61,10 @@ namespace LArGeo {
     VDetectorParameters() {};
 
   private:
-    static VDetectorParameters* s_instance;
+    static CxxUtils::CachedUniquePtr<VDetectorParameters> s_instance ATLAS_THREAD_SAFE;
 
   };
 
 } // namespace LArGeo
 
-#endif // __LArGeo_VDetectorParameters_h_
+#endif // LARGEOCODE_VDETECTORPARAMETERS_H

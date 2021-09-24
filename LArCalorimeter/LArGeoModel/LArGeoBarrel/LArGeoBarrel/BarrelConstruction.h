@@ -19,7 +19,7 @@ namespace LArGeo {
   public:
 
     // Constructor;
-    BarrelConstruction(bool fullGeo);
+    BarrelConstruction(bool fullGeo, const VDetectorParameters* params);
 
     // Destructor:
     virtual ~BarrelConstruction();
@@ -45,7 +45,7 @@ namespace LArGeo {
     BarrelConstruction & operator= (const BarrelConstruction &);
     
     // Detector parameters ACCG, ACCA, ACMB, ACCO
-    LArGeo::VDetectorParameters* m_parameters;
+    const LArGeo::VDetectorParameters* m_parameters;
 
     bool                    m_A_SAGGING;
     int                     m_NVISLIM;

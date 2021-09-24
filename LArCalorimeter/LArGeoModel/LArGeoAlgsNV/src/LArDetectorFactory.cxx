@@ -75,8 +75,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   double projectivityDisplacement(0.);
 
   if(m_testbeam==0 || m_testbeam==1) {
-      VDetectorParameters* parameters =	new  LArGeo::RAL();
-      VDetectorParameters::SetInstance(parameters);
+      m_parameters = std::make_unique<LArGeo::RAL>();
 
       // Get access to the material manager:
 
@@ -132,7 +131,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
 
 	if(m_buildBarrel) {
-	  barrelEnvelope = barrelCryostatConstruction.GetEnvelope();
+	  barrelEnvelope = barrelCryostatConstruction.GetEnvelope(m_parameters.get());
 	}
 
 	if(m_buildEndcap) {
@@ -280,7 +279,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	tbbarrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
 	tbbarrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 	
-	barrelEnvelope = tbbarrelCryostatConstruction.GetEnvelope();
+	barrelEnvelope = tbbarrelCryostatConstruction.GetEnvelope(m_parameters.get());
 	
 	a_container->add(new GeoNameTag("LAr"));
 	a_container->add(barrelEnvelope);
@@ -319,5 +318,10 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 const LArDetectorManager* LArGeo::LArDetectorFactory::getDetectorManager() const
 {
   return m_detectorManager;
+}
+
+std::unique_ptr<LArGeo::VDetectorParameters> LArGeo::LArDetectorFactory::moveParameters()
+{
+  return std::move (m_parameters);
 }
 
