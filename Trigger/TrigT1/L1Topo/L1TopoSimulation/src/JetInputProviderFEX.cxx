@@ -69,7 +69,7 @@ JetInputProviderFEX::handle(const Incident& incident) {
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
    //jJet
-   auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 40, 0, 200);
+   auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 100, 0, 500);
    hjJetPt->SetXTitle("p_{T}");
 
    auto hjJetEtaPhi = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 220, -110, 110, 128, 0, 128);
@@ -92,7 +92,7 @@ JetInputProviderFEX::handle(const Incident& incident) {
    }
 
    //jLargeRJet
-   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 80, 0, 400);
+   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 100, 0, 2000);
    hjLargeRJetPt->SetXTitle("p_{T}");
 
    auto hjLargeRJetEtaPhi = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 220, -110, 110, 128, 0, 128);
@@ -173,14 +173,14 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     ATH_MSG_DEBUG( "EDM jFEX jTau Number: " 
 		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
 		   << " et: " 
-		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << jFexRoI->et() // returns the et value of the jet in MeV unit
 		   << " eta: "
 		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
 		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
        
-    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    unsigned int Et = jFexRoI->et()/100.; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
     double phi = jFexRoI->globalPhi()/10.;
     double eta = jFexRoI->globalEta()/10.;
@@ -206,14 +206,14 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     ATH_MSG_DEBUG( "EDM jFex JJet Number: " 
 		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
 		   << " et: " 
-		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << jFexRoI->et() // returns the et value of the jet in MeV unit
 		   << " eta: "
 		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
 		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
     
-    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    unsigned int Et = jFexRoI->et()/100.; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
     double phi = jFexRoI->globalPhi()/10.;
     double eta = jFexRoI->globalEta()/10.;
@@ -239,14 +239,14 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     ATH_MSG_DEBUG( "EDM jFex jJet Number: " 
 		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
 		   << " et: " 
-		   << jFexRoI->et() // returns the et value of the jet in 200 MeV unit
+		   << jFexRoI->et() // returns the et value of the jet in MeV unit
 		   << " eta: "
 		   << jFexRoI->globalEta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
 		   << jFexRoI->globalPhi() // returns a floating point global phi
 		   );
 
-    unsigned int Et = jFexRoI->et()*2; //Convert Et to 100 MeV unit
+    unsigned int Et = jFexRoI->et()/100.; //Convert Et to 100 MeV unit
     // Eta and phi is local coordinates, need to switch with global coordinates.
     double phi = jFexRoI->globalPhi()/10.;
     double eta = jFexRoI->globalEta()/10.;
