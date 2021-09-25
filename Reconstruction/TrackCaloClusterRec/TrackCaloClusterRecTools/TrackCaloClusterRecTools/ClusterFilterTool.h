@@ -52,6 +52,9 @@ class ClusterFilterTool : virtual public IClusterFilterTool, public AthAlgTool {
     // pt fraction at PV0
     double m_ptFractionPV0;
 
+    // Whether or not to use detector eta when matching tracks to clusters
+    bool m_useDetectorEta;
+
 };
 
 template<class T>
