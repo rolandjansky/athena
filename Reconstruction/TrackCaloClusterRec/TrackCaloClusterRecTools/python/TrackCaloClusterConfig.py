@@ -6,7 +6,7 @@ def associateAllTracks(trkClustAssocAlg):
     trkClustAssocAlg.TrackVertexAssoTool = ""
     trkClustAssocAlg.VertexContainerName = ""
     
-def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
+def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False, matchUsingDetectorEta=False):
     """ Schedule a TrackParticleClusterAssociationAlg in the top sequence, taking as input clusters and tracks defined 
     by the keys caloClusterName and trackParticleName.
 
@@ -38,7 +38,8 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
                                                                              CaloClusterLocation          = caloClusterName,
                                                                              ClustersInConeTool           = caloClustersInCone,
                                                                              ConeSize                     = 0.1,
-                                                                             UseCovariance                = True)
+                                                                             UseCovariance                = True,
+                                                                             UseDetectorEta               = matchUsingDetectorEta)
     ToolSvc+=particleCaloClusterAssociation
     print      particleCaloClusterAssociation
 
@@ -56,7 +57,8 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
                                                                          OutputCollectionPostFix = assocPostfix,
                                                                          CaloClusterLocation = caloClusterName,
                                                                          TrackVertexAssoTool=ToolSvc.LooseTrackVertexAssociationTool, # will associate trks from PV0 only
-                                                                         VertexContainerName ="PrimaryVertices",)
+                                                                         VertexContainerName ="PrimaryVertices",
+                                                                         UseDetectorEta = matchUsingDetectorEta)
     if not onlyPV0Tracks:
         associateAllTracks( trackParticleClusterAssociation) # this removes the vtx selection tool.see above.
 
@@ -66,7 +68,7 @@ def setupTrackCaloAssoc(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",t
 
     
 def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
-                         assocPostfix="TCC", doCombined=True, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
+                         assocPostfix="TCC", doCombined=True, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters", matchUsingDetectorEta=False):
     """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
     Depending on options, the collection contains combined, neutral and/or charged TCC.
     This functions schedules 2 algs : 
@@ -84,7 +86,7 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
 
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
         # make sure we run the TrackClusterAssociationAlg
-        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False, matchUsingDetectorEta=matchUsingDetectorEta)
     else: # make sure we use the same CaloCluster container as the TrackClusterAssociationAlg
         alg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
         if alg.CaloClusterLocation != caloClusterName:
@@ -134,7 +136,7 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
 
 
 def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="CaloCalTopoClusters", trackParticleName="InDetTrackParticles",
-                         assocPostfix="TCC", ):
+                         assocPostfix="TCC", matchUsingDetectorEta=False):
     """Create a TrackCaloCluster collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
     This functions schedules 2 algs : 
        * a TrackCaloClusterInfoUFOAlg to build the TrackCaloClusterInfo object
@@ -147,7 +149,7 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
         return getattr(sequence, "TrackCaloClusterAlgUFO"+PFOPrefix)
 
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
-        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
+        setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True, matchUsingDetectorEta=matchUsingDetectorEta)
     else: # make sure we use the same CaloCluster container as the TrackClusterAssociationAlg
         alg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
         if alg.CaloClusterLocation != caloClusterName:
