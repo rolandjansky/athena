@@ -50,10 +50,6 @@ def addP1Signatures():
         ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM3', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM10VH', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM22VHI', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -67,12 +63,6 @@ def addP1Signatures():
         ChainProp(name='HLT_j75_320eta490_LArPEBHLT_L1J30p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j140_320eta490_LArPEBHLT_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j165_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J20', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J30p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -99,6 +89,18 @@ def addP1Signatures():
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + [
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['RATE:Calibration','BW:Detector']),
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_BGRP11', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['RATE:Calibration','BW:Detector']),
+
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM3', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM10VH', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM22VHI', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J20', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J30p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        
         # LAr noise burst chains
         ChainProp(name='HLT_larnoiseburst_L1XE60', l1SeedThresholds=['FSNOSEED'], stream=['LArNoiseBurst'], groups=['RATE:Calibration','BW:Detector']),
         ChainProp(name='HLT_larnoiseburst_L1J75', l1SeedThresholds=['FSNOSEED'], stream=['LArNoiseBurst'], groups=['RATE:Calibration','BW:Detector']),

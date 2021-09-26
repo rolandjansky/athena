@@ -49,12 +49,6 @@ def setupMenu():
         ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM3', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM10VH', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM22VHI', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
-
-        ChainProp(name='HLT_e5_etcut_L1EM3',stream=['Main'], groups=['RATE:SingleElectron', 'BW:Egamma']),
     ]
 
     TriggerFlags.METSlice.signatures = []
@@ -93,7 +87,23 @@ def setupMenu():
         ChainProp(name='HLT_mb_sptrk_costr_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['Rate:MinBias','BW:MinBias']),
         ChainProp(name='HLT_mb_sptrk_costr_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['Rate:Cosmic_MinBias','BW:MinBias']),
     ]
-    TriggerFlags.CalibSlice.signatures     = []
+    TriggerFlags.CalibSlice.signatures     = [
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM3', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM10VH', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1EM22VHI', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J15p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J20', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J30p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+        ChainProp(name='HLT_noalg_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
+
+        ChainProp(name='HLT_e5_etcut_L1EM3',stream=['Main'], groups=['RATE:SingleElectron', 'BW:Egamma']),
+
+        ChainProp(name='HLT_j15_L1J12_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j0_HT0_L1J12_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=PrimaryLegGroup+SingleJetGroup),
+    ]
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
 
