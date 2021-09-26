@@ -172,6 +172,7 @@ def defineMenu():
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
         'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
+        'L1_BGRP7',
         'L1_RD1_EMPTY',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',

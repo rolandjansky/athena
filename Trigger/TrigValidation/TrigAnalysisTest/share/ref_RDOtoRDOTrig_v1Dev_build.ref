@@ -9463,6 +9463,8 @@ HLT_noalg_L1AFP_NSC_BGRP0:
   eventCount: 0
 HLT_noalg_L1All:
   eventCount: 20
+HLT_noalg_L1BGRP7:
+  eventCount: 0
 HLT_noalg_L1Bkg:
   eventCount: 0
 HLT_noalg_L1CEP-CjJ50:
