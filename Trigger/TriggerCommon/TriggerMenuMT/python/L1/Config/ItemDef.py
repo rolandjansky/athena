@@ -822,6 +822,9 @@ class ItemDef:
         MBTS_4_C = d.MBTS_C.x(4)
 
 
+        MenuItem('L1_MBTS_A'             ).setLogic( d.MBTS_A   & physcond ).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_C'             ).setLogic( d.MBTS_C   & physcond ).setTriggerType(TT.minb)
+        
         MenuItem('L1_MBTS_1'             ).setLogic( MBTS_1   & physcond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_1_OVERLAY'     ).setLogic( MBTS_1   & physcond ).setTriggerType(TT.zerobs)
         MenuItem('L1_MBTS_2'             ).setLogic( MBTS_2   & physcond ).setTriggerType(TT.minb)

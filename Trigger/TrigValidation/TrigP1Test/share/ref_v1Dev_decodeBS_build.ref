@@ -3793,6 +3793,10 @@ HLT_noalg_L1MBTS_2_EMPTY:
   eventCount: 0
 HLT_noalg_L1MBTS_2_UNPAIRED_ISO:
   eventCount: 0
+HLT_noalg_L1MBTS_A:
+  eventCount: 0
+HLT_noalg_L1MBTS_C:
+  eventCount: 0
 HLT_noalg_L1MU5VF:
   eventCount: 6
 HLT_noalg_L1MU5VF_AFP_A_AND_C:
