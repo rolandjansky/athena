@@ -9,6 +9,7 @@
 #include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 
 #include "TFile.h"
+#include "TClass.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
@@ -68,6 +69,16 @@ TFCSNewExtrapolationWeightsTester::~TFCSNewExtrapolationWeightsTester()
   if(m_nn!=nullptr) {
     delete m_nn;
   }
+}
+
+bool TFCSNewExtrapolationWeightsTester::operator==(const TFCSParametrizationBase& ref) const
+{
+  if(IsA()!=ref.IsA()){
+    ATH_MSG_DEBUG("operator==: different class types "<<IsA()->GetName()<<" != "<<ref.IsA()->GetName());
+    return false;
+  }
+  const TFCSNewExtrapolationWeightsTester& ref_typed=static_cast<const TFCSNewExtrapolationWeightsTester&>(ref);
+  return (m_input->compare(*ref_typed.m_input) == 0);
 }
 
 // simulate_hit()

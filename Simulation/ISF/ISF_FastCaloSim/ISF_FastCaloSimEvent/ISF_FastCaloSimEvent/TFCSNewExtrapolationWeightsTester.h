@@ -22,6 +22,8 @@ public:
   TFCSNewExtrapolationWeightsTester(const char* name=nullptr, const char* title=nullptr);
   virtual ~TFCSNewExtrapolationWeightsTester();
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   // Used to decorate Hit with extrap center positions
   virtual FCSReturnCode simulate_hit(Hit& hit, TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
