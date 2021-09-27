@@ -245,20 +245,14 @@ if not 'StoreResOscill' in dir():
 # FT/Slot selection
 #
 
-if not 'FTSelection' in dir():
-   FTSelection   = False
-
 if not 'PosNeg' in dir():
    PosNeg        = 0
 	
 if not 'FT' in dir():
-   FT            = [ 0 ]
-
-if not 'SlotSelection' in dir():
-   SlotSelection = False
+   FT            = []
 
 if not 'Slot' in dir():
-   Slot          = [ 0 ]
+   Slot          = []
 
 #
 # Input wave type
@@ -630,11 +624,9 @@ LArRTMParamExtractor.SuffixRetrievedDetCell   = SuffixRetrievedDetCell
 LArRTMParamExtractor.SuffixExtractedCaliPulse = SuffixExtractedCaliPulse
 LArRTMParamExtractor.SuffixExtractedDetCell   = SuffixExtractedDetCell
 
-LArRTMParamExtractor.FTSelection   = FTSelection
 LArRTMParamExtractor.FT            = FT
 LArRTMParamExtractor.PosNeg        = PosNeg
 
-LArRTMParamExtractor.SlotSelection = SlotSelection
 LArRTMParamExtractor.Slot          = Slot
 	
 LArRTMParamExtractor.DumpOmegaScan = DumpOmegaScan

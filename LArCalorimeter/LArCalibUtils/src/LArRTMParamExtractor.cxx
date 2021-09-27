@@ -26,7 +26,7 @@ LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator
 {
   declareProperty("KeyList"   ,m_keylist);
   declareProperty("TestMode"  ,m_testmode = false);
-  declareProperty("IgnoreDACSelection", m_ignoreDACselection = false);
+  declareProperty("IgnoreDACSelection", m_ignoreDACselection = true);
   declareProperty("isSC", m_isSC = false);
 
   m_DAC.clear();
@@ -57,11 +57,9 @@ LArRTMParamExtractor::LArRTMParamExtractor (const std::string& name, ISvcLocator
   declareProperty("ResOscillKeyAfter",   m_resOscillKeyAfter  = "ResOscillAfter" ) ;  
   declareProperty("GroupingType",  m_groupingType);
   
-  declareProperty("FTSelection",   m_FTselection = false);
+
   declareProperty("FT",            m_FT);
   declareProperty("PosNeg",        m_PosNeg=0);
-
-  declareProperty("SlotSelection", m_Slotselection = false);
   declareProperty("Slot",          m_Slot);
 
   declareProperty("calibLineSelection", m_Calibselection = false);
@@ -136,18 +134,14 @@ StatusCode LArRTMParamExtractor::initialize() {
     m_dumpResOscill = false ;
   }
 
-  if ( m_FTselection && !m_FT.size() )
-    m_FTselection = false;
-  if ( m_FTselection ) {
+  if ( !m_FT.empty() ) {
     msg(MSG::INFO) << "FT selection enabled, will only process data from FT = [ ";
     for(unsigned i=0; i<m_FT.size()-1; ++i)
       msg() <<  m_FT[i] << ", ";
     ATH_MSG_INFO( m_FT[m_FT.size()-1] << " ] at PosNeg = " << m_PosNeg );
   }
 
-  if ( m_Slotselection && !m_Slot.size() )
-    m_Slotselection = false;
-  if ( m_Slotselection ) {
+  if ( !m_Slot.empty() ) {
     msg(MSG::INFO) << "Slot selection enabled, will only process data from Slot = [ ";
     for(unsigned i=0; i<m_Slot.size()-1; ++i)
       msg() << m_Slot[i] << ", ";
@@ -387,7 +381,7 @@ StatusCode LArRTMParamExtractor::stop()
 	}
         
 	// FT selection
-	if ( m_FTselection ) {
+	if ( !m_FT.empty() ) {
           int PosNeg    = onlineHelper->pos_neg(itVec.channelId());
           int FT        = onlineHelper->feedthrough(itVec.channelId());
 	  std::vector<int>::const_iterator selectFT = std::find(m_FT.begin(),m_FT.end(),FT);
@@ -403,7 +397,7 @@ StatusCode LArRTMParamExtractor::stop()
 	}
 	
 	// Slot selection
-	if ( m_Slotselection ) {
+	if ( !m_Slot.empty() ) {
           int Slot = onlineHelper->slot(itVec.channelId());
 	  std::vector<int>::const_iterator selectSlot = std::find(m_Slot.begin(),m_Slot.end(),Slot);
 	  if ( selectSlot==m_Slot.end() ) { 
