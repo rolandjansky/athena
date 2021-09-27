@@ -153,6 +153,9 @@ StatusCode LArRTMParamExtractor::initialize() {
 
   ATH_CHECK( m_cablingKey.initialize() );
 
+  // Retrieve LArWFParamTool
+  ATH_CHECK(m_larWFParamTool.retrieve());
+
   return StatusCode::SUCCESS ;
 }
 
@@ -192,13 +195,7 @@ StatusCode LArRTMParamExtractor::stop()
     }
   }
 
-  // Retrieve LArWFParamTool
-  ToolHandle<LArWFParamTool> larWFParamTool("LArWFParamTool");
-  sc=larWFParamTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( " Can't get LArWFParamTool" );
-    return sc;
-  }
+  
 
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
@@ -557,7 +554,7 @@ StatusCode LArRTMParamExtractor::stop()
 
 
   if (!m_useTBB) { //traditional, serial processing:
-    Looper looper(&inputParams,cabling,larWFParamTool.operator->(),msg(),m_counter);
+    Looper looper(&inputParams,cabling,m_larWFParamTool.operator->(),msg(),m_counter);
     tbb::blocked_range<size_t> r(0,inputParams.size());
     looper(r);
   }
@@ -565,7 +562,7 @@ StatusCode LArRTMParamExtractor::stop()
     ATH_MSG_INFO("Now calling TBB parallel_for");
     // NOW CALL TBB PARALLEL FOR
     tbb::parallel_for(tbb::blocked_range<size_t>(0, inputParams.size()),Looper(&inputParams,cabling,
-									       larWFParamTool.operator->(),
+									       m_larWFParamTool.operator->(),
 									       msg(),m_counter));
 
     ATH_MSG_INFO("Done with parallel_for");
