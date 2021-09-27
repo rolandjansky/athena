@@ -440,7 +440,7 @@ condSeq = AthSequencer("AthCondSeq")
 
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 if SuperCells:
@@ -672,9 +672,8 @@ if 'NpointScan' in dir():
 if 'StoreResOscill' in dir():
    theLArWFParamTool.StoreResOscill = StoreResOscill
 
-ToolSvc += theLArWFParamTool
+LArRTMParamExtractor.LArWFParamTool=theLArWFParamTool
 
-topSequence += LArRTMParamExtractor
 
 ###########################################################################
 

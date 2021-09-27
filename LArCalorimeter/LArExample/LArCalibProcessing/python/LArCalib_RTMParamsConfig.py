@@ -60,7 +60,7 @@ def LArRTMParamsCfg(flags):
     theLArWFParamTool.NpointScan  = [   800 ,   900 ,    310 ,    120 ]
     theLArWFParamTool.StoreResOscill = [True * 4] if flags.LArCalib.RTM.DumpResOscill else [False *4]
     
-    result.addPublicTool(theLArWFParamTool)
+    LArRTMParamExtractor.LArWFParamTool=theLArWFParamTool
 
     result.addEventAlgo(LArRTMParamExtractor)
 

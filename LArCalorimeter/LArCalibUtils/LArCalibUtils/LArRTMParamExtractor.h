@@ -24,9 +24,11 @@
 #include <atomic> 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "tbb/blocked_range.h"
 #include "LArRawConditions/LArWFParams.h"
+#include "LArCalibUtils/LArWFParamTool.h" 
 #include "LArRawConditions/LArCaliWave.h"
 #include <memory>
 
@@ -49,7 +51,7 @@ class LArRTMParamExtractor : public AthAlgorithm
  private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-
+  ToolHandle<LArWFParamTool> m_larWFParamTool{this,"LArWFParamTool","LArWFParamTool"};
   std::vector<std::string> m_keylist;
   bool m_isSC;
   bool m_testmode, m_dumpOmegaScan, m_dumpResOscill;
