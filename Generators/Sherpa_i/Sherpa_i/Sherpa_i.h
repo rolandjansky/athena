@@ -31,11 +31,8 @@ protected:
   
   SHERPA::Sherpa * p_sherpa;
 
-  /// Sherpa base settings (read from base fragment file)
-  std::string m_basefragment;
-
-  /// Sherpa run card snippet (from JO file)
-  std::string m_runcard;
+  /// Sherpa base settings (read from base fragment file) and run card snippet (from JO file)
+  std::map<std::string,std::string> m_inputfiles;
 
   /// List of needed OpenLoops process libraries (from JO file)
   std::vector<std::string> m_openloopslibs;

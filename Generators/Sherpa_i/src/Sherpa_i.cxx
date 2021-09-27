@@ -27,8 +27,8 @@ CLHEP::HepRandomEngine* p_rndEngine;
 Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
-  declareProperty("BaseFragment", m_basefragment = "");
-  declareProperty("RunCard", m_runcard = "");
+  declareProperty("BaseFragment", m_inputfiles["Base.yaml"] = "");
+  declareProperty("RunCard", m_inputfiles["Sherpa.yaml"] = "");
   declareProperty("OpenLoopsLibs", m_openloopslibs);
   declareProperty("ExtraFiles", m_extrafiles);
   declareProperty("NCores", m_ncores=1);
@@ -43,28 +43,44 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
 
 
 StatusCode Sherpa_i::genInitialize(){
+  ATH_MSG_INFO("Sherpa initialising... ");
+
+  for(auto& inputfile : m_inputfiles) {
+    // remove first line and last character containing '"'
+    // TODO fix Python/C++ string passing, to not contain " in first place
+    inputfile.second.erase(0, inputfile.second.find("\n") + 1);
+    inputfile.second.pop_back();
+  }
+
+  ATH_MSG_DEBUG("... compiling plugin code");
   if (m_plugincode != "") {
     compilePlugin(m_plugincode);
-    m_basefragment += "SHERPA_LDADD: Sherpa_iPlugin \n";
+    m_inputfiles["Base.yaml"] += "SHERPA_LDADD: Sherpa_iPlugin \n";
   }
-  
-  ATH_MSG_INFO("Sherpa initialising...");
 
+  ATH_MSG_DEBUG("... seeding Athena random number generator");
   p_rndEngine = atRndmGenSvc().GetEngine("SHERPA");
   const long* sip = p_rndEngine->getSeeds();
   long int si1 = sip[0];
   long int si2 = sip[1];
   atRndmGenSvc().CreateStream(si1, si2, "SHERPA");
 
-  std::map<std::string,std::string> inputfiles;
-  inputfiles["Base.yaml"] = m_basefragment;
-  inputfiles["Sherpa.yaml"] = m_runcard;
-  for(auto& inputfile : inputfiles) {
-    // remove first line and last character containing '"'
-    // TODO fix Python/C++ string passing, cf. also below
-    inputfile.second.erase(0, inputfile.second.find("\n") + 1);
-    inputfile.second.pop_back();
+  ATH_MSG_DEBUG("... adapting output level");
+  if( msg().level()==MSG::FATAL || msg().level()==MSG::ERROR || msg().level()==MSG::WARNING ){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 0 \n";
+  }
+  else if(msg().level()==MSG::INFO){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 2 \n";
+  }
+  else if(msg().level()==MSG::DEBUG){
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 15 \n";
+  }
+  else{
+    m_inputfiles["Base.yaml"] += "EVT_OUTPUT: 15 \n";
+  }
 
+  ATH_MSG_DEBUG("... writing input files to directory");
+  for(auto& inputfile : m_inputfiles) {
     // write input content to file in working directory
     FILE *file = fopen(inputfile.first.c_str(),"w");
     fputs(inputfile.second.c_str(),file);
@@ -73,6 +89,7 @@ StatusCode Sherpa_i::genInitialize(){
     ATH_MSG_INFO("\n"+inputfile.second+"\n");
   }
 
+  ATH_MSG_DEBUG("... go Sherpa!");
   int argc = 2;
   char** argv = new char*[2];
   argv[0] = new char[7];
