@@ -31,12 +31,9 @@
 // -------------------------------------------------------------
 // Constructor 
 // -------------------------------------------------------------
-TestLArMaterial::TestLArMaterial(const std::string& name, 
-				   ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_surfbuild(0),
-  m_lar_names(0),
-  m_lar_mat(0)
+TestLArMaterial::TestLArMaterial(const std::string& name
+				 , ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {}
 
 // DESTRUCTOR:
@@ -46,7 +43,7 @@ TestLArMaterial::~TestLArMaterial()
 // INITIALIZE:
 StatusCode TestLArMaterial::initialize()
 {
-  ATH_CHECK(m_readCondKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -97,12 +94,12 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
 
   ATH_MSG_INFO ( " printing CaloDDE characteristics " );
 
-  SG::ReadCondHandle<CaloDetDescrManager> readCondHandle{m_readCondKey};
-  const CaloDetDescrManager* caloMgr = *readCondHandle;
-  if(!caloMgr) {
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  if(!caloMgrHandle.isValid()) {
     ATH_MSG_FATAL("Failed to get CaloDetDescrManager from Condition Store");
     return;
   }
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
 
   IdentifierHash idcalohash,hash_min,hash_max ;
   Identifier id;
