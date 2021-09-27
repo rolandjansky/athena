@@ -3,7 +3,6 @@
 # art-description: RecoTrf
 # art-type: grid
 # art-include: 21.0/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
 # art-include: 22.0-mc20/Athena
 # art-include: 21.3/Athena
@@ -31,7 +30,7 @@ then
 
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file "*AOD*" --file "*PHYSVAL*" --order-trees --ignore-exit-code diff-pool --ignore-leave 'Token' --ignore-leave 'index_ref' --ignore-leave '(.*)_timings\.(.*)' --ignore-leave '(.*)_mems\.(.*)' --ignore-leave '(.*)TrigCostContainer(.*)' --ignore-leave '(.*)HLTNav_Summary_OnlineSlimmed(.*)'
+  art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file "myAOD.pool.root" --file "myNTUP_PHYSVAL.root" --order-trees --ignore-exit-code diff-pool --ignore-leave 'Token' --ignore-leave 'index_ref' --ignore-leave '(.*)_timings\.(.*)' --ignore-leave '(.*)_mems\.(.*)' --ignore-leave '(.*)TrigCostContainer(.*)' --ignore-leave '(.*)HLTNav_Summary_OnlineSlimmed(.*)'
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
