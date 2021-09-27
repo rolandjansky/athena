@@ -5,6 +5,10 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 from G4AtlasTools.G4GeometryToolConfig import G4AtlasDetectorConstructionToolCfg
+from G4StepLimitation.G4StepLimitationConfigNew import G4StepLimitationToolCfg
+from ExtraParticles.ExtraParticlesConfigNew import ExtraParticlesPhysicsToolCfg
+from G4ExtraProcesses.G4ExtraProcessesConfigNew import G4EMProcessesPhysicsToolCfg
+from TRT_TR_Process.TRT_TR_ProcessConfigNew import TRTPhysicsToolCfg
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
@@ -34,17 +38,19 @@ def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs
 
 def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     result = ComponentAccumulator()
-    G4StepLimitationTool = CompFactory.G4StepLimitationTool
-    PhysOptionList = [G4StepLimitationTool("G4StepLimitationTool")]
+    PhysOptionList = [ result.popToolsAndMerge(G4StepLimitationToolCfg(ConfigFlags)) ]
+    if 'QS' in ConfigFlags.Sim.ISF.Simulator or 'LongLived' in ConfigFlags.Sim.ISF.Simulator:
+        #Quasi stable particle simulation
+        PhysOptionList += [ result.popToolsAndMerge(ExtraParticlesPhysicsToolCfg(ConfigFlags)) ] # FIXME more configuration required in this method
+        PhysOptionList += [ result.popToolsAndMerge(G4EMProcessesPhysicsToolCfg(ConfigFlags)) ]
     #PhysOptionList += ConfigFlags.Sim.PhysicsOptions # FIXME Missing functionality
-    PhysDecaysList = []
     if ConfigFlags.Detector.GeometryTRT:
-        TRTPhysicsTool = CompFactory.TRTPhysicsTool
-        PhysOptionList +=[TRTPhysicsTool("TRTPhysicsTool")]
+        PhysOptionList +=[ result.popToolsAndMerge(TRTPhysicsToolCfg(ConfigFlags)) ]
     if ConfigFlags.Detector.GeometryLucid or ConfigFlags.Detector.GeometryAFP:
         LucidPhysicsTool = CompFactory.LucidPhysicsTool
         PhysOptionList +=[LucidPhysicsTool("LucidPhysicsTool")]
     kwargs.setdefault("PhysOption", PhysOptionList)
+    PhysDecaysList = []
     kwargs.setdefault("PhysicsDecay", PhysDecaysList)
     kwargs.setdefault("PhysicsList", ConfigFlags.Sim.PhysicsList)
     if 'PhysicsList' in kwargs:

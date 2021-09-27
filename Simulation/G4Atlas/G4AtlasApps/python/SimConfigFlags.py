@@ -52,7 +52,8 @@ def createSimConfigFlags():
             raise ValueError("Unknown G4 version")
         return version
 
-    scf.addFlag("Sim.G4Version", _check_G4_version)
+    scf.addFlag("Sim.G4Version", lambda prevFlags : _check_G4_version(prevFlags))
+
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4

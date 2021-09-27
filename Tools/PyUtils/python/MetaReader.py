@@ -813,7 +813,8 @@ def make_peeker(meta_dict):
                 'AMITag',
                 'project_name',
                 'triggerStreamOfFile',
-                'AtlasRelease'
+                'AtlasRelease',
+                'specialConfiguration'
             ]
             for item in list(meta_dict[filename]['/TagInfo']):
                 if item not in keys_to_keep:
