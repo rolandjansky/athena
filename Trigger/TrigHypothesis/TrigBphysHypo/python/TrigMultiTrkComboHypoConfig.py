@@ -100,6 +100,7 @@ def DiElecPrecisionComboHypoCfg(name):
         trigLevel = 'EF',
         doElectrons = True,
         outputTrigBphysCollection = 'HLT_DiElecPrecision')
+    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15']
     return hypo
 
 def NoMuonDiElecPrecisionComboHypoCfg(name):
@@ -112,6 +113,7 @@ def NoMuonDiElecPrecisionComboHypoCfg(name):
         trigLevel = 'EF',
         doElectrons = True,
         outputTrigBphysCollection = 'HLT_NoMuonDiElecPrecision')
+    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15']
     return hypo
 
 def BmutrkComboHypoCfg(name):
@@ -217,7 +219,8 @@ class TrigMultiTrkComboHypoConfig(object):
         if 'Lxy0' in chainDict['topo']:
             tool.LxyCut = 0.0
 
-        if 'BPH-0DR3-EM7J15' in chainDict['L1item']:
+        electronMultiplicity = [int(chainPart['multiplicity']) for chainPart in chainDict['chainParts'] if chainPart['signature']=='Electron']
+        if len(electronMultiplicity) == 1 and electronMultiplicity[0] == 1:
             tool.isMergedElectronChain = True
 
         if 'bJpsimutrk' in chainDict['topo']:
