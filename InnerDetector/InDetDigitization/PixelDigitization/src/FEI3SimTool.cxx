@@ -178,9 +178,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
 
     // Front-End simulation
     if (bunch >= 0 && bunch < moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
-      Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch, 0, bunch);
-      rdoCollection.push_back(p_rdo);
-      p_rdo = nullptr;
+      rdoCollection.push_back(new Pixel1RawData(id_readout, nToT, bunch, 0, bunch));
     }
 
     // Duplication mechanism for FEI3 small hits :
@@ -191,9 +189,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
       }
 
       if (smallHitChk && bunch > 0 && bunch <= moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
-        Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch - 1, 0, bunch - 1);
-        rdoCollection.push_back(p_rdo);
-        p_rdo = nullptr;
+        rdoCollection.push_back(new Pixel1RawData(id_readout, nToT, bunch - 1, 0, bunch - 1));
       }
     }
   }
