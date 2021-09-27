@@ -47,17 +47,6 @@ TopoSteering::~TopoSteering() {
 }
 
 TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
-  
-  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
-  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
-
-  return TCS::StatusCode::SUCCESS;
-
-}
-
-
-TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );

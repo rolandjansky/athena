@@ -1,16 +1,15 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-import os,psutil,sys
+import sys
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('L1TopoSimulationTest.py')
          
-fmenu ,fTOBs = 'L1Topoconfig_MC_pp_v8_NewNaming.xml','eventdump_new.txt'
+fTOBs = 'eventdump_new.txt'
 fjson = 'L1Menu_LS2_v1_22.0.17.json'
 
-print ('File for menu :',fmenu)
 print ('File for menu (json):', fjson)
 print ('File for TOBs :',fTOBs)
    
@@ -62,7 +61,6 @@ from L1TopoSimulation.L1TopoSimulationTestConfig import L1TopoSimulationTest
 
 topSequence += L1TopoSimulationTest()
 topSequence.L1TopoSimulationTest.InputASCIIFile = fTOBs
-topSequence.L1TopoSimulationTest.InputXMLFile = fmenu
 topSequence.L1TopoSimulationTest.InputJSONFile = fjson
 
 
