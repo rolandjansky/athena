@@ -29,10 +29,10 @@ else:
 ###################################################
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.Muon_setOn()
-DetFlags.sTGC_setOff()
+DetFlags.sTGC_setOn()
 DetFlags.Micromegas_setOn()
 DetFlags.digitize.Micromegas_setOn()
-DetFlags.digitize.sTGC_setOff()
+DetFlags.digitize.sTGC_setOn()
 DetFlags.Truth_setOn()
 DetFlags.Print()
 
@@ -55,7 +55,7 @@ svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCS
 include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
-topSequence.NSWL1Simulation.DosTGC=False
+topSequence.NSWL1Simulation.DosTGC=True
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
 topSequence.NSWL1Simulation.DoMM=True
 topSequence.NSWL1Simulation.DoMMDiamonds=True

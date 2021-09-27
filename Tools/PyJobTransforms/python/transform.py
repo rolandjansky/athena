@@ -328,7 +328,11 @@ class transform(object):
             for k, v in self._argdict.items():
                 if isinstance(v, argument):
                     v.name = k
-                    
+                elif isinstance(v, list):
+                    for it in v:
+                        if isinstance(it, argument):
+                            it.name = k
+
             # Now we parsed all arguments, if a pickle/json dump is requested do it here and exit
             if 'dumpPickle' in self._argdict:
                 msg.info('Now dumping pickled version of command line to {0}'.format(self._argdict['dumpPickle']))
@@ -497,13 +501,20 @@ class transform(object):
             # Note specifier [A-Za-z0-9_]+? makes this match non-greedy (avoid swallowing the optional 'File' suffix)
             m = re.match(r'(input|output|tmp)([A-Za-z0-9_]+?)(File)?$', key)
             # N.B. Protect against taking argunents which are not type argFile
-            if m and isinstance(value, argFile):
-                if m.group(1) == 'input':
-                    self._inputData.append(m.group(2))
-                else:
-                    self._outputData.append(m.group(2))
-                self._dataDictionary[m.group(2)] = value
-                
+            if m:
+                if isinstance(value, argFile):
+                    if m.group(1) == 'input':
+                        self._inputData.append(m.group(2))
+                    else:
+                        self._outputData.append(m.group(2))
+                    self._dataDictionary[m.group(2)] = value
+                elif isinstance(value, list) and value and isinstance(value[0], argFile):
+                    if m.group(1) == 'input':
+                        self._inputData.append(m.group(2))
+                    else:
+                        self._outputData.append(m.group(2))
+                    self._dataDictionary[m.group(2)] = value
+
         ## @note If we have no real data then add the pseudo datatype NULL, which allows us to manage
         #  transforms which can run without data
         if len(self._inputData) == 0:

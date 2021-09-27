@@ -149,3 +149,53 @@ def getInitialTimeStampsFromRunNumbers(runNumbers):
     run2timestampDict =  getRunToTimestampDict()
     timeStamps = [run2timestampDict.get(runNumber,1) for runNumber in runNumbers] # Add protection here?
     return timeStamps
+
+
+def getSpecialConfigurationMetadata(inputFiles):
+    """Read in special simulation job option fragments based on metadata
+    passed by the evgen stage
+    """
+    specialConfigDict = dict()
+    legacyPreIncludeToCAPostInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : 'Charginos.CharginosConfigNew.AMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopoleCfg',
+                                        'SimulationJobOptions/preInclude.Quirks.py' : 'Quirks.QuirksConfigNew.QuirksCfg',
+                                        'SimulationJobOptions/preInclude.SleptonsLLP.py' : 'Sleptons.SleptonsConfigNew.SleptonsLLPCfg',
+                                        'SimulationJobOptions/preInclude.GMSB.py' : 'Sleptons.SleptonsConfigNew.GMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballCfg',
+                                        'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
+                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpCfg' }
+    legacyPreIncludeToCAPreInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : None,
+                                       'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopolePreInclude',
+                                       'SimulationJobOptions/preInclude.Quirks.py' : None,
+                                       'SimulationJobOptions/preInclude.SleptonsLLP.py' : None,
+                                       'SimulationJobOptions/preInclude.GMSB.py' : None,
+                                       'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballPreInclude',
+                                       'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
+                                       'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpPreInclude' }
+    if len(inputFiles)>0:
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        specialConfigString = GetFileMD(inputFiles).get('specialConfiguration', '')
+        ## Parse the specialConfiguration string
+        ## Format is 'key1=value1;key2=value2;...'. or just '
+        spcitems = specialConfigString.split(";")
+        for spcitem in spcitems:
+            #print spcitem
+            ## Ignore empty or "NONE" substrings, e.g. from consecutive or trailing semicolons
+            if not spcitem or spcitem.upper() == "NONE":
+                continue
+            ## If not in key=value format, treat as v, with k="preInclude"
+            if "=" not in spcitem:
+                spcitem = "preInclude=" + spcitem
+            ## Handle k=v directives
+            k, v = spcitem.split("=")
+            if k == "preInclude" and v.endswith('.py'): # Translate old preIncludes into CA-based versions.
+                v1 = legacyPreIncludeToCAPreInclude[v]
+                if v1 is not None:
+                    specialConfigDict[k] = v1
+                v2 = legacyPreIncludeToCAPostInclude[v]
+                if v2 is not None:
+                    specialConfigDict['postInclude'] = v2
+            else:
+                specialConfigDict[k] = v
+    return specialConfigDict
+

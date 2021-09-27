@@ -63,6 +63,7 @@
 #include "AthAllocators/ArenaHeapAllocator.h"
 #include "AthAllocators/ArenaHeapSTLAllocator.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
+#include "CxxUtils/concepts.h"
 #include <string>
 #include <vector>
 
@@ -316,7 +317,9 @@ public:
 
   /// Convert a reference to an address.
   pointer address (reference x) const;
-  const_pointer address (const_reference x) const;
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<reference,const_reference>),
+                      const_pointer)
+  address (const_reference x) const { return &x; }
 
 
   /**
@@ -332,6 +335,12 @@ public:
    * @param n Number of objects to deallocate.  Must be 1.
    */
   void deallocate (pointer, size_type n);
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<pointer,const_pointer>), void)
+  deallocate (const_pointer p, size_type n) const
+  {
+    pointer p_nc ATLAS_THREAD_SAFE = const_cast<pointer>(p);
+    deallocate (p_nc, n);
+  }
 
 
   /**
@@ -345,9 +354,10 @@ public:
   /**
    * @brief Call the @c T constructor.
    * @param p Location of the memory.
-   * @param val Parameter to pass to the constructor.
+   * @param args Arguments to pass to the constructor.
    */
-  void construct (pointer p, const T& val);
+  template <class... Args>
+  void construct (pointer p, Args&&... args);
 
 
   /**

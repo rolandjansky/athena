@@ -72,9 +72,6 @@ pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression(
 if ( 'dumpTruthInfo' in dir() ):
     dumpTruthInfo = dumpTruthInfo and isIdTrkDxAODSimulation
 
-if InDetFlags.doSLHC():
-    dumpTrtInfo=False
-
 if isIdTrkDxAODSimulation:
     # should only be used for data
     TrtZSel=False

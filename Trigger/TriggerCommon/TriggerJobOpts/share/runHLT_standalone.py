@@ -441,9 +441,6 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 if opt.setMenu:
     ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
-TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
-TriggerFlags.readLVL1configFromXML = True
-TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
 generateL1Menu(ConfigFlags)
@@ -509,7 +506,7 @@ if not opt.createHLTMenuExternally:
 
     if (opt.selectChains):
         menu.selectChainsForTesting = opt.selectChains
-    elif (opt.disableChains):
+    if (opt.disableChains):
         menu.disableChains = opt.disableChains
 
     # generating the HLT structure requires

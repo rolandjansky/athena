@@ -461,8 +461,7 @@ bool CoraCoolFolder::decodeAttrSpec() {
           iofs3=spec.size();
           last=true;
         }
-        m_attrvec.push_back(std::pair<std::string,std::string> (
-         spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1)));
+        m_attrvec.emplace_back(spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1));
         if (!last) iofs1=iofs3+1;
       }
       bres=true;

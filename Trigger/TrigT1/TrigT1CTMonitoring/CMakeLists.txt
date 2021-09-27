@@ -15,6 +15,5 @@ atlas_add_component( TrigT1CTMonitoring
    LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthenaPoolUtilities CoraCool xAODEventInfo GaudiKernel LWHists MuonDigitContainer MuonRDO MuonTrigCoinData TrigConfData TrigConfInterfaces TrigConfL1Data TrigT1CaloEventLib TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/*.py )

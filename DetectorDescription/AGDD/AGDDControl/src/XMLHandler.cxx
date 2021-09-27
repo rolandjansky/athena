@@ -1,26 +1,27 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XMLHandler.h"
 #include "AGDDControl/XMLHandlerStore.h"
+#include "AGDDControl/AGDDController.h"
 
 #include <memory>
 #include <vector>
 
 using namespace xercesc;
 
-DOMNode* XMLHandler::s_currentElement=0;
 bool XMLHandler::s_printFlag=false;
 
-XMLHandler::XMLHandler(std::string n):m_name(n) 
+XMLHandler::XMLHandler(const std::string& n, AGDDController& c)
+  : m_name(n)
 {
 //    std::cout<< " creating new handler "<<n<<std::endl;
 	m_stopLoop=false;
-	RegisterToStore();
+	RegisterToStore(c);
 }
 
-void XMLHandler::RegisterToStore() 
+void XMLHandler::RegisterToStore(AGDDController& /*c*/)
 {
 	XMLHandlerStore::GetHandlerStore()->RegisterHandler(this);
 }
@@ -33,18 +34,20 @@ bool XMLHandler::IsLoopToBeStopped()
 {
 	return m_stopLoop;
 }
-bool XMLHandler::isAttribute(const std::string name) const
+bool XMLHandler::isAttribute(const xercesc::DOMNode* t,
+                             const std::string& name) const
 {
 	bool res;
-	std::string temp=getAttribute(name,res);
+	std::string temp=getAttribute(t, name,res);
 	return res;
 }
-std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) const
+std::string XMLHandler::getAttribute(const xercesc::DOMNode* t,
+                                     const std::string& name, bool& isPresent) const
 {
 	std::string retValue="";
 	isPresent=false;
-	if (s_currentElement->hasAttributes()) {
-		DOMNamedNodeMap *pAttributes = s_currentElement->getAttributes();
+	if (t->hasAttributes()) {
+		DOMNamedNodeMap *pAttributes = t->getAttributes();
 		auto deleter = [&](XMLCh buf[]) { XMLString::release(&buf); };
 		std::unique_ptr<XMLCh[], decltype(deleter)> ptr(XMLString::transcode(name.c_str()), deleter);
 		DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(ptr.get());
@@ -64,36 +67,44 @@ std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) co
 	}
 	return retValue;
 }
-std::string XMLHandler::getAttributeAsString(const std::string name) const
+std::string XMLHandler::getAttributeAsString(AGDDController& /*c*/,
+                                             const xercesc::DOMNode* t,
+                                             const std::string& name) const
 {
 	bool isPresent;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (!isPresent) throw;
 	return temp;
 }
-double XMLHandler::getAttributeAsDouble(const std::string name) const
+double XMLHandler::getAttributeAsDouble(AGDDController& /*c*/,
+                                        const xercesc::DOMNode* t,
+                                        const std::string& name) const
 {
         double res=0.;
         bool isPresent;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
 	if (!isPresent) throw;
         res=Evaluator().Eval(temp.c_str());
         return res;
 }
-int XMLHandler::getAttributeAsInt(const std::string name) const
+int XMLHandler::getAttributeAsInt(AGDDController& /*c*/,
+                                  const xercesc::DOMNode* t,
+                                  const std::string& name) const
 {
         int res=0;
         bool isPresent;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
 	if (!isPresent) throw;
         res=Evaluator().Eval(temp.c_str());
         return res;
 }
-std::vector<double> XMLHandler::getAttributeAsVector(const std::string name) const
+std::vector<double> XMLHandler::getAttributeAsVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name) const
 {
 	bool isPresent;
         std::vector<double> vect;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
         if (!isPresent) throw;
         std::vector<std::string> v=Evaluator().tokenize(";",temp);
         for (unsigned int i=0;i<v.size();i++)
@@ -103,11 +114,13 @@ std::vector<double> XMLHandler::getAttributeAsVector(const std::string name) con
         return vect;
 }
 
-std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name) const
+std::vector<int> XMLHandler::getAttributeAsIntVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name) const
 {
         bool isPresent;
         std::vector<int> vect;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
         if (!isPresent) throw;
         std::vector<std::string> v=Evaluator().tokenize(";",temp);
         for (unsigned int i=0;i<v.size();i++)
@@ -117,35 +130,43 @@ std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name) con
         return vect;
 }
 
-std::string XMLHandler::getAttributeAsString(const std::string name, bool& isPresent) const
+std::string XMLHandler::getAttributeAsString(AGDDController& /*c*/,
+                                             const xercesc::DOMNode* t,
+                                             const std::string& name, bool& isPresent) const
 {
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
         return temp;
 } 
-double XMLHandler::getAttributeAsDouble(const std::string name, bool& isPresent) const
+double XMLHandler::getAttributeAsDouble(AGDDController& /*c*/,
+                                        const xercesc::DOMNode* t,
+                                        const std::string& name, bool& isPresent) const
 {
 	double res=0.;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		res=Evaluator().Eval(temp.c_str());
 	}
 	return res;
 }
-int XMLHandler::getAttributeAsInt(const std::string name, bool& isPresent) const
+int XMLHandler::getAttributeAsInt(AGDDController& /*c*/,
+                                  const xercesc::DOMNode* t,
+                                  const std::string& name, bool& isPresent) const
 {
 	int res=0;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		res=Evaluator().Eval(temp.c_str());
 	}
 	return res;
 }
-std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, bool& isPresent) const
+std::vector<double> XMLHandler::getAttributeAsVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name, bool& isPresent) const
 {
 	std::vector<double> vect;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		std::vector<std::string> v=Evaluator().tokenize(";",temp);
@@ -157,10 +178,12 @@ std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, boo
 	return vect;
 }
 
-std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name, bool& isPresent) const
+std::vector<int> XMLHandler::getAttributeAsIntVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name, bool& isPresent) const
 {
         std::vector<int> vect;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
         if (isPresent)
         {
                 std::vector<std::string> v=Evaluator().tokenize(";",temp);
@@ -172,18 +195,22 @@ std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name, boo
         return vect;
 }
 
-std::string XMLHandler::getAttributeAsString(const std::string name, const std::string def) const
+std::string XMLHandler::getAttributeAsString(AGDDController& /*c*/,
+                                             const xercesc::DOMNode* t,
+                                             const std::string& name, const std::string& def) const
 {
 	bool isPresent;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) return temp;
 	else return def;
 }
-double XMLHandler::getAttributeAsDouble(const std::string name, const double def) const
+double XMLHandler::getAttributeAsDouble(AGDDController& /*c*/,
+                                        const xercesc::DOMNode* t,
+                                        const std::string& name, const double def) const
 {
 	bool isPresent;
 	double res=0.;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		res=Evaluator().Eval(temp.c_str());
@@ -191,11 +218,13 @@ double XMLHandler::getAttributeAsDouble(const std::string name, const double def
 	}
 	return def;
 }
-int XMLHandler::getAttributeAsInt(const std::string name, const int def) const
+int XMLHandler::getAttributeAsInt(AGDDController& /*c*/,
+                                  const xercesc::DOMNode* t,
+                                  const std::string& name, const int def) const
 {
 	bool isPresent;
 	int res=0;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		res=Evaluator().Eval(temp.c_str());
@@ -203,11 +232,13 @@ int XMLHandler::getAttributeAsInt(const std::string name, const int def) const
 	}
 	return def;
 }
-std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, const std::vector<double> def) const
+std::vector<double> XMLHandler::getAttributeAsVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name, const std::vector<double>& def) const
 {
 	bool isPresent;
 	std::vector<double> vect;
-	std::string temp=getAttribute(name,isPresent);
+	std::string temp=getAttribute(t, name,isPresent);
 	if (isPresent) 
 	{
 		std::vector<std::string> v=Evaluator().tokenize(";",temp);
@@ -220,11 +251,13 @@ std::vector<double> XMLHandler::getAttributeAsVector(const std::string name, con
 	return def;
 }
 
-std::vector<int> XMLHandler::getAttributeAsIntVector(const std::string name, const std::vector<int> def) const
+std::vector<int> XMLHandler::getAttributeAsIntVector(AGDDController& /*c*/,
+                                                     const xercesc::DOMNode* t,
+                                                     const std::string& name, const std::vector<int>& def) const
 {
         bool isPresent;
         std::vector<int> vect;
-        std::string temp=getAttribute(name,isPresent);
+        std::string temp=getAttribute(t, name,isPresent);
         if (isPresent)
         {
                 std::vector<std::string> v=Evaluator().tokenize(";",temp);

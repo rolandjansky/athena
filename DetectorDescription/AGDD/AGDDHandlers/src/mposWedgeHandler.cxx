@@ -1,24 +1,28 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/mposWedgeHandler.h"
 #include "AGDDKernel/AGDDPositioner.h"
+#include "AGDDControl/AGDDController.h"
 #include "GeoModelKernel/Units.h"
 
 #include <iostream>
 #include <vector>
 
-mposWedgeHandler::mposWedgeHandler(std::string s):XMLHandler(s),p(0)
+mposWedgeHandler::mposWedgeHandler(const std::string& s,
+                                   AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void mposWedgeHandler::ElementHandle()
+void mposWedgeHandler::ElementHandle(AGDDController& c,
+                                     xercesc::DOMNode *t)
 {
 	bool res;
-	std::string volume=getAttributeAsString("volume",res);
-	int iWedge=getAttributeAsInt("wedge_number",8);
-	std::vector<double> iSectors=getAttributeAsVector("sectors",res);
+	std::string volume=getAttributeAsString(c, t, "volume",res);
+	int iWedge=getAttributeAsInt(c, t, "wedge_number",8);
+	std::vector<double> iSectors=getAttributeAsVector(c, t, "sectors",res);
 
 	double dWedge=360./iWedge;
 	
@@ -33,6 +37,6 @@ void mposWedgeHandler::ElementHandle()
 		double zpos=0;
 		GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
 
-		p=new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
+		new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 	}
 }

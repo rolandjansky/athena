@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,11 +17,14 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 class StoreGateSvc;
 
+
 namespace LArGeo {
+  class VDetectorParameters;
+
 
   /** @class LArGeo::BarrelCryostatConstruction
       @brief Builds GeoModel description of the LAr Electromagnetic Barrel.
-      Descriptions of the presampler and dad material in the crack region are
+      Descriptions of the presampler and dead material in the crack region are
       implemented in separate classes
    */
   class BarrelCryostatConstruction
@@ -32,7 +35,7 @@ namespace LArGeo {
     virtual ~BarrelCryostatConstruction();
 
     // Get the envelope containing this detector.
-    virtual GeoFullPhysVol* GetEnvelope();
+    virtual GeoFullPhysVol* GetEnvelope(const VDetectorParameters* params);
 
 
     void setBarrelSagging(bool flag)        {m_barrelSagging  = flag;}

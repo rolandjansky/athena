@@ -16,6 +16,10 @@ def Lvl1SimulationSequence( ConfigFlags ):
 
     log = logging.getLogger('TriggerJobOpts.Lvl1SimulationConfig')
 
+    if ConfigFlags.Trigger.L1.doMuon and not ConfigFlags.Trigger.enableL1MuonPhase1:
+        raise RuntimeError('The Run-1&2 L1Muon simulation is only supported in release<=21. '
+                           'Please set Trigger.enableL1MuonPhase1=True.')
+
     if not ConfigFlags.Input.isMC:
         from AthenaCommon.DetFlags import DetFlags
         DetFlags.detdescr.ALFA_setOff()
@@ -140,8 +144,6 @@ def Lvl1SimulationSequence( ConfigFlags ):
         if ConfigFlags.Trigger.enableL1CaloLegacy:
             isL1TopoLegacyOutputProvided = True
         isL1TopoOutputProvided = True
-        if ConfigFlags.Trigger.enableL1MuonPhase1 or ConfigFlags.Trigger.enableL1CaloPhase1:
-            isL1TopoOutputProvided = True
 
     if ConfigFlags.Trigger.L1.doCTP:
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
@@ -161,8 +163,7 @@ def Lvl1SimulationSequence( ConfigFlags ):
             ctp.LegacyTopoInput = ""
         if not isL1TopoOutputProvided:
             ctp.TopoInput = ""
-        if not ConfigFlags.Trigger.enableL1MuonPhase1: # Run 2 simulation of MUCTPI sends a slightly different format to the CTP
-            ctp.MuonMultiplicityRun2Format = True
+
         ctp.jFexJetInput = ""
         ctp.jFexLJetInput = ""
         ctp.gFexJetInput = ""
@@ -173,11 +174,11 @@ def Lvl1SimulationSequence( ConfigFlags ):
         ctp.eFexTauInput = ""
         ctpSimSeq = seqAND("CTPSimSeq", [ctp])
 
-        if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1MuonPhase1:
+        if ConfigFlags.Trigger.enableL1CaloLegacy:
             from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
             roib = RoIBuilder("RoIBuilder")
             roib.DoCalo = ConfigFlags.Trigger.enableL1CaloLegacy
-            roib.DoMuon = not ConfigFlags.Trigger.enableL1MuonPhase1
+            roib.DoMuon = False    # not needed for L1MuonPhase1
             ctpSimSeq += [roib]
 
     ##################################################

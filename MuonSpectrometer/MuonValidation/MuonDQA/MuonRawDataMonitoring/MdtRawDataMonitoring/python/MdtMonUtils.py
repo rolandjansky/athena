@@ -196,17 +196,10 @@ def getTubeLength( name ):
 
     tubeLength = 4.9615
 
-    if name03 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name03]
-
-    if name04 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name04]
-
-    if name03+name56 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name03+name56]
-
-    if name04+name56 in tubeLenght_dict:
-        tubeLength = tubeLenght_dict[name04+name56]
+    tubeLength = tubeLenght_dict.get(name03, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04, tubeLength)
+    tubeLength = tubeLenght_dict.get(name03+name56, tubeLength)
+    tubeLength = tubeLenght_dict.get(name04+name56, tubeLength)
 
     return tubeLength 
 
@@ -268,10 +261,14 @@ def fittzero(x, par):
    fitvaltzero = par[0] + ( par[3] / ( 1 + ( TMath.Exp((-x[0]+par[1])/par[2]) ) ) )
    return fitvaltzero
 
+tf1_fittzero = TF1("func1", fittzero, 0., 200., 4)
+
 
 def fittmax(x, par):
    fitvaltmax = par[0] + ( par[3] / ( 1 + ( TMath.Exp((x[0]-par[1])/par[2]) ) ) )
    return fitvaltmax
+
+tf1_fittmax = TF1("func2", fittmax, 0., 200., 4)
 
 def MDTFitTDC(h):
    t0 = 0
@@ -288,7 +285,8 @@ def MDTFitTDC(h):
    parESD1 = up
    parESD2 = 20
    parESD3 = h.GetBinContent(h.GetMaximumBin()) - h.GetBinContent(h.GetMinimumBin())
-   func1 = TF1("func1", fittzero, 0., up, 4)
+   func1 = tf1_fittzero
+   func1.SetRange(0., up)
    func1.SetParameters(parESD0, parESD1, parESD2, parESD3)
    func1.SetLineColor(kBlue+2)
    if(h.GetEntries()>100):
@@ -306,7 +304,8 @@ def MDTFitTDC(h):
    parESD1 = down
    parESD2 = 50
    parESD3 = (h.GetBinContent(h.GetMaximumBin())-h.GetBinContent(h.GetMinimumBin()))/10.
-   func2 = TF1("func2", fittmax, (down-135), (down+135), 4)
+   func2 = tf1_fittmax
+   func2.SetRange((down-135), (down+135))
    func2.SetParameters(parESD0,parESD1,parESD2,parESD3)
    func2.SetLineColor(kRed+1)
    if(h.GetEntries()>100):

@@ -89,7 +89,7 @@ bool RPCCondSummarySvc::isGoodPanel(const Identifier & Id) const{
   //Identifier PanelId = Id;
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
-  for (;svc not_eq  lastSvc;svc++){
+  for (;svc not_eq  lastSvc;++svc){
     ATH_MSG_DEBUG(" Eff Panels from the service, size= "<<(*svc)->EffPanelId().size());
     if ((*svc)->EffPanelId().size()!=0){
       bool found = std::binary_search((*svc)->EffPanelId().begin(),(*svc)->EffPanelId().end(),PanelId,Compare);
@@ -115,7 +115,7 @@ bool RPCCondSummarySvc::isGoodStrip(const Identifier & Id) const{
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   if (not m_noReports){
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       if ((*svc)->EffPanelId().size()!=0) {
 	bool found = std::binary_search((*svc)->EffPanelId().begin(),(*svc)->EffPanelId().end(),PanelId,Compare);
 	if(found) result= false;

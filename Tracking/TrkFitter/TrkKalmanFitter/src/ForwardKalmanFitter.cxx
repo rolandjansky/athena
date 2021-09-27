@@ -294,28 +294,34 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
       return FitterStatusCode::BadInput;
     }
 
-    const Trk::TrackParameters* predPar = it->checkoutForwardPar(); // get ownership right for main loop.
-    if (it->dnaMaterialEffects()) delete it->checkoutDNA_MaterialEffects();
-
+    auto predPar = it->checkoutForwardPar(); // get ownership right for main loop.
+    const Trk::TrackParameters * pTrackParam = predPar.get();
     FitterStatusCode stepFwF =
       this->buildAndAnalyseTrajectory(trajectory,it,updatedPar /*=nullptr pointer*/,
-                                      predPar, controlledMatEffects,itcounter,
+                                      pTrackParam, controlledMatEffects,itcounter,
                                       bremStateIfBremFound,allowRecalibrate);
+    predPar.reset(pTrackParam);
     if (stepFwF.isFailure()) {
       ATH_MSG_INFO ("-F- first buildAndAnalyseTrajectory() failed.");
-      it->checkinForwardPar(predPar);
+      it->checkinForwardPar(std::move(predPar));//predPar dies here and the function returns
       return stepFwF;
     }
-    if (filterStartState == 0 )
-      stepFwF = this->updateOrSkip(it,updatedPar,predPar /* check in again to trajectory*/,
+    if (filterStartState == 0 ){
+      pTrackParam = predPar.get();
+      stepFwF = this->updateOrSkip(it,updatedPar,pTrackParam /* check in again to trajectory*/,
                                    1,runOutlier,bremStateIfBremFound);
-    else
-      stepFwF = this->updateOrSkip(it,updatedPar,predPar /* check in again to trajectory*/,
+      predPar.reset(pTrackParam);
+    } else {
+      pTrackParam = predPar.get();
+      stepFwF = this->updateOrSkip(it,updatedPar,pTrackParam /* check in again to trajectory*/,
                                    filterStartState,runOutlier,bremStateIfBremFound);
+      predPar.reset(pTrackParam);
+    }
     if (stepFwF.isFailure()) {
       ATH_MSG_DEBUG ("-F- first updateOrSkip() failed.");
-      it->checkinForwardPar(predPar);
-      delete updatedPar; return stepFwF;
+      it->checkinForwardPar(std::move(predPar));
+      delete updatedPar; 
+      return stepFwF;
     }
     itcounter = it->positionOnTrajectory()+1;
     ++it;
@@ -534,26 +540,26 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
   ////////////////////////////////////////////////////////////////////
   // search for brem and adjust the error according to target measurement (brem fit)
   if (filterCounter>2) {
-    const Trk::DNA_MaterialEffects* updMomNoise = nullptr;
+    std::unique_ptr<const Trk::DNA_MaterialEffects> updMomNoise;
     if (controlledMatEffects.doDNA()) {
       Trk::IDynamicNoiseAdjustor::State state{};
-      updMomNoise = m_dynamicNoiseAdjustor->DNA_Adjust(
+      updMomNoise.reset(m_dynamicNoiseAdjustor->DNA_Adjust(
         state,
         predPar,             // change according to where meas is
         updatedPar,          // re-start from old pars
         fittableMeasurement, // the meas't
         controlledMatEffects,
-        Trk::alongMomentum);
+        Trk::alongMomentum));
     }
     if (updMomNoise) {
       Trk::Trajectory::iterator b = Trk::ProtoTrajectoryUtility::previousFittableState(T, predictedState);
       if (b!=T.end()) {
-        b->checkinDNA_MaterialEffects(updMomNoise);
-        bremEffectsState = &(*b);
         ATH_MSG_VERBOSE ("-F- DNA kicked in at t/X0 of " << updMomNoise->thicknessInX0() <<
                          " with noise " << updMomNoise->addSigmaQoverP());
+        b->checkinDNA_MaterialEffects(std::move(updMomNoise));
+        bremEffectsState = &(*b);
+        
       }
-      else delete updMomNoise;
     }
   }
 
@@ -687,7 +693,9 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
           );
       fittableMeasurement = predictedState->measurement();
       ATH_MSG_DEBUG ("Broadened TRT hit instead of outlier");
-      delete updatedPar; delete fitQuality; fitQuality=nullptr;
+      delete updatedPar; 
+      delete fitQuality; 
+      fitQuality=nullptr;
       ////////////////////////////////////////////////////////////////////
       // make the update
       updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
@@ -725,13 +733,15 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
       return FitterStatusCode::BadInput;
     }
     // copy over prePar to updatedPar because we ignore this update
-    if (bremEffectsState!=nullptr) delete bremEffectsState->checkoutDNA_MaterialEffects();
+    if (bremEffectsState!=nullptr){
+      auto p = bremEffectsState->checkoutDNA_MaterialEffects();
+    }
     delete updatedPar;
     updatedPar = predPar->clone();
-    // delete predPar; done by ProtoTrackStateOnSurface
   } // end if fitQuality OK
   if (fitQuality) predictedState->setForwardStateFitQuality(*fitQuality);
-  predictedState->checkinForwardPar(predPar);
+  auto uniquePar = std::unique_ptr<const Trk::TrackParameters>(predPar);
+  predictedState->checkinForwardPar(std::move(uniquePar));
   delete fitQuality;
   return FitterStatusCode::Success;
 }
@@ -753,8 +763,8 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   Trk::Trajectory::iterator ffs = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   if (ffs->forwardTrackParameters() || ffs->referenceParameters()) {
     ATH_MSG_WARNING (" wrong input? Dont call enterSeedIntoTrajectory on a full trajectory");
-    if (ffs->forwardTrackParameters()) delete ffs->checkoutForwardPar();
-    if (ffs->referenceParameters()) delete ffs->checkoutReferenceParameters();
+    if (ffs->forwardTrackParameters()) { [[maybe_unused]] auto p = ffs->checkoutForwardPar();}
+    if (ffs->referenceParameters()){ [[maybe_unused]] auto p = ffs->checkoutReferenceParameters();}
   }
   if (ffs->measurement() == nullptr) {
     ATH_MSG_WARNING ("-Fe mess-up in enterSeedIntoTraj: can not find a first measurement!");
@@ -809,9 +819,9 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   }
   const AmgVector(5)& par = inputParAtStartSurface->parameters();
   // TODO: check does one need covariance here?
-  const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov).release();
+  auto seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov);
   if (inputParAtStartSurface != &inputPar) delete inputParAtStartSurface;
-  ffs->checkinForwardPar(seedPar);
+  ffs->checkinForwardPar(std::move(seedPar));
   ATH_MSG_VERBOSE ("-Fe prepared trajectory with seed parameters on state "<<ffs->positionOnTrajectory());
 
   return FitterStatusCode::Success;

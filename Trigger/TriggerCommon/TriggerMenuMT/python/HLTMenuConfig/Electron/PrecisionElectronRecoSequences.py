@@ -62,7 +62,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF" + tag)
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = caloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_noGSF ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)

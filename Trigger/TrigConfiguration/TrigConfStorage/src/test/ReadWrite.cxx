@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -13,17 +13,14 @@
 // PURPOSE:
 //
 // This standalone application is designed to read and write the
-// trigger configuration (L1+HLT) from DB,XML,COOL and to XML or COOL
+// trigger configuration (L1+HLT) from DB,COOL and to COOL
 // for test purposes
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "./Helper.h"
-
 #include "TrigConfBase/MsgStream.h"
 
 #include "TrigConfStorage/StorageMgr.h"
-#include "TrigConfStorage/XMLStorageMgr.h"
 #include "TrigConfStorage/DBLoader.h"
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
@@ -72,7 +69,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
    o << "[Global options]\n";
    o << "  -i|--input        input [input [input]]             ... source of configuration, format see below (mandatory)\n";
    o << "  -2|--comp         input [input [input]]             ... source of a second configuration for comparison\n";
-   o << "  -o|--output xml|r3json|cool [output[;cooldb]] [run] ... output format, name (for cool optional run number)\n";
+   o << "  -o|--output r3json|cool [output[;cooldb]] [run] ... output format, name (for cool optional run number)\n";
    o << "                                                      ... absolute output file name must contain '/', cooldb can be appended COMP200|OFLP200\n";
    o << "  -v|--loglevel     <string>                          ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
    o << "  -l|--log          <string>                          ... name of a log file\n";
@@ -83,7 +80,6 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
    o << "  --nomerge                                           ... internally don't merge L2 and EF (by default merge is enabled)\n";
    o << "\n\n";
    o << "Input can be specified the following\n";
-   o << "  -i [l1menu.xml] [hltmenu2.xml]                                    ... to read L1 and/or HLT menu from XML [file names must end with '.xml'\n";
    o << "  -i <TRIGDB_ALIAS>|<TRIGDB_connection> smk[,l1psk,hltpsk,bgsk]     ... to read the menu from a trigger db via alias or explicit connection specification (ORACLE or SQlite)\n";
    o << "  -i <COOLDB_ALIAS>|<COOLDB_connection>|cool.db run[,lb]            ... to read the menu from COOL for a certain run and possibly LB [file names must end with '.db']\n";
    o << "\n";
@@ -95,10 +91,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
    o << "Input for comparison can be specified the same way, using the '-2' or '--comp' option\n";
    o << "\n";
    o << "\n";
-   o << "Output formats can be xml or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
-   o << "  -o xml [<test>]                                 ... will produce LVL1config_test.xml and/or HLTconfig_test.xml. When\n";
-   o << "                                                      comparing two menus this will produce Diff_test.xml. In this case the\n";
-   o << "                                                      specification of '-o test' is sufficient\n";
+   o << "Output formats can be json or cool. In case a second input is specified for comparison, the output will be on screen or an xml file with the differences\n";
    o << "  -o r3json [<test>]                              ... will produce Run 3 config files L1PrescalesSet[_<test>].json, BunchGroups[_<test>].json, L1Menu[_<test>].json, HLTPrescalesSet[_<test>].json, and HLTMenu[_<test>].json\n";
    o << "  -o cool                                         ... will produce trig_cool.db with cool db instance CONDBR2 and infinite IOV\n";
    o << "  -o cool 200000                                  ... will produce trig_cool.db with cool db instance CONDBR2 and run number 200000\n";
@@ -124,9 +117,6 @@ public:
    string       db{""}, db2{""};
    vector<unsigned int> keys, keys2; // smk[,l1key[,hltkey[,bgkey]]]
    string       outBase {""};
-   string       l1xmlOutFile { "LVL1Config.xml" };
-   string       l1topoOutFile { "L1TopoConfig.xml" };
-   string       hltxmlOutFile { "HLTConfig.xml" };
 
    string       l1JsonOutFile {"L1Menu.json"};
    string       bgkJsonOutFile {"BunchGroups.json"};
@@ -163,12 +153,6 @@ public:
 
 
 namespace {
-   bool endswith(const std::string& str, const std::string& sub) {
-      if(str.size()<sub.size())
-         return false;
-      return (str.compare(str.size()-sub.size(),sub.size(),sub) == 0);
-   }
-
    bool startswith(const std::string& str, const std::string& sub) {
       if(str.size()<sub.size())
          return false;
@@ -218,8 +202,8 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          if(currentPar == "i" || currentPar == "input")     { inpar.push_back(stripped); continue; }
          if(currentPar == "2" || currentPar == "comp")      { inpar2.push_back(stripped); continue; }
          if(currentPar == "o" || currentPar == "output")    {
-            if(outpar.size()==0 && stripped != "xml" && stripped != "r3json" && stripped != "cool") {
-               error.push_back("Unknown output type: " + stripped + ". Must be either xml, json or cool, optionally followed by a base string for the output file name");
+            if(outpar.size()==0 && stripped != "r3json" && stripped != "cool") {
+               error.push_back("Unknown output type: " + stripped + ". Must be either json or cool, optionally followed by a base string for the output file name");
             } else {
                outpar.push_back(stripped);
             }
@@ -250,10 +234,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
 
 
    // parse the input
-   if( (inpar.size()==1 && endswith(inpar[0],".xml")) ||
-       (inpar.size()==2 && endswith(inpar[0],".xml") && endswith(inpar[1],".xml")) ) {
-      input = XML;
-   } else if( inpar.size()>=1 && inpar[0].find(".db") != string::npos ) {
+   if( inpar.size()>=1 && inpar[0].find(".db") != string::npos ) {
       // sqlite file
       input = COOL;
       vector<string> ksv;
@@ -283,16 +264,9 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       };
    }
 
-   if( (inpar2.size()==1 && endswith(inpar2[0],".xml")) ||
-       (inpar2.size()==2 && endswith(inpar2[1],".xml") && endswith(inpar2[1],".xml")) ) {
-      input2 = XML;
-   }
-
    // parse the output
    for(const string& o: outpar) {
-      if ( o=="xml") {
-         output |= XML;
-      } else if ( o=="r3json" ) {
+      if ( o=="r3json" ) {
          output |= JSON;
       } else if ( o=="cool" ) {
          output |= COOL;
@@ -318,10 +292,6 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          }
          coolOutputConnection = "sqlite://;schema="+outfile+";dbname="+dbname;
       } else {
-         l1xmlOutFile  = "LVL1config_" + outBase + ".xml";
-         l1topoOutFile = "L1TopoConfig_" + outBase + ".xml";
-         hltxmlOutFile = "HLTconfig_" + outBase + ".xml";
-
          l1JsonOutFile = "L1Menu_" + outBase + ".json";
          bgkJsonOutFile = "BunchGroups_" + outBase + ".json";
          l1PSJsonOutFile = "L1PrescaleSet_" + outBase + ".json";
@@ -355,9 +325,9 @@ string JobConfig::CheckForCompleteSetup() {
 void
 JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostream& os ) ) {
    log << "========================================" << lineend;
-   log << "JOB SETUP: " << (input==DB?"DB":(input==COOL?"COOL":"XML"));
+   log << "JOB SETUP: " << (input==DB?"DB":"COOL");
    if(output!=UNDEF)
-      log << " --> " << (output==COOL?"COOL":"XML");
+      log << " --> " << (output==COOL?"COOL":"JSON");
    log << lineend;
    log << "----------" << lineend;
    log << "   Input               : ";
@@ -370,7 +340,6 @@ JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostrea
    }
    if( output != UNDEF ) {
       log << "   Output              : ";
-      if( output&XML )  log << l1xmlOutFile << ", " << l1topoOutFile << ", " << hltxmlOutFile;
       if( output&COOL ) {
          log << coolOutputConnection;
          if(coolOutputRunNr==0) { log << ", infinite IOV"; } else { log << ", run nr " << coolOutputRunNr; }
@@ -487,37 +456,6 @@ int main( int argc, char* argv[] ) {
          log << "Did not load MCK from DB as MCK is 0 or no MCK is linked";
       }
 
-
-   }
-   /*------------------
-    * from XML
-    *-----------------*/
-   else if (gConfig.input == JobConfig::XML) {
-      unique_ptr<XMLStorageMgr> sm( gConfig.inpar.size()==1 ?
-                                    new XMLStorageMgr( { xmlpathresolve(gConfig.inpar[0]) } ) :
-                                    new XMLStorageMgr( { xmlpathresolve(gConfig.inpar[0]), xmlpathresolve(gConfig.inpar[1]) } )
-                                    );
-
-      sm->setLevel(MSGTC::VERBOSE);
-
-      if(sm->hasLVL1()) {
-         ctpc = new CTPConfig();
-         log << "Retrieving Lvl1 CTP configuration from " << sm->m_xmlL1File << lineend;
-         //         DBLoader::setEnv(DBLoader::CTP);
-         sm->masterTableLoader().setLevel(gConfig.outputlevel);
-         sm->masterTableLoader().load(*ctpc);
-         sm->masterTableLoader().load(ctpc->muCTPi());
-         log << "Done reading " << sm->m_xmlL1File << lineend;
-
-      }
-      if(sm->hasHLT()) {
-         hltFrame = new HLTFrame();
-         hltFrame->setMergedHLT(gConfig.merge);
-         log << "Retrieving HLT menu from " << sm->m_xmlHLTFile << lineend;
-         sm->hltFrameLoader().setLevel(gConfig.outputlevel);
-         sm->hltFrameLoader().load( *hltFrame );
-         log << "Done reading " << sm->m_xmlHLTFile << lineend;
-      }
    }
    /*------------------
     * from COOL
@@ -601,32 +539,6 @@ int main( int argc, char* argv[] ) {
             hltFrame2->thePrescaleSetCollection().set_prescale_key_to_load( gConfig.getKey2(2) );
          sm->hltFrameLoader().load( *hltFrame2 );
          delete sm;
-      }
-      /*------------------
-       * from XML
-       *-----------------*/
-      else if (gConfig.input2 == JobConfig::XML) {
-         unique_ptr<XMLStorageMgr> sm( gConfig.inpar2.size()==1 ?
-                                       new XMLStorageMgr( { xmlpathresolve(gConfig.inpar2[0]) } ) :
-                                       new XMLStorageMgr( { xmlpathresolve(gConfig.inpar2[0]),xmlpathresolve(gConfig.inpar2[1]) } ) );
-
-         if(sm->hasLVL1()) {
-            ctpc2 = new CTPConfig();
-            log << "Retrieving Lvl1 CTP configuration from " << sm->m_xmlL1File << lineend;
-            DBLoader::setEnv(DBLoader::CTP);
-            sm->masterTableLoader().load(*ctpc2);
-            sm->masterTableLoader().load( ctpc2->muCTPi() );
-            log << "Done reading " << sm->m_xmlL1File << lineend;
-         }
-
-         if(sm->hasHLT()) {
-            hltFrame2 = new HLTFrame();
-            hltFrame2->setMergedHLT(gConfig.merge);
-            log << "Retrieving HLT menu from " << sm->m_xmlHLTFile << lineend;
-            sm->hltFrameLoader().load( *hltFrame2 );
-            log << "Done reading " << sm->m_xmlHLTFile << lineend;
-         }
-
       } else if (gConfig.input2 == JobConfig::COOL) {
          /*------------------
           * from COOL
@@ -656,30 +568,6 @@ int main( int argc, char* argv[] ) {
    // ========================================
    // Writing
    // ========================================
-   if ( (gConfig.output & JobConfig::XML) != 0 ) {
-      /*------------------
-       * to XML
-       *-----------------*/
-
-      if(ctpc) {
-         log << "TrigConfReadWrite:                Writing LVL1 menu " << gConfig.l1xmlOutFile << lineend;
-         ctpc->writeXML(gConfig.l1xmlOutFile, 2);
-      }
-
-      if(hltFrame) {
-         std::ofstream xmlfile;
-         xmlfile.open(gConfig.hltxmlOutFile);
-         log << "TrigConfReadWrite:                Writing HLT menu " << gConfig.hltxmlOutFile << lineend;
-         hltFrame->writeXML(xmlfile);
-         xmlfile.close();
-      }
-
-      if(l1tm) {
-         log << "TrigConfReadWrite:                Writing L1 TopoMenu " << gConfig.l1topoOutFile << lineend;
-         l1tm->writeXML(gConfig.l1topoOutFile);
-      }
-
-   }
    if ( (gConfig.output & JobConfig::JSON) != 0 ) {
       /*------------------
        * to JSON
@@ -741,10 +629,6 @@ int main( int argc, char* argv[] ) {
       sm->jobOptionTableLoader().setLevel(gConfig.outputlevel);
       sm->jobOptionTableLoader().load( jot );
       if(gConfig.printlevel>0) jot.print();
-      if ( (gConfig.output & JobConfig::XML) != 0 ) {
-         jot.writeToFile( string("HLTSetup_"+gConfig.outBase+".xml").c_str() );
-      }
-
    }
 
 }

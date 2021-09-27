@@ -123,7 +123,7 @@ def AthenaMonitoringCfg(flags):
             for t in algo.GMTools:
                 for h in t.Histograms:
                     ho = json.loads(h)
-                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    fullpath = os.path.join(t.HistPath, ho['path'], ho['alias']) + ':' + ho['convention']
                     if fullpath in definedhists:
                         previous = definedhists[fullpath]
                         error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')

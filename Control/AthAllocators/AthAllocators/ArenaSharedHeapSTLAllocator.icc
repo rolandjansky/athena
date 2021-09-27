@@ -274,18 +274,6 @@ ArenaSharedHeapSTLAllocator<T>::address (reference x) const
 
 
 /**
- * @brief Convert a reference to an address.
- */
-template <class T>
-inline
-typename ArenaSharedHeapSTLAllocator<T>::const_pointer
-ArenaSharedHeapSTLAllocator<T>::address (const_reference x) const
-{
-  return &x;
-}
-
-
-/**
  * @brief Allocate new objects.
  * @param n Number of objects to allocate.  Must be 1.
  * @param hint Allocation hint.  Not used.
@@ -319,7 +307,9 @@ void ArenaSharedHeapSTLAllocator<T>::deallocate (pointer p, size_type
                              )
 {
   assert (n == 1);
-  poolptr()->free (reinterpret_cast<ArenaAllocatorBase::pointer> (p));
+  using pointer_nc = std::remove_const_t<T>*;
+  pointer_nc pp ATLAS_THREAD_SAFE = const_cast<pointer_nc>(p);
+  poolptr()->free (reinterpret_cast<ArenaAllocatorBase::pointer> (pp));
 }
 
 
@@ -340,13 +330,14 @@ ArenaSharedHeapSTLAllocator<T>::max_size() const throw()
 /**
  * @brief Call the @c T constructor.
  * @param p Location of the memory.
- * @param val Parameter to pass to the constructor.
+ * @param args Arguments to pass to the constructor.
  */
 template <class T>
+template <class... Args>
 inline
-void ArenaSharedHeapSTLAllocator<T>::construct (pointer p, const T& val)
+void ArenaSharedHeapSTLAllocator<T>::construct (pointer p, Args&&... args)
 {
-  new (reinterpret_cast<void*>(p)) T(val);
+  new (p) T(std::forward<Args>(args)...);
 }
 
 

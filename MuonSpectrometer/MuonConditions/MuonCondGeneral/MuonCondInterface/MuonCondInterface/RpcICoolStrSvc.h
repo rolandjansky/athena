@@ -27,12 +27,12 @@ namespace MuonCalib {
             static const InterfaceID& interfaceID();
 
             // put data in file into COOL 
-            virtual StatusCode putFile(const std::string filename) const=0;
-            virtual StatusCode putOnlineFile(const std::string filename) const=0;
+            virtual StatusCode putFile(const std::string& filename) const=0;
+            virtual StatusCode putOnlineFile(const std::string& filename) const=0;
 
             //put data back into datafile
-            virtual StatusCode makeFile(const std::string fileName) const = 0;
-            virtual StatusCode makeOnlineFile(const std::string fileName) const = 0;
+            virtual StatusCode makeFile(const std::string& fileName) const = 0;
+            virtual StatusCode makeOnlineFile(const std::string& fileName) const = 0;
 
             virtual StatusCode writeToDB() const=0;
             virtual StatusCode writeToOnlineDB() const=0;

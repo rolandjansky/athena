@@ -65,6 +65,27 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doMinBias", False) # Switch for running MinBias settings 
   itkcf.addFlag("ITk.doRobustReco", False) # Switch for running Robust settings
   itkcf.addFlag("ITk.useNewSiSPSeededTF", False ) # Switch for using new SiSPSeededTrackFinder strategy
+  
+  # config flags for tracking geometry configuration
+  itkcf.addFlag("ITk.trackingGeometry.beampipeMatZbins", 35) # Number of Z bins to be used for beampipe material layer
+  itkcf.addFlag("ITk.trackingGeometry.pixelBarrelMatZbins", 100) # Number of z bins to be used for pixel barrel material layer
+  itkcf.addFlag("ITk.trackingGeometry.pixelBarrelMatPhiBins", 50) # Number of phi bins to be used for pixel barrel material layer
+  itkcf.addFlag("ITk.trackingGeometry.pixelEndcapMatRbins", 50) # Number of r bins to be used for pixel endcap material layer
+  itkcf.addFlag("ITk.trackingGeometry.pixelEndcapMatPhiBins", 50) # Number of phi bins to be used for pixel endcap material layer
+  itkcf.addFlag("ITk.trackingGeometry.stripBarrelMatZbins", 100) # Number of z bins to be used for strip barrel material layer
+  itkcf.addFlag("ITk.trackingGeometry.stripBarrelMatPhiBins", 50) # Number of phi bins to be used for strip barrel material layer
+  itkcf.addFlag("ITk.trackingGeometry.stripEndcapMatRbins", 50) # Number of r bins to be used for strip endcap material layer
+  itkcf.addFlag("ITk.trackingGeometry.stripEndcapMatPhiBins", 50) # Number of phi bins to be used for strip endcap material layer
+  itkcf.addFlag("ITk.trackingGeometry.passiveBarrelMatZbins", 100) # Number of z bins to be used for passive material layers
+  itkcf.addFlag("ITk.trackingGeometry.passiveBarrelMatPhiBins", 50) # Number of phi bins to be used for passive material layers
+  itkcf.addFlag("ITk.trackingGeometry.passiveEndcapMatRbins", 50) # Number of r bins to be used for passive material layers
+  itkcf.addFlag("ITk.trackingGeometry.passiveEndcapMatPhiBins", 50) # Number of phi bins to be used for passive material layers
+  itkcf.addFlag("ITk.trackingGeometry.minimalRadialGapForVolumeSplit", 10.) # Radial gap to enable disc splitting
+  itkcf.addFlag("ITk.trackingGeometry.loadLocalDbForMaterialMaps", False) # Enable reading of local database
+  itkcf.addFlag("ITk.trackingGeometry.localDatabaseName", "AtlasLayerMaterial.db") # EDatabase geometry name
+  itkcf.addFlag("ITk.trackingGeometry.materialTag", "AtlasLayerMat_v") # Material tag
+  itkcf.addFlag("ITk.trackingGeometry.version", "22") # material version
+  
 
   from InDetConfig.TrackingCutsFlags import createITkTrackingFlags, createITkLargeD0TrackingFlags, createITkConversionFindingTrackingFlags, createITkFastTrackingFlags, createITkLargeD0FastTrackingFlags
 

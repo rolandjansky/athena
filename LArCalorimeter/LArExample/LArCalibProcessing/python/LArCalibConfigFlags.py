@@ -4,7 +4,7 @@ def addLArCalibFlags(flags):
     
     flags.Input.isMC=False
     flags.addFlag("LArCalib.isSC",False)
-    flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR/COMP200")
+    flags.addFlag("LArCalib.BadChannelDB","COOLOFL_LAR")
     flags.addFlag("LArCalib.BadChannelTag","-UPD3-00")
 
     #Folders:
@@ -21,11 +21,13 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.PhysWave.Folder", lambda prevFlags: _prefix(prevFlags)+"PhysWaves/RTM")
     flags.addFlag("LArCalib.Ramp.Folder",     lambda prevFlags: _prefix(prevFlags)+"Ramps/RampLinea")
     flags.addFlag("LArCalib.OFCPhys.Folder",  lambda prevFlags: _prefix(prevFlags)+"OFC/PhysWave/RTM/")
-    flags.addFlag("LArCalib.LArShapeFolder",  lambda prevFlags: _prefix(prevFlags)+"Shape/RTM/")
-
+    flags.addFlag("LArCalib.LArShape.Folder", lambda prevFlags: _prefix(prevFlags)+"Shape/RTM/")
     flags.addFlag("LArCalib.MPhysOverMCal.Folder", lambda prevFlags: _prefix(prevFlags)+"MphysOverMcal/RTM")
 
-    
+
+    flags.addFlag("LArCalib.CaliPulseParams.Folder", lambda prevFlags: _prefix(prevFlags)+"CaliPulseParams/RTM")
+    flags.addFlag("LArCalib.DetCellParams.Folder", lambda prevFlags: _prefix(prevFlags)+"DetCellParams/RTM")
+
     
 
     flags.addFlag("LArCalib.GroupingType",lambda prevFlags: "SuperCells" if prevFlags.LArCalib.isSC else "ExtendedSubDetector")
@@ -35,6 +37,8 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.Gain",0)
 
     flags.addFlag("LArCalib.doValidation",True)
+
+    flags.addFlag("LArCalib.CorrectBadChannels",True)
 
     #Flags to find the input files/databases
     flags.addFlag("LArCalib.Input.Dir",".")
@@ -49,6 +53,14 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.Preselection.Side",[])
     flags.addFlag("LArCalib.Preselection.BEC",[])
     flags.addFlag("LArCalib.Preselection.FT",[])
+    flags.addFlag("LArCalib.Preselection.Slot",[])
+
+
+    flags.addFlag("LArCalib.RTM.ExtractAll",True) # False = extract only tauR 
+    flags.addFlag("LArCalib.RTM.DumpOmegaScan",False)
+    flags.addFlag("LArCalib.RTM.DumpResOscill",False)
+
+
 
     flags.addFlag("LArCalib.GlobalTag","LARCALIB-RUN2-00")
 

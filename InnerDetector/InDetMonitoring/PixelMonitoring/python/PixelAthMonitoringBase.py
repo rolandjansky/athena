@@ -24,7 +24,7 @@ NumPP0sEC       = 24
 btxt     = ";eta index of module"
 sbtxt    = ";shifted eta index of module"
 ditxt    = ";disk number"
-layers   = ["ECA","ECC","B0","B1","B2","IBL"]
+layers   = ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
 xbinsl   = [    3,    3,  13,  13,  13,   32]
 xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5]
 ybinsl   = [   48,   48,  22,  38,  52,   14]
@@ -46,10 +46,10 @@ errbminsy= [    0,    0,   0,   0,   0,    0]
 errbbsizy= [    1,    1,   1,   1,   1,    1]
 errtbinsy= [    7,    7,   7,   7,   7,    7]
 
-pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
+pp0layers= ["ECA","ECC","BLayer","Layer1","Layer2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
 
-fei3layers= ["ECA","ECC","B0","B1","B2"]
+fei3layers= ["ECA","ECC","BLayer","Layer1","Layer2"]
 fei4layers= ["IBL"]
 
 lumitext  = ";lumi block"

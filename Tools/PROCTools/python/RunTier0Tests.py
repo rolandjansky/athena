@@ -528,7 +528,7 @@ def main():
                       type="string",
                       dest="extraArgs",
                       default="",
-                      help="define additional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
+                      help="define additional args to pass e.g. --preExec 'r2e':'...' ")
     parser.add_option("-a",
                       "--r2a",
                       action="store_true",
@@ -607,12 +607,7 @@ def main():
 
     (options,args)=parser.parse_args()
 
-    extraArg = ""
-    if options.extraArgs == "MC_pp_v5":
-        extraArg = "--preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' "
-    else:
-        extraArg = options.extraArgs
-
+    extraArg        = options.extraArgs
     RunSim          = options.sim_flag
     RunOverlay      = options.overlay_flag
     RunFast         = options.fast_flag

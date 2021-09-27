@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef posRPhiZHandler_H
@@ -13,10 +13,10 @@ class AGDDPositioner;
 
 class posRPhiZHandler:public XMLHandler {
 public:
-	posRPhiZHandler(std::string);
-	void ElementHandle();
-
-	AGDDPositioner *p;
+        posRPhiZHandler(const std::string&,
+                        AGDDController& c);
+        virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

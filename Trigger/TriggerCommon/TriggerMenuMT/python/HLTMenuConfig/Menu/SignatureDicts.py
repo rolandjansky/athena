@@ -354,7 +354,7 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bJpsi','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','bJpsimumul2io',
+    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau',
     'Lxy0',
     'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose'
 ]
@@ -386,8 +386,8 @@ TauChainParts = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '',
-    'preselection'  : ['tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoMVATest', 'tracktwoMVABDT', 'tracktwoLLP', 'ptonly', ],
-    'selection'     : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf',
+    'preselection'  : ['tracktwo', 'tracktwoMVA', 'tracktwoMVATest', 'tracktwoMVABDT', 'tracktwoLLP', 'ptonly', ],
+    'selection'     : ['medium1', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf',
                        'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'dikaonmass', 'singlepion'],
     'multiplicity'  : '',
     'trigType'      : ['tau'],
@@ -407,8 +407,8 @@ TauChainParts_Default = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '20',
-    'preselection'  : 'tracktwo',
-    'selection'     : 'medium1',
+    'preselection'  : 'tracktwoMVA',
+    'selection'     : 'mediumRNN',
     'multiplicity'  :  '',
     'trigType'      : ['tau'],
     'trkInfo'       : [],
@@ -783,7 +783,7 @@ StreamingChainParts = {
     # disambiguation or to allow events from the same L1 seed
     # to be written to different streams
     # New cases should be discussed with Menu Coordinators
-    'streamingInfo'  : ['laser', 'CIS','idmon'],
+    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,

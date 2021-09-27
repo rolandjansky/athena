@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Service designed to read in calibration files to the cool database. Can also read them
@@ -67,7 +67,7 @@ namespace MuonCalib {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode RpcCoolStrSvc::putOnlineFile(const std::string filename) const {
+  StatusCode RpcCoolStrSvc::putOnlineFile(const std::string& filename) const {
 
     // for the time being let's keep this 
 
@@ -112,7 +112,7 @@ namespace MuonCalib {
   //for placing in the database. It uses putDbParameter() to actually put a parameter's values into a database.
 
 
-  StatusCode RpcCoolStrSvc::putFile(const std::string filename) const 
+  StatusCode RpcCoolStrSvc::putFile(const std::string& filename) const 
   {
     
 
@@ -297,7 +297,7 @@ namespace MuonCalib {
     
   }
   
-  StatusCode RpcCoolStrSvc::makeOnlineFile(const std::string fileName) const{
+  StatusCode RpcCoolStrSvc::makeOnlineFile(const std::string& fileName) const{
     
         ATH_MSG_DEBUG("Opening online mask output file "<< fileName << " for writing.");
         std::ofstream out(fileName.c_str());
@@ -337,7 +337,7 @@ namespace MuonCalib {
 
 
   /**Generate a calibration file*/
-  StatusCode RpcCoolStrSvc::makeFile(const std::string fileName) const
+  StatusCode RpcCoolStrSvc::makeFile(const std::string& fileName) const
   {
 
         ATH_MSG_DEBUG("Opening calibration output file "<< fileName << " for writing.");

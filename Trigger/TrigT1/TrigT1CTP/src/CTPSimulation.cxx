@@ -136,11 +136,11 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
-      { "te", {"TE"} },
+      { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
-      { "em", {"EM", "eEM"} },
+      { "em", {"EM", "eEM", "jEM"} },
       { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
    std::vector<TrigConf::L1Threshold> thrV;
@@ -159,11 +159,11 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
-      { "te", {"TE"} },
+      { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
-      { "em", {"EM", "eEM"} },
+      { "em", {"EM", "eEM", "jEM"} },
       { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
 
@@ -954,11 +954,15 @@ LVL1CTP::CTPSimulation::calculateTopoOptMultiplicity( const TrigConf::L1Threshol
   std::string subfolder = "";
   if (confThr.type().find("XE") != std::string::npos) {
     subfolder = "xe";
+  } else if (confThr.type().find("TE") != std::string::npos) {
+    subfolder = "te";
   } else if (confThr.type().find("TAU") != std::string::npos) {
     subfolder = "tau";
   } else if (confThr.type().find("EM") != std::string::npos) {
     subfolder = "em";
   } else if (confThr.type().find("jJ") != std::string::npos) {
+    subfolder = "jet";
+  } else if (confThr.type().find("jLJ") != std::string::npos) {
     subfolder = "jet";
   } else if (confThr.type().find("gJ") != std::string::npos) {
     subfolder = "jet";
@@ -1152,7 +1156,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       auto hist = * get2DHist( "/multi/all/R3Mult" );
-      std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
+      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();

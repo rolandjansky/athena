@@ -623,11 +623,14 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
       ATH_MSG_INFO("      -> adjusting the outer radius to the last ring at " << outerRadius );
       ATH_MSG_INFO("      -> created " << ringVolumes.size() << " ring volumes for Volume '" << volumeName << "'.");
       // create the tiple container
-      return m_trackingVolumeCreator->createContainerTrackingVolume(ringVolumes,
-                                                                    *m_materialProperties,
-                                                                    volumeName,
-                                                                    m_buildBoundaryLayers,
-                                                                    m_replaceJointBoundaries);
+      if (ringVolumes.size()==1)
+        return ringVolumes.at(0);
+      else 
+        return m_trackingVolumeCreator->createContainerTrackingVolume(ringVolumes,
+                                                                      *m_materialProperties,
+                                                                      volumeName,
+                                                                      m_buildBoundaryLayers,
+                                                                      m_replaceJointBoundaries);
     } else 
         return m_trackingVolumeCreator->createTrackingVolume(layers,
                                                              *m_materialProperties,
@@ -780,49 +783,62 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
 
 std::vector<const Trk::Layer*> InDet::StagedTrackingGeometryBuilder::checkZoverlap(std::vector<const Trk::Layer*>& lays) const 
 {
-    // check disc layer overlaps in z, merge if appropriate
-    std::vector<const Trk::Layer*> mergedDiscLayers;
-    std::vector<const Trk::Layer*> toMerge;
-    double zlast = 0.; bool overlaps = false;
-    for (auto lay : lays) {
-        float zpos= lay->surfaceRepresentation().center().z();
-        float thick = 0.5*lay->thickness();
-        if (lay==lays.front()) toMerge.push_back(lay);
-        else { 
-          if ( zpos - thick<zlast) {
-            toMerge.push_back(lay);
-            overlaps = true;   
-          } else {
-            if ( toMerge.size()==1 ) mergedDiscLayers.push_back(toMerge[0]);
-            else if (toMerge.size()>1) {
-              const Trk::Layer* nd = mergeDiscLayers(toMerge);
-              if (nd) mergedDiscLayers.push_back(nd); 
-              else {
-                ATH_MSG_DEBUG("radial merge of rings failed, return the input layer set");
-                return lays;
-              }
-            }
-            toMerge.clear(); toMerge.push_back(lay);
-          }
-        }
-        zlast = zpos+thick;
+  // look for layers to merge if they overlap in z
+  
+  // caching the layers with locations in z
+  std::map < float , std::vector<const Trk::Layer*> > locationAndLayers;
+  
+  // loop on the layers and save the location:
+  // if one layer location is compatible with 
+  // another one (considering the layer thickness)
+  // then the two layers have to be merged
+  for (auto lay : lays) {
+    float zpos= lay->surfaceRepresentation().center().z();
+    float thick = 0.5*lay->thickness(); 
+    
+    bool foundZoverlap = false;
+    for (auto& singlePosLayer : locationAndLayers) {
+      if (abs(zpos - singlePosLayer.first) < thick) {
+        singlePosLayer.second.push_back(lay);
+        foundZoverlap = true;
+        break;
+      }
     }
-    if (toMerge.size()==1) mergedDiscLayers.push_back(toMerge[0]);
-    else if (toMerge.size()>1) {
-      const Trk::Layer* nd = mergeDiscLayers(toMerge);
+    
+    // if no overlap is found, a new location (with corresponding layer)
+    // has to be added to the map
+    if (not foundZoverlap) {
+      locationAndLayers[zpos] = std::vector<const Trk::Layer*>();
+      locationAndLayers[zpos].push_back(lay);
+    }       
+  }
+  
+  // If the number of final layers decreases, 
+  // merging is detected and discs need to be merged.
+  // The new merged layers are returned instead of the initial ones.
+  if (lays.size()>locationAndLayers.size()) {
+    std::vector<const Trk::Layer*> mergedDiscLayers;
+    for (auto& singlePosLayer : locationAndLayers) {      
+      const Trk::Layer* nd = mergeDiscLayers(singlePosLayer.second);
       if (nd) mergedDiscLayers.push_back(nd); 
       else {
-        ATH_MSG_DEBUG("radial merge of rings failed, return the input layer set");
+        ATH_MSG_WARNING("radial merge of rings failed, return the input layer set");
         return lays;
       }
     }
-
-    if (overlaps) return mergedDiscLayers;
-
-    return lays;
+    return mergedDiscLayers;
+  } 
+  
+  return lays;
+  
 }
 
 const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::vector<const Trk::Layer*>& inputDiscs) const {
+
+  // if a single layer is input, no need for merging.
+  // Returning the layer
+  if (inputDiscs.size()==1)
+    return inputDiscs.at(0);
  
   // on the input, disc layers overlapping in thickness : merge to a new DiscLayer
   std::pair<float,float> zb(1.e5,-1.e5);
@@ -868,6 +884,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
       if (id+1<discOrder.size()) rsteps.push_back( 0.5*(rbounds[id].second+rbounds[id+1].first));
       const std::vector<const Trk::Surface*> ringSurf =surfArray->arrayObjects();
       surfs.insert(surfs.end(),ringSurf.begin(),ringSurf.end());
+            
     }  
   }
   rsteps.push_back(rbounds.back().second);
@@ -880,12 +897,15 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   }
 
   // create merged binned array
+  // a two-dimensional BinnedArray is needed ; takes possession of binUtils and
+  // will delete it on destruction.
   Trk::BinnedArray<Trk::Surface>* mergeBA = new Trk::BinnedArray1D1D<Trk::Surface>(surfaces,new Trk::BinUtility(rsteps,Trk::open,Trk::binR),binUtils);
 
-  // prepare the overlap descriptor       
-  std::vector<Trk::BinUtility*> clonedBinUtils = std::vector<Trk::BinUtility*>();
-  for (auto bu : *binUtils) clonedBinUtils.push_back(bu->clone());
-  Trk::OverlapDescriptor* olDescriptor = new InDet::DiscOverlapDescriptor(mergeBA,&clonedBinUtils,true);
+  //DiscOverlapDescriptor takes possession of clonedBinUtils, will delete it on destruction.
+  // but *does not* manage mergeBA.      
+  std::vector<Trk::BinUtility*>* clonedBinUtils = new std::vector<Trk::BinUtility*>();
+  for (auto bu : *binUtils) clonedBinUtils->push_back(bu->clone());
+  Trk::OverlapDescriptor* olDescriptor = new InDet::DiscOverlapDescriptor(mergeBA,clonedBinUtils,true);
     
   // position & bounds of the disc layer
   double disc_thickness = std::fabs(zb.second-zb.first);
@@ -898,6 +918,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   const Trk::LayerMaterialProperties* disc_material = inputDiscs[0]->layerMaterialProperties()->clone();
 
   // create disc layer
+  // layer creation; deletes mergeBA in baseclass 'Layer' upon destruction
   const Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
                                                    new Trk::DiscBounds(rsteps.front(),rsteps.back()),
                                                    mergeBA,

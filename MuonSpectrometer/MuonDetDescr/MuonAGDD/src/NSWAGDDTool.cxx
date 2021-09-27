@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDD/NSWAGDDTool.h"
@@ -7,7 +7,7 @@
 #include "MuonAGDDToolHelper.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
-#include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
@@ -59,28 +59,29 @@ StatusCode NSWAGDDTool::construct()
 {
 	ATH_MSG_INFO(name()<<"::construct()");
 	
+        IAGDDtoGeoSvc::LockedController controller = m_svc->getController();
 	MuonAGDDToolHelper theHelper;
 	theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
 	if (!m_readAGDD)
 	{
 		ATH_MSG_INFO(" trying to parse files ");
-		m_controller->ParseFiles();
+		controller->ParseFiles();
 	}
 	else
 	{
 		ATH_MSG_INFO(" trying to parse data base content ");
 		std::string AGDDfile = theHelper.GetAGDD(m_dumpAGDD, m_outFileType, m_DBFileName);
-		m_controller->ParseString(AGDDfile);
+		controller->ParseString(AGDDfile);
 	}
 	
 	if (m_printSections) 
 	{
 		ATH_MSG_INFO("\t Printing all sections ");
-		m_controller->PrintSections();
+		controller->PrintSections();
 	}
 	
-	m_controller->UseGeoModelDetector("Muon");
-	m_controller->BuildAll();
+	controller->UseGeoModelDetector("Muon");
+	controller->BuildAll();
 	
 	// part needed to build the NSW RO geometry
 	
@@ -98,7 +99,7 @@ StatusCode NSWAGDDTool::construct()
 		ATH_MSG_INFO("\t-- attempting to write output to "<< m_outFileName );
 		if( !m_outFileName.empty() )
 		{
-			if(!m_controller->WriteAGDDtoDBFile( m_outFileName ))
+			if(!controller->WriteAGDDtoDBFile( m_outFileName ))
 			{
 				ATH_MSG_ERROR("\t-- something went wrong during writing AGDD file - crashing" );
 				return StatusCode::FAILURE;
@@ -121,7 +122,7 @@ StatusCode NSWAGDDTool::construct()
 		}
 	}
 
-	m_controller->Clean();
+	controller->Clean();
 	
 	return StatusCode::SUCCESS;
 }

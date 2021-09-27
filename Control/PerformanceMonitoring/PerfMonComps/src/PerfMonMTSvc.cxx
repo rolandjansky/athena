@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -123,19 +123,15 @@ void PerfMonMTSvc::handle(const Incident& inc) {
  * Start Auditing
  */
 void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& compName) {
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  startSnapshotAud(stepName, compName);
+
   /*
-   * This if statement is temporary. It will be removed.
-   * In current implementation the very first thing called is stopAud function
-   * for PerfMonMTSvc. There are some components before it. We miss them.
-   * It should be fixed.
+   * Perform component monitoring only if the user asked for it.
+   * By default we don't monitor a set of common components.
+   * Once we adopt C++20, we can switch this from count to contains.
    */
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    startSnapshotAud(stepName, compName);
-
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Start component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     startCompAud(stepName, compName, ctx);
@@ -146,14 +142,11 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
  * Stop Auditing
  */
 void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compName) {
-  // Don't self-monitor
-  if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
-    // Snapshots, i.e. Initialize, Event Loop, etc.
-    stopSnapshotAud(stepName, compName);
+  // Snapshots, i.e. Initialize, Event Loop, etc.
+  stopSnapshotAud(stepName, compName);
 
-    // Nothing more to do if we don't listen to components
-    if (!m_doComponentLevelMonitoring) return;
-
+  // Check if we should monitor this component
+  if (m_doComponentLevelMonitoring && !m_exclusionSet.count(compName)) {
     // Stop component auditing
     auto const &ctx = Gaudi::Hive::currentContext();
     stopCompAud(stepName, compName, ctx);

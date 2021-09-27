@@ -57,7 +57,7 @@ def precisionElectronRecoSequence_LRT(RoIs):
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_LRT")
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs_LRT.precisionCaloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = precisionCaloMenuDefs_LRT.precisionCaloClusters
 
     ## TrigElectronSuperClusterBuilder_LRT ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_LRT")

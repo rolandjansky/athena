@@ -271,8 +271,11 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       cout << "   value at eta = " << eta << ": " << thrTERR.thrValue(eta) << " GeV, " << thrTERR.thrValueMeV(eta) << " MeV, " << thrTERR.thrValueCounts(eta) << " counts" << endl;
    }
 
-   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM18VHI"));
-   cout << "eEM18VHI isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM18M"));
+   cout << "eEM18M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM18M"));
+   cout << "jEM18M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
    const auto & thrMU10 = dynamic_cast<const TrigConf::L1Threshold_MU&>(l1menu.threshold("MU10"));
    cout << "Threshold MU10 with "
@@ -365,12 +368,57 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
    }
    {
+      auto & ex = l1menu.thrExtraInfo().jEM();
+      cout << "  jEM" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
+      cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
+      cout << "    ptMinxTOB " << ex.ptMinxTOB() << endl;
+      cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV() << endl;
+      cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts() << endl;
+      cout << "    working point Loose" << endl;
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
+         cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()
+              << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
+              << ", isolation=" << iso.value() << endl;
+      }
+      cout << "    working point Medium" << endl;
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::MEDIUM)) {
+         cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()
+              << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
+              << ", isolation=" << iso.value() << endl;
+      }
+      cout << "    working point Tight" << endl;
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
+         cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()
+              << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
+              << ", isolation=" << iso.value() << endl;
+      }
+      //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
+      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
+   }
+   {
       auto & ex = l1menu.thrExtraInfo().jJ();
       cout << "  jJ" << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
-      cout << "    ptMinToTopoWindow " << ex.ptMinToTopo() << endl;
-      cout << "    ptMinToTopoWindow (MeV) " << ex.ptMinToTopoMeV() << endl;
-      cout << "    ptMinToTopoWindow (counts) " << ex.ptMinToTopoCounts() << endl;
+      cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
+      cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts() << endl;
+      cout << "    ptMinxTOB " << ex.ptMinxTOB() << endl;
+      cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV() << endl;
+      cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts() << endl;
+   }
+   {
+      auto & ex = l1menu.thrExtraInfo().jLJ();
+      cout << "  jLJ" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
+      cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts() << endl;
+      cout << "    ptMinxTOB " << ex.ptMinxTOB() << endl;
+      cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV() << endl;
+      cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts() << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().eTAU();
@@ -411,6 +459,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
       cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
+      cout << "    ptMinxTOB " << ex.ptMinxTOB() << endl;
+      cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV() << endl;
+      cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts() << endl;
       cout << "    working point Loose" << endl;
       for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()

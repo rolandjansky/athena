@@ -59,7 +59,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     /** A crude method to check  Read-Out ADC channel stuckbits.
      */
     int stuckBits_Amp(TH1S *hist, int adc);
-    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
+    int stuckBits_Amp2(TH1S *hist, TH1C *modhist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
     /** Method to check global CRC and DMU CRC.
      */
     void CRCcheck(const TileDQstatus* dqStatus,
@@ -144,6 +144,7 @@ class TileDigitsMonTool: public TilePaterMonTool
       //Pointers to Histograms
       std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
       std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+      std::vector<TH1C *> m_histC[5][64][48][2]; // ros,drawer,channel,gain
       std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
       std::vector<TH2F *> m_hist2[5][64][2];
       std::vector<TProfile *> m_histP[5][64][48][2];
@@ -174,6 +175,9 @@ class TileDigitsMonTool: public TilePaterMonTool
 
     bool m_is12bit;
     int m_shiftnbins;
+
+    int m_zeroLimitHG;
+    int m_saturationLimitHG;
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };

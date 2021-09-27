@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 from InDetRecExample.TrackingCommon  import setDefaults
-from InDetRecExample.InDetJobProperties import InDetFlags
 import InDetRecExample.TrackingCommon as TrackingCommon
 from AthenaCommon.GlobalFlags import globalflags
 from PrimaryDPDMaker.PrimaryDPDFlags import jobproperties
@@ -50,7 +49,7 @@ def getPixelPrepDataToxAOD(name='xAOD_PixelPrepDataToxAOD', **kwargs) :
                                                OutputLevel         = INFO,
                                                UseTruthInfo        = (add_IDTIDE_content and isIdTrkDxAODSimulation),
                                                WriteRDOinformation = InDetDxAODFlags.DumpPixelRdoInfo() or add_IDTIDE_content,
-                                               WriteNNinformation  = (InDetDxAODFlags.DumpPixelNNInfo() or add_IDTIDE_content) and not InDetFlags.doSLHC(),
+                                               WriteNNinformation  = InDetDxAODFlags.DumpPixelNNInfo() or add_IDTIDE_content,
                                                # ,WriteSDOs            = True
                                                # ,WriteSiHits          = True # if available
                                               ) )

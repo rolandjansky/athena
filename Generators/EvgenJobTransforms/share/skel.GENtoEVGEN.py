@@ -750,8 +750,8 @@ if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
     printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 elif hasattr(runArgs, "inputGeneratorFile"):
     # counting the number of events in LHE output

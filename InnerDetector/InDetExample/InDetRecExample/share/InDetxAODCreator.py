@@ -1,6 +1,6 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
-from InDetRecExample.TrackingCommon import makePublicTool, makeName
+from InDetRecExample.TrackingCommon import getInDetxAODParticleCreatorTool, makePublicTool, makeName
 
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -49,46 +49,6 @@ if InDetFlags.doSplitReco()  and is_mc:
     xAODTruthCnvPU.TruthLinks = "xAODTruthLinks_PU" #output/intermediate
     xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
     topSequence += xAODTruthCnvPU
-
-def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
-        return getattr(ToolSvc,'InDetxAODParticleCreatorTool')
-
-    _perigee_expression=InDetFlags.perigeeExpression()
-    # need to treat Vertex specifically because at the time of
-    # the track particle creation the primary vertex does not yet exist.
-    # The problem is solved by first creating track particles wrt. the beam line
-    # and correcting the parameters after the vertex finding.
-    if _perigee_expression == 'Vertex' :
-        _perigee_expression = 'BeamLine'
-
-    from InDetRecExample                import TrackingCommon
-    from InDetRecExample.TrackingCommon import setDefaults
-    if prd_to_track_map is None :
-        track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits()
-    else :
-        prop_args          = setDefaults({}, nameSuffix = suffix)
-        asso_tool          = TrackingCommon.getConstPRD_AssociationTool(**setDefaults(prop_args,
-                                                                                      PRDtoTrackMap = prd_to_track_map))
-        helper_tool        = TrackingCommon.getInDetSummaryHelperSharedHits(**setDefaults(prop_args,
-                                                                                          AssoTool = asso_tool) )
-        track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(**setDefaults(prop_args,
-                                                                                             InDetSummaryHelperTool=helper_tool))
-
-    from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-    InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
-                                                                 TrackToVertex           = TrackingCommon.getInDetTrackToVertexTool(),
-                                                                 TrackSummaryTool        = track_summary_tool,
-                                                                 BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
-                                                                 KeepParameters          = True,
-                                                                 KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
-                                                                 PerigeeExpression       = _perigee_expression)
-
-    ToolSvc += InDetxAODParticleCreatorTool
-    if InDetFlags.doPrintConfigurables():
-        printfunc (InDetxAODParticleCreatorTool)
-    return InDetxAODParticleCreatorTool
 
 def getTrackCollectionCnvTool(prd_to_track_map=None, suffix="") :
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
@@ -204,7 +164,7 @@ if not InDetFlags.doVertexFinding():
             topSequence += xAODVertexCnvAlgDBM
 
 #For forward tracks, no separate collection for ITK, since they are already merged
-if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation() and not InDetFlags.doSLHC()) or doConversion:
+if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation()) or doConversion:
     if doCreation :
         createTrackParticles(InDetKeys.ResolvedForwardTracks(), InDetKeys.ResolvedForwardTracksTruth(), InDetKeys.xAODForwardTrackParticleContainer(),topSequence)
     if doConversion :

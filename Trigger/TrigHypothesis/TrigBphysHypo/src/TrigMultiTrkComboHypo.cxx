@@ -114,7 +114,7 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
 
   ATH_CHECK( !(m_trigLevel == "L2IO" && m_doElectrons) );
 
-  if (m_trigLevel == "L2") {
+  if (m_trigLevel == "L2" || (m_trigLevel == "EF" && m_isMuTrkMode)) {
     ATH_CHECK( m_trackParticleContainerKey.initialize() );
     renounce(m_trackParticleContainerKey);
   }
@@ -237,6 +237,9 @@ StatusCode TrigMultiTrkComboHypo::execute(const EventContext& context) const {
       ATH_CHECK( mergeLeptonsFromDecisions(*electronState) );
       ATH_CHECK( findMultiLeptonCandidates(*electronState) );
       ATH_CHECK( processMergedElectrons(*electronState) );
+    }
+    else if (m_isMuTrkMode) {
+      ATH_CHECK( findMuTrkCandidates(*muonState) );
     }
     else {
       ATH_CHECK( mergeLeptonsFromDecisions(*muonState) );
@@ -684,6 +687,73 @@ StatusCode TrigMultiTrkComboHypo::processMergedElectrons(TrigMultiTrkState<xAOD:
       xAOD::TrigBphys* trigBphys = makeTrigBPhys(*vertex, particleMasses, state.beamSpotPosition(), *fitterState);
       trigBphys->setRoiId(initialRoI->roiWord());
       state.addTrigBphysObject(trigBphys, std::vector<size_t>(1, leptons.size() - 1));
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TrigMultiTrkComboHypo::findMuTrkCandidates(TrigMultiTrkState<xAOD::MuonContainer>& state) const {
+
+  ATH_MSG_DEBUG( "Try to find muon + track combinations from the same SG::View" );
+
+  auto& muons = state.leptons();
+  muons.clear();
+
+  const std::vector<double> particleMasses(2, PDG::mMuon);
+
+  for (const Decision* decision : state.previousDecisions()) {
+    if (!TrigCompositeUtils::isAnyIDPassing(decision, m_allowedIDs)) continue;
+
+    auto decisionEL = TrigCompositeUtils::decisionToElementLink(decision, state.context());
+    ATH_CHECK( decision->hasObjectLink(TrigCompositeUtils::featureString(), ClassID_traits<xAOD::MuonContainer>::ID()) );
+    auto muonEL = decision->objectLink<xAOD::MuonContainer>(TrigCompositeUtils::featureString());
+    const auto muon = *muonEL;
+    if (!muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle)) continue;
+    if (!muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle)) continue;
+    const auto muonInDetTrack = muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
+    auto muonMomentum = muonInDetTrack->genvecP4();
+    muonMomentum.SetM(PDG::mMuon);
+
+    // add muon from decision to state.leptons
+    DecisionIDContainer decisionIDs;
+    TrigCompositeUtils::decisionIDs(decision, decisionIDs);
+    muons.push_back({muonEL, ElementLinkVector<DecisionContainer>(1, decisionEL), decisionIDs});
+
+    ATH_MSG_DEBUG( "Found muon (CombinedTrackParticle): " << muon->pt() << " / " << muon->eta() << " / " << muon->phi() << " / " << muon->charge() );
+
+    auto viewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(decision, TrigCompositeUtils::viewString(), true);
+    ATH_CHECK( viewLinkInfo.isValid() );
+    auto view = *viewLinkInfo.link;
+
+    auto tracksHandle = ViewHelper::makeHandle(view, m_trackParticleContainerKey, state.context());
+    ATH_CHECK( tracksHandle.isValid() );
+    ATH_MSG_DEBUG( "Tracks container " << m_trackParticleContainerKey << " size: " << tracksHandle->size() );
+
+    // try to fit muon and track into common vertex: first track is always muon, second tracks comes from the same SG::View
+    std::vector<ElementLink<xAOD::TrackParticleContainer>> tracklist(2);
+    tracklist[0] = muon->inDetTrackParticleLink();
+    for (size_t idx = 0; idx < tracksHandle->size(); ++idx) {
+      const xAOD::TrackParticle* track = tracksHandle->at(idx);
+
+      if (track->pt() < m_trkPt[0][1] || isIdenticalTracks(track, muonInDetTrack)) continue;
+      auto trackMomentum = track->genvecP4();
+      trackMomentum.SetM(PDG::mMuon);
+      if (!isInMassRange((muonMomentum + trackMomentum).M())) continue;
+
+      tracklist[1] = ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx);
+
+      ATH_MSG_DEBUG( "Dump found muon+track pair before vertex fit: pT / eta / phi / charge" << endmsg <<
+                     "   muon:  " << muonMomentum.Pt() << " / " << muonMomentum.Eta() << " / " << muonMomentum.Phi() << " / " << muon->charge() << endmsg <<
+                     "   track: " << trackMomentum.Pt() << " / " << trackMomentum.Eta() << " / " << trackMomentum.Phi() << " / " << track->charge() );
+
+      auto fitterState = m_vertexFitter->makeState(state.context());
+      auto vertex = fit(tracklist, particleMasses, *fitterState);
+      if (!vertex) continue;
+      xAOD::TrigBphys* trigBphys = makeTrigBPhys(*vertex, particleMasses, state.beamSpotPosition(), *fitterState);
+      // trigBphys->setRoiId(initialRoI->roiWord());
+      state.addTrigBphysObject(trigBphys, std::vector<size_t>(1, muons.size() - 1));
     }
   }
 

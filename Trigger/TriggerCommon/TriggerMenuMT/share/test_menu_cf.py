@@ -29,14 +29,12 @@ for option in defaultOptions:
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.Trigger.generateMenuDiagnostics = True
+ConfigFlags.Trigger.triggerMenuSetup = "LS2_v1"
 
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 createHLTMenuExternally=True # menu will be build up explicitly here 
 doWriteRDOTrigger = False
 doWriteBS = False
 forceEnableAllChains=True
-TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 # load all configuration as the real HLT
 include("TriggerJobOpts/runHLT_standalone.py")

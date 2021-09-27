@@ -19,6 +19,9 @@
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
 
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+
 #include <cassert>
 #include "SGTools/TestStore.h"
 
@@ -62,9 +65,6 @@ StatusCode gFEXDriver::initialize()
 
   ATH_CHECK( m_gTowerContainerSGKey.initialize() );
 
-  ATH_CHECK( m_gJetEDMKey.initialize() );
-
-  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
 

@@ -148,8 +148,6 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(125856940, "CaloIdManager");
     if (status != StatusCode::SUCCESS) return status;
-    status =  addToDetStore(79554919, "LArIdManager");
-    if (status != StatusCode::SUCCESS) return status;
 
 
     // IdDict:

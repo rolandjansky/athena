@@ -14,6 +14,21 @@
 # 3b) CosmicGenerator
 # 4) inputHITSFile (re-simulation)
 
+from PyJobTransforms.TransformUtils import executeFromFragment
+
+
+def specialConfigPreInclude(ConfigFlags):
+    fragment = ConfigFlags.Input.SpecialConfiguration.get("preInclude", None)
+    if fragment and fragment != 'NONE':
+        executeFromFragment(fragment, ConfigFlags) #FIXME assumes only one fragment?
+
+
+def specialConfigPostInclude(ConfigFlags, cfg):
+    fragment = ConfigFlags.Input.SpecialConfiguration.get("postInclude", None)
+    if fragment and fragment != 'NONE':
+        executeFromFragment(fragment, ConfigFlags, cfg) #FIXME assumes only one fragment?
+
+
 def CommonSimulationCfg(ConfigFlags, log):
     # Configure main services and input reading (if required)
     if ConfigFlags.Input.Files == '':
@@ -53,10 +68,7 @@ def CommonSimulationCfg(ConfigFlags, log):
     # add the ISF_MainConfig
         from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
         cfg.merge(ISF_KernelCfg(ConfigFlags))
-        if 'MT' in  ConfigFlags.Sim.ISF.Simulator:
-            AcceptAlgName = 'SimKernelMT'
-        else:
-            AcceptAlgName = 'SimKernel'
+        AcceptAlgName = 'ISF_Kernel_' + ConfigFlags.Sim.ISF.Simulator
     else:
         AcceptAlgName = 'G4AtlasAlg'
         #add the G4AtlasAlg

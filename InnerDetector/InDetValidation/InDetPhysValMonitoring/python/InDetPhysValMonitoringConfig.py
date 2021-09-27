@@ -123,7 +123,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("JetContainerName", '')
         kwargs.setdefault("FillTrackInJetPlots", False)
         kwargs.setdefault("FillTrackInBJetPlots", False)
-        kwargs.setdefault("FillTruthToRecoNtuple ", False)
+        kwargs.setdefault("FillTruthToRecoNtuple", False)
 
     if flags.Detector.GeometryITk:
         #Disable vertex container for now

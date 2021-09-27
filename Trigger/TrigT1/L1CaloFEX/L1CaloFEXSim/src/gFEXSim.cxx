@@ -48,6 +48,7 @@ namespace LVL1 {
    StatusCode gFEXSim::initialize(){
       ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
       ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
+      ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
       return StatusCode::SUCCESS;
    }
 
@@ -157,7 +158,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    std::array<uint32_t, 7> BTOB1_dat = {0};
    std::array<uint32_t, 7> BTOB2_dat = {0};
 
-   // Retrieve the gFEXJetAlgoTool
+   // Use the gFEXJetAlgoTool
 
    // Pass the energy matrices to the algo tool, and run the algorithms
    auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,
@@ -190,8 +191,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    m_gJetTobWords[3] = BTOB2_dat[3];//leading gJet in FPGA B, eta bins (6--11)
 
 
-   // Retrieve the gFEXJetAlgoTool
-   ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+   // Use the gFEXJetAlgoTool
    std::array<uint32_t, 4> outTOB = {0};
 
    m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
@@ -200,13 +200,17 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
 
    auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
 
-   m_gGlobalTobWords.resize(4);
+   m_gScalarEJwojTobWords.resize(1);
+   m_gMETComponentsJwojTobWords.resize(1);
+   m_gMHTComponentsJwojTobWords.resize(1);
+   m_gMSTComponentsJwojTobWords.resize(1);
+
 
    //Placing the global TOBs into a dedicated array
-   m_gGlobalTobWords[0] = outTOB[0];//
-   m_gGlobalTobWords[1] = outTOB[1];//
-   m_gGlobalTobWords[2] = outTOB[2];//
-   m_gGlobalTobWords[3] = outTOB[3];//
+   m_gScalarEJwojTobWords[0] = outTOB[0];//
+   m_gMETComponentsJwojTobWords[0] = outTOB[1];//
+   m_gMHTComponentsJwojTobWords[0] = outTOB[2];//
+   m_gMSTComponentsJwojTobWords[0] = outTOB[3];//
 
    gFEXOutputCollection* gFEXOutputs;
    ATH_CHECK(evtStore()->retrieve(gFEXOutputs, "gFEXOutputCollection"));
@@ -255,10 +259,26 @@ std::vector<uint32_t> gFEXSim::getgJetTOBs() const
   return m_gJetTobWords;
 }
 
-std::vector<uint32_t> gFEXSim::getgGlobalTOBs() const
+std::vector<uint32_t> gFEXSim::getgScalarEJwojTOBs() const
 {
-  return m_gGlobalTobWords;
+  return m_gScalarEJwojTobWords;
 }
+
+std::vector<uint32_t> gFEXSim::getgMETComponentsJwojTOBs() const
+{
+  return m_gMETComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMHTComponentsJwojTOBs() const
+{
+  return m_gMHTComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMSTComponentsJwojTOBs() const
+{
+  return m_gMSTComponentsJwojTobWords;
+}
+
 
 
 } // end of namespace bracket
