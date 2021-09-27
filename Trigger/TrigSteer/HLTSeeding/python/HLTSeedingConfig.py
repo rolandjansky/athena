@@ -199,7 +199,6 @@ class HLTSeeding(CompFactory.HLTSeeding) :
     def __init__(self, name='HLTSeeding', *args, **kwargs):
         super(HLTSeeding, self).__init__(name, *args, **kwargs)
 
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
         # CTP unpacker
@@ -212,14 +211,14 @@ class HLTSeeding(CompFactory.HLTSeeding) :
                                             Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
                                             OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
-        if TriggerFlags.doID() or TriggerFlags.doCalo():
+        if flags.Trigger.doID or flags.Trigger.doCalo:
             if flags.Trigger.enableL1CaloPhase1:
                 self.xAODRoIUnpackers += createCaloRoIUnpackers()
             if flags.Trigger.enableL1CaloLegacy:
                 self.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
         # MU unpacker
-        if TriggerFlags.doMuon():
+        if flags.Trigger.doMuon:
             unpackers = createMuonRoIUnpackers(flags)
             if flags.Trigger.enableL1MuonPhase1:
                 self.xAODRoIUnpackers += unpackers

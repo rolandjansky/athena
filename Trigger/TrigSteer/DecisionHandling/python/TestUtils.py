@@ -25,7 +25,7 @@ class L1EmulationTest(HLTSeeding):
     def __init__(self, name='L1EmulationTest', *args, **kwargs):
         super(L1EmulationTest, self).__init__(name, *args, **kwargs)
 
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 
         self.RoIBResult = ""
@@ -50,7 +50,7 @@ class L1EmulationTest(HLTSeeding):
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
 
         # EM unpacker
-        if TriggerFlags.doID() or TriggerFlags.doCalo():
+        if ConfigFlags.Trigger.doID or ConfigFlags.Trigger.doCalo:
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
@@ -60,7 +60,7 @@ class L1EmulationTest(HLTSeeding):
 
 
         # MU unpacker
-        if TriggerFlags.doMuon():
+        if ConfigFlags.Trigger.doMuon:
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),

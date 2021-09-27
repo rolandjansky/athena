@@ -23,11 +23,6 @@ def bool_flag_with_default(name, val):
 
 default_true_flags = [
     "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
-    "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
-    "doID",  # if False, disable ID algos at LVL2 and EF """
-    "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
-    "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
-    "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
     "doNavigationSlimming",  # Enable the trigger navigation slimming"""
 ]
 
@@ -35,7 +30,6 @@ default_false_flags = [
     "useRun1CaloEnergyScale",
     "doTruth",
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
-    "readBS",
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
 ]
 
@@ -91,21 +85,6 @@ class ESDEDMSet(JobProperty):
 
 _flags.append(ESDEDMSet)
 
-class OnlineCondTag(JobProperty):
-    """ Default (online) HLT conditions tag """
-    statusOn=True
-    allowedType=['str']
-    StoredValue='CONDBR2-HLTP-2018-01'
-
-_flags.append(OnlineCondTag)
-
-class OnlineGeoTag(JobProperty):
-    """ Default (online) HLT geometry tag """
-    statusOn=True
-    allowedType=['str']
-    StoredValue='ATLAS-R2-2016-01-00-01'
-    
-_flags.append(OnlineGeoTag)
 
 # =========
 #
@@ -419,11 +398,12 @@ def sync_Trigger2Reco():
     from AthenaCommon.GlobalFlags  import globalflags
     from RecExConfig.RecFlags import rec
     
-    if  recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
+    if recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
         include( "TriggerJobOpts/TransientBS_DetFlags.py" )
 
     if globalflags.InputFormat() == 'bytestream':
-        TriggerFlags.readBS = True
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.readBS = True
         TriggerFlags.doLVL1 = False
         TriggerFlags.doHLT   = False
 

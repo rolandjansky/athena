@@ -19,7 +19,7 @@ if globalflags.InputFormat.is_bytestream():
 # ----------------------------------------------------------------
 from AthenaCommon.AlgSequence import AthSequencer
 
-if TriggerFlags.doCalo:
+if ConfigFlags.Trigger.doCalo:
 
   if ( True ) :
      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram

@@ -273,9 +273,9 @@ else:           # More data modifiers
                      'enableSchedulerMon'
     ]
 
-TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
-TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
-TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
+ConfigFlags.Trigger.doID = opt.doID
+ConfigFlags.Trigger.doMuon = opt.doMuon
+ConfigFlags.Trigger.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers

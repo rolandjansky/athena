@@ -13,9 +13,6 @@ def createTriggerFlags():
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
 
-    # enables L1 topological trigger simulation
-    flags.addFlag('Trigger.doL1Topo', True )
-
     # need proper documentation
     flags.addFlag('Trigger.useRun1CaloEnergyScale', False)
 
@@ -103,6 +100,9 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doEDMVersionConversion', False)
     flags.addFlag('Trigger.doConfigVersionConversion', True)
 
+    # Unpack trigger bytestream
+    flags.addFlag('Trigger.readBS', False)
+
     # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework). 
     flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
 
@@ -114,13 +114,13 @@ def createTriggerFlags():
 
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
-    def TrigConfMeta(flags):
+    def _trigConfMeta(flags):
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         md = GetFileMD(flags.Input.Files) if any(flags.Input.Files) else {}
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger confioguration POOL metadata is available on the job's input
-    flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: TrigConfMeta(prevFlags))
+    flags.addFlag('Trigger.InputContainsConfigMetadata', lambda prevFlags: _trigConfMeta(prevFlags))
 
     # only enable services for analysis and BS -> ESD processing (we need better name)
     flags.addFlag('Trigger.doTriggerConfigOnly', False)
