@@ -38,7 +38,8 @@ namespace LVL1 {
 
     /** Internal data */
   private:
-
+    const unsigned int m_eFexStep = 25;
+    const unsigned int m_eFexTobStep = 100;
   };
 
 } // end of namespace

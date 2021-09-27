@@ -3904,23 +3904,23 @@ HLT_noalg_L1eEM8M:
 HLT_noalg_L1eTAU100:
   eventCount: 0
 HLT_noalg_L1eTAU12:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU12L:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU12M:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU20:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU25:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU30H:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1eTAU40:
   eventCount: 0
 HLT_noalg_L1eTAU60:
   eventCount: 0
 HLT_noalg_L1eTAU8:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1gTE50:
   eventCount: 0
 HLT_noalg_L1gXE30:

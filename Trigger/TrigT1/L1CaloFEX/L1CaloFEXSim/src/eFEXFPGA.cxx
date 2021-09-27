@@ -99,9 +99,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
 
-  const unsigned int eFexstep = 25;
-  const unsigned int eFexTobstep = 100;
-
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
       int tobtable[3][3]={
@@ -122,13 +119,10 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int ptMinToTopoCounts = 0;
       ptMinToTopoCounts = thr_eEM.ptMinToTopoCounts(); 
 
-      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in 1 MeV scale
+      //returns a unsigned integer et value corresponding to the... eFEX EM cluster in 25 MeV internal calculation scale
       unsigned int eEMTobEt = 0;
       eEMTobEt = m_eFEXegAlgoTool->getET();
-      
-      unsigned int eEMTobEtCounts = 0;
-      eEMTobEtCounts = eEMTobEt*eFexstep/eFexTobstep; //rescale from 25 MeV eFEX steps to 100 MeV for the TOB
-      
+            
       // thresholds from Trigger menu
       auto iso_loose  = thr_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
       auto iso_medium = thr_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
@@ -178,8 +172,8 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       int phi_ind = iphi - 1;
 
       //form the egamma tob word
-      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
-      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_emTobwords.push_back(tobword);
+      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEt,ptMinToTopoCounts);
+      if ( (tobword != 0) && (eEMTobEt != 0) ) m_emTobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -219,8 +213,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   }
 
 
-  //ATH_CHECK(store())
-
   // --------------- TAU -------------
   for(int ieta = 1; ieta < 5; ieta++)
   {
@@ -237,16 +229,14 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
 
-      // Get Et of eFEX tau object in MeV
+      // Get Et of eFEX tau object in internal units (25 MeV)
       unsigned int eTauTobEt = 0;
       eTauTobEt = m_eFEXtauAlgoTool->getEt();
-      unsigned int eTauTobEtCounts = 0;
-      eTauTobEtCounts = eTauTobEt / eFexTobstep; // steps of 100 MeV for the TOB
 
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
       
-      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEtCounts);
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt);
       if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
 
       // for plotting
