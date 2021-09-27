@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: art job for InDetPhysValMonitoring, Single ele 10GeV
 # art-type: grid
-# art-input: user.goblirsc:mcforArt_2021-09-16_sglpiplus5_RDO
+# art-input: user.keli:user.keli.mc16_13TeV.422048.ParticleGun_single_piplus_Pt5GeV
 # art-input-nfiles: 1
 # art-cores: 4
 # art-memory: 4096
@@ -70,7 +70,7 @@ case $ArtProcess in
       --inputRDOFile $x \
       --outputNTUP_PHYSVALFile physval.ntuple.root \
       --outputAODFile   physval.AOD.root \
-      --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
+      --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
       --steering        doRAWtoALL \
       --checkEventCount False \
       --ignoreErrors    True \
