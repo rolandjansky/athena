@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_H
@@ -206,14 +206,6 @@ namespace Trk
         */									            
        const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const;
 
-       /** 
-        * return a pointer to the non-const DataVector of const TrackStateOnSurfaces
-        * owned by a non-const track 
-        * The pointer will be nullptr if the track was created without   
-        * TrackStateOnSurfaces.			            
-        */				            
-       DataVector<const TrackStateOnSurface>* trackStateOnSurfaces();
-       
         /** 
         * Set the TrackStateOnSurfaces. The Trk::Track takes ownership 		            
         */				            
