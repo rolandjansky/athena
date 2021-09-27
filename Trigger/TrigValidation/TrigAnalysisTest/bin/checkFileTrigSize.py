@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #################################################################
 # a script to grab the trigger information from checkfile.py output
 # Fabrizio Salvatore - University of Sussex - May 2009
@@ -22,7 +22,7 @@ class Counter:
         self.itemList = mylist
 
        
-class checkFileTrigSize_RTT:
+class checkFileTrigSize:
     """
     Class to calculate total trigger AOD size
     """
@@ -1250,7 +1250,7 @@ class checkFileTrigSize_RTT:
 if __name__ == "__main__":
     #params = {'checkFile':'AOD.pool.root.checkFile'}
     params = {}
-    r =  checkFileTrigSize_RTT(params)
+    r =  checkFileTrigSize(params)
     status = r.run()
     
     sys.exit(status)
