@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-20211 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
-#include "TestLArDetDescr/TestLArTT.h"
+#include "TestLArTT.h"
 
 // Athena related 
 #include "GaudiKernel/MsgStream.h"
@@ -13,13 +13,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // specific :
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescriptor.h"
-
-// looking for Volumes :
-//#include "LArDetDescr/ILArVolumeTool.h"
-//#include "GaudiKernel/IToolSvc.h"
 
 // -------------------------------------------------------------
 // Constructor 
@@ -27,7 +22,7 @@
 TestLArTT::TestLArTT(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_tt_man(0)
+  m_tt_man(nullptr)
 {}
 
 // DESTRUCTOR:
@@ -51,13 +46,13 @@ StatusCode TestLArTT::finalize()
 // EXECUTE:
 StatusCode TestLArTT::execute()
 {  
-  print_reg( false, true, true, false );
+  print_reg();
   
   return StatusCode::SUCCESS;
 }
 
 void
-TestLArTT::print_reg(bool /*em*/, bool /*hec*/, bool /*fcal*/, bool /*tiles*/)
+TestLArTT::print_reg()
 {
   ATH_MSG_INFO ( "Executing TestLArTT" );
 

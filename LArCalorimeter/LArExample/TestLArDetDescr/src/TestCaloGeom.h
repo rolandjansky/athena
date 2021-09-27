@@ -1,26 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTLARDETDESCR_TESTCALOGEOM_H
 #define TESTLARDETDESCR_TESTCALOGEOM_H
 
-/********************************************************************
+/**
+ *
+ * @file   TestCaloGeom.h 
+ * @author Claire Adam-Bourdarios
+ * @date   Sept 2004
+ *
+ * @brief  provide example to play with the H8 CTB geometry.
+ *
+ */
 
-NAME:     TestCaloGeom.h 
-PACKAGE:  offline/LArCalorimeter/LArExample/TestLArDetDescr
-
-AUTHORS:  Claire Adam-Bourdarios
-CREATED:  Sept 2004
-
-PURPOSE:  provide example to play with the H8 CTB geometry.
-
-********************************************************************/
 // INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class CaloDetDescrManager;
 class ICaloCoordinateTool;
 
 class TestCaloGeom : public AthAlgorithm
@@ -32,15 +30,14 @@ class TestCaloGeom : public AthAlgorithm
   // destructor 
   virtual ~TestCaloGeom();
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode execute() override;
 
   void print_elt(bool em, bool hec, bool fcal, bool tile);
   void print_beam();
 
  protected:
-  const CaloDetDescrManager*  m_calo_dd_man;
   ToolHandle<ICaloCoordinateTool> m_coord;
 };
 
