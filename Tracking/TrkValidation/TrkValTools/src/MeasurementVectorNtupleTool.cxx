@@ -474,7 +474,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->
          begin();
        it!=trackStates->end();
-       it++) {
+       ++it) {
 
 
     if (!(*it)) {
@@ -567,7 +567,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackData (
     }
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=holesOnTrack->begin();
          it!=holesOnTrack->end();
-         it++) {
+         ++it) {
       if (!(*it)) {
         msg(MSG::WARNING) << "TrackStateOnSurface from hole search tool == Null" << endmsg;
         continue;
