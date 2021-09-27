@@ -98,7 +98,6 @@ private:
   unsigned m_event_counter=0; 
   int m_delay=-1;
   int m_ipassShape=0; 
-  int m_ipassPedestal=0; 
 
   std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs
