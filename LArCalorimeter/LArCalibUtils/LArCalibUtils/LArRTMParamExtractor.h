@@ -72,11 +72,9 @@ class LArRTMParamExtractor : public AthAlgorithm
   std::string m_groupingType;
 
   // FT selection
-  bool m_FTselection;
   std::vector<int> m_FT;
   int m_PosNeg;
   // Slot selection
-  bool m_Slotselection;
   std::vector<int> m_Slot;
   // Calib line selection
   bool m_Calibselection;
