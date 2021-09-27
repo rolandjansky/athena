@@ -9887,8 +9887,14 @@ HLT_noalg_idmon_L1RD0_FILLED:
   eventCount: 20
 HLT_noalg_idmon_L1RD0_UNPAIRED_ISO:
   eventCount: 0
+HLT_noalg_l1calo_L1J400:
+  eventCount: 1
 HLT_noalg_laser_TilePEB_L1CALREQ2:
   eventCount: 0
+HLT_noalg_mb_L1RD0_EMPTY:
+  eventCount: 0
+HLT_noalg_mb_L1RD0_FILLED:
+  eventCount: 20
 HLT_tau0_ptonly_L1TAU60:
   eventCount: 7
   stepCounts:
