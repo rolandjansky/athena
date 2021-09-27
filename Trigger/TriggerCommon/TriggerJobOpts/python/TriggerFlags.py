@@ -404,10 +404,6 @@ del _flags
 ## make an alias for trigger flags which looks like old TriggerFlags class
 TriggerFlags = rec.Trigger
 
-
-## add online specific flags
-import TriggerJobOpts.TriggerOnlineFlags    # noqa: F401
-
 ## add slices generation flags
 log.info("TriggerFlags importing SliceFlags"  )
 from TriggerJobOpts.SliceFlags import *                             # noqa: F401, F403
