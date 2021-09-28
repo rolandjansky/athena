@@ -102,15 +102,15 @@ def createSimConfigFlags():
         if simstr.endswith("MT"):
             simstr = simstr[:-2]
         # Further specialization possible in future
-        if simstr in ("FullG4", "PassBackG4"):
+        if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
             doID = True
             doCALO = True
             doMUON = True
-        elif simstr in ("ATLFASTII", "G4FastCalo", "ATLFAST3MT", "ATLFAST3MT_QS"):
+        elif simstr in ("ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"):
             doID = False
             doCALO = True
             doMUON = False

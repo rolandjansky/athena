@@ -32,7 +32,7 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.Simulator.get_Value() in ['FullG4MT']:
+    if ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'FullG4MT_QS','FullG4MT_LongLived']:
         kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerToolMT')
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
@@ -81,6 +81,8 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     from AthenaCommon import CfgMgr
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
     if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT',
+                                                                 'FullG4_QS', 'FullG4MT_QS',
+                                                                 'FullG4_LongLived', 'FullG4MT_LongLived',
                                                                  'PassBackG4', 'PassBackG4MT',
                                                                  'G4FastCalo',
                                                                  'ATLFAST3', 'ATLFAST3MT',

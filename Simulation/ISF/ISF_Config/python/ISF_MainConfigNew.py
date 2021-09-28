@@ -50,6 +50,7 @@ from ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfigNew import (
     FastCaloSimV2ToolCfg,
 )
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
+    EntryLayerToolMTCfg,
     AFIIEntryLayerToolMTCfg
 )
 from ISF_FatrasServices.ISF_FatrasConfig import fatrasTransportToolCfg
@@ -76,6 +77,11 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
         truthacc = TruthServiceCfg(flags)
         kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
         acc.merge(truthacc)
+
+    if "EntryLayerTool" not in kwargs:
+        entryLayerTool  = acc.popToolsAndMerge(EntryLayerToolMTCfg(flags))
+        acc.addPublicTool(entryLayerTool)
+        kwargs.setdefault("EntryLayerTool", acc.getPublicTool(entryLayerTool.name))
 
     kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
     kwargs.setdefault("InputEvgenCollection", "BeamTruthEvent")
@@ -129,12 +135,12 @@ def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
     return acc
 
 
-def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **kwargs):
+def Kernel_FullG4MT_QSCfg(flags, name="ISF_Kernel_FullG4MT_QS", **kwargs):
     acc = ComponentAccumulator()
 
     kwargs.setdefault("SimulationTools", [
         acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
-        acc.merge(LongLivedGeant4ToolCfg(flags))
+        acc.popToolsAndMerge(LongLivedGeant4ToolCfg(flags))
     ])
 
     acc.merge(LongLivedInputConverterCfg(flags))
@@ -386,8 +392,8 @@ def ISF_KernelCfg(flags):
     acc = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ('FullG4MT'):
         acc.merge(Kernel_FullG4MTCfg(flags))
-    elif flags.Sim.ISF.Simulator in ('FullG4MT_LongLived'):
-        acc.merge(Kernel_FullG4MT_LongLivedCfg(flags))
+    elif flags.Sim.ISF.Simulator in ('FullG4MT_QS'):
+        acc.merge(Kernel_FullG4MT_QSCfg(flags))
     elif flags.Sim.ISF.Simulator in ('PassBackG4MT'):
         acc.merge(Kernel_PassBackG4MTCfg(flags))
     elif flags.Sim.ISF.Simulator in ('ATLFAST3MT'):
