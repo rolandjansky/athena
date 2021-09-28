@@ -26,46 +26,25 @@ class T0TriggerGetter(Configured):
 
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg =  TriggerConfigGetter()  # noqa: F841
+        cfg = TriggerConfigGetter()  # noqa: F841
 
-        # preconfigure TrigDecisionTool
-        from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+        # configure TrigDecisionTool
+        from AthenaCommon.Configurable import ConfigurableRun3Behavior
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from PyUtils.MetaReaderPeekerFull import metadata
-        has_trig_metadata = ("metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys())) 
-        if has_trig_metadata or ConfigFlags.Trigger.EDMVersion == 3: #or ConfigFlags.Trigger.doEDMVersionConversion:
-            # has_trig_metadata == True: we are reading a POOL file which contains the trigger payload, use xAOD configuration service. 
-            # EDMVersion == 3: We are in a RAWtoALL style job on Run3 data, use xAOD configuration service in UseInFileMetadata=False mode
-            # doEDMVersionConversion == True: We are in a RAWtoALL style job on Run1/2 data. But we are converting it to the Run3 format. So can treat this the same as EDMVersion == 3.
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            if not hasattr(svcMgr, 'xAODConfigSvc'):
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
-                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+        tdtAcc = None
+        with ConfigurableRun3Behavior():
+            from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+            tdtAcc = getTrigDecisionTool(ConfigFlags)
 
-            # For RAWtoESD, RAWtoALL, the data must be read directly from the Conditions or Detector store.
-            # This is predicated on there not being any trigger metadata in the input file, and enabled by this flag.
-            svcMgr.xAODConfigSvc.UseInFileMetadata = has_trig_metadata
-            ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-            ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
-        else:
-            # We are in a RAWtoALL style job on Run1/2 data. And !doEDMVersionConversion, so we must fall back on the deprecated service
-            ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        from TrigEDMConfig.TriggerEDM import EDMLibraries
-        ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        appendCAtoAthena(tdtAcc)
 
         if withLVL1():
-            # setup Lvl1
-            # initialize LVL1ConfigSvc
             log.info("configuring lvl1")
             from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
             lvl1 = Lvl1ResultBuilderGetter()  # noqa: F841
 
         if withHLT():
-            # setup HLT
-            # initialize HLT config svc
             log.info("configuring hlt")
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hlt = HLTTriggerResultGetter()   # noqa: F841
