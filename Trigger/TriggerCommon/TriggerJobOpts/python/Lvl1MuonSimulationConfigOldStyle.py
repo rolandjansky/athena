@@ -34,8 +34,33 @@ def TMDBSimulationSequence(flags):
     return seqAND("TMDBSimSeq", [ TileMuonReceiverDecision ] )
 
 def NSWTriggerSequence(flags):
-    # to be implemented
-    return
+    # OK, let's configure NSW trigger simulation
+    nsw = CompFactory.NSWL1__NSWL1Simulation("NSWL1Simulation")
+    nsw.DoNtuple=False
+
+    PadTdsTool = CompFactory.NSWL1__PadTdsOfflineTool("PadTdsOfflineTool",DoNtuple=False)
+    nsw.PadTdsTool = PadTdsTool
+    PadTriggerLogicTool = CompFactory.NSWL1__PadTriggerLogicOfflineTool("PadTriggerLogicOfflineTool",DoNtuple=False)
+    nsw.PadTriggerTool = PadTriggerLogicTool
+    PadTriggerLookupTool = CompFactory.NSWL1__PadTriggerLookupTool("PadTriggerLookupTool",DumpSectorGeometry=False)
+    nsw.PadTriggerLookupTool = PadTriggerLookupTool
+    StripTdsTool = CompFactory.NSWL1__StripTdsOfflineTool("StripTdsOfflineTool",DoNtuple=False)
+    nsw.StripTdsTool = StripTdsTool
+
+    # no MM trigger for this moment
+    nsw.MMStripTdsTool = ""
+    nsw.MMTriggerTool = ""
+    nsw.DoMM=False
+    nsw.DoMMDiamonds=True
+
+    # sTGC pad trigger configuration
+    nsw.DosTGC=True
+    nsw.UseLookup=False #use lookup table for the pad trigger
+    nsw.NSWTrigRDOContainerName="NSWTRGRDO"
+    nsw.PadTriggerRDOName="NSWPADTRGRDO"
+    nsw.StripSegmentTool.rIndexScheme=0
+
+    return nsw
 
 def RecoMuonSegmentSequence(flags):
     postFix = "_L1MuonSim"
@@ -167,12 +192,17 @@ def Lvl1MuRdo2Digit(flags):
     
 def TGCTriggerConfig(flags):
     tmdbInput = "rerunTileMuRcvCnt"
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
-                                                     MaskFileName12      = "" if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM() else "TrigT1TGCMaskedChannel._12.db",
                                                      useRun3Config = True,
                                                      TileMuRcv_Input = tmdbInput )
+
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+        tgc.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
+    else:
+        tgc.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
+
     from IOVDbSvc.CondDB import conddb
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -208,7 +238,12 @@ def Lvl1EndcapMuonSequence(flags):
         tgcmod = TGCModifierConfig(flags)
         l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
     else:
-        l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc] )
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+            nsw = NSWTriggerSequence(flags)
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,nsw,tgc] )
+        else:
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc] )
     return l1MuEndcapSim
 
 def Lvl1BarrelMuonSequence(flags):

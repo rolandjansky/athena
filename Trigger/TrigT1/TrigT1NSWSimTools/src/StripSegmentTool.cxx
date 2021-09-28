@@ -55,8 +55,8 @@ namespace NSWL1 {
     }
   
   StatusCode StripSegmentTool::initialize() {
-      ATH_MSG_INFO("initializing " << name() );
-      ATH_MSG_INFO(name() << " configuration:");       
+      ATH_MSG_DEBUG("initializing " << name() );
+      ATH_MSG_DEBUG(name() << " configuration:");
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
       const std::string& algo_name = pnamed->name();
@@ -120,7 +120,7 @@ namespace NSWL1 {
         m_rbounds= std::make_pair(rmin,rmax);
         m_etabounds=std::make_pair(etamin,etamax);
         m_zbounds=std::make_pair(zmin,zmax);
-        ATH_MSG_INFO("rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second<<" zmin="<<zmin<<" zmax="<<zmax<<" etamin="<<etamin<<" etamax="<<etamax);
+        ATH_MSG_DEBUG("rmin="<<m_rbounds.first<<" rmax="<<m_rbounds.second<<" zmin="<<zmin<<" zmax="<<zmax<<" etamin="<<etamin<<" etamax="<<etamax);
         return StatusCode::SUCCESS;
     }
   
