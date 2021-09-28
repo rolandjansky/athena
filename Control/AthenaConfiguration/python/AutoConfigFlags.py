@@ -51,7 +51,7 @@ def GetFileMD(filenames):
     if filename not in _fileMetaData:
         if len(filenames)>1:
             msg.info("Multiple input files. Use the first one for auto-configuration")
-        msg.info("Obtaining metadata of auto-configuration by peeking into %s", filename)
+        msg.info("Obtaining metadata of auto-configuration by peeking into '%s'", filename)
         _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
 
     return _fileMetaData[filename]
