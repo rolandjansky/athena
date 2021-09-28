@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.RecFlags import rec
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import jobproperties
 
 trtEnabled=DetFlags.detdescr.TRT_on()
@@ -33,7 +32,7 @@ if (not rec.readESD()) and jobproperties.Global.InputFormat() == "pool" and DetF
 #
 # Switch off direct formation of Cells from hits
 #    
-if not rec.readESD() and TriggerFlags.doCalo():
+if not rec.readESD():
     from AthenaCommon.Include import include
     include ("CaloRec/CaloCellMaker_config.py")
     CaloCellMakerFlags.doLArHitToCellDirect=False  # noqa: F821 old job options, flags from include above

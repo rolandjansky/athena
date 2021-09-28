@@ -6022,6 +6022,93 @@ void test2_elconversions()
 }
 
 
+template <class DV>
+class TestDeleter
+  : public DV::Deleter
+{
+public:
+  using value_type = typename DV::Deleter::value_type;
+  using PtrVector = typename DV::Deleter::PtrVector;
+
+  TestDeleter (std::vector<int>& the_v) : v(the_v) {}
+
+  virtual void doDelete (value_type p) override
+  {
+    v.push_back (p->x);
+    delete p;
+  }
+  virtual void doDelete (typename PtrVector::iterator first,
+                         typename PtrVector::iterator last) override
+  {
+    for (; first != last; ++first) {
+      v.push_back ((*first)->x);
+      delete *first;
+    }
+  }
+
+  std::vector<int>& v;
+};
+template <class T>
+void test2_deleter1()
+{
+  std::vector<int> v;
+  DataVector<T> dv;
+  dv.clear (std::make_unique<TestDeleter<DataVector<T> > > (v));
+  dv.push_back (new T(1));
+  dv.push_back (new T(2));
+  dv.push_back (new T(3));
+  assert (v.empty());
+  dv.pop_back();
+  assert (v == std::vector<int>{3});
+  v.clear();
+  dv.clear();
+  assert (v == (std::vector<int>{1, 2}));
+}
+
+
+template <class T>
+void test2_deleter2()
+{
+  std::vector<int> v;
+  DataVector<T> dv1;
+  dv1.clear (std::make_unique<TestDeleter<DataVector<T> > > (v));
+  dv1.push_back (new T(1));
+  dv1.push_back (new T(2));
+  dv1.push_back (new T(3));
+
+  DataVector<T> dv2 (std::move (dv1));
+  assert (v.empty());
+  assert (dv1.empty());
+  assert (dv2.size() == 3);
+  dv2.pop_back();
+  assert (v == std::vector<int>{3});
+  v.clear();
+
+  dv1 = std::move (dv2);
+  assert (v.empty());
+  assert (dv1.size() == 2);
+  assert (dv2.empty());
+  dv1.pop_back();
+  assert (v == std::vector<int>{2});
+  v.clear();
+
+  dv1.swap (dv2);
+  assert (v.empty());
+  assert (dv1.empty());
+  assert (dv2.size() == 1);
+  dv2.pop_back();
+  assert (v == std::vector<int>{1});
+}
+
+
+template <class B, class D>
+void test2_deleter()
+{
+  test2_deleter1<B>();
+  test2_deleter1<D>();
+}
+
+
 template <class B, class D>
 void do_test2()
 {
@@ -6084,6 +6171,7 @@ void do_test2()
   test2_move<B,D> ();
   test2_offset<B,D> ();
   test2_elconversions<B,D>();
+  test2_deleter<B,D>();
 }
 
 

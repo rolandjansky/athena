@@ -135,8 +135,6 @@ private:
   float m_err_x_hit;
   float m_err_y_hit;
 
-  static constexpr float m_sqrt12 = std::sqrt(12.);
-
   static constexpr unsigned int m_crazy_bc =
       std::numeric_limits<int32_t>::max();
 };

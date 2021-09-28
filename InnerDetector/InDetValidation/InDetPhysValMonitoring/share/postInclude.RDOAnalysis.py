@@ -1,3 +1,5 @@
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 from RDOAnalysis.RDOAnalysisConf import PixelRDOAnalysis
 topSequence += PixelRDOAnalysis()
 PixelRDOAnalysis = PixelRDOAnalysis()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/pgonHandler.h"
@@ -10,28 +10,31 @@
 
 using namespace xercesc;
 
-pgonHandler::pgonHandler(std::string s):XMLHandler(s)
+pgonHandler::pgonHandler(const std::string& s,
+                         AGDDController& c)
+  : XMLHandler(s, c)
 {
 //	std::cout<<"Creating handler for pgon"<<std::endl;
 }
 
-void pgonHandler::ElementHandle()
+void pgonHandler::ElementHandle(AGDDController& c,
+                                xercesc::DOMNode *t)
 {
 //	std::cout<<"handling for pgon";
 	bool res;
-	std::string name=getAttributeAsString("name",res);
-	std::string material=getAttributeAsString("material",res);
-	int nbPhi=getAttributeAsInt("nbPhi",res);
+	std::string name=getAttributeAsString(c, t, "name",res);
+	std::string material=getAttributeAsString(c, t, "material",res);
+	int nbPhi=getAttributeAsInt(c, t, "nbPhi",res);
 	
  	AGDDPgon *vol=new AGDDPgon(name);
  	vol->SetMaterial(material);
 	vol->SetNbPhi(nbPhi);
 
-	std::string col=getAttributeAsString("color",res);
+	std::string col=getAttributeAsString(c, t, "color",res);
 	if (res)
 		vol->SetColor(col);
 		
-	std::vector<double> vvv=getAttributeAsVector("profile",res);
+	std::vector<double> vvv=getAttributeAsVector(c, t, "profile",res);
 	if (res)
 		vol->SetProfile(vvv[0],vvv[1]);
 	else
@@ -41,13 +44,12 @@ void pgonHandler::ElementHandle()
 
     DOMNode* child;
 
-    const DOMNode* cElement=XercesParser::GetCurrentElement();
-    for (child=cElement->getFirstChild();child!=0;child=child->getNextSibling())
+    for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
     {
         if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-        	XercesParser::elementLoop(child);
-            Polyplane p=polyplaneHandler::CurrentPolyplane();
-            vol->SetPlane(p.rin(),p.rou(),p.z());
+        	XercesParser::elementLoop(c, child);
+                Polyplane p=polyplaneHandler::CurrentPolyplane();
+                vol->SetPlane(p.rin(),p.rou(),p.z());
         }
     }
 

@@ -36,7 +36,15 @@ Interface definition for gFEXSim
 
     virtual std::vector<uint32_t> getgJetTOBs() const =0;
 
-    virtual std::vector<uint32_t> getgGlobalTOBs() const =0;
+    virtual std::vector<uint32_t> getgScalarEJwojTOBs() const =0;
+ 
+    virtual std::vector<uint32_t> getgMETComponentsJwojTOBs() const =0;
+
+    virtual std::vector<uint32_t> getgMHTComponentsJwojTOBs() const =0;
+
+    virtual std::vector<uint32_t> getgMSTComponentsJwojTOBs() const =0;
+
+
 
   private:
 

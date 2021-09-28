@@ -255,8 +255,8 @@ StatusCode HGTD_SmearedDigitizationTool::digitize(const EventContext& ctx) {
     double times_x = floor(dist_x / m_pitch_x);
     double times_y = floor(dist_y / m_pitch_y);
 
-    double sigma_x = m_pitch_x / m_sqrt12;
-    double sigma_y = m_pitch_y / m_sqrt12;
+    double sigma_x = m_pitch_x / std::sqrt(12);
+    double sigma_y = m_pitch_y / std::sqrt(12);
 
     int element_x = times_x + 1;
     int element_y = times_y + 1;

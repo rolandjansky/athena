@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHeapSTLAllocator.h,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
-
 /**
  * @file  AthAllocators/ArenaHeapSTLAllocator.h
  * @author scott snyder
@@ -47,6 +43,7 @@
 
 
 #include "AthAllocators/ArenaHeapAllocator.h"
+#include "CxxUtils/concepts.h"
 #include "CxxUtils/checker_macros.h"
 #include <string>
 
@@ -203,7 +200,9 @@ public:
 
   /// Convert a reference to an address.
   pointer address (reference x) const;
-  const_pointer address (const_reference x) const;
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<reference,const_reference>),
+                      const_pointer)
+  address (const_reference x) const { return &x; }
 
 
   /**
@@ -219,6 +218,12 @@ public:
    * @param n Number of objects to deallocate.  Must be 1.
    */
   void deallocate (pointer, size_type n);
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<pointer,const_pointer>), void)
+  deallocate (const_pointer p, size_type n) const
+  {
+    pointer p_nc ATLAS_THREAD_SAFE = const_cast<pointer>(p);
+    deallocate (p_nc, n);
+  }
 
 
   /**
@@ -232,9 +237,10 @@ public:
   /**
    * @brief Call the @c T constructor.
    * @param p Location of the memory.
-   * @param val Parameter to pass to the constructor.
+   * @param args Arguments to pass to the constructor.
    */
-  void construct (pointer p, const T& val);
+  template <class... Args>
+  void construct (pointer p, Args&&... args);
 
 
   /**
@@ -307,7 +313,25 @@ public:
   /**
    * @brief Return a pointer to the underlying allocator (may be 0).
    */
-  const ArenaAllocatorBase* poolptr() const;
+  const ArenaBlockAllocatorBase* poolptr() const;
+
+
+  /**
+   * @brief Write-protect the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to allow writes.
+   */
+  void unprotect();
 
 
 private:
@@ -404,7 +428,7 @@ public:
   /**
    * @brief Return a pointer to the underlying allocator (may be 0).
    */
-  const ArenaAllocatorBase* poolptr() const;
+  const ArenaBlockAllocatorBase* poolptr() const;
 
 
   /**
@@ -425,7 +449,7 @@ private:
   std::string m_name;
 
   /// Point at an underlying allocator from a different specialization.
-  const ArenaAllocatorBase* m_poolptr;
+  const ArenaBlockAllocatorBase* m_poolptr;
 };
 
 
@@ -447,7 +471,7 @@ public:
    */
   template <class U, class V>
   ArenaNonConstHeapSTLAllocator (const ArenaHeapSTLAllocator<U, V>& a,
-                                 ArenaAllocatorBase* poolptr_nc);
+                                 ArenaBlockAllocatorBase* poolptr_nc);
 
 
   /**
@@ -492,10 +516,40 @@ public:
   void reserve (size_t size);
 
 
+  /**
+   * @brief Write-protect the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable the memory managed by this allocator.
+   *
+   * Adjust protection on the memory managed by this allocator
+   * to allow writes.
+   */
+  void unprotect();
+
+
 private:
   /// Non-const pointer to the underlying allocator.
-  ArenaAllocatorBase* m_poolptr_nc;
+  ArenaBlockAllocatorBase* m_poolptr_nc;
 };
+
+
+/**
+ * @brief Hook for unprotecting an arena.
+ *
+ * Sometimes we need to ensure that an arena is unprotected before we start
+ * destroying an object that contains the arena.  To do that without
+ * making assumptions about whether the arena supports an unprotect
+ * operation, call this function.
+ */
+template <class T, class VETO>
+void maybeUnprotect (ArenaHeapSTLAllocator<T, VETO>& a);
 
 
 } // namespace SG

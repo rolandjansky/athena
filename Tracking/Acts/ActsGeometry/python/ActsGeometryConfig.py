@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc" ) :
+def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **kwargs) :
   result = ComponentAccumulator()
   
   Acts_ActsTrackingGeometrySvc = CompFactory.ActsTrackingGeometrySvc
@@ -16,12 +16,17 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc" ) :
     subDetectors += ["TRT"]
   if configFlags.Detector.GeometryCalo:
     subDetectors += ["Calo"]
-
     # need to configure calo geometry, otherwise we get a crash
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     result.merge(LArGMCfg(configFlags))
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge(TileGMCfg(configFlags))
+
+  if configFlags.Detector.GeometryITkPixel:
+    subDetectors += ["ITkPixel"]
+  if configFlags.Detector.GeometryITkStrip:
+    subDetectors += ["ITkStrip"]
+
 
   idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT")]
   if any(idSub):
@@ -35,10 +40,7 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc" ) :
       from AthenaCommon.Logging import log
       log.warning("ConfigFlags indicate %s should be built. Not all ID subdetectors are set, but I'll set all of them up to capture the extra setup happening here.", ", ".join(subDetectors))
       
-  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors)
-
-
-  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors)
+  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors, **kwargs)
 
   if configFlags.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
@@ -199,4 +201,22 @@ def ActsObjWriterToolCfg(name= "ActsObjWriterTool", **kwargs) :
   ActsObjWriterTool.OutputLevel = INFO
 
   result.addPublicTool(ActsObjWriterTool, primary=True)
+  return result
+
+
+def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs):
+  result = ComponentAccumulator()
+
+  if "ExtrapolationTool" not in kwargs:
+    extrapTool = ActsExtrapolationToolCfg(configFlags)
+    kwargs["ExtrapolationTool"] = extrapTool.getPrimary()
+    result.merge(extrapTool)
+
+  propStepWriterSvc = ActsPropStepRootWriterSvcCfg(configFlags)
+  result.merge(propStepWriterSvc)
+
+  ActsExtrapolationAlg = CompFactory.ActsExtrapolationAlg
+  alg = ActsExtrapolationAlg(name, **kwargs)
+  result.addEventAlgo(alg)
+
   return result

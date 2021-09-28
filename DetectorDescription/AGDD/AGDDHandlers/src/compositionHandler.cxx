@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/compositionHandler.h"
 #include "AGDDModel/AGDDComposition.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
@@ -13,17 +14,20 @@
 
 using namespace xercesc;
 
-compositionHandler::compositionHandler(std::string s):XMLHandler(s)
+compositionHandler::compositionHandler(const std::string& s,
+                                       AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void compositionHandler::ElementHandle()
+void compositionHandler::ElementHandle(AGDDController& c,
+                                       xercesc::DOMNode *t)
 {
-	std::string name=getAttributeAsString("name");
+	std::string name=getAttributeAsString(c, t, "name");
 //	if (msgLog().level()<=MSG::DEBUG)
 //	msgLog()<<MSG::DEBUG<<" Composition "<<name<<endmsg;
 	
-	AGDDComposition *c=new AGDDComposition(name);
+	AGDDComposition *cm=new AGDDComposition(name);
 	
 	AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
 	
@@ -32,10 +36,10 @@ void compositionHandler::ElementHandle()
 	
 	int before=pS->NrOfPositioners();
 	
-	for (child=XercesParser::GetCurrentElement()->getFirstChild();child!=0;child=child->getNextSibling())
+	for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
 	{
 		if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-			XercesParser::elementLoop(child);
+			XercesParser::elementLoop(c, child);
 		}
 	}
 	
@@ -44,7 +48,7 @@ void compositionHandler::ElementHandle()
 	{
 		AGDDPositioner *posit=pS->GetPositioner(i);
 		if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
-			c->AddDaughter(posit);
+			cm->AddDaughter(posit);
 	}
 	
 }

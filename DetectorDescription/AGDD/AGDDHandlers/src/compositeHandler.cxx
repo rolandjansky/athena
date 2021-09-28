@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/compositeHandler.h"
@@ -12,26 +12,26 @@
 
 using namespace xercesc;
 
-compositeHandler::compositeHandler(std::string s):XMLHandler(s)
+compositeHandler::compositeHandler(const std::string& s,
+                                   AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void compositeHandler::ElementHandle()
+void compositeHandler::ElementHandle(AGDDController& c,
+                                     xercesc::DOMNode *t)
 {
 	globals::addMaterial.Clear();
-
-	std::string name=getAttributeAsString("name");
-	double density=getAttributeAsDouble("density");
+	std::string name=getAttributeAsString(c, t, "name");
+	double density=getAttributeAsDouble(c, t, "density");
 	StopLoop(true);
 	
 	DOMNode* child;
 
-	const DOMNode* cElement=XercesParser::GetCurrentElement();
-    for (child=cElement->getFirstChild();child!=0;child=child->getNextSibling())
+    for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
     {
         if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-        XercesParser::elementLoop(child);
-
+          XercesParser::elementLoop(c, child);
         }
     }
 	

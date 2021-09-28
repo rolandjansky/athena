@@ -212,8 +212,10 @@ namespace InDet {
     BooleanProperty m_isLRT{this, "isLRT", false};
     FloatProperty m_drminPPP{this, "mindRadiusPPP", 6.};
     FloatProperty m_drmaxPPP{this, "maxdRadiusPPP", 140.};
+    FloatProperty m_zmaxPPP{this, "maxZPPP", 2700.};
     FloatProperty m_drminSSS{this, "mindRadiusSSS", 20.};
     FloatProperty m_drmaxSSS{this, "maxdRadiusSSS", 3000.};
+    FloatProperty m_zmaxSSS{this, "maxZSSS", 2700.};
     FloatProperty m_dImpactCutSlopeUnconfirmedSSS{this, "dImpactCutSlopeUnconfirmedSSS", 1.0};
     FloatProperty m_dImpactCutSlopeUnconfirmedPPP{this, "dImpactCutSlopeUnconfirmedPPP", 0.};
     FloatProperty m_seedScoreBonusConfirmationSeed{this, "seedScoreBonusConfirmationSeed", -200.};
@@ -267,9 +269,7 @@ namespace InDet {
     float m_COF{0.};
     float m_dzMaxFast   {200.};
     float m_R2MaxFast   {2500.};        
-    float m_zmaxPPP     {2700.};
     float m_rmaxPPP     {140.};   
-    float m_zmaxSSS     {2700.};
     float m_dzmaxSSS    {900.};    
     float m_drminSeedConf{5.};
     //@}

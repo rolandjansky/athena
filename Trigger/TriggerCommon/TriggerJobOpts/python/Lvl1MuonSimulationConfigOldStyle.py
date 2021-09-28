@@ -171,35 +171,19 @@ def TGCTriggerConfig(flags):
     tgc = CompFactory.LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                                      InputData_perEvent  = "TGC_DIGITS_L1",
                                                      MaskFileName12      = "" if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM() else "TrigT1TGCMaskedChannel._12.db",
-                                                     useRun3Config = flags.Trigger.enableL1MuonPhase1,
+                                                     useRun3Config = True,
                                                      TileMuRcv_Input = tmdbInput )
     from IOVDbSvc.CondDB import conddb
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if flags.Trigger.enableL1MuonPhase1:
-        if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
-            tgc.MuctpiPhase1LocationTGC = "L1MuctpiStoreTGCint"
-        tgc.TILEMU = True
-        condSeq += CompFactory.TGCTriggerCondAlg()
-        from PathResolver import PathResolver
-        bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
-        conddb.blockFolder("/TGC/TRIGGER/CW_BW_RUN3")
-        conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>",forceMC=True,force=True, className='CondAttrListCollection')
-    else:
-        condSeq += CompFactory.TGCTriggerDbAlg()
-        if not flags.Input.isMC:
-            conddbNameOffline = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
-            conddb._SetAcc('TGC_OFL','COOLOFL_TGC')
-            conddb.blockFolder("/TGC/TRIGGER/CW_EIFI")
-            conddb.blockFolder("/TGC/TRIGGER/CW_BW")
-            conddb.blockFolder("/TGC/TRIGGER/CW_TILE")
-            conddb.addFolderWithTag("TGC_OFL","/TGC/TRIGGER/CW_EIFI",conddbNameOffline,forceMC=True,force=True,className="CondAttrListCollection")
-            conddb.addFolderWithTag("TGC_OFL","/TGC/TRIGGER/CW_BW",conddbNameOffline,forceMC=True,force=True,className="CondAttrListCollection")
-            conddb.addFolderWithTag("TGC_OFL","/TGC/TRIGGER/CW_TILE",conddbNameOffline,forceMC=True,force=True,className="CondAttrListCollection")
-        else:
-            conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
-            conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
-            conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
+    if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
+        tgc.MuctpiPhase1LocationTGC = "L1MuctpiStoreTGCint"
+    tgc.TILEMU = True
+    condSeq += CompFactory.TGCTriggerCondAlg()
+    from PathResolver import PathResolver
+    bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
+    conddb.blockFolder("/TGC/TRIGGER/CW_BW_RUN3")
+    conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>",forceMC=True,force=True, className='CondAttrListCollection')
 
     return tgc
 
@@ -218,7 +202,7 @@ def Lvl1EndcapMuonSequence(flags):
     tmdb = TMDBSimulationSequence(flags)
     tgc = TGCTriggerConfig(flags)
     from AthenaCommon.CFElements import seqAND
-    if flags.Trigger.enableL1MuonPhase1 and ( flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC ):
+    if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
         rdo2prd = MuonRdo2PrdSequence(flags)
         recoSegment = RecoMuonSegmentSequence(flags)
         tgcmod = TGCModifierConfig(flags)
@@ -234,7 +218,7 @@ def Lvl1BarrelMuonSequence(flags):
                                 RPCbytestream     = False,
                                 RPCbytestreamFile = "",
                                 RPCDigitContainer = "RPC_DIGITS_L1",
-                                useRun3Config = flags.Trigger.enableL1MuonPhase1 )
+                                useRun3Config = True )
 
     # trigger roads setting is configured in either MuonCnvExample.MuonCablingConfig or MuonConfig.MuonCablingConfig
 
@@ -243,30 +227,21 @@ def Lvl1BarrelMuonSequence(flags):
     return l1MuBarrelSim
 
 def Lvl1MuctpiConfig(flags):
-    if flags.Trigger.enableL1MuonPhase1:
-        rpcRecRoiTool = CompFactory.LVL1__TrigT1RPCRecRoiTool("TrigT1RPCRecRoiTool", UseRun3Config=True)
-        tgcRecRoiTool = CompFactory.LVL1__TrigT1TGCRecRoiTool("TrigT1TGCRecRoiTool", UseRun3Config=True)
-        muctpiTool = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthTool(name="MUCTPI_AthTool")
-        muctpiTool.MuCTPICTPLocation = 'L1MuCTPItoCTPLocation'
-        muctpiTool.OverlapStrategyName = 'LUT'
-        muctpiTool.LUTXMLFile = 'TrigConfMuctpi/overlapRun3_20201214.xml'
-        muctpiTool.InputSource = 'DIGITIZATION'
-        muctpiTool.RPCRecRoiTool = rpcRecRoiTool
-        muctpiTool.TGCRecRoiTool = tgcRecRoiTool
-        muctpiTool.TrigThresholdDecisionTool = CompFactory.LVL1__TrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
-        muctpiTool.TrigThresholdDecisionTool.RPCRecRoiTool = rpcRecRoiTool
-        muctpiTool.TrigThresholdDecisionTool.TGCRecRoiTool = tgcRecRoiTool
-        muctpi = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthAlg(name="MUCTPI_AthAlg",
-                                                             MUCTPI_AthTool = muctpiTool)
-        return muctpi
-    else:
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-        muctpi = L1Muctpi()
-        muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
-        if not flags.Input.isMC:
-            muctpi.RDOOutputLocID = 'rerunMUCTPI_RDO'
-        return muctpi
+    rpcRecRoiTool = CompFactory.LVL1__TrigT1RPCRecRoiTool("TrigT1RPCRecRoiTool", UseRun3Config=True)
+    tgcRecRoiTool = CompFactory.LVL1__TrigT1TGCRecRoiTool("TrigT1TGCRecRoiTool", UseRun3Config=True)
+    muctpiTool = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthTool(name="MUCTPI_AthTool")
+    muctpiTool.MuCTPICTPLocation = 'L1MuCTPItoCTPLocation'
+    muctpiTool.OverlapStrategyName = 'LUT'
+    muctpiTool.LUTXMLFile = 'TrigConfMuctpi/overlapRun3_20201214.xml'
+    muctpiTool.InputSource = 'DIGITIZATION'
+    muctpiTool.RPCRecRoiTool = rpcRecRoiTool
+    muctpiTool.TGCRecRoiTool = tgcRecRoiTool
+    muctpiTool.TrigThresholdDecisionTool = CompFactory.LVL1__TrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
+    muctpiTool.TrigThresholdDecisionTool.RPCRecRoiTool = rpcRecRoiTool
+    muctpiTool.TrigThresholdDecisionTool.TGCRecRoiTool = tgcRecRoiTool
+    muctpi = CompFactory.LVL1MUCTPIPHASE1__MUCTPI_AthAlg(name="MUCTPI_AthAlg",
+                                                         MUCTPI_AthTool = muctpiTool)
+    return muctpi
 
 def Lvl1MuonSimulationSequence(flags):
     rdo2digit = Lvl1MuRdo2Digit(flags)

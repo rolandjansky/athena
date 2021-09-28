@@ -30,7 +30,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precis
 # Factory for egamaRecBuilder/TrigEgammaRecPhoton
 TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         name = 'TrigEgammaRecPhoton' ,
-        InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters, # Use as input, the clusters made by precisionCalo
+        InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters, # Use as input, the clusters made by precisionCalo
         egammaRecContainer=TrigEgammaKeys.EgammaRecKey,
         doTrackMatching = False,
         doConversions = False,

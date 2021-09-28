@@ -128,7 +128,7 @@ def _precisionTrackingSeq(flags):
 
     selAcc.mergeReco(precisionInDetReco)
     from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionEtcutHypo')
+    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters')
     selAcc.addHypoAlgo(hypoAlg)
     menuSequence = MenuSequenceCA(selAcc,
                                   HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
@@ -174,7 +174,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
     def TrigEgammaRecElectronCfg(flags, name='TrigEgammaRecElectron_noGSF'):
         acc = ComponentAccumulator()
         electronRec = CompFactory.egammaRecBuilder( name,
-                                                    InputTopoClusterContainerName= 'HLT_CaloEMClusters',
+                                                    InputClusterContainerName= 'HLT_CaloEMClusters',
                                                     egammaRecContainer= TrigEgammaKeys.EgammaRecKey,
                                                     doConversions = False,
                                                     TrackMatchBuilderTool = recoAcc.popToolsAndMerge(TrigEMTrackMatchBuilderToolCfg(flags)) )

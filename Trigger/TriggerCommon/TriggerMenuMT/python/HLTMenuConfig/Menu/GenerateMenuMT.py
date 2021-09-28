@@ -54,6 +54,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.chainsInMenu = []
         self.listOfErrorChainDefs = []
         self.selectChainsForTesting = []
+        self.disableChains = []
         
         self.allChainsForAlignment = []
         self.chainDicts = []
@@ -99,25 +100,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         return (self.HLTPrescales)
 
-
-    def generateLVL1(self):
-        """
-        == Generates the LVL1 menu
-        """
-        if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 configuration for %s', TriggerFlags.triggerMenuSetup() )
-            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
-            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
-            # build the menu structure
-            self.trigConfL1.generateMenu()
-            log.debug('Menu has %i items', len(self.trigConfL1.menu.items) )
-            # write xml file
-            self.trigConfL1.writeXML()
-        elif TriggerFlags.readLVL1configFromXML():
-            log.info("ReadingLVL1cofnigFromXML currently not implemented")
-        else:
-            log.info("Doing nothing with L1 menu configuration...")
-    
 
     def getChainDicts(self):
         chainCounter = 0
@@ -359,6 +341,18 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 raise Exception("[getChainsFromMenu] Cannot test one or more requested chains, exiting.")
             chains = selectedChains
 
+        if self.disableChains:
+            if self.selectChainsForTesting:
+                log.error("Either select chains or disable chains, not both. Will not proceed.")
+                raise Exception("[getChainsFromMenu] Both selectChains and disableChains options provided -- potential conflict!")
+            log.info("Eliminating chains from the menu")
+            chainNames = [ch.name for ch in chains]
+            missingNames = [ch for ch in self.disableChains if ch not in chainNames]
+            if missingNames:
+                log.warning("The following chains were specified in disableChains but were not found in the menu: %s", str(missingNames))
+            selectedChains = [ch for ch in chains if ch.name not in self.disableChains]
+            chains = selectedChains
+
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")
         else:
@@ -516,14 +510,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
         log.info('Starting menu generation')
-
-        # --------------------------------------------------------------------
-        # L1 menu generation
-        # - from the code, from DB and from xmls (if we want to maintain this)
-        # currently implementing the generation from configuration code
-        # --------------------------------------------------------------------
-        #generateLVL1()
-
 
         # --------------------------------------------------------------------
         # HLT menu generation

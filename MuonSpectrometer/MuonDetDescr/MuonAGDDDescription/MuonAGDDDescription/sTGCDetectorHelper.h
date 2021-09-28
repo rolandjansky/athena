@@ -26,6 +26,8 @@ public:
 	sTGCDetectorDescription* Get_sTGCDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	sTGCDetectorDescription* Get_sTGCDetectorType(const std::string& type);
 	sTGCDetectorDescription* Get_sTGCDetectorSubType(const std::string& type);
+	sTGCDetectorDescription* Get_sTGCDetectorType(std::string_view type);
+	sTGCDetectorDescription* Get_sTGCDetectorSubType(std::string_view type);
 	AGDDPositionedDetector Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	
 private:

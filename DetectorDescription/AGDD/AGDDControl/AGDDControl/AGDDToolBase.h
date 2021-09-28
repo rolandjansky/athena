@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDCONTROL_AGDDToolBase_H
 #define AGDDCONTROL_AGDDToolBase_H
 
 #include "AGDDControl/IAGDDToolBase.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 class AGDDController;
 
@@ -40,7 +42,8 @@ protected:
   Gaudi::Property<std::string> m_DBFileName{this,"OutputFileName","","specify name for DB text file"};
   Gaudi::Property<std::string> m_agdd2GeoSvcName{this,"AGDDtoGeoSvcName","AGDDtoGeoSvc","specify name of AGDDtoGeoSvc"};
 
-  AGDDController* m_controller {};
+  ServiceHandle<IAGDDtoGeoSvc> m_svc
+    { this, "AGDDtoGeoSvc", "AGDDtoGeoSvc", "" };
 };
 
 #endif

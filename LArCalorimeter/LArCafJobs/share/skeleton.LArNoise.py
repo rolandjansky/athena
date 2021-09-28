@@ -128,15 +128,15 @@ from RecExConfig.ObjKeyStore import objKeyStore
 from PyUtils.MetaReaderPeeker import convert_itemList
 objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.readBS=False
-tf.doID=False
-
+# trigger configuration
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
+ConfigFlags.Trigger.readBS = False
+ConfigFlags.Trigger.doID = False
 
 from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
 triggerGetter = T0TriggerGetter()
 
-# trigger configuration
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 #cfg =  TriggerConfigGetter("ReadPool")
 

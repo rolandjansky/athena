@@ -17,7 +17,6 @@
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArID_Exception.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -219,70 +218,20 @@ StatusCode TestLArHWID_Algo::initialize(){
   }
 
   // LAr 
-  if(m_Manager == "DIRECT") {
-    ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
-    ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
-  }
-  else {
-    // via Mgr
-    const LArIdManager*	larIdMgr = nullptr;
-    ATH_CHECK(  detStore()->retrieve(larIdMgr) );
-    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
-
-    const LArOnlineID* onlineId = larIdMgr->getOnlineID();
-    if (!onlineId) {
-      ATH_MSG_ERROR ( "Could not access lar ONLINE ID helper" );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO ( "Successfully accessed lar ONLINE ID helper" );
-      m_onlineHelper=onlineId;
-    }
-
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
 
   // =============================
   // LArHVLine  
   // =============================
-  if(m_Manager == "DIRECT") {
-    ATH_CHECK( detStore()->retrieve(m_hvHelper, "LArHVLineID") );
-    ATH_MSG_DEBUG ( " Found the LArHVLineID helper. " );
-  }
-  else {
-    // via Mgr
-    const LArIdManager*	larIdMgr = nullptr;
-    ATH_CHECK( detStore()->retrieve(larIdMgr) );
-    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
+  ATH_CHECK( detStore()->retrieve(m_hvHelper, "LArHVLineID") );
+  ATH_MSG_DEBUG ( " Found the LArHVLineID helper. " );
 
-    const LArHVLineID* hvId = larIdMgr->getHVLineID();
-    if (!hvId) {
-      ATH_MSG_ERROR ( "Could not access LArHVLineID helper" );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO ( "Successfully accessed LArHVLineID helper" );
-      m_hvHelper=hvId;
-    }
-  }
   // =============================
   // LArElectrode
   // =============================
-  if(m_Manager == "DIRECT") {
-    ATH_CHECK( detStore()->retrieve(m_electrodeHelper, "LArElectrodeID") );
-    ATH_MSG_DEBUG ( " Found the LArElectrodeID helper. " );
-  }
-  else {
-    // via Mgr
-    const LArIdManager*	larIdMgr = nullptr;
-    ATH_CHECK( detStore()->retrieve(larIdMgr) );
-    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
-    const LArElectrodeID* elecId = larIdMgr->getLArElectrodeID();
-    if (!elecId) {
-      ATH_MSG_ERROR ( "Could not access LArElectrodeID helper" );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO ( "Successfully accessed LArElectrodeID helper" );
-      m_electrodeHelper=elecId;
-    }
-  }
+  ATH_CHECK( detStore()->retrieve(m_electrodeHelper, "LArElectrodeID") );
+  ATH_MSG_DEBUG ( " Found the LArElectrodeID helper. " );
 
   return StatusCode::SUCCESS;
 }

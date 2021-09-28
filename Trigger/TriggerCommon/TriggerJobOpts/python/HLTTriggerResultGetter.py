@@ -82,7 +82,6 @@ class ByteStreamUnpackGetterRun1or2(Configured):
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
         
-        #if TriggerFlags.readBS():
         log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
         # in MC this is always FullTrigger
         hasHLT = TriggerFlags.dataTakingConditions() in ('HltOnly', 'FullTrigger')
@@ -170,7 +169,7 @@ class TrigDecisionGetter(Configured):
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
         tdm = TrigDecisionMakerMT('TrigDecMakerMT')
 
-        if not TriggerFlags.readBS():
+        if not ConfigFlags.Trigger.readBS:
             # Construct trigger bits from HLTNav_summary instead of reading from BS
             from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
             tdm.BitsMakerTool = TriggerBitsMakerTool()
@@ -276,8 +275,8 @@ class HLTTriggerResultGetter(Configured):
             
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
-        if TriggerFlags.readBS():
+        log.info("BS unpacking (ConfigFlags.Trigger.readBS): %d", ConfigFlags.Trigger.readBS )
+        if ConfigFlags.Trigger.readBS:
             if ConfigFlags.Trigger.EDMVersion == 1 or \
                ConfigFlags.Trigger.EDMVersion == 2:
                 bs = ByteStreamUnpackGetterRun1or2()  # noqa: F841
@@ -297,7 +296,7 @@ class HLTTriggerResultGetter(Configured):
             if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
                 tdt = TrigDecisionGetterRun1or2()  # noqa: F841
         elif ConfigFlags.Trigger.EDMVersion >= 3:
-            if TriggerFlags.readBS():
+            if ConfigFlags.Trigger.readBS:
                 tdt = TrigDecisionGetter()  # noqa: F841
         else:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)

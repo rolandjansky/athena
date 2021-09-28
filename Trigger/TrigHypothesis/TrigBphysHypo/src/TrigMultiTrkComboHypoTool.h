@@ -54,6 +54,7 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
   Gaudi::Property<float> m_LxyCut {this, "LxyCut", -999., "Applies an Lxy Cut if set > -999"};
   Gaudi::Property<bool> m_isCombinedChain {this, "isCombinedChain", false, "true for chains with different signatures, e.g. HLT_e9_mu6"};
   Gaudi::Property<bool> m_isMergedElectronChain {this, "isMergedElectronChain", false, "true for close-by electrons, e.g. HLT_e5_lhvloose_L1BPH-0DR3-EM7J15"};
+  Gaudi::Property<bool> m_isMuonTrkPEB {this, "isMuonTrkPEB", false, "chains like HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF"};
   Gaudi::Property<std::vector<unsigned int>> m_legMultiplicities {this, "legMultiplicities", {2}, "taken from dict[chainMultiplicities]"};
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool" };
 

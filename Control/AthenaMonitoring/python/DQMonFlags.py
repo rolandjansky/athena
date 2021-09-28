@@ -442,6 +442,20 @@ class triggerMixedMode(JobProperty):
     StoredValue=False
 list+=[triggerMixedMode]
 
+class doPostProcessing(JobProperty):
+    """ Run histogram postprocessing in Athena job """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doPostProcessing]
+
+class postProcessingInterval(JobProperty):
+    """ Set number of events between postprocessing steps """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=100
+list+=[postProcessingInterval] 
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the DQMon flag container

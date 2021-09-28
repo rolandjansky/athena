@@ -21,6 +21,8 @@
 #include <cassert>
 #include <iostream>
 #include <atomic>
+#include <setjmp.h>
+#include <signal.h>
 
 
 //==========================================================================
@@ -170,6 +172,12 @@ void test1()
   a2.deallocate (p1, 1);
   a3.deallocate (p2, 1);
   a4.deallocate (p3, 1);
+
+  {
+    SG::ArenaSharedHeapSTLAllocator<const Payload> a5;
+    const Payload* p = a5.allocate (1);
+    a5.deallocate (p, 1);
+  }
  }
 
 
@@ -441,13 +449,78 @@ void test5()
 }
 
 
+jmp_buf jmp ATLAS_THREAD_SAFE;
+void handler (int)
+{
+  siglongjmp (jmp, 1);
+}
+void setsig()
+{
+  struct sigaction act;
+  act.sa_handler = handler;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  if (sigaction (SIGSEGV, &act, nullptr) != 0) std::abort();
+}
+void resetsig()
+{
+  struct sigaction act;
+  act.sa_handler = SIG_DFL;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  if (sigaction (SIGSEGV, &act, nullptr) != 0) std::abort();
+  sigset_t sigs;
+  if (sigemptyset (&sigs) != 0) std::abort();
+  if (sigaddset (&sigs, SIGSEGV) != 0) std::abort();
+  if (sigprocmask (SIG_UNBLOCK, &sigs, nullptr) != 0) std::abort();
+}
+
+template <typename CALLABLE>
+void expect_signal (CALLABLE code)
+{
+  // volatile to avoid gcc -Wclobbered warning.
+  volatile bool handled = false;
+  if (sigsetjmp (jmp, 0)) {
+    handled = true;
+  }
+  else {
+    setsig();
+    code();
+  }
+  resetsig();
+  assert (handled);
+}
+
+
+// Test protect().
+void test6()
+{
+  std::cout << "test6\n";
+  SG::ArenaSharedHeapSTLAllocator<Payload> b1 (100);
+  Payload* p = b1.allocate (1);
+  p->x = 42;
+  b1.protect();
+  assert (p->x == 42);
+  expect_signal ([&]() { p->x = 43; });
+  b1.unprotect();
+  assert (p->x == 42);
+  p->x = 43;
+  assert (p->x == 43);
+
+  b1.protect();
+  SG::maybeUnprotect (b1);
+}
+
+
 int main()
 {
+  std::cout << "AthAllocators/ArenaSharedHeapSTLAllocator_test\n";
   test1();
   test2();
   test3();
   test4();
   test5();
+  test6();
   assert (SG::ArenaBlock::nactive() == 0);
   return 0;
 }

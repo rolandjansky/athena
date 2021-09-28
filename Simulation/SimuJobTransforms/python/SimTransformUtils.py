@@ -108,7 +108,8 @@ def addCommonSimDigArguments(parser):
     addForwardDetTrfArgs(parser)
 
 def addCommonSimulationArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs
+    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addSimIOTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs
+    addSimIOTrfArgs(parser)
     addCommonSimTrfArgs(parser)
     addCosmicsTrfArgs(parser)
     addTrackRecordArgs(parser)
@@ -122,6 +123,15 @@ def addPureDigitizationArguments(parser):
     from SimuJobTransforms.simTrfArgs import addBasicDigiArgs, addPileUpTrfArgs
     addBasicDigiArgs(parser)
     addPileUpTrfArgs(parser)
+
+def addReSimulationArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs, addSim_tfArgs, addReSimulationArgs
+    addCommonSimTrfArgs(parser)
+    addCosmicsTrfArgs(parser)
+    addTrackRecordArgs(parser)
+    addCommonSimDigArguments(parser)
+    addSim_tfArgs(parser)
+    addReSimulationArgs(parser)
 
 def addSimulationArguments(parser):
     addCommonSimDigArguments(parser)
@@ -171,6 +181,17 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
         SimExe.inputDataTypeCountCheck = ['EVNT']
     executorSet.add(SimExe)
 
+def addReSimulationSubstep(executorSet):
+    SimExe = athenaExecutor(name = 'ReSim',
+                            skeletonFile = 'SimuJobTransforms/skeleton.ReSim.py',
+                            substep = 'rsm',
+                            tryDropAndReload = False,
+                            perfMonFile = 'ntuple.pmon.gz',
+                            inData=['HITS'],
+                            outData=['HITS_RSM'],
+                            inputDataTypeCountCheck = ['HITS'] )
+    executorSet.add(SimExe)
+
 def addAtlasG4Substep(executorSet):
     executorSet.add(athenaExecutor(name = 'AtlasG4TfTRIn', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
                                    skeletonCA = 'SimuJobTransforms.G4AtlasAlg_Skeleton',
@@ -191,7 +212,8 @@ def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep,
 
 def addStandardHITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                              tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
+                                   skeletonCA = 'SimuJobTransforms.HITSMerge_Skeleton',
+                                   tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
 
 def addAFII_HITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',

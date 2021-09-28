@@ -158,6 +158,44 @@ public:
   static size_t nactive();
 
 
+  /**
+   * @brief Write-protect this block.
+   *
+   * Adjust protection on the memory allocated for this block
+   * to disallow writes.
+   */
+  void protect();
+
+
+  /**
+   * @brief Write-enable this block.
+   *
+   * Adjust protection on the memory allocated for this block
+   * to allow writes.
+   */
+  void unprotect();
+
+
+  /**
+   * @brief Write-protect all blocks in a list.
+   * @param p The first block to protect.
+   *
+   * Adjust protection on the memory allocated for these blocks
+   * to disallow writes.
+   */
+  static void protectList (ArenaBlock* p);
+
+
+  /**
+   * @brief Write-enable all blocks in a list.
+   * @param p The first block to protect.
+   *
+   * Adjust protection on the memory allocated for these blocks
+   * to allow writes.
+   */
+  static void unprotectList (ArenaBlock* p);
+
+
 private:
   /// Prohibit calling these.
   ArenaBlock (size_t n, size_t elt_size);

@@ -24,7 +24,7 @@ class IEMConversionBuilder;
   @brief Produces the initial egammaRec objects as a step of the egamma supercluster algorithms.
 
   Input container:
-  - InputTopoClusterContainerName (default=egammaTopoCluster): topo cluster to be used to build
+  - InputClusterContainerName (default=egammaTopoCluster): topo cluster to be used to build
     the egammaRec
   Output container:
   - egammaRecContainer (default=EMTrackMatchBuilder)
@@ -33,7 +33,7 @@ class IEMConversionBuilder;
   - TrackMatchBuilderTool (default=EMTrackMatchBuilder)
   - ConversionBuilderTool (default=EMConversionBuilder)
 
-  The algorithm produces an egammaRec for each topo cluster where the matched tracks and vertices
+  The algorithm produces an egammaRec for each cluster where the matched tracks and vertices
   are linked. These two matchings are done depending on the flags doTrackMatching and doConversions,
   by default true.
   */
@@ -50,9 +50,9 @@ private:
   /** @brief retrieve ConversionBuilderTool (EMConversionBuilder) **/
   StatusCode RetrieveEMConversionBuilder();
   /** @brief Key for the topo cluster input collection */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputTopoClusterContainerKey{
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterContainerKey{
     this,
-    "InputTopoClusterContainerName",
+    "InputClusterContainerName",
     "egammaTopoCluster",
     "Name of input cluster container"
   };

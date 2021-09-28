@@ -335,11 +335,8 @@ namespace InDet {
     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTStandalone);
 
     // create new track candidate
-    Trk::Track* newTrack = new Trk::Track(info, std::move(ntsos), fq);
-    // We need to keep the tsos added. As later on we modify them
-    auto newTrackTSOS = newTrack->trackStateOnSurfaces();
     if (!m_doRefit) {
-      return newTrack;
+      return new Trk::Track(info, std::move(ntsos), fq);
     } else {
       //
       // ----------------------------- this is a horrible hack to make the
@@ -369,8 +366,6 @@ namespace InDet {
           m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
         if (!tempper) {
           ATH_MSG_DEBUG("Could not produce perigee");
-          delete newTrack;
-          newTrack = nullptr;
           delete segPar;
           segPar = nullptr;
           return nullptr;
@@ -481,7 +476,7 @@ namespace InDet {
 
           // ME: wow this is hacking the vector ...
           const Trk::MeasurementBase* firstmeas =
-            (**newTrackTSOS->begin()).measurementOnTrack();
+            (**ntsos.begin()).measurementOnTrack();
           Amg::MatrixX newcov(2, 2);
           newcov.setZero();
           newcov(0, 0) = (firstmeas->localCovariance())(0, 0);
@@ -492,8 +487,8 @@ namespace InDet {
             new Trk::PseudoMeasurementOnTrack(
               newpar, newcov, firstmeas->associatedSurface());
           // hack replace first measurement with pseudomeasurement
-          newTrackTSOS->erase(newTrackTSOS->begin());
-          newTrackTSOS->insert(newTrackTSOS->begin(),
+          ntsos.erase(ntsos.begin());
+          ntsos.insert(ntsos.begin(),
                         new Trk::TrackStateOnSurface(newpseudo, nullptr));
         }
 
@@ -596,7 +591,7 @@ namespace InDet {
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(
         nullptr, per, nullptr, nullptr, typePattern);
-      newTrackTSOS->insert(newTrackTSOS->begin(), seg_tsos);
+      ntsos.insert(ntsos.begin(), seg_tsos);
 
       ATH_MSG_VERBOSE("Constructed perigee at input to fit : " << (*per));
 
@@ -605,12 +600,11 @@ namespace InDet {
       // track
       //
 
+      Trk::Track newTrack (info, std::move(ntsos), fq);
       Trk::Track* fitTrack =
-        m_fitterTool->fit(*newTrack, true, Trk::nonInteracting);
+        m_fitterTool->fit(newTrack, true, Trk::nonInteracting);
 
       // cleanup
-      delete newTrack;
-      newTrack = nullptr;
       if (segPar) {
         delete segPar;
         segPar = nullptr;

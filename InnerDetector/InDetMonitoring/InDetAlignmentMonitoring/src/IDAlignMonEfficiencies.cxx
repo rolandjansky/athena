@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // **********************************************************************
@@ -1320,9 +1320,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms() {
     } // TSOS on track
     ATH_MSG_DEBUG(" End of loop on TSOS of track " << nTrackCount << "  Now searching for holes ");
 
-    const DataVector<const Trk::TrackStateOnSurface>* HTSOS;
     if (m_holeSearchTool != 0) {
-      HTSOS = m_holeSearchTool->getHolesOnTrack(**trksItr);
+      std::unique_ptr<const Trk::TrackStates> HTSOS (m_holeSearchTool->getHolesOnTrack(**trksItr));
       ATH_MSG_DEBUG(" -- Hole TSOS collection has size " << HTSOS->size());
       DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItr = HTSOS->begin();
       DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItrE = HTSOS->end();
@@ -1586,7 +1585,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms() {
         } // holes as measurements (?)
       }
       ATH_MSG_DEBUG("end of loop on " << HTSOS->size() << " holes ");
-      delete HTSOS;
     } // hole tool exists
   }
   ATH_MSG_DEBUG("end of loop on " << nTrackCount << " tracks ok");

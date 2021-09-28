@@ -3,6 +3,8 @@
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg, specialConfigPreInclude, specialConfigPostInclude
+
 
 def defaultSimulationFlags(ConfigFlags, detectors):
     """Fill default simulation flags"""
@@ -48,26 +50,9 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
-    if hasattr(runArgs, 'detectors'):
-        detectors = runArgs.detectors
-    else:
-        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
-        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
-
-    # Support switching on simulation of Forward Detectors
-    if hasattr(runArgs, 'LucidOn'):
-        detectors = detectors+['Lucid']
-    if hasattr(runArgs, 'ZDCOn'):
-        detectors = detectors+['ZDC']
-    if hasattr(runArgs, 'AFPOn'):
-        detectors = detectors+['AFP']
-    if hasattr(runArgs, 'ALFAOn'):
-        detectors = detectors+['ALFA']
-    if hasattr(runArgs, 'FwdRegionOn'):
-        detectors = detectors+['FwdRegion']
-    #TODO here support switching on Cavern geometry
-    #if hasattr(runArgs, 'CavernOn'):
-    #    detectors = detectors+['Cavern']
+    # Generate detector list
+    from SimuJobTransforms.SimulationHelpers import getDetectorsFromRunArgs
+    detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
 
     if hasattr(runArgs, 'simulator'):
        ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
@@ -157,6 +142,9 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -166,8 +154,10 @@ def fromRunArgs(runArgs):
     # Lock flags
     ConfigFlags.lock()
 
-    from CommonSimulationSteering import CommonSimulationCfg
     cfg = CommonSimulationCfg(ConfigFlags, log)
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

@@ -42,12 +42,14 @@ def LArDelay_OFCCaliCfg(flags):
     result.merge(LArFebErrorSummaryMakerCfg(flags))
     result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
 
-    from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
-    result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
+    
+    if flags.LArCalib.Input.SubDet == "EM":
+        from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
+        result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
     
     
-    theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
-    result.addEventAlgo(theLArCalibShortCorrector)
+        theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
+        result.addEventAlgo(theLArCalibShortCorrector)
 
 
     theLArCaliWaveBuilder = CompFactory.LArCaliWaveBuilder()
@@ -64,8 +66,6 @@ def LArDelay_OFCCaliCfg(flags):
     
     
 
-    result.addPublicTool(CompFactory.LArAutoCorrDecoderTool(isSC=flags.LArCalib.isSC))
-
     LArCaliOFCAlg = CompFactory.LArOFCAlg("LArCaliOFCAlg")
     LArCaliOFCAlg.ReadCaliWave = True
     LArCaliOFCAlg.KeyList   = [ "LArCaliWave" ]
@@ -81,7 +81,7 @@ def LArDelay_OFCCaliCfg(flags):
     #LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
     LArCaliOFCAlg.GroupingType = flags.LArCalib.GroupingType
     LArCaliOFCAlg.isSC = flags.LArCalib.isSC
-    LArCaliOFCAlg.DecoderTool='LArAutoCorrDecoderTool/LArAutoCorrDecoderTool'
+    LArCaliOFCAlg.DecoderTool=CompFactory.LArAutoCorrDecoderTool(isSC=flags.LArCalib.isSC)
     result.addEventAlgo(LArCaliOFCAlg)
 
 

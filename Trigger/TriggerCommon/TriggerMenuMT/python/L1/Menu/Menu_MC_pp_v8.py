@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
@@ -134,7 +134,13 @@ def defineMenu():
         'L1_jJ30', 'L1_jJ30p31ETA49', 'L1_jJ35p0ETA23', 'L1_jJ40', 'L1_jJ40p0ETA25', 'L1_jJ45p0ETA20', 'L1_jJ50', 'L1_jJ50p31ETA49',
         'L1_jJ75', 'L1_jJ75p31ETA49', 'L1_jJ85',
         'L1_jJ100', 'L1_jJ120', 'L1_jJ400',
-       
+      
+        # jLJ
+        'L1_jLJ80', 'L1_jLJ100', 'L1_jLJ140', 'L1_jLJ160', 
+
+        # jEM
+        'L1_jEM15', 'L1_jEM15M', 'L1_jEM18M',    
+
         # multi jet
         'L1_J45p0ETA21_3J15p0ETA25',
         'L1_J50_2J40p0ETA25_3J15p0ETA25',
@@ -162,13 +168,17 @@ def defineMenu():
         'L1_XE35', 'L1_XE40', 'L1_XE45', 'L1_XE50', 
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
         # new calo
-        'L1_gXERHO50',
-        'L1_gXEPUFIT50',
-        'L1_gXERHO20',
-        'L1_gXEPUFIT20',
-        'L1_gXE50',
-        'L1_jXE50',
-                
+        'L1_gXERHO30', 'L1_gXERHO50',
+        'L1_gXEPUFIT30', 'L1_gXEPUFIT50',
+        'L1_gXE30', 'L1_gXE40', 'L1_gXE50',
+        'L1_gTE50',
+
+        'L1_jXE30', 'L1_jXE35', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
+        'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
+           
+        # ATR-24037 
+        'L1_jXEPerf50', 
+    
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
         'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
@@ -317,7 +327,11 @@ def defineMenu():
         'L1_BPH-0M10C-3MU3V',
         #ATR-21566 
         'L1_BPH-0DR12C-2MU3V',
-         
+
+        #ATR-22782
+        'L1_BPH-0M16-20DR99-2MU3V', 'L1_BPH-0M16-15DR99-2MU3V',
+        'L1_BPH-8M15-20DR99-C-2MU3V', 'L1_BPH-8M15-20DR99-2MU3V', 'L1_BPH-8M15-15DR99-2MU3V',          
+
         # INVM + DPHI 
         'L1_jMJJ-400-NFF-0DPHI22',
         'L1_jMJJ-400-NFF-0DPHI24',

@@ -80,8 +80,6 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   // initialize the TGC identifier helper
   m_idHelper = m_mdManager->stgcIdHelper();
 
-  readFileOfTimeJitter();
-
   // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
   readFileOfTimeArrival();
 
@@ -606,83 +604,6 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
   return (sign * distance);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeJitter()
-{
-
-  const char* const fileName = "sTGC_Digitization_timejitter.dat";
-  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
-
-  std::ifstream ifs;
-  if (!fileWithPath.empty()) {
-    ifs.open(fileWithPath.c_str(), std::ios::in);
-  }
-  else {
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not find file " << fileName );
-    exit(-1);
-  }
-
-  if(ifs.bad()){
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not open file "<< fileName );
-    exit(-1);
-  }
-
-  int angle = 0;
-  int bins = 0;
-  int i = 0;
-  float prob = 0.;
-
-  while(ifs.good()){
-    ifs >> angle >> bins;
-    if (ifs.eof()) break;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ";
-    m_vecAngle_Time.resize(i + 1);
-    for (int j = 0; j < 41/*bins*/; j++) {
-      ifs >> prob;
-      m_vecAngle_Time[i].push_back(prob);
-      if (j == 0)
-        if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
-    }
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
-    i++;
-  }
-  ifs.close();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-float sTgcDigitMaker::timeJitter(float inAngle_time) const
-{
-
-  int   ithAngle = static_cast<int>(inAngle_time/5.);
-  float wAngle = inAngle_time/5. - static_cast<float>(ithAngle);
-  int   jthAngle;
-  if (ithAngle > 11) {
-    ithAngle = 12;
-    jthAngle = 12;
-  }
-  else {
-    jthAngle = ithAngle+1;
-  }
-
-  float jitter;
-  float prob = 1.;
-  float probRef = 0.;
-
-  while (prob > probRef) {
-    prob   = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0);
-    jitter = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0)*40.; // trial time jitter in nsec
-    int ithJitter = static_cast<int>(jitter);
-    // probability distribution calculated from weighted sum between neighboring bins of angles
-    probRef = (1.-wAngle)*m_vecAngle_Time[ithAngle][ithJitter]
-      +    wAngle *m_vecAngle_Time[jthAngle][ithJitter];
-  }
-
-  ATH_MSG_VERBOSE("sTgcDigitMaker::timeJitter : angle = " << inAngle_time 
-                  << ";  timeJitterDetector = " << jitter );
-
-  return jitter;
-}
 //+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcDigitMaker::efficiencyCheck(const int channelType) const {
   if(channelType == 0) { // wire group

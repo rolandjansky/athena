@@ -10,21 +10,15 @@ MMT_Diamond::MMT_Diamond(const MuonGM::MuonDetectorManager* detManager): AthMess
 void MMT_Diamond::clearEvent() {
   if (!m_diamonds.empty()) {
     for (auto &diam : m_diamonds) {
-      if (!diam.ev_roads.empty()) {
-        for (auto &road : diam.ev_roads) delete road;
-        diam.ev_roads.clear();
-      }
-      if (!diam.ev_hits.empty()) {
-        for (auto &hit : diam.ev_hits) delete hit;
-        diam.ev_hits.clear();
-      }
+      if (!diam.ev_roads.empty()) diam.ev_roads.clear();
+      if (!diam.ev_hits.empty()) diam.ev_hits.clear();
       diam.slopes.clear();
     }
     m_diamonds.clear();
   }
 }
 
-void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<hitData_entry> &hitDatas, const MuonGM::MuonDetectorManager* detManager, MMT_Parameters *par, const int phi) {
+void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<hitData_entry> &hitDatas, const MuonGM::MuonDetectorManager* detManager, std::shared_ptr<MMT_Parameters> par, const int phi) {
   ATH_MSG_DEBUG("createRoads_fillHits: Feeding hitDatas Start");
 
   diamond_t entry;
@@ -93,40 +87,40 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   this->setUVfactor(uvfactor);
 
   for (int ihds = 0; ihds < (int)hitDatas.size(); ihds++) {
-    MMT_Hit *myhit = new MMT_Hit(par->getSector(), hitDatas[ihds], detManager);
+    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager);
     myhit->updateHitProperties(par);
     if (myhit->verifyHit()) {
       m_hitslopes.push_back(myhit->getRZSlope());
       entry.ev_hits.push_back(myhit);
-    } else delete myhit;
+    }
   }
 
-  std::vector<MMT_Road*> temp_roads;
+  std::vector<std::shared_ptr<MMT_Road> > temp_roads;
   for (int i = 0; i < nroad; i++) {
 
-    MMT_Road* myroad = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i);
+    auto myroad = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i);
     temp_roads.push_back(myroad);
 
     int nuv = (this->getUV()) ? this->getUVfactor() : 0;
     for (int uv = 1; uv <= nuv; uv++) {
       if (i-uv < 0) continue;
 
-      MMT_Road* myroad_0 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv);
+      auto myroad_0 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv);
       temp_roads.push_back(myroad_0);
 
-      MMT_Road* myroad_1 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv);
+      auto myroad_1 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv);
       temp_roads.push_back(myroad_1);
 
-      MMT_Road* myroad_2 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv-1, i-uv);
+      auto myroad_2 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv-1, i-uv);
       temp_roads.push_back(myroad_2);
 
-      MMT_Road* myroad_3 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv-1);
+      auto myroad_3 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv-1);
       temp_roads.push_back(myroad_3);
 
-      MMT_Road* myroad_4 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv+1, i+uv);
+      auto myroad_4 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv+1, i+uv);
       temp_roads.push_back(myroad_4);
 
-      MMT_Road* myroad_5 = new MMT_Road(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv+1);
+      auto myroad_5 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv+1);
       temp_roads.push_back(myroad_5);
     }
   }
@@ -166,14 +160,14 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
   m_diamonds[iterator].slopes.clear();
 
   // Comparison with lambda function (easier to implement)
-  std::sort(m_diamonds[iterator].ev_hits.begin(), m_diamonds[iterator].ev_hits.end(), [](MMT_Hit *h1, MMT_Hit *h2){ return h1->getAge() < h2->getAge(); });
+  std::sort(m_diamonds[iterator].ev_hits.begin(), m_diamonds[iterator].ev_hits.end(), [](auto h1, auto h2){ return h1->getAge() < h2->getAge(); });
   bc_start = m_diamonds[iterator].ev_hits.front()->getAge() - bc_wind*2;
   bc_end = m_diamonds[iterator].ev_hits.back()->getAge() + bc_wind*2;
   ATH_MSG_DEBUG("Window Start: " << bc_start << " - Window End: " << bc_end);
 
   for (const auto &road : m_diamonds[iterator].ev_roads) road->reset();
 
-  std::vector<MMT_Hit*> hits_now = {};
+  std::vector<std::shared_ptr<MMT_Hit> > hits_now = {};
   std::vector<int> vmm_same  = {};
   std::vector< std::pair<int, int> > addc_same = {};
   std::vector<int> to_erase = {};

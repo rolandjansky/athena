@@ -30,6 +30,11 @@ monitoringTP_electron = [
         'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
         ]
 
+
+
+
+
+
 validation_photon = [
         'HLT_g20_loose_L1EM15VHI',
         'HLT_g20_medium_L1EM15VHI',
@@ -95,4 +100,30 @@ validation_Zee = [
 #
 single_electron_triggers = set(monitoring_electron + monitoringTP_electron + validation_electron + validationTP_electron)
 single_photon_triggers = set(monitoring_photon + validation_photon)
+
+
+
+#
+# Topo chains
+#
+
+topo_config = {
+                    'Zee'   : {'mass':(50 , 130) , 'dphi':(1.5,   5) },
+                    'Jpsiee': {'mass':( 1 ,   5) , 'dphi':(1.5,   5) },
+                    'Heg'   : {'mass':(90 , 140) , 'dphi':(1.5,   5) },
+              }
+
+monitoring_topo = [
+
+        # HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI
+        {# leg0 e26_lhtight, leg1 e15_etcut
+          "trigger_num" : "HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI",
+          "trigger_den" : "HLT_e26_lhtight_e15_etcut_L1EM22VHI",
+          "leg0_key"    : "Electrons", # HLT/Offline key
+          "leg1_key"    : "Electrons", # HLT/Offline key
+          "topo"        : "Zee",
+        },
+
+        ]
+
 

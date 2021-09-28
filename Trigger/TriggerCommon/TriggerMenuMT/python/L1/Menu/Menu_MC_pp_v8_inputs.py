@@ -82,7 +82,7 @@ def defineInputsMenu():
         "nbitsDefault" : 2,
         "type" : "optical",
         "legacy" : False,
-        "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gFex 
+        "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gJ, gLJ 
             ('eEM3',3), ('eEM5',3), ('eEM8',3), ('eEM8L',3), 
             'eEM8M', 'eEM10L', 'eEM15', 'eEM15L', 'eEM15M',
             'eEM20', 'eEM20L', 'eEM20M', 
@@ -97,7 +97,7 @@ def defineInputsMenu():
         "type" : "optical",
         "fpga" : 0,
         "legacy" : False,
-        "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gFex 
+        "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gJ, gLJ
              ('eTAU8',3), ('eTAU12',3), 'eTAU12L', 'eTAU12M', 'eTAU20',
              'eTAU25', 'eTAU30H', 'eTAU40', 'eTAU60', 'eTAU100',
         ]
@@ -106,13 +106,19 @@ def defineInputsMenu():
     topoBoards["Topo1"]["connectors"].append({ # third optical connector
         "name" : "Topo1Opt2",
         "format" : "multiplicity",
-        "nbitsDefault" : 3,
+        "nbitsDefault" : 2,
         "type" : "optical",
         "fpga" : 1,
         "legacy" : False,
         "thresholds" : [ # Topo1B: jFex small-R jet, jFex large-R jet, combined eFex/jFex TAU, gFex+jFex EX, gFex+jFex SumET, jFex TAU
-            ('gXERHO20',1),  ('gXERHO30',1),  ('gXERHO35',1),  ('gXERHO40',1),  ('gXERHO45',1),  ('gXERHO50',1),
-            ('gXEPUFIT20',1),  ('gXEPUFIT50',1),  ('gXE50',1),
+            'jLJ80', 'jLJ100', 'jLJ140', 'jLJ160', 
+
+            'jEM15', 'jEM15M', 'jEM18M', 
+
+            ('gXERHO30',1),  ('gXERHO50',1),
+            ('gXEPUFIT30',1),  ('gXEPUFIT50',1),  
+            ('gXE30',1), ('gXE40',1), ('gXE50',1),
+            ('gTE50',1),
         ]
     })
 
@@ -131,7 +137,10 @@ def defineInputsMenu():
             'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA20', 'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
             'jJ85', 'jJ100', 'jJ120', 'jJ400',
 
-            ('jXE50',1),
+            ('jXE30',1), ('jXE35',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
+            # test thresholds
+            ('jXEC50',1), ('jXEPerf50',1),
+            ('jTE100',1), ('jTEC100',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1)
         ]
     })
 
@@ -147,20 +156,19 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 0,
                 "algorithms" : [
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20abi-eTAU12abi',   outputbits = 0 ),
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abi-eTAU12abi',   outputbits = 1 ),
-                    TopoMenuDef( 'jINVM_DPHI_NFF',                             outputbits = (2,5), outputlines = ['400INVM-0DPHI26-jJ30s6-AjJ20s6',
-                                                                                                                  '400INVM-0DPHI24-jJ30s6-AjJ20s6',
-                                                                                                                  '400INVM-0DPHI22-jJ30s6-AjJ20s6',
-                                                                                                                  '400INVM-0DPHI20-jJ30s6-AjJ20s6'] ),
-                    TopoMenuDef( '0INVM10-3MU4ab',                             outputbits = 6 ), #BLS
-                    TopoMenuDef( 'LATE-MU10s1',                                outputbits = 7 ),
-                    TopoMenuDef( 'MULT-CMU4ab',                                outputbits = (8,9), outputlines = ['MULT-CMU4ab[0]', 'MULT-CMU4ab[1]'] ), # BLS, 2bits  # TODO: needed?
-                    TopoMenuDef( 'MULT-CMU6ab',                                outputbits = (10,11), outputlines = ['MULT-CMU6ab[0]', 'MULT-CMU6ab[1]'] ), # BLS, 2bits # TODO: needed?
-                    TopoMenuDef( '0DR04-MU4ab-CjJ15ab',                        outputbits = 12 ), #Bjet, TODO: not a primary
-                    TopoMenuDef( '0DR04-MU6ab-CjJ20ab',                        outputbits = 13 ), #Bjet, TODO: not a primary
-                    TopoMenuDef( '0INVM10C-3MU4ab',                            outputbits = 14 ), #BLS
-                    TopoMenuDef( '2INVM9-0DR15-C-MU6ab-MU4ab',                 outputbits = 15 ), #BLS 
+                    TopoMenuDef( '8INVM15-20DR99-C-2MU4ab',                    outputbits = 0 ), #BLS, test
+                    TopoMenuDef( '0INVM16-20DR99-2MU4ab',                      outputbits = 1 ), #BLS, test
+                    TopoMenuDef( '0INVM16-15DR99-2MU4ab',                      outputbits = 2 ), #BLS, test
+                    TopoMenuDef( '8INVM15-20DR99-2MU4ab',                      outputbits = 3 ), #BLS, test
+                    TopoMenuDef( '8INVM15-15DR99-2MU4ab',                      outputbits = 4 ), #BLS, test
+                    TopoMenuDef( '0INVM10-3MU4ab',                             outputbits = 5 ), #BLS
+                    TopoMenuDef( 'LATE-MU10s1',                                outputbits = 6 ),
+                    TopoMenuDef( 'MULT-CMU4ab',                                outputbits = (7,8), outputlines = ['MULT-CMU4ab[0]', 'MULT-CMU4ab[1]'] ), # BLS, 2bits  # TODO: needed?
+                    TopoMenuDef( 'MULT-CMU6ab',                                outputbits = (9,10), outputlines = ['MULT-CMU6ab[0]', 'MULT-CMU6ab[1]'] ), # BLS, 2bits # TODO: needed?
+                    TopoMenuDef( '0DR04-MU4ab-CjJ15ab',                        outputbits = 11 ), #Bjet, TODO: not a primary
+                    TopoMenuDef( '0DR04-MU6ab-CjJ20ab',                        outputbits = 12 ), #Bjet, TODO: not a primary
+                    TopoMenuDef( '0INVM10C-3MU4ab',                            outputbits = 13 ), #BLS
+                    TopoMenuDef( '2INVM9-0DR15-C-MU6ab-MU4ab',                 outputbits = 14 ), #BLS 
                 ]
             },            
 
@@ -168,16 +176,10 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( '0DR25-eTAU20abi-eTAU12abi',                  outputbits = 0 ),
-                    TopoMenuDef( '0DR28-eTAU20abi-eTAU12abi',                  outputbits = 1 ), 
-                    TopoMenuDef( 'jINVM',                                       outputbits = (2,5), outputlines = ['300INVM-AjJ30s6-AjJ20s6',
-                                                                                                                  '400INVM-AjJ30s6-AjJ20s6',
-                                                                                                                  '500INVM-AjJ30s6-AjJ20s6', 
-                                                                                                                  '700INVM-AjJ30s6-AjJ20s6'] ),
-                    TopoMenuDef( 'jINVM_DPHI',                                  outputbits = (6,9), outputlines = ['400INVM-0DPHI26-AjJ30s6-AjJ20s6',
-                                                                                                                   '400INVM-0DPHI24-AjJ30s6-AjJ20s6',
-                                                                                                                   '400INVM-0DPHI22-AjJ30s6-AjJ20s6',
-                                                                                                                   '400INVM-0DPHI20-AjJ30s6-AjJ20s6'] ),
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20abi-eTAU12abi',   outputbits = 0 ),
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abi-eTAU12abi',   outputbits = 1 ),
+                    TopoMenuDef( '0DR25-eTAU20abi-eTAU12abi',                  outputbits = 2 ),
+                    TopoMenuDef( '0DR28-eTAU20abi-eTAU12abi',                  outputbits = 3 ), 
                 ]
             },
             
@@ -206,7 +208,18 @@ def defineInputsMenu():
                 "fpga" : 1,
                 "clock" : 1,
                 "algorithms" : [
-                    # EMPTY SO FAR...
+                    TopoMenuDef( 'jINVM_DPHI_NFF',                             outputbits = (0,3), outputlines = ['400INVM-0DPHI26-jJ30s6-AjJ20s6',
+                                                                                                                  '400INVM-0DPHI24-jJ30s6-AjJ20s6',
+                                                                                                                  '400INVM-0DPHI22-jJ30s6-AjJ20s6',
+                                                                                                                  '400INVM-0DPHI20-jJ30s6-AjJ20s6'] ),
+                    TopoMenuDef( 'jINVM',                                       outputbits = (4,7), outputlines = ['300INVM-AjJ30s6-AjJ20s6',
+                                                                                                                  '400INVM-AjJ30s6-AjJ20s6',
+                                                                                                                  '500INVM-AjJ30s6-AjJ20s6',
+                                                                                                                  '700INVM-AjJ30s6-AjJ20s6'] ),
+                    TopoMenuDef( 'jINVM_DPHI',                                  outputbits = (8,11), outputlines = ['400INVM-0DPHI26-AjJ30s6-AjJ20s6',
+                                                                                                                   '400INVM-0DPHI24-AjJ30s6-AjJ20s6',
+                                                                                                                   '400INVM-0DPHI22-AjJ30s6-AjJ20s6',
+                                                                                                                   '400INVM-0DPHI20-AjJ30s6-AjJ20s6'] ),
                 ]
             }
         ]
@@ -372,3 +385,31 @@ def defineInputsMenu():
     L1MenuFlags.boards().update( ctpinBoards )  # CTPIN/Slot9 NIM1, NIM2, CALREQ
 
     L1MenuFlags.boards().update( alfaBoard )  # ALFA
+
+    #----------------------------------------------
+
+    def remapThresholds():
+        # remap thresholds. TODO: add checks in case the remap does not fulfill HW constraints?
+        for boardName, boardDef in L1MenuFlags.boards().items():
+            if "connectors" in boardDef:
+                for c in boardDef["connectors"]:
+                    if "thresholds" in c:
+                        thresholdsToRemove = []
+                        for thrIndex, thrName in enumerate(c["thresholds"]):
+                            nBits = 0
+                            if type(thrName)==tuple:
+                                (thrName,nBits) = thrName
+                            if thrName in L1MenuFlags.ThresholdMap():
+                                if (L1MenuFlags.ThresholdMap()[thrName] != ''):
+                                    if nBits > 0:
+                                        c["thresholds"][thrIndex] = (L1MenuFlags.ThresholdMap()[thrName],nBits)
+                                    else:
+                                        c["thresholds"][thrIndex] = L1MenuFlags.ThresholdMap()[thrName]
+                                else:
+                                    thresholdsToRemove.append(thrIndex) 
+                        for i in reversed(thresholdsToRemove):
+                            del c["thresholds"][i]
+          
+    #----------------------------------------------
+
+    remapThresholds()

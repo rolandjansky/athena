@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream,SingleMuonGroup,EgammaStreamersGroup,
-    TauStreamersGroup,JetStreamersGroup,METStreamersGroup,MinBiasGroup,ZeroBiasGroup,SupportLegGroup, LowMuGroup)
+                                                                 TauStreamersGroup,JetStreamersGroup,METStreamersGroup,MinBiasGroup,ZeroBiasGroup,SupportLegGroup, LowMuGroup)
 
 
 def addP1Signatures():
@@ -79,7 +79,10 @@ def addP1Signatures():
     ]
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
         ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
-        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),  
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
+
+        ChainProp(name='HLT_noalg_mb_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),
+        ChainProp(name='HLT_noalg_mb_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),  
 
         # ID monitoring
         ChainProp(name='HLT_noalg_idmon_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDMonitoring','express'],groups=['RATE:Monitoring','BW:Detector']),
@@ -118,8 +121,9 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_L1J75',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J85',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
         ChainProp(name='HLT_noalg_L1J100',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup),
+        ChainProp(name='HLT_noalg_L1J400',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=JetStreamersGroup+['BW:Other']),
         # Also used for L1Calo overflow detection
-        ChainProp(name='HLT_noalg_L1J400',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream,'L1Calo'], groups=JetStreamersGroup+['BW:Other']),
+        ChainProp(name='HLT_noalg_l1calo_L1J400',       l1SeedThresholds=['FSNOSEED'], stream=['L1Calo'], groups=JetStreamersGroup+['BW:Other']),
         
         ChainProp(name='HLT_noalg_L1XE30',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+METStreamersGroup),
         ChainProp(name='HLT_noalg_L1XE35',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=SupportLegGroup+METStreamersGroup),
@@ -218,6 +222,28 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_L1MU5VF_AFP_A_OR_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
         ChainProp(name='HLT_noalg_L1MU5VF_AFP_A_AND_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 
+        # Calibration AFP
+        # low mu?
+        ChainProp(name='HLT_noalg_L1AFP_NSA_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_NSC_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
+        # all mu
+        ChainProp(name='HLT_noalg_L1AFP_FSA_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSC_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSA_TOF_T0_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSA_TOF_T1_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSA_TOF_T2_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSA_TOF_T3_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSC_TOF_T0_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSC_TOF_T1_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSC_TOF_T2_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_L1AFP_FSC_TOF_T3_BGRP0', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+       
+
+        # ZDCCalib
+        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_A', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
+ 
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
         ChainProp(name='HLT_timeburner_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online','RATE:DISCARD','BW:DISCARD']),

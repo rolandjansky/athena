@@ -195,7 +195,7 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
 
     char delimiter = '\n';
     std::string field, tag;
-    uint32_t phimod2 = modulename[moduleId].find("b") != std::string::npos ? 1 : 0;
+    uint32_t phimod2 = modulename[moduleId].find('b') != std::string::npos ? 1 : 0;
     uint32_t modaddr = ((modulenumber[moduleId] & TGCTriggerData::MODULE_MASK)<<TGCTriggerData::MODULE_SHIFT) +
                        ((phimod2 & TGCTriggerData::PHIMOD2_MASK)<<TGCTriggerData::PHIMOD2_SHIFT);
 

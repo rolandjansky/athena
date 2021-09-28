@@ -104,7 +104,7 @@ def getDecorationKeyFunc(trackParticleName, assocPostfix):
     """Simple helper returning a function to build decoration keys """
     return lambda d : trackParticleName+'.'+d+assocPostfix
 
-def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
+def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",detectorEtaName="default",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
     """ Schedule a TrackParticleClusterAssociationAlg in the top sequence, taking as input clusters and tracks defined 
     by the keys caloClusterName and trackParticleName.
 
@@ -133,6 +133,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
         PtCut = 400.,
         CaloExtensionName = "ParticleCaloExtension",
         CaloClusterLocation = caloClusterName,
+        DetectorEtaName = detectorEtaName if detectorEtaName.lower() != "default" else ("DetectorEta" if "Origin" in caloClusterName else ""),
         TrackVertexAssoTool=setupTrackVertexAssocTool(), # will associate trks from PV0 only
         VertexContainerName = "PrimaryVertices" if onlyPV0Tracks else "",
         AssociatedClusterDecorKey = decorKey("AssoClusters"),
@@ -144,7 +145,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
     return components
 
     
-def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
+def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", trackParticleName="InDetTrackParticles",
                          assocPostfix="TCC", doCombined=False, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
     """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
     Depending on options, the collection contains combined, neutral and/or charged TCC.
@@ -161,7 +162,7 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     components = ComponentAccumulator()    
     
     components.merge(
-        setupTrackCaloAssoc(configFlags, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
+        setupTrackCaloAssoc(configFlags, caloClusterName, detectorEtaName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
     )
 
     
@@ -242,7 +243,7 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     return components
 
 
-def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClusters", trackParticleName="InDetTrackParticles",
+def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", trackParticleName="InDetTrackParticles",
                          assocPostfix="TCC", ):
     """Create a TrackCaloCluster collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
     This functions schedules 2 UFO specific algs : 
@@ -258,7 +259,7 @@ def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClu
     
     
     components.merge(
-        setupTrackCaloAssoc(configFlags, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
+        setupTrackCaloAssoc(configFlags, caloClusterName, detectorEtaName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
     )
 
         

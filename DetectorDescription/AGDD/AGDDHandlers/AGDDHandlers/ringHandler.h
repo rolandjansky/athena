@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ringHandler_H
@@ -10,9 +10,10 @@
 
 class ringHandler:public XMLHandler {
 public:
-	ringHandler(std::string);
-	void ElementHandle();
-
+	ringHandler(const std::string&,
+                    AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDCons_H
@@ -31,8 +31,8 @@ public:
 	double phi0() {return _phi0;}
 	double dphi() {return _dphi;}
 	double z() {return _z;}
-	void CreateVolume();
-	void CreateSolid();
+        virtual void CreateVolume (const AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	double _rin1;
 	double _rin2;
 	double _rou1;

@@ -31,7 +31,7 @@ Reco_tf.py \
     --valid=True \
     --validationFlags 'doInDet,doMET' \
     --autoConfiguration everything \
-    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False'
+    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False; from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True)'
 
 rc=$?
 echo "art-result: $rc Reco"

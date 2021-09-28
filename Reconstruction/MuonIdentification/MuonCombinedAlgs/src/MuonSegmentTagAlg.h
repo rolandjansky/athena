@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONSEGMENTAGALG_H
@@ -21,8 +21,8 @@ public:
 
     ~MuonSegmentTagAlg() = default;
 
-    StatusCode initialize()override;
-    StatusCode execute(const EventContext& ctx) const ;
+    virtual StatusCode initialize()override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
     ToolHandle<MuonCombined::IMuonSegmentTagTool> m_muonSegmentTagTool{

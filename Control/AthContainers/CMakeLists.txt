@@ -7,7 +7,7 @@ atlas_subdir( AthContainers )
 
 # Extra dependencies, based on the environment we are in:
 if( NOT XAOD_STANDALONE )
-   set( extra_libs AthenaKernel SGTools GaudiKernel )
+   set( extra_libs AthenaKernel AthAllocators SGTools GaudiKernel )
    set( extra_sources src/*.cxx )
 endif()
 

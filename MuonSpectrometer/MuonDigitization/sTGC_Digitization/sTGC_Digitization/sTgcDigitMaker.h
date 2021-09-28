@@ -88,15 +88,6 @@ class sTgcDigitMaker {
   };
 
   /**
-     Reads parameters for intrinsic time response from timejitter.dat.
-  */
-  void  readFileOfTimeJitter();
-  /**
-     Calculates intrinsic time response according to incident angle of a track based on time response parameters
-  */
-  float timeJitter(float inAngle_time) const;
-
-  /**
      Determines whether a hit is detected or not.
   */
   bool efficiencyCheck(const int channelType) const;
@@ -165,8 +156,6 @@ class sTgcDigitMaker {
   //double m_alignmentS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
   ///** Alignment ths constants. Rotation around the global phi direction */
   //double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
-
-  std::vector<std::vector<float> > m_vecAngle_Time;
 
   // Parameters of the gamma pdf required for determining digit time
   std::vector<GammaParameter> m_gammaParameter;

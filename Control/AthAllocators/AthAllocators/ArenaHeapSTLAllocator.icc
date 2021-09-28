@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHeapSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
 /**
  * @file  AthAllocators/ArenaHeapSTLAllocator.icc
  * @author scott snyder
@@ -204,19 +202,6 @@ ArenaHeapSTLAllocator<T, VETO>::address (reference x) const
 
 
 /**
- * @brief Convert a reference to an address.
- */
-template <class T, class VETO>
-inline
-typename ArenaHeapSTLAllocator<T, VETO>::const_pointer
-ArenaHeapSTLAllocator<T, VETO>::address (const_reference x) const
-{
-  return &x;
-}
-
-
-
-/**
  * @brief Allocate new objects.
  * @param n Number of objects to allocate.  Must be 1.
  * @param hint Allocation hint.  Not used.
@@ -250,7 +235,9 @@ void ArenaHeapSTLAllocator<T, VETO>::deallocate (pointer p, size_type
                              )
 {
   assert (n == 1);
-  m_pool.free (reinterpret_cast<ArenaHeapAllocator::pointer> (p));
+  using pointer_nc = std::remove_const_t<T>*;
+  pointer_nc pp ATLAS_THREAD_SAFE = const_cast<pointer_nc>(p);
+  m_pool.free (reinterpret_cast<ArenaHeapAllocator::pointer> (pp));
 }
 
 
@@ -271,13 +258,14 @@ ArenaHeapSTLAllocator<T, VETO>::max_size() const throw()
 /**
  * @brief Call the @c T constructor.
  * @param p Location of the memory.
- * @param val Parameter to pass to the constructor.
+ * @param args Arguments to pass to the constructor.
  */
 template <class T, class VETO>
+template <class... Args>
 inline
-void ArenaHeapSTLAllocator<T, VETO>::construct (pointer p, const T& val)
+void ArenaHeapSTLAllocator<T, VETO>::construct (pointer p, Args&&... args)
 {
-  new (reinterpret_cast<void*>(p)) T(val);
+  new (p) T(std::forward<Args>(args)...);
 }
 
 
@@ -383,9 +371,37 @@ ArenaAllocatorBase::Stats ArenaHeapSTLAllocator<T, VETO>::stats() const
  * @brief Return a pointer to the underlying allocator (may be 0).
  */
 template <class T, class VETO>
-const ArenaAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
+const ArenaBlockAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
 {
   return &m_pool;
+}
+
+
+/**
+ * @brief Write-protect the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to disallow writes.
+ */
+template <class T, class VETO>
+inline
+void ArenaHeapSTLAllocator<T, VETO>::protect()
+{
+  m_pool.protect();
+}
+
+
+/**
+ * @brief Write-enable the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to allow writes.
+ */
+template <class T, class VETO>
+inline
+void ArenaHeapSTLAllocator<T, VETO>::unprotect()
+{
+  m_pool.unprotect();
 }
 
 
@@ -468,7 +484,7 @@ ArenaHeapSTLAllocator<T, T>::stats() const
  * @brief Return a pointer to the underlying allocator (may be 0).
  */
 template <class T>
-const ArenaAllocatorBase* ArenaHeapSTLAllocator<T, T>::poolptr() const
+const ArenaBlockAllocatorBase* ArenaHeapSTLAllocator<T, T>::poolptr() const
 {
   return m_poolptr;
 }
@@ -488,7 +504,7 @@ template <class T>
 template <class U, class V>
 ArenaNonConstHeapSTLAllocator<T>::ArenaNonConstHeapSTLAllocator
   (const ArenaHeapSTLAllocator<U, V>& a,
-   ArenaAllocatorBase* poolptr_nc)
+   ArenaBlockAllocatorBase* poolptr_nc)
     : ArenaHeapSTLAllocator<T, T>(a),
     m_poolptr_nc (poolptr_nc)
 {
@@ -552,6 +568,34 @@ void ArenaNonConstHeapSTLAllocator<T>::reserve (size_t size)
 }
 
 
+/**
+ * @brief Write-protect the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to disallow writes.
+ */
+template <class T>
+inline
+void ArenaNonConstHeapSTLAllocator<T>::protect()
+{
+  if (m_poolptr_nc)
+    m_poolptr_nc->protect();
+}
+
+
+/**
+ * @brief Write-enable the memory managed by this allocator.
+ *
+ * Adjust protection on the memory managed by this allocator
+ * to allow writes.
+ */
+template <class T>
+inline
+void ArenaNonConstHeapSTLAllocator<T>::unprotect()
+{
+  if (m_poolptr_nc)
+    m_poolptr_nc->unprotect();
+}
 
 
 /**
@@ -568,7 +612,22 @@ ArenaHeapSTLAllocator<T, T>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
   typename std::remove_const<CONT>::type& cc = c;
   ArenaHeapSTLAllocator<T, T> a (cc.get_allocator());
   return ArenaNonConstHeapSTLAllocator<T> (a,
-                                           const_cast<ArenaAllocatorBase*>(a.poolptr()));
+                                           const_cast<ArenaBlockAllocatorBase*>(a.poolptr()));
+}
+
+
+/**
+ * @brief Hook for unprotecting an arena.
+ *
+ * Sometimes we need to ensure that an arena is unprotected before we start
+ * destroying an object that contains the arena.  To do that without
+ * making assumptions about whether the arena supports an unprotect
+ * operation, call this function.
+ */
+template <class T, class VETO>
+void maybeUnprotect (ArenaHeapSTLAllocator<T, VETO>& a)
+{
+  a.unprotect();
 }
 
 

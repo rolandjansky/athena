@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <charconv>
 
 namespace MuonGM 
 {
@@ -19,9 +20,7 @@ namespace MuonGM
 std::string buildString(int i, int ncha)
 {
   if (ncha<=0) {
-    std::ostringstream ostigg;
-    ostigg << i;
-    return ostigg.str();
+    return std::to_string(i);
   } else {
     int ij = i;
     std::ostringstream ostigg;
@@ -36,19 +35,20 @@ std::string buildString(int i, int ncha)
     
 
 
-int strtoint(const std::string& str, unsigned int istart, unsigned int length)
+int strtoint(std::string_view str, unsigned int istart, unsigned int length)
 {
-  std::string s(str.substr(istart,length));
-  int result = std::stoi(s);
+  std::string_view s(str.substr(istart,length));
+  int result = -999;
+  std::from_chars(s.data(), s.data() + s.size(), result);
   return result;
 }
 
 
 
-int stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version) 
+int stationPhiTGC(std::string_view stName, int fi, int zi_input, std::string_view geometry_version) 
 {
     // fi and zi_imput are the amdb indices (1, ... 8) and (-8, 8) are their ranges
-    std::string stName3 = stName.substr(0,3);
+    std::string_view stName3 = stName.substr(0,3);
     int stphi = 0;
 
     int zi = std::abs(zi_input);

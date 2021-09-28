@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/intersectionHandler.h"
 #include "AGDDModel/AGDDIntersection.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AGDDVolumeStore.h"
@@ -12,15 +13,18 @@
 
 using namespace xercesc;
 
-intersectionHandler::intersectionHandler(std::string s):XMLHandler(s)
+intersectionHandler::intersectionHandler(const std::string& s,
+                                         AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void intersectionHandler::ElementHandle()
+void intersectionHandler::ElementHandle(AGDDController& c,
+                                        xercesc::DOMNode *t)
 {
 	bool res;
-	std::string name=getAttributeAsString("name");
-	AGDDIntersection *c=new AGDDIntersection(name);
+	std::string name=getAttributeAsString(c, t, "name");
+	AGDDIntersection *is=new AGDDIntersection(name);
 	
 	AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
 	
@@ -30,11 +34,10 @@ void intersectionHandler::ElementHandle()
 
         int before=pS->NrOfPositioners();
 
-        const DOMNode* cElement=XercesParser::GetCurrentElement();
-        for (child=cElement->getFirstChild();child!=0;child=child->getNextSibling())
+        for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
         {
                if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-               XercesParser::elementLoop(child);
+                 XercesParser::elementLoop(c, child);
                }
         }
 	
@@ -43,10 +46,10 @@ void intersectionHandler::ElementHandle()
 	{
 		AGDDPositioner *posit=pS->GetPositioner(i);
 		if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
-			c->AddDaughter(posit);
+			is->AddDaughter(posit);
 	}
 	
-	std::string col=getAttributeAsString("color",res);
+	std::string col=getAttributeAsString(c, t, "color",res);
 	if (res)
-		c->SetColor(col);
+		is->SetColor(col);
 }

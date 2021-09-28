@@ -114,12 +114,8 @@ if DetFlags.digitize.LVL1_on():
     #--------------------------------------------------------------
     if DetFlags.simulateLVL1.RPC_on() or DetFlags.simulateLVL1.TGC_on():
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-            topSequence += L1MuctpiPhase1()
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-            topSequence += L1Muctpi()
+        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+        topSequence += L1MuctpiPhase1()
 
     #-------------------------------------------------------
     # TrigT1CaloSim Algos

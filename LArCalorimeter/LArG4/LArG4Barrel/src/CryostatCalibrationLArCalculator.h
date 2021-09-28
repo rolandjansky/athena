@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::BarrelCryostat::CalibrationLArCalculator
@@ -69,7 +69,7 @@ namespace LArG4 {
       CaloG4::SimulationEnergies m_energyCalculator;
 
       // Access to parameters.
-      LArVG4DetectorParameters* m_parameters;
+      const LArVG4DetectorParameters* m_parameters;
 
       ServiceHandle<ILArCalibCalculatorSvc> m_defaultCalculator;
 

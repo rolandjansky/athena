@@ -397,9 +397,9 @@ struct evAna_entry{
 };
 
 struct hitData_info{
-  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const ROOT::Math::XYZVector& tru,double tpos,double ppos);
+  hitData_info(int plane,int station_eta,int strip,std::shared_ptr<MMT_Parameters> par,const ROOT::Math::XYZVector& tru,double tpos,double ppos);
   hitData_info(int the_pl=0,double the_y=0,double the_z=-999);
-  double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
+  double mis_dy(int pl,std::shared_ptr<MMT_Parameters> par,double tpos,double ppos)const;
   std::string hdr()const;
   std::string str()const;
   void print()const;
@@ -430,9 +430,9 @@ struct hitData_entry{
 	     double fit_the=0, double fit_phi=0, double fit_dth=0, double tru_dth=0,// double tru_thl=0, double tru_thg=0,
 	     double mxg=0, double mug=0, double mvg=0, double mxl=0, double the_mx=0, double the_my=0, int the_roi=0);
 
-  Hit entry_hit(MMT_Parameters *m_par)const;
+  Hit entry_hit(std::shared_ptr<MMT_Parameters> par)const;
   hitData_key entry_key() const;
-  hitData_info entry_info(MMT_Parameters *m_par)const;
+  hitData_info entry_info(std::shared_ptr<MMT_Parameters> par)const;
   void fit_fill(double fthe,double fphi, double fdth, double mxg=0., double mug=0., double mvg=0., double mxl=0., double m_x=0., double m_y=0., int king=0);
   void print() const;
 

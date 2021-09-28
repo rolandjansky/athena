@@ -147,7 +147,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
 
   bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end();
-       itr++) {
+       ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed =
         static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
@@ -204,7 +204,7 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
   bool selectionPassed;
   for (TrackParticleDataVecIter itr = (*trackParticles).begin();
        itr != (*trackParticles).end();
-       itr++) {
+       ++itr) {
     if (m_useBeamConstraint) {
       selectionPassed =
         static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
@@ -1012,7 +1012,7 @@ InDetAdaptiveMultiPriVxFinderTool::estimateSignalCompatibility(
 
     for (std::vector<Trk::VxTrackAtVertex*>::iterator i = begintracks;
          i != endtracks;
-         i++) {
+         ++i) {
 
       if (((*i)->vtxCompatibility() < m_finalCutMaxVertexChi2 &&
            m_useFastCompatibility) ||

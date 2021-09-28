@@ -26,7 +26,7 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 """Configuring egammaRecBuilder """
 TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
                             name = 'TrigEgammaRecElectron',
-                            InputTopoClusterContainerName= "precisionCaloCluster",
+                            InputClusterContainerName= "precisionCaloCluster",
                             egammaRecContainer= TrigEgammaKeys.EgammaRecKey,
                             doConversions = False,
                             doAdd= False,

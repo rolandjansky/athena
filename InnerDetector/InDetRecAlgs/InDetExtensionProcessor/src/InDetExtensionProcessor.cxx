@@ -223,7 +223,7 @@ InDet::InDetExtensionProcessor::createExtendedTracks(const EventContext& ctx,
             // loop over extension RIO-on-tracks and add PRD it into vecPrdComb
             DataVector<const Trk::MeasurementBase>::const_iterator RIOit =
               pThisExtensionPair->first->measurementsOnTrack()->begin();
-            for (; RIOit != pThisExtensionPair->first->measurementsOnTrack()->end(); RIOit++) {
+            for (; RIOit != pThisExtensionPair->first->measurementsOnTrack()->end(); ++RIOit) {
               const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (*RIOit);
               if (!rot) ATH_MSG_ERROR("cast to ROT failed, should not happen here !");
               else vecPrdComb.push_back(rot->prepRawData());
@@ -290,7 +290,7 @@ InDet::InDetExtensionProcessor::createExtendedTracks(const EventContext& ctx,
             // extract RIO-on-tracks from extension
             DataVector<const Trk::MeasurementBase>::const_iterator RIOit =
               pThisExtensionPair->first->measurementsOnTrack()->begin();
-            for (; RIOit != pThisExtensionPair->first->measurementsOnTrack()->end(); RIOit++) {
+            for (; RIOit != pThisExtensionPair->first->measurementsOnTrack()->end(); ++RIOit) {
               rotSet.push_back(*RIOit);
             }
             // merge RIO-on-track lists

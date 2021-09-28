@@ -46,7 +46,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorPhotonAlgorithm");
 
 
-    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
+    if(isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
@@ -73,6 +73,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
         for (const auto& itr : pairObjs) {
           pairObjsRaw.emplace_back(itr.first.get(), itr.second);
         }
+        
         fillDistributions( pairObjsRaw, info );
         fillEfficiencies( pairObjsRaw, info );
         fillResolutions( pairObjsRaw, info );

@@ -27,7 +27,7 @@ MMT_Road::~MMT_Road() {
   this->reset();
 }
 
-void MMT_Road::addHits(std::vector<MMT_Hit*> &hits) {
+void MMT_Road::addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits) {
   for (auto hit_i : hits) {
     int bo = hit_i->getPlane();
     bool has_hit = false;

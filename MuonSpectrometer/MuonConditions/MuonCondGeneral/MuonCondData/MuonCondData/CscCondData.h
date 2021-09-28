@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCONDDATA_H
@@ -19,7 +19,7 @@ namespace MuonCalib {
   template <class data_type> class CscCondData
   {
     public:
-      CscCondData(const data_type & value) { m_value = value; }
+    CscCondData(const data_type & value) : m_value (value) {  }
       void setValue(const data_type & value);
       inline const data_type & getValue() const;
     private:

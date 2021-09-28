@@ -72,6 +72,10 @@ class ConfiguredxAODTrackParticleCreation:
          else:
             xAODTrackParticleCnvAlg.AddTruthLink = False
 
+         if InDetFlags.doTIDE_AmbiTrackMonitoring():
+             xAODTrackParticleCnvAlg.AugmentObservedTracks = True
+             xAODTrackParticleCnvAlg.TracksMapName = InDetKeys.ObservedTracks()+"Map"
+
          topSequence += xAODTrackParticleCnvAlg
          if (InDetFlags.doPrintConfigurables()):
             printfunc (xAODTrackParticleCnvAlg)

@@ -134,6 +134,7 @@ public:
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;
   QList<unsigned> last_cutRequiredNHits;
+  QString last_cutRequiredDetectorElement;
   bool last_cutTruthFromIROnly = false;
   bool last_cutExcludeBarcodeZero = false;
   bool last_cutTruthExcludeNeutrals = false;
@@ -468,6 +469,10 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_trt);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_muon);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nprecisionhits_muon);
+
+// Required detector element
+  connect(m_d->ui_cuts.checkBox_requireDetectorElement,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
+  connect(m_d->ui_cuts.lineEdit_detectorElementId,SIGNAL(textChanged(QString)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
 
   // -> cutTruthFromIROnly
   addUpdateSlot(SLOT(possibleChange_cutTruthFromIROnly()));
@@ -1839,6 +1844,12 @@ QList<unsigned> TrackSystemController::cutRequiredNHits() const
   return l;
 }
 
+QString TrackSystemController::cutRequiredDetectorElement() const {
+  QString tmp = m_d->ui_cuts.checkBox_requireDetectorElement->isChecked() ? m_d->ui_cuts.lineEdit_detectorElementId->text(): QString();
+  return tmp;
+}
+
+
 //____________________________________________________________________
 bool TrackSystemController::cutTruthFromIROnly() const
 {
@@ -2249,6 +2260,7 @@ POSSIBLECHANGE_IMP(cutAllowedPt)
 POSSIBLECHANGE_IMP(cutAllowedEta)
 POSSIBLECHANGE_IMP(cutAllowedPhi)
 POSSIBLECHANGE_IMP(cutRequiredNHits)
+POSSIBLECHANGE_IMP(cutRequiredDetectorElement)
 POSSIBLECHANGE_IMP(cutTruthFromIROnly)
 POSSIBLECHANGE_IMP(cutExcludeBarcodeZero)
 POSSIBLECHANGE_IMP(cutTruthExcludeNeutrals)

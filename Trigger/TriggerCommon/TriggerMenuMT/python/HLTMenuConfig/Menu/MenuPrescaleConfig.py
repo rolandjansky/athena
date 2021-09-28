@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -12,7 +12,9 @@ def MenuPrescaleConfig(triggerConfigHLT):
     HLTPrescales = {}
     Prescales = PrescaleClass()
 
-    menu_name = TriggerFlags.triggerMenuSetup()
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    menu_name = ConfigFlags.Trigger.triggerMenuSetup
+
     ## Do some aliasing here
     if menu_name == 'Physics_default': 
         menu_name = 'LS2_v1'

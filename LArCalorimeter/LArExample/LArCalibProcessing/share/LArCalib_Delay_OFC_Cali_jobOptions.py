@@ -848,7 +848,6 @@ if doOFC:
   from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
   theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
   theLArAutoCorrDecoderTool.isSC = SuperCells
-  ToolSvc += theLArAutoCorrDecoderTool
 
   from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
   LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")

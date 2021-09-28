@@ -158,7 +158,7 @@ for collectionConfig in TriggerEDMRun3.TriggerHLTListRun3:
 TriggerEDMRun3.TriggerHLTListRun3 = myTriggerHLTListRun3
 
 # Set menu flag and slice options for runHLT_standalone
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = 'LS2_v1'
+ConfigFlags.Trigger.triggerMenuSetup = 'LS2_v1'
 doEmptyMenu = True
 doEgammaSlice = True
 doMuonSlice = True

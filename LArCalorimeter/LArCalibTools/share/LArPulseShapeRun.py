@@ -14,8 +14,6 @@ if 'inputdb' not in dir():
    
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 #import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
-from string import split,join
-from time import time
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
@@ -70,11 +68,12 @@ theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/FREE"   ]
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.readBS=True
-tf.doID=False
-
 # trigger configuration
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
+ConfigFlags.Trigger.readBS = True
+ConfigFlags.Trigger.doID = False
+
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 cfg = TriggerConfigGetter()
 
