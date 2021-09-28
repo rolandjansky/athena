@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # This file defines the default input files for trigger validation tests
 # and keywords to retrieve them in test configuration
@@ -11,10 +11,8 @@ Common way to configure input samples for Trigger ART tests
 import os
 import json
 
-from TrigValTools.TrigValSteering.Common import get_logger
-from PyUtils.Decorators import memoize
-from AthenaCommon.Utils.unixtools import FindFile
-
+from TrigValTools.TrigValSteering.Common import get_logger, find_file_in_path
+from functools import lru_cache
 
 input_json = 'TrigValTools/TrigValInputs.json'
 
@@ -73,13 +71,13 @@ class TrigValInput(object):
         return True
 
 
-@memoize
+@lru_cache
 def load_input_json():
     '''Reads the json file with input definitions and returns the data as dictionary'''
 
     log = get_logger()
 
-    input_json_fullpath = FindFile(input_json, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
+    input_json_fullpath = find_file_in_path(input_json, 'DATAPATH')
     if not input_json_fullpath:
         log.error('Failed to determine full path for input JSON %s', input_json)
         return None
