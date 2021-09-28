@@ -7391,18 +7391,36 @@ HLT_larnoiseburst_L1XE60:
     0: 5
   stepFeatures:
     0: 5
+HLT_larpsall_L1J12_EMPTY:
+  eventCount: 0
+HLT_larpsall_L1J12_FIRSTEMPTY:
+  eventCount: 0
 HLT_larpsall_L1J15:
   eventCount: 13
   stepCounts:
     0: 13
   stepFeatures:
     0: 13
+HLT_larpsall_L1J30_EMPTY:
+  eventCount: 0
+HLT_larpsall_L1J30_FIRSTEMPTY:
+  eventCount: 0
+HLT_larpsall_L1J30p31ETA49_EMPTY:
+  eventCount: 0
+HLT_larpsall_L1TAU8_EMPTY:
+  eventCount: 0
 HLT_larpsallem_L1EM3:
   eventCount: 20
   stepCounts:
     0: 20
   stepFeatures:
     0: 139
+HLT_larpsallem_L1EM3_EMPTY:
+  eventCount: 0
+HLT_larpsallem_L1EM7_EMPTY:
+  eventCount: 0
+HLT_larpsallem_L1EM7_FIRSTEMPTY:
+  eventCount: 0
 HLT_mb_afprec_L1AFP_A_AND_C_TOF_J20:
   eventCount: 0
 HLT_mb_afprec_L1AFP_A_AND_C_TOF_J30:
@@ -9497,7 +9515,13 @@ HLT_noalg_CSCPEB_L1EM3_EMPTY:
   eventCount: 0
 HLT_noalg_CSCPEB_L1EM7_EMPTY:
   eventCount: 0
+HLT_noalg_CSCPEB_L1EM7_FIRSTEMPTY:
+  eventCount: 0
 HLT_noalg_CSCPEB_L1J12_EMPTY:
+  eventCount: 0
+HLT_noalg_CSCPEB_L1J12_FIRSTEMPTY:
+  eventCount: 0
+HLT_noalg_CSCPEB_L1J30_FIRSTEMPTY:
   eventCount: 0
 HLT_noalg_CSCPEB_L1J30p31ETA49_EMPTY:
   eventCount: 0
