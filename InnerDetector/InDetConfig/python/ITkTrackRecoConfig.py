@@ -266,9 +266,7 @@ def ITkTrackRecoCfg(flags):
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
 
-    # up to here
     # needed for brem/seeding, TODO decided if needed here
-    # commented for now
     if flags.Detector.GeometryLAr:
         from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
         result.merge(LArBadFebCfg(flags))
@@ -276,8 +274,8 @@ def ITkTrackRecoCfg(flags):
         result.merge(CaloRecoCfg(flags,doLCCalib=True))
         from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
         result.merge(egammaTopoClusterCopierCfg(flags))
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-        result.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+        result.merge(ITkCaloClusterROI_SelectorCfg(flags))
 
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
@@ -294,8 +292,14 @@ def ITkTrackRecoCfg(flags):
         flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0Tracking")
         if flags.ITk.doFastTracking:
             flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0FastTracking")
-        result.merge(ITkTrackingSiPatternCfg(flagsLRT, ['ResolvedTracks'], "ResolvedLargeD0Tracks", "SiSPSeededLargeD0Tracks"))
+        result.merge(ITkTrackingSiPatternCfg(flagsLRT, InputCombinedITkTracks, "ResolvedLargeD0Tracks", "SiSPSeededLargeD0Tracks"))
         InputCombinedITkTracks += ["ResolvedLargeD0Tracks"]
+
+    # Photon conversion tracking reco
+    if flags.Detector.GeometryLAr and flags.ITk.doITkConversionFinding:
+        flagsConv = flags.cloneAndReplace("ITk.Tracking","ITk.ConversionFindingTracking")
+        result.merge(ITkTrackingSiPatternCfg(flagsConv, InputCombinedITkTracks, "ResolvedROIConvTracks", "SiSpSeededROIConvTracks"))
+        InputCombinedITkTracks += ["ResolvedROIConvTracks"]
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
     result.merge(ITkTrackParticleCnvAlgCfg(flags))

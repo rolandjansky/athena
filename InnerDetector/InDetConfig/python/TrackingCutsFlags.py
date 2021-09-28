@@ -664,12 +664,24 @@ def createITkConversionFindingTrackingFlags(): #To be updated
     icf.minClusters             = [6]
     icf.minSiNotShared          = [6]
     icf.maxShared               = [0]
+    icf.minPixel                = [0]
     icf.maxHoles                = [0]
+    icf.maxPixelHoles           = [1]
+    icf.maxSctHoles             = [2]
+    icf.maxDoubleHoles          = [1]
+
+    icf.nHolesMax               = icf.maxHoles
+    icf.nHolesGapMax            = icf.maxHoles
     icf.nWeightedClustersMin    = [6]
-    # --- also tighten pattern cuts
+    icf.maxdImpactSSSSeeds      = [20.0 * Units.mm]
     icf.radMax                  = 1000. * Units.mm
-    # --- turn on Z Boundary seeding
-    icf.doZBoundary              = False #
+    icf.doZBoundary             = False
+
+    icf.Xi2max                  = [9.0]
+    icf.Xi2maxNoAdd             = [25.0]
+    icf.minPTBrem               = [1000.0 * Units.mm]
+    icf.phiWidthBrem            = [0.3]
+    icf.etaWidthBrem            = [0.2]
 
     return icf
 
