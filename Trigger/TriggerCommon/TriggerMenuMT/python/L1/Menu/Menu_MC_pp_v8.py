@@ -68,6 +68,9 @@ def defineMenu():
         'L1_2EM20VH', 'L1_EM20VH_3EM10VH',
         'L1_2EM8VH_MU8F', 'L1_EM15VH_MU8F',  'L1_EM7_MU8F',
 
+        # Combined lepton, new calo (for ATR-24182)
+        'L1_2eEM15M', 'L1_2eEM20L', 'L1_3eEM10L', 'L1_eEM20L_3eEM10L',
+
         # single tau
         'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM',  'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
         'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_EMPTY', 'L1_TAU40_UNPAIRED_ISO',
@@ -82,6 +85,9 @@ def defineMenu():
 
         # multi tau
         'L1_2TAU8', 'L1_TAU20IM_2TAU12IM', 'L1_TAU60_2TAU40',
+
+        # multi tau, new calo
+        'L1_eTAU60_2eTAU40', 
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
