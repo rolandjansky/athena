@@ -1,11 +1,9 @@
-
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 ## Propagate output level requirements to the generators interfaces
 if 'Pythia8' in evgenConfig.generators:
     genSeq.Pythia8.OutputLevel = DEBUG
-    print("eA rozpoznalismy Pythie8 ")
 elif 'Pythia8B' in evgenConfig.generators:
     genSeq.Pythia8B.OutputLevel = DEBUG  
 elif 'Herwig7' in evgenConfig.generators:
