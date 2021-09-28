@@ -5,6 +5,7 @@
 #include "MuonGeoModel/sTGC.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -56,11 +57,12 @@ namespace MuonGM {
 
     // Start building the physical volume of the quadruplet
     GeoFullPhysVol *sTGC::build(int minimalgeo, int, const std::vector<Cutout *>&) {
-        AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
         sTGCDetectorHelper stgcHelper;
+        IAGDDtoGeoSvc::LockedController c = stgcHelper.Get_Controller();
+        AGDDDetectorStore& ds = c->GetDetectorStore();
         sTGCDetectorDescription *stgc_descr = stgcHelper.Get_sTGCDetectorSubType(m_component->subType);
 
-        sTGC_Technology *t = (sTGC_Technology *)ds->GetTechnology(name);
+        sTGC_Technology *t = (sTGC_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
         double pcbTck = t->pcbThickness;

@@ -25,7 +25,7 @@ void mm_TechHandler::ElementHandle(AGDDController& c,
 	bool ret=true;
 	std::string name=getAttributeAsString(c, t, "type",ret);
 	
-	MuonGM::MM_Technology *tech=new MuonGM::MM_Technology(name);
+	MuonGM::MM_Technology *tech=new MuonGM::MM_Technology(name, c.GetDetectorStore());
 	
 	tech->nlayers=getAttributeAsInt(c, t, "nLayers",ret);
 	tech->thickness=getAttributeAsDouble(c, t, "Tck",ret);

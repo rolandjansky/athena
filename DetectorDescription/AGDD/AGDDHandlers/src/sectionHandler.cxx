@@ -23,8 +23,8 @@ void sectionHandler::ElementHandle(AGDDController& c,
 	std::string version = getAttributeAsString(c, t, "version",res);
 	std::string date = getAttributeAsString(c, t, "date",res);
 	std::string author = getAttributeAsString(c, t, "author",res);
-    std::string top="";
+        std::string top="";
 	top=getAttributeAsString(c, t, "top_volume",res);
 
-	new AGDDSection(name,version,author,date,top,res);
+	new AGDDSection(name,version,author,date,top,c.GetSectionStore(),res);
 }

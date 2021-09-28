@@ -31,12 +31,14 @@ void mposWedgeHandler::ElementHandle(AGDDController& c,
 	{
 		double Wedge=dWedge*i;
 		if ((int)iSectors[i]==0) continue;
-	    GeoTrf::Transform3D crot = GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
+                GeoTrf::Transform3D crot = GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
 		double x=radius*std::cos(Wedge*GeoModelKernelUnits::degree);
 		double y=radius*std::sin(Wedge*GeoModelKernelUnits::degree);
 		double zpos=0;
 		GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
 
-		new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
+		new AGDDPositioner(c.GetPositionerStore(),
+                                   c.GetVolumeStore(),
+                                   volume,GeoTrf::Translation3D(cvec)*crot);
 	}
 }

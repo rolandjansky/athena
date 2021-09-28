@@ -11,10 +11,15 @@
 #include <iostream>
 
 class GeoMaterial;
+class AGDDVolumeStore;
+class AGDDSectionStore;
 
 class AGDDMMSpacer: public AGDDVolume {
 public:
-	AGDDMMSpacer(const std::string& s):AGDDVolume(s),m_small_x(0),m_large_x(0),m_y(0),m_z(0) {}
+	AGDDMMSpacer(const std::string& s,
+                     AGDDVolumeStore& vs,
+                     AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_small_x(0),m_large_x(0),m_y(0),m_z(0) {}
 	void SetXYZ(const std::vector<double>& v) 
 	{
 		m_small_x=v[0];

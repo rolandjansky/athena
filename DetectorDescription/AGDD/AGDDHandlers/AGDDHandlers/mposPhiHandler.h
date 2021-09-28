@@ -8,8 +8,6 @@
 #include "AGDDControl/XMLHandler.h"
 #include <string>
 
-class AGDDPositioner;
-
 class mposPhiHandler:public XMLHandler {
 public:
         mposPhiHandler(const std::string&,

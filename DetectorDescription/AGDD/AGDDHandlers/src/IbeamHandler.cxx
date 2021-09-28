@@ -26,7 +26,7 @@ void IbeamHandler::ElementHandle(AGDDController& c,
 	double h=getAttributeAsDouble(c, t, "heigth",res);
 	double sh=getAttributeAsDouble(c, t, "small_heigth",res);
 	
-	AGDDIbeam *b=new AGDDIbeam(name);
+	AGDDIbeam *b=new AGDDIbeam(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetLength(l);
 	b->SetWidth(w);

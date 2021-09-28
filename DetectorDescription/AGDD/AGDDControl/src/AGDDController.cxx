@@ -8,8 +8,6 @@
 #include "AGDDControl/IAGDDParser.h"
 #include "AGDDControl/XercesParser.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
-#include "AGDDKernel/AGDDVolumeStore.h"
-#include "AGDDKernel/AGDDSectionStore.h"
 #include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AliasStore.h"
@@ -56,12 +54,13 @@ AGDDController::~AGDDController()
 	if (m_theBuilder) delete m_theBuilder;
 }
 
-AGDDController::AGDDController():m_theBuilder(0),m_locked(false),m_disableSections(false),
-								m_printLevel(0)
+AGDDController::AGDDController()
+  : m_theBuilder(0),m_locked(false),m_disableSections(false),
+    m_printLevel(0)
 {
 //	m_theParser=new AMDBParser;
 	m_theParser=new XercesParser;
-	m_theBuilder=new AGDD2GeoModelBuilder;
+	m_theBuilder=new AGDD2GeoModelBuilder (m_ds, m_vs, m_ss, m_as);
 }
 
 void AGDDController::SetBuilder(AGDDBuilder *b) 
@@ -125,8 +124,7 @@ void AGDDController::BuildAll()
 
 void AGDDController::PrintSections() const
 {
-	AGDDSectionStore *ss=AGDDSectionStore::GetSectionStore();
-  	ss->PrintAllSections();
+  	m_ss.PrintAllSections();
 }
 
 void AGDDController::ParseString(const std::string& s)
@@ -174,10 +172,10 @@ void AGDDController::UseGeoModelDetector(const std::string& name)
 
 }
 
+#if 0
 void AGDDController::PrintVolumeHierarchy(const std::string& name, int ilevel)
 {
-	AGDDVolumeStore *vs=AGDDVolumeStore::GetVolumeStore();
-	AGDDVolume *vol=vs->GetVolume(name);
+	AGDDVolume *vol=m_vs.GetVolume(name);
 	int currentLevel=ilevel+1;
 	for (int i=0;i<ilevel;i++) std::cout<<"    ";
 	std::cout<<"|  "<<name<<std::endl;
@@ -193,6 +191,7 @@ void AGDDController::PrintVolumeHierarchy(const std::string& name, int ilevel)
 		PrintVolumeHierarchy(nameV,currentLevel);
 	}
 }
+#endif
 
 void AGDDController::Clean()
 {
@@ -204,7 +203,37 @@ void AGDDController::Clean()
 	m_volumesToBuild.clear();
 	m_structuresToBuild.clear();
 	
-	AGDDSectionStore::GetSectionStore()->Clean();
-	AGDDVolumeStore::GetVolumeStore()->Clean();
+	m_ss.Clean();
+	m_vs.Clean();
 }
+
+AGDDVolumeStore& AGDDController::GetVolumeStore()
+{
+  return m_vs;
+}
+
+
+AGDDSectionStore& AGDDController::GetSectionStore()
+{
+  return m_ss;
+}
+
+
+AGDDDetectorStore& AGDDController::GetDetectorStore()
+{
+  return m_ds;
+}
+
+
+AGDDPositionerStore& AGDDController::GetPositionerStore()
+{
+  return m_ps;
+}
+
+
+AliasStore& AGDDController::GetAliasStore()
+{
+  return m_as;
+}
+
 

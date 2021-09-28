@@ -12,8 +12,11 @@
 
 class AGDDComposition: public AGDDVolume {
 public:
-	AGDDComposition(std::string s):AGDDVolume(s) {}
-	~AGDDComposition() {}
+	AGDDComposition(const std::string& s,
+                        AGDDVolumeStore& vs,
+                        AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss) {}
+	virtual ~AGDDComposition() {}
         virtual void CreateVolume (const AGDDBuilder& builder) override;
 private:
 };

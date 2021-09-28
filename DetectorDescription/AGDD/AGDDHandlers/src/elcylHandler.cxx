@@ -24,7 +24,7 @@ void elcylHandler::ElementHandle(AGDDController& c,
 	std::string material=getAttributeAsString(c, t, "material");
 	std::vector<double> vvv=getAttributeAsVector(c, t, "RXio_RYio_Z");
 
-	AGDDElcyl *v=new AGDDElcyl(name);
+	AGDDElcyl *v=new AGDDElcyl(name, c.GetVolumeStore(), c.GetSectionStore());
 	v->SetMaterial(material);
 	v->SetRXio_RYio_Z(vvv);
 		

@@ -4,6 +4,7 @@
 
 #include "AGDDHandlers/pgonHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDModel/AGDDPgon.h"
 #include "AGDDHandlers/polyplaneHandler.h"
 #include <iostream>
@@ -26,7 +27,7 @@ void pgonHandler::ElementHandle(AGDDController& c,
 	std::string material=getAttributeAsString(c, t, "material",res);
 	int nbPhi=getAttributeAsInt(c, t, "nbPhi",res);
 	
- 	AGDDPgon *vol=new AGDDPgon(name);
+ 	AGDDPgon *vol=new AGDDPgon(name, c.GetVolumeStore(), c.GetSectionStore());
  	vol->SetMaterial(material);
 	vol->SetNbPhi(nbPhi);
 

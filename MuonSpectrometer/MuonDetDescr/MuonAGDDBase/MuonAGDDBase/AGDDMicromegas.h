@@ -10,12 +10,16 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+class AGDDVolumeStore;
+class AGDDSectionStore;
 
 
 class AGDDMicromegas: public MMDetectorDescription, public AGDDVolume {
 public:
-    AGDDMicromegas(const std::string& s);
+    AGDDMicromegas(const std::string& s,
+                   AGDDDetectorStore& ds,
+                   AGDDVolumeStore& vs,
+                   AGDDSectionStore& ss);
 
         virtual void CreateVolume (const AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;

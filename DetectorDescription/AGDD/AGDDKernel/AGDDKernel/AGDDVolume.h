@@ -10,10 +10,15 @@
 
 #include "AGDDKernel/AGDDPositioner.h"
 class AGDDBuilder;
+class AGDDVolumeStore;
+class AGDDSectionStore;
 
 class AGDDVolume {
 public:
-	AGDDVolume(const std::string& s, bool v=false);
+	AGDDVolume(const std::string& s,
+                   AGDDVolumeStore& vs,
+                   AGDDSectionStore& ss,
+                   bool v=false);
 	virtual ~AGDDVolume() {}
 	const std::string& GetName() const {return m_name;}
 	void SetMaterial(const std::string& n) {m_material=n;}
@@ -46,6 +51,8 @@ protected:
 	void* m_theVolume;
 
 	bool m_isSensitive;
+
+        AGDDVolumeStore& m_vs;
 };
 
 #endif

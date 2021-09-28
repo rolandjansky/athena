@@ -13,7 +13,10 @@
 
 class AGDDGvxy: public AGDDVolume {
 public:
-	AGDDGvxy(const std::string& s):AGDDVolume(s),m_dz(0) {}
+	AGDDGvxy(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_dz(0) {}
 	void SetDz(double v) 
 	{
 		m_dz=v;

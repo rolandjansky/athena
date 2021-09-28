@@ -10,13 +10,19 @@ class IAGDDParser;
 class GeoFullPhysVol;
 
 #include "AGDDKernel/AGDDSectionStore.h"
+#include "AGDDKernel/AGDDVolumeStore.h"
+#include "AGDDKernel/AGDDSectionStore.h"
+#include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDKernel/AGDDPositionerStore.h"
+#include "AGDDKernel/AliasStore.h"
 
 #include <string>
 #include <vector>
 
+
 class AGDDController {
 public:
-	AGDDController();
+        AGDDController();
 	~AGDDController();
 	void SetBuilder(AGDDBuilder *b);
 	void SetParser(IAGDDParser *b);
@@ -34,7 +40,13 @@ public:
 	void BuildAll();
 	void Clean();
 	
-	static void PrintVolumeHierarchy(const std::string&, int);
+        AGDDVolumeStore& GetVolumeStore();
+        AGDDSectionStore& GetSectionStore();
+        AGDDDetectorStore& GetDetectorStore();
+        AGDDPositionerStore& GetPositionerStore();
+        AliasStore& GetAliasStore();
+
+        //static void PrintVolumeHierarchy(const std::string&, int);
 	
 	void UseGeoModelDetector(const std::string&);
 	
@@ -59,6 +71,12 @@ private:
 	bool m_disableSections;
 	
 	int m_printLevel;
+
+        AGDDVolumeStore m_vs;
+        AGDDSectionStore m_ss;
+        AGDDDetectorStore m_ds;
+        AGDDPositionerStore m_ps;
+        AliasStore m_as;
 };
 
 #endif

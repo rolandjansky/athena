@@ -12,7 +12,10 @@
 
 class AGDDElcyl: public AGDDVolume {
 public:
-	AGDDElcyl(const std::string& s):AGDDVolume(s),m_dx(0),m_dy(0),m_z(0) {}
+	AGDDElcyl(const std::string& s,
+                  AGDDVolumeStore& vs,
+                  AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_dx(0),m_dy(0),m_z(0) {}
 	void SetRXio_RYio_Z(const std::vector<double>& v) 
 	{
 		m_dx=v[0];

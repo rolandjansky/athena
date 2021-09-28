@@ -30,7 +30,7 @@ void mmSpacerHandler::ElementHandle(AGDDController& c,
 	
 	std::string technology=getAttributeAsString(c, t, "tech",ret);
 	
-	AGDDMMSpacer *b=new AGDDMMSpacer(name);
+	AGDDMMSpacer *b=new AGDDMMSpacer(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetXYZ(vvv);
 	b->tech=technology;
 	
