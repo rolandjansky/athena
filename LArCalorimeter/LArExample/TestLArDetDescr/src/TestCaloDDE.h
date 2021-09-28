@@ -54,10 +54,6 @@ class TestCaloDDE : public AthAlgorithm
   const CaloIdManager*  m_calo_id_man{nullptr};
   const CaloDetDescrManager*  m_calo_dd_man{nullptr};
 
-  // Simplified geometry :
-  ICaloRecoMaterialTool* m_lar_mat{nullptr};
-  ICaloRecoSimpleGeomTool* m_lar_simplegeom{nullptr};
-
   BooleanProperty m_useCondStore { this
       , "UseCondStore"
       , true
