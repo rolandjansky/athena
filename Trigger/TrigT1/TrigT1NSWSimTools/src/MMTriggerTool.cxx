@@ -53,11 +53,11 @@ namespace NSWL1 {
 
   StatusCode MMTriggerTool::initialize() {
 
-    ATH_MSG_INFO( "initializing -- " << name() );
+    ATH_MSG_DEBUG( "initializing -- " << name() );
 
-    ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmDigitContainer.name() << m_MmDigitContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+    ATH_MSG_DEBUG( name() << " configuration:");
+    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_MmDigitContainer.name() << m_MmDigitContainer.value());
+    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                      << setfill(' ') << setiosflags(ios::right) );
 
 
@@ -74,7 +74,7 @@ namespace NSWL1 {
 
       m_tree = 0;
       ATH_CHECK( tHistSvc->getTree(ntuple_name,m_tree) );
-      ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
+      ATH_MSG_DEBUG("Analysis ntuple succesfully retrieved");
       ATH_CHECK( this->book_branches() );
 
     } else this->clear_ntuple_variables();
@@ -84,7 +84,7 @@ namespace NSWL1 {
       ATH_MSG_FATAL("Failed to retrieve the Incident Service");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("Incident Service successfully rertieved");
+      ATH_MSG_DEBUG("Incident Service successfully rertieved");
     }
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
@@ -93,7 +93,7 @@ namespace NSWL1 {
       ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
+      ATH_MSG_DEBUG("MuonDetectorManager successfully retrieved");
     }
 
     //  retrieve the Mm offline Id helper
@@ -101,7 +101,7 @@ namespace NSWL1 {
       ATH_MSG_FATAL("Failed to retrieve MmIdHelper");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("MmIdHelper successfully retrieved");
+      ATH_MSG_DEBUG("MmIdHelper successfully retrieved");
     }
 
     //Calculate and retrieve wedge geometry, defined in MMT_struct
@@ -120,7 +120,7 @@ namespace NSWL1 {
     const EventInfo* pevt = 0;
     ATH_CHECK( evtStore()->retrieve(pevt) );
     int event = pevt->event_ID()->event_number();
-    ATH_MSG_INFO("********************************************************* EVENT NUMBER = " << event);
+    ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
 
     //////////////////////////////////////////////////////////////
     //                                                          //

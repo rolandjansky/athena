@@ -9,6 +9,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
 // root includes
 #include "TTree.h"
 // Local includes
@@ -59,8 +60,9 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::initialize() {
-    ATH_MSG_INFO( "initialize " << name() );
+    ATH_MSG_DEBUG( "initialize " << name() );
     ATH_CHECK( m_trigRdoContainer.initialize() );
+    ATH_CHECK( m_xaodevtKey.initialize() );
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -100,27 +102,29 @@ namespace NSWL1 {
     }
 
     // Connect to Monitoring Service
-    ATH_CHECK(m_monitors.retrieve());
+    if(m_doNtuple){
+      ATH_CHECK(m_monitors.retrieve());
+    }
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::start() {
-    ATH_MSG_INFO("start " << name() );
-    for ( auto& mon : m_monitors ) {
-      ATH_CHECK(mon->bookHists());
+    ATH_MSG_DEBUG("start " << name() );
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors ) {
+	ATH_CHECK(mon->bookHists());
+      }
     }
-
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::execute() {
-    const DataHandle<EventInfo> pevt;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    m_current_run = pevt->event_ID()->run_number();
-    m_current_evt = pevt->event_ID()->event_number();
-
+    SG::ReadHandle<xAOD::EventInfo> evt(m_xaodevtKey);
+    CHECK(evt.isValid());
+    m_current_run = evt->runNumber();
+    m_current_evt = evt->eventNumber();
 
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
@@ -154,10 +158,12 @@ namespace NSWL1 {
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger(m_doMMDiamonds) );
     }
-    for ( auto& mon : m_monitors) {
-      ATH_CHECK(mon->fillHists());
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors) {
+	ATH_CHECK(mon->fillHists());
+      }
+      if (m_tree) m_tree->Fill();
     }
-    if (m_tree) m_tree->Fill();
 
     // Dump content of the pad trigger collection
     if (m_dosTGC)
@@ -180,9 +186,11 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::finalize() {
-    ATH_MSG_INFO( "finalize" << name() );
-    for ( auto& mon :  m_monitors ) {
-      ATH_CHECK(mon->finalHists());
+    ATH_MSG_DEBUG( "finalize" << name() );
+    if(m_doNtuple){
+      for ( auto& mon :  m_monitors ) {
+	ATH_CHECK(mon->finalHists());
+      }
     }
     return StatusCode::SUCCESS;
   }
