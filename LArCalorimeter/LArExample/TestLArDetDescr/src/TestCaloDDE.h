@@ -63,7 +63,7 @@ class TestCaloDDE : public AthAlgorithm
       , true
       , "Get CaloDetDescrManage from Condition Store. If FALSE, then use Detector Store"};
 
-  SG::ReadCondHandleKey<CaloDetDescrManager> m_readCondKey { this
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
       , "CaloDetDescrManager"
       , "CaloDetDescrManager"
       , "SG Key for CaloDetDescrManager in the Condition Store" };

@@ -40,14 +40,14 @@ class TestLArMaterial : public AthAlgorithm
   void print_Layers();
 
  protected:
-  SG::ReadCondHandleKey<CaloDetDescrManager> m_readCondKey { this
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
       , "CaloDetDescrManager"
       , "CaloDetDescrManager"
       , "SG Key for CaloDetDescrManager in the Condition Store" };
 
-  ICaloSurfaceBuilder*   m_surfbuild;
-  CaloSubdetNames* m_lar_names;
-  ICaloRecoMaterialTool* m_lar_mat;
+  ICaloSurfaceBuilder*   m_surfbuild{nullptr};
+  CaloSubdetNames* m_lar_names{nullptr};
+  ICaloRecoMaterialTool* m_lar_mat{nullptr};
 };
 
 #endif
