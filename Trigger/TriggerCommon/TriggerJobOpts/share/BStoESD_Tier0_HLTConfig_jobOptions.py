@@ -5,14 +5,14 @@
 ##############################################################
 
 # Configuration depends on TriggerFlags.configForStartup():
-#   HLToffline       : HLT is ran offline, configuration is read from XML/JSON files
+#   HLToffline       : HLT is ran offline, configuration is read from JSON files
 #   HLTonline        : Normal running, everything is taken from COOL
 
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
+from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.Include import include
 
 from AthenaCommon.Logging import logging
@@ -24,7 +24,7 @@ assert rec.doTrigger(), assertMsg + ' Since rec.doTrigger is disabled, this file
 assert not recAlgs.doTrigger(), assertMsg + \
     ' Trigger selection should not run in offline reconstruction, so recAlgs.doTrigger should be False'
 
-# First check is HLT psk is ok, if not, turn trigger off.
+# First check if HLT psk is ok, if not, turn trigger off.
 if tf.configForStartup() != 'HLToffline':
     include( "TriggerJobOpts/TriggerConfigCheckHLTpsk.py" )
 
@@ -54,39 +54,12 @@ if rec.doTrigger():
         raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
 
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter()
 
-    try:
-        from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg=TriggerConfigGetter()
-    except Exception:
-        from AthenaCommon.Resilience import treatException
-        treatException("Could not run TriggerConfigGetter()")
+    from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+    triggerGetter = T0TriggerGetter()
 
-    #---------------------------------------------------------------------------
-    if tf.configForStartup()=="HLTonline": # need to talk to clients using LVL1ConfigSvc and add new folders into
-
-        # do not need thresholds but are using LVL1ConfigSvc
-        if not hasattr(ToolSvc,'RecMuCTPIByteStreamTool'):
-            from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RecMuCTPIByteStreamTool
-            ToolSvc += RecMuCTPIByteStreamTool("RecMuCTPIByteStreamTool")
-
-        import TrigT1CaloTools.TrigT1CaloToolsConf as calotools  # noqa: F401
-        for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
-                         'L1CPCMXTools', 'L1JEMJetTools']:
-            if not hasattr(ToolSvc, toolName ):
-                ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
-            theTool = getattr(ToolSvc, toolName)
-            if 'LVL1ConfigSvc' in theTool.getProperties():
-                theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-    #---------------------------------------------------------------------------
-    try:
-        from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-        triggerGetter = T0TriggerGetter()
-    except Exception:
-        from AthenaCommon.Resilience import treatException
-        treatException("Could not import TriggerJobOpts.T0TriggerGetter . Switched off !" )
-        recAlgs.doTrigger=False
     if rec.doWriteBS():
         include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
 
