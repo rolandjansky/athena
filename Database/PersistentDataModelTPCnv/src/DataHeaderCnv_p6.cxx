@@ -57,8 +57,7 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    DataHeader* trans = new DataHeader();
    const unsigned int provSize = pers->m_provenanceSize;
    trans->m_inputDataHeader.resize(provSize);
-   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize);
-
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize - 1); // Take into account self reference
    unsigned i = 0;
    for( auto& elem : trans->m_dataHeader ) {
       persToElem( pers, i++, &elem, form );
@@ -66,6 +65,9 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    for( auto& elem : trans->m_inputDataHeader ) {
       persToElem( pers, i++, &elem, form );
    }
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize); // Add self reference, which was appended to end
+   auto& elem = trans->m_dataHeader.back();
+   persToElem( pers, i++, &elem, form );
    trans->setStatus(DataHeader::Input);
    return trans;
 }
