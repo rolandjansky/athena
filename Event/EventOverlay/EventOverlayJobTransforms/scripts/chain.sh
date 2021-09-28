@@ -38,7 +38,6 @@ if [ $doreco == 1 ]; then
 #domon="rec.doMonitoring=True;"
 #rdotrig="--outputRDO_TRIGFile testRTT.RDO_TRIG.pool.root --triggerConfig MCRECO:DBF:TRIGGERDBMC:2046,20,48 "
 aodout="--outputAODFile testRTT.AOD.pool.root"
-#trigflag="from TriggerJobOpts.TriggerFlags import TriggerFlags as TF; TF.doLVL1.set_Value_and_Lock(False); TF.doL1Topo.set_Value_and_Lock(False); TF.doLVL2.set_Value_and_Lock(True); TF.doEF.set_Value_and_Lock(True);"
 trigflag="from TriggerJobOpts.TriggerFlags import TriggerFlags as TF; TF.configForStartup.set_Value_and_Lock('HLToffline');"
 #dotrig="rec.doTrigger=True;"
 

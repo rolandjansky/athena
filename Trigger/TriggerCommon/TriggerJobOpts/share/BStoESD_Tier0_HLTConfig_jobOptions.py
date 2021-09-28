@@ -35,7 +35,7 @@ if rec.doTrigger():
         from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         ServiceMgr += ByteStreamAddressProviderSvc()
 
-    tf.readBS=True
+    ConfigFlags.Trigger.readBS = True
     tf.doLVL1= False # needed to not rerun the trigger
     tf.doHLT= False # needed to not rerun the trigger
     if ConfigFlags.Trigger.EDMVersion >= 3:

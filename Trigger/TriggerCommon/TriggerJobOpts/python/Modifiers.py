@@ -41,46 +41,6 @@ class _modifier:
 # Detector maps and conditions
 ###############################################################
 
-class streamingOnly(_modifier):
-    """
-    Turn off things not needed for streaming only setup
-    """
-    def preSetup(self):
-        from MuonRecExample.MuonRecFlags import muonRecFlags
-        muonRecFlags.doMDTs=False
-        muonRecFlags.doRPCs=False
-        muonRecFlags.doTGCs=False
-        TriggerFlags.doID=False
-        TriggerFlags.doCalo=False
-
-    def postSetup(self):
-        #remove MDT folders as one of them takes 10s to load
-        svcMgr.IOVDbSvc.Folders=[]
-        Folders=[]
-        for text in svcMgr.IOVDbSvc.Folders:
-            if text.find("/MDT")<0:
-                Folders+=[text]
-        svcMgr.IOVDbSvc.Folders=Folders
-
-        # There is no magnetic field service in this setup
-        if hasattr(svcMgr,'HltEventLoopMgr'):
-            svcMgr.HltEventLoopMgr.setMagFieldFromPtree = False
-
-class noID(_modifier):
-    """
-    Turning of ID - make sure no algorithm needs it!
-    """
-    def preSetup(self):
-        TriggerFlags.doID=False
-
-class noCalo(_modifier):
-    """
-    Turning of Calorimeter - make sure no algorithm needs it!
-    """
-    def preSetup(self):
-        TriggerFlags.doCalo=False
-
-
 class BunchSpacing25ns(_modifier):
     """
     ID (and other settings) related to 25ns bunch spacing
@@ -124,7 +84,8 @@ class useHLTMuonAlign(_modifier):
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
             from MuonRecExample import MuonAlignConfig  # noqa: F401
             #temporary hack to workaround DB problem - should not be needed any more
             folders=svcMgr.IOVDbSvc.Folders
@@ -142,7 +103,8 @@ class useRecentHLTMuonAlign(_modifier):
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doHLT and ConfigFlags.Trigger.doMuon:
             from MuonRecExample import MuonAlignConfig  # noqa: F401
             folders=svcMgr.IOVDbSvc.Folders
             newFolders=[]
@@ -267,9 +229,10 @@ class noPileupNoise(_modifier):
     Disable pileup noise correction
     """
     def preSetup(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
-        TriggerFlags.doCaloOffsetCorrection.set_Value_and_Lock(False)
+        ConfigFlags.Trigger.calo.doOffsetCorrection = False
 
 class usePileupNoiseMu8(_modifier):
     """
@@ -397,37 +360,6 @@ class forceAFPLinkNum(_modifier):
 # Algorithm modifiers
 ###############################################################
 
-class physicsZeroStreaming(_modifier):
-    """
-    set all physics chains to stream prescale 0 except streamer chains
-    """
-    def preSetup(self):
-        TriggerFlags.zero_stream_prescales=True
-
-class physicsPTmode(_modifier):
-    """
-    set all physics chains to PT=1 except streamer chains
-    """
-    def preSetup(self):
-        TriggerFlags.physics_pass_through=True
-
-class disableIBLInTracking(_modifier):
-    """
-    Turn off IBL in tracking algorithms (data still available for PEB etc)
-    """
-
-    def postSetup(self):
-        svcMgr.SpecialPixelMapSvc.MaskLayers = True
-        svcMgr.SpecialPixelMapSvc.LayersToMask = [0]
-
-
-class doMuonRoIDataAccess(_modifier):
-    """
-    Use RoI based decoding of muon system
-    """
-    def preSetup(self):
-        TriggerFlags.MuonSlice.doEFRoIDrivenAccess=True
-
 class rewriteLVL1(_modifier):
     """
     Write LVL1 results to ByteStream output, usually used together with rerunLVL1
@@ -481,7 +413,8 @@ class DisableMdtT0Fit(_modifier):
     Disable MDT T0 re-fit and use constants from COOL instead
     """
     def preSetup(self):
-        if TriggerFlags.doMuon():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.doMuon:
             from MuonRecExample.MuonRecFlags import muonRecFlags
             muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
 
