@@ -29,8 +29,6 @@ class opt:
     doID             = True           # ConfigFlags.Trigger.doID
     doCalo           = True           # ConfigFlags.Trigger.doCalo
     doMuon           = True           # ConfigFlags.Trigger.doMuon
-    doDBConfig       = None           # dump trigger configuration
-    trigBase         = None           # file name for trigger config dump
     doWriteRDOTrigger = False         # Write out RDOTrigger?
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
@@ -241,11 +239,6 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
 # Pass on the option enabling HLT selection algorithms
 ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
-
-# To extract the Trigger configuration
-TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
-if opt.trigBase is not None:
-    TriggerFlags.Online.doDBConfigBaseName = opt.trigBase
 
 # Setup list of modifiers
 # Common modifiers for MC and data
