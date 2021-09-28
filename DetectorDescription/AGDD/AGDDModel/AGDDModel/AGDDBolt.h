@@ -12,7 +12,10 @@
 
 class AGDDBolt: public AGDDVolume {
 public:
-	AGDDBolt(const std::string& s):AGDDVolume(s),m_length(0),m_headLength(0),
+	AGDDBolt(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_length(0),m_headLength(0),
 										 m_diameter(0),m_headDiameter(0) {}
 	~AGDDBolt() {}
         virtual void CreateVolume (const AGDDBuilder& builder) override;

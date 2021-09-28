@@ -27,14 +27,12 @@ void compositionHandler::ElementHandle(AGDDController& c,
 //	if (msgLog().level()<=MSG::DEBUG)
 //	msgLog()<<MSG::DEBUG<<" Composition "<<name<<endmsg;
 	
-	AGDDComposition *cm=new AGDDComposition(name);
-	
-	AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
+	AGDDComposition *cm=new AGDDComposition(name, c.GetVolumeStore(), c.GetSectionStore());
 	
 	StopLoop(true);
 	DOMNode *child;
 	
-	int before=pS->NrOfPositioners();
+	int before=c.GetPositionerStore().NrOfPositioners();
 	
 	for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
 	{
@@ -43,11 +41,11 @@ void compositionHandler::ElementHandle(AGDDController& c,
 		}
 	}
 	
-	int after=pS->NrOfPositioners();
+	int after=c.GetPositionerStore().NrOfPositioners();
 	for (int i=before;i<after;i++)
 	{
-		AGDDPositioner *posit=pS->GetPositioner(i);
-		if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
+		AGDDPositioner *posit=c.GetPositionerStore().GetPositioner(i);
+		if (c.GetVolumeStore().Exist(posit->Volume()))
 			cm->AddDaughter(posit);
 	}
 	

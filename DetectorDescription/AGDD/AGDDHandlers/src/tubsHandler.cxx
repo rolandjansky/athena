@@ -23,7 +23,7 @@ void tubsHandler::ElementHandle(AGDDController& c,
 	std::string name=getAttributeAsString(c, t, "name",res);
 	std::string material=getAttributeAsString(c, t, "material",res);
 	std::vector<double> vvv=getAttributeAsVector(c, t, "Rio_Z",res);
-	AGDDTubs *v=new AGDDTubs(name);
+	AGDDTubs *v=new AGDDTubs(name, c.GetVolumeStore(), c.GetSectionStore());
 	v->SetMaterial(material);
 	v->SetRio_Z(vvv);
 	

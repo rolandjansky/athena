@@ -75,6 +75,8 @@ void mposPhiHandler::ElementHandle(AGDDController& c,
 		if (s!="false"&&i>0) crot = GeoTrf::RotateZ3D(dphi*GeoModelKernelUnits::degree)*crot;
 		else if (s!="false"&&i==0) crot = GeoTrf::RotateZ3D(phi0*GeoModelKernelUnits::degree)*crot;
 
-		new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
+		new AGDDPositioner(c.GetPositionerStore(),
+                                   c.GetVolumeStore(),
+                                   volume,GeoTrf::Translation3D(cvec)*crot);
 	}
 }

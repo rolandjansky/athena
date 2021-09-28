@@ -26,8 +26,11 @@
 
 using MuonGM::MYSQL;
 
-AGDDMicromegas::AGDDMicromegas(const std::string& s): 
-	MMDetectorDescription(s),AGDDVolume(s,true)
+AGDDMicromegas::AGDDMicromegas(const std::string& s,
+                               AGDDDetectorStore& ds,
+                               AGDDVolumeStore& vs,
+                               AGDDSectionStore& ss)
+  : MMDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
 	s_current=this;
 	Register();

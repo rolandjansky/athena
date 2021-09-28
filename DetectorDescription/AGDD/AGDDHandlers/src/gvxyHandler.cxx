@@ -6,6 +6,7 @@
 #include "AGDDModel/AGDDGvxy.h"
 #include "AGDDHandlers/gvxy_pointHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 
 using namespace xercesc;
@@ -24,7 +25,7 @@ void gvxyHandler::ElementHandle(AGDDController& c,
 	std::string material=getAttributeAsString(c, t, "material");
 	double dZ=getAttributeAsDouble(c, t, "dZ");
 	
- 	AGDDGvxy *vol=new AGDDGvxy(name);
+ 	AGDDGvxy *vol=new AGDDGvxy(name, c.GetVolumeStore(), c.GetSectionStore());
  	vol->SetMaterial(material);
  	vol->SetDz(dZ);
 

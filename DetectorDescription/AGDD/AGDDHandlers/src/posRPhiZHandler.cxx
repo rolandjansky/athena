@@ -38,5 +38,7 @@ void posRPhiZHandler::ElementHandle(AGDDController& c,
 	double y=radius*std::sin(phi*GeoModelKernelUnits::degree);
 	GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
 
-	new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
+	new AGDDPositioner(c.GetPositionerStore(),
+                           c.GetVolumeStore(),
+                           volume,GeoTrf::Translation3D(cvec)*crot);
 }

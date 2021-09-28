@@ -22,7 +22,7 @@ void trdHandler::ElementHandle(AGDDController& c,
 	std::string name=getAttributeAsString(c, t, "name",res);
 	std::string material=getAttributeAsString(c, t, "material",res);
 	std::vector<double> vvv=getAttributeAsVector(c, t, "Xmp_Ymp_Z",res);
-	AGDDTrd *b=new AGDDTrd(name);
+	AGDDTrd *b=new AGDDTrd(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetXYZ(vvv);
 	

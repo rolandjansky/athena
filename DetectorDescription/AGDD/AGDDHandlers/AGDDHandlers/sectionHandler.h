@@ -8,8 +8,6 @@
 #include "AGDDControl/XMLHandler.h"
 #include <string>
 
-class AGDDSection;
-
 class sectionHandler:public XMLHandler {
 public:
 	sectionHandler(const std::string&,

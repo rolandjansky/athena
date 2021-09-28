@@ -30,8 +30,11 @@
 using MuonGM::MYSQL;
 
 
-AGDDsTGC::AGDDsTGC(const std::string& s):
-    sTGCDetectorDescription(s),AGDDVolume(s,true)
+AGDDsTGC::AGDDsTGC(const std::string& s,
+                   AGDDDetectorStore& ds,
+                   AGDDVolumeStore& vs,
+                   AGDDSectionStore& ss)
+  : sTGCDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
     s_current=this;
     Register();

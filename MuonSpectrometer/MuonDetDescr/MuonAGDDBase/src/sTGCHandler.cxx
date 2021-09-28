@@ -39,7 +39,10 @@ void sTGCHandler::ElementHandle(AGDDController& c,
 	
 	std::string technology=getAttributeAsString(c, t, "tech",ret);
 	
-	AGDDsTGC *b=new AGDDsTGC(name);
+	AGDDsTGC *b=new AGDDsTGC(name,
+                                 c.GetDetectorStore(),
+                                 c.GetVolumeStore(),
+                                 c.GetSectionStore());
 	b->SetXYZ(vvv);
 	b->subType(sType);
 	b->tech=technology;

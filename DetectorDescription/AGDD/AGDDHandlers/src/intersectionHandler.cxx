@@ -22,17 +22,19 @@ intersectionHandler::intersectionHandler(const std::string& s,
 void intersectionHandler::ElementHandle(AGDDController& c,
                                         xercesc::DOMNode *t)
 {
+        AGDDVolumeStore& vs = c.GetVolumeStore();
+        AGDDSectionStore& ss = c.GetSectionStore();
+        AGDDPositionerStore& ps = c.GetPositionerStore();
+
 	bool res;
 	std::string name=getAttributeAsString(c, t, "name");
-	AGDDIntersection *is=new AGDDIntersection(name);
-	
-	AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
+	AGDDIntersection *is = new AGDDIntersection(name, vs, ss);
 	
 	StopLoop(true);
 
         DOMNode* child;
 
-        int before=pS->NrOfPositioners();
+        int before=ps.NrOfPositioners();
 
         for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
         {
@@ -41,11 +43,11 @@ void intersectionHandler::ElementHandle(AGDDController& c,
                }
         }
 	
-	int after=pS->NrOfPositioners();
+	int after=ps.NrOfPositioners();
 	for (int i=before;i<after;i++)
 	{
-		AGDDPositioner *posit=pS->GetPositioner(i);
-		if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
+		AGDDPositioner *posit=ps.GetPositioner(i);
+		if (vs.Exist(posit->Volume()))
 			is->AddDaughter(posit);
 	}
 	

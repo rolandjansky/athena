@@ -20,5 +20,5 @@ void aliasHandler::ElementHandle(AGDDController& c,
 {
 	std::string name=getAttributeAsString(c, t, "name");
 	std::string value=getAttributeAsString(c, t, "standsFor");
-        AliasStore::GetAliasList()->AddAlias(name,value);
+	c.GetAliasStore().AddAlias(name,value);
 }
