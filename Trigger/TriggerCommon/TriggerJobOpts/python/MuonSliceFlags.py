@@ -15,21 +15,6 @@ class doTrigMuonConfig(JobProperty):
 
 _flags.append(doTrigMuonConfig)
 
-class doMuonCalibrationStream(JobProperty):
-    """ do or not to do the setup for the muon calibration stream"""
-    statusOn = True
-    allowedType = ['bool']
-    StoredValue = False
-_flags.append(doMuonCalibrationStream)
-
-class doEFRoIDrivenAccess(JobProperty):
-    """ do or not do the EF Roi driven access"""
-    statusOn = True
-    allowedType = ['bool']
-    StoredValue = False
-
-_flags.append(doEFRoIDrivenAccess)
-
 class signatures(JobProperty):
     """ signatures in Muon slice """
     statusOn=True
