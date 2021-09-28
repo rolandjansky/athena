@@ -537,6 +537,7 @@
 #include "AthContainers/tools/DVL_algorithms.h"
 #include "AthContainers/tools/ElementProxy.h"
 #include "AthContainers/tools/IsMostDerivedFlag.h"
+#include "AthContainers/DataVectorWithAllocFwd.h"
 #include "AthLinks/tools/selection_ns.h"
 #include <boost/static_assert.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
@@ -765,6 +766,7 @@ template struct DataVector_detail::DVLEltBaseInit<T>
 
 template <class DV> class ConstDataVector;
 template <class DV> void test2_assignelement1();
+template <class DV> void test2_assignelement1a();
 template <class DV> void test2_assignelement2();
 
 
@@ -811,6 +813,10 @@ public:
   /// Note that this is different from @c value_type (that's @c T*).
   typedef T base_value_type;
 
+  /// Type of a unique_ptr that can be used to insert elements
+  /// into this container.
+  typedef std::unique_ptr<base_value_type> unique_type;
+
   /// This type is used to proxy lvalue accesses to @c DataVector
   /// elements, in order to handle ownership.
   typedef DataModel_detail::ElementProxy<DataVector> ElementProxy;
@@ -838,6 +844,9 @@ public:
 
 
   using Deleter = typename BASE::Deleter;
+
+  /// If true, then this type must own its contents.
+  static constexpr bool must_own = BASE::must_own;
 
 
   //========================================================================
@@ -1859,6 +1868,9 @@ private:
   friend class DataModel_detail::ElementProxy<DataVector>;
   template <class DV>
   friend class ConstDataVector;
+  template <class DV, class ALLOC>
+  friend class DataVectorWithAlloc;
+  friend void test2_assignelement1a<DataVector>();
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 
@@ -1936,6 +1948,18 @@ public:
    */
   static
   const T* do_cast (const typename PtrVector::value_type p);
+
+
+  /**
+   * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+   * @param p The value to convert.
+   * @return The value as a @c T*.
+   *
+   * The conversion will be done with @c static_cast if possible,
+   * with @c dynamic_cast otherwise.
+   */
+  static
+  T* do_cast_nc (typename PtrVector::value_type p);
 
 
 private:
@@ -2036,6 +2060,10 @@ public:
   /// Note that this is different from @c value_type (that's @c T*).
   typedef T base_value_type;
 
+  /// Type of a unique_ptr that can be used to insert elements
+  /// into this container.
+  typedef std::unique_ptr<base_value_type> unique_type;
+
   /// This type is used to proxy lvalue accesses to @c DataVector
   /// elements, in order to handle ownership.
   typedef DataModel_detail::ElementProxy<DataVector> ElementProxy;
@@ -2077,6 +2105,10 @@ public:
     virtual void doDelete (typename PtrVector::iterator first,
                            typename PtrVector::iterator last) = 0;
   };
+
+
+  /// If true, then this type must own its contents.
+  static constexpr bool must_own = false;
 
 
   //========================================================================
@@ -3071,6 +3103,9 @@ private:
   friend class DataModel_detail::ElementProxy<DataVector>;
   template <class DV>
   friend class ConstDataVector;
+  template <class DV, class ALLOC>
+  friend class DataVectorWithAlloc;
+  friend void test2_assignelement1a<DataVector>();
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 
@@ -3147,6 +3182,17 @@ public:
    */
   static
   const T* do_cast (const typename PtrVector::value_type p);
+
+
+  /**
+   * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+   * @param p The value to convert.
+   * @return The value as a @c T*.
+   *
+   * This is a no-op for the base class.
+   */
+  static
+  T* do_cast_nc (typename PtrVector::value_type p);
 
 
 private:
@@ -3263,7 +3309,7 @@ const bool DataVector<T, DataModel_detail::NoBase>::has_virtual;
 /**
  * @brief  Vector equality comparison.
  * @param  a  A @c DataVector.
- * @param  b  A @c DataVector of the same type as @a x.
+ * @param  b  A @c DataVector of the same type as @a b.
  * @return  True iff the size and elements of the vectors are equal.
  *
  * This is an equivalence relation.  It is linear in the size of the
@@ -3282,8 +3328,8 @@ bool operator!= (const DataVector<T>& a, const DataVector<T>& b);
 /**
  * @brief  Vector ordering relation.
  * @param  a  A @c DataVector.
- * @param  b  A @c DataVector of the same type as @a x.
- * @return  True iff @a x is lexicographically less than @a y.
+ * @param  b  A @c DataVector of the same type as @a a.
+ * @return  True iff @a a is lexicographically less than @a b.
  *
  * This is a total ordering relation.  It is linear in the size of the
  * vectors.  Comparisons are done on the pointer values of the elements.
