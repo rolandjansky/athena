@@ -21,7 +21,7 @@ from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ["FullG4MT"]:
+    if flags.Sim.ISF.Simulator in ['FullG4MT', 'FullG4MT_QS']:
         tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
         tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))

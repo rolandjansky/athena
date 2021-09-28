@@ -14,6 +14,21 @@
 # 3b) CosmicGenerator
 # 4) inputHITSFile (re-simulation)
 
+from PyJobTransforms.TransformUtils import executeFromFragment
+
+
+def specialConfigPreInclude(ConfigFlags):
+    fragment = ConfigFlags.Input.SpecialConfiguration.get("preInclude", None)
+    if fragment and fragment != 'NONE':
+        executeFromFragment(fragment, ConfigFlags) #FIXME assumes only one fragment?
+
+
+def specialConfigPostInclude(ConfigFlags, cfg):
+    fragment = ConfigFlags.Input.SpecialConfiguration.get("postInclude", None)
+    if fragment and fragment != 'NONE':
+        executeFromFragment(fragment, ConfigFlags, cfg) #FIXME assumes only one fragment?
+
+
 def CommonSimulationCfg(ConfigFlags, log):
     # Configure main services and input reading (if required)
     if ConfigFlags.Input.Files == '':
