@@ -27,6 +27,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  MultiBjetGroup,
                                                                  BjetMETGroup,
                                                                  SingleTauGroup,
+                                                                 MultiTauGroup,
                                                                  BphysicsGroup,
                                                                  BphysElectronGroup,
                                                                  EgammaMuonGroup,
@@ -183,7 +184,27 @@ def setupMenu():
         ChainProp(name='HLT_e60_lhmedium_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e300_etcut_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
-
+        # More PhaseI eEM chains (ATR-24182)
+        ChainProp(name='HLT_2e17_lhvloose_L12eEM15M', groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_2e24_lhvloose_L12eEM20L', groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1eEM20L_3eEM10L',l1SeedThresholds=['eEM20L','eEM10L'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1eEM22M', l1SeedThresholds=['eEM22M','eEM8'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_idperf_Zee_L1eEM22M', l1SeedThresholds=['eEM22M','eEM8'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_g140_loose_L1eEM22M', groups=PrimaryPhIGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g300_etcut_L1eEM22M', groups=PrimaryPhIGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_2g20_tight_icaloloose_L12eEM15M', groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g22_tight_L12eEM15M', groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12eEM20L', l1SeedThresholds=['eEM20L','eEM20L'], groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g50_loose_L12eEM20L', groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_2g25_loose_g15_loose_L12eEM20L', l1SeedThresholds=['eEM20L','eEM10L'], groups=PrimaryPhIGroup+MultiPhotonGroup),
+        ChainProp(name='HLT_e24_lhmedium_g25_medium_02dRAB_L12eEM20L', l1SeedThresholds=['eEM20L','eEM20L'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhmedium_g12_loose_g12_loose_02dRAB_02dRAC_L1eEM20L_3eEM10L', l1SeedThresholds=['eEM20L','eEM10L','eEM10L'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhmedium_nopix_lrttight_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_g35_loose_PhotonDS_L1eEM22M', stream=['PhotonDS'], groups=PrimaryPhIGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_e25_mergedtight_g35_medium_Heg_02dRAB_L12eEM20L', l1SeedThresholds=['eEM20L','eEM20L'], groups=PrimaryPhIGroup+MultiElectronGroup),
+        
+        
         # lrt chains
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_idperf_loose_lrtloose_L1EM22VHI', groups=SingleElectronGroup),  
@@ -893,6 +914,12 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20",   groups=SingleTauGroup),
         #ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1cTAU20",   groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100", groups=SingleTauGroup),
+        # More Phase-I tau chains (ATR-24182)
+        ChainProp(name='HLT_tau200_mediumRNN_tracktwoMVABDT_L1eTAU100', groups=PrimaryPhIGroup+SingleTauGroup),
+        ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_L1eTAU100', groups=PrimaryPhIGroup+SingleTauGroup),
+        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
+        ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
+
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [

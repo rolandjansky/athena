@@ -150,6 +150,12 @@ class ItemDef:
         MenuItem('L1_EM20VH_3EM10VH' ).setLogic( d.EM20VH & d.EM10VH.x(3) & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20VH_2EM10VH_3EM8VH' ).setLogic( d.EM20VH & d.EM10VH.x(2) & d.EM8VH.x(3)    & physcond).setTriggerType( TT.calo )
 
+        # PhaseI 2xEM and 3xEM
+        MenuItem('L1_2eEM15M').setLogic(d.eEM15M.x(2) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_2eEM20L').setLogic(d.eEM20L.x(2) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_3eEM10L').setLogic(d.eEM10L.x(3) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_eEM20L_3eEM10L').setLogic(d.eEM20L & d.eEM10L.x(3) & physcond).setTriggerType(TT.calo)
+
         # 4xEM
         MenuItem('L1_EM15VH_3EM7'         ).setLogic( d.EM15VH & d.EM7.x(3)      & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15VH_3EM8VH'       ).setLogic( d.EM15VH & d.EM8VH.x(3)    & physcond).setTriggerType( TT.calo )
@@ -386,6 +392,8 @@ class ItemDef:
         MenuItem('L1_eTAU40'  ).setLogic( d.eTAU40   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU60'  ).setLogic( d.eTAU60   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU100' ).setLogic( d.eTAU100  & physcond).setTriggerType( TT.calo )
+        # Phase-I 2xTAU
+        MenuItem('L1_eTAU60_2eTAU40').setLogic(d.eTAU60 & d.eTAU40.x(2) & physcond).setTriggerType(TT.calo)
 
         #UPC TAU
         MenuItem('L1_2TAU1_VTE50' ).setLogic( d.HA1.x(2)      & Not(d.TE50) & physcond).setTriggerType(TT.calo)
