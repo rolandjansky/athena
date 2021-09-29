@@ -20,7 +20,8 @@ namespace {
 StatusCode CaloTowerGeometryCondAlg::initialize() {
  
   ATH_CHECK(m_condSvc.retrieve());
- 
+  ATH_CHECK(m_caloMgrKey.initialize());
+  
   ATH_CHECK(m_outputKey.initialize());
   // Register write handle
   if (m_condSvc->regHandle(this, m_outputKey).isFailure()) {
@@ -33,6 +34,10 @@ StatusCode CaloTowerGeometryCondAlg::initialize() {
 
 
 StatusCode CaloTowerGeometryCondAlg::execute(const EventContext& ctx) const {
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
+
   //Set up write handle
   SG::WriteCondHandle<CaloTowerGeometry> writeHandle{m_outputKey,ctx};
   if (writeHandle.isValid()) {
@@ -40,10 +45,7 @@ StatusCode CaloTowerGeometryCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  writeHandle.addDependency(IOVInfiniteRange::infiniteRunLB());
-
-  const CaloDetDescrManager* caloDDM=nullptr;
-  ATH_CHECK(detStore()->retrieve(caloDDM));
+  writeHandle.addDependency(caloMgrHandle);
 
 
   std::unique_ptr<CaloTowerGeometry> towerGeo=std::make_unique<CaloTowerGeometry>(caloDDM);
