@@ -70,6 +70,9 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   std::vector<float> m_spread1;
   std::vector<float> m_calib;
 
+  mutable std::once_flag m_initOnce;
+  void initOnce(); 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 };
 
 #endif // not LARCELLREC_LARCELLEMMISCALIB_H

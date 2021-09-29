@@ -18,7 +18,6 @@ PURPOSE:  non linearity if only linear calibration fit is used
 // INCLUDE LAr header files:
 #include "LArNonLinearity.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloEvent/CaloCell.h"
 // Units
@@ -86,13 +85,10 @@ StatusCode LArNonLinearity::initialize()
   ATH_MSG_INFO( name()  );
   ATH_MSG_INFO( " Initialize LArNonLinearity "  );
 
-  // pointer to DD manager and helpers:
-  const CaloIdManager* caloIdMgr;
-  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
-
-  m_emID = caloIdMgr->getEM_ID();
-  m_hecID = caloIdMgr->getHEC_ID();
-  m_fcalID = caloIdMgr->getFCAL_ID();
+  // pointer to identifier helpers:
+  ATH_CHECK(detStore()->retrieve(m_emID,"LArEM_ID"));
+  ATH_CHECK(detStore()->retrieve(m_hecID,"HEC_ID"));
+  ATH_CHECK(detStore()->retrieve(m_fcalID,"FCAL_ID"));
 
   return StatusCode::SUCCESS; 
 } 
