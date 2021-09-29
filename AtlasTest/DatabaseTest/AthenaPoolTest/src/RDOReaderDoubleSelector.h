@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RDOREADERDOUBLESELECTOR_H
-#define RDOREADERDOUBLESELECTOR_H
+#ifndef ATHENAPOOLTEST_RDOREADERDOUBLESELECTOR_H
+#define ATHENAPOOLTEST_RDOREADERDOUBLESELECTOR_H
 
 /**
  * @file RDOReaderDoubleSelector.h
@@ -15,13 +15,13 @@
  *
  */
 
-// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-class CaloDetDescrManager;
 class CaloCell_ID;
 class CaloCellContainer;
 
@@ -36,13 +36,13 @@ public:
     RDOReaderDoubleSelector(const std::string &name,ISvcLocator *pSvcLocator);
 
     /// Algorithm initialize at begin of job
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// Algorithm execute once per event
-    virtual StatusCode execute(); 
+    virtual StatusCode execute() override;
 
     /// Algorithm finalize at end of job
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
   
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -88,7 +88,10 @@ private:
     const TRT_ID* m_trtId;
 
     /// Need DD mgr to create cells
-    const CaloDetDescrManager*  m_caloMgr;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
 
     /// Need id helper to create cells
     const CaloCell_ID*          m_calocellId;
