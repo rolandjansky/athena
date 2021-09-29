@@ -27,6 +27,12 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
         self.RegSelToolTILE = makeRegSelTool_TILE()
         condseq = AthSequencer('AthCondSeq')
         condseq.RegSelCondAlg_TTEM.RegSelLUT="ConditionStore+RegSelLUTCondData_TTEM"
+        from IOVDbSvc.CondDB import conddb
+        from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+        if conddb.isMC:
+           LArBadChannelAccess(dbString="<db>COOLOFL_LAR/OFLP200</db>/LAR/BadChannels/BadChannels")
+        else:
+           LArBadChannelAccess(dbString="<db>COOLONL_LAR/CONDBR2</db>/LAR/BadChannels/BadChannels")
 
         if ( globalflags.DatabaseInstance == "COMP200" and ConfigFlags.Trigger.calo.doOffsetCorrection ) :
             log.warning("Not possible to run BCID offset correction with COMP200")
@@ -34,7 +40,6 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
             if ConfigFlags.Trigger.calo.doOffsetCorrection:
                 if globalflags.DataSource()=='data' and athenaCommonFlags.isOnline():
                     log.info('Enable HLT calo offset correction for data')
-                    from IOVDbSvc.CondDB import conddb
                     conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/OFC")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
                     svcMgr += LArFlatConditionSvc()

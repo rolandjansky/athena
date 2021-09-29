@@ -7,7 +7,7 @@ def LArBadChannelAccess(algname="LArBadChannelCondAlg",dbString=None):
     condSeq = AthSequencer("AthCondSeq")
 
     if hasattr(condSeq,algname):
-        print ("Access to bad Feb info already set up")
+        print ("Access to bad Cell info already set up")
         return
 
 
@@ -22,10 +22,12 @@ def LArBadChannelAccess(algname="LArBadChannelCondAlg",dbString=None):
     else:
         if conddb.isOnline:
             foldername="/LAR/BadChannels/BadChannels"
-            conddb.addFolder("LAR",foldername,className="CondAttrListCollection")
+            if not conddb.folderRequested(foldername):
+              conddb.addFolder("LAR",foldername,className="CondAttrListCollection")
         else:
             foldername="/LAR/BadChannelsOfl/BadChannels"
-            conddb.addFolder("LAR_OFL",foldername,className="CondAttrListCollection")
+            if not conddb.folderRequested(foldername):
+              conddb.addFolder("LAR_OFL",foldername,className="CondAttrListCollection")
             pass
         pass
     
