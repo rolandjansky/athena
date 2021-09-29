@@ -40,6 +40,11 @@ jobproperties.RingerReFexFlags.add_JobProperty(DumpCells)
 ringerReFexFlags = jobproperties.RingerReFexFlags
 #=======================================================================
 
+def enableDumpCells():
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import ringerReFexFlags
+    ringerReFexFlags.DumpCells.set_Value_and_Lock(True)
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, addExtraCollectionsToEDMList
+    addExtraCollectionsToEDMList(TriggerHLTListRun3,[['xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloRingerAux.cells_eta.cells_phi.cells_et.cells_sampling.cells_size.rings_sum']]) 
 
 class RingerReFexConfig( CompFactory.RingerReFex ):
 
@@ -79,12 +84,10 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
 
     # NOTE: This properties should be test soon
     #self.DoQuarter        = same( ringerReFexFlags.DoQuarter )
-    #self.DumpCells        = ringerReFexFlags.DumpCells
+    self.DumpCells         = ringerReFexFlags.DumpCells.get_Value()
     self.DoQuarter         = same( False )
     self.DoEtaAxesDivision = same(True)
     self.DoPhiAxesDivision = same(True)
-
-    
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram( "TIME_total", title="Total Time;time [us]",xbins=100, xmin=0, xmax=500,type='TH1F', path='EXPERT')
