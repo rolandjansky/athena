@@ -28,7 +28,7 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 //#include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "AthAllocators/DataPool.h"
@@ -36,7 +36,6 @@
 
 
 class CaloCellContainer ;
-class CaloDetDescrManager ;
 class CaloCell_ID;
 class CaloCellContainer ;
 class LArRawChannelContainer;
@@ -103,6 +102,9 @@ private:
   const LArOnlineID* m_onlineID;
   const CaloCell_ID*  m_caloCID;
   SG::ReadCondHandleKey<LArBadFebCont> m_missingFebKey;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};      
+
 
 };
 

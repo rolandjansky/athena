@@ -20,16 +20,20 @@ def LArGMCfg(configFlags):
     if doAlignment:
         if configFlags.Input.isMC:
             #Monte Carlo case:
-            result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL"))
+            result.merge(addFolders(configFlags,"/LAR/Align","LAR_OFL",className="DetCondKeyTrans"))
+            result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_OFL",className="CaloRec::CaloCellPositionShift"))
         else:
             if configFlags.Overlay.DataOverlay:
                 #Data overlay
-                result.merge(addFolders(configFlags, ["/LAR/Align"], "LAR_ONL"))
-                result.merge(addFolders(configFlags, ["/LAR/LArCellPositionShift"], "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200"))
+                result.merge(addFolders(configFlags, "/LAR/Align", "LAR_ONL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags, "/LAR/LArCellPositionShift", "LAR_OFL", tag="LArCellPositionShift-ideal", db="OFLP200",className="CaloRec::CaloCellPositionShift"))
             else:
                 #Regular offline data processing
-                result.merge(addFolders(configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL"))
+                result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
+                result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
 
+        result.addCondAlgo(CompFactory.LArAlignCondAlg())
+        result.addCondAlgo(CompFactory.CaloAlignCondAlg())
             
     return result
 
