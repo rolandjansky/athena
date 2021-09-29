@@ -30,6 +30,7 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_febRodMappingKey.initialize() );
   CHECK( m_regionSelector_TTEM.retrieve() );
   CHECK( m_mcsymKey.initialize() );
+  CHECK( m_bcContKey.initialize() );
   CHECK( m_regionSelector_TTHEC.retrieve() );
   CHECK( m_regionSelector_FCALEM.retrieve() );
   CHECK( m_regionSelector_FCALHAD.retrieve() );
@@ -335,6 +336,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
 
   SG::ReadCondHandle<LArMCSym> mcsym (m_mcsymKey, context);
   SG::ReadCondHandle<LArFebRodMapping> febrod(m_febRodMappingKey, context);
+  SG::ReadCondHandle<LArBadChannelCont> larBadChan{ m_bcContKey, context };
 
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
@@ -360,7 +362,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( **mcsym, **febrod ).isFailure() )
+  if ( cache->larContainer->initialize( **mcsym, **febrod, **larBadChan ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);

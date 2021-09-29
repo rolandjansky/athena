@@ -12,13 +12,14 @@
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "LArRecConditions/LArBadChanBitPacking.h"
 #include <iostream>
 
 LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_BCIDcache(false)
 {}
 
 StatusCode
-LArCellCont::initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod ) {
+LArCellCont::initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod, const LArBadChannelCont& badchannel ) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -144,11 +145,22 @@ m_hashSym.resize(onlineId->febHashMax());
 	for(int ch=0;ch<128;ch++){
 	LArRoI_Map::TT_ID ttId;
 	LArCell* larcell = makeCell.getLArCell(febidcomp,ch,0,0,0,ttId);
+        const LArBadChanBitPacking packing;
 	if ( larcell ) { // if it is a good cell
 		// Fixes default value
 		larcell->setGain(CaloGain::LARHIGHGAIN);
 		(*this)[idx]->push_back(larcell);	
-		collMap[ttId].push_back(larcell);
+                LArBadChannel bc = badchannel.offlineStatus(larcell->ID());
+                bool good(true);
+		if (! bc.good() ){
+		   // cell has some specific problems
+		   if ( bc.unstable() ) good=false;
+		   if ( bc.highNoiseHG() ) good=false;
+		   if ( bc.highNoiseMG() ) good=false;
+		   if ( bc.highNoiseLG() ) good=false;
+		   if ( bc.problematicForUnknownReason() ) good=false;
+		}
+		if ( good ) collMap[ttId].push_back(larcell); // cell masked if not know to be good
 		HWIdentifier hwsym = mcsym.ZPhiSymOnl(onlineId->channel_Id(febid,ch));
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
