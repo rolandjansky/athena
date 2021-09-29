@@ -44,7 +44,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 class Identifier; 
-class CaloDetDescrManager; 
 class CaloDetDescrElement;
 
 
