@@ -7,7 +7,6 @@ log = logging.getLogger( __name__ )
 
 
 def MenuPrescaleConfig(triggerConfigHLT):
-
     L1Prescales = {}
     HLTPrescales = {}
     Prescales = PrescaleClass()
@@ -35,8 +34,12 @@ def MenuPrescaleConfig(triggerConfigHLT):
             enableChains(TriggerFlags, Prescales.HLTPrescales_primary_prescale, ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI','Primary:CostAndRate'])
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_primary_prescale
+        elif 'TriggerValidation_prescale_lowMu' in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale_lowMu, ["PS:Online"])
+            L1Prescales = Prescales.L1Prescales_trigvalid_prescale_lowMu
+            HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale_lowMu
         elif 'TriggerValidation_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online"])
+            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online","LowMu"])
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
         elif 'BulkMCProd_prescale' in menu_name:
@@ -140,6 +143,10 @@ def disableChains(flags, type_prescales, type_groups):
         for group in type_groups:
             if group in chain.groups:
                 toKeep = False
+            else: #check also the presence of a group that contains one of the labels from type_groups
+                for ch_group in chain.groups:
+                    if group in ch_group:
+                        toKeep = False
         if not toKeep:
             chain_disable_list.append(chain.name)
 
@@ -198,6 +205,9 @@ class PrescaleClass(object):
 
     L1Prescales_trigvalid_prescale  = {}
     HLTPrescales_trigvalid_prescale = {}
+
+    L1Prescales_trigvalid_prescale_lowMu  = {}
+    HLTPrescales_trigvalid_prescale_lowMu = {}
 
     L1Prescales_bulkmcprod_prescale  = {}
     HLTPrescales_bulkmcprod_prescale = {}

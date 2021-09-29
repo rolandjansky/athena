@@ -145,11 +145,6 @@ HLT_2j175_a10sd_pf_nojcalib_ftf_0eta200_TracklessdR1p2_L1J100:
   eventCount: 0
 HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED:
   eventCount: 0
-  stepCounts:
-    0: 40
-  stepFeatures:
-    0: 172
-    1: 40
 HLT_2j250_ftf_0eta240_j120_ftf_0eta240_L1J100:
   eventCount: 0
 HLT_2j250_pf_ftf_0eta240_j120_pf_ftf_0eta240_L1J100:
@@ -739,10 +734,6 @@ HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1EM15VHI_2TAU12IM
   eventCount: 0
 HLT_e20_lhloose_L1EM7:
   eventCount: 0
-  stepCounts:
-    0: 2
-  stepFeatures:
-    0: 2
 HLT_e20_lhloose_L1EM7_AFP_A_AND_C:
   eventCount: 0
 HLT_e20_lhloose_L1EM7_AFP_A_OR_C:
@@ -3146,10 +3137,6 @@ HLT_mu20_2mu4noL1_L1MU14FCH:
     0: 1
 HLT_mu20_L1MU5VF:
   eventCount: 0
-  stepCounts:
-    0: 5
-  stepFeatures:
-    0: 6
 HLT_mu20_L1MU5VF_AFP_A_AND_C:
   eventCount: 0
 HLT_mu20_L1MU5VF_AFP_A_OR_C:
@@ -3776,7 +3763,7 @@ HLT_noalg_L1EM3:
 HLT_noalg_L1EM3_EMPTY:
   eventCount: 0
 HLT_noalg_L1EM7:
-  eventCount: 25
+  eventCount: 0
 HLT_noalg_L1EM7_AFP_A_AND_C:
   eventCount: 0
 HLT_noalg_L1EM7_AFP_A_OR_C:
@@ -3902,7 +3889,7 @@ HLT_noalg_L1MBTS_2_EMPTY:
 HLT_noalg_L1MBTS_2_UNPAIRED_ISO:
   eventCount: 0
 HLT_noalg_L1MU5VF:
-  eventCount: 6
+  eventCount: 0
 HLT_noalg_L1MU5VF_AFP_A_AND_C:
   eventCount: 0
 HLT_noalg_L1MU5VF_AFP_A_OR_C:
