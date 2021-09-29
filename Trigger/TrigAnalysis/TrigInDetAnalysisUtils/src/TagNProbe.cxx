@@ -7,7 +7,9 @@
  **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
-#include "TagNProbe.h"
+
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
+
 
 double TagNProbe::computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 ) {
 
@@ -195,12 +197,9 @@ void TagNProbe::FillMap( std::vector<std::string>& tnpChains ) {
 
   for ( size_t i=0 ; i<tnpChains.size()-1 ; i+=2 ) { 
      
-    ChainString chain_tag   = ChainString( tnpChains[i] );
-    ChainString chain_probe = ChainString( tnpChains[i+1] );
+    std::string chain_tag_name = (tnpChains[i]).substr( 0, (tnpChains[i]).find(":post") );
+    std::string chain_probe_name = (tnpChains[i+1]).substr( 0, (tnpChains[i+1]).find(":post") );
 
-    std::string chain_tag_name    = chain_tag.pre();
-    std::string chain_probe_name  = chain_probe.pre();
- 
     m_tnp_map.insert( std::map<std::string,std::string>::value_type( chain_probe_name, chain_tag_name ) );
       
     /// new testChain vector is filled only with probe chain names
@@ -275,8 +274,8 @@ std::vector<TIDA::Roi*> TagNProbe::GetRois( TIDA::Chain * chain, std::vector<TID
 void TagNProbe::BookMinvHisto( std::string chain_name ) {
 
   std::string hname_base = chain_name;
-  replace( hname_base, '/', '_' );
-  replace( hname_base, ':', '_' );
+  std::replace( hname_base.begin(), hname_base.end(), '/', '_' );
+  std::replace( hname_base.begin(), hname_base.end(), ':', '_' );
 
   std::string hname_1 = hname_base + "_Minv_TnP";
   std::string hname_2 = hname_base + "_Minv_obj_TnP";
@@ -318,8 +317,8 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
     for ( hMinv_itr=m_hMinv_map.begin() ; hMinv_itr!=m_hMinv_map.end() ; hMinv_itr++ ) {
 
       std::string dirname = hMinv_itr->first;
-      replace( dirname, '/', '_' );
-      replace( dirname, ':', '_' );
+      std::replace( dirname.begin(), dirname.end(), '/', '_' );
+      std::replace( dirname.begin(), dirname.end(), ':', '_' );
 
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
@@ -338,8 +337,8 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
     for ( hMinv_obj_itr=m_hMinv_obj_map.begin() ; hMinv_obj_itr!=m_hMinv_obj_map.end() ; hMinv_obj_itr++ ) {
 
       std::string dirname = hMinv_obj_itr->first;
-      replace( dirname, '/', '_' );
-      replace( dirname, ':', '_' );
+      std::replace( dirname.begin(), dirname.end(), '/', '_' );
+      std::replace( dirname.begin(), dirname.end(), ':', '_' );
 
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
