@@ -280,7 +280,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         if jetInput == 'EMPFlow':
-            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root'
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root'
             alg.efficiencyTool.MaxPtForJvt = 60e3
         else:
             alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
@@ -303,8 +303,12 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
     if runFJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
+        if jetInput == 'EMPFlow':
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMPFlow.root'
+        else:
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMtopo.root'
         alg.efficiencyTool.WorkingPoint = 'Tight'
+        alg.efficiencyTool.UseMuSFFormat = True
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
