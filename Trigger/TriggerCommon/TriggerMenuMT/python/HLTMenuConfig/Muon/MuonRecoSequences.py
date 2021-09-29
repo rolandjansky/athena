@@ -20,8 +20,6 @@ CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
 ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
 MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.MuonSlice.doTrigMuonConfig=True
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 

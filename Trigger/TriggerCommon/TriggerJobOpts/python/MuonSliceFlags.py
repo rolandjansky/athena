@@ -7,13 +7,6 @@ from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 _flags = [] 
-class doTrigMuonConfig(JobProperty):
-    """ configure for trigger if true, offline if false """ 
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-_flags.append(doTrigMuonConfig)
 
 class signatures(JobProperty):
     """ signatures in Muon slice """
