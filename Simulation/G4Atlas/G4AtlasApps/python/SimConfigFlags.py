@@ -99,8 +99,6 @@ def createSimConfigFlags():
 
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator
-        if simstr.endswith("MT"):
-            simstr = simstr[:-2]
         # Further specialization possible in future
         if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
