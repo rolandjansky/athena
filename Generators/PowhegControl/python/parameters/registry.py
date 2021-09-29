@@ -44,6 +44,7 @@ class Registry(object):
         self.add_default("bornsuppfactV", -1, description="[-1:use Powheg default]")
         self.add_default("bornsuppfactW", -1, description="[-1:use Powheg default]")
         self.add_default("bornzerodamp", 1, description="use damping where the Born is strongly suppressed (or 0). [1:enabled]")
+        self.add_default("bornzerodampcut", -1, description="ttbb: Born zerodamp shape parameter. [-1:default]")
         self.add_default("bottommass", powheg_atlas_common.mass.b, name="mass_b", description="b-quark mass in GeV (loops disabled if <= 0)",)
         self.add_default("bottomthr", powheg_atlas_common.mass.b, description="minimum pT in GeV for generating emission off b-quarks. [<0:default to 5.0]")
         self.add_default("bottomthrpdf", powheg_atlas_common.mass.b, description="threshold in GeV at which b-quark PDF becomes non-zero. [<0:default to 5.0]")
