@@ -406,7 +406,7 @@ if ConfigFlags.Trigger.doCalo:
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
-    TriggerFlags.MuonSlice.doTrigMuonConfig=True
+    ConfigFlags.Muon.MuonTrigger=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
 

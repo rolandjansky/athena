@@ -12,7 +12,7 @@ from AthenaCommon import CfgMgr
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
 from InDetRecExample.InDetKeys import InDetKeys
 from InDetRecExample.InDetJobProperties import InDetFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
@@ -180,7 +180,7 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not muonCombinedRecFlags.doMuGirl() and not name=="StauCreatorAlg":
         kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
         kwargs.setdefault("CopySegments", False)
@@ -219,7 +219,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if not ConfigFlags.Muon.MuonTrigger:
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 
