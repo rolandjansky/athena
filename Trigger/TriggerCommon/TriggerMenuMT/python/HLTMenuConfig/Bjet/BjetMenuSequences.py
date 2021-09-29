@@ -32,7 +32,7 @@ def getBJetSequence(jc_name):
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnJetWithPVConstraintROITool
-    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
+    InputMakerAlg = EventViewCreatorAlgorithm( f"IMBJet_{jc_name}_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
     newRoITool.RoisWriteHandleKey  = recordable( outputRoIName )
@@ -42,7 +42,7 @@ def getBJetSequence(jc_name):
     InputMakerAlg.mergeUsingFeature = True
     InputMakerAlg.RoITool = newRoITool
     #
-    InputMakerAlg.Views = "BTagViews"
+    InputMakerAlg.Views = f"BTagViews_{jc_name}"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     #
     InputMakerAlg.RequireParentView = False
@@ -86,14 +86,14 @@ def getBJetSequence(jc_name):
         AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
 
     acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
-    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
-    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
+    bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + AllFlavourTaggingAlgs )
+    InputMakerAlg.ViewNodeName = f"bJetBtagSequence_{jc_name}"
 
     # Sequence
-    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
+    BjetAthSequence = seqAND( f"BjetAthSequence_{jc_name}_step2",[InputMakerAlg,bJetBtagSequence] )
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlg
-    hypo = TrigBjetBtagHypoAlg( "TrigBjetBtagHypoAlg" )
+    hypo = TrigBjetBtagHypoAlg( f"TrigBjetBtagHypoAlg_{jc_name}" )
     # keys
     hypo.BTaggedJetKey = InputMakerAlg.InViewJets
     hypo.BTaggingKey = bTaggingContainerName

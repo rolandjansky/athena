@@ -28,8 +28,8 @@ class BjetChainConfiguration(ChainConfigurationBase):
             return getBJetSequence(
                 jc_name=self.jc_name
             )
-
-        chainSteps = [self.getStep(2, "Step2_bjet", [bjetSequenceCfg])]
+        stepName = f"Step2_{self.jc_name}_bjet"
+        chainSteps = [self.getStep(2, stepName, [bjetSequenceCfg])]
 
         myChain = self.buildChain(chainSteps)
         return myChain
