@@ -145,7 +145,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
 def setupCondDb(cfgFlags, taggerlist):
     from AthenaCommon.AppMgr import athCondSeq
     if not hasattr(athCondSeq,"JetTagCalibCondAlg"):
-        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
+        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo","AntiKtVR30Rmax4Rmin02PV0Track->AntiKtVR30Rmax4Rmin02PV0Track,AntiKt4EMPFlow,AntiKt4EMTopo"]
         grades= cfgFlags.BTagging.Grades
         RNNIPConfig = {'rnnip':''}
 
