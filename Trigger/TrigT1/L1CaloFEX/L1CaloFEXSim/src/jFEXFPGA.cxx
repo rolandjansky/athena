@@ -600,7 +600,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta)
      //Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
     auto & thr_jJ = l1Menu->thrExtraInfo().jJ();
-    unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV()/jFEXETResolution;
+    unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV("1A")/jFEXETResolution;
 
     //unsigned int minEtThreshold = 60;
     if (jFEXSmallRJetTOBEt < minEtThreshold) return 0;
@@ -666,7 +666,7 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta)
   // Retrieve the L1 menu configuration
   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
   auto & thr_jLJ = l1Menu->thrExtraInfo().jLJ();
-  unsigned int minEtThreshold = thr_jLJ.ptMinToTopoMeV()/jFEXETResolution;
+  unsigned int minEtThreshold = thr_jLJ.ptMinToTopoMeV("1A")/jFEXETResolution;
 
   //unsigned int minEtThreshold = 60;
   if (jFEXLargeRJetTOBEt < minEtThreshold) return 0;
@@ -701,7 +701,7 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
     // Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
     auto & thr_jTAU = l1Menu->thrExtraInfo().jTAU();
-    unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV()/jFEXETResolution;
+    unsigned int minEtThreshold = thr_jTAU.ptMinToTopoMeV("1A")/jFEXETResolution;
 
     if (et < minEtThreshold) return 0;
     else return tobWord;
