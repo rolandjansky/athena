@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 import os, subprocess, time, glob, tarfile
 from AthenaCommon import Logging
-from PowhegControl.utility import HeartbeatTimer
+from PowhegControl.utility import HeartbeatTimer, LHE
+# from ...utility import LHE
+from xml.etree import ElementTree
+import shutil
 
 ## Base class for configurable objects in the jobOptions
 #
@@ -92,7 +95,7 @@ class Hto4lPowhegMerge(object) :
   ## Initialise runcard with generic options
   def merge(self) :
 
-    self.logger.info( 'Starting Hto4lPowhegMerger merge' )
+    self.logger.info( 'Starting merge' )
 
     hto4lLHE4e       = self.output_hto4l4e_file_name
     hto4lLHE4mu      = self.output_hto4l4mu_file_name
@@ -108,9 +111,100 @@ class Hto4lPowhegMerge(object) :
     self.merge_lhe_files(allFiles, self.output_events_file_name)
 
     self.logger.info( 'Merged to output file: {0}'.format( self.output_events_file_name ) )
+
+    # Now fix the output file for negative weights
+    self.reweight_for_negative_weights(self.output_events_file_name)
+
+    self.logger.info( 'Fixed weights in file: {}'.format( self.output_events_file_name ) )
+
     
     return
 
+  def reweight_for_negative_weights(self, powheg_LHE_output):
+    """Post-process the LHE file to update the weights for a negative Hto4l weight.
+    We do two things:
+      1) check if the event weight (XWGTUP) is -1 (can be +/-1). If so, remember this so that the 
+         weights in the <rwgt> block can be corrected by multiplying by -1
+      2) After correcting the weights in the <rwgt> block, overwrite XWGTUP by the weight at id=0.
+         Not completely sure if this step is necessary, but is done for Prophecy4f as well.
+    Note: we do NOT save the original XWGTUP as an extra weight (i.e. +/-1). Normally, the sign of 
+    any weight should indicate this. The one exception is when BOTH PowHeg and Hto4l has a negative 
+    weight and so all weights are positive. This is pretty rare.
+
+    #@param powheg_LHE_output  Name of LHE file produced by merge of Hto4l files.
+
+    @author RD Schaffer <r.d.schaffer@cern.ch>
+    #"""
+
+    self.logger.info( 'Starting reweight_for_negative_weights' )
+
+    # Get opening and closing strings
+    preamble = LHE.preamble(powheg_LHE_output)
+    postamble = LHE.postamble(powheg_LHE_output) 
+
+    # open new file for updates
+    powheg_LHE_updated = "{}.updated".format(powheg_LHE_output)
+    with open(powheg_LHE_updated, "wb") as f_output:
+      f_output.write("{}".format(preamble))
+      # for each event, check for an -1 Hto4l weight in XWGTUP. If it is -1, correct the <rwgt>
+      # weights (-1 * wgt), and save the id=0 weight in XWGTUP.
+      for input_event in LHE.event_iterator(powheg_LHE_output):
+
+        output_event = ""
+        has_neg_wgt  = False
+
+        # First check for negative weights
+        input_lines = input_event.splitlines(True)
+
+        try:  # interpret 2nd line as a general event info line
+          NUP, IDPRUP, XWGTUP, SCALUP, AQEDUP, AQCDUP = input_lines[1].split()
+          has_neg_wgt = float(XWGTUP) < 0.
+
+          self.logger.info( 'has_neg_wgt {}, XWGTUP {}'.format(has_neg_wgt, XWGTUP))
+            
+        except ValueError:  # this is not a general event info line
+          self.logger.warning( 'could not get first line of event')
+          pass
+          
+        # Now correct weights
+        output_event = ""
+        if has_neg_wgt:
+          for input_line in input_event.splitlines(True):
+            self.logger.info( 'input line {}'.format(input_line))              
+            output_line = None
+            if input_line.find("<wgt") >= 0:
+              weights = input_line.split()
+              self.logger.info( 'weightsinput {}'.format(weights))              
+              try:
+                wgt_tag, wid, wgt, wgt_tag_end = input_line.split()
+                # We 'multiply' the two weights - if wgt is negative, it now becomes positive.
+                # Otherwise, set it to negative
+                if wgt[0] == '-':
+                  output_line = "{} {}  {} {} \n".format(wgt_tag, wid, wgt[1:], wgt_tag_end)
+                else:
+                  output_line = "{} {}  -{} {} \n".format(wgt_tag, wid, wgt, wgt_tag_end)
+              except:
+                pass
+              self.logger.info( 'output line {}'.format(output_line))              
+              
+            # save event lines
+            output_event += output_line if output_line is not None else input_line
+        else:
+          output_event = input_event
+
+        # Overwrite (XWGTUP)
+        output_event_updated = LHE.update_XWGTUP_with_reweighted_nominal(output_event)
+        f_output.write(output_event_updated)
+            
+      f_output.write(postamble)
+      # f_output.close()
+
+    # Make a backup of the original events
+    shutil.move(powheg_LHE_output, "{}.lhe_nominal_weight_updater_backup".format(powheg_LHE_output))
+    shutil.move(powheg_LHE_updated, powheg_LHE_output)
+    
+    self.logger.info( 'wrote file {}'.format(powheg_LHE_output))
+  
   ## Get output file name
   @property
   def output_events_file_name(self) :
