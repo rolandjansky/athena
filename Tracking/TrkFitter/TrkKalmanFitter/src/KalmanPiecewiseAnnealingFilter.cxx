@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -435,7 +435,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
           ATH_MSG_VERBOSE ("Added material effects.");
         }
         const AmgVector(5) x = input_it->referenceParameters()->parameters()+(*predDiffPar);
-        predPar = std::move(CREATE_PARAMETERS(*input_it->referenceParameters(),x,C));
+        predPar = CREATE_PARAMETERS(*input_it->referenceParameters(),x,C);
         ATH_MSG_DEBUG("used difference to make predpar = " << *predPar);
       }
     }
@@ -504,10 +504,10 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     } else {
       m_trajPiece.back().checkinForwardPar(std::move(predPar));
       FitQualityOnSurface* fitQuality=nullptr;
-      updatedPar = std::move( m_updator->addToState(*predPar,
+      updatedPar = m_updator->addToState(*predPar,
 					 m_trajPiece.back().measurement()->localParameters(),
 					 m_trajPiece.back().measurement()->localCovariance(),
-					 fitQuality));
+					 fitQuality);
       if (!updatedPar) {
 	ATH_MSG_DEBUG ("addToState failed in filterTrajPiece(), annealing "<<beta);
 	m_trajPiece.clear();
