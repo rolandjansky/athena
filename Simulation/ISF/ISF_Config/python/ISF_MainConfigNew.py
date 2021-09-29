@@ -54,6 +54,7 @@ from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
     AFIIEntryLayerToolMTCfg
 )
 from ISF_FatrasServices.ISF_FatrasConfig import fatrasTransportToolCfg
+AthSequencer=CompFactory.AthSequencer
 
 # MT
 def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **kwargs):
@@ -90,7 +91,11 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
     #Write MetaData container
     from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
     acc.merge(writeSimulationParametersMetadata(flags))
-    acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs))
+    if flags.Sim.ISF.ReSimulation:
+        acc.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq') # TODO make the name configurable?
+        acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs), 'SimSequence') # TODO make the name configurable?
+    else:
+        acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs))
     return acc
 
 
@@ -362,7 +367,11 @@ def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwar
     kwargs.setdefault("DoCPUMonitoring", flags.Sim.ISF.DoTimeMonitoring)
     kwargs.setdefault("DoMemoryMonitoring", flags.Sim.ISF.DoMemoryMonitoring)
 
-    acc.addEventAlgo(CompFactory.ISF.SimKernel(name, **kwargs))
+    if flags.Sim.ISF.ReSimulation:
+        acc.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq') # TODO make the name configurable?
+        acc.addEventAlgo(CompFactory.ISF.SimKernel(name, **kwargs), 'SimSequence') # TODO make the name configurable?
+    else:
+        acc.addEventAlgo(CompFactory.ISF.SimKernel(name, **kwargs))
     return acc
 
 def Kernel_ATLFASTIIF_G4MSCfg(flags, name="ISF_Kernel_ATLFASTIIF_G4MS", **kwargs):
