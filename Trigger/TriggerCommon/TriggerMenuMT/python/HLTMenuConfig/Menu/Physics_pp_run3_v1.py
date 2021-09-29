@@ -566,7 +566,13 @@ def setupMenu():
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
-    TriggerFlags.MinBiasSlice.signatures   = []
+    # TriggerFlags.MinBiasSlice.signatures   = []
+    TriggerFlags.MinBiasSlice.signatures   = [
+        ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_sp_L1RD0_FILLED',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'],     groups=['PS:Online']+LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'],     groups=['PS:Online']+LowMuGroup+MinBiasGroup),
+    ]
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = []
