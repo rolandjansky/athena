@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -421,6 +421,10 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
+
+## Propagate debug output level requirement to generators
+if hasattr( runArgs, "VERBOSE") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel")and runArgs.loglevel == "VERBOSE"):
+   include("EvgenJobTransforms/Generate_debug_level.py")
 
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig})
