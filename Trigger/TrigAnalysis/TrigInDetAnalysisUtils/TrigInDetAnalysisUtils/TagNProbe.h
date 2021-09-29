@@ -7,8 +7,9 @@
  **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
-#ifndef TIDA_TAGNPROBE_H
-#define TIDA_TAGNPROBE_H
+
+#ifndef TIDAUTILS_TAGNPROBE_H
+#define TIDAUTILS_TAGNPROBE_H
 
 #include <stdlib.h>
 
@@ -18,9 +19,7 @@
 #include "TrigInDetAnalysis/TrackSelector.h" 
 #include "TrigInDetAnalysisUtils/Filters.h" 
 #include "TrigInDetAnalysisUtils/Filter_Offline2017.h" 
-#include "TrigInDetAnalysisExample/NtupleTrackSelector.h" 
-#include "RoiFilter.h"
-#include "utils.h"
+#include "TrigInDetAnalysis/TrackSelector.h" 
 #include "TrigInDetAnalysis/TrigObjectMatcher.h"
 #include "TH1D.h"
 
@@ -33,7 +32,7 @@
 #include "TrigInDetAnalysis/TIDDirectory.h" 
 #include "TrigInDetAnalysis/Efficiency.h" 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h" 
-#include "TrigInDetAnalysisExample/ChainString.h"
+
 
 class TagNProbe {
 
@@ -47,7 +46,7 @@ public:
   /// configuration methods
 
   void SetEventConfiguration( 
-          NtupleTrackSelector * refTracks,    // reference tracks
+          TrackSelector * refTracks,          // reference tracks
           TrackFilter* refFilter,             // reference filter
           std::string refName,                // reference objects name
           TrigObjectMatcher* tom,             // trigger object matcher 
@@ -81,7 +80,7 @@ public:
 
   void SetObjMatcher( TrigObjectMatcher* tom ) { m_tom = tom; }
 
-  void SetOfflineTracks( NtupleTrackSelector * refTracks, TrackFilter* refFilter ) {
+  void SetOfflineTracks( TrackSelector * refTracks, TrackFilter* refFilter ) {
     m_refTracks = refTracks;
     m_refFilter = refFilter;
   } 
@@ -142,7 +141,7 @@ protected:
 
 private:
 
-  NtupleTrackSelector * m_refTracks;
+  TrackSelector * m_refTracks;
   TrackFilter * m_refFilter;
 
   TIDA::Chain * m_chain;
@@ -172,4 +171,4 @@ private:
 
 };
 
-#endif  // TIDA_TAGNPROBE_H 
+#endif  // TIDAUTILS_TAGNPROBE_H 
