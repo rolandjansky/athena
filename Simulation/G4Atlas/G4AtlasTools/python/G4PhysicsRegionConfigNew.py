@@ -85,7 +85,11 @@ def SCTPhysicsRegionToolCfg(ConfigFlags, name='SCTPhysicsRegionTool', **kwargs):
 
 def ITkPixelPhysicsRegionToolCfg(ConfigFlags, name='ITkPixelPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'ITkPixel')
-    volumeList = ['ITkPixel::siLog']
+    volumeList = ['ITkPixel::InnerBarrelSingleMod_Sensor',
+                  'ITkPixel::InnerRingSingleMod_Sensor',
+                  'ITkPixel::InnerQuadMod_Sensor',
+                  'ITkPixel::OuterQuadMod_Sensor',
+                  'ITkPixel::InclinedQuadMod_Sensor']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
