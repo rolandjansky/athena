@@ -108,7 +108,7 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addCTPResultToROBList()  # add the CTP result to the list
-    elif 'LArPEBDigitalTrigger' == eventBuildType:
+    elif 'LATOMEPEB' == eventBuildType:
         from .LATOMESourceIDs import LATOMESourceIDs
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs(LATOMESourceIDs)

@@ -195,7 +195,6 @@ TriggerHLTListRun3 = [
 
     # PEB RoIs for full-scan chains
     ('TrigRoiDescriptorCollection#HLT_Roi_LArPEBHLT',            'BS ESD AODFULL AODSLIM',  'Steer'),
-    ('TrigRoiDescriptorCollection#HLT_Roi_LArPEB',               'BS ESD AODFULL AODSLIM',  'Steer'),
 
     # Run-2 L1 (temporary)
     ('xAOD::EmTauRoIContainer#LVL1EmTauRoIs' ,               'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
