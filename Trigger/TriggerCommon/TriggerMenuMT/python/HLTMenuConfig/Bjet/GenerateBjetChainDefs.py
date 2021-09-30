@@ -3,8 +3,6 @@
 from ..Menu.ChainDictTools import splitChainDict
 from .BjetChainConfiguration import BjetChainConfiguration
 from ..Jet.JetChainConfiguration import JetChainConfiguration
-from ..Jet import JetRecoSequences
-from ..Jet.JetRecoSequences import JetRecoConfiguration
 from ..Menu.ChainMerging import mergeChainDefs
 
 import pprint

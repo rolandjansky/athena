@@ -95,7 +95,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         try:
             subChainDict = splitChainDict(self.dict)[0]
         except IndexError:
-            raise RunTimeError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
         jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
         clustersKey, caloRecoStep = self.getJetCaloRecoChainStep() # This line does a lot just to get an essentially hardcoded cluster name, but didn't see a simpler function...
         prefix = JetRecoConfiguration.getHLTPrefix()
