@@ -5,7 +5,6 @@
 ## Propagate output level requirements to the generators interfaces
 if 'Pythia8' in evgenConfig.generators:
     genSeq.Pythia8.OutputLevel = DEBUG
-    print("eA rozpoznalismy Pythie8 ")
 elif 'Pythia8B' in evgenConfig.generators:
     genSeq.Pythia8B.OutputLevel = DEBUG  
 elif 'Herwig7' in evgenConfig.generators:
@@ -30,7 +29,7 @@ elif 'Hijing' in evgenConfig.generators:
     genSeq.Hijing.OutputLevel = DEBUG
 
 if 'EvtGen' in evgenConfig.generators:
-    genSeq.EvtGen.OutputLevel = DEBUG     
+    genSeq.EvtInclusiveDecay.OutputLevel = DEBUG     
 if 'Tauolapp' in evgenConfig.generators:
     genSeq.TauolaPP.OutputLevel = DEBUG   
 if 'Photospp' in evgenConfig.generators:
