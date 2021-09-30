@@ -55,7 +55,16 @@ def RecoSteering(flags):
     acc.merge(PFCfg(flags))
 
     # physics objects
-    # egamma
+    # egamma TODO move these fragments to proper place configuring entire egamma - so it can be unit tested
+        
+    from egammaAlgs.egammaSelectedTrackCopyConfig import egammaSelectedTrackCopyCfg
+    acc.merge(egammaSelectedTrackCopyCfg(flags))
+    from egammaAlgs.EMBremCollectionBuilderConfig import EMBremCollectionBuilderCfg
+    acc.merge(EMBremCollectionBuilderCfg(flags))
+    # TBC
+
+    #    from egammaAlgs.egammaRecBuilderConfig import egammaRecBuilderCfg
+    #    acc.merge(egammaRecBuilderCfg(flags))
     # jets
     # btagging
     if tryConfiguringAll:
