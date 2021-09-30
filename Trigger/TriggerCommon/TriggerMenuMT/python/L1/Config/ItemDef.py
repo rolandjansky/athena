@@ -1144,6 +1144,8 @@ class ItemDef:
         MenuItem('L1_RD0_UNPAIRED_ISO'   ).setLogic( d.RNDM0 & unpaired_isocond   ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_UNPAIRED_NONISO').setLogic( d.RNDM0 & unpaired_nonisocond).setTriggerType(TT.rand)
         MenuItem('L1_RD0_FIRSTEMPTY'     ).setLogic( d.RNDM0 & firstempty         ).setTriggerType(TT.rand)
+        MenuItem('L1_RD0_BGRP0'          ).setLogic( d.RNDM0 & d.BGRP0            ).setTriggerType(TT.rand)
+        MenuItem('L1_RD0_BGRP7'          ).setLogic( d.RNDM0 & bgrp7cond          ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_BGRP9'          ).setLogic( d.RNDM0 & bgrp9cond          ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_BGRP10'         ).setLogic( d.RNDM0 & alfacalib          ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_BGRP11'         ).setLogic( d.RNDM0 & bgrp11cond         ).setTriggerType(TT.rand)
@@ -1160,12 +1162,6 @@ class ItemDef:
 
         MenuItem('L1_RD3_FILLED'         ).setLogic( d.RNDM3 & physcond           ).setTriggerType(TT.rand)
         MenuItem('L1_RD3_EMPTY'          ).setLogic( d.RNDM3 & cosmiccond         ).setTriggerType(TT.rand)
-
-        # BGRP
-        MenuItem('L1_BGRP0').setLogic( d.RNDM0 & d.BGRP0 ).setTriggerType(TT.rand)
-        MenuItem('L1_BGRP1').setLogic( d.RNDM0 & d.BGRP0 & d.BGRP1 ).setTriggerType(TT.rand)
-        MenuItem('L1_BGRP7').setLogic( d.RNDM0 & d.BGRP0 & d.BGRP7 ).setTriggerType(TT.rand)
-        MenuItem('L1_BGRP9').setLogic( d.RNDM0 & d.BGRP0 & d.BGRP9 ).setTriggerType(TT.rand)  #fixed in ATR-14201
 
         MenuItem('L1_BPTX0_BGRP0', ctpid=0xf1).setLogic(d.BPTX0 & d.BGRP0).setTriggerType(TT.rand)
         MenuItem('L1_BPTX1_BGRP0', ctpid=0xf2).setLogic(d.BPTX1 & d.BGRP0).setTriggerType(TT.rand)
