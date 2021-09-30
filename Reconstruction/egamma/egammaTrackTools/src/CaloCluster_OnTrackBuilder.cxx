@@ -7,8 +7,6 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
