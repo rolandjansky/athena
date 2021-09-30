@@ -36,7 +36,9 @@ def LArMonitoringConfig(inputFlags):
        if not inputFlags.Input.isMC:
           acc.merge(LArFEBMonConfig(inputFlags))
           acc.merge(LArDigitMonConfig(inputFlags))
-          acc.merge(LArRODMonConfig(inputFlags))
+          from LArConditionsCommon.LArCool import larcool
+          if (larcool.runType() == 1): #RawData + Result
+              acc.merge(LArRODMonConfig(inputFlags))
           acc.merge(LArCoverageConfig(inputFlags))
           acc.merge(LArNoiseCorrelationMonConfig(inputFlags))
 
