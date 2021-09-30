@@ -28,7 +28,6 @@
 
 class TProfile2D;
 class TFile;
-class CaloDetDescrManager;
 class CaloCell_ID;
 
 class ClusWeight {
