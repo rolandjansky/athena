@@ -1,5 +1,5 @@
 #include "../egammaRecBuilder.h"
-#include "../topoEgammaBuilder.h"
+#include "../xAODEgammaBuilder.h"
 #include "../egammaForwardBuilder.h"
 #include "../egammaTruthAssociationAlg.h"
 #include "../egammaTrackSlimmer.h"
@@ -13,7 +13,7 @@
 #include "../EMGSFCaloExtensionBuilder.h"
 
 DECLARE_COMPONENT( egammaRecBuilder )
-DECLARE_COMPONENT( topoEgammaBuilder )
+DECLARE_COMPONENT( xAODEgammaBuilder )
 DECLARE_COMPONENT( egammaForwardBuilder )
 DECLARE_COMPONENT( egammaTruthAssociationAlg )
 DECLARE_COMPONENT( egammaTrackSlimmer )

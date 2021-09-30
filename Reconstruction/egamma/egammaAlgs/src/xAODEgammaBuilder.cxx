@@ -2,7 +2,7 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "topoEgammaBuilder.h"
+#include "xAODEgammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/EventContext.h"
@@ -26,19 +26,19 @@
 #include <vector>
 #include <memory>
 
-topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
+xAODEgammaBuilder::xAODEgammaBuilder(const std::string& name,
                                      ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
 StatusCode
-topoEgammaBuilder::initialize()
+xAODEgammaBuilder::initialize()
 {
   m_deltaEta1Pear = std::make_unique<electronPearShapeAlignmentCorrection>();
 
   // the data handle keys
-  ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize(m_doElectrons));
-  ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
+  ATH_CHECK(m_electronClusterRecContainerKey.initialize(m_doElectrons));
+  ATH_CHECK(m_photonClusterRecContainerKey.initialize(m_doPhotons));
   ATH_CHECK(m_electronOutputKey.initialize());
   ATH_CHECK(m_photonOutputKey.initialize());
   // retrieve tools
@@ -72,13 +72,13 @@ topoEgammaBuilder::initialize()
 }
 
 StatusCode
-topoEgammaBuilder::finalize()
+xAODEgammaBuilder::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-topoEgammaBuilder::execute(const EventContext& ctx) const
+xAODEgammaBuilder::execute(const EventContext& ctx) const
 {
 
   const EgammaRecContainer* inputElRecs = nullptr;
@@ -90,11 +90,11 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
    * nullptr for electron or photons or both
    */
   if (m_doElectrons) {
-    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey, ctx);
+    SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronClusterRecContainerKey, ctx);
     inputElRecs = electronSuperRecs.ptr();
   }
   if (m_doPhotons) {
-    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey, ctx);
+    SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonClusterRecContainerKey, ctx);
     inputPhRecs = photonSuperRecs.ptr();
   }
 
@@ -263,7 +263,7 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
 }
 
 StatusCode
-topoEgammaBuilder::doAmbiguityLinks(
+xAODEgammaBuilder::doAmbiguityLinks(
   const EventContext& ctx,
   xAOD::ElectronContainer* electronContainer,
   xAOD::PhotonContainer* photonContainer) 
@@ -329,7 +329,7 @@ topoEgammaBuilder::doAmbiguityLinks(
 }
 
 StatusCode
-topoEgammaBuilder::CallTool(
+xAODEgammaBuilder::CallTool(
   const EventContext& ctx,
   const ToolHandle<IegammaBaseTool>& tool,
   xAOD::ElectronContainer* electronContainer /* = 0*/,
@@ -356,7 +356,7 @@ topoEgammaBuilder::CallTool(
 }
 
 bool
-topoEgammaBuilder::getElectron(const egammaRec* egRec,
+xAODEgammaBuilder::getElectron(const egammaRec* egRec,
                                xAOD::ElectronContainer* electronContainer,
                                const unsigned int author,
                                const uint8_t type) const
@@ -439,7 +439,7 @@ topoEgammaBuilder::getElectron(const egammaRec* egRec,
 }
 
 bool
-topoEgammaBuilder::getPhoton(const egammaRec* egRec,
+xAODEgammaBuilder::getPhoton(const egammaRec* egRec,
                              xAOD::PhotonContainer* photonContainer,
                              const unsigned int author,
                              const uint8_t type) const

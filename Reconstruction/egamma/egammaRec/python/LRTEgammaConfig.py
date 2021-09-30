@@ -87,9 +87,9 @@ LRTEMClusterTool = EMClusterTool.copy(
 
 LRTtopoEgammaBuilder = topoEgammaBuilder.copy(
     name='LRTtopoEgammaBuilder',
-    SuperElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
+    InputElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
     ElectronOutputName="LRT"+egammaKeys.outputElectronKey(),
-    SuperPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
+    InputPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
     PhotonOutputName="LRT"+egammaKeys.outputPhotonKey(),
     EMClusterTool=LRTEMClusterTool,
     EMShowerTool=EMShowerBuilder,

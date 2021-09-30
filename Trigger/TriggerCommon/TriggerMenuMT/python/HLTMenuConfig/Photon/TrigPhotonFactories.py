@@ -54,10 +54,10 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         )
 
 #Factory for photons
-TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder, 
+TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.xAODEgammaBuilder, 
         name = 'TrigTopoEgammaPhotons',
-        SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-        SuperPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
+        InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+        InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
         ElectronOutputName = TrigEgammaKeys.outputElectronKey,
         PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
         AmbiguityTool = EGammaAmbiguityTool,
