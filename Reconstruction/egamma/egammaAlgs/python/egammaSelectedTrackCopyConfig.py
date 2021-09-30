@@ -6,10 +6,8 @@ from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
 egammaCaloClusterSelector = CompFactory.egammaCaloClusterSelector
 egammaSelectedTrackCopy = CompFactory.egammaSelectedTrackCopy
-
 
 def egammaSelectedTrackCopyCfg(
         flags,
@@ -28,15 +26,16 @@ def egammaSelectedTrackCopyCfg(
             EMEtSplittingFraction=0.7,
             EMFCut=0.5
         )
-
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector
-        kwargs.setdefault("egammaCheckEnergyDepositTool",
-                          egammaCheckEnergyDepositTool())
 
     if "ExtrapolationTool" not in kwargs:
-        extraptool = EMExtrapolationToolsCfg(flags)
+        extraptool = EMExtrapolationToolsCfg(flags, name="EMExtrapolationTools")
         kwargs["ExtrapolationTool"] = extraptool.popPrivateTools()
         acc.merge(extraptool)
+
+    if "ExtrapolationToolCommonCache" not in kwargs:
+        from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCacheCfg
+        kwargs["ExtrapolationToolCommonCache"] =  acc.popToolsAndMerge(EMExtrapolationToolsCacheCfg(flags))
 
     kwargs.setdefault(
         "ClusterContainerName",
