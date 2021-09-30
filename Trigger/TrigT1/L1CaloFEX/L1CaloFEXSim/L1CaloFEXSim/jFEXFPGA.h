@@ -64,7 +64,7 @@ namespace LVL1 {
 
     virtual StatusCode init(int id, int efexid) override ;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void reset() override ;
 
