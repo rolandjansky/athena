@@ -43,11 +43,11 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
         elif 'BulkMCProd_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online"])
+            disableChains(TriggerFlags, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online", "LowMu"])
             L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
             HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
         elif 'CPSampleProd_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online"])
+            disableChains(TriggerFlags, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online", "LowMu"])
             L1Prescales = Prescales.L1Prescales_cpsampleprod_prescale
             HLTPrescales = Prescales.HLTPrescales_cpsampleprod_prescale
         else:
@@ -60,7 +60,12 @@ def MenuPrescaleConfig(triggerConfigHLT):
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'lowMu' not in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales, ["PS:Online","LowMu"])
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales            
         else:
+            disableChains(TriggerFlags, Prescales.HLTPrescales, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
@@ -70,6 +75,10 @@ def MenuPrescaleConfig(triggerConfigHLT):
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'lowMu' not in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales, ["LowMu"])
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales            
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
