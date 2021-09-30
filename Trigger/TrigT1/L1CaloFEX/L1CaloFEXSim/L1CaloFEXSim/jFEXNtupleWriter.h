@@ -30,10 +30,7 @@ public:
   StatusCode finalize ();
 
 private:
-  jFEXOutputCollection* m_jFEXOutputCollection;
-  //std::shared_ptr m_jFEXOutputCollection;
-  //std::shared_ptr<jFEXOutputCollection> m_jFEXOutputCollection;
-  //float m_eg_nTOBs;
+  SG::ReadHandleKey<LVL1::jFEXOutputCollection> m_jFEXOutputCollectionSGKey {this, "MyOutputs", "jFEXOutputCollection", "MyOutputs"};
 
   std::vector<int> m_smallRJet_eta;
   std::vector<int> m_smallRJet_phi;
@@ -96,10 +93,10 @@ private:
 
   TTree *m_myTree;
  
-  StatusCode loadsmallRJetAlgoVariables();
-  StatusCode loadlargeRJetAlgoVariables();
-  StatusCode loadtauAlgoVariables();
-  StatusCode loadPileupVariables();
+  StatusCode loadsmallRJetAlgoVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
+  StatusCode loadlargeRJetAlgoVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
+  StatusCode loadtauAlgoVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
+  StatusCode loadPileupVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
 };
 }
 #endif
