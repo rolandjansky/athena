@@ -454,6 +454,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 // isToBeDecayed() to never enable decays of such particles by EvtGen.
 //
 void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part) {
+// TODO the printout below crashes with segfault for HepMC3 - needs expert action
   ATH_MSG_DEBUG("Decaying particle " << pdgName(part) << " (barcode " << HepMC::barcode(part) << ")");
   if (msgLvl(MSG::VERBOSE)) HepMC::Print::line(std::cout,part);
 
