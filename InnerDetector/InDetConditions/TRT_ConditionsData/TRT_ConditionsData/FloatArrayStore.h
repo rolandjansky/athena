@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCONDITIONSDATA_FLOATARRAYSTORE_H
@@ -42,7 +42,7 @@ public:
 
 /** constructors, optionally with a tag */
   FloatArrayStore();
-  FloatArrayStore(const std::string tag);
+  FloatArrayStore(const std::string& tag);
 /** destructor  */
   virtual ~FloatArrayStore();
 /** move assignment **/
@@ -97,7 +97,7 @@ CLASS_DEF(FloatArrayStore,170308771,1)
 // inline methods
 inline FloatArrayStore::FloatArrayStore() : m_tag("Undefined") { }
 
-inline FloatArrayStore::FloatArrayStore(const std::string tag) : m_tag(tag) { }
+inline FloatArrayStore::FloatArrayStore(const std::string& tag) : m_tag(tag) { }
 
 inline  FloatArrayStore & FloatArrayStore::operator=(FloatArrayStore&& other){
   if (this!=&other){
