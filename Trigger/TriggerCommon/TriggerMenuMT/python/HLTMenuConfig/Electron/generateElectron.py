@@ -213,9 +213,9 @@ def _precisionElectronSeq(flags, doIDperf=False):
     def TrigTopoEgammaElectronCfg(flags, name='topoEgammaBuilder_TrigElectrons'):
         acc = ComponentAccumulator()
         from egammaTools.EMShowerBuilderConfig import EMShowerBuilderCfg
-        builder = CompFactory.topoEgammaBuilder(name,
-                                                SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-                                                SuperPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
+        builder = CompFactory.xAODEgammaBuilder(name,
+                                                InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+                                                InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
                                                 ElectronOutputName = TrigEgammaKeys.outputElectronKey,
                                                 PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
                                                 AmbiguityTool = CompFactory.EGammaAmbiguityTool(),

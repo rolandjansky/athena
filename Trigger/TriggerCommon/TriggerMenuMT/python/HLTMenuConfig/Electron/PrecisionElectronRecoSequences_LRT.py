@@ -68,7 +68,7 @@ def precisionElectronRecoSequence_LRT(RoIs):
     ## TrigTopoEgammaElectronCfg_LRT ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_LRT")
     thesequence += TrigTopoEgammaAlgo
-    TrigTopoEgammaAlgo.SuperElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
+    TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys_LRT.outputElectronKey_LRT
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
     TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
