@@ -15,6 +15,9 @@ class GeoFullPhysVol;
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
 #include "AGDDKernel/AliasStore.h"
+#include "AGDDModel/AGDDColorStore.h"
+#include "AGDDModel/AGDDMaterialStore.h"
+#include "AGDDModel/AGDDParameterStore.h"
 
 #include <string>
 #include <vector>
@@ -42,8 +45,11 @@ public:
 	
         AGDDVolumeStore& GetVolumeStore();
         AGDDSectionStore& GetSectionStore();
+        AGDDColorStore& GetColorStore();
         AGDDDetectorStore& GetDetectorStore();
         AGDDPositionerStore& GetPositionerStore();
+        AGDDMaterialStore& GetMaterialStore();
+        AGDDParameterStore& GetParameterStore();
         AliasStore& GetAliasStore();
 
         //static void PrintVolumeHierarchy(const std::string&, int);
@@ -74,8 +80,11 @@ private:
 
         AGDDVolumeStore m_vs;
         AGDDSectionStore m_ss;
+        AGDDColorStore m_cs;
         AGDDDetectorStore m_ds;
         AGDDPositionerStore m_ps;
+        AGDDMaterialStore m_ms;
+        AGDDParameterStore m_prs;
         AliasStore m_as;
 };
 

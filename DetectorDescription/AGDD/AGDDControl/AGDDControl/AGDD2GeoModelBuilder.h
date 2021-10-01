@@ -32,6 +32,7 @@ class AGDDDetectorStore;
 class AGDDVolumeStore;
 class AGDDSectionStore;
 class AliasStore;
+class AGDDMaterialStore;
 
 
 #include <string>
@@ -42,7 +43,8 @@ public:
 	AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
                              AGDDVolumeStore& vs,
                              AGDDSectionStore& ss,
-                             AliasStore& as);
+                             AliasStore& as,
+                             AGDDMaterialStore& ms);
 	~AGDD2GeoModelBuilder()=default;
 	// elements & materials 
 	GeoElement* CreateElement(const std::string&) const;
@@ -81,6 +83,7 @@ private:
         AGDDVolumeStore& m_vs;
         AGDDSectionStore& m_ss;
         AliasStore& m_as;
+        AGDDMaterialStore& m_ms;
 
         const GeoMaterial* GetMMMaterial(const std::string&) const;
 

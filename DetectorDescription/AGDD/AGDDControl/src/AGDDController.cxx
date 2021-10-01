@@ -11,6 +11,7 @@
 #include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AliasStore.h"
+#include "AGDDModel/AGDDParameterStore.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
@@ -60,7 +61,7 @@ AGDDController::AGDDController()
 {
 //	m_theParser=new AMDBParser;
 	m_theParser=new XercesParser;
-	m_theBuilder=new AGDD2GeoModelBuilder (m_ds, m_vs, m_ss, m_as);
+	m_theBuilder=new AGDD2GeoModelBuilder (m_ds, m_vs, m_ss, m_as, m_ms);
 }
 
 void AGDDController::SetBuilder(AGDDBuilder *b) 
@@ -213,6 +214,12 @@ AGDDVolumeStore& AGDDController::GetVolumeStore()
 }
 
 
+AGDDColorStore& AGDDController::GetColorStore()
+{
+  return m_cs;
+}
+
+
 AGDDSectionStore& AGDDController::GetSectionStore()
 {
   return m_ss;
@@ -228,6 +235,18 @@ AGDDDetectorStore& AGDDController::GetDetectorStore()
 AGDDPositionerStore& AGDDController::GetPositionerStore()
 {
   return m_ps;
+}
+
+
+AGDDMaterialStore& AGDDController::GetMaterialStore()
+{
+  return m_ms;
+}
+
+
+AGDDParameterStore& AGDDController::GetParameterStore()
+{
+  return m_prs;
 }
 
 

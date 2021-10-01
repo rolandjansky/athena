@@ -23,6 +23,6 @@ void elementHandler::ElementHandle(AGDDController& c,
 	double ca=getAttributeAsInt(c, t, "aweight");
 	int cz=getAttributeAsInt(c, t, "z");
 	double density=getAttributeAsDouble(c, t, "density");
-        AGDDElement *el=new AGDDElement(name,symbol,cz,ca);
-        new AGDDMaterial(name,el,density);
+	AGDDElement *el=new AGDDElement(c.GetMaterialStore(),name,symbol,cz,ca);
+	new AGDDMaterial(c.GetMaterialStore(),name,el,density);
 }

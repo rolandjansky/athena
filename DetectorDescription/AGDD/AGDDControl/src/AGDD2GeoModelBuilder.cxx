@@ -67,20 +67,21 @@
 AGDD2GeoModelBuilder::AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
                                            AGDDVolumeStore& vs,
                                            AGDDSectionStore& ss,
-                                           AliasStore& as) :
+                                           AliasStore& as,
+                                           AGDDMaterialStore& ms) :
   AGDDBuilder(),
   m_mother(nullptr),
   m_ds(ds),
   m_vs(vs),
   m_ss(ss),
-  m_as(as)
+  m_as(as),
+  m_ms(ms)
 {
 }
 
 GeoElement* AGDD2GeoModelBuilder::CreateElement(const std::string& name) const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDElement *el=ms->GetElement(name);
+	AGDDElement *el=m_ms.GetElement(name);
 	if (el)
 		if (el->Extant())
 			return (GeoElement *)(el->GetElement());
@@ -106,8 +107,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 		return mmMaterial;
 	}
 
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDSimpleMaterial *mat=ms->GetMaterial(name);
+	AGDDSimpleMaterial *mat=m_ms.GetMaterial(name);
 	if (mat)
 		if (mat->Extant())
 			return (GeoMaterial*)(mat->GetMaterial());
@@ -125,7 +125,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 					return nullptr;
 				}
 				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*(GeoModelKernelUnits::gram/GeoModelKernelUnits::cm3));
-				AGDDElement *el=ms->GetElement(nmat->GetName());
+				AGDDElement *el=m_ms.GetElement(nmat->GetName());
 				if (el) 
 				{
 					if (!el->Extant()) CreateElement(el->GetName());
@@ -186,18 +186,16 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 }
 void AGDD2GeoModelBuilder::CreateElements() const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
 	ElementIterator it;
-	for (it=ms->ElementBegin();it!=ms->ElementEnd();it++)
+	for (it=m_ms.ElementBegin();it!=m_ms.ElementEnd();it++)
 	{
 		CreateElement((*it).second->GetName());
 	}
 }
 void AGDD2GeoModelBuilder::CreateMaterial() const
 {
-	AGDDMaterialStore *ms=AGDDMaterialStore::GetMaterialStore();
 	MaterialIterator it;
-	for (it=ms->MaterialBegin();it!=ms->MaterialEnd();it++)
+	for (it=m_ms.MaterialBegin();it!=m_ms.MaterialEnd();it++)
 	{
 		CreateMaterial((*it).second->GetName());
 	}
