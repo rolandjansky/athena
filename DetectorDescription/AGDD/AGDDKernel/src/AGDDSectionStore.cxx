@@ -32,7 +32,7 @@ void AGDDSectionStore::RegisterSection(AGDDSection *s)
 void AGDDSectionStore::PrintAllSections() const
 {
 	sectionList::const_iterator it;
-	for (it=m_theSections.begin();it!=m_theSections.end();it++)
+	for (it=m_theSections.begin();it!=m_theSections.end();++it)
 	{
 		(*it).second->Print();
 	}
@@ -41,7 +41,7 @@ void AGDDSectionStore::PrintAllSections() const
 void AGDDSectionStore::Clean()
 {
 	sectionList::const_iterator it;
-	for (it=m_theSections.begin();it!=m_theSections.end();it++)
+	for (it=m_theSections.begin();it!=m_theSections.end();++it)
 	{
 		delete (*it).second;
 	}
