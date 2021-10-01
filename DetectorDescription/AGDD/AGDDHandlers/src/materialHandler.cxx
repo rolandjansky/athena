@@ -21,5 +21,5 @@ void materialHandler::ElementHandle(AGDDController& c,
 	double a=getAttributeAsDouble(c, t, "a");
 	int z=getAttributeAsInt(c, t, "z");
 	double density=getAttributeAsDouble(c, t, "density");
-        new AGDDMaterial(name,z,a,density); 
+	new AGDDMaterial(c.GetMaterialStore(),name,z,a,density);	
 }

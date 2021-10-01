@@ -40,7 +40,8 @@ void sTGC_TechHandler::ElementHandle(AGDDController& c,
 	
 	tech->geoLevel=getAttributeAsInt(c, t, "geometryLevel",ret);
 		
-	if(AGDDParameterStore::GetParameterStore()->Exist(name)) {
+        AGDDParameterStore& prs = c.GetParameterStore();
+	if(prs.Exist(name)) {
 		std::cout << " parameters for technology " << name << " already registered" << std::endl;
 	}
 	else {
@@ -50,6 +51,6 @@ void sTGC_TechHandler::ElementHandle(AGDDController& c,
 		paraBag->wirePitch = 1.8; //phi
 		paraBag->stripWidth = 2.7; //eta
 		paraBag->wireWidth = 0.015; //phi
-		AGDDParameterStore::GetParameterStore()->RegisterParameterBag(name, paraBag);
+		prs.RegisterParameterBag(name, paraBag);
 	}
 }

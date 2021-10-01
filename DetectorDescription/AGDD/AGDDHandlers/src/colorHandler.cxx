@@ -24,5 +24,5 @@ void colorHandler::ElementHandle(AGDDController& c,
 	double fblue=getAttributeAsDouble(c, t, "blue");
 	double falpha __attribute__((__unused__));
 	falpha=getAttributeAsDouble(c, t, "alpha",0.);
-	new AGDDColor(name,fred,fgreen,fblue);
+	new AGDDColor(c.GetColorStore(),name,fred,fgreen,fblue);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDColorStore_H
@@ -16,9 +16,8 @@ class AGDDColorStore: public AGDDColorMap {
 public:
 	AGDDColorStore();
 	void Register(AGDDColor *);
-	AGDDColor* GetColor(std::string);
-	bool Exist(std::string);
-	static AGDDColorStore* GetColorStore();
+	AGDDColor* GetColor(const std::string&);
+        bool Exist(const std::string&) const;
 private:
 
 };
