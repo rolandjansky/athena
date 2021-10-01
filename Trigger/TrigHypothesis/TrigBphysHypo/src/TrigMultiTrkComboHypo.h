@@ -239,6 +239,10 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
     "apply overlap removal for the close-by same-sign objects from different views"};
   Gaudi::Property<float> m_deltaR {this, "deltaR", 0.01,
     "minimum deltaR between same-sign tracks (overlap removal)"};
+  Gaudi::Property<float> m_deltaRMax {this, "deltaRMax", std::numeric_limits<float>::max(),
+    "maximum deltaR between tracks in a candidate"};
+  Gaudi::Property<float> m_deltaRMin {this, "deltaRMin", std::numeric_limits<float>::lowest(),
+    "maximum deltaR between tracks in a candidate"};
   Gaudi::Property<float> m_chi2 {this, "chi2", 150.,
     "chi2 cut for the fitted vertex"};
   Gaudi::Property<bool> m_isStreamer {this, "isStreamer", false,

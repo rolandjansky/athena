@@ -479,6 +479,14 @@ StatusCode TrigMultiTrkComboHypo::filterTrackCombinations(TrigMultiTrkStateBase&
         }
         ++j;
       }
+      if(m_deltaRMax != std::numeric_limits<float>::max() || m_deltaRMin != std::numeric_limits<float>::lowest()){
+         for (size_t i = 0; i < p.size(); ++i){
+           for (size_t j = i; j < p.size(); ++j){
+              auto result = ROOT::Math::VectorUtil::DeltaR(p[i], p[j]);
+              if(result > m_deltaRMax || result < m_deltaRMin) { isValidCombination = false; break;}
+           }
+         }
+      }
       if (!isValidCombination) continue;
 
       if (msgLvl(MSG::DEBUG)) {
