@@ -71,7 +71,9 @@ class GenericMonitoringTool(_GenericMonitoringTool):
         # if an overall path for tool is specified, can leave path argument empty
         if getattr(self, 'HistPath', '') != '':
             kwargs.setdefault('path', '')
-        self.Histograms.append(deffunc(*args, **kwargs))
+        toadd = deffunc(*args, **kwargs)
+        if toadd:
+            self.Histograms.append(toadd)
 
     def defineHistogram(self, *args, **kwargs):
         self._coreDefine(defineHistogram, *args, **kwargs)
