@@ -69,7 +69,6 @@ class opt:
     selectChains      = []
     disableChains     = []
 
-
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -117,11 +116,9 @@ for s in slices:
     signature = s[2:].replace('Slice', '')
 
     if eval('opt.'+s) is True:
-        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.enabledSignatures.append( enabledSig )
+        opt.enabledSignatures.append( signature )
     else:
-        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.disabledSignatures.append( disabledSig )
+        opt.disabledSignatures.append( signature )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -489,18 +486,11 @@ if not opt.createHLTMenuExternally:
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    # define the function that enable the signatures
-    def signaturesToGenerate():
-        TriggerFlags.Slices_all_setOff()
-        for sig in opt.enabledSignatures:
-            eval(sig)
+    def chainsToGenerate(signame, chain):
+        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
+                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
 
-    menu.overwriteSignaturesWith(signaturesToGenerate)
-
-    if (opt.selectChains):
-        menu.selectChainsForTesting = opt.selectChains
-    if (opt.disableChains):
-        menu.disableChains = opt.disableChains
+    menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
