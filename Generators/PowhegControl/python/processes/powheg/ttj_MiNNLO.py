@@ -37,8 +37,9 @@ class ttj_MiNNLO(PowhegV2):
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem")
+        self.add_keyword("alphas_from_pdf", 1) # if 1, uses alphas from PDF evolution tool (e.g. lhapdf or hoppet)
         self.add_keyword("bcut")
-        self.add_keyword("bornktmin", 5.0)
+        self.add_keyword("bornktmin", 0.6) # 0.6 from powheg.input example for this process (default is 0.)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact", 100.0)
         self.add_keyword("bornzerodamp")
@@ -64,6 +65,7 @@ class ttj_MiNNLO(PowhegV2):
         self.add_keyword("elbranching")
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
+        self.add_keyword("fixedscale", 0) # keep to zero to use dynamical scale for overall two powers of alphas
         self.add_keyword("ffltest")
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi", 2)
@@ -84,7 +86,9 @@ class ttj_MiNNLO(PowhegV2):
         self.add_keyword("iupperisr")
         self.add_keyword("iymax", 3)
         self.add_keyword("jacsing")
+        self.add_keyword("kappaQ", 0.5) # should be set =< 0.5d0 for ttbar)
         self.add_keyword("largecorrfact")
+        self.add_keyword("largeptscales", 0) # [ 0: use muR=muF~Q in fixed order part at high pt; 1: use muR=muF=pt]
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhfm/bmass")
@@ -141,6 +145,7 @@ class ttj_MiNNLO(PowhegV2):
         self.add_keyword("use-old-grid")
         self.add_keyword("use-old-ubound")
         self.add_keyword("use-OLP-interface")
+        self.add_keyword("whichscale", 4) # set scale of overall two powers of alphas if fixedscale=0
         self.add_keyword("withdamp")
         self.add_keyword("withnegweights")
         self.add_keyword("withsubtr")
