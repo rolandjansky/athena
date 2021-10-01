@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAREC_CALOCLUSTERROI_SELECTOR_H
@@ -22,6 +22,9 @@
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <atomic>
 
 namespace InDet {
@@ -40,11 +43,11 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   ~CaloClusterROI_Selector();
 	
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override;
   /** @brief execute method*/
-  StatusCode execute(const EventContext& ctx) const;
+  StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
@@ -56,6 +59,14 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   /** @brief Name of the cluster output collection*/
   SG::WriteHandleKey<CaloClusterROI_Collection>  m_outputClusterContainerName {this,
       "OutputClusterContainerName", "CaloClusterROIs", "Output cluster for egamma objects"};
+
+  /**
+   * @brief Name of the CaloDetDescrManager condition object
+   */
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   //
   // The tools
