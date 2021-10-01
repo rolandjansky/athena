@@ -2,10 +2,10 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAALGS_TOPOEGAMMABUILDER_H
-#define EGAMMAALGS_TOPOEGAMMABUILDER_H
+#ifndef EGAMMAALGS_XAODEGAMMABUILDER_H
+#define EGAMMAALGS_XAODEGAMMABUILDER_H
 /**
-  @class topoEgammaBuilder
+  @class xAODEgammaBuilder
   The last step of the electron and photon reconstruction algorithm. The
   algorithm builds physics objects (xAOD::Electron, xAOD::Photon) from the
   egammaRec containers built by the previous algorithms. In the step of the
@@ -13,10 +13,10 @@
   resolution is applied.
 
   Input collections:
-  - SuperElectronRecCollectionName: default=ElectronSuperRecCollection.
-   A container of egammaRec with the cluster set to the supercluster
-  - SuperPhotonRecCollectionName: default=PhotonSuperRecCollection.
-   A container of egammaRec with the cluster set to the supercluster
+  - InputElectronRecCollectionName: default=ElectronSuperRecCollection.
+   A container of egammaRec for electrons
+  - InputPhotonRecCollectionName: default=PhotonSuperRecCollection.
+   A container of egammaRec for photons
 
   Output collections:
   - ElectronOutputName: default=ElectronContainer. A container of xAOD::Electron.
@@ -80,11 +80,11 @@
 
 class egammaRec;
 
-class topoEgammaBuilder : public AthReentrantAlgorithm
+class xAODEgammaBuilder : public AthReentrantAlgorithm
 {
 public:
 
-    topoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
+    xAODEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
     StatusCode initialize() override final;
     StatusCode finalize() override final;
@@ -160,14 +160,14 @@ private:
         "Name of Photon Container to be created"};
 
     /** @brief Name of input super cluster electron egammaRec container */
-    SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey {this,
-        "SuperElectronRecCollectionName",
+    SG::ReadHandleKey<EgammaRecContainer> m_electronClusterRecContainerKey {this,
+        "InputElectronRecCollectionName",
         "ElectronSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
 
     /** @brief Name of input super cluster photon egammaRec container */
-    SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey {this,
-        "SuperPhotonRecCollectionName",
+    SG::ReadHandleKey<EgammaRecContainer> m_photonClusterRecContainerKey {this,
+        "InputPhotonRecCollectionName",
         "PhotonSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
 

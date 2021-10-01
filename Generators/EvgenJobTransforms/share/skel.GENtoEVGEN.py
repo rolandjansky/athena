@@ -127,6 +127,7 @@ if not hasattr(fixSeq, "FixHepMC"):
 ## Sanity check the event record (not appropriate for all generators)
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
 testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
+#testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy)
 if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
@@ -494,7 +495,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
 ## Propagate debug output level requirement to generators
-if hasattr( runArgs, "VERBOSE") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE ) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
    include("EvgenJobTransforms/Generate_debug_level.py")
 
 ## Add special config option (extended model info for BSM scenarios)
@@ -754,8 +755,8 @@ if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
     count_ev = 0
     with open(eventsFile) as f:
-        for line in f:
-           count_ev += line.count('/event')
+        lines = f.read()
+        count_ev = lines.count('/event')
     printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 elif hasattr(runArgs, "inputGeneratorFile"):
     # counting the number of events in LHE output

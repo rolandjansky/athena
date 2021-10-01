@@ -69,6 +69,7 @@ _all_streams = [
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
     StreamInfo('LArPEB', 'calibration', False, False),
+    StreamInfo('LArPEBDigitalTrigger', 'calibration', False, False),
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
     StreamInfo('ZDCCalib', 'calibration', False, False),
     # HI STREAMS

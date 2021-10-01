@@ -1,21 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDElement_H
 #define AGDDElement_H
 
 #include <string>
+class AGDDMaterialStore;
 
 class AGDDElement {
 	friend std::ostream& operator <<(std::ostream&, const AGDDElement &);
 public:
-	AGDDElement(std::string n, std::string s, int z, double a):
+	AGDDElement(AGDDMaterialStore& ms,
+                    const std::string& n,
+                    const std::string& s,
+                    int z, double a):
 		m_name(n),m_symbol(s),m_z(z),m_a(a),m_created(false),m_theElement(0)
 	{
-		RegisterToStore(this);
+		RegisterToStore(ms, this);
 	}
-	void RegisterToStore(AGDDElement*);
+        void RegisterToStore(AGDDMaterialStore& ms, AGDDElement*);
 	std::string GetName() const ;
 	std::string GetSymbol() const ;
 	int GetZ() const {return m_z;}

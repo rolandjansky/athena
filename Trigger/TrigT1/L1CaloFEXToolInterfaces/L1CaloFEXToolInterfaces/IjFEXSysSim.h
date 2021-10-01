@@ -26,6 +26,7 @@
 #include "xAODTrigger/jFexMETRoIAuxContainer.h"
 #include "xAODTrigger/jFexSumETRoIContainer.h"
 #include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+#include "L1CaloFEXSim/jFEXOutputCollection.h"
 namespace LVL1 {
   
 /*
@@ -38,7 +39,7 @@ Interface definition for jFEXSysSim
   public:
     static const InterfaceID& interfaceID( ) ;
     
-    virtual StatusCode execute() = 0;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) = 0;
 
     virtual void init() = 0;
 

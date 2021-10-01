@@ -877,33 +877,27 @@ def InDetGsfMaterialUpdatorCfg(name='InDetGsfMaterialUpdator', **kwargs) :
     acc.setPrivateTools(GsfMaterialMixtureConvolution)
     return acc
 
-def InDetGsfExtrapolatorCfg(flags, name='InDetGsfExtrapolator', **kwargs) :
+def InDetGsfExtrapolatorCfg(flags, name='GsfExtrapolator', **kwargs) :
     the_name = makeName(name,kwargs)
     acc = ComponentAccumulator()
 
     if 'Propagators' not in kwargs :
         from  InDetConfig.InDetRecToolConfig import InDetPropagatorCfg
-        InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
-        acc.addPublicTool(InDetPropagator)
-        kwargs.setdefault('Propagators', [ InDetPropagator ])
+        kwargs['Propagators'] = [ acc.getPrimaryAndMerge(InDetPropagatorCfg(flags)) ]
 
     if 'Navigator' not in kwargs :
         from InDetConfig.InDetRecToolConfig  import InDetNavigatorCfg
-        InDetNavigator = acc.popToolsAndMerge(InDetNavigatorCfg(flags))
-        acc.addPublicTool(InDetNavigator)
-        kwargs.setdefault('Navigator', InDetNavigator)
+        kwargs['Navigator'] = acc.getPrimaryAndMerge(InDetNavigatorCfg(flags))
 
     if 'GsfMaterialConvolution' not in kwargs :
-        InDetGsfMaterialUpdato = acc.popToolsAndMerge(InDetGsfMaterialUpdatorCfg())
-        acc.addPublicTool(InDetGsfMaterialUpdato)
-        kwargs.setdefault('GsfMaterialConvolution', InDetGsfMaterialUpdato)
+        kwargs['GsfMaterialConvolution'] = acc.popToolsAndMerge(InDetGsfMaterialUpdatorCfg())
 
     kwargs.setdefault('SearchLevelClosestParameters', 10)
     kwargs.setdefault('StickyConfiguration', True)
     kwargs.setdefault('SurfaceBasedMaterialEffects', False)
-
-    GsfExtrapolator = CompFactory.Trk.GsfExtrapolator(name = the_name, **kwargs)
-    acc.setPrivateTools(GsfExtrapolator)
+    print("REMOVEME", the_name, kwargs)
+    extrapolatorTool = CompFactory.Trk.GsfExtrapolator(name = the_name, **kwargs)
+    acc.setPrivateTools(extrapolatorTool)
     return acc
 
 def GaussianSumFitterCfg(flags, name='GaussianSumFitter', **kwargs) :

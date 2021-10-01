@@ -58,7 +58,7 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize  () override;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void init() override ;
 

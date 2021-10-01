@@ -102,6 +102,14 @@ monitoring_tau_pp = [
     #'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
     #'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
     #'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+    
+    # Phase-1
+    'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+    'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+    'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+    'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
+    'tau200_mediumRNN_tracktwoMVABDT_L1eTAU100',
+    'tau180_mediumRNN_tracktwoLLP_L1eTAU100',
 
 ]
 
@@ -172,7 +180,11 @@ monitoring_tau_validation = [
         #tau200
         'tau200_mediumRNN_tracktwoLLP_L1TAU100',
         'tau200_tightRNN_tracktwoLLP_L1TAU100',
-
+        # Phase I
+        'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+        'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+        'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+        'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
 ]
 
 monitoring_tau_cosmic = [

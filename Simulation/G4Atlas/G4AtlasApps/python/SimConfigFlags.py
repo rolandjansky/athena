@@ -102,21 +102,25 @@ def createSimConfigFlags():
         # Further specialization possible in future
         if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
+            doITk = False
             doCALO = False
             doMUON = False
         elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
         elif simstr in ("ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"):
             doID = False
+            doITk = False
             doCALO = True
             doMUON = False
         else:
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        return {"ID": doID, "CALO": doCALO, "MUON": doMUON}
+        return {"ID": doID, "CALO": doCALO, "MUON": doMUON, "ITk": doITk}
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 

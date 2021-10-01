@@ -14,9 +14,10 @@ std::ostream& operator <<(std::ostream& os, const AGDDElement &obj)
 	return os;
 }
 
-void AGDDElement::RegisterToStore(AGDDElement *e)
+void AGDDElement::RegisterToStore(AGDDMaterialStore& ms,
+                                  AGDDElement *e)
 {
-	AGDDMaterialStore::GetMaterialStore()->RegisterElement(e);
+        ms.RegisterElement(e);
 }
 
 std::string AGDDElement::GetName() const

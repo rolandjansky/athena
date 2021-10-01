@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDMixture.h"
@@ -22,16 +22,15 @@ std::ostream& operator <<(std::ostream& os, const AGDDMixture &obj)
 	return os;
 }
 
-AGDDMixture::AGDDMixture(std::string n, double d):
-	AGDDSimpleMaterial(n,d)
+AGDDMixture::AGDDMixture(AGDDMaterialStore& ms, const std::string& n, double d):
+	AGDDSimpleMaterial(ms,n,d)
 {
 	m_mType=Mixture;
 }
 
-void AGDDMixture::AddMaterial(std::string el)
+void AGDDMixture::AddMaterial(AGDDMaterialStore& ms, const std::string& el)
 {
-	AGDDMaterialStore* ms=AGDDMaterialStore::GetMaterialStore();
-	AGDDSimpleMaterial* material=ms->GetMaterial(el);
+	AGDDSimpleMaterial* material=ms.GetMaterial(el);
 	m_theMaterials.push_back(material);
 }
 void AGDDMixture::Fraction(double d)

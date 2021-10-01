@@ -29,6 +29,7 @@ PartialEventBuildingIdentifiers = [
     'MuonTrkPEB',
     'LArPEBHLT',
     'LArPEB',
+    'LATOMEPEB',
     'RPCPEBSecondaryReadout',
     'SCTPEB',
     'TilePEB',
