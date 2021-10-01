@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArHECNoise_H
-#define LArHECNoise_H
+#ifndef LARCAFJOBS_LARHECNOISE_H
+#define LARCAFJOBS_LARHECNOISE_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -51,9 +51,9 @@ class LArHECNoise : public AthAlgorithm  {
    LArHECNoise(const std::string& name, ISvcLocator* pSvcLocator);
    ~LArHECNoise();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
 
  private:
 
@@ -69,7 +69,11 @@ class LArHECNoise : public AthAlgorithm  {
 
    /*services*/
    const LArOnlineID* m_LArOnlineIDHelper;
-   const CaloDetDescrManager* m_calodetdescrmgr;
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+       , "CaloDetDescrManager"
+       , "CaloDetDescrManager"
+       , "SG Key for CaloDetDescrManager in the Condition Store" };
+
    const CaloCell_ID*   m_calocell_id;
 
    /*declaration of branches*/
