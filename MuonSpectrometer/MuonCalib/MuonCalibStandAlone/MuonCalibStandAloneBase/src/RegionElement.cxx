@@ -13,7 +13,7 @@
 
 namespace MuonCalib {
 
-    bool RegionElement::Initialize(std::string &region) {
+    bool RegionElement::Initialize(const std::string &region) {
         m_region = region;
         std::string inner_region(region, 1, region.size() - 2);
         // clear all - empty means all chambers

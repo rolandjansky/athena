@@ -11,10 +11,6 @@
 /// of curved (parabolic) segments. The method used is a generalization of the
 /// analytic autocalibration developed by Deile, Hessey, and Staude (see
 /// ATL-MUON-2004-021).
-///
-/// \author Oliver.Kortner@CERN.CH
-///
-/// \date 10.05.2008
 
 #include <list>
 #include <memory>
@@ -50,7 +46,7 @@ namespace MuonCalib {
     class RtCalibrationCurved : public IMdtCalibration {
     public:
         // Constructors //
-        RtCalibrationCurved(std::string name);
+        RtCalibrationCurved(const std::string &name);
         ///< Default constructor: r-t accuracy is set to 0.5 mm.
         ///< The r-t accuracy is used internally to distinguish between good
         ///< and bad segments.
@@ -62,7 +58,7 @@ namespace MuonCalib {
         ///< No parabolic extrapolations are used.
         ///< By default no smoothing is applied after convergence.
 
-        RtCalibrationCurved(std::string name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
+        RtCalibrationCurved(const std::string &name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
                             const bool &fix_min, const bool &fix_max, const int &max_it, bool do_parabolic_extrapolation = false,
                             bool do_smoothing = false, bool do_multilayer_rt_scale = false);
         ///< Constructor.
@@ -160,7 +156,7 @@ namespace MuonCalib {
         ///< after convergence
 
         // methods required by the base class "IMdtCalibration" //
-        const IMdtCalibrationOutput *analyseSegments(const std::vector<MuonCalibSegment *> &seg);
+        MdtCalibOutputPtr analyseSegments(const MuonSegVec &seg) override;
         ///< perform the full autocalibration
         ///< including iterations
         ///< (required since
@@ -169,17 +165,17 @@ namespace MuonCalib {
         ///< analyse the segment "seg"
         ///< (this method was required before
         ///< MdtCalibInterfaces-00-01-06)
-        void setInput(const IMdtCalibrationOutput *rt_input);
+        void setInput(const IMdtCalibrationOutput *rt_input) override;
         ///< set the r-t relationship,
         ///< the internal autocalibration
         ///< objects are reset
-        bool analyse(const std::vector<MuonCalibSegment *> &seg);
+        bool analyse(const MuonSegVec &seg);
         ///< perform the autocalibration with
         ///< the segments acquired so far
         bool converged() const;
         ///< returns true, if the
         ///< autocalibration has converged
-        const IMdtCalibrationOutput *getResults() const;
+        MdtCalibOutputPtr getResults() const;
         ///< returns the final r-t relationship
 
     private:
@@ -194,11 +190,11 @@ namespace MuonCalib {
         bool m_do_multilayer_rt_scale;  // determine multilayer rt scaling
 
         // bookkeeping //
-        int m_nb_segments;       // number of segments passed to the algorithm
-        int m_nb_segments_used;  // number of segments used by the algorithm
-        int m_iteration;         // current iteration
-        bool m_multilayer[2];    // m_multilayer[k] = true, if there was a segment
-                                 //                   extending to multilayer k+1
+        int m_nb_segments;                 // number of segments passed to the algorithm
+        int m_nb_segments_used;            // number of segments used by the algorithm
+        int m_iteration;                   // current iteration
+        std::array<bool, 2> m_multilayer;  // m_multilayer[k] = true, if there was a segment
+                                           //                   extending to multilayer k+1
 
         // r-t quality //
         int m_status;                   // m_status: 0: no covergence yet,
@@ -224,7 +220,7 @@ namespace MuonCalib {
 
         // r-t output //
         std::shared_ptr<IRtRelation> m_rt_new;          // r-t as determined by the autocalibration
-        std::unique_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
+        std::shared_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
                                                         // autocalibration
         std::unique_ptr<MultilayerRtDifference> m_multilayer_rt_difference;
         // curved-segment fitting //
