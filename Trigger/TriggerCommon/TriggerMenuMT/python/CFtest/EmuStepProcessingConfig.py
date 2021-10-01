@@ -43,21 +43,13 @@ def generateEmuMenu():
     from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1
     from TriggerMenuMT.HLTMenuConfig.Menu import LS2_emu_v1 
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-    from TriggerJobOpts.TriggerFlags import TriggerFlags  
 
-    # overwrite LS2_v1 
+    # overwrite LS2_v1
     LS2_v1.setupMenu = LS2_emu_v1.setupMenu
 
-    # switch on only TestSlice
-    def signaturesToGenerate():
-        TriggerFlags.Slices_all_setOff()
-        TriggerFlags.TestSlice.setAll()
-        #TriggerFlags.EgammaSlice.setAll()
-
-    # Generate the menu    
+    # Generate the menu
     menu = GenerateMenuMT()
-    menu.overwriteSignaturesWith(signaturesToGenerate)
-    menu.generateAllChainConfigs()    
+    menu.generateAllChainConfigs()
     #menu.generateMT()
 
 

@@ -21,7 +21,6 @@ SliceIDDict = {
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
     'Calib'   : 'calib',
-    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -30,15 +29,23 @@ SliceIDDict = {
     'Test'          : 'TestChain',
 }
 
-AllowedSignatures = ["jet", "bjet", "electron", "photon", "egamma",
-                     "muon",
-                     "met",
-                     "tau",
-                     "unconvtrk",
-                     "minbias",
-                     "heavyion",
-                     "cosmic",
-                     "calibration", "streaming", "monitoring", 'eb']
+class ChainStore(dict):
+    """Class to hold list of chains for each signature (dictionary with fixed set of keys)"""
+    _allowedSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
+                          'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
+                          'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias',
+                          'UnconventionalTracking', 'Test']
+
+    def __init__(self):
+        # Create dicionary with fixed set of keys in the orignal order
+        super().__init__({s : [] for s in self._allowedSignatures})
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            raise RuntimeError(f"'{key}' is not in the list of allowed signatures: {self._allowedSignatures}")
+        else:
+            dict.__setitem__(self, key, value)
+
 
 #==========================================================
 # ---- Generic Template for all chains          ----

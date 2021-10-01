@@ -29,20 +29,17 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (
 )
 
 
-def addP1Signatures():
+def addP1Signatures(chains):
 
-    from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
     log.info('[setupMenu] going to add the PhysicsP1 menu chains now')
     
-    TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
-
-    TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
+    chains['Muon'] += [
           ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU14FCH', stream=['RPCSecondaryReadout'], groups=SingleMuonGroup), # TODO: Move to Detector slice
      ]
 
-    TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
+    chains['Egamma'] += [
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
@@ -52,10 +49,7 @@ def addP1Signatures():
         ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
     ]
 
-    TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
-    ]
-
-    TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
+    chains['Jet'] += [
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_j25_LArPEBHLT_L1J15', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
         ChainProp(name='HLT_j25_320eta490_LArPEBHLT_L1J15p31ETA49', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
@@ -65,22 +59,13 @@ def addP1Signatures():
         ChainProp(name='HLT_j165_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
     ]
 
-    TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
-    ] 
-
-    TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() +[
-    ]
-    TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-    ]
-    TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [ 
-   ]
-    TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
-    TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
+    chains['Beamspot'] += [
           ChainProp(name='HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
           #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
           #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
-    ]   
-    TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + [
+    ]
+
+    chains['Calib'] += [
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['RATE:Calibration','BW:Detector']),
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_BGRP11', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['RATE:Calibration','BW:Detector']),
 
@@ -125,12 +110,14 @@ def addP1Signatures():
         ChainProp(name='HLT_larpsall_L1TAU8_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']),
         ChainProp(name='HLT_larpsall_L1J30p31ETA49_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']),
     ]
-    TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
+
+    chains['Cosmic'] += [
         ChainProp(name='HLT_noalg_SCTPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['SCTNoise'], groups=['RATE:SCTCalibration','BW:Detector']), # HLT_sct_noise
         ChainProp(name='HLT_noalg_laser_TilePEB_L1CALREQ2', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_laser 
         ChainProp(name='HLT_noalg_CIS_TilePEB_L1CALREQ1', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_CIS 
     ]
-    TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+
+    chains['Streaming'] += [
         ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),  
         
@@ -307,13 +294,10 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_ZDCPEB_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=['ZDCCalib'], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
  
     ]
-    TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
+
+    chains['Monitor'] += [
         ChainProp(name='HLT_timeburner_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online','RATE:DISCARD','BW:DISCARD']),
-
     ]
-
-    # Random Seeded EB chains which select at the HLT based on L1 TBP bits
-    TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
 
 def setupMenu():
@@ -322,6 +306,6 @@ def setupMenu():
     log = logging.getLogger(__name__)
     log.info('setupMenu ...')
 
-    physics_menu.setupMenu()
-    addP1Signatures()
-
+    chains = physics_menu.setupMenu()
+    addP1Signatures(chains)
+    return chains
