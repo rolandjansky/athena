@@ -379,7 +379,6 @@ def repair_comment_lines(lheFile, pattern):
         elif n_found == 0 and n_found_noWeights == n_events_noWeights and n_events == n_events_noWeights:
             # loop in parallel on the lhe file with weights that we want to fix, and on the lhe file without weights from which we'll take the correct comment lines
             with open("{}.text_replace_backup".format(lheFile), "rb") as f_input, open("{}.before_reweighting".format(lheFile), "rb") as f_input_noWeights:
-                logger.info("hehere")
                 line_in = f_input.readline()
                 line_in_noWeights = f_input_noWeights.readline()
                 while line_in_noWeights:
