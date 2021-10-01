@@ -209,6 +209,12 @@ HLT_2mu4_L1BPH-8M15-20DR99-2MU3V:
   eventCount: 0
 HLT_2mu4_L1BPH-8M15-20DR99-C-2MU3V:
   eventCount: 0
+HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU3V:
@@ -327,12 +333,6 @@ HLT_2mu4_noL2Comb_bJpsimumu_L12MU3V:
   stepFeatures:
     0: 2
     1: 2
-HLT_2mu4_os_dRAA12_L1BPH-0DR12C-2MU3V:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
 HLT_2mu50_msonly_L1MU14FCH:
   eventCount: 0
 HLT_2mu6_10invmAA70_L1MU5VF:

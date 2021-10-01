@@ -134,7 +134,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuFast(self,is_probe_leg=False):
         doOvlpRm = False
-        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau', 'l2io']):
+        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau', 'l2io', 'b0dRAB12vtx20']):
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True

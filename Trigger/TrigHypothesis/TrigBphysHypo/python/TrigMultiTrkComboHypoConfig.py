@@ -19,6 +19,7 @@ trigMultiTrkComboHypoToolDict = {
     'bPhi'       : { 'massRange' : ( 940.,  1100.), 'chi2' : 10. },
     'bTau'       : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
     'bBeeM6000'  : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+    'b0dRAB12vtx20' : { 'massRange' : ( 0.,  999999999.),  'chi2' : 20., 'deltaRMax' : 1.2  }
 }
 
 
@@ -207,6 +208,10 @@ class TrigMultiTrkComboHypoConfig(object):
             tool.massRange = value['massRange']
             tool.chi2 = value['chi2']
             tool.totalCharge = 0
+            if 'deltaRMin' in value:
+               tool.deltaRMin = value['deltaRMin']
+            if 'deltaRMax' in value:
+               tool.deltaRMax = value['deltaRMax']
         except LookupError:
             raise Exception('TrigMultiTrkComboHypo misconfigured for \'%s\': topo \'%s\' is not supported.', chainDict['chainName'], topo)
 
