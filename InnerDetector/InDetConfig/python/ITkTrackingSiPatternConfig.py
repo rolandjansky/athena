@@ -32,8 +32,8 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("minZ", -flags.ITk.Tracking.maxZImpactSeed )
     kwargs.setdefault("usePixel", flags.ITk.Tracking.useITkPixel)
     kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
-    kwargs.setdefault("SpacePointsSCTName", 'ITkStripSpacePoints')
+    kwargs.setdefault("useStrip", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
+    kwargs.setdefault("SpacePointsStripName", 'ITkStripSpacePoints')
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("radMax", flags.ITk.Tracking.radMax)
@@ -56,7 +56,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     if flags.ITk.doFastTracking :
         kwargs.setdefault("useFastTracking", True)
         kwargs.setdefault("maxSeedsForSpacePoint", 3)
-        kwargs.setdefault("useSCT", False)
+        kwargs.setdefault("useStrip", False)
         if flags.ITk.Tracking.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
 
@@ -308,6 +308,7 @@ def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", 
 
     kwargs.setdefault("RegSelTool_Strip", RegSelTool_ITkStrip)
     kwargs.setdefault("useITkConvSeeded", True)
+    kwargs.setdefault("InputClusterContainerName", "ITkCaloClusterROIs")
 
     acc.merge(ITkSiSPSeededTrackFinderCfg(flags, name = name,
                                           InputCollections = InputCollections,

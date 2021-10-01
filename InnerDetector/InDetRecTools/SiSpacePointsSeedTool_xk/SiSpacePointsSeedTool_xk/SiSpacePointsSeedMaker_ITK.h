@@ -98,9 +98,9 @@ namespace InDet {
     //@{
     virtual void newEvent (const EventContext& ctx, EventData& data, int iteration) const override;
     virtual void newRegion(const EventContext& ctx, EventData& data,
-                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vStrip) const override;
     virtual void newRegion(const EventContext& ctx, EventData& data,
-                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vStrip,
                            const IRoiDescriptor& iRD) const override;
     //@}
 
@@ -163,8 +163,8 @@ namespace InDet {
 
     /// @name Data handles
     //@{
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints", "SCT space points container"};
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints", "Pixel space points container"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsStrip{this, "SpacePointsStripName", "ITkStripSpacePoints", "Strip space points container"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "ITkPixelSpacePoints", "Pixel space points container"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
     SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
@@ -175,7 +175,7 @@ namespace InDet {
     /// @name Properties, which will not be changed after construction
     //@{
     BooleanProperty m_pixel{this, "usePixel", true};
-    BooleanProperty m_sct{this, "useSCT", true};
+    BooleanProperty m_strip{this, "useStrip", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
     IntegerProperty m_maxsize{this, "maxSize", 50000};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
@@ -392,7 +392,7 @@ namespace InDet {
       * @param[in] sp: Input space point. 
     **/
     SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp) const;
-    SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp, float* r, bool usePixSctInform=false) const;
+    SiSpacePointForSeedITK* newSpacePoint(EventData& data, const Trk::SpacePoint*const& sp, float* r, bool usePixStripInform=false) const;
 
     static void newSeed
     (EventData& data,
@@ -411,7 +411,7 @@ namespace InDet {
     void fillLists(EventData& data) const;
     void fillListsFast(const EventContext& ctx, EventData& data) const;
     static void pixInform(const Trk::SpacePoint* sp, float* r) ;
-    static void sctInform(EventData& data,const Trk::SpacePoint* sp, float* r) ;
+    static void stripInform(EventData& data,const Trk::SpacePoint* sp, float* r) ;
     static void erase(EventData& data) ;
     void production2Sp(EventData& data) const;
     void production3Sp(EventData& data) const;
