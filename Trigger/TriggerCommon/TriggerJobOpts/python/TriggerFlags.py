@@ -355,21 +355,7 @@ _flags.append(triggerCoolDbConnection)
 
 class Trigger(JobPropertyContainer):
     """ Trigger top flags """
-      
-
-    def Slices_all_setOn(self):
-        """ Runs setL2 and setEF in all slices. Effectivelly enable trigger. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.setAll()
-
-
-    def Slices_all_setOff(self):
-        """ Runs unsetAll in all slices. Effectivelly disable trigger. """
-        for prop in self.__dict__.values():
-            if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
-                prop.unsetAll()
-
+    pass
 
 ## attach yourself to the RECO flags
 from RecExConfig.RecFlags import rec
@@ -382,11 +368,6 @@ del _flags
 
 ## make an alias for trigger flags which looks like old TriggerFlags class
 TriggerFlags = rec.Trigger
-
-## add slices generation flags
-log.info("TriggerFlags importing SliceFlags"  )
-from TriggerJobOpts.SliceFlags import *                             # noqa: F401, F403
-
 
 def sync_Trigger2Reco():
     from AthenaCommon.Include import include

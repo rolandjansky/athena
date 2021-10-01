@@ -110,7 +110,6 @@ else:
         if s in globals():
             setattr(opt, s, globals()[s])
 
-# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
