@@ -38,13 +38,13 @@ Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json
 Jobs = [] 
 
 Comp = [ ( "L2muon",       "L2muon",      "TIDA_T0.root",   " -b HLT/TRIDT/Muon/Expert     -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-muon " ),
-         ( "L2electron",   "L2electron",  "TIDA_T0.root",   " -b HLT/TRIDT/Electron/Expert -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-electron " ),
+         ( "L2electron",   "L2electron",  "TIDA_T0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-electron " ),
          ( "L2tau",        "L2tau",       "TIDA_T0.root",   " -b HLT/TRIDT/Tau/Expert      -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-tau " ),
          ( "L2bjet",       "L2bjet",      "TIDA_T0.root",   " -b HLT/TRIDT/Bjet/Expert     -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-bjet " ),   
          ( "FSjetoffline", "L2fsjet",     "TIDA_T0.root",   " -b HLT/TRIDT/Bjet/Expert     -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTL2-plots-FS " ),
 
          ( "EFmuon",       "EFmuon",      "TIDA_T0.root",   " -b HLT/TRIDT/Muon/Expert     -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-muon " ),
-         ( "EFelectron",   "EFelectron",  "TIDA_T0.root",   " -b HLT/TRIDT/Electron/Expert -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-electron " ),
+         ( "EFelectron",   "EFelectron",  "TIDA_T0.root",   " -b HLT/TRIDT/Egamma/Expert   -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-electron " ),
          ( "EFtau",        "EFtau",       "TIDA_T0.root",   " -b HLT/TRIDT/Tau/Expert      -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-tau " ),
          ( "EFbjet",       "EFbjet",      "TIDA_T0.root",   " -b HLT/TRIDT/Bjet/Expert     -s '_HLT_IDTrack' '/HLT_IDTrack' -c TIDAhisto-tier0.dat --ncols 3 -d HLTEF-plots-bjet " ) ]
    
