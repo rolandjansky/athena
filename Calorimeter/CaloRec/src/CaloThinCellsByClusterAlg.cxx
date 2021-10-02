@@ -84,8 +84,8 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
       double dphi = clust->getClusterPhiSize() * 0.025;
       // get cell lists for each sampling we want to add
       for (int isamp : m_validSamplings) {
-        CaloCellList cell_list (cells.cptr());
-        cell_list.select (*caloDDMgr,eta, phi, deta, dphi, isamp);
+        CaloCellList cell_list (caloDDMgr,cells.cptr());
+        cell_list.select (eta, phi, deta, dphi, isamp);
 
         ATH_MSG_DEBUG( "sampling " << isamp
                        << ", size of list = " << cell_list.ncells()

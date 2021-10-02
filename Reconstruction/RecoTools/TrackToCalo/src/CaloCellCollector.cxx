@@ -126,7 +126,8 @@ void Rec::CaloCellCollector::resetCoreParameters(const std::vector<std::pair<flo
     m_selectEtCoreByEtadPhi = selectEtCoreByEtadPhi;
 }
 
-xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension& extension, const CaloCellContainer& cellContainer,
+xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension& extension, const CaloDetDescrManager* caloMgr, 
+							const CaloCellContainer& cellContainer,
                                                         xAOD::CaloClusterContainer& clusterContainer) const {
     // Collect cells in explicit window sizes
 
@@ -138,7 +139,7 @@ xAOD::CaloCluster* Rec::CaloCellCollector::collectCells(const Trk::CaloExtension
     if (m_doDebug) std::cout << "EntryExitLayerMap " << entryExitLayerMap.size() << std::endl;
 
     cells.reserve(100);
-    CaloCellList myList(&cellContainer);
+    CaloCellList myList(caloMgr,&cellContainer);
     // Save sampling midpoints in map
     typedef std::tuple<float, float, float> SampData;
     using SampDataPair = std::pair<CaloSample, SampData>;
