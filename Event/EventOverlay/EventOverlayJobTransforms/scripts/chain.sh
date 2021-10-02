@@ -1,6 +1,6 @@
 
 rm -f simpledummy.RAW tmp.*
-trigb="-1" #240
+trigb="" # "L1_ZB"
 
 #input="root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/mc15_valid/ad/84/DRAW.07898478._000025.pool.root.1"
 #input="/afs/cern.ch/user/a/ahaas/temp/mc15_valid/DRAW.07898490._001594.pool.root.1" #eventnumber>2^32
