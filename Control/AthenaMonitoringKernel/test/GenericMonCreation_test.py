@@ -106,6 +106,15 @@ class TestGMT(unittest.TestCase):
         with self.assertRaises(IndexError):
             gma.defineHistogram('y', path='{1}')
 
+    def test_aliasTemplate(self):
+        gma = GenericMonitoringArray('TestGMA', [['a','b']])
+        gma.defineHistogram('x;x-alias-{}-formatted')
+        d = histogramDictionary(list(gma[0].Histograms)+list(gma[1].Histograms))
+        self.assertEqual(d['x-alias-a-formatted']['alias'], 'x-alias-a-formatted')
+        self.assertEqual(d['x-alias-b-formatted']['alias'], 'x-alias-b-formatted')
+        with self.assertRaises(IndexError):
+            gma.defineHistogram('y;y-alias-{1}-formatted')
+
     def test_forwardsHistogramArguments(self):
         gma = GenericMonitoringArray('TestGMA', [2])
         gma.defineHistogram('x,y', type='TH2D', weight='z')
