@@ -86,6 +86,8 @@ namespace MuonCombined {
         ATH_CHECK(m_ambiguityProcessor.retrieve());
         ATH_CHECK(m_muonDressingTool.retrieve());
         ATH_CHECK(m_muonSegmentConverterTool.retrieve());
+        ATH_CHECK(m_caloMgrKey.initialize());
+
         if (!m_trackSegmentAssociationTool.empty())
             ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
         else
@@ -1649,6 +1651,9 @@ namespace MuonCombined {
 
         xAOD::CaloCluster* cluster = nullptr;
         SG::ReadHandle<CaloCellContainer> container(m_cellContainerName, ctx);
+
+        SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+        const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
       
         if (!inputCaloExt) {  // need to make one
             // for some reason, ID tracks need to be extrapolated from the ID exit, and
@@ -1667,9 +1672,9 @@ namespace MuonCombined {
             if (caloExtension->caloLayerIntersections().empty())
                 ATH_MSG_DEBUG("Received a caloExtension object without track extrapolation");
 
-            cluster = m_cellCollector.collectCells(*caloExtension, *container, *clusterContainer);
+            cluster = m_cellCollector.collectCells(*caloExtension, caloDDMgr, *container, *clusterContainer);
         } else
-            cluster = m_cellCollector.collectCells(*inputCaloExt, *container, *clusterContainer);
+            cluster = m_cellCollector.collectCells(*inputCaloExt, caloDDMgr, *container, *clusterContainer);
 
         if (!cluster) {
             ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");

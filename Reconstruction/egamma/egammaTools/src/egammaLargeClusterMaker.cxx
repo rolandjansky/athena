@@ -220,9 +220,9 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 	// If FCAL need to add cell to cluster in a cone
 	std::vector<const CaloCell*> cells;
 	cells.reserve(300);
-	CaloCellList myList(cellcoll.ptr());
+	CaloCellList myList( dd_man,cellcoll.ptr());
 	myList.select(cluster->etaSample(sam), cluster->phiSample(sam), m_drFWD,(CaloSampling::CaloSample)sam);
-	//  myList.select(dde,newCluster->eta0(), newCluster->phi0(),m_drFWD,(CaloSampling::CaloSample)sam); 
+	
 	cells.insert(cells.end(), myList.begin(), myList.end());
 	
 	for ( const auto *cell : cells ) {

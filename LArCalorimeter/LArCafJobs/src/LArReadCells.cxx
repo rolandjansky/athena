@@ -72,7 +72,7 @@ StatusCode LArReadCells::initialize() {
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK(m_pedestalKey.initialize());
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("Energy cut for time and quality computation: " << m_etcut);
 
   return StatusCode::SUCCESS;
@@ -93,6 +93,9 @@ StatusCode LArReadCells::execute() {
      ATH_MSG_ERROR( "Do not have cabling object LArOnOffIdMapping" );
      return StatusCode::FAILURE;
   }
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey}; 
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
   //Get Conditions input
   SG::ReadCondHandle<ILArPedestal> pedHdl{m_pedestalKey};
@@ -150,7 +153,7 @@ StatusCode LArReadCells::execute() {
         if ((m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EMB2 || m_calo_id->calo_sample(cellID)==CaloSampling::CaloSample::EME2) 
               && et>m_etcut2) {
 
-           CaloCellList myList(cell_container);
+           CaloCellList myList(caloDDMgr, cell_container);
            myList.select((*first_cell)->eta(),(*first_cell)->phi(),0.10);
            for (const CaloCell* cell : myList) {
              Identifier cellID2 =cell->ID();

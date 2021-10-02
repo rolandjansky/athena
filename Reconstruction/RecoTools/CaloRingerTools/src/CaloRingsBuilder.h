@@ -19,6 +19,8 @@
 // Wrap-around phi helper include:
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 // xAOD Includes:
 #include "xAODBase/IParticle.h"
 #include "xAODCaloRings/RingSetContainerFwd.h"
@@ -28,7 +30,7 @@
 // StoreGate includes:
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
@@ -232,6 +234,10 @@ class CaloRingsBuilder : public ::AthAlgTool,
             "useShowerShapeBarycenter", false,
             "Switch to use shower barycenter for each layer, "
             "instead of the cluster center."};
+
+
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"}; 
+
     /// @}
 
     /// Tool props (non configurables):
