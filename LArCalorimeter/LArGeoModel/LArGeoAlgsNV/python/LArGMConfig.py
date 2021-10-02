@@ -4,7 +4,6 @@ from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-import os
 
 def LArGMCfg(configFlags):
     
