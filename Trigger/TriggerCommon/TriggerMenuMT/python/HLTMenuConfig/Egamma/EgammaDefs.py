@@ -18,7 +18,6 @@ if not Configurable.configurableRun3Behavior:
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
-
 log = logging.getLogger(__name__)
 
 class TrigEgammaKeys(object):
@@ -74,11 +73,14 @@ def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
           })
 
     selectors = []
+    from AthenaCommon.AppMgr import ToolSvc
     log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
       SelectorTool.skipDeltaPoverP = True
+      if not hasattr(ToolSvc, name):
+          ToolSvc += SelectorTool
       selectors.append(SelectorTool)
 
     return selectors
@@ -118,11 +120,14 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
 
     selectors = []
     log.debug('Configuring electron PID' )
+    from AthenaCommon.AppMgr import ToolSvc
     for pidname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
+      if not hasattr(ToolSvc, name):
+          ToolSvc += SelectorTool
       selectors.append(SelectorTool)
 
     return selectors
@@ -176,10 +181,13 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
     }
 
     selectors = []
+    from AthenaCommon.AppMgr import ToolSvc
     for sel, name in SelectorNames.items():
         SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.isEMMask = ElectronMaskBits[sel]
+        if not hasattr(ToolSvc, name):
+          ToolSvc += SelectorTool
         selectors.append(SelectorTool)
 
     return selectors
