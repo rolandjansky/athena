@@ -80,7 +80,7 @@ def defineMenu():
         'L1_eTAU12L', 'L1_eTAU12M', 
         'L1_eTAU20', 'L1_cTAU20M', 
         'L1_eTAU25', 'L1_cTAU25M',
-        'L1_eTAU30H', 
+        'L1_eTAU30HM', 
         'L1_eTAU40', 'L1_eTAU60', 'L1_eTAU100',
 
         # multi tau

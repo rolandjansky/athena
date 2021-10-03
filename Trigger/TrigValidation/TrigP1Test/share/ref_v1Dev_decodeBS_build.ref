@@ -3988,7 +3988,7 @@ HLT_noalg_L1eTAU20:
   eventCount: 1
 HLT_noalg_L1eTAU25:
   eventCount: 1
-HLT_noalg_L1eTAU30H:
+HLT_noalg_L1eTAU30HM:
   eventCount: 1
 HLT_noalg_L1eTAU40:
   eventCount: 0

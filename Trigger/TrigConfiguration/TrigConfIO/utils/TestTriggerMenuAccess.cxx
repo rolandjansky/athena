@@ -456,8 +456,8 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
-      cout << "    working point Had" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Selection::WP::HAD)) {
+      cout << "    working point HadMedium" << endl;
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::HADMEDIUM)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
