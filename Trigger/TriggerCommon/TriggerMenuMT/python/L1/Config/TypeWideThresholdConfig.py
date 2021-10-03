@@ -156,21 +156,21 @@ def getConfig_jEM():
                ("frac_fw", jFEXfloatToFWConversion(frac_loose_float)), ("frac", frac_loose_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_loose_float)), ("frac2", frac2_loose_float), 
                ("maxEt", 60), # PLACEHOLDER
-              ]),
+               ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("iso_fw", jFEXfloatToFWConversion(iso_medium_float)), ("iso", iso_medium_float), 
                ("frac_fw", jFEXfloatToFWConversion(frac_medium_float)), ("frac", frac_medium_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_medium_float)), ("frac2", frac2_medium_float), 
                ("maxEt", 60), # PLACEHOLDER
-              ]),
+               ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("iso_fw", jFEXfloatToFWConversion(iso_tight_float)), ("iso", iso_tight_float), 
                ("frac_fw", jFEXfloatToFWConversion(frac_tight_float)), ("frac", frac_tight_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_tight_float)), ("frac2", frac2_tight_float), 
                ("maxEt", 60), # PLACEHOLDER
-              ]),
+               ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["ptMinToTopo1"] = 5 # PLACEHOLDER
     confObj["ptMinToTopo2"] = 5 # PLACEHOLDER
@@ -193,10 +193,12 @@ def getConfig_jEM():
 def getConfig_eTAU():
     bitshift_rCore = 3
     bitshift_rHad = 3
-    rCore_fw_loose = 38
-    rCore_fw_medium = 10 # PLACEHOLDER
-    rCore_fw_tight = 2
-    rHad_fw = 10 # PLACEHOLDER
+    rCore_fw_loose = 2  # rCore = 1 - (3x2)/(9x2), rCore > threshold -> pass
+    rCore_fw_medium = 12 # PLACEHOLDER
+    rCore_fw_tight = 32
+    rHad_fw_loose = 10 # PLACEHOLDER
+    rHad_fw_medium = 10 # PLACEHOLDER
+    rHad_fw_tight = 10 # PLACEHOLDER
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
@@ -214,9 +216,19 @@ def getConfig_eTAU():
                ("rHad", 1), ("rHad_fw", 1), 
                ("maxEt", 60)]),
     ]
-    confObj["workingPoints"]["Had"] = [
+    confObj["workingPoints"]["HadLoose"] = [
         odict([("rCore", 1), ("rCore_fw", 1), 
-               ("rHad", eFEXfwToFloatConversion(rHad_fw,bitshift_rHad)), ("rHad_fw", rHad_fw), 
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose), 
+               ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["HadMedium"] = [
+        odict([("rCore", 1), ("rCore_fw", 1),
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium),
+               ("maxEt", 60)]),
+    ]
+    confObj["workingPoints"]["HadTight"] = [
+        odict([("rCore", 1), ("rCore_fw", 1),
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight),
                ("maxEt", 60)]),
     ]
     confObj["ptMinToTopo"] = 5 # PLACEHOLDER

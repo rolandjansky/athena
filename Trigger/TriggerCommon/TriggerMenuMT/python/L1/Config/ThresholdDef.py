@@ -141,7 +141,7 @@ class ThresholdDef:
         for et in [12]:
             eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( rCore = "Medium" )
         for et in [30]:
-            eTauThreshold('eTAU%iH' % et, 'eTAU').setEt(et).setIsolation( rHad = "Had" )
+            eTauThreshold('eTAU%iHM' % et, 'eTAU').setEt(et).setIsolation( rHad = "HadMedium" )
   
         # cTAU
         for et in [12, 20, 25]:

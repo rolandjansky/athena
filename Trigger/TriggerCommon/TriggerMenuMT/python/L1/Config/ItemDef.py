@@ -388,7 +388,7 @@ class ItemDef:
         MenuItem('L1_cTAU20M' ).setLogic( d.cTAU20M  & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU25'  ).setLogic( d.eTAU25   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_cTAU25M' ).setLogic( d.cTAU25M  & physcond).setTriggerType( TT.calo )
-        MenuItem('L1_eTAU30H' ).setLogic( d.eTAU30H  & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_eTAU30HM').setLogic( d.eTAU30HM & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU40'  ).setLogic( d.eTAU40   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU60'  ).setLogic( d.eTAU60   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU100' ).setLogic( d.eTAU100  & physcond).setTriggerType( TT.calo )

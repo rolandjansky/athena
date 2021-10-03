@@ -99,7 +99,7 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gJ, gLJ
              ('eTAU8',3), ('eTAU12',3), 'eTAU12L', 'eTAU12M', 'eTAU20',
-             'eTAU25', 'eTAU30H', 'eTAU40', 'eTAU60', 'eTAU100',
+             'eTAU25', 'eTAU30HM', 'eTAU40', 'eTAU60', 'eTAU100',
         ]
     })
 
