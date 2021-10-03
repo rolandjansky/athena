@@ -154,6 +154,11 @@ class TopoAlgoDef:
         alg.addvariable('MinET',   4*_et_conversion)
         alg.addvariable('MinEta',  0*_eta_conversion)
         alg.addvariable('MaxEta', 25*_eta_conversion)
+        alg.addvariable('MinEtTGC', 0)
+        alg.addvariable('MinEtRPC', 0)
+        alg.addvariable('InnerCoinCut', 0)
+        alg.addvariable('FullStationCut',0)
+        alg.addvariable('GoodMFieldCut', 0)
         tm.registerTopoAlgo(alg)
 
         alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab' )
@@ -162,6 +167,11 @@ class TopoAlgoDef:
         alg.addvariable('MinET',   4*_et_conversion)
         alg.addvariable('MinEta',  0*_eta_conversion)
         alg.addvariable('MaxEta', 10*_eta_conversion)
+        alg.addvariable('MinEtTGC', 0)
+        alg.addvariable('MinEtRPC', 0)
+        alg.addvariable('InnerCoinCut', 0)
+        alg.addvariable('FullStationCut',0)
+        alg.addvariable('GoodMFieldCut', 0)
         tm.registerTopoAlgo(alg)
     
         #LATE

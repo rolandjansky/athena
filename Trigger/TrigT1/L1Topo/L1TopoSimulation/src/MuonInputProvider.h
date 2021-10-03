@@ -97,6 +97,7 @@ namespace LVL1 {
       mutable LockedHandle<TH1> m_hGoodMF ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hCharge ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hIs2cand ATLAS_THREAD_SAFE; 
+      mutable LockedHandle<TH1> m_hIsTGC ATLAS_THREAD_SAFE; 
    };
 }
 
