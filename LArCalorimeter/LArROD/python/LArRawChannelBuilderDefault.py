@@ -9,25 +9,34 @@ def LArRawChannelBuilderDefault(forceIter=False):
     topSequence = AlgSequence()
 
     if larRODFlags.readDigits() and globalflags.InputFormat() == 'bytestream':
-        if LArRawDataReadingAlg() not in topSequence:
-            print ("Adding LArRawDataReaderAlg")
-            topSequence+=LArRawDataReadingAlg()
+        
 
         from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
 
         LArADC2MeVCondAlgDefault()
 
+        
+        from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+        from RecExConfig.AutoConfiguration import GetRunNumber
+        runNum = GetRunNumber()
+        if runNum is not None:
+            lri=getLArFormatForRun(runNum)
+        else:
+            lri=None
+
+
         if not forceIter:
-            from LArConditionsCommon.LArRunFormat import getLArFormatForRun
-            from RecExConfig.AutoConfiguration import GetRunNumber
-            runNum = GetRunNumber()
-            if runNum is not None:
-               lri=getLArFormatForRun(runNum)
-            else:
-               lri=None
             if lri is not None and lri.runType() is not None and lri.runType()==0:
                 forceIter=True
-                
+
+        if LArRawDataReadingAlg() not in topSequence:
+            print ("Adding LArRawDataReaderAlg")
+            topSequence+=LArRawDataReadingAlg()
+
+        if (lri and lri.runType()==0): topSequence.LArRawDataReadingAlg.LArRawChannelKey=""
+        
+            
+       
         if forceIter:
            from LArROD.LArRODConf import LArRawChannelBuilderIterAlg
            theLArRawChannelBuilder=LArRawChannelBuilderIterAlg()

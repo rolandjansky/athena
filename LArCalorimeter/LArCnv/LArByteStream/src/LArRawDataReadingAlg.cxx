@@ -118,7 +118,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  rodBlock.reset(new LArRodBlockPhysicsV5);
 	  break;
 	default:
-	  ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+	  ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
 			<< " of ROD block type " << rodBlockType);
 	  return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
 	}// end switch(rodMinorVersion)
@@ -132,7 +132,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
              rodBlock.reset(new LArRodBlockCalibrationV3);
              break;
            default:  
-	     ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+	     ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
 			<< " of ROD block type " << rodBlockType);
 	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
         }
