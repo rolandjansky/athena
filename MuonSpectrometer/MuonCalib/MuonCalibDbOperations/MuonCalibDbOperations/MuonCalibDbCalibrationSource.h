@@ -23,11 +23,12 @@ namespace MuonCalib {
         //===============================destructor -- constructor======================
         /** constructor*/
         MuonCalibDbCalibrationSource(const std::string& t, const std::string& n, const IInterface* p);
+
+        virtual ~MuonCalibDbCalibrationSource();
         //===============================AlgTool interface =============================
         /** initialize */
         StatusCode initialize();
-        /** finalize */
-        StatusCode finalize();
+
         //===============================IConditionsStorage interface===================
         /** call back for t0 */
         bool StoreT0Chamber(const int& chamber, const std::map<TubeId, coral::AttributeList>& rows);
@@ -66,9 +67,10 @@ namespace MuonCalib {
         //===============================private data==================================
         // selected columns
         std::vector<std::string> m_mdt_tube_cols, m_mdt_tube_v_cols;
-        CalibDbConnection *m_connection, *m_data_connection;
-        CalibHeadOperations* m_head_ops;
-        RegionSelectorBase* m_region;
+        std::unique_ptr<CalibDbConnection> m_connection;
+        std::unique_ptr<CalibDbConnection> m_data_connection;
+        std::unique_ptr<CalibHeadOperations> m_head_ops;
+        std::unique_ptr<RegionSelectorBase> m_region;
 
     protected:
         //===============================IMuonCalibConditionsSource interface ==========

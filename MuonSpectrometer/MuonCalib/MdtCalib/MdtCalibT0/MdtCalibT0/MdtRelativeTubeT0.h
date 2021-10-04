@@ -16,19 +16,19 @@ namespace MuonCalib {
     public:
         enum TubeGroup { CHAMBER, MULTILAYER, LAYER, MEZZ_CARD, UNKNOWN };
 
-        inline MdtRelativeTubeT0() {}
-        inline ~MdtRelativeTubeT0()=default;
+        MdtRelativeTubeT0() = default;
+        ~MdtRelativeTubeT0() = default;
 
-        void AddHit(const MdtCalibHitBase *hit);
+        void AddHit(const MdtCalibHitBase &hit);
 
-        double GetRelativeOffset(const MuonFixedId &id, TubeGroup grp) ;
+        double GetRelativeOffset(const MuonFixedId &id, TubeGroup grp);
 
     private:
         std::map<MuonFixedId, double> m_tube_t0;
 
         std::map<TubeGroup, std::map<MuonFixedId, double> > m_relative_offset;
 
-        inline void calculate_relative_t0s(const TubeGroup &grp) ;
+        void calculate_relative_t0s(const TubeGroup &grp);
     };
 
 }  // namespace MuonCalib

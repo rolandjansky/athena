@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.01.2009, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#ifndef MuonCalib_CalibSegmentPreparationToolH
-#define MuonCalib_CalibSegmentPreparationToolH
+#ifndef MuonCalib_ICalibSegmentPreparationTool_H
+#define MuonCalib_ICalibSegmentPreparationTool_H
 
 //:::::::::::::::::::::::::::::::::::::::
 //:: CLASS CalibSegmentPreparationTool ::
@@ -17,14 +12,6 @@
 ///
 /// This is the base class for algorithms preparing segments for the MDT
 /// calibration.
-///
-/// \author Oliver.Kortner@CERN.CH
-///
-/// \date 23.01.2009
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 // STL //
 #include <map>
@@ -39,22 +26,21 @@
 
 namespace MuonCalib {
 
-    static const InterfaceID IID_CalibSegmentPreparationTool("MuonCalib::CalibSegmentPreparationTool", 1, 0);
-
-    class CalibSegmentPreparationTool : virtual public IAlgTool {
+    class ICalibSegmentPreparationTool : virtual public IAlgTool {
     public:
         // Destructor //
-        inline virtual ~CalibSegmentPreparationTool(void){};
+        virtual ~ICalibSegmentPreparationTool() = default;
         ///< Destructor
 
         // Methods //
-        static const InterfaceID &interfaceID(void) { return IID_CalibSegmentPreparationTool; };
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_CalibSegmentPreparationTool("MuonCalib::CalibSegmentPreparationTool", 1, 0);
+            return IID_CalibSegmentPreparationTool;
+        }
         ///< get the interface ID
 
-        inline virtual void prepareSegments(const MuonCalibEvent *& /*event*/,
-                                            std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/) {
-            return;
-        };
+        virtual bool prepareSegments(std::shared_ptr<const MuonCalibEvent>& event,
+                                     std::map<NtupleStationId, std::shared_ptr<MuonCalibSegment>>& /*segments*/) = 0;
         ///< Method to prepare the segments. The methods
         ///< updates segments and remove segments from the
         ///< map in case of failure.

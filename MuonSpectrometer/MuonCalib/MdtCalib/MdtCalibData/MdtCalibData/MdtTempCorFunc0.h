@@ -9,22 +9,16 @@
 
 namespace MuonCalib {
 
-/** implementation of a temperature correction function */
+    /** implementation of a temperature correction function */
 
-class MdtTempCorFunc0 : public IMdtTempCorFunc {
- public:
-  explicit MdtTempCorFunc0( const CalibFunc::ParVec& vec ) : IMdtTempCorFunc(vec) {};
-  virtual std::string name() const {
-    return "MdtTempCorFunc0"; 
-  }
-  static unsigned int nUsedPar() { 
-    return 0; 
-  }
-  virtual double correction(double /*t*/, double /*temp*/) const { 
-    return 0.0; 
-  }
-};
+    class MdtTempCorFunc0 : public IMdtTempCorFunc {
+    public:
+        explicit MdtTempCorFunc0(const CalibFunc::ParVec& vec) : IMdtTempCorFunc(vec){};
+        virtual std::string name() const { return "MdtTempCorFunc0"; }
+        static unsigned int nUsedPar() { return 0; }
+        virtual double correction(double /*t*/, double /*temp*/) const { return 0.0; }
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

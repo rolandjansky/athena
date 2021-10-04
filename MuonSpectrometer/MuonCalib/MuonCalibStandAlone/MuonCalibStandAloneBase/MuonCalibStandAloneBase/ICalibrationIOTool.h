@@ -25,17 +25,15 @@ namespace MuonCalib {
 
     /** @class CalibrationIOTool
     Interface for a toool writing out calibration
-
-    @author rauscher@cern.ch
     */
 
-    class CalibrationIOTool : virtual public IAlgTool {
+    class ICalibrationIOTool : virtual public IAlgTool {
     public:
         /** destructor */
-        virtual ~CalibrationIOTool() = default;
+        virtual ~ICalibrationIOTool() = default;
         /** interface method */
         static const InterfaceID &interfaceID() {
-            static const InterfaceID IID_CalibrationIOTool("MuonCalib::CalibrationIOTool", 1, 0);
+            static const InterfaceID IID_CalibrationIOTool("MuonCalib::ICalibrationIOTool", 1, 0);
             return IID_CalibrationIOTool;
         }
         /** write out t0

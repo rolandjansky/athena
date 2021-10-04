@@ -9,19 +9,17 @@
 
 namespace MuonCalib {
 
-  /** generic interface for cavern background correction functions */
+    /** generic interface for cavern background correction functions */
 
-class IMdtBackgroundCorFunc : public CalibFunc {
- public:
-  explicit IMdtBackgroundCorFunc( const CalibFunc::ParVec& vec ) : CalibFunc(vec) {};
-  virtual ~IMdtBackgroundCorFunc() {}
-  virtual std::string typeName() const {
-    return "IMdtBackgroundCorFunc"; 
-  }
-  /** Return time correction (ns). Input: t = drift-time (ns), bgRate = background current (nA) as measured by DCS in a chamber. */
-  virtual double correction(double t, double bgRate ) const = 0;
-};
+    class IMdtBackgroundCorFunc : public CalibFunc {
+    public:
+        explicit IMdtBackgroundCorFunc(const CalibFunc::ParVec& vec) : CalibFunc(vec){};
+        virtual ~IMdtBackgroundCorFunc() {}
+        virtual std::string typeName() const { return "IMdtBackgroundCorFunc"; }
+        /** Return time correction (ns). Input: t = drift-time (ns), bgRate = background current (nA) as measured by DCS in a chamber. */
+        virtual double correction(double t, double bgRate) const = 0;
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif
