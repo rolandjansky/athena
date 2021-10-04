@@ -30,10 +30,10 @@ class LArShapeDumperTool : public AthAlgTool, public virtual ILArShapeDumperTool
   StatusCode initialize() override;
   StatusCode finalize() override;
   
-  virtual LArSamples::CellInfo* makeCellInfo(const HWIdentifier& channelID, const Identifier& id, const CaloDetDescrElement* caloDetElement = 0) const;
-  virtual LArSamples::ShapeInfo* retrieveShape(const HWIdentifier& channelID, CaloGain::CaloGain gain) const;
+  virtual LArSamples::CellInfo* makeCellInfo(const HWIdentifier& channelID, const Identifier& id, const CaloDetDescrElement* caloDetElement = 0) const override;
+  virtual LArSamples::ShapeInfo* retrieveShape(const HWIdentifier& channelID, CaloGain::CaloGain gain) const override;
 
-  bool doShape() const { return m_doShape; }
+  virtual bool doShape() const override { return m_doShape; }
   
  private:
   
