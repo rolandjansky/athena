@@ -1,0 +1,78 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "TileDetectorFactoryLite.h"
+#include "TileGeoSectionBuilder.h"
+#include "TileGeoCutBuilder.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileDetDescr/TileDddbManager.h"
+#include "TileDetDescr/TileDetDescriptor.h"
+
+#include "CaloIdentifier/TileID.h"
+
+#include "GeoModelKernel/GeoVolumeCursor.h"
+
+#include "StoreGate/StoreGateSvc.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
+#include <stdexcept>
+#include <iostream>
+#include <iomanip>
+#include <algorithm> 
+#include <cmath>
+#include <string>
+
+
+// Constructor:
+TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc *pDetStore,
+                                   TileDetDescrManager *manager,
+						           GeoModelIO::ReadGeoModel* sqliteReader, 
+                                   bool addPlates,
+                                   int ushape,
+                                   int glue,
+                                   int cstube,
+                                   MsgStream *log,
+                                   bool fullGeo)
+      : m_detectorStore(pDetStore)
+      , m_detectorManager(manager)
+      , m_sqliteReader(sqliteReader)
+      , m_log(log) 
+      , m_addPlatesToCellVolume(addPlates)
+      , m_uShape(ushape)
+      , m_glue(glue)
+      , m_csTube(cstube)
+      , m_testbeamGeometry(false)
+      , m_verbose(log->level()<=MSG::VERBOSE) 
+      , m_fullGeo(fullGeo)
+{
+}
+      
+// Destructor: 
+TileDetectorFactoryLite::~TileDetectorFactoryLite(){}
+      
+// Creation of geometry:
+void TileDetectorFactoryLite::create(GeoPhysVol *world)  
+{ 
+      (*m_log) << MSG::INFO <<" Entering TileDetectorFactoryLite::create()" << endmsg;
+       
+
+      // Build Readout geometry
+      // ... TO-DO...
+      //
+
+
+      // Set geometry Tree Tops
+      GeoVolumeCursor cursor(world);
+      while(!cursor.atEnd()) {
+          std::string volName = cursor.getName();
+          if(volName.compare(0,3,"Tile")==0) {
+              m_detectorManager->addTreeTop(GeoPVLink(cursor.getVolume().operator->()));
+          }
+          cursor.next();
+      }
+}
+
+

@@ -6,6 +6,8 @@
 #include "TileDetectorFactory.h"
 #include "TileAtlasFactory.h"
 #include "TileTBFactory.h"
+#include "TileDetectorFactoryLite.h"
+
 #include "TileDetDescr/TileDetDescrManager.h" 
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileConditions/TileCablingService.h"
@@ -23,6 +25,8 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
+
+#include "GeoModelRead/ReadGeoModel.h"
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
@@ -85,12 +89,21 @@ StatusCode TileDetectorTool::create()
 
   if ( 0 == m_detector )
   {
+
+    
     IRDBAccessSvc* raccess = 0;
     ATH_CHECK(service("RDBAccessSvc",raccess));
 
     TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
     m_manager = new TileDetDescrManager(dbManager);
 
+    // Get the detector configuration.
+    ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
+    ATH_CHECK(geoDbTag.retrieve());
+
+    // Get the SQLite reader, if specified in the jobOption
+    GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
+    std::cout << "sqliteReader: "  << sqliteReader << std::endl;
     if (0==dbManager->GetNumberOfEnv() && m_useNewFactory) {
       ATH_MSG_WARNING("New TileAtlasFactory can not be used because TileGlobals do not exist in Database");
       ATH_MSG_WARNING("Use old TileDetectorFactory instead");
@@ -142,21 +155,39 @@ StatusCode TileDetectorTool::create()
     
     m_addPlates = dbManager->addPlatesToCell();
     GeoPhysVol *world=&*theExpt->getPhysVol();
-    if(m_testBeam)
-    {
-      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
-      theTileTBFactory.create(world);
-    }
-    else if (m_useNewFactory)
-    {
-      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log,m_geometryConfig=="FULL");
-      theTileFactory.create(world);
-    }
-    else
-    {
-      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
-      theTileFactory.create(world);
-    }
+    
+    // build the geometry from the standalone SQLite file
+    if (sqliteReader) {
+        TileDetectorFactoryLite theTileFactoryLite(detStore().operator->(), 
+                m_manager, 
+                sqliteReader, 
+                m_addPlates, 
+                m_uShape, 
+                m_glue, 
+                m_csTube,
+                &log,
+                false);
+        theTileFactoryLite.create(world);
+    } 
+    // build the geometry from the Oracle-based GeometryDB
+    else {
+
+        if(m_testBeam)
+        {
+            TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
+            theTileTBFactory.create(world);
+        }
+        else if (m_useNewFactory)
+        {
+            TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log,m_geometryConfig=="FULL");
+            theTileFactory.create(world);
+        }
+        else
+        {
+            TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
+            theTileFactory.create(world);
+        }
+    } // end of building the geometry from the GeometryDB
 
     CHECK( createElements() );
 
@@ -170,6 +201,7 @@ StatusCode TileDetectorTool::create()
       m_manager->releaseDbManager();
 
     return StatusCode::SUCCESS;
+  
   }
 
   return StatusCode::FAILURE;
