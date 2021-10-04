@@ -2,6 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#include "AthLinks/ElementLinkVector.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
+
 #include "Run2ToRun3TrigNavConverterV2.h"
 
 namespace TCU = TrigCompositeUtils;
@@ -59,7 +63,9 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   ATH_CHECK(extractTECtoChainMapping(allTEIdsToChains, finalTEIdsToChains));
 
   ConvProxySet_t convProxies;
-  ATH_CHECK(mirrorTEsStructure(convProxies, context));
+  HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around
+  ATH_CHECK(mirrorTEsStructure(convProxies, standaloneNav, context));
+
   if (m_doSelfValidation)
     ATH_CHECK(allProxiesConnected(convProxies));
 
@@ -111,9 +117,9 @@ StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMa
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, const EventContext& context) const {
+StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const {
   const HLT::TrigNavStructure* run2NavigationPtr = nullptr;
-  HLT::StandaloneNavigation standaloneNav;
+
   if (!m_trigNavKey.key().empty()) {
     SG::ReadHandle navReadHandle(m_trigNavKey, context);
     ATH_CHECK(navReadHandle.isValid());
@@ -214,14 +220,23 @@ StatusCode Run2ToRun3TrigNavConverterV2::doCompression(ConvProxySet_t& convProxi
 
 
 
-StatusCode Run2ToRun3TrigNavConverterV2::fillFEAHashes(ConvProxySet_t&) const {
+StatusCode Run2ToRun3TrigNavConverterV2::fillFEAHashes(ConvProxySet_t& convProxies) const {
   // calculate fea hash for each vector<FEA> from te associated to proxy
-
+  for ( auto proxy: convProxies ) {
+    proxy->feaHash = feaToHash(proxy->te->getFeatureAccessHelpers());
+    ATH_MSG_VERBOSE("TE " << TrigConf::HLTUtils::hash2string(proxy->te->getId()) << " FEA hash " << proxy->feaHash);    
+    for ( auto fea : proxy->te->getFeatureAccessHelpers()) {
+      ATH_MSG_VERBOSE( "FEA: " << fea);
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::findSharedFEAHashes(const ConvProxySet_t&, FEAToConvProxySet_t&) const {
+StatusCode Run2ToRun3TrigNavConverterV2::findSharedFEAHashes(const ConvProxySet_t& convProxies, FEAToConvProxySet_t& feaToProxyMap) const {
   // ceate feahash -> [te1, te2...] mapping, these tes are candidates for merging/compression
+  for ( auto proxy: convProxies ) {
+    feaToProxyMap[proxy->feaHash].insert(proxy);
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -262,9 +277,16 @@ StatusCode Run2ToRun3TrigNavConverterV2::linkTopNode(xAOD::TrigCompositeContaine
 }
 
 
-uint64_t Run2ToRun3TrigNavConverterV2::feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&) const {
-  // clever FEA vectors hashing
-  return 0;
+uint64_t Run2ToRun3TrigNavConverterV2::feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& feaVector) const {
+  // FEA vectors hashing
+  uint64_t hash = 0;
+  for ( auto fea:  feaVector) {
+    // we may need filtering here in the future
+    uint64_t repr64 = static_cast<uint64_t>(fea.getCLID()) << 32 | static_cast<uint64_t>(fea.getIndex().subTypeIndex())<<24 | (fea.getIndex().objectsBegin() << 16 ^ fea.getIndex().objectsEnd());
+    hash ^= repr64;
+  }
+  return hash;
+
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::allProxiesHaveChain(const ConvProxySet_t& proxies) const {
@@ -319,13 +341,9 @@ StatusCode Run2ToRun3TrigNavConverterV2::noUnconnectedHNodes(const xAOD::TrigCom
   std::set<const TrigCompositeUtils::Decision*> linkedHNodes;
   for (auto d : decisions) {
     if (d->name() == "IM" or d->name() == "FS") {
-      /* FIXME links are not iterable
-      for (auto links : TCU::getLinkToPrevious(d)) {
-        for (auto l : links) {
-          linkedHNodes.insert(*l);
-        }
+      for (auto el : TCU::getLinkToPrevious(d)) {
+        linkedHNodes.insert(*el); // dereferences to bare pointer
       }
-      */
     }
   }
   for (auto d : decisions) {

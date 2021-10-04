@@ -37,7 +37,7 @@ struct ConvProxy {
   std::vector<ConvProxy*> parents;
   std::set<HLT::Identifier> runChains;
   std::set<HLT::Identifier> passChains;
-  uint64_t feaHash;
+  uint64_t feaHash = 0;
 
   std::vector<TrigCompositeUtils::Decision*> imNodes; // for checks only
   std::vector<TrigCompositeUtils::Decision*> hNodes;
@@ -78,11 +78,9 @@ private:
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
-
-
   StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTES, TEIdToChainsMap_t& finalTEs) const;
 
-  StatusCode mirrorTEsStructure(ConvProxySet_t&, const EventContext& context) const;
+  StatusCode mirrorTEsStructure(ConvProxySet_t&, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const;
 
   StatusCode associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const;
 
@@ -123,7 +121,6 @@ private:
 
   StatusCode noUnconnectedHNodes(const xAOD::TrigCompositeContainer&) const;
 
-  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
 };
 
 #endif // TRIGNAVTOOLS_RUN2TORUN3TRIGNAVCONVERTERV2_H
