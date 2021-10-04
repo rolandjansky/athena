@@ -263,6 +263,7 @@ StatusCode LArNoiseBursts::initialize() {
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_totalNoiseKey.initialize() );
+  ATH_CHECK( m_bcDataKey.initialize() );
 
   // Retrieve online ID helper
   const LArOnlineID* LArOnlineIDHelper = nullptr;
