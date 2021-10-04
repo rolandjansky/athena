@@ -520,8 +520,9 @@ def getKernel_ATLFASTIIMT(name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     kwargs.setdefault("SimulationTools"            , ['ISF_ParticleKillerTool',
                                                       'ISF_LegacyAFIIFastCaloTool',
                                                       'ISF_AFIIGeant4Tool'])
-    kwargs.setdefault("ParticleOrderingTool"       , 'ISF_ParticleOrderingTool' )
-    #kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerTool')
+    kwargs.setdefault("ParticleOrderingTool"       , 'ISF_EnergyParticleOrderingTool' )
+    kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerToolMT')
+    kwargs.setdefault("GeoIDSvc", "ISF_AFIIGeoIDSvc" )
     # set the simFlags accordingly (TODO: is this even needed?)
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTII"
