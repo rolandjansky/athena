@@ -77,11 +77,23 @@ def AthenaMonitoringCfg(flags):
         info('Set up Jet monitoring')
         from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
         result.merge(standardJetMonitoring(flags))
+        
+    if flags.DQ.Steering.doJetInputsMon:
+        info('Set up Jet Inputs monitoring')
+        from JetInputsMonitoring.ClusterMonitorAlgorithm import ClusterMonitoringConfig
+        result.merge(ClusterMonitoringConfig(flags))
+        from JetInputsMonitoring.PFOMonitorAlgorithm import PFOMonitoringConfig
+        result.merge(PFOMonitoringConfig(flags))
 
     if flags.DQ.Steering.doMissingEtMon:
-        info("Set up MET monitoring")
+        info('Set up MET monitoring')
         from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
         result.merge(METMonitoringConfig(flags))
+
+    if flags.DQ.Steering.doDataFlowMon:
+        info('Set up Data Flow monitoring')
+        from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
+        result.merge(DQTDataFlowMonAlgConfig(flags))
 
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
@@ -111,7 +123,7 @@ def AthenaMonitoringCfg(flags):
             for t in algo.GMTools:
                 for h in t.Histograms:
                     ho = json.loads(h)
-                    fullpath = os.path.join(ho['convention'], t.HistPath, ho['path'], ho['alias'])
+                    fullpath = os.path.join(t.HistPath, ho['path'], ho['alias']) + ':' + ho['convention']
                     if fullpath in definedhists:
                         previous = definedhists[fullpath]
                         error(f'Multiple definition of histogram {fullpath} by:\n\t{algo.getName()}/{t.getName()} ({ho}) and\n\t{previous[0]}/{previous[1]} ({previous[2]})')

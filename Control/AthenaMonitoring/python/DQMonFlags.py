@@ -153,6 +153,13 @@ class doJetMon(JobProperty):
     StoredValue=True
 list+=[doJetMon]
 
+class doJetInputsMon(JobProperty):
+    """ Switch for jet monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doJetInputsMon]
+
 class doMissingEtMon(JobProperty):
     """ Switch for missing E_T monitoring"""
     statusOn=True
@@ -434,6 +441,20 @@ class triggerMixedMode(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 list+=[triggerMixedMode]
+
+class doPostProcessing(JobProperty):
+    """ Run histogram postprocessing in Athena job """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doPostProcessing]
+
+class postProcessingInterval(JobProperty):
+    """ Set number of events between postprocessing steps """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=100
+list+=[postProcessingInterval] 
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

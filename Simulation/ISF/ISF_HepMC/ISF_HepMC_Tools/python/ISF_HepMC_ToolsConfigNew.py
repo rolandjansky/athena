@@ -24,7 +24,7 @@ def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwar
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
     return result
 
-def ParticleSimWhiteList_ExtraParticles(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+def ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("WhiteLists" , ["G4particle_whitelist.txt", "G4particle_whitelist_ExtraParticles.txt"] )
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))

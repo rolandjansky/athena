@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/RpcCondDbData.h"
@@ -13,7 +13,7 @@ RpcCondDbData::RpcCondDbData(){
 
 // setDeadPanel
 void
-RpcCondDbData::setDeadPanel(std::string name, Identifier Id){
+RpcCondDbData::setDeadPanel(const std::string& name, Identifier Id){
     if(std::find(m_cachedDeadPanelsId.begin(), m_cachedDeadPanelsId.end(), Id)!=m_cachedDeadPanelsId.end()) return;
     m_cachedDeadPanels  .push_back(name);
     m_cachedDeadPanelsId.push_back(Id  );
@@ -35,9 +35,9 @@ RpcCondDbData::setDeadStripInt(Identifier chamberId, int striplist){
 
 // setDeadStripList
 void
-RpcCondDbData::setDeadStripList(Identifier chamberId, std::string striplist){
+RpcCondDbData::setDeadStripList(Identifier chamberId, const std::string& striplist){
     if(m_cachedDeadStripList.count(chamberId)) return;
-    m_cachedDeadStripList[chamberId] = striplist;
+    m_cachedDeadStripList[chamberId] = std::move(striplist);
 }
 
 // setEfficiency
@@ -98,7 +98,7 @@ RpcCondDbData::setMeanClusterSize(Identifier chamberId, double mcs){
 
 // setOffPanel
 void
-RpcCondDbData::setOffPanel(std::string name, Identifier Id){
+RpcCondDbData::setOffPanel(const std::string& name, Identifier Id){
     if(std::find(m_cachedOffPanelsId.begin(), m_cachedOffPanelsId.end(), Id)!=m_cachedOffPanelsId.end()) return;
     m_cachedOffPanels  .push_back(name);
     m_cachedOffPanelsId.push_back(Id  );
@@ -113,9 +113,9 @@ RpcCondDbData::setProjectedTrack(Identifier chamberId, int projectedTracks){
 
 // setStripTime
 void
-RpcCondDbData::setStripTime(Identifier stripId, std::vector<double> time){
+RpcCondDbData::setStripTime(Identifier stripId, const std::vector<double>& time){
     if(m_cachedStripTime.count(stripId)) return;
-    m_cachedStripTime[stripId] = time;
+    m_cachedStripTime[stripId] = std::move(time);
 }
 
 

@@ -1,14 +1,13 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import importlib
+import itertools
 import string
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from .TriggerConfigHLT  import TriggerConfigHLT
 from .HLTCFConfig import makeHLTTree
@@ -24,8 +23,7 @@ from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-_func_to_modify_signatures = None
-        
+
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
@@ -37,24 +35,9 @@ class Singleton(type):
 # for now we make this a singleton because calling menu generation twice leads to problems
 class GenerateMenuMT(object, metaclass=Singleton):
 
-    @staticmethod
-    def overwriteSignaturesWith(f):
-        """
-        == Function to generate menu for certain signatures only
-        """
-        log.debug('In overwriteSignaturesWith ')
-        global _func_to_modify_signatures
-        if _func_to_modify_signatures is not None:
-            log.warning('Updating the function to modify signatures from %s to %s',
-                        _func_to_modify_signatures.__name__, f.__name__)
-        _func_to_modify_signatures = f
-
-
     def __init__(self):
-        self.chainsInMenu = []
-        self.listOfErrorChainDefs = []
-        self.selectChainsForTesting = []
-        
+        self.chainsInMenu = {}  # signature : [chains]
+
         self.allChainsForAlignment = []
         self.chainDicts = []
         self.combinationsInMenu = []
@@ -65,68 +48,35 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.L1Prescales = None
         self.HLTPrescales = None
 
+        self.chainFilter = None
         self.availableSignatures = []
         self.signaturesToGenerate = []
-        self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
-                              'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
-                              'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'UnconventionalTracking', 'Test'] #, AFP
         self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
 
         self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
 
-    def setTriggerConfigHLT(self):
-        """
-        == Setup of TriggerConfigHLT, menu and prescale names
-        """
-        (HLTPrescales) = self.setupMenu()
-        log.debug("   and prescales : %s", HLTPrescales)
 
+    def setChainFilter(self, f):
+        """Set chain filter for menu generation. Function needs to take two
+        arguments for signature and chain name. E.g. to only generate Egamma chains:
 
-    def setupMenu(self):
+        menu.setChainFilter(lambda slice,chain : slice=='Egamma')
         """
-        == Setup of menu in terms of prescales and overwrite function
-        """
-        # go over the slices and put together big list of signatures requested
-        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(TriggerConfigHLT)
-        global _func_to_modify_signatures
-        if _func_to_modify_signatures is not None:
-            log.info('Modifying trigger signatures in TriggerFlags with %s',
-                     _func_to_modify_signatures.__name__)
-            _func_to_modify_signatures()
-            self.signaturesOverwritten = True
+        import inspect
+        if len(inspect.signature(f).parameters)!=2:
+            log.error('%s is not a valid chain filter. Function needs take two arguments '
+                      'for signature and chain name and return a boolean', f.__name__)
         else:
-            log.debug("No signature overwrite flags are set")
+            log.warning('Setting chain filter to %s', f.__name__)
+            self.chainFilter = f
 
-        return (self.HLTPrescales)
-
-
-    def generateLVL1(self):
-        """
-        == Generates the LVL1 menu
-        """
-        if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 configuration for %s', TriggerFlags.triggerMenuSetup() )
-            from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
-            self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
-            # build the menu structure
-            self.trigConfL1.generateMenu()
-            log.debug('Menu has %i items', len(self.trigConfL1.menu.items) )
-            # write xml file
-            self.trigConfL1.writeXML()
-        elif TriggerFlags.readLVL1configFromXML():
-            log.info("ReadingLVL1cofnigFromXML currently not implemented")
-        else:
-            log.info("Doing nothing with L1 menu configuration...")
-    
 
     def getChainDicts(self):
-        chainCounter = 0
         all_chain_dicts = []
-        for chain in self.chainsInMenu:
-            log.debug("Now processing chain: %s ", chain) 
+        all_chains = itertools.chain.from_iterable(self.chainsInMenu.values())
+        for chainCounter, chain in enumerate(all_chains, start=1):
+            log.debug("Now processing chain: %s ", chain)
             chainDict = dictFromChainName(chain)
-
-            chainCounter += 1
             chainDict['chainCounter'] = chainCounter
 
             #set default chain prescale
@@ -139,19 +89,20 @@ class GenerateMenuMT(object, metaclass=Singleton):
     def importSignaturesToGenerate(self):
         """check if all the signature files can be imported and then import them"""
 
-        log.debug("[getSignaturesInMenu]signaturesToGenerate: %s",  self.signaturesToGenerate)
+        log.debug("signaturesToGenerate: %s", self.signaturesToGenerate)
 
         # Extend the list to satisfy certain requirements
-        extendedSignatureToGenerate = self.signaturesToGenerate
+        extendedSignatureToGenerate = set(self.signaturesToGenerate)
         # always import the Streaming sig because noalg chains are moved to StreamingSlice
-        extendedSignatureToGenerate += ['Streaming']
+        extendedSignatureToGenerate.add('Streaming')
 
         # Combined chains themselves are created by merging
         # If we activate combined chains, we need all of the (legal) sub-signatures
         if "Combined" in extendedSignatureToGenerate:
             log.info("Combined chains requested -- activate other necessary signatures")
             extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate = list(set(extendedSignatureToGenerate + ["Egamma","Muon","Tau","Jet","Bjet","MET","UnconventionalTracking"]))
+            extendedSignatureToGenerate.update(["Egamma","Muon","Tau","Jet",
+                                                "Bjet","MET","UnconventionalTracking"])
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
@@ -251,7 +202,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         #import the necessary signatures
         log.info("Importing the necessary signatures")
         self.importSignaturesToGenerate()
-        
 
         log.info("Will now generate the chain configuration for each chain")
         self.generateChains()
@@ -325,47 +275,38 @@ class GenerateMenuMT(object, metaclass=Singleton):
         """
         == Returns the list of chain names that are in the menu
         """
-        log.debug('Setting TriggerConfigHLT to get the right menu')
 
-        self.setTriggerConfigHLT()
+        # go over the slices and put together big list of signatures requested
+        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(TriggerConfigHLT)
 
-        log.debug('Creating one big list of of enabled signatures and chains')
+        log.debug("Setup HLT menu with prescales: %s", self.HLTPrescales)
 
-        chains = []
         ## we can already use new set of flags
         #from AthenaConfiguration.AllConfigFlags import ConfigFlags
         #from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu as setupMenuFlags
         #setupMenuFlags( ConfigFlags )
         #ConfigFlags.lock()
 
-        for sig in self.allSignatures:
-            signatures = getattr(TriggerFlags, sig+'Slice').signatures()
-            if signatures:
-                log.debug("Adding %s chains to the list of chains to be configured", sig)
-                chains += signatures
-                self.signaturesToGenerate.append(sig)
-            else:
-                log.debug('Signature %s is not switched on (no chains in menu)', sig)
+        # Filter chains if requested
+        if self.chainFilter is not None:
+            self.signaturesOverwritten = True
+            for signame in self.chainsInMenu:
+                self.chainsInMenu[signame] = [c for c in self.chainsInMenu[signame]
+                                              if self.chainFilter(signame, c.name)]
 
-        log.info("The following signature(s) is(are) enabled: %s", self.signaturesToGenerate)
+        # List of all non-empty signatures
+        self.signaturesToGenerate = [s for s,chains in self.chainsInMenu.items()
+                                     if len(chains)>0]
 
-        if self.selectChainsForTesting:
-            log.info("Narrowing down the list of chains with the selectChainsForTesting list")
-            selectedChains = [ch for ch in chains if ch.name in self.selectChainsForTesting]
-            if len(selectedChains) < len(self.selectChainsForTesting):
-                selectedNames = [ch.name for ch in selectedChains]
-                missingNames = [name for name in self.selectChainsForTesting if name not in selectedNames]
-                log.error("The following chains were specified in selectChainsForTesting but were not found in the menu: %s", str(missingNames))
-                raise Exception("[getChainsFromMenu] Cannot test one or more requested chains, exiting.")
-            chains = selectedChains
+        log.info("Enabled signature(s): %s", self.signaturesToGenerate)
 
-        if len(chains) == 0:
+        if not self.chainsInMenu:
             log.warning("There seem to be no chains in the menu - please check")
         else:
-            log.debug("The following chains were found in the menu: \n %s", '\n '.join(map(str,(chains) )))
-            
-        self.chainsInMenu = chains 
-                                
+            import pprint
+            log.debug("The following chains were found in the menu:")
+            pprint.pprint(self.chainsInMenu)
+
 
     def __generateChainConfig(self, mainChainDict):
         """
@@ -492,9 +433,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         if len(empty_step_indices) == 0:
             return chainConfigs
         
-        #ok if this happens in minimal tests or slice tests
-        #just not in the full menu!
-        if len(self.selectChainsForTesting) == 0 and len(self.signaturesToGenerate) != 1:
+        if len(self.signaturesToGenerate) != 1:
             log.error("[resolveEmptySteps] The menu you are trying to generate contains a fully empty step. This is only allowed for partial menus.")
             raise Exception("[resolveEmptySteps] Please find the source of this empty step and remove it from the menu.")
 
@@ -516,14 +455,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
         log.info('Starting menu generation')
-
-        # --------------------------------------------------------------------
-        # L1 menu generation
-        # - from the code, from DB and from xmls (if we want to maintain this)
-        # currently implementing the generation from configuration code
-        # --------------------------------------------------------------------
-        #generateLVL1()
-
 
         # --------------------------------------------------------------------
         # HLT menu generation
@@ -565,7 +496,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info('Generating HLTMonitoring JSON...')
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
-
 
         log.info('Menu generation is complete.')
         return finalListOfChainConfigs

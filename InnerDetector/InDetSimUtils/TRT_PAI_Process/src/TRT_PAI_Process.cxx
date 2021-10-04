@@ -101,7 +101,7 @@ StatusCode TRT_PAI_Process::initialize() {
 
   // Print out elements
   {
-    for (element_type::iterator ei=elements.begin(); ei!=elements.end(); ei++) {
+    for (element_type::iterator ei=elements.begin(); ei!=elements.end(); ++ei) {
       ATH_MSG_DEBUG ( ". Element "  << (*ei).second.getName()
                       << ", A= "    << (*ei).second.getAtomicA()
                       << ", Z= "    << (*ei).second.getAtomicZ()

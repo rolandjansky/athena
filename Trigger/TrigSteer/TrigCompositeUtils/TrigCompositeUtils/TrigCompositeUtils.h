@@ -291,7 +291,7 @@ namespace TrigCompositeUtils {
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
   std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, 
-    const DecisionIDContainer ids = {},
+    const DecisionIDContainer& ids = {},
     const std::set<std::string>& keysToIgnore = std::set<std::string>());
 
 
@@ -306,7 +306,7 @@ namespace TrigCompositeUtils {
    **/
   void recursiveGetDecisions(const Decision* node, 
     NavGraph& navGraph, 
-    const DecisionIDContainer ids = {},
+    const DecisionIDContainer& ids = {},
     const bool enforceDecisionOnStartNode = true);
 
 
@@ -320,7 +320,7 @@ namespace TrigCompositeUtils {
     const Decision* comingFrom,
     NavGraph& navGraph,
     std::set<const Decision*>& fullyExploredFrom,
-    const DecisionIDContainer ids,
+    const DecisionIDContainer& ids,
     const bool enforceDecisionOnNode);
 
 
@@ -614,7 +614,7 @@ namespace TrigCompositeUtils {
    * Prints the Decision object including the linked seeds
    * @warnign expensive call
    **/  
-  std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc );
+  std::string dump( const Decision*  tc, const std::function< std::string( const Decision* )>& printerFnc );
 
 }
 

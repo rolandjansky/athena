@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERSVBFMJJINTERVALFILTER_H
@@ -7,7 +7,6 @@
 
 #include "GeneratorModules/GenFilter.h"
 #include "xAODJet/JetContainer.h"
-#include "CLHEP/Vector/LorentzVector.h"
 
 class IAtRndmGenSvc;
 
@@ -47,13 +46,21 @@ private:
   bool m_electronjetoverlap;
   bool m_taujetoverlap;
   double m_alpha;
+  bool m_ApplyNjet; 
+  unsigned int m_NJetsMin; 
+  unsigned int m_NJetsMax; 
+  bool m_ApplyWeighting; 
+  bool m_applyDphi; 
+  double m_dphijj; 
 
-  bool checkOverlap(double, double, std::vector<HepMC::ConstGenParticlePtr>);
-  bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector>);
-  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::ConstGenParticlePtr );
+
+  bool checkOverlap(double, double, const std::vector<HepMC::ConstGenParticlePtr>&);
+  bool checkOverlap(double, double, const std::vector<TLorentzVector>&);
+  TLorentzVector sumDaughterNeutrinos( HepMC::ConstGenParticlePtr );
 
 public:
 
+  bool ApplyMassDphi(xAOD::JetContainer *jets);
   double getEventWeight(xAOD::JetContainer *jets);
 };
 

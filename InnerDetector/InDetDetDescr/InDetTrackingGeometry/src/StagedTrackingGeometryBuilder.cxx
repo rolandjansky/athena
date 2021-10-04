@@ -8,14 +8,18 @@
 
 // InDet
 #include "InDetTrackingGeometry/StagedTrackingGeometryBuilder.h"
+#include "InDetTrackingGeometry/DiscOverlapDescriptor.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 // EnvelopeDefinitionService
 #include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
 // Trk interfaces
+#include "TrkDetDescrInterfaces/ILayerBuilder.h"
 #include "TrkDetDescrInterfaces/ILayerProvider.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 // Trk Geometry stuff
 #include "TrkDetDescrUtils/BinnedArray.h"
+#include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -67,6 +71,8 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   // force robust layer indexing  
   declareProperty("IndexStaticLayers",                m_indexStaticLayers);
   declareProperty("CheckForRingLayout",               m_checkForRingLayout);
+  // minimal radial distance between rings to allow a split
+  declareProperty("MinimalRadialGapForVolumeSplit",   m_ringTolerance);
   // volume namespace & contaienr name
   declareProperty("VolumeNamespace",                  m_namespace); 
   declareProperty("ExitVolumeName",                   m_exitVolume);
@@ -201,6 +207,9 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
             // [b] cache is not empty - let's see what is going on:
             ATH_MSG_VERBOSE("       -> new sector does not fit the current cache specs -> flushing the cache." );
             // create the outer boundary
+            //TODO CHECK THIS (NOEMI)
+//             double flushRadius = layerSetupCache[layerSetupCache.size()-1].rMax > lSetup.rMin ? 
+// 	      0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMax) :  0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMin)  ;
             double flushRadius = 0.5*(layerSetupCache[layerSetupCache.size()-1].rMax + lSetup.rMin);
             // create a flush volume - clears the cache
             const Trk::TrackingVolume* fVolume = createFlushVolume(layerSetupCache,lastFlushRadius,flushRadius,maximumLayerExtendZ);
@@ -300,7 +309,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
                                                                    -zMax,-zPosCentral,
                                                                    volumeBase+"::NegativeEndcap",
                                                                    (Trk::BinningType)layerSetup.binningEndcap,
-								   false);
+                                                                   false);
 
   const Trk::TrackingVolume* centralVolume = 
          m_trackingVolumeCreator->createTrackingVolume(layerSetup.centralLayers,
@@ -315,7 +324,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
                                                                     zPosCentral,zMax,
                                                                     volumeBase+"::PositiveEndcap",
                                                                     (Trk::BinningType)layerSetup.binningEndcap,
-								    false);
+                                                                    false);
    
    // the base volumes have been created
    ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
@@ -473,24 +482,50 @@ bool InDet::StagedTrackingGeometryBuilder::setupFitsCache(LayerSetup& layerSetup
 }
  
 bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const {
-    // get the maximum extent in z
-    ATH_MSG_INFO("Checking for Ring layout ... ");
-    for (const auto & ring : layers){
-        // Surface
-        const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
-        const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
-        if (ringBounds){
-            // get the main parameters
-            double zpos         = ringSurface.center().z();
-            double rMin         = ringBounds->rMin();
-            double rMax         = ringBounds->rMax();
-            // take and check
-            checkForInsert(rmins,rMin);
-            checkForInsert(rmaxs,rMax);
-            ATH_MSG_INFO(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
-        }
+  // get the maximum extent in z
+  std::vector<std::pair<double,double>> radii;
+  ATH_MSG_DEBUG("Checking for Ring layout ... ");
+  for (auto& ring : layers) {
+    // Surface
+    const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
+    const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
+    if (ringBounds){
+      // get the main parameters
+      double zpos         = ringSurface.center().z();
+      double rMin         = ringBounds->rMin();
+      double rMax         = ringBounds->rMax();
+      // take and check the couple rmin/rmax
+      checkForInsert(rMin, rMax, radii);
+      ATH_MSG_DEBUG(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
     }
-    return (rmins.size() > 1 );
+  }
+  
+  // you need a post processing of the (rmin,rmax) in order to fit z-overlapping disks in the same ring
+  std::vector<std::pair<double,double>> tmpradii;
+  
+  for (auto& rs: radii) {
+    bool found = false;
+    for (auto& tmprs: tmpradii) {
+      if ((rs.first<tmprs.second and rs.second>tmprs.first) ) {
+	tmprs.first  = std::min(tmprs.first ,rs.first );
+	tmprs.second = std::max(tmprs.second,rs.second);
+	found = true;
+	break;
+      }
+    }
+    if (found) continue;
+    tmpradii.push_back(rs);
+  }
+   
+  // now you fill rmin and rmax
+  rmins.clear(); rmaxs.clear();
+  for (auto& r: tmpradii) {
+    rmins.push_back(r.first);
+    rmaxs.push_back(r.second);
+  }
+   
+  //add rmin and rmax
+  return (rmins.size() > 1 );
 }                                              
  
  
@@ -532,36 +567,70 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
                 if (dring) groupedDiscs[rPos].push_back(dring);
             }
         }
-        // we are now grouped in cylinder rings per volume
-        for (int idset = 0; idset < int(groupedDiscs.size()); idset++){
-            // always keep the boundaries in mind for the radial extend
-            double crmin = idset ? ringRmaxa[idset-1]+m_layerEnvelopeCover : innerRadius;
-            double crmax = ringRmaxa[idset]+m_layerEnvelopeCover;
-	    if(idset==int(groupedDiscs.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
-            // now create the sub volume
-            std::string ringVolumeName = volumeName+"Ring"+std::to_string(idset);
-            const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(groupedDiscs[idset],
-                                                                                                  *m_materialProperties,
-                                                                                                  crmin,crmax,
-                                                                                                  zMin,zMax,
-                                                                                                  ringVolumeName,
-                                                                                                  binningType);
-             // push back into the 
-             ringVolumes.push_back(ringVolume);
+      // layer merging may be needed 
+      std::vector< std::vector< const Trk::Layer*> > mergedLayers;
+      std::vector< float > mergedRmax;
+      std::vector< std::vector< int > > merge;
+      std::vector<int> laySet(1,0); merge.push_back(laySet);
+      double rCurr = ringRmaxa[0];
+      mergedRmax.push_back(rCurr);
+      for (int idset = 1; idset < int(groupedDiscs.size()); idset++){
+        if (ringRmins[idset]<=rCurr + m_ringTolerance) {
+          merge.back().push_back(idset);
+          if (ringRmaxa[idset]>mergedRmax.back()) mergedRmax.back()=ringRmaxa[idset]; 
+        } else {
+          merge.push_back(std::vector<int>(1,idset));
+          mergedRmax.push_back(ringRmaxa[idset]);
         }
-        // set the outer radius
-        if(doAdjustOuterRadius) outerRadius = ringRmaxa[ringRmaxa.size()-1]+m_layerEnvelopeCover;
-        //
-        ATH_MSG_INFO("      -> adjusting the outer radius to the last ring at " << outerRadius );
-        ATH_MSG_INFO("      -> created " << ringVolumes.size() << " ring volumes for Volume '" << volumeName << "'.");
-        // create the tiple container
+        rCurr = ringRmaxa[idset];
+      } 
+      for ( auto layset : merge ) {
+        std::vector<const Trk::Layer*> ringSet;
+        for ( auto lay : layset ) {
+          for ( auto ring : groupedDiscs[lay]) {
+            float zPos = ring->surfaceRepresentation().center().z();
+            if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
+            else {
+              std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
+              while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) ++lit;
+              ringSet.insert(lit,ring);  
+            }   
+          }
+        } 
+        // rings ordered in z : resolve overlap
+        mergedLayers.push_back(checkZoverlap(ringSet));
+      }
+      // we are now grouped in cylinder rings per volume
+      for (int idset = 0; idset < int(mergedLayers.size()); idset++){
+        // always keep the boundaries in mind for the radial extend
+        double crmin = idset ? mergedRmax[idset-1]+m_layerEnvelopeCover : innerRadius;
+        double crmax = mergedRmax[idset]+m_layerEnvelopeCover;
+        if(idset==int(mergedLayers.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
+        // now create the sub volume
+        std::string ringVolumeName = volumeName+"Ring"+std::to_string(idset);
+        const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(mergedLayers[idset],
+                                                                                              *m_materialProperties,
+                                                                                              crmin,crmax,
+                                                                                              zMin,zMax,
+                                                                                              ringVolumeName,
+                                                                                              binningType);
+        // push back into the 
+        ringVolumes.push_back(ringVolume);
+      }
+      // set the outer radius
+      if(doAdjustOuterRadius) outerRadius = ringRmaxa[ringRmaxa.size()-1]+m_layerEnvelopeCover;
+      //
+      ATH_MSG_INFO("      -> adjusting the outer radius to the last ring at " << outerRadius );
+      ATH_MSG_INFO("      -> created " << ringVolumes.size() << " ring volumes for Volume '" << volumeName << "'.");
+      // create the tiple container
+      if (ringVolumes.size()==1)
+        return ringVolumes.at(0);
+      else 
         return m_trackingVolumeCreator->createContainerTrackingVolume(ringVolumes,
                                                                       *m_materialProperties,
                                                                       volumeName,
                                                                       m_buildBoundaryLayers,
                                                                       m_replaceJointBoundaries);
-        
-        
     } else 
         return m_trackingVolumeCreator->createTrackingVolume(layers,
                                                              *m_materialProperties,
@@ -608,12 +677,12 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createFlushVolu
            // take the given outer radius for the last one - median otherwise
            double orE = ((ilS+1)==layerSetupCache.size()) ? outerRadius : 0.5*(layerSetupCache[ilS+1].minRadiusEndcap+layerSetupCache[ilS].maxRadiusEndcap);
            double orC = ((ilS+1)==layerSetupCache.size()) ? outerRadius : 0.5*(layerSetupCache[ilS+1].minRadiusCenter+layerSetupCache[ilS].maxRadiusCenter);
-	   // Adjust last volumes in R to the same maximal radial extends!
-	   if(ilS==layerSetupCache.size()-1) {
-	     ATH_MSG_VERBOSE("Processing last volume");
-	     ATH_MSG_VERBOSE("  --> adjust volumes to same extends: orE=" << orE << " orC=" << orC);
-	     if(orE>orC) orC=orE; else orE=orC;
-	   }
+           // Adjust last volumes in R to the same maximal radial extends!
+           if(ilS==layerSetupCache.size()-1) {
+             ATH_MSG_VERBOSE("Processing last volume");
+             ATH_MSG_VERBOSE("  --> adjust volumes to same extends: orE=" << orE << " orC=" << orC);
+             if(orE>orC) orC=orE; else orE=orC;
+           }
            // create the three volumes
            const Trk::TrackingVolume* nVolume = createTrackingVolume(layerSetupCache[ilS].negativeLayers,
                                                                      irE,orE,
@@ -709,4 +778,165 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
                                                                 m_buildBoundaryLayers,
                                                                 m_replaceJointBoundaries);
    return tripleContainer;
+}
+
+
+std::vector<const Trk::Layer*> InDet::StagedTrackingGeometryBuilder::checkZoverlap(std::vector<const Trk::Layer*>& lays) const 
+{
+  // look for layers to merge if they overlap in z
+  
+  // caching the layers with locations in z
+  std::map < float , std::vector<const Trk::Layer*> > locationAndLayers;
+  
+  // loop on the layers and save the location:
+  // if one layer location is compatible with 
+  // another one (considering the layer thickness)
+  // then the two layers have to be merged
+  for (auto lay : lays) {
+    float zpos= lay->surfaceRepresentation().center().z();
+    float thick = 0.5*lay->thickness(); 
+    
+    bool foundZoverlap = false;
+    for (auto& singlePosLayer : locationAndLayers) {
+      if (abs(zpos - singlePosLayer.first) < thick) {
+        singlePosLayer.second.push_back(lay);
+        foundZoverlap = true;
+        break;
+      }
+    }
+    
+    // if no overlap is found, a new location (with corresponding layer)
+    // has to be added to the map
+    if (not foundZoverlap) {
+      locationAndLayers[zpos] = std::vector<const Trk::Layer*>();
+      locationAndLayers[zpos].push_back(lay);
+    }       
+  }
+  
+  // If the number of final layers decreases, 
+  // merging is detected and discs need to be merged.
+  // The new merged layers are returned instead of the initial ones.
+  if (lays.size()>locationAndLayers.size()) {
+    std::vector<const Trk::Layer*> mergedDiscLayers;
+    for (auto& singlePosLayer : locationAndLayers) {      
+      const Trk::Layer* nd = mergeDiscLayers(singlePosLayer.second);
+      if (nd) mergedDiscLayers.push_back(nd); 
+      else {
+        ATH_MSG_WARNING("radial merge of rings failed, return the input layer set");
+        return lays;
+      }
+    }
+    return mergedDiscLayers;
+  } 
+  
+  return lays;
+  
+}
+
+const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::vector<const Trk::Layer*>& inputDiscs) const {
+
+  // if a single layer is input, no need for merging.
+  // Returning the layer
+  if (inputDiscs.size()==1)
+    return inputDiscs.at(0);
+ 
+  // on the input, disc layers overlapping in thickness : merge to a new DiscLayer
+  std::pair<float,float> zb(1.e5,-1.e5);
+  // order discs in radius
+  std::vector< std::pair<float,float> > rbounds; std::vector<size_t> discOrder;
+  size_t id=0;
+  for ( auto  lay : inputDiscs ) {
+    zb.first = fmin( zb.first, lay->surfaceRepresentation().center().z()-0.5*lay->thickness());
+    zb.second = fmax( zb.second, lay->surfaceRepresentation().center().z()+0.5*lay->thickness());
+    const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lay->surfaceRepresentation().bounds()));
+    if (!db) {
+      ATH_MSG_WARNING("attempt to merge non-disc layers, bailing out");
+      return 0;    
+    }
+    float r = db->rMin();
+    if (!rbounds.size() ||  r>rbounds.back().first) {
+      rbounds.push_back(std::pair<float,float> (r,db->rMax()));  
+      discOrder.push_back(id);
+    } else {
+      int ir=rbounds.size()-1;
+      while (ir>=0) {
+        if ( r>rbounds[ir].first ) break; 
+        ir--;
+      }
+      rbounds.insert(rbounds.begin()+ir+1,std::pair<float,float> (r,db->rMax()));  
+      discOrder.insert(discOrder.begin()+ir+1,id);           
+    }
+    id++;
+  }
+  
+  std::vector<float> rsteps; std::vector<const Trk::Surface*> surfs; 
+  std::vector<Trk::BinUtility*>* binUtils=new std::vector<Trk::BinUtility*>(); 
+  rsteps.push_back(rbounds[0].first);
+  for (unsigned int id=0; id<discOrder.size(); id++) {
+    unsigned int index=discOrder[id];
+    const Trk::SurfaceArray* surfArray = inputDiscs[index]->surfaceArray();    
+    if (surfArray) {
+      if (surfArray->binUtility()->binningValue()!=Trk::binPhi) {
+        ATH_MSG_WARNING("attempt to merge 2D disc arrays, bailing out");
+        return 0;
+      }
+      binUtils->push_back(surfArray->binUtility()->clone());
+      if (id+1<discOrder.size()) rsteps.push_back( 0.5*(rbounds[id].second+rbounds[id+1].first));
+      const std::vector<const Trk::Surface*> ringSurf =surfArray->arrayObjects();
+      surfs.insert(surfs.end(),ringSurf.begin(),ringSurf.end());
+            
+    }  
+  }
+  rsteps.push_back(rbounds.back().second);
+
+  std::vector< std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  > surfaces;
+  for ( auto  sf : surfs ) {
+    Trk::SharedObject<const Trk::Surface> sharedSurface(sf,Trk::do_not_delete<const Trk::Surface>);
+    std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  surfaceOrder(sharedSurface, sf->center());
+    surfaces.push_back(surfaceOrder);
+  }
+
+  // create merged binned array
+  // a two-dimensional BinnedArray is needed ; takes possession of binUtils and
+  // will delete it on destruction.
+  Trk::BinnedArray<Trk::Surface>* mergeBA = new Trk::BinnedArray1D1D<Trk::Surface>(surfaces,new Trk::BinUtility(rsteps,Trk::open,Trk::binR),binUtils);
+
+  //DiscOverlapDescriptor takes possession of clonedBinUtils, will delete it on destruction.
+  // but *does not* manage mergeBA.      
+  std::vector<Trk::BinUtility*>* clonedBinUtils = new std::vector<Trk::BinUtility*>();
+  for (auto bu : *binUtils) clonedBinUtils->push_back(bu->clone());
+  Trk::OverlapDescriptor* olDescriptor = new InDet::DiscOverlapDescriptor(mergeBA,clonedBinUtils,true);
+    
+  // position & bounds of the disc layer
+  double disc_thickness = std::fabs(zb.second-zb.first);
+  double disc_pos = (zb.first+zb.second)*0.5;
+
+  Amg::Transform3D transf;
+  transf = Amg::Translation3D(0.,0.,disc_pos);
+
+  // get the layer material from the first merged layer
+  const Trk::LayerMaterialProperties* disc_material = inputDiscs[0]->layerMaterialProperties()->clone();
+
+  // create disc layer
+  // layer creation; deletes mergeBA in baseclass 'Layer' upon destruction
+  const Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
+                                                   new Trk::DiscBounds(rsteps.front(),rsteps.back()),
+                                                   mergeBA,
+                                                   *disc_material,
+                                                   disc_thickness,
+                                                   olDescriptor); 
+  
+   // register the layer to the surfaces 
+   const std::vector<const Trk::Surface*>& layerSurfaces     = mergeBA->arrayObjects();
+   for (auto sf : layerSurfaces) {
+     const InDetDD::SiDetectorElement* detElement = dynamic_cast<const InDetDD::SiDetectorElement*>(sf->associatedDetectorElement());
+     const std::vector<const Trk::Surface*>& allSurfacesVector = detElement->surfaces();
+     for (auto subsf : allSurfacesVector)  
+       Trk::IGeometryBuilder::associateLayer(*layer, const_cast<Trk::Surface&>(*subsf));
+   }
+   
+   for (auto disc : inputDiscs)   delete disc;      // cleanup
+
+   return layer; 
+
 }

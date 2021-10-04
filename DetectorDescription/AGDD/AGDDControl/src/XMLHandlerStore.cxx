@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XMLHandlerStore.h"
@@ -30,13 +30,13 @@ void XMLHandlerStore::RegisterHandler(XMLHandler* handler)
 		(*this)[name]=handler;
 }
 
-void XMLHandlerStore::Handle(DOMNode *element)
+void XMLHandlerStore::Handle(AGDDController& c, DOMNode *element)
 {
 	char* temp=XMLString::transcode(element->getNodeName());
 	std::string name=temp;
 	XMLString::release(&temp);
 	if (this->find(name)!=this->end()) 
-		((*this)[name])->Handle(element);
+		((*this)[name])->Handle(c, element);
 	else
 		std::cout<<" Handler for "<<name<<" not found! continuing"<<std::endl;
 }

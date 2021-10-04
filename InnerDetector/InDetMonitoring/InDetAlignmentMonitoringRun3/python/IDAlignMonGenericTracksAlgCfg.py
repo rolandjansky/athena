@@ -27,7 +27,7 @@ def IDAlignMonGenericTracksAlgCfg(helper, alg, **kwargs):
      
     # this creates a "genericTrackGroup" called "alg" which will put its histograms into the subdirectory "GenericTracks"
     genericTrackGroup = helper.addGroup(alg, 'Tracks')
-    pathtrack = '/IDAlignMon/ExtendendTracks_NoTriggerSelection/GenericTracks'
+    pathtrack = '/IDAlignMon/ExtendedTracks_NoTriggerSelection/GenericTracks'
 
     varName = 'm_lb;LumiBlock'
     title = 'Lumiblock'

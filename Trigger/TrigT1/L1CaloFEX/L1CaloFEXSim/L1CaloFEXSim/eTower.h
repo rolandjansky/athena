@@ -77,22 +77,22 @@ namespace LVL1 {
     float constid() const {return m_tower_id;};
 
     /** Get ET of a specified cell in MeV */
-    int getET(unsigned int layer, int cell = 0) const;
+    unsigned int getET(unsigned int layer, int cell = 0) const;
     
     /** Get ET sum of all cells in the eTower in MeV */
-    int getTotalET() const;
+    unsigned int getTotalET() const;
 
     /** Get total ET sum of all cells in a given layer in MeV */
-    int getLayerTotalET(unsigned int layer) const;
+    unsigned int getLayerTotalET(unsigned int layer) const;
 
     /** Get vector of ET values for a given layer in MeV */
-    std::vector<int> getLayerETvec(unsigned int layer) const;
+    std::vector<unsigned int> getLayerETvec(unsigned int layer) const;
     
     /** Get vector of all ET values in MeV */
-    std::vector<int> getETs() const {return m_et;};
+    std::vector<unsigned int> getETs() const {return m_et;};
 
     /** Get vector of INT which describe whether a slot shared split ET from two different supercells - required information for production of CSV input files */
-    std::vector<int> getETSplits() const {return m_etSplits;};
+    std::vector<unsigned int> getETSplits() const {return m_etSplits;};
 
     /** Get ET of a specified cell in MeV FLOAT VERSION */
     float getET_float(unsigned int layer, int cell = 0) const;
@@ -120,9 +120,6 @@ namespace LVL1 {
 
     std::vector<Identifier> getLayerSCIDs(unsigned int layer) const;
 
-    /** Apply supercell noise cut **/
-    bool noiseCut(int et, int layer) const;
-
     void setPosNeg(int posneg);
 
     inline int getPosNeg() const {return m_posneg;}
@@ -132,16 +129,11 @@ namespace LVL1 {
     float m_eta;
     float m_phi;
     std::vector<Identifier> m_scID;
-    std::vector<int> m_et;    
+    std::vector<unsigned int> m_et;    
     std::vector<float> m_et_float;
-    std::vector<int> m_etSplits;
+    std::vector<unsigned int> m_etSplits;
     int m_tower_id;
     int m_posneg = 0;
-    int m_noisecutPS = 100;
-    int m_noisecutL1 = 100;
-    int m_noisecutL2 = 100;
-    int m_noisecutL3 = 100;
-    int m_noisecutHad = 100;
 
   };
   

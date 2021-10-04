@@ -22,57 +22,64 @@
 #include "StoreGate/StoreGateSvc.h"
 
 namespace LVL1 {
-  class jFEXForwardJetsInfo{
+class jFEXForwardJetsInfo {
 
-  public:
-    void setCentreTTID(int TT_ID);
-    int getCentreTTID();
+    public:
+        void setCentreTTID(int TT_ID);
+        int getCentreTTID();
 
-    void setCentreTTEta(float centreTTEta);
-    float getCentreTTEta();
+        void setCentreTTEta(float centreTTEta);
+        float getCentreTTEta();
 
-    void setCentreTTPhi(float centreTTPhi);
-    float getCentreTTPhi();
+        void setCentreTTPhi(float centreTTPhi);
+        float getCentreTTPhi();
 
-    void  setCentreLocalTTEta(float centreLocalTTEta);
-    float getCentreLocalTTEta();
-    void  setCentreLocalTTPhi(float centreLocalTTPhi);
-    float getCentreLocalTTPhi();
+        void  setCentreLocalTTEta(float centreLocalTTEta);
+        float getCentreLocalTTEta();
+        void  setCentreLocalTTPhi(float centreLocalTTPhi);
+        float getCentreLocalTTPhi();
 
-    void  includeTTinSeed(int TT_ID);
-    std::vector<int> getTTinSeed();
+        void  includeTTinSeed(int TT_ID);
+        std::vector<int> getTTinSeed();
 
-    void addToSeedET(int seed_ET);
-    int getSeedET();
+        void addToSeedET(int seed_ET);
+        int getSeedET();
 
-    void addToFirstEnergyRingET(int firstER_ET);
-    int getFirstEnergyRingET();   
+        void addToFirstEnergyRingET(int firstER_ET);
+        int getFirstEnergyRingET();
 
-    void includeTTIDinFirstER(int firstER_TTID);
-    std::vector<int> getTTIDinFirstER();
+        void includeTTIDinFirstER(int firstER_TTID);
+        std::vector<int> getTTIDinFirstER();
 
-    void addToSecondEnergyRingET(int secondER_ET);
-    int getSecondEnergyRingET();  
+        void addToSecondEnergyRingET(int secondER_ET);
+        int getSecondEnergyRingET();
 
-    void includeTTIDinSecondER(int secondER_TTID);
-    std::vector<int> getTTIDinSecondER();
-  
-  private:
-    int m_centre_TTID;
-    float m_centreTTPhi;
-    float m_centreTTEta;
+        void includeTTIDinSecondER(int secondER_TTID);
+        std::vector<int> getTTIDinSecondER();
 
-    int m_centreLocalTTPhi;
-    int m_centreLocalTTEta;
+        void includeTTinSearchWindow(int TT_ID);
+        std::vector<int> getTTinSearchWindow();
+        void addToSearchWindowET(int seed_ET);
+        int getSearchWindowET();
 
-    int m_seed_ET =0;
-    int m_firstEnergyRing_ET =0;
-    int m_secondEnergyRing_ET =0;
-    std::vector<int> m_TTsInSeed ={};
-    std::vector<int> m_firstEnergyRing_TTIDs = {};
-    std::vector<int> m_secondEnergyRing_TTIDs = {};
+    private:
+        int m_centre_TTID;
+        float m_centreTTPhi;
+        float m_centreTTEta;
 
-  };
+        int m_centreLocalTTPhi;
+        int m_centreLocalTTEta;
+
+        int m_seed_ET =0;
+        int m_SearchWindow_ET =0;
+        int m_firstEnergyRing_ET =0;
+        int m_secondEnergyRing_ET =0;
+        std::vector<int> m_TTsInSeed = {};
+        std::vector<int> m_TTsInSearchWindow = {};
+        std::vector<int> m_firstEnergyRing_TTIDs = {};
+        std::vector<int> m_secondEnergyRing_TTIDs = {};
+
+};
 
 
 

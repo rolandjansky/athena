@@ -467,7 +467,8 @@ void AthHistogramming::buildBookingString( std::string& bookingString,
   if(tDir.empty()) tDir = m_rootDir;
   size_t pos = histName.rfind('/');
   if(pos != std::string::npos){
-    tDir+="/"+histName.substr(0,pos);
+    tDir+='/';
+    tDir.append(histName, 0,pos);
     histName.erase(0,pos+1);
   };
   if(stream.empty()) stream = m_streamName;

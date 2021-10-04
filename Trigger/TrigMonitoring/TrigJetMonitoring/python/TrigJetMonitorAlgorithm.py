@@ -184,7 +184,7 @@ def getHTBinning(chain,binwidth):
   threshold = parts[1].split('_')[0]
   if 'XX' in threshold:
     threshold = threshold.split('XX')[0]
-  xmin = int(threshold)
+  xmin = int(0.9 * int(threshold))  # xmin to make the threshold visible
   xmax = xmin + 500
   xbins = int((xmax-xmin)/binwidth)-1
   return xbins, xmin, xmax

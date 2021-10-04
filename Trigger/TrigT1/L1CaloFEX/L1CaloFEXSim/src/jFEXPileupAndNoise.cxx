@@ -296,10 +296,10 @@ void LVL1::jFEXPileupAndNoise::ApplyPileupMet  (){
 
 
 
-std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_values(){
+std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_values(){
     
     // map for energies sent to the FPGA
-    std::map<int,std::vector<int> > map_Etvalues;
+    std::unordered_map<int,std::vector<int> > map_Etvalues;
     map_Etvalues.clear();
     
     // tmp variable to fill the map
@@ -378,10 +378,10 @@ std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_values(){
     return map_Etvalues;
 }
 
-std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_values(){
+std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_values(){
     
     // map for energies sent to the FPGA
-    std::map<int,std::vector<int> > map_Etvalues;
+    std::unordered_map<int,std::vector<int> > map_Etvalues;
     map_Etvalues.clear();
     
     // tmp variable to fill the map
@@ -461,7 +461,7 @@ std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_values(){
 
 
 
-void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::map<int,std::vector<int> > & map_Etvalues, int Jet_NoiseCut, int Met_NoiseCut){
+void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues, int Jet_NoiseCut, int Met_NoiseCut){
 
     for(auto [key,vec] : map_Etvalues){
         
@@ -478,12 +478,12 @@ void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::map<int,std::vector<int> > & 
 
 
 
-std::map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values(){
+std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values(){
     
     // map for energies sent to the FPGA
-    std::map<int,std::vector<int> > map_Etvalues;
-    std::map<int,std::vector<int> > map_Etvalues_EM;
-    std::map<int,std::vector<int> > map_Etvalues_HAD;
+    std::unordered_map<int,std::vector<int> > map_Etvalues;
+    std::unordered_map<int,std::vector<int> > map_Etvalues_EM;
+    std::unordered_map<int,std::vector<int> > map_Etvalues_HAD;
     map_Etvalues.clear();
     map_Etvalues_EM.clear();
     map_Etvalues_HAD.clear();    

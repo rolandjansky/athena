@@ -9,7 +9,7 @@
 // LArRawChannelCnv_p2, used for T/P separation
 // author G.Unal
 
-void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &/*log*/) 
+void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_p2* pers, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 
@@ -29,7 +29,7 @@ void LArRawChannelCnv_p2::transToPers(const LArRawChannel* trans, LArRawChannel_
   pers->m_qualityandgain = tmpqual | tmpgain;
 }
 
-void LArRawChannelCnv_p2::persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &/*log*/) 
+void LArRawChannelCnv_p2::persToTrans(const LArRawChannel_p2* pers, LArRawChannel* trans, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 

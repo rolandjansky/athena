@@ -29,8 +29,6 @@
 
 using namespace TrkDriftCircleMath;
 
-// maxNTubesPerLayer is included via DriftCircle.h
-
 namespace Muon {
 
 MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,
@@ -1156,9 +1154,8 @@ MuonHoughPatternFinderTool::addMdtCollection(
   for (unsigned int i = 0; i < prdsize; i++) {
     if (prob[i] < 0.01)
       continue;
-    double global_radius =
-      std::sqrt(hitx[i] * hitx[i] + hity[i] * hity[i]); // global radius
-    const TrkDriftCircleMath::LocPos lpos(global_radius,
+    double global_radius = std::hypot(hitx[i] , hity[i]); // global radius
+    const TrkDriftCircleMath::LocVec2D lpos(global_radius,
                                           hitz[i]); // global coordinates
     // create identifier
     TrkDriftCircleMath::MdtId mdtid(
@@ -1170,7 +1167,7 @@ MuonHoughPatternFinderTool::addMdtCollection(
                                        TrkDriftCircleMath::DriftCircle::InTime,
                                        mdtid,
                                        i);
-    dcs.push_back(dc);
+    dcs.emplace_back(std::move(dc));
   }
 
   bool seg_found = true;
@@ -1833,7 +1830,7 @@ MuonHoughPatternFinderTool::fastSegmentFinder(TrkDriftCircleMath::DCVec& dcs,
   int nhits = 0;
   for (; it1 != it_end; ++it1, nhits++) {
     sel[nhits] = 0;
-    int isort = maxNTubesPerLayer * (4 * (it1->id().ml()) + it1->id().lay()) +
+    int isort = MdtIdHelper::maxNTubesPerLayer * (4 * (it1->id().ml()) + it1->id().lay()) +
                 it1->id().tube();
     dcsId[isort] = nhits;
     int ilay = 4 * (it1->id().ml()) + it1->id().lay();
@@ -1963,7 +1960,7 @@ MuonHoughPatternFinderTool::fastSegmentFinder(TrkDriftCircleMath::DCVec& dcs,
   TrkDriftCircleMath::DCOnTrackIt itt_end = hitsOnLineSel.end();
   int i = 0;
   for (; itt != itt_end; ++itt, i++) {
-    int isort = maxNTubesPerLayer * (4 * (itt->id().ml()) + itt->id().lay()) +
+    int isort = MdtIdHelper::maxNTubesPerLayer * (4 * (itt->id().ml()) + itt->id().lay()) +
                 itt->id().tube();
     if (dcsId.count(isort) == 1) {
       int dcsIndex = dcsId[isort];

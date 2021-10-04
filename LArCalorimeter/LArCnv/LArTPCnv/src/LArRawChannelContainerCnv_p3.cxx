@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArRawChannel.h"
@@ -12,7 +12,7 @@
 
 #include "LArTPCnv/LArRawChannelContainerCnv_p3.h"
 
-void LArRawChannelContainerCnv_p3::transToPers(const LArRawChannelContainer* transCont, LArRawChannelContainer_p3* persCont, MsgStream &log) 
+void LArRawChannelContainerCnv_p3::transToPers(const LArRawChannelContainer* transCont, LArRawChannelContainer_p3* persCont, MsgStream &log) const
 {
   std::size_t nChannels=transCont->size();
   persCont->m_channels.resize(nChannels);
@@ -22,7 +22,7 @@ void LArRawChannelContainerCnv_p3::transToPers(const LArRawChannelContainer* tra
   log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer_p3" << endmsg;
 }
 
-void LArRawChannelContainerCnv_p3::persToTrans(const LArRawChannelContainer_p3* persCont, LArRawChannelContainer* transCont, MsgStream &log) 
+void LArRawChannelContainerCnv_p3::persToTrans(const LArRawChannelContainer_p3* persCont, LArRawChannelContainer* transCont, MsgStream &log) const
 {
   std::size_t nChannels=persCont->m_channels.size();
   transCont->resize(nChannels);

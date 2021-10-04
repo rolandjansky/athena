@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@
 #include "TrkTrack/Track.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "MuonIdHelpers/MdtIdHelper.h"
 //root includes
 #include <TH1F.h>
 #include <TH2F.h>
@@ -53,14 +53,14 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int const maxNTubesPerLayer = 120;
+  constexpr unsigned int  maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+
+    enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
+    enum {enumBarrel, enumEndCap};
+    enum {enumInner, enumMiddle, enumOuter, enumExtra};
 }
 
-float parESD1, parESD2, parESD3, parESD4;
 
-enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
-enum {enumBarrel, enumEndCap};
-enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
 /////////////////////////////////////////////////////////////////////////////
 // *********************************************************************
@@ -70,7 +70,7 @@ enum {enumInner, enumMiddle, enumOuter, enumExtra};
 MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
- m_masked_tubes(NULL),
+ m_masked_tubes(nullptr),
  m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
@@ -158,7 +158,7 @@ MdtRawDataValAlg::~MdtRawDataValAlg()
   if(m_hist_hash_list) {
     clear_hist_map(0);
   }
-  delete m_masked_tubes; m_masked_tubes = NULL;
+  delete m_masked_tubes; m_masked_tubes = nullptr;
   ATH_MSG_INFO(" deleting MdtRawDataValAlg " );
   delete m_mg;
 
@@ -475,7 +475,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
           nPrd++;
           hardware_name = getChamberName(*mdtCollection);
           float adc = (*mdtCollection)->adc();
-          if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+          if(hardware_name.compare(0,3,"BMG") == 0) adc /= 4.;
           if( adc > m_ADCCut ) 
           {
             nPrdcut++;
@@ -1519,9 +1519,9 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(hardware_name.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.compare(0,3,"BMG") == 0) adc /= 4.;
 
   if (chamber->mdttdc) {
     chamber->mdttdc->Fill(tdc); 
@@ -1576,9 +1576,9 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   bool isBIM = (chambername.at(2)=='M');
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(chambername.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(chambername.substr(0,3) == "BMG") adc /= 4.;
+  if(chambername.compare(0,3,"BMG") == 0) adc /= 4.;
 
   if( m_mdtChamberHits[iregion][ilayer][stationPhi] && adc > m_ADCCut )
     m_mdtChamberHits[iregion][ilayer][stationPhi]->Fill(std::abs(stationEta));
@@ -1630,7 +1630,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     
     //correct readout crate info for BEE,BIS7/8
     int crate_region = iregion;
-    if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (stationEta == 7 || stationEta == 8) )){
+    if(chambername.compare(0,3,"BEE")==0 || (chambername.compare(0,3,"BIS") == 0 && (stationEta == 7 || stationEta == 8) )){
       if(iregion==0) crate_region=2;
       if(iregion==1) crate_region=3;
     }
@@ -1671,9 +1671,9 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(hardware_name.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.compare(0,3,"BMG") ==0 ) adc /= 4.;
 
   //Barrel -->Fill MDT Global RZ and YX
   if( adc>m_ADCCut ) {
@@ -1767,14 +1767,14 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();
         float adc = mrot->prepRawData()->adc();
-        if(chambername.substr(0,3)=="BMG") adc /= 4. ;
+        if(chambername.compare(0,3,"BMG")==0) adc /= 4. ;
         if(m_overalladc_segm_Lumi) m_overalladc_segm_Lumi->Fill(adc);
         if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
           store_ROTs.insert(tmpid);   
 
           double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
           // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-          if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
+          if(chambername.compare(0,3,"BMG")==0) tdc = mrot->prepRawData()->tdc() * 0.2;
               //      double tdc = mrot->driftTime()+500;
               int iregion = chamber->GetRegionEnum();
               int ilayer = chamber->GetLayerEnum();

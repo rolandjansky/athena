@@ -125,7 +125,7 @@ CaloIdMgrDetDescrCnv                                 INFO  Finished
 CaloIdMgrDetDescrCnv                                 INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
 DetectorStore                                     WARNING retrieve(default): No valid proxy for default object 
  of type TileDetDescrManager(CLID 2941)
-CaloMgrDetDescrCnv                                WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
+buildCaloDetDescr                                 WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 ApplicationMgr                                       INFO Application Manager Stopped successfully
 ToolSvc                                              INFO Removing all tools created by ToolSvc

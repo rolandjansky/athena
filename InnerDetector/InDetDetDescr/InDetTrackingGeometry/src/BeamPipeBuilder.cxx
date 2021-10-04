@@ -109,6 +109,9 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
   if (m_beamPipeMgr){
         // get the central top volume
         PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
+        if (m_beamPipeMgr->getNumTreeTops()==1){ // Beampipe implementation using assembly volume has only one tree top instead of 3 in the default case(union of a central and two forward beampipes)   
+          beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0)->getChildVol(0)->getChildVol(0);//the BeamPipeCentral volume is the child of the child volume of the top volume in this case 
+        }
         beamPipeTransform = Amg::Translation3D(beamPipeTopVolume->getX().translation().x(),
                                                   beamPipeTopVolume->getX().translation().y(),
                                                   beamPipeTopVolume->getX().translation().z());

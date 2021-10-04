@@ -120,7 +120,7 @@ public:
     inline bool sideA() const;
     inline bool sideC() const;
 
-    void setParentStationPV(PVConstLink);
+    void setParentStationPV(const PVConstLink&);
     void setParentStationPV();
     PVConstLink  parentStationPV()     const;
     const MuonStation* parentMuonStation() const;

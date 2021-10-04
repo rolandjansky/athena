@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMatchingTool/R3MatchingTool.h"
@@ -40,7 +40,6 @@ namespace Trig
   StatusCode R3MatchingTool::initialize()
   {
     ATH_CHECK(m_trigDecTool.retrieve());
-    m_trigDecTool->ExperimentalAndExpertMethods()->enable();
     return StatusCode::SUCCESS;
   }
 
@@ -84,7 +83,7 @@ namespace Trig
       TrigCompositeUtils::Combinations combinations = TrigCompositeUtils::buildCombinations(
         chainName,
         m_trigDecTool->features<xAOD::IParticleContainer>(chainName),
-        m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName),
+        m_trigDecTool->ExperimentalAndExpertMethods().getChainConfigurationDetails(chainName),
         TrigCompositeUtils::FilterType::UniqueObjects);
       // Warn once per call if one of the chain groups is too small to match anything
       if (combinations.size() < recoObjects.size())

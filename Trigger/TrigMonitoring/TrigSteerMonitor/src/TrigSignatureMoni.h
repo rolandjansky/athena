@@ -53,7 +53,7 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
 
     // Initialize rate histogram and create buffer
     StatusCode init( const std::string& histoName, const std::string& histoTitle,
-      const int x, const int y, const std::string& registerPath, ServiceHandle<ITHistSvc> histSvc );
+      const int x, const int y, const std::string& registerPath, const ServiceHandle<ITHistSvc>& histSvc );
 
     // Get the histogram
     LockedHandle<TH2>& getHistogram ATLAS_NOT_CONST_THREAD_SAFE () const;

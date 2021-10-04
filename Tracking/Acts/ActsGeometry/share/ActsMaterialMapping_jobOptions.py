@@ -78,7 +78,8 @@ if "__main__" == __name__:
 
   cfg = MainServicesCfg(ConfigFlags)
 
-  cfg.merge(ActsMaterialTrackWriterSvcCfg("ActsMaterialTrackWriterSvc",
+  cfg.merge(ActsMaterialTrackWriterSvcCfg(ConfigFlags,
+                                          "ActsMaterialTrackWriterSvc",
                                           "MaterialTracks_mapping.root"))
 
   cfg.merge(PoolReadCfg(ConfigFlags))

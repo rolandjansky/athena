@@ -8,7 +8,7 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-topoEgammaBuilder = CompFactory.topoEgammaBuilder
+xAODEgammaBuilder = CompFactory.xAODEgammaBuilder
 EGammaAmbiguityTool = CompFactory.EGammaAmbiguityTool
 
 
@@ -20,10 +20,10 @@ def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
     acc = ComponentAccumulator()
 
     kwargs.setdefault(
-        "SuperElectronRecCollectionName",
+        "InputElectronRecCollectionName",
         flags.Egamma.Keys.Internal.ElectronSuperRecs)
     kwargs.setdefault(
-        "SuperPhotonRecCollectionName",
+        "InputPhotonRecCollectionName",
         flags.Egamma.Keys.Internal.PhotonSuperRecs)
     kwargs.setdefault(
         "ElectronOutputName",
@@ -35,7 +35,7 @@ def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
         "AmbiguityTool",
         EGammaAmbiguityTool())
 
-    topoegAlg = topoEgammaBuilder(flags, **kwargs)
+    topoegAlg = xAODEgammaBuilder(flags, **kwargs)
 
     acc.addEventAlgo(topoegAlg)
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define FILLEVENTNORMALIZATION(NBINS, MIN, WIDTH, VALUE, VARPASSED, VAR, HISTGROUP) \
@@ -809,78 +809,30 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
         HLmoduleHits_E[i] = 0;
     }
 
-    short int scale_hHitWMap_B_passed[2][s_Straw_max[0]];
-    short int scale_hHitWMap_E_passed[2][2][s_Straw_max[1]];
+    auto scale_hHitWMap_B_passed = std::make_unique<short int[][s_Straw_max[0]]>(2);
+    auto scale_hHitWMap_E_passed = std::make_unique<short int[][2][s_Straw_max[1]]>(2);
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < s_Straw_max[0]; j++) {
-            scale_hHitWMap_B_passed[i][j] = 0;
-        }
-    }
+    auto scale_hHitHWMapS_B_passed = std::make_unique<short int[][s_Straw_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitHWMapC_B_passed = std::make_unique<short int[][s_iChip_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitWMapS_B_passed  = std::make_unique<short int[][s_Straw_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitWMapC_B_passed  = std::make_unique<short int[][s_iChip_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitAMapS_B_passed  = std::make_unique<short int[][s_Straw_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitAMapC_B_passed  = std::make_unique<short int[][s_iChip_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitAWMapS_B_passed = std::make_unique<short int[][s_Straw_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitAWMapC_B_passed = std::make_unique<short int[][s_iChip_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitHMapS_B_passed  = std::make_unique<short int[][s_Straw_max[0]]>(s_numberOfBarrelStacks*2);
+    auto scale_hHitHMapC_B_passed  = std::make_unique<short int[][s_iChip_max[0]]>(s_numberOfBarrelStacks*2);
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < s_Straw_max[1]; k++) {
-                scale_hHitWMap_E_passed[i][j][k] = 0;
-            }
-        }
-    }
-
-    short int scale_hHitHWMapS_B_passed[s_numberOfBarrelStacks*2][s_Straw_max[0]];
-    short int scale_hHitHWMapC_B_passed[s_numberOfBarrelStacks*2][s_iChip_max[0]];
-    short int scale_hHitWMapS_B_passed[s_numberOfBarrelStacks*2][s_Straw_max[0]];
-    short int scale_hHitWMapC_B_passed[s_numberOfBarrelStacks*2][s_iChip_max[0]];
-    short int scale_hHitAMapS_B_passed[s_numberOfBarrelStacks*2][s_Straw_max[0]];
-    short int scale_hHitAMapC_B_passed[s_numberOfBarrelStacks*2][s_iChip_max[0]];
-    short int scale_hHitAWMapS_B_passed[s_numberOfBarrelStacks*2][s_Straw_max[0]];
-    short int scale_hHitAWMapC_B_passed[s_numberOfBarrelStacks*2][s_iChip_max[0]];
-    short int scale_hHitHMapS_B_passed[s_numberOfBarrelStacks*2][s_Straw_max[0]];
-    short int scale_hHitHMapC_B_passed[s_numberOfBarrelStacks*2][s_iChip_max[0]];
-
-    for (int i = 0; i < s_numberOfBarrelStacks*2; i++) {
-        for (int j = 0; j < s_iChip_max[0]; j++) {
-            scale_hHitHWMapC_B_passed[i][j] = 0;
-            scale_hHitWMapC_B_passed[i][j]  = 0;
-            scale_hHitAMapC_B_passed[i][j]  = 0;
-            scale_hHitAWMapC_B_passed[i][j] = 0;
-            scale_hHitHMapC_B_passed[i][j]  = 0;
-        }
-        for (int j = 0; j < s_Straw_max[0]; j++) {
-            scale_hHitHWMapS_B_passed[i][j] = 0;
-            scale_hHitWMapS_B_passed[i][j]  = 0;
-            scale_hHitAMapS_B_passed[i][j]  = 0;
-            scale_hHitAWMapS_B_passed[i][j] = 0;
-            scale_hHitHMapS_B_passed[i][j]  = 0;
-        }
-    }
-
-    short int scale_hHitHWMapS_E_passed[s_numberOfEndCapStacks*2][s_Straw_max[1]];
-    short int scale_hHitHWMapC_E_passed[s_numberOfEndCapStacks*2][s_iChip_max[1]];
-    short int scale_hHitWMapS_E_passed[s_numberOfEndCapStacks*2][s_Straw_max[1]];
-    short int scale_hHitWMapC_E_passed[s_numberOfEndCapStacks*2][s_iChip_max[1]];
-    short int scale_hHitAMapS_E_passed[s_numberOfEndCapStacks*2][s_Straw_max[1]];
-    short int scale_hHitAMapC_E_passed[s_numberOfEndCapStacks*2][s_iChip_max[1]];
-    short int scale_hHitAWMapS_E_passed[s_numberOfEndCapStacks*2][s_Straw_max[1]];
-    short int scale_hHitAWMapC_E_passed[s_numberOfEndCapStacks*2][s_iChip_max[1]];
-    short int scale_hHitHMapC_E_passed[s_numberOfEndCapStacks*2][s_iChip_max[1]];
-    short int scale_hHitHMapS_E_passed[s_numberOfEndCapStacks*2][s_Straw_max[1]];
-
-    for (int i = 0; i < s_numberOfEndCapStacks*2; i++) {
-        for (int j = 0; j < s_iChip_max[1]; j++) {
-            scale_hHitHWMapC_E_passed[i][j] = 0;
-            scale_hHitWMapC_E_passed[i][j]  = 0;
-            scale_hHitAMapC_E_passed[i][j]  = 0;
-            scale_hHitAWMapC_E_passed[i][j] = 0;
-            scale_hHitHMapC_E_passed[i][j]  = 0;
-        }
-        for (int j = 0; j < s_Straw_max[1]; j++) {
-            scale_hHitHWMapS_E_passed[i][j] = 0;
-            scale_hHitWMapS_E_passed[i][j]  = 0;
-            scale_hHitAMapS_E_passed[i][j]  = 0;
-            scale_hHitAWMapS_E_passed[i][j] = 0;
-            scale_hHitHMapS_E_passed[i][j]  = 0;
-        }
-    }
+    auto scale_hHitHWMapS_E_passed = std::make_unique<short int[][s_Straw_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitHWMapC_E_passed = std::make_unique<short int[][s_iChip_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitWMapS_E_passed  = std::make_unique<short int[][s_Straw_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitWMapC_E_passed  = std::make_unique<short int[][s_iChip_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitAMapS_E_passed  = std::make_unique<short int[][s_Straw_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitAMapC_E_passed  = std::make_unique<short int[][s_iChip_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitAWMapS_E_passed = std::make_unique<short int[][s_Straw_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitAWMapC_E_passed = std::make_unique<short int[][s_iChip_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitHMapS_E_passed  = std::make_unique<short int[][s_Straw_max[1]]>(s_numberOfEndCapStacks*2);
+    auto scale_hHitHMapC_E_passed  = std::make_unique<short int[][s_iChip_max[1]]>(s_numberOfEndCapStacks*2);
 
     int goodid_status = 0;
     int prev_bcid = 0;
@@ -1980,7 +1932,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 
         // Use hole finder to find holes on this track
         if (m_useHoleFinder) {
-            const DataVector<const Trk::TrackStateOnSurface> *holes = m_trt_hole_finder->getHolesOnTrack(**track);
+            std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack(**track));
 
             if (!holes) {
 
@@ -2090,8 +2042,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
                     Efficiency_z0 = 0.0;
                     fill("TRTEfficiencyHistograms", Efficiency_z0_passed, Efficiency_z0);
                 }
-
-                delete holes;
             }
         }
     }
@@ -2152,8 +2102,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
     auto HtoLWonTMapC_passed     = Monitored::Scalar<bool>("HtoLWonTMapC_passed", false);
     auto HitTronTMapC_x          = Monitored::Scalar<float>("HitTronTMapC_x", 0.0);
     auto HitTronTMapC_y          = Monitored::Scalar<float>("HitTronTMapC_y", 0.0);
-    auto HitonTrackVAllS_x       = Monitored::Scalar<float>("HitonTrackVAllS_x", 0.0);
-    auto HitonTrackVAllS_y       = Monitored::Scalar<float>("HitonTrackVAllS_y", 0.0);
 
     auto p_trk = trackCollection.begin();
 

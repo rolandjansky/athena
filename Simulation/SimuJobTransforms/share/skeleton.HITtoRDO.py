@@ -121,6 +121,8 @@ if hasattr(runArgs,"digiSteeringConf"):
         digilog.info( "Changing digitizationFlags.digiSteeringConf from %s to %s", digitizationFlags.digiSteeringConf.get_Value(),runArgs.digiSteeringConf)
         digitizationFlags.digiSteeringConf=runArgs.digiSteeringConf+"PileUpToolsAlg"
         PileUpConfigOverride=True
+if digitizationFlags.initialBunchCrossing > digitizationFlags.finalBunchCrossing:
+    raise ValueError( "Initial bunch crossing should not be larger than the final one" )
 if PileUpConfigOverride:
     digilog.info( "NB Some pile-up (re-)configuration was done on the command-line.")
 del PileUpConfigOverride
@@ -437,7 +439,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 from AthenaPoolCnvSvc import PoolAttributeHelper as pah
 Out = athenaCommonFlags.PoolRDOOutput()
-if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile): # noqa: F821
+if hasattr(runArgs, "outputRDOFile") and (runArgs.outputRDOFile.endswith('_000') or runArgs.outputRDOFile.startswith('tmp.')): # noqa: F821
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( Out, 1 ) ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( Out, 1 ) ]
 

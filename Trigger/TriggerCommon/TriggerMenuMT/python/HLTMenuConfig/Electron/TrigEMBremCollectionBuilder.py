@@ -68,8 +68,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #  TRT_ElectronPidTool (private =True)
         #
         GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
-        ) and not InDetFlags.doHighPileup():
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doHighPileup():
 
             from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
             from AthenaCommon.GlobalFlags import globalflags

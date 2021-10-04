@@ -61,6 +61,20 @@ namespace MuonGM {
     /** pad number corresponding to local position */
     int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
 
+    /** wire number corresponding to local position */
+    int wireNumber( const Amg::Vector2D& pos, const Identifier& id) const;
+
+    /** single wire pitch. 
+     *  sTGC wire pitch is the same for all chambers,
+     *  so the default gas gap is set to the 1st gap */
+    double wirePitch(int gas_gap = 1) const;
+
+    /** Get the local position of the first wire of the chamber corresponding to the identifier */
+    double positionFirstWire(const Identifier& id) const;
+
+    /** Get the total number of wires (single wires) of a chamber **/
+    int numberOfWires(const Identifier& id) const;
+
     /** pad position */
     bool padPosition( const Identifier& id, Amg::Vector2D& pos) const;
 
@@ -104,7 +118,7 @@ namespace MuonGM {
     void spacePointPosition( const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos ) const;
 
     /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only      */
-    Amg::Vector3D localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const;
+    Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const;
 
     /** @brief function to fill tracking cache */
     virtual void         fillCache() override final;
@@ -376,7 +390,6 @@ namespace MuonGM {
     pos[0] = phiPos.x();
     pos[1] = etaPos.x();
   }
-
 
 } // namespace MuonGM
 

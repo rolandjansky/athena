@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellPacker_400_500.cxx,v 1.5 2009-03-31 19:04:04 ssnyder Exp $
@@ -965,11 +965,6 @@ void CaloCellPacker_400_500::unpack
   }
   cells.reserve (totcells);
 
-  // To speed things up, we'll use the underlying vector from the cell
-  // container.
-  std::vector<CaloCell*>& cellsv =
-    const_cast<std::vector<CaloCell*>&>(cells.stdcont());
-
   // Iterator for scanning the input.
   CaloCompactCellContainer::compact_input_iterator it =
     packed.compact_begin_input();
@@ -1138,7 +1133,7 @@ void CaloCellPacker_400_500::unpack
 
       // Add the cell to the container.
       if (dde)
-        cellsv.push_back (cell);
+        cells.push_back (cell);
 
       // Move to next cell.
       ++hash;

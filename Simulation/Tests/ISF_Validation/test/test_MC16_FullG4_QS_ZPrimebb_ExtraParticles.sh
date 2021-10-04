@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC16-style simulation using FullG4_LongLived and the ExtraParticles package
+# art-description: MC16-style simulation using FullG4_QS and the ExtraParticles package
 # art-include: 21.0/Athena
 # art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena
@@ -17,7 +17,7 @@ Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'FullG4_LongLived' \
+--simulator 'FullG4_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;simFlags.OptionalUserActionList.addAction("G4UA::VerboseSelectorTool");simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetEvent",-1);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetPdgIDs", [413, 511, 513, 521]);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetTrack",999999999);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","VerboseLevel",2);' \

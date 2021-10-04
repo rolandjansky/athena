@@ -1299,12 +1299,12 @@ namespace Muon {
                         }
 
                         bool inBounds = false;
-                        Amg::Vector2D locPos;
-                        bool ok = meas->associatedSurface().globalToLocal(impactPars->position(), impactPars->momentum(), locPos);
+                        Amg::Vector2D LocVec2D;
+                        bool ok = meas->associatedSurface().globalToLocal(impactPars->position(), impactPars->momentum(), LocVec2D);
                         // delete impactPars;
                         if (ok) {
                             if (msgLvl(MSG::VERBOSE))
-                                msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
+                                msg(MSG::VERBOSE) << "  lpos (" << LocVec2D[Trk::locX] << "," << LocVec2D[Trk::locY] << ")";
                             double tol1 = 50.;
                             double tol2 = tol1;
                             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
@@ -1321,9 +1321,9 @@ namespace Muon {
                             // for MM, perform the bound check from the detector element to take into account edge passivation
                             const MMClusterOnTrack* mmClusterOnTrack = dynamic_cast<const MMClusterOnTrack*>(meas);
                             if (mmClusterOnTrack) {
-                                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, locPos, tol1, tol2);
+                                inBounds = mmClusterOnTrack->detectorElement()->insideActiveBounds(id, LocVec2D, tol1, tol2);
                             } else {
-                                inBounds = meas->associatedSurface().insideBounds(locPos, tol1, tol2);
+                                inBounds = meas->associatedSurface().insideBounds(LocVec2D, tol1, tol2);
                             }
 
                             if (msgLvl(MSG::VERBOSE)) {

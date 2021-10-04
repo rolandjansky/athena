@@ -230,7 +230,7 @@ int LVL1::jFEXtauAlgo::realValue(int ID, int eta){
   
 }
 
-void LVL1::jFEXtauAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXtauAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

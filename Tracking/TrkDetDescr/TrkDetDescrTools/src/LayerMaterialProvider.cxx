@@ -213,15 +213,17 @@ ATLAS_NOT_THREAD_SAFE(const Trk::Layer& lay,
     // find the layer and assign the material properties 
     auto lmIter= layerMaterialMap.find(lIndex);
     if ( lmIter != layerMaterialMap.end() ){
-        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
-        if ( lay.surfaceRepresentation().isFree() ) 
-           ATH_MSG_VERBOSE(displayBuffer.str() << "---[!] the Layer is not owned by the TrackingGeometry, could indicate problem.");
-	    else 
-           ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] the Layer is owned by the TrackingGeometry." ); 
-        lay.assignMaterialProperties(*((*lmIter).second));
+      ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
+      if ( lay.surfaceRepresentation().isFree() ) {
+        ATH_MSG_VERBOSE(displayBuffer.str() << "---[!] the Layer is not owned by the TrackingGeometry, could indicate problem.");
+      }
+      else{
+        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] the Layer is owned by the TrackingGeometry." ); 
+      }
+      (const_cast<Trk::Layer&>(lay)).assignMaterialProperties(*((*lmIter).second));
     } else {
-        ATH_MSG_WARNING(displayBuffer.str() << "---[!] could not find material for Layer with Index: " << lIndex.value());
-        return StatusCode::RECOVERABLE;
+      ATH_MSG_WARNING(displayBuffer.str() << "---[!] could not find material for Layer with Index: " << lIndex.value());
+      return StatusCode::RECOVERABLE;
     }
     return StatusCode::SUCCESS;
 }

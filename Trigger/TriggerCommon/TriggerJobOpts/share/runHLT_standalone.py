@@ -29,8 +29,6 @@ class opt:
     doID             = True           # ConfigFlags.Trigger.doID
     doCalo           = True           # ConfigFlags.Trigger.doCalo
     doMuon           = True           # ConfigFlags.Trigger.doMuon
-    doDBConfig       = None           # dump trigger configuration
-    trigBase         = None           # file name for trigger config dump
     doWriteRDOTrigger = False         # Write out RDOTrigger?
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
@@ -69,7 +67,7 @@ class opt:
     enabledSignatures = []
     disabledSignatures = []
     selectChains      = []
-
+    disableChains     = []
 
 #
 ################################################################################
@@ -118,11 +116,9 @@ for s in slices:
     signature = s[2:].replace('Slice', '')
 
     if eval('opt.'+s) is True:
-        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.enabledSignatures.append( enabledSig )
+        opt.enabledSignatures.append( signature )
     else:
-        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
-        opt.disabledSignatures.append( disabledSig )
+        opt.disabledSignatures.append( signature )
 
 #-------------------------------------------------------------
 # Setting Global Flags
@@ -241,11 +237,6 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 # Pass on the option enabling HLT selection algorithms
 ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
 
-# To extract the Trigger configuration
-TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
-if opt.trigBase is not None:
-    TriggerFlags.Online.doDBConfigBaseName = opt.trigBase
-
 # Setup list of modifiers
 # Common modifiers for MC and data
 setModifiers = ['noLArCalibFolders',
@@ -272,9 +263,9 @@ else:           # More data modifiers
                      'enableSchedulerMon'
     ]
 
-TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
-TriggerFlags.doMuon = ConfigFlags.Trigger.doMuon = opt.doMuon
-TriggerFlags.doCalo = ConfigFlags.Trigger.doCalo = opt.doCalo
+ConfigFlags.Trigger.doID = opt.doID
+ConfigFlags.Trigger.doMuon = opt.doMuon
+ConfigFlags.Trigger.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers
@@ -412,7 +403,7 @@ if ConfigFlags.Trigger.doCalo:
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
-    TriggerFlags.MuonSlice.doTrigMuonConfig=True
+    ConfigFlags.Muon.MuonTrigger=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
@@ -440,9 +431,6 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 if opt.setMenu:
     ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
-TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
-TriggerFlags.readLVL1configFromXML = True
-TriggerFlags.outputLVL1configFile = None
 
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
 generateL1Menu(ConfigFlags)
@@ -498,16 +486,11 @@ if not opt.createHLTMenuExternally:
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    # define the function that enable the signatures
-    def signaturesToGenerate():
-        TriggerFlags.Slices_all_setOff()
-        for sig in opt.enabledSignatures:
-            eval(sig)
+    def chainsToGenerate(signame, chain):
+        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
+                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
 
-    menu.overwriteSignaturesWith(signaturesToGenerate)
-
-    if (opt.selectChains):
-        menu.selectChainsForTesting = opt.selectChains
+    menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence

@@ -90,12 +90,13 @@ namespace LVL1 {
 
       for (int myrow = 0; myrow<rows; myrow++){
          for (int mycol = 0; mycol<cols; mycol++){
+            output_gTower_energies[myrow][mycol] = 0;
+            if (m_gTowersIDs_central[myrow][mycol] == 0) continue;
             const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
-            int et =  tmpTower->getET();
-            output_gTower_energies[myrow][mycol] = et;
+            if (tmpTower == nullptr) continue;
+            output_gTower_energies[myrow][mycol] = tmpTower->getET();
          }
       }
-
    }
 
    void gFEXFPGA::GetEnergyMatrix(gTowersForward & output_gTower_energies) const{
@@ -107,12 +108,13 @@ namespace LVL1 {
 
       for (int myrow = 0; myrow<rows; myrow++){
          for (int mycol = 0; mycol<cols; mycol++){
+            output_gTower_energies[myrow][mycol] = 0;
+            if (m_gTowersIDs_forward[myrow][mycol] == 0) continue;
             const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_forward[myrow][mycol]);
-            int et =  tmpTower->getET();
-            output_gTower_energies[myrow][mycol] = et;
+            if (tmpTower == nullptr) continue;
+            output_gTower_energies[myrow][mycol] = tmpTower->getET();
          }
       }
-
    }
 
 

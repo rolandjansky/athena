@@ -156,13 +156,13 @@ ROBJECTS  = \
         $(OBJDIR)/ConfVtxAnalysis.o  \
         $(OBJDIR)/PurityAnalysis.o \
         $(OBJDIR)/globals.o \
-        $(OBJDIR)/computils.o \
-        $(OBJDIR)/TagNProbe.o 	
+        $(OBJDIR)/computils.o
 
 LOBJECTS  = \
         $(OBJDIR)/TIDAEvent.o \
         $(OBJDIR)/Track.o \
         $(OBJDIR)/TIDAVertex.o   \
+        $(OBJDIR)/TIDAVertexNew.o   \
         $(OBJDIR)/TIDAChain.o   \
         $(OBJDIR)/TIDARoi.o   \
         $(OBJDIR)/TIDARoiParameters.o  \

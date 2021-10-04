@@ -1165,7 +1165,7 @@ void VP1CaloReadoutSystem::createHV() {
 	  const FCALDetectorManager *fcalManager=VP1DetInfo::fcalDetMgr();
 	  if (fcalManager) {
 	    FCALDetectorManager::ConstIterator e;
-	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  e++) {
+	    for (e=fcalManager->beginFCAL();e!=fcalManager->endFCAL();  ++e) {
 	      
 	      const FCALModule *fcalMod = *e;
 	      const HepGeom::Transform3D &xf =  Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1178,7 +1178,7 @@ void VP1CaloReadoutSystem::createHV() {
 	      int cc=0;
 	      
 	      FCALModule::ConstIterator   t;
-	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+	      for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 		
 		double zf = fcalMod->getEndcapIndex()== 0 ?  +fcalMod->getFullDepthZ(*t)/2.0 : -fcalMod->getFullDepthZ(*t)/2.0;
 		//		    double zc = 0;
@@ -1225,7 +1225,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMBDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMBDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
@@ -1325,7 +1325,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       EMECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 	const EMECDetectorRegion *region = *e;
 	const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
 
@@ -1407,7 +1407,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
     if (manager) {
 
       HECDetectorManager::DetectorRegionConstIterator e;
-      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  e++) {
+      for (e=manager->beginDetectorRegion();e!=manager->endDetectorRegion();  ++e) {
 
 
 	const HECDetectorRegion *region = *e;
@@ -1494,7 +1494,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
    const FCALDetectorManager * manager=VP1DetInfo::fcalDetMgr();
    if (manager) {
      FCALDetectorManager::ConstIterator e;
-     for (e=manager->beginFCAL();e!=manager->endFCAL();  e++) {
+     for (e=manager->beginFCAL();e!=manager->endFCAL();  ++e) {
 
        const FCALModule *fcalMod = *e;
        const HepGeom::Transform3D &xf = Amg::EigenTransformToCLHEP(fcalMod->getAbsoluteTransform());
@@ -1506,7 +1506,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
        SoSeparator *sep = new SoSeparator();
        sep->addChild(XF);
        FCALModule::ConstIterator   t;
-       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();t++) {
+       for (t=fcalMod->beginTiles();t!=fcalMod->endTiles();++t) {
 	 double x = t->getX();
 	 double y = t->getY();
 	 double dx = fcalMod->getFullWidthX(*t)/2.0;

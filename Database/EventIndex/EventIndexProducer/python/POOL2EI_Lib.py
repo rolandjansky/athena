@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
@@ -146,7 +146,6 @@ class POOL2EI(PyAthena.Alg):
             TriggerFlags.configurationSourceList=['ds']
             import AthenaPython.PyAthena as PyAthena
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
-            self.trigDec.ExperimentalAndExpertMethods().enable()
             if self.HaveXHlt:
                 self.trigDec.setProperty("ConfigTool","TrigConf::xAODConfigTool")
                 self.trigDec.setProperty("TrigDecisionKey","xTrigDecision")

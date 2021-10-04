@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigAnalysisTest )
@@ -10,7 +10,7 @@ find_package( ROOT COMPONENTS Core MathCore Hist RIO )
 set( extra_srcs )
 set( extra_libs )
 if( XAOD_STANDALONE )
-   set( extra_srcs Root/*.cxx )
+   set( extra_srcs Root/RootCoreTestHarness.cxx )
    set( extra_libs AsgTools xAODRootAccess TrigConfxAODLib )
 endif()
 

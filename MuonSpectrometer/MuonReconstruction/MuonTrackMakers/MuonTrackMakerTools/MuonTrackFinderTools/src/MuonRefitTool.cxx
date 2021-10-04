@@ -1337,16 +1337,15 @@ namespace Muon {
 
         TrkDriftCircleMath::DCSLFitter dcslFitter;
         TrkDriftCircleMath::SegmentFinder segFinder(5., 3., false);
-        if (!m_t0Fitter.empty()) { segFinder.setFitter(m_t0Fitter->getFitter()); }
+        if (!m_t0Fitter.empty()) { 
+            std::shared_ptr<const TrkDriftCircleMath::DCSLFitter> fitter(m_t0Fitter->getFitter(), Muon::IDCSLFitProvider::Unowned{});
+            segFinder.setFitter(fitter);       
+        }
         segFinder.debugLevel(m_finderDebugLevel);
         segFinder.setRecoverMDT(false);
 
         unsigned index = 0;
-        std::vector<const MdtDriftCircleOnTrack*>::const_iterator it = hits.begin();
-        std::vector<const MdtDriftCircleOnTrack*>::const_iterator it_end = hits.end();
-        for (; it != it_end; ++it) {
-            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*it);
-
+        for ( const MdtDriftCircleOnTrack* mdt: hits) {
             if (!mdt) { continue; }
             Identifier id = mdt->identify();
 
@@ -1360,7 +1359,7 @@ namespace Muon {
             }
             // calculate local AMDB position
             Amg::Vector3D locPos = gToStation * mdt->prepRawData()->globalPosition();
-            TrkDriftCircleMath::LocPos lpos(locPos.y(), locPos.z());
+            TrkDriftCircleMath::LocVec2D lpos(locPos.y(), locPos.z());
 
             double r = std::abs(mdt->localParameters()[Trk::locR]);
             double dr = Amg::error(mdt->localCovariance(), Trk::locR);
@@ -1373,9 +1372,8 @@ namespace Muon {
 
             // create new DriftCircle
             TrkDriftCircleMath::DriftCircle dc(lpos, r, 1., dr, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, mdt);
-            TrkDriftCircleMath::DCOnTrack dcOnTrack(dc, 1., 1.);
-            dcs.push_back(dc);
-            dcsOnTrack.push_back(dcOnTrack);
+            dcsOnTrack.emplace_back(dc, 1., 1.);
+            dcs.emplace_back(std::move(dc));
             indexIdMap.emplace_back(id, false);
 
             ++index;
@@ -1406,7 +1404,7 @@ namespace Muon {
 
         const Amg::Vector3D lpos = gToStation * pars.position();
 
-        TrkDriftCircleMath::LocPos segPos(lpos.y(), lpos.z());
+        TrkDriftCircleMath::LocVec2D segPos(lpos.y(), lpos.z());
         TrkDriftCircleMath::Line segPars(segPos, angleYZ);
 
         ATH_MSG_DEBUG("Seeding angles " << track_angleYZ << " from surf " << angleYZ << " ch angle " << chamber_angleYZ << " pos "

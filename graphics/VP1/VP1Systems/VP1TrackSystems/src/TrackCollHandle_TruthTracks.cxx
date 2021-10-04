@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -47,6 +47,7 @@
 
 #include <QStringList>
 #include <QTime>
+#include <QElapsedTimer>
 
 
 //____________________________________________________________________
@@ -425,7 +426,7 @@ bool TrackCollHandle_TruthTracks::load()
   int newBarCode(-1);
   std::map<SimBarCode,SimHitList> secondaryHitLists;
   messageVerbose("Sorting non-unique secondaries into lists of hits likely to originate from the same track.");
-  QTime timer;timer.start();
+  QElapsedTimer timer;timer.start();
   for (itHitList = hitLists.begin();itHitList!=itHitListEnd;) {
     if (itHitList->first.isNonUniqueSecondary()) {
        m_d->createSecondaryHitLists(itHitList->first,itHitList->second,secondaryHitLists,newBarCode);

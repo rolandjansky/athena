@@ -78,7 +78,7 @@ StatusCode TRTStrawCondAlg::execute()
 
   // ____________ Compute number of alive straws for Write Cond object  ____________
 
-  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); ++it ) {
 
    // Make sure it is a straw_layer id                                                                                                                   
    Identifier strawLayerId = m_trtId->layer_id(*it);

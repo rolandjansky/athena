@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -38,7 +38,7 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
     m_log(0), m_cafonly(0),
     m_storeGate("StoreGateSvc",myname),
     m_inputMetaStore("StoreGateSvc/InputMetaDataStore",myname),
-    m_configsvc("TrigConf::TrigConfigSvc/TrigConfigSvc",myname), //pickup previously configured configSvc from svcMgr (same as TDT)
+    m_configsvc("TrigConf::xAODConfigSvc/xAODConfigSvc",myname),
     m_tdthandle("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_configTool("") //defaults to empty
 {
@@ -65,14 +65,11 @@ StatusCode IHLTMonTool::initialize() {
   // retrieve the trigger decision tool
   ATH_CHECK(  m_tdthandle.retrieve() );
 
-  // After retrieve enable Expert methods
-  getTDT()->ExperimentalAndExpertMethods()->enable();
-
   ATH_CHECK( m_storeGate.retrieve() );
   ATH_CHECK( m_inputMetaStore.retrieve() );
 
   if(m_configTool.empty()){
-      ATH_MSG_INFO("No TrigConfigTool provided, using TrigConfigSvc (default)");
+      ATH_MSG_INFO("No TrigConfigTool provided, using " << m_configsvc);
       StatusCode sc = m_configsvc.retrieve();
       if ( sc.isFailure() ) {
           ATH_MSG_WARNING("Could not retrieve TrigConfigSvc - trying TrigConf::xAODConfigTool");
@@ -659,7 +656,7 @@ StatusCode IHLTMonTool::fillHistograms() {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
     // Require non-truncated HLTResult
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+    if(getTDT()->ExperimentalAndExpertMethods().isHLTTruncated()) {
       ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
     }
     else { 

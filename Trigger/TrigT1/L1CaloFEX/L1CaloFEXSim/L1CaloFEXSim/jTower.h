@@ -66,10 +66,12 @@ namespace LVL1 {
     int iPhi() const;
     float eta() {return m_eta;};
     float phi() {return m_phi;};
+    
     float eta() const {return m_eta;};
     float phi() const {return m_phi;};
     float centreEta() const {return m_centre_eta;}
     float centrePhi() const {return m_centre_phi;}
+    float centrephi_toPI() const {return m_centre_phi_toPI;}
     int fcalLayer() const {return m_fcal_layer;}
     
     void setEta(const float thiseta){ m_eta = thiseta; }
@@ -140,10 +142,12 @@ namespace LVL1 {
   private:
     float m_eta;
     float m_phi;
+    
     int m_tower_id;
     int m_posneg = 0;
     float m_centre_eta =0;
     float m_centre_phi =0;
+    float m_centre_phi_toPI=0;
     std::vector<Identifier> m_EM_scID;
     std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    

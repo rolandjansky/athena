@@ -103,12 +103,12 @@ def TrigGeneralMonConfig(inputFlags):
     ###########################################################
     ##### HLTResult and ConfigConsistency  ####################
   
-    hltGroup.defineHistogram('HLTResultHLT', title='HLT Result PLACEHOLDER;result;Events',
-                             path='',xbins=3,xmin=0,xmax=3)
+    hltGroup.defineHistogram('HLTEvents', title='HLT events;HLT;Events',
+                             path='',xbins=2,xmin=0,xmax=2)
 
-    consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No HLTResult']
+    consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No onlineKeys','No eventKeys']
     hltGroup.defineHistogram('ConfigConsistency_HLT', title='ConfigConsistency_HLT;;Events',
-                             path='',xbins=7,xmin=1,xmax=8,xlabels=consistency_names)
+                             path='',xbins=8,xmin=1,xmax=9,xlabels=consistency_names)
 
  
     ############################################################
@@ -122,18 +122,18 @@ def TrigGeneralMonConfig(inputFlags):
     counter_i = 1
     for chain_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['HLTChains']:
         counter_i = counter_i+1
-        log_trighlt.debug('HLT chain_name = %s',chain_name)
+        log_trighlt.debug('HLT chain_name = %s',chain_name) 
     max_hlt_chains = counter_i-1
-    log_trighlt.debug('max_hlt_chains = %i', max_hlt_chains)
+    log_trighlt.debug('max_hlt_chains = %i', max_hlt_chains) 
 
 
     ## The L1 items
     counter_L1 = 1
     for item_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['L1Items']:
         counter_L1 = counter_L1+1
-        log_trighlt.debug('L1 item_name = %s',item_name)
+        log_trighlt.debug('L1 item_name = %s',item_name) 
     max_L1_items = counter_L1-1 
-    log_trighlt.debug('max_L1_items = %i', max_L1_items)
+    log_trighlt.debug('max_L1_items = %i', max_L1_items) 
 
 
     ##### L1 summary histogram ################################

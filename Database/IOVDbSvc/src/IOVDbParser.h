@@ -20,7 +20,7 @@ class IOVDbParser {
 public:
 
   IOVDbParser() = delete; 
-  IOVDbParser(const std::string& input, MsgStream& log);
+  IOVDbParser( std::string_view input, MsgStream& log);
   bool isValid() const;
   ///'at' accessor with an optional default; the bool is true if the key was found
   std::pair<std::string, bool>

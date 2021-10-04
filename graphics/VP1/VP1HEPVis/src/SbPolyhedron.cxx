@@ -1478,7 +1478,10 @@ SbPolyhedronCons::SbPolyhedronCons(double Rmn1,
   if (Rmn1 > Rmx1 || Rmn2 > Rmx2)                              k = 1;
   if (Rmn1 == Rmx1 && Rmn2 == Rmx2)                            k = 1;
 
-  if (Dz <= 0.) k += 2;
+  // We can get this from the tracking geometry.  Don't complain.
+  if (Dz == 0) return;
+
+  if (Dz < 0.) k += 2;
 
   double phi1, phi2, dphi;
   if (Dphi < 0.) {
@@ -1981,7 +1984,7 @@ void SbPolyhedronPolygonXSect::Internals::setData(const std::vector<double> * xx
 {
   n = xx->size();
   ntriangles = n-2;
-  assert (n==yy->size()&&n>3);//fixme n>2, and special code for n==3.
+  assert (n==yy->size()&&n>2);//fixme n>2, and special code for n==3.
   dz = the_dz;
   x = xx;
   y = yy;

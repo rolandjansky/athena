@@ -18,12 +18,9 @@
 // constructor
 Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_propagator(""),
   m_pathLimitTolerance(0.01)
 {
     declareInterface<Trk::IPropagationEngine>(this);
-    // configure the Propagator
-    declareProperty("Propagator"                            , m_propagator);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);

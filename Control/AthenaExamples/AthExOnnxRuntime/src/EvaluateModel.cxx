@@ -2,12 +2,12 @@
 
 // Local include(s).
 #include "EvaluateModel.h"
+#include <tuple>
 
 // Framework include(s).
 #include "PathResolver/PathResolver.h"
-#include "AthOnnxruntimeUtils/FlattenInput.h"
+#include "AthOnnxruntimeUtils/OnnxUtils.h"
 
-//class AthONNX::FlattenInput;
 namespace AthONNX {
 
    //*******************************************************************
@@ -68,7 +68,7 @@ namespace AthONNX {
    StatusCode EvaluateModel::initialize() {
 
       // Access the service.
-      ATH_CHECK( m_svc.retrieve() );
+      //ATH_CHECK( m_svc.retrieve() );
 
       /*****
        The combination of no. of batches and batch size shouldn't cross 
@@ -89,13 +89,8 @@ namespace AthONNX {
       ATH_MSG_INFO( "Using pixel file: " << pixelFileName );
       ATH_MSG_INFO( "Using pixel file: " << labelFileName );
       // Set up the ONNX Runtime session.
-      Ort::SessionOptions sessionOptions;
-      sessionOptions.SetIntraOpNumThreads( 1 );
-      sessionOptions.SetGraphOptimizationLevel( ORT_ENABLE_BASIC );
-      Ort::AllocatorWithDefaultOptions allocator;  
-      m_session = std::make_unique< Ort::Session >( m_svc->env(),
-                                                    modelFileName.c_str(),
-                                                    sessionOptions );
+  
+      m_session = AthONNX::CreateORTSession(modelFileName);
       ATH_MSG_INFO( "Created the ONNX Runtime session" );
       m_input_tensor_values_notFlat = read_mnist_pixel_notFlat(pixelFileName);
       std::vector<std::vector<float>> c = m_input_tensor_values_notFlat[0];
@@ -107,51 +102,42 @@ namespace AthONNX {
    StatusCode EvaluateModel::execute( const EventContext& /*ctx*/ ) const {
      
      Ort::AllocatorWithDefaultOptions allocator;
-     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+  
      /************************** Input Nodes *****************************/
      /*********************************************************************/
-     std::vector<int64_t> input_node_dims;
-     size_t num_input_nodes = m_session->GetInputCount();
-     std::vector<const char*> input_node_names(num_input_nodes);
-     for( std::size_t i = 0; i < num_input_nodes; i++ ) {
+     
+     std::tuple<std::vector<int64_t>, std::vector<const char*> > inputInfo = AthONNX::GetInputNodeInfo(m_session);
+     std::vector<int64_t> input_node_dims = std::get<0>(inputInfo);
+     std::vector<const char*> input_node_names = std::get<1>(inputInfo);
+     
+     for( std::size_t i = 0; i < input_node_names.size(); i++ ) {
         // print input node names
-        char* input_name = m_session->GetInputName(i, allocator);
-        ATH_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_name);
-        input_node_names[i] = input_name;
-        Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
-        auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
+        ATH_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_node_names[i]);
+   
         // print input shapes/dims
-        input_node_dims = tensor_info.GetShape();
         ATH_MSG_DEBUG("Input "<<i<<" : num_dims= "<<input_node_dims.size());
         for (std::size_t j = 0; j < input_node_dims.size(); j++){
            ATH_MSG_DEBUG("Input "<<i<<" : dim "<<j<<"= "<<input_node_dims[j]);
-          }  
+          }
        }
-    
+
      /************************** Output Nodes *****************************/
      /*********************************************************************/
-     //output nodes
-     std::vector<int64_t> output_node_dims;
-     size_t num_output_nodes = m_session->GetOutputCount();
-     std::vector<const char*> output_node_names(num_output_nodes);
+     
+     std::tuple<std::vector<int64_t>, std::vector<const char*> > outputInfo = AthONNX::GetOutputNodeInfo(m_session);
+     std::vector<int64_t> output_node_dims = std::get<0>(outputInfo);
+     std::vector<const char*> output_node_names = std::get<1>(outputInfo);
 
-     for( std::size_t i = 0; i < num_output_nodes; i++ ) {
-     // print output node names
-        char* output_name = m_session->GetOutputName(i, allocator);
-        ATH_MSG_DEBUG("Output "<<i<<" : "<<" name= "<<output_name);
-        output_node_names[i] = output_name;
+     for( std::size_t i = 0; i < output_node_names.size(); i++ ) {
+        // print input node names
+        ATH_MSG_DEBUG("Output "<<i<<" : "<<" name= "<<output_node_names[i]);
 
-        Ort::TypeInfo type_info = m_session->GetOutputTypeInfo(i);
-        auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-
-      // print output shapes/dims
-        output_node_dims = tensor_info.GetShape();
+        // print input shapes/dims
         ATH_MSG_DEBUG("Output "<<i<<" : num_dims= "<<output_node_dims.size());
         for (std::size_t j = 0; j < output_node_dims.size(); j++){
-        	ATH_MSG_DEBUG("Output "<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
-       }  
-      }
-
+           ATH_MSG_DEBUG("Output "<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
+          }
+       }
     /************************* Score if input is not a batch ********************/
     /****************************************************************************/
      if(m_doBatches == false){
@@ -175,11 +161,8 @@ namespace AthONNX {
         ATH_MSG_DEBUG("Size of Flatten Input tensor: "<<flatten.size());
 
      	/************** Create input tensor object from input data values to feed into your model *********************/
-     	Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, 
-                                                                  flatten.data(), 
-                                                                  flatten.size(),  /*** 1x28x28 = 784 ***/ 
-                                                                  input_node_dims.data(), 
-                                                                  input_node_dims.size());     /*** [1, 28, 28] = 3 ***/
+        
+        Ort::Value input_tensor = AthONNX::TensorCreator(flatten, input_node_dims );
 
         /********* Convert 784 elements long flattened 1D array to 3D (1, 28, 28) onnx compatible tensor ************/
         ATH_MSG_DEBUG("Input tensor size after converted to Ort tensor: "<<input_tensor.GetTensorTypeAndShapeInfo().GetShape());     	
@@ -188,17 +171,8 @@ namespace AthONNX {
      		input_tensor.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims);
 
      	/********* Score model by feeding input tensor and get output tensor in return *****************************/
-        auto output_tensor = m_session->Run(Ort::RunOptions{nullptr}, 
-                                             input_node_names.data(), 
-                                             &input_tensor, 
-                                             input_node_names.size(),      /** 1, flatten_input:0 **/ 
-                                             output_node_names.data(), 
-                                             output_node_names.size());    /** 1, dense_1/Softmax:0 **/
 
-        assert(output_tensor.size() == output_node_names.size() && output_tensor.front().IsTensor());
-  
-     	// Get pointer to output tensor float values
-     	float* floatarr = output_tensor.front().GetTensorMutableData<float>();
+        float* floatarr = AthONNX::Inference(m_session, input_node_names, input_tensor, output_node_names); 
 
      	// show  true label for the test input
      	ATH_MSG_INFO("Label for the input test data  = "<<output_tensor_values);
@@ -240,32 +214,11 @@ namespace AthONNX {
         		batch_input_tensor_values.insert(batch_input_tensor_values.end(), flattened_input.begin(), flattened_input.end());
         	}   
 
-        	Ort::Value batch_input_tensors = Ort::Value::CreateTensor<float>(memory_info,
-                                                                      batch_input_tensor_values.data(),
-                                                                      batch_input_tensor_values.size(), /*** 5x28x28 = 3920 ***/
-                                                                      input_node_dims.data(),
-                                                                      input_node_dims.size());         /*** [5, 28, 28] = 3 ***/
+                Ort::Value batch_input_tensors = AthONNX::TensorCreator(batch_input_tensor_values, input_node_dims );
 
-                assert(batch_input_tensors.IsTensor()&&
-                	batch_input_tensors.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims);
-   
-        	auto batch_output_tensors = m_session->Run(Ort::RunOptions{nullptr}, 
-                                                   input_node_names.data(), 
-                                                   &batch_input_tensors, 
-                                                   input_node_names.size(),    /** 1, flatten_input:0 **/
-                                                   output_node_names.data(), 
-                                                   output_node_names.size());  /** 1, dense_1/Softmax:0 **/  
- 
-      		assert(batch_output_tensors.size() == output_node_names.size() &&
-                       !batch_output_tensors.empty() &&
-             		batch_output_tensors[0].IsTensor() &&
-             		batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] == m_sizeOfBatch);
-        
 		// Get pointer to output tensor float values
 
-        	ATH_MSG_DEBUG("output vector size: "<<batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape());
-        	float* floatarr = batch_output_tensors.front().GetTensorMutableData<float>();
-     
+                float* floatarr = AthONNX::Inference(m_session, input_node_names, batch_input_tensors, output_node_names);
      		// show  true label for the test input
 		for(int i = l; i<l+m_sizeOfBatch; i++){
      			ATH_MSG_INFO("Label for the input test data  = "<<m_output_tensor_values[i]);

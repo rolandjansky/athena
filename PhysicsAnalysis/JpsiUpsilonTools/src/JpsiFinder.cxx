@@ -92,8 +92,10 @@ namespace Analysis {
             illogicalOptions=true;
         };
         if ( (m_sameChOnly && m_doTagAndProbe) || (m_allChCombs && m_doTagAndProbe) ) {
-            ATH_MSG_WARNING("You are requesting same-sign or all-sign combinations in a tag and probe analysis. This doesn't make sense. JpsiCandidates will be EMPTY!");
-            illogicalOptions=true;
+            if (!m_forceTagAndProbe){ //if m_forceTagAndProbe=TRUE then T&P will work with any charge combinations
+                ATH_MSG_WARNING("You are requesting same-sign or all-sign combinations in a tag and probe analysis. This doesn't make sense. JpsiCandidates will be EMPTY!");
+                illogicalOptions=true;
+            }
         }
         if (illogicalOptions) return StatusCode::FAILURE;;
 
@@ -133,7 +135,8 @@ namespace Analysis {
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_mcpCuts(true),
-    m_doTagAndProbe(false)
+    m_doTagAndProbe(false),
+    m_forceTagAndProbe(false) //forcing T&P method for any charge combinations
     
     {
         declareInterface<JpsiFinder>(this);
@@ -166,6 +169,7 @@ namespace Analysis {
         declareProperty("useMCPCuts",m_mcpCuts);
         declareProperty("doTagAndProbe",m_doTagAndProbe);
         declareProperty("MuonTrackKeys",m_MuonTrackKeys);
+        declareProperty("forceTagAndProbe",m_forceTagAndProbe);
     }
     
     JpsiFinder::~JpsiFinder() { }

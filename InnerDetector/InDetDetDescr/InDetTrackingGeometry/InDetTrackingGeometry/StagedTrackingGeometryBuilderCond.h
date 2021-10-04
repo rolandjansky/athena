@@ -213,9 +213,14 @@ namespace InDet {
 
       /** helper method needed for the Ring layout */
       void checkForInsert(std::vector<double>& radii, double radius) const;
+      void checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const;
+      
+      /** Private helper method for merging of rings with z-overlap */
+      std::vector<const Trk::Layer*> checkZoverlap(std::vector<const Trk::Layer*>& lays) const; 
+      const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
 
       // helper tools for the geometry building
-      ToolHandleArray<Trk::ILayerProviderCond>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
+      ToolHandleArray<Trk::ILayerProviderCond>       m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
       ToolHandle<Trk::ITrackingVolumeCreator>        m_trackingVolumeCreator;   //!< Helper Tool to create TrackingVolumes
       ToolHandle<Trk::ILayerArrayCreator>            m_layerArrayCreator;       //!< Helper Tool to create BinnedArrays
 
@@ -261,6 +266,30 @@ namespace InDet {
       if (!exists) radii.push_back(radius);
       // re-sort
       std::sort(radii.begin(),radii.end());   
+  }
+  
+  inline void StagedTrackingGeometryBuilderCond::checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const {
+
+    // range into non-overlapping layers
+
+    if (!radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    
+    unsigned int ir=0;
+    while ( ir != radii.size() && rmin > radii[ir].second ) ir++;
+
+    if (ir==radii.size()) radii.push_back(std::pair<double,double>(rmin,rmax));
+    // insert ?
+    else if (rmax<radii[ir].first) radii.insert(radii.begin()+ir,std::pair<double,double>(rmin,rmax));
+    // overlaps
+    else {
+      // resolve low edge
+      if (rmin<radii[ir].first) radii[ir].first=rmin;
+      // resolve upper edge
+      unsigned int imerge = ir;
+      while (imerge<radii.size()-1 && rmax>radii[imerge+1].first) imerge++;
+      radii[ir].second = rmax > radii[imerge].second ? rmax : radii[imerge].second;
+      if (imerge>ir) radii.erase(radii.begin()+ir+1,radii.begin()+imerge);       
+    }
   }
 
 

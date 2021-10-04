@@ -13,14 +13,15 @@ namespace AFPMon {
 
 struct AFPCluster 
 {
-	AFPCluster(float x_, float y_, float z_, int s, int l)
-        : x {x_}, y {y_}, z {z_}, station {s}, layer {l} {}
+	AFPCluster(float x_, float y_, float z_, int s, int l, int sumToT_)
+        : x {x_}, y {y_}, z {z_}, station {s}, layer {l}, sumToT{sumToT_} {}
 
 	float x;
 	float y;
 	float z;
 	int station;
 	int layer;
+	int sumToT;
  };
 
 inline bool operator==(const AFPCluster& lhs, const AFPCluster& rhs) 
@@ -30,6 +31,7 @@ inline bool operator==(const AFPCluster& lhs, const AFPCluster& rhs)
 	if (lhs.z != rhs.z) return false;
 	if (lhs.station != rhs.station) return false;
 	if (lhs.layer != rhs.layer) return false;
+	if (lhs.sumToT != rhs.sumToT) return false;
 
 	return true;
 }

@@ -23,7 +23,7 @@ namespace LVL1 {
   class jFEXOutputCollection
   {
   public:
-    jFEXOutputCollection() {};
+    jFEXOutputCollection();
     ~jFEXOutputCollection();
     void clear();
     void addValue_smallRJet(std::string, int);
@@ -34,23 +34,26 @@ namespace LVL1 {
     void fill_tau();
     void addValue_pileup(std::string, int);
     void fill_pileup();
-    int SRsize();
-    int LRsize();
-    int tausize();
-    int pileupsize();
-    std::map<std::string, int>* get_smallRJet(int);
-    std::map<std::string, int>* get_largeRJet(int);
-    std::map<std::string, int>* get_tau(int);
-    std::map<std::string, int>* get_pileup(int);
+    int SRsize() const;
+    int LRsize() const;
+    int tausize() const;
+    int pileupsize() const;
+    void setdooutput(bool);
+    bool getdooutput() const;
+    std::unordered_map<std::string, int>* get_smallRJet(int) const;
+    std::unordered_map<std::string, int>* get_largeRJet(int) const;
+    std::unordered_map<std::string, int>* get_tau(int) const;
+    std::unordered_map<std::string, int>* get_pileup(int) const;
   private:
-    std::map<std::string, int> m_values_tem_smallRJet;
-    std::vector<std::map<std::string, int>*> m_allvalues_smallRJet;
-    std::map<std::string, int> m_values_tem_largeRJet;
-    std::vector<std::map<std::string, int>*> m_allvalues_largeRJet;
-    std::map<std::string, int> m_values_tem_tau;
-    std::vector<std::map<std::string, int>*> m_allvalues_tau;
-    std::map<std::string, int> m_values_tem_pileup;
-    std::vector<std::map<std::string, int>*> m_allvalues_pileup;
+    bool m_dooutput;
+    std::unordered_map<std::string, int> m_values_tem_smallRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_smallRJet;
+    std::unordered_map<std::string, int> m_values_tem_largeRJet;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_largeRJet;
+    std::unordered_map<std::string, int> m_values_tem_tau;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_tau;
+    std::unordered_map<std::string, int> m_values_tem_pileup;
+    std::vector<std::unordered_map<std::string, int>*> m_allvalues_pileup;
   };
 }
 CLASS_DEF(LVL1::jFEXOutputCollection, 1317184196 , 1 )

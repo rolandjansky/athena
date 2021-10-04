@@ -7,14 +7,6 @@ from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 _flags = []
 
-class doTrackingApproach(JobProperty):
-    """ Use tracking approach in Tau Trigger """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-    
-_flags.append(doTrackingApproach)
-
 class signatures(JobProperty):
     """ signatures in Tau slice """
     statusOn=True

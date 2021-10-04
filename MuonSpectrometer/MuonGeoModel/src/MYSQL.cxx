@@ -11,6 +11,7 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 namespace MuonGM {
 
@@ -51,7 +52,7 @@ namespace MuonGM {
         return s_thePointer;
     }
 
-    Station *MYSQL::GetStation(std::string name) {
+    Station *MYSQL::GetStation(const std::string& name) {
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
         if (log.level() <= MSG::VERBOSE) {
             log << MSG::VERBOSE << " looking for station " << name << endmsg;
@@ -67,7 +68,7 @@ namespace MuonGM {
         }
     }
 
-    Position MYSQL::GetStationPosition(std::string nameType, int fi, int zi) {
+    Position MYSQL::GetStationPosition(const std::string& nameType, int fi, int zi) {
         Position p;
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
         if (log.level() <= MSG::VERBOSE) {
@@ -90,7 +91,7 @@ namespace MuonGM {
         return p;
     }
 
-    TgcReadoutParams *MYSQL::GetTgcRPars(std::string name) {
+    TgcReadoutParams *MYSQL::GetTgcRPars(const std::string& name) {
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
         if (log.level() <= MSG::VERBOSE) {
             log << MSG::VERBOSE << "MYSQL::GetTgcRPars looking for a TgcRPars named <" << name << ">" << endmsg;
@@ -112,7 +113,7 @@ namespace MuonGM {
         return m_tgcReadout[jsta - 1];
     }
 
-    Technology *MYSQL::GetTechnology(std::string name) {
+    Technology *MYSQL::GetTechnology(const std::string& name) {
         std::map<std::string, Technology *>::const_iterator it = m_technologies.find(name);
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
@@ -189,7 +190,7 @@ namespace MuonGM {
         }
     }
 
-    Technology *MYSQL::GetATechnology(std::string name) {
+    Technology *MYSQL::GetATechnology(const std::string& name) {
         std::map<std::string, Technology *>::const_iterator it = m_technologies.find(name);
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
 
@@ -219,7 +220,7 @@ namespace MuonGM {
         }
     }
 
-    std::string MYSQL::allocPosBuildKey(std::string statType, int fi, int zi) {
+    std::string MYSQL::allocPosBuildKey(const std::string& statType, int fi, int zi) {
         std::ostringstream mystream;
         mystream << statType << "fi" << MuonGM::buildString(fi, 1) << "zi" << MuonGM::buildString(zi, -1);
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
@@ -229,22 +230,22 @@ namespace MuonGM {
         return mystream.str();
     }
 
-    allocPosIterator MYSQL::allocPosFind(std::string statType, int fi, int zi) {
+    allocPosIterator MYSQL::allocPosFind(const std::string& statType, int fi, int zi) {
         std::string key = allocPosBuildKey(statType, fi, zi);
         return allocPosFind(key);
     }
 
-    int MYSQL::allocPosFindSubtype(std::string statType, int fi, int zi) {
+    int MYSQL::allocPosFindSubtype(const std::string& statType, int fi, int zi) {
         std::string key = allocPosBuildKey(statType, fi, zi);
         return allocPosFindSubtype(key);
     }
 
-    int MYSQL::allocPosFindCutout(std::string statType, int fi, int zi) {
+    int MYSQL::allocPosFindCutout(const std::string& statType, int fi, int zi) {
         std::string key = allocPosBuildKey(statType, fi, zi);
         return allocPosFindCutout(key);
     }
 
-    void MYSQL::addallocPos(std::string statType, int fi, int zi, int subtyp, int cutout) {
+    void MYSQL::addallocPos(const std::string& statType, int fi, int zi, int subtyp, int cutout) {
         std::string key = allocPosBuildKey(statType, fi, zi);
         addallocPos(key, subtyp, cutout);
     }

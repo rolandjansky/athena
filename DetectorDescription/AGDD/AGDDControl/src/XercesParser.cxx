@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XercesParser.h"
@@ -23,8 +23,6 @@
 
 using namespace xercesc;
 
-DOMNode* XercesParser::s_currentElement=0;
-
 XercesParser::~XercesParser()
 {
 	delete m_parser;
@@ -34,13 +32,13 @@ XercesParser::~XercesParser()
 
 XercesParser::XercesParser():IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false) {}
 
-XercesParser::XercesParser(std::string s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false) {}
+XercesParser::XercesParser(const std::string& s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false) {}
 
-bool XercesParser::ParseFile(std::string s)
+bool XercesParser::ParseFile(const std::string& s_in)
 {
 	bool errorsOccured = false;
-    m_fileName=s;
-	s=PathResolver::find_file(s,"XMLPATH",PathResolver::RecursiveSearch);
+        m_fileName=s_in;
+        std::string s=PathResolver::find_file(s_in,"XMLPATH",PathResolver::RecursiveSearch);
 	if (s.empty()) {
 		MsgStream log(Athena::getMessageSvc(), "XercesParser");
 		log<<MSG::WARNING<<"ParseFile() - something wrong, could not find XML file "<<s<<endmsg;
@@ -88,14 +86,15 @@ bool XercesParser::ParseFile(std::string s)
 	}
     return errorsOccured;
 }
-bool XercesParser::ParseFileAndNavigate(std::string s)
+bool XercesParser::ParseFileAndNavigate(AGDDController& c,
+                                        const std::string& s)
 {
     bool errorOccured = ParseFile(s);
     if (errorOccured) return false;
-	navigateTree();
+	navigateTree(c);
 	return true;
 }
-bool XercesParser::ParseString(std::string s)
+bool XercesParser::ParseString(const std::string& s)
 {
 	const char* str=s.c_str();
 	static const char* memBufID="prodInfo";
@@ -139,14 +138,15 @@ bool XercesParser::ParseString(std::string s)
 	m_doc=m_parser->getDocument();
 	return errorsOccured;
 }
-bool XercesParser::ParseStringAndNavigate(std::string s)
+bool XercesParser::ParseStringAndNavigate(AGDDController& c,
+                                          const std::string& s)
 {
     bool errorOccured = ParseString(s);
-	if (!errorOccured) navigateTree();
-	return true;
+    if (!errorOccured) navigateTree(c);
+    return true;
 }
 
-bool XercesParser::WriteToFile(std::string s)
+bool XercesParser::WriteToFile(const std::string& s)
 {
 	XMLCh tempStr[100];
 	XMLString::transcode("LS 3.0 Core 2.0", tempStr, 99);
@@ -170,7 +170,7 @@ bool XercesParser::WriteToFile(std::string s)
 	return true;
 }
 
-void XercesParser::navigateTree()
+void XercesParser::navigateTree(AGDDController& c)
 {
     if (!m_doc) {
         MsgStream log(Athena::getMessageSvc(), "XercesParser");
@@ -180,13 +180,13 @@ void XercesParser::navigateTree()
     DOMNode* node = 0;
     node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
     if( !node ) throw;
-    s_currentElement=node;
-    elementLoop(node);
+    elementLoop(c, node);
 }
 
 void XercesParser::elementLoop() {}
 
-void XercesParser::elementLoop(DOMNode *e)
+void XercesParser::elementLoop(AGDDController& c,
+                               DOMNode *e)
 {
 	if (!e) {
 		MsgStream log(Athena::getMessageSvc(), "XercesParser");
@@ -194,12 +194,11 @@ void XercesParser::elementLoop(DOMNode *e)
 		return;
 	}
 	if (!(e->getNodeType()==DOMNode::ELEMENT_NODE)) return;
-	s_currentElement=e;
 	XMLHandler *h=XMLHandlerStore::GetHandlerStore()->GetHandler(e);
 	bool stopLoop=false;
 	if (h)
 	{
-		h->Handle(e);
+		h->Handle(c, e);
 		stopLoop=h->IsLoopToBeStopped();
 	}
 	DOMNode *child;
@@ -212,7 +211,7 @@ void XercesParser::elementLoop(DOMNode *e)
 		for (child=e->getFirstChild();child!=0;child=child->getNextSibling())
 		{
 			if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-				elementLoop(child);
+				elementLoop(c, child);
 			}
 		}
 	}

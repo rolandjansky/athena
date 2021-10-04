@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,12 +20,12 @@
 #include "MuonGeoModel/MMSpacerComponent.h"
 #include "MuonGeoModel/MMSpacer.h"
 
-void AGDDMMSpacer::CreateSolid() 
+void AGDDMMSpacer::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 //	std::cout<<"this is AGDDMMSpacer::CreateSolid()"<<std::endl;
 }
 
-void AGDDMMSpacer::CreateVolume() 
+void AGDDMMSpacer::CreateVolume (const AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMMSpacer::CreateVolume()"<<std::endl;
 	
@@ -38,7 +38,7 @@ void AGDDMMSpacer::CreateVolume()
 	MuonGM::MMSpacer cham(mm_comp);
 	GeoPhysVol *vvv=cham.build(1);
 
-	CreateSolid();
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{

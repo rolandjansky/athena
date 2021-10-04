@@ -226,7 +226,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   for (const auto& trigger : triggers) {
     ATH_MSG_DEBUG("Considering " << trigger );
     const bool isHLT = (getLevel(trigger) == 2); 
-    const auto trigConf = (isHLT ? m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger) : nullptr);
+    const auto trigConf = (isHLT ? m_tdt->ExperimentalAndExpertMethods().getChainConfigurationDetails(trigger) : nullptr);
     if (isHLT && !trigConf) {
       ATH_MSG_ERROR("Problem with TDT trig conf - cannot get details for " << trigger << ", will be ignored.");
       continue;
@@ -326,7 +326,7 @@ StatusCode RatesAnalysisAlg::checkExistingTrigger(const std::string& name, const
   }
   if (getLevel(name) == 1) return StatusCode::SUCCESS;
   // L1 items will crash if we call this on them.
-  const auto trigConf = m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(triggers.at(0));
+  const auto trigConf = m_tdt->ExperimentalAndExpertMethods().getChainConfigurationDetails(triggers.at(0));
   if (trigConf->lower_chain_name() != seedName) {
     ATH_MSG_FATAL("Tried to register an existing trigger '" << name << "' seeding from '" << seedName << "' but in this AOD it seeds from '" << trigConf->lower_chain_name() << "'");
     return StatusCode::FAILURE;
@@ -365,7 +365,6 @@ StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   ATH_CHECK( m_tdt.retrieve() );
-  m_tdt->ExperimentalAndExpertMethods()->enable();
 
   if(!m_configSvc.empty()) {
     ATH_CHECK( m_configSvc.retrieve() );

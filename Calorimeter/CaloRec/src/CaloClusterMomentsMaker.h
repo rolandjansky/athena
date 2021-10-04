@@ -34,8 +34,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class CaloDetDescrManager; 
-class CaloDetDescrElement;
 class CaloCell_ID;
 
 #include "CaloRec/CaloClusterCollectionProcessor.h"

@@ -75,7 +75,7 @@ def getEventShapeName( parentjetdef, inputspec):
     return nameprefix+"Kt4"+label+"EventShape"
 
 
-def buildEventShapeAlg( parentjetdef, inputspec, voronoiRf = 0.9 ):
+def buildEventShapeAlg( parentjetdef, inputspec, voronoiRf = 0.9, radius = 0.4 ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
     
@@ -88,7 +88,7 @@ def buildEventShapeAlg( parentjetdef, inputspec, voronoiRf = 0.9 ):
         rhotoolname,
         InputContainer = "PseudoJet"+label, # same as in PseudoJet algs
         OutputContainer = rhokey,
-        JetRadius = parentjetdef.radius,
+        JetRadius = radius,
         UseFourMomArea = True,
         VoronoiRfact = voronoiRf,
         JetAlgorithm = "Kt",)

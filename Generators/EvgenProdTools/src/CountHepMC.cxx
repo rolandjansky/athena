@@ -69,7 +69,7 @@ StatusCode CountHepMC::execute() {
       McEventCollection* newmcEvtColl = new McEventCollection(*oldmcEvtColl);
       McEventCollection::iterator evt = newmcEvtColl->begin();
       HepMC::GenEvent* hepMC = *evt;
-      hepMC->set_event_number(newnum);
+      HepMC::set_ll_event_number(hepMC, newnum);
       CHECK(evtStore()->overwrite( newmcEvtColl, key));
     }
     else{

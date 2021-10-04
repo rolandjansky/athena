@@ -107,6 +107,12 @@ class ConfigDBLoader(ConfigLoader):
         # now get the account and pw for oracle connections
         credentials = odict().fromkeys(listOfServices)
         authFile = ConfigDBLoader.getResolvedFileName("authentication.xml", "CORAL_AUTH_PATH")
+
+        for svc in filter(lambda s : s.startswith("frontier:"), listOfServices):
+            credentials[svc] = dict()
+            credentials[svc]["user"] = svc
+            credentials[svc]["password"] = ""
+
         for svc in filter(lambda s : s.startswith("oracle:"), listOfServices):
             ap = ET.parse(authFile)
             count = 0
@@ -125,19 +131,29 @@ class ConfigDBLoader(ConfigLoader):
                 if connSvc.startswith("oracle:"):
                     from cx_Oracle import connect
                     [tns,schema] = connSvc.split("/")[-2:]
-                    connection = connect(userpw["user"], userpw["password"], tns, threaded=False)
+                    cursor = connect(userpw["user"], userpw["password"], tns, threaded=False).cursor()
                 elif connSvc.startswith("frontier:"):
-                    raise NotImplementedError("Python-loading of trigger configuration from Frontier has not yet been implemented")
+                    import re, os
+                    pattern = r"frontier://ATLF/\(\)/(.*)"
+                    m = re.match(pattern,connSvc)
+                    if not m:
+                        raise RuntimeError("connection string '%s' doesn't match the pattern '%s'?" % (connSvc, pattern))
+                    (schema, ) = m.groups()
+
+                    from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
+                    cursor = getFrontierCursor(urls = os.getenv('FRONTIER_SERVER', None), schema = schema, loglevel=2)
+                    cursor.encoding = "latin-1"
                 elif connSvc.startswith("sqlite_file:"):
                     raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
-                return connection, schema
+                return cursor, schema
             except Exception as e:
                 raise RuntimeError(e)
+
+
     def load(self):
         from cx_Oracle import DatabaseError
         credentials = ConfigDBLoader.getConnectionParameters(self.dbalias)
-        connection, self.schema = ConfigDBLoader.getConnection(credentials)
-        cursor = connection.cursor()
+        cursor, self.schema = ConfigDBLoader.getConnection(credentials)
         qdict = { "schema" : self.schema, "dbkey" : self.dbkey }
         failures = []
         config = None
@@ -148,7 +164,10 @@ class ConfigDBLoader(ConfigLoader):
                 failures += [ (q.format(**qdict), str(e)) ]
             else:
                 configblob = cursor.fetchall()[0][0]
-                config = json.loads(configblob.read().decode("utf-8"), object_pairs_hook = odict)
+                # Decode oracle result
+                if type(configblob) != str:
+                    configblob = configblob.read().decode("utf-8")
+                config = json.loads(configblob, object_pairs_hook = odict)
                 break
         if not config:
             for q,f in failures:

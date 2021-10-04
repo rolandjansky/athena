@@ -172,21 +172,12 @@ inline void
 Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume &tvol) {
   m_enclosingDetachedTrackingVolume = &(tvol);
 }
-inline void Layer::encloseDetachedTrackingVolume
-ATLAS_NOT_THREAD_SAFE(const DetachedTrackingVolume &tvol) const {
-  const_cast<Layer *>(this)->encloseDetachedTrackingVolume(tvol);
-}
 
 inline const LayerIndex &Layer::layerIndex() const { return m_index; }
 
 inline int Layer::layerType() const { return m_layerType; }
 inline void Layer::setLayerType(int id) { m_layerType = id; }
 
-inline void Layer::assignMaterialProperties
-ATLAS_NOT_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,
-                            double scale) const {
-  const_cast<Layer *>(this)->assignMaterialProperties(layerMaterialProp, scale);
-}
 
 inline const Volume *Layer::representingVolume() const {
   return m_representingVolume;
@@ -198,15 +189,8 @@ inline void Layer::registerRepresentingVolume(const Volume *theVol) {
 inline void Layer::registerLayerIndex(const LayerIndex &lIdx) {
   m_index = lIdx;
 }
-inline void Layer::registerLayerIndex
-ATLAS_NOT_THREAD_SAFE(const LayerIndex &lIdx) const {
-  const_cast<Layer *>(this)->registerLayerIndex(lIdx);
-}
 
 inline double Layer::getRef() const { return m_ref; }
 inline void Layer::setRef(double x) { m_ref = x; }
-inline void Layer::setRef ATLAS_NOT_THREAD_SAFE(double x) const {
-  const_cast<Layer *>(this)->setRef(x);
-}
 
 } // namespace Trk

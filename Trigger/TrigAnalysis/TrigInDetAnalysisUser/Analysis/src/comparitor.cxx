@@ -297,7 +297,9 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -m,  --mapfile            \t remap file for reference histograms \n\n";   
  
   s << "    -rc, --refchains values ..\t allow different reference chains for comparison\n";
-  s << "    -s,  --swap pattern regex \t swap \"pattern\" in the reference chains name by \"regex\"\n";
+  s << "    -s,  --swap  pattern regex \t swap \"pattern\" in the chain names by \"regex\"\n";
+  s << "         --swapr pattern regex \t swap \"pattern\" in the ref chain names by \"regex\"\n";
+  s << "         --swapt pattern regex \t swap \"pattern\" in the test chain names by \"regex\"\n";
   s << "    -nr, --noref              \t do not plot reference histograms\n";
   s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
   s << "    -us, --usechainref        \t use the histograms from chain definied in the \"Chain\" histogram as reference\n\n";
@@ -478,6 +480,14 @@ int main(int argc, char** argv) {
   std::string pattern = "";
   std::string regex   = "";
 
+  std::string patternr = "";
+  std::string regexr   = "";
+
+  std::string patternt = "";
+  std::string regext   = "";
+
+  std::string basedir = "";
+
   std::string xpattern = "";
   std::string xregex   = "";
 
@@ -545,6 +555,10 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-d" || arg=="--dir" ) { 
       if ( ++i<argc ) dir=argv[i];
+      else return usage(argv[0], -1, "no directory provided");
+    }
+    else if ( arg=="-b" || arg=="--bdir" ) { 
+      if ( ++i<argc ) basedir=argv[i];
       else return usage(argv[0], -1, "no directory provided");
     }
     else if ( arg=="--taglabels" ) { 
@@ -665,6 +679,18 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) regex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
     }
+    else if (             arg=="--swapt" ) { 
+      if ( ++i<argc ) patternt=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
+      if ( ++i<argc ) regext=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+    }
+    else if (             arg=="--swapr" ) { 
+      if ( ++i<argc ) patternr=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
+      if ( ++i<argc ) regexr=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+    }
     else if ( arg=="-sx" || arg=="--swapaxtitles" ) { 
       if ( ++i<argc ) xregex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
@@ -776,6 +802,12 @@ int main(int argc, char** argv) {
   bool noreftmp = noref;
 
   if ( chains.size()==0 ) return usage(argv[0], -1, "no chains specified");
+
+
+  if ( basedir.size()>0 ) {
+    if ( basedir[basedir.size()-1]!='/' ) basedir += "/";
+    for ( size_t ic=chains.size() ; ic-- ; ) chains[ic] = basedir+chains[ic];
+  }
 
   if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1, "not enough chains specified");
   
@@ -910,6 +942,7 @@ int main(int argc, char** argv) {
       pattern = testrun;
       regex   =  refrun;
     }
+
   }
   
   if ( !refrun.empty() ) { 
@@ -1009,6 +1042,9 @@ int main(int argc, char** argv) {
   std::cout << "\ncreating chain and reference information ..." << std::endl;
 
   for ( size_t j=0; j<chains.size(); j++)  {
+
+    if ( !regex.empty() )  chains[j] = fullreplace( chains[j], pattern, regex );
+    if ( !regext.empty() ) chains[j] = fullreplace( chains[j], patternt, regext );
 	
     /// get the actual chain name and track collection from 
 
@@ -1059,13 +1095,20 @@ int main(int argc, char** argv) {
     }
   }
 
-
   std::cout << "chainref size: " << chainref.size() << "  " << refchains.size() << std::endl;
 
   for ( size_t j=0 ; j<chainref.size() ; j++ ) { 
     std::cout << "chainref: " << chainref[j] << " :: " << refchains[j] << std::endl;
+
+    /// reference chains
     if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], pattern, regex );
     else                   refchain[j] = fullreplace( refchains[j], pattern, regex );
+
+    if ( !patternr.empty() ) { 
+      if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], patternr, regexr );
+      else                   refchain[j] = fullreplace( refchains[j], patternr, regexr );
+    }
+
     std::cout << "refchain: " << refchain[j] << std::endl;
   }
 

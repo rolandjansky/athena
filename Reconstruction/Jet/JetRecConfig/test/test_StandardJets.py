@@ -122,9 +122,8 @@ cfg.merge(PoolReadCfg(ConfigFlags))
 from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
 cfg.merge(LuminosityCondAlgCfg(ConfigFlags))
 
-from AthenaConfiguration.ComponentFactory import CompFactory
-muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
-cfg.addEventAlgo(muWriter,"AthAlgSeq")
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+cfg.merge(LumiBlockMuWriterCfg(ConfigFlags))
 
 
 

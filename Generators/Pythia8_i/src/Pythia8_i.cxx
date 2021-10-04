@@ -115,8 +115,13 @@ m_athenaTool("")
   m_particleIDs["LEAD"]        = LEAD;
 
   ATH_MSG_INFO("XML Path is " + xmlpath());
-
   m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
+#ifdef HEPMC3
+  m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+  /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
+  struct HepMC3::GenRunInfo::ToolInfo generator={std::string("Pythia8"),py8version(),std::string("Used generator")};
+  m_runinfo->tools().push_back(generator);  
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,6 +239,8 @@ StatusCode Pythia8_i::genInitialize() {
     ATH_MSG_ERROR("Invalid beam particle!");
     return StatusCode::FAILURE;
   }
+
+
 
   if(m_useRndmGenSvc){
 
@@ -444,7 +451,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   evt->set_event_number(m_internal_event_number);
 
   // if using "getGroupWeight" and | lhastrategy | = 4, then need to convert mb to pb ( done otherwise when calling info.weight(), [...] )
-  if( m_internal_event_number == 1 && abs(m_pythia->info.lhaStrategy()) == 4 ) {
+  if( m_internal_event_number == 1 && std::abs(m_pythia->info.lhaStrategy()) == 4 ) {
      m_conversion = ( (double) PYTHIA8_CONVERSION);
      ATH_MSG_DEBUG(" LHA strategy needs a conversion to fix Pythia8 shower weights bug(s) equal to " << m_conversion);
   }
@@ -524,7 +531,6 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
         }
         ++id;
       }
-
       std::map<std::string, Pythia8::LHAweight>::const_iterator weightName = m_pythia->info.init_weights->find(wgt->first);
       if(weightName != m_pythia->info.init_weights->end()){
         fWeights[weightName->second.contents] = mergingWeight * wgt->second.contents;
@@ -539,8 +545,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   for(int iw = firstWeight; iw < m_pythia->info.PYTHIA8_NWEIGHTS(); ++iw){
 
-    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia->info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" +
-std::to_string(iw);
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia->info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" +std::to_string(iw);
 
     if(m_pythia->info.PYTHIA8_NWEIGHTS() != 1){
       if(m_internal_event_number == 1) {
@@ -554,12 +559,15 @@ std::to_string(iw);
   }
 
 #ifdef HEPMC3
-  if(m_internal_event_number == 1){
-    std::vector<std::string> names;
-    for (auto w: fWeights)   names.push_back(w.first);
-    evt->run_info()->set_weight_names(names);
-  }
-  for (auto w: fWeights) {evt->weight(w.first)=w.second;}
+  std::vector<std::string> names;
+  for (auto w: fWeights)   names.push_back(w.first);
+  if (!evt->run_info()) evt->set_run_info(m_runinfo);
+  evt->run_info()->set_weight_names(names);
+// added conversion GeV ->  MeV to ensure correct units
+  GeVToMeV(evt);
+
+  for (auto w: fWeights) {
+      evt->weight(w.first)=w.second;}
 #else
   evt->weights().clear();
   for (auto w: fWeights) {evt->weights()[w.first]=w.second;}
@@ -573,7 +581,6 @@ std::to_string(iw);
 StatusCode Pythia8_i::genFinalize(){
 
   ATH_MSG_INFO(">>> Pythia8_i from genFinalize");
-
   m_pythia->stat();
 
   Pythia8::Info info = m_pythia->info;
@@ -647,6 +654,7 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
   if(beams[0]->momentum().pz() * procBeams[0]->momentum().pz() < 0.) std::swap(procBeams[0],procBeams[1]);
   for (auto p: procBeams[0]->end_vertex()->particles_out())  beams[0]->end_vertex()->add_particle_out(p);
   for (auto p: procBeams[1]->end_vertex()->particles_out())  beams[1]->end_vertex()->add_particle_out(p);
+
 #else
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
@@ -725,6 +733,7 @@ double Pythia8_i::pythiaVersion()const{
 ////////////////////////////////////////////////////////////////////////
 std::string Pythia8_i::xmlpath(){
 
+  
   std::string foundpath = "";
 
 // Try to find the xmldoc directory using PathResolver:

@@ -836,12 +836,18 @@ namespace JetTagDQA{
         jet->getAssociatedObjects<xAOD::TruthParticle>(labelB, BHadrons);
         // get the Lxy
         if(BHadrons.size() >= 1){
-          // get the Lxy
-          Lxy = BHadrons[0]->decayVtx()->perp();
-          m_Truth_Lxy_b ->Fill(Lxy, event->beamSpotWeight());
-          // get the deltaR wrt to the jet axis
-          double dR = jet->p4().DeltaR(BHadrons[0]->p4());
-          m_deltaR_truthBHadron_jet_b->Fill(dR, event->beamSpotWeight());
+          // check if the BHadron is not a null pointer
+          if(! BHadrons[0]){
+            ATH_MSG_WARNING("A BHadron in the 'ConeExclBHadronsFinal' collection is a null pointer. Might be related to ATLPHYSVAL-783.");
+          } 
+          else{
+            // get the Lxy
+            Lxy = BHadrons[0]->decayVtx()->perp();
+            m_Truth_Lxy_b ->Fill(Lxy, event->beamSpotWeight());
+            // get the deltaR wrt to the jet axis
+            double dR = jet->p4().DeltaR(BHadrons[0]->p4());
+            m_deltaR_truthBHadron_jet_b->Fill(dR, event->beamSpotWeight());
+          }
         }
       }
   
@@ -853,12 +859,18 @@ namespace JetTagDQA{
         jet->getAssociatedObjects<xAOD::TruthParticle>(labelC, CHadrons);
         // get the Lxy
         if(CHadrons.size() >= 1){
-          // get the Lxy
-          Lxy = CHadrons[0]->decayVtx()->perp();
-          m_Truth_Lxy_c ->Fill(Lxy, event->beamSpotWeight());
-          // get the deltaR wrt to the jet axis
-          double dR = jet->p4().DeltaR(CHadrons[0]->p4());
-          m_deltaR_truthCHadron_jet_c->Fill(dR, event->beamSpotWeight());
+          // check if the CHadron is not a null pointer
+          if(! CHadrons[0]){
+            ATH_MSG_WARNING("A CHadron in the 'ConeExclCHadronsFinal' collection is a null pointer. Might be related to ATLPHYSVAL-783.");
+          } 
+          else{
+            // get the Lxy
+            Lxy = CHadrons[0]->decayVtx()->perp();
+            m_Truth_Lxy_c ->Fill(Lxy, event->beamSpotWeight());
+            // get the deltaR wrt to the jet axis
+            double dR = jet->p4().DeltaR(CHadrons[0]->p4());
+            m_deltaR_truthCHadron_jet_c->Fill(dR, event->beamSpotWeight());
+          }
         }
       }
 

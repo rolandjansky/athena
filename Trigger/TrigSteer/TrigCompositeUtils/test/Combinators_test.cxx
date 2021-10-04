@@ -196,7 +196,7 @@ void checkElementsIn(const Index2DVec& inp, const Index1DVec& exp,
 		     std::function<bool(const Index1DVec&)> filter = [](const Index1DVec&){ return true; } ) {
   std::cout << "\n";
   std::set<size_t> part;
-  elementsInUniqueCombinations(inp, part, filter);
+  elementsInUniqueCombinations(inp, part, std::move(filter));
 
   for ( auto& v: inp ) {
 
@@ -221,14 +221,14 @@ void checkCombinations(const Index2DVec& inp, const Index2DVec& exp ) {
   Index2DVec allCombs;
   findUniqueCombinations(inp, allCombs);
 
-  for ( auto& v: inp ) {
-    for ( auto el: v ) 
+  for ( const auto& v: inp ) {
+    for ( const size_t el: v )
       std::cout << " " << el;    
     std::cout << " | ";
   }
   std::cout << ".... result is: > ";
-  for ( auto comb: allCombs ) {
-    for ( auto el: comb ) 
+  for ( const auto& comb: allCombs ) {
+    for ( const size_t el: comb )
       std::cout << " " << el;
     std::cout << " | ";
   }

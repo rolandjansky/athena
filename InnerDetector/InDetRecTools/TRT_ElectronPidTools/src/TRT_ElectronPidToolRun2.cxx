@@ -111,7 +111,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
 
   ATH_CHECK( m_HTReadKey.initialize() );
 
-  ATH_CHECK( m_TRTPIDNNReadKey.initialize() );
+  ATH_CHECK( m_TRTPIDNNReadKey.initialize(m_calculateNN) );
 
   CHECK( m_TRTStrawSummaryTool.retrieve() );
   if ( !m_TRTStrawSummaryTool.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummaryTool);

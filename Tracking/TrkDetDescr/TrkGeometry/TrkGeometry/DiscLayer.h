@@ -117,12 +117,6 @@ class DiscLayer final: virtual public DiscSurface, public Layer {
   /** move the Layer non-const*/
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer const , performas const_cast */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<DiscLayer*>(this)->moveLayer(shift);
-  }
-
  private:
   /** Resize the layer to the tracking volume - only works for
    * CylinderVolumeBouns */

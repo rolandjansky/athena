@@ -33,6 +33,7 @@ TrigZFinder::TrigZFinder( const std::string& type, const std::string& name, cons
   //  std::cout << "ZFinder::ZFinder() version " << name << " " << type << "\tTrigZFinder-00-00-62"<< std::endl;
 
   declareProperty( "PhiBinSize",         m_phiBinSize       = 0.2   );
+  declareProperty( "ForcePhiBinSize",    m_forcePhiBinSize  = false );
   declareProperty( "UseOnlyPixels",      m_pixOnly          = false );
   declareProperty( "MinZBinSize",        m_minZBinSize      = 0.2   );
   declareProperty( "nFirstLayers",       m_nFirstLayers     = 3     );
@@ -76,7 +77,7 @@ StatusCode TrigZFinder::initialize()
 
   /// NB: These only have to go here, because they need to write to the msgsvc, and because 
   ///     is rubbish, we can't pass in a pointer to a (non-athena) sub algorithm.
-  if ( m_phiBinSize < ZFinder_MinPhiSliceSize ){
+  if ( m_phiBinSize < ZFinder_MinPhiSliceSize and ! m_forcePhiBinSize ){
     ATH_MSG_WARNING("Requested PhiBinSize of "  << m_phiBinSize
                     << " degrees is smaller than the minimum allowed (" << ZFinder_MinPhiSliceSize
                     << " degrees). Set to the minimum value.");

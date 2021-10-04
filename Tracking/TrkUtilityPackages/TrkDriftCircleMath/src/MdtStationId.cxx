@@ -5,12 +5,14 @@
 
 namespace TrkDriftCircleMath {
 
-std::ostream& operator<<( std::ostream& os, const TrkDriftCircleMath::MdtStationId& id ) {
-  if( id.isBarrel() ) os << " BARREL";
-  else os << " ENDCAP";
-  os << " stName " << id.stName() << " eta " << id.eta() << " phi " << id.phi();
-  if( id.isSmallMdt() ) os << " sMDT";
-  return os;
-}
+    std::ostream& operator<<(std::ostream& os, const TrkDriftCircleMath::MdtStationId& id) {
+        if (id.isBarrel())
+            os << " BARREL";
+        else
+            os << " ENDCAP";
+        os << " stName " << id.stName() << " eta " << id.eta() << " phi " << id.phi();
+        if (id.isSmallMdt()) os << " sMDT";
+        return os;
+    }
 
-} // namespace TrkDriftCircleMath
+}  // namespace TrkDriftCircleMath

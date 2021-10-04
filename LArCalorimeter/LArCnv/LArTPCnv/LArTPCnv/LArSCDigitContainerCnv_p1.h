@@ -11,14 +11,16 @@
 
 class MsgStream;
 
-class LArSCDigitContainerCnv_p1  : public T_AthenaPoolTPCnvBase<LArSCDigitContainer, LArSCDigitContainer_p1>
+class LArSCDigitContainerCnv_p1  : public T_AthenaPoolTPCnvConstBase<LArSCDigitContainer, LArSCDigitContainer_p1>
 {
 public:
 
   LArSCDigitContainerCnv_p1() {}
+  using base_class::persToTrans;
+  using base_class::transToPers;
 
-  virtual void          persToTrans(const LArSCDigitContainer_p1* pers, LArSCDigitContainer* trans, MsgStream &log);
-  virtual void          transToPers(const LArSCDigitContainer* trans, LArSCDigitContainer_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const LArSCDigitContainer_p1* pers, LArSCDigitContainer* trans, MsgStream &log) const override;
+  virtual void          transToPers(const LArSCDigitContainer* trans, LArSCDigitContainer_p1* pers, MsgStream &log) const override;
 };
 
 #endif

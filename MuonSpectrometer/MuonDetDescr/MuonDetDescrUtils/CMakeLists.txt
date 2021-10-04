@@ -14,7 +14,7 @@ atlas_add_library( MuonDetDescrUtils
                    PUBLIC_HEADERS MuonDetDescrUtils
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES MuonStationIndexLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AGDDKernel MuonReadoutGeometry )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AGDDKernel MuonReadoutGeometry AGDDControl GaudiKernel )
 
 atlas_add_executable( MuonSectorMappingTest
                       exe/MuonSectorMappingTest.cxx

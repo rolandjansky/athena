@@ -13,14 +13,9 @@
 
 // constructor
 Trk::StaticNavigationEngine::StaticNavigationEngine(const std::string& t, const std::string& n, const IInterface* p)
-: AthAlgTool(t,n,p),
-  m_propagationEngine(""),
-  m_materialEffectsEngine("")
+: AthAlgTool(t,n,p)
 {
     declareInterface<Trk::INavigationEngine>(this);
-    // Tools needed
-    declareProperty("PropagationEngine"                     , m_propagationEngine);
-    declareProperty("MaterialEffectsEngine"                 , m_materialEffectsEngine);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);

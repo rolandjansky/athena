@@ -9,6 +9,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+
 // root includes
 #include "TTree.h"
 // Local includes
@@ -41,7 +42,7 @@ namespace NSWL1 {
     declareProperty( "DoMM",         m_doMM         = true,  "Run data analysis for MM" );
     declareProperty( "DoMMDiamonds", m_doMMDiamonds = false, "Run data analysis for MM using Diamond Roads algorithm" );
     declareProperty( "DosTGC",       m_dosTGC       = false, "Run data analysis for sTGCs" );
-    
+
     // declare monitoring tools
     declareProperty( "AthenaMonTools",          m_monitors,           "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
     declareProperty( "PadTdsTool",              m_pad_tds,            "Tool that simulates the functionalities of the PAD TDS");
@@ -54,12 +55,14 @@ namespace NSWL1 {
     declareProperty( "MMStripTdsTool",          m_mmstrip_tds,        "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",           m_mmtrigger,          "Tool that simulates the MM Trigger");
     declareProperty( "NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
+    declareProperty( "PadTriggerRDOName",       m_padTriggerRdoKey = "NSWPADTRGRDO", "Name of the pad trigger RDO");
   }
 
 
   StatusCode NSWL1Simulation::initialize() {
-    ATH_MSG_INFO( "initialize " << name() );
-    ATH_CHECK( m_trigRdoContainer.initialize() );    
+    ATH_MSG_DEBUG( "initialize " << name() );
+    ATH_CHECK( m_trigRdoContainer.initialize() );
+    ATH_CHECK( m_xaodevtKey.initialize() );
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -91,35 +94,37 @@ namespace NSWL1 {
       ATH_CHECK(m_strip_tds.retrieve());
       //ATH_CHECK(m_strip_cluster.retrieve());
       //ATH_CHECK(m_strip_segment.retrieve());
+      ATH_CHECK(m_padTriggerRdoKey.initialize());
     }
-    
+
     if(m_doMM ){
       ATH_CHECK(m_mmtrigger.retrieve());
-      if(m_doMMDiamonds) ATH_CHECK( m_mmtrigger->initDiamondAlgorithm() );
     }
 
     // Connect to Monitoring Service
-    ATH_CHECK(m_monitors.retrieve());
+    if(m_doNtuple){
+      ATH_CHECK(m_monitors.retrieve());
+    }
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::start() {
-    ATH_MSG_INFO("start " << name() );
-    for ( auto& mon : m_monitors ) {
-      ATH_CHECK(mon->bookHists());
+    ATH_MSG_DEBUG("start " << name() );
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors ) {
+	ATH_CHECK(mon->bookHists());
+      }
     }
-
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::execute() {
-    const DataHandle<EventInfo> pevt;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    m_current_run = pevt->event_ID()->run_number();
-    m_current_evt = pevt->event_ID()->event_number();
-
+    SG::ReadHandle<xAOD::EventInfo> evt(m_xaodevtKey);
+    CHECK(evt.isValid());
+    m_current_run = evt->runNumber();
+    m_current_evt = evt->eventNumber();
 
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
@@ -135,11 +140,16 @@ namespace NSWL1 {
       else{
           ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
-     
+
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
       //ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
-      
+
+      auto padTriggerRdoHandle = SG::makeHandle(m_padTriggerRdoKey);
+      auto padTriggerContainer = std::make_unique<Muon::NSW_PadTriggerDataContainer>();
+      ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
+      ATH_CHECK(padTriggerRdoHandle.record(std::move(padTriggerContainer)));
+
       auto rdohandle = SG::makeHandle( m_trigRdoContainer );
       ATH_CHECK( rdohandle.record( std::move(trgContainer)));
     }
@@ -148,21 +158,40 @@ namespace NSWL1 {
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger(m_doMMDiamonds) );
     }
-    for ( auto& mon : m_monitors) {
-      ATH_CHECK(mon->fillHists());
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors) {
+	ATH_CHECK(mon->fillHists());
+      }
+      if (m_tree) m_tree->Fill();
     }
-    if (m_tree) m_tree->Fill();
+
+    // Dump content of the pad trigger collection
+    if (m_dosTGC)
+    {
+      const Muon::NSW_PadTriggerDataContainer* padTriggerContainer;
+      ATH_CHECK(evtStore()->retrieve(padTriggerContainer, m_padTriggerRdoKey.key()));
+      ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
+      for (const auto &padTriggerData : *padTriggerContainer)
+      {
+        ATH_MSG_DEBUG("  " << *padTriggerData);
+        for (const auto & padTriggerSegment : *padTriggerData)
+        {
+          ATH_MSG_DEBUG("    " << *padTriggerSegment);
+        }
+      }
+    }
 
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::finalize() {
-    ATH_MSG_INFO( "finalize" << name() );
-    for ( auto& mon :  m_monitors ) {
-      ATH_CHECK(mon->finalHists());
+    ATH_MSG_DEBUG( "finalize" << name() );
+    if(m_doNtuple){
+      for ( auto& mon :  m_monitors ) {
+	ATH_CHECK(mon->finalHists());
+      }
     }
-    if(m_doMM) ATH_CHECK( m_mmtrigger->finalizeDiamondAlgorithm(m_doMMDiamonds) );
     return StatusCode::SUCCESS;
   }
 

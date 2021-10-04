@@ -3,7 +3,7 @@
 # art-description: art job for el_singlee_7-80_pu40
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7728
+# art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772
 # art-input-nfiles: 10
 # art-athena-mt: 8
 # art-memory: 4096
@@ -31,7 +31,7 @@ Slices  = ['electron']
 Events  = 20000 
 Threads = 8 
 Slots   = 8
-Input   = 'Single_el_pu'    # defined in TrigValTools/share/TrigValInputs.json
+Input   = 'Single_el_pu40'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles=True
 
 preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  

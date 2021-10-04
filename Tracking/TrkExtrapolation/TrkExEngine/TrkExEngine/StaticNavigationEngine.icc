@@ -148,11 +148,14 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
                 trackingGeometry().lowestTrackingVolume(Amg::Vector3D(eCell.leadParameters->position()+pDir*eCell.leadParameters->momentum().unit())) :
                 bSurfaceTV.attachedVolume(eCell.leadParameters->position(), eCell.leadParameters->momentum(), pDir);
         // check if we have no nextVolume : boundary rechaed @TODO it's not really a success
-        if (!nextVolume) return Trk::ExtrapolationCode::SuccessBoundaryReached;
+        if (!nextVolume) {
+          eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);   // ST fixing memory leak	
+	  return Trk::ExtrapolationCode::SuccessBoundaryReached;
+	}
         // check if it is a boundary reached case
         // - geometrySignature change and configuration to stop then triggers a Success 
         bool stopAtThisBoundary = eCell.checkConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary) 
-                                  && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature());        
+                                  && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature() /*&& nextVolume->geometrySignature()!=Trk::HGTD*/);        
         // fill the boundary into the cache if successfully hit boundary surface
         // - only cache if those are not the final parameters caused by a StopAtBoundary
         if (!stopAtThisBoundary)

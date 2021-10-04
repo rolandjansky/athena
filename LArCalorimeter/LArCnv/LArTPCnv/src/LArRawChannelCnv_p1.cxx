@@ -9,12 +9,12 @@
 // LArRawChannelCnv_p1, used for T/P separation
 // author R.Seuster <seuster@cern.ch>
 
-void LArRawChannelCnv_p1::transToPers(const LArRawChannel* /*trans*/, LArRawChannel_p1* /*pers*/, MsgStream &/*log*/) 
+void LArRawChannelCnv_p1::transToPers(const LArRawChannel* /*trans*/, LArRawChannel_p1* /*pers*/, MsgStream &/*log*/) const
 {
     // No longer used
 }
 
-void LArRawChannelCnv_p1::persToTrans(const LArRawChannel_p1* pers, LArRawChannel* trans, MsgStream &/*log*/) 
+void LArRawChannelCnv_p1::persToTrans(const LArRawChannel_p1* pers, LArRawChannel* trans, MsgStream &/*log*/) const
 {
   union {
     int  m_quality ; 

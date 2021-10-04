@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -49,43 +49,6 @@
 #endif
 
 
-Trig::CacheGlobalMemory::CacheGlobalMemory() :
-  m_store( nullptr ),
-  m_unpacker( nullptr ),
-  m_navigation(nullptr),
-  m_confItems(nullptr),
-  m_confChains(nullptr),
-  m_expressStreamContainer(nullptr),
-  m_decisionKeyPtr(nullptr),
-#ifndef XAOD_ANALYSIS // Full Athena
-  m_oldDecisionKeyPtr(nullptr),
-  m_oldEventInfoKeyPtr(nullptr),
-#endif
-  m_run2NavigationKeyPtr(nullptr),
-  m_run3NavigationKeyPtr(nullptr),
-  m_bgCode(0)
-{}
-
-Trig::CacheGlobalMemory::~CacheGlobalMemory() {
-   delete m_unpacker;
-
-   for( auto cgIt = m_chainGroups.begin(); cgIt != m_chainGroups.end();
-        ++cgIt ) {
-      delete cgIt->second;
-   }
-   for( auto iIt = m_itemsCache.begin(); iIt != m_itemsCache.end(); ++iIt ) {
-      delete iIt->second;
-   }
-   for( auto cIt = m_l2chainsCache.begin(); cIt != m_l2chainsCache.end();
-        ++cIt ) {
-      delete cIt->second;
-   }
-   for( auto cIt = m_efchainsCache.begin(); cIt != m_efchainsCache.end();
-       ++cIt ) {
-      delete cIt->second;
-   }
-}
-
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias,
                                                                   const bool parseAsRegex) {
@@ -95,31 +58,26 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
-  auto res = m_chainGroups.try_emplace (key, nullptr);
-  if (res.second) {
-    res.first->second = new ChainGroup( key, *this );
-    updateChainGroup(res.first->second, parseAsRegex);
-    m_chainGroupsRef[key] = res.first->second;
+  auto [itr, inserted] = m_chainGroups.try_emplace (key, /*ChainGroup*/ key, *this);
+  if (inserted) {
+    updateChainGroup(itr->second, parseAsRegex);
+    m_chainGroupsRef[key] = &(itr->second);
   }
   // this overwrites the pointer in the map each time in case the alias needs defining
-  if (alias!="") {
+  if (!alias.empty()) {
     std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
-    if (m_chainGroupsRef.find(key_alias)==m_chainGroupsRef.end()) {
-      m_chainGroupsRef[key_alias]=m_chainGroups[key];
-    }
-    else {
-      if (m_chainGroupsRef[key_alias]!=m_chainGroupsRef[key]) {
-        throw std::runtime_error("TrigDecisionTool: The alias "+alias+" already exists and cannot be overwritten.");
-      }
+    auto [alias_itr, alias_inserted] = m_chainGroupsRef.try_emplace (key_alias, &m_chainGroups.at(key));
+    if (!alias_inserted && alias_itr->second!=m_chainGroupsRef[key]) {
+        throw std::runtime_error("TrigDecisionTool: The alias "+alias+
+                                 " already exists and cannot be overwritten.");
     }
   }
-
 
   return m_chainGroupsRef[key];
 }
 
-void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup* chainGroup, const bool parseAsRegex) {
-  chainGroup->update(m_confChains, m_confItems, parseAsRegex);
+void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup& chainGroup, const bool parseAsRegex) {
+  chainGroup.update(m_confChains, m_confItems, parseAsRegex);
 }
 
 
@@ -132,31 +90,28 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
   if ( !ctp ) {
     ATH_MSG_WARNING( "No LVL1 config, something went wrong, TDT will "
          "not attempt accessing HLT too" );
-    m_confItems = 0;
+    m_confItems = nullptr;
     return;
   }
   m_confItems = &(ctp->menu().items());
 
   // rebuild all the caches with decision information
 
-   //clear cache completely becuase underlying config objects might have changed
-   for(auto& item : m_itemsCache){delete item.second;}
-   m_itemsCache.clear();
+  //clear cache completely becuase underlying config objects might have changed
+  m_itemsCache.clear();
 
-  std::vector<float> prescales = ctp->prescaleSet().prescales_float();
+  const std::vector<float>& prescales = ctp->prescaleSet().prescales_float();
   for(auto item : ctp->menu().items() ) {
-     unsigned int ctpid = item->ctpId();
-     m_itemsCache[ctpid] = new LVL1CTP::Lvl1Item(item->name(),
-                                                 0,
-                                                 0, 0, 0, prescales[ctpid]);
-     ATH_MSG_DEBUG( " new configuration for item" << item->name() );
+     const auto ctpid = item->ctpId();
+     m_itemsCache.try_emplace(ctpid,
+                              /*LVL1CTP::Lvl1Item*/ item->name(), 0,
+                              0, 0, 0, prescales[ctpid]);
+     ATH_MSG_DEBUG( "new configuration for item" << item->name() );
   }
   ATH_MSG_DEBUG( "Updating configuration, done with L1" );
 
   //clear cache completely becuase underlying config objects might have changed
-  for(auto& c : m_l2chainsCache){delete c.second;}
   m_l2chainsCache.clear();
-  for(auto& c : m_efchainsCache){delete c.second;}
   m_efchainsCache.clear();
   m_mConfChains.clear();
 
@@ -180,9 +135,9 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
       //    std::cerr << "CacheGlobalMemory::update updating chain" << (*cChIt)->chain_name() << std::endl;
       int cntr = ch->chain_counter();
       if( ch->level()=="L2" ) {
-        m_l2chainsCache[cntr] = new HLT::Chain(ch);
+        m_l2chainsCache.emplace(cntr, /*HLT::Chain*/ch);
       } else {//merged chains are stored in efchains
-        m_efchainsCache[cntr] = new HLT::Chain(ch);
+        m_efchainsCache.emplace(cntr, /*HLT::Chain*/ch);
       }
     }
     ATH_MSG_DEBUG( "Updating configuration, done with basic HLT based on "
@@ -195,63 +150,53 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
     m_streams.clear();
 
     for(auto ch : *m_confChains) {
-      if (( ch->level() == "EF" || ch->level() == "HLT") && ch->streams().size()>0 ) {
+      if (( ch->level() == "EF" || ch->level() == "HLT") && !ch->streams().empty() ) {
         ATH_MSG_DEBUG( "Stream: " << ch->chain_name() << " " << ch->streams().size() );
         for(auto stream : ch->streams()) {
-          if( msgLvl( MSG::DEBUG ) ) {
-            msg() << " " << stream->stream();
-          }
+          ATH_MSG(DEBUG) << " " << stream->stream();
           m_streams[stream->stream()].push_back(ch->chain_name());
         }
-        if( msgLvl( MSG::DEBUG ) ) {
-          msg() << endmsg;
-        }
+        ATH_MSG(DEBUG) << endmsg;
       }
-      if ( ( ch->level() == "EF" || ch->level() == "HLT") && ch->groups().size()>0 ) {
+      if ( ( ch->level() == "EF" || ch->level() == "HLT") && !ch->groups().empty() ) {
         ATH_MSG_DEBUG( "Groups: " << ch->chain_name() << " " << ch->groups().size() );
         for(auto& group : ch->groups()) {
-          if( msgLvl( MSG::DEBUG ) ) {
-            msg() << " " << group;
-          }
+          ATH_MSG(DEBUG) << " " << group;
           m_groups[group].push_back(ch->chain_name());
         }
-        if( msgLvl( MSG::DEBUG ) ) {
-          msg() << endmsg;
-        }
+        ATH_MSG(DEBUG) << endmsg;
       }
     }
 
 
-
-    std::map<std::string, std::vector<std::string> >::iterator mstIt;
-    for (mstIt=m_streams.begin(); mstIt != m_streams.end(); ++mstIt) {
-      const std::string alias("STREAM_"+mstIt->first);
+    for (const auto& [stream, chains] : m_streams) {
+      const std::string alias("STREAM_"+stream);
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
-      ChGrIt preIt = m_chainGroupsRef.find(key_alias);
+      const auto preIt = m_chainGroupsRef.find(key_alias);
       if (  preIt != m_chainGroupsRef.end()) {
         ATH_MSG_INFO( "Replacing predefined, stream based, chain group: "
           << alias );
         // cg already exists (from previous config, we need to update it)
-        preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        preIt->second->m_patterns = chains;
+        updateChainGroup(*preIt->second, /*parseAsRegex=*/ false);
         processed_chain_groups.insert(preIt->second);
       } else {
-        processed_chain_groups.insert( createChainGroup(mstIt->second, alias, /*parseAsRegex=*/ false) );
+        processed_chain_groups.insert( createChainGroup(chains, alias, /*parseAsRegex=*/ false) );
       }
-
     }
-    for (mstIt=m_groups.begin(); mstIt != m_groups.end(); ++mstIt) {
-      const std::string alias("GROUP_"+mstIt->first);
+
+    for (const auto& [group, chains] : m_groups) {
+      const std::string alias("GROUP_"+group);
       std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
-      ChGrIt preIt = m_chainGroupsRef.find(key_alias);
+      const auto preIt = m_chainGroupsRef.find(key_alias);
       if (preIt != m_chainGroupsRef.end()) {
         ATH_MSG_INFO( "Replacing predefined, config group based, chain "
           << "group: " << alias );
-        preIt->second->m_patterns = mstIt->second;
-        updateChainGroup(preIt->second, /*parseAsRegex=*/ false);
+        preIt->second->m_patterns = chains;
+        updateChainGroup(*preIt->second, /*parseAsRegex=*/ false);
         processed_chain_groups.insert(preIt->second);
       } else {
-        processed_chain_groups.insert( createChainGroup(mstIt->second,alias, /*parseAsRegex=*/ false) );
+        processed_chain_groups.insert( createChainGroup(chains,alias, /*parseAsRegex=*/ false) );
       }
     }
     ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
@@ -260,11 +205,11 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
   // update all previously defined chainGroups
-  for (ChGrIt it=m_chainGroups.begin(); it!=m_chainGroups.end(); it++) {
-    if (processed_chain_groups.count(it->second) == 1) {
+  for (auto& [key, group] : m_chainGroups) {
+    if (processed_chain_groups.count(&group) == 1) {
       continue; // We already updated this chain group, just above
     }
-    updateChainGroup(it->second);
+    updateChainGroup(group);
   }
    ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so far" );
    ATH_MSG_DEBUG( "Updating configuration done" );
@@ -281,7 +226,7 @@ const HLT::Chain* Trig::CacheGlobalMemory::chain(const std::string& name) const 
   if ( i != m_l2chainsByName.end() ) {
     return i->second;
   }
-  return 0;
+  return nullptr;
 }
 
 const HLT::Chain* Trig::CacheGlobalMemory::chain(const TrigConf::HLTChain& ch) const {
@@ -291,13 +236,13 @@ const HLT::Chain* Trig::CacheGlobalMemory::chain(const TrigConf::HLTChain& ch) c
 const TrigConf::HLTChain* Trig::CacheGlobalMemory::config_chain(const std::string& name) const {
   ChainHashMap_t::const_iterator f = m_mConfChains.find(name);
   if ( f == m_mConfChains.end() ){
-    return 0;
+    return nullptr;
   }
   return f->second;
 }
 
 struct itemByName {
-  itemByName(const std::string& name) : m_name(name) {}
+  explicit itemByName(const std::string& name) : m_name(name) {}
   bool operator() (const TrigConf::TriggerItem* it) {
     return m_name == it->name();
   }
@@ -307,7 +252,7 @@ struct itemByName {
 const TrigConf::TriggerItem* Trig::CacheGlobalMemory::config_item(const std::string& name) const {
    TrigConf::ItemContainer::const_iterator f = find_if(m_confItems->begin(), m_confItems->end(), itemByName(name));
    if ( f == m_confItems->end() )
-      return 0;
+      return nullptr;
    return *f;
 }
 
@@ -319,7 +264,7 @@ float Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
        << " is not present in the configuration" );
     return 0;
   }
-  return m_itemsCache.find(ctpid)->second->prescaleFactor();
+  return m_itemsCache.find(ctpid)->second.prescaleFactor();
 }
 
 const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const TrigConf::TriggerItem& i) const {
@@ -333,7 +278,7 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const TrigConf::TriggerIt
 const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) const {
   if ( m_itemsByName.find(name) != m_itemsByName.end())
      return m_itemsByName.find(name)->second;
-   return 0;
+   return nullptr;
 }
 
 const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContainer() const {
@@ -348,7 +293,7 @@ const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContai
 
 bool Trig::CacheGlobalMemory::assert_decision() {
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
-  ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
+  ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker.get());
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
   bool contains_xAOD_decision = false;
@@ -392,25 +337,26 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     // over DecisionUnpackerAthena
     if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_run2NavigationKeyPtr));
+      m_unpacker = std::make_unique<DecisionUnpackerStandalone>(m_decisionKeyPtr, m_run2NavigationKeyPtr);
     }
     else if( is_l1result_configured ){
       ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
-      setUnpacker(new DecisionUnpackerAthena(m_oldDecisionKeyPtr));
+      m_unpacker = std::make_unique<DecisionUnpackerAthena>(m_oldDecisionKeyPtr);
     }
     else if (contains_old_event_info) {
       ATH_MSG_INFO("SG contains NO(!) L1Result in the AOD TrigDecision, assuming also no HLTResult. Read from EventInfo");
-      setUnpacker(new DecisionUnpackerEventInfo(m_oldEventInfoKeyPtr));
+      m_unpacker = std::make_unique<DecisionUnpackerEventInfo>(m_oldEventInfoKeyPtr);
     }
 #else
     if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_run2NavigationKeyPtr));
+      m_unpacker = std::make_unique<DecisionUnpackerStandalone>(m_decisionKeyPtr, m_run2NavigationKeyPtr);
     }
 #endif
 
   }//if(!m_unpacker)
 
+  // cppcheck-suppress duplicateCondition
   if(!m_unpacker){
     std::stringstream extra;
 #ifndef XAOD_ANALYSIS // Full Athena
@@ -454,7 +400,7 @@ StatusCode Trig::CacheGlobalMemory::unpackDecision() {
   ATH_MSG_DEBUG("clearing the delete-end-of-event store");
   m_deleteAtEndOfEvent.clear();
 
-  bool unpackHLT = ( m_confChains != 0 );
+  bool unpackHLT = ( m_confChains != nullptr );
   ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
           m_l2chainsByName, m_l2chainsCache,
           m_efchainsByName, m_efchainsCache,
@@ -468,18 +414,16 @@ StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
   // Navigation
   // protect from unpacking in case HLT was not run
   // (i.e. configuration chains are 0)
-  if( m_confChains == 0 ) {
+  if( m_confChains == nullptr ) {
     return StatusCode::SUCCESS;
   }
 
   // Failing to unpack the navigation is not a failure, as it may be missing
   // from the xAOD file:
   if( ! m_unpacker->unpackNavigation( m_navigation ).isSuccess() ) {
-    static bool warningPrinted = false;
-    if( ! warningPrinted ) {
-      ATH_MSG_WARNING( "TrigNavigation unpacking failed" );
-      warningPrinted = true;
-    }
+    [[maybe_unused]] static std::atomic<bool> warningPrinted =
+      [&]() { ATH_MSG_WARNING( "TrigNavigation unpacking failed" );
+              return true; }();
   }
   // Return gracefully:
   return StatusCode::SUCCESS;

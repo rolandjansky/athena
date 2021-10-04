@@ -156,7 +156,7 @@ private:
   std::string m_pdfFileName;
 
   /// Flag for calo only LH
-  bool m_caloOnly;
+  bool m_caloOnly = false;
 
   /// Flag for skip the use of deltaPoverP in  LH computation (like at HLT)
   bool m_skipDeltaPoverP;

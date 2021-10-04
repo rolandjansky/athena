@@ -34,6 +34,7 @@ def PerfMonMTSvcCfg(flags, **kwargs):
                       max(1,flags.Concurrency.NumConcurrentEvents))
     kwargs.setdefault("doComponentLevelMonitoring",
                       flags.PerfMon.doFullMonMT)
+    kwargs.setdefault("jsonFileName", flags.PerfMon.OutputJSON)
 
     # Get CA and add the service 
     acc = ComponentAccumulator()

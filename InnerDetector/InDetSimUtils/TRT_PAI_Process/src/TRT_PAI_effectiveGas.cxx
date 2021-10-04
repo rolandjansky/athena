@@ -13,6 +13,8 @@
 #include <vector>
 #include <iostream>
 #include <complex>
+#include <cmath>
+#include <algorithm> //for std::max, std::clamp
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -23,8 +25,8 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 					   double Emax,
 					   double tempK,
 					   double eps)
-  : m_lnEmin(log(Emin)),
-    m_lnEmax(log(Emax)),
+  : m_lnEmin(std::log(Emin)),
+    m_lnEmax(std::log(Emax)),
     m_eps(eps),
     m_msg("TRT_PAI_effectiveGas")
 {
@@ -55,12 +57,10 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
   m_S1  = mb/(2.*M_PI*M_PI*r0*he*Zeff);  // x-section to F.osc
   m_S2  = 2.*M_PI*r0*m_ne*Qe*Qe/erg;   // dN/dx scale
 
-// ATH_MSG_DEBUG ( "Gas density          " << rho );
   ATH_MSG_DEBUG ( "effectiveGas: Electron density     " << m_ne );
   ATH_MSG_DEBUG ( "effectiveGas: Plasma freq**2 {eV}  " << m_Wp2 );
   ATH_MSG_DEBUG ( "effectiveGas: x-section to F.osc   " << m_S1 );
   ATH_MSG_DEBUG ( "effectiveGas: dN/dx scale          " << m_S2 );
-// ATH_MSG_DEBUG ( "effectiveGas: Zeff= " << Zeff << ", Aeff= " << Aeff );
 
   // Merge all energy levels into ELvls
   std::vector<float> tempv;
@@ -91,7 +91,6 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 
   int NLvls = m_lnELvls.size();
 
-  // ATH_MSG_DEBUG( "NLvls= " << NLvls );
 
   // Expand vectors to correct dimension
   m_lnFosc.resize(NLvls);
@@ -110,10 +109,12 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 	double lnSig = TRT_PAI_utils::Interpolate( m_lnELvls[i],
 						   pe->getLnELvls(),
 						   pe->getLnSigmas() );
-	fosc += exp(lnSig) * gm->getElemWeight(k);
+	fosc += std::exp(lnSig) * gm->getElemWeight(k);
       }
     }
-    m_lnFosc[i] = log(fosc);
+    //clamp, just in case
+    fosc = std::clamp(fosc, 1e-300,1e+300);
+    m_lnFosc[i] = std::log(fosc);
   }
 
   // Create array of integrated cross-sections
@@ -132,7 +133,7 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 		     m_eps,
 		     0.);
     sigma  += dsigma;
-    lnSigma = log(sigma);
+    lnSigma = std::log(sigma);
     m_lnIntegratedSigmas[i] = lnSigma;
   }
 
@@ -142,7 +143,7 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
     m_lnIntegratedSigmas[i] -= lnSigma;
   }
 
-  double cnst = log(0.5*M_PI*m_Wp2);
+  double cnst = std::log(M_PI_2*m_Wp2);
   for (int i=0; i<NLvls; i++) {
     m_lnEpsI[i]  =  cnst - m_lnELvls[i] + m_lnFosc[i];
     float xint = XGInt(&TRT_PAI_effectiveGas::XFReal,
@@ -150,7 +151,7 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 		       m_lnEmax,
 		       m_eps,
 		       m_lnELvls[i] );
-    m_lnEpsR[i]  = m_Wp2 * exp(m_lnELvls[i]) * xint;
+    m_lnEpsR[i]  = m_Wp2 * std::exp(m_lnELvls[i]) * xint;
   }
   return;
 }
@@ -163,7 +164,7 @@ double TRT_PAI_effectiveGas::XSigma (double lnE, double dummy) {
 				    m_lnELvls,
 				    m_lnFosc);
   xsig = std::max(xsig,-99.);
-  xsig = exp( xsig + lnE );
+  xsig = std::exp( xsig + lnE );
   return xsig;
 }
 
@@ -174,16 +175,16 @@ double TRT_PAI_effectiveGas::XFReal (double lnD, double lnE) {
   double fp = 0.;
   if ( lnE+lnD > m_lnEmin ) {
     fp = TRT_PAI_utils::Interpolate(lnE+lnD, m_lnELvls, m_lnFosc);
-    fp = exp(std::max(fp, -99.0));
+    fp = std::exp(std::max(fp, -99.0));
   }
 
   double fm = 0.;
   if (lnE-lnD > m_lnEmin ) {
     fm = TRT_PAI_utils::Interpolate(lnE-lnD, m_lnELvls, m_lnFosc);
-    fm = exp(std::max(fm, -99.0));
+    fm = std::exp(std::max(fm, -99.0));
   }
 
-  double x = exp(lnD);
+  double x = std::exp(lnD);
   return x/(x*x-1.)*(fp-fm);
 }
 
@@ -238,20 +239,20 @@ double TRT_PAI_effectiveGas::dndedx(double lnE, double gamma) {
   using namespace TRT_PAI_physicsConstants;
   using namespace TRT_PAI_utils;
 
-  double E       = exp(lnE);
+  double E       = std::exp(lnE);
   double gammaSq = gamma*gamma;
   double betaSq  = 1.-1./gammaSq;
 
   double er = Interpolate(lnE, m_lnELvls, m_lnEpsR);
   double ei = Interpolate(lnE, m_lnELvls, m_lnEpsI);
 
-  std::complex<double> Ceps1(er/(E*E), exp(ei));
+  std::complex<double> Ceps1(er/(E*E), std::exp(ei));
   std::complex<double> C1 = 1./gammaSq - Ceps1*betaSq;
-  std::complex<double> C2 = C1/(1.+Ceps1) * log(2.*betaSq*MeeV/(E*C1));
+  std::complex<double> C2 = C1/(1.+Ceps1) * std::log(2.*betaSq*MeeV/(E*C1));
 
   double x;
   x = Interpolate(lnE, m_lnELvls, m_lnIntegratedSigmas);
-  x = m_S2/betaSq * E * ( -2.*imag(C2)/(m_Wp2*M_PI) + (1.-exp(x))/(E*E) );
+  x = m_S2/betaSq * E * ( -2.*imag(C2)/(m_Wp2*M_PI) + (1.-std::exp(x))/(E*E) );
 
   return x;
 }

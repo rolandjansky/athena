@@ -93,7 +93,7 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
 std::vector<fastjet::PseudoJet> 
 PseudoJetAlgorithm::createPseudoJets(const xAOD::IParticleContainer& ips) const{
 #ifndef GENERATIONBASE
-  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy);}
+  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy,m_useCharged,m_useNeutral,m_useChargedPV,m_useChargedPUsideband);}
   if (m_emtopo) {return PseudoJetGetter::EMToposToPJs(ips,m_skipNegativeEnergy);}
 #endif
   return PseudoJetGetter::IParticlesToPJs(ips,m_skipNegativeEnergy);

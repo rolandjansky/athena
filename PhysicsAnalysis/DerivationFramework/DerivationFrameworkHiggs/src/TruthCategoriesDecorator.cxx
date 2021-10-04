@@ -95,7 +95,10 @@ namespace DerivationFramework {
       return HTXS::HiggsProdMode::UNKNOWN;
     }
 
-    for (const TString& prodMode:{"GGF","VBF","WH","QQ2ZH","GG2ZH","TTH","BBH","TH","THQB","WHT"}) {
+    static const std::vector<TString> prodModes = {
+      "GGF", "VBF", "WH", "QQ2ZH", "GG2ZH", "TTH", "BBH", "TH", "THQB", "WHT"
+    };
+    for (const TString& prodMode : prodModes) {
 
       // loop over each mcID belonging to the production mode
       for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) ){

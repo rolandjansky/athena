@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -175,7 +175,7 @@ void TrackHandle_TrkTrack::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIt
     }
     
     if (!visible) {
-      TSOSitem->setFlags(nullptr);// not selectable, not enabled
+      TSOSitem->setFlags(Qt::ItemFlag());// not selectable, not enabled
       QFont itemFont = TSOSitem->font(0);
       itemFont.setStrikeOut(true);
       TSOSitem->setFont(0, itemFont);
@@ -322,7 +322,7 @@ void TrackHandle_TrkTrack::updateObjectBrowser(){
 //  VP1Msg::messageVerbose("updateObjectBrowser  "+m_objBrowseTree->text(0)+" with visible()="+tmp);
   
   if (!visible()) {
-    browserTreeItem()->setFlags(nullptr); // not selectable, not enabled
+    browserTreeItem()->setFlags(Qt::ItemFlag()); // not selectable, not enabled
   } else {
     browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }
@@ -372,7 +372,7 @@ void TrackHandle_TrkTrack::updateObjectBrowser(){
     }
     
     if (!asc->visible()) {
-      asc->browserTreeItem()->setFlags(nullptr); // not selectable, not enabled
+      asc->browserTreeItem()->setFlags(Qt::ItemFlag()); // not selectable, not enabled
     } else {
       asc->browserTreeItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
     }    
@@ -387,3 +387,28 @@ const Trk::FitQuality* TrackHandle_TrkTrack::getFitQuality() const {
   return m_trk ? m_trk->fitQuality ():nullptr;
 }
 
+bool TrackHandle_TrkTrack::containsDetElement(const QString &id) const
+{
+  VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement looking for " + id);
+  IDENTIFIER_TYPE tmpInt = id.toLong(nullptr,10);
+  IDENTIFIER_TYPE tmpInt2 = id.toLong(nullptr,16);
+
+  VP1Msg::messageVerbose("TrackHandle_TrkTrack::looping over TSOS ");
+
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trkTrackPointer()->trackStateOnSurfaces()->begin(),
+                                                             itE = trkTrackPointer()->trackStateOnSurfaces()->end();
+  for (; it != itE; ++it)
+  {
+    // Still debugging, so leaving this in for now...
+    // std::cout<<(*it)->surface().associatedDetectorElementIdentifier()<<std::endl;      
+    if ((*it)->surface().associatedDetectorElementIdentifier()==tmpInt) {
+      VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement FOUND " + id + "!");
+      return true;  
+    }
+    if ((*it)->surface().associatedDetectorElementIdentifier()==tmpInt2) {
+      VP1Msg::messageVerbose("TrackHandle_TrkTrack::containsDetElement FOUND 2 " + id + "!");
+      return true;  
+    }
+  }
+  return false;
+}

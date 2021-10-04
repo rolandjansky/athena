@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "TrkDriftCircleMath/MdtChamberGeometry.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -21,7 +20,6 @@ namespace Muon{
 
   MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp) :
       m_chid(chid),
-      m_mdtGeometry(nullptr),
       m_detMgr(detMgr),
       m_dbData(dbData),
       m_idHelperSvc(idHelp)
@@ -32,8 +30,7 @@ namespace Muon{
   MdtIntersectGeometry::MdtIntersectGeometry(const MdtIntersectGeometry &right) {
     m_chid = right.m_chid;
     m_transform = right.m_transform;
-    m_mdtGeometry = new TrkDriftCircleMath::MdtChamberGeometry();
-    *m_mdtGeometry = *right.m_mdtGeometry;
+    m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(*right.m_mdtGeometry);
     m_detElMl0 = right.m_detElMl0;
     m_detElMl1 = right.m_detElMl1;
     m_detMgr = right.m_detMgr;
@@ -45,8 +42,7 @@ namespace Muon{
     if (this!=&right) {
       m_chid = right.m_chid;
       m_transform = right.m_transform;
-      if(m_mdtGeometry) delete m_mdtGeometry;
-      m_mdtGeometry = new TrkDriftCircleMath::MdtChamberGeometry(*right.m_mdtGeometry);
+      m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(*right.m_mdtGeometry);
       m_detElMl0 = right.m_detElMl0;
       m_detElMl1 = right.m_detElMl1;
       m_detMgr = right.m_detMgr;
@@ -56,9 +52,7 @@ namespace Muon{
     return *this;
   } 
 
-  MdtIntersectGeometry::~MdtIntersectGeometry(){
-    delete m_mdtGeometry;
-  }
+  MdtIntersectGeometry::~MdtIntersectGeometry()= default;
 
   const MuonStationIntersect MdtIntersectGeometry::intersection( const Amg::Vector3D& pos, const Amg::Vector3D& dir) const
   {
@@ -76,9 +70,9 @@ namespace Muon{
     double dxdy = std::abs(ldir.y()) > 0.001 ? ldir.x()/ldir.y() : 1000.;
 
     double lineAngle = std::atan2(ldir.z(),ldir.y());
-    TrkDriftCircleMath::LocPos linePos( lpos.y(),lpos.z() );
+    TrkDriftCircleMath::LocVec2D linePos( lpos.y(),lpos.z() );
     TrkDriftCircleMath::Line line( linePos, lineAngle );
-    const TrkDriftCircleMath::DCVec& dcs = m_mdtGeometry->tubesPassedByLine( line );
+    const TrkDriftCircleMath::DCVec dcs = m_mdtGeometry->tubesPassedByLine( line );
 
     MuonStationIntersect::TubeIntersects intersects;
 
@@ -95,9 +89,9 @@ namespace Muon{
           continue;
       }
       double distWall = std::abs(xint) - 0.5*tubeLength( mdtId.ml(), mdtId.lay(), mdtId.tube() );
-      intersects.push_back( MuonTubeIntersect( tubeid, dit->dr(), distWall ) );
+      intersects.emplace_back(  tubeid, dit->dr(), distWall);
     }
-    intersect.setTubeIntersects( intersects );
+    intersect.setTubeIntersects( std::move(intersects) );
 
     return intersect;
   }
@@ -106,7 +100,7 @@ namespace Muon{
   {
     if (ml<0 || ml>1) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with ml=%d which is definitely out of range", __FILE__, __LINE__,ml));
     if (layer<0 || layer>3) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with layer=%d which is definitely out of range", __FILE__, __LINE__,layer));
-    if (tube<0 || tube>int(maxNTubesPerLayer-1)) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
+    if (tube<0 || tube>=int(MdtIdHelper::maxNTubesPerLayer)) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
     // shift by one to account for MuonGeoModel scheme
     int theTube = tube+1;
     int theLayer = layer+1;
@@ -165,7 +159,7 @@ namespace Muon{
     // if both are dead give a WARNING
     // check status of the two multilayers using the MdtCondDbData if it exists
     // otherwise (i.e. online) they are treated as both good by default
-    bool goodMl0,goodMl1;
+    bool goodMl0{false},goodMl1{false};
     if(m_dbData){
       goodMl0 = m_dbData->isGoodMultilayer(firstIdml0);
       goodMl1 = m_detElMl1 ? m_dbData->isGoodMultilayer(firstIdml1) : false;
@@ -201,8 +195,8 @@ namespace Muon{
     Amg::Vector3D firstTubeMl0 = transform()*(m_detElMl0->tubePos( firstIdml0 ));
     Amg::Vector3D firstTubeMl1 = m_detElMl1 ? transform()*(m_detElMl1->tubePos( firstIdml1 )) : Amg::Vector3D();
 
-    TrkDriftCircleMath::LocPos firstTube0( firstTubeMl0.y(), firstTubeMl0.z() );
-    TrkDriftCircleMath::LocPos firstTube1( firstTubeMl1.y(), firstTubeMl1.z() );
+    TrkDriftCircleMath::LocVec2D firstTube0( firstTubeMl0.y(), firstTubeMl0.z() );
+    TrkDriftCircleMath::LocVec2D firstTube1( firstTubeMl1.y(), firstTubeMl1.z() );
         
     // position second tube in ml 0
     Identifier secondIdml0 = m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,firstMlIndex,1,2 );
@@ -219,7 +213,7 @@ namespace Muon{
     double tubeStage = (firstTubeMl0lay1 - firstTubeMl0).y();  // tube stagering distance
     double layDist = (firstTubeMl0lay1 - firstTubeMl0).z();    // distance between layers
 
-    m_mdtGeometry = new TrkDriftCircleMath::MdtChamberGeometry(stationId,nml,nlay,ntube0,ntube1,firstTube0,firstTube1,
+    m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(stationId,nml,nlay,ntube0,ntube1,firstTube0,firstTube1,
 							       tubeDist,tubeStage,layDist,m_detElMl0->center().theta());
 
     // finally if the first ml is dead, configure the MdtChamberGeometry accordingly
@@ -247,7 +241,7 @@ namespace Muon{
       std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-           int want_id = layer*maxNTubesPerLayer + tube;
+           int want_id = layer*MdtIdHelper::maxNTubesPerLayer + tube;
            if (it != tubes.end() && *it == want_id) {
              ++it;
            }

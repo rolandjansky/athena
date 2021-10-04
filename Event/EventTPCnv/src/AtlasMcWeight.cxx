@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -75,7 +75,7 @@ AtlasMcWeight::encode(double weight) {
     number_type wt_pref = d_sign+2*e_sign;
 
     char senc[13];
-    snprintf(senc,13,"%d%d%d",wt_pref, wt_exp, wt_prec);
+    snprintf(senc,13,"%u%u%u",wt_pref, wt_exp, wt_prec);
     number_type wt_encode=atoll(senc);
 
 #ifdef AMC_DEBUG

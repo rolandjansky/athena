@@ -9,9 +9,42 @@ from TrigT2CaloCalibration.EgammaCalibrationConfig import (EgammaHitsCalibration
                                                            EgammaSshapeCalibrationBarrelConfig,
                                                            EgammaSshapeCalibrationEndcapConfig)
 
+#=======================================================================
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
 
+#=======================================================================
+# Defines a sub-container for the algorithm switches
+class RingerReFexFlags(JobPropertyContainer):
+    """ RingerReFex information """
+    
+# add the CaloRingerFlags flags container to the top container
+jobproperties.add_Container(RingerReFexFlags)
+#=======================================================================
+class DoQuarter(JobProperty):
+    """ master switch for quarter rings Algorithm
+    """
+    statusOn        = True
+    allowedTypes    = ['bool']
+    StoredValue     = False
+jobproperties.RingerReFexFlags.add_JobProperty(DoQuarter)
 
+class DumpCells(JobProperty):
+    """ master switch for dump cells property
+    """
+    statusOn        = True
+    allowedTypes    = ['bool']
+    StoredValue     = False
+jobproperties.RingerReFexFlags.add_JobProperty(DumpCells)
 
+ringerReFexFlags = jobproperties.RingerReFexFlags
+#=======================================================================
+
+def enableDumpCells():
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import ringerReFexFlags
+    ringerReFexFlags.DumpCells.set_Value_and_Lock(True)
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, addExtraCollectionsToEDMList
+    addExtraCollectionsToEDMList(TriggerHLTListRun3,[['xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloRingerAux.cells_eta.cells_phi.cells_et.cells_sampling.cells_size.rings_sum']]) 
 
 class RingerReFexConfig( CompFactory.RingerReFex ):
 
@@ -49,24 +82,22 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
                           [ Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2 ] # TTHEC: 3, TILE
                       ]
 
-
-    self.DoQuarter         = same(False)
+    # NOTE: This properties should be test soon
+    #self.DoQuarter        = same( ringerReFexFlags.DoQuarter )
+    self.DumpCells         = ringerReFexFlags.DumpCells.get_Value()
+    self.DoQuarter         = same( False )
     self.DoEtaAxesDivision = same(True)
     self.DoPhiAxesDivision = same(True)
-
-    
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram( "TIME_total", title="Total Time;time [us]",xbins=100, xmin=0, xmax=500,type='TH1F', path='EXPERT')
     monTool.defineHistogram( "TIME_load_cells", title="Load Cells Time;time [us]",xbins=50, xmin=0, xmax=100,type='TH1F', path='EXPERT')
     self.MonTool = monTool
 
-
+#=======================================================================
 
 class AsymRingerReFexConfig( RingerReFexConfig ):
-
   __slots__ = []
-
   def __init__(self, name = "AsymRingerReMaker"):
     super(AsymRingerReFexConfig, self).__init__(name)
     def same(value):
@@ -74,9 +105,7 @@ class AsymRingerReFexConfig( RingerReFexConfig ):
     self.DoQuarter         = same(True)
     self.RingerKey         = "FastCaloAsymRings"
 
-
-
-
+#=======================================================================
 
 class T2CaloEgamma_All (CompFactory.T2CaloEgammaReFastAlgo):
    __slots__ = []
@@ -95,9 +124,9 @@ class T2CaloEgamma_All (CompFactory.T2CaloEgammaReFastAlgo):
        self.PhiWidth = 0.1
        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
     
-
+#=======================================================================
 
 class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
    __slots__ = []
@@ -115,9 +144,9 @@ class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
        self.PhiWidth = 0.1
        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
 
-
+#=======================================================================
 
 class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
     __slots__ = []
@@ -139,7 +168,7 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
         self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
         self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), 
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), 
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
         
         if doRinger:
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
@@ -149,12 +178,7 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
             ringer.ClustersName = ClustersName
             self.IReAlgToolList+= [ringer]
 
-            from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import AsymRingerReFexConfig
-            asymringer = AsymRingerReFexConfig('ReFaAlgoAsymRingerFexConfig')
-            asymringer.RingerKey= "HLT_FastCaloAsymRinger"
-            asymringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-            asymringer.ClustersName = ClustersName
-            self.IReAlgToolList+= [asymringer]
+ 
 
         self.EtaWidth = 0.2
         self.PhiWidth = 0.2
@@ -199,7 +223,7 @@ class T2CaloEgamma_ReFastFWDAlgo (CompFactory.T2CaloEgammaForwardReFastAlgo):
         self.IReAlgToolList = []
         self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), 
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), 
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
         
         self.EtaWidth = 0.2
         self.PhiWidth = 0.2

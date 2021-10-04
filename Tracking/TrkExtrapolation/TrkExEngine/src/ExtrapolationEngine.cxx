@@ -14,17 +14,10 @@
 
 // constructor
 Trk::ExtrapolationEngine::ExtrapolationEngine(const std::string& t, const std::string& n, const IInterface* p)
-: AthAlgTool(t,n,p),
-  m_propagationEngine(""),    
-  m_navigationEngine(""),    
+: AthAlgTool(t,n,p),   
   m_forceSearchInit(false)
 {
     declareInterface<Trk::IExtrapolationEngine>(this);
-    // Extrapolation Engine retrieval 
-    declareProperty("ExtrapolationEngines"                  , m_extrapolationEngines);    
-    // The Tools needed
-    declareProperty("PropagationEngine"                     , m_propagationEngine);
-    declareProperty("NavigationEngine"                      , m_navigationEngine);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);

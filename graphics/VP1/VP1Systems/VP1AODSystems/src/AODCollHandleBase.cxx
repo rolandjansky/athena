@@ -65,28 +65,28 @@ public:
 //____________________________________________________________________
 AODCollHandleBase::AODCollHandleBase( AODSysCommonData * cd, const QString& name, xAOD::Type::ObjectType type	)
   //AODCollHandleBase::AODCollHandleBase( AODSysCommonData * cd, const QString& name)
-  : VP1StdCollection(cd->system(),"AODCollHandleBase_FIXME_"+name), m_d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
+  : VP1StdCollection(cd->system(),"AODCollHandleBase_FIXME_"+name), m_dbase(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
   m_nshownhandles(0),
   m_type(type),
   m_commonData(cd),
   m_sephelper(0)
 {
-  m_d->theclass = this;
-  m_d->name = name;
-  m_d->objBrowseTree = 0;
+  m_dbase->theclass = this;
+  m_dbase->name = name;
+  m_dbase->objBrowseTree = 0;
 }
 
 // //____________________________________________________________________
 // void AODCollHandleBase::init(VP1MaterialButtonBase*)
 // {
-//     // m_d->matButton = new TrackCollectionSettingsButton;
-//     // m_d->matButton->setText(text());
-//     // VP1StdCollection::init(m_d->matButton);//this call is required. Passing in TrackCollectionSettingsButton means we have the more complex button. 
+//     // m_dbase->matButton = new TrackCollectionSettingsButton;
+//     // m_dbase->matButton->setText(text());
+//     // VP1StdCollection::init(m_dbase->matButton);//this call is required. Passing in TrackCollectionSettingsButton means we have the more complex button. 
 //   VP1StdCollection::init();//FIXME
 //   setupSettingsFromController(common()->controller());
 //   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 // 	
-//   // collSwitch()->addChild(m_d->matButton->trackDrawStyle());
+//   // collSwitch()->addChild(m_dbase->matButton->trackDrawStyle());
 // }
 
 //____________________________________________________________________
@@ -96,7 +96,7 @@ AODCollHandleBase::~AODCollHandleBase()
 
 
   // delete the Imp instance
-  delete m_d;
+  delete m_dbase;
 
   if (m_sephelper) {
     SoSeparator * sep = m_sephelper->topSeparator();
@@ -129,7 +129,7 @@ void AODCollHandleBase::setupSettingsFromController(AODSystemController* control
 //____________________________________________________________________
 QString AODCollHandleBase::name() const
 {
-  return m_d->name;
+  return m_dbase->name;
 }
 
 
@@ -162,7 +162,7 @@ void AODCollHandleBase::recheckCutStatusOfAllVisibleHandles()
   // handle=getNextHandle();
   // recheckCutStatus(handle);
   
-  // std::vector<AODHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
+  // std::vector<AODHandleBase*>::iterator it(m_dbase->handles.begin()),itE(m_dbase->handles.end());
   // for (;it!=itE;++it) {
   //   if ((*it)->visible())
   //     recheckCutStatus(*it);
@@ -321,12 +321,12 @@ void AODCollHandleBase::updateMaterialOfAllHandles()
 //   //   targetText = Imp::comboBoxEntry_ColourByCollection();
 //   //   break;
 //   // }
-//   // if (targetText!=m_d->comboBox_colourby->currentText()) {
-//   //   int i = m_d->comboBox_colourby->findText(targetText);
-//   //   if (i>=0&&i<m_d->comboBox_colourby->count()) {
-//   //     bool save = m_d->comboBox_colourby->blockSignals(true);
-//   //     m_d->comboBox_colourby->setCurrentIndex(i);
-//   //     m_d->comboBox_colourby->blockSignals(save);
+//   // if (targetText!=m_dbase->comboBox_colourby->currentText()) {
+//   //   int i = m_dbase->comboBox_colourby->findText(targetText);
+//   //   if (i>=0&&i<m_dbase->comboBox_colourby->count()) {
+//   //     bool save = m_dbase->comboBox_colourby->blockSignals(true);
+//   //     m_dbase->comboBox_colourby->setCurrentIndex(i);
+//   //     m_dbase->comboBox_colourby->blockSignals(save);
 //   //   } else {
 //   //     message("ERROR: Problems finding correct text in combo box");
 //   //   }
@@ -348,7 +348,7 @@ void AODCollHandleBase::updateMaterialOfAllHandles()
 //   //   return;
 //   // messageVerbose("rerandomiseRandomTrackColours start");
 //   // largeChangesBegin();
-//   // std::vector<AODHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
+//   // std::vector<AODHandleBase*>::iterator it(m_dbase->handles.begin()),itE(m_dbase->handles.end());
 //   // for (;it!=itE;++it)
 //   //   (*it)->rerandomiseRandomMaterial();
 //   // largeChangesEnd();
@@ -362,7 +362,7 @@ void AODCollHandleBase::updateMaterialOfAllHandles()
 //   //   return;
 //   // messageVerbose("handleSelectionChanged start");
 //   // largeChangesBegin();
-//   // std::vector<AODHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
+//   // std::vector<AODHandleBase*>::iterator it(m_dbase->handles.begin()),itE(m_dbase->handles.end());
 //   // for (;it!=itE;++it)
 //   //   (*it)->updateMaterial();
 //   // largeChangesEnd();
@@ -398,34 +398,34 @@ void AODCollHandleBase::collVisibilityChanged(bool vis)
   if (!m_sephelper)
     m_sephelper = new VP1ExtraSepLayerHelper(collSep());
 
-  if (!m_d->objBrowseTree)
+  if (!m_dbase->objBrowseTree)
     fillObjectBrowser();
   
   if (vis){
     recheckCutStatusOfAllNotVisibleHandles();//Fixme -> ofallhandles? All must be not visible anyway...
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
+    if (m_dbase->objBrowseTree) m_dbase->objBrowseTree->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
   }else{
     recheckCutStatusOfAllVisibleHandles();
     //    QTreeWidget* trkObjBrowser = common()->controller()->trackObjBrowser();
-    //    if (m_d->objBrowseTree && trkObjBrowser) {
-    //      trkObjBrowser->takeTopLevelItem(trkObjBrowser->indexOfTopLevelItem(m_d->objBrowseTree));
-    //      delete m_d->objBrowseTree; m_d->objBrowseTree=0;
+    //    if (m_dbase->objBrowseTree && trkObjBrowser) {
+    //      trkObjBrowser->takeTopLevelItem(trkObjBrowser->indexOfTopLevelItem(m_dbase->objBrowseTree));
+    //      delete m_dbase->objBrowseTree; m_dbase->objBrowseTree=0;
     //    }
     // FIXME - need to loop through handles setting pointers to deleted QTreeWidgetItems
-    if (m_d->objBrowseTree) m_d->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
+    if (m_dbase->objBrowseTree) m_dbase->objBrowseTree->setFlags(Qt::ItemFlags()); // not selectable, not enabled
   }
 } 
 
 void AODCollHandleBase::updateObjectBrowserVisibilityCounts() {
   messageVerbose("AODCollHandleBase::updateObjectBrowserVisibilityCounts called for "+name());
   QTreeWidget* trkObjBrowser = common()->controller()->objBrowser();
-  if (!trkObjBrowser || !m_d->objBrowseTree) {
+  if (!trkObjBrowser || !m_dbase->objBrowseTree) {
     messageVerbose("AODCollHandleBase::updateObjectBrowserVisibilityCounts: no common()->controller()->objBrowser() and/or d->objBrowseTree. Aborting");
-    messageVerbose("trkObjBrowser: "+str(trkObjBrowser)+"\t d->objBrowseTree: "+str(m_d->objBrowseTree));
+    messageVerbose("trkObjBrowser: "+str(trkObjBrowser)+"\t d->objBrowseTree: "+str(m_dbase->objBrowseTree));
     return;
   }
   QString text(QString(": (")+QString::number(nShownHandles())+QString("/")+QString::number(getHandlesList().count())+QString(") visible"));
-  m_d->objBrowseTree->setText(1, text);
+  m_dbase->objBrowseTree->setText(1, text);
 }
 
 void AODCollHandleBase::fillObjectBrowser()
@@ -447,12 +447,12 @@ void AODCollHandleBase::fillObjectBrowser()
   trkObjBrowser->setUpdatesEnabled(false);
 
   bool firstTime=false;
-  if (!m_d->objBrowseTree) {
-    m_d->objBrowseTree = new QTreeWidgetItem(0);
+  if (!m_dbase->objBrowseTree) {
+    m_dbase->objBrowseTree = new QTreeWidgetItem(0);
     firstTime=true;
     messageVerbose("AODCollHandleBase::fillObjectBrowser: First time so creating QTreeWidgetItem.");
   } else {
-    int index = trkObjBrowser->indexOfTopLevelItem(m_d->objBrowseTree);
+    int index = trkObjBrowser->indexOfTopLevelItem(m_dbase->objBrowseTree);
     if (index==-1 ) {
       messageVerbose("Missing from WidgetTree! Will continue but something must be wrong");
     }
@@ -481,10 +481,10 @@ void AODCollHandleBase::fillObjectBrowser()
 
   QString text(QString(": (")+QString::number(numVisible)+QString("/")+QString::number(i)+QString(") visible"));
 
-  m_d->objBrowseTree->setText(0, name());
-  m_d->objBrowseTree->setText(1, text);
-  m_d->objBrowseTree->addChildren(list);
-  trkObjBrowser->addTopLevelItem(m_d->objBrowseTree);
+  m_dbase->objBrowseTree->setText(0, name());
+  m_dbase->objBrowseTree->setText(1, text);
+  m_dbase->objBrowseTree->addChildren(list);
+  trkObjBrowser->addTopLevelItem(m_dbase->objBrowseTree);
   trkObjBrowser->setUpdatesEnabled(true);
 
   messageVerbose("AODCollHandleBase::fillObjectBrowser completed in "+QString::number(t.elapsed())+" ms");
@@ -502,7 +502,7 @@ void AODCollHandleBase::assignDefaultMaterial(SoMaterial * m) const
 //____________________________________________________________________
 QList<QWidget*> AODCollHandleBase::provideExtraWidgetsForGuiRow() const
 {
-  // return QList<QWidget*>() << m_d->comboBox_colourby;
+  // return QList<QWidget*>() << m_dbase->comboBox_colourby;
   return QList<QWidget*>();
 }
 
@@ -510,7 +510,7 @@ QList<QWidget*> AODCollHandleBase::provideExtraWidgetsForGuiRow() const
 QByteArray AODCollHandleBase::extraWidgetsState() const
 {
   VP1Serialise serialise(0/*version*/,systemBase());
-  // serialise.save(m_d->comboBox_colourby);
+  // serialise.save(m_dbase->comboBox_colourby);
   // serialise.disableUnsavedChecks();
   return serialise.result();
 }
@@ -526,7 +526,7 @@ void AODCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
   // VP1Deserialise state(ba, systemBase());
   // if (state.version()!=0)
   //   return;//just ignore silently... i guess we ought to warn?
-  // state.restore(m_d->comboBox_colourby);
+  // state.restore(m_dbase->comboBox_colourby);
   // state.disableUnrestoredChecks();
   // colourByComboBoxItemChanged();
 }
@@ -540,7 +540,7 @@ void AODCollHandleBase::colourByComboBoxItemChanged()
 
   messageVerbose("TO BE IMPLEMENTED!!!");
   /*
-    if (m_d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
+    if (m_dbase->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
       setColourBy(COLOUR_RANDOM);
     else
       setColourBy(COLOUR_PERCOLLECTION);
@@ -559,7 +559,7 @@ void AODCollHandleBase::setState(const QByteArray&state)
   bool vis = des.restoreBool();
 
   QByteArray matState = des.restoreByteArray();
-  // m_d->matButton->restoreFromState(matState);
+  // m_dbase->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -570,15 +570,15 @@ void AODCollHandleBase::setState(const QByteArray&state)
 //____________________________________________________________________
 QByteArray AODCollHandleBase::persistifiableState() const
 {
-  // if (!m_d->matButton) {
+  // if (!m_dbase->matButton) {
   //   message("ERROR: persistifiableState() called before init()");
   //   return QByteArray();
   // }
   VP1Serialise serialise(1/*version*/);
   serialise.disableUnsavedChecks();
   serialise.save(visible());
-  // Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  // serialise.save(m_d->matButton->saveState());
+  // Q_ASSERT(m_dbase->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  // serialise.save(m_dbase->matButton->saveState());
   serialise.save(extraWidgetsState());//version 1+
   return serialise.result();
 }

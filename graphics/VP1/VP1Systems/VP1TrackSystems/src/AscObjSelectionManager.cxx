@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -262,7 +262,7 @@ void AscObjSelectionManager::pretendUserClicked(AssociatedObjectHandleBase*handl
   if (!handle)
     return;
   const bool alreadyselected = m_d->selAscObjHandles.contains(handle);
-  qSort(m_d->selAscObjHandles);
+  std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
   QList<AssociatedObjectHandleBase*> selHandlesBefore = m_d->selAscObjHandles;
 
   if (m_d->mode==SINGLE) {
@@ -303,7 +303,7 @@ void AscObjSelectionManager::pretendUserClicked(AssociatedObjectHandleBase*handl
     deselectAll();
     return;
   }
-  qSort(m_d->selAscObjHandles);
+  std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
 
   if (selHandlesBefore!=m_d->selAscObjHandles) {
     m_d->updateSelectionVisuals();
@@ -368,7 +368,7 @@ void AscObjSelectionManager::ensureSelected(const QList<AssociatedObjectHandleBa
       if (!m_d->selAscObjHandles.contains(handle))
 	m_d->selAscObjHandles << handle;
     }
-    qSort(m_d->selAscObjHandles);
+    std::sort(m_d->selAscObjHandles.begin(), m_d->selAscObjHandles.end());
     if (selHandlesBefore!=m_d->selAscObjHandles) {
       m_d->updateSelectionVisuals();
       currentSelectionChanged(m_d->selAscObjHandles);

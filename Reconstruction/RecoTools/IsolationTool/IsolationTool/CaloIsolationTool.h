@@ -19,6 +19,8 @@
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "CaloRec/CaloClusterProcessor.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #endif // XAOD_ANALYSIS
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -297,6 +299,9 @@ namespace xAOD {
       /** The input calorimeter extensions */
       SG::ReadHandleKey<CaloExtensionCollection> m_caloExtensionKey{
         this, "InputCaloExtension", "", "The calorimeter extensions of the tracks"};
+
+      /** CaloDetDescrManager from ConditionStore */
+      SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 #endif // XAOD_ANALYSIS
 
       /** @brief Tool for pt-corrected isolation calculation (new)*/

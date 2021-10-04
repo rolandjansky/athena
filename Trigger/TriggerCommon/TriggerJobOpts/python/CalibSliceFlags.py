@@ -6,13 +6,6 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 _flags = []
-class doTrackingApproach(JobProperty):
-    """ Use tracking approach in Calib Trigger """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-    
-_flags.append(doTrackingApproach)
 
 class signatures(JobProperty):
     """ signatures in Calib slice """

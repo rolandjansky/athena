@@ -59,10 +59,6 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   std::array<std::array<int, 3>, FEXAlgoSpaceDefs::BTOBFIB> gBlockTOBeta = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
   std::array<std::array<int, 3>, FEXAlgoSpaceDefs::BTOBFIB> gBlockTOBphi = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
 
-  // std::array<std::array<int, 3>, 4> gBlockTOBv   = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-  // std::array<std::array<int, 3>, 4> gBlockTOBeta = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-  // std::array<std::array<int, 3>, 4> gBlockTOBphi = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-
 
   // calculate A & B  remote partial sums first
   gTowersPartialSums RAlps_out, RArps_out;

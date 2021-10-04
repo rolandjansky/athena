@@ -106,18 +106,13 @@ def Lvl1MuonSimulationCfg(flags):
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
     acc.merge( RPCCablingConfigCfg(flags) )
 
-    if not flags.Input.isMC:        
-        tagName = flags.Trigger.L1MuonSim.CondDBOffline if flags.Trigger.L1MuonSim.CondDBOffline != '' else "OFLCOND-MC16-SDR-RUN2-04"
-        acc.merge(addFolders(flags, ["<db>COOLOFL_RPC/OFLP200</db> /RPC/TRIGGER/CM_THR_ETA",
-                                     "<db>COOLOFL_RPC/OFLP200</db> /RPC/TRIGGER/CM_THR_PHI"], 
-                             tag=tagName, className="CondAttrListCollection"))
-
     rpcL1Alg = CompFactory.TrigT1RPC("TrigT1RPC",
-                                        Hardware = True, # not sure if needed, not there in old config, present in JO
-                                        DataDetail = False,
-                                        RPCbytestream = False,
-                                        RPCbytestreamFile = "",
-                                        RPCDigitContainer = "RPC_DIGITS_L1")
+                                     Hardware = True, # not sure if needed, not there in old config, present in JO
+                                     DataDetail = False,
+                                     RPCbytestream = False,
+                                     RPCbytestreamFile = "",
+                                     RPCDigitContainer = "RPC_DIGITS_L1",
+                                     useRun3Config = True)
     acc.addEventAlgo(rpcL1Alg)
 
     #TGC
@@ -150,9 +145,10 @@ def Lvl1MuonSimulationCfg(flags):
 
 
     tgcL1Alg = CompFactory.LVL1TGCTrigger.LVL1TGCTrigger("LVL1TGCTrigger",
-                                                            InputData_perEvent  = "TGC_DIGITS_L1", 
-                                                            MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                                            MaskFileName12      = "TrigT1TGCMaskedChannel._12.db")
+                                                         InputData_perEvent  = "TGC_DIGITS_L1",
+                                                         MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
+                                                         MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
+                                                         useRun3Config = True)
     if not flags.Input.isMC:
         tgcL1Alg.TileMuRcv_Input = "rerunTileMuRcvCnt"
 
@@ -160,23 +156,8 @@ def Lvl1MuonSimulationCfg(flags):
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 
-    # based on: Trigger/TrigT1/TrigT1Muctpi/python/TrigT1MuctpiConfig.py
-    muctpiAlg = CompFactory.LVL1MUCTPI.L1Muctpi("L1Muctpi", 
-                                                OverlapStrategyName = "LUT",
-                                                DumpLUT = False,
-                                                FlaggingMode = False,
-                                                MultiplicityStrategyName = "INCLUSIVE",
-                                                # TODO this value depends on the flags on original however seem always to default to this two settings below
-                                                # is definitely different for Run3 
-                                                LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml",
-                                                RunPeriod = "RUN2",
-                                                GeometryXMLFile = "TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml",
-                                                DoNIMOutput = True,
-                                                NIMBarrelBit = 29,
-                                                NIMEndcapBit = 30,
-                                                LVL1ConfigSvc = acc.getService("LVL1ConfigSvc"))
-
-    acc.addEventAlgo(muctpiAlg)
+    from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthAlgCfg
+    acc.merge(MUCTPI_AthAlgCfg(flags))
 
     return acc
 
@@ -194,6 +175,7 @@ if __name__ == "__main__":
     flags.Scheduler.ShowDataDeps=True
     flags.Scheduler.CheckDependencies=True
     flags.Scheduler.ShowDataFlow=True
+    flags.Trigger.enableL1MuonPhase1=True
 
     acc = MainServicesCfg(flags)
 

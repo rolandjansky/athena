@@ -388,12 +388,14 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     // set the event weight
     evt->weights().push_back(m_pythia->info.weight());
-    
+#ifdef HEPMC3
+    GeVToMeV(evt);
+#else
     // Units correction
     if(Pythia8_i::pythiaVersion() < 8.170 ){
         GeVToMeV(evt);
     }
-    
+#endif
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());
     m_internalEventNumbers.erase(m_internalEventNumbers.begin());

@@ -110,7 +110,7 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
 
     const float avgMu = eventinfo->averageInteractionsPerCrossing();
     const auto& attr = (**digitizationFolder)[std::string("BeamIntensityPattern")];
-    const std::string sbunches = attr.data<std::string>();
+    const std::string& sbunches = attr.data<std::string>();
     std::vector<float> bunchpattern = tokenize(sbunches);
     
     if (bunchpattern.size() != LuminosityCondData::TOTAL_LHC_BCIDS) {

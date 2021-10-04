@@ -103,12 +103,6 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<ConeLayer*>(this)->moveLayer(shift);
-  };
-
  private:
   /** Resize the layer to the tracking volume - not (yet) supported for
    * ConeLayer */

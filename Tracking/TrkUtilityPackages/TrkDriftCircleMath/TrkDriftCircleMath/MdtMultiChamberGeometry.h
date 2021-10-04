@@ -5,70 +5,64 @@
 #ifndef DCMATH_MDTMULTICHAMBERGEOMETRY_H
 #define DCMATH_MDTMULTICHAMBERGEOMETRY_H
 
-#include "TrkDriftCircleMath/DriftCircle.h"
-#include "TrkDriftCircleMath/ChamberGeometry.h"
-#include "TrkDriftCircleMath/MdtChamberGeometry.h"
-#include "TrkDriftCircleMath/Line.h"
-
 #include <ostream>
 #include <vector>
 
+#include "TrkDriftCircleMath/ChamberGeometry.h"
+#include "TrkDriftCircleMath/DriftCircle.h"
+#include "TrkDriftCircleMath/Line.h"
+#include "TrkDriftCircleMath/MdtChamberGeometry.h"
+
 namespace TrkDriftCircleMath {
 
-  class MdtMultiChamberGeometry : public ChamberGeometry {
-  public:
-    
-    MdtMultiChamberGeometry();
+    class MdtMultiChamberGeometry : public ChamberGeometry {
+    public:
+        MdtMultiChamberGeometry();
 
-    MdtMultiChamberGeometry( const std::vector<MdtChamberGeometry>& chambers );
-  
-    virtual ~MdtMultiChamberGeometry();
+        MdtMultiChamberGeometry(const std::vector<MdtChamberGeometry>& chambers);
 
-    virtual const std::vector<LocPos>& allTubes() const;
+        virtual ~MdtMultiChamberGeometry();
 
-    virtual const DCVec& tubesPassedByLine( const Line& line, int ml ) const;
-    virtual const DCVec& tubesPassedByLine( const Line& line ) const { return tubesPassedByLine( line, -1 ); }
+        const std::vector<LocVec2D>& allTubes() const override;
 
-    virtual unsigned int nlay() const;
-    
-    virtual const LocPos& tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const;
+        DCVec tubesPassedByLine(const Line& line, int ml) const;
+        DCVec tubesPassedByLine(const Line& line) const override { return tubesPassedByLine(line, -1); }
 
-    virtual bool validGeometry() const { return m_validGeometry; }
+        unsigned int nlay() const override;
 
-    virtual void print() const;
+        LocVec2D tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const override;
 
-    virtual double tubeRadius() const;
+        bool validGeometry() const override { return m_validGeometry; }
 
-    double stationTheta() const;
-    
-    const MdtStationId& stationId() const { return m_chambers.at(0).stationId(); }
-    
-    unsigned int nChambers() const { return m_chambers.size(); }
+        virtual void print() const override;
 
-  private:
+        virtual double tubeRadius() const override;
 
-    std::vector<MdtChamberGeometry>  m_chambers;
-    mutable std::vector<LocPos>      m_allTubes;
-    mutable DCVec                    m_crossedTubes;
-    bool 														 m_validGeometry;
-  };
+        double stationTheta() const override;
 
-  inline double MdtMultiChamberGeometry::stationTheta() const {
-    double theta = 0.;
-    if( m_chambers.empty() || !m_validGeometry ) return 0.;
+        const MdtStationId& stationId() const override { return m_chambers[0].stationId(); }
 
-    std::vector<MdtChamberGeometry>::const_iterator chit = m_chambers.begin();
-    std::vector<MdtChamberGeometry>::const_iterator chit_end = m_chambers.end();
-    for( ;chit!=chit_end;++chit ) theta += chit->stationTheta();
-    return theta/m_chambers.size();
-  }
+        unsigned int nChambers() const { return m_chambers.size(); }
 
-  inline double MdtMultiChamberGeometry::tubeRadius() const {
-    if( m_chambers.empty() ) return 14.6;
-    return m_chambers.front().tubeRadius();
-  }
+    private:
+        std::vector<MdtChamberGeometry> m_chambers;
+        std::vector<LocVec2D> m_allTubes;
+        bool m_validGeometry{false};
+    };
 
-}
+    inline double MdtMultiChamberGeometry::stationTheta() const {
+        double theta = 0.;
+        if (m_chambers.empty() || !m_validGeometry) return 0.;
 
+        for (const MdtChamberGeometry& chit : m_chambers) theta += chit.stationTheta();
+        return theta / m_chambers.size();
+    }
+
+    inline double MdtMultiChamberGeometry::tubeRadius() const {
+        if (m_chambers.empty()) return 14.6;
+        return m_chambers.front().tubeRadius();
+    }
+
+}  // namespace TrkDriftCircleMath
 
 #endif

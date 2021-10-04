@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
@@ -16,14 +16,14 @@
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-class MuonCombinedMuonCandidateAlg : public AthAlgorithm {
+class MuonCombinedMuonCandidateAlg : public AthReentrantAlgorithm {
 public:
     MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     ~MuonCombinedMuonCandidateAlg() = default;
 
-    StatusCode initialize();
-    StatusCode execute();
+    StatusCode initialize() override;
+    StatusCode execute(const EventContext& ctx) const override;
 
 private:
     ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool{

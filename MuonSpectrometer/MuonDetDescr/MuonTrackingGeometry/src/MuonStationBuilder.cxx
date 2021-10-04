@@ -115,10 +115,10 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
+        const std::string &vname = clv->getName();
 
         // special treatment for NSW
-        if (vname.substr(0, 3) == "NSW" || vname.substr(0, 8) == "NewSmall") {
+        if (vname.compare(0, 3, "NSW") == 0 || vname.compare(0, 8, "NewSmall") == 0) {
             ATH_MSG_INFO(vname << " processing NSW ");
             std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
@@ -131,7 +131,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                 std::vector<Amg::Transform3D> volTr;
                 volTr.push_back(vol.getTransform());
                 std::pair<const GeoLogVol*, Trk::MaterialProperties*> cpair(clv, 0);
-                vols.emplace_back(cpair, volTr);
+                vols.emplace_back(cpair, std::move(volTr));
                 volNames.push_back(vname);
                 simpleTree = true;
             } else {
@@ -835,7 +835,8 @@ void Muon::MuonStationBuilder::glueComponents(const Trk::DetachedTrackingVolume*
 void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume* station, int eta, int phi) const {
     ATH_MSG_VERBOSE(name() << " identifying layers ");
 
-    std::string stationName = station->trackingVolume()->volumeName();
+    const std::string &stationNamestr = station->trackingVolume()->volumeName();
+    std::string_view stationName(stationNamestr);
     ATH_MSG_VERBOSE(" in station " << station->name());
 
     if (stationName.substr(0, 1) == "C") {
@@ -852,8 +853,14 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
                 const Trk::Layer* assocLay = nullptr;
                 if (assocVol) assocLay = assocVol->associatedLayer(gpi);
                 unsigned int iD = idi.get_identifier32().get_compact();
-                if (assocVol && assocLay) const_cast<Trk::Layer*>(assocLay)->setLayerType(iD);
-                if (assocLay) assocLay->setRef((assocLay->surfaceRepresentation().transform().inverse() * gpi)[1]);
+                if (assocVol && assocLay) {
+                  const_cast<Trk::Layer*>(assocLay)->setLayerType(iD);
+                }
+                if (assocLay) {
+                  const_cast<Trk::Layer*>(assocLay)->setRef(
+                    (assocLay->surfaceRepresentation().transform().inverse() *
+                     gpi)[1]);
+                }
             }
         } else {
             ATH_MSG_DEBUG("cscRE not found:" << st << "," << eta << "," << phi);
@@ -966,11 +973,13 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
                                     double sign = (ref > 0.) ? 1. : -1.;
                                     int dec = int(ref / 1e5);
                                     ref = ref - dec * 1e5 - 0.5 * (sign + 1) * 1e5;
-                                    if (fabs(ref - loc) > 0.001) {  // re-pack
-                                        cLays[il]->setRef(loc + dec * 1e5 + 0.5 * (sign + 1) * 1e5);
+                                    if (std::abs(ref - loc) > 0.001) { // re-pack
+                                      (const_cast<Trk::Layer*>(cLays[il]))
+                                        ->setRef(loc + dec * 1e5 + 0.5 * (sign + 1) * 1e5);
                                     }
-                                } else if (fabs(ref - loc) > 0.001)
-                                    cLays[il]->setRef(loc);
+                                } else if (std::abs(ref - loc) > 0.001){
+                                  (const_cast<Trk::Layer*>(cLays[il]))->setRef(loc);
+                                }
                             }
                         }
                     }
@@ -1131,7 +1140,7 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
                                                     const Amg::Vector3D locPos =
                                                         (*layers)[il]->surfaceRepresentation().transform().inverse() * transf.inverse() *
                                                         rpc->surface(etaId).center();
-                                                    (*layers)[il]->setRef(swap + locPos[0]);
+                                                    (const_cast<Trk::Layer*>((*layers)[il]))->setRef(swap + locPos[0]);
                                                 }
                                             }
                                         }

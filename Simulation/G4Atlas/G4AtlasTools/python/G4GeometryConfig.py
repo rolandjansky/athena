@@ -280,8 +280,8 @@ def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
         kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)
 
-def getSmartlessnessTool(name="SmartlessnessTool", **kwargs):
-    return CfgMgr.SmartlessnessTool(name, **kwargs)
+def getVoxelDensityTool(name="VoxelDensityTool", **kwargs):
+    return CfgMgr.VoxelDensityTool(name, **kwargs)
 
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
@@ -435,7 +435,7 @@ def getGeometryConfigurationTools():
     # CfgGetter methods for these tools should be defined in the
     # package containing each tool, so G4AtlasTools in this case
     geoConfigToolList += ["MaterialDescriptionTool"]
-    geoConfigToolList += ["SmartlessnessTool"]
+    geoConfigToolList += ["VoxelDensityTool"]
     return geoConfigToolList
 
 def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):

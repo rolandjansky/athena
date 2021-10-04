@@ -50,7 +50,8 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   declareProperty("inputPDFFileName",
                   m_pdfFileName = "",
                   "The input ROOT file name that holds the PDFs");
-  
+
+
   //Addtional properties that are not part of the config files
   declareProperty(
     "usePVContainer", m_usePVCont = true, "Whether to use the PV container");
@@ -64,10 +65,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   declareProperty("skipDeltaPoverP",
                   m_skipDeltaPoverP = false,
                   "If true, it wil skip the check of deltaPoverP");
- // Flag to tell the tool if it is a calo-only LH
-  declareProperty("caloOnly",
-                  m_caloOnly = false,
-                  "Flag to tell the tool if it is a calo-only LH");
 }
 
 AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
@@ -346,7 +343,7 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
         ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
       passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(t);
       d0 = t->d0();
-      EoverP = fabs(t->qOverP()) * energy;
+      EoverP = std::abs(t->qOverP()) * energy;
     } else {
       ATH_MSG_ERROR("Failed, no track particle. et= " << et << "eta= " << eta);
       return m_rootTool->accept();
@@ -1058,7 +1055,7 @@ AsgElectronLikelihoodTool::isForwardElectron(const xAOD::Egamma* eg,
     }
   } else {
     // Check for fwd via eta range the old logic
-    if (fabs(eta) > 2.5) {
+    if (std::abs(eta) > 2.5) {
       ATH_MSG_WARNING("Failed, cluster->etaBE(2) range due to "
                       << eta << " seems like a fwd electron");
       return true;

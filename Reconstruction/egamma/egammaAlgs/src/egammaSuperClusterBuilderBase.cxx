@@ -678,15 +678,14 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
     return StatusCode::FAILURE;
   }
 
-  CaloCellList myList(inputcells);
+  CaloCellList myList(&mgr,inputcells);
 
   const std::vector<CaloSampling::CaloSample> samples = {
     CaloSampling::TileGap3
   };
   for (auto samp : samples) {
     // quite slow
-    myList.select(mgr,
-                  tofill.eta0(),
+    myList.select(tofill.eta0(),
                   tofill.phi0(),
                   searchWindowEta,
                   searchWindowPhi,

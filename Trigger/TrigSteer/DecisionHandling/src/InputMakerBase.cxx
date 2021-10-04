@@ -43,7 +43,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
   ATH_CHECK( outputHandle.isValid() );
   TrigCompositeUtils::DecisionContainer* outDecisions  = outputHandle.ptr();
 
-  for ( auto inputKey: decisionInputs() ) {
+  for ( const auto& inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
 
     if( not inputHandle.isValid() ) {
@@ -148,7 +148,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
 
 void InputMakerBase::debugPrintOut(const EventContext& context, SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const{
   size_t validInput=0;
-  for ( auto inputKey: decisionInputs() ) {
+  for ( const auto& inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
     ATH_MSG_DEBUG(" " << inputKey.key() << " " << (inputHandle.isValid()? "valid": "not valid" ) );
     if (inputHandle.isValid()) {

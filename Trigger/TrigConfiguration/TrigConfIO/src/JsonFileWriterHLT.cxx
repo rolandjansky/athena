@@ -18,9 +18,36 @@ TrigConf::JsonFileWriterHLT::JsonFileWriterHLT() :
 {}
 
 
+/// Helper function ptree key->[] to std::vector<T>
+template<typename T>
+std::vector<T> ToVector(const TrigConf::DataStructure& ds, const std::string& child){
+   using ptree = boost::property_tree::ptree;
+   std::vector<T> return_vector;
+   for( const ptree::value_type& entry : ds.data().get_child(child) ) {
+      return_vector.push_back( entry.second.get_value<T>() );
+   }
+   return return_vector;
+}
+
+/// Helper function ptree key->[[]] to std::vector<std::vector<T>>
+template<typename T>
+std::vector<std::vector<T>> ToVectorVector(const TrigConf::DataStructure& ds, const std::string& child){
+   using ptree = boost::property_tree::ptree;
+   std::vector<std::vector<T>> return_vector;
+   for( const ptree::value_type& outer : ds.data().get_child(child) ) {
+      return_vector.push_back(std::vector<T>());
+      for (const ptree::value_type& inner : outer.second) {
+         return_vector.back().push_back( inner.second.get_value<T>() );
+      }
+   }
+   return return_vector;
+}
+
+
 bool
 TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const HLTMenu & menu) const
 {
+   using ptree = boost::property_tree::ptree;
    json chains({});
    for ( const auto & chain : menu ) {
       json jChain({});
@@ -32,6 +59,17 @@ TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const H
       jChain["groups"] = chain.groups();
       jChain["streams"] = chain.streams();
       jChain["seqeuncers"] = chain.sequencers();
+
+      // Optional Run2 payload
+      if (chain.hasChild("signature")) {
+         json jSig({});
+         jSig["counters"] = ToVector<uint32_t>(chain, "signature.counters");
+         jSig["logics"] = ToVector<int>(chain, "signature.logics");
+         jSig["labels"] = ToVector<std::string>(chain, "signature.labels");
+         jSig["outputTEs"] = ToVectorVector<std::string>(chain, "signature.outputTEs");
+         jChain["signature"] = jSig;
+      }
+
       chains[chain.name()] = jChain;
    }
 
@@ -58,6 +96,14 @@ TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const H
    j["sequencers"] = sequencers;
    j["streams"] = streams;
 
+   // Optional Run2 payload
+   if (menu.hasChild("sequence_run2")) {
+      json jSequence({});
+      jSequence["outputTEs"] = ToVector<std::string>(menu, "sequence_run2.outputTEs");
+      jSequence["inputTEs"] = ToVectorVector<std::string>(menu, "sequence_run2.inputTEs");
+      jSequence["algorithms"] = ToVectorVector<std::string>(menu, "sequence_run2.algorithms");
+      j["sequence_run2"] = jSequence;
+   }
 
    std::ofstream outfile(filename);
    outfile << std::setw(4) << j << std::endl;

@@ -8,6 +8,8 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ROOT import egammaPID
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+IDTrigConfig = getInDetTrigConfig( 'electron' )
 
 # Add ONNX into app service mgr (in rec-ex common style), but only in Run 2 conf style
 from AthenaCommon.Configurable import Configurable
@@ -25,10 +27,11 @@ class TrigEgammaKeys(object):
       outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
       EgammaRecKey = 'HLT_egammaRecCollection'
+      IDTrigConfig = getInDetTrigConfig( 'electron' )
       outputPhotonKey = recordable('HLT_egamma_Photons')
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
-      TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
+      TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
       pidVersion = 'rel22_20210611'
       dnnVersion = 'mc16_20210430'
       ringerVersion = 'TrigL2_20210702_r4'
@@ -38,7 +41,8 @@ class TrigEgammaKeys(object):
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
       outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
-      TrigElectronTracksCollectionName_LRT = recordable('HLT_IDTrack_ElecLRT_IDTrig')
+      IDTrigConfig_LRT = getInDetTrigConfig('electronLRT')
+      TrigElectronTracksCollectionName_LRT = IDTrigConfig_LRT.tracks_IDTrig()
 
 class TrigEgammaKeys_GSF(object):
       """Static class to collect all string manipulation in Electron sequences """

@@ -69,7 +69,9 @@ InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n
   m_identification("Pixel"),
   m_splitMode(0),
   m_splitTolerance(10.),   
-  m_runGeometryValidation(true)
+  m_runGeometryValidation(true),
+  m_useRingLayout(false),
+  m_addMoreSurfaces(false)
 {
   declareInterface<Trk::ILayerBuilder>(this);
   // general steering
@@ -98,6 +100,12 @@ InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n
   declareProperty("SplitTolerance"                   , m_splitTolerance);      
   // Validation
   declareProperty("GeometryValidation"               , m_runGeometryValidation);
+  // for splitting the geometry
+  declareProperty("LayerIndicesBarrel"               , m_layerIndicesBarrel);
+  declareProperty("LayerIndicesEndcap"               , m_layerIndicesEndcap);
+  declareProperty("UseRingLayout"                    , m_useRingLayout);
+  // For OverlapDescriptor settings
+  declareProperty("AddMoreSurfaces"                  , m_addMoreSurfaces);
 }
 
 // destructor
@@ -176,7 +184,9 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   for (int i = 0; i < siNumerology.numLayers(); i++)
        if (siNumerology.useLayer(i)) barrelLayers++;
   
-
+  if (not m_layerIndicesBarrel.empty())
+    barrelLayers = m_layerIndicesBarrel.size();
+         
   // screen output
   ATH_MSG_DEBUG( "Configured to build " << barrelLayers << " (active) barrel layers (out of " << siNumerology.numLayers() << " )" );
   if (!m_barrelAdditionalLayerR.empty())
@@ -213,21 +223,29 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   for (; sidetIter != m_siMgr->getDetectorElementEnd(); ++sidetIter){
      // Barrel check
      if ((*sidetIter) && (*sidetIter)->isBarrel()){
+       Identifier    currentId((*sidetIter)->identify());
+       int currentlayerIndex = m_pixIdHelper ? m_pixIdHelper->layer_disk(currentId) : m_sctIdHelper->layer_disk(currentId);
+       if (not m_layerIndicesBarrel.empty()) {
+         if (std::find(m_layerIndicesBarrel.begin(), m_layerIndicesBarrel.end(), currentlayerIndex) == m_layerIndicesBarrel.end())
+           continue;
+       }
        // unit test
        ++barrelModules;
        // get the identifier
-       Identifier    currentId((*sidetIter)->identify());
-       int currentlayer = m_pixIdHelper ? m_pixIdHelper->layer_disk(currentId) : m_sctIdHelper->layer_disk(currentId);
        //skip the layer if it is chosen to be switched off
-       if ( !m_siMgr->numerology().useLayer(currentlayer) ) continue;
+       if ( !m_siMgr->numerology().useLayer(currentlayerIndex) ) continue;
+       
+       int currentlayer = m_layerIndicesBarrel.empty() ? 
+                          currentlayerIndex : (currentlayerIndex-m_layerIndicesBarrel.at(0));
+       
        // (A) Determination of phi / eta sectors  ---------------------------------------------------
        // only do the exercise if it hasn't been done already 
        if (layerPhiSectors[currentlayer] == 0){                        
           ATH_MSG_VERBOSE("Pre-processing Elements from Layer (id from idHelper): " << currentlayer );      
           // set number of phiSectors
-          layerPhiSectors[currentlayer] = m_siMgr->numerology().numPhiModulesForLayer(currentlayer);
+          layerPhiSectors[currentlayer] = m_siMgr->numerology().numPhiModulesForLayer(currentlayerIndex);
           // set number of etaSectors
-          layerZsectors[currentlayer] = m_siMgr->numerology().numEtaModulesForLayer(currentlayer);
+          layerZsectors[currentlayer] = m_siMgr->numerology().numEtaModulesForLayer(currentlayerIndex);
           // get the HalfLength of the Layer
           const InDetDD::SiDetectorElement* countPtr = (*sidetIter);
           // needed for the complex z binning if activated
@@ -237,7 +255,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
           // walk all along to negative eta
           while ((countPtr->prevInEta()))
                  countPtr = countPtr->prevInEta();
-           layerMinZ[currentlayer] = countPtr->center().z() - 0.5*fabs(countPtr->length());
+           layerMinZ[currentlayer] = countPtr->center().z() - 0.5*std::abs(countPtr->length());
            zboundaries.push_back(layerMinZ[currentlayer]);
            lastModuleZ   = countPtr->center().z();
            // register the layer minZ into the zboundaries         
@@ -250,14 +268,14 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
                   zboundaries.push_back(currentZboundary);
                   lastModuleZ   = currentModuleZ;
            }
-           layerMaxZ[currentlayer] = fabs(countPtr->center().z()) + 0.5*fabs(countPtr->length());
+           layerMaxZ[currentlayer] = std::abs(countPtr->center().z()) + 0.5*std::abs(countPtr->length());
            zboundaries.push_back(layerMaxZ[currentlayer]);
            
            // complex z binning mode
            layerZboundaries[currentlayer] = zboundaries;
            // chose which one to register for the split mode (SLHC)
            layerHalfLength[currentlayer] =  layerMinZ[currentlayer]*layerMinZ[currentlayer] > layerMaxZ[currentlayer]*layerMaxZ[currentlayer] ?
-               fabs(layerMinZ[currentlayer]) : layerMaxZ[currentlayer];
+               std::abs(layerMinZ[currentlayer]) : layerMaxZ[currentlayer];
            // get the haflength of the layer
            takeSmaller( minHalflengthZ, layerHalfLength[currentlayer]);
            takeBigger( maxHalflengthZ, layerHalfLength[currentlayer]);
@@ -300,7 +318,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
        Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
        if (takeIt) (layerSurfaces[currentlayer]).push_back(surfaceOrder);
      
-     } else if (!(*sidetIter)) // barrel chek and screen output
+    } else if (!(*sidetIter))
         ATH_MSG_WARNING("nullptr to Barrel module given by SiDetectorManager! Please check db & dict.xml");
   
   } // SiDet Loop
@@ -344,7 +362,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       // create the BinKeyUtility - the phi binning is identical
       double halfPhiStep = M_PI/layerPhiSectors[layerCounter];
       // protection in case phi value was fluctuating around 0 or M_PI in parsing
-      if (fabs(layerMinPhi[layerCounter]+layerMaxPhi[layerCounter])< halfPhiStep && fabs(M_PI+layerMinPhi[layerCounter]) < 0.5*halfPhiStep ){
+      if (std::abs(layerMinPhi[layerCounter]+layerMaxPhi[layerCounter])< halfPhiStep && std::abs(M_PI+layerMinPhi[layerCounter]) < 0.5*halfPhiStep ){
           ATH_MSG_VERBOSE("Detected module fluctuation around +/- M_PI, correcting for it.");
           ATH_MSG_VERBOSE("    min phi / max phi detected  : "  << layerMinPhi[layerCounter] << " / " << layerMaxPhi[layerCounter] );
           layerMinPhi[layerCounter] += 2*halfPhiStep;
@@ -415,7 +433,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       // split mode > 0 : compare to minHalflength
       double compareHalfLengthZ = m_splitMode < 0 ? maxHalflengthZ : minHalflengthZ;
       
-      splitDone = m_splitMode && fabs(layerHalfLength[layerCounter]-compareHalfLengthZ) > m_splitTolerance;
+      splitDone = m_splitMode && std::abs(layerHalfLength[layerCounter]-compareHalfLengthZ) > m_splitTolerance;
       if (m_splitMode){
            ATH_MSG_DEBUG( "[ Split mode / part 1 ] Layer Halflength determined as: " << layerHalfLength[layerCounter]);
            ATH_MSG_DEBUG( "                               while minHalflengthZ is: " << minHalflengthZ );
@@ -455,7 +473,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       Trk::OverlapDescriptor* olDescriptor = nullptr;
       if (m_pixelCase)
           olDescriptor = new InDet::PixelOverlapDescriptor;
-      else olDescriptor = new  InDet::SCT_OverlapDescriptor;
+      else olDescriptor = new  InDet::SCT_OverlapDescriptor(m_addMoreSurfaces);
       // for eventual use with the passive layer
       currentLayerRadius = layerRadius[layerCounter];
 
@@ -524,7 +542,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::discLayers() 
 
   // check for DBMS
   int nDBMLayers = m_siMgr->numerology().numEndcapsDBM();
-  if (!nDBMLayers) return createDiscLayers();
+  if (!nDBMLayers) return ((m_pixelCase and m_useRingLayout) ? createRingLayers() : createDiscLayers());
   
   ATH_MSG_DEBUG( "Found " << m_siMgr->numerology().numEndcapsDBM() << " DBM layers active, building first ECs, then DBMS");
   std::vector<const Trk::DiscLayer*>* ecLayers = createDiscLayers();
@@ -662,7 +680,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
            }
         }
         // we take the phi / r binning only from the closer to IP module 
-        if ( !(*sidetIter)->otherSide() || fabs(currentZ) < fabs((*sidetIter)->otherSide()->center().z())){
+        if ( !(*sidetIter)->otherSide() || std::abs(currentZ) < std::abs((*sidetIter)->otherSide()->center().z())){
             // take phi-min and phimax
             takeSmaller(discPhiMin[currentlayer][currentring],currentPhi);
             takeBigger(discPhiMax[currentlayer][currentring],currentPhi);
@@ -683,7 +701,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
        takeSmaller(minRmin,discRmin[iec]); takeBigger(maxRmax,discRmax[iec]);
        // average it out
        discZpos[iec]        = 0.5 * (discZmin[iec] + discZmax[iec]);
-       discThickness[iec]   = isDBM ? 1. : fabs(discZmax[iec]-discZmin[iec]);
+       discThickness[iec]   = isDBM ? 1. : std::abs(discZmax[iec]-discZmin[iec]);
        // make the map z / index
        discZposLayerIndex.insert(std::make_pair(discZpos[iec],iec));
   }
@@ -701,7 +719,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         currentlayer += (*sidetIter)->center().z() > 0. ? endcapLayers : 0;
         // decision which module to take
         const InDetDD::SiDetectorElement* otherSide = (*sidetIter)->otherSide();    
-        bool takeIt =  (!otherSide || fabs((*sidetIter)->center().z()) < fabs(otherSide->center().z()) );
+        bool takeIt =  (!otherSide || std::abs((*sidetIter)->center().z()) < std::abs(otherSide->center().z()) );
         const InDetDD::SiDetectorElement* chosenSide = takeIt ?  (*sidetIter) : otherSide;
         // get the center position
         const Amg::Vector3D& orderPosition = chosenSide->center();
@@ -760,7 +778,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
        if (discRsectors==1){
             double halfPhiStep = M_PI/discPhiSectors[discCounter][0];
             // protection in case phi value was fluctuating around 0 or M_PI in parsing
-            if (fabs(discPhiMin[discCounter][0]+discPhiMax[discCounter][0])< halfPhiStep && fabs(discPhiMin[discCounter][0]) < 0.5*halfPhiStep ){
+            if (std::abs(discPhiMin[discCounter][0]+discPhiMax[discCounter][0])< halfPhiStep && std::abs(discPhiMin[discCounter][0]) < 0.5*halfPhiStep ){
                 ATH_MSG_VERBOSE("Detected module fluctuation around +/- M_PI, correcting for it.");
                 ATH_MSG_VERBOSE("    min phi / max phi detected  : "  << discPhiMin[discCounter][0] << " / " <<discPhiMax[discCounter][0] );
                 discPhiMin[discCounter][0] += 2*halfPhiStep;
@@ -1022,7 +1040,322 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
   return discLayers;
 }
 
+/** LayerBuilder interface method - returning ring-like layers */
+/** this is ITk pixel specific and doesn't include DBM modules */
+std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createRingLayers() const {
+ 
+  // get general layout
+  InDetDD::SiDetectorElementCollection::const_iterator sidetIter = m_siMgr->getDetectorElementBegin();
+    
+  // save way to estimate the number of barrels
+  unsigned int endcapLayers = 0;
+  for (int i = 0; i < m_siMgr->numerology().numDiskLayers(); i++) {
+    if (not m_layerIndicesEndcap.empty() and 
+      std::find(m_layerIndicesEndcap.begin(), m_layerIndicesEndcap.end(), i)==m_layerIndicesEndcap.end() ) continue;
+    if (m_siMgr->numerology().useDiskLayer(i)) {
+      endcapLayers+=m_siMgr->numerology().numDisksForLayer(i);
+    }
+  }
+  
+  ATH_MSG_DEBUG( "Configured to build " << endcapLayers << " *2 disc-like layers  (+ additional support layers)." );
+ 
+  if (m_splitMode) 
+      ATH_MSG_DEBUG( "[ Split mode ] Some layers may bee cached." );
 
+  // prepare the vectors
+  std::vector<double>                                     discZmin(2*endcapLayers,10e10);
+  std::vector<double>                                     discZmax(2*endcapLayers,-10e10);
+  std::vector<double>                                     discZpos(2*endcapLayers,0.);
+  std::vector<double>                                     discRmin(2*endcapLayers,10e10);
+  std::vector<double>                                     discRmax(2*endcapLayers,0);
+  std::vector<double>                                     discThickness(2*endcapLayers,0.);  
+  std::vector<int>                                        discPhiSectors(2*endcapLayers,-1);
+  std::vector<double>                                     discPhiMin(2*endcapLayers,10e10);
+  std::vector<double>                                     discPhiMax(2*endcapLayers,-10e10);
+  std::vector< std::vector<Trk::SurfaceOrderPosition> >   discSurfaces(2*endcapLayers, std::vector<Trk::SurfaceOrderPosition>());  
+    
+  // let's make sure the discs are ordered in z: that's the z / map index
+  std::map< double, int>                                  discZposLayerIndex;  
+   
+  int endcapModules = 0;
+  int sumCheckEndcapModules = 0;
+  unsigned int currentdisk  = 0;
+  unsigned int currentring  = 0;
+  unsigned int currentlayer = 0;
+  
+  // [-A-] ------------------------ first LOOP over Detector Elements of sensitive layers -------------------------------                 
+  // -- get the missing dimensions by loop over DetElements
+  sidetIter = m_siMgr->getDetectorElementBegin();  
+  for (; sidetIter != m_siMgr->getDetectorElementEnd(); ++sidetIter){
+     // take it - if 
+     // a) you have a detector element ... protection
+     // b) the detector element is EC
+     if ( (*sidetIter) && (*sidetIter)->isEndcap() ){     
+        // get the identifier & calculate current layer and current disk from it     
+        Identifier    currentId((*sidetIter)->identify());
+        currentring  = m_pixIdHelper->layer_disk(currentId);
+        if (not m_layerIndicesEndcap.empty() and std::find(m_layerIndicesEndcap.begin(), m_layerIndicesEndcap.end(), currentring) == m_layerIndicesEndcap.end())
+          continue;
+        
+        double currentZ = (*sidetIter)->center().z();
+        currentdisk = (unsigned int)m_pixIdHelper->eta_module(currentId);
+        currentlayer = currentdisk;
+        for (unsigned int i = 0; i < currentring; i++) {
+          if (not m_layerIndicesEndcap.empty() and 
+            std::find(m_layerIndicesEndcap.begin(), m_layerIndicesEndcap.end(), i)==m_layerIndicesEndcap.end() ) continue;
+          if (m_siMgr->numerology().useDiskLayer(i)) {
+            currentlayer+=m_siMgr->numerology().numDisksForLayer(i);
+          }
+        }
+        // parse all z positions for the mean value of the discs
+        currentlayer += currentZ > 0. ? endcapLayers : 0;
+        
+        // increase the counter of endcap modules
+        endcapModules++;
+        
+        takeSmallerBigger(discZmin[currentlayer],discZmax[currentlayer],currentZ);
+
+        // set the disc Rmin / Rmax  
+        double currentRmin = (*sidetIter)->rMin();
+        double currentRmax = (*sidetIter)->rMax();
+        
+        // the current phi 
+        double currentPhi = (*sidetIter)->center().phi();
+        takeSmaller(discRmin[currentlayer],currentRmin);
+        takeBigger( discRmax[currentlayer],currentRmax);       
+        
+        //fill the number of phi sectors for the different rings
+        if (discPhiSectors[currentlayer]<0){
+          ATH_MSG_VERBOSE("Pre-processing Elements from Disk/Layer (id from idHelper): " << currentring << "/" << currentdisk );
+          // get the number of phi sectors
+          unsigned int phiSectorsRing = m_siMgr->numerology().numPhiModulesForLayerDisk(currentring, currentdisk);
+          ATH_MSG_VERBOSE("--> has " << phiSectorsRing << " phi sectors");
+          discPhiSectors[currentlayer]=phiSectorsRing;
+        }
+//         we take the phi / r binning only from the closer to IP module 
+        // take phi-min and phimax
+        takeSmaller(discPhiMin[currentlayer],currentPhi);
+        takeBigger(discPhiMax[currentlayer],currentPhi);
+        
+        const InDetDD::SiDetectorElement* detElement = (*sidetIter);
+        // get the center position
+        const Amg::Vector3D& orderPosition = detElement->center();
+        // register the chosen side in the object array
+        Trk::SharedObject<const Trk::Surface> sharedSurface(&(detElement->surface()), Trk::do_not_delete<const Trk::Surface>);
+        Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
+        discSurfaces[currentlayer].push_back(surfaceOrder);
+        
+     } else if (!(*sidetIter))
+        ATH_MSG_WARNING("nullptr to Endcap module given by SCT_DetectorManager! Please check db & dict.xml");
+  } // DetElement loop 
+
+  ATH_MSG_VERBOSE("Estimating the average z position and the radius for each disk.");
+  // get the average z-position per layer & estimate thes thickness
+  for (unsigned int iec=0; iec<2*endcapLayers; ++iec){
+    // average it out
+    discZpos[iec]        = 0.5 * (discZmin[iec] + discZmax[iec]);
+    discThickness[iec]   = std::abs(discZmax[iec]-discZmin[iec]);
+    // make the map z / index
+    discZposLayerIndex.insert(std::make_pair(discZpos[iec],iec));
+  }
+      
+  // [-B-] ------------------------ Construction of the layers -----------------------------------
+  // construct the layers
+  std::vector< const Trk::DiscLayer* >* discLayers = new std::vector< const Trk::DiscLayer* >;
+  std::vector<double>::iterator discZposIter = discZpos.begin();
+  int discCounter = 0;
+                                              
+  for ( ; discZposIter != discZpos.end(); ++discZposIter){
+    // dynamic estimation 1: estimate the layer thickness dynamically
+    double thickness = discThickness[discCounter]+m_endcapEnvelope;       
+    
+    // screen output           
+    ATH_MSG_DEBUG( "Building a DiscLayer with single R sectors. " );
+    ATH_MSG_DEBUG( "  -> At Z - Position      :  " << discZpos[discCounter] );
+    ATH_MSG_DEBUG( "  -> With Thickness       :  " << thickness   << " i- ncludes envelope tolerance : " << m_endcapEnvelope );
+    ATH_MSG_DEBUG( "  -> With Rmin/Rmax (est) :  " << discRmin[discCounter] << " / " << discRmax[discCounter] );
+    
+    // prepare the binned array, it can be with one to several rings            
+    Trk::BinnedArray<Trk::Surface>* currentBinnedArray = nullptr;
+    
+    double halfPhiStep = M_PI/discPhiSectors[discCounter];
+    // protection in case phi value was fluctuating around 0 or M_PI in parsing
+    if (std::abs(discPhiMin[discCounter]+discPhiMax[discCounter])< halfPhiStep && std::abs(discPhiMin[discCounter]) < 0.5*halfPhiStep ){
+      ATH_MSG_VERBOSE("Detected module fluctuation around +/- M_PI, correcting for it.");
+      ATH_MSG_VERBOSE("    [0 - ] min phi / max phi detected  : "  << discPhiMin[discCounter] << " / " <<discPhiMax[discCounter]);
+      discPhiMin[discCounter] += 2*halfPhiStep;
+    }
+    
+    // prepare min phi and max phi & eventually a sub stepvalue
+    ATH_MSG_VERBOSE("    [1 - ] min phi / max phi detected  : " << discPhiMin[discCounter] << " / " << discPhiMax[discCounter] );
+    double minPhiCorrected = discPhiMin[discCounter]-halfPhiStep;
+    double maxPhiCorrected = discPhiMax[discCounter]+halfPhiStep;
+    // catch if the minPhi falls below M_PI
+    if (minPhiCorrected < -M_PI){
+      minPhiCorrected += 2*halfPhiStep;
+      maxPhiCorrected += 2*halfPhiStep;
+    }
+    
+    ATH_MSG_VERBOSE("    min phi / max phi corrected : " << minPhiCorrected << " / " << maxPhiCorrected );
+    ATH_MSG_VERBOSE("Constructing a one-dimensional BinnedArray with phiMin / phiMax (bins) = " 
+                     << minPhiCorrected << " / " << maxPhiCorrected
+                     << " (" << discPhiSectors[discCounter] << ")");
+    
+    Trk::BinUtility* currentBinUtility = new Trk::BinUtility(discPhiSectors[discCounter],
+                                                             minPhiCorrected,
+                                                             maxPhiCorrected,
+                                                             Trk::closed,
+                                                             Trk::binPhi);
+    
+    // a one-dimensional BinnedArray is sufficient
+    currentBinnedArray = new Trk::BinnedArray1D<Trk::Surface>(discSurfaces[discCounter],currentBinUtility);
+    
+    int discSurfacesNum = (discSurfaces[discCounter]).size();
+    ATH_MSG_DEBUG( "Constructed BinnedArray for DiscLayer with "<< discSurfacesNum << " SubSurfaces." );
+
+    // always run the geometry validation to catch flaws
+        
+    // checking for :
+    //   - empty surface bins
+    //   - doubly filled bins
+    std::map< const Trk::Surface*,Amg::Vector3D > uniqueSurfaceMap;
+    std::map< const Trk::Surface*,Amg::Vector3D >::iterator usmIter = uniqueSurfaceMap.end();
+    // check the registered surfaces in the binned array
+    const std::vector<const Trk::Surface*>& arraySurfaces = currentBinnedArray->arrayObjects();
+    size_t dsumCheckSurfaces = 0;
+    double lastPhi = 0.;
+    for (const auto & asurfIter : arraySurfaces){
+      if ( asurfIter ) {
+        ++dsumCheckSurfaces;
+        usmIter = uniqueSurfaceMap.find(asurfIter);
+        lastPhi = asurfIter->center().phi();
+        if ( usmIter != uniqueSurfaceMap.end() )
+          ATH_MSG_WARNING("Non-unique surface found with eta/phi = " << asurfIter->center().eta() << " / " << asurfIter->center().phi());
+        else uniqueSurfaceMap[asurfIter] = asurfIter->center();
+      } else 
+        ATH_MSG_WARNING("Zero-pointer in array detected in this ring, last valid phi value was = " << lastPhi);
+    }
+    sumCheckEndcapModules +=  dsumCheckSurfaces;   
+    
+    ATH_MSG_DEBUG( "  -> With Rmin/Rmax :  " << discRmin[discCounter] << " / " << discRmax[discCounter] );
+    
+    // get the layer material from the helper method
+    const Trk::LayerMaterialProperties* layerMaterial = endcapLayerMaterial(discRmin[discCounter],discRmax[discCounter]);
+
+    // position & bounds of the active Layer
+    Amg::Transform3D  activeLayerTransform;
+    activeLayerTransform = Amg::Translation3D(0.,0.,discZpos[discCounter]);
+    
+    Trk::DiscBounds* activeLayerBounds    = new Trk::DiscBounds(discRmin[discCounter],discRmax[discCounter]);
+    std::vector<Trk::BinUtility*>* binUtils = new std::vector<Trk::BinUtility*>;
+    // prepare the right overlap descriptor       
+    Trk::OverlapDescriptor* olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, binUtils, true);
+        
+    // layer creation; deletes currentBinnedArray in baseclass 'Layer' upon destruction
+    // activeLayerTransform deleted in 'Surface' baseclass
+    Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
+                                                     activeLayerBounds,
+                                                     currentBinnedArray,
+                                                     *layerMaterial,
+                                                     thickness,
+                                                     olDescriptor);
+    // cleanup
+    delete layerMaterial;
+    // register the layer to the surfaces --- if necessary to the other sie as well
+    const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
+    registerSurfacesToLayer(layerSurfaces,*activeLayer);
+    discLayers->push_back(activeLayer);
+    // increase the disc counter by one
+    ++discCounter;
+  }  
+
+  ATH_MSG_DEBUG( endcapModules << " Endcap Modules parsed for Disc Layer dimensions." );
+  ATH_MSG_DEBUG( sumCheckEndcapModules << " Endcap Modules filled in Disc Layer Arrays." );
+  if ( endcapModules-sumCheckEndcapModules )
+    ATH_MSG_WARNING( endcapModules-sumCheckEndcapModules << " Modules not registered properly in binned array." );       
+
+ 
+  // sort the vector
+  Trk::DiscLayerSorterZ zSorter;
+  std::vector<const Trk::DiscLayer*>::iterator sortIter = discLayers->begin();
+  std::vector<const Trk::DiscLayer*>::iterator sortEnd   = discLayers->end(); 
+  std::sort(sortIter, sortEnd, zSorter);
+ 
+  // if there are additional layers to be built - never build for the DBM loop
+  if (!m_endcapAdditionalLayerPosZ.empty()){
+    // sort also the additional layer z positions
+    auto addLayerIter     = m_endcapAdditionalLayerPosZ.begin();
+    auto addLayerIterEnd  = m_endcapAdditionalLayerPosZ.end();
+    auto addLayerTypeIter = m_endcapAdditionalLayerType.begin();
+    // reassign the iterators
+    sortIter = discLayers->begin();
+    sortEnd   = discLayers->end();
+    // get the last rmin / rmax
+    double lastRmin = 0.;
+    double lastRmax = 0.;
+    // build the additional layers -------------------------------------------
+    for ( ; sortIter != sortEnd || addLayerIter != addLayerIterEnd; ){
+      // cache befor last parameters are overwritten 
+      double layerRmin       = lastRmin;
+      double layerRmax       = lastRmax;
+      double layerZposition   = 0.; 
+      // check if the z-position is smaller than the 
+      if ( sortIter != sortEnd){
+        // get the current z position to guarantee a symmetrical setup
+        layerZposition = (*sortIter)->surfaceRepresentation().center().z();
+        // get the bounds for the rMin / rMax setting
+        const Trk::DiscBounds* currentBounds = dynamic_cast<const Trk::DiscBounds*>(&((*sortIter)->surfaceRepresentation().bounds()));
+        lastRmin = currentBounds ? currentBounds->rMin() : 0.;
+        lastRmax = currentBounds ? currentBounds->rMax() : 0.;
+        ++sortIter;           
+      }
+      if ( addLayerIter != addLayerIterEnd){
+        // symmetric setup around 0.
+        double rMin = layerZposition > 0. ? layerRmin : lastRmin;
+        double rMax = layerZposition > 0. ? layerRmax : lastRmax;
+        // the passive layer
+        Trk::DiscLayer* passiveLayer = nullptr;
+        // passive layer creation
+        Amg::Transform3D passiveDiscTransf = Amg::Transform3D(Amg::Translation3D(0., 0., *addLayerIter));
+        if (*addLayerTypeIter) {
+          ATH_MSG_DEBUG("Building an additional DiscLayer w/o sensitive modules at");
+          // create the material and the passive layer
+          const Trk::LayerMaterialProperties* passiveLayerMaterial = endcapLayerMaterial(rMin, rMax);
+          passiveLayer = new Trk::DiscLayer(passiveDiscTransf,
+                                            new Trk::DiscBounds(rMin, rMax),
+                                            *passiveLayerMaterial,
+                                            1. * Gaudi::Units::mm);
+          // cleanup of the layer material
+          // --------------------------------------------------------------
+          delete passiveLayerMaterial;
+        } else {
+          passiveLayer = new Trk::DiscLayer(passiveDiscTransf, 
+                                            new Trk::DiscBounds(rMin, rMax), 
+                                            nullptr);
+        }
+        ATH_MSG_DEBUG( "  -> At Z - Position       :  " << *addLayerIter );
+        ATH_MSG_DEBUG( "  -> With Rmin/Rmax (corr) :  " << rMin << " / " << rMax );
+         
+        // increase the iterator and push back the new layer
+        ++addLayerIter; 
+        discLayers->push_back(passiveLayer);
+      }
+    } // the additional layers are build ------------------------------------
+    
+    // another round of sorting needed after adding the passive layers
+    sortIter = discLayers->begin();
+    sortEnd   = discLayers->end(); 
+    std::sort(sortIter, sortEnd, zSorter);
+  }
+
+  ATH_MSG_DEBUG("Returning: " << discLayers->size() << " disk-like layers to the volume builder");
+  for (const auto& dl : (*discLayers)){
+    ATH_MSG_VERBOSE(" ----> Pointer location : " << dl);
+    ATH_MSG_VERBOSE(" ----> Disk layer located at : " << dl->surfaceRepresentation().center().z());
+  }
+ 
+  return discLayers;
+}
 
 std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& detectionLayers ) const {
 

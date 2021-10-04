@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SRC_CALOCLUSTERFAKEREADE_H
-# define SRC_CALOCLUSTERFAKEREADE_H
+#ifndef ATHENAPOOLTEST_CALOCLUSTERFAKEREADER_H
+#define ATHENAPOOLTEST_CALOCLUSTERFAKEREADER_H
 
 /**
  * @file CaloClusterFakeReader.h
@@ -27,9 +27,10 @@
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloCell_ID;
-class CaloDetDescrManager;
 class CaloCellContainer;
 class CaloClusterContainer;
 
@@ -44,13 +45,13 @@ public:
     ~CaloClusterFakeReader();
   
     /// Algorithm initialize at begin of job
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// Algorithm execute once per event
-    virtual StatusCode execute(); 
+    virtual StatusCode execute() override;
 
     /// Algorithm finalize at end of job
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
   
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -75,7 +76,10 @@ private:
     void printCells(const CaloClusterContainer* clusCont) const;
 
     /// DetDescr mgr for access to the id helper
-    const CaloDetDescrManager* 	m_caloMgr;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
 
     /// IDhelper for LAr needed for identifiable container
     const CaloCell_ID*             m_calocellId;

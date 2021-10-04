@@ -73,13 +73,13 @@ unsigned int LVL1::jFEXLargeRJetAlgo::getLargeClusterET(unsigned int smallCluste
   return largeClusterET; 
 }
 
-std::unique_ptr<jFEXLargeRJetTOB> LVL1::jFEXLargeRJetAlgo::getLargeRJetTOBs(){
+std::unique_ptr<jFEXLargeRJetTOB> LVL1::jFEXLargeRJetAlgo::getLargeRJetTOBs(int smallClusterET,int TTID){
                                                            
   std::unique_ptr<jFEXLargeRJetTOB> tob = std::make_unique<jFEXLargeRJetTOB>(); 
-  unsigned int et = getLargeClusterET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),getRingET());
+  unsigned int et = getLargeClusterET(smallClusterET,getRingET());
   tob->setET(et);
-  tob->setPhi(m_jFEXSmallRJetAlgoTool->getRealPhi(m_jFEXSmallRJetAlgoTool->getTTIDcentre())/10.); 
-  tob->setEta(m_jFEXSmallRJetAlgoTool->getRealEta(m_jFEXSmallRJetAlgoTool->getTTIDcentre())/10.); 
+  tob->setPhi(m_jFEXSmallRJetAlgoTool->getRealPhi(TTID)/10.); 
+  tob->setEta(m_jFEXSmallRJetAlgoTool->getRealEta(TTID)/10.); 
   tob->setRes(0); 
   tob->setSat(0); 
 
@@ -102,7 +102,7 @@ int LVL1::jFEXLargeRJetAlgo::getTTowerET(unsigned int TTID ) {
 }
 
 
-void LVL1::jFEXLargeRJetAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXLargeRJetAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

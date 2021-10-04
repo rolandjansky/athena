@@ -25,7 +25,7 @@ Overlay_tf.py \
 --inputRDO_BKGFile ${RDO_BKG_File} \
 --outputRDOFile legacyMcOverlayRDO.pool.root \
 --maxEvents $events \
---conditionsTag OFLCOND-MC16-SDR-RUN2-08  \
+--conditionsTag OFLCOND-MC16-SDR-RUN2-09  \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preInclude 'all:Campaigns/MC20e.py' \
 --imf False \
@@ -36,7 +36,7 @@ Overlay_tf.py \
 --inputRDO_BKGFile ${RDO_BKG_File} \
 --outputRDOFile legacyMcOverlayRDO.pool.root \
 --maxEvents $events \
---conditionsTag OFLCOND-MC16-SDR-RUN2-08  \
+--conditionsTag OFLCOND-MC16-SDR-RUN2-09  \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preInclude 'all:Campaigns/MC20e.py' \
 --postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt");' \
@@ -56,7 +56,7 @@ then
     --inputRDO_BKGFile ${RDO_BKG_File} \
     --outputRDOFile mcOverlayRDO.pool.root \
     --maxEvents $events \
-    --conditionsTag OFLCOND-MC16-SDR-RUN2-08  \
+    --conditionsTag OFLCOND-MC16-SDR-RUN2-09  \
     --geometryVersion ATLAS-R2-2016-01-00-01 \
     --preInclude 'all:Campaigns.MC20e' \
     --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \

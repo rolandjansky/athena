@@ -77,12 +77,6 @@ class SubtractedCylinderLayer final : virtual public SubtractedCylinderSurface,
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<SubtractedCylinderLayer*>(this)->moveLayer(shift);
-  }
-
  private:
   /** Resize the layer to the tracking volume - not implemented*/
   virtual void resizeLayer(const VolumeBounds&, double) override final {}

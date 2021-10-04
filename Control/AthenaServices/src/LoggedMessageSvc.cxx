@@ -221,9 +221,9 @@ void LoggedMessageSvc::setupColors(Gaudi::Details::PropertyBase& prop) {
 
   if ( m_logColors[ic].value().size() == 1 ) {
 
-    if (*itr == "") {
+    if (itr->empty() ) {
       code = "";
-    } else if (itr->substr(0,1) == "[") {
+    } else if ((*itr)[0] == '[') {
       code = "\033" + *itr;
     } else {
       code = "\033[" + colTrans(*itr, 90) + ";1m";
@@ -237,7 +237,7 @@ void LoggedMessageSvc::setupColors(Gaudi::Details::PropertyBase& prop) {
 
   }
 
-  m_logColorCodes[ic] = code;
+  m_logColorCodes[ic] = std::move(code);
 
 }
 //#############################################################################

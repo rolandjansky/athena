@@ -138,12 +138,6 @@ class CylinderLayer : public CylinderSurface, public Layer {
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
-  /** move the Layer */
-  virtual void moveLayer
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final {
-    const_cast<CylinderLayer*>(this)->moveLayer(shift);
-  }
-
  private:
   /** Resize the layer to the tracking volume - only works for
    * CylinderVolumeBouns */

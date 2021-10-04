@@ -5,11 +5,12 @@
 
 # Declare the package name:
 atlas_subdir( TRTMonitoringRun3 )
+find_package( ROOT )
                   
 atlas_add_component( TRTMonitoringRun3
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES AthenaMonitoringLib TrkToolInterfaces CommissionEvent TRT_DriftFunctionToolLib TRT_ConditionsServicesLib MagFieldInterfaces InDetByteStreamErrors InDetRIO_OnTrack
                      )
                    

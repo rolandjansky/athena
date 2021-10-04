@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import DetDescrInfo, getDefaultDetectors
+from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
 # This module is based upon Control/AthenaCommon/python/DetFlags.py
 # Only some flags have been migrated. A full list of what the old
 # DetFlags provided is given for reference below:
@@ -55,45 +55,46 @@ allGroups = {
 def createDetectorConfigFlags():
     dcf = AthConfigFlags()
 
-    ## Detector.Geometry* flags (will) represent the default full geometry,
+    ## Detector.Geometry* flags represent the default full geometry,
     ## autoconfigured from the geometry tag
-    ## currently keeping the behaviour the same until all clients are identified
-    dcf.addFlag('Detector.GeometryBpipe', False)
+    dcf.addFlag('Detector.GeometryBpipe', True)  # always enabled by default
 
     # Inner Detector
-    dcf.addFlag('Detector.GeometryBCM',   False)
-    dcf.addFlag('Detector.GeometryDBM',   False)
-    dcf.addFlag('Detector.GeometryPixel', False)
-    dcf.addFlag('Detector.GeometrySCT',   False)
-    dcf.addFlag('Detector.GeometryTRT',   False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.GeometryID',    lambda prevFlags : (prevFlags.Detector.GeometryBCM or prevFlags.Detector.GeometryDBM or
-                                                              prevFlags.Detector.GeometryPixel or prevFlags.Detector.GeometrySCT or
-                                                              prevFlags.Detector.GeometryTRT))
+    dcf.addFlag('Detector.GeometryBCM',   lambda prevFlags : 'BCM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryDBM',   lambda prevFlags : 'DBM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryPixel', lambda prevFlags : 'Pixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometrySCT',   lambda prevFlags : 'SCT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryTRT',   lambda prevFlags : 'TRT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryID',    lambda prevFlags : (prevFlags.Detector.GeometryBCM or prevFlags.Detector.GeometryDBM
+                                                              or prevFlags.Detector.GeometryPixel or prevFlags.Detector.GeometrySCT
+                                                              or prevFlags.Detector.GeometryTRT))
 
     # Upgrade ITk Inner Tracker is a separate and parallel detector
-    dcf.addFlag('Detector.GeometryBCMPrime',   False)
-    dcf.addFlag('Detector.GeometryITkPixel',   False)
-    dcf.addFlag('Detector.GeometryITkStrip',   False)
-    dcf.addFlag('Detector.GeometryITk',    lambda prevFlags : (prevFlags.Detector.GeometryBCMPrime or prevFlags.Detector.GeometryITkPixel or prevFlags.Detector.GeometryITkStrip))
-
-    dcf.addFlag('Detector.GeometryHGTD', False)
+    dcf.addFlag('Detector.GeometryBCMPrime', lambda prevFlags : 'BCMPrime' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryITkPixel', lambda prevFlags : 'ITkPixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryITkStrip', lambda prevFlags : 'ITkStrip' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryITk',      lambda prevFlags : (prevFlags.Detector.GeometryBCMPrime
+                                                                 or prevFlags.Detector.GeometryITkPixel
+                                                                 or prevFlags.Detector.GeometryITkStrip))
+    # HGTD
+    dcf.addFlag('Detector.GeometryHGTD', lambda prevFlags : 'HGTD' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
 
     # Calorimeters
-    dcf.addFlag('Detector.GeometryLAr',   False) # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.GeometryTile',  False)
-    dcf.addFlag('Detector.GeometryMBTS',  True)  # for backwards compatibility for now
+    dcf.addFlag('Detector.GeometryLAr',  lambda prevFlags : 'LAr' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion)) # Add separate em HEC and FCAL flags?
+    dcf.addFlag('Detector.GeometryTile', lambda prevFlags : 'Tile' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryMBTS', lambda prevFlags : (prevFlags.Detector.GeometryLAr and 'MBTS' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion)))
     dcf.addFlag('Detector.GeometryCalo', lambda prevFlags : (prevFlags.Detector.GeometryLAr or prevFlags.Detector.GeometryTile))
 
     # Muon Spectrometer
-    dcf.addFlag('Detector.GeometryCSC', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasCSC'])
-    dcf.addFlag('Detector.GeometryMDT',   False)
-    dcf.addFlag('Detector.GeometryRPC',   False)
-    dcf.addFlag('Detector.GeometryTGC',   False)
-    dcf.addFlag('Detector.GeometrysTGC', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasSTGC'])
-    dcf.addFlag('Detector.GeometryMM', lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasMM'])
-    dcf.addFlag('Detector.GeometryMuon',  lambda prevFlags : (prevFlags.Detector.GeometryCSC or prevFlags.Detector.GeometryMDT or
-                                                              prevFlags.Detector.GeometryRPC or prevFlags.Detector.GeometryTGC or
-                                                              prevFlags.Detector.GeometrysTGC or prevFlags.Detector.GeometryMM))
+    dcf.addFlag('Detector.GeometryCSC',  lambda prevFlags : 'CSC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryMDT',  lambda prevFlags : 'MDT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryRPC',  lambda prevFlags : 'RPC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryTGC',  lambda prevFlags : 'TGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometrysTGC', lambda prevFlags : 'sTGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryMM',   lambda prevFlags : 'MM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.GeometryMuon', lambda prevFlags : (prevFlags.Detector.GeometryCSC or prevFlags.Detector.GeometryMDT
+                                                             or prevFlags.Detector.GeometryRPC or prevFlags.Detector.GeometryTGC
+                                                             or prevFlags.Detector.GeometrysTGC or prevFlags.Detector.GeometryMM))
 
     # Forward detectors (disabled by default)
     dcf.addFlag('Detector.GeometryLucid',     False)
@@ -101,53 +102,53 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.GeometryALFA',      False)
     dcf.addFlag('Detector.GeometryAFP',       False)
     dcf.addFlag('Detector.GeometryFwdRegion', False)
-    dcf.addFlag('Detector.GeometryForward',   lambda prevFlags : (prevFlags.Detector.GeometryLucid or prevFlags.Detector.GeometryZDC or
-                                                                  prevFlags.Detector.GeometryALFA or prevFlags.Detector.GeometryAFP or
-                                                                  prevFlags.Detector.GeometryFwdRegion))
+    dcf.addFlag('Detector.GeometryForward',   lambda prevFlags : (prevFlags.Detector.GeometryLucid or prevFlags.Detector.GeometryZDC
+                                                                  or prevFlags.Detector.GeometryALFA or prevFlags.Detector.GeometryAFP
+                                                                  or prevFlags.Detector.GeometryFwdRegion))
 
     # Cavern (disabled by default)
-    dcf.addFlag('Detector.GeometryCavern',False)
+    dcf.addFlag('Detector.GeometryCavern', False)
 
 
-    ## Detector.Enable* flags (currently) represent the default full geometry,
-    ## autoconfigured from the geometry tag
+    ## Detector.Enable* flags represent the default full geometry,
+    ## autoconfigured from geometry flags
     # Inner Detector
-    dcf.addFlag('Detector.EnableBCM',   lambda prevFlags : 'BCM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableDBM',   lambda prevFlags : 'DBM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnablePixel', lambda prevFlags : 'Pixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableSCT',   lambda prevFlags : 'SCT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableTRT',   lambda prevFlags : 'TRT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableID',    lambda prevFlags : (prevFlags.Detector.EnableBCM or prevFlags.Detector.EnableDBM or
-                                                            prevFlags.Detector.EnablePixel or prevFlags.Detector.EnableSCT or
-                                                            prevFlags.Detector.EnableTRT))
+    dcf.addFlag('Detector.EnableBCM',   lambda prevFlags : prevFlags.Detector.GeometryBCM)
+    dcf.addFlag('Detector.EnableDBM',   lambda prevFlags : prevFlags.Detector.GeometryDBM)
+    dcf.addFlag('Detector.EnablePixel', lambda prevFlags : prevFlags.Detector.GeometryPixel)
+    dcf.addFlag('Detector.EnableSCT',   lambda prevFlags : prevFlags.Detector.GeometrySCT)
+    dcf.addFlag('Detector.EnableTRT',   lambda prevFlags : prevFlags.Detector.GeometryTRT)
+    dcf.addFlag('Detector.EnableID',    lambda prevFlags : (prevFlags.Detector.EnableBCM or prevFlags.Detector.EnableDBM
+                                                            or prevFlags.Detector.EnablePixel or prevFlags.Detector.EnableSCT
+                                                            or prevFlags.Detector.EnableTRT))
 
     # Upgrade ITk Inner Tracker is a separate and parallel detector
-    dcf.addFlag('Detector.EnableBCMPrime', lambda prevFlags : 'BCMPrime' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : 'ITkPixel' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : 'ITkStrip' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableITk',      lambda prevFlags : (prevFlags.Detector.EnableBCMPrime or
-                                                               prevFlags.Detector.EnableITkPixel or
-                                                               prevFlags.Detector.EnableITkStrip))
-
-    dcf.addFlag('Detector.EnableHGTD', lambda prevFlags : 'HGTD' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableBCMPrime', lambda prevFlags : prevFlags.Detector.GeometryBCMPrime)
+    dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : prevFlags.Detector.GeometryITkPixel)
+    dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : prevFlags.Detector.GeometryITkStrip)
+    dcf.addFlag('Detector.EnableITk',      lambda prevFlags : (prevFlags.Detector.EnableBCMPrime
+                                                               or prevFlags.Detector.EnableITkPixel
+                                                               or prevFlags.Detector.EnableITkStrip))
+    # HGTD
+    dcf.addFlag('Detector.EnableHGTD', lambda prevFlags : prevFlags.Detector.GeometryHGTD)
 
     # Calorimeters
-    dcf.addFlag('Detector.EnableLAr',    lambda prevFlags : 'LAr' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))  # Add separate em HEC and FCAL flags?
-    dcf.addFlag('Detector.EnableTile',   lambda prevFlags : 'Tile' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : 'MBTS' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
+    dcf.addFlag('Detector.EnableLAr',    lambda prevFlags : prevFlags.Detector.GeometryLAr)
+    dcf.addFlag('Detector.EnableTile',   lambda prevFlags : prevFlags.Detector.GeometryTile)
+    dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : prevFlags.Detector.GeometryMBTS)
     dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
     dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
     # Muon Spectrometer
-    dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : 'CSC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableMDT',  lambda prevFlags : 'MDT' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableRPC',  lambda prevFlags : 'RPC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableTGC',  lambda prevFlags : 'TGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnablesTGC', lambda prevFlags : 'sTGC' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableMM',   lambda prevFlags : 'MM' in getDefaultDetectors(prevFlags.GeoModel.AtlasVersion))
-    dcf.addFlag('Detector.EnableMuon', lambda prevFlags : (prevFlags.Detector.EnableCSC or prevFlags.Detector.EnableMDT or
-                                                           prevFlags.Detector.EnableRPC or prevFlags.Detector.EnableTGC or
-                                                           prevFlags.Detector.EnablesTGC or prevFlags.Detector.EnableMM))
+    dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : prevFlags.Detector.GeometryCSC)
+    dcf.addFlag('Detector.EnableMDT',  lambda prevFlags : prevFlags.Detector.GeometryMDT)
+    dcf.addFlag('Detector.EnableRPC',  lambda prevFlags : prevFlags.Detector.GeometryRPC)
+    dcf.addFlag('Detector.EnableTGC',  lambda prevFlags : prevFlags.Detector.GeometryTGC)
+    dcf.addFlag('Detector.EnablesTGC', lambda prevFlags : prevFlags.Detector.GeometrysTGC)
+    dcf.addFlag('Detector.EnableMM',   lambda prevFlags : prevFlags.Detector.GeometryMM)
+    dcf.addFlag('Detector.EnableMuon', lambda prevFlags : (prevFlags.Detector.EnableCSC or prevFlags.Detector.EnableMDT
+                                                           or prevFlags.Detector.EnableRPC or prevFlags.Detector.EnableTGC
+                                                           or prevFlags.Detector.EnablesTGC or prevFlags.Detector.EnableMM))
 
     # Forward detectors (disabled by default)
     dcf.addFlag('Detector.EnableLucid',     False)
@@ -155,9 +156,9 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableALFA',      False)
     dcf.addFlag('Detector.EnableAFP',       False)
     dcf.addFlag('Detector.EnableFwdRegion', False)
-    dcf.addFlag('Detector.EnableForward',   lambda prevFlags : (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC or
-                                                                prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP or
-                                                                prevFlags.Detector.EnableFwdRegion))
+    dcf.addFlag('Detector.EnableForward',   lambda prevFlags : (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC
+                                                                or prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP
+                                                                or prevFlags.Detector.EnableFwdRegion))
 
     return dcf
 

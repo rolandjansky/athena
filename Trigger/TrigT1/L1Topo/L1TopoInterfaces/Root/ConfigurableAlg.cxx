@@ -379,7 +379,7 @@ std::string ConfigurableAlg::ToString(const int val)
 }
 
 bool
-ConfigurableAlg::isocut(const std::string threshold, const unsigned int bit) {
+ConfigurableAlg::isocut(const std::string& threshold, const unsigned int bit) {
   unsigned int value = 0;
   if (threshold == "None") {value = 0;}
   else if (threshold == "Loose") {value = 1;}

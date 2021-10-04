@@ -31,7 +31,7 @@ void ReplicaSorter::sort(std::vector<
       std::string::size_type ipos1=conn.find("://");
       std::string::size_type ipos2=conn.find('/',ipos1+3);
       if (ipos1!=std::string::npos && ipos2!=std::string::npos) {
-        const std::string server=conn.substr(ipos1+3,ipos2-ipos1-3);
+        const std::string_view server=std::string_view(conn).substr(ipos1+3,ipos2-ipos1-3);
         // check if this server is on list of replicas to use for domain
         // if so, add it with its associated priority
         for (ServerMap::const_iterator sitr=m_servermap.begin();
@@ -178,7 +178,9 @@ FILE* ReplicaSorter::findFile(const std::string& filename,
   while (!fptr && iofs1<len) {
     iofs2=pathvar.find(':',iofs1);
     if (iofs2==std::string::npos) iofs2=len;
-    name=pathvar.substr(iofs1,iofs2-iofs1)+"/"+filename;
+    name=pathvar.substr(iofs1,iofs2-iofs1);
+    name+='/';
+    name+=filename;
     fptr=fopen(name.c_str(),"r");
     iofs1=iofs2+1;
   }

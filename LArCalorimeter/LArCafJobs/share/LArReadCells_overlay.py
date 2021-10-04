@@ -70,7 +70,7 @@ from AtlasGeoModel import GeoModelInit
 
 from IOVDbSvc.CondDB import conddb
 conddb.blockFolder("/LAR/LArCellPositionShift")
-conddb.addFolderWithTag("LAR_OFL","/LAR/LArCellPositionShift","LArCellPositionShift-ideal",force=True,forceMC=True) 
+conddb.addFolderWithTag("LAR_OFL","/LAR/LArCellPositionShift","LArCellPositionShift-ideal",force=True,forceMC=True,className="CaloRec::CaloCellPositionShift")
 
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )

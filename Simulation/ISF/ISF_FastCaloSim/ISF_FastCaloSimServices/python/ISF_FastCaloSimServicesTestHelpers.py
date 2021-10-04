@@ -60,7 +60,6 @@ def defaultTestFlags(configFlags, args):
     configFlags.Sim.PhysicsList = "FTFP_BERT_ATL"
     configFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.CavernBG = "Signal"
     configFlags.Sim.BeamPipeSimMode = 'FastSim'
     configFlags.Sim.ReleaseGeoModel = False
     configFlags.Sim.ISFRun = True

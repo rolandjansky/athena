@@ -120,9 +120,10 @@ namespace xAOD{
   
   int TriggerTower_v2::layer() const
   {
-    unsigned int cnum = ( coolId() >> 24 ) & 0x7;
-    unsigned int mnum = ( coolId() >> 16 ) & 0xf;
-    // unsigned int chan = coolId() & 0x3; // To be used for FCAL2,FCAL3 soon
+    unsigned int theCoolId = coolId();
+    unsigned int cnum = ( theCoolId >> 24 ) & 0x7;
+    unsigned int mnum = ( theCoolId >> 16 ) & 0xf;
+    // unsigned int chan = theCoolId & 0x3; // To be used for FCAL2,FCAL3 soon
 
     if (cnum < 4) {  // EMB,EMEC
       return 0;
@@ -148,9 +149,10 @@ namespace xAOD{
   
   int TriggerTower_v2::sampling() const
   {
-    unsigned int cnum = ( coolId() >> 24 ) & 0x7;
-    unsigned int mnum = ( coolId() >> 16 ) & 0xf;
-    // unsigned int chan = coolId() & 0x3; // To be used for FCAL2,FCAL3 soon
+    unsigned int theCoolId = coolId();
+    unsigned int cnum = ( theCoolId >> 24 ) & 0x7;
+    unsigned int mnum = ( theCoolId >> 16 ) & 0xf;
+    // unsigned int chan = theCoolId & 0x3; // To be used for FCAL2,FCAL3 soon
 
     if (cnum < 4) {  // EMB,EMEC
       return 0;

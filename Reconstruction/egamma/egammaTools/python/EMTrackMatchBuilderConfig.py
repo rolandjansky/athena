@@ -21,7 +21,7 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
         kwargs["ExtrapolationTool"] = extrapcache.popPrivateTools()
         acc.merge(extrapcache)
 
-    kwargs.setdefault("TrackParticlesName", flags.Egamma.Keys.Output.GSFTrackParticles)
+    kwargs.setdefault("TrackParticlesName", flags.Egamma.Keys.Input.TrackParticles)  # TODO restore proper input once LRT tracking is in place Egamma.Keys.Output.GSFTrackParticles)
     kwargs.setdefault("broadDeltaEta",      0.1)    # candidate match is done in 2 times this  so +- 0.2
     kwargs.setdefault("broadDeltaPhi",      0.15)   # candidate match is done in 2 times this  so +- 0.3
     kwargs.setdefault("useCandidateMatch",  True)

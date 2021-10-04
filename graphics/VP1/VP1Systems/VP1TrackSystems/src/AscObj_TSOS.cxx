@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1142,6 +1142,7 @@ QStringList AscObj_TSOS::clicked()
       std::ostringstream s;
       s << *(surface());
       l << QString(s.str().c_str()).split('\n');
+      s << "Identfier:"<<surface()->associatedDetectorElementIdentifier();
     }
   }
 
@@ -1176,7 +1177,7 @@ void AscObj_TSOS::setVisible(bool vis) {
       
       if (!visible()) {
         // std::cout<<"Hidden"<<std::endl;
-        me->setFlags(nullptr); // not selectable, not enabled
+        me->setFlags(Qt::ItemFlags()); // not selectable, not enabled
         itemFont.setStrikeOut(true);
         
       } else {

@@ -52,7 +52,6 @@ namespace top {
     m_cutflowBScaleFactors_Loose(nullptr),
     m_cutflowParticleLevel(nullptr),
     m_cutflowParticleLevelMCWeights(nullptr),
-    m_cutflowUpgradeLevel(nullptr),
     m_name(name),
     m_isMC(false),
     m_sfRetriever(nullptr),
@@ -135,12 +134,6 @@ namespace top {
                                                  cutNames.size(), -0.5, cutNames.size() - 0.5);
     }
 
-    if (config->HLLHC()) {
-      m_cutflowUpgradeLevel = new TH1D("cutflow_upgrade_level",
-                                       (name + " cutflow_upgrade_level").c_str(), cutNames.size(), -0.5,
-                                       cutNames.size() - 0.5);
-    }
-
     unsigned int i(0);
     for (const auto& currentCutName : cutNames) {
       //look through all the libraries and load any tools
@@ -207,10 +200,6 @@ namespace top {
         m_cutflowParticleLevelMCWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
       }
 
-      if (m_cutflowUpgradeLevel) {
-        m_cutflowUpgradeLevel->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-      }
-
       if (currentCutName == "SAVE") {
         m_toBeSaved = true;
       }
@@ -244,7 +233,6 @@ namespace top {
     m_cutflowBScaleFactors_Loose(std::move(other.m_cutflowBScaleFactors_Loose)),
     m_cutflowParticleLevel(std::move(other.m_cutflowParticleLevel)),
     m_cutflowParticleLevelMCWeights(std::move(other.m_cutflowParticleLevelMCWeights)),
-    m_cutflowUpgradeLevel(std::move(other.m_cutflowUpgradeLevel)),
     m_name(std::move(other.m_name)),
     m_isMC(std::move(other.m_isMC)),
     m_config(std::move(other.m_config)),
@@ -505,37 +493,6 @@ namespace top {
     return passEvent;
   }
 
-  bool EventSelection::applyUpgradeLevel(const top::ParticleLevelEvent& upgradeEvent) const {
-    // In principle, this function should never be called for non-active
-    // upgrade level. However, for code safetly, include a null pointer
-    // check. Return false here because "do-not-do-particle-level" is equivalent
-    // to "do-no-save-particle-level".
-    if (not m_cutflowUpgradeLevel) {
-      return false;
-    }
-
-    unsigned int i(0);
-    bool passEvent(false);
-
-    for (const auto& currentCut : m_allCuts) {
-      // we use applyParticleLevel, because in the end upgrade events are smeared
-      // truth level, so we can just re-use this function
-      const bool passed = currentCut->applyParticleLevel(upgradeEvent);
-
-      if (!passed) break;
-
-      m_cutflowUpgradeLevel->Fill(i);
-
-      passEvent |= (currentCut->name() == "SAVE");
-      ++i;
-    }
-
-    // If "SAVE" wasn't found but event passes all cuts, event passes the selection
-    passEvent |= (i == m_allCuts.size());
-
-    return passEvent;
-  }
-
   void EventSelection::finalise() const {
     //2dp, neater output for numbers
     std::ostream& msgInfo = msg(MSG::Level::INFO);
@@ -565,10 +522,6 @@ namespace top {
         msgInfo << std::setw(15) << "particle level mc";
       }
 
-      if (m_cutflowUpgradeLevel) {
-        msgInfo << std::setw(15) << "upgrade level";
-      }
-
       msgInfo << "\n";
 
       //cutflow table content
@@ -589,10 +542,6 @@ namespace top {
 
         if (m_cutflowParticleLevelMCWeights) {
           msgInfo << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
-        }
-
-        if (m_cutflowUpgradeLevel) {
-          msgInfo << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
         }
 
         msgInfo << "\n";
@@ -621,11 +570,6 @@ namespace top {
         msgInfo << std::setw(15) << "particle level mc";
       }
 
-      if (m_cutflowUpgradeLevel) {
-        msgInfo << std::setw(15) << "upgrade level";
-      }
-
-
       msgInfo << "\n";
 
       //cutflow table content
@@ -646,10 +590,6 @@ namespace top {
 
         if (m_cutflowParticleLevelMCWeights) {
           msgInfo << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
-        }
-
-        if (m_cutflowUpgradeLevel) {
-          msgInfo << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
         }
 
         msgInfo << "\n";

@@ -39,7 +39,11 @@ namespace LVL1 {
  
     //Eta space for core and overlaps, EM only
     constexpr static int jFEX_algoSpace_A_lowerEM_eta = 0;
-    constexpr static int jFEX_algoSpace_A_upperEM_eta = 32;
+    constexpr static int jFEX_algoSpace_A_upperEM_eta = 33;
+    
+    //Eta space for core and overlaps, FCAL 2 and 3
+    constexpr static int jFEX_algoSpace_A_lowerFCAL_eta = 33;
+    constexpr static int jFEX_algoSpace_A_upperFCAL_eta = 45;
 
 //C side (jFEX module 0):
 //there are more values on the C side as the matrix cannot be flipped in the bitwise framework.
@@ -53,9 +57,13 @@ namespace LVL1 {
     constexpr static int jFEX_algoSpace_C_FCAL_end_eta = 24;
  
    //Eta space for core and overlaps, EM only
-    constexpr static int jFEX_algoSpace_C_lowerEM_eta = 13;
+    constexpr static int jFEX_algoSpace_C_lowerEM_eta = 12;
     constexpr static int jFEX_algoSpace_C_upperEM_eta = 45;
-
+    
+    //Eta space for core and overlaps, FCAL 2 and 3
+    constexpr static int jFEX_algoSpace_C_lowerFCAL_eta = 0;
+    constexpr static int jFEX_algoSpace_C_upperFCAL_eta = 12;
+    
 //Phi space breakdown
     constexpr static int jFEX_algoSpace_EMB_start_phi =  8;    
     constexpr static int jFEX_algoSpace_EMB_end_phi  = 24; 
@@ -78,6 +86,13 @@ namespace LVL1 {
     constexpr static bool ENABLE_INTER_C = false;
     constexpr static int gJetTOBfib = 4;
     constexpr static int BTOBFIB = 6;
+    //define constants needed by gFEX JwoJ algorithm
+    constexpr static unsigned int aFPGA_A = 1;
+    constexpr static unsigned int bFPGA_A = 1;
+    constexpr static unsigned int aFPGA_B = 1;
+    constexpr static unsigned int bFPGA_B = 1;
+    constexpr static int gblockThreshold = 25000;//MeV
+
 
   };
 

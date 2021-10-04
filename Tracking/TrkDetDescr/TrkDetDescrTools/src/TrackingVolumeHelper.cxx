@@ -585,7 +585,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
 void Trk::TrackingVolumeHelper::fillGlueVolumes(const std::vector< const TrackingVolume*>& topLevelVolumes,
                                                 const std::vector< const TrackingVolume*>& envelopeFaceVolumes,
                                                 BoundarySurfaceFace glueFace, 
-                                                std::vector<const Trk::TrackingVolume*>& glueVols) const
+                                                std::vector<const Trk::TrackingVolume*>& glueVols) 
 {
     // loop over the topLevel Volumes
     std::vector<const Trk::TrackingVolume*>::const_iterator refVolIter = topLevelVolumes.begin();

@@ -35,28 +35,42 @@ TileDetectorTool::TileDetectorTool(const std::string& type,
 				   const std::string& name, 
 				   const IInterface* parent):
   GeoModelTool(type, name, parent),
-  m_testBeam(false),
-  m_addPlates(true),
-  m_uShape(-1),
-  m_glue(-1),
-  m_csTube(-1),
+  m_switches(false,true),
   m_not_locked(true),
   m_useNewFactory(true),
   m_geometryConfig("FULL"),
   m_manager(0)
 {
-  declareProperty("TestBeam", m_testBeam);
-  //  declareProperty("AddPlatesToCellVolume", m_addPlates); to make user aware that the value is taken from DB rather from JO
   declareProperty("UseNewFactory", m_useNewFactory);
   declareProperty("GeometryConfig",m_geometryConfig);
-  declareProperty("Ushape",m_uShape);
-  declareProperty("Glue",m_glue);
-  declareProperty("CsTube",m_csTube);
+  declareProperty("TestBeam", m_switches.testBeam);
+  // declareProperty("AddPlatesToCellVolume", m_switches.addPlatesToCell); to make user aware that the value is taken from DB rather from JO
+  declareProperty("Ushape",m_switches.uShape);
+  declareProperty("Glue",m_switches.glue);
+  declareProperty("PVT",m_switches.pvt);
+  declareProperty("Steel",m_switches.steel);
+  declareProperty("CsTube",m_switches.csTube);
 }
 
 TileDetectorTool::~TileDetectorTool()
 {
 }
+
+void TileDetectorTool::setSwitch(int & param, int value, const char * name)
+{
+    if (param < 0) {
+      param = value;
+      ATH_MSG_INFO(name << " parameter from database is: " << param);
+    } else {
+      if (param != value) {
+        ATH_MSG_WARNING("Overriding " << name << " value from DB by value from jobOptions, using "
+                        << param << " instead of " << value);
+      } else {
+        ATH_MSG_INFO(name << " parameter from jobOptions is: " << param);
+      }
+    }
+}
+
 
 StatusCode TileDetectorTool::create()
 { 
@@ -80,7 +94,7 @@ StatusCode TileDetectorTool::create()
   }
   if (atlasVersion.compare(0,9,"ATLAS-CTB") == 0 || tileVersion.compare(0,6,"TileTB") == 0) {
     ATH_MSG_INFO("CTB geometry detected: " << atlasVersion  << " " << tileVersion);
-    m_testBeam = true;
+    m_switches.testBeam = true;
   }
   
   //Locate the top level experiment node
@@ -112,48 +126,15 @@ StatusCode TileDetectorTool::create()
 
     CHECK( initIds() );
 
-    int uShapeDB = dbManager->uShape();
-    if (m_uShape < 0) {
-      m_uShape = uShapeDB;
-      ATH_MSG_INFO(" U-shape parameter from database is: " << m_uShape);
-    } else {
-      if (m_uShape != uShapeDB) {
-        ATH_MSG_WARNING(" Overriding U-shape value from DB by value from jobOptions, using "
-                        << m_uShape << " instead of " << uShapeDB);
-      } else {
-        ATH_MSG_INFO(" U-shape parameter from jobOptions is: " << m_uShape);
-      }
-    }
-
-    int glueDB = dbManager->glue();
-    if (m_glue < 0) {
-      m_glue = glueDB;
-      ATH_MSG_INFO(" Glue parameter from database is: " << m_glue);
-    } else {
-      if (m_glue != glueDB) {
-        ATH_MSG_WARNING(" Overriding Glue value from DB by value from jobOptions, using "
-                        << m_glue << " instead of " << glueDB);
-      } else {
-        ATH_MSG_INFO(" Glue parameter from jobOptions is: " << m_glue);
-      }
-    }
-
-    int csTubeDB = 0;
-    if (m_csTube < 0) {
-       m_csTube = csTubeDB;
-       ATH_MSG_INFO(" Cs Tube parameter from database is: " << m_csTube);
-    } else {
-       if (m_csTube != csTubeDB) {
-           ATH_MSG_WARNING(" Overriding U-shape value from DB by value from jobOptions, using "
-               << m_csTube << " instead of " << csTubeDB);
-       } else {
-           ATH_MSG_INFO(" Cs Tube parameter from jobOptions is: " << m_csTube);
-       }
-    }
+    m_switches.addPlatesToCell = dbManager->addPlatesToCell();
+    setSwitch(m_switches.uShape, dbManager->uShape(), "Ushape");
+    setSwitch(m_switches.glue,   dbManager->glue(),   "Glue");
+    setSwitch(m_switches.pvt,    dbManager->PVT(),    "PVT");
+    setSwitch(m_switches.steel,  dbManager->steel(),  "Steel");
+    setSwitch(m_switches.csTube, dbManager->csTube(), "CsTube");
 
     m_not_locked = false;
     
-    m_addPlates = dbManager->addPlatesToCell();
     GeoPhysVol *world=&*theExpt->getPhysVol();
     
     // build the geometry from the standalone SQLite file
@@ -171,7 +152,7 @@ StatusCode TileDetectorTool::create()
     } 
     // build the geometry from the Oracle-based GeometryDB
     else {
-
+        /*
         if(m_testBeam)
         {
             TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
@@ -185,6 +166,22 @@ StatusCode TileDetectorTool::create()
         else
         {
             TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
+            theTileFactory.create(world);
+        }
+        */
+        if(m_switches.testBeam)
+        {
+            TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_switches,&log);
+            theTileTBFactory.create(world);
+        }
+        else if (m_useNewFactory)
+        {
+            TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log,m_geometryConfig=="FULL");
+            theTileFactory.create(world);
+        }
+        else
+        {
+            TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log);
             theTileFactory.create(world);
         }
     } // end of building the geometry from the GeometryDB
@@ -240,7 +237,7 @@ StatusCode TileDetectorTool::initIds()
     return StatusCode::FAILURE;
   }
   
-  cabling->setTestBeam(m_testBeam);
+  cabling->setTestBeam(m_switches.testBeam);
 
   return StatusCode::SUCCESS;
 }

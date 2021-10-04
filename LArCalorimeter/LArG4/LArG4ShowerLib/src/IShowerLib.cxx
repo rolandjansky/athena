@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,7 @@ namespace ShowerLib {
 	  source->SetBranchAddress("geantVersion",&geant);
 	  source->SetBranchAddress("physicsList",&physics);
 	  source->SetBranchAddress("comment",&comment);
-	  source->GetEntry();
+	  source->GetEntry(0);
 	  m_detector = detector;
 	  m_release = release;
 	  m_geometry = geometry;

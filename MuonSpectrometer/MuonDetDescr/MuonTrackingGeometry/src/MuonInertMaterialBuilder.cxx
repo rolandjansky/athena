@@ -133,9 +133,9 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonInertMaterialBu
                 protMass += calculateVolume((*((*msTypeIter).first->constituents()))[ic].first.get()) *
                             (*((*msTypeIter).first->constituents()))[ic].second;
             }
-            perm = msTypeName.substr(0, 1) != "J" && m_blendLimit > 0 && protMass > m_blendLimit;
+            perm = msTypeName.compare(0, 1, "J") != 0 && m_blendLimit > 0 && protMass > m_blendLimit;
         }
-        if (perm) msTypeName = msTypeName + "PERM";
+        if (perm) msTypeName +=  "PERM";
         //
         const Trk::DetachedTrackingVolume* msTV = (*msTypeIter).first;
         for (unsigned int it = 0; it < (*msTypeIter).second.size(); it++) {
@@ -183,11 +183,8 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
-        //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
-        //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
-        //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
-        // station 	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,2)=="MM" ) {  // do nothing, probably
+        const std::string vnamestr = clv->getName();
+        std::string_view vname(vnamestr);
         // NSW station
         if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station") {  // do nothing, active station
         } else {
@@ -240,7 +237,7 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
             if (!cv->getNChildVols()) {
                 std::vector<Amg::Transform3D> volTr;
                 volTr.push_back(vol.getTransform());
-                vols.emplace_back(clv, volTr);
+                vols.emplace_back(clv, std::move(volTr));
                 simpleTree = true;
             } else {
                 getObjsForTranslation(cv, Trk::s_idTransform, vols);
@@ -253,8 +250,8 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
             m_constituents.reserve(vols.size() + 3);
 
             for (unsigned int ish = 0; ish < vols.size(); ish++) {
-                std::string protoName = vname;
-                if (!simpleTree) protoName = vname + (vols[ish].first->getName());
+                std::string protoName = std::string(vname);
+                if (!simpleTree) protoName += (vols[ish].first->getName());
                 std::string pName = vols[ish].first->getName();
                 ATH_MSG_VERBOSE(" check in pName " << pName << ", made of " << vols[ish].first->getMaterial()->getName() << " x0 "
                                                    << vols[ish].first->getMaterial()->getRadLength() << ","

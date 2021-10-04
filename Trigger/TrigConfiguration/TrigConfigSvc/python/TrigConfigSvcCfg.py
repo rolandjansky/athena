@@ -96,7 +96,6 @@ def getHLTPrescaleFolderName():
 # L1 Json file name 
 def getL1MenuFileName(flags):
     l1MenuFileName = 'L1Menu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    l1MenuFileName = l1MenuFileName.replace(".xml",".json").replace("LVL1config", "L1Menu")
     l1MenuFileName = l1MenuFileName.replace("_newJO","")
     return l1MenuFileName
 
@@ -104,7 +103,6 @@ def getL1MenuFileName(flags):
 # HLT Json file name 
 def getHLTMenuFileName( flags ):
     hltMenuFileName = 'HLTMenu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
-    hltMenuFileName = hltMenuFileName.replace(".xml",".json").replace("HLTconfig", "HLTMenu").replace("HLTmenu", "HLTMenu")
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
@@ -193,19 +191,8 @@ def L1ConfigSvcCfg( flags ):
     l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        # Run 2 configuration
-        l1ConfigSvc.ConfigSource = "XML"
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
-        # check if file exists in this directory otherwise add the package to aid path resolution
-        # also a '/' in the file name indicates that no package needs to be added
-        import os.path
-        if not ( "/" in l1XMLFile or os.path.isfile(l1XMLFile) ):
-            l1XMLFile = "TriggerMenuMT/" + l1XMLFile
-        l1ConfigSvc.XMLMenuFile = l1XMLFile
-        log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
-        # Run 3 configuration
         generatedFile, generatedBgsFile = generateL1Menu( flags )
+        l1ConfigSvc.ConfigSource = "none"
         l1ConfigSvc.InputType = "file"
         l1ConfigSvc.JsonFileName = generatedFile
         l1ConfigSvc.JsonFileNameBGS = generatedBgsFile
@@ -233,14 +220,10 @@ def HLTConfigSvcCfg( flags ):
     hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
 
     if cfg["SOURCE"] == "FILE":
-        hltXMLFile = "None"
-        hltConfigSvc.ConfigSource = "None"
-        hltConfigSvc.XMLMenuFile = hltXMLFile
+        hltConfigSvc.ConfigSource = "none"
         hltConfigSvc.InputType = "file"
         hltJsonFileName = getHLTMenuFileName( flags )
         hltConfigSvc.JsonFileName = hltJsonFileName
-        # TODO revisit if needed    
-        log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
         log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.ConfigSource = "none"

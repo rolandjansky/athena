@@ -26,7 +26,7 @@ from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
 
-CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,SmartlessnessTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","SmartlessnessTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
+CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,VoxelDensityTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","VoxelDensityTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
@@ -489,10 +489,20 @@ def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kw
     return result
 
 
-def SmartlessnessToolCfg(ConfigFlags, name="SmartlessnessTool", **kwargs):
+def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
+    voxelDensitySettings = {}
+    if ConfigFlags.Detector.GeometryITkPixel:
+        voxelDensitySettings["ITkPixelDetector"] = 0.05
+    if ConfigFlags.Detector.GeometryITkStrip:
+        voxelDensitySettings["ITkStrip::Barrel"] = 0.05
+        voxelDensitySettings["ITkStrip::ITkStrip_Forward"] = 0.05
+        ##The below is only needed temporarily, while we wait for
+        ##improved naming to be propagated to all necessary geo tags
+        voxelDensitySettings["ITkStrip::SCT_Forward"] = 0.05
+    kwargs.setdefault("VolumeVoxellDensityLevel",voxelDensitySettings)
     result = ComponentAccumulator()
-    result.setPrivateTools(SmartlessnessTool(name, **kwargs))
+    result.setPrivateTools(VoxelDensityTool(name, **kwargs))
     return result
 
 
@@ -707,7 +717,7 @@ def getGeometryConfigurationTools(ConfigFlags):
     # package containing each tool, so G4AtlasTools in this case
     result =ComponentAccumulator()
     geoConfigToolList += [result.popToolsAndMerge(MaterialDescriptionToolCfg(ConfigFlags))]
-    geoConfigToolList += [result.popToolsAndMerge(SmartlessnessToolCfg(ConfigFlags))]
+    geoConfigToolList += [result.popToolsAndMerge(VoxelDensityToolCfg(ConfigFlags))]
     return result, geoConfigToolList
 
 

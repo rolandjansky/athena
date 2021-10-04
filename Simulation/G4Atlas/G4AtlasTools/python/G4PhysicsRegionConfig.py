@@ -1,12 +1,30 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 
+def getLHCRun():
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if commonGeoFlags.Run()=="UNDEFINED":
+        if not geoFlags.isIBL():
+            return "RUN1"
+        else:
+            return "RUN2"
+    return commonGeoFlags.Run
+
+
 # Beampipe Regions
 def getBeampipeFwdCutPhysicsRegionTool(name='BeampipeFwdCutPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'BeampipeFwdCut')
-    volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
+    currentRun = getLHCRun()
+    volumeList = []
+    if currentRun in ["RUN1"]:
+        volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
+    else:
+        volumeList = ['BeamPipe::SectionF198', 'BeamPipe::SectionF199', 'BeamPipe::SectionF200']
+        if currentRun not in ["RUN2", "RUN3", "RUN4"]:
+            print('BeampipeFwdCutPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.BeamPipeSimMode() == "FastSim":
@@ -33,7 +51,13 @@ def getBeampipeFwdCutPhysicsRegionTool(name='BeampipeFwdCutPhysicsRegionTool', *
 
 def getFWDBeamLinePhysicsRegionTool(name='FWDBeamLinePhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'FWDBeamLine')
-    volumeList = ['BeamPipe::SectionF46']
+    currentRun = getLHCRun()
+    if currentRun in ["RUN1"]:
+        volumeList = ['BeamPipe::SectionF46']
+    else:
+        volumeList = ['BeamPipe::SectionF197']
+        if currentRun not in ["RUN2", "RUN3", "RUN4"]:
+            print('getFWDBeamLinePhysicsRegionTool: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
     return CfgMgr.RegionCreator(name, **kwargs)
 
@@ -63,9 +87,8 @@ def getPixelPhysicsRegionTool(name='PixelPhysicsRegionTool', **kwargs):
 
 def getSCTPhysicsRegionTool(name='SCTPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'SCT')
-    volumeList = ['SCT::BRLSensor', 'SCT::BRLSensorSS', 'SCT::BRLSensorMS',
-                   'SCT::ECSensor0', 'SCT::ECSensor1', 'SCT::ECSensor2',
-                   'SCT::ECSensor3', 'SCT::ECSensor4', 'SCT::ECSensor5']
+    volumeList = ['SCT::BRLSensor','SCT::ECSensor0', 'SCT::ECSensor1', 
+                  'SCT::ECSensor2','SCT::ECSensor3']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
@@ -192,8 +215,15 @@ def getPreSampLArPhysicsRegionTool(name='PreSampLArPhysicsRegionTool', **kwargs)
 def getDeadMaterialPhysicsRegionTool(name='DeadMaterialPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'DeadMaterial')
     volumeList = []
-    sectionList = list(range(16,49)) # does not include 49
-    sectionList += [ 51, 52, 53, 54 ]
+    currentRun = getLHCRun()
+    sectionList = []
+    if currentRun in ["RUN1"]:
+        sectionList = list(range(16,49)) # does not include 49
+        sectionList += [ 51, 52, 53, 54 ]
+    else:
+        sectionList = list(range(191,200)) # does not include 200
+        if currentRun not in ["RUN2", "RUN3", "RUN4"]:
+            print('getDeadMaterialPhysicsRegionTool: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]
     volumeList += ['LArMgr::LAr::Endcap::Cryostat::Cylinder',

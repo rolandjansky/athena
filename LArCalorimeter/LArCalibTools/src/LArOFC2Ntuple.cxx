@@ -46,7 +46,17 @@ StatusCode LArOFC2Ntuple::stop() {
   ATH_CHECK( m_nt->addItem("OFCb",m_nSamples,OFCb) );
   
   // retrieve OFC object
-  SG::ReadCondHandle<ILArOFC> larOFC (m_ofcKey, ctx);
+
+  const ILArOFC* larOFC=nullptr;
+  //Try Det-Store (real data, elec-calib case)
+  if (detStore()->contains<ILArOFC>(m_ofcKey.key())) {
+    ATH_CHECK(detStore()->retrieve(larOFC,m_ofcKey.key()));
+  }
+  else {//Via ReadCondHandle from CondStore (MC case)
+    SG::ReadCondHandle<ILArOFC> larOFCHdl (m_ofcKey, ctx);  
+    larOFC=larOFCHdl.cptr();
+  }
+
   
   const LArOnOffIdMapping *cabling=0;
   if(m_isSC) {

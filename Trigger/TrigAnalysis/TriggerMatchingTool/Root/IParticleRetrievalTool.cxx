@@ -67,8 +67,6 @@ namespace Trig {
   {
     ATH_MSG_INFO("Initializing " << name() );
     ATH_CHECK( m_tdt.retrieve() );
-    /// We need the expert methods for the navigation
-    m_tdt->ExperimentalAndExpertMethods()->enable();
     return StatusCode::SUCCESS;
   }
 
@@ -159,7 +157,7 @@ namespace Trig {
           // feature
           const HLT::TriggerElement* sourceTE = nullptr;
           const HLT::TrigNavStructure* navigation = 
-            m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+            m_tdt->ExperimentalAndExpertMethods().getNavigation();
           HLT::TriggerElement::FeatureAccessHelper egFeature = 
             navigation->getFeatureRecursively(te, clid, "", sourceTE);
           if (!sourceTE) {
@@ -257,7 +255,7 @@ namespace Trig {
     // Build a vector of typeless features so that we can use the central
     // functions.
     const HLT::TrigNavStructure* navigation = 
-      m_tdt->ExperimentalAndExpertMethods()->getNavigation();
+      m_tdt->ExperimentalAndExpertMethods().getNavigation();
 
 
     /// Expand the typedGet function here

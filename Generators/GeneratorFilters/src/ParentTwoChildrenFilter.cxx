@@ -58,11 +58,6 @@ StatusCode ParentTwoChildrenFilter::filterEvent() {
 
       if (n_daughters < 2) continue; 
 
-      // Check whether decays are part of the requested set
-      HepMC::GenVertex::particle_iterator firstChild = pitr->end_vertex()->particles_begin(HepMC::children);
-      HepMC::GenVertex::particle_iterator endChild = pitr->end_vertex()->particles_end(HepMC::children);
-      HepMC::GenVertex::particle_iterator thisChild = firstChild;
-
       int neutralPar = 0;
       for(auto thisChild: *decayVtx) {
 	ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<pitr->pdg_id() << " child ===> "  <<thisChild->pdg_id());

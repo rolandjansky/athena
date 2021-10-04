@@ -6,7 +6,7 @@ atlas_subdir( CaloDetMgrDetDescrCnv )
 # Component(s) in the package:
 atlas_add_component( CaloDetMgrDetDescrCnv
                      src/*.cxx
-                     LINK_LIBRARIES DetDescrCnvSvcLib Identifier GaudiKernel CaloDetDescrLib CaloIdentifier AthenaKernel AthenaBaseComps StoreGateLib GeoModelUtilities LArReadoutGeometry TileDetDescr )
+                     LINK_LIBRARIES DetDescrCnvSvcLib GaudiKernel CaloDetDescrLib CaloIdentifier CaloDetDescrUtils AthenaKernel AthenaBaseComps StoreGateLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

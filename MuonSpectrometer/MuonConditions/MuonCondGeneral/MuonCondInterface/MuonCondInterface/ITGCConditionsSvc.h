@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //vitrual interface for all the Muon TGC technologies 
@@ -13,13 +13,14 @@
 #include <list>
 #include <string>
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 //forward declarations
 class Identifier;
 class IdentifierHash;
 class StatusCode;
 
 
-class ITGCConditionsSvc: virtual public IInterface{
+class ATLAS_NOT_THREAD_SAFE ITGCConditionsSvc: virtual public IInterface{
 public:
   virtual ~ITGCConditionsSvc(){}
   static const InterfaceID & interfaceID(); //!< reimplemented from IInterface

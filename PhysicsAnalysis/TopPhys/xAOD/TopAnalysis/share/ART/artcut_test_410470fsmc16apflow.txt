@@ -19,12 +19,11 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_2
 
 
 
-BTagCDIPath xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root
 
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMPFlowJets_BTagging201810
+JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
@@ -91,8 +90,6 @@ TauJetIDWP Medium
 TauJetIDWPLoose Medium
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
-TauEleOLR False
-TauEleOLRLoose False
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False
@@ -100,7 +97,6 @@ DoTight Both
 DoLoose Data
 
 # Turn on MetaData to pull IsAFII from metadata
-UseAodMetaData True
 #IsAFII False
 
 ### Boosted jet taggers configuration

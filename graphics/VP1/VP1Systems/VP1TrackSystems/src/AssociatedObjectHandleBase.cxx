@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 #include "VP1Base/VP1Msg.h"
 
 #include <Inventor/nodes/SoSeparator.h>
+#include <optional>
 
 //____________________________________________________________________
 class AssociatedObjectHandleBase::Imp {

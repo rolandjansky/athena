@@ -40,6 +40,5 @@ svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile.root' OPT='RECREATE'"]
 log.info("==========================================================")
 log.info("Scheduling gFEXDriver")
 athAlgSeq += CfgMgr.LVL1__gFEXDriver('MygFEXDriver')
-#athAlgSeq += CfgMgr.LVL1__gFEXNtupleWriter('MygFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

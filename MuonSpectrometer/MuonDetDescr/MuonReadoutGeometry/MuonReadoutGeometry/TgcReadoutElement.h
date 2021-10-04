@@ -61,7 +61,7 @@ namespace MuonGM {
 
   public:
 
-    TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+    TgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
 		      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
 
     virtual ~TgcReadoutElement();
@@ -135,11 +135,11 @@ namespace MuonGM {
     double StripPitch(int plane, int strip, float zlocal) const;
 
     // local to global
-    const Amg::Vector3D localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D localToGlobalTransf(Identifier id) const;
     const Amg::Transform3D localToGlobalTransf(int gasGap) const;
     // global to local
-    const Amg::Vector3D globalToLocalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D globalToLocalTransf(Identifier id) const;
     //
     const Amg::Vector3D channelPos(int gasGap, int isStrip, int channel) const;
@@ -221,9 +221,9 @@ namespace MuonGM {
     float stripSkew(int, int) const;
     int   findChannel(int, int, Amg::Vector3D) const;
     int   findGang(int, Amg::Vector3D) const;
-    int   findStrip(int, Amg::Vector3D, Amg::Vector3D) const;
+    int   findStrip(int, Amg::Vector3D, const Amg::Vector3D&) const;
     int   gapVolume(int) const;
-    bool  isAgap(std::string) const;
+    bool  isAgap(const std::string&) const;
     bool  validGap(int) const;
     bool  validGang(int, int) const;
     bool  validStrip(int, int) const;

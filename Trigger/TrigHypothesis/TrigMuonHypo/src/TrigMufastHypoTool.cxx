@@ -364,7 +364,7 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
          return setOfClusters.size() == comb.size();
       };
 
-      HLT::elementsInUniqueCombinations( passingSelection, passingIndices, notFromSameRoI );    
+      HLT::elementsInUniqueCombinations( passingSelection, passingIndices, std::move(notFromSameRoI) );
 
    } else {
       HLT::elementsInUniqueCombinations( passingSelection, passingIndices );

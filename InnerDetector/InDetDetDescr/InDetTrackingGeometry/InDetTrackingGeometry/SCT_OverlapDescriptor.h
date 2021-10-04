@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,8 @@
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
 #include "TrkDetDescrUtils/Intersection.h"
+// STL include
+#include <atomic>
 
 #ifndef TRKDETDESCR_SIDETADDNEXTPHIETA
 #define TRKDETDESCR_SIDETADDNEXTPHIETA
@@ -55,6 +57,8 @@ namespace Trk {
 namespace InDetDD {   
      class SiDetectorElement;
 }
+
+class SCT_ID;
           
 namespace InDet {
 
@@ -70,7 +74,7 @@ namespace InDet {
        public:
 
          /** Constructor */
-         SCT_OverlapDescriptor();
+         SCT_OverlapDescriptor(bool addMoreSurfaces = false, int eta_slices = 3);
          
          /** Destructor */
          virtual ~SCT_OverlapDescriptor() = default;
@@ -85,8 +89,11 @@ namespace InDet {
                                 const Amg::Vector3D& dir) const;
 
         private:
-	 bool m_robustMode;
-	 
+          bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
+          bool                                 m_robustMode;
+          bool                                 m_addMoreSurfaces;
+          int                                  m_etaSlices;         
+          mutable std::atomic<const SCT_ID*>   m_sctIdHelper{nullptr};
     };
 
   inline SCT_OverlapDescriptor* SCT_OverlapDescriptor::clone() const { return new SCT_OverlapDescriptor(); }     

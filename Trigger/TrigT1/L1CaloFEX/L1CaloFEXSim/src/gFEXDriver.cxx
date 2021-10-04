@@ -11,12 +11,16 @@
 #include "L1CaloFEXSim/gFEXSim.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include "L1CaloFEXSim/gFEXJetTOB.h"
+#include "L1CaloFEXSim/gFEXJwoJTOB.h"
 
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
+
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
 
 #include <cassert>
 #include "SGTools/TestStore.h"
@@ -61,9 +65,6 @@ StatusCode gFEXDriver::initialize()
 
   ATH_CHECK( m_gTowerContainerSGKey.initialize() );
 
-  ATH_CHECK( m_gJetEDMKey.initialize() );
-
-  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
 
@@ -83,18 +84,16 @@ StatusCode gFEXDriver::initialize()
   //STEP 1 - Do some monitoring
   gFEXOutputCollection* my_gFEXOutputCollection = new gFEXOutputCollection();
   ATH_CHECK( evtStore()->record(my_gFEXOutputCollection,"gFEXOutputCollection") );
-  
+
   // SG::WriteHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionSG(m_gFEXOutputCollectionSGKey);
   // ATH_CHECK(gFEXOutputCollectionSG.record(std::move(my_gFEXOutputCollection)));
 
   // STEP 2 - Make some gTowers and fill the local container
-  ATH_CHECK( m_gTowerBuilderTool.retrieve() );
   m_gTowerBuilderTool->init(local_gTowerContainerRaw);
   local_gTowerContainerRaw->clearContainerMap();
   local_gTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the gTowerContainer
-  ATH_CHECK( m_gSuperCellTowerMapperTool.retrieve() );
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_gTowerContainerRaw));
 
@@ -103,7 +102,6 @@ StatusCode gFEXDriver::initialize()
   ATH_CHECK(gTowerContainerSG.record(std::move(local_gTowerContainerRaw)));
 
   // STEP 5 - Set up the gFEXSysSim
-  ATH_CHECK( m_gFEXSysSimTool.retrieve() );
 
   // STEP 6 - Run the gFEXSysSim
   ATH_CHECK(m_gFEXSysSimTool->execute());

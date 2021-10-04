@@ -60,7 +60,7 @@ friend class MuonChamber;
 
 public:
 
-   MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
+   MdtReadoutElement(GeoVFullPhysVol* pv, const std::string& stName,
                      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
 
    virtual ~MdtReadoutElement()=default;
@@ -90,15 +90,15 @@ public:
     inline double tubePitch() const;
 
     // local(tube frame) to global coord.
-    const Amg::Vector3D                    localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D                    localToGlobalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D                localToGlobalTransf(Identifier id) const;
     const Amg::Transform3D                localToGlobalTransf(const int tubeLayer, const int tube) const;
     const Amg::Vector3D           nodeform_localToGlobalCoords(Amg::Vector3D x, Identifier id) const;
     const Amg::Transform3D       nodeform_localToGlobalTransf(Identifier id) const;
     // global to local(tube frame) coord.
-    const Amg::Vector3D                    globalToLocalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D                    globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D                globalToLocalTransf(Identifier id) const;
-    const Amg::Vector3D           nodeform_globalToLocalCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D           nodeform_globalToLocalCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D       nodeform_globalToLocalTransf(Identifier id) const;
     // local(tube frame) to multilayer coord.
     const Amg::Vector3D           tubeToMultilayerCoords(Amg::Vector3D x, Identifier id) const;
@@ -106,9 +106,9 @@ public:
     const Amg::Vector3D     nodeform_tubeToMultilayerCoords(Amg::Vector3D x, Identifier id) const;
     const Amg::Transform3D nodeform_tubeToMultilayerTransf(Identifier id) const;
     // multilayer to local (tube frame) coords
-    const Amg::Vector3D           multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D           multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D       multilayerToTubeTransf(Identifier id) const;
-    const Amg::Vector3D     nodeform_multilayerToTubeCoords(Amg::Vector3D x, Identifier id) const;
+    const Amg::Vector3D     nodeform_multilayerToTubeCoords(const Amg::Vector3D& x, Identifier id) const;
     const Amg::Transform3D nodeform_multilayerToTubeTransf(Identifier id) const;
 
     // in the native MDT reference system
@@ -134,10 +134,10 @@ public:
     double signedRODistanceFromTubeCentre(const int ml, const int tl, const int tube) const;
     double RODistanceFromTubeCentre(const Identifier& id) const;
     double RODistanceFromTubeCentre(const int ml, const int tl, const int tube) const;
-    double distanceFromRO(Amg::Vector3D GlobalHitPosition, Identifier id) const;
-    double distanceFromRO(Amg::Vector3D GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
-    int isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifier id) const;
-    int isAtReadoutSide(Amg::Vector3D GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
+    double distanceFromRO(const Amg::Vector3D &GlobalHitPosition, Identifier id) const;
+    double distanceFromRO(const Amg::Vector3D &GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
+    int isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, Identifier id) const;
+    int isAtReadoutSide(const Amg::Vector3D &GlobalHitPosition, const int multilayer, const int tubelayer, const int tube) const;
     const Amg::Vector3D localROPos(const int multilayer, const int tubelayer, const int tube) const;
     const Amg::Vector3D ROPos(const int multilayer, const int tubelayer, const int tube) const;
     const Amg::Vector3D tubeFrame_localROPos(const int multilayer, const int tubelayer, const int tube) const;
@@ -204,8 +204,8 @@ private:
 
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double,
 	double, double, double, double, double, double, double, double,
-	double, double, double, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
+	double, double, double, const Amg::Vector3D& fixedPoint) const;
+    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D& fixedPoint) const;
     void wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, const int multilayer, const int tubelayer, const int tube) const;
 
     // methods used only by friend class MdtAlignModule to shift chambers

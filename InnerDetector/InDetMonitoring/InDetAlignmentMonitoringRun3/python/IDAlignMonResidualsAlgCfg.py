@@ -22,7 +22,7 @@ def IDAlignMonResidualsAlgCfg(helper, alg, **kwargs):
       
     # this creates a "residualGroup" called "alg" which will put its histograms into the subdirectory "Residuals"
     residualGroup = helper.addGroup(alg, 'Residuals')
-    pathResiduals = '/IDAlignMon/ExtendendTracks_NoTriggerSelection/Residuals'
+    pathResiduals = '/IDAlignMon/ExtendedTracks_NoTriggerSelection/Residuals'
 
     # Histograms for the Alignment Residual monitoring:    
     varName = 'm_mu;mu_perEvent'

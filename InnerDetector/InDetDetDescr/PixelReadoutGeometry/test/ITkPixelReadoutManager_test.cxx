@@ -150,31 +150,31 @@ namespace PixelTesting
     Identifier close3 = element->identifierFromCellId(InDetDD::SiCellId(p_design->rowsPerCircuit(), p_design->columnsPerCircuit() + 2));
     Identifier close4 = element->identifierFromCellId(InDetDD::SiCellId(p_design->rowsPerCircuit() + 2, p_design->columnsPerCircuit()));
 
-    ASSERT_EQ( m_svc->getRow(edge1, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(edge2, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(edge3, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(edge4, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(center1, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(center2, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(center3, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(center4, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(close1, moduleId), p_design->rowsPerCircuit() - 3 );
-    ASSERT_EQ( m_svc->getRow(close2, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(close3, moduleId), p_design->rowsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getRow(close4, moduleId), p_design->rowsPerCircuit() - 3 );
+    ASSERT_EQ( m_svc->getRow(edge1, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(edge2, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(edge3, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(edge4, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(center1, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(center2, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(center3, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(center4, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(close1, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 3) );
+    ASSERT_EQ( m_svc->getRow(close2, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(close3, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getRow(close4, moduleId), static_cast<uint32_t>(p_design->rowsPerCircuit() - 3) );
 
-    ASSERT_EQ( m_svc->getColumn(edge1, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(edge2, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(edge3, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(edge4, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(center1, moduleId), p_design->columnsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getColumn(center2, moduleId), p_design->columnsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getColumn(center3, moduleId), p_design->columnsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getColumn(center4, moduleId), p_design->columnsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getColumn(close1, moduleId), p_design->columnsPerCircuit() - 1 );
-    ASSERT_EQ( m_svc->getColumn(close2, moduleId), p_design->columnsPerCircuit() - 3 );
-    ASSERT_EQ( m_svc->getColumn(close3, moduleId), p_design->columnsPerCircuit() - 3 );
-    ASSERT_EQ( m_svc->getColumn(close4, moduleId), p_design->columnsPerCircuit() - 1 );
+    ASSERT_EQ( m_svc->getColumn(edge1, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(edge2, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(edge3, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(edge4, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(center1, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getColumn(center2, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getColumn(center3, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getColumn(center4, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getColumn(close1, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
+    ASSERT_EQ( m_svc->getColumn(close2, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 3) );
+    ASSERT_EQ( m_svc->getColumn(close3, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 3) );
+    ASSERT_EQ( m_svc->getColumn(close4, moduleId), static_cast<uint32_t>(p_design->columnsPerCircuit() - 1) );
 
     ASSERT_EQ( m_svc->getDiodeType(edge1), PixelDiodeType::NORMAL );
     ASSERT_EQ( m_svc->getDiodeType(edge2), PixelDiodeType::NORMAL );
@@ -189,18 +189,18 @@ namespace PixelTesting
     ASSERT_EQ( m_svc->getDiodeType(close3), PixelDiodeType::LONG );
     ASSERT_EQ( m_svc->getDiodeType(close4), PixelDiodeType::LONG );
     
-    ASSERT_EQ( m_svc->getFE(edge1, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(edge2, moduleId), 1 );
-    ASSERT_EQ( m_svc->getFE(edge3, moduleId), 2 );
-    ASSERT_EQ( m_svc->getFE(edge4, moduleId), 3 );
-    ASSERT_EQ( m_svc->getFE(center1, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(center2, moduleId), 2 );
-    ASSERT_EQ( m_svc->getFE(center3, moduleId), 1 );
-    ASSERT_EQ( m_svc->getFE(center4, moduleId), 3 );
-    ASSERT_EQ( m_svc->getFE(close1, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(close2, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(close3, moduleId), 3 );
-    ASSERT_EQ( m_svc->getFE(close4, moduleId), 3 );
+    ASSERT_EQ( m_svc->getFE(edge1, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(edge2, moduleId), 1u );
+    ASSERT_EQ( m_svc->getFE(edge3, moduleId), 2u );
+    ASSERT_EQ( m_svc->getFE(edge4, moduleId), 3u );
+    ASSERT_EQ( m_svc->getFE(center1, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(center2, moduleId), 2u );
+    ASSERT_EQ( m_svc->getFE(center3, moduleId), 1u );
+    ASSERT_EQ( m_svc->getFE(center4, moduleId), 3u );
+    ASSERT_EQ( m_svc->getFE(close1, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(close2, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(close3, moduleId), 3u );
+    ASSERT_EQ( m_svc->getFE(close4, moduleId), 3u );
 
     ASSERT_EQ( m_svc->getPixelId(moduleId, 0, 0, 0), edge1 );
     ASSERT_EQ( m_svc->getPixelId(moduleId, 1, 0, 0), edge2 );
@@ -234,17 +234,17 @@ namespace PixelTesting
     Identifier edge4s = elementS->identifierFromCellId(InDetDD::SiCellId(p_designS->rows() - 1, p_designS->columns() - 1));
     Identifier centers = elementS->identifierFromCellId(InDetDD::SiCellId(p_designS->rows() / 2, p_designS->columns() / 2));
 
-    ASSERT_EQ( m_svc->getRow(edge1s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(edge2s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getRow(edge3s, moduleId), p_designS->rows() - 1 );
-    ASSERT_EQ( m_svc->getRow(edge4s, moduleId), p_designS->rows() - 1 );
-    ASSERT_EQ( m_svc->getRow(centers, moduleId), p_designS->rows() / 2);
+    ASSERT_EQ( m_svc->getRow(edge1s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(edge2s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getRow(edge3s, moduleId), static_cast<uint32_t>(p_designS->rows() - 1) );
+    ASSERT_EQ( m_svc->getRow(edge4s, moduleId), static_cast<uint32_t>(p_designS->rows() - 1) );
+    ASSERT_EQ( m_svc->getRow(centers, moduleId), static_cast<uint32_t>(p_designS->rows() / 2) );
 
-    ASSERT_EQ( m_svc->getColumn(edge1s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(edge2s, moduleId), p_designS->columns() - 1 );
-    ASSERT_EQ( m_svc->getColumn(edge3s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getColumn(edge4s, moduleId), p_designS->columns() - 1 );
-    ASSERT_EQ( m_svc->getColumn(centers, moduleId), p_designS->columns() / 2 );
+    ASSERT_EQ( m_svc->getColumn(edge1s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(edge2s, moduleId), static_cast<uint32_t>(p_designS->columns() - 1) );
+    ASSERT_EQ( m_svc->getColumn(edge3s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getColumn(edge4s, moduleId), static_cast<uint32_t>(p_designS->columns() - 1) );
+    ASSERT_EQ( m_svc->getColumn(centers, moduleId), static_cast<uint32_t>(p_designS->columns() / 2) );
 
     ASSERT_EQ( m_svc->getDiodeType(edge1s), PixelDiodeType::NORMAL );
     ASSERT_EQ( m_svc->getDiodeType(edge2s), PixelDiodeType::NORMAL );
@@ -252,11 +252,11 @@ namespace PixelTesting
     ASSERT_EQ( m_svc->getDiodeType(edge4s), PixelDiodeType::NORMAL );
     ASSERT_EQ( m_svc->getDiodeType(centers), PixelDiodeType::NORMAL );
 
-    ASSERT_EQ( m_svc->getFE(edge1s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(edge2s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(edge3s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(edge4s, moduleId), 0 );
-    ASSERT_EQ( m_svc->getFE(centers, moduleId), 0 );
+    ASSERT_EQ( m_svc->getFE(edge1s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(edge2s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(edge3s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(edge4s, moduleId), 0u );
+    ASSERT_EQ( m_svc->getFE(centers, moduleId), 0u );
 
     ASSERT_EQ( m_svc->getPixelId(moduleId, 0, 0, 0), edge1s );
     ASSERT_EQ( m_svc->getPixelId(moduleId, 0, 0, p_designS->columns() - 1), edge2s );

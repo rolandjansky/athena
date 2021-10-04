@@ -2,6 +2,7 @@
 #
 # art-description: Run simulation outside ISF, reading min bias events, write cavern background track records, using 2015 geometry and conditions
 # art-type: grid
+# art-include: master/Athena
 # art-output: test.*.EVNT_TR.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

@@ -182,7 +182,7 @@ TrigLiveFractionCondAlg::lumiWeight  (const LuminosityCondData& lumi,
                                       const std::vector<float>& liveFractionLo,
                                       const std::vector<float>& liveFractionHi,
                                       float& lumiLiveFractionLo,
-                                      float& lumiLiveFractionHi) const
+                                      float& lumiLiveFractionHi) 
 {
   double numsumlo = 0.;
   double numsumhi = 0.;

@@ -48,7 +48,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
   ATH_MSG_DEBUG("Executing TrigTauMonitorAlgorithm");
 
-  if(m_trigDecTool->ExperimentalAndExpertMethods()->isHLTTruncated()){
+  if(m_trigDecTool->ExperimentalAndExpertMethods().isHLTTruncated()){
     ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
     return StatusCode::SUCCESS; 
   }
@@ -779,19 +779,31 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 
   if(names[0].find("L1")!=std::string::npos) isL1=true;
 
-  if(names.size() <= 4 && names[3].find("L1TAU") !=std::string::npos)
+  if(names.size() <= 4)
   {
     type=names[2];
     l1item =names[3];
-    l1thr = std::stof(names[3].substr(5,names[3].length()));
+     
+    if(names[3].find("L1TAU") !=std::string::npos){
+      l1thr = std::stof(names[3].substr(5,names[3].length()));
+    } 
+    else if (names[3].find("L1eTAU") !=std::string::npos){
+      l1thr = std::stof(names[3].substr(6,names[3].length()));
+    }
+   
   } 
-  else if (names[4].find("L1TAU") !=std::string::npos) 
-  {
+  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos )  {
     type=names[3];
     l1item =names[4];
-    l1thr = std::stof(names[4].substr(5,names[4].length())); 
+
+    if(names[4].find("L1TAU") !=std::string::npos){
+      l1thr = std::stof(names[4].substr(5,names[4].length())); 
+    }
+    else if(names[4].find("L1eTAU") !=std::string::npos){
+      l1thr = std::stof(names[4].substr(6,names[4].length()));
+    }
   }
- 
+
   TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isBDT,isPerf,hlthr,l1thr,false};
 
   m_trigInfo[trigger] = info;

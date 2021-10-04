@@ -14,7 +14,7 @@ atlas_add_library( CaloDetDescrLib
    LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel AthenaKernel AthContainers
    AthenaBaseComps CxxUtils GeoModelInterfaces Identifier CaloIdentifier
    CaloGeoHelpers GeoPrimitives LArReadoutGeometry
-   PRIVATE_LINK_LIBRARIES CaloConditions StoreGateLib )
+   PRIVATE_LINK_LIBRARIES CaloConditions StoreGateLib GeoModelUtilities)
 
 atlas_add_component( CaloDetDescr
    src/components/*.cxx

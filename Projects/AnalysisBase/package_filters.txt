@@ -87,6 +87,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
+- Reconstruction/Jet/JetInputsMonitoring
 + Reconstruction/Jet/JetReclustering
 - Reconstruction/Jet/JetRec.+
 - Reconstruction/Jet/JetSimTools

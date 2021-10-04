@@ -26,7 +26,7 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
   ATH_MSG_INFO( "with these inputs: ");
-  for (auto inp:m_inputs){
+  for (const auto& inp:m_inputs){
     ATH_MSG_INFO("-- "<< inp.key());
   }
   
@@ -40,8 +40,9 @@ StatusCode ComboHypo::initialize() {
   
   // find max inputs size
   auto maxMultEl = std::max_element( m_multiplicitiesReqMap.begin(), m_multiplicitiesReqMap.end(),  
-    []( Combo::MultiplicityReqMap::value_type a, Combo::MultiplicityReqMap::value_type b ){ return a.second.size() < b.second.size(); }
-    ); 
+    []( const Combo::MultiplicityReqMap::value_type& a, const Combo::MultiplicityReqMap::value_type& b ){
+      return a.second.size() < b.second.size();
+    });
   
   const size_t maxMult = maxMultEl->second.size();
 

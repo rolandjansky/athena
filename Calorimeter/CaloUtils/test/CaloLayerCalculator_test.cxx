@@ -205,8 +205,10 @@ const CaloCellContainer* fill_cells (CaloTester& tester)
 
 void test1 (const CaloCellContainer* cells)
 {
+  
   CaloLayerCalculator calc;
-  assert( calc.fill (cells, clust1_eta0, clust1_phi0,
+  const CaloDetDescrManager* mgr=CaloDetDescrManager::instance();
+  assert( calc.fill (*mgr,cells, clust1_eta0, clust1_phi0,
                      5*deta, 5*dphi, CaloSampling::EMB2) );
   clust1_check (calc);
 
@@ -227,7 +229,7 @@ void test1 (const CaloCellContainer* cells)
              5*deta, 5*dphi, CaloSampling::EMB2);
   clust1_check (calc, 0.75);
 
-  assert( calc.fill (cells, clust2_eta0, clust2_phi0,
+  assert( calc.fill (*mgr,cells, clust2_eta0, clust2_phi0,
                      5*deta, 5*dphi, CaloSampling::EMB2) );
   clust2_check (calc);
 }
