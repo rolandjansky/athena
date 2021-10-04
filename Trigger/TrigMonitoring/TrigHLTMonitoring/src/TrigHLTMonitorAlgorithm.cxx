@@ -239,8 +239,6 @@ StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const Ev
   auto HLTEvents = Monitored::Scalar<int>("HLTEvents",0);
   auto ConfigConsistency_HLT = Monitored::Scalar<int>("ConfigConsistency_HLT",0);
 
-  //SG::ReadHandle<HLT::HLTResultMT> resultHandle = SG::makeHandle( m_hltResultReadKey, ctx );
-
   SG::ReadHandle<xAOD::TrigConfKeys> onlineKeys(m_onlineKey, ctx);
   SG::ReadHandle<xAOD::TrigConfKeys> eventKeys(m_eventKey, ctx);
 
@@ -248,7 +246,7 @@ StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const Ev
 
   if( onlineKeys.isValid() ) {
     sc_onlineKeys = StatusCode::SUCCESS;
-    ATH_MSG_DEBUG("onlineKeys are valid"); //extra debug
+    ATH_MSG_DEBUG("onlineKeys are valid"); 
   }
   else {
     ATH_MSG_ERROR("TrigConfKeysOnline not available");
@@ -327,7 +325,9 @@ StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const Ev
 
 
 
-  //Fill HLTResult histogram
+  //Fill HLTEvent histogram 
+  //this was called HLTResult in Run1-2, 
+  //but HLTResult has a slightly different meaning now
   HLTEvents = (int)sc_hltEvents.isSuccess();
   fill(tool,HLTEvents); //Always fill, for every event
 
