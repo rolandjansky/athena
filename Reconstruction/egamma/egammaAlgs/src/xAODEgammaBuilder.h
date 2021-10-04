@@ -59,16 +59,19 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-//
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-//
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-//
+
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
@@ -76,6 +79,7 @@
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaUtils/electronPearShapeAlignmentCorrection.h"
+
 #include <memory>
 
 class egammaRec;
@@ -170,6 +174,13 @@ private:
         "InputPhotonRecCollectionName",
         "PhotonSuperRecCollection",
         "Input container for electron  Super Cluster  egammaRec objects"};
+
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+        this,
+        "CaloDetDescrManager",
+        "CaloDetDescrManager",
+        "SG Key for CaloDetDescrManager in the Condition Store"
+    };
 
     /** @brief Name of the dummy electron output collection*/
     SG::WriteHandleKey<xAOD::ElectronContainer> m_dummyElectronOutputKey {this,
