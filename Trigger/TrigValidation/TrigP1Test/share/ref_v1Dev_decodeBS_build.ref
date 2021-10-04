@@ -4143,9 +4143,9 @@ HLT_noalg_LArPEBCalib_L1J100:
 HLT_noalg_LArPEBCalib_L1J15:
   eventCount: 22
   stepCounts:
-    0: 2
+    0: 22
   stepFeatures:
-    0: 2
+    0: 22
 HLT_noalg_LArPEBCalib_L1J15p31ETA49:
   eventCount: 2
   stepCounts:
