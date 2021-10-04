@@ -9,7 +9,11 @@
 
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 // Fwd declarations
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -88,6 +92,13 @@ private:
     "InputEgammaRecContainerName",
     "egammaRecCollection",
     "input egammaRec container"
+  };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
   };
 
   /** @brief Key for output egammaRec container */
