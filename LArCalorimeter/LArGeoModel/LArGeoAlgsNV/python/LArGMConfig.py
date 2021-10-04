@@ -4,7 +4,6 @@ from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-import os
 
 def LArGMCfg(configFlags):
     
@@ -32,7 +31,8 @@ def LArGMCfg(configFlags):
                 #Regular offline data processing
                 result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
                 result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
-        if "AthSimulation_DIR" not in os.environ:
+
+        if configFlags.Common.Project != 'AthSimulation':
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
             

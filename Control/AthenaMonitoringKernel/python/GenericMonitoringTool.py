@@ -130,13 +130,21 @@ class GenericMonitoringArray:
                 # assume we have list of strings or ints; convert to list of 1-element tuples
                 pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
-            aliased = unAliased+';'+aliasBase+postfix
-
             try:
                 accessors = tuple(self.Accessors[postfix])
                 if pattern is not None:
                     if accessors not in pattern:
                         continue
+                # two options for alias formatting,
+                #   a) default convention: (var_0, var_1, etc.)
+                #   b) custom formatting: 'alias{0}custom'.format(*(0, 1))
+                aliasBaseFormatted = aliasBase.format(*accessors)
+                if aliasBaseFormatted==aliasBase:
+                    # if format call did not do anything, use default
+                    aliased = unAliased+';'+aliasBase+postfix
+                else:
+                    # if format call changed the alias, use custom
+                    aliased = aliasBaseFormatted
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:
@@ -144,7 +152,7 @@ class GenericMonitoringArray:
             except IndexError as e:
                 log.error('In title or path template of histogram {0}, too many positional '\
                     'arguments were requested. Title and path templates were "{1}" and "{2}", '\
-                    'while only {3} fillers were given: {4}.'.format(aliased, title,\
+                    'while only {3} fillers were given: {4}.'.format(aliasBase, title,\
                     path, len(accessors), accessors))
                 raise e
 

@@ -97,7 +97,7 @@ void DataHeaderCnv::clearInputDHFormCache( const std::string& dbGuid )
    auto iter = m_inputDHForms.begin();
    while( iter != m_inputDHForms.end() ) {
       size_t dbpos = iter->first.find("[DB=");
-      if( dbpos != std::string::npos && iter->first.substr(dbpos+4, dbpos+36) == dbGuid ) {
+      if( dbpos != std::string::npos && iter->first.compare(dbpos+4, dbpos+36, dbGuid) == 0 ) {
          iter = m_inputDHForms.erase( iter );
       } else {
          iter++;

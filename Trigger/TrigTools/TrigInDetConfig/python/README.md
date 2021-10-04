@@ -31,3 +31,167 @@ In addition to the modules supporting the current jobOptions configuration, addi
   * Flags used by the ComponentAccumulator based configuration.  
 
 
+# How to configure the tracking from the TriggerMenuMT signature code
+
+
+Generally components of the ID configuration for use by the signatures should 
+come from 
+
+[Trigger/TrigTools/TrigInDetConfig](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig)
+
+Generally, there are four things that are needed:
+* Tracking configuration settings - track collection names, Roi sizes etc 
+* Fast tracking configuration
+* Precision tracking
+* Vertexing
+
+Generally the tracking configuration parameters should really live entirely 
+inside the tracking configuration
+
+The names of Track collections however, should be set centrally and distributed
+throughout the trigger configuration, rather than duplicated in different places.
+
+Currently Roi Descriptor names are not obtained from the Tracking Configuration, 
+but they should be added to the parameters configured •
+
+# Tracking configuration
+
+For a signature instance, eg “muon”, "tauIso" etc we fetch the tracking configuration instance for 
+that signature, and obtain parameters, tack collection names etc, from the ConfigSettings 
+class for that instance: 
+
+      from TrigInDetConfig.ConfigSetings importa getInDetTrigConfig
+      config = getInDetConfig( "tauIso" )
+     
+      algo.etaHalfWidth = config.etaHalfWidth
+      algo.phiHalfWidth = config.phiHalfWidth
+      
+      tracks_ftf    = config.tracks_FTF()
+      tracks_idtrig = config.tracks_IDTrig()
+
+Under NO CIRCUMSTANCES should a track collection name or a vertex collection name EVER be hardcoded 
+as a string string literal into the signature configuration code
+
+For instance
+
+      TrackParticleContainerName = "HLT_IDTrack_Electron_IDTrig"
+
+should instead be obtained from the config
+
+      TrackParticleContainerName = config.tracks_IDTrig()
+
+
+# Fast Tracking and Data preparation
+
+The Fast Track Finder configuration code can be found in 
+
+[Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+
+An example on how to call this 
+
+   
+      from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+      idconfig = getInDetTrigConfig( signatureNameID )
+
+      from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
+      viewAlgs, viewVerify = makeInDetAlgs( config = idconfig, rois = RoIs )
+
+      TrackCollection = idconfig.tracks_FTF()
+
+
+The actual interface is 
+<pre>
+  def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+</pre>
+where the arguments are    
+  
+      config            - the ID Trigger configuration for the signature
+      rois              - the view RoI name
+      doFTF             - whether to run the actual FTF, or just the data preparation
+      viewVerifier      - the view data verifier
+      secondStageConfig - the ID Trigger config for a second stage. This is not really used now, 
+		              since the second stage generally has its own instance now
+					     
+
+# Precision  Tracking
+  
+The code for this is in 
+
+[Trigger/TrigTools/TrigInDetConfig/python/InDetPT.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+
+and should be configured using 
+   
+      from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+      idconfig = getInDetTrigConfig( signatureNameID )
+
+      from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+
+      viewAlgs, viewVerify = makeInDetPrecisionTracking( config = idconfig, rois = RoIs )
+
+      TrackCollection = idconfig.tracks_IDTrig()
+
+
+The actual interface is 
+<pre>
+  def makeInDetPrecisionTracking( config = None, verifier = False, rois = 'EMViewRoIs', prefix = 'InDetTrigMT'):
+</pre>
+where the arguments are    
+  
+       config    - the ID Trigger configuration for the signature
+       verifier  - the view data verifier
+       rois      - the view RoI name 
+       prefix    - Prefix for the algorithm name. This is needed to differentiate from the
+		       Offline versions of th algorithm
+			          
+
+## Minbias Tracking 
+ 
+This uses the code in 
+
+[Trigger/TrigTools/TrigInDetConfig/EFIDTracking.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+
+but the actual called function should be the same as for the precision tracking. *** need to check this ***
+  
+
+# Vertexing
+
+The vertexing is configured using the code in 
+
+[Trigger/TrigTools/TrigInDetConfig/python/TrigInDetPriVtxConfig.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+
+Typically it should be used as in th following example 
+
+      from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+      idconfig = getInDetTrigConfig( "jet" )
+
+      from TrigInDetConfig.InDetSetup import makeVertices
+
+      vtxAlgs = makeVertices( "jet", idconfig.tracks_FTF(), idconfig.vertex, idconfig )
+
+      vertexCollection = idconfig.vertex
+
+The actual function is defined 
+```
+def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection=None, config=None, adaptiveVertex=None ) :
+```
+where the arguments are    
+
+       whichSignature        - the ID Trigger signature
+       inputTrackCollection  - the input track collection key
+       outputVtxCollection   - optional output vertex collection key
+       config                - optional configuration
+       adaptiveVertex        - flag to determine whether the adaptive vertexing should be used
+
+The reason for this somewhat redundent structure, is because of the prior need to be able to run both  the adaptive, and iterative vertex finders in the jet slice, and as such the signature name and the configuration needed to be able to be set to be independent, as did the output vertex collection name, and whether the adaptive vertex algorithm should be run.
+
+As such, this ```makeVertices()``` function contains code to determine the ID config automatically from  ```whichSignature```.
+
+Now that both vertex algorithms do not need to be run in the chain, this should probably be replaced by calls to the principle ```vertexFinder_builder()``` function 
+
+Last updated 2021 - 10 - 01
+
+
+
+
+

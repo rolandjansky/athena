@@ -62,8 +62,8 @@ CaloLayerCalculator::fill (const CaloDetDescrManager& mgr,
     }
   }
 
-  CaloCellList cell_list(cell_container);
-  cell_list.select(mgr,eta,phi,deta,dphi,sampling);
+  CaloCellList cell_list(&mgr,cell_container);
+  cell_list.select(eta,phi,deta,dphi,sampling);
 
   fill (cell_list.begin(),
         cell_list.end(),
@@ -71,20 +71,6 @@ CaloLayerCalculator::fill (const CaloDetDescrManager& mgr,
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode
-CaloLayerCalculator::fill (const CaloCellContainer* cell_container,
-                           double eta,
-                           double phi,
-                           double deta,
-                           double dphi,
-                           CaloSampling::CaloSample sampling,
-                           xAOD::CaloCluster* tofill /*= 0*/)
-{
-const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
-return fill(*mgr, cell_container, eta, phi, deta, dphi, sampling, tofill);
-}
-
 
 /// Reset output variables to invalid values.
 void CaloLayerCalculator::reset()

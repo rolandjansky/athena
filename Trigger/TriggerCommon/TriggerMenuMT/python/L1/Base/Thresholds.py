@@ -555,7 +555,7 @@ class eTauThreshold( Threshold ):
 
     def setIsolation(self, rCore = "None", rHad = "None"):
         allowed_rCore = [ "None", "Loose", "Medium", "Tight" ]
-        allowed_rHad = [ "None", "Had" ]
+        allowed_rHad = [ "None", "HadLoose", "HadMedium", "HadTight", "Had" ] # Had = HadMedium for backward compatibility
         if rCore not in allowed_rCore:
             raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for rCore, must be one of %s", self.name, self.ttype, rCore, ', '.join(allowed_rCore) )
         if rHad not in allowed_rHad:

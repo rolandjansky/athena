@@ -92,6 +92,9 @@ MuonInputProvider::handle(const Incident& incident) {
    auto hIs2cand = std::make_unique<TH1I>("MuonTOBIs2cand", "Muon TOB Is2cand", 3, -1, 2);
    hIs2cand->SetXTitle(">1 cand. in RPC pad");
 
+   auto hIsTGC = std::make_unique<TH1I>("MuonTOBIsTGC", "Muon TOB IsTGC", 2, -0.5, 1.5);
+   hIsTGC->SetXTitle("Is a TGC muon");
+
 
    if (m_histSvc->regShared( histPath + "TOBPt", std::move(hPt), m_hPt ).isSuccess()){
       ATH_MSG_DEBUG("TOBPt histogram has been registered successfully for MuonProvider.");
@@ -140,6 +143,12 @@ MuonInputProvider::handle(const Incident& incident) {
    }
    else{
       ATH_MSG_WARNING("Could not register TOBIs2cand histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBIsTGC", std::move(hIsTGC), m_hIsTGC ).isSuccess()){
+      ATH_MSG_DEBUG("TOBIsTGC histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBIsTGC histogram for MuonProvider");
    }
 }
 
@@ -190,6 +199,7 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
       muon.setGoodMF( topoFlag(roi.getgoodMF()) );
       muon.setCharge( topoFlag(roi.getcharge()) );
       muon.setIs2cand( 0 );
+      muon.setIsTGC( 1 );
    }
    else { // RPC ( barrel (B) )
       muon.setBW2or3( 0 );
@@ -197,6 +207,7 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
       muon.setGoodMF( 0 );
       muon.setCharge( 0 );
       muon.setIs2cand( topoFlag(roi.getis2cand()) );
+      muon.setIsTGC( 0 );
    }
 
    m_hPt->Fill(muon.EtDouble());
@@ -208,6 +219,7 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    m_hGoodMF->Fill( muon.goodMF() );
    m_hCharge->Fill( muon.charge() );
    m_hIs2cand->Fill( muon.is2cand() );
+   m_hIsTGC->Fill( muon.isTGC() );
 
    return muon;
 }

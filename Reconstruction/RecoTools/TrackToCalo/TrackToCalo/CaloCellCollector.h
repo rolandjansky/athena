@@ -18,6 +18,7 @@ namespace Trk {
 }
 class CaloCellContainer;
 class CaloNoise;
+class CaloDetDescrManager;
 
 namespace Rec {
 
@@ -27,7 +28,8 @@ namespace Rec {
 
         CaloCellCollector();
 
-        xAOD::CaloCluster* collectCells(const Trk::CaloExtension& extension, const CaloCellContainer& cellContainer,
+        xAOD::CaloCluster* collectCells(const Trk::CaloExtension& extension, const CaloDetDescrManager* caloMgr, 
+					const CaloCellContainer& cellContainer,
                                         xAOD::CaloClusterContainer& clusterContainer) const;
 
         void collectEtCore(const xAOD::CaloCluster& cluster, std::vector<float>& et_core, const CaloNoise* caloNoise,

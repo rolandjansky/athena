@@ -5,6 +5,7 @@
 #define PFCLUSTERSELECTORTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "eflowRec/IPFClusterSelectorTool.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -27,13 +28,19 @@ public:
 
 private:
   /** for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
-  void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight,const xAOD::CaloClusterContainer& caloCalClustersContainer);
+  void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight,const xAOD::CaloClusterContainer& caloCalClustersContainer,const CaloDetDescrManager& calo_dd_man);
   
   /** ReadHandleKey for the CaloClusterContainer to be used as input */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
   /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};  
+
+  /** ReadCondHandleKey for CaloDetDescrManager */
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
   
 };
 #endif

@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -372,11 +373,19 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["reta"] = iso.value().reta_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().reta_d();
+               jWPIso["reta"] = std::stod(stream.str());
                jWPIso["reta_fw"] = iso.value().reta_fw();
-               jWPIso["rhad"] = iso.value().rhad_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().rhad_d();
+               jWPIso["rhad"] = std::stod(stream.str());
                jWPIso["rhad_fw"] = iso.value().rhad_fw();
-               jWPIso["wstot"] = iso.value().wstot_d();
+               stream.str(""); 
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().wstot_d();               
+               jWPIso["wstot"] = std::stod(stream.str());
                jWPIso["wstot_fw"] = iso.value().wstot_fw();
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
@@ -400,11 +409,19 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : jeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["iso"] = iso.value().iso_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().iso_d();
+               jWPIso["iso"] = std::stod(stream.str());
                jWPIso["iso_fw"] = iso.value().iso_fw();
-               jWPIso["frac"] = iso.value().frac_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().frac_d();
+               jWPIso["frac"] = std::stod(stream.str());
                jWPIso["frac_fw"] = iso.value().frac_fw();
-               jWPIso["frac2"] = iso.value().frac2_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().frac2_d();
+               jWPIso["frac2"] = std::stod(stream.str());
                jWPIso["frac2_fw"] = iso.value().frac2_fw();
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
@@ -417,14 +434,20 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "eTAU") {
          auto & eeminfo = l1menu.thrExtraInfo().eTAU();
-         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, TrigConf::Selection::WP::HAD} ) {
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, 
+                         TrigConf::Selection::WP::HADLOOSE, TrigConf::Selection::WP::HADMEDIUM, TrigConf::Selection::WP::HADTIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["rCore"] = iso.value().rCore_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().rCore_d();
+               jWPIso["rCore"] = std::stod(stream.str());
                jWPIso["rCore_fw"] = iso.value().rCore_fw();
-               jWPIso["rHad"] = iso.value().rHad_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().rHad_d();
+               jWPIso["rHad"] = std::stod(stream.str());
                jWPIso["rHad_fw"] = iso.value().rHad_fw();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
@@ -445,7 +468,9 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : jtauinfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isolation"] = iso.value().isolation_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().isolation_d();
+               jWPIso["isolation"] = std::stod(stream.str());
                jWPIso["isolation_fw"] = iso.value().isolation_fw();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
@@ -460,7 +485,9 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isolation"] = iso.value().isolation_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().isolation_d();
+               jWPIso["isolation"] = std::stod(stream.str());
                jWPIso["isolation_fw"] = iso.value().isolation_fw();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }

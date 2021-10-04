@@ -42,10 +42,10 @@ class CaloCellList
 public:
   typedef std::vector<const CaloCell*> vector_type;
   typedef vector_type::const_iterator list_iterator;
-  //   CaloCellList();
-  CaloCellList(const CaloCellContainer* cell_container);
-  CaloCellList(const CaloCellContainer* cell_container, const CaloCell_ID::SUBCALO caloNum);
-  CaloCellList(const CaloCellContainer* cell_container, const std::vector<CaloCell_ID::SUBCALO>& caloNums);
+  CaloCellList() = delete;
+  CaloCellList(const CaloDetDescrManager* mgr, const CaloCellContainer* cell_container);
+  CaloCellList(const CaloDetDescrManager* mgr, const CaloCellContainer* cell_container, const CaloCell_ID::SUBCALO caloNum);
+  CaloCellList(const CaloDetDescrManager* mgr, const CaloCellContainer* cell_container, const std::vector<CaloCell_ID::SUBCALO>& caloNums);
 
   ~CaloCellList() = default;
 
@@ -53,19 +53,10 @@ public:
   // That is, we select cells within eta-deta .. eta+deta and similarly for
   // phi.
 
-  void select(double eta, double phi, double deta, double dphi);
-  void select(double eta, double phi, double deta, double dphi, int sam);
-  void select(double eta, double phi, double dR);
+  void select(double eta, double phi, double deta, double dphi); //
+  void select(double eta, double phi, double deta, double dphi, int sam);//
+  void select(double eta, double phi, double dR);//
   void select(double eta, double phi, double dR, int sam);
-
-  // Add overload accepting const CaloDetDescrManager&
-  void select(const CaloDetDescrManager& mgr, double eta, double phi, double deta, double dphi);
-
-  void select(const CaloDetDescrManager& mgr, double eta, double phi, double deta, double dphi, int sam);
-
-  void select(const CaloDetDescrManager& mgr, double eta, double phi, double dR);
-
-  void select(const CaloDetDescrManager& mgr, double eta, double phi, double dR, int sam);
 
   list_iterator begin() const;
   list_iterator end() const;
@@ -75,8 +66,7 @@ public:
   int ncells() const;    // returns the number of cells
 
 private:
-  void doSelect(const CaloDetDescrManager& mgr,
-                double eta,
+  void doSelect(double eta,
                 double phi,
                 double deta,
                 double dphi,
@@ -84,6 +74,7 @@ private:
                 CaloCell_ID::CaloSample sam = CaloCell_ID::Unknown);
 
   const CaloCellContainer* m_cellcont;
+  const CaloDetDescrManager* m_mgr;
   std::vector<CaloCell_ID::SUBCALO> m_caloNums;
   vector_type m_theCellVector;
   double m_energy;
