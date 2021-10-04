@@ -30,24 +30,22 @@
 TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
 						           GeoModelIO::ReadGeoModel* sqliteReader, 
-                                   bool addPlates,
-                                   int ushape,
-                                   int glue,
-                                   int cstube,
+                                   const TileSwitches & switches,
                                    MsgStream *log,
                                    bool fullGeo)
       : m_detectorStore(pDetStore)
       , m_detectorManager(manager)
       , m_sqliteReader(sqliteReader)
       , m_log(log) 
-      , m_addPlatesToCellVolume(addPlates)
-      , m_uShape(ushape)
-      , m_glue(glue)
-      , m_csTube(cstube)
-      , m_testbeamGeometry(false)
+      //, m_addPlatesToCellVolume(addPlates)
+      //, m_uShape(ushape)
+      //, m_glue(glue)
+      //, m_csTube(cstube)
+      //, m_testbeamGeometry(false)
       , m_verbose(log->level()<=MSG::VERBOSE) 
       , m_fullGeo(fullGeo)
 {
+  m_switches.testBeam = false;
 }
       
 // Destructor: 

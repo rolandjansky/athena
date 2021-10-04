@@ -141,11 +141,8 @@ StatusCode TileDetectorTool::create()
     if (sqliteReader) {
         TileDetectorFactoryLite theTileFactoryLite(detStore().operator->(), 
                 m_manager, 
-                sqliteReader, 
-                m_addPlates, 
-                m_uShape, 
-                m_glue, 
-                m_csTube,
+                sqliteReader,
+                m_switches,
                 &log,
                 false);
         theTileFactoryLite.create(world);

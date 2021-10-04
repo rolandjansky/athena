@@ -53,7 +53,7 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
                                    const TileSwitches & switches,
                                    MsgStream *log,
-				   bool fullGeo)
+				                   bool fullGeo)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log) 

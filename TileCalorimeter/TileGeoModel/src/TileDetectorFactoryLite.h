@@ -24,6 +24,7 @@
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "TileDetDescr/TileDetDescrManager.h"
+#include "TileGeoModel/TileSwitches.h"
 
 // FWD Declarations
 class MsgStream;
@@ -40,11 +41,8 @@ public:
   /** Constructor */
   TileDetectorFactoryLite(StoreGateSvc *pDetStore, 
                           TileDetDescrManager *manager, 
-			              GeoModelIO::ReadGeoModel* sqliteReader, 
-                          bool addPlates, 
-                          int uShape, 
-                          int glue, 
-                          int cstube, 
+			              GeoModelIO::ReadGeoModel* sqliteReader,
+                          const TileSwitches & switches,
                           MsgStream *log, 
                           bool fullGeo);
   
@@ -73,23 +71,26 @@ private:
   MsgStream                 *m_log;
 
   /** Add plates to cell volume */
-  bool                       m_addPlatesToCellVolume;
+  //bool                       m_addPlatesToCellVolume;
 
   /** U-shape version used */
-  int                        m_uShape;
+  //int                        m_uShape;
 
   /** 0: glue layer is removed and replaced by iron,
       1: simulation with glue,
       2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
-  int                        m_glue;
+  //int                        m_glue;
 
-  int                        m_csTube;
+  //int                        m_csTube;
   /** Flag for using test beam geometry */
-  bool                       m_testbeamGeometry; 
+  //bool                       m_testbeamGeometry; 
 
   /** Flag for activation verbose level for debugging */
   bool                       m_verbose;
 
+  /** all switches */
+  TileSwitches m_switches;
+  
   /** Geometry configuration: FULL, RECO */
   bool                       m_fullGeo;
 };
