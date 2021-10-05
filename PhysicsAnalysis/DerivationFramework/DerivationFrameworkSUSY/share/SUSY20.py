@@ -254,7 +254,7 @@ jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(Ant
 jetSelection = '(count('+jetRequirements+') >= 1)'
 expression='('+jetSelection+')' # JEFF: add jet selection
 isPileUp=True
-#isPileUp=False
+isPileUp=False
 if isPileUp:
   expression='1'
 
@@ -272,7 +272,8 @@ ToolSvc += SUSY20LeptonSkimmingTool # JEFF: turn this back on to add jet skimmin
 # JetMET trigger name contained ' - ' cause crash when using xAODStringSkimmingTool
 from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation
 #trigReq=triggersMET+triggersSoftMuon+triggersJetPlusMet
-trigReq=triggersMET+triggersSoftMuon
+#trigReq=triggersMET+triggersSoftMuon
+trigReq=triggersMET
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
 SUSY20InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20InclusiveTriggerSkimmingTool",
                                                                                TriggerListOR = trigReq)
