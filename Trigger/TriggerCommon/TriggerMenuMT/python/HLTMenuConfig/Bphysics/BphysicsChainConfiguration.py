@@ -86,6 +86,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu6000'  : 'dimu',
             'bPhi'       : 'dimu',
             'bTau'       : 'dimu',
+            'b3mu'       : 'dimu',
             'bBmumux'    : 'bmumux',
             'b0dRAB12vtx20' : 'dimu'
         }

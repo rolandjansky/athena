@@ -500,7 +500,7 @@ StatusCode TrigMultiTrkComboHypo::filterTrackCombinations(TrigMultiTrkStateBase&
       auto mass = (std::accumulate(p.begin(), p.end(), xAOD::TrackParticle::GenVecFourMom_t())).M();
       ATH_MSG_DEBUG( "invariant mass: " << mass );
 
-      if (!isInMassRange(mass)) continue;
+      if (!isInMassRange(mass, iTrk)) continue;
 
       auto fitterState = m_vertexFitter->makeState(state.context());
       auto vertex = fit(tracklist, m_trkMass[iTrk], *fitterState);
@@ -618,7 +618,7 @@ StatusCode TrigMultiTrkComboHypo::findMultiLeptonCandidates(TrigMultiTrkState<T>
 
       mon_nCombination++;
       trkMassBeforeFit.push_back(mass * 0.001);
-      if (!isInMassRange(mass)) continue;
+      if (!isInMassRange(mass, iTrk)) continue;
 
       mon_nCombinationBeforeFit++;
       auto fitterState = m_vertexFitter->makeState(state.context());
@@ -748,7 +748,7 @@ StatusCode TrigMultiTrkComboHypo::findMuTrkCandidates(TrigMultiTrkState<xAOD::Mu
       if (track->pt() < m_trkPt[0][1] || isIdenticalTracks(track, muonInDetTrack)) continue;
       auto trackMomentum = track->genvecP4();
       trackMomentum.SetM(PDG::mMuon);
-      if (!isInMassRange((muonMomentum + trackMomentum).M())) continue;
+      if (!isInMassRange((muonMomentum + trackMomentum).M(), 0)) continue;
 
       tracklist[1] = ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx);
 
@@ -977,14 +977,8 @@ float TrigMultiTrkComboHypo::Lxy(const xAOD::TrigBphys& vertex, const Amg::Vecto
 }
 
 
-bool TrigMultiTrkComboHypo::isInMassRange(double mass) const {
+bool TrigMultiTrkComboHypo::isInMassRange(double mass, size_t idx) const {
 
-  bool result = false;
-  for (const auto& range : m_massRange) {
-    if (mass > range.first && mass < range.second) {
-      result = true;
-      break;
-    }
-  }
-  return result;
+  const auto& range = m_massRange[idx];
+  return (mass > range.first && mass < range.second);
 }

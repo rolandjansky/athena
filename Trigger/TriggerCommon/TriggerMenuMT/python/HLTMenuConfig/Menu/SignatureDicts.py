@@ -361,8 +361,8 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau',
-    'Lxy0',
+    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
+    'Lxy0','noos','nocut',
     'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
     'b0dRAB12vtx20'
 ]
