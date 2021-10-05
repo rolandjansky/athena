@@ -46,7 +46,7 @@ int PositionIndex::setCopyNo(int copyNo) {
     return m_copyNo[m_level];
 }
 
-void PositionIndex::addIndex(std::string name) {
+void PositionIndex::addIndex(const std::string& name) {
     m_name.push_back(name);
     m_formula[name] = "0";
 }
@@ -60,11 +60,11 @@ string  PositionIndex::name(int whichOne) {
     }
 }
 
-std::string PositionIndex::formula(std::string name) {
+std::string PositionIndex::formula(const std::string& name) {
     return m_formula[name];
 }
 
-void PositionIndex::setFormula(std::string name, std::string formula) {
+void PositionIndex::setFormula(const std::string& name, const std::string& formula) {
     m_formula[name] = formula;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO_MODEL_XML_GMX2GEO_H
@@ -55,7 +55,7 @@ class Evaluator;
 
 class Gmx2Geo {
 public:
-    Gmx2Geo(const std::string gmxFile, GeoPhysVol *addHere, GmxInterface &gmxInterface, unsigned int flags = 0);
+    Gmx2Geo(const std::string& gmxFile, GeoPhysVol *addHere, GmxInterface &gmxInterface, unsigned int flags = 0);
 private:
 // Disallow copying
     Gmx2Geo(const Gmx2Geo &right);

@@ -58,6 +58,8 @@ static_cast<const GeoTransform *> (gmxUtil.tagHandler.transformationref.process(
         }
     }
 
+    if (!first || !second) std::abort();
+
     // FIXME: add() returns a new'd object --- should really be
     // returning a `unique_ptr<GeoShapeUnion>' not a
     // `const GeoShapeUnion'

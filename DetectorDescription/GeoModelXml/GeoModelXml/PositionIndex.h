@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -34,10 +34,10 @@ public:
     int copyNo(int level);
     int setCopyNo(int copyNo);
 
-    void addIndex(std::string name);
+    void addIndex(const std::string& name);
     std::string name(int whichOne);
-    std::string formula(std::string name);
-    void setFormula(std::string name, std::string formula);
+    std::string formula(const std::string& name);
+    void setFormula(const std::string& name, const std::string& formula);
 
     void indices(std::map<std::string, int> &index, Evaluator &eval);
 

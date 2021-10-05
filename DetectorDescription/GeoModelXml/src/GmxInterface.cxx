@@ -26,17 +26,17 @@ int GmxInterface::splitSensorId(map<string, int> &/*index*/, std::pair<std::stri
     return sequentialId++;
 }
 
-void GmxInterface::addSensorType(string clas, string type, map<string, string> params) {
+void GmxInterface::addSensorType(const string& clas, const string& type, const map<string, string>& params) {
     OUTPUT_STREAM;
 
     msglog << MSG::DEBUG << "GmxInterface::addSensorType called for class " << clas << "; type " << type << 
                          "\n    Parameter names and values:\n";
-    for (map<string, string>::iterator p = params.begin(); p != params.end(); ++p) {
+    for (map<string, string>::const_iterator p = params.begin(); p != params.end(); ++p) {
         msglog << "        " << p->first << " = " << p->second << endmsg;
     }
 }
 
-void GmxInterface::addSensor(string name, map<string, int> &index, int sequentialId, GeoVFullPhysVol *fpv) {
+void GmxInterface::addSensor(const string& name, map<string, int> &index, int sequentialId, GeoVFullPhysVol *fpv) {
     OUTPUT_STREAM;
 
     msglog << MSG::DEBUG << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << 
@@ -47,7 +47,7 @@ void GmxInterface::addSensor(string name, map<string, int> &index, int sequentia
     msglog << "\nSequential ID = " << sequentialId << endmsg;
 }
 
-void GmxInterface::addSplitSensor(string name, map<string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) {
+void GmxInterface::addSplitSensor(const string& name, map<string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) {
     OUTPUT_STREAM;
 
     msglog << MSG::DEBUG << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << 
