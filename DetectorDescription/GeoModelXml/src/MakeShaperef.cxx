@@ -15,7 +15,7 @@
 using namespace std;
 using namespace xercesc;
 
-const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil) const {
 //
 //    Get the referenced shape
 //
@@ -36,7 +36,7 @@ const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil)
         msglog << MSG::FATAL << "Error processing <shaperef> tag: An IDREF for a shape did not refer to a shape.\nShape ref was " << 
                idref_s << "; exiting" << endmsg;
         XMLString::release (&idref_s);
-        exit (1); // Need to improve...
+        std::abort();
     }
 //
 //    Get what sort of shape

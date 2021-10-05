@@ -92,7 +92,7 @@ DOMDocument *doc = element->getOwnerDocument();
             if (!gmxUtil.eval.findVariable(firstElement.c_str())) {
                 msglog << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name << 
                 ". Found loopvar set to " << varname << ", but no vector with that name has been defined." << endmsg;
-                exit(999); // Should do better
+                std::abort();
             }
         }
 //
@@ -110,7 +110,7 @@ DOMDocument *doc = element->getOwnerDocument();
             else { // Not OK
                 msglog << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name <<
                 ". \nIt gives loopvar therefore should have a <transformation> and not a <transformationref> (despite the DTD)\n";
-                exit(999); // Should do better
+                std::abort();
             }
         }
         else {
@@ -127,11 +127,11 @@ DOMDocument *doc = element->getOwnerDocument();
             for (int i = 0; i < nCopies; ++i) {
                 gmxUtil.eval.setVariable(varname.c_str(), (varname + "_" + to_string(i)).c_str());
                 if (alignable) {
-                    geoAXf = (GeoAlignableTransform *) xFormProcessor->make(elXf, gmxUtil);
+                    geoAXf = static_cast<GeoAlignableTransform *> (xFormProcessor->make(elXf, gmxUtil));
                     xfList->push_back((GeoGraphNode *) geoAXf);
                 }
                 else {
-                    geoXf = (GeoTransform *) xFormProcessor->make(elXf, gmxUtil);
+                    geoXf = static_cast<GeoTransform *> (xFormProcessor->make(elXf, gmxUtil));
                     xfList->push_back((GeoGraphNode *) geoXf);
                 }
                 gmxUtil.eval.removeVariable(varname.c_str()); // Avoids a warning status in evaluator
@@ -144,11 +144,11 @@ DOMDocument *doc = element->getOwnerDocument();
 //
 	  GeoTrf::Transform3D hepXf0=GeoTrf::Transform3D::Identity();
             if (alignable) {
-                geoAXf = (GeoAlignableTransform *) xFormProcessor->make(elXf, gmxUtil);
+                geoAXf = static_cast<GeoAlignableTransform *> (xFormProcessor->make(elXf, gmxUtil));
                 hepXf0 = geoAXf->getTransform();
             }
             else {
-                geoXf = (GeoTransform *) xFormProcessor->make(elXf, gmxUtil);
+                geoXf = static_cast<GeoTransform *> (xFormProcessor->make(elXf, gmxUtil));
                 hepXf0 = geoXf->getTransform();
             }
             GeoTrf::Transform3D hepXf=GeoTrf::Transform3D::Identity(); // Identity initially
@@ -206,7 +206,7 @@ DOMDocument *doc = element->getOwnerDocument();
 	  msglog << MSG::FATAL << 
 	    "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
                     << "Exiting Athena" << endmsg;
-	  exit(999); // Should do better
+          std::abort();
 	}
       }
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -51,7 +51,7 @@ char *tagName;
  DOMElement *transformation = element->getFirstElementChild();
  tagName = XMLString::transcode(transformation->getTagName()); // transformation or transformationref
  //  ******* Should check here that an alignable transform is given an alignable transformation and object; to be done
- toAdd.push_back((GeoGraphNode *)gmxUtil.geoItemRegistry.find(string(tagName))->process(transformation, gmxUtil));
+ toAdd.push_back((GeoGraphNode *)(gmxUtil.geoItemRegistry.find(string(tagName))->process(transformation, gmxUtil)));
  XMLString::release(&tagName);
  //
  //    Add transformation to DetectorManager via GmxInterface, if it is alignable
