@@ -27,7 +27,7 @@ namespace InDetDDSLHC {
     // Creation of geometry:
     virtual void create(GeoPhysVol *world);   
     // Access to the results: 
-    virtual InDetDD::PixelDetectorManager * getDetectorManager() const;
+    virtual const InDetDD::PixelDetectorManager * getDetectorManager() const;
     // Print out how many of each layer/eta/phi etc. have been set up.
     void doNumerology();
     // Get the xml from the database instead of a file. Returns gzipped xml as a string.

@@ -172,7 +172,7 @@ StatusCode ITkPixelDetectorTool::clear() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode ITkPixelDetectorTool::registerCallback() {
+StatusCode ITkPixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () {
 // 
 //    Register call-back for software alignment
 //

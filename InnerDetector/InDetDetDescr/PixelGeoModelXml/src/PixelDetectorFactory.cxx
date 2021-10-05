@@ -161,7 +161,7 @@ namespace InDetDDSLHC {
     return pixelString;
   }
   
-  InDetDD::PixelDetectorManager * PixelDetectorFactory::getDetectorManager() const {
+  const InDetDD::PixelDetectorManager * PixelDetectorFactory::getDetectorManager() const {
     return m_detectorManager;
   }
 
