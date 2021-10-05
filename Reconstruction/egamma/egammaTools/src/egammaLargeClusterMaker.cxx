@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaLargeClusterMaker.h"
@@ -224,7 +224,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 	// If FCAL need to add cell to cluster in a cone
 	std::vector<const CaloCell*> cells;
 	cells.reserve(300);
-	CaloCellList myList( dd_man,cellcoll.ptr());
+	CaloCellList myList(calodetdescrmgr, cellcoll.ptr());
 	myList.select(cluster->etaSample(sam), cluster->phiSample(sam), m_drFWD,(CaloSampling::CaloSample)sam);
 	
 	cells.insert(cells.end(), myList.begin(), myList.end());
