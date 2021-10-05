@@ -215,7 +215,7 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
   bool isIdenticalTracks(const xAOD::Electron* lhs, const xAOD::Electron* rhs) const;
-  bool isInMassRange(double mass) const;
+  bool isInMassRange(double mass, size_t idx) const;
   float Lxy(const xAOD::TrigBphys& vertex, const Amg::Vector3D& beamSpot) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer>
