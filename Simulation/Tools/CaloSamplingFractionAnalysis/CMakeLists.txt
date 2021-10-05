@@ -12,7 +12,7 @@ atlas_add_component( CaloSamplingFractionAnalysis
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AtlasHepMCLib CaloDetDescrLib CaloEvent CaloIdentifier CaloSimEvent EventInfo GaudiKernel GeneratorObjects GeoAdaptors Identifier LArElecCalib LArG4RunControl LArReadoutGeometry LArSimEvent StoreGateLib TileConditionsLib TileSimEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AtlasHepMCLib CaloDetDescrLib CaloEvent CaloIdentifier CaloSimEvent EventInfo GaudiKernel GeneratorObjects Identifier LArElecCalib LArG4RunControl LArReadoutGeometry LArSimEvent StoreGateLib TileConditionsLib TileSimEvent )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
