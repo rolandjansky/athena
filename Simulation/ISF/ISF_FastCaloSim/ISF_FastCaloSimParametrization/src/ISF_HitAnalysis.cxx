@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -10,7 +10,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoAdaptors/GeoLArHit.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -1275,32 +1274,28 @@ StatusCode ISF_HitAnalysis::execute()
   ATH_MSG_DEBUG( "Checking G4Hits: "<<lArKey[i]);
   if(evtStore()->retrieve(iter,lArKey[i])==StatusCode::SUCCESS)
   {
-   LArHitContainer::const_iterator hi;
-   int hitnumber = 0;
-   for (hi=(*iter).begin();hi!=(*iter).end();++hi)
-   {
-          hitnumber++;
-          GeoLArHit ghit(**hi);
-    if (!ghit)
-     continue;
-    const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();
-          if(!hitElement)
-           continue;
-    Identifier larhitid = hitElement->identify();
-          if(m_calo_dd_man->get_element(larhitid))
-          {
-           CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+    LArHitContainer::const_iterator hi;
+    int hitnumber = 0;
+    for (hi=(*iter).begin();hi!=(*iter).end();++hi) {
+      hitnumber++;
+      const LArHit* larHit = *hi;
+      const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
+      if(!hitElement)
+	continue;
+      Identifier larhitid = hitElement->identify();
+      if(m_calo_dd_man->get_element(larhitid)) {
+	CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
 
-           float larsampfrac=fSampl->FSAMPL(larhitid);
-           m_g4hit_energy->push_back( ghit.Energy() );
-           m_g4hit_time->push_back( ghit.Time() );
-           m_g4hit_identifier->push_back( larhitid.get_compact() );
-           m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
-           m_g4hit_sampling->push_back( larlayer);
-           m_g4hit_samplingfraction->push_back( larsampfrac );
-          }
-   } // End while LAr hits
-   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
+	float larsampfrac=fSampl->FSAMPL(larhitid);
+	m_g4hit_energy->push_back( larHit->energy() );
+	m_g4hit_time->push_back( larHit->time() );
+	m_g4hit_identifier->push_back( larhitid.get_compact() );
+	m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
+	m_g4hit_sampling->push_back( larlayer);
+	m_g4hit_samplingfraction->push_back( larsampfrac );
+      }
+    } // End while LAr hits
+    ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
   }
   else
   {
