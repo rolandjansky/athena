@@ -230,6 +230,26 @@ namespace top {
     CP::SystematicSet m_iso_syst_UP;
     CP::SystematicSet m_iso_syst_DOWN;
 
+    CP::SystematicSet m_iso_bkg_fraction_UP;
+    CP::SystematicSet m_iso_bkg_fraction_DOWN;
+    CP::SystematicSet m_iso_lumi_uncert_UP;
+    CP::SystematicSet m_iso_lumi_uncert_DOWN;
+    CP::SystematicSet m_iso_mc_xsec_UP;
+    CP::SystematicSet m_iso_mc_xsec_DOWN;
+    CP::SystematicSet m_iso_qcd_template_UP;
+    CP::SystematicSet m_iso_qcd_template_DOWN;
+    CP::SystematicSet m_iso_supression_scale_UP;
+    CP::SystematicSet m_iso_supression_scale_DOWN;
+    CP::SystematicSet m_iso_mllwindow_UP      ; 
+    CP::SystematicSet m_iso_mllwindow_DOWN    ; 
+    CP::SystematicSet m_iso_drmuj_UP          ; 
+    CP::SystematicSet m_iso_drmuj_DOWN        ; 
+    CP::SystematicSet m_iso_probeq_UP         ; 
+    CP::SystematicSet m_iso_probeq_DOWN       ; 
+    CP::SystematicSet m_iso_sherpa_powheg_UP  ; 
+    CP::SystematicSet m_iso_sherpa_powheg_DOWN; 
+
+
     CP::SystematicSet m_TTVA_stat_UP;
     CP::SystematicSet m_TTVA_stat_DOWN;
     CP::SystematicSet m_TTVA_syst_UP;

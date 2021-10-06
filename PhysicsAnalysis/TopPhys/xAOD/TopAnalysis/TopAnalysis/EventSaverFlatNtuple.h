@@ -357,6 +357,25 @@ namespace top {
     float m_weight_leptonSF_MU_SF_Isol_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_Isol_SYST_UP;
     float m_weight_leptonSF_MU_SF_Isol_SYST_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_BKG_FRACTION_UP;
+    float m_weight_leptonSF_MU_SF_Isol_BKG_FRACTION_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_LUMI_UNCERT_UP;
+    float m_weight_leptonSF_MU_SF_Isol_LUMI_UNCERT_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_MC_XSEC_UP;
+    float m_weight_leptonSF_MU_SF_Isol_MC_XSEC_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_QCD_TEMPLATE_UP;
+    float m_weight_leptonSF_MU_SF_Isol_QCD_TEMPLATE_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_SUPRESSION_SCALE_UP;
+    float m_weight_leptonSF_MU_SF_Isol_SUPRESSION_SCALE_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_MLLWINDOW_UP;
+    float m_weight_leptonSF_MU_SF_Isol_MLLWINDOW_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_DRMUJ_UP;
+    float m_weight_leptonSF_MU_SF_Isol_DRMUJ_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_PROBEQ_UP;
+    float m_weight_leptonSF_MU_SF_Isol_PROBEQ_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_SHERPA_POWHEG_UP;
+    float m_weight_leptonSF_MU_SF_Isol_SHERPA_POWHEG_DOWN;
+    //Muon TTVA SF systematics
     float m_weight_leptonSF_MU_SF_TTVA_STAT_UP;
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;

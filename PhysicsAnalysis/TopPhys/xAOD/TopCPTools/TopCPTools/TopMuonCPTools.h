@@ -71,7 +71,7 @@ namespace top {
     setupMuonTrigSFTool(const std::string& name, const std::string& quality);
 
     CP::IMuonEfficiencyScaleFactors*
-    setupMuonSFTool(const std::string& name, const std::string& WP, const bool isIso);
+    setupMuonSFTool(const std::string& name, const std::string& WP);
 
     CP::IMuonCalibrationAndSmearingTool*
       setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearingHighPt, const bool& do2StationsHighPt);
