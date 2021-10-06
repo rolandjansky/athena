@@ -519,7 +519,7 @@ void testTileCondToolEmscale(ISvcLocator* svcLoc) {
 }
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
 
   std::ofstream jo(TILE_JO_NAME);
