@@ -44,7 +44,6 @@ class BSFilter : public AthAlgorithm
 
   int m_All{0};
   int m_pass{0};
-  int m_EventCounter{0};
 
   struct filterinfo{
     int trig{0};

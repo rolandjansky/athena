@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -275,7 +275,7 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
             cache.m_solScaleFactor = cache.m_solenoidCurrent/fieldMap->solenoidCurrent(); 
         }
         ATH_MSG_INFO( "scaleField: Solenoid field scale factor " << cache.m_solScaleFactor << ". Desired current and map current: "
-                      << cache.m_solenoidCurrent << "," << fieldMap->solenoidCurrent());
+                      << cache.m_solenoidCurrent << "," << (fieldMap ? fieldMap->solenoidCurrent() : 0));
     }
     else {
         // No SF set, set it to 0 - current was set to zero either here or for the map, or the map was not read in
@@ -292,7 +292,7 @@ MagField::AtlasFieldCacheCondAlg::scaleField(Cache& cache, const MagField::Atlas
             cache.m_torScaleFactor = cache.m_toroidCurrent/fieldMap->toroidCurrent();
         }
         ATH_MSG_INFO( "scaleField: Toroid field scale factor " << cache.m_torScaleFactor << ". Desired current and map current: "
-                      << cache.m_toroidCurrent << "," << fieldMap->toroidCurrent());
+                      << cache.m_toroidCurrent << "," << (fieldMap ? fieldMap->toroidCurrent() : 0));
     }
     else {
         cache.m_torScaleFactor = 0;

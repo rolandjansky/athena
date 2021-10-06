@@ -111,6 +111,9 @@ class sTgcDigitMaker {
   //void readFileOfAlignment();
   /** Read share/sTGC_Digitization_timeArrival.dat */
   void readFileOfTimeArrival();
+  /** Read share/sTGC_Digitization_timeOffsetStrip.dat */
+  void readFileOfTimeOffsetStrip();
+
   ///** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
@@ -134,6 +137,12 @@ class sTgcDigitMaker {
    *  In case of error, the function returns -9.99.
    */
   double distanceToWire(Amg::Vector3D& position, Amg::Vector3D& direction, Identifier id, int wire_number) const;
+
+  /** Get digit time offset of a strip depending on its relative position to 
+   *  the strip at the centre of the cluster.
+   *  It returns 0 ns by default, as well as when it fails or container is empty.
+   */
+  double getTimeOffsetStrip(int neighbor_index) const;
 
   /** Find the gamma pdf parameters of a given distance */
   GammaParameter getGammaParameter(double distance) const;
@@ -160,6 +169,9 @@ class sTgcDigitMaker {
   // Parameters of the gamma pdf required for determining digit time
   std::vector<GammaParameter> m_gammaParameter;
 
+  // Time offset to add to Strip timing
+  std::vector<double> m_timeOffsetStrip;
+
   CLHEP::HepRandomEngine* m_engine{}; // not owned here
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
@@ -176,8 +188,6 @@ class sTgcDigitMaker {
      length corrections. Bunch crossing time is specified.
   */
   bool m_doTimeCorrection;
-  double m_timeWindowOffsetPad;
-  double m_timeWindowOffsetStrip;
   //double m_timeWindowWire;
   //double m_timeWindowStrip;
   //double m_bunchCrossingTime;

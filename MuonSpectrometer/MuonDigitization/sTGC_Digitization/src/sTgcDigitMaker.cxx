@@ -40,8 +40,6 @@ sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM:
   m_efficiencyOfStrips      = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
-  m_timeWindowOffsetPad     = 0.;
-  m_timeWindowOffsetStrip   = 25.;
   //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
   //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   //m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
@@ -82,6 +80,9 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 
   // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
   readFileOfTimeArrival();
+  
+  // Read share/sTGC_Digitization_timeOffsetStrip.dat_
+  readFileOfTimeOffsetStrip();
 
   // getting our random numbers stream
   m_engine = rndmEngine;
@@ -287,8 +288,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // #################################################################
   //***************************** BCTAGGER ******************************** 
   // #################################################################
-  //m_timeWindowOffsetPad  = getTimeWindowOffset(stationName, stationEta, 2);
-  //m_timeWindowOffsetStrip = getTimeWindowOffset(stationName, stationEta, 1);
 
   // use energyDeposit to implement detector effeciency 
   // Time of flight correction for each chamber
@@ -305,8 +304,8 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   const float stripPropagationTime = 0.; // 8.5*ns/m was used until MC10. 
 
   float sDigitTimeWire = digit_time;
-  float sDigitTimePad = sDigitTimeWire + m_timeWindowOffsetPad;
-  float sDigitTimeStrip = sDigitTimeWire + m_timeWindowOffsetStrip + stripPropagationTime;
+  float sDigitTimePad = sDigitTimeWire;
+  float sDigitTimeStrip = sDigitTimeWire + stripPropagationTime;
 
 
   //if(m_doTimeCorrection) sDigitTime = bunchTime + timeJitterDetector + timeJitterElectronics + stripPropagationTime;
@@ -366,7 +365,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   }
 
   int NumberOfStrips = detEl->numberOfStrips(newId); 
-  double stripHalfWidth = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
+  double stripHalfPitch = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
   //************************************ conversion of energy to charge **************************************
 
@@ -392,76 +391,114 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // We add the resolution in quadrature following sTGC test beam papers
   m_ChargeSpreadFactor = m_StripResolution*std::sqrt(1+12.*tan_theta*tan_theta);
 
-  int stripnum = -1;
-  for(int neighbor=0; neighbor<=3; neighbor++){  // spread the charge to 7 strips for the current algorithm
-    stripnum = stripNumber+neighbor;
-    if(stripnum>=1&&stripnum<=NumberOfStrips){
+  // Get the nominal strip width, which is 2.7 mm, while the strip pitch is 3.2 mm.
+  double stripWidth = detEl->getDesign(newId)->inputWidth;
+
+  // Lower limit on strip charge, in pC, which has the same units as the parameter ionized_charge
+  double tolerance_charge = 0.0005;
+
+  // Position of the strip closest to the hit
+  Amg::Vector2D middleStrip_pos(0., 0.);
+  detEl->stripPosition(newId, middleStrip_pos);
+  
+  // Determine the middle strips
+  // Usually, the middle strip is the strip nearest to the hit.
+  // If a hit is placed between two strips, then these two strips 
+  // are considered as middle strips.
+  int middleStrip[2] = {0, 0};
+  double hitRelativeLocation = posOnSurf_strip.x() - middleStrip_pos.x();
+  if (std::abs(hitRelativeLocation) < (stripWidth/2)) {
+    // Only one middle strip, so add the same strip number in the array
+    middleStrip[0] = stripNumber;
+    middleStrip[1] = stripNumber;
+  } else if (hitRelativeLocation < 0.0) {
+    middleStrip[0] = stripNumber-1;
+    middleStrip[1] = stripNumber;
+  } else if (hitRelativeLocation > 0.0) {
+    middleStrip[0] = stripNumber;
+    middleStrip[1] = stripNumber+1;
+  }
+
+  /* While-loop to spread charge on the strips around the hit
+   * The strips adjacent to the hit are considered one by one until the charge 
+   * to be spread on the strip is below a tolerance. 
+   */
+  unsigned int neighbor = 0;
+  // Flags to stop spreading charge on neighbour strips
+  bool createNeighbor1 = true;
+  bool createNeighbor2 = true;
+  unsigned int counter_strip = 0;
+  // Set a maximum number of neighbour strips to avoid very long loop
+  const unsigned int max_neighbor = 10;
+  while (createNeighbor1 || createNeighbor2) {
+    // Strip numbers to be considered  
+    std::vector<int> tmpStripNumbers;
+    if (neighbor == 0) {
+      tmpStripNumbers.push_back(stripNumber);
+    } else if (neighbor > 0) {
+      if (createNeighbor1) tmpStripNumbers.push_back(stripNumber - neighbor);
+      if (createNeighbor2) tmpStripNumbers.push_back(stripNumber + neighbor);
+    }
+
+    // Terminate the loop if zero strip digits
+    if (tmpStripNumbers.empty()) break;
+
+    // Skip spreading charge on out-of-range strips 
+    for (int stripnum: tmpStripNumbers) {
+      // Verify if strip number is valid
+      if(stripnum < 1) {
+        createNeighbor1 = false;
+        continue;
+      }
+      if(stripnum > NumberOfStrips) {
+        createNeighbor2 = false;
+        continue;
+      }
+
+      // Get the strip identifier and create the digit 
       newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
-      if(isValid) {
-        Amg::Vector2D locpos(0,0);
-        if( !detEl->stripPosition(newId,locpos)){
+      if (isValid) {
+        Amg::Vector2D locpos(0., 0.);
+        if (!detEl->stripPosition(newId, locpos)) {
           ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
         }
 
-        float xmax = locpos.x() + stripHalfWidth;
-        float xmin = locpos.x() - stripHalfWidth;
-        float charge = charge_spread->Integral(xmin, xmax);
-        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
-
-        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-        // For now, we remove the cross talk since we have no measurements to use
-        // Currently, adding a few % cross talk only muddies our current set of studies
-        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
-        // i.e to make sure my replacement knows where to find cross talk
-        // Alexandre Laurier - April 13 2021
-        //************************************** introduce cross talk ************************************************
-        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(), newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //}// end of introduce cross talk
-      } // end isValid
-    }// end of when stripnum = stripNumber+neighbor
- 
-    if(neighbor==0) continue;
-    stripnum = stripNumber-neighbor;
-    if(stripnum>=1&&stripnum<=NumberOfStrips){
-      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
-      if(isValid) {
-        Amg::Vector2D locpos(0,0);
-        if( !detEl->stripPosition(newId,locpos)){
-          ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        // Estimate the digit charge
+        double xmax = locpos.x() + stripHalfPitch;
+        double xmin = locpos.x() - stripHalfPitch;
+        double charge = charge_spread->Integral(xmin, xmax);
+        // If charge is too small, stop creating neighbor strip
+        if (charge < tolerance_charge) {
+          if (stripnum <= middleStrip[0]) createNeighbor1 = false;
+          if (stripnum >= middleStrip[1]) createNeighbor2 = false;
+          continue;
         }
-        float xmax = locpos.x() + stripHalfWidth;
-        float xmin = locpos.x() - stripHalfWidth;
-        float charge = charge_spread->Integral(xmin, xmax);
         charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-        // For now, we remove the cross talk since we have no measurements to use
-        // Currently, adding a few % cross talk only muddies our current set of studies
-        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
-        // i.e to make sure my replacement knows where to find cross talk
-        // Alexandre Laurier - April 13 2021
-        //************************************** introduce cross talk ************************************************
-        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-        //   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-        //   if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //}// end of introduce cross talk
-      } // end isValid
-    }// end of when stripnum = stripNumber-neighbor
-  }//end for spread the charge to 5 strips 
+        // Estimate digit time
+        int indexFromMiddleStrip = std::abs(stripnum - middleStrip[0]);
+        if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
+          indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
+        }
+        double strip_time = sDigitTimeStrip + getTimeOffsetStrip(indexFromMiddleStrip);
+      
+        addDigit(digits.get(),newId, bctag, strip_time, charge, channelType);
+
+        ATH_MSG_VERBOSE("Created a strip digit: strip number = " << stripnum << ", charge = " << charge 
+                        << ", time = " << strip_time << ", time offset = " << strip_time-sDigitTimeStrip 
+                        << ", neighbor index = " << neighbor
+                        << ", charge stdev = " << m_ChargeSpreadFactor
+                        << ", strip position = (" << locpos.x() << "," << locpos.y() << ")");
+
+        ++counter_strip;
+      }
+    }
+
+    // Increment neighbor parameter
+    ++neighbor;
+    if (neighbor > max_neighbor) break;
+  }
+  ATH_MSG_DEBUG("Number of strip digits created = " << counter_strip);
 
   delete charge_spread;
   // end of strip digitization
@@ -1158,6 +1195,65 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
     ++index;
   }
   return m_gammaParameter.at(index);
+}
+
+void sTgcDigitMaker::readFileOfTimeOffsetStrip() {
+  // Verify the file sTGC_Digitization_timeOffsetStrip.dat exists
+  const std::string file_name = "sTGC_Digitization_timeOffsetStrip.dat";
+  std::string file_path = PathResolver::find_file(file_name.c_str(), "DATAPATH");
+  if(file_path.empty()) {
+    ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << file_name.c_str() );
+    return;
+  }
+
+  // Open the sTGC_Digitization_timeOffsetStrip.dat file
+  std::ifstream ifs;
+  ifs.open(file_path.c_str(), std::ios::in);
+  if(ifs.bad()) {
+    ATH_MSG_FATAL("sTgcDigitMaker: Failed to open time of arrival file " << file_name.c_str() );
+    return;
+  }
+
+  // Initialize the container to store the time offset.
+  // The number of parameters, 6, corresponds to the number of lines to be read 
+  // from sTGC_Digitization_timeOffsetStrip.dat.
+  // Setting the default offset to 0 ns.
+  const int N_PAR = 6;
+  m_timeOffsetStrip.resize(N_PAR, 0.0);
+
+  // Read the input file
+  std::string line;
+  int index{0};
+  double value{0.0};
+  while (std::getline(ifs, line)) {
+    std::string key;
+    std::istringstream iss(line);
+    iss >> key;
+    if (key.compare("strip") == 0) {
+      iss >> index >> value;
+      if ((index < 0) || (index >= N_PAR)) continue;
+      m_timeOffsetStrip.at(index) = value;
+    }
+  }
+
+  // Close the file
+  ifs.close();
+}
+
+double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
+  if ((!m_timeOffsetStrip.empty()) && (neighbor_index >= 0)) {
+    // Return the last element if out of range
+    if (neighbor_index >= static_cast<int>(m_timeOffsetStrip.size()) ) {
+      return m_timeOffsetStrip.back();
+    }
+    return m_timeOffsetStrip.at(neighbor_index);
+  } else {
+    ATH_MSG_WARNING("either attempting to get strip's time offset with negative "
+                  "neighbor index," << neighbor_index 
+                  << ", or time offset container is empty: " << m_timeOffsetStrip.size()
+                  << ". Returning an offset of 0 ns.");
+  }
+  return 0.0;
 }
 
 ////+++++++++++++++++++++++++++++++++++++++++++++++

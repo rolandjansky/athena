@@ -8,7 +8,6 @@
 //  the methods return true if an element of the correct layer is found within the cell, false otherwise
 
 #include "CaloUtils/CaloCellDetPos.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 bool CaloCellDetPos::getDetPosition(const CaloDetDescrManager& mgr,
@@ -42,22 +41,4 @@ bool CaloCellDetPos::getAtlasPosition(const CaloDetDescrManager& mgr,
   etaAtlas = etaDet + elt->eta()-elt->eta_raw();
   phiAtlas = CaloPhiRange::fix(phiDet + elt->phi()-elt->phi_raw());
   return true;
-}
-
-bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam,
-                                    double etaAtlas, double phiAtlas,
-                                    double& etaDet, double& phiDet) {
-  const CaloDetDescrManager* calo_mgr;
-  calo_mgr = CaloDetDescrManager::instance();
-  return getDetPosition(*calo_mgr,sam,etaAtlas,phiAtlas,etaDet,phiDet);
-}
-
-bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam,
-                                      double etaDet, double phiDet,
-                                      double& etaAtlas,
-                                      double& phiAtlas) {
-
-  const CaloDetDescrManager* calo_mgr;
-  calo_mgr = CaloDetDescrManager::instance();
-  return getAtlasPosition(*calo_mgr,sam,etaDet,phiDet,etaAtlas,phiAtlas);
 }
