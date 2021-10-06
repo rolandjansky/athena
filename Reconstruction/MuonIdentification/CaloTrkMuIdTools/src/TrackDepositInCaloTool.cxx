@@ -9,7 +9,6 @@
 #include "TrkSurfaces/DiscSurface.h"
 
 // --- Calorimeter ---
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -59,6 +58,7 @@ StatusCode TrackDepositInCaloTool::initialize() {
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_caloCellAssociationTool.retrieve());
+    ATH_CHECK(m_caloDetDescrMgrKey.initialize());
     ATH_MSG_INFO("initialize() successful in " << name());
     return StatusCode::SUCCESS;
 }
@@ -128,7 +128,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         }
         // --- Write DepositInCalo ---
         ATH_MSG_DEBUG("Energy = " << sumEnergy << " for sample " << descr->getSampling() << " in " << cells.size() << " cells.");
-        if (distance) { result.push_back(DepositInCalo(descr->getSampling(), sumEnergy, energyLoss, sumEt)); }
+        if (distance) { result.emplace_back(descr->getSampling(), sumEnergy, energyLoss, sumEt); }
 
         // --- Free memory and prepare for next round ---
         currentPar.swap(parEntrance);
@@ -209,7 +209,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
     for (int i = CaloSampling::PreSamplerB; i < CaloSampling::CaloSample::Unknown; i++) {
         if (LayerHit[i] > 0) {
             sample = static_cast<CaloSampling::CaloSample>(i);
-            result.push_back(DepositInCalo(sample, meas_E[i], exp_E[i], meas_Et[i]));
+            result.emplace_back(sample, meas_E[i], exp_E[i], meas_Et[i]);
             ATH_MSG_DEBUG(" Layer : " << sample << "   Energy = " << meas_E[i] << " nCells : " << LayerHit[i] << " Exp: " << exp_E[i]);
         }
     }
@@ -226,21 +226,32 @@ std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForLayer(const 
                                                                           const Trk::TrackParameters* parEntrance,
                                                                           const Trk::TrackParameters* parExit,
                                                                           const CaloCellContainer* caloCellCont) const {
-    const CaloDetDescrManager* caloDDM = nullptr;
-    if (!detStore()->retrieve(caloDDM).isSuccess()) return {};
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey
+  };
+  if (!caloDetDescrMgrHandle.isValid()) {
+    return {};
+  }
 
-    if (descr->is_tile()) {
-        // --- Tile implemention is lengthy and therefore put in seperate function ---
-        return getCaloCellsForTile(descr, parEntrance, parExit, caloCellCont);
-    } else {
-        // --- LAr implementation is short, quick and simple ---
-        const CaloCell* cellEntrance = getClosestCellLAr(caloDDM, parEntrance, descr, caloCellCont);
-        const CaloCell* cellExit = getClosestCellLAr(caloDDM, parExit, descr, caloCellCont);
-        std::vector<const CaloCell*> result;
-        result.push_back(cellEntrance);
-        if (cellEntrance != cellExit) { result.push_back(cellExit); }
-        return result;
+  const CaloDetDescrManager* caloDDM = *caloDetDescrMgrHandle;
+
+  if (descr->is_tile()) {
+    // --- Tile implemention is lengthy and therefore put in seperate function
+    // ---
+    return getCaloCellsForTile(descr, parEntrance, parExit, caloCellCont);
+  } else {
+    // --- LAr implementation is short, quick and simple ---
+    const CaloCell* cellEntrance =
+      getClosestCellLAr(caloDDM, parEntrance, descr, caloCellCont);
+    const CaloCell* cellExit =
+      getClosestCellLAr(caloDDM, parExit, descr, caloCellCont);
+    std::vector<const CaloCell*> result;
+    result.push_back(cellEntrance);
+    if (cellEntrance != cellExit) {
+      result.push_back(cellExit);
     }
+    return result;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -681,7 +692,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() const {
 // extrapolateR
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateR(const Amg::Vector3D& initialPosition, double phi0, double theta0,
-                                                                    double r) const {
+                                                                    double r) {
     double x0 = initialPosition.x();
     double y0 = initialPosition.y();
     double z0 = initialPosition.z();
@@ -711,7 +722,7 @@ std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateR(const Amg::V
 // extrapolateZ
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateZ(const Amg::Vector3D& initialPosition, double phi0, double theta0,
-                                                                    double z) const {
+                                                                    double z) {
     double x0 = initialPosition.x();
     double y0 = initialPosition.y();
     double z0 = initialPosition.z();
@@ -895,7 +906,7 @@ const CaloCell* TrackDepositInCaloTool::getClosestCell(const Trk::TrackParameter
 // getClosestCellLAr()
 ///////////////////////////////////////////////////////////////////////////////
 const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par,
-                                                          const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
+                                                          const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) {
     CaloCell_ID::CaloSample sample = descr->getSampling();
     // ATH_MSG_INFO("Sampling = " << sample);
     const CaloDetDescrElement* cellDescr = caloDDM->get_element(sample, par->position().eta(), par->position().phi());
@@ -1025,7 +1036,7 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
 ///////////////////////////////////////////////////////////////////////////////
 // Functions below are under development, these are not used yet.
 ///////////////////////////////////////////////////////////////////////////////
-bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) const {
+bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) {
     double halfWidth = domainWidth / 2;
     if (phiVariable) {
         if (std::abs(std::abs(domainCenter) - M_PI) < domainWidth) {
@@ -1042,7 +1053,7 @@ bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter
     return true;
 }
 
-bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) const {
+bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) {
     const CaloDetDescrElement* dde = cell->caloDDE();
     if (!dde) return false;
     if (dde->is_tile()) {
@@ -1059,7 +1070,7 @@ bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const C
 // inCell
 // an alternative version of crossedPhi from CaloCellHelpers, which has a bug
 
-bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& pos) const {
+bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& pos) {
     bool result = std::abs(CaloPhiRange::diff(pos.phi(), cell->phi())) < cell->caloDDE()->dphi() / 2;
     if (cell->caloDDE()->getSubCalo() != CaloCell_ID::TILE)
         result &= std::abs(pos.eta() - cell->eta()) < cell->caloDDE()->deta() / 2;
@@ -1068,7 +1079,7 @@ bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& p
     return result;
 }
 
-double TrackDepositInCaloTool::distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) const {
+double TrackDepositInCaloTool::distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) {
     double diff_x = p1.x() - p2.x();
     double diff_y = p1.y() - p2.y();
     double diff_z = p1.z() - p2.z();
