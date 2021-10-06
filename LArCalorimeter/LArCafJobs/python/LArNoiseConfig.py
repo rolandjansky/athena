@@ -29,11 +29,9 @@ def LArNoiseCfg(flags):
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     result.merge(LArCollisionTimeCfg(flags))
 
-    from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
     result.merge(getTrigDecisionTool(flags))
-    result.getPublicTool("TrigDecisionTool").TrigConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-    
     noiseAlg=CompFactory.LArNoiseBursts("LArNoiseBursts")
     noiseAlg.SigmaCut = flags.LArNoise.SigmaCut
     noiseAlg.NumberOfBunchesInFront = flags.LArNoise.NumberOfBunchesInFront
@@ -94,9 +92,8 @@ def LArNoiseFromRawCfg(flags):
        result.merge(LArTimeVetoAlgCfg(flags))
 
        if (flags.LArNoise.outHistLAr == ""):
-          from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+          from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
           result.merge(getTrigDecisionTool(flags))
-          result.getPublicTool("TrigDecisionTool").TrigConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
 
     if (flags.LArNoise.outNtupLAr != ""):
