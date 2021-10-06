@@ -70,7 +70,7 @@ private:
 
 
   Gaudi::Property<bool> m_doSelfValidation{ this, "doSelfValidation", false, "Run consistency checks after stages of conversion (slows down the alg)" };
-  Gaudi::Property<bool> m_doCompression{ this, "doCompression", true, "Collapse navigation elements to save ouput space" };
+  Gaudi::Property<bool> m_doCompression{ this, "doCompression", false, "Collapse navigation elements to save ouput space" };
   Gaudi::Property<bool> m_doLinkFeatures{ this, "doLinkFeatures", true, "Add links to objects, setting it false makes sense when running tests" };
   Gaudi::Property<size_t> m_hNodesPerProxyThreshold{ this, "hNodesPerProxyThreshhold", 15, "Limit number of H nodes per TE (if exceeded conversion results in an error)" };
   Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {}, "If not specified, all chains are handled" };
@@ -94,9 +94,9 @@ private:
 
   StatusCode findSharedFEAHashes(const ConvProxySet_t&, FEAToConvProxySet_t&) const;
 
-  StatusCode collapseConvProxies(ConvProxySet_t&, const FEAToConvProxySet_t&) const;
+  StatusCode collapseConvProxies(ConvProxySet_t&, FEAToConvProxySet_t&) const;
 
-  StatusCode cureFeaturelessProxies(ConvProxySet_t&) const;
+  StatusCode collapseFeaturelessProxies(ConvProxySet_t&) const;
 
   StatusCode fillRelevantFeatures(ConvProxySet_t&) const;
 
@@ -107,7 +107,9 @@ private:
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
 
   // helpers
+  //!< both method skip TrigPassBits
   uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&) const;
+  bool feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const;
 
   // self validators
   // they return failure if something is not ok 

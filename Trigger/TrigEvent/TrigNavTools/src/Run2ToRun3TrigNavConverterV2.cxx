@@ -5,6 +5,9 @@
 
 #include "AthLinks/ElementLinkVector.h"
 #include "TrigConfHLTUtils/HLTUtils.h"
+#include "xAODTrigger/TrigPassBitsContainer.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "TrigNavStructure/TriggerElement.h"
 
 #include "Run2ToRun3TrigNavConverterV2.h"
 
@@ -13,10 +16,63 @@ namespace TCU = TrigCompositeUtils;
 // helper class 
 ConvProxy::ConvProxy(const HLT::TriggerElement* t) : te{ t } {}
 
-void ConvProxy::merge(ConvProxy* /*other*/) {
-  // copy over chains & links
+void ConvProxy::merge(ConvProxy* other) {
+  if ( other == this ) {
+    return;
+  }
+  // copy over chains
+  runChains.insert(other->runChains.begin(), other->runChains.end());
+  passChains.insert(other->passChains.begin(), other->passChains.end());
+  /* the intention of the code below is following.
+  Intial structure like is like this (the line is always bidirectional):
+  P1 P2 P3 <- parents
+   | | /
+  T1 T2 <- "this" and "other"
+   | |  
+  C1 C2 <- children
+  1) Lets assume that the first proxies we treat are B1 & B2 ath they are mergable. The resulting structure should look like this:
+  P1 P2 P3 
+   |/__/
+  T1 T2
+   |\   
+  C1 C2
 
-  // prune the other
+  */
+  auto add = [](ConvProxy* toadd, std::vector<ConvProxy*>& coll) {
+    if ( std::find(coll.begin(), coll.end(), toadd) == coll.end() )  {
+      coll.push_back(toadd);
+    }
+  };
+
+  auto remove = [](ConvProxy* torem, std::vector<ConvProxy*>& coll) {
+    auto place = std::find(coll.begin(), coll.end(), torem);
+    if ( place != coll.end() )  {
+      coll.erase(place);
+    }
+  };
+
+
+  // this is T <-> C connection
+  for ( auto otherChild: other->children ) {
+    add( otherChild, children);
+    add( this, otherChild->parents);
+  }
+  // this is T <-> P connection rewiring
+  for ( auto otherParent: other->parents ) {
+    add(otherParent, parents);
+    add(this, otherParent->children);
+  }
+
+  // now need to remove links back to the "other"
+  for ( auto otherParent : other->parents ) {
+    remove(other, otherParent->children);
+  }
+
+  for( auto otherChild: other->children ) {
+    remove(other, otherChild->parents);
+  }
+  other->children.clear();
+  other->parents.clear();
 }
 
 
@@ -202,13 +258,15 @@ StatusCode Run2ToRun3TrigNavConverterV2::removeUnassociatedProxies(ConvProxySet_
 
 StatusCode Run2ToRun3TrigNavConverterV2::doCompression(ConvProxySet_t& convProxies) const {
   ATH_CHECK(fillFEAHashes(convProxies));
-  FEAToConvProxySet_t sharedFeaturesMap;
-  ATH_CHECK(findSharedFEAHashes(convProxies, sharedFeaturesMap));
-  if (m_doSelfValidation) {
-    ATH_CHECK(allFEAHashesAreUnique(sharedFeaturesMap));
+  { // new scope in order not to leak the fatures map beyond the moment when the pointers in it are invalidated
+    FEAToConvProxySet_t sharedFeaturesMap;
+    ATH_CHECK(findSharedFEAHashes(convProxies, sharedFeaturesMap));
+    if (m_doSelfValidation) {
+      ATH_CHECK(allFEAHashesAreUnique(sharedFeaturesMap));
+    }
+    ATH_CHECK(collapseConvProxies(convProxies, sharedFeaturesMap));
   }
-  ATH_CHECK(collapseConvProxies(convProxies, sharedFeaturesMap));
-  ATH_CHECK(cureFeaturelessProxies(convProxies));
+  ATH_CHECK(collapseFeaturelessProxies(convProxies));
   if (m_doSelfValidation) {
     ATH_CHECK(allProxiesHaveChain(convProxies));
     ATH_CHECK(allProxiesConnected(convProxies));
@@ -240,15 +298,30 @@ StatusCode Run2ToRun3TrigNavConverterV2::findSharedFEAHashes(const ConvProxySet_
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::collapseConvProxies(ConvProxySet_t&, const FEAToConvProxySet_t&) const {
-  // this for all entries in the FEA to TES map, use the first TE as a "primary" and merge all others to it
-
-
+StatusCode Run2ToRun3TrigNavConverterV2::collapseConvProxies(ConvProxySet_t& convProxies, FEAToConvProxySet_t& feaToProxyMap) const {
+  // for all entries in the FEA to TES map, use the first TE as a "primary" and merge all others to it
+  const size_t beforeCount = convProxies.size();
+  std::vector<ConvProxy*> todelete;
+  for ( auto & [hash, proxies]: feaToProxyMap ) {
+    if (proxies.size() > 1 ) {
+      for ( auto p: proxies ) {
+        if ( p != *(proxies.begin())) {
+          (*proxies.begin())->merge(p);
+          todelete.push_back(p);
+        }
+      }
+    }
+  }
+  for ( auto proxy: todelete) {
+    convProxies.erase(proxy);
+    delete proxy;
+  }
+  ATH_MSG_DEBUG("Proxies with features collapsing reduces size from " << beforeCount << " to " << convProxies.size());
   // remove from proxies set all elements that are now unassociated (remember to delete after)
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::cureFeaturelessProxies(ConvProxySet_t&) const {
+StatusCode Run2ToRun3TrigNavConverterV2::collapseFeaturelessProxies(ConvProxySet_t&) const {
   // heuristically compres proxies that mirror TEs w/o any feature
   return StatusCode::SUCCESS;
 }
@@ -276,17 +349,40 @@ StatusCode Run2ToRun3TrigNavConverterV2::linkTopNode(xAOD::TrigCompositeContaine
   return StatusCode::SUCCESS;
 }
 
+// does not need to be a method, so kept as local
+bool feaToSkip( const HLT::TriggerElement::FeatureAccessHelper& fea) {
+  CLID thePassBitsCLID = ClassID_traits<xAOD::TrigPassBits>::ID();
+  CLID thePassBitsContCLID = ClassID_traits<xAOD::TrigPassBitsContainer>::ID();
+  return fea.getCLID() == thePassBitsCLID or fea.getCLID() == thePassBitsContCLID;
+}
 
 uint64_t Run2ToRun3TrigNavConverterV2::feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& feaVector) const {
   // FEA vectors hashing
+
   uint64_t hash = 0;
   for ( auto fea:  feaVector) {
-    // we may need filtering here in the future
+    if ( feaToSkip(fea) ) {
+      ATH_MSG_VERBOSE("Skipping TrigPassBits in FEA hash calcualtion");
+      continue;
+    }
     uint64_t repr64 = static_cast<uint64_t>(fea.getCLID()) << 32 | static_cast<uint64_t>(fea.getIndex().subTypeIndex())<<24 | (fea.getIndex().objectsBegin() << 16 ^ fea.getIndex().objectsEnd());
     hash ^= repr64;
   }
   return hash;
+}
 
+bool Run2ToRun3TrigNavConverterV2::feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, 
+                                            const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const {
+  if ( a.size() != b.size() ) return false;
+  
+  for ( size_t i = 0; i < a.size(); ++i ) {
+    if ( feaToSkip(a[i]) and feaToSkip(b[i])) {
+        ATH_MSG_VERBOSE("Skipping TrigPassBits in FEA comparison");
+        continue;
+    }
+    if ( not (a[i] == b[i]) ) return false;
+  }
+  return true;
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::allProxiesHaveChain(const ConvProxySet_t& proxies) const {
@@ -315,8 +411,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::allFEAHashesAreUnique(const FEAToConvPr
   for (auto [feaHash, proxies] : feaToProxies) {
     auto first = *proxies.begin();
     for (auto p : proxies) {
-      if (p->te->getFeatureAccessHelpers() != first->te->getFeatureAccessHelpers()) {
-        ATH_MSG_ERROR("Proxies grouped in FEA to Proxies map entries have distinct features");
+      if ( not feaEqual(p->te->getFeatureAccessHelpers(), first->te->getFeatureAccessHelpers())) {
+        ATH_MSG_ERROR("Proxies grouped by FEA hash have actually distinct features (specific FEAs are different)");
         return StatusCode::FAILURE;
       }
     }
