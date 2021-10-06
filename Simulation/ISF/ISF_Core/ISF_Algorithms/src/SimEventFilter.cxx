@@ -86,7 +86,7 @@ StatusCode ISF::SimEventFilter::execute(const EventContext &ctx) const
 
   bool pass = false;
 
-  for ( const auto& eventPtr : *inputHardScatterEvgen ) {
+  for ( const HepMC::GenEvent* eventPtr : *inputHardScatterEvgen ) {
     // skip empty events
     if (eventPtr == nullptr) { continue; }
 
