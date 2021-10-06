@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibEvent_E.h"
@@ -26,7 +26,7 @@ namespace MuonCalib {
         for (const MuonCalibTrkPtr& phi : event.phiPat()) { m_phiPats.emplace_back(new MuonCalibTrack_E(*phi)); }
         for (const MuonCalibTrkPtr& trk : event.tracks()) { m_tracks.emplace_back(new MuonCalibTrack_E(*trk)); }
         for (const TrigInfoPtr& ctpi : event.ctp()) { m_ctp.emplace_back(new MuonCalibTriggerInfo(*ctpi)); }
-        for (const MuCTPiPtr mit : event.MUCTPI()) { m_mctpi.emplace_back(new MuonCalibMUCTPI(*mit)); }
+        for (const MuCTPiPtr& mit : event.MUCTPI()) { m_mctpi.emplace_back(new MuonCalibMUCTPI(*mit)); }
         for (const RpcSectorLogicPtr& logic : event.RpcSL()) { m_rpcsl.emplace_back(new MuonCalibRpcSectorLogic(*logic)); }
         for (const RpcCoinPtr& coin : event.RpcCoin()) { m_rpcco.emplace_back(new MuonCalibRawRpcCoin(*coin)); }
         for (const RpcTrigHitPtr& trig_hit : event.rawRpcTrig()) { m_rpctr.emplace_back(new MuonCalibRawRpcTriggerHit(*trig_hit)); }
