@@ -22,13 +22,13 @@ public:
 	int GetZ() const {return m_z;}
 	double GetA() const {return m_a;}
 	AGDDElement* GetElement() {return m_element;}
-	void Created(bool b) {m_created=b;}
-	bool Extant() const {return m_created;}
+	void Created(bool b) {m_matCreated=b;}
+	bool Extant() const {return m_matCreated;}
 private:
 	int m_z;
 	double m_a;
 	AGDDElement* m_element;	
-	bool m_created;
+	bool m_matCreated;
 };
 
 #endif
