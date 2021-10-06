@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef T0CALIBRATIONCLASSIC_H
@@ -132,8 +132,8 @@ namespace MuonCalib {
         bool converged() const;                                      //!< return m_converged (always false?)
 
         /** @return the calibration results */
-        MdtCalibOutputPtr getResults() const;
-        MdtCalibOutputPtr analyseSegments(const MuonSegVec& segs);  //!< new interface function
+        virtual MdtCalibOutputPtr getResults() const override;
+        virtual MdtCalibOutputPtr analyseSegments(const MuonSegVec& segs) override;  //!< new interface function
 
     private:
         T0ClassicHistos* bookHistos(unsigned int idtube);  //!< booking of histograms
