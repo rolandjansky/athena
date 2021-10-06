@@ -48,6 +48,8 @@ if ConfigFlags.Trigger.doCalo:
   if (True):
     from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
     LArMCSymCondAlgDefault()
+    from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+    LArBadChannelAccess()
 
     from TrigMinBias.TrigMinBiasConf import MbtsFex
     alg=MbtsFex()

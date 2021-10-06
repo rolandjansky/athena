@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MdtRelativeTubeT0.h"
+#include "MdtCalibT0/MdtRelativeTubeT0.h"
 
 // MuonCalibIdentifier
 #include "MuonCalibIdentifier/MuonFixedId.h"
@@ -14,15 +14,15 @@ namespace MuonCalib {
 
     inline unsigned int get_group_id(const MuonFixedId &id, const MdtRelativeTubeT0::TubeGroup &grp);
 
-    void MdtRelativeTubeT0 ::AddHit(const MdtCalibHitBase *hit) {
-        MuonFixedId id(hit->identify());
+    void MdtRelativeTubeT0::AddHit(const MdtCalibHitBase &hit) {
+        const MuonFixedId &id = hit.identify();
         if (m_tube_t0.find(id) == m_tube_t0.end()) {
             if (m_relative_offset.size()) m_relative_offset.clear();
-            m_tube_t0[id] = hit->tubeT0();
+            m_tube_t0[id] = hit.tubeT0();
         }
     }
 
-    double MdtRelativeTubeT0 ::GetRelativeOffset(const MuonFixedId &id, TubeGroup grp)  {
+    double MdtRelativeTubeT0 ::GetRelativeOffset(const MuonFixedId &id, TubeGroup grp) {
         if (grp == UNKNOWN) return 0;
         std::map<TubeGroup, std::map<MuonFixedId, double> >::const_iterator it = m_relative_offset.find(grp);
         if (it == m_relative_offset.end()) {
@@ -34,7 +34,7 @@ namespace MuonCalib {
         return it2->second;
     }
 
-    inline void MdtRelativeTubeT0 ::calculate_relative_t0s(const TubeGroup &grp)  {
+    inline void MdtRelativeTubeT0 ::calculate_relative_t0s(const TubeGroup &grp) {
         // calculate mean t0 per group
         std::map<unsigned int, std::pair<double, int> > mean_t0;
         for (std::map<MuonFixedId, double>::const_iterator it = m_tube_t0.begin(); it != m_tube_t0.end(); it++) {

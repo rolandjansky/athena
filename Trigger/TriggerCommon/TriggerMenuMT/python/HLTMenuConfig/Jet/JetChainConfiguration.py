@@ -207,10 +207,13 @@ class JetChainConfiguration(ChainConfigurationBase):
             'constitMod':'',
             'trkopt':'notrk',
         }
+        ''' #Here you can set custom calibrations for large-R preselections. If you set to LCW you'll get an issue though, as the trigger expects the *same* topocluster collection to be used in the preselection and in the PFlow stage with tracking. Therefore this would need to be adapted, but it might not be so easy...
+         
         if preselRecoDict['recoAlg']=='a10': #Setting LC calibrations for large-R jets
             preselRecoDict['clusterCalib']='lcw'
+        '''
         from .JetRecoConfiguration import interpretJetCalibDefault
-        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict)}) #Adding default calibration for corresponding chain
+        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
         from ..Menu.SignatureDicts import JetChainParts_Default
         preselCommonJetParts = dict(JetChainParts_Default)
         preselCommonJetParts.update(preselRecoDict)

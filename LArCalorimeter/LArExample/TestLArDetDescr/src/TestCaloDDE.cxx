@@ -43,7 +43,7 @@ StatusCode TestCaloDDE::initialize()
   ATH_MSG_DEBUG ( "Successfully retrieved CaloIdManager from DetectorStore" );
   
   if(m_useCondStore) {
-    ATH_CHECK(m_readCondKey.initialize());
+    ATH_CHECK(m_caloMgrKey.initialize());
   }
   else {
     ATH_CHECK( detStore()->retrieve(m_calo_dd_man) );
@@ -64,12 +64,9 @@ StatusCode TestCaloDDE::execute()
 {  
   const CaloDetDescrManager* caloDDMan{nullptr};
   if(m_useCondStore) {
-    SG::ReadCondHandle<CaloDetDescrManager> readCondHandle{m_readCondKey};
-    caloDDMan = *readCondHandle;
-    if(!caloDDMan) {
-      ATH_MSG_FATAL("Failed to get CaloDetDescrManager from Condition Store");
-      return StatusCode::FAILURE;
-    }
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+    caloDDMan = *caloMgrHandle;
   }
   else {
     caloDDMan = m_calo_dd_man;

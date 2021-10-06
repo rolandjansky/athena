@@ -13,14 +13,20 @@ def ByteStreamReadCfg(flags, type_names=[]):
         flags (AthConfigFlags): The configuration flags container
         type_names (list): Types to register converters for reading from BS, format ["typeA/key1", "typeB/key2"]
 
-    This wrapper function registers the type_names with either the online (HLT) or offline BS services
+    This wrapper function registers the type_names with either the online (HLT), the offline or the EMon BS services
     depending on the configuration flags.
     '''
 
-    if flags.Trigger.Online.isPartition:
+    if flags.Common.isOnline and not any(flags.Input.Files) and not (flags.Trigger.doHLT or flags.Trigger.doLVL1):
+        # Running online reconstruction at P1 (EMon)
+        from ByteStreamEmonSvc.EmonByteStreamConfig import EmonByteStreamCfg
+        servicesCfgFunction = EmonByteStreamCfg
+    elif flags.Trigger.Online.isPartition:
+        # Running HLT at P1 or with athenaHLT.py
         from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
         servicesCfgFunction = TrigByteStreamCfg
     else:
+        # Running offline athena
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         servicesCfgFunction = ByteStreamReadCfg
 

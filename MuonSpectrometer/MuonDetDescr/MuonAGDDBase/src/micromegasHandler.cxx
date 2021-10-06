@@ -31,7 +31,10 @@ void micromegasHandler::ElementHandle(AGDDController& c,
 	
 	std::string technology=getAttributeAsString(c, t, "tech",ret);
 	
-	AGDDMicromegas *b=new AGDDMicromegas(name);
+	AGDDMicromegas *b=new AGDDMicromegas(name,
+                                             c.GetDetectorStore(),
+                                             c.GetVolumeStore(),
+                                             c.GetSectionStore());
 	b->SetXYZ(vvv);
 	b->subType(sType);
 	b->tech=technology;

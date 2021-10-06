@@ -304,7 +304,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //x = horizontal distance from beam looking down
 
   if (sector == 'L') {
-    ATH_MSG_INFO("LM1 \n" <<
+    ATH_MSG_DEBUG("LM1 \n" <<
                  "\t\t\t\t Total Strips: " << roParam_bottom_mult1.tStrips << " with pitch: " << roParam_bottom_mult1.stripPitch << "\n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_bottom_mult1.nMissedTopEta << " - BottomEta: " << roParam_bottom_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_bottom_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_bottom_mult1.nMissedBottomStereo << "\n" <<
@@ -313,7 +313,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_bottom_mult1.dlStereoTop << " " << roParam_bottom_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Bottom, Top, Height) : (" << roParam_bottom_mult1.activeBottomLength << ", " << roParam_bottom_mult1.activeTopLength << ", " << roParam_bottom_mult1.activeH << ")");
   } else if (sector == 'S') {
-    ATH_MSG_INFO("SM1 \n" <<
+    ATH_MSG_DEBUG("SM1 \n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_bottom_mult1.nMissedTopEta << " - BottomEta: " << roParam_bottom_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_bottom_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_bottom_mult1.nMissedBottomStereo << "\n" <<
                  "\t\t\t\t Total Strips: " << roParam_bottom_mult1.tStrips << " with pitch: " << roParam_bottom_mult1.stripPitch << "\n" <<
@@ -324,7 +324,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   }
 
   if (sector == 'L') {
-    ATH_MSG_INFO("LM2 \n" <<
+    ATH_MSG_DEBUG("LM2 \n" <<
                  "\t\t\t\t Total Strips: " << roParam_top_mult1.tStrips << " with pitch: " << roParam_top_mult1.stripPitch << "\n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_top_mult1.nMissedTopEta << " - BottomEta: " << roParam_top_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_top_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_top_mult1.nMissedBottomStereo << "\n" <<
@@ -333,14 +333,14 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_top_mult1.dlStereoTop << " " << roParam_top_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Top, Bottom, Height) : (" << roParam_top_mult1.activeTopLength << ", " << roParam_top_mult1.activeBottomLength << ", " << roParam_top_mult1.activeH << ")");
   } else if (sector == 'S') {
-    ATH_MSG_INFO("SM2 \n" <<
+    ATH_MSG_DEBUG("SM2 \n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_top_mult1.nMissedTopEta << " - BottomEta: " << roParam_top_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_top_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_top_mult1.nMissedBottomStereo << "\n" <<
                  "\t\t\t\t (Top, Bottom, Length): (" << mm_top_mult1->lWidth() << ", " << mm_top_mult1->sWidth() << ", " << mm_top_mult1->Length() << ")\n" <<
                  "\t\t\t\t Zpos - Distance from ZAxis: " << roParam_top_mult1.zpos << " - " << roParam_top_mult1.distanceFromZAxis << "\n" <<
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_top_mult1.dlStereoTop << " " << roParam_top_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Top, Bottom, Height) : (" << roParam_top_mult1.activeTopLength << ", " << roParam_top_mult1.activeBottomLength << ", " << roParam_top_mult1.activeH << ")");
-    for (const auto &angle : roParam_top_mult1.stereoAngle) ATH_MSG_INFO("Stereo angle: " << angle);
+    for (const auto &angle : roParam_top_mult1.stereoAngle) ATH_MSG_DEBUG("Stereo angle: " << angle);
   }
 
   ////////////  Define the large wedge /////////////////
@@ -1233,15 +1233,15 @@ void hitData_entry::fit_fill(double fthe,double fphi, double fdth, double mxg, d
 }
 
 void hitData_entry::print() const{
-  // ATH_MSG_INFO( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
+  // ATH_MSG_DEBUG( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
   //     <<"(Event,BC_time,time): ("<<event<<","<<BC_time<<","<<time<<"), "<<(truth_nbg?"truth":"bg")<<", charge: "<<charge<<endl
   //     <<"Wedge Coord---plane: "<<plane<<", strip: "<<strip<<", est: "<<station_eta<<", vmm: "<<VMM_chip<<", ip theta: "<<tru_theta_ip<<", ip phi: "<<tru_phi_ip<<endl
   //     <<"truth angles---dtheta: "<<tru_dtheta<<endl//", theta(loc): "<<tru_theta_local<<", theta(glo): "<<tru_theta_global<<endl
   //     <<"Truth vertex: \n");
   // truth.Print();
-  // ATH_MSG_INFO( "Recon vertex: \n");
+  // ATH_MSG_DEBUG( "Recon vertex: \n");
   // recon.Print();
-  // ATH_MSG_INFO( "FIT---roi: "<<roi<<endl
+  // ATH_MSG_DEBUG( "FIT---roi: "<<roi<<endl
   //     <<"        angles---theta: "<<fit_theta.getValue()<<", phi: "<<fit_phi.getValue()<<", dtheta: "<<fit_dtheta.getValue()<<endl
   //     <<"slopes, global---x: "<<M_x_global.getValue()<<", u: "<<M_u_global.getValue()<<", v: "<<M_v_global.getValue()<<endl
   //     <<"slopes,  other---x(loc): "<<M_x_local.getValue()<<", x(coord): "<<mx.getValue()<<", y(coord): "<<my.getValue()<<endl

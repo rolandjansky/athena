@@ -1,33 +1,30 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// *****************************************************************************
-// CalibHitToCaloCellTool.h
-// Ioannis Nomidis <ioannis.nomidis@cern.ch>
-// Dec 2016
-// Convert energy deposits from calibration hits to CaloCell, xAOD::CaloCluster
-// *****************************************************************************
-#ifndef CalibHitToCaloCellTool_H
-#define CalibHitToCaloCellTool_H
+/**
+ *
+ * @file   CalibHitToCaloCellTool.h
+ * @author Ioannis Nomidis <ioannis.nomidis@cern.ch>
+ * @date   Dec 2016
+ * @brief  Convert energy deposits from calibration hits to CaloCell, xAOD::CaloCluster
+ */
 
-//#include "AthenaBaseComps/AthAlgorithm.h"
+#ifndef CALOCALIBHITREC_CALIBHITTOCALOCELLTOOL_H
+#define CALOCALIBHITREC_CALIBHITTOCALOCELLTOOL_H
+
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 #include <vector>
 
 class CaloCell_ID;
 class CaloDM_ID;
-class TileID;
-class LArEM_ID;
-class LArHEC_ID;
-class LArFCAL_ID;
 
 class CaloCell;
-class CaloDetDescrManager;
 class CaloCellContainer;
 
 static const InterfaceID IID_CalibHitToCaloCellTool("CalibHitToCaloCellTool", 1, 0);
@@ -41,15 +38,12 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
  public:
   CalibHitToCaloCellTool(const std::string& t, const std::string& n, const IInterface*  p);
   ~CalibHitToCaloCellTool();
-  StatusCode initialize();    
+  StatusCode initialize() override;
   StatusCode processCalibHitsFromParticle(int barcode=-1) const;
-  StatusCode finalize();
+  StatusCode finalize() override;
   
   static const InterfaceID& interfaceID() { return IID_CalibHitToCaloCellTool;}
 
-  //  inline CaloCellContainer* getTruthCellsCont(CalibHitUtils::EnergyType type) {return m_truthCells[(int)type];}
-  //  inline xAOD::CaloClusterContainer* getTruthClustersCont(CalibHitUtils::EnergyType type) {return m_truthClusters[(int)type];}
-  
  private:
   int m_caloGain;
   std::vector<std::string> m_calibHitContainerNames;
@@ -71,14 +65,13 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
   std::string m_caloCell_Em;
   std::string m_caloCell_NonEm;
 
-  const CaloCell_ID*  m_caloCell_ID;
-  const CaloDM_ID*    m_caloDM_ID;
-  //const TileID*       m_tile_ID;
-  //const LArEM_ID*     m_larEm_ID;
-  //const LArHEC_ID*    m_larHec_ID;
-  //const LArFCAL_ID*   m_larFcal_ID;
+  const CaloCell_ID*  m_caloCell_ID{nullptr};
+  const CaloDM_ID*    m_caloDM_ID{nullptr};
 
-  const CaloDetDescrManager*   m_caloDDMgr;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   std::string m_outputCellContainerName;
   std::string m_outputClusterContainerName;

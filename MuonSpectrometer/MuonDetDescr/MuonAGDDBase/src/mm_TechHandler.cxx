@@ -25,7 +25,7 @@ void mm_TechHandler::ElementHandle(AGDDController& c,
 	bool ret=true;
 	std::string name=getAttributeAsString(c, t, "type",ret);
 	
-	MuonGM::MM_Technology *tech=new MuonGM::MM_Technology(name);
+	MuonGM::MM_Technology *tech=new MuonGM::MM_Technology(name, c.GetDetectorStore());
 	
 	tech->nlayers=getAttributeAsInt(c, t, "nLayers",ret);
 	tech->thickness=getAttributeAsDouble(c, t, "Tck",ret);
@@ -41,7 +41,8 @@ void mm_TechHandler::ElementHandle(AGDDController& c,
 	
 	tech->geoLevel=getAttributeAsInt(c, t, "geometryLevel",ret);
 
-	if(AGDDParameterStore::GetParameterStore()->Exist(name)) {
+        AGDDParameterStore& prs = c.GetParameterStore();
+	if(prs.Exist(name)) {
 		std::cout << " parameters for technology " << name << " already registered" << std::endl;
 	}
 	else {
@@ -49,6 +50,6 @@ void mm_TechHandler::ElementHandle(AGDDController& c,
 		paraBag->thickness = tech->gasThickness=getAttributeAsDouble(c, t, "gasTck",ret);
 		paraBag->pitchSS = 0.425; //small sector
 		paraBag->pitchLS = 0.445; //large sector
-		AGDDParameterStore::GetParameterStore()->RegisterParameterBag(name, paraBag);
+		prs.RegisterParameterBag(name, paraBag);
 	}
 }

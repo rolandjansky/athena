@@ -502,9 +502,8 @@ def dictFromChainName(chainInfo):
         topoStartFrom   = chainInfo.topoStartFrom
         monGroups       = chainInfo.monGroups
 
-
     else:
-        assert True, "Format of chainInfo passed to genChainDict not known"
+        raise RuntimeError("Format of chainInfo passed to genChainDict not known")
 
     L1item = getL1item(chainName)
 

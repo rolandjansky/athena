@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TileMonitoring/TilePaterMonTool.h"
 #include "TileMonitoring/TileFatherMonTool.h"
 #include "TileMonitoring/TileCellMonTool.h"
@@ -39,6 +43,7 @@
 #include "../TileTMDBDigitsMonitorAlgorithm.h"
 #include "../TileTMDBMonitorAlgorithm.h"
 #include "../TileTMDBRawChannelMonitorAlgorithm.h"
+#include "../TileDigitsMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -81,3 +86,4 @@ DECLARE_COMPONENT( TileRODMonitorAlgorithm )
 DECLARE_COMPONENT( TileTMDBDigitsMonitorAlgorithm )
 DECLARE_COMPONENT( TileTMDBMonitorAlgorithm )
 DECLARE_COMPONENT( TileTMDBRawChannelMonitorAlgorithm )
+DECLARE_COMPONENT( TileDigitsMonitorAlgorithm )

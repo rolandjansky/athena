@@ -24,7 +24,7 @@ void chamberPositionerHandler::ElementHandle(AGDDController& c,
 {
 	std::string volume=getAttributeAsString(c, t, "volume");
 
-	AGDDDetector* mCham=(AGDDDetectorStore::GetDetectorStore())->GetDetector(volume);
+	AGDDDetector* mCham=c.GetDetectorStore().GetDetector(volume);
 	std::string subType;
 	if (!mCham) 
 	{
@@ -69,7 +69,7 @@ void chamberPositionerHandler::ElementHandle(AGDDController& c,
  			double zpos=zPos;
  			GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
  			AGDDDetectorPositioner *p __attribute__((__unused__));
- 			p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
+ 			p=new AGDDDetectorPositioner(c.GetPositionerStore(),c.GetVolumeStore(),volume,GeoTrf::Translation3D(cvec)*crot);
 			p->SensitiveDetector(true);
 			p->ID.phiIndex=i;
 			p->ID.sideIndex=1;
@@ -85,34 +85,34 @@ void chamberPositionerHandler::ElementHandle(AGDDController& c,
 			
 		}
 		if (zLayout!="Z_POSITIVE")
-        {
-			double Wedge=dPhi*i+phi0;
-            GeoTrf::Transform3D crot = GeoTrf::Transform3D::Identity();
-            if (type=="ENDCAP")
-            {
+                {
+                  double Wedge=dPhi*i+phi0;
+                  GeoTrf::Transform3D crot = GeoTrf::Transform3D::Identity();
+                  if (type=="ENDCAP")
+                  {
 				//	fix to ensure right order of planes			
-				crot = crot*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(-Wedge*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(180.*GeoModelKernelUnits::degree);
-            }
-            else crot = crot*GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
-            double x=radius*std::cos(Wedge*GeoModelKernelUnits::degree);
-            double y=radius*std::sin(Wedge*GeoModelKernelUnits::degree);
-            double zpos=zPos;
-            GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,-zpos);
-            AGDDDetectorPositioner *p __attribute__((__unused__));
-            p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
-			p->SensitiveDetector(true);
-			p->ID.phiIndex=i;
-			p->ID.sideIndex=-1;
-			p->ID.etaIndex=-etaIndex;
-			p->ID.detectorType=detectorType;
+                    crot = crot*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(-Wedge*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(180.*GeoModelKernelUnits::degree);
+                  }
+                  else crot = crot*GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
+                  double x=radius*std::cos(Wedge*GeoModelKernelUnits::degree);
+                  double y=radius*std::sin(Wedge*GeoModelKernelUnits::degree);
+                  double zpos=zPos;
+                  GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,-zpos);
+                  AGDDDetectorPositioner *p __attribute__((__unused__));
+                  p=new AGDDDetectorPositioner(c.GetPositionerStore(),c.GetVolumeStore(),volume,GeoTrf::Translation3D(cvec)*crot);
+                  p->SensitiveDetector(true);
+                  p->ID.phiIndex=i;
+                  p->ID.sideIndex=-1;
+                  p->ID.etaIndex=-etaIndex;
+                  p->ID.detectorType=detectorType;
 			
-			p->position.Zposition=-zpos;
-			p->position.Radius=radius;
-			p->position.PhiStart=phi0;
-			p->position.Phi=Wedge;
+                  p->position.Zposition=-zpos;
+                  p->position.Radius=radius;
+                  p->position.PhiStart=phi0;
+                  p->position.Phi=Wedge;
 			
-			mCham->SetAddressAndPosition(p);
-        }
+                  mCham->SetAddressAndPosition(p);
+                }
  	}
 
 }

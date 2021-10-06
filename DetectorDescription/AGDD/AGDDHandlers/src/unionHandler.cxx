@@ -23,18 +23,20 @@ unionHandler::unionHandler(const std::string& s,
 void unionHandler::ElementHandle(AGDDController& c,
                                  xercesc::DOMNode *t)
 {
-        bool res;
-        std::string name=getAttributeAsString(c, t, "name",res);
+    AGDDVolumeStore& vs = c.GetVolumeStore();
+    AGDDSectionStore& ss = c.GetSectionStore();
+    AGDDPositionerStore& ps = c.GetPositionerStore();
+
+    bool res;
+    std::string name=getAttributeAsString(c, t, "name",res);
 	
-        AGDDUnion *u=new AGDDUnion(name);
-	
-        AGDDPositionerStore* pS=AGDDPositionerStore::GetPositionerStore();
+    AGDDUnion *u=new AGDDUnion(name, vs, ss);
 	
     StopLoop(true);
 
     DOMNode* child;
 
-    int before=pS->NrOfPositioners();
+    int before=ps.NrOfPositioners();
 
     for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
     {
@@ -43,11 +45,11 @@ void unionHandler::ElementHandle(AGDDController& c,
         }
     }
 	
-    int after=pS->NrOfPositioners();
+    int after=ps.NrOfPositioners();
     for (int i=before;i<after;i++)
     {
-      AGDDPositioner *posit=pS->GetPositioner(i);
-      if (AGDDVolumeStore::GetVolumeStore()->Exist(posit->Volume()))
+      AGDDPositioner *posit=ps.GetPositioner(i);
+      if (vs.Exist(posit->Volume()))
         u->AddDaughter(posit);
     }
 	

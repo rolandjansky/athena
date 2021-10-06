@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -393,13 +393,13 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
         ATH_MSG_VERBOSE ("Identified state" << (rit->positionOnTrajectory()>9? " " : " 0")<<
                          rit->positionOnTrajectory() << " as last fittable state.");
         //clone here, as updatedPar is used on next iteration and would be invalid if moved
-        smooPar=std::move( updatedPar->uniqueClone() );
+        smooPar=updatedPar->uniqueClone();
       } else {
         if (m_doSmoothing) {
           forwardTPar = rit->forwardTrackParameters();
           smooPar = m_updator->combineStates(*forwardTPar, *updatedPar);
         } else {
-          smooPar=std::move(updatedPar->uniqueClone() );
+          smooPar=updatedPar->uniqueClone();
         }
       }
       if (!smooPar) {

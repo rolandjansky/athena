@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DVLIterator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file DVLIterator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -37,11 +35,13 @@ struct Cont1
   typedef Cont1 Cont;
   typedef X1 base_value_type;
   typedef std::vector<X1*> BaseContainer;
-  static const bool has_virtual = false;
+  static constexpr bool has_virtual = false;
+  static constexpr bool must_own = false;
 
   typedef base_value_type* value_type;
   typedef const base_value_type* const_value_type;
   typedef base_value_type** pointer;
+  typedef std::unique_ptr<X1> unique_type;
   typedef DataModel_detail::ElementProxy<Cont> ElementProxy;
   typedef DataModel_detail::const_iterator<Cont> const_iterator;
 
@@ -68,11 +68,13 @@ struct Cont2
   typedef Cont2 Cont;
   typedef X2 base_value_type;
   typedef std::vector<X1*> BaseContainer;
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
+  static constexpr bool must_own = false;
 
   typedef base_value_type* value_type;
   typedef const base_value_type* const_value_type;
   typedef base_value_type** pointer;
+  typedef std::unique_ptr<X1> unique_type;
   typedef DataModel_detail::ElementProxy<Cont> ElementProxy;
   typedef DataModel_detail::const_iterator<Cont> const_iterator;
 
@@ -99,11 +101,13 @@ struct Cont3
   typedef Cont3 Cont;
   typedef X1 base_value_type;
   typedef std::list<X1*> BaseContainer;
-  static const bool has_virtual = false;
+  static constexpr bool has_virtual = false;
+  static constexpr bool must_own = false;
 
   typedef base_value_type* value_type;
   typedef const base_value_type* const_value_type;
   typedef base_value_type** pointer;
+  typedef std::unique_ptr<X1> unique_type;
   typedef DataModel_detail::ElementProxy<Cont> ElementProxy;
   typedef DataModel_detail::const_iterator<Cont> const_iterator;
 
@@ -130,11 +134,13 @@ struct Cont4
   typedef Cont4 Cont;
   typedef X2 base_value_type;
   typedef std::list<X1*> BaseContainer;
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
+  static constexpr bool must_own = false;
 
   typedef base_value_type* value_type;
   typedef const base_value_type* const_value_type;
   typedef base_value_type** pointer;
+  typedef std::unique_ptr<X1> unique_type;
   typedef DataModel_detail::ElementProxy<Cont> ElementProxy;
   typedef DataModel_detail::const_iterator<Cont> const_iterator;
 

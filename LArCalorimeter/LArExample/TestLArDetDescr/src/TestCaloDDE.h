@@ -54,16 +54,12 @@ class TestCaloDDE : public AthAlgorithm
   const CaloIdManager*  m_calo_id_man{nullptr};
   const CaloDetDescrManager*  m_calo_dd_man{nullptr};
 
-  // Simplified geometry :
-  ICaloRecoMaterialTool* m_lar_mat{nullptr};
-  ICaloRecoSimpleGeomTool* m_lar_simplegeom{nullptr};
-
   BooleanProperty m_useCondStore { this
       , "UseCondStore"
       , true
       , "Get CaloDetDescrManage from Condition Store. If FALSE, then use Detector Store"};
 
-  SG::ReadCondHandleKey<CaloDetDescrManager> m_readCondKey { this
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
       , "CaloDetDescrManager"
       , "CaloDetDescrManager"
       , "SG Key for CaloDetDescrManager in the Condition Store" };

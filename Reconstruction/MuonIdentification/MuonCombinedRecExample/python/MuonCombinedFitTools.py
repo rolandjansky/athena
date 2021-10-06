@@ -24,8 +24,7 @@ from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from InDetRecExample import TrackingCommon
 
 GeV = 1000
@@ -51,7 +50,7 @@ def iPatFitter( name='iPatFitter', **kwargs):
     kwargs.setdefault("MaterialAllocator",getPublicTool("MuidMaterialAllocator"))
     from InDetRecExample import TrackingCommon
     kwargs.setdefault("SolenoidalIntersector",TrackingCommon.getSolenoidalIntersector())
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MaxIterations", 15)
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -66,7 +65,7 @@ def iPatSLFitter( name='iPatSLFitter', **kwargs):
     kwargs.setdefault("FullCombinedFit", True )
     kwargs.setdefault("MaterialAllocator",getPublicTool("MuidMaterialAllocator"))
     kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum() )
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MaxIterations", 15)
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -85,7 +84,7 @@ def MuidTrackCleaner( name='MuidTrackCleaner', **kwargs ):
         kwargs.setdefault("PullCut"     , 4.0)
         kwargs.setdefault("PullCutPhi"  , 4.0)
 
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
 
@@ -121,7 +120,7 @@ def MuidCaloEnergyMeas( name='MuidCaloEnergyMeas', **kwargs ):
 def MuidCaloEnergyTool( name='MuidCaloEnergyTool', **kwargs ):
     kwargs.setdefault("CaloMeasTool", getPublicTool("MuidCaloEnergyMeas") )
     kwargs.setdefault("CaloParamTool", getPublicTool("MuidCaloEnergyParam") )
-    if DetFlags.haveRIO.Calo_on() and not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if DetFlags.haveRIO.Calo_on() and not ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("EnergyLossMeasurement", True )
         kwargs.setdefault("MinFinalEnergy", 1.0*GeV )
         kwargs.setdefault("MinMuonPt", 10.0*GeV )
@@ -129,7 +128,7 @@ def MuidCaloEnergyTool( name='MuidCaloEnergyTool', **kwargs ):
     else:
         kwargs.setdefault("EnergyLossMeasurement", False )
 
-    if DetFlags.haveRIO.ID_on() and not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if DetFlags.haveRIO.ID_on() and not ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("TrackIsolation", True )
     else:
         kwargs.setdefault("TrackIsolation", False )
@@ -233,7 +232,7 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
 
     ToolSvc += muonCaloEnergyTool
     materialProviderTool = TrackingCommon.getTrkMaterialProviderTool( name = "MuonTrkMaterialProviderTool", MuonCaloEnergyTool = muonCaloEnergyTool)
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         materialProviderTool.UseCaloEnergyMeasurement = False
     return materialProviderTool
 
@@ -276,7 +275,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
 
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
         if DetFlags.detdescr.ID_on():
@@ -356,7 +355,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
     kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
         if DetFlags.detdescr.ID_on():
@@ -418,7 +417,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
 def MuidErrorOptimisationTool(name='MuidErrorOptimisationTool', **kwargs):
     useAlignErrs = True
-    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or ConfigFlags.Muon.MuonTrigger:
         useAlignErrs = False
     kwargs.setdefault( 'RefitTool', getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter") ) )
     kwargs.setdefault( 'PrepareForFit', False )

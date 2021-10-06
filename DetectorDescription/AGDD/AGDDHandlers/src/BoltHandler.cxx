@@ -24,7 +24,7 @@ void BoltHandler::ElementHandle(AGDDController& c,
 	double hd=getAttributeAsDouble(c, t, "head_diameter",res);
 	double hl=getAttributeAsDouble(c, t, "head_length",res);
 
-	AGDDBolt *b=new AGDDBolt(name);
+	AGDDBolt *b=new AGDDBolt(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetLength(l);
 	b->SetHeadLength(hl);

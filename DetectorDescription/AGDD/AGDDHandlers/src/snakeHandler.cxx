@@ -4,6 +4,7 @@
 
 #include "AGDDHandlers/snakeHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDHandlers/snake_pointHandler.h"
 #include "AGDDModel/AGDDSnake.h"
 
@@ -28,7 +29,7 @@ void snakeHandler::ElementHandle(AGDDController& c,
 	
 	std::vector<GeoTrf::Vector3D> points;
 	
-	AGDDSnake *vol=new AGDDSnake(name);
+	AGDDSnake *vol=new AGDDSnake(name, c.GetVolumeStore(), c.GetSectionStore());
  	vol->SetMaterial(material);
 	vol->Radius(radius);	
 	

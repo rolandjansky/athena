@@ -12,7 +12,10 @@
 
 class AGDDUnion: public AGDDVolume {
 public:
-	AGDDUnion(const std::string& s):AGDDVolume(s) {}
+	AGDDUnion(const std::string& s,
+                  AGDDVolumeStore& vs,
+                  AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss) {}
         virtual void CreateVolume (const AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:

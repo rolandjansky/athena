@@ -5,19 +5,19 @@
 #ifndef MTStraightLineH
 #define MTStraightLineH
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonCalibEventBase/MuonCalibSegment.h"
+
 /// \class MtStraightLine
 /// This class contains a simple implementation of a straifht line with errors
 /// on the slope and the intercept of the straight line.
-///
-/// \author Oliver.Kortner@CERN.CH \author Felix.Rauscher@CERN.CH
-///
-/// \date 01.03.2006
 
 namespace MuonCalib {
-    class MdtCalibHitBase;
 
     class MTStraightLine {
     public:
+        using MdtHitVec = MuonCalibSegment::MdtHitVec;
+        using MdtHitPtr = MuonCalibSegment::MdtHitPtr;
+
         // Constructors //
         MTStraightLine() { init(); }
         ///< Default constructor: all internal parameters of the straight line
@@ -108,21 +108,21 @@ namespace MuonCalib {
         /// Return chi2 / number of TrackHits - 2
         double chi2PerDegreesOfFreedom() const;
 
-        void setUsedHits(const std::vector<const MdtCalibHitBase*>& hits);
-        const std::vector<const MdtCalibHitBase*>& trackHits() const;
+        void setUsedHits(const MdtHitVec& hits);
+        const MdtHitVec& trackHits() const;
 
     private:
         // internal representation of the straight line //
-        Amg::Vector3D m_position;   // position vector of the straight line
-        Amg::Vector3D m_direction;  // direction vector of the straight line
+        Amg::Vector3D m_position{0., 0., 0.};   // position vector of the straight line
+        Amg::Vector3D m_direction{0., 0., 0.};  // direction vector of the straight line
 
         // errors on the position and direction vector //
-        Amg::Vector3D m_position_error;   // error on the position vector
-        Amg::Vector3D m_direction_error;  // error on the direction vector
+        Amg::Vector3D m_position_error{0., 0., 0.};   // error on the position vector
+        Amg::Vector3D m_direction_error{0., 0., 0.};  // error on the direction vector
 
         double m_chi2{-1};
         unsigned int m_numTrkHits{0};
-        std::vector<const MdtCalibHitBase*> m_used_hits;
+        MdtHitVec m_used_hits;
 
         // initializtion methods //
         void init();  // default initialization method

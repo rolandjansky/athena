@@ -55,6 +55,13 @@ class doLVL1CaloMon(JobProperty):
     StoredValue=True
 list+=[doLVL1CaloMon]
 
+class doLVL1InterfacesMon(JobProperty):
+    """ Switch for L1 interfaces monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doLVL1InterfacesMon]
+
 class doCTPMon(JobProperty):
     """ Switch for CTP monitoring """
     statusOn=True

@@ -28,13 +28,23 @@ class AGDDBolt;
 class AGDDIbeam;
 class AGDDUbeam;
 
+class AGDDDetectorStore;
+class AGDDVolumeStore;
+class AGDDSectionStore;
+class AliasStore;
+class AGDDMaterialStore;
+
 
 #include <string>
 
 class AGDD2GeoModelBuilder:public AGDDBuilder {
 public:
 	// constructor
-	AGDD2GeoModelBuilder();
+	AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
+                             AGDDVolumeStore& vs,
+                             AGDDSectionStore& ss,
+                             AliasStore& as,
+                             AGDDMaterialStore& ms);
 	~AGDD2GeoModelBuilder()=default;
 	// elements & materials 
 	GeoElement* CreateElement(const std::string&) const;
@@ -69,7 +79,13 @@ public:
 
 private:
 	GeoPhysVol *m_mother;
-	const GeoMaterial* GetMMMaterial(const std::string&) const;
+        AGDDDetectorStore& m_ds;
+        AGDDVolumeStore& m_vs;
+        AGDDSectionStore& m_ss;
+        AliasStore& m_as;
+        AGDDMaterialStore& m_ms;
+
+        const GeoMaterial* GetMMMaterial(const std::string&) const;
 
     /** phi method (cf. EventPrimitives/AmgMatrixBasePlugin.h) */
     inline double phi(const GeoTrf::Vector3D &vec) const {

@@ -11,8 +11,6 @@
 #include "AGDDControl/AGDDController.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "AGDDKernel/AGDDDetectorStore.h"
-
 #include <vector>
 #include <mutex>
 

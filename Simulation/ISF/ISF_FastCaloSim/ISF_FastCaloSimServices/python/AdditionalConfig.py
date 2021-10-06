@@ -876,7 +876,7 @@ def getFastCaloToolBase(name="ISF_FastCaloToolBase", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth"              , False                                             )
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()              )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
+    kwargs.setdefault("PunchThroughTool"                 , ''             )
     kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])

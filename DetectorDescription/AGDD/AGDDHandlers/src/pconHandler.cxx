@@ -4,6 +4,7 @@
 
 #include "AGDDHandlers/pconHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDModel/AGDDPcon.h"
 #include "AGDDHandlers/polyplaneHandler.h"
 #include <iostream>
@@ -24,7 +25,7 @@ void pconHandler::ElementHandle(AGDDController& c,
 	std::string name=getAttributeAsString(c, t, "name",res);
 	std::string material=getAttributeAsString(c, t, "material",res);
 	
- 	AGDDPcon *vol=new AGDDPcon(name);
+ 	AGDDPcon *vol=new AGDDPcon(name, c.GetVolumeStore(), c.GetSectionStore());
  	vol->SetMaterial(material);
 
 	std::string col=getAttributeAsString(c, t, "color",res);

@@ -234,7 +234,6 @@ class TriggerConfigGetter(Configured):
                 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
                 CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
                 svcMgr += TrigConfigSvc("TrigConfigSvc")
-                svcMgr.TrigConfigSvc.UseNewConfig = True
 
         else:
             # non-MT (Run-2) Trigger Configuration

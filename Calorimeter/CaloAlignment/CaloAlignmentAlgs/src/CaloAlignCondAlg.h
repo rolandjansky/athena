@@ -42,7 +42,7 @@ class CaloAlignCondAlg final : public AthReentrantAlgorithm
       , "LArCellPositionShift"
       , "SG key of the CaloCellPositionShift" };
 
-  SG::WriteCondHandleKey<CaloDetDescrManager>  m_writeKey {this
+  SG::WriteCondHandleKey<CaloDetDescrManager>  m_writeCaloMgrKey {this
       , "CaloDetDescrManager"
       , "CaloDetDescrManager"
       , "SG key of the resulting CaloDetDescrManager" };

@@ -9,6 +9,9 @@
 #include "AGDDControl/AGDDTokenizer.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDKernel/AliasStore.h"
+#include "AGDDKernel/AGDDPositionerStore.h"
+#include "AGDDKernel/AGDDVolumeStore.h"
+#include "AGDDKernel/AGDDSectionStore.h"
 
 #include <iostream>
 #include <sstream>
@@ -17,8 +20,8 @@
  ** Constructor(s)
  **/
 AGDDtoGeoSvc::AGDDtoGeoSvc(const std::string& name,ISvcLocator* svc)
-  : base_class(name,svc)
-  , m_builders(this)
+  : base_class(name,svc),
+    m_builders(this)
 {
   declareProperty( "Builders", m_builders, "Builders");
 }
@@ -94,42 +97,43 @@ void AGDDtoGeoSvc::localInitialization()
 	
 	addHandler(new chamberPositionerHandler("chamberPosition", m_controller));
 
-	AliasStore::GetAliasList()->AddAlias("Aluminium1","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium2","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium3","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium4","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium5","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium6","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium7","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium8","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Aluminium9","std::Aluminium");
+        AliasStore& as = m_controller.GetAliasStore();
+	as.AddAlias("Aluminium1","std::Aluminium");
+	as.AddAlias("Aluminium2","std::Aluminium");
+	as.AddAlias("Aluminium3","std::Aluminium");
+	as.AddAlias("Aluminium4","std::Aluminium");
+	as.AddAlias("Aluminium5","std::Aluminium");
+	as.AddAlias("Aluminium6","std::Aluminium");
+	as.AddAlias("Aluminium7","std::Aluminium");
+	as.AddAlias("Aluminium8","std::Aluminium");
+	as.AddAlias("Aluminium9","std::Aluminium");
 	
-	AliasStore::GetAliasList()->AddAlias("Iron1","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron2","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron3","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron4","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron5","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron6","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron7","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron8","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Iron9","std::Iron");
+	as.AddAlias("Iron1","std::Iron");
+	as.AddAlias("Iron2","std::Iron");
+	as.AddAlias("Iron3","std::Iron");
+	as.AddAlias("Iron4","std::Iron");
+	as.AddAlias("Iron5","std::Iron");
+	as.AddAlias("Iron6","std::Iron");
+	as.AddAlias("Iron7","std::Iron");
+	as.AddAlias("Iron8","std::Iron");
+	as.AddAlias("Iron9","std::Iron");
 	
-	AliasStore::GetAliasList()->AddAlias("Iron","std::Iron");
-	AliasStore::GetAliasList()->AddAlias("Copper","std::Copper");
-	AliasStore::GetAliasList()->AddAlias("Lead","std::Lead");
-	AliasStore::GetAliasList()->AddAlias("Aluminium","std::Aluminium");
-	AliasStore::GetAliasList()->AddAlias("Carbon","std::Carbon");
+	as.AddAlias("Iron","std::Iron");
+	as.AddAlias("Copper","std::Copper");
+	as.AddAlias("Lead","std::Lead");
+	as.AddAlias("Aluminium","std::Aluminium");
+	as.AddAlias("Carbon","std::Carbon");
 	
-	AliasStore::GetAliasList()->AddAlias("Brass","sct::Brass");
-	AliasStore::GetAliasList()->AddAlias("PolyBoron5percent","std::Polyethylene");	
-	AliasStore::GetAliasList()->AddAlias("Polylithium","shield::Polylithium");
-	AliasStore::GetAliasList()->AddAlias("ShieldBrass","shield::ShieldBrass");
-	AliasStore::GetAliasList()->AddAlias("ShieldIron","shield::ShieldIron");
-	AliasStore::GetAliasList()->AddAlias("ShieldSteel","shield::ShieldSteel");
-	AliasStore::GetAliasList()->AddAlias("PolyBoronB4C","shield::PolyboronB4C");
-	AliasStore::GetAliasList()->AddAlias("PolyBoronB2O3","shield::PolyboronB2O3");
-	AliasStore::GetAliasList()->AddAlias("PolyBoronH3B03","shield::PolyboronH3B03");
-	AliasStore::GetAliasList()->AddAlias("PolyBoron207HD5","shield::Polyboron207HD5");
+	as.AddAlias("Brass","sct::Brass");
+	as.AddAlias("PolyBoron5percent","std::Polyethylene");	
+	as.AddAlias("Polylithium","shield::Polylithium");
+	as.AddAlias("ShieldBrass","shield::ShieldBrass");
+	as.AddAlias("ShieldIron","shield::ShieldIron");
+	as.AddAlias("ShieldSteel","shield::ShieldSteel");
+	as.AddAlias("PolyBoronB4C","shield::PolyboronB4C");
+	as.AddAlias("PolyBoronB2O3","shield::PolyboronB2O3");
+	as.AddAlias("PolyBoronH3B03","shield::PolyboronH3B03");
+	as.AddAlias("PolyBoron207HD5","shield::Polyboron207HD5");
 }
 
 

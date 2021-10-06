@@ -21,7 +21,6 @@ SliceIDDict = {
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
     'Calib'   : 'calib',
-    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -30,15 +29,23 @@ SliceIDDict = {
     'Test'          : 'TestChain',
 }
 
-AllowedSignatures = ["jet", "bjet", "electron", "photon", "egamma",
-                     "muon",
-                     "met",
-                     "tau",
-                     "unconvtrk",
-                     "minbias",
-                     "heavyion",
-                     "cosmic",
-                     "calibration", "streaming", "monitoring", 'eb']
+class ChainStore(dict):
+    """Class to hold list of chains for each signature (dictionary with fixed set of keys)"""
+    _allowedSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
+                          'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
+                          'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias',
+                          'UnconventionalTracking', 'Test']
+
+    def __init__(self):
+        # Create dicionary with fixed set of keys in the orignal order
+        super().__init__({s : [] for s in self._allowedSignatures})
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            raise RuntimeError(f"'{key}' is not in the list of allowed signatures: {self._allowedSignatures}")
+        else:
+            dict.__setitem__(self, key, value)
+
 
 #==========================================================
 # ---- Generic Template for all chains          ----
@@ -138,6 +145,7 @@ JetChainParts = {
        'preselj135',       #L1J50, #L1J100
        'presel2j135',      #L1J50, L1J100
        'presel2j135XXj60', #L1J50, L1J100
+       'presel3j100',      #L1J100
        'presel4j33',       #L13J50
        'presel5j24',       #L14J15
        'presel6j36',       #L14J15
@@ -146,6 +154,7 @@ JetChainParts = {
        'preselj180',       #L1J100
        'presel2j180',      #L1J100
        'presel2j180XXj80', #L1J100
+       'presel3j125',      #L1J100
        'presel4j55',       #L13J50
        'presel5j35',       #L14J15
        'presel6j40',       #L14J15
@@ -154,6 +163,7 @@ JetChainParts = {
        'preselj225',        #L1J100
        'presel2j225',       #L1J100
        'presel2j225XXj100', #L1J100
+       'presel3j150',       #L1J100
        'presel4j85',        #L13J50
        'presel5j50',        #L14J15
        'presel6j45',        #L14J15
@@ -354,9 +364,10 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau',
-    'Lxy0',
-    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose'
+    'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
+    'Lxy0','noos','nocut',
+    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
+    'b0dRAB12vtx20'
 ]
 
 # ---- Bphysics Dictionary of all allowed Values ----

@@ -28,7 +28,7 @@ void UbeamHandler::ElementHandle(AGDDController& c,
 	double h=getAttributeAsDouble(c, t, "heigth",res);
 	double sh=getAttributeAsDouble(c, t, "small_heigth",res);
 	
-	AGDDUbeam *b=new AGDDUbeam(name);
+	AGDDUbeam *b=new AGDDUbeam(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetLength(l);
 	b->SetWidth(w);

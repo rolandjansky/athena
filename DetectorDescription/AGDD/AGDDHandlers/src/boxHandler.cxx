@@ -25,7 +25,7 @@ void boxHandler::ElementHandle(AGDDController& c,
 //	std::cout<<"   material "<<material<<std::endl;
 	std::vector<double> vvv=getAttributeAsVector(c, t, "X_Y_Z");
 
-	AGDDBox *b=new AGDDBox(name);
+	AGDDBox *b=new AGDDBox(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetXYZ(vvv);
 //	std::cout<<"   dims "<<vvv[0]<<" "<<vvv[1]<<" "<<vvv[2]<<std::endl;

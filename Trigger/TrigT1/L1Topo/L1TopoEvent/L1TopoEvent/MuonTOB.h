@@ -51,6 +51,8 @@ namespace TCS {
       double EtaDouble() const { return m_etaDouble; }         // Real muon eta
       double PhiDouble() const { return m_phiDouble; }         // Real muon phi
       
+      inline bool isTGC() const {return m_isTGC;} // Additonal flag that identifies muons from TGC
+
       // setters
       // phi type needs to be changed to unsigned int once legacy is removed
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
@@ -63,6 +65,7 @@ namespace TCS {
       void setGoodMF(int goodMF) { m_goodMF = goodMF; }
       void setCharge(int charge) { m_charge = charge; }
       void setIs2cand(int is2cand) { m_is2cand = is2cand; }
+      void setIsTGC(int isTGC) { m_isTGC = isTGC; }
 
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
@@ -101,6 +104,7 @@ namespace TCS {
       int m_goodMF{0};
       int m_charge{0};
       int m_is2cand{0};
+      int m_isTGC{0};
 
       double m_EtDouble{0};
       double m_etaDouble{0};

@@ -9,8 +9,6 @@
 
 #include <string>
 
-class AGDDPositioner;
-
 class posRPhiZHandler:public XMLHandler {
 public:
         posRPhiZHandler(const std::string&,

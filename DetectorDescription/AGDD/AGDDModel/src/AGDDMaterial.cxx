@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDMaterial.h"
@@ -15,14 +15,17 @@ std::ostream& operator <<(std::ostream& os, const AGDDMaterial &obj)
 	return os;
 }
 
-AGDDMaterial::AGDDMaterial(std::string n,AGDDElement* e, double d):
-	AGDDSimpleMaterial(n,d),m_z(e->GetZ()),m_a(e->GetA()),m_element(e),m_created(false)
+AGDDMaterial::AGDDMaterial(AGDDMaterialStore& ms,
+                           const std::string& n,
+                           AGDDElement* e, double d):
+	AGDDSimpleMaterial(ms,n,d),m_z(e->GetZ()),m_a(e->GetA()),m_element(e),m_matCreated(false)
 {
 	m_mType=Material;
 }
 
-AGDDMaterial::AGDDMaterial(std::string n,int z, double a,double d):
-	AGDDSimpleMaterial(n,d),m_z(z),m_a(a),m_element(0),m_created(false)
+AGDDMaterial::AGDDMaterial(AGDDMaterialStore& ms,
+                           const std::string& n,int z, double a,double d):
+	AGDDSimpleMaterial(ms,n,d),m_z(z),m_a(a),m_element(0),m_matCreated(false)
 {
 	m_mType=Material;
 }

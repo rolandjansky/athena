@@ -139,6 +139,7 @@ def ExampleMonitoringConfig(inputFlags):
         # Using templates for histogram titles or paths
         array1D.defineHistogram('c', title='Layer {0}', path='Keys', xmax=3.)
         array1D.defineHistogram('c;c_alternate', title='Layer', path='Keys/{0}', xmax=3.)
+        array1D.defineHistogram('c;c_{0}_formatted', path='Keys', xmax=3.)
         array2D.defineHistogram('c', title='Cluster {1}, Layer {0}', path='Keys/{1}', xmax=3.)
 
         # Making a histogram only for certain elements of the array

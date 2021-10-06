@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -188,8 +189,8 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          // eTAU
          try {
             auto eTAUThr = dynamic_cast<const TrigConf::L1Threshold_eTAU &>(*thr);
-            jThr["isoConeRel"] = TrigConf::Selection::wpToString(eTAUThr.isoConeRel());
-            jThr["fEM"] = TrigConf::Selection::wpToString(eTAUThr.fEM());
+            jThr["rCore"] = TrigConf::Selection::wpToString(eTAUThr.rCore());
+            jThr["rHad"] = TrigConf::Selection::wpToString(eTAUThr.rHad());
             jThr["value"] = int(eTAUThr.thrValue());
          } catch(std::bad_cast&) {};
          
@@ -372,11 +373,19 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["reta"] = iso.value().reta_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().reta_d();
+               jWPIso["reta"] = std::stod(stream.str());
                jWPIso["reta_fw"] = iso.value().reta_fw();
-               jWPIso["rhad"] = iso.value().rhad_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().rhad_d();
+               jWPIso["rhad"] = std::stod(stream.str());
                jWPIso["rhad_fw"] = iso.value().rhad_fw();
-               jWPIso["wstot"] = iso.value().wstot_d();
+               stream.str(""); 
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().wstot_d();               
+               jWPIso["wstot"] = std::stod(stream.str());
                jWPIso["wstot_fw"] = iso.value().wstot_fw();
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
@@ -389,32 +398,30 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jEM") {
          auto & jeminfo = l1menu.thrExtraInfo().jEM();
-         jThrType["ptMinToTopo"] = json::array_t({});
-         for(auto & x : jeminfo.ptMinToTopoEtaMeV() ) {
-            jThrType["ptMinToTopo"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
-         jThrType["ptMinxTOB"] = json::array_t({});
-         for(auto & x : jeminfo.ptMinxTOBEtaMeV() ) {
-            jThrType["ptMinxTOB"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
+         jThrType["ptMinToTopo1"] = jeminfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = jeminfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = jeminfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = jeminfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = jeminfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = jeminfo.ptMinxTOB("3A");
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : jeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["iso"] = iso.value().iso_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().iso_d();
+               jWPIso["iso"] = std::stod(stream.str());
                jWPIso["iso_fw"] = iso.value().iso_fw();
-               jWPIso["frac"] = iso.value().frac_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().frac_d();
+               jWPIso["frac"] = std::stod(stream.str());
                jWPIso["frac_fw"] = iso.value().frac_fw();
-               jWPIso["frac2"] = iso.value().frac2_d();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().frac2_d();
+               jWPIso["frac2"] = std::stod(stream.str());
                jWPIso["frac2_fw"] = iso.value().frac2_fw();
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
@@ -427,15 +434,21 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "eTAU") {
          auto & eeminfo = l1menu.thrExtraInfo().eTAU();
-         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, TrigConf::Selection::WP::HAD} ) {
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, 
+                         TrigConf::Selection::WP::HADLOOSE, TrigConf::Selection::WP::HADMEDIUM, TrigConf::Selection::WP::HADTIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isoConeRel"] = iso.value().isoConeRel_d();
-               jWPIso["isoConeRel_fw"] = iso.value().isoConeRel_fw();
-               jWPIso["fEM"] = iso.value().fEM_d();
-               jWPIso["fEM_fw"] = iso.value().fEM_fw();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().rCore_d();
+               jWPIso["rCore"] = std::stod(stream.str());
+               jWPIso["rCore_fw"] = iso.value().rCore_fw();
+               stream.str("");
+               stream.clear();
+               stream << std::fixed << std::setprecision(3) << iso.value().rHad_d();
+               jWPIso["rHad"] = std::stod(stream.str());
+               jWPIso["rHad_fw"] = iso.value().rHad_fw();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
@@ -444,28 +457,20 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jTAU") {
          auto & jtauinfo = l1menu.thrExtraInfo().jTAU();
-         jThrType["ptMinToTopo"] = json::array_t({});
-         for(auto & x : jtauinfo.ptMinToTopoEtaMeV() ) {
-            jThrType["ptMinToTopo"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
-         jThrType["ptMinxTOB"] = json::array_t({});
-         for(auto & x : jtauinfo.ptMinxTOBEtaMeV() ) {
-            jThrType["ptMinxTOB"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
+         jThrType["ptMinToTopo1"] = jtauinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = jtauinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = jtauinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = jtauinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = jtauinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = jtauinfo.ptMinxTOB("3A");
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : jtauinfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isolation"] = iso.value().isolation_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().isolation_d();
+               jWPIso["isolation"] = std::stod(stream.str());
                jWPIso["isolation_fw"] = iso.value().isolation_fw();
                jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
@@ -480,7 +485,9 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
-               jWPIso["isolation"] = iso.value().isolation_d();
+               std::stringstream stream;
+               stream << std::fixed << std::setprecision(3) << iso.value().isolation_d();
+               jWPIso["isolation"] = std::stod(stream.str());
                jWPIso["isolation_fw"] = iso.value().isolation_fw();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
@@ -488,43 +495,23 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       }
 
       if(thrType == "jJ") {
-         auto & ei = l1menu.thrExtraInfo().jJ();
-         jThrType["ptMinToTopo"] = json::array_t({});
-         for(auto & x : ei.ptMinToTopoEtaMeV() ) {
-            jThrType["ptMinToTopo"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
-         jThrType["ptMinxTOB"] = json::array_t({});
-         for(auto & x : ei.ptMinxTOBEtaMeV() ) {
-            jThrType["ptMinxTOB"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
+         auto & jjinfo = l1menu.thrExtraInfo().jJ();
+         jThrType["ptMinToTopo1"] = jjinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = jjinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = jjinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = jjinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = jjinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = jjinfo.ptMinxTOB("3A");
       }
 
       if(thrType == "jLJ") {
-         auto & ei = l1menu.thrExtraInfo().jLJ();
-         jThrType["ptMinToTopo"] = json::array_t({});
-         for(auto & x : ei.ptMinToTopoEtaMeV() ) {
-            jThrType["ptMinToTopo"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
-         jThrType["ptMinxTOB"] = json::array_t({});
-         for(auto & x : ei.ptMinxTOBEtaMeV() ) {
-            jThrType["ptMinxTOB"] += json({
-                  {"etamin",x.etaMin()},
-                  {"etamax",x.etaMax()},
-                  {"value",int(x.value()/1000.)},
-               });
-         }
+         auto & jljinfo = l1menu.thrExtraInfo().jLJ();
+         jThrType["ptMinToTopo1"] = jljinfo.ptMinToTopo("1A");
+         jThrType["ptMinToTopo2"] = jljinfo.ptMinToTopo("2A");
+         jThrType["ptMinToTopo3"] = jljinfo.ptMinToTopo("3A");
+         jThrType["ptMinxTOB1"] = jljinfo.ptMinxTOB("1A");
+         jThrType["ptMinxTOB2"] = jljinfo.ptMinxTOB("2A");
+         jThrType["ptMinxTOB3"] = jljinfo.ptMinxTOB("3A");
       }
 
       if(thrType == "jXE") {
@@ -533,7 +520,12 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jTE") {
          auto & ei = l1menu.thrExtraInfo().jTE();
-         jThrType["etaBoundary"] = ei.etaBoundary();   
+         jThrType["etaBoundary1"] = ei.etaBoundary("1A");
+         jThrType["etaBoundary1_fw"] = ei.etaBoundary_fw("1A");
+         jThrType["etaBoundary2"] = ei.etaBoundary("2A");
+         jThrType["etaBoundary2_fw"] = ei.etaBoundary_fw("2A");
+         jThrType["etaBoundary3"] = ei.etaBoundary("3A");
+         jThrType["etaBoundary3_fw"] = ei.etaBoundary_fw("3A");   
       }
 
       if(thrType == "gXE") {

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC16-style simulation using FullG4_LongLived
+# art-description: MC16-style simulation using FullG4_QS
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
@@ -15,7 +15,7 @@ Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
---simulator 'FullG4_LongLived' \
+--simulator 'FullG4_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \

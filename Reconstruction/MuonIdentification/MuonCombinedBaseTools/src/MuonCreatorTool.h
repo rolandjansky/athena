@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloConditions/CaloNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
@@ -218,6 +219,8 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_requireIDTracks{this, "RequireIDTrack", false};
 
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
+
+        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
     };
 
     inline void MuonCreatorTool::setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const { muon.setP4(tp.pt(), tp.eta(), tp.phi()); }

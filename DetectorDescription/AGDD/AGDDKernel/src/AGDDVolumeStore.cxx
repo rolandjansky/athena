@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDVolumeStore.h"
@@ -31,12 +31,6 @@ AGDDVolume* AGDDVolumeStore::GetVolume(std::string name)
 		std::cout << " Volume "<<name<<" not found: returning 0"<<std::endl;
 		return 0;
 	}
-}
-
-AGDDVolumeStore* AGDDVolumeStore::GetVolumeStore()
-{
-	static AGDDVolumeStore* thePointer=new AGDDVolumeStore();
-	return thePointer;
 }
 
 void AGDDVolumeStore::Clean()

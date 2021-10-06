@@ -23,7 +23,7 @@ void muonStationHandler::ElementHandle(AGDDController& c,
 	bool res;
 	std::string name=getAttributeAsString(c, t, "type",res);
 	std::vector<double> vvv=getAttributeAsVector(c, t, "sWidth_lWidth_Tck_Length",res);
-	AGDDMuonStation *b=new AGDDMuonStation(name);
+	AGDDMuonStation *b=new AGDDMuonStation(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetXYZ(vvv);
 	
 	std::string col=getAttributeAsString(c, t, "color",res);

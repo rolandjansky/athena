@@ -56,7 +56,7 @@ TrigConf::DataStructure::setData(ptree&& data)
    clear();
    m_initialized = true;
    m_dataSPtr = std::make_shared<ptree>(move(data));
-   m_dataPtr = &data;
+   m_dataPtr = nullptr;
    update();
 }
 

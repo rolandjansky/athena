@@ -23,4 +23,8 @@ menuMap = {
     "LS2_v1_TriggerValidation_prescale" : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
     "LS2_v1_BulkMCProd_prescale"        : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
     "LS2_v1_CPSampleProd_prescale"      : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "LS2_v1_TriggerValidation_prescale_lowMu" : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Physics_pp_run3_v1_lowMu"                : ["Physics_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "PhysicsP1_pp_run3_v1_lowMu"              : ["Physics_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+
 }

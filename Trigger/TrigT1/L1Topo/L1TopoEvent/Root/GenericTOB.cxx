@@ -117,6 +117,21 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_tobType(etau.tobType())
 {}
 
+// constructor from cTau
+TCS::GenericTOB::GenericTOB(const cTauTOB & ctau) :
+   BaseTOB(ctau.roiWord(), ctau.tobName())
+   , m_Et(ctau.Et())
+   , m_eta(ctau.eta())
+   , m_phi(static_cast<int>(ctau.phi()))
+   , m_EtDouble(ctau.EtDouble())
+   , m_etaDouble(ctau.etaDouble())
+   , m_phiDouble(ctau.phiDouble())
+   , m_reta(ctau.Reta())
+   , m_rhad(ctau.Rhad())
+   , m_wstot(ctau.Wstot())
+   , m_tobType(ctau.tobType())
+{}
+
 // constructor from muon
 TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    BaseTOB(muon.roiWord(), muon.tobName())

@@ -193,10 +193,11 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     // Avoid the events with 0 Et (events below threshold)
     if (Et==0) continue;
 
-    TCS::jTauTOB tau( Et, ieta, uphi );
+    TCS::jTauTOB tau( Et, 0, ieta, uphi );
     tau.setEtaDouble(eta);
     tau.setPhiDouble(phi);
     inputEvent.addjTau( tau );
+    inputEvent.addcTau( tau );
     m_hjTauPt->Fill(tau.EtDouble());
     m_hjTauEtaPhi->Fill(tau.eta(),tau.phi()); 
   }

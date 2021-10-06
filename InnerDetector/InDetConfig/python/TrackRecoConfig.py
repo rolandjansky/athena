@@ -129,7 +129,7 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     return acc
 
 
-def TrackToVertexCfg(flags, name="TrackToVertex", **kwargs):
+def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg

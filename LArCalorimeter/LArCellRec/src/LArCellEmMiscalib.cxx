@@ -61,12 +61,20 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 StatusCode LArCellEmMiscalib::initialize()
 {
   ATH_MSG_INFO( " in LArCellEmMiscalib::initialize()"  );
+  ATH_CHECK(m_caloMgrKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+void LArCellEmMiscalib::initOnce() {
+  StatusCode sc;
+  sc=detStore()->retrieve( m_caloIdMgr );
+  sc.ignore();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  m_calodetdescrmgr = *caloMgrHandle;
 
   static const bool CREATEIFNOTTHERE(true);
-  ATH_CHECK( service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE) );
+  sc=service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE);
+  sc.ignore();
   m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(m_seed,this->name());
 
 
@@ -112,7 +120,7 @@ StatusCode LArCellEmMiscalib::initialize()
   }
 
 
-  return StatusCode::SUCCESS;
+  return;
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -208,8 +216,8 @@ int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 void  LArCellEmMiscalib::MakeCorrection (CaloCell * theCell,
                                          const EventContext& /*ctx*/) const
 {
-
-  
+  LArCellEmMiscalib* thisNC ATLAS_THREAD_SAFE = const_cast<LArCellEmMiscalib*>(this);
+  std::call_once(m_initOnce, &LArCellEmMiscalib::initOnce,thisNC);  
   float energy = theCell->energy();
 
   float weight=1; 

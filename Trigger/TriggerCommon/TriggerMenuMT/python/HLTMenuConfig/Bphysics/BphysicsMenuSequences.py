@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -97,11 +97,7 @@ def dimuEFSequence():
 
 
 def getNoL2CombChainNames():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
-    chains = []
-    if bphysSlice:
-        for chain in bphysSlice:
-            if 'noL2Comb' in chain.name:
-                chains.append(chain.name)
+    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()  # get menu singleton
+    chains = [chain.name for chain in menu.chainsInMenu['Bphysics'] if "noL2Comb" in chain.name]
     return chains

@@ -31,6 +31,10 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
         ConfigFlags.LArShapeDump.HECNoiseNtup=runArgs.outputNTUP_HECNOISEFile
         
+    #protection for LArPEB event:
+    ConfigFlags.Trigger.L1.doMuon=False
+    ConfigFlags.Trigger.L1.doCalo=False
+    ConfigFlags.Trigger.L1.doTopo=False
 
     ConfigFlags.lock()
     

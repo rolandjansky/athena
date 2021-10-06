@@ -278,7 +278,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    # if not flags.Muon.MuonTrigger:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)
     result.merge(acc)

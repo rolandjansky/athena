@@ -36,7 +36,8 @@ CaloDataAccessSvcDependencies = [('TileEMScale'       , 'ConditionStore+TileEMSc
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD'),
                                  ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ),
                                  ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),
-                                 ('LArMCSym'          , 'ConditionStore+LArMCSym')]
+                                 ('LArMCSym'          , 'ConditionStore+LArMCSym'),
+                                 ('LArBadChannelCont' , 'ConditionStore+LArBadChannel')]
 
 
 def CaloOffsetCorrectionCfg(flags):

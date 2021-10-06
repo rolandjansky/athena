@@ -8,8 +8,6 @@
 #include "AGDDControl/XMLHandler.h"
 #include <string>
 
-class AGDDPositioner;
-
 class mposWedgeHandler:public XMLHandler {
 public:
         mposWedgeHandler(const std::string&,

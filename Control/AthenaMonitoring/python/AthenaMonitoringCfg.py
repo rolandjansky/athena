@@ -115,6 +115,11 @@ def AthenaMonitoringCfg(flags):
         from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
         result.merge(LVL1CaloMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doLVL1InterfacesMon:
+        info('Set up LVL1Interfaces monitoring')
+        from TrigT1Monitoring.LVL1InterfacesMonitoringCfg import LVL1InterfacesMonitoringCfg
+        result.merge(LVL1InterfacesMonitoringCfg(flags))
+
     # Check for potentially duplicated histogram definitions
     definedhists = {}
     for algo in result.getEventAlgos():

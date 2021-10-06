@@ -43,7 +43,7 @@ class LArRawDataReadingAlg : public  AthReentrantAlgorithm {
   
   //Other properties:
   BooleanProperty m_verifyChecksum{this,"VerifyChecksum",true,"Calculate and compare checksums to detect data transmission errors"}; 
-  BooleanProperty m_failOnCorruption{this,"FailOnCorruption",true,"Return FAILURE if data corruption is found"};
+  BooleanProperty m_failOnCorruption{this,"FailOnCorruption",false,"Return FAILURE if data corruption is found"};
 
   //Identifier helper
   const LArOnlineID* m_onlineId=nullptr;

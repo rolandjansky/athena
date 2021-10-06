@@ -86,7 +86,9 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu6000'  : 'dimu',
             'bPhi'       : 'dimu',
             'bTau'       : 'dimu',
-            'bBmumux'    : 'bmumux'
+            'b3mu'       : 'dimu',
+            'bBmumux'    : 'bmumux',
+            'b0dRAB12vtx20' : 'dimu'
         }
 
         return topo_dict[the_topo]

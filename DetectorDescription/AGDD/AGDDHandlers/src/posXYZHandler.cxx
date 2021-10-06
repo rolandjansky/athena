@@ -43,6 +43,7 @@ void posXYZHandler::ElementHandle(AGDDController& c,
 		if (posRet) log<<MSG::INFO<<" pos= ("<<X_Y_Z[0]<<";"<<X_Y_Z[1]<<";"<<X_Y_Z[2]<<")"<<endmsg;
 		if (rotRet) log<<MSG::INFO<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")"<<endmsg;
 	}
-	AGDDPositioner *p=new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
-	globals::currentPositioner=p;
+	globals::currentPositioner = 
+	new AGDDPositioner(c.GetPositionerStore(),
+                           c.GetVolumeStore(),volume,GeoTrf::Translation3D(cvec)*crot);
 }

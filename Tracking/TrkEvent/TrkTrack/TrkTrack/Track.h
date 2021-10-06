@@ -124,6 +124,9 @@ namespace Trk
        Track(const TrackInfo& info,
              TrackStates&& trackStateOnSurfaces,
              const FitQuality* fitQuality);
+       Track(const TrackInfo& info,
+             std::unique_ptr<const TrackStates> trackStateOnSurfaces,
+             const FitQuality* fitQuality);
 
        Track(const Track& rhs); //!< copy constructor
 
@@ -210,6 +213,7 @@ namespace Trk
         * Set the TrackStateOnSurfaces. The Trk::Track takes ownership 		            
         */				            
        void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>&& input);
+       void setTrackStateOnSurfaces(std::unique_ptr<const TrackStates> input);
  
        /**									            
         * Returns a const ref to info of a const tracks.           
@@ -279,7 +283,7 @@ namespace Trk
         * These objects link the various parameters related to a surface,
         * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface
         */
-       TrackStates m_trackStateVector{};
+       std::unique_ptr<const TrackStates> m_trackStateVectorPtr;
 
        /**
         * A vector of TrackParameters: these can be any of the classes that

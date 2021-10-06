@@ -22,7 +22,7 @@ void consHandler::ElementHandle(AGDDController& c,
 	std::string material=getAttributeAsString(c, t, "material");
 	std::vector<double> vvv=getAttributeAsVector(c, t, "Rio1_Rio2_Z");
 	
-	AGDDCons *b=new AGDDCons(name);
+	AGDDCons *b=new AGDDCons(name, c.GetVolumeStore(), c.GetSectionStore());
 	b->SetMaterial(material);
 	b->SetRio_Z(vvv);
 	

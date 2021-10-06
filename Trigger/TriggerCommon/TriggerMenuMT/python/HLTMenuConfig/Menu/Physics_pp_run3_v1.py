@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # Physics_pp_run3_v1.py menu for the long shutdown development
@@ -7,7 +7,8 @@
 # This defines the input format of the chain and it's properties with the defaults set
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from .ChainDefInMenu import ChainProp
+from .SignatureDicts import ChainStore
 
 PhysicsStream='Main'
 SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
@@ -72,17 +73,12 @@ UnconvTrkGroup = ['RATE:UnconvTrk', 'BW:UnconvTrk']
 
 def setupMenu():
 
-    from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
     log.info('[setupMenu] going to add the Physics menu chains now')
 
-
-    TriggerFlags.Slices_all_setOff()
-
-    TriggerFlags.TestSlice.signatures = []
-
-    TriggerFlags.MuonSlice.signatures = [
+    chains = ChainStore()
+    chains['Muon'] = [
         #ATR-20049
         ChainProp(name='HLT_2mu6_L12MU5VF',     l1SeedThresholds=['MU5VF'],   groups=SupportGroup+MultiMuonGroup),
         #Planned Primaries
@@ -128,7 +124,7 @@ def setupMenu():
         ChainProp(name='HLT_mu20_msonly_L1MU14FCH',       groups=SupportGroup+SingleMuonGroup),
      ]
 
-    TriggerFlags.EgammaSlice.signatures = [
+    chains['Egamma'] = [
         # Electron Chains----------
         #--------- primary 1e
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
@@ -242,7 +238,7 @@ def setupMenu():
 
     ]
 
-    TriggerFlags.METSlice.signatures = [
+    chains['MET'] = [
         ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
         ChainProp(name='HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup),
         ChainProp(name='HLT_xe60_cell_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup),
@@ -257,7 +253,7 @@ def setupMenu():
         ChainProp(name='HLT_xe80_cell_xe115_tcpufit_L1XE50',l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+MultiMETGroup),
     ]
 
-    TriggerFlags.JetSlice.signatures = [
+    chains['Jet'] = [
         # Support performance chains (for emulation+calibration studies) ATR-20624
         ChainProp(name='HLT_j0_perf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup+SupportLegGroup+['RATE:CPS_RD0FILLED']),
         ChainProp(name='HLT_j0_perf_pf_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup+SupportLegGroup+['RATE:CPS_RD0FILLED']),
@@ -381,7 +377,7 @@ def setupMenu():
         ChainProp(name='HLT_j0_HT1000_pf_ftf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
     ]
 
-    TriggerFlags.BjetSlice.signatures = [
+    chains['Bjet'] = [
         # leave the MV2 chain for now since we don't have a 40% DL1r working point
         ChainProp(name="HLT_j225_0eta290_020jvt_pf_ftf_bmv2c1040_L1J100", l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
 
@@ -413,7 +409,7 @@ def setupMenu():
 
     ]
 
-    TriggerFlags.TauSlice.signatures = [
+    chains['Tau'] = [
         #ATR-20049
         ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100', groups=SupportLegGroup+SingleTauGroup),
         ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100', groups=PrimaryLegGroup+SingleTauGroup), 
@@ -446,8 +442,8 @@ def setupMenu():
         ChainProp(name="HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40",                  l1SeedThresholds=['TAU60','TAU40'],     groups=PrimaryLegGroup+MultiTauGroup), # <-- for physics
 
     ]
-    
-    TriggerFlags.BphysicsSlice.signatures = [
+
+    chains['Bphysics'] = [
         #ATR-20049, dimuon primary triggers
         ChainProp(name='HLT_2mu10_bJpsimumu_L12MU8F', stream=["BphysDelayed"], groups=BphysicsGroup+PrimaryL1MuGroup ),
         ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU8VF_2MU5VF', l1SeedThresholds=['MU8VF','MU5VF'], stream=["BphysDelayed"], groups=BphysicsGroup+PrimaryL1MuGroup ),
@@ -474,8 +470,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_2mu4_bDimu6000_L1MU5VF_3MU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+PrimaryL1MuGroup),
         ChainProp(name='HLT_4mu4_bDimu6000_L14MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+PrimaryL1MuGroup),
     ]
-    
-    TriggerFlags.CombinedSlice.signatures = [
+
+    chains['Combined'] = [
 
         # tau + muon triggers
         ChainProp(name='HLT_mu20_ivarloose_tau20_medium1_tracktwo_03dRAB_L1MU14FCH', l1SeedThresholds=['MU14FCH','TAU8'], stream=[PhysicsStream], groups=SupportLegGroup+MuonTauGroup),
@@ -563,19 +559,16 @@ def setupMenu():
         #Support
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream], groups=UnconvTrkGroup+SupportLegGroup),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_medium_iaggrloose_L1XE50', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],  groups=UnconvTrkGroup+SupportLegGroup),
-   ]
-    TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = []
-    TriggerFlags.MinBiasSlice.signatures   = []
-    TriggerFlags.CalibSlice.signatures     = []
-    TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = []
-    TriggerFlags.MonitorSlice.signatures   = [
+    ]
+    chains['MinBias'] = [
+        ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',    l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_sp_L1RD0_FILLED',       l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'],     groups=['PS:Online']+LowMuGroup+MinBiasGroup),
+        ChainProp(name='HLT_mb_alfaperf_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'],     groups=['PS:Online']+LowMuGroup+MinBiasGroup),
+    ]
+
+    chains['Monitor'] = [
         ChainProp(name='HLT_noalg_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['Primary:CostAndRate', 'RATE:Monitoring', 'BW:Other']), # HLT_costmonitor
     ]
 
-    # Random Seeded EB chains which select at the HLT based on L1 TBP bits
-    TriggerFlags.EnhancedBiasSlice.signatures = [ ]
-
-    TriggerFlags.UnconventionalTrackingSlice.signatures = [
- ]
+    return chains

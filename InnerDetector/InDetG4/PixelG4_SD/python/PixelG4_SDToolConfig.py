@@ -45,7 +45,7 @@ def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
     bare_collection_name = "ITkPixelHits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "ITkPixelHits"
-    region = "ID"
+    region = "ITk"
 
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
                                                     bare_collection_name,

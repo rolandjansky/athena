@@ -247,9 +247,6 @@ def createTriggerFlags():
     # tune of MVA
     flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
 
-    # muons
-    flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
-
     # muon offline reco flags varaint for trigger
     def __muonSA():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
@@ -311,11 +308,6 @@ def createTriggerFlags():
     # configForStartup
     # the flags related to trigger DB are redundant of triggerConfig - need to decide if they are needed in this form
     # also not defined the Prescale sets yet
-    # in signatures
-    # egamma: ringerVersion - not used
-    # muon: doMuonCalibrationStream - not used
-    # tau: doTrackingApproach - not used
-
 
     
 import unittest

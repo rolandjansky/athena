@@ -49,7 +49,7 @@ def precisionPhotonRecoSequence(RoIs):
     thesequence += trigPhotonAlgo
 
     trigTopoEgammaAlgo = TrigTopoEgammaPhotons()
-    trigTopoEgammaAlgo.SuperPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
+    trigTopoEgammaAlgo.InputPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += trigTopoEgammaAlgo
 

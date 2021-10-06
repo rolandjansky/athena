@@ -4,6 +4,7 @@
 
 #include "AGDDHandlers/compositeHandler.h"
 #include "AGDDControl/XercesParser.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDHandlers/AddMaterial.h"
 #include "AGDDModel/AGDDMolecule.h"
 #include "AGDDModel/AGDDMixture.h"
@@ -39,20 +40,20 @@ void compositeHandler::ElementHandle(AGDDController& c,
 	if (globals::addMaterial.natoms.size())
 	{
 		// it's a molecule
-		AGDDMolecule *m=new AGDDMolecule(name,density);
+		AGDDMolecule *m=new AGDDMolecule(c.GetMaterialStore(),name,density);
 		for (unsigned int i=0;i<globals::addMaterial.natoms.size();i++)
 		{
-			m->AddElement(globals::addMaterial.names[i]);
+			m->AddElement(c.GetMaterialStore(), globals::addMaterial.names[i]);
 			m->NAtoms(globals::addMaterial.natoms[i]);
 		}
 	}
 	else if (globals::addMaterial.fractions.size())
 	{
 		// it's a mixture
-		AGDDMixture *m=new AGDDMixture(name,density);
+		AGDDMixture *m=new AGDDMixture(c.GetMaterialStore(),name,density);
 		for (unsigned int i=0;i<globals::addMaterial.fractions.size();i++)
 		{
-			m->AddMaterial(globals::addMaterial.names[i]);
+			m->AddMaterial(c.GetMaterialStore(), globals::addMaterial.names[i]);
 			m->Fraction(globals::addMaterial.fractions[i]);
 		}
 		

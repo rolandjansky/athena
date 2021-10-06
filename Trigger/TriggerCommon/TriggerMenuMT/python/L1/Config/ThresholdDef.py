@@ -107,20 +107,23 @@ class ThresholdDef:
 
         # eEM 
         for thrV in [3, 5, 8, 15, 20, 22]:
-            #eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
-            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%i'% thrV, 'eEM'), pt = thrV, shift_set = 1 )
+            eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%i'% thrV, 'eEM'), pt = thrV, shift_set = 1 )
 
         # L section (used to be VH in Run2)
         for thrV in [8,10,15,20,22]:
-            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
+            eEMThreshold('eEM%iL' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
 
         # M section (used to be VHI in Run2)
         for thrV in [8,15,20,22]:
-            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
+            eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
 
         # T section (used to be VHIM in Run2)
         for thrV in [22]:
-            ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iT' % thrV, 'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt= thrV, shift_set = 1 )
+            eEMThreshold('eEM%iT' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" )
+            #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iT' % thrV, 'eEM').setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" ), pt= thrV, shift_set = 1 )
 
         # jEM
         for thrV in [15]:
@@ -134,11 +137,11 @@ class ThresholdDef:
             eTauThreshold('eTAU%i' % et, 'eTAU').setEt(et)
 
         for et in [12]:
-            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Loose" )
+            eTauThreshold('eTAU%iL' % et, 'eTAU').setEt(et).setIsolation( rCore = "Loose" )
         for et in [12]:
-            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( isoConeRel = "Medium" )
+            eTauThreshold('eTAU%iM' % et, 'eTAU').setEt(et).setIsolation( rCore = "Medium" )
         for et in [30]:
-            eTauThreshold('eTAU%iH' % et, 'eTAU').setEt(et).setIsolation( fEM = "Had" )
+            eTauThreshold('eTAU%iHM' % et, 'eTAU').setEt(et).setIsolation( rHad = "HadMedium" )
   
         # cTAU
         for et in [12, 20, 25]:

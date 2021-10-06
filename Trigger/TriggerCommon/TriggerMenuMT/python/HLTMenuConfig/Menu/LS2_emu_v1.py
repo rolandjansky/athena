@@ -1,33 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#------------------------------------------------------------------------#
-#------------------------------------------------------------------------#
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-
+from .ChainDefInMenu import ChainProp
+from .SignatureDicts import ChainStore
 
 def setupMenu():
 
-    from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-
-    # IMPORTANT: Needs to be commented in again!
-    #PhysicsStream = "Main"
-
-    #---------------------------------------------------------------------
-    # INPUT FORMAT FOR CHAINS:
-    # ['chainName', [L1 thresholds for chainParts], [stream], [groups]], 
-    # OPTIONAL: [mergingStrategy, offset,[merginOrder] ]], topoStartsFrom = False
-    #---------------------------------------------------------------------
-    #---------------------------------------------------------------------
-    # if it's needed to temporary remove almost all the chains from the menu
-    # be aware that it is necessary to leave at least one chain in the muon slice
-    # otherwise athenaHLT will seg-fault 
-    #---------------------------------------------------------------------
-
     log = logging.getLogger( __name__ )
     log.info('Executing menu....')
 
-    TriggerFlags.TestSlice.signatures = [
+    chains = ChainStore()
+
+    chains['Test'] = [
         # muons
         ChainProp(name='HLT_TestChain8_muv1step_L1MU5VF', stream=['Main'], groups=['RATE:Test','BW:Other'] ),
         ChainProp(name='HLT_TestChain8_muv1_L1MU8F', stream=['Main'], groups=['RATE:Test','BW:Other'] ),
@@ -55,34 +39,7 @@ def setupMenu():
         ChainProp(name='HLT_2TestChain4_muv1dr_L12MU5VF', stream=['Main'], groups=['RATE:Test','BW:Other'] ),
 
         # FSNOSEED not implemented in emulation
-        ChainProp(name='HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU5VF',  l1SeedThresholds=['MU5VF','MU5VF'],  stream=['Main'], groups=['RATE:Test','BW:Other'], mergingStrategy = 'parallel') 
-        
-        ]
+        ChainProp(name='HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU5VF',  l1SeedThresholds=['MU5VF','MU5VF'],  stream=['Main'], groups=['RATE:Test','BW:Other'], mergingStrategy = 'parallel'),
+    ]
 
-
-    
-    TriggerFlags.EgammaSlice.signatures =  [
-    # ElectronChains----------
-#        ChainProp(name='HLT_e3_etcut_L1EM3', stream=['Main'], groups=['RATE:Test','BW:Other'])
-        ]
-
-
-    TriggerFlags.MuonSlice.signatures = []
-    TriggerFlags.CombinedSlice.signatures = []
-    TriggerFlags.JetSlice.signatures = []
-    TriggerFlags.BjetSlice.signatures = [] 
-    TriggerFlags.METSlice.signatures = []
-    TriggerFlags.TauSlice.signatures = []
-    TriggerFlags.BphysicsSlice.signatures  = []
-    TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = []   
-    TriggerFlags.MinBiasSlice.signatures   = []    
-    TriggerFlags.CalibSlice.signatures     = []
-    TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = [] 
-    TriggerFlags.MonitorSlice.signatures   = []
-
-    # Random Seeded EB chains which select at the HLT based on L1 TBP bits
-    TriggerFlags.EnhancedBiasSlice.signatures = [ ]
-
-
+    return chains
