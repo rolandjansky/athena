@@ -6,8 +6,8 @@
 #define G4AT_LARHITSTESTTOOL
 
 #include "SimTestToolBase.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "StoreGate/ReadCondHandleKey.h"
+
+class CaloDetDescrManager;
 
 class LArHitsTestTool : public SimTestToolBase {
 
@@ -45,10 +45,7 @@ public:
   TH1 *m_etot_eta, *m_etot_phi;
 
  private:
-  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
-      , "CaloDetDescrManager"
-      , "CaloDetDescrManager"
-      , "SG Key for CaloDetDescrManager in the Condition Store" };
+  const CaloDetDescrManager* m_caloMgr{nullptr};
 
 };
 
