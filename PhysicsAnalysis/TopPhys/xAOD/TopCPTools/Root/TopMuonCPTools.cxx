@@ -155,22 +155,22 @@ namespace top {
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsTool
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsTool",
-                        muonQuality_name,
-                        false);
+                        muonQuality_name
+                        );
 
     std::string muonQualityLoose_name = m_config->muonQualityLoose();
     if (m_config->muonQualityLoose() == "HighPt" && !(m_config->muonUse2stationMuonsHighPtLoose()) ) muonQualityLoose_name = "HighPt3Layers";
     if (m_config->muonQualityLoose() == "LowPt" && m_config->muonUseMVALowPtLoose()) muonQualityLoose_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsToolLoose
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLoose",
-                        muonQualityLoose_name,
-                        false);
+                        muonQualityLoose_name
+                        );
 
     if (m_config->muonQuality() == "HighPt" || m_config->muonQualityLoose() == "HighPt") {
       m_muonEfficiencyCorrectionsToolLoose
         = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolBadMuonVeto",
-                          "BadMuonVeto_HighPt",
-                          false);
+                          "BadMuonVeto_HighPt"
+                          );
     }
 
     //now the soft muon part
@@ -179,8 +179,8 @@ namespace top {
     if (m_config->useSoftMuons()) {
       m_softmuonEfficiencyCorrectionsTool
         = setupMuonSFTool("CP::SoftMuonEfficiencyScaleFactorsTool",
-			                    softmuonQuality_name,
-                          false);
+			                    softmuonQuality_name
+                          );
     }
     
     /************************************************************
@@ -196,8 +196,8 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSF() + "Iso";
       m_muonEfficiencyCorrectionsToolIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
-                        muon_isolation,
-                        true);
+                        muon_isolation
+                        );
     }
 
     // Do we have isolation on our loose muons? If not no need for the tool...
@@ -206,8 +206,8 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSFLoose() + "Iso";
       m_muonEfficiencyCorrectionsToolLooseIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
-                        muon_isolation,
-                        true);
+                        muon_isolation
+                        );
     }
 
     /************************************************************
@@ -218,8 +218,8 @@ namespace top {
     ************************************************************/
     m_muonEfficiencyCorrectionsToolTTVA
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolTTVA",
-                        "TTVA",
-                        false);
+                        "TTVA"
+                        );
 
     // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
     //         - Hence we need to fail if this has occured
@@ -289,7 +289,7 @@ namespace top {
   }
 
   CP::IMuonEfficiencyScaleFactors*
-  MuonCPTools::setupMuonSFTool(const std::string& name, const std::string& WP, const bool isIso) {
+  MuonCPTools::setupMuonSFTool(const std::string& name, const std::string& WP) {
     CP::IMuonEfficiencyScaleFactors* tool = nullptr;
     if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>(name)) {
       tool = asg::ToolStore::get<CP::MuonEfficiencyScaleFactors>(name);
@@ -304,10 +304,8 @@ namespace top {
                    "Failed to set CustomInputFolder property for MuonEfficiencyScaleFactors tool");
       }
 
-      if (!isIso) {
-        top::check(asg::setProperty(tool, "BreakDownSystematics", m_config->muonBreakDownSystematics()), 
+      top::check(asg::setProperty(tool, "BreakDownSystematics", m_config->muonBreakDownSystematics()), 
                   "Failed to set BreakDownSystematics for " + name + " tool");
-      }
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

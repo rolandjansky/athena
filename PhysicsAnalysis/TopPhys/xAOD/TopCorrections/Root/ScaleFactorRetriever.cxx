@@ -1115,6 +1115,122 @@ namespace top {
       }
     }
 
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_LUMI_UNCERT_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_LUMI_UNCERT_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_BKG_FRACTION_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_BKG_FRACTION_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MC_XSEC_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MC_XSEC_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MLLWINDOW_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MLLWINDOW_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_QCD_TEMPLATE_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_QCD_TEMPLATE_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SUPRESSION_SCALE_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SUPRESSION_SCALE_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_DRMUJ_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_DRMUJ_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_PROBEQ_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_PROBEQ_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SHERPA_POWHEG_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SHERPA_POWHEG_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_DOWN");
+      }
+    }
+
     return sf;
   }
 
