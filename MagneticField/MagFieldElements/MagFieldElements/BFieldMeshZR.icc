@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -40,9 +40,9 @@ inline BFieldMeshZR::BFieldMeshZR(double zmin,
                                   double zmax,
                                   double rmin,
                                   double rmax)
+  : m_min { zmin, rmin },
+    m_max { zmax, rmax }
 {
-  m_min = { zmin, rmin };
-  m_max = { zmax, rmax };
 }
 
 inline void
