@@ -45,10 +45,11 @@ void pgonHandler::ElementHandle(AGDDController& c,
 
     DOMNode* child;
 
+    IAGDDParser& parser = *c.GetParser();
     for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
     {
         if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-        	XercesParser::elementLoop(c, child);
+        	parser.elementLoop(c, child);
                 Polyplane p=polyplaneHandler::CurrentPolyplane();
                 vol->SetPlane(p.rin(),p.rou(),p.z());
         }

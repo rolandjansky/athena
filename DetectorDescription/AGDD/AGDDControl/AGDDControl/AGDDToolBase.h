@@ -9,6 +9,7 @@
 #include "AGDDControl/IAGDD2GeoSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 class AGDDController;
 
@@ -17,8 +18,8 @@ class AGDDToolBase: public extends<AthAlgTool, IAGDDToolBase>
 public:
   AGDDToolBase(const std::string& type, const std::string& name, const IInterface* parent);
   ~AGDDToolBase()=default;
-  virtual StatusCode initialize();
-  virtual StatusCode construct() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
+  virtual StatusCode construct ATLAS_NOT_THREAD_SAFE () override {return StatusCode::SUCCESS;}
 protected:
   void InitializeAGDD();
 

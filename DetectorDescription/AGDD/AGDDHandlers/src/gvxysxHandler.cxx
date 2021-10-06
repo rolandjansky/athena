@@ -60,11 +60,12 @@ void gvxysxHandler::ElementHandle(AGDDController& c,
 		std::vector<TwoPoint> points;	
 		StopLoop(true);
 		
+                IAGDDParser& parser = *c.GetParser();
 		DOMNode *child;
 		for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
 		{
 			if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-				XercesParser::elementLoop(c, child);
+				parser.elementLoop(c, child);
 				TwoPoint p=gvxy_pointHandler::CurrentTwoPoint();
 				points.push_back(p);
 			}

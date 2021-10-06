@@ -49,33 +49,35 @@ public:
 	// elements & materials 
 	GeoElement* CreateElement(const std::string&) const;
 	const GeoMaterial* CreateMaterial(const std::string&) const;
-	void CreateElements() const override;
-	void CreateMaterial() const override;
+	virtual void CreateElements() const override;
+	virtual void CreateMaterial() const override;
 		
-	void CreateBox(AGDDBox*) const override;
-	void CreateTrd(AGDDTrd*) const override;
-	void CreateTubs(AGDDTubs*) const override;
-	void CreateElcyl(AGDDElcyl*) const override;
-	void CreateCons(AGDDCons*) const override;
-	void CreatePcon(AGDDPcon*) const override;
-	void CreatePgon(AGDDPgon*) const override;
-	void CreateGvxy(AGDDGvxy*) const override;
-	void CreateSnake(AGDDSnake*) const override;
-	void CreateUnion(AGDDUnion*) const override;
-	void CreateIntersection(AGDDIntersection*) const override;
-	void CreateSubtraction(AGDDSubtraction*) const override;
+	virtual void CreateBox(AGDDBox*) const override;
+	virtual void CreateTrd(AGDDTrd*) const override;
+	virtual void CreateTubs(AGDDTubs*) const override;
+	virtual void CreateElcyl(AGDDElcyl*) const override;
+	virtual void CreateCons(AGDDCons*) const override;
+	virtual void CreatePcon(AGDDPcon*) const override;
+	virtual void CreatePgon(AGDDPgon*) const override;
+	virtual void CreateGvxy(AGDDGvxy*) const override;
+	virtual void CreateSnake(AGDDSnake*) const override;
+	virtual void CreateUnion(AGDDUnion*) const override;
+	virtual void CreateIntersection(AGDDIntersection*) const override;
+	virtual void CreateSubtraction(AGDDSubtraction*) const override;
 	
-	void CreateBolt(AGDDBolt*) const override;
-	void CreateIbeam(AGDDIbeam*) const override;
-	void CreateUbeam(AGDDUbeam*) const override;
+	virtual void CreateBolt(AGDDBolt*) const override;
+	virtual void CreateIbeam(AGDDIbeam*) const override;
+	virtual void CreateUbeam(AGDDUbeam*) const override;
 	
-	void CreateVolume(AGDDVolume*) const override;
-	void CreateComposition(AGDDComposition*) const override;
+	virtual void CreateVolume(AGDDVolume*) const override;
+	virtual void CreateComposition(AGDDComposition*) const override;
 
-	void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
-	void BuildAllVolumes() const;
-	void BuildFromSection(const std::string&) const override;
-	void BuildFromVolume(const std::string&) const override;
+	virtual void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
+	virtual void BuildAllVolumes() const;
+	virtual void BuildFromSection(const std::string&) const override;
+	virtual void BuildFromVolume(const std::string&) const override;
+
+        virtual const StoredMaterialManager& GetMaterialManager() const override;
 
 private:
 	GeoPhysVol *m_mother;
