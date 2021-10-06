@@ -87,9 +87,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble jet collection name based on reco dictionary
     # ----------------------
     def _setJetName(self):
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         from ..Menu.ChainDictTools import splitChainDict
-        #from .JetRecoConfiguration import getHLTPrefix, jetDefNeedsTracks, defineJetConstit, interpretRecoAlg
         from .JetRecoSequences import JetRecoConfiguration
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
         try:
