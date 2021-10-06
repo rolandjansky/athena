@@ -1,13 +1,14 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 # menu components
-from AthenaCommon.CFElements import seqAND
-from ..Menu.MenuComponents import MenuSequence
+from AthenaCommon.CFElements import seqAND, findAllAlgorithms
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-#from AthenaCommon.Constants import DEBUG
-
+from ..Menu.MenuComponents import MenuSequence
 # ====================================================================================================
 #    Get MenuSequences
 # ====================================================================================================
@@ -23,8 +24,6 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # todo: pass in more information, i.e. jet collection name
 def getBJetSequence(jc_name):
-
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     config=getInDetTrigConfig('jet')
     prmVtxKey = config.vertex
@@ -64,7 +63,6 @@ def getBJetSequence(jc_name):
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
     secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
 
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
     with ConfigurableRun3Behavior():
         # Flavour Tagging
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
@@ -76,15 +74,16 @@ def getBJetSequence(jc_name):
             inputMuons=None
         )
 
-    #Conversion of flavour-tagging algorithms from new to old-style
-    from AthenaCommon.CFElements import findAllAlgorithms
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-    AllFlavourTaggingAlgs = []
-    for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
-        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
+    # Conversion of flavour-tagging algorithms from new to old-style
+    # 1) We need to do the alogorithms manually and then remove them from the CA
+    flavourTaggingAlgs = [conf2toConfigurable(alg)
+                          for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
+    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + flavourTaggingAlgs )
+    acc_flavourTaggingAlgs._sequence = []
 
-    acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
-    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
+    # 2) the rest is done by the generic helper
+    appendCAtoAthena(acc_flavourTaggingAlgs)
+
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
 
     # Sequence
