@@ -145,6 +145,7 @@ JetChainParts = {
        'preselj135',       #L1J50, #L1J100
        'presel2j135',      #L1J50, L1J100
        'presel2j135XXj60', #L1J50, L1J100
+       'presel3j100',      #L1J100
        'presel4j33',       #L13J50
        'presel5j24',       #L14J15
        'presel6j36',       #L14J15
@@ -153,6 +154,7 @@ JetChainParts = {
        'preselj180',       #L1J100
        'presel2j180',      #L1J100
        'presel2j180XXj80', #L1J100
+       'presel3j125',      #L1J100
        'presel4j55',       #L13J50
        'presel5j35',       #L14J15
        'presel6j40',       #L14J15
@@ -161,6 +163,7 @@ JetChainParts = {
        'preselj225',        #L1J100
        'presel2j225',       #L1J100
        'presel2j225XXj100', #L1J100
+       'presel3j150',       #L1J100
        'presel4j85',        #L13J50
        'presel5j50',        #L14J15
        'presel6j45',        #L14J15
