@@ -18,6 +18,8 @@ def getHLTPrefix():
     prefix = "HLT_"
     return prefix
 
+### functions to interpret reco dict and get parameters
+
 def interpretJetCalibDefault(recoDict):
     if recoDict['recoAlg'] == 'a4':
         if recoDict['constitType'] == 'tc':
@@ -47,6 +49,17 @@ def extractCleaningsFromPrefilters(prefilters_list):
     else:
         raise RuntimeError(
             'Multijet jet cleanings found in jet trigger reco dictionary {}. Multiple jet cleanings are currently unsupported'.format(found_cleanings))
+
+def getClustersKey(recoDict):
+        clusterCalib = recoDict["clusterCalib"]
+        if clusterCalib == "em":
+            from ..CommonSequences.FullScanDefs import em_clusters
+            return em_clusters
+        elif clusterCalib == "lcw":
+            from ..CommonSequences.FullScanDefs import lc_clusters
+            return lc_clusters
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(clusterCalib))
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
