@@ -141,6 +141,8 @@ StatusCode CaloCellContainerFromClusterTool::initialize() {
     m_cellName = "";
   }
 
+  ATH_CHECK(m_caloMgrKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -151,9 +153,10 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
   unsigned nCells=0;
   //Build bitmap to keep track which cells have been added to reducedCellContainer;
   std::bitset<200000> addedCellsMap;
+  
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
-  const CaloDetDescrManager* caloDDMgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(caloDDMgr, "CaloMgr") );
   //Loop over list cluster container keys
   for (const SG::ReadHandleKey<xAOD::CaloClusterContainer>& clusKey :
          m_clusterKeys)

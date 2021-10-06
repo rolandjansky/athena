@@ -47,7 +47,7 @@ bool setupStoreGate (std::string progname,
       opts.push_back("ApplicationMgr.Dlls += { \"StoreGate\" };");
       //opts.push_back("ApplicationMgr.Dlls += { \"CLIDSvc\" };");
       opts.push_back("ApplicationMgr.ExtSvc += { \"ClassIDSvc\" };");
-      opts.push_back("ApplicationMgr.ExtSvc += { \"StoreGateSvc\", \"StoreGateSvc/DetectorStore\", \"StoreGateSvc/HistoryStore\" };");
+      opts.push_back("ApplicationMgr.ExtSvc += { \"StoreGateSvc\", \"StoreGateSvc/DetectorStore\", \"StoreGateSvc/ConditionStore\", \"StoreGateSvc/HistoryStore\" };");
       opts.push_back("ApplicationMgr.ExtSvc += { \"ActiveStoreSvc\" };");
       opts.push_back("AuditorSvc.Auditors  += { \"AlgContextAuditor\"};");
       opts.push_back("StoreGateSvc.OutputLevel = 2;");
