@@ -252,7 +252,24 @@ trackExpression='( count('+stdTrackRequirements+') + count('+pixTrackRequirement
 applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
 jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
 jetSelection = '(count('+jetRequirements+') >= 1)'
-expression='('+jetSelection+')' # JEFF: add jet selection
+#expression='('+jetSelection+')' # JEFF: add jet selection
+
+expression='('+jetSelection+'&& MET_Reference_AntiKt4EMPFlow["FinalTrk"].met > 200*GeV '+')' # Sicong: add met cut > 200 GeV
+
+
+met_var = 'MET_Core_AntiKt4EMPFlow["PVSoftTrkCore"]'
+dPhi_Limit = 0.2
+dPhi_expr_list = [
+ "(abs(%s.phi +(%.0f)*3.1415- AntiKt4EMPFlowJets.phi) < %.2f )"%(met_var,0,dPhi_Limit)
+,"(abs(%s.phi +(%.0f)*3.1415- AntiKt4EMPFlowJets.phi) < %.2f )"%(met_var,-2,dPhi_Limit)
+,"(abs(%s.phi +(%.0f)*3.1415- AntiKt4EMPFlowJets.phi) < %.2f )"%(met_var,+2,dPhi_Limit)
+]
+
+jetDPhiRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 30*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8 && (%s)'%(" || ".join(dPhi_expr_list))
+print("jetDPhiRequirements: ", jetDPhiRequirements) 
+jetDPhiSelection = '(count('+jetDPhiRequirements+') == 0)'
+expression = '('+expression+" && "+jetDPhiSelection+')'
+# Adding jet dphi;
 isPileUp=True
 isPileUp=False
 if isPileUp:
@@ -272,8 +289,7 @@ ToolSvc += SUSY20LeptonSkimmingTool # JEFF: turn this back on to add jet skimmin
 # JetMET trigger name contained ' - ' cause crash when using xAODStringSkimmingTool
 from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation
 #trigReq=triggersMET+triggersSoftMuon+triggersJetPlusMet
-#trigReq=triggersMET+triggersSoftMuon
-trigReq=triggersMET
+trigReq=triggersMET+triggersSoftMuon
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
 SUSY20InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20InclusiveTriggerSkimmingTool",
                                                                                TriggerListOR = trigReq)
