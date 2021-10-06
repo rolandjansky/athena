@@ -565,16 +565,6 @@ ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
 
-
-# B-jet output
-if opt.doBjetSlice:
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
-    alias = ["HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
-    alias += ["HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_b->HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_b,AntiKt4EMTopo"]
-    condSeq += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.Run2TrigTaggers+ConfigFlags.BTagging.Run3NewTrigTaggers, NewChannel = alias)
-
 #-------------------------------------------------------------
 # Output configuration
 #-------------------------------------------------------------

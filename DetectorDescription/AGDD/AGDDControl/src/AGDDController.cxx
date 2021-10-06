@@ -12,6 +12,7 @@
 #include "AGDDKernel/AGDDPositioner.h"
 #include "AGDDKernel/AliasStore.h"
 #include "AGDDModel/AGDDParameterStore.h"
+#include "AGDDModel/AGDDMaterialStore.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
@@ -28,27 +29,6 @@
 #include <TString.h> // for Form
 #include <iostream>
 
-std::vector<const GeoLogVol*> volumeMap;
-
-void navigateVolumeContents(const GeoVPhysVol *pv, unsigned int ilev)
-{
-	const GeoLogVol *cvl = pv->getLogVol();
-	std::string vname = cvl->getName();
-	if (std::find(volumeMap.begin(),volumeMap.end(),cvl)!=volumeMap.end())
-	{
-	}
-	else
-	{
-		volumeMap.push_back(cvl);
-	}
-	unsigned int ivol=pv->getNChildVols();
-	for (unsigned int i=0;i<ivol;i++)
-	{
-		const GeoVPhysVol *child=&(*(pv->getChildVol(i)));
-		navigateVolumeContents(child,ilev+1);
-	}
-}
-
 AGDDController::~AGDDController()
 {
 	if (m_theParser) delete m_theParser;
@@ -59,8 +39,7 @@ AGDDController::AGDDController()
   : m_theBuilder(0),m_locked(false),m_disableSections(false),
     m_printLevel(0)
 {
-//	m_theParser=new AMDBParser;
-	m_theParser=new XercesParser;
+	m_theParser=new XercesParser (m_xs);
 	m_theBuilder=new AGDD2GeoModelBuilder (m_ds, m_vs, m_ss, m_as, m_ms);
 }
 
@@ -96,7 +75,7 @@ void AGDDController::AddVolume(const std::string& section)
 
 void AGDDController::ParseFiles()
 {
-	if (!m_theParser) m_theParser=new XercesParser;
+        if (!m_theParser) m_theParser=new XercesParser(m_xs);
 	for (unsigned int i=0;i<m_filesToParse.size();i++) {
 		if (!m_theParser->ParseFileAndNavigate(*this, m_filesToParse[i])) throw std::runtime_error(Form("File: %s, Line: %d\nAGDDController::ParseFiles() - Could parse file %s.", __FILE__, __LINE__, m_filesToParse[i].c_str()));
 	}
@@ -130,8 +109,8 @@ void AGDDController::PrintSections() const
 
 void AGDDController::ParseString(const std::string& s)
 {
-	if (!m_theParser) m_theParser=new XercesParser;
-	m_theParser->ParseStringAndNavigate(*this, s);
+       if (!m_theParser) m_theParser=new XercesParser(m_xs);
+       m_theParser->ParseStringAndNavigate(*this, s);
 }
 
 bool AGDDController::WriteAGDDtoDBFile(const std::string& s)
@@ -147,7 +126,7 @@ bool AGDDController::WriteAGDDtoDBFile(const std::string& s)
 	}
 }
 
-void AGDDController::UseGeoModelDetector(const std::string& name)
+void AGDDController::UseGeoModelDetector ATLAS_NOT_THREAD_SAFE (const std::string& name)
 {
 	StoreGateSvc* pDetStore=0;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -208,6 +187,12 @@ void AGDDController::Clean()
 	m_vs.Clean();
 }
 
+XMLHandlerStore& AGDDController::GetHandlerStore()
+{
+  return m_xs;
+}
+
+
 AGDDVolumeStore& AGDDController::GetVolumeStore()
 {
   return m_vs;
@@ -256,3 +241,7 @@ AliasStore& AGDDController::GetAliasStore()
 }
 
 
+ExpressionEvaluator& AGDDController::Evaluator()
+{
+  return m_eval;
+}

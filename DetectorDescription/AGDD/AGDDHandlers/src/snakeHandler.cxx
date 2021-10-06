@@ -36,14 +36,15 @@ void snakeHandler::ElementHandle(AGDDController& c,
 	StopLoop(true);
 	DOMNode* child;
 
-    for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
-    {
-        if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-                XercesParser::elementLoop(c, child);
-		GeoTrf::Vector3D p=snake_pointHandler::CurrentPoint();
-		points.push_back(p);
-       }
-    }
+        IAGDDParser& parser = *c.GetParser();
+        for (child=t->getFirstChild();child!=0;child=child->getNextSibling())
+        {
+          if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
+            parser.elementLoop(c, child);
+            GeoTrf::Vector3D p=snake_pointHandler::CurrentPoint();
+            points.push_back(p);
+          }
+        }
 	
 	int nPoints=points.size();
 	for (int i=0;i<nPoints;i++)

@@ -19,13 +19,11 @@ typedef std::map<std::string,XMLHandler*,std::less<std::string> > handlerStore;
 
 class XMLHandlerStore:public handlerStore {
 public:
-	static XMLHandlerStore* GetHandlerStore();
+	XMLHandlerStore();
 	void RegisterHandler(XMLHandler*);
+        XMLHandler* GetHandler(const std::string& name);
 	XMLHandler* GetHandler(xercesc::DOMNode *);
 	void Handle(AGDDController& c, xercesc::DOMNode *);
-private:
-	XMLHandlerStore();
-	static XMLHandlerStore *s_theStore;
 };
 
 #endif

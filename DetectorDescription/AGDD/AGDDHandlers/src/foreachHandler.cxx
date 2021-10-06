@@ -24,20 +24,21 @@ void foreachHandler::ElementHandle(AGDDController& c,
 	int ibegin=getAttributeAsInt(c, t, "begin");
 	int iloops=getAttributeAsInt(c, t, "loops");
 	StopLoop(true);
-	Evaluator().RegisterVariable(index,ibegin);
+	c.Evaluator().RegisterVariable(index,ibegin);
 	
+        IAGDDParser& parser = *c.GetParser();
 	DOMNode *fChild=t->getFirstChild();
 	for (int i=ibegin;i<ibegin+iloops;i++)
 	{
 			
 //			std::cout<<"\t\tindex "<<i<<std::endl;
-			Evaluator().RegisterVariable(index,i);
+			c.Evaluator().RegisterVariable(index,i);
 			
 			DOMNode *child;
 			for (child=fChild;child!=0;child=child->getNextSibling())
 			{
 				if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
-                                  XercesParser::elementLoop(c, child);
+                                  parser.elementLoop(c, child);
 				}
 			}
 			

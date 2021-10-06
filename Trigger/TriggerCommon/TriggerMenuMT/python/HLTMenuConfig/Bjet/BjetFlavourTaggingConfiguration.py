@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -10,6 +10,7 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
+from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
                        inputMuons = ""):
@@ -45,6 +46,11 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         Associator="BTagTrackToJetAssociator",
         TrackCollection=inputTracks,
     ))
+
+    # Jet Calibration
+    acc.merge(JetTagCalibCfg(ConfigFlags, scheme="Trig",
+                             TaggerList=ConfigFlags.BTagging.Run2TrigTaggers,
+                             NewChannel = ["HLT_b->HLT_b,AntiKt4EMTopo"])) # "HLT_bJets" is the name of the b-jet JetContainer
 
     #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
     tagger_list = [
