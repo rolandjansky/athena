@@ -30,9 +30,17 @@ XercesParser::~XercesParser()
 	Finalize();
 }
 
-XercesParser::XercesParser():IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false) {}
+XercesParser::XercesParser(XMLHandlerStore& xs)
+  : IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false),
+    m_xs(xs)
+{
+}
 
-XercesParser::XercesParser(const std::string& s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false) {}
+XercesParser::XercesParser(XMLHandlerStore& xs, const std::string& s)
+  : IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false),
+    m_xs(xs)
+{
+}
 
 bool XercesParser::ParseFile(const std::string& s_in)
 {
@@ -97,8 +105,7 @@ bool XercesParser::ParseFileAndNavigate(AGDDController& c,
 bool XercesParser::ParseString(const std::string& s)
 {
 	const char* str=s.c_str();
-	static const char* memBufID="prodInfo";
-	MemBufInputSource* memBuf = new MemBufInputSource((const XMLByte*)str,strlen(str),memBufID,false);
+	MemBufInputSource* memBuf = new MemBufInputSource((const XMLByte*)str,strlen(str),"prodInfo",false);
     m_parser = new XercesDOMParser;
     bool errorsOccured = false;
 	if (!m_initialized) Initialize();
@@ -194,7 +201,7 @@ void XercesParser::elementLoop(AGDDController& c,
 		return;
 	}
 	if (!(e->getNodeType()==DOMNode::ELEMENT_NODE)) return;
-	XMLHandler *h=XMLHandlerStore::GetHandlerStore()->GetHandler(e);
+	XMLHandler *h = m_xs.GetHandler(e);
 	bool stopLoop=false;
 	if (h)
 	{
@@ -215,12 +222,6 @@ void XercesParser::elementLoop(AGDDController& c,
 			}
 		}
 	}
-}
-
-ExpressionEvaluator& XercesParser::Evaluator()
-{
-	static ExpressionEvaluator eval;
-	return eval;
 }
 
 bool XercesParser::Initialize()
