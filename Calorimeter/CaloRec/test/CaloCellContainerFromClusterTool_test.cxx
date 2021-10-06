@@ -227,6 +227,8 @@ int main (int /*argc*/, char** argv)
 
   EventContext ctx;
   ctx.setExtension( Atlas::ExtendedEventContext (&*sg, 0) );
+  EventIDBase eid (1, 0, 0, 0, 20);
+  ctx.setEventID (eid);
   Gaudi::Hive::setCurrentContext (ctx);
 
   test1 (calotest, *sg, ctx);

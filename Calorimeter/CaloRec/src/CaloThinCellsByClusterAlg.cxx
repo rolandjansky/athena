@@ -22,6 +22,7 @@ StatusCode CaloThinCellsByClusterAlg::initialize()
 {
   ATH_CHECK( m_cells.initialize (m_streamName) );
   ATH_CHECK( m_clusters.initialize() );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   if (!m_samplingNames.empty()) {
     ATH_CHECK( decodeSamplings() );
@@ -44,8 +45,12 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
      ATH_MSG_WARNING( "Collection  " << m_clusters.key()<<" is not valid");
      return StatusCode::SUCCESS;
   }
-  const CaloDetDescrManager* caloDDMgr = nullptr;
-  ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
+
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
+
   for (const xAOD::CaloCluster* clust : *clusters) {
     const CaloClusterCellLink* cellLinks = clust->getCellLinks();
     if (!cellLinks) {
