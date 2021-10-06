@@ -18,7 +18,7 @@ public:
 
   virtual StatusCode initialize() override; 
 
-  StatusCode processEvent();
+  virtual StatusCode processEvent() override;
 
  protected:
   std::string m_detname;
