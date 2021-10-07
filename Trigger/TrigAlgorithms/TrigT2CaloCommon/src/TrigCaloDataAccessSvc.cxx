@@ -362,7 +362,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit(const EventContext& context) { // n
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( **mcsym, **febrod, **larBadChan ).isFailure() )
+  if ( cache->larContainer->initialize( m_roiMapTool.get(), **mcsym, **febrod, **larBadChan ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);
