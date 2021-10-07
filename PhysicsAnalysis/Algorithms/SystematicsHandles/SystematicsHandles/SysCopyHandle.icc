@@ -11,7 +11,6 @@
 
 #include <AsgTools/MessageCheck.h>
 #include <SystematicsHandles/CopyHelpers.h>
-#include <SystematicsHandles/Helpers.h>
 
 //
 // method implementations
@@ -27,8 +26,7 @@ namespace CP
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
-    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
-    owner->declareProperty (propertyName + "Out", m_outputName, "name to which to copy " + propertyName);
+    owner->declareProperty (propertyName + "Out", m_outputName, "the (optional) name of the copy we create of " + propertyName);
   }
 
 
@@ -49,20 +47,48 @@ namespace CP
 
 
 
+  template<typename T> std::string SysCopyHandle<T> ::
+  getNamePattern () const
+  {
+    if (!m_outputName.empty())
+      return m_outputName;
+    else
+      return m_inputName;
+  }
+
+
+
+  template<typename T> StatusCode SysCopyHandle<T> ::
+  initialize (SysListHandle& sysListHandle)
+  {
+    if (!m_outputName.empty())
+      ANA_CHECK (sysListHandle.service().registerCopy (m_inputName, m_outputName));
+    return sysListHandle.addHandle (*this);
+  }
+
+
+
+  template<typename T> StatusCode SysCopyHandle<T> ::
+  initialize (SysListHandle& sysListHandle, SG::AllowEmptyEnum)
+  {
+    if (!empty())
+      return initialize (sysListHandle);
+    else
+      return StatusCode::SUCCESS;
+  }
+
+
+
   template<typename T> ::StatusCode SysCopyHandle<T> ::
   getCopy (T*& object, const CP::SystematicSet& sys) const
   {
     auto cache = m_nameCache.find (sys);
     if (cache == m_nameCache.end())
     {
-      std::string inputName = makeSystematicsName (m_inputName, m_affectingRegex, sys);
-      std::string outputName = makeSystematicsName (m_outputName, sys);
-      ANA_MSG_DEBUG ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
-      m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
-      cache = m_nameCache.find (sys);
-      assert (cache != m_nameCache.end());
-      if (!m_evtStore)
-        m_evtStore = m_evtStoreGetter();
+      if (m_nameCache.empty())
+        throw std::logic_error ("uninitialized SysCopyHandle (" + m_inputName + ")");
+      else
+        throw std::logic_error ("unsupported systematic in SysCopyHandle (" + m_inputName + "): (" + sys.name() + ")");
     }
     assert (m_evtStore);
     if (std::get<1>(cache->second).empty())
@@ -87,9 +113,46 @@ namespace CP
 
 
 
-  template<typename T> std::string SysCopyHandle<T> ::
-  getInputAffecting () const
+  template<typename T> CP::SystematicSet SysCopyHandle<T> ::
+  getInputAffecting (const ISystematicsSvc& svc) const
   {
-    return m_affectingRegex;
+    return svc.getObjectSystematics (m_inputName);
+  }
+
+
+
+  template<typename T> StatusCode SysCopyHandle<T> ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const CP::SystematicSet& fullAffecting,
+                   const std::vector<CP::SystematicSet>& sysList)
+  {
+    const CP::SystematicSet affecting = svc.getObjectSystematics (m_inputName);
+
+    for (auto& sys : sysList)
+    {
+      CP::SystematicSet inputSys;
+      ANA_CHECK (SystematicSet::filterForAffectingSystematics (sys, affecting, inputSys));
+      std::string inputName;
+      ANA_CHECK (svc.makeSystematicsName (inputName, m_inputName, inputSys));
+      m_nameCache.emplace (sys, std::make_tuple (inputName, "", ""));
+    }
+
+    if (!m_outputName.empty())
+    {
+      ANA_MSG_DEBUG ("SysCopyHandle: " << m_inputName << " make copy " << m_outputName);
+      ANA_CHECK (svc.setObjectSystematics (m_outputName, fullAffecting));
+      for (auto& sys : sysList)
+      {
+        std::string outputName;
+        ANA_CHECK (svc.makeSystematicsName (outputName, m_outputName, sys));
+        auto& cache = m_nameCache[sys];
+        std::get<1>(cache) = outputName;
+        std::get<2>(cache) = outputName+"Aux.";
+        ANA_MSG_DEBUG ("SysCopyHandle: " << std::get<0>(cache) << " -> " << std::get<1>(cache) << " (" << sys.name() << ")");
+      }
+    }
+    if (!m_evtStore)
+      m_evtStore = m_evtStoreGetter();
+    return StatusCode::SUCCESS;
   }
 }

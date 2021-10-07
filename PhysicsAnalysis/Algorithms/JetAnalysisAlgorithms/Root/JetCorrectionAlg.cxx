@@ -29,8 +29,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_correctionTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_correctionTool->affectingSystematics()));
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_correctionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -42,18 +42,19 @@ namespace CP
   StatusCode JetCorrectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_correctionTool->applySystematicVariation (sys));
-        xAOD::JetContainer *jets = nullptr;
-        ANA_CHECK (m_jetHandle.getCopy (jets, sys));
-        for (xAOD::Jet *jet : *jets)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_correctionTool->applySystematicVariation (sys));
+      xAOD::JetContainer *jets = nullptr;
+      ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+      for (xAOD::Jet *jet : *jets)
+      {
+        if (m_preselection.getBool (*jet))
         {
-          if (m_preselection.getBool (*jet))
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_correctionTool->applyCorrection (*jet));
-          }
+          ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_correctionTool->applyCorrection (*jet));
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

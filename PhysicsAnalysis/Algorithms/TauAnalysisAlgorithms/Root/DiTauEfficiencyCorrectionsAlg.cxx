@@ -41,8 +41,8 @@ namespace CP
     m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionsTool->affectingSystematics()));
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionsTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -54,20 +54,21 @@ namespace CP
   StatusCode DiTauEfficiencyCorrectionsAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
-        xAOD::DiTauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::DiTauJet *tau : *taus)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
+      xAOD::DiTauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.getCopy (taus, sys));
+      for (xAOD::DiTauJet *tau : *taus)
+      {
+        if (m_preselection.getBool (*tau))
         {
-          if (m_preselection.getBool (*tau))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
-            (*m_scaleFactorAccessor) (*tau) = sf;
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
+          (*m_scaleFactorAccessor) (*tau) = sf;
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

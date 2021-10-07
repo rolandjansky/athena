@@ -13,8 +13,8 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -50,7 +50,7 @@ namespace CP
 
     /// \brief the jet collection we run on
   private:
-    SysCopyHandle<xAOD::JetContainer> m_jetHandle {
+    SysReadHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "Jets", "the jet collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -64,7 +64,7 @@ namespace CP
 
     /// \brief the decoration for the b-tagging scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
       this, "scaleFactorDecoration", "", "the decoration for the b-tagging efficiency scale factor"};
 
     /// \brief the decoration for the b-tagging selection

@@ -13,7 +13,7 @@ class AnaAlgorithmMeta ( object ):
     a separate algorithm.
     """
 
-    def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName, metaConfig, dynConfig ):
+    def __init__( self, stageName, inputPropName, outputPropName, metaConfig, dynConfig ):
 
         if not stageName in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
@@ -43,15 +43,6 @@ class AnaAlgorithmMeta ( object ):
                 pass
             pass
 
-        if isinstance( affectingSystematics, dict ):
-            self.affectingSystematics = affectingSystematics
-        else:
-            if affectingSystematics:
-                self.affectingSystematics = { "default" : affectingSystematics }
-            else:
-                self.affectingSystematics = None
-                pass
-            pass
         pass
 
     @staticmethod

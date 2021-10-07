@@ -115,7 +115,6 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::MuonCalibrationPeriodTool' )
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
-                affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)',
                 stageName = 'calibration',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
@@ -192,13 +191,11 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'efficiencyScaleFactorTool',
                     'CP::MuonEfficiencyScaleFactors' )
     alg.scaleFactorDecoration = 'muon_effSF' + postfix + "_%SYS%"
-    alg.scaleFactorDecorationRegex = '(^MUON_EFF_RECO.*)'
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix
     alg.efficiencyScaleFactorTool.WorkingPoint = sfWorkingPoint
     if dataType != 'data':
         seq.append( alg, inputPropName = 'muons',
-                    affectingSystematics = '(^MUON_EFF_RECO.*)',
                     stageName = 'efficiency',
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 

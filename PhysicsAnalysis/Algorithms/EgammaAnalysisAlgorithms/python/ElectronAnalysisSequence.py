@@ -156,7 +156,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
         alg.calibrationAndSmearingTool.useAFII = 0
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)',
                 stageName = 'calibration',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
@@ -260,7 +259,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
     alg.scaleFactorDecoration = 'effSF' + postfix + '_%SYS%'
-    alg.scaleFactorDecorationRegex = '(^EL_EFF_Reco.*)'
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     if dataType == 'afii':
@@ -274,7 +272,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.outOfValidityDeco = 'bad_eff' + postfix
     if dataType != 'data':
         seq.append( alg, inputPropName = 'electrons',
-                    affectingSystematics = '(^EL_EFF_Reco.*)',
                     stageName = 'efficiency',
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
         pass

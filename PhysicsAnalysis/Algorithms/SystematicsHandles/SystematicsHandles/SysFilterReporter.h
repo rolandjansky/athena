@@ -31,12 +31,12 @@ namespace CP
   ///   SysFilterReporterCombiner filterCombiner
   ///       (m_filterParams, m_systematicsList, DEFAULT_DECISION);
   ///
-  ///   return m_systematicsList.foreach ([&](const CP::SystematicSet &sys) -> StatusCode {
+  ///   for (const auto& sys : m_systematicsList.systematicsVector()) {
   ///     SysFilterReporter filter (filterCombiner, sys);
   ///     ...
   ///     filter.setPassed ();
-  ///     return StatusCode::SUCCESS;
-  ///     });
+  ///   }
+  ///   return StatusCode::SUCCESS;
   /// }
   /// ```
 
@@ -85,7 +85,7 @@ namespace CP
 
     /// \brief the event info object we are decorating
   private:
-    xAOD::EventInfo *m_eventInfo {nullptr};
+    const xAOD::EventInfo *m_eventInfo {nullptr};
 
     /// \brief the value of passed we will set
   private:

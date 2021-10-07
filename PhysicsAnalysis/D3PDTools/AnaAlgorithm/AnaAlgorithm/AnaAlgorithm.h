@@ -260,6 +260,16 @@ namespace EL
     ::StatusCode requestBeginInputFile ();
 
 
+    /// \brief register this algorithm to have an implementation of
+    /// \ref endInputFile
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   endInputFile not supported
+  public:
+    ::StatusCode requestEndInputFile ();
+
+
 
     //
     // virtual interface
@@ -350,6 +360,31 @@ namespace EL
   protected:
     virtual ::StatusCode beginInputFile ();
 
+    /// \brief perform the action for the end of an input file
+    ///
+    /// Ideally you don't use this, but instead rely on meta-data
+    /// tools instead.  However, there are enough people asking for it
+    /// that I decided to implement it anyways.
+    ///
+    /// \warn To use this you have to call \ref requestEndInputFile
+    /// to use this.
+    ///
+    /// \warn If a file is split across multiple jobs this will be
+    /// called more than once.  This only happens for specific batch
+    /// drivers and/or if it is explicitly configured by the user.
+    /// With PROOF it could even happen multiple times within the same
+    /// job, and while PROOF is no longer supported that behavior may
+    /// come back if support for a similar framework is added in the
+    /// future.  As such, this method should not be used for
+    /// accounting that relies to be called exactly once per file,
+    /// take a look at \ref fileExecute if you want something that is
+    /// guaranteed to be executed exactly once per input file.
+    ///
+    /// \warn The execution order of \ref endInputFile and \ref
+    /// fileExecute is currently unspecified.
+  protected:
+    virtual ::StatusCode endInputFile ();
+
 
 
     //
@@ -380,6 +415,10 @@ namespace EL
     /// \brief call \ref beginInputFile
   public:
     ::StatusCode sysBeginInputFile ();
+
+    /// \brief call \ref endInputFile
+  public:
+    ::StatusCode sysEndInputFile ();
 
 
     /// \brief set the value of \ref evtStore
@@ -437,6 +476,14 @@ namespace EL
     ///   no-fail
   public:
     bool hasBeginInputFile () const noexcept;
+
+
+    /// \brief whether we have an implementation for \ref
+    /// endInputFile
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool hasEndInputFile () const noexcept;
 #endif
 
 
@@ -512,6 +559,10 @@ namespace EL
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
+
+    /// \brief the value of \ref hasEndInputFile
+  private:
+    bool m_hasEndInputFile {false};
   };
 }
 

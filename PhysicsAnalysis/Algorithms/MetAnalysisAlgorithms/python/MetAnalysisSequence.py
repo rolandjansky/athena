@@ -20,14 +20,7 @@ def makeMetAnalysisSequence( dataType, metSuffix,
                                  'muons'     : 'AnalysisMuons_%SYS%',
                                  'taus'      : 'AnalysisTaus_%STS%',
                               },
-                              outputName = 'AnalysisMET_%SYS%',
-                              affectingSystematics = {
-                                 'jets'      : '(^$)|(^JET_.*)',
-                                 'electrons' : '(^$)|(^EG_.*)|(^EL_.*)',
-                                 'photons'   : '(^$)|(^EG_.*)|(^PH_.*)',
-                                 'muons'     : '(^$)|(^MUON_.*)',
-                                 'taus'      : '(^$)|(^TAUS_.*)',
-                              } )
+                              outputName = 'AnalysisMET_%SYS%' )
 
     Note that defining a jet container is mandatory, but all other input
     containers are optional.
@@ -69,14 +62,12 @@ def makeMetAnalysisSequence( dataType, metSuffix,
                                   'muons'     : 'muons',
                                   'taus'      : 'taus',
                                   'invisible' : 'invisible'},
-                outputPropName = 'met',
-                affectingSystematics = '(^MET_.*)' )
+                outputPropName = 'met' )
 
     if dataType != "data" :
         alg = createAlgorithm( 'CP::MetSystematicsAlg', 'MetSystematicsAlg' + postfix )
         addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
-        seq.append( alg, inputPropName = 'met',
-                    affectingSystematics = '(^MET_.*)' )
+        seq.append( alg, inputPropName = 'met' )
         pass
 
     # Set up the met builder algorithm:

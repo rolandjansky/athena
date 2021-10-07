@@ -43,7 +43,6 @@ namespace CP
     ///   out of memory I
   public:
     SysFilterReporterCombiner (SysFilterReporterParams& val_params,
-                               SysListHandle& systematicsList,
                                bool val_passedDefault);
 
 
