@@ -12,7 +12,6 @@
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
-#include "LArRecConditions/LArBadChanBitPacking.h"
 #include <iostream>
 
 LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_BCIDcache(false)
@@ -145,7 +144,6 @@ m_hashSym.resize(onlineId->febHashMax());
 	for(int ch=0;ch<128;ch++){
 	LArRoI_Map::TT_ID ttId;
 	LArCell* larcell = makeCell.getLArCell(febidcomp,ch,0,0,0,ttId);
-        const LArBadChanBitPacking packing;
 	if ( larcell ) { // if it is a good cell
 		// Fixes default value
 		larcell->setGain(CaloGain::LARHIGHGAIN);
