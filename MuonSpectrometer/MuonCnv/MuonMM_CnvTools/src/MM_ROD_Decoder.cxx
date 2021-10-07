@@ -102,7 +102,7 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
        Identifier channel_ID = m_MmIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_number, true, &is_validID);
        if (!is_validID) { ATH_MSG_ERROR("Invalid identifier created for MM channel"); continue; }
 
-       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo())); // isDead = false (ok?)
+       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo(), channel->rel_bcid())); // isDead = false (ok?)
     }
   }
 
