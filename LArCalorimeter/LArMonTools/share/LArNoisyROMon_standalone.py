@@ -80,12 +80,12 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 if 'conditionsTag' not in dir():
-   print "Resolving 'CURRENT' express conditions tag ..."
+   print("Resolving 'CURRENT' express conditions tag ...")
    sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
    from AtlCoolBKLib import resolveAlias
    resolver=resolveAlias()
    currentGlobalES=resolver.getCurrentES().replace("*","ST")
-   print "Found ",currentGlobalES
+   print("Found ",currentGlobalES)
    svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
    svcMgr.IOVDbSvc.GlobalTag=conditionsTag
