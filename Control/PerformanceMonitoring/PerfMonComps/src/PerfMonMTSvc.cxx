@@ -284,8 +284,8 @@ void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
  * Is it event-level monitoring check point yet?
  */
 bool PerfMonMTSvc::isCheckPoint() {
-  // Always check 1, 10, 25 for short tests
-  if (m_eventCounter == 1 || m_eventCounter == 10 || m_eventCounter == 25)
+  // Always check 1, 2, 10, 25 for short tests
+  if (m_eventCounter <= 2 || m_eventCounter == 10 || m_eventCounter == 25)
     return true;
 
   // Check the user settings
