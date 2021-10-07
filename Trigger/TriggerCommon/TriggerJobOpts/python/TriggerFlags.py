@@ -370,13 +370,7 @@ del _flags
 TriggerFlags = rec.Trigger
 
 def sync_Trigger2Reco():
-    from AthenaCommon.Include import include
-    from RecExConfig.RecAlgsFlags import recAlgs
     from AthenaCommon.GlobalFlags  import globalflags
-    from RecExConfig.RecFlags import rec
-    
-    if recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
-        include( "TriggerJobOpts/TransientBS_DetFlags.py" )
 
     if globalflags.InputFormat() == 'bytestream':
         from AthenaConfiguration.AllConfigFlags import ConfigFlags

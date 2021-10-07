@@ -1,14 +1,12 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecFlags  import rec
-from RecExConfig.RecAlgsFlags import recAlgs
+from RecExConfig.Configured import Configured
 
-from AthenaCommon.GlobalFlags  import globalflags
-from RecExConfig.Configured import Configured 
-
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 from AthenaCommon.Resilience import protectedInclude
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -137,7 +135,7 @@ class TriggerConfigGetter(Configured):
             # self.checkInput() may call TriggerConfigCheckMetadata, this can in turn set "rec.doTrigger.set_Value_and_Lock(False)"
             # but TriggerConfigGetter might have only been called in the first place due to this flag having been true, 
             # so re-check that we're still OK to be executing here
-            if not (recAlgs.doTrigger() or rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+            if not (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
                 log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false in checkInput()")
                 return True
 
