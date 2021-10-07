@@ -149,7 +149,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
     
   // getting our random numbers stream

@@ -17,9 +17,9 @@
 #include <vector>
 #include <string>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/StatusCode.h"
 #include "Identifier/Identifier.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "MuonSimEvent/sTGCSimHit.h"
 
 namespace CLHEP {
@@ -36,7 +36,7 @@ class sTgcHitIdHelper;
 class sTgcIdHelper;
 
 //--- class description
-class sTgcDigitMaker {
+class sTgcDigitMaker : public AthMessaging {
   //------ for public
  public:
 
@@ -52,10 +52,6 @@ class sTgcDigitMaker {
 
   std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime);
 
-  //Declaring the Message method for further use
-  MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
-  bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
-  void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
   //====== for private
  private:
 
@@ -90,7 +86,6 @@ class sTgcDigitMaker {
   /**
      Determines whether a hit is detected or not.
   */
-  bool efficiencyCheck(const int channelType) const;
   bool efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi, const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const;
 
   //uint16_t bcTagging(const float digittime, const int channelType) const;
@@ -98,22 +93,21 @@ class sTgcDigitMaker {
   void addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const;
 
   /** Read share/sTGC_Digitization_energyThreshold.dat file */
-  void readFileOfEnergyThreshold();
+  StatusCode readFileOfEnergyThreshold();
   ///** Read share/sTGC_Digitization_crossTalk.dat file */
-  //void readFileOfCrossTalk();
+  //StatusCode readFileOfCrossTalk();
   /** Read share/sTGC_Digitization_deadChamber.dat file */
-  void readFileOfDeadChamber();
+  StatusCode readFileOfDeadChamber();
   /** Read share/sTGC_Digitization_EffChamber.dat file */
-  void readFileOfEffChamber();
+  StatusCode readFileOfEffChamber();
   /** Read share/sTGC_Digitization_timeWindowOffset.dat file */
-  void readFileOfTimeWindowOffset();
+  StatusCode readFileOfTimeWindowOffset();
   /** Read share/sTGC_Digitization_alignment.dat file */
-  //void readFileOfAlignment();
+  //StatusCode readFileOfAlignment();
   /** Read share/sTGC_Digitization_timeArrival.dat */
-  void readFileOfTimeArrival();
+  StatusCode readFileOfTimeArrival();
   /** Read share/sTGC_Digitization_timeOffsetStrip.dat */
-  void readFileOfTimeOffsetStrip();
-
+  StatusCode readFileOfTimeOffsetStrip();
   ///** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
@@ -176,8 +170,6 @@ class sTgcDigitMaker {
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
   const sTgcIdHelper* m_idHelper{}; // not owned here
-  float m_efficiencyOfWireGangs;
-  float m_efficiencyOfStrips;
   float m_IntegralTimeOfElectr;
   bool m_doEfficiencyCorrection;
  
@@ -199,10 +191,6 @@ class sTgcDigitMaker {
   double m_StripResolution;
   double m_ChargeSpreadFactor;
 
- protected:
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("sTgcDigitMaker");
-  
 };
 
 #endif
