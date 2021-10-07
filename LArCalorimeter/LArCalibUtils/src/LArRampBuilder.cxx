@@ -6,7 +6,6 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArRawConditions/LArRampComplete.h"
 
-
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -206,7 +205,6 @@ StatusCode LArRampBuilder::execute()
       return StatusCode::FAILURE;
     }
 	ATH_MSG_DEBUG("Succefully retrieved LArCaliWaveContainer from StoreGate!");
-    
     for (;key_it!=key_it_e;++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
       
       // first, set reference DAC (dirty hardcoding for now...)
@@ -237,7 +235,7 @@ StatusCode LArRampBuilder::execute()
       
       for (; itVec != itVec_e; ++itVec) {
 	
-        for (const LArCaliWave& larCaliWave : *itVec) {  //Loop over all cells
+	for (const LArCaliWave& larCaliWave : *itVec) {  //Loop over all cells
 	  unsigned int DAC = larCaliWave.getDAC(); 
 	  IdentifierHash chidwave_hash = m_onlineHelper->channel_Hash(itVec.channelId());
 
@@ -280,13 +278,20 @@ StatusCode LArRampBuilder::execute()
 
   
   // now start to deal with digits   
+  int foundkey = 0;
   for (;key_it!=key_it_e;++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
     
     sc= evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it);
-      continue; //Try next container
+      if ( (std::next(key_it) == key_it_e) && foundkey==0 ){
+	ATH_MSG_ERROR("None of the provided LArAccumulatedDigitContainer keys could be read");
+	return StatusCode::FAILURE;
+      }else{
+	continue;
+      }
     }
+    ++foundkey;
     HWIdentifier  lastFailedFEB(0);
     
     if(larAccumulatedCalibDigitContainer->empty()) ATH_MSG_DEBUG("LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty ");
@@ -392,7 +397,6 @@ StatusCode LArRampBuilder::stop()
     SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
     bcCont=(*bcContHdl);
   }
-
 
   StatusCode sc;
   //Create transient ramp object (to be filled later) (one object for all gains)
@@ -641,11 +645,17 @@ StatusCode LArRampBuilder::stop()
 	
 	
 	// only add to rawramp non saturing points (using rawdata information)
+	
 	if( (dac_it->first>= m_minDAC) &&  ramppoint.ADC > -998 
 	    && ((m_maxADC <= 0) || (MaxADC < m_maxADC)) ) {
 	  rawramp->add(ramppoint);
 	}
-	else if ((m_maxADC > 0)&&(MaxADC >= m_maxADC)) { isADCsat = true; } // if ADC saturated at least once, it should be notified
+	else if ((m_maxADC > 0)&&(MaxADC >= m_maxADC)) { 
+	  isADCsat = true; // if ADC saturated at least once, it should be notified
+	  ATH_MSG_DEBUG("Saturated: "<<chid<<" "<<dac_it->first<<" "<<m_minDAC<<" "<<ramppoint.ADC<<" "<<MaxADC<<" "<<m_maxADC);
+	}else{
+	  ATH_MSG_DEBUG("Fail ramp selection: "<<chid<<" "<<dac_it->first<<" "<<m_minDAC<<" "<<ramppoint.ADC<<" "<<MaxADC<<" "<<m_maxADC);
+	} 
       }
       
       //Build ramp object..........
@@ -748,8 +758,8 @@ StatusCode LArRampBuilder::stop()
  
 StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::RAMPPOINT_t>& data, 
 				   std::vector<float>& rampCoeffs, std::vector<int>& vSat, 
-                                   const HWIdentifier chid, const LArOnOffIdMapping* cabling, 
-				   const LArBadChannelCont* bcCont) {
+                                   const HWIdentifier chid, const LArOnOffIdMapping* cabling,
+                                   const LArBadChannelCont* bcCont) {
   unsigned linRange=data.size();
   if (linRange<2) {
     bool isgood=true;

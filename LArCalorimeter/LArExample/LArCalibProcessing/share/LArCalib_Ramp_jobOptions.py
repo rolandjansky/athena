@@ -64,7 +64,7 @@ if not 'GainList' in dir():
    
 if not 'GroupingType' in dir():
    if not SuperCells: GroupingType = "ExtendedSubDetector"
-   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+   if SuperCells:     GroupingType = "SuperCells"
 
         
 if not 'ChannelSelection' in dir():
@@ -326,9 +326,10 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()
 if SuperCells:
-  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC,LArLATOMEMappingSC
   LArOnOffIdMappingSC()
   LArCalibIdMappingSC()
+  LArLATOMEMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -380,7 +381,6 @@ if ( runAccumulator ):
       from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
 
       theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-      theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
       theLArLATOMEDecoder.DumpFile = SC_DumpFile
       theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
       from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
@@ -390,15 +390,22 @@ if ( runAccumulator ):
       larRawSCDataReadingAlg.etCollKey = ""
       larRawSCDataReadingAlg.etIdCollKey = ""
       larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
-      larRawSCDataReadingAlg.OutputLevel = DEBUG
+      larRawSCDataReadingAlg.OutputLevel = WARNING
       topSequence += larRawSCDataReadingAlg
-   include("./LArCalib_CalibrationPatterns.py")
+   else:
+      from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+ 
+      theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+      theLArRawCalibDataReadingAlg.LArDigitKey=Gain
+      theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+      topSequence+=theLArRawCalibDataReadingAlg
+   include("./LArCalib_CalibrationPatterns_"+str(IOVBegin)+".py")
 
 else:
    from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
 
    theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
-   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=Gain
    theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
    topSequence+=theLArRawCalibDataReadingAlg
       
@@ -629,6 +636,7 @@ theLArRampBuilder.GroupingType = GroupingType
 
 theLArRampBuilder.isSC = SuperCells
 
+
 if ( isHEC ) :
    theLArRampBuilder.isHEC = isHEC
    theLArRampBuilder.HECKey = HECKey
@@ -812,6 +820,8 @@ if (WriteNtuple):
       if SuperCells:
          LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")
          LArAverages2NtupleSC.ContainerKey = "SC"
+         LArAverages2Ntuple.OffId = True
+         LArAverages2NtupleSC.RealGeometry = True
          #LArAverages2NtupleSC.NSamples = 50
          LArAverages2NtupleSC.isSC = SuperCells
          topSequence+= LArAverages2NtupleSC
