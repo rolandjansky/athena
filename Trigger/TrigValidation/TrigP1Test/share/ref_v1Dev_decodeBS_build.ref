@@ -92,11 +92,7 @@ HLT_2g50_tight_L1EM7_EMPTY:
 HLT_2g50_tight_L1EM7_UNPAIRED_ISO:
   eventCount: 0
 HLT_2j100_L1CEP-CjJ50:
-  eventCount: 1
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 2
+  eventCount: 0
 HLT_2j100_L1CEP-CjJ60:
   eventCount: 0
 HLT_2j110_a10sd_pf_nojcalib_ftf_0eta200_ExoticPTF0p0dR1p2_L1J50:
