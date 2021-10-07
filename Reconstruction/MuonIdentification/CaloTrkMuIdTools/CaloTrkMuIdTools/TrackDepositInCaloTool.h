@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -12,6 +12,8 @@
 // --- Athena common ---
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // --- Athena ---
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
@@ -20,7 +22,6 @@
 
 // --- STL ---
 #include <map>
-#include <mutex>
 #include <vector>
 
 // --- Forward declarations ---
@@ -32,7 +33,6 @@ class TH1F;
 class TH2F;
 class ITHistSvc;
 
-class CaloDetDescrManager;
 
 ///////////////////////////////////////////////////////////////////////////////
 // TrackDepositInCaloTool
@@ -121,19 +121,19 @@ private:
        (x0, y0, z0) is the starting position, (phi0,theta0) is the direction of the momentum, r is the bound of
        the cylinder. The values are returned in (xe, ye, ze).
     */
-    std::unique_ptr<Amg::Vector3D> extrapolateR(const Amg::Vector3D& initialPosition, double phi0, double theta0, double r) const;
+    static std::unique_ptr<Amg::Vector3D> extrapolateR(const Amg::Vector3D& initialPosition, double phi0, double theta0, double r) ;
     /**
        Extrapolate track to disc surface along straight line.
        Parameter explanation in the same line as for extrapolateR().
     */
-    std::unique_ptr<Amg::Vector3D> extrapolateZ(const Amg::Vector3D& initialPosition, double phi0, double theta0, double z) const;
+    static std::unique_ptr<Amg::Vector3D> extrapolateZ(const Amg::Vector3D& initialPosition, double phi0, double theta0, double z) ;
     /**
        Create histograms and register them to HistSvc.
     */
     StatusCode bookHistos();
 
-    const CaloCell* getClosestCellLAr(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
-                                      const CaloCellContainer* caloCellCont) const;
+    static const CaloCell* getClosestCellLAr(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
+                                      const CaloCellContainer* caloCellCont) ;
     const CaloCell* getClosestCellTile(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
                                        const CaloCellContainer* caloCellCont) const;
 
@@ -147,11 +147,11 @@ private:
     std::unique_ptr<const Trk::TrackParameters> extrapolateToExitOfLayer(const EventContext& ctx, const Trk::TrackParameters* par,
                                                                          const CaloDetDescriptor* descr) const;
 
-    double distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) const;
+    static double distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) ;
 
-    bool isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable = false) const;
-    bool isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) const;
-    bool inCell(const CaloCell* cell, const Amg::Vector3D& pos) const;
+    static bool isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable = false) ;
+    static bool isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) ;
+    static bool inCell(const CaloCell* cell, const Amg::Vector3D& pos) ;
 
 private:
     // Services & Tools
@@ -164,8 +164,14 @@ private:
                                                                     "Tool to make the step-wise extrapolation"};
     ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""};
 
-    // Members
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 
+    // Members
     bool m_doExtr;  //!< Flag to perform extrapolations using m_extrapolator
     bool m_doHist;  //!< Flag to write histograms to track performance
 
