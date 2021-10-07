@@ -45,9 +45,8 @@ def LArShapeDumperCfg(flags):
     result.getService("PoolSvc").ReadCatalog += ["apcfile:poolcond/PoolCat_comcond_castor.xml"]
 
     if flags.LArShapeDump.doTrigger:
-        from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
         result.merge(getTrigDecisionTool(flags))
-        result.getPublicTool("TrigDecisionTool").TrigConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         result.merge(L1TriggerByteStreamDecoderCfg(flags))
@@ -86,7 +85,9 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from LArShapeDumperFlags import addShapeDumpFlags
     addShapeDumpFlags(ConfigFlags)
-    ConfigFlags.Input.Files=['/scratch/wlampl/data18_13TeV/data18_13TeV.00357750.physics_Main.daq.RAW._lb0102._SFO-2._0003.data']
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files=defaultTestFiles.RAW
     ConfigFlags.LAr.ROD.forceIter=True
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
