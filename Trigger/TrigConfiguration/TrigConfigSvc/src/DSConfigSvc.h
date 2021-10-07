@@ -31,7 +31,7 @@
 
 #define DEPRECATED \
    static std::atomic<bool> warn = true; \
-   if (warn) { ATH_MSG_WARNING("DSConfigSvc::" <<__func__ << " is deprecated"); warn = false; }
+   if (warn) { ATH_MSG_ERROR("DSConfigSvc::" <<__func__ << " is deprecated"); warn = false; }
 
 class EventContext;
 
