@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -251,6 +251,8 @@ if __name__=='__main__':
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.Tile.doOptATLAS = True
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -270,7 +272,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileDQFragMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents = 3)
+    sc = cfg.run()
 
     import sys
     # Success should be 0
