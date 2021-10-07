@@ -115,7 +115,7 @@ class SortingAlgo(TopoAlgo):
         if "MUCTP-" in self.name:
             _mu_for_decision= 1 
         for (pos, variable) in enumerate(self.variables): 
-            if variable.name == "MinET":
+            if variable.name == "MinET" or variable.name == "MinEtTGC" or variable.name == "MinEtRPC":
                 if "e" in self.outputs or "j" in self.outputs or "g" in self.outputs: 
                     variable.value *= 1 # no conversion needed in Run3 algo
                 elif "TAU" in self.outputs or "EM" in self.outputs:

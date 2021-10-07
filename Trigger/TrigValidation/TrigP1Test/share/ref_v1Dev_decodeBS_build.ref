@@ -92,7 +92,11 @@ HLT_2g50_tight_L1EM7_EMPTY:
 HLT_2g50_tight_L1EM7_UNPAIRED_ISO:
   eventCount: 0
 HLT_2j100_L1CEP-CjJ50:
-  eventCount: 0
+  eventCount: 1
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2j100_L1CEP-CjJ60:
   eventCount: 0
 HLT_2j110_a10sd_pf_nojcalib_ftf_0eta200_ExoticPTF0p0dR1p2_L1J50:
@@ -201,9 +205,11 @@ HLT_2mu10_bJpsimumu_L12MU8F:
   eventCount: 0
 HLT_2mu10_bUpsimumu_L12MU8F:
   eventCount: 0
+HLT_2mu10_l2mt_L1MU10BO:
+  eventCount: 0
 HLT_2mu10_l2mt_L1MU10BOM:
   eventCount: 0
-HLT_2mu10_l2mt_L1MU8F:
+HLT_2mu10_l2mt_L1MU12BOM:
   eventCount: 0
 HLT_2mu14_L12MU8F:
   eventCount: 0
@@ -303,6 +309,8 @@ HLT_2mu4_bUpsimumu_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_l2mt_L1MU4BOM:
+  eventCount: 0
 HLT_2mu4_muonqual_L12MU3V:
   eventCount: 0
   stepCounts:
@@ -3007,6 +3015,8 @@ HLT_mu10_ivarmedium_mu10_10invmAB70_L12MU8F:
   eventCount: 0
 HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM:
   eventCount: 0
+HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU12BOM:
+  eventCount: 0
 HLT_mu10_lateMu_L1LATE-MU8F_J50:
   eventCount: 0
 HLT_mu10_lateMu_L1LATE-MU8F_XE30:
@@ -3155,6 +3165,12 @@ HLT_mu14_L1MU8F:
     0: 5
   stepFeatures:
     0: 5
+HLT_mu14_L1MU8VFC:
+  eventCount: 0
+  stepCounts:
+    0: 2
+  stepFeatures:
+    0: 2
 HLT_mu14_ivarloose_tau25_medium1_tracktwo_03dRAB_L1MU8F_TAU12IM_3J12:
   eventCount: 0
 HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1MU8F_TAU12IM_3J12:
