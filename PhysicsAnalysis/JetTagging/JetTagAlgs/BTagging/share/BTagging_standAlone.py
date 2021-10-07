@@ -56,7 +56,6 @@ if rec.doESD():
   recAlgs.doMuonSpShower.set_Value_and_Lock(False)
   recAlgs.doCaloTrkMuId.set_Value_and_Lock(False)
   recAlgs.doMissingET.set_Value_and_Lock(False)
-  recAlgs.doTrigger.set_Value_and_Lock(False)
   rec.doTau.set_Value_and_Lock(False)
   # However, we redo tracking, so egamma and Combined muons have to be run again
   # to match to the new TrackParticleCandidate container. (I redo only Staco/MuTag)

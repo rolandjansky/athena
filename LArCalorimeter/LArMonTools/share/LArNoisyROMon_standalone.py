@@ -48,7 +48,6 @@ rec.doHist.set_Value_and_Lock(False)
 rec.doCBNT.set_Value_and_Lock(False)
 rec.doAOD.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(False)
-recAlgs.doTrigger.set_Value_and_Lock(False)
 
 rec.doPerfMon.set_Value_and_Lock(False)
 rec.doDPD.set_Value_and_Lock(False)
