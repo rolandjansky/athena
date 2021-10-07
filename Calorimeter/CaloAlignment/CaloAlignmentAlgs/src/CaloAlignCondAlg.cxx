@@ -28,10 +28,10 @@ StatusCode CaloAlignCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloAlignCondAlg::execute(const EventContext& ctx) const
+StatusCode CaloAlignCondAlg::execute()
 {
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<CaloDetDescrManager> writeCaloMgrHandle{m_writeCaloMgrKey,ctx};
+  SG::WriteCondHandle<CaloDetDescrManager> writeCaloMgrHandle{m_writeCaloMgrKey};
   if (writeCaloMgrHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
@@ -41,7 +41,7 @@ StatusCode CaloAlignCondAlg::execute(const EventContext& ctx) const
   // 1. GeoAlignmentStore
   const GeoAlignmentStore* geoAlign{nullptr};
   if(!m_readKeyGeoAlign.empty()) {
-    SG::ReadCondHandle<GeoAlignmentStore> readHandleGeoAlign{m_readKeyGeoAlign,ctx};
+    SG::ReadCondHandle<GeoAlignmentStore> readHandleGeoAlign{m_readKeyGeoAlign};
     ATH_CHECK(readHandleGeoAlign.isValid());
     ATH_MSG_DEBUG("Retrieved GeoAlignmentStore object form the Condition Store");
     writeCaloMgrHandle.addDependency(readHandleGeoAlign);
@@ -51,7 +51,7 @@ StatusCode CaloAlignCondAlg::execute(const EventContext& ctx) const
   // 2. CaloCellPositionShift
   const CaloRec::CaloCellPositionShift* cellPosShift{nullptr};
   if(!m_readKeyCellPosShift.empty()) {
-    SG::ReadCondHandle<CaloRec::CaloCellPositionShift> readHandleCellPosShift{m_readKeyCellPosShift,ctx};
+    SG::ReadCondHandle<CaloRec::CaloCellPositionShift> readHandleCellPosShift{m_readKeyCellPosShift};
     ATH_CHECK(readHandleCellPosShift.isValid());
     ATH_MSG_DEBUG("Retrieved CaloRec::CaloCellPositionShift object form the Condition Store");
     writeCaloMgrHandle.addDependency(readHandleCellPosShift);
