@@ -63,7 +63,7 @@ sTgcDigitMaker::~sTgcDigitMaker()
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
-StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const int channelTypes)
+StatusCode sTgcDigitMaker::initialize(const int channelTypes)
 {
   // Initialize TgcIdHelper
   if (m_hitIdHelper == nullptr) {
@@ -78,9 +78,6 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 
   // initialize the TGC identifier helper
   m_idHelper = m_mdManager->stgcIdHelper();
-
-  // getting our random numbers stream
-  m_engine = rndmEngine;
 
   // Read share/sTGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold.
   // Currently no point in wasting memory to read an empty file for energy threshold.
@@ -115,7 +112,9 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 //---------------------------------------------------
 // Execute Digitization
 //---------------------------------------------------
-std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const float /*globalHitTime*/)
+std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, 
+                                                                 const float /*globalHitTime*/, 
+                                                                 CLHEP::HepRandomEngine* rndmEngine) 
 { 
 
   // check the digitization channel type
@@ -246,7 +245,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // to account for drift time.
   // Note: CLHEP::RandGamma takes the parameters k and lambda, 
   // where lambda = 1 / theta.
-  double digit_time = t0_par + CLHEP::RandGamma::shoot(m_engine, gamma_par.kParameter, 1/gamma_par.thetaParameter);
+  double digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, gamma_par.kParameter, 1/gamma_par.thetaParameter);
   if (digit_time < 0.0) {
     // Ensure the digit time is positive
     digit_time = -1.0 * digit_time;
@@ -266,7 +265,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     int etaZero = detEl->isEtaZero(tempId, hitOnSurface_wire.y()) ? 1 : 0;
     float efficiency = getChamberEfficiency(stNameInt, std::abs(stationEta)-etaZero, stationPhi-1, multiPlet-1, gasGap-1);
     // Lose Hits to match HV efficiency
-    if (CLHEP::RandFlat::shoot(m_engine,0.0,1.0) > efficiency) return nullptr;
+    if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) > efficiency) return nullptr;
   }
 
   //// Check the chamber is dead or not.
@@ -377,12 +376,12 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
  // To get avalanche gain, polya function is taken from Blum paper https://inspirehep.net/literature/807304
  // m_polyaFunction = new TF1("m_polyaFunction","(1.0/[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,3000000);
-  float gain =  CLHEP::RandGamma::shoot(m_engine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
+  float gain =  CLHEP::RandGamma::shoot(rndmEngine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
   double total_charge = gain*ionized_charge; // total charge after avalanche
 
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
-  float charge_width = CLHEP::RandGaussZiggurat::shoot(m_engine, m_GausMean, m_GausSigma);
+  float charge_width = CLHEP::RandGaussZiggurat::shoot(rndmEngine, m_GausMean, m_GausSigma);
   float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
@@ -475,7 +474,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
           if (stripnum >= middleStrip[1]) createNeighbor2 = false;
           continue;
         }
-        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
+        charge = CLHEP::RandGaussZiggurat::shoot(rndmEngine, charge, m_ChargeSpreadFactor*charge);
 
         // Estimate digit time
         int indexFromMiddleStrip = std::abs(stripnum - middleStrip[0]);
