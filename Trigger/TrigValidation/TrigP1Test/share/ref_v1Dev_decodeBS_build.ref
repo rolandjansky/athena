@@ -3217,6 +3217,12 @@ HLT_mu20_msonly_L1MU14FCH:
     0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L110DR-MU14FCH-MU5VF:
   eventCount: 0
+HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_J40:
   eventCount: 0
 HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_XE30:
@@ -3364,6 +3370,66 @@ HLT_mu26_ivarmedium_2j20_0eta290_020jvt_pf_ftf_boffperf_L1MU14FCH:
   stepFeatures:
     0: 1
 HLT_mu26_ivarmedium_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu10_ivarmedium_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu14_ivarloose_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu14_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu20_ivarloose_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu20_ivarmedium_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu20_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu22_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu24_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu4_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu6_probe_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
