@@ -442,7 +442,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileMBTSMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=3)
+    sc = cfg.run()
 
     import sys
     # Success should be 0
