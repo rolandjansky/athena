@@ -12,7 +12,6 @@
 #include "TileMonitoring/TileMuonFitMonTool.h"
 #include "TileMonitoring/TileDigitsMonTool.h"
 #include "TileMonitoring/TileRawChannelMonTool.h"
-#include "TileMonitoring/TileMBTSMonTool.h"
 #include "TileMonitoring/TileDQFragMonTool.h"
 #include "TileMonitoring/TileDQFragLWMonTool.h"
 #include "TileMonitoring/TileRODMonTool.h"
@@ -55,7 +54,6 @@ DECLARE_COMPONENT( TileL2MonTool )
 DECLARE_COMPONENT( TileMuonFitMonTool )
 DECLARE_COMPONENT( TileDigitsMonTool )
 DECLARE_COMPONENT( TileRawChannelMonTool )
-DECLARE_COMPONENT( TileMBTSMonTool )
 DECLARE_COMPONENT( TileDQFragMonTool )
 DECLARE_COMPONENT( TileDQFragLWMonTool )
 DECLARE_COMPONENT( TileRODMonTool )
