@@ -25,6 +25,7 @@ TruthClassificationTool::TruthClassificationTool(const std::string &type)
 {
   declareProperty ("separateChargeFlipElectrons", m_separateChargeFlipElectrons, "separate prompt charge-flipped electrons");
   declareProperty ("separateChargeFlipMuons",     m_separateChargeFlipMuons,     "separate prompt charge-flipped muons");
+  declareProperty ("useTruthParticleDecorations", m_useTruthParticleDecorations, "use truth particle decorations");
 }
 
 
@@ -41,13 +42,16 @@ StatusCode TruthClassificationTool::classify(const xAOD::IParticle &particle,
 StatusCode TruthClassificationTool::classify(const xAOD::IParticle &particle,
                                              Truth::Type &classification) const
 {
-  if (dynamic_cast<const xAOD::Electron *> (&particle))
+  const xAOD::TruthParticle *truthParticle = dynamic_cast<const xAOD::TruthParticle *> (&particle);
+  if (dynamic_cast<const xAOD::Electron *> (&particle)
+    || (truthParticle != nullptr && truthParticle->absPdgId() == 11))
   {
-    ANA_CHECK(classify(*dynamic_cast<const xAOD::Electron *> (&particle), classification));
+    ANA_CHECK(classifyElectron(particle, classification));
   }
-  else if (dynamic_cast<const xAOD::Muon *> (&particle))
+  else if (dynamic_cast<const xAOD::Muon *> (&particle)
+    || (truthParticle != nullptr && truthParticle->absPdgId() == 13))
   {
-    ANA_CHECK(classify(*dynamic_cast<const xAOD::Muon *> (&particle), classification));
+    ANA_CHECK(classifyMuon(particle, classification));
   }
   else
   {
@@ -59,12 +63,26 @@ StatusCode TruthClassificationTool::classify(const xAOD::IParticle &particle,
 }
 
 
-StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
-                                             Truth::Type &classification) const
+StatusCode TruthClassificationTool::classifyElectron(const xAOD::IParticle &electron,
+                                                     Truth::Type &classification) const
 {
   namespace MC = MCTruthPartClassifier;
 
-  if (!m_truthPdgId.isAvailable(electron))
+  // Check if xAOD::TruthParticle or if not if it has the TruthParticleLink
+  const xAOD::TruthParticle *truthParticle
+    = dynamic_cast<const xAOD::TruthParticle *> (&electron);
+  bool isTruthParticle{};
+  if (truthParticle == nullptr)
+  {
+    // need to find the truth particle
+    truthParticle = xAOD::TruthHelpers::getTruthParticle(electron);
+  }
+  else
+  {
+    isTruthParticle = true;
+  }
+
+  if (!m_truthPdgId.isAvailable(electron) && !isTruthParticle)
   {
     ANA_MSG_ERROR("Electron does not have the 'truthPdgId' decoration.");
     return StatusCode::FAILURE;
@@ -78,9 +96,15 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
     return StatusCode::FAILURE;
   }
 
-  int type = m_truthType(electron);
-  int origin = m_truthOrigin(electron);
-  int pdgId = m_truthPdgId(electron);
+  int type = isTruthParticle ? m_classifierParticleType(electron) : m_truthType(electron);
+  int origin = isTruthParticle ? m_classifierParticleOrigin(electron) : m_truthOrigin(electron);
+  int pdgId = isTruthParticle ? truthParticle->pdgId() : m_truthPdgId(electron);
+  if (m_useTruthParticleDecorations && !isTruthParticle && truthParticle != nullptr)
+  {
+    type = m_classifierParticleType(*truthParticle);
+    origin = m_classifierParticleOrigin(*truthParticle);
+  }
+
   int firstMotherType = m_firstMotherTruthType(electron);
   int firstMotherOrigin = m_firstMotherTruthOrigin(electron);
   int firstMotherPdgId = m_firstMotherPdgId(electron);
@@ -301,9 +325,9 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
   // Prompt / Isolated electrons
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  if (isPromptElectron(electron))
+  if (isPromptElectron(electron, isTruthParticle, truthParticle))
   {
-    if (m_separateChargeFlipElectrons && isChargeFlipElectron(electron))
+    if (m_separateChargeFlipElectrons && isChargeFlipElectron(electron, isTruthParticle, truthParticle))
     {
       classification = Truth::Type::ChargeFlipIsoElectron;
       return StatusCode::SUCCESS;
@@ -323,7 +347,6 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
   // the reasons for not having origin and status codes might be complex. The
   // main idea is to weed out things we don't have a hope of classifying due to
   // missing or unknown information.
-  const xAOD::TruthParticle *truthParticle = xAOD::TruthHelpers::getTruthParticle(electron);
   int status = (truthParticle != nullptr && truthParticle->isAvailable<int>("status")) ? truthParticle->status() : 0;
   bool stable = (status == 1);
 
@@ -385,13 +408,33 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
 }
 
 
-StatusCode TruthClassificationTool::classify(const xAOD::Muon &muon,
-                                             Truth::Type &classification) const
+StatusCode TruthClassificationTool::classifyMuon(const xAOD::IParticle &muon,
+                                                 Truth::Type &classification) const
 {
   namespace MC = MCTruthPartClassifier;
 
-  int type = m_truthType(muon);
-  int origin = m_truthOrigin(muon);
+  // Check if xAOD::TruthParticle or if not if it has the TruthParticleLink
+  const xAOD::TruthParticle *truthParticle
+    = dynamic_cast<const xAOD::TruthParticle *> (&muon);
+  bool isTruthParticle{};
+  if (truthParticle == nullptr)
+  {
+    // need to find the truth particle
+    truthParticle = xAOD::TruthHelpers::getTruthParticle(muon);
+  }
+  else
+  {
+    isTruthParticle = true;
+  }
+
+  int type = isTruthParticle ? m_classifierParticleType(muon) : m_truthType(muon);
+  int origin = isTruthParticle ? m_classifierParticleOrigin(muon) : m_truthOrigin(muon);
+  if (m_useTruthParticleDecorations && !isTruthParticle && truthParticle != nullptr)
+  {
+    type = m_classifierParticleType(*truthParticle);
+    origin = m_classifierParticleOrigin(*truthParticle);
+  }
+
   // fallback recorations
   int fallbackType{-1};
   if (m_fallbackTruthType.isAvailable(muon) && m_fallbackDR.isAvailable(muon))
@@ -470,11 +513,11 @@ StatusCode TruthClassificationTool::classify(const xAOD::Muon &muon,
   if (type == MC::IsoMuon && isInSet(origin, promptOrigin))
   {
     //separate charge-flip muons
-    if (m_separateChargeFlipMuons && isChargeFlipMuon(muon))
-      {
-	classification = Truth::Type::ChargeFlipMuon;
-	return StatusCode::SUCCESS;
-      }
+    if (m_separateChargeFlipMuons && !isTruthParticle && isChargeFlipMuon(*static_cast<const xAOD::Muon *> (&muon)))
+    {
+      classification = Truth::Type::ChargeFlipMuon;
+      return StatusCode::SUCCESS;
+    }
     classification = Truth::Type::PromptMuon;
     return StatusCode::SUCCESS;
   }
@@ -490,7 +533,6 @@ StatusCode TruthClassificationTool::classify(const xAOD::Muon &muon,
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::TruthParticle *truthParticle = xAOD::TruthHelpers::getTruthParticle(muon);
   int status = (truthParticle != nullptr && truthParticle->isAvailable<int>("status")) ? truthParticle->status() : 0;
   bool stable = (status == 1);
 
@@ -514,19 +556,27 @@ StatusCode TruthClassificationTool::classify(const xAOD::Muon &muon,
 }
 
 
-bool TruthClassificationTool::isPromptElectron(const xAOD::Electron &electron) const
+bool TruthClassificationTool::isPromptElectron(const xAOD::IParticle &electron,
+                                               bool isTruthParticle,
+                                               const xAOD::TruthParticle *truthParticle) const
 {
   namespace MC = MCTruthPartClassifier;
 
+  int type = isTruthParticle ? m_classifierParticleType(electron) : m_truthType(electron);
+  int origin = isTruthParticle ? m_classifierParticleOrigin(electron) : m_truthOrigin(electron);
+  if (m_useTruthParticleDecorations && !isTruthParticle && truthParticle != nullptr)
+  {
+    type = m_classifierParticleType(*truthParticle);
+    origin = m_classifierParticleOrigin(*truthParticle);
+  }
+
   // Electron is IsoElectron - return true
-  int type = m_truthType(electron);
   if (type == MC::IsoElectron)
   {
     return true;
   }
 
-  int origin = m_truthOrigin(electron);
-  int pdgId = m_truthPdgId(electron);
+  int pdgId = isTruthParticle ? truthParticle->pdgId() : m_truthPdgId(electron);
   int firstMotherType = m_firstMotherTruthType(electron);
   int firstMotherOrigin = m_firstMotherTruthOrigin(electron);
 
@@ -554,14 +604,21 @@ bool TruthClassificationTool::isPromptElectron(const xAOD::Electron &electron) c
 }
 
 
-
-bool TruthClassificationTool::isChargeFlipElectron(const xAOD::Electron &electron) const
+bool TruthClassificationTool::isChargeFlipElectron(const xAOD::IParticle &electron,
+                                                   bool isTruthParticle,
+                                                   const xAOD::TruthParticle *truthParticle) const
 {
   namespace MC = MCTruthPartClassifier;
 
-  int type = m_truthType(electron);
-  int origin = m_truthOrigin(electron);
-  int pdgId = m_truthPdgId(electron);
+  int type = isTruthParticle ? m_classifierParticleType(electron) : m_truthType(electron);
+  int origin = isTruthParticle ? m_classifierParticleOrigin(electron) : m_truthOrigin(electron);
+  int pdgId = isTruthParticle ? truthParticle->pdgId() : m_truthPdgId(electron);
+  if (m_useTruthParticleDecorations && !isTruthParticle && truthParticle != nullptr)
+  {
+    type = m_classifierParticleType(*truthParticle);
+    origin = m_classifierParticleOrigin(*truthParticle);
+  }
+
   int firstMotherType = m_firstMotherTruthType(electron);
   int firstMotherOrigin = m_firstMotherTruthOrigin(electron);
   int firstMotherPdgId = m_firstMotherPdgId(electron);
@@ -583,28 +640,44 @@ bool TruthClassificationTool::isChargeFlipElectron(const xAOD::Electron &electro
     && firstMotherType == MC::BkgElectron && firstMotherOrigin == MC::PhotonConv
     && std::abs(pdgId) == 11)
   {
-	  return false;
+    return false;
   }
 
-  if (electron.charge() != 0) {
-    return (firstMotherPdgId * electron.charge()) > 0;
+  if (isTruthParticle)
+  {
+    if (truthParticle->charge() != 0)
+    {
+      return (firstMotherPdgId * truthParticle->charge()) > 0;
+    }
+  }
+  else
+  {
+    const xAOD::Electron &xAODElectron = *dynamic_cast<const xAOD::Electron *> (&electron);
+    if (xAODElectron.charge() != 0)
+    {
+      return (firstMotherPdgId * xAODElectron.charge()) > 0;
+    }
   }
 
   return (firstMotherPdgId * (-pdgId)) > 0;
 }
 
+
 bool TruthClassificationTool::isChargeFlipMuon(const xAOD::Muon &muon) const
 {
   const xAOD::TrackParticle* trackParticle = muon.primaryTrackParticle();
-  if(trackParticle != nullptr){
+  if (trackParticle != nullptr)
+  {
     const xAOD::TruthParticle *truthMuon = xAOD::TruthHelpers::getTruthParticle(*trackParticle);
-    if( truthMuon != nullptr && xAOD::P4Helpers::isInDeltaR(*truthMuon, muon, 0.025) ){
+    if (truthMuon != nullptr && xAOD::P4Helpers::isInDeltaR(*truthMuon, muon, 0.025))
+    {
       return (truthMuon->charge() * muon.charge()) < 0;
     }
   }
   ANA_MSG_DEBUG("Cannot find associated truth-particle... assuming muon has correct charge");
   return false;
 }
+
 
 bool TruthClassificationTool::hasBHadronOrigin(int origin) const
 {
@@ -617,6 +690,7 @@ bool TruthClassificationTool::hasBHadronOrigin(int origin) const
   return isInSet(origin, b_hadrons);
 }
 
+
 bool TruthClassificationTool::hasCHadronOrigin(int origin) const {
   namespace MC = MCTruthPartClassifier;
   static const std::set<int> c_hadrons({
@@ -626,6 +700,7 @@ bool TruthClassificationTool::hasCHadronOrigin(int origin) const {
   });
   return isInSet(origin, c_hadrons);
 }
+
 
 bool TruthClassificationTool::hasLightHadronOrigin(int origin) const {
   namespace MC = MCTruthPartClassifier;

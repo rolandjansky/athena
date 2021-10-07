@@ -94,6 +94,8 @@ ATH_CHECK(config.setProperty("separateChargeFlipElectrons", true));
 ATH_CHECK(config.setProperty("separateChargeFlipMuons",     true));
 ATH_CHECK(config.makePrivateTool(m_truthTool));
 ```
+Additionally `useTruthParticleDecorations` can be set to `True` to use
+more up-to-date decorations on truth particles (if available).
 
 To retrieve the truth-categories for electrons of muons, the following can be done:
 ```
@@ -102,6 +104,7 @@ ATH_CHECK(m_truthTool.classify(*lep, IFFtype));
 ATH_MSG_INFO("IFF truth class of lepton" << IFFtype);
 ```
 Where `lep` is a pointer to a `xAOD::Electron` or `xAOD::Muon` object respectively.
+Truth particles are also supported if they are electrons or muons.
 
 
 ## 4. Details about the Lepton Categories
