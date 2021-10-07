@@ -1000,23 +1000,23 @@ class athenaExecutor(scriptExecutor):
             self._athenaConcurrentEvents = 0
         else:
             # Try to detect AthenaMT mode, number of threads and number of concurrent events
-            self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
+            if self._disableMT:
+                self._athenaMT = 0
+            else:
+                self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
 
             # Try to detect AthenaMP mode and number of workers
-            self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
-
-        if self._disableMT:
-            self._athenaMT = 0
-
-        if self._disableMP:
-            self._athenaMP = 0
-        else:
-            # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
-            # which also avoids issues with zero sized files
-            if expectedEvents < self._athenaMP:
-                msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
-                self._disableMP = True
+            if self._disableMP:
                 self._athenaMP = 0
+            else:
+                self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
+
+        # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
+        # which also avoids issues with zero sized files
+        if not self._disableMP and expectedEvents < self._athenaMP:
+            msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
+            self._disableMP = True
+            self._athenaMP = 0
 
         # Handle executor steps
         if self.conf.totalExecutorSteps > 1:
