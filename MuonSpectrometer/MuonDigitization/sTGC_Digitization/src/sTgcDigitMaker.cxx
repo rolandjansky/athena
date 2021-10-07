@@ -20,7 +20,7 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "TF1.h" 
 #include <cmath>
@@ -32,12 +32,13 @@
 //---------------------------------------------------
 
 //----- Constructor
-sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager, bool doEfficiencyCorrection)
+sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, 
+                               const MuonGM::MuonDetectorManager* mdManager, 
+                               bool doEfficiencyCorrection)
+  : AthMessaging (Athena::getMessageSvc(), "sTgcDigitMaker")
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
-  m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for sTGCSimHit_p1
-  m_efficiencyOfStrips      = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
   //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
@@ -78,12 +79,6 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   // initialize the TGC identifier helper
   m_idHelper = m_mdManager->stgcIdHelper();
 
-  // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
-  readFileOfTimeArrival();
-  
-  // Read share/sTGC_Digitization_timeOffsetStrip.dat_
-  readFileOfTimeOffsetStrip();
-
   // getting our random numbers stream
   m_engine = rndmEngine;
 
@@ -91,22 +86,29 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   // Currently no point in wasting memory to read an empty file for energy threshold.
   // We have no gap-by-gap energy threshold currently for the sTGC
   // Alexandre Laurier - April 13 2021
-  //readFileOfEnergyThreshold();
+  //ATH_CHECK(readFileOfEnergyThreshold());
 
   //// Read share/sTGC_Digitization_crossTalk.dat file and store values in m_crossTalk.
-  //readFileOfCrossTalk();
+  //ATH_CHECK(readFileOfCrossTalk());
 
   // Read share/sTGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber.
-  readFileOfDeadChamber();
+  ATH_CHECK(readFileOfDeadChamber());
 
   // Read share/sTGC_Digitization_effChamber.dat file and store values in m_ChamberEfficiency.
-  readFileOfEffChamber();
+  ATH_CHECK(readFileOfEffChamber());
 
   // Read share/sTGC_Digitization_timeWindowOffset.dat file and store values in m_timeWindowOffset.
-  readFileOfTimeWindowOffset();
+  ATH_CHECK(readFileOfTimeWindowOffset());
 
   //// Read share/sTGC_Digitization_alignment.dat file and store values in m_alignmentZ, m_alignmentT, m_alignmentS, m_alignmentTHS
-  //readFileOfAlignment();
+  //ATH_CHECK(readFileOfAlignment());
+
+  // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
+  ATH_CHECK(readFileOfTimeArrival());
+  
+  // Read share/sTGC_Digitization_timeOffsetStrip.dat
+  ATH_CHECK(readFileOfTimeOffsetStrip());
+
   return StatusCode::SUCCESS;
 }
 
@@ -333,7 +335,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### strip readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::strip response ");
-  int channelType = 1;
+  int channelType = sTgcIdHelper::sTgcChannelTypes::Strip;
 
   Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
 
@@ -512,7 +514,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### pad readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::pad response ");
-  channelType = 0;
+  channelType = sTgcIdHelper::sTgcChannelTypes::Pad;
   
   //************************************ find the nearest readout element ************************************** 
   int  surfHash_pad =  detEl->surfaceHash(gasGap, 0);
@@ -521,7 +523,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   Amg::Vector3D hitOnSurface_pad = SURF_PAD.transform().inverse()*GPOS;
   Amg::Vector2D posOnSurf_pad(hitOnSurface_pad.x(), hitOnSurface_pad.y());
 
-  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 0, 1, true);// find the a pad id
+  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);// find the a pad id
 
   insideBounds = SURF_PAD.insideBounds(posOnSurf_pad);
 
@@ -554,7 +556,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### wire readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::wire response ");
-  channelType = 2;
+  channelType = sTgcIdHelper::sTgcChannelTypes::Wire;
 
     // Find the ID of the first wiregroup
     Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
@@ -575,7 +577,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wiregroupNumber, true, &isValid);
   
         if(isValid) {
-          int NumberOfWiregroups = detEl->numberOfStrips(newId); // 0 --> pad, 1 --> strip, 2 --> wire
+          int NumberOfWiregroups = detEl->numberOfStrips(newId);
           if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(digits.get(), newId, bctag, sDigitTimeWire, channelType);
         } // end of if(isValid)
         else if (wiregroupNumber != -1){
@@ -642,17 +644,6 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool sTgcDigitMaker::efficiencyCheck(const int channelType) const {
-  if(channelType == 0) { // wire group
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfWireGangs) return true;
-  }
-  else if(channelType == 1) { // strip
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfStrips) return true;
-  }
-  ATH_MSG_DEBUG("efficiencyCheck(): Hit removed. channelType: " << channelType );
-  return false;
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {
   // If the energy deposit is equal to or greater than the threshold value of the chamber,
   // return true.
@@ -688,7 +679,7 @@ bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int s
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, int channelType) const {
 
-  if(channelType!=0&&channelType!=2) {
+  if((channelType!=sTgcIdHelper::sTgcChannelTypes::Pad) && (channelType!=sTgcIdHelper::sTgcChannelTypes::Wire)) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
   }
 
@@ -708,7 +699,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
 
 void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const {
 
-  if(channelType!=1) {
+  if(channelType!=sTgcIdHelper::sTgcChannelTypes::Strip) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
   }
 
@@ -728,7 +719,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfEnergyThreshold() {
+StatusCode sTgcDigitMaker::readFileOfEnergyThreshold() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap, channelType;
 
@@ -751,7 +742,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_energyThreshold.dat file
@@ -759,7 +750,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   double energyThreshold;
@@ -801,10 +792,11 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
 
   // Close the sTGC_Digitization_energyThreshold.dat file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfDeadChamber() {
+StatusCode sTgcDigitMaker::readFileOfDeadChamber() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap;
 
@@ -825,7 +817,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfDeadChamber(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_deadChamber.dat file
@@ -833,7 +825,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfDeadChamber(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_deadChamber.dat file
@@ -876,10 +868,11 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   // Close the sTGC_Digitization_deadChamber.dat file
   ifs.close();
 
-  ATH_MSG_INFO("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
+  ATH_MSG_VERBOSE("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
+  return StatusCode::SUCCESS;
 }
 
-void sTgcDigitMaker::readFileOfEffChamber() {
+StatusCode sTgcDigitMaker::readFileOfEffChamber() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap;
   float eff;
@@ -901,7 +894,7 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEffChamber(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_EffChamber.dat file
@@ -909,7 +902,7 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfEffChamber(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_EffChamber.dat file
@@ -961,10 +954,11 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   // Close the sTGC_Digitization_deadChamber.dat file
   ifs.close();
 
-  ATH_MSG_INFO("sTgcDigitMaker::readFileOfEffChamber: the number of dead chambers = " << nDeadChambers );
+  ATH_MSG_VERBOSE("sTgcDigitMaker::readFileOfEffChamber: the number of dead chambers = " << nDeadChambers );
+  return StatusCode::SUCCESS;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeWindowOffset() {
+StatusCode sTgcDigitMaker::readFileOfTimeWindowOffset() {
   // Indices to be used
   int iStationName, stationEta, channelType;
 
@@ -981,7 +975,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_timeWindowOffset.dat file
@@ -989,7 +983,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
@@ -1020,9 +1014,8 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
 
   // Close the sTGC_Digitization_timeWindowOffset.dat file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
-
-
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
 double sTgcDigitMaker::getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const {
@@ -1141,13 +1134,13 @@ int sTgcDigitMaker::getIStationName(const std::string& stationName) const {
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeArrival() {
+StatusCode sTgcDigitMaker::readFileOfTimeArrival() {
   // Verify the file sTGC_Digitization_timeArrival.dat exists
   const std::string file_name = "sTGC_Digitization_timeArrival.dat";
   std::string file_path = PathResolver::find_file(file_name.c_str(), "DATAPATH");
   if(file_path.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_timeArrival.dat file
@@ -1155,7 +1148,7 @@ void sTgcDigitMaker::readFileOfTimeArrival() {
   ifs.open(file_path.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("sTgcDigitMaker: Failed to open time of arrival file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
@@ -1174,6 +1167,7 @@ void sTgcDigitMaker::readFileOfTimeArrival() {
 
   // Close the file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -1197,13 +1191,13 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
   return m_gammaParameter.at(index);
 }
 
-void sTgcDigitMaker::readFileOfTimeOffsetStrip() {
+StatusCode sTgcDigitMaker::readFileOfTimeOffsetStrip() {
   // Verify the file sTGC_Digitization_timeOffsetStrip.dat exists
   const std::string file_name = "sTGC_Digitization_timeOffsetStrip.dat";
   std::string file_path = PathResolver::find_file(file_name.c_str(), "DATAPATH");
   if(file_path.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_timeOffsetStrip.dat file
@@ -1211,7 +1205,7 @@ void sTgcDigitMaker::readFileOfTimeOffsetStrip() {
   ifs.open(file_path.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("sTgcDigitMaker: Failed to open time of arrival file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Initialize the container to store the time offset.
@@ -1238,6 +1232,7 @@ void sTgcDigitMaker::readFileOfTimeOffsetStrip() {
 
   // Close the file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 
 double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
@@ -1291,5 +1286,4 @@ double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
 //  localPos.y() = localPos.y()+localDisplacementYByX+localDisplacementY;
 //  localPos.z() = localPos.z()+localDisplacementZByX-localDisplacementZ;
 //}
-
 
