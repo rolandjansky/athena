@@ -156,19 +156,17 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 0,
                 "algorithms" : [
-                    TopoMenuDef( '8INVM15-20DR99-C-2MU4ab',                    outputbits = 0 ), #BLS, test
-                    TopoMenuDef( '0INVM16-20DR99-2MU4ab',                      outputbits = 1 ), #BLS, test
-                    TopoMenuDef( '0INVM16-15DR99-2MU4ab',                      outputbits = 2 ), #BLS, test
-                    TopoMenuDef( '8INVM15-20DR99-2MU4ab',                      outputbits = 3 ), #BLS, test
-                    TopoMenuDef( '8INVM15-15DR99-2MU4ab',                      outputbits = 4 ), #BLS, test
-                    TopoMenuDef( '0INVM10-3MU4ab',                             outputbits = 5 ), #BLS
+                    TopoMenuDef( '8INVM15-20DR99-C-2MU3Vab',                   outputbits = 0 ), #BLS, test
+                    TopoMenuDef( '0INVM16-20DR99-2MU3Vab',                     outputbits = 1 ), #BLS, test
+                    TopoMenuDef( '0INVM16-15DR99-2MU3Vab',                     outputbits = 2 ), #BLS, test
+                    TopoMenuDef( '8INVM15-20DR99-2MU3Vab',                     outputbits = 3 ), #BLS, test
+                    TopoMenuDef( '8INVM15-15DR99-2MU3Vab',                     outputbits = 4 ), #BLS, test
+                    TopoMenuDef( '0INVM10-3MU3Vab',                            outputbits = 5 ), #BLS
                     TopoMenuDef( 'LATE-MU10s1',                                outputbits = 6 ),
-                    TopoMenuDef( 'MULT-CMU4ab',                                outputbits = (7,8), outputlines = ['MULT-CMU4ab[0]', 'MULT-CMU4ab[1]'] ), # BLS, 2bits  # TODO: needed?
-                    TopoMenuDef( 'MULT-CMU6ab',                                outputbits = (9,10), outputlines = ['MULT-CMU6ab[0]', 'MULT-CMU6ab[1]'] ), # BLS, 2bits # TODO: needed?
-                    TopoMenuDef( '0DR04-MU4ab-CjJ15ab',                        outputbits = 11 ), #Bjet, TODO: not a primary
-                    TopoMenuDef( '0DR04-MU6ab-CjJ20ab',                        outputbits = 12 ), #Bjet, TODO: not a primary
-                    TopoMenuDef( '0INVM10C-3MU4ab',                            outputbits = 13 ), #BLS
-                    TopoMenuDef( '2INVM9-0DR15-C-MU6ab-MU4ab',                 outputbits = 14 ), #BLS 
+                    TopoMenuDef( '0DR04-MU3Vab-CjJ15ab',                       outputbits = 7 ), #Bjet, TODO: not a primary
+                    TopoMenuDef( '0DR04-MU5VFab-CjJ20ab',                      outputbits = 8 ), #Bjet, TODO: not a primary
+                    TopoMenuDef( '0INVM10C-3MU3Vab',                           outputbits = 9 ), #BLS
+                    TopoMenuDef( '2INVM9-0DR15-C-MU5VFab-MU3Vab',              outputbits = 10), #BLS 
                 ]
             },            
 
@@ -268,8 +266,8 @@ def defineInputsMenu():
                     TopoMenuDef( '0INVM70-27DPHI32-eEM10sm1-eEM10sm6',   outputbits = 2 ),
                     TopoMenuDef( '0INVM70-27DPHI32-eEM12sm1-eEM12sm6',   outputbits = 3 ),
                     TopoMenuDef( 'ZEE-eEM20sm2',                         outputbits = 4 ), 
-                    TopoMenuDef( '10DR99-2MU6ab',                        outputbits = 5 ), #Msonly Narrow scan triggers
-                    TopoMenuDef( '0DR12C-2MU4ab',                        outputbits = 6 ), #BLS
+                    TopoMenuDef( '10DR99-2MU5VFab',                      outputbits = 5 ), #Msonly Narrow scan triggers
+                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), #BLS
                 ]
             },
 
@@ -277,18 +275,19 @@ def defineInputsMenu():
                 "fpga" : 1,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( '8INVM15-0DR22-MU6ab-MU4ab',            outputbits = 0 ),  #BLS
-                    TopoMenuDef( '2INVM9-0DR15-MU6ab-MU4ab',             outputbits = 1 ),  #BLS 
-                    TopoMenuDef( '2INVM9-0DR15-2MU4ab',                  outputbits = 2 ),  #BLS 
-                    TopoMenuDef( '2INVM9-2DR15-2MU6ab',                  outputbits = 3 ),  #BLS
-                    TopoMenuDef( '5DETA99-5DPHI99-2MU4ab',               outputbits = 4 ),  #Low-mass DY
-                    TopoMenuDef( '5DETA99-5DPHI99-MU6ab-MU4ab',          outputbits = 5 ),  #Low-mass DY
-                    TopoMenuDef( '5DETA99-5DPHI99-2MU6ab',               outputbits = 6 ),  #Low-mass DY
-                    TopoMenuDef( '0INVM10-0DR15-eEM8abl-MU10ab',         outputbits = 7 ), #LFV
-                    TopoMenuDef( '0INVM10-0DR15-eEM12abl-MU6ab',         outputbits = 8 ), #LFV
-                    TopoMenuDef( '8INVM15-2CMU4ab',                      outputbits = 9 ), #BLS, TODO: needed?
-                    TopoMenuDef( '0DR15-2MU6ab',                         outputbits = 10 ), #LFV
-                    TopoMenuDef( '8INVM15-0DR22-2MU6ab',                 outputbits = 11 ), #BLS
+                    TopoMenuDef( '8INVM15-0DR22-MU5VFab-MU3Vab',         outputbits = 0 ),  #BLS
+                    TopoMenuDef( '2INVM9-0DR15-MU5VFab-MU3Vab',          outputbits = 1 ),  #BLS 
+                    TopoMenuDef( '2INVM9-0DR15-2MU3Vab',                 outputbits = 2 ),  #BLS 
+                    TopoMenuDef( '2INVM9-2DR15-2MU5VFab',                outputbits = 3 ),  #BLS
+                    TopoMenuDef( '5DETA99-5DPHI99-2MU3Vab',              outputbits = 4 ),  #Low-mass DY
+                    TopoMenuDef( '5DETA99-5DPHI99-MU5VFab-MU3Vab',       outputbits = 5 ),  #Low-mass DY
+                    TopoMenuDef( '5DETA99-5DPHI99-2MU5VFab',             outputbits = 6 ),  #Low-mass DY
+                    TopoMenuDef( '0INVM10-0DR15-eEM8abl-MU8Fab',         outputbits = 7 ), #LFV
+                    TopoMenuDef( '0INVM10-0DR15-eEM12abl-MU5VFab',       outputbits = 8 ), #LFV
+                    TopoMenuDef( '8INVM15-2CMU3Vab',                     outputbits = 9 ), #BLS, TODO: needed?
+                    TopoMenuDef( '0DR15-2MU5VFab',                       outputbits = 10 ), #LFV
+                    TopoMenuDef( '8INVM15-0DR22-2MU5VFab',               outputbits = 11 ), #BLS
+                    TopoMenuDef( '8INVM15-0DR22-CMU5VFab-CMU3Vab',       outputbits = 12 ), #BLS
                 ]
             }
         ]
@@ -306,7 +305,7 @@ def defineInputsMenu():
             # exactly the first 4 thresholds must be defined with 3 bits, all others use 2 bits automatically
             ('MU3V',3), ('MU5VF',3), ('MU8F',3), ('MU8VF',3), 'MU14FCH', 'MU14FCHR',
             # Run3 test/backup
-            'MU3VF', 'MU8FC', 'MU15VFCH', 'MU10BOM', 'MU20FC',
+            ('MU3VF',3), ('MU4BOM',3), ('MU8FC',3), 'MU8VFC', 'MU15VFCH', 'MU10BOM', 'MU10BO', 'MU12BOM', 'MU20FC',
         ]
 
     })
@@ -326,7 +325,7 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( "MUCTP-0DR15-2MU6ab",            outputbits = 0 ),
+                    TopoMenuDef( "MUCTP-0DR15-2MU5VFab",            outputbits = 0 ),
                 ]
             },
             {

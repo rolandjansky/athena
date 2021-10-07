@@ -75,6 +75,8 @@ def setupMenu():
         ChainProp(name='HLT_mu6_L1MU5VF',     groups=SingleMuonGroup),
         ChainProp(name="HLT_noalg_L1MU5VF",   l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+LowMuGroup),
 
+        ChainProp(name="HLT_mu14_L1MU8VFC", groups=SingleMuonGroup),
+
         ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF',           groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0medium_L1MU14FCH',     groups=SingleMuonGroup),
         
@@ -117,9 +119,11 @@ def setupMenu():
         ChainProp(name='HLT_2mu14_l2io_L12MU8F', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_l2io_L12MU5VF',     l1SeedThresholds=['MU5VF'],   groups=MultiMuonGroup),
 
-        #ATR-22537
-        ChainProp(name='HLT_2mu10_l2mt_L1MU8F', groups=MultiMuonGroup),
+        #ATR-22537, ATR-22243
+        ChainProp(name='HLT_2mu10_l2mt_L1MU10BO', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu10_l2mt_L1MU10BOM', groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_l2mt_L1MU4BOM', groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu10_l2mt_L1MU12BOM', groups=MultiMuonGroup),
 
         #performance chain for isolation (ATR-21905)
         ChainProp(name='HLT_mu26_ivarperf_L1MU14FCH', groups=SingleMuonGroup),
@@ -1020,6 +1024,7 @@ def setupMenu():
 
         # RCP multiple candidate
         ChainProp(name='HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM', l1SeedThresholds=['MU10BOM']*2, stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU12BOM', l1SeedThresholds=['MU10BOM']*2, stream=["BphysDelayed"], groups=BphysicsGroup),
 
         # mu6+mu4 chains with L1 charge cut (ATR-19639)
         ChainProp(name='HLT_mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M9-0DR15-C-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
