@@ -31,7 +31,7 @@ def getBJetSequence(jc_name):
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnJetWithPVConstraintROITool
-    InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
+    InputMakerAlg = EventViewCreatorAlgorithm( f"IMBJet_{jc_name}_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
     newRoITool.RoisWriteHandleKey  = recordable( outputRoIName )
@@ -41,7 +41,7 @@ def getBJetSequence(jc_name):
     InputMakerAlg.mergeUsingFeature = True
     InputMakerAlg.RoITool = newRoITool
     #
-    InputMakerAlg.Views = "BTagViews"
+    InputMakerAlg.Views = f"BTagViews_{jc_name}"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     #
     InputMakerAlg.RequireParentView = False
@@ -50,9 +50,11 @@ def getBJetSequence(jc_name):
     InputMakerAlg.PlaceJetInView = True
 
     # Output container names as defined in TriggerEDMRun3
-    jc_key = f'{jc_name}_'if jc_name else ''
-    InputMakerAlg.InViewJets = recordable( f'HLT_{jc_key}bJets' )
-    BTagName = recordable(f'HLT_{jc_key}BTagging')
+    if not jc_name:
+        raise ValueError("jet collection name is empty - pass the full HLT jet collection name to getBJetSequence().")
+    jc_key = f'{jc_name}_'
+    InputMakerAlg.InViewJets = recordable( f'{jc_key}bJets' )
+    BTagName = recordable(f'{jc_key}BTagging')
 
     # Prepare data objects for view verifier
     viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % InputMakerAlg.InViewRoIs ),
@@ -78,19 +80,19 @@ def getBJetSequence(jc_name):
     # 1) We need to do the alogorithms manually and then remove them from the CA
     flavourTaggingAlgs = [conf2toConfigurable(alg)
                           for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
-    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + flavourTaggingAlgs )
+    bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + flavourTaggingAlgs )
     acc_flavourTaggingAlgs._sequence = []
 
     # 2) the rest is done by the generic helper
     appendCAtoAthena(acc_flavourTaggingAlgs)
 
-    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
+    InputMakerAlg.ViewNodeName = f"bJetBtagSequence_{jc_name}"
 
     # Sequence
-    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
+    BjetAthSequence = seqAND( f"BjetAthSequence_{jc_name}_step2",[InputMakerAlg,bJetBtagSequence] )
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlg
-    hypo = TrigBjetBtagHypoAlg( "TrigBjetBtagHypoAlg" )
+    hypo = TrigBjetBtagHypoAlg( f"TrigBjetBtagHypoAlg_{jc_name}" )
     # keys
     hypo.BTaggedJetKey = InputMakerAlg.InViewJets
     hypo.BTaggingKey = bTaggingContainerName

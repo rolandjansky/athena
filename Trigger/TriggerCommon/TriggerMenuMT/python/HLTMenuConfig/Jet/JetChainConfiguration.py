@@ -80,6 +80,37 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
         self.recoDict = extractRecoDict(jChainParts)
 
+        self._setJetName()
+
+
+    # ----------------------
+    # Assemble jet collection name based on reco dictionary
+    # ----------------------
+    def _setJetName(self):
+        from ..Menu.ChainDictTools import splitChainDict
+        from .JetRecoSequences import JetRecoConfiguration
+        from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
+        try:
+            subChainDict = splitChainDict(self.dict)[0]
+        except IndexError:
+            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
+        prefix = JetRecoConfiguration.getHLTPrefix()
+        suffix = "_"+jetRecoDict["jetCalib"]
+        if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
+            suffix += "_{}".format(jetRecoDict["trkopt"])
+        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
+        actualradius = float(jetradius)/10
+        self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
+        if inputDef.basetype == xAODType.CaloCluster:
+             # Omit cluster origin correction from jet name
+             # Keep the origin correction explicit because sometimes we may not
+             # wish to apply it, whereas PFlow corrections are applied implicitly
+             self.jetName = self.jetName.replace("Origin","")
+        
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------

@@ -17,11 +17,13 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
 
     acc = ComponentAccumulator()
 
+    inputJetsPrefix = inputJets.replace("bJets","b")  # because Cfg functions internally re-append the 'Jets' string
+
     #Particle to Jet Association
-    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, "TracksForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJetsPrefix, inputTracks, "TracksForBTagging"))
 
     if inputMuons:
-        acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputMuons, "MuonsForBTagging"))
+        acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJetsPrefix, inputMuons, "MuonsForBTagging"))
         Muons = "MuonsForBTagging"
     else:
         Muons = ""
@@ -29,11 +31,11 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
     #Secondary Vertexing
     SecVertexers = [ 'JetFitter', 'SV1' ]
     for sv in SecVertexers:
-        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, sv, "TracksForBTagging"))
-        acc.merge(JetSecVertexingAlgCfg(ConfigFlags, BTagName, inputJets.replace("Jets",""), inputTracks, inputVertex, sv))
+        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJetsPrefix, inputVertex, sv, "TracksForBTagging"))
+        acc.merge(JetSecVertexingAlgCfg(ConfigFlags, BTagName, inputJetsPrefix, inputTracks, inputVertex, sv))
 
     #Run Run2 taggers, i.e. IP2D, IP3D, SV1, JetFitter, MV2c10
-    acc.merge(JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection=BTagName, JetCollection=inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList=ConfigFlags.BTagging.Run2TrigTaggers, SetupScheme="Trig", SecVertexers = SecVertexers, Tracks = "TracksForBTagging", Muons = Muons))
+    acc.merge(JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection=BTagName, JetCollection=inputJetsPrefix, PrimaryVertexCollectionName=inputVertex, TaggerList=ConfigFlags.BTagging.Run2TrigTaggers, SetupScheme="Trig", SecVertexers = SecVertexers, Tracks = "TracksForBTagging", Muons = Muons))
 
     #Track Augmenter
     acc.merge(BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection=inputTracks, PrimaryVertexCollectionName=inputVertex))
@@ -41,7 +43,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
     #Jet Augmenter
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         ConfigFlags,
-        JetCollection=inputJets.replace("Jets",""),
+        JetCollection=inputJets,
         BTagCollection=BTagName,
         Associator="BTagTrackToJetAssociator",
         TrackCollection=inputTracks,
@@ -50,7 +52,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
     # Jet Calibration
     acc.merge(JetTagCalibCfg(ConfigFlags, scheme="Trig",
                              TaggerList=ConfigFlags.BTagging.Run2TrigTaggers,
-                             NewChannel = ["HLT_b->HLT_b,AntiKt4EMTopo"])) # "HLT_bJets" is the name of the b-jet JetContainer
+                             NewChannel = [f"{inputJetsPrefix}->{inputJetsPrefix},AntiKt4EMTopo"])) # "HLT_bJets" is the name of the b-jet JetContainer
 
     #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
     tagger_list = [
