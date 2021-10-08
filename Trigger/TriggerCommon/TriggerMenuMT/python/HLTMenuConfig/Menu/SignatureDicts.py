@@ -151,7 +151,10 @@ JetChainParts = {
        'preselj200',
        'preselj225',
        # Multijets
+       'presel2j140',
+       'presel2j180',
        'presel2j200',
+       'presel2j225',
        'presel3j45',
        'presel3j100',
        'presel3j125',
@@ -168,9 +171,15 @@ JetChainParts = {
        # Multiple threshold
        'preselj60XXj40',
        'preselj140XXj45',
+       'preselj225XXj225',
        'preselj80XX2j45',
        'presel2j180XXj80',
-       'preselj60XXj45XX2j20' # L1J45p0ETA21_3J15p0ETA25
+       'preselj50XX3j50',
+       'presel2j25XX2j25',
+       'presel3j25XXj25',
+       'preselj60XXj45XXj25XXj20', # L1J45p0ETA21_3J15p0ETA25
+       'presel2j25XX3j25',
+       'presel5j25XXj15',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
