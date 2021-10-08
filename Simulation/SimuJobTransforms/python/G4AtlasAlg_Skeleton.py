@@ -132,6 +132,10 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'truthStrategy'):
         ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
+    # Setup perfmon flags from runargs
+    from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
+
     # Special Configuration preInclude
     specialConfigPreInclude(ConfigFlags)
 
