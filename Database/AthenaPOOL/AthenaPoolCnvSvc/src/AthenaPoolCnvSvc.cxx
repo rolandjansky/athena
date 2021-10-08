@@ -908,7 +908,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) {
          }
       }
    }
-   if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
+   if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient() && (m_streamingTechnology.value() < 0 || token->technology() == m_streamingTechnology.value())) {
       ATH_MSG_VERBOSE("Requesting remote object for: " << token->toString());
       if (!m_inputStreamingTool->lockObject(token->toString().c_str()).isSuccess()) {
          ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
