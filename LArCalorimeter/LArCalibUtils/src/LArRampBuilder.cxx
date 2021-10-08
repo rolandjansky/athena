@@ -684,10 +684,9 @@ StatusCode LArRampBuilder::stop()
 	    if (!isADCsat) { rawramp->setsat(data.size()); }	// if no saturation point was found, and ADC saturation did not happen, record the ramp size
 	  }
 	   
-	  if (larRampComplete){ //Produce transient object
-	    larRampComplete->set(chid,(int)gain,rampCoeffs);
-	    NRamp++;
-	  }
+          //Produce transient object
+          larRampComplete->set(chid,(int)gain,rampCoeffs);
+          NRamp++;
 	}// end else (rampfitting suceeded)
       }// end if (build ramp object)
       //Save raw ramp for this cell, if requested by jobOpts
