@@ -45,12 +45,15 @@ class sTgcDigitMaker : public AthMessaging {
   virtual ~sTgcDigitMaker();
 
   /**
-     Initializes sTgcHitIdHelper, sTgcIdHelper and random number
-     of a stream for the digitization.  
+     Initializes sTgcHitIdHelper and sTgcIdHelper, 
+     and call the functions to read files containing digitization parameters.
   */
-  StatusCode initialize(CLHEP::HepRandomEngine* m_rndmEngine, const int channelTypes);
+  StatusCode initialize(const int channelTypes);
 
-  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime);
+  /**
+     Digitize a given hit, determining the time and charge spread on wires, pads and strips.
+  */
+  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime, CLHEP::HepRandomEngine* rndmEngine);
 
   //====== for private
  private:
@@ -108,6 +111,7 @@ class sTgcDigitMaker : public AthMessaging {
   StatusCode readFileOfTimeArrival();
   /** Read share/sTGC_Digitization_timeOffsetStrip.dat */
   StatusCode readFileOfTimeOffsetStrip();
+
   ///** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
@@ -166,7 +170,6 @@ class sTgcDigitMaker : public AthMessaging {
   // Time offset to add to Strip timing
   std::vector<double> m_timeOffsetStrip;
 
-  CLHEP::HepRandomEngine* m_engine{}; // not owned here
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
   const sTgcIdHelper* m_idHelper{}; // not owned here
