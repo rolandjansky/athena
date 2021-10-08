@@ -101,7 +101,6 @@ private:
   
   /**declare identifier*/
   HWIdentifier m_febID;
-  int m_ch1,m_ch2;  
 
   /**other variables used in joboptions*/
   bool m_IsOnline; 
