@@ -22,13 +22,11 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
   GeoModelTool(type, name, parent),
   m_geoDbTagSvc("GeoDbTagSvc", name),
   m_rdbAccessSvc("RDBAccessSvc", name),
-  m_geometryDBSvc("InDetGeometryDBSvc", name),
   m_detectorManager(nullptr),
   m_printIDdict(false) {
     // Get parameter values from the python configuration
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("PrintModuleNumberPerRow", m_printIDdict);
 }
 
@@ -36,13 +34,11 @@ StatusCode HGTD_DetectorTool::create() {
 
     ATH_CHECK(m_geoDbTagSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
-    ATH_CHECK(m_geometryDBSvc.retrieve());
 
     // Get their interfaces to pass to the DetectorFactory
     m_athenaComps.setDetStore(detStore().operator->());
     m_athenaComps.setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps.setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps.setGeometryDBSvc(&*m_geometryDBSvc);
     const HGTD_ID* idHelper{nullptr};
     ATH_CHECK(detStore()->retrieve(idHelper, "HGTD_ID"));
     m_athenaComps.setIdHelper(idHelper);

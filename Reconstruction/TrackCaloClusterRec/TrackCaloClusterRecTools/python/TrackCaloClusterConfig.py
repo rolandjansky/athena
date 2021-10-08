@@ -61,9 +61,6 @@ def tmpSetupTrackServices(inputFlags):
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
     
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    
  
     #Setup TRT geometry
     TRT_DetectorTool=CompFactory.TRT_DetectorTool
@@ -73,10 +70,6 @@ def tmpSetupTrackServices(inputFlags):
     trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
  
-    #Setup up material for inner detector
-    InDetServMatTool=CompFactory.InDetServMatTool
-    result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
-    
     #Setup up tracking geometry
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)

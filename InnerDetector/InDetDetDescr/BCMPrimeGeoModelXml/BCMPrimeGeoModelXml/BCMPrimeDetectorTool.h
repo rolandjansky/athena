@@ -46,7 +46,6 @@ class BCMPrimeDetectorTool : public GeoModelTool {
   const InDetDD::BCMPrimeDetectorManager *m_manager;
   InDetDD::AthenaComps *m_athenaComps;
   ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
-  ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
 };
 

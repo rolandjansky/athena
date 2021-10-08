@@ -9,7 +9,6 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -26,7 +25,6 @@ BCMPrimeDetectorTool::BCMPrimeDetectorTool(const std::string &type,
     m_manager(nullptr),
     m_athenaComps(nullptr),
     m_rdbAccessSvc("RDBAccessSvc", name),
-    m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
 
     {
@@ -38,7 +36,6 @@ BCMPrimeDetectorTool::BCMPrimeDetectorTool(const std::string &type,
     declareProperty("Alignable", m_alignable);
     declareProperty("GmxFilename", m_gmxFilename);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
 
 }
@@ -55,7 +52,6 @@ StatusCode BCMPrimeDetectorTool::create() {
     // Get the detector configuration.
     ATH_CHECK(m_geoDbTagSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
-    ATH_CHECK(m_geometryDBSvc.retrieve());
     GeoModelExperiment *theExpt;
     ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
@@ -65,7 +61,6 @@ StatusCode BCMPrimeDetectorTool::create() {
     m_athenaComps = new InDetDD::AthenaComps("BCMPrimeGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
 
     //

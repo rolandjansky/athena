@@ -71,9 +71,6 @@ def PFCfg(inputFlags,**kwargs):
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
     result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
 
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-
     #from AthenaCommon import CfgGetter
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
     #result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
@@ -85,10 +82,6 @@ def PFCfg(inputFlags,**kwargs):
     trtDetectorTool.DoXenonArgonMixture = False
     trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
-
-    #Setup up material for inner detector
-    InDetServMatTool=CompFactory.InDetServMatTool
-    result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
 
     #Setup up tracking geometry
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg

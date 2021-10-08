@@ -4,14 +4,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
-def ITkStripGeometryCfg( flags ):
+def ITkStripGeometryCfg(flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc = GeoModelCfg( flags )
-    geoModelSvc=acc.getPrimary()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("ITkGeometryDBSvc"))
-    StripDetectorTool=CompFactory.StripDetectorTool
-    ITkStripDetectorTool = StripDetectorTool()
+    acc = GeoModelCfg(flags)
+    geoModelSvc = acc.getPrimary()
+
+    ITkStripDetectorTool = CompFactory.StripDetectorTool()
     # ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic #Will we need to do dynamic alignment for ITk?
     ITkStripDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkStripDetectorTool.DetectorName = "ITkStrip"
