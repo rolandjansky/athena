@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //   T0MTHistos.h
@@ -52,13 +52,13 @@ namespace MuonCalib {
         }
         //---------------------------static constants-----------------------------------
         //! number of parameters in t0 fit
-        static const int N_T0_FIT_PAR = 4;
+        static constexpr int N_T0_FIT_PAR = 4;
         //! parameter numbers in t0 fit
-        static const int T0_PAR_NR_T0 = 0, T0_PAR_NR_T = 1, T0_PAR_NR_BACK = 2, T0_PAR_NR_A = 3;
+        static constexpr int T0_PAR_NR_T0 = 0, T0_PAR_NR_T = 1, T0_PAR_NR_BACK = 2, T0_PAR_NR_A = 3;
         //! number of parameters for tmax fit
-        static const int N_TMAX_FIT_PAR = 6;
+        static constexpr int N_TMAX_FIT_PAR = 6;
         //! parameters numbers for tmax fit
-        static const int TMAX_PAR_NR_TMAX = 0, TMAX_PAR_NR_T = 1, TMAX_PAR_NR_BACK = 2, TMAX_PAR_NR_A = 3, TMAX_PAR_NR_B = 4,
+        static constexpr int TMAX_PAR_NR_TMAX = 0, TMAX_PAR_NR_T = 1, TMAX_PAR_NR_BACK = 2, TMAX_PAR_NR_A = 3, TMAX_PAR_NR_B = 4,
                          TMAX_PAR_NR_T0 = 5;
         //---------------------------public member functions----------------------------
         /** Initialize class
