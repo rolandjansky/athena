@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef T0CALIBRATIONMT_H
@@ -61,9 +61,9 @@ namespace MuonCalib {
 
         /** @return the calibration results
          */
-        IMdtCalibration::MdtCalibOutputPtr getResults() const;
+        virtual IMdtCalibration::MdtCalibOutputPtr getResults() const override;
 
-        IMdtCalibration::MdtCalibOutputPtr analyseSegments(const MuonSegVec &segs);  //!< new interface function
+        virtual IMdtCalibration::MdtCalibOutputPtr analyseSegments(const MuonSegVec &segs) override;  //!< new interface function
 
     private:
         T0MTHistos *getHistos(const MuonFixedId &idtube, unsigned int nr);      //!< retrieve pointer for tube idtube histograms

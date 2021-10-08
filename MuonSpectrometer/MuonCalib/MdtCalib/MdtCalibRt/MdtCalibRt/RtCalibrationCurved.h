@@ -175,7 +175,7 @@ namespace MuonCalib {
         bool converged() const;
         ///< returns true, if the
         ///< autocalibration has converged
-        MdtCalibOutputPtr getResults() const;
+        virtual MdtCalibOutputPtr getResults() const override;
         ///< returns the final r-t relationship
 
     private:
