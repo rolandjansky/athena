@@ -576,7 +576,7 @@ namespace top {
                       "KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
 
     // loop over all permutations
-    xAOD::KLFitterResult* result = NULL;
+    xAOD::KLFitterResult* result = nullptr;
     if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
       if(m_LHType == "ttbar_AllHadronic_SingleT") {
 	if(!permutationLoopAutoSetSingleT(result,resultContainer,event)) {
@@ -728,7 +728,7 @@ namespace top {
 	  combinedResult->setModel_lj2_from_top2_phi(st2->model_lj2_from_top1_phi());
 	  combinedResult->setModel_lj2_from_top2_E(st2->model_lj2_from_top1_E());
 	  combinedResult->setModel_lj2_from_top2_jetIndex(st2->model_lj2_from_top1_jetIndex());
-	} else std::cout << "KLFitterTool:: WARNING! Best permutation not found, an empty result is saved" << std::endl;
+	} else ATH_MSG_WARNING("KLFitterTool:: WARNING! Best permutation not found, an empty result is saved");
       }
 
       if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)) {
@@ -1346,8 +1346,8 @@ namespace top {
 	}//ib2
       }//ib1
 
-      if(!hasrun) std::cout << "WARNING   KLFitterRun:: KLF hasn't run. Something wrong with the combinatorics!" << std::endl;
-      return true;
+   if(!hasrun) ATH_MSG_ERROR("WARNING   KLFitterRun:: KLF hasn't run. Something wrong with the combinatorics!");
+   return true;
   }
 
 
@@ -1387,7 +1387,7 @@ namespace top {
       }//iq1
     }//ib1
     
-    if(!hasrun) std::cout << "WARNING   KLFitterTool:: KLF hasn't run. Something wrong with the combinatorics!" << std::endl;
+    if(!hasrun) ATH_MSG_ERROR("WARNING   KLFitterTool:: KLF hasn't run. Something wrong with the combinatorics!");
 
     return true;
   }
