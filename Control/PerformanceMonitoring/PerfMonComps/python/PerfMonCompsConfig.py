@@ -47,7 +47,7 @@ def PerfMonMTSvcCfg(flags, **kwargs):
 
     # Add the algorithm that is necessary for the service
     PerfMonMTAlg = CompFactory.PerfMonMTAlg
-    acc.addEventAlgo(PerfMonMTAlg(), sequenceName='AthAlgSeq')
+    acc.addEventAlgo(PerfMonMTAlg(), sequenceName='AthBeginSeq')
     
     # Return the CA
     return acc
