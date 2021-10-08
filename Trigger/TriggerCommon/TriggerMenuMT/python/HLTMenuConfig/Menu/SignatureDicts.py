@@ -141,35 +141,36 @@ JetChainParts = {
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
       ['nopresel',
-       #Loose
-       'preselj20',        #L1J15, L1J20
-       'preselj60',        #L1J30
-       'preselj135',       #L1J50, #L1J100
-       'presel2j135',      #L1J50, L1J100
-       'presel2j135XXj60', #L1J50, L1J100
-       'presel3j100',      #L1J100
-       'presel4j33',       #L13J50
-       'presel5j24',       #L14J15
-       'presel6j36',       #L14J15
-       'presel7j21',       #L14J15
-       #Medium
-       'preselj180',       #L1J100
-       'presel2j180',      #L1J100
-       'presel2j180XXj80', #L1J100
-       'presel3j125',      #L1J100
-       'presel4j55',       #L13J50
-       'presel5j35',       #L14J15
-       'presel6j40',       #L14J15
-       'presel7j28',       #L14J15
-       #Tight
-       'preselj225',        #L1J100
-       'presel2j225',       #L1J100
-       'presel2j225XXj100', #L1J100
-       'presel3j150',       #L1J100
-       'presel4j85',        #L13J50
-       'presel5j50',        #L14J15
-       'presel6j45',        #L14J15
-       'presel7j35',        #L14j15
+       # Single jet
+       'preselj20',
+       'preselj50',
+       'preselj80',
+       'preselj120',
+       'preselj140',
+       'preselj180',
+       'preselj200',
+       'preselj225',
+       # Multijets
+       'presel2j200',
+       'presel3j45',
+       'presel3j100',
+       'presel3j125',
+       'presel3j150',
+       'presel4j20',
+       'presel4j25',
+       'presel4j50',
+       'presel4j85',
+       'presel5j25',
+       'presel5j50',
+       'presel6j25',
+       'presel6j40',
+       'presel7j30',
+       # Multiple threshold
+       'preselj60XXj40',
+       'preselj140XXj45',
+       'preselj80XX2j45',
+       'presel2j180XXj80',
+       'preselj60XXj45XX2j20' # L1J45p0ETA21_3J15p0ETA25
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
