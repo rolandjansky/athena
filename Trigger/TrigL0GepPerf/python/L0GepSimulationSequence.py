@@ -3,18 +3,26 @@ import logging as log
 from AthenaCommon.Include import include
 
 #
-# The algorithms can be set from the joboptions.
-# The current available options are the following.
+# The default available options are the following.
 #
-# topoclustering and default clusters:
-# topoclAlgs = ['CaloCal','Calo420','Calo422','CaloWFS']
+# Topoclusters:
+# 'Calo422' : 42 topoclusters at EM scale 
+# 'Calo420' : 420 topoclusters at EM scale 
+# 'CaloCal' : 420 topoclusters LC calibrated 
 #
-# pileup suppression:
-# puSupprAlgs = ['', 'Vor', 'SK', 'VorSK']
+# Pileup suppression:
+# 'Vor'   : Voronoi, 
+# 'SK'    : SoftKiller
+# 'VorSK' : Voronoi+SoftKiller
 #
-# jet reconstruction:
-# jetAlgs = ['AntiKt4']
+# Jet reconstruction:
+# 'AntiKt4' : offline AntiKt4
+#
+# Custom topoclustering and jet reconstruction algorithms can be called 
+# following the naming scheme in GepClusteringAlg.cxx and GepJetAlg.cxx.
 # 
+
+
 
 def setupL0GepSimulationSequence(
         topoclAlgs = ['Calo422'], 
@@ -48,6 +56,20 @@ def setupL0GepSimulationSequence(
     CaloClusterTopo420Getter()
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
     topSequence+=ClusterCreator("CaloCluster2xAOD")
+
+
+    # run JFEX algorithms
+    from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as pflags
+    pflags.Calo.UseAllCalo=True
+    pflags.CTP.RunCTPEmulation=False 
+    from RecExConfig.RecFlags import rec
+    rec.readAOD=True
+    rec.readESD=True
+    rec.readRDO=False
+    rec.doESD=True
+    rec.doWriteAOD=False
+    include("TrigT1CaloFexPerf/createL1PerfSequence.py")
+
 
     for topoMaker in topoclAlgs:
 
