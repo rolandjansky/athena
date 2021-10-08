@@ -36,7 +36,7 @@ MisalignModeMap = {0:'no Misalignment',
                     2: 'random misalignment',
                     11: 'R deltaR (radial expansion)', 12: 'Phi deltaR (ellipse)',13: 'Z deltaR (funnel)',
                     21: 'R deltaPhi (curl)', 22: 'Phi deltaPhi (clamshell) ',23:'Z deltaPhi (twist)',
-                    31: 'R deltaZ (telescope)',32:'Phi deltaZ (skew)',33:'Z deltaZ (z-expansion)'}
+                    31: 'R deltaZ (telescope)',32:'Phi deltaZ (skew)',33:'Z deltaZ (z-expansion)', 99:'testing'}
 
 # construct Alignmentparameter Input filename
 AlignmentInFilename = InFile + '.pool.root'
@@ -50,12 +50,15 @@ ASCIIFilename        = OutFiles
 # Setup geometry
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource='geant4'
-globalflags.DetDescrVersion = 'ATLAS-P2-ITK-22-02-00'
+globalflags.DetDescrVersion = 'ATLAS-P2-ITK-23-00-03'
 
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
 include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
 include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
+
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+#SLHC_Flags.UseLocalGeometry = True
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
@@ -70,18 +73,27 @@ ServiceMgr += GeoModelSvc
 GeoModelSvc.AtlasVersion = globalflags.DetDescrVersion()
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('OFLCOND-MC15c-SDR-14-03')
+#conddb.setGlobalTag('OFLCOND-MC15c-SDR-14-03')
+conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 
 import AthenaCommon.AtlasUnixGeneratorJob
-ServiceMgr.EventSelector.RunNumber         = 222222
+#ServiceMgr.EventSelector.RunNumber         = 222222
 ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
+
+ITkAlignFolder="/Indet/AlignITk"
 
 from InDetAlignGenTools.InDetAlignGenToolsConf import InDetAlignDBTool
 InDetDBTool = InDetAlignDBTool()
+InDetDBTool.SCTTwoSide=True
+InDetDBTool.DBRoot=ITkAlignFolder
+InDetDBTool.DBKey=ITkAlignFolder
+InDetDBTool.forceUserDBConfig=True
+InDetDBTool.OutputLevel=VERBOSE
 ToolSvc += InDetDBTool
 print InDetDBTool
 
 print "CreateMisalignAlg: Creation of misalignment mode %s: %s" % (MisalignmentMode,MisalignModeMap.get(MisalignmentMode,'unknown'))
+
 
 from InDetAlignGenAlgs.InDetAlignGenAlgsConf import InDetAlignment__CreateMisalignAlg
 myMisalignAlg = InDetAlignment__CreateMisalignAlg( name = "MyMisalignmentAlg",
@@ -92,21 +104,21 @@ myMisalignAlg = InDetAlignment__CreateMisalignAlg( name = "MyMisalignmentAlg",
                                                     MisalignMode = MisalignmentMode,
                                                     MisalignmentX = 0.0,
                                                     MisalignmentY = 0.0,
-                                                    MisalignmentZ = 0.,
+                                                    MisalignmentZ = 0.0,
                                                     MisalignmentAlpha = 0.,
                                                     MisalignmentBeta = 0.,
                                                     MisalignmentGamma = 0.,
-                                                    IBLBowingTshift = 1,
-                                                    ScalePixelIBL = 0.1,
-                                                    ScalePixelBarrel=0.1,
-                                                    ScalePixelEndcap=0.1,
-                                                    ScaleSCTBarrel=0.1,
+                                                    IBLBowingTshift = 0.,
+                                                    ScalePixelIBL = 0.,
+                                                    ScalePixelBarrel=1.,
+                                                    ScalePixelEndcap=0.,
+                                                    ScaleSCTBarrel=1.,
                                                     ScaleSCTEndcap=0.,
                                                     ScaleTRTBarrel=0.,
                                                     ScaleTRTEndcap=0.,
                                                     MaxShift = MaximumShift, 
                                                     doPixel = True,
-                                                    doSCT = False,
+                                                    doSCT = True,
                                                     doTRT = False,
                                                     OutputLevel = VERBOSE)
 
@@ -151,7 +163,11 @@ if WriteDBPoolFile:
     regSvc.RecreateFolders = False
 
     IOVDbSvc = Service( "IOVDbSvc" )
-    IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=COMP200" % (DatabaseFilename)
+    IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=OFLP200" % (DatabaseFilename)
+    
+    from IOVDbSvc.CondDB import conddb
+    # block folders that you want to override
+    conddb.blockFolder("/Indet/Align")
 
 
 
@@ -161,3 +177,4 @@ svcMgr.StatusCodeSvc.SuppressCheck = True
 svcMgr.StatusCodeSvc.AbortOnError = False
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")
+

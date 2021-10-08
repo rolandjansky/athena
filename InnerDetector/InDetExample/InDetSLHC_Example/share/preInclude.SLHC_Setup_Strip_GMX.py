@@ -8,3 +8,4 @@ if SLHC_Flags.UseLocalGeometry():
  SCT_GMX_DetectorTool.GmxFilename = "ITkStrip.gmx"
 else:
  SCT_GMX_DetectorTool.GmxFilename = ""
+

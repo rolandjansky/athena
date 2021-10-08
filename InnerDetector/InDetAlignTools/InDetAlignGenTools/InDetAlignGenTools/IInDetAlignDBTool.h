@@ -65,6 +65,8 @@ class IInDetAlignDBTool: virtual public IAlgTool {
   virtual void sortTrans() const=0; 
   virtual void extractAlphaBetaGamma(const Amg::Transform3D & trans, 
                                      double& alpha, double& beta, double &gamma) const=0;
+                                     
+  virtual bool useSCTtwoSide() const = 0;                                     
 };
 
 inline const InterfaceID& IInDetAlignDBTool::interfaceID()

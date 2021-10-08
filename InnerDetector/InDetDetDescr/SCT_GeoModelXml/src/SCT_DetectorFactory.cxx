@@ -303,7 +303,7 @@ InDetDD::AlignFolderType SCT_DetectorFactory::getAlignFolderType() const {
         detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/SCT") &&
         detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
  
-    if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
+    if (detStore()->contains<AlignableTransformContainer>("/Indet/AlignITk") ) static_folderStruct = true;
  
     if (static_folderStruct && !timedep_folderStruct){
         msg(MSG::INFO) << "Static run1 type alignment folder structure found" << endmsg;
