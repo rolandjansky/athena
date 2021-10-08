@@ -293,7 +293,7 @@ StatusCode CaloHitAnalysis::execute() {
     if(evtStore()->retrieve(iterator, LArCalibKey[j]) == StatusCode::SUCCESS) {
       //Not tested
       for (auto hit_i : *iterator) {
-	GeoCaloCalibHit geoHit(*hit_i, LArCalibKey[j]);
+	GeoCaloCalibHit geoHit(*hit_i, LArCalibKey[j], caloMgr);
 	if (!geoHit) continue;
 	const CaloDetDescrElement* Element = geoHit.getDetDescrElement();
 	double eta = Element->eta();
