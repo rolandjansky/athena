@@ -35,7 +35,7 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 
 cleaningDict = {
     'CLEANlb':  'LooseBad',
@@ -229,6 +229,22 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     }[groomAlg]
     return groomDef
 
+def defineHIJets(jetRecoDict,clustersKey=None,prefix='',suffix=''):
+    minpt = {
+        4:  7000,
+        10: 50000,
+    }
+    jetalg, jetradius, jetextra = interpretRecoAlg(jetRecoDict["recoAlg"])
+    actualradius = float(jetradius)/10
+
+    constitMods = [] # modifiers
+    jetConstit = []
+    jetConstit = JetInputConstitSeq( "HLT_HIConstit",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey,label='HI')
+    from JetRecConfig.StandardJetConstits import stdConstitDic
+    stdConstitDic.setdefault(jetConstit.name, jetConstit)
+
+    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix)
+    return jetDef
 ##########################################################################################
 # Generation of modifier lists. So far only calib, but can add track, substructure mods
 

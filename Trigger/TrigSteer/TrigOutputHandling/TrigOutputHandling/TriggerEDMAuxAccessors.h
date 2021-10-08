@@ -162,6 +162,6 @@ auto velmuAccessors = initAccessors<std::vector<ElementLink<xAOD::MuonContainer>
 
 auto velvtxAccessors = initAccessors<std::vector<ElementLink<xAOD::VertexContainer>>>("SV1_vertices");
 
-auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack");
+auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack", "HLT_HIClusters_DR8Assoc");
 
 } // namespace TriggerEDMAuxAccessors
