@@ -67,7 +67,6 @@ def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
-    #isRUN1 = not (isRUN2 or isUpgrade)
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
@@ -287,7 +286,6 @@ def getATLAS_RegionCreatorList():
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
     isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
@@ -300,7 +298,7 @@ def getATLAS_RegionCreatorList():
             regionCreatorList += ['PixelPhysicsRegionTool']
         if DetFlags.SCT_on():
             regionCreatorList += ['SCTPhysicsRegionTool']
-        if DetFlags.TRT_on() and not isUpgrade:
+        if DetFlags.TRT_on():
             regionCreatorList += ['TRTPhysicsRegionTool']
             if isRUN2:
                 regionCreatorList += ['TRT_ArPhysicsRegionTool'] #'TRT_KrPhysicsRegionTool'
