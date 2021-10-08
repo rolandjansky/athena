@@ -103,6 +103,35 @@ StatusCode Run2ToRun3TrigNavConverterV2::initialize()
   }
 
   ATH_CHECK(m_configSvc.retrieve());
+  ATH_CHECK(m_clidSvc.retrieve());
+
+  // configured collections can be either just type name, or type#key
+  // decoding takes this into account, if only the type is configured then empty string is places in the decoded lookup map
+  // else CLID + a name is placed
+  for (const auto& name : m_collectionsToSave) {
+    std::string typeName = name;
+    std::string collName;
+    size_t delimeterIndex = name.find('#');
+    if (delimeterIndex != std::string::npos) {
+      ATH_MSG_ERROR("Not support for specific collection name yet");
+      return StatusCode::FAILURE;
+      typeName = name.substr(0, delimeterIndex);
+      collName = name.substr(delimeterIndex+1);
+    }
+    CLID id{ 0 };
+    ATH_CHECK(m_clidSvc->getIDOfTypeName(typeName, id));
+    ATH_MSG_DEBUG("Will be linking collection type " << typeName << " name (empty==all) " << collName);
+    m_collectionsToSaveDecoded[id].insert(collName);
+
+  }
+  // sanity check, i.e. if there is at least one entry w/o the coll name no other enties are needed for a given clid
+  for ( auto [clid, keysSet]: m_collectionsToSaveDecoded ) {
+    if ( keysSet.size() > 1 and keysSet.count("") != 0 ) {
+      ATH_MSG_ERROR("Bad configuration for CLID " << clid << " reuested saving of all (empty coll name configures) collections, yet there are also specific keys");
+      return StatusCode::FAILURE;
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -362,7 +391,7 @@ uint64_t Run2ToRun3TrigNavConverterV2::feaToHash(const std::vector<HLT::TriggerE
   uint64_t hash = 0;
   for ( auto fea:  feaVector) {
     if ( feaToSkip(fea) ) {
-      ATH_MSG_VERBOSE("Skipping TrigPassBits in FEA hash calcualtion");
+      ATH_MSG_VERBOSE("Skipping TrigPassBits in FEA hash calculation");
       continue;
     }
     uint64_t repr64 = static_cast<uint64_t>(fea.getCLID()) << 32 | static_cast<uint64_t>(fea.getIndex().subTypeIndex())<<24 | (fea.getIndex().objectsBegin() << 16 ^ fea.getIndex().objectsEnd());
@@ -383,6 +412,18 @@ bool Run2ToRun3TrigNavConverterV2::feaEqual(const std::vector<HLT::TriggerElemen
     if ( not (a[i] == b[i]) ) return false;
   }
   return true;
+}
+
+
+bool Run2ToRun3TrigNavConverterV2::feaToSave(const HLT::TriggerElement::FeatureAccessHelper& fea) const { 
+  auto iter = m_collectionsToSaveDecoded.find(fea.getCLID());
+  if ( iter == m_collectionsToSaveDecoded.end() ) return false;
+  if ( iter->second.count("") ) return true; // recording of all collections of a type is requested
+  // TODO complete this implementation with precise collection match (requires access to the NavStructure)
+  //
+  // the logic would be to call: HLTNavDetails::formatSGKey("HLT", conainerTypeName, *(getHolder(fea)->label());
+  //
+  return false; 
 }
 
 StatusCode Run2ToRun3TrigNavConverterV2::allProxiesHaveChain(const ConvProxySet_t& proxies) const {

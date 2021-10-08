@@ -52,6 +52,7 @@ if __name__=='__main__':
     from AthenaCommon.Constants import DEBUG
     alg = CompFactory.Run2ToRun3TrigNavConverterV2("TrigNavCnv", OutputLevel=DEBUG, TrigConfigSvc=confSvc)
     alg.doSelfValidation = False
+    alg.Collections = ["xAOD::TrigElectronContainer"]
 
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

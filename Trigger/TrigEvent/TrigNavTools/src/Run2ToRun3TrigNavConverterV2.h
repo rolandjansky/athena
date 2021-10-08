@@ -67,6 +67,7 @@ private:
   SG::ReadHandleKey<xAOD::TrigNavigation> m_trigNavKey{ this, "TrigNavReadKey", "TrigNavigation" };
   PublicToolHandle<Trig::TrigDecisionTool> m_tdt{ this, "TrigDecisionTool","", "When enabled read navigation from TDT/off by default" };
   ServiceHandle< TrigConf::IHLTConfigSvc > m_configSvc{ this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc", "Trigger configuration service" };
+  ServiceHandle<IClassIDSvc> m_clidSvc{ this, "ClassIDSvc", "ClassIDSvc", "Service to translate CLID to class name" };
 
 
   Gaudi::Property<bool> m_doSelfValidation{ this, "doSelfValidation", false, "Run consistency checks after stages of conversion (slows down the alg)" };
@@ -74,7 +75,7 @@ private:
   Gaudi::Property<bool> m_doLinkFeatures{ this, "doLinkFeatures", true, "Add links to objects, setting it false makes sense when running tests" };
   Gaudi::Property<size_t> m_hNodesPerProxyThreshold{ this, "hNodesPerProxyThreshhold", 15, "Limit number of H nodes per TE (if exceeded conversion results in an error)" };
   Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {}, "If not specified, all chains are handled" };
-
+  Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
@@ -111,6 +112,9 @@ private:
   uint64_t feaToHash(const std::vector<HLT::TriggerElement::FeatureAccessHelper>&) const;
   bool feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const;
 
+  //!< returns true if this particular feature is to be saved (linked)
+  bool feaToSave(const HLT::TriggerElement::FeatureAccessHelper&) const;
+
   // self validators
   // they return failure if something is not ok 
   StatusCode allProxiesHaveChain(const ConvProxySet_t&) const;
@@ -122,6 +126,8 @@ private:
   StatusCode numberOfHNodesPerProxyNotExcessive(const ConvProxySet_t&) const;
 
   StatusCode noUnconnectedHNodes(const xAOD::TrigCompositeContainer&) const;
+
+  std::map<CLID, std::set<std::string>> m_collectionsToSaveDecoded;
 
 };
 
