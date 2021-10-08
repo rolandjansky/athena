@@ -9,7 +9,7 @@
 
 // *** Include derived jet algorithm classes ***
 #include "TrigL0GepPerf/ModAntikTJetMaker.h"
-
+#include "TrigL0GepPerf/ConeJetMaker.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -49,7 +49,7 @@ StatusCode GepJetAlg::execute() {
 
 
   std::vector<Gep::CustomTopoCluster> customClusters;
-  for( auto iClus: *clusters){
+  for( auto iClus: *clusters ){
     Gep::CustomTopoCluster clus;
     clus.vec.SetPxPyPzE(iClus->p4().Px(), iClus->p4().Py(),
                           iClus->p4().Pz(), iClus->e());
@@ -67,8 +67,15 @@ StatusCode GepJetAlg::execute() {
     jetMaker = std::move(customJetAlg);
   }
   
+  else if ( m_jetAlg=="Cone4SeedjRJ" ) {
+    auto coneJetAlg = std::make_unique<Gep::ConeJetMaker>(0.4);
+    const xAOD::JetRoIContainer * seeds = 0;
+    CHECK(evtStore()->retrieve(seeds,"jRoundJetsPerf"));
+    coneJetAlg->setSeeds(seeds);
+    jetMaker = std::move(coneJetAlg);
+  }
 
-
+  
   if( !jetMaker ){
     ATH_MSG_ERROR( "JetMaker is a null pointer." );
     return StatusCode::FAILURE;
@@ -77,6 +84,10 @@ StatusCode GepJetAlg::execute() {
 
   std::vector<Gep::CustomJet> customJets = jetMaker->makeJet( customClusters );
 
+  // if no jets were found, skip event
+  if( customJets.empty() ){
+    return StatusCode::SUCCESS;
+  }
 
   // create the new container and its auxiliary store
   auto athenaJets = std::make_unique<xAOD::JetContainer>();
@@ -99,6 +110,15 @@ StatusCode GepJetAlg::execute() {
     P4.SetM(iJet.vec.M());
 
     ijet->setJetP4( P4 );
+
+    ijet->setAttribute("RCut", iJet.radius);
+    ijet->setAttribute("SeedEta", iJet.seedEta); // < custom attributes
+    ijet->setAttribute("SeedPhi", iJet.seedPhi); //
+    ijet->setAttribute("SeedEt", iJet.seedEt); //
+
+    for (const auto& i: iJet.constituentsIndices) {
+      ijet->addConstituent(clusters->at(i));
+    }
 
   }
 
