@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthContainers/DataVector.icc
@@ -658,9 +658,8 @@ void DataVector<T, BASE>::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
@@ -2370,9 +2369,8 @@ void DATAVECTOR::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
