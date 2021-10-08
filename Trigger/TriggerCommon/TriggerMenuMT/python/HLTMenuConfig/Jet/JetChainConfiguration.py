@@ -123,7 +123,10 @@ class JetChainConfiguration(ChainConfigurationBase):
         # Only one step for now, but we might consider adding steps for
         # reclustering and trimming workflows
         chainSteps = []
-        if self.recoDict["trkopt"]=="ftf":
+        if self.recoDict["ionopt"]=="ion":
+            jetCollectionName, jetDef, jetHICaloHypoStep = self.getJetHICaloHypoChainStep()
+            chainSteps.append( jetHICaloHypoStep )
+        elif self.recoDict["trkopt"]=="ftf":
             if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
@@ -168,6 +171,16 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
+    def getJetHICaloHypoChainStep(self):
+        stepName = "MainStep_HIjet"
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetHICaloHypoMenuSequence
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetHICaloHypoMenuSequence,
+                                                     ConfigFlags, isPerf=self.isPerf, **self.recoDict )
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
+
+        return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
     def getJetTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
@@ -204,6 +217,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             'clusterCalib':'em',
             'constitMod':'',
             'trkopt':'notrk',
+            'ionopt':'noion',
         }
         ''' #Here you can set custom calibrations for large-R preselections. If you set to LCW you'll get an issue though, as the trigger expects the *same* topocluster collection to be used in the preselection and in the PFlow stage with tracking. Therefore this would need to be adapted, but it might not be so easy...
          

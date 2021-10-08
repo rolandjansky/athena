@@ -135,6 +135,8 @@ JetChainParts = {
       ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'subjesgsc', 'subresjesgsc', 'nojcalib'],
     'scan'         : # No longer used?
       ['FS',],
+    'ionopt'       : # Heavy ion configuration
+      ['noion','ion'],
     'trkopt'       : # Tracking configuration
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
@@ -285,6 +287,7 @@ JetChainParts_Default = {
     'constitMod'    :'',
     'jetCalib'      :'default',
     'scan'          :'FS',
+    'ionopt'        : 'noion',
     'trkopt'        : 'notrk',
     'trkpresel'     : 'nopresel',
     #

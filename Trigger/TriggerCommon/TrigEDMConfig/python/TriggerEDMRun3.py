@@ -86,6 +86,9 @@ def getBTagViewName(jetType, jetDetailStr="subresjesgscIS_ftf"):
 BTagViewsEMTopo = getBTagViewName("AntiKt4EMTopoJets")
 BTagViewsEMPFlow = getBTagViewName("AntiKt4EMPFlowJets")
 
+HIJetVarsToKeep = JetVarsToKeep + ['HLT_HIClusters_DR8Assoc']
+HIJetVars = '.'.join(HIJetVarsToKeep)
+
 BTagOutput = ['jetLink','BTagTrackToJetAssociator','Muons',]
 BTagOutput_IP2D = ['IP2D_TrackParticleLinks','IP2D_nTrks','IP2D_isDefaults','IP2D_cu','IP2D_bu','IP2D_bc',]
 BTagOutput_IP3D = ['IP3D_TrackParticleLinks','IP3D_nTrks','IP3D_isDefaults','IP3D_cu','IP3D_bu','IP3D_bc',]
@@ -603,6 +606,16 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
 
+    # Heavy ion
+    ('xAOD::JetContainer#HLT_AntiKt4HIJets_Unsubtracted',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4HIJets_UnsubtractedAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4HIJets_sub_noCalib',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4HIJets_sub_noCalibAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4HIJets',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4HIJetsAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
+
     # TLA jets
 
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS JetDS ESD', 'Jet'),
@@ -641,6 +654,19 @@ TriggerHLTListRun3 = [
     # HI event shape
     ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),
     ('xAOD::HIEventShapeAuxContainer#HLT_HIEventShapeEGAux.',   'BS ESD AODFULL',   'Egamma'),
+
+    # HI event shape for jet
+    ('xAOD::HIEventShapeContainer#HLTHIEventShape',          'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeAuxContainer#HLTHIEventShapeAux.',   'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeContainer#HLTHIEventShape_iter_egamma',          'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeAuxContainer#HLTHIEventShape_iter_egammaAux.',   'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeContainer#HLTHIEventShapeWeighted',          'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeAuxContainer#HLTHIEventShapeWeightedAux.',   'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeContainer#HLTHIEventShapeWeighted_iter0',          'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeAuxContainer#HLTHIEventShapeWeighted_iter0Aux.',   'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeContainer#HLTHIEventShape_iter1',          'BS ESD AODFULL',   'Jet'),
+    ('xAOD::HIEventShapeAuxContainer#HLTHIEventShape_iter1Aux.',   'BS ESD AODFULL',   'Jet'),
+
 
     # custom BeamSpot tracks - we don't want to write these out in general so this
     # is commented, if we want to write them out at some point, then these lines
