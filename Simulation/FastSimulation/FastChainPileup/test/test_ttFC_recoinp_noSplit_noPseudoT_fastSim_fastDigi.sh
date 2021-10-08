@@ -23,7 +23,7 @@ FastChain_tf.py --maxEvents 500 \
     --conditionsTag OFLCOND-RUN12-SDR-31 \
     --inputRDOFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RecoInputRefs/RDO_pileup_fastsim_fastdigi.pool.root' \
     --outputAODFile ${aodFile} \
-    --preExec "all:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False);InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);" \
+    --preExec "all:rec.doTrigger.set_Value_and_Lock(False);InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False);InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt");ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1' \
     --imf False
 rc2=$?

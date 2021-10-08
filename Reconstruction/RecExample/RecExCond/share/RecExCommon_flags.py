@@ -352,8 +352,6 @@ else:
     # hack handle name mismatch
     if i=="donewTracking":
        inew="doNewTracking"
-    # hack do not map doTrigger to rec.doTrigger but to recAlgs.doTrigger   
-    # FIXME why not the contrary
     if jobproperties.Rec.__dict__.keys().__contains__(i) :
        if i in varInit:
           i_value = eval ('%s' % (i))
@@ -594,7 +592,7 @@ try:
    if rec.doTrigger():
       from TriggerJobOpts.TriggerFlags import TriggerFlags, sync_Trigger2Reco
 except Exception:
-   logRecExCommon_flags.info("Could not load TriggerFlags. OK only if AtlasReconstruction. Switching of rec.doTrigger")
+   logRecExCommon_flags.info("Could not load TriggerFlags. Switching of rec.doTrigger")
    rec.doTrigger=False
 
 
@@ -628,8 +626,6 @@ if rec.Commissioning():
    # being flags to switch algorithm on/off
    # ----------------------------------------------------------------------
    from RecExConfig.RecAlgsFlags  import recAlgs
-
-   #recAlgs.doTrigger 
 
    #
    # hack...
@@ -943,23 +939,12 @@ if not rec.doTau:
       pass
 
 
-# move up, need to know earlier if trigger is on
-#try:
-#   if rec.doTrigger():
-#      from TriggerJobOpts.TriggerFlags import TriggerFlags, sync_Trigger2Reco
-#except Exception:
-#   logRecExCommon_flags.info("Could not load TriggerFlags. OK only if AtlasReconstruction. Switching of rec.doTrigger")
-#   rec.doTrigger=False
-
-
 if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
    rec.doBeamBackgroundFiller=False
 
-   #FIXME a separate container to be used eventually
-   recAlgs.doTrigger=False
    if _AODFlagsAvailable:
       AODFlags.Trigger=False # obsolete
 

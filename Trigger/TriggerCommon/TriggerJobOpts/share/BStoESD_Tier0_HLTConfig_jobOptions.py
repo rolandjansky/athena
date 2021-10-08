@@ -8,7 +8,6 @@
 #   HLToffline       : HLT is ran offline, configuration is read from JSON files
 #   HLTonline        : Normal running, everything is taken from COOL
 
-from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -21,8 +20,6 @@ _log.info("TriggerFlag.configForStartup = %s", tf.configForStartup())
 
 assertMsg = 'This file is meant for Trigger configuration in RAWtoESD/RAWtoALL data reconstruction.'
 assert rec.doTrigger(), assertMsg + ' Since rec.doTrigger is disabled, this file should not be included.'
-assert not recAlgs.doTrigger(), assertMsg + \
-    ' Trigger selection should not run in offline reconstruction, so recAlgs.doTrigger should be False'
 
 # First check if HLT psk is ok, if not, turn trigger off.
 if tf.configForStartup() != 'HLToffline':

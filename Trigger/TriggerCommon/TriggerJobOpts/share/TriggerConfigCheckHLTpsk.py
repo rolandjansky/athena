@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Include import include, printfunc
 include.block("TriggerJobOpts/TriggerConfigCheckHLTpsk.py")
 
@@ -67,9 +67,7 @@ if len(runNumbers)>0:
                    runNumbers)
         TriggerFlags.dataTakingConditions='NoTrigger'
         from RecExConfig.RecFlags import rec
-        from RecExConfig.RecAlgsFlags import recAlgs
         rec.doTrigger=False
-        recAlgs.doTrigger=False
         if 'DQMonFlags' not in dir():
             printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -80,7 +78,7 @@ if len(runNumbers)>0:
 
     elif needToTurnOffHLT:
         mlog.warning("ERROR At least one run (%r) does not contain HLT information", runNumbers)
-        mlog.warning("turning off hlt [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='Lvl1Only'].")
+        mlog.warning("turning off hlt [rec.doTrigger=True and TriggerFlags.dataTakingConditions='Lvl1Only'].")
         TriggerFlags.dataTakingConditions='Lvl1Only'
         if 'DQMonFlags' not in dir():
             printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
@@ -90,7 +88,7 @@ if len(runNumbers)>0:
 
     elif needToTurnOffLVL1:
         mlog.warning("ERROR At least one run (%r) does not contain LVL1 information", runNumbers)
-        mlog.warning("turning off lvl1 [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='HltOnly'].")
+        mlog.warning("turning off lvl1 [rec.doTrigger=True and TriggerFlags.dataTakingConditions='HltOnly'].")
         TriggerFlags.dataTakingConditions='HltOnly'
         if 'DQMonFlags' not in dir():
             printfunc ("TriggerJobOpts/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")

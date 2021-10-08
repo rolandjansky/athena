@@ -56,9 +56,8 @@ def BunchCrossingTool( type = "" ):
         return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
-        from RecExConfig.RecAlgsFlags import recAlgs
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly() or recAlgs.doTrigger():
+        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
         else:
