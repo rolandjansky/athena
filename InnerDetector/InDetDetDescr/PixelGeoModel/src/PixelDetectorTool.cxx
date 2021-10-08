@@ -453,6 +453,8 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     
     else {
       std::string folderName = "/Indet/Align";
+      // fast builder only used for ITk geometry, hence change the alignment folder
+      if (m_bFastBuildGeoModel) folderName = "/Indet/AlignITk";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
 	const DataHandle<AlignableTransformContainer> atc;

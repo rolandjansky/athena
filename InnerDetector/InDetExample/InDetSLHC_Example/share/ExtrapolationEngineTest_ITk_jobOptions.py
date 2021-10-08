@@ -3,8 +3,6 @@
 # Job options 
 #
 # This is for validation of ITk tracking geometry.
-# Modified version of Tracking/TrkExtrapolation/TrkExUnitTests/share/ExtrapolationEngineTest_jobOptions.py. (TrkExUnitTests-00-00-08)
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/UpgradeSimulationInnerTrackerMigrationRel20p3p3#Validation_of_database_files
 #==============================================================
 
 #--------------------------------------------------------------
@@ -25,21 +23,34 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
-DetFlags.BCM_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
+
+# build GeoModel
+#DetDescrVersion = "ATLAS-P2-ITK-22-02-00"
+
+DetDescrVersion = "ATLAS-P2-ITK-23-00-03"
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion = DetDescrVersion
+
+from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+TrkDetFlags.InDetBuildingOutputLevel = INFO
+
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+#SLHC_Flags.UseLocalGeometry = True
+
+#from AthenaCommon.DetFlags import DetFlags
+#DetFlags.geometry.HGTD_setOn()
+#DetFlags.HGTD_setOn()
+
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
-
-# build GeoModel
-if 'DetDescrVersion' not in dir():
-       DetDescrVersion = 'ATLAS-P2-ITK-01-00-00'
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = DetDescrVersion
 
 from AtlasGeoModel import SetGeometryVersion 
 from AtlasGeoModel import GeoModelInit 
@@ -50,32 +61,14 @@ ServiceMgr += GeoModelSvc
 GeoModelSvc.AtlasVersion = DetDescrVersion
 
 from IOVDbSvc.CondDB import conddb
+#conddb.setGlobalTag('OFLCOND-MC15c-SDR-14-03')
+#ServiceMgr.EventSelector.RunNumber         = 222222
 conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 
-# switch the material loading off
+## Material information and AtlasTrackingGeometrySvc loaded here
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-TrkDetFlags.PixelBuildingOutputLevel = INFO
-TrkDetFlags.SCT_BuildingOutputLevel  = INFO
-TrkDetFlags.TRT_BuildingOutputLevel  = INFO
-TrkDetFlags.ConfigurationOutputLevel = INFO
-TrkDetFlags.TRT_BuildStrawLayers     = True
-
-TrkDetFlags.SLHC_Geometry = True
-
-TrkDetFlags.MaterialDatabaseLocal    = True
-if TrkDetFlags.MaterialDatabaseLocal() is True :
-    TrkDetFlags.MaterialSource           = 'COOL'
-    TrkDetFlags.MaterialVersion          = 17
-    TrkDetFlags.MaterialSubVersion       = ""
-    # splitGeo = DetDescrVersion.split('-')
-    # TrkDetFlags.MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
-    TrkDetFlags.MaterialMagicTag = DetDescrVersion
-    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/LayerMaterialITK'
-    TrkDetFlags.MaterialDatabaseLocalPath    = './'
-    TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
-
-# load the tracking geometry service
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+#TrkDetFlags.MaterialSource           = 'Input'
+include("InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py")
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -84,9 +77,9 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-theApp.EvtMax           = 1 # 100
-ExToolOutputLevel       = VERBOSE # INFO #
-ExAlgorithmOutputLevel  = INFO #
+theApp.EvtMax           = 1000
+ExToolOutputLevel       = INFO #VERBOSE # INFO #
+ExAlgorithmOutputLevel  = INFO #VERBOSE # INFO #
 
 from AthenaCommon.AppMgr import ServiceMgr
 # output level
@@ -106,8 +99,13 @@ from IOVDbSvc.CondDB import conddb
 conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09-solTil3')
 
 from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
-ExtrapolationEninge = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=ExToolOutputLevel)
-ToolSvc += ExtrapolationEninge
+ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=ExToolOutputLevel)
+ToolSvc += ExtrapolationEngine
+
+from TrkValTools.TrkValToolsConf import Trk__PositionMomentumWriter as PmWriter
+PmWriter = PmWriter()
+ToolSvc += PmWriter
+
 
 #--------------------------------------------------------------
 # Algorithm setup
@@ -116,28 +114,56 @@ ToolSvc += ExtrapolationEninge
 # Add top algorithms to be run
 from TrkExUnitTests.TrkExUnitTestsConf import Trk__ExtrapolationEngineTest
 ExtrapolationEngineTest = Trk__ExtrapolationEngineTest('ExtrapolationEngineTest')
+# how many tests you want per event 
+ExtrapolationEngineTest.NumberOfTestsPerEvent   = 100
 # parameters mode: 0 - neutral tracks, 1 - charged particles 
-ExtrapolationEngineTest.ParametersMode      = 1
-# do the full test backwards as well
-ExtrapolationEngineTest.BackExtrapolation   = False
-# pT range for testing
-ExtrapolationEngineTest.PtMin               = 100000
-ExtrapolationEngineTest.PtMax               = 100000
-# The test range in Eta
-ExtrapolationEngineTest.EtaMin              =  -0.5
-ExtrapolationEngineTest.EtaMax              =   0.5
-# Configure how you wanna run
-ExtrapolationEngineTest.CollectSensitive    = True
-ExtrapolationEngineTest.CollectPassive      = True 
-ExtrapolationEngineTest.CollectBoundary     = True
-# the path limit to test
-ExtrapolationEngineTest.PathLimit           = -1.
+ExtrapolationEngineTest.ParametersMode          = 1
+# do the full test backwards as well            
+ExtrapolationEngineTest.BackExtrapolation       = False
+# Smear the production vertex - standard primary vertex paramters
+ExtrapolationEngineTest.SmearOrigin             = False
+ExtrapolationEngineTest.SimgaOriginD0           = 2./3.
+ExtrapolationEngineTest.SimgaOriginZ0           = 50.
+ExtrapolationEngineTest.SmearFlatOriginZ0       = False
+ExtrapolationEngineTest.Z0Min                   =  -150.
+ExtrapolationEngineTest.Z0Max                   =  150.
+ExtrapolationEngineTest.Z0Values                = [-150., 0., 150.]
+ExtrapolationEngineTest.SmearFlatOriginD0       = False
+ExtrapolationEngineTest.D0Min                   = -2.0
+ExtrapolationEngineTest.D0Max                   =  2.0
+# pT range for testing                        
+ExtrapolationEngineTest.PtMin                   = 1000
+ExtrapolationEngineTest.PtMax                   = 1000
+# The test range in Eta                      
+ExtrapolationEngineTest.EtaMin                  =  -5.
+ExtrapolationEngineTest.EtaMax                  =   5.
+#ExtrapolationEngineTest.EtaMin                  =  -2.0
+#ExtrapolationEngineTest.EtaMax                  =   2.0
+#ExtrapolationEngineTest.PhiMin                  =  -0.5
+#ExtrapolationEngineTest.PhiMax                  =   0.5
+# Configure how you wanna run                  
+ExtrapolationEngineTest.CollectSensitive        = True
+ExtrapolationEngineTest.CollectPassive          = True
+ExtrapolationEngineTest.CollectBoundary         = True
+ExtrapolationEngineTest.CollectMaterial         = True
+ExtrapolationEngineTest.UseHGTD                 = DetFlags.HGTD_on()
+# the path limit to test                        
+ExtrapolationEngineTest.PathLimit               = -1.
 # give it the engine
-ExtrapolationEngineTest.ExtrapolationEngine = ExtrapolationEninge
+ExtrapolationEngineTest.ExtrapolationEngine     = ExtrapolationEngine
+# validation tool 
+ExtrapolationEngineTest.PositionMomentumWriter    = PmWriter
 # output formatting
-ExtrapolationEngineTest.OutputLevel         = ExAlgorithmOutputLevel
+ExtrapolationEngineTest.OutputLevel             = ExAlgorithmOutputLevel
+
+
 job += ExtrapolationEngineTest   # 1 alg, named 'ExtrapolationEngineTest'
 
+# Start VP1
+# VP1 setup
+#from VP1Algs.VP1AlgsConf import VP1Alg
+#VP1Alg.InitiallyLoadedVP1Files = [ "myCookieVisualisation.vp1" ]  ## Extra line from Sabine
+#job += VP1Alg()
 
 #################################################################
 theApp.Dlls += [ 'RootHistCnv' ]
@@ -162,11 +188,23 @@ if not hasattr(ServiceMgr, 'THistSvc'):
        from GaudiSvc.GaudiSvcConf import THistSvc
        ServiceMgr += THistSvc()
 # add the G4 validation output stream
-ServiceMgr.THistSvc.Output += [ "val DATAFILE='ExtrapolationEngineTest.root' TYPE='ROOT' OPT='RECREATE'" ]
+ServiceMgr.THistSvc.Output += [ "val DATAFILE='ExtrapolationEngineTest_"+DetDescrVersion+"_mis.root' TYPE='ROOT' OPT='RECREATE'" ]
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
+include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")
+
+#include("InDetAlignGenAlgs/postInclude.loadMyLocalBD.py")
+
+from AthenaCommon.ConfigurationShelve import saveToAscii; 
+saveToAscii("config_job.txt");
+
 #==============================================================
 #
 # End of job options file
 #
 ###############################################################
+
+# VP1 setup
+##from VP1Algs.VP1AlgsConf import VP1Alg
+##VP1Alg.InitiallyLoadedVP1Files = [ "BasicVisualisationGeoModel.vp1" ]  ## Extra line from Sabine
+##job += VP1Alg()
+

@@ -170,6 +170,8 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
   //calculate three rotations around locX,locY,locY = alpha,beta,gamma out of an HepGeom::Transform3D
   void extractAlphaBetaGamma(const Amg::Transform3D & trans, 
                              double& alpha, double& beta, double &gamma) const; 
+                             
+  bool useSCTtwoSide() const { return par_scttwoside;};
   
  private:
   ServiceHandle < IToolSvc > p_toolsvc;

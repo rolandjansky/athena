@@ -160,6 +160,7 @@ class SLHC_Setup :
             pixelTool.Alignable = False
             pixelTool.FastBuildGeoModel = True
             pixelTool.ConfigGeoAlgTool = True
+            pixelTool.TweakIBLDist = False
             pixelTool.ReadXMLFromDB = bReadXMLfromDB
             pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
         

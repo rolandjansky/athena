@@ -230,22 +230,30 @@ void PixelDetectorFactoryFastGeo::create(GeoPhysVol *world)
 
   // Register the callbacks and keys and the level corresponding to the key.
   if (m_geometryManager->Alignable()) {
-    m_detectorManager->addFolder("/Indet/Align");
-    m_detectorManager->addChannel("/Indet/Align/ID",     2, InDetDD::global);
-    m_detectorManager->addChannel("/Indet/Align/PIX",    1, InDetDD::global);
-    m_detectorManager->addChannel("/Indet/Align/PIXB1",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB2",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB3",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB4",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB5",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA1", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA2", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA3", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA4", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC1", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC2", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC4", 0, InDetDD::local);
+    m_detectorManager->addFolder("/Indet/AlignITk");
+    m_detectorManager->addChannel("/Indet/AlignITk/ID",     2, InDetDD::global);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIX",    1, InDetDD::global);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXB1",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXB2",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXB3",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXB4",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXB5",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA1", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA2", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA3", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA4", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA5", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA6", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA7", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEA8", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC1", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC2", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC3", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC4", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC5", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC6", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC7", 0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/AlignITk/PIXEC8", 0, InDetDD::local);
   }
 
   // Check that there are no missing elements.
