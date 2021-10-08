@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -31,6 +31,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 
