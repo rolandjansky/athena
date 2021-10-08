@@ -536,7 +536,7 @@ namespace Rec {
 
     }  // calculateMuonEnergies
 
-    double MuonCaloEnergyTool::etaCorr(double eta) const {
+    double MuonCaloEnergyTool::etaCorr(double eta) {
         // measured energy* = measured energy + etaCorr(eta) * expected
 
         int eta_index = int(std::abs(eta) * (60. / 3.));
