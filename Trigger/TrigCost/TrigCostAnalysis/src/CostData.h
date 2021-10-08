@@ -79,6 +79,16 @@ class CostData {
     void setChainToAlgMap( const std::map<std::string, std::set<size_t>>& algToChains );
 
     /**
+     * @brief Getter of the chain to its unique alg names map.
+     */
+    const std::map<std::string, std::set<size_t>>& chainToUniqAlgMap() const;
+
+    /**
+     * @brief Set the chain to its unique alg names map.
+     */
+    void setChainToUniqAlgMap( const std::map<std::string, std::set<size_t>>& algToChains );
+
+    /**
      * @brief Getter of the sequence to alg idx map.
      */
     const std::map<std::string, std::set<size_t>>& sequencersMap() const;
@@ -182,7 +192,8 @@ class CostData {
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
     std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
     const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
-    const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of algorithm name to chains
+    const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of chain to algorithms idx
+    const std::map<std::string, std::set<size_t>>* m_chainToUniqAlgIdx; //!<Mapping of chain name to its unique algorithms
     const std::map<std::string, std::set<size_t>>* m_sequencers; //!<Mapping of sequence to algorithms
     const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains; //!<Set of seeded chains to monitor
 

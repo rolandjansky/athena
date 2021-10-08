@@ -13,7 +13,6 @@ log = logging.getLogger('RunTrigCostAnalysis.py')
 # Configure Cost Analysis algorithm
 def trigCostAnalysisCfg(flags, args, isMC=False):
   from TrigCostAnalysis.ROSToROB import ROSToROBMap
-  from Gaudi.Configuration import DEBUG
 
   acc = ComponentAccumulator()
 
@@ -36,7 +35,7 @@ def trigCostAnalysisCfg(flags, args, isMC=False):
     enhancedBiasWeighter.MCIgnoreGeneratorWeights = MCpayload.get('MCIgnoreGeneratorWeights')
 
   trigCostAnalysis = CompFactory.TrigCostAnalysis()
-  trigCostAnalysis.OutputLevel = DEBUG
+  trigCostAnalysis.OutputLevel = args.loglevel
   trigCostAnalysis.BaseEventWeight = args.baseWeight
   trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
   trigCostAnalysis.AlgToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
