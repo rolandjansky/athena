@@ -258,6 +258,24 @@ class JetChainConfiguration(ChainConfigurationBase):
             )
             preselChainDict['chainParts'] += [tmpChainDict]
 
+        # We need to pad by the legs not in the preselection expression
+        # otherwise the ComboHypo does not find the corresponding
+        # legs in the DecisionObject and kills the event
+        jetlegs = sum([p['signature'] in ["Jet","Bjet"] for p in self.chainPart])
+        padding = jetlegs-len(preselChainDict['chainParts'])
+        if padding>0:
+            preselChainDict['chainParts'][-1]['tboundary']='SHARED'
+            dummyLegPart = dict(preselCommonJetParts)
+            dummyLegPart.update(
+                {'L1threshold': 'FSNOSEED',
+                 'chainPartName': 'j0',
+                 'multiplicity': '1',
+                 'threshold': '0',
+                 'jvt':'',
+                 }
+            )
+            preselChainDict['chainParts'] += [dummyLegPart]*padding
+
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
