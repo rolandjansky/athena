@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import glob
 import logging
@@ -266,12 +266,13 @@ def main():
     # Run the tests
     logger.info('%s %s %s',25*'-',' Run AthDerivation Test ',25*'-')
     inputFile  = ( '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/{}'
-                   ''.format('AOD.14795494._005958.pool.root.1' if options.mode == 'mc' else 'data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1') )
+                   ''.format('AOD.14795494._005958.pool.root.1' if options.mode == 'mc' else 'data18_13TeV.00364292.physics_Main.merge.AOD.f1002_m2037._lb0163._0006.1') )
     extraArgs  = ( '--outputDAODFile pool.root --imf False --maxEvents 20 --reductionConf PHYSVAL --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); '
                    'from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "{}"; '
                    'from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); '
-                   'topSequence += CfgMgr.xAODMaker__DynVarFixerAlg("InDetTrackParticlesFixer", Containers = ["InDetTrackParticlesAux." ] )\''
-                   ''.format('BTagCalibRUN12-08-47' if options.mode == 'mc' else 'BTagCalibRUN12Onl-08-47') )
+                   'topSequence += CfgMgr.xAODMaker__DynVarFixerAlg("InDetTrackParticlesFixer", Containers = ["InDetTrackParticlesAux." ] ); '
+                   'topSequence += CfgMgr.xAODMaker__DynVarFixerAlg("BTaggingELFixer", Containers = ["BTagging_AntiKt4EMTopoAux." ] );\''
+                   ''.format('BTagCalibRUN12-08-49' if options.mode == 'mc' else 'BTagCalibRUN12Onl-08-49') )
 
     myprocesses = {}
     if not isPatchedOnly:
