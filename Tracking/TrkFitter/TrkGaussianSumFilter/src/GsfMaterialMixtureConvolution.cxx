@@ -11,6 +11,7 @@
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilterUtils/GsfConstants.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
@@ -49,10 +50,12 @@ Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
-  if (m_maximumNumberOfComponents > 16) {
-    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+  if (m_maximumNumberOfComponents > GSFConstants::maxNumberofStateComponents) {
+    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > "
+                  << GSFConstants::maxNumberofStateComponents);
     return StatusCode::FAILURE;
   }
+
   m_materialEffects = GsfCombinedMaterialEffects(
     m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;

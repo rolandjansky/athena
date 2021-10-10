@@ -63,11 +63,6 @@ public:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  //!< Retain for now redundant simplified material effects
-  virtual MultiComponentState simplifiedMaterialUpdate(
-    const MultiComponentState& multiComponentState,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace
