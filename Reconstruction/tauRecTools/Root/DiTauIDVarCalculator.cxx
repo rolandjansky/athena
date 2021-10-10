@@ -269,7 +269,6 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
   xDiTau.auxdecor< int >( "n_tracks_lead" ) = n_tracks(xDiTau, 0);
   xDiTau.auxdecor< int >( "n_tracks_subl" ) = n_tracks(xDiTau, 1);
   xDiTau.auxdecor< int >( "n_isotrack" ) = n_isotrack(xDiTau);
-  xDiTau.auxdecor< int >( "n_othertrack" ) = n_othertrack(xDiTau);
   xDiTau.auxdecor< float >( "R_track" ) = R_track(xDiTau);
   xDiTau.auxdecor< float >( "R_track_core" ) = R_track_core(xDiTau);
   xDiTau.auxdecor< float >( "R_track_all" ) = R_track_all(xDiTau);
@@ -518,7 +517,6 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator< float >  acc_f_subjets           ( "f_subjets"    );
   static const SG::AuxElement::Decorator< int >    acc_n_track             ( "n_track"      );
   static const SG::AuxElement::Decorator< int >    acc_n_isotrack          ( "n_isotrack"   );
-  static const SG::AuxElement::Decorator< int >    acc_n_othertrack        ( "n_othertrack" );
   static const SG::AuxElement::Decorator< float >  acc_R_track             ( "R_track"      );
   static const SG::AuxElement::Decorator< float >  acc_R_track_core        ( "R_track_core" );
   static const SG::AuxElement::Decorator< float >  acc_R_track_all         ( "R_track_all"  );
@@ -568,7 +566,6 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   acc_f_subjets        (xDiTau) = f_subjets(*origDiTau);           
   acc_n_track          (xDiTau) = n_track(*origDiTau);               
   acc_n_isotrack       (xDiTau) = n_isotrack(*origDiTau);         
-  acc_n_othertrack     (xDiTau) = n_othertrack(*origDiTau);     
   acc_R_track          (xDiTau) = R_track(*origDiTau);               
   acc_R_track_core     (xDiTau) = R_track_core(*origDiTau);     
   acc_R_track_all      (xDiTau) = R_track_all(*origDiTau);       
@@ -1015,12 +1012,6 @@ int DiTauIDVarCalculator::n_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) co
 int DiTauIDVarCalculator::n_isotrack(const xAOD::DiTauJet& xDiTau) const
 { 
   return xDiTau.nIsoTracks();
-}
-
-//______________________________________________________________________________;
-int DiTauIDVarCalculator::n_othertrack(const xAOD::DiTauJet& xDiTau) const
-{ 
-  return xDiTau.nOtherTracks();
 }
 
 //______________________________________________________________________________;

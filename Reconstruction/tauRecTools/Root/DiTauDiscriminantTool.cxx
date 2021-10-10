@@ -75,7 +75,6 @@ StatusCode DiTauDiscriminantTool::initialize()
        {"n_tracks_lead", new float(0)},
        {"n_tracks_subl", new float(0)},
        {"n_isotrack", new float(0)},
-       {"n_othertrack", new float(0)},
        {"R_track", new float(0)},
        {"R_track_core", new float(0)},
        {"R_track_all", new float(0)},
@@ -231,7 +230,6 @@ void DiTauDiscriminantTool::setIDVariables(const xAOD::DiTauJet& xDiTau)
     setVar("n_tracks_lead") = (float) xDiTau.auxdata<int>("n_tracks_lead");
     setVar("n_tracks_subl") = (float) xDiTau.auxdata<int>("n_tracks_subl");
     setVar("n_isotrack") = (float) xDiTau.auxdata<int>("n_isotrack");
-    setVar("n_othertrack") = (float) xDiTau.auxdata<int>("n_othertrack");
     setVar("R_track") = xDiTau.auxdata<float>("R_track");
     setVar("R_track_core") = xDiTau.auxdata<float>("R_track_core");
     setVar("R_track_all") = xDiTau.auxdata<float>("R_track_all");
